@@ -1,0 +1,61 @@
+﻿<link type="text/css" rel="stylesheet" href="../../assets/report.css">
+<div class="report">
+    <table>
+        <tbody>
+            <tr>
+                <td>
+                    <h1>정산내역서</h1>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <p></p>
+    <table>
+        <tbody>
+            <tr>
+                <td class="label text-justify w20%">제 목</td>
+                <td colspan="3">{{Title}}</td>
+            </tr>
+            <tr>
+                <td class="label text-justify w20%">작 성 자</td>
+                <td class="w30%">{{CreatorName}}</td>
+                <td class="label text-justify w20%">작 성 일</td>
+                <td class="w30%">{{CreatedAt}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <p></p>
+    <table>
+        <thead>
+            <tr>
+                <th class="label" colspan="6">
+                    <h3>정산 내용</h3>
+                </th>
+            </tr>
+            <tr>
+                <td class="label text-center" style="width: 10%;">일자</td>
+                <td class="label text-center" style="width: 30%;">지급내역</td>
+                <td class="label text-center" style="width: 20%;">지급처명</td>
+                <td class="label text-center" style="width: 15%;">금액</td>
+                <td class="label text-center" style="width: 10%;">세액</td>
+                <td class="label text-center" style="width: 15%;">비고</td>
+            </tr>
+        </thead>
+        <tbody>
+            {{#DetailItems1}}
+            <tr>
+                <td class="text-center">{{WorkDate}}</td>
+                <td>{{Standard}}</td>
+                <td>{{PaymentToName}}</td>
+                <td>{{Amount}}</td>
+                <td>{{Surtax}}</td>
+                <td>{{DetailContent}}</td>
+            </tr>
+            {{/DetailItems1}}
+        </tbody>
+    </table>
+    <p></p>
+    <footer>
+        <img src="{{Logo}}" style="max-width: 48px;" />
+    </footer>
+</div>

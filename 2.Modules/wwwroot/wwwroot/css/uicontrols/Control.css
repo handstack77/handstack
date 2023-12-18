@@ -1,0 +1,353 @@
+/*calendar*/
+.ui-calendarWrapper {
+	width: 200px;
+	border: solid 2px #999;
+	padding: 5px;
+	background-color: #fff;
+	box-shadow: 3px 3px 5px rgba(0,0,0,0.3);
+}
+
+	.ui-calendarWrapper .uiCalendarHeader {
+		position: relative;
+		height: 30px;
+		margin-left: 5px;
+	}
+
+	.ui-calendarWrapper .uiCalendarTable table {
+		width: 100%;
+	}
+
+		.ui-calendarWrapper .uiCalendarTable table thead th {
+			border-bottom: 0;
+			height: 25px;
+		}
+
+		.ui-calendarWrapper .uiCalendarTable table tbody td {
+			text-align: center;
+			border-bottom: 0;
+			font-size: 11px;
+			cursor: pointer;
+		}
+
+			.ui-calendarWrapper .uiCalendarTable table tbody td:hover {
+				background-color: #d2e3fa;
+			}
+
+			.ui-calendarWrapper .uiCalendarTable table tbody td.holiday {
+				color: #f90b0b;
+			}
+
+			.ui-calendarWrapper .uiCalendarTable table tbody td.today {
+				background-color: #4379c5;
+				color: #fff;
+			}
+
+	.ui-calendarWrapper .uiCalendarHeader span.calendarClose {
+		position: absolute;
+		top: 2px;
+		right: 5px;
+		width: 18px;
+		height: 18px;
+		text-align: right;
+		cursor: pointer;
+	}
+
+/*tooltip*/
+.tooltip {
+	display: none;
+	border: solid 1px #c1c1c1;
+	text-align: center;
+	background-color: #fff;
+	line-height: 22px;
+	box-shadow: 2px 3px 0 rgba(0,0,0,0.05);
+}
+
+/*loading*/
+#loadingPage {
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	height: 100%;
+	width: 100%;
+}
+
+	#loadingPage span {
+		display: block;
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		width: 64px;
+		height: 64px;
+		/*background: url("/img/common/loading_rnd_64.png") 0 0 no-repeat;*/
+		margin: -32px 0 0 -32px;
+	}
+
+		#loadingPage span.img32 {
+			background-size: 32px 32px;
+			margin: -16px 0 0 -16px;
+		}
+
+/*dialog*/
+#basic-modal-content {
+	display: none;
+}
+
+/* Overlay */
+#alertmodal-overlay {
+/*	background-color: #000;
+	cursor: default;
+	opacity: 1 !important;
+    backdrop-filter: blur(2px) grayscale(90%);
+    -webkit-backdrop-filter: blur(2px) grayscale(90%);
+    background: rgba(0, 0, 0, .1);*/
+}
+
+/* Container */
+#alertmodal-container {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 320px;
+	z-index: 2002;
+	color: #bbb;
+	display: -webkit-box;
+	-webkit-box-pack: center;
+	-webkit-box-align: center;
+}
+
+	#alertmodal-container .alertmodal-data {
+		width: 100%;
+		padding: 0;
+		margin: 0;
+	}
+
+		#alertmodal-container .alertmodal-data .msg {
+			position: absolute;
+			bottom: 45px;
+			left: 10px;
+			font-size: 11px;
+			color: #555;
+			background-size: 14px 14px;
+			padding-left: 17px;
+			/*background: url("/img/icon/ico_h_alert.png") 0 center no-repeat;*/
+		}
+
+		#alertmodal-container .alertmodal-data .btn-area {
+			position: absolute;
+			bottom: 2px;
+			width: 100%;
+			height: 40px;
+			line-height: 40px;
+			text-align: center;
+            margin-bottom: 12px;
+            padding-top: 4px;
+		}
+
+			#alertmodal-container .alertmodal-data .btn-area input:last-child {
+				margin-left: 3px;
+			}
+
+		#alertmodal-container .alertmodal-data dl {
+			margin: 25px 15px 0 15px;
+		}
+
+			#alertmodal-container .alertmodal-data dl:after {
+				content: ".";
+				clear: both;
+				height: 0;
+				visibility: hidden;
+				display: block;
+			}
+
+		#alertmodal-container .alertmodal-data dt {
+			width: 86px;
+			float: left;
+		}
+
+			#alertmodal-container .alertmodal-data dt span.icon {
+				display: inline-block;
+				width: 82px;
+				height: 72px;
+				/*background: url("/img/icon/ico_alert.png") 0 0 no-repeat;*/
+			}
+
+				#alertmodal-container .alertmodal-data dt span.icon.warning {
+					background-position: 0 0;
+				}
+
+				#alertmodal-container .alertmodal-data dt span.icon.question {
+					background-position: 0 -100px;
+				}
+
+				#alertmodal-container .alertmodal-data dt span.icon.error {
+					background-position: 0 -200px;
+				}
+
+				#alertmodal-container .alertmodal-data dt span.icon.information {
+					background-position: 0 -300px;
+				}
+
+		#alertmodal-container .alertmodal-data dd {
+			float: left;
+			width: 254px;
+		}
+
+			#alertmodal-container .alertmodal-data dd div.scroll {
+				overflow-y: auto;
+				width: 100%;
+			}
+
+			#alertmodal-container .alertmodal-data dd div {
+				color: #000;
+				margin: 0;
+				padding: 0;
+			}
+
+			#alertmodal-container .alertmodal-data dd p {
+				line-height: 18px;
+				color: #999;
+				padding-top: 5px;
+			}
+
+	#alertmodal-container code {
+		background: #141414;
+		border-left: 3px solid #65B43D;
+		color: #bbb;
+		display: block;
+		font-size: 12px;
+		margin-bottom: 12px;
+		padding: 4px 6px 6px;
+	}
+
+	#alertmodal-container a.modalCloseImg {
+		background: url(/img/btn/btn_popClose.png) no-repeat;
+		width: 18px;
+		height: 18px;
+		z-index: 4200;
+		position: absolute;
+		top: 15px;
+		right: 10px;
+		cursor: pointer;
+	}
+
+	#alertmodal-container h3 {
+		color: #84b8d9;
+		font-size: 16px;
+	}
+
+.alertmodal-wrap {
+	position: static;
+	min-width: 320px;
+	width: 320px;
+	height: 100px;
+	background-color: #fff;
+	border: 5px solid #1b293a;
+	box-shadow: 5px 5px 10px rgba(0,0,0,0.3);
+}
+
+/* Overlay */
+#simplemodal-overlay {
+	background-color: #000;
+	cursor: default;
+}
+
+/* modalPopup */
+#simplemodal-container {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 320px;
+	height: 100px;
+	z-index: 1002;
+	color: #bbb;
+	display: -webkit-box;
+	-webkit-box-pack: center;
+	-webkit-box-align: center;
+}
+
+	#simplemodal-container .simplemodal-data {
+		padding: 0;
+		margin: 0;
+	}
+
+		#simplemodal-container .simplemodal-data h3 {
+			padding-left: 10px;
+			background-color: #f9f9f9;
+			color: #333;
+			border-bottom: solid 1px #e9e9e9;
+			font-size: 16px;
+			height: 38px;
+		}
+
+			#simplemodal-container .simplemodal-data h3 span {
+				line-height: 38px;
+				font-weight: bold;
+			}
+
+		#simplemodal-container .simplemodal-data p {
+			padding: 10px;
+			color: #777;
+		}
+
+		#simplemodal-container .simplemodal-data .msg {
+			position: absolute;
+			bottom: 45px;
+			left: 10px;
+			font-size: 11px;
+			color: #555;
+			background-size: 14px 14px;
+			padding-left: 17px;
+			/*background: url("/img/icon/ico_h_alert.png") 0 center no-repeat;*/
+		}
+
+		#simplemodal-container .simplemodal-data .cont {
+			padding: 10px;
+		}
+
+		#simplemodal-container .simplemodal-data .btn-area {
+			position: absolute;
+			bottom: 0;
+			width: 100%;
+			height: 40px;
+			line-height: 40px;
+			text-align: center;
+			background-color: #f7f7f7;
+			border-top: dashed 1px #ccc;
+		}
+
+
+
+	#simplemodal-container code {
+		background: #141414;
+		border-left: 3px solid #65B43D;
+		color: #bbb;
+		display: block;
+		font-size: 12px;
+		margin-bottom: 12px;
+		padding: 4px 6px 6px;
+	}
+
+	#simplemodal-container a.modalCloseImg {
+		background: url(/img/btn/btn_popClose.png) no-repeat;
+		width: 18px;
+		height: 18px;
+		z-index: 3200;
+		position: absolute;
+		top: 15px;
+		right: 10px;
+		cursor: pointer;
+	}
+
+.simplemodal-wrap {
+	position: static;
+	min-width: 320px;
+	width: 320px;
+	height: 500px;
+	background-color: #fff;
+	border: solid 1px #777;
+}
+
+#simplemodal-container iframe {
+	margin: 0;
+	padding: 0;
+}

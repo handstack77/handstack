@@ -1,0 +1,39 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>단일 파일 업로드</title>
+</head>
+<body style="display: none;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div class="page">
+            <div class="page-wrapper">
+                <div class="page-body">
+                    <div class="container-fluid">
+                        <div class="row row-cards">
+                            <div class="col">
+                                <div class="card">
+                                    <div class="empty">
+                                        <div id="divAttachFile" class="fileList">
+                                        </div>
+                                        <div class="fileInfo">
+                                            <div id="divFileInfos">
+                                            </div>
+                                        </div>
+                                        <div id="divProfilePicture" class="empty-title"></div>
+                                        <div class="empty-action">
+                                            <button type="button" id="btnUpload" syn-events="['click']" class="btn"><i class="f:18 ti ti-upload mr:4"></i> 파일 업로드</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <syn_fileclient id="synFileClient" syn-options="{}"></syn_fileclient>
+    </form>
+    <script src="/js/syn.loader.tr.js"></script>
+</body>
+</html>

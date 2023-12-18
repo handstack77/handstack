@@ -1,0 +1,78 @@
+﻿{
+    "Comment": "기초코드 데이터",
+    "CodeColumnID": "CodeID",
+    "ValueColumnID": "CodeValue",
+    "CreatedAt": "2012-03-22 오후 2:00:00",
+    "Scheme": [
+        {
+            "ColumnID": "SelectYN",
+            "ColumnText": "기본선택여부",
+            "HiddenYN": true
+        },
+        {
+            "ColumnID": "LocaleID",
+            "ColumnText": "언어권ID",
+            "HiddenYN": true
+        },
+        {
+            "ColumnID": "CodeID",
+            "ColumnText": "코드ID",
+            "HiddenYN": false
+        },
+        {
+            "ColumnID": "CodeValue",
+            "ColumnText": "코드값",
+            "HiddenYN": false
+        }
+    ],
+    "DataSource": [
+        {
+            "CodeID": "B1",
+            "CodeValue": "업무 환경설정 JSON",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "B2",
+            "CodeValue": "업무 Markdown",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "D1",
+            "CodeValue": "데이터 환경설정 JSON",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "D2",
+            "CodeValue": "데이터 Markdown",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "U1",
+            "CodeValue": "화면 HTML",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "U2",
+            "CodeValue": "화면 Javascript",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "U3",
+            "CodeValue": "화면 거래설정 Json",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "U4",
+            "CodeValue": "화면 Markdown",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        }
+    ]
+}

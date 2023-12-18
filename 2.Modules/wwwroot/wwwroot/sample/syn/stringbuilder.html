@@ -1,0 +1,73 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>stringbuilder</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/lib/highlight.js@11.6.0/styles/atom-one-dark.min.css">
+</head>
+<body hidden style="display: none;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div id="wrap" class="sub">
+            <div class="bx_sep">
+                <header>
+                    syn.stringbuilder (syn.$sb)
+                </header>
+                <div class="tb_ly_a">
+                    <table>
+                        <colgroup>
+                            <col style="width:25%" />
+                            <col />
+                        </colgroup>
+                        <tr>
+                            <th scope="col">
+                                $sb.append
+                            </th>
+                            <td>
+                                <input type="button" id="btnAppend" value="문자열 추가" syn-events="['click']" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="col">
+                                $sb.appendFormat
+                            </th>
+                            <td>
+                                <input type="button" id="btnAppendFormat" value="포맷 문자열 추가" syn-events="['click']" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="col">
+                                $sb.convertToArray
+                            </th>
+                            <td>
+                                <input type="text" id="txtConvertToArray" value="" />
+                                <input type="button" id="btnConvertToArray" value="ConvertToArray" syn-events="['click']" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="col">
+                                $sb.clear
+                            </th>
+                            <td>
+                                <input type="button" id="btnClear" value="문자열 삭제" syn-events="['click']" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="col">
+                                $sb.toString
+                            </th>
+                            <td>
+                                <input type="text" id="txtToString" value="" />
+                                <input type="button" id="btnToString" value="문자열 출력" syn-events="['click']" />
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </form>
+    <script src="/lib/highlight.js@11.6.0/highlight.min.js"></script>
+    <script src="/lib/showdownjs@2.1.0/showdown.min.js"></script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

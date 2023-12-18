@@ -1,0 +1,227 @@
+﻿<html>
+<head>
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 0;
+        }
+
+        html {
+            font-family: sans-serif;
+            font-size: 14px;
+        }
+
+        body {
+            margin: 0;
+        }
+
+        #sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 297mm;
+            width: 60mm;
+            background-color: orange;
+            color: white;
+        }
+
+        #heading {
+            background-color: black;
+            padding-bottom: 50mm;
+        }
+
+        h1 {
+            font-family: monospace;
+            font-size: 30px;
+            margin: 0;
+            margin-top: 30px;
+            padding: 20px;
+        }
+
+        h2 {
+            font-size: 24px;
+            letter-spacing: 3px;
+            font-weight: normal;
+            margin: 0;
+            padding: 0 20px;
+        }
+
+        #company {
+            position: absolute;
+            color: black;
+            bottom: 0;
+            left: 0;
+            padding: 0 0 20px 20px;
+            font-size: 15px;
+            font-weight: bold;
+            line-height: 26px;
+            letter-spacing: 1.4px;
+        }
+
+            #company a {
+                text-decoration: none;
+                font-weight: normal;
+                font-size: 13px;
+                letter-spacing: 0;
+                color: white;
+            }
+
+        #menu {
+            margin: 3mm 20mm 3mm 60mm;
+            height: 290mm;
+            box-sizing: border-box;
+        }
+
+        #columns {
+            column-count: 2;
+        }
+
+        .section {
+            width: 60mm;
+            padding: 0 6mm;
+        }
+
+        h3 {
+            font-size: 25px;
+            margin-top: 20px;
+        }
+
+        h4 {
+            clear: both;
+            font-weight: normal;
+        }
+
+        .price {
+            display: block;
+            float: right;
+            color: gray;
+            line-height: 28px;
+        }
+
+        .title {
+            line-height: 28px;
+            font-size: 24px;
+            font-family: monospace;
+        }
+
+        .description {
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="sidebar">
+        <div id="heading">
+            <h1>My Place</h1>
+            <h2>Menu</h2>
+        </div>
+
+        <div id="company">
+            <div>125 Second Ave</div>
+            <div></div>
+            <div>Waterside</div>
+            <div><a href="mailto:myplace@example.com">myplace@example.com</a></div>
+        </div>
+    </div>
+
+
+    <div id="menu">
+        <div id="columns">
+            <div class="section">
+                <h3>Breakfast</h3>
+
+                <div>
+                    <h4>
+                        <span class="price">$10.00</span>
+                        <span class="title">Toast with jam</span>
+                    </h4>
+                    <div class="description">Ask about our delicious array of fruit jams</div>
+                </div>
+
+                <div>
+                    <h4>
+                        <span class="price">$9.20</span>
+                        <span class="title">Vegemite on sourdough</span>
+                    </h4>
+                    <div class="description">Who can resist our vegemite laden bread</div>
+                </div>
+
+                <div>
+                    <h4>
+                        <span class="price">$15.00</span>
+                        <span class="title">Eggs your way</span>
+                    </h4>
+                    <div class="description">Choose from fried, poached or scrambled</div>
+                </div>
+
+                <div>
+                    <h4>
+                        <span class="price">$5.80</span>
+                        <span class="title">Porridge</span>
+                    </h4>
+                    <div class="description">Simply irresistible with berries</div>
+                </div>
+
+                <div>
+                    <h4>
+                        <span class="price">$18.00</span>
+                        <span class="title">Big breakfast</span>
+                    </h4>
+                    <div class="description">Sausages, eggs, toast and mushroom goodness</div>
+                </div>
+
+                <div>
+                    <h4>
+                        <span class="price">$14.00</span>
+                        <span class="title">Pancakes</span>
+                    </h4>
+                    <div class="description">Served with ice-cream on top</div>
+                </div>
+
+                <div>
+                    <h4>
+                        <span class="price">$12.00</span>
+                        <span class="title">French toast</span>
+                    </h4>
+                    <div class="description">With the very best maple syrup</div>
+                </div>
+            </div>
+            <div class="section">
+                <h3>Lunch</h3>
+
+                <div>
+                    <h4>
+                        <span class="price">$19.00</span>
+                        <span class="title">Chicken burger</span>
+                    </h4>
+                    <div class="description">Yummy chicken piece on a bun</div>
+                </div>
+
+                <div>
+                    <h4>
+                        <span class="price">$3.99</span>
+                        <span class="title">Sandwich</span>
+                    </h4>
+                    <div class="description">Choice of fillings including cucumber</div>
+                </div>
+
+                <div>
+                    <h4>
+                        <span class="price">$15.00</span>
+                        <span class="title">Vegetarian curry</span>
+                    </h4>
+                    <div class="description">Not too hot, not too mild</div>
+                </div>
+
+                <div>
+                    <h4>
+                        <span class="price">$9.00</span>
+                        <span class="title">Chips</span>
+                    </h4>
+                    <div class="description">Get healthy with our sweet-potato fries</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

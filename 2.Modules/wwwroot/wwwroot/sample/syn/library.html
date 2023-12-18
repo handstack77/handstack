@@ -1,0 +1,475 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>library</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/lib/highlight.js@11.6.0/styles/atom-one-dark.min.css">
+</head>
+<body hidden style="display: none;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="mt-3">syn.$l: 공통 라이브러리 기능을 제공합니다.</h1>
+
+                <div class="card">
+                    <div class="card-status-top bg-red"></div>
+                    <div class="card-header">
+                        <h3 class="card-title">속성</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.version</label>
+                                <input type="text" id="txt_version" class="form-control">
+                                <div class="form-text">
+                                    $library version을 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-status-top bg-red"></div>
+                    <div class="card-header">
+                        <h3 class="card-title">메서드</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.guid()</label>
+                                <input type="text" id="txt_guid" class="form-control" />
+                                <button type="button" id="btn_guid" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    GUID 규칙을 준수 하는 고유 ID를 조회합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.stringToArrayBuffer()</label>
+                                <input type="text" id="txt_stringToArrayBuffer" class="form-control" />
+                                <button type="button" id="btn_stringToArrayBuffer" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    문자열을 ArrayBuffer로 변환홥니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.arrayBufferToString()</label>
+                                <input type="text" id="txt_arrayBufferToString" class="form-control" />
+                                <button type="button" id="btn_arrayBufferToString" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    ArrayBuffer을 문자열로 변환홥니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.random()</label>
+                                <input type="text" id="txt_random" class="form-control" />
+                                <button type="button" id="btn_random" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <button type="button" id="btn_random1" class="mt-2 btn btn-primary" syn-events="['click']">32 길이 확인</button>
+                                <button type="button" id="btn_random2" class="mt-2 btn btn-primary" syn-events="['click']">소문자 확인</button>
+                                <div class="form-text">
+                                    기본값 8자리의 랜덤 문자열을 조회합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.dispatchClick()</label>
+                                <button type="button" id="btn_dispatchClick" class="mt-2 btn btn-primary" syn-events="['click']">소문자 확인 버튼 클릭</button>
+                                <div class="form-text">
+                                    지정된 노드에 마우스의 클릭 이벤트를 수행합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.addEvent()</label>
+                                <input type="text" id="txt_addEvent" class="form-control" />
+                                <button type="button" id="btn_addEvent" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    지정된 노드에 이벤트 핸들러를 추가합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.addEvents()</label>
+                                <input type="text" id="txt_addEvents" class="form-control" />
+                                <button type="button" id="btn_addEvents" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    지정된 노드들에 동일한 이벤트 핸들러를 추가합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div id="div_addLive" class="col-12">
+                                <label class="form-label">syn.$l.addLive()</label>
+                                <button type="button" id="btn_addLive" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <button type="button" id="btn_addLiveElement" class="mt-2 btn btn-primary" syn-events="['click']">txt_addLive 추가 확인</button>
+                                <div class="form-text">
+                                    지정된 ID에 Live 이벤트 핸들러를 추가합니다. 동적으로 추가되는 노드에 반응합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.removeEvent()</label>
+                                <button type="button" id="btn_removeEvent" class="mt-2 btn btn-primary" syn-events="['click']">txt_addEvent change 이벤트 삭제 확인</button>
+                                <div class="form-text">
+                                    지정된 노드에 이벤트 핸들러를 삭제합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.hasEvent()</label>
+                                <input type="text" id="txt_hasEvent" class="form-control" />
+                                <button type="button" id="btn_hasEvent" class="mt-2 btn btn-primary" syn-events="['click']">txt_addEvent change 이벤트 핸들러 확인</button>
+                                <div class="form-text">
+                                    지정된 노드에 이벤트 핸들러가 있는지 확인합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.trigger()</label>
+                                <input type="text" id="txt_trigger" class="form-control" />
+                                <button type="button" id="btn_trigger" class="mt-2 btn btn-primary" syn-events="['click']">txt_addEvent change 이벤트 핸들러 확인</button>
+                                <div class="form-text">
+                                    지정된 노드에 적용된 이벤트 핸들러가 있는지 확인 후 실행합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.triggerEvent()</label>
+                                <input type="text" id="txt_triggerEvent" class="form-control" />
+                                <button type="button" id="btn_triggerEvent" class="mt-2 btn btn-primary" syn-events="['click']">txt_addEvent change 이벤트 핸들러 확인</button>
+                                <div class="form-text">
+                                    지정된 노드에 사용자 이벤트를 실행합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.get()</label>
+                                <input type="text" id="txt_get" class="form-control" />
+                                <button type="button" id="btn_get" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    ID 식별자로 단일 노드 또는 여러 노드들을 조회합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.querySelector()</label>
+                                <input type="text" id="txt_querySelector" class="form-control" />
+                                <button type="button" id="btn_querySelector" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    querySelector로 단일 노드 또는 여러 노드들을 조회합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.getTagName()</label>
+                                <input type="text" id="txt_getTagName" class="form-control" />
+                                <button type="button" id="btn_getTagName" class="mt-2 btn btn-primary" syn-events="['click']">'button', 'input' 개수 확인</button>
+                                <div class="form-text">
+                                    노드 이름으로 여러 노드들을 조회합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.toEnumText()</label>
+                                <input type="text" id="txt_toEnumText" class="form-control" />
+                                <button type="button" id="btn_toEnumText" class="mt-2 btn btn-primary" syn-events="['click']">syn.$v.valueType 확인</button>
+                                <div class="form-text">
+                                    enum 열거자의 값으로 키를 조회합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.text2Json()</label>
+                                <textarea id="txt_text2Json" class="form-control" rows="5">AAA,BBB,CCC
+111,222,333
+444,555,666</textarea>
+                                <button type="button" id="btn_text2Json" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    CSV 문자열을 JSON 객체로 변환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.json2Text()</label>
+                                <textarea id="txt_json2Text" class="form-control" rows="5">[
+  {
+    "AAA": "111",
+    "BBB": "222",
+    "CCC": "333"
+  },
+  {
+    "AAA": "444",
+    "BBB": "555",
+    "CCC": "666"
+  }
+]</textarea>
+                                <button type="button" id="btn_json2Text" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    JSON 객체를 CSV 문자열로 변환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.flat2Nested(), syn.$l.nested2Flat(), syn.$l.findNestedByID()</label>
+                                <textarea id="txt_jsontext" class="form-control" rows="5">[ 
+	{
+	    "id": 0,
+	    "parentId": 6,
+	    "typeId": 0,
+	    "field0": "London",
+	    "field2": 5546919.064936,
+	    "field3": 12667955.381901
+	},
+	{
+	    "id": 1,
+	    "parentId": 7,
+	    "typeId": 0,
+	    "field0": "New York",
+	    "field2": 2297941.24812,
+	    "field3": 7451762.537854
+	},
+	{
+	    "id": 2,
+	    "parentId": 5,
+	    "typeId": 0,
+	    "field0": "Dubai",
+	    "field2": 9832458.096596,
+	    "field3": 32491698.248662
+	},
+	{
+	    "id": 3,
+	    "parentId": 6,
+	    "typeId": 0,
+	    "field0": "Paris",
+	    "field2": 22700818.88167,
+	    "field3": 76902823.758745
+	},
+	{
+	    "id": 4,
+	    "parentId": 8,
+	    "typeId": 0,
+	    "field0": "Stockholm",
+	    "field2": 3742748.296602,
+	    "field3": 10250567.674588
+	},
+	{
+	    "id": 5,
+	    "parentId": 9,
+	    "typeId": 0,
+	    "field0": "Middle East",
+	    "field2": 9832458.096596,
+	    "field3": 32491698.248662
+	},
+	{
+	    "id": 6,
+	    "parentId": 9,
+	    "typeId": 0,
+	    "field0": "Europe",
+	    "field2": 31990486.243208,
+	    "field3": 99821346.815234
+	},
+	{
+	    "id": 7,
+	    "parentId": 9,
+	    "typeId": 0,
+	    "field0": "NorthAmerica",
+	    "field2": 2297941.24812,
+	    "field3": 7451762.537854
+	},
+	{
+	    "id": 8,
+	    "parentId": 6,
+	    "typeId": 0,
+	    "field0": "Scandinavia",
+	    "field2": 3742748.296602,
+	    "field3": 10250567.674588
+	},
+	{
+	    "id": 9,
+	    "parentId": null,
+	    "typeId": 0,
+	    "field0": "World",
+	    "field2": 44120885.587924,
+	    "field3": 139764807.60175
+	},
+	{
+	    "id": 10,
+	    "parentId": 0,
+	    "typeId": 1,
+	    "field0": "BOND-1001",
+	    "field2": 3985.331955,
+	    "node2": 2,
+	    "field3": 20567.245997,
+	    "node3": 3,
+	    "field4": 1
+	}
+]</textarea>
+                                <textarea type="text" id="txt_nestedresult" class="form-control mt-2" rows="5"></textarea>
+                                <button type="button" id="btn_nested2Flat" class="mt-2 btn btn-primary" syn-events="['click']">nested2Flat 확인</button>
+                                <button type="button" id="btn_flat2Nested" class="mt-2 btn btn-primary" syn-events="['click']">flat2Nested 확인</button>
+                                <button type="button" id="btn_findNestedByID" class="mt-2 btn btn-primary" syn-events="['click']">findNestedByID 확인</button>
+                                <div class="form-text">
+                                    Tree 구조의 메뉴, 조직도 개발을 위한 JSON 객체 데이터 탐색 기능을 제공합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.deepFreeze()</label>
+                                <input type="text" id="txt_deepFreeze" class="form-control" />
+                                <button type="button" id="btn_deepFreeze" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    JSON 객체의 속성을 수정하지 못하도록 고정합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.createBlob()</label>
+                                <input type="text" id="txt_createBlob" class="form-control" />
+                                <button type="button" id="btn_createBlob" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    blob 정보를 생성합니다
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.dataUriToBlob()</label>
+                                <input type="text" id="txt_dataUriToBlob" class="form-control" />
+                                <button type="button" id="btn_dataUriToBlob" class="mt-2 btn btn-primary" syn-events="['click']">data:text/plain;base64,aGVsbG93b3JsZA== 확인</button>
+                                <div class="form-text">
+                                    DataUri 데이터로 blob 정보를 변환합니다
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.dataUriToText()</label>
+                                <input type="text" id="txt_dataUriToText" class="form-control" />
+                                <button type="button" id="btn_dataUriToText" class="mt-2 btn btn-primary" syn-events="['click']">data:text/plain;base64,aGVsbG93b3JsZA== 확인</button>
+                                <div class="form-text">
+                                    DataUri 데이터로 문자열 정보를 조회합니다
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.blobToDataUri()</label>
+                                <input type="text" id="txt_blobToDataUri" class="form-control" />
+                                <button type="button" id="btn_blobToDataUri" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    blob 정보를 DataUri 데이터로 변환합니다
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.blobToDownload()</label>
+                                <button type="button" id="btn_blobToDownload" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    blob 정보를 파일로 다운로드 합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.blobUrlToBlob()</label>
+                                <input type="text" id="txt_blobUrlToBlob" class="form-control" />
+                                <button type="button" id="btn_blobUrlToBlob" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    blob 주소 정보로 blob 정보를 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.blobUrlToDataUri()</label>
+                                <input type="text" id="txt_blobUrlToDataUri" class="form-control" />
+                                <button type="button" id="btn_blobUrlToDataUri" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    blob 주소 정보로 DataUri 데이터를 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.blobToBase64()</label>
+                                <input type="text" id="txt_blobToBase64" class="form-control" />
+                                <button type="button" id="btn_blobToBase64" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    blob 정보를 base64 문자열로 변환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.base64ToBlob()</label>
+                                <input type="text" id="txt_base64ToBlob" class="form-control" />
+                                <button type="button" id="btn_base64ToBlob" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    base64 문자열을 blob 정보로 변환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.blobToFile()</label>
+                                <input type="text" id="txt_blobToFile" class="form-control" />
+                                <button type="button" id="btn_blobToFile" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    blob 정보를 파일 정보로 변환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.fileToBase64()</label>
+                                <input type="text" id="txt_fileToBase64" class="form-control" />
+                                <button type="button" id="btn_fileToBase64" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    파일 객체를 base64 문자열로 변환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$l.fileToBlob()</label>
+                                <input type="text" id="txt_fileToBlob" class="form-control" />
+                                <button type="button" id="btn_fileToBlob" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    파일 정보를 blob 정보로 변환합니다.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/lib/highlight.js@11.6.0/highlight.min.js"></script>
+    <script src="/lib/showdownjs@2.1.0/showdown.min.js"></script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

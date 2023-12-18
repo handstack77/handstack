@@ -1,0 +1,69 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/lib/highlight.js@11.6.0/styles/atom-one-dark.min.css">
+    <!-- <script src="/assets/lib/fingerprintjs-3.3.6/fp.min.js"></script> -->
+</head>
+<body hidden style="display: none;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <pre><text>
+# syn.browser (syn.$b)
+웹 브라우저의 정보를 확인합니다.
+
+## 속성
+                </text></pre>
+
+                <pre><code language="js">
+'use strict';
+let $helloworld = {
+    event: {
+        btnHelloWorld_click: function () {
+            alert('반갑습니다 !');
+        }
+    }
+}</code></pre>
+                <pre><text>
+Showdown Tutorial
+=================
+
+This is a showdown tutorial.
+Check out this neat program I wrote:
+this is a :smile: smile emoji
+| h1    |    h2   |      h3 |
+|:------|:-------:|--------:|
+| 100   | [a][1]  | ![b][2] |
+| *foo* | **bar** | ~~baz~~ |
+
+- [x] This task is done
+- [ ] This is still pending
+
+```
+x = 0
+x = 2 + 2
+what is x
+```
+                </text></pre>
+
+                <div class="row b:1|solid|#e5e5e5">
+                    <div class="col-12">
+                        <div>
+                            $crytography.base64Encode
+                        </div>
+                        <div>
+                            <input type="text" id="txtBase64Encode">
+                            <input type="button" id="btnBase64Encode" value="변환" syn-events="['click']" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/lib/highlight.js@11.6.0/highlight.min.js"></script>
+    <script src="/lib/showdownjs@2.1.0/showdown.min.js"></script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

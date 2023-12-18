@@ -1,0 +1,65 @@
+﻿<link type="text/css" rel="stylesheet" href="../../assets/report.css">
+<div class="report">
+    <table>
+        <tbody>
+            <tr>
+                <td>
+                    <h1>업무명세서</h1>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <p></p>
+    <table>
+        <tbody>
+            <tr>
+                <td class="label text-justify w15%">제 목</td>
+                <td colspan="3">{{Title}}</td>
+            </tr>
+            <tr>
+                <td class="label text-justify w15%">직 무 개 요</td>
+                <td class="w85% h100px" colspan="3">{{ProgressText}}</td>
+            </tr>
+            <tr>
+                <td class="label text-justify w15%">작 성 자</td>
+                <td class="w35%">{{CreatorName}}</td>
+                <td class="label text-justify w15%">작 성 일</td>
+                <td class="w35%">{{CreatedAt}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <p></p>
+    <table>
+        <thead>
+            <tr>
+                <th class="label" colspan="6">
+                    <h3>자격 요건</h3>
+                </th>
+            </tr>
+            <tr>
+                <td class="label text-center" style="width: 5%;">No</td>
+                <td class="label text-center" style="width: 10%;">구분</td>
+                <td class="label text-center" style="width: 40%;">업무</td>
+                <td class="label text-center" style="width: 15%;">난이도</td>
+                <td class="label text-center" style="width: 15%;">중요도</td>
+                <td class="label text-center" style="width: 15%;">작업빈도</td>
+            </tr>
+        </thead>
+        <tbody>
+            {{#DetailItems1}}
+            <tr>
+                <td class="text-center">{{No}}</td>
+                <td>{{CategoryName}}</td>
+                <td>{{ExecutionWorkName}}</td>
+                <td>{{Result1}}</td>
+                <td>{{Result2}}</td>
+                <td>{{Result3}}</td>
+            </tr>
+            {{/DetailItems1}}
+        </tbody>
+    </table>
+    <p></p>
+    <footer>
+        <img src="{{Logo}}" style="max-width: 48px;" />
+    </footer>
+</div>

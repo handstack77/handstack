@@ -1,0 +1,1 @@
+DELETE FROM {TableName} WHERE DATE_ADD(NOW(), INTERVAL {RemovePeriod} DAY) > CreatedAt;

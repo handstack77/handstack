@@ -1,0 +1,69 @@
+{
+    "ApplicationNo": "#{ApplicationNo}",
+    "ApplicationID": "#{ApplicationID}",
+    "Version": "1.0.0",
+    "ApplicationName": "#{ApplicationName}",
+    "AppSecret": "#{RandomID}",
+    "SignInID": "",
+    "Comment": "#{Comment}",
+    "CreatedMemberID": "#{MemberNo}",
+    "CreatedAt": "#{CreatedAt}",
+    "ModifiedMemberID": "",
+    "ModifiedAt": "",
+    "AllowAnonymousPath": [
+        "signin.html",
+        "readme.html",
+        "warning.html",
+        "unauthorized.html",
+        "main.html",
+        "assets/*",
+        "view/*"
+    ],
+    "WithOrigin": [
+        "#{ApplicationBaseUrl}",
+        "http://localhost:8080",
+        "http://127.0.0.1:8080"
+    ],
+    "WithReferer": [
+        "#{ApplicationBaseUrl}",
+        "http://localhost:8080",
+        "http://127.0.0.1:8080"
+    ],
+    "DataSource": [
+        {
+            "ApplicationID": "#{ApplicationID}",
+            "ProjectID": "*",
+            "DataSourceID": "DB01",
+            "DataProvider": "SQLite",
+            "TanantPattern": "",
+            "TanantValue": "",
+            "ConnectionString": "URI=file:{appBasePath}/.managed/sqlite/app.db;Journal Mode=MEMORY;Cache Size=4000;Synchronous=Normal;Page Size=4096;Pooling=True;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;",
+            "IsEncryption": "N",
+            "Comment": "로컬 데이터베이스"
+        }
+    ],
+    "Storage": [
+    ],
+    "Public": [
+    ],
+    "Routing": [
+        {
+            "ApplicationID": "#{ApplicationID}",
+            "ProjectID": "*",
+            "CommandType": "D",
+            "Environment": "D",
+            "Uri": "#{ApplicationBaseUrl}/dbclient/api/query",
+            "Comment": "개발 환경의 모든 프로젝트 데이터베이스 요청을 dbclient 모듈 API로 전달합니다"
+        },
+        {
+            "ApplicationID": "#{ApplicationID}",
+            "ProjectID": "*",
+            "CommandType": "D",
+            "Environment": "P",
+            "Uri": "#{ApplicationBaseUrl}/dbclient/api/query",
+            "Comment": "운영 환경의 모든 프로젝트 데이터베이스 요청을 dbclient 모듈 API로 전달합니다"
+        }
+    ],
+    "Receive": [],
+    "Publish": []
+}

@@ -1,0 +1,128 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title></title>
+	<script src="/lib/msgpack/msgpack.min.js"></script>
+	<script src="/lib/jquery/jquery.min.js"></script>
+	<script src="/lib/filedrop/filedrop.js"></script>
+	<script src="/lib/download/download.js"></script>
+	<script type="text/javascript">
+		window.onload = function () {
+			var zone = new FileDrop('zone')
+			zone.multiple(true);
+			zone.event('send', function (files) {
+				fileList = files;
+				fileList.each(function (file) {
+					console.log('선택 파일: ' + file.name);
+				});
+			});
+		}
+
+        function utf8Decode(val) {
+            return decodeURIComponent(atob(val).split('').map(function (c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+        }
+
+		function fileDownload() {
+			var downloadRequest = {
+				RepositoryID: $('#txtRepositoryID').val(),
+				ItemID: $('#txtItemID').val(),
+				FileMD5: '',
+				Token: ''
+			};
+
+			var http = new XMLHttpRequest();
+			http.open("POST", "/repository/api/storage/DownloadFile", true);
+			http.setRequestHeader('Content-type', 'application/json');
+			http.responseType = 'blob';
+			http.onload = function (e) {
+				if (http.status == 200) {
+					if (http.getResponseHeader('handstack_ModelType') == 'DownloadResult') {
+                        var handstackResult = utf8Decode(http.getResponseHeader('handstack_Result'));
+						var downloadResult = JSON.parse(handstackResult);
+						if (downloadResult.Result == true) {
+							download(http.response, downloadResult.FileName, downloadResult.MimeType);
+						}
+						else {
+					console.log('파일 다운로드 실패 - ' + downloadResult.Message);
+						}
+					}
+					else {
+					console.log('파일 다운로드 응답 오류');
+					}
+				}
+				else {
+					console.log(http.statusText, JSON.stringify(downloadRequest));
+				}
+			}
+			http.send(JSON.stringify(downloadRequest));
+		}
+
+		function fileBlobDownload() {
+			var http = new XMLHttpRequest();
+			http.open("GET", $('#txtAzureBlobUrl').val(), true);
+			http.responseType = 'blob';
+			http.onload = function (e) {
+				if (http.status == 200) {
+					download(http.response, 'blobFile.sql', 'application/octet-stream');
+				}
+				else {
+					console.log(http.statusText);
+				}
+			}
+			http.send();
+		}
+
+		var fileList = null;
+		function fileUpload() {
+			if (fileList) {
+				for (var i = 0; i < fileList.length; i++) {
+					var file = fileList[i];
+					file.event('done', function (xhr) {
+						alert('Done uploading ' + this.name + ', response:\n\n' + xhr.responseText);
+					});
+
+					file.sendTo('/repository/api/storage/upload-file?applicationID=HDS&repositoryID=LFSLS01&dependencyID=helloworld')
+				}
+
+				fileList = null;
+			}
+		}
+	</script>
+</head>
+<body>
+    <div>azb 파일 다운로드</div>
+    <input type="text" id="txtAzureBlobUrl" style="width:400px;" placeholder="AzureBlobUrl" value="https://qaftst001.blob.core.windows.net/helloworld/b2e043435b984214acb1c43dc3161365" />
+    <input type="button" value="다운로드" onclick="fileBlobDownload()" />
+    <p></p>
+    <div>www 파일 다운로드</div>
+    <input type="text" id="txtRepositoryID" placeholder="RepositoryID" value="LFSLS01" />
+    <input type="text" id="txtItemID" placeholder="ItemID" />
+    <input type="button" value="다운로드" onclick="fileDownload()" />
+    <p></p>
+    <div>단일 파일 업로드</div>
+    <form action="/repository/api/storage/upload-file?applicationID=HDS&repositoryID=LFSLS01&dependencyID=helloworld" method="post" enctype="multipart/form-data">
+        <input type="text" id="transactionRequest" name="transactionRequest" value="hello world" />
+        <input type="file" name="file" />
+        <button type="submit">Upload</button>
+    </form>
+    <p></p>
+    <div>표준 다중 파일 업로드</div>
+    <form action="/repository/api/storage/upload-files?applicationID=HDS&repositoryID=LFSLS01&dependencyID=helloworld" method="post" enctype="multipart/form-data">
+        <input type="text" id="transactionRequest" name="transactionRequest" value="hello world" />
+        <input type="file" name="files" multiple />
+        <input type="file" name="files" />
+        <input type="file" name="files" />
+        <button type="submit">Upload</button>
+    </form>
+    <p></p>
+    <div>최신 다중 파일 업로드</div>
+    <fieldset id="zone">
+        <legend>Drop a file inside...</legend>
+        <p>Or click here to <em>Browse</em>...</p>
+    </fieldset>
+    <input type="button" value="업로드" onclick="fileUpload()" />
+</body>
+</html>

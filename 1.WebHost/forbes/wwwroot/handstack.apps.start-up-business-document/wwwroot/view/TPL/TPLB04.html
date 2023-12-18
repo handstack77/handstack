@@ -1,0 +1,92 @@
+﻿<link type="text/css" rel="stylesheet" href="../../assets/report.css">
+<div class="report">
+    <table>
+        <tbody>
+            <tr>
+                <td>
+                    <h1>목표기술서</h1>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <p></p>
+    <table>
+        <tbody>
+            <tr>
+                <td class="label text-justify w20%">제 목</td>
+                <td colspan="3">{{Title}}</td>
+            </tr>
+            <tr>
+                <td class="label text-justify w20%">기 간</td>
+                <td colspan="3">{{Period}}</td>
+            </tr>
+            <tr>
+                <td class="label text-justify w20%">중 점 항 목</td>
+                <td class="w30%">{{Purpose}}</td>
+                <td class="label text-justify w20%">비 중</td>
+                <td class="w30%">{{PurposeRatio}}</td>
+            </tr>
+            <tr>
+                <td class="label text-justify w20%">중 요 도</td>
+                <td class="w30%">{{Importance}}</td>
+                <td class="label text-justify w20%">목 표 결 과</td>
+                <td class="w30%">{{GoalResult}}</td>
+            </tr>
+            <tr>
+                <td class="label text-justify w20%">작 성 자</td>
+                <td class="w30%">{{CreatorName}}</td>
+                <td class="label text-justify w20%">작 성 일</td>
+                <td class="w30%">{{CreatedAt}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <p></p>
+    <table>
+        <thead>
+            <tr>
+                <th class="label" colspan="9">
+                    <h3>추진 업무 내역</h3>
+                </th>
+            </tr>
+            <tr>
+                <td class="label text-center" style="width: 15%;">실행업무</td>
+                <td class="label text-center" style="width: 10%;">비중</td>
+                <td class="label text-center" style="width: 15%;">담당자/부서</td>
+                <td class="label text-center" style="width: 10%;">구분</td>
+                <td class="label text-center" style="width: 10%;">단위</td>
+                <td class="label text-center" style="width: 10%;">1분기</td>
+                <td class="label text-center" style="width: 10%;">2분기</td>
+                <td class="label text-center" style="width: 10%;">3분기</td>
+                <td class="label text-center" style="width: 10%;">4분기</td>
+            </tr>
+        </thead>
+        <tbody>
+            {{#DetailItems1}}
+            <tr>
+                <td>{{ExecutionWorkName}}</td>
+                <td>{{ProgressRate}}</td>
+                <td>{{OwenerName}}</td>
+                <td>{{CategoryName}}</td>
+                <td>{{Unit}}</td>
+                <td>{{PeriodName1}}</td>
+                <td>{{PeriodName2}}</td>
+                <td>{{PeriodName3}}</td>
+                <td>{{PeriodName4}}</td>
+            </tr>
+            {{/DetailItems1}}
+        </tbody>
+    </table>
+    <p></p>
+    <table>
+        <tbody>
+            <tr>
+                <td class="label text-justify w20%">비고 / 기타사항</td>
+                <td colspan="3">{{{Note}}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <p></p>
+    <footer>
+        <img src="{{Logo}}" style="max-width: 48px;" />
+    </footer>
+</div>

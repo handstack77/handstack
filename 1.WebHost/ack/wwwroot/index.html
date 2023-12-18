@@ -1,0 +1,28 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/squel/5.13.0/squel.js"></script>
+    <script src="https://unpkg.com/sql-formatter@latest/dist/sql-formatter.min.js"></script>
+</head>
+<body>
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <button type="button" class="btn btn-default" syn-datafield id="btnTransaction" syn-events="['click']">
+            거래 실행
+        </button>
+        <input type="text" id="txtApplicationID" syn-datafield="ApplicationID" syn-options="{belongID: ['GD01', 'LD01']}" value="1" />
+        <input type="text" id="txtCodeGroupID" syn-datafield="CodeGroupID" syn-options="{belongID: 'GD01'}" value="CMM001" />
+        <input type="text" id="txtCodeType" syn-datafield="CodeType" />
+        <input type="text" id="txtCodeGroupName" syn-datafield="CodeGroupName" />
+        <input type="text" id="txtDescription" syn-datafield="Description" />
+        <input type="text" id="txtCustom1" syn-datafield="Custom1" />
+        <input type="text" id="txtCustom2" syn-datafield="Custom2" />
+        <input type="text" id="txtCustom3" syn-datafield="Custom3" />
+        <input type="checkbox" id="chkUseYN" syn-datafield="UseYN" />
+        <input type="text" id="txtCreatePersonID" syn-datafield="CreatePersonID" />
+        <input type="text" id="txtCreatedAt" syn-datafield="CreatedAt" />
+    </form>
+    <script src="/assets/js/syn.loader.js"></script>
+</body>
+</html>

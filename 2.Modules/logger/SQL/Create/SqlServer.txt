@@ -1,0 +1,21 @@
+CREATE TABLE [{TableName}] (
+    [LogNo] int NOT NULL IDENTITY,
+    [Acknowledge] nvarchar(1) NULL,
+    [ApplicationID] nvarchar(36) NULL,
+    [CreatedAt] nvarchar(50) NULL,
+    [Flow] nvarchar(1) NULL,
+    [Format] nvarchar(1) NULL,
+    [GlobalID] nvarchar(50) NULL,
+    [Level] nvarchar(1) NULL,
+    [Message] nvarchar(max) NULL,
+    [ProgramName] nvarchar(50) NULL,
+    [ProjectID] nvarchar(36) NULL,
+    [Properties] nvarchar(max) NULL,
+    [RunningEnvironment] nvarchar(1) NULL,
+    [ServerID] nvarchar(30) NULL,
+    [ServiceID] nvarchar(36) NULL,
+    [TransactionID] nvarchar(36) NULL,
+    [Type] nvarchar(1) NULL,
+    [UserID] nvarchar(36) NULL,
+    CONSTRAINT [PK_{TableName}] PRIMARY KEY ([LogNo])
+);

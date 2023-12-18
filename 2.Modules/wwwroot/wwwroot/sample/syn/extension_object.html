@@ -1,0 +1,129 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/lib/highlight.js@11.6.0/styles/atom-one-dark.min.css">
+</head>
+<body hidden style="display: none;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="mt-3">$object: Object 객체에 대한 확장 함수를 제공합니다.</h1>
+
+                <div class="card">
+                    <div class="card-status-top bg-red"></div>
+                    <div class="card-header">
+                        <h3 class="card-title">속성</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$object.version</label>
+                                <input type="text" id="txt_version" class="form-control">
+                                <div class="form-text">
+                                    $object version을 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-status-top bg-red"></div>
+                    <div class="card-header">
+                        <h3 class="card-title">메서드</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$object.isNullOrUndefined()</label>
+                                <input type="text" id="txt_isNullOrUndefined" class="form-control" />
+                                <button type="button" id="btn_isNullOrUndefined" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    지정된 객체가 undefined, null 인지 확인합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$object.toCSV()</label>
+                                <textarea type="text" id="txt_toCSV" class="form-control" rows="5"></textarea>
+                                <button type="button" id="btn_toCSV" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    지정된 객체가 undefined, null 인지 확인합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$object.toParameterString()</label>
+                                <input type="text" id="txt_toParameterString" class="form-control" />
+                                <button type="button" id="btn_toParameterString" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    JSON 객체를 문자열로 변경합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$object.getType()</label>
+                                <input type="text" id="txt_getType" class="form-control" />
+                                <button type="button" id="btn_getType" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    변수의 타입을 확인합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$object.defaultValue()</label>
+                                <input type="text" id="txt_defaultValue" class="form-control" />
+                                <button type="button" id="btn_defaultValue" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    데이터 타입의 기본값을 조회합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">
+                                    $object.isDefined(), $object.isNull(), $object.isArray(), $object.isDate(), $object.isString(), $object.isNumber(), $object.isFunction(), $object.isObject(), $object.isObjectEmpty(), $object.isBoolean()
+                                </label>
+                                <input type="text" id="txt_valueType" class="form-control" />
+                                <button type="button" id="btn_isDefined" class="mt-2 btn btn-primary" syn-events="['click']">isDefined 확인</button>
+                                <button type="button" id="btn_isNull" class="mt-2 btn btn-primary" syn-events="['click']">isNull 확인</button>
+                                <button type="button" id="btn_isArray" class="mt-2 btn btn-primary" syn-events="['click']">isArray 확인</button>
+                                <button type="button" id="btn_isDate" class="mt-2 btn btn-primary" syn-events="['click']">isDate 확인</button>
+                                <button type="button" id="btn_isString" class="mt-2 btn btn-primary" syn-events="['click']">isString 확인</button>
+                                <button type="button" id="btn_isNumber" class="mt-2 btn btn-primary" syn-events="['click']">isNumber 확인</button>
+                                <button type="button" id="btn_isFunction" class="mt-2 btn btn-primary" syn-events="['click']">isFunction 확인</button>
+                                <button type="button" id="btn_isObject" class="mt-2 btn btn-primary" syn-events="['click']">isObject 확인</button>
+                                <button type="button" id="btn_isObjectEmpty" class="mt-2 btn btn-primary" syn-events="['click']">isObjectEmpty 확인</button>
+                                <button type="button" id="btn_isBoolean" class="mt-2 btn btn-primary" syn-events="['click']">isBoolean 확인</button>
+                                <div class="form-text">
+                                    데이터 타입을 확인합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$object.isEmpty()</label>
+                                <input type="text" id="txt_isEmpty" class="form-control" />
+                                <button type="button" id="btn_isEmpty" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    객체의 값이 빈 값인지 확인합니다.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/lib/highlight.js@11.6.0/highlight.min.js"></script>
+    <script src="/lib/showdownjs@2.1.0/showdown.min.js"></script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

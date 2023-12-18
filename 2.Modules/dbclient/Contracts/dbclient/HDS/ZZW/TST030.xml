@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+	<header>
+		<application>HDS</application>
+		<project>ZZW</project>
+		<transaction>TST030</transaction>
+		<datasource>DB02</datasource>
+		<use>Y</use>
+		<desc>MSSQL 거래 테스트</desc>
+	</header>
+	<commands>
+		<statement id="GD01" seq="0" use="Y" timeout="0" desc="데이터베이스 현재 시간 조회" modified="2023-09-25 00:00:00">
+            <bind name="like_CODE_GROUP_ID" value="'%' + CodeGroupID + '%'" />
+			<![CDATA[
+			SELECT TOP 10 * FROM HDS WHERE 1<2
+			]]>
+            <if test="(CodeGroupID != '')">
+                AND RunningEnvironment LIKE #{CodeGroupID}
+            </if>
+            <!--
+            var json = "[\".Net\", \"Core\", \"ASP.NET\",\"홍길동\",\"1\"]";
+            parameters.Add("productions", JArray.Parse(json));
+            <foreach collection="productions" item="ProdID"  open="" close="" separator=",">
+                AND RunningEnvironment = #{ProdID}
+            </foreach>-->
+            ORDER BY LogID;
+        </statement>
+	</commands>
+</mapper>

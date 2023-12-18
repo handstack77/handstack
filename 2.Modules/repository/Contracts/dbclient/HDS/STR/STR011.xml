@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+	<header>
+		<application>HDS</application>
+		<project>STR</project>
+		<transaction>STR011</transaction>
+		<datasource>DB02</datasource>
+		<use>Y</use>
+		<desc>저장소 및 파일 관리</desc>
+	</header>
+	<commands>
+        <statement id="ZD01" seq="0" use="Y" timeout="0" desc="RepositoryFile 테이블 DDL" native="Y" modified="2023-09-25 00:00:00">
+            <![CDATA[
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[RepositoryFile](
+	[ItemID] [varchar](36) NOT NULL,
+	[RepositoryID] [varchar](36) NOT NULL,
+	[DependencyID] [varchar](36) NULL,
+	[FileName] [nvarchar](256) NOT NULL,
+	[PhysicalPath] [nvarchar](1000) NULL,
+	[AbsolutePath] [nvarchar](1000) NULL,
+	[RelativePath] [nvarchar](1000) NULL,
+	[Extension] [varchar](50) NULL,
+	[Size] [bigint] NULL,
+	[MD5] [varchar](50) NULL,
+	[CustomPath1] [varchar](50) NULL,
+	[CustomPath2] [varchar](50) NULL,
+	[CustomPath3] [varchar](50) NULL,
+	[PolicyPath] [varchar](1) NULL,
+	[SortingNo] [int] NULL,
+	[Comment] [nvarchar](200) NULL,
+	[CreatedMemberNo] [varchar](36) NULL,
+	[CreatedAt] [datetime] NULL,
+ CONSTRAINT [PK_RepositoryFile] PRIMARY KEY CLUSTERED 
+(
+	[ItemNo] DESC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[RepositoryFile] ADD  CONSTRAINT [DF_RepositoryItems_CreatedMemberNo]  DEFAULT (getdate()) FOR [CreatedMemberNo]
+GO
+			]]>
+        </statement>
+
+        <statement id="ZD02" seq="0" use="Y" timeout="0" desc="SqlServer 서버 시간 조회" native="Y" modified="2023-09-25 00:00:00">
+            <![CDATA[
+SELECT GETDATE() AS ServerAt;
+			]]>
+        </statement>
+        
+		<statement id="GD01" seq="0" use="Y" timeout="0" desc="단일 파일 조회" native="Y" modified="2023-09-25 00:00:00">
+			<![CDATA[
+SELECT RF.ItemID
+       , RF.RepositoryID
+       , RF.DependencyID
+       , RF.FileName
+       , RF.PhysicalPath
+       , RF.AbsolutePath
+       , RF.RelativePath
+       , RF.Extension
+       , RF.Size
+       , RF.MD5
+       , RF.CustomPath1
+       , RF.CustomPath2
+       , RF.CustomPath3
+       , RF.PolicyPath
+       , RF.SortingNo
+       , RF.Comment
+       , RF.CreatedMemberNo
+       , CONVERT(VARCHAR(23), RF.CreatedAt, 121) AS CreatedAt
+FROM   RepositoryFile RF
+WHERE  RF.RepositoryID = @RepositoryID
+    AND RF.ItemID = @ItemID;
+			]]>
+            <param id="@RepositoryID" type="VarChar" length="36" value="" />
+            <param id="@ItemID" type="VarChar" length="36" value="" />
+		</statement>
+
+        <statement id="LD01" seq="0" use="Y" timeout="0" desc="멀티 파일 조회" native="Y" modified="2023-09-25 00:00:00">
+            <![CDATA[
+SELECT RF.ItemID
+       , RF.RepositoryID
+       , RF.DependencyID
+       , RF.FileName
+       , RF.PhysicalPath
+       , RF.AbsolutePath
+       , RF.RelativePath
+       , RF.Extension
+       , RF.Size
+       , RF.MD5
+       , RF.CustomPath1
+       , RF.CustomPath2
+       , RF.CustomPath3
+       , RF.PolicyPath
+       , RF.SortingNo
+       , RF.Comment
+       , RF.CreatedMemberNo
+       , CONVERT(VARCHAR(23), RF.CreatedAt, 121) AS CreatedAt
+FROM   RepositoryFile RF
+WHERE  RF.RepositoryID = @RepositoryID
+       AND CASE WHEN @DependencyID = '' THEN @DependencyID ELSE RF.DependencyID END = @DependencyID;
+			]]>
+            <param id="@RepositoryID" type="VarChar" length="36" value="" />
+            <param id="@DependencyID" type="VarChar" length="36" value="" />
+        </statement>
+
+        <statement id="DD01" seq="0" use="Y" timeout="0" desc="파일 정보 삭제" native="Y" modified="2023-09-25 00:00:00">
+            <![CDATA[
+DELETE FROM RepositoryFile WHERE RepositoryID = @RepositoryID AND ItemID = @ItemID;
+			]]>
+            <param id="@RepositoryID" type="VarChar" length="36" value="" />
+            <param id="@ItemID" type="VarChar" length="36" value="" />
+        </statement>
+
+        <statement id="MD01" seq="0" use="Y" timeout="0" desc="파일 정보 입력 또는 변경" native="Y" modified="2023-09-25 00:00:00">
+            <![CDATA[
+MERGE RepositoryFile AS T
+USING (
+    SELECT @ItemID, @RepositoryID
+    ) AS S(ItemID, RepositoryID)
+    ON S.ItemID = T.ItemID
+        AND S.RepositoryID = T.RepositoryID
+WHEN NOT MATCHED
+    THEN
+    INSERT (ItemID
+        , RepositoryID
+        , DependencyID
+        , FileName
+        , PhysicalPath
+        , AbsolutePath
+        , RelativePath
+        , Extension
+        , Size
+        , MD5
+        , CustomPath1
+        , CustomPath2
+        , CustomPath3
+        , PolicyPath
+        , SortingNo
+        , Comment
+        , CreatedMemberNo
+        , CreatedAt
+    )
+    VALUES (@ItemID
+        , @RepositoryID
+        , @DependencyID
+        , @FileName
+        , @PhysicalPath
+        , @AbsolutePath
+        , @RelativePath
+        , @Extension
+        , @Size
+        , @MD5
+        , @CustomPath1
+        , @CustomPath2
+        , @CustomPath3
+        , @PolicyPath
+        , @SortingNo
+        , @Comment
+        , @CreatedMemberNo
+        , GETDATE())
+WHEN MATCHED
+    THEN
+    UPDATE SET DependencyID = @DependencyID
+        , FileName = @FileName
+        , PhysicalPath = @PhysicalPath
+        , AbsolutePath = @AbsolutePath
+        , RelativePath = @RelativePath
+        , Extension = @Extension
+        , Size = @Size
+        , MD5 = @MD5
+        , CustomPath1 = @CustomPath1
+        , CustomPath2 = @CustomPath2
+        , CustomPath3 = @CustomPath3
+        , PolicyPath = @PolicyPath
+        , SortingNo = @SortingNo
+        , Comment = @Comment
+        , CreatedMemberNo = @CreatedMemberNo;
+			]]>
+            <param id="@ItemID" type="VarChar" length="36" value="" />
+            <param id="@RepositoryID" type="VarChar" length="36" value="" />
+            <param id="@DependencyID" type="VarChar" length="36" value="" />
+            <param id="@FileName" type="NVarChar" length="256" value="" />
+            <param id="@PhysicalPath" type="NVarChar" length="1000" value="" />
+            <param id="@AbsolutePath" type="NVarChar" length="1000" value="" />
+            <param id="@RelativePath" type="NVarChar" length="1000" value="" />
+            <param id="@Extension" type="VarChar" length="50" value="" />
+            <param id="@Size" type="BigInt" length="-1" value="" />
+            <param id="@MD5" type="VarChar" length="50" value="" />
+            <param id="@CustomPath1" type="VarChar" length="50" value="" />
+            <param id="@CustomPath2" type="VarChar" length="50" value="" />
+            <param id="@CustomPath3" type="VarChar" length="50" value="" />
+            <param id="@PolicyPath" type="VarChar" length="1" value="" />
+            <param id="@SortingNo" type="Int" length="-1" value="" />
+            <param id="@Comment" type="NVarChar" length="200" value="" />
+            <param id="@CreatedMemberNo" type="VarChar" length="36" value="" />
+        </statement>
+
+        <statement id="UD01" seq="0" use="Y" timeout="0" desc="파일 참조 ID 변경" native="Y" modified="2023-09-25 00:00:00">
+            <![CDATA[
+UPDATE RepositoryFile SET DependencyID = @TargetDependencyID
+WHERE RepositoryID = @RepositoryID
+    AND DependencyID = @SourceDependencyID
+    AND CASE WHEN @ItemID = '' THEN @ItemID ELSE ItemID END = @ItemID;
+			]]>
+            <param id="@RepositoryID" type="VarChar" length="36" value="NULL" />
+            <param id="@ItemID" type="VarChar" length="36" value="NULL" />
+            <param id="@SourceDependencyID" type="VarChar" length="36" value="NULL" />
+            <param id="@TargetDependencyID" type="VarChar" length="36" value="NULL" />
+        </statement>
+
+        <statement id="UD02" seq="0" use="Y" timeout="0" desc="파일명 변경" native="Y" modified="2023-09-25 00:00:00">
+            <![CDATA[
+UPDATE RepositoryFile SET FileName = @FileName,
+	PhysicalPath = REPLACE(PhysicalPath, FileName, @FileName), 
+	AbsolutePath = REPLACE(AbsolutePath, FileName, @FileName), 
+	RelativePath = REPLACE(RelativePath, FileName, @FileName)
+WHERE RepositoryID = @RepositoryID
+AND ItemID = @ItemID;
+			]]>
+            <param id="@RepositoryID" type="VarChar" length="36" value="NULL" />
+            <param id="@ItemID" type="VarChar" length="36" value="NULL" />
+            <param id="@FileName" type="NVarChar" length="256" value="NULL" />
+        </statement>
+	</commands>
+</mapper>

@@ -1,0 +1,248 @@
+﻿<!DOCTYPE html>
+<html style="margin:0;height:100%">
+<head>
+    <meta charset="utf-8">
+    <title>Report HTML5 Viewer</title>
+    <link rel="stylesheet" type="text/css" href="/assets/lib/crownixviewer-8.0.2.55/crownix-viewer.min.css">
+</head>
+<body style="margin:0;height:100%;overflow:hidden;">
+    <div id="crownix-viewer" style="position:absolute;width:100%;height:100%"></div>
+    <script src="/assets/lib/crownixviewer-8.0.2.55/jquery-1.11.0.min.js"></script>
+    <script src="/assets/lib/crownixviewer-8.0.2.55/crownix-viewer.min.js"></script>
+    <script src="/js/syn.js"></script>
+    <script>
+        (function ($webform) {
+            if (!$webform) {
+                $webform = new syn.module();
+            }
+
+            $webform.extend({
+                SSO: null,
+                AppInfo: null,
+
+                getSSOInfo: function () {
+                    var result = null;
+
+                    var member = syn.$w.getStorage('member', false);
+                    if (member == null) {
+                        if (syn.$r.getCookie('HandStack.Member')) {
+                            var value = $c.base64Decode(syn.$r.getCookie('HandStack.Member'));
+                            result = JSON.parse(value);
+                        }
+                    }
+                    else {
+                        result = JSON.parse($c.base64Decode(member));
+                    }
+
+                    return result;
+                },
+
+                getAppInfo: function () {
+                    var result = null;
+
+                    var variable = syn.$w.getStorage('variable', false);
+                    if (variable == null) {
+                        if (syn.$r.getCookie('HandStack.Variable')) {
+                            var value = $c.base64Decode(syn.$r.getCookie('HandStack.Variable'));
+                            result = JSON.parse(value);
+                        }
+                    }
+                    else {
+                        result = JSON.parse($c.base64Decode(variable));
+                    }
+
+                    if ($object.isNullOrUndefined(result) == false) {
+                        var getWorkConcurrentValue = function (companyNo, concurrentID, typeID) {
+                            var result = null;
+                            if ($object.isNullOrUndefined(typeID) == true) {
+                                typeID = 'No';
+                            }
+
+                            if (syn.$w.AppInfo.CONCURRENTYN == 'Y') {
+                                if ($object.isNullOrUndefined(syn.$w.SSO.WorkUserNo) == false) {
+                                    var index = syn.$w.AppInfo.CONCURRENTUSERNO.split(',').indexOf(syn.$w.SSO.WorkUserNo.toString());
+                                    if (index > -1) {
+                                        var concurrentItem = syn.$w.AppInfo['CONCURRENT' + concurrentID.toUpperCase() + typeID.toUpperCase()];
+                                        if ($object.isNullOrUndefined(concurrentItem) == false) {
+                                            var concurrentCompany = syn.$w.AppInfo['CONCURRENTCOMPANYNO'];
+                                            if ($object.isNullOrUndefined(concurrentCompany) == false) {
+                                                var i = concurrentCompany.split(',').indexOf(companyNo.toString());
+                                                if (i > -1 && concurrentCompany.split(',')[i] == companyNo) {
+                                                    result = concurrentItem.split(',')[index];
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                else {
+                                    var index = syn.$w.AppInfo.CONCURRENTCOMPANYNO.split(',').indexOf(companyNo.toString());
+                                    if (index > -1) {
+                                        var concurrentItem = syn.$w.AppInfo['CONCURRENT' + concurrentID.toUpperCase() + typeID.toUpperCase()];
+                                        if ($object.isNullOrUndefined(concurrentItem) == true) {
+                                            result = null;
+                                        }
+                                        else {
+                                            result = concurrentItem.split(',')[index];
+                                        }
+                                    }
+                                }
+                            }
+                            else if (syn.$w.AppInfo.CONCURRENTYN == 'N') {
+                                var concurrentValue = syn.$w.SSO[concurrentID + typeID];
+                                if ($object.isNullOrUndefined(concurrentValue) == true) {
+                                    result = null;
+                                }
+                                else {
+                                    result = concurrentValue;
+                                }
+                            }
+
+                            return result;
+                        }
+
+                        result.getWorkConcurrentValue = getWorkConcurrentValue;
+                    }
+
+                    return result;
+                }
+            });
+        })($webform || window.$webform);
+
+        function domainLibraryLoad() {
+            if ($ref.isBoolean(syn.Config.IsClientCaching) == true) {
+                syn.$r.setCookie('syn.iscache', syn.Config.IsClientCaching, null, '/');
+            }
+
+            if (window['controlInit']) {
+                controlInit();
+            }
+
+            if (syn.$w.getStorage('member') == null && syn.$r.getCookie('HandStack.Member')) {
+                var member = syn.$r.getCookie('HandStack.Member');
+                syn.$w.setStorage('member', member, false);
+            }
+
+            if (syn.$w.getStorage('variable') == null && syn.$r.getCookie('HandStack.Variable')) {
+                var variable = syn.$r.getCookie('HandStack.Variable');
+                syn.$w.setStorage('variable', variable, false);
+            }
+
+            if (syn.$w.getStorage('bearerToken') == null && syn.$r.getCookie('HandStack.BearerToken')) {
+                var bearerToken = syn.$r.getCookie('HandStack.BearerToken');
+                syn.$w.setStorage('bearerToken', bearerToken, false);
+            }
+
+            window.bearerToken = null;
+            if (syn.$r.getCookie('HandStack.BearerToken')) {
+                window.bearerToken = syn.$r.getCookie('HandStack.BearerToken');
+            }
+
+            syn.$w.SSO = syn.$w.getSSOInfo() || {
+                TokenID: '',
+                UserID: '',
+                UserName: '',
+                BusinessTel: '',
+                BusinessEMail: '',
+                DepartmentID: '',
+                DepartmentName: '',
+                PositionID: '',
+                PositionName: '',
+                CompanyNo: '',
+                CompanyName: '',
+                Roles: []
+            };
+
+            syn.$w.SSO.WorkCompanyNo = (syn.$r.query('companyNo') || syn.$r.query('CompanyNo') || syn.$r.query('companyNO') || syn.$r.query('CompanyNO') || syn.$r.query('COMPANYNO') || syn.$r.query('companyno')) || syn.$w.SSO.CompanyNo;
+            syn.$w.SSO.WorkUserNo = (syn.$r.query('employeeNo') || syn.$r.query('EmployeeNo') || syn.$r.query('employeeNO') || syn.$r.query('EmployeeNO') || syn.$r.query('EMPLOYEENO') || syn.$r.query('employeeno')) || null;
+
+            syn.$w.AppInfo = syn.$w.getAppInfo() || {};
+
+            var mod = window[$w.pageScript];
+            if (mod && mod['pageInit']) {
+                mod['pageInit']();
+
+                if (syn.$w.AppInfo.mappingModel == false) {
+                    mod['mappingModel'] = {
+                        ProgramID: 'EWP',
+                        BusinessID: 'DSO',
+                        SystemID: 'MSPDSO01',
+                        TransactionID: '0000',
+                        ModifiedDate: '2099-01-01 00:00:00',
+                        DataSource: {},
+                        Transactions: []
+                    }
+                }
+            }
+        }
+
+        syn.$w.initializeFormScript({
+            childrenChannel: null,
+
+            pageLoad: function () {
+                document.oncontextmenu = function () { return false; };
+
+                var viewer = new m2soft.crownix.Viewer('/ReportingServer/service', 'crownix-viewer');
+                viewer.hideToolbarItem(['zoomout', 'zoomin', 'ratio', 'save', 'pdf', 'doc', 'xls', 'ppt', 'hwp', 'storage', 'print', 'cloud_print', 'print_pdf', 'search', 'inquery', 'cancel', 'close', 'sharing', 'lock']);
+
+                var reportID = syn.$r.query('reportID') || '';
+                var parameter = syn.$r.query('parameter') || '';
+
+                try {
+                    if ($string.isNullOrEmpty(reportID) == false && $string.isNullOrEmpty(parameter) == false) {
+                        window.synConfigName = sessionStorage.getItem('synConfigName') || 'syn.config.json';
+
+                        var xhr = new XMLHttpRequest();
+                        xhr.onreadystatechange = function () {
+                            if (xhr.readyState === XMLHttpRequest.DONE) {
+                                if (xhr.status === 200) {
+                                    window.synConfig = JSON.parse(xhr.responseText);
+                                    var isDarkMode = localStorage.getItem('isDarkMode') === 'true';
+
+                                    if (isDarkMode == true) {
+                                        m2soft.crownix.Layout.setTheme('Black');
+                                    }
+
+                                    parameter = $c.base64Decode(parent.$this.parameter || '');
+
+                                    viewer = new m2soft.crownix.Viewer(syn.Config.ReportServer + '/ReportingServer/service', 'crownix-viewer');
+                                    viewer.openFile(reportID + '.mrd', parameter);
+                                }
+                                else {
+                                    viewer.openFile('RPT000.mrd', '');
+                                }
+                            }
+                        };
+                        xhr.open('GET', '/' + window.synConfigName, true);
+                        xhr.send();
+
+                    }
+                    else {
+                        viewer.openFile('RPT000.mrd', '');
+                    }
+                } catch (e) {
+                    syn.$l.eventLog('reportViewer', 'reportID: {0}, parameter: {1}'.format(reportID, parameter), 'Error');
+                    viewer.openFile('RPT000.mrd', '');
+                }
+
+                var channelID = syn.$r.query('channelID');
+                if (window != window.parent && channelID) {
+                    $this.childrenChannel = syn.$n.rooms.connect({ window: window.parent, origin: '*', scope: channelID });
+                    $this.childrenChannel.bind('request', function (evt, params) {
+                        syn.$l.eventLog('channel request', channelID + ': ' + JSON.stringify(params), 'Debug');
+                    });
+
+                    if ($this.childrenChannel != null) {
+                $this.childrenChannel.emit({
+                            method: 'pageLoad',
+                            params: $d.getDocumentSize(document),
+                            error: function (error, message) {
+                                syn.$l.eventLog('channel response', 'error: ' + error + ' (' + message + ')', 'Error');
+                            }
+                        });
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

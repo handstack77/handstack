@@ -1,0 +1,348 @@
+{
+    "Comment": "기초코드 데이터",
+    "CodeColumnID": "CodeID",
+    "ValueColumnID": "CodeValue",
+    "CreatedAt": "2012-03-22 오후 2:00:00",
+    "Scheme": [
+        {
+            "ColumnID": "SelectYN",
+            "ColumnText": "기본선택여부",
+            "HiddenYN": true
+        },
+        {
+            "ColumnID": "LocaleID",
+            "ColumnText": "언어권ID",
+            "HiddenYN": true
+        },
+        {
+            "ColumnID": "CodeID",
+            "ColumnText": "코드ID",
+            "HiddenYN": false
+        },
+        {
+            "ColumnID": "CodeValue",
+            "ColumnText": "코드값",
+            "HiddenYN": false
+        }
+    ],
+    "DataSource": [
+        {
+            "CodeID": "0",
+            "CodeValue": "기록없음",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "1000",
+            "CodeValue": "공무원",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "2000",
+            "CodeValue": "법조인",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "3000",
+            "CodeValue": "의사",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "4000",
+            "CodeValue": "의료전문가",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "5001",
+            "CodeValue": "언론및방송인(방송관련직종)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "5002",
+            "CodeValue": "언론및방송인(연예인관련직종)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "5003",
+            "CodeValue": "언론및방송인(언론관련직종)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "6001",
+            "CodeValue": "예술및스포츠(예술가)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "6002",
+            "CodeValue": "예술및스포츠(스포츠인)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "7000",
+            "CodeValue": "종교인/사회사업단체",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "8001",
+            "CodeValue": "교육직(보육교사(영아보육))",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "8002",
+            "CodeValue": "교육직(유치원 교사)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "8003",
+            "CodeValue": "교육직(초등학교 교사)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "8004",
+            "CodeValue": "교육직(중고등학교 교사)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "8005",
+            "CodeValue": "교육직(초중고등학교 교직원)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "8006",
+            "CodeValue": "교육직(기타교사)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "8007",
+            "CodeValue": "교육직(대학교수)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "8008",
+            "CodeValue": "교육직(대학교/대학원 교직원)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "8009",
+            "CodeValue": "교육직(학원강사(과외교사 포함))",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "8010",
+            "CodeValue": "교육직(특수학교 교사)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "9000",
+            "CodeValue": "신흥전문직",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "10000",
+            "CodeValue": "연구직",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "11000",
+            "CodeValue": "관리직",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "12000",
+            "CodeValue": "금융업",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "13000",
+            "CodeValue": "마케팅/영업직",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "14000",
+            "CodeValue": "기술/기능직",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "15001",
+            "CodeValue": "서비스업(호텔/숙박 서비스업)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "15002",
+            "CodeValue": "서비스업(음식/외식 서비스업)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "15003",
+            "CodeValue": "서비스업(운전/운항 서비스업)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "15004",
+            "CodeValue": "서비스업(여행서비스업)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "15005",
+            "CodeValue": "서비스업(미용서비스업)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "15006",
+            "CodeValue": "서비스업(결혼/행사 서비스업)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "15007",
+            "CodeValue": "서비스업(경비/보안서비스업)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "15008",
+            "CodeValue": "서비스업(장의관련 서비스업)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "15009",
+            "CodeValue": "서비스업(건강관련)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "15010",
+            "CodeValue": "서비스업(오락 서비스업)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "15011",
+            "CodeValue": "서비스업(안내 서비스업)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "16000",
+            "CodeValue": "IT/정보통신업",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "17000",
+            "CodeValue": "농/임/어/축/광업",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "18001",
+            "CodeValue": "개인사업(서비스업)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "18002",
+            "CodeValue": "개인사업(제조업종)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "18003",
+            "CodeValue": "개인사업(정보통신업)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "19001",
+            "CodeValue": "학생(초등학생)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "19002",
+            "CodeValue": "학생(중학생)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "19003",
+            "CodeValue": "학생(고등학생)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "19004",
+            "CodeValue": "학생(대학생/대학원생)",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "19005",
+            "CodeValue": "기타 학생",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "20000",
+            "CodeValue": "전업주부",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "21000",
+            "CodeValue": "군인",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "22000",
+            "CodeValue": "회사원",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "23000",
+            "CodeValue": "무직",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        },
+        {
+            "CodeID": "24000",
+            "CodeValue": "기타직종종사자",
+            "SelectYN": null,
+            "LocaleID": "ko-KR"
+        }
+    ]
+}

@@ -1,0 +1,143 @@
+﻿{
+    "ApplicationID": "HDS",
+    "ProjectID": "ZZW",
+    "TransactionProjectID": "ZZD",
+    "TransactionID": "ZZA010",
+    "Comment": "관리 업무",
+    "ModifiedDate": "2020-06-10 00:00:00",
+    "Services": [
+        {
+            "ServiceID": "M01",
+            "ReturnType": "Json",
+            "CommandType": "D",
+            "TransactionScope": true,
+            "Inputs": [
+                {
+                    "ModelID": "Unknown",
+                    "Fields": [
+                        "Flag",
+                        "WorkItemID",
+                        "ApplicationID",
+                        "ProjectID",
+                        "TransactionID",
+                        "DataSourceID",
+                        "UseYN",
+                        "Description",
+                        "CreatedMemberID"
+                    ],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Grid",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [],
+                    "Type": "Addition"
+                }
+            ]
+        },
+        {
+            "ServiceID": "G01",
+            "ReturnType": "Xml",
+            "CommandType": "D",
+            "TransactionScope": false,
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "Form"
+                }
+            ]
+        },
+        {
+            /* 화면 JSON
+                {
+                    "ResponseType": "Chart",
+                    "DataFieldID": "ChartDetail",
+                    "Items": {
+                        "YEAR": {
+                            "FieldID": "YEAR",
+                            "DataType": "int"
+                        },
+                        "4Y020": {
+                            "FieldID": "4Y020",
+                            "DataType": "int"
+                        },
+                        "4Y030": {
+                            "FieldID": "4Y030",
+                            "DataType": "int"
+                        },
+                        "4Y050": {
+                            "FieldID": "4Y050",
+                            "DataType": "int"
+                        },
+                        "4Y060": {
+                            "FieldID": "4Y060",
+                            "DataType": "int"
+                        },
+                        "4Y070": {
+                            "FieldID": "4Y070",
+                            "DataType": "int"
+                        }
+                    }
+                }
+
+			업무 JSON
+				{
+					"ModelID": "Dynamic",
+					"Fields": [
+					],
+					"Type": "Grid"
+				}
+			*/
+            "ServiceID": "HSE010_L01",
+            "ReturnType": "Json",
+            "CommandType": "D",
+            "TransactionScope": false,
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "Grid"
+                },
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "Grid"
+                }
+            ]
+        }
+    ],
+    "Models": []
+}

@@ -1,0 +1,129 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32616.157
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3.Infrastructure", "3.Infrastructure", "{62D4FF65-F118-4D0E-8518-C6F4679EA63E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2.Modules", "2.Modules", "{43B577AB-74FA-4B53-A2BE-E369622F970F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1.WebHost", "1.WebHost", "{8AAA6308-ECA2-43A5-8D46-1C7C1BC9088D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6F4E263F-C9BD-4FDF-BEE8-E9E5E41E8E8E}"
+	ProjectSection(SolutionItems) = preProject
+		.dockerignore = .dockerignore
+		.editorconfig = .editorconfig
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		LICENSE.txt = LICENSE.txt
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ack", "1.WebHost\ack\ack.csproj", "{EFC7711F-7874-46A9-A8A3-7A93F53B7B63}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HandStack.Core", "3.Infrastructure\HandStack.Core\HandStack.Core.csproj", "{7E2F21EB-51BD-407D-AF25-1889D03CD896}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HandStack.Web", "3.Infrastructure\HandStack.Web\HandStack.Web.csproj", "{A6E1849B-2945-48B8-9C3F-FF5B6AECC9C7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "wwwroot", "2.Modules\wwwroot\wwwroot.csproj", "{8B4B7505-61A5-4DCE-8871-629E3ABFAC67}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dbclient", "2.Modules\dbclient\dbclient.csproj", "{AD6951FA-49EA-448F-8174-0427387567DE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "function", "2.Modules\function\function.csproj", "{D8D99CC9-8F9B-4D3D-948E-DD960A62AE0A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "logger", "2.Modules\logger\logger.csproj", "{305FA150-7A99-4C17-B307-770F4CA8E66E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "repository", "2.Modules\repository\repository.csproj", "{CF63E5EB-7D3B-49AD-A1C5-2A7855283567}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "transact", "2.Modules\transact\transact.csproj", "{A2907FF2-9AA7-4128-9965-A9FE6D7EFA1B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HandStack.Data", "3.Infrastructure\HandStack.Data\HandStack.Data.csproj", "{6AE92154-8ADD-41C2-8C0F-CF1997EC9D2A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Assemblies", "Assemblies", "{A251FD52-5564-4685-B5B2-730CC8176543}"
+	ProjectSection(SolutionItems) = preProject
+		3.Infrastructure\Assemblies\HandStack.Core.deps.json = 3.Infrastructure\Assemblies\HandStack.Core.deps.json
+		3.Infrastructure\Assemblies\HandStack.Core.dll = 3.Infrastructure\Assemblies\HandStack.Core.dll
+		3.Infrastructure\Assemblies\HandStack.Core.pdb = 3.Infrastructure\Assemblies\HandStack.Core.pdb
+		3.Infrastructure\Assemblies\HandStack.Data.deps.json = 3.Infrastructure\Assemblies\HandStack.Data.deps.json
+		3.Infrastructure\Assemblies\HandStack.Data.dll = 3.Infrastructure\Assemblies\HandStack.Data.dll
+		3.Infrastructure\Assemblies\HandStack.Data.pdb = 3.Infrastructure\Assemblies\HandStack.Data.pdb
+		3.Infrastructure\Assemblies\HandStack.Web.deps.json = 3.Infrastructure\Assemblies\HandStack.Web.deps.json
+		3.Infrastructure\Assemblies\HandStack.Web.dll = 3.Infrastructure\Assemblies\HandStack.Web.dll
+		3.Infrastructure\Assemblies\HandStack.Web.pdb = 3.Infrastructure\Assemblies\HandStack.Web.pdb
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "forbes", "1.WebHost\forbes\forbes.csproj", "{26A81090-4BDA-4A0C-B017-0AF6A787D786}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EFC7711F-7874-46A9-A8A3-7A93F53B7B63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EFC7711F-7874-46A9-A8A3-7A93F53B7B63}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EFC7711F-7874-46A9-A8A3-7A93F53B7B63}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EFC7711F-7874-46A9-A8A3-7A93F53B7B63}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E2F21EB-51BD-407D-AF25-1889D03CD896}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E2F21EB-51BD-407D-AF25-1889D03CD896}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E2F21EB-51BD-407D-AF25-1889D03CD896}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E2F21EB-51BD-407D-AF25-1889D03CD896}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6E1849B-2945-48B8-9C3F-FF5B6AECC9C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6E1849B-2945-48B8-9C3F-FF5B6AECC9C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6E1849B-2945-48B8-9C3F-FF5B6AECC9C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6E1849B-2945-48B8-9C3F-FF5B6AECC9C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8B4B7505-61A5-4DCE-8871-629E3ABFAC67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B4B7505-61A5-4DCE-8871-629E3ABFAC67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B4B7505-61A5-4DCE-8871-629E3ABFAC67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B4B7505-61A5-4DCE-8871-629E3ABFAC67}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD6951FA-49EA-448F-8174-0427387567DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD6951FA-49EA-448F-8174-0427387567DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD6951FA-49EA-448F-8174-0427387567DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD6951FA-49EA-448F-8174-0427387567DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D8D99CC9-8F9B-4D3D-948E-DD960A62AE0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D8D99CC9-8F9B-4D3D-948E-DD960A62AE0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D8D99CC9-8F9B-4D3D-948E-DD960A62AE0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D8D99CC9-8F9B-4D3D-948E-DD960A62AE0A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{305FA150-7A99-4C17-B307-770F4CA8E66E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{305FA150-7A99-4C17-B307-770F4CA8E66E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{305FA150-7A99-4C17-B307-770F4CA8E66E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{305FA150-7A99-4C17-B307-770F4CA8E66E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF63E5EB-7D3B-49AD-A1C5-2A7855283567}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF63E5EB-7D3B-49AD-A1C5-2A7855283567}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF63E5EB-7D3B-49AD-A1C5-2A7855283567}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF63E5EB-7D3B-49AD-A1C5-2A7855283567}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A2907FF2-9AA7-4128-9965-A9FE6D7EFA1B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2907FF2-9AA7-4128-9965-A9FE6D7EFA1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A2907FF2-9AA7-4128-9965-A9FE6D7EFA1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A2907FF2-9AA7-4128-9965-A9FE6D7EFA1B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6AE92154-8ADD-41C2-8C0F-CF1997EC9D2A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6AE92154-8ADD-41C2-8C0F-CF1997EC9D2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6AE92154-8ADD-41C2-8C0F-CF1997EC9D2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6AE92154-8ADD-41C2-8C0F-CF1997EC9D2A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{26A81090-4BDA-4A0C-B017-0AF6A787D786}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26A81090-4BDA-4A0C-B017-0AF6A787D786}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26A81090-4BDA-4A0C-B017-0AF6A787D786}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26A81090-4BDA-4A0C-B017-0AF6A787D786}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{EFC7711F-7874-46A9-A8A3-7A93F53B7B63} = {8AAA6308-ECA2-43A5-8D46-1C7C1BC9088D}
+		{7E2F21EB-51BD-407D-AF25-1889D03CD896} = {62D4FF65-F118-4D0E-8518-C6F4679EA63E}
+		{A6E1849B-2945-48B8-9C3F-FF5B6AECC9C7} = {62D4FF65-F118-4D0E-8518-C6F4679EA63E}
+		{8B4B7505-61A5-4DCE-8871-629E3ABFAC67} = {43B577AB-74FA-4B53-A2BE-E369622F970F}
+		{AD6951FA-49EA-448F-8174-0427387567DE} = {43B577AB-74FA-4B53-A2BE-E369622F970F}
+		{D8D99CC9-8F9B-4D3D-948E-DD960A62AE0A} = {43B577AB-74FA-4B53-A2BE-E369622F970F}
+		{305FA150-7A99-4C17-B307-770F4CA8E66E} = {43B577AB-74FA-4B53-A2BE-E369622F970F}
+		{CF63E5EB-7D3B-49AD-A1C5-2A7855283567} = {43B577AB-74FA-4B53-A2BE-E369622F970F}
+		{A2907FF2-9AA7-4128-9965-A9FE6D7EFA1B} = {43B577AB-74FA-4B53-A2BE-E369622F970F}
+		{6AE92154-8ADD-41C2-8C0F-CF1997EC9D2A} = {62D4FF65-F118-4D0E-8518-C6F4679EA63E}
+		{A251FD52-5564-4685-B5B2-730CC8176543} = {62D4FF65-F118-4D0E-8518-C6F4679EA63E}
+		{26A81090-4BDA-4A0C-B017-0AF6A787D786} = {8AAA6308-ECA2-43A5-8D46-1C7C1BC9088D}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		VisualSVNWorkingCopyRoot = .
+		SolutionGuid = {0075CE72-935C-4F87-A6BA-989C82F06F8F}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,95 @@
+﻿<link type="text/css" rel="stylesheet" href="../../assets/report.css">
+<div class="report">
+    <table>
+        <tbody>
+            <tr>
+                <td>
+                    <h1>견적서</h1>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <p></p>
+    <table>
+        <tbody>
+            <tr>
+                <td class="label text-justify" rowspan="5">
+                    <p>공</p>
+                    <p>급</p>
+                    <p>자</p>
+                </td>
+                <td class="label text-justify w20%">등 록 번 호</td>
+                <td class="w30%">{{PublishID}}</td>
+                <td class="label text-justify w20%">대 표 자 명</td>
+                <td class="w30%">{{PublishOwnerName}}</td>
+            </tr>
+            <tr>
+                <td class="label text-justify w20%">회 사 명</td>
+                <td class="w30%">{{PublishName}}</td>
+                <td class="label text-justify w20%">전 화 번 호</td>
+                <td class="w30%">{{PublishPhoneNo}}</td>
+            </tr>
+            <tr>
+                <td class="label text-justify w20%">사 업 장 주 소</td>
+                <td colspan="3">{{PublishAddress}}</td>
+            </tr>
+            <tr>
+                <td class="label text-justify w20%">업 태</td>
+                <td class="w30%">{{PublishBusiness}}</td>
+                <td class="label text-justify w20%">종 목</td>
+                <td class="w30%">{{PublishSector}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <p></p>
+    <table>
+        <tbody>
+            <tr>
+                <td class="label text-justify w20%">제 목</td>
+                <td colspan="3">{{Title}}</td>
+            </tr>
+            <tr>
+                <td class="label text-justify w20%">작 성 자</td>
+                <td class="w30%">{{CreatorName}}</td>
+                <td class="label text-justify w20%">작 성 일</td>
+                <td class="w30%">{{CreatedAt}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <p></p>
+    <table>
+        <thead>
+            <tr>
+                <th class="label" colspan="7">
+                    <h3>세부 내역</h3>
+                </th>
+            </tr>
+            <tr>
+                <td class="label text-center" style="width: 20%;">품목</td>
+                <td class="label text-center" style="width: 15%;">규격</td>
+                <td class="label text-center" style="width: 10%;">수량</td>
+                <td class="label text-center" style="width: 10%;">단가</td>
+                <td class="label text-center" style="width: 15%;">공급가액</td>
+                <td class="label text-center" style="width: 12%;">세액</td>
+                <td class="label text-center" style="width: 13%;">비고</td>
+            </tr>
+        </thead>
+        <tbody>
+            {{#DetailItems1}}
+            <tr>
+                <td>{{ProductName}}</td>
+                <td>{{Standard}}</td>
+                <td class="text-center">{{Quantity}}</td>
+                <td class="text-right">{{UnitPrice}}</td>
+                <td class="text-right">{{Amount}}</td>
+                <td class="text-right">{{Surtax}}</td>
+                <td>{{{Note}}}</td>
+            </tr>
+            {{/DetailItems1}}
+        </tbody>
+    </table>
+    <p></p>
+    <footer>
+        <img src="{{Logo}}" style="max-width: 48px;" />
+    </footer>
+</div>

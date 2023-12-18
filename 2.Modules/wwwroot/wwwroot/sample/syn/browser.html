@@ -1,0 +1,315 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/lib/highlight.js@11.6.0/styles/atom-one-dark.min.css">
+</head>
+<body hidden style="display: none;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="mt-3">syn.$b: 웹 브라우저의 정보를 확인합니다.</h1>
+
+                <div class="card">
+                    <div class="card-status-top bg-red"></div>
+                    <div class="card-header">
+                        <h3 class="card-title">속성</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$b.appName</label>
+                                <input type="text" id="txt_appName" class="form-control">
+                                <div class="form-text">
+                                    syn.config.json의 HostName 또는 navigator.appName을 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$b.appCodeName</label>
+                                <input type="text" id="txt_appCodeName" class="form-control">
+                                <div class="form-text">
+                                    syn.config.json의 ApplicationID 또는 navigator.appCodeName을 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$b.appVersion</label>
+                                <input type="text" id="txt_appVersion" class="form-control">
+                                <div class="form-text">
+                                    navigator.appVersion을 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$b.cookieEnabled</label>
+                                <input type="text" id="txt_cookieEnabled" class="form-control">
+                                <div class="form-text">
+                                    navigator.cookieEnabled을 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$b.pdfViewerEnabled</label>
+                                <input type="text" id="txt_pdfViewerEnabled" class="form-control">
+                                <div class="form-text">
+                                    navigator.pdfViewerEnabled을 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$b.platform</label>
+                                <input type="text" id="txt_platform" class="form-control">
+                                <div class="form-text">
+                                    navigator.platform을 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$b.devicePlatform</label>
+                                <input type="text" id="txt_devicePlatform" class="form-control">
+                                <div class="form-text">
+                                    실행중인 브라우저, 하이브리드 앱, node.js 실행 환경을 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$b.isExtended</label>
+                                <input type="text" id="txt_isExtended" class="form-control">
+                                <div class="form-text">
+                                    외부 모니터를 사용 중인지 여부를 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$b.userAgent</label>
+                                <input type="text" id="txt_userAgent" class="form-control">
+                                <div class="form-text">
+                                    navigator.userAgent을 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$b.devicePixelRatio</label>
+                                <input type="text" id="txt_devicePixelRatio" class="form-control">
+                                <div class="form-text">
+                                    window.devicePixelRatio을 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$b.screenWidth</label>
+                                <input type="text" id="txt_screenWidth" class="form-control">
+                                <div class="form-text">
+                                    screen.width을 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$b.screenHeight</label>
+                                <input type="text" id="txt_screenHeight" class="form-control">
+                                <div class="form-text">
+                                    screen.height을 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$b.language</label>
+                                <input type="text" id="txt_language" class="form-control">
+                                <div class="form-text">
+                                    navigator.language 또는 navigator.browserLanguage을 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$b.isMac</label>
+                                <input type="text" id="txt_isMac" class="form-control">
+                                <div class="form-text">
+                                    navigator.appVersion에서 'Mac' 또는 navigator.userAgent에서 'Macintosh' 포함 여부를 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$b.isWebkit</label>
+                                <input type="text" id="txt_isWebkit" class="form-control">
+                                <div class="form-text">
+                                    navigator.userAgent에서 'AppleWebKit' 포함 여부를 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$b.isLinux</label>
+                                <input type="text" id="txt_isLinux" class="form-control">
+                                <div class="form-text">
+                                    navigator.appVersion에서 'Linux' 또는 'X11' 포함 여부를 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$b.isWindow</label>
+                                <input type="text" id="txt_isWindow" class="form-control">
+                                <div class="form-text">
+                                    navigator.appVersion에서 'Win' 또는 navigator.userAgent에서 'Windows' 포함 여부를 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$b.isOpera</label>
+                                <input type="text" id="txt_isOpera" class="form-control">
+                                <div class="form-text">
+                                    navigator.appName에서 'Opera' 포함 여부를 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$b.isIE</label>
+                                <input type="text" id="txt_isIE" class="form-control">
+                                <div class="form-text">
+                                    navigator.userAgent에서 'trident' 또는 'msie' 포함 여부를 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$b.isChrome</label>
+                                <input type="text" id="txt_isChrome" class="form-control">
+                                <div class="form-text">
+                                    window 객체에 chrome 객체 포함 및 navigator.userAgent에서 'Edg' 포함이 아닌 여부를 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$b.isEdge</label>
+                                <input type="text" id="txt_isEdge" class="form-control">
+                                <div class="form-text">
+                                    window 객체에 chrome 객체 포함 및 navigator.userAgent에서 'Edg' 포함 여부를 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$b.isFF</label>
+                                <input type="text" id="txt_isFF" class="form-control">
+                                <div class="form-text">
+                                    window 객체에 InstallTrigger 객체 포함 또는 navigator.userAgent에서 'Firefox' 포함 여부를 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$b.isSafari</label>
+                                <input type="text" id="txt_isSafari" class="form-control">
+                                <div class="form-text">
+                                    window 객체에 safari 객체 포함 또는 safari.pushNotification 포함 여부를 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$b.isMobile</label>
+                                <input type="text" id="txt_isMobile" class="form-control">
+                                <div class="form-text">
+                                    navigator.userAgentData.mobile 포함 또는 navigator.userAgent에서 모바일 포함 여부를 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-status-top bg-red"></div>
+                    <div class="card-header">
+                        <h3 class="card-title">메서드</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$b.getSystemFonts()</label>
+                                <textarea type="text" id="txt_getSystemFonts" class="form-control" rows="5"></textarea>
+                                <button type="button" id="btn_getSystemFonts" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    Windows, Linux, Mac에 기본 포함되어 있는 폰트 목록을 확인합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$b.getPlugins()</label>
+                                <textarea type="text" id="txt_getPlugins" class="form-control" rows="5"></textarea>
+                                <button type="button" id="btn_getPlugins" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    브라우저에 설치된 플러그인 목록을 확인합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$b.fingerPrint()</label>
+                                <input type="text" id="txt_fingerPrint" class="form-control">
+                                <button type="button" id="btn_fingerPrint" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    브라우저의 고유정보를 기반으로 64 길이의 ID를 생성합니다
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$b.windowWidth()</label>
+                                <input type="text" id="txt_windowWidth" class="form-control">
+                                <button type="button" id="btn_windowWidth" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    window 객체의 innerWidth 또는 document 객체의 offsetWidth를 확인합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$b.windowHeight()</label>
+                                <input type="text" id="txt_windowHeight" class="form-control">
+                                <button type="button" id="btn_windowHeight" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    window 객체의 innerHeight 또는 document 객체의 offsetHeight를 확인합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$b.getIpAddress()</label>
+                                <input type="text" id="txt_getIpAddress" class="form-control">
+                                <button type="button" id="btn_getIpAddress" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    /checkip 서버 요청으로 얻어지는 브라우저의 공인 IP를 확인합니다.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/lib/highlight.js@11.6.0/highlight.min.js"></script>
+    <script src="/lib/showdownjs@2.1.0/showdown.min.js"></script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

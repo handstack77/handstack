@@ -1,0 +1,1 @@
+DELETE FROM {TableName} WHERE DATETIME(DATETIME('now', 'localtime'), '{RemovePeriod} days') > DATETIME(CreatedAt);

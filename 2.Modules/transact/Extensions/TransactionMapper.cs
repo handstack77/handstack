@@ -1,0 +1,510 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+
+using HandStack.Core.ExtensionMethod;
+using HandStack.Core.Extensions;
+using HandStack.Web;
+using HandStack.Web.Entity;
+using HandStack.Web.MessageContract.DataObject;
+
+using Microsoft.Extensions.Configuration;
+
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
+using Serilog;
+
+using transact.Entity;
+
+namespace transact.Extensions
+{
+    public class TransactionMapper
+    {
+        private static Dictionary<string, BusinessContract> businessContracts = new Dictionary<string, BusinessContract>();
+
+        public static Dictionary<string, BusinessContract> GetBusinessContracts()
+        {
+            return businessContracts;
+        }
+
+        public static BusinessContract? Get(string applicationID, string projectID, string transactionID)
+        {
+            BusinessContract? businessContract = null;
+            lock (businessContracts)
+            {
+                businessContract = businessContracts.FirstOrDefault(item => item.Value.ApplicationID == applicationID
+                    && item.Value.ProjectID == projectID
+                    && item.Value.TransactionID == transactionID).Value;
+
+                if (businessContract == null)
+                {
+                    if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(Path.Combine(GlobalConfiguration.TenantAppBasePath, applicationID)) == true)
+                    {
+                        var filePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, applicationID, "transact", projectID, transactionID + ".json");
+                        if (File.Exists(filePath) == true)
+                        {
+                            try
+                            {
+                                businessContract = BusinessContract.FromJson(File.ReadAllText(filePath));
+                                if (businessContract != null)
+                                {
+                                    if (filePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
+                                    {
+                                        FileInfo fileInfo = new FileInfo(filePath);
+                                        businessContract.ApplicationID = string.IsNullOrEmpty(businessContract.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : businessContract.ApplicationID;
+                                        businessContract.ProjectID = string.IsNullOrEmpty(businessContract.ProjectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : businessContract.ProjectID;
+                                        businessContract.TransactionID = string.IsNullOrEmpty(businessContract.TransactionID) == true ? fileInfo.Name.Replace(fileInfo.Extension, "") : businessContract.TransactionID;
+                                    }
+
+                                    lock (businessContracts)
+                                    {
+                                        if (businessContracts.ContainsKey(filePath) == true)
+                                        {
+                                            businessContracts.Remove(filePath);
+                                        }
+
+                                        businessContracts.Add(filePath, businessContract);
+                                    }
+                                }
+
+                            }
+                            catch (Exception exception)
+                            {
+                                Log.Logger.Error("[{LogCategory}] " + $"{filePath} 업무 계약 파일 오류 - {exception.ToMessage()}", "TransactionMapper/Get");
+                            }
+                        }
+                    }
+                }
+            }
+
+            return businessContract;
+        }
+
+        public static string? GetRoutingCommandUri(string routeSegmentID)
+        {
+            string? result = null;
+            result = ModuleConfiguration.RoutingCommandUri.GetValueOrDefault(routeSegmentID);
+
+            if (result == null)
+            {
+                var itemKeys = routeSegmentID.Split("|");
+                if (itemKeys.Length == 4)
+                {
+                    string publicRouteSegmentID = $"{itemKeys[0]}|*|{itemKeys[2]}|{itemKeys[3]}";
+                    result = ModuleConfiguration.RoutingCommandUri.GetValueOrDefault(publicRouteSegmentID);
+                }
+
+                if (result == null)
+                {
+                    string applicationID = itemKeys[0];
+
+                    if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(Path.Combine(GlobalConfiguration.TenantAppBasePath, applicationID)) == true)
+                    {
+                        string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, applicationID);
+                        string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                        if (File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(applicationID) == false)
+                        {
+                            string appSettingText = File.ReadAllText(settingFilePath);
+                            var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
+                            if (appSetting != null)
+                            {
+                                var routingCommandUri = appSetting.Routing;
+                                if (routingCommandUri != null)
+                                {
+                                    foreach (var item in routingCommandUri.AsEnumerable())
+                                    {
+                                        routeSegmentID = $"{item.ApplicationID}|{item.ProjectID}|{item.CommandType}|{item.Environment}";
+                                        if (ModuleConfiguration.RoutingCommandUri.ContainsKey(routeSegmentID) == false)
+                                        {
+                                            ModuleConfiguration.RoutingCommandUri.Add(routeSegmentID, item.Uri);
+                                        }
+                                    }
+
+                                    result = ModuleConfiguration.RoutingCommandUri.GetValueOrDefault(routeSegmentID);
+                                    if (result == null)
+                                    {
+                                        if (itemKeys.Length == 4)
+                                        {
+                                            string publicRouteSegmentID = $"{itemKeys[0]}|*|{itemKeys[2]}|{itemKeys[3]}";
+                                            result = ModuleConfiguration.RoutingCommandUri.GetValueOrDefault(publicRouteSegmentID);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public static PublicTransaction? GetPublicTransaction(string applicationID, string projectID, string transactionID)
+        {
+            PublicTransaction? result = null;
+            result = ModuleConfiguration.PublicTransactions?.FirstOrDefault(p => p.ApplicationID == applicationID
+                && (p.ProjectID == "*" || p.ProjectID == projectID)
+                && (p.TransactionID == "*" || p.TransactionID == transactionID)
+            );
+
+            if (result == null)
+            {
+                if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(Path.Combine(GlobalConfiguration.TenantAppBasePath, applicationID)) == true)
+                {
+                    string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, applicationID);
+                    string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                    if (System.IO.File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(applicationID) == false)
+                    {
+                        string appSettingText = System.IO.File.ReadAllText(settingFilePath);
+                        var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
+                        if (appSetting != null)
+                        {
+                            var publicTransactions = appSetting.Public;
+                            if (ModuleConfiguration.PublicTransactions == null)
+                            {
+                                ModuleConfiguration.PublicTransactions = new List<PublicTransaction>();
+                            }
+
+                            if (publicTransactions != null && publicTransactions.Count() > 0)
+                            {
+                                for (int i = 0; i < publicTransactions.Count(); i++)
+                                {
+                                    var publicTransaction = publicTransactions[i];
+
+                                    PublicTransaction appPublicTransaction = new PublicTransaction();
+                                    appPublicTransaction.ApplicationID = applicationID;
+                                    appPublicTransaction.ProjectID = publicTransaction.ProjectID;
+                                    appPublicTransaction.TransactionID = publicTransaction.TransactionID;
+                                    if (ModuleConfiguration.PublicTransactions.Contains(appPublicTransaction) == false)
+                                    {
+                                        ModuleConfiguration.PublicTransactions.Add(appPublicTransaction);
+                                    }
+                                }
+
+                                result = ModuleConfiguration.PublicTransactions?.FirstOrDefault(p => p.ApplicationID == applicationID
+                                    && (p.ProjectID == "*" || p.ProjectID == projectID)
+                                    && (p.TransactionID == "*" || p.TransactionID == transactionID)
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public static bool HasContractFile(string fileRelativePath)
+        {
+            bool result = false;
+            foreach (var basePath in ModuleConfiguration.ContractBasePath)
+            {
+                string filePath = Path.Combine(basePath, fileRelativePath);
+                result = File.Exists(filePath);
+                if (result == true)
+                {
+                    break;
+                }
+            }
+
+            return result;
+        }
+
+        public static bool IsDynamicContract(string applicationID, string projectID, string transactionID)
+        {
+            bool result = false;
+            lock (businessContracts)
+            {
+                var findContracts = from item in businessContracts
+                                    where item.Value.ApplicationID == applicationID && item.Value.ProjectID == projectID && item.Value.TransactionID == transactionID
+                                    select item;
+
+                if (findContracts.Count() == 1)
+                {
+                    var contract = findContracts.FirstOrDefault();
+                    result = contract.Key.StartsWith("DYNAMIC|");
+                }
+            }
+
+            return result;
+        }
+
+        public static bool Upsert(string fileRelativePath)
+        {
+            bool result = false;
+            lock (businessContracts)
+            {
+                try
+                {
+                    foreach (var basePath in ModuleConfiguration.ContractBasePath)
+                    {
+                        string filePath = Path.Combine(basePath, fileRelativePath);
+                        if (File.Exists(filePath) == true)
+                        {
+                            BusinessContract? businessContract = BusinessContract.FromJson(File.ReadAllText(filePath));
+                            if (businessContract != null)
+                            {
+                                if (filePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
+                                {
+                                    FileInfo fileInfo = new FileInfo(filePath);
+                                    businessContract.ApplicationID = string.IsNullOrEmpty(businessContract.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : businessContract.ApplicationID;
+                                    businessContract.ProjectID = string.IsNullOrEmpty(businessContract.ProjectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : businessContract.ProjectID;
+                                    businessContract.TransactionID = string.IsNullOrEmpty(businessContract.TransactionID) == true ? fileInfo.Name.Replace(fileInfo.Extension, "") : businessContract.TransactionID;
+                                }
+
+                                if (businessContracts.ContainsKey(filePath) == true)
+                                {
+                                    businessContracts.Remove(filePath);
+                                }
+
+                                businessContracts.Add(filePath, businessContract);
+                                result = true;
+                            }
+                        }
+                        else
+                        {
+                            result = false;
+                        }
+                    }
+                }
+                catch (Exception exception)
+                {
+                    Log.Logger.Error("[{LogCategory}] " + $"{fileRelativePath} 업무 계약 파일 오류 - {exception.ToMessage()}", "TransactionMapper/Add");
+                    result = false;
+                }
+            }
+
+            return result;
+        }
+
+        public static bool Add(string fileRelativePath)
+        {
+            bool result = false;
+            lock (businessContracts)
+            {
+                try
+                {
+                    foreach (var basePath in ModuleConfiguration.ContractBasePath)
+                    {
+                        string filePath = Path.Combine(basePath, fileRelativePath);
+                        if (File.Exists(filePath) == true)
+                        {
+                            BusinessContract? businessContract = BusinessContract.FromJson(File.ReadAllText(filePath));
+                            if (businessContract != null && businessContracts.ContainsKey(filePath) == false)
+                            {
+                                if (filePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
+                                {
+                                    FileInfo fileInfo = new FileInfo(filePath);
+                                    businessContract.ApplicationID = string.IsNullOrEmpty(businessContract.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : businessContract.ApplicationID;
+                                    businessContract.ProjectID = string.IsNullOrEmpty(businessContract.ProjectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : businessContract.ProjectID;
+                                    businessContract.TransactionID = string.IsNullOrEmpty(businessContract.TransactionID) == true ? fileInfo.Name.Replace(fileInfo.Extension, "") : businessContract.TransactionID;
+                                }
+
+                                businessContracts.Add(filePath, businessContract);
+                                result = true;
+                            }
+                        }
+                        else
+                        {
+                            result = false;
+                        }
+                    }
+                }
+                catch (Exception exception)
+                {
+                    Log.Logger.Error("[{LogCategory}] " + $"{fileRelativePath} 업무 계약 파일 오류 - {exception.ToMessage()}", "TransactionMapper/Add");
+                    result = false;
+                }
+            }
+
+            return result;
+        }
+
+        public static bool Upsert(string key, BusinessContract businessContract)
+        {
+            bool result = false;
+            lock (businessContracts)
+            {
+                try
+                {
+                    if (businessContract != null)
+                    {
+                        if (businessContracts.ContainsKey(key) == true)
+                        {
+                            businessContracts.Remove(key);
+                        }
+
+                        businessContracts.Add(key, businessContract);
+                        result = true;
+                    }
+                    else
+                    {
+                        result = false;
+                    }
+                }
+                catch (Exception exception)
+                {
+                    Log.Logger.Error("[{LogCategory}] " + $"{key} 업무 계약 추가 오류 - {exception.ToMessage()}", "TransactionMapper/Add");
+                    result = false;
+                }
+            }
+
+            return result;
+        }
+
+        public static bool Add(string key, BusinessContract businessContract)
+        {
+            bool result = false;
+            lock (businessContracts)
+            {
+                try
+                {
+                    if (businessContract != null && businessContracts.ContainsKey(key) == false)
+                    {
+                        businessContracts.Add(key, businessContract);
+                        result = true;
+                    }
+                    else
+                    {
+                        result = false;
+                    }
+                }
+                catch (Exception exception)
+                {
+                    Log.Logger.Error("[{LogCategory}] " + $"{key} 업무 계약 추가 오류 - {exception.ToMessage()}", "TransactionMapper/Add");
+                    result = false;
+                }
+            }
+
+            return result;
+        }
+
+        public static bool Remove(string filePath)
+        {
+            bool result = false;
+            lock (businessContracts)
+            {
+                try
+                {
+                    if (businessContracts.ContainsKey(filePath) == true)
+                    {
+                        businessContracts.Remove(filePath);
+                        result = true;
+                    }
+                    else
+                    {
+                        result = false;
+                    }
+                }
+                catch (Exception exception)
+                {
+                    Log.Logger.Error("[{LogCategory}] " + $"{filePath} 업무 계약 파일 오류 - {exception.ToMessage()}", "TransactionMapper/Remove");
+                    result = false;
+                }
+            }
+
+            return result;
+        }
+
+        public static int HasCount(string applicationID, string projectID, string transactionID)
+        {
+            int result = 0;
+            lock (businessContracts)
+            {
+                var findContracts = from item in businessContracts.Values
+                                    where item.ApplicationID == applicationID && item.ProjectID == projectID && item.TransactionID == transactionID
+                                    select item;
+
+                result = findContracts.Count();
+            }
+
+            return result;
+        }
+
+        public static void LoadContract(string environmentName, ILogger logger, IConfiguration configuration)
+        {
+            try
+            {
+                if (ModuleConfiguration.ContractBasePath.Count == 0)
+                {
+                    ModuleConfiguration.ContractBasePath.Add(GlobalConfiguration.GetBasePath($"../contracts/{ModuleConfiguration.ModuleID}"));
+                }
+
+                foreach (var basePath in ModuleConfiguration.ContractBasePath)
+                {
+                    if (Directory.Exists(basePath) == false)
+                    {
+                        continue;
+                    }
+
+                    logger.Information("[{LogCategory}] ContractBasePath: " + basePath, "TransactionMapper/LoadContract");
+
+                    string[] configFiles = Directory.GetFiles(basePath, "*.json", SearchOption.AllDirectories);
+                    lock (businessContracts)
+                    {
+                        foreach (string configFile in configFiles)
+                        {
+                            try
+                            {
+                                string configData = File.ReadAllText(configFile);
+                                BusinessContract? businessContract = BusinessContract.FromJson(configData);
+                                if (businessContract == null)
+                                {
+                                    logger.Error("[{LogCategory}] " + $"업무 계약 파일 역직렬화 오류 - {configFile}", "LoadContract");
+                                }
+                                else
+                                {
+                                    if (configFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
+                                    {
+                                        FileInfo fileInfo = new FileInfo(configFile);
+                                        businessContract.ApplicationID = string.IsNullOrEmpty(businessContract.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : businessContract.ApplicationID;
+                                        businessContract.ProjectID = string.IsNullOrEmpty(businessContract.ProjectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : businessContract.ProjectID;
+                                        businessContract.TransactionID = string.IsNullOrEmpty(businessContract.TransactionID) == true ? fileInfo.Name.Replace(fileInfo.Extension, "") : businessContract.TransactionID;
+                                    }
+
+                                    businessContract.TransactionProjectID = string.IsNullOrEmpty(businessContract.TransactionProjectID) == true ? businessContract.ProjectID : businessContract.TransactionProjectID;
+                                    if (businessContracts.ContainsKey(configFile) == false && HasCount(businessContract.ApplicationID, businessContract.ProjectID, businessContract.TransactionID) == 0)
+                                    {
+                                        businessContracts.Add(configFile, businessContract);
+                                    }
+                                    else
+                                    {
+                                        logger.Warning("[{LogCategory}] " + $"업무 계약 파일 또는 거래 정보 중복 오류 - {configFile}, ProjectID - {businessContract.ApplicationID}, BusinessID - {businessContract.ProjectID}, TransactionID - {businessContract.TransactionID}", "LoadContract");
+                                    }
+                                }
+                            }
+                            catch (Exception exception)
+                            {
+                                logger.Error("[{LogCategory}] " + $"업무 계약 파일 역직렬화 오류 - {configFile}, {exception.ToMessage()}", "LoadContract");
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception exception)
+            {
+                logger.Error("[{LogCategory}] " + $"LoadContract 오류 - {exception.ToMessage()}", "LoadContract");
+            }
+        }
+    }
+
+    public static class Serialize
+    {
+        public static string ToJson(this List<Entity.Transaction> self) => JsonConvert.SerializeObject(self, Converter.Settings);
+    }
+
+    internal static class Converter
+    {
+        public static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
+        {
+            MetadataPropertyHandling = MetadataPropertyHandling.Ignore,
+            DateParseHandling = DateParseHandling.None,
+            Converters = {
+                new IsoDateTimeConverter { DateTimeStyles = DateTimeStyles.AssumeUniversal }
+            },
+        };
+    }
+}

@@ -1,0 +1,122 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>validation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/lib/highlight.js@11.6.0/styles/atom-one-dark.min.css">
+</head>
+<body hidden style="display: none;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="mt-3">syn.$v: 유효성 검사 기능을 제공합니다.</h1>
+
+                <div class="card">
+                    <div class="card-status-top bg-red"></div>
+                    <div class="card-header">
+                        <h3 class="card-title">속성</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$v.version</label>
+                                <input type="text" id="txt_version" class="form-control">
+                                <div class="form-text">
+                                    $validation version을 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-status-top bg-red"></div>
+                    <div class="card-header">
+                        <h3 class="card-title">메서드</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$v.setElement()</label>
+                                <input type="text" id="txt_setElement" class="form-control" />
+                                <button type="button" id="btn_setElement" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    유효성 검사 정보를 수신할 노드를 설정합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$v.required()</label>
+                                <input type="text" id="txt_required" class="form-control" />
+                                <button type="button" id="btn_required" class="mt-2 btn btn-primary" syn-events="['click']">필수 입력 검증 추가</button>
+                                <button type="button" id="btn_required_validateControl" class="mt-2 btn btn-primary" syn-events="['click']">검증 확인</button>
+                                <div class="form-text">
+                                    사용자 입력을 수신할 노드에 필수 입력 검사 검증을 설정합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$v.pattern()</label>
+                                <input type="text" id="txt_pattern" class="form-control" />
+                                <button type="button" id="btn_pattern_numeric" class="mt-2 btn btn-primary" syn-events="['click']">숫자 입력 검증 추가</button>
+                                <button type="button" id="btn_pattern_email" class="mt-2 btn btn-primary" syn-events="['click']">이메일 입력 검증 추가</button>
+                                <button type="button" id="btn_pattern_juminNo" class="mt-2 btn btn-primary" syn-events="['click']">주민번호 입력 검증 추가</button>
+                                <button type="button" id="btn_pattern_validateControl" class="mt-2 btn btn-primary" syn-events="['click']">검증 확인</button>
+                                <div class="form-text">
+                                    사용자 입력을 수신할 노드에 정규식 패턴 검사 검증을 설정합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$v.range()</label>
+                                <input type="text" id="txt_range" class="form-control" />
+                                <button type="button" id="btn_range" class="mt-2 btn btn-primary" syn-events="['click']">1 ~ 100 범위 검증 추가</button>
+                                <button type="button" id="btn_range_validateControl" class="mt-2 btn btn-primary" syn-events="['click']">검증 확인</button>
+                                <div class="form-text">
+                                    사용자 입력을 수신할 노드에 숫자 입력 범위 검사 검증을 설정합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$v.custom()</label>
+                                <input type="text" id="txt_custom" class="form-control" />
+                                <button type="button" id="btn_custom" class="mt-2 btn btn-primary" syn-events="['click']">$this.method.customValidation 검증 추가</button>
+                                <button type="button" id="btn_custom_validateControl" class="mt-2 btn btn-primary" syn-events="['click']">검증 확인</button>
+                                <div class="form-text">
+                                    사용자 입력을 수신할 노드에 사용자 기능 검사 검증을 설정합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$v.validateControls()</label>
+                                <button type="button" id="btn_validateControls" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    지정한 노드들의 검사 검증을 실행합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$v.validateForm()</label>
+                                <button type="button" id="btn_validateForm" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    등록된 모든 노드들의 검사 검증을 실행합니다.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/lib/highlight.js@11.6.0/highlight.min.js"></script>
+    <script src="/lib/showdownjs@2.1.0/showdown.min.js"></script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

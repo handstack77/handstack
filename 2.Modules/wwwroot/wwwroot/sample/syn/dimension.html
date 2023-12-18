@@ -1,0 +1,177 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/lib/highlight.js@11.6.0/styles/atom-one-dark.min.css">
+</head>
+<body hidden style="display: none;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="mt-3">syn.$d: HTML Element 크기, 위치 제어 기능 제공합니다.</h1>
+
+                <div class="card">
+                    <div class="card-status-top bg-red"></div>
+                    <div class="card-header">
+                        <h3 class="card-title">속성</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$d.version</label>
+                                <input type="text" id="txt_version" class="form-control">
+                                <div class="form-text">
+                                    $dimension version을 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-status-top bg-red"></div>
+                    <div class="card-header">
+                        <h3 class="card-title">메서드</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$d.getDocumentSize()</label>
+                                <input type="text" id="txt_getDocumentSize" class="form-control" />
+                                <button type="button" id="btn_getDocumentSize" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    화면 내 최대 표시 크기를 조회합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$d.getWindowSize()</label>
+                                <input type="text" id="txt_getWindowSize" class="form-control" />
+                                <button type="button" id="btn_getWindowSize" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    브라우저의 최대 표시 크기를 조회합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$d.getScrollPosition()</label>
+                                <input type="text" id="txt_getScrollPosition" class="form-control" />
+                                <button type="button" id="btn_getScrollPosition" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    지정된 노드 또는 화면 내 스크롤 거리를 조회합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$d.getMousePosition()</label>
+                                <input type="text" id="txt_getMousePosition" class="form-control" />
+                                <button type="button" id="btn_getMousePosition" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    지정된 노드를 선택하는 마우스의 위치를 조회합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$d.offset()</label>
+                                <input type="text" id="txt_offset" class="form-control" />
+                                <button type="button" id="btn_offset" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    화면 내에서 지정된 노드의 위치를 조회합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$d.offsetLeft()</label>
+                                <input type="text" id="txt_offsetLeft" class="form-control" />
+                                <button type="button" id="btn_offsetLeft" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    지정된 노드에서 최상위 노드 간의 left 거리 합계를 조회합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$d.parentOffsetLeft()</label>
+                                <input type="text" id="txt_parentOffsetLeft" class="form-control" />
+                                <button type="button" id="btn_parentOffsetLeft" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    지정된 노드의 부모 노드 간의 left 거리를 조회합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$d.offsetTop()</label>
+                                <input type="text" id="txt_offsetTop" class="form-control" />
+                                <button type="button" id="btn_offsetTop" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    지정된 노드에서 최상위 노드 간의 top 거리 합계를 조회합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$d.parentOffsetTop()</label>
+                                <input type="text" id="txt_parentOffsetTop" class="form-control" />
+                                <button type="button" id="btn_parentOffsetTop" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    지정된 노드의 부모 노드 간의 top 거리를 조회합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$d.getSize()</label>
+                                <input type="text" id="txt_getSize" class="form-control" />
+                                <button type="button" id="btn_getSize" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    지정된 노드의 크기를 조회합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$d.measureWidth()</label>
+                                <input type="text" id="txt_measureWidth" class="form-control" />
+                                <button type="button" id="btn_measureWidth" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    지정된 텍스트 문자열의 width 크기를 조회합니다. fontSize에 따라 달라집니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$d.measureHeight()</label>
+                                <input type="text" id="txt_measureHeight" class="form-control" />
+                                <button type="button" id="btn_measureHeight" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    지정된 텍스트 문자열의 height 크기를 조회합니다. fontSize에 따라 달라집니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$d.measureSize()</label>
+                                <input type="text" id="txt_measureSize" class="form-control" />
+                                <button type="button" id="btn_measureSize" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    지정된 텍스트 문자열의 width, height 크기를 조회합니다. fontSize에 따라 달라집니다.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/lib/highlight.js@11.6.0/highlight.min.js"></script>
+    <script src="/lib/showdownjs@2.1.0/showdown.min.js"></script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

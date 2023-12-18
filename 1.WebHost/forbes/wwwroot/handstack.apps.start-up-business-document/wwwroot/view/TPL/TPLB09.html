@@ -1,0 +1,75 @@
+﻿<link type="text/css" rel="stylesheet" href="../../assets/report.css">
+<div class="report">
+    <table>
+        <tbody>
+            <tr>
+                <td>
+                    <h1>거래처원장</h1>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <p></p>
+    <table>
+        <tbody>
+            <tr>
+                <td class="label text-justify w20%">제 목</td>
+                <td colspan="3">{{Title}}</td>
+            </tr>
+            <tr>
+                <td class="label text-justify w20%">거 래 처 담 당</td>
+                <td colspan="3">{{SubstituteWorkerName}}</td>
+            </tr>
+            <tr>
+                <td class="label text-justify w20%">작 성 자</td>
+                <td class="w30%">{{CreatorName}}</td>
+                <td class="label text-justify w20%">작 성 일</td>
+                <td class="w30%">{{CreatedAt}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <p></p>
+    <table>
+        <tbody>
+            <tr>
+                <td class="label text-justify w20%">등 록 번 호</td>
+                <td class="w30%">{{SubscribeID}}</td>
+                <td class="label text-justify w20%">대 표 자 명</td>
+                <td class="w30%">{{SubscribeOwnerName}}</td>
+            </tr>
+            <tr>
+                <td class="label text-justify w20%">회 사 명</td>
+                <td class="w30%">{{SubscribeName}}</td>
+                <td class="label text-justify w20%">전 화 번 호</td>
+                <td class="w30%">{{SubscribePhoneNo}}</td>
+            </tr>
+            <tr>
+                <td class="label text-justify w20%">사 업 장 주 소</td>
+                <td colspan="3">{{SubscribeAddress}}</td>
+            </tr>
+            <tr>
+                <td class="label text-justify w20%">업 태</td>
+                <td class="w30%">{{SubscribeBusiness}}</td>
+                <td class="label text-justify w20%">종 목</td>
+                <td class="w30%">{{SubscribeSector}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <p></p>
+    <table>
+        <tbody>
+            <tr>
+                <td class="label">
+                    <h3>상 세 내 용</h3>
+                </td>
+            </tr>
+            <tr>
+                <td class="vertical-top" style="height: 640px;">{{{Contents}}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <p></p>
+    <footer>
+        <img src="{{Logo}}" style="max-width: 48px;" />
+    </footer>
+</div>

@@ -1,0 +1,161 @@
+{
+    "Label": "ack",
+    "PackageReference": [
+        {
+            "Include": "MediatR",
+            "Version": "12.1.1"
+        },
+        {
+            "Include": "AspNetCoreRateLimit",
+            "Version": "5.0.0"
+        },
+        {
+            "Include": "Microsoft.Extensions.Caching.SqlServer",
+            "Version": "7.0.10"
+        },
+        {
+            "Include": "Microsoft.Extensions.Hosting.Systemd",
+            "Version": "7.0.0"
+        },
+        {
+            "Include": "Microsoft.Extensions.Hosting.WindowsServices",
+            "Version": "7.0.1"
+        },
+        {
+            "Include": "Pomelo.Extensions.Caching.MySql",
+            "Version": "2.1.4"
+        },
+        {
+            "Include": "RestSharp",
+            "Version": "110.2.0"
+        },
+        {
+            "Include": "Newtonsoft.Json",
+            "Version": "13.0.3"
+        },
+        {
+            "Include": "Dapper",
+            "Version": "2.0.143"
+        },
+        {
+            "Include": "Polly",
+            "Version": "7.2.4"
+        },
+        {
+            "Include": "MySql.Data",
+            "Version": "8.1.0"
+        },
+        {
+            "Include": "Oracle.ManagedDataAccess.Core",
+            "Version": "3.21.110"
+        },
+        {
+            "Include": "Swashbuckle.AspNetCore",
+            "Version": "6.5.0"
+        },
+        {
+            "Include": "System.Data.SqlClient",
+            "Version": "4.8.5"
+        },
+        {
+            "Include": "Npgsql",
+            "Version": "7.0.4"
+        },
+        {
+            "Include": "System.Data.SQLite.Core",
+            "Version": "1.0.118"
+        },
+        {
+            "Include": "System.Linq.Dynamic.Core",
+            "Version": "1.3.4"
+        },
+        {
+            "Include": "HtmlAgilityPack",
+            "Version": "1.11.53"
+        },
+        {
+            "Include": "Serilog",
+            "Version": "3.0.1"
+        },
+        {
+            "Include": "Serilog.AspNetCore",
+            "Version": "7.0.0"
+        },
+        {
+            "Include": "Serilog.Extensions.Logging",
+            "Version": "7.0.0"
+        },
+        {
+            "Include": "Serilog.Extensions.Hosting",
+            "Version": "7.0.0"
+        },
+        {
+            "Include": "Serilog.Sinks.Console",
+            "Version": "4.1.0"
+        },
+        {
+            "Include": "Serilog.Sinks.File",
+            "Version": "5.0.0"
+        },
+        {
+            "Include": "Microsoft.CodeAnalysis.Compilers",
+            "Version": "4.6.0"
+        },
+        {
+            "Include": "Microsoft.CodeAnalysis.CSharp",
+            "Version": "4.6.0"
+        },
+        {
+            "Include": "Jering.Javascript.NodeJS",
+            "Version": "6.3.1"
+        },
+        {
+            "Include": "Microsoft.EntityFrameworkCore",
+            "Version": "7.0.10"
+        },
+        {
+            "Include": "Microsoft.EntityFrameworkCore.Sqlite.Core",
+            "Version": "7.0.10"
+        },
+        {
+            "Include": "Microsoft.EntityFrameworkCore.SqlServer",
+            "Version": "7.0.10"
+        },
+        {
+            "Include": "Microsoft.EntityFrameworkCore.Relational",
+            "Version": "7.0.10"
+        },
+        {
+            "Include": "MySql.EntityFrameworkCore",
+            "Version": "7.0.5"
+        },
+        {
+            "Include": "Npgsql.EntityFrameworkCore.PostgreSQL",
+            "Version": "7.0.4"
+        },
+        {
+            "Include": "Oracle.EntityFrameworkCore",
+            "Version": "7.21.11"
+        },
+        {
+            "Include": "Pomelo.EntityFrameworkCore.MySql",
+            "Version": "7.0.0"
+        },
+        {
+            "Include": "Microsoft.AspNetCore.Mvc.NewtonsoftJson",
+            "Version": "7.0.10"
+        },
+        {
+            "Include": "ChoETL.JSON.NETStandard",
+            "Version": "1.2.1.62"
+        },
+        {
+            "Include": "Azure.Storage.Blobs",
+            "Version": "12.17.0"
+        },
+        {
+            "Include": "CacheManager.Core",
+            "Version": "1.2.0"
+        }
+    ]
+}

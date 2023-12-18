@@ -1,0 +1,19 @@
+{
+    "ModuleID": "wwwroot",
+    "Name": "wwwroot",
+    "IsBundledWithHost": false,
+    "Version": "1.0.0",
+    "ModuleConfig": {
+        "SystemID": "HANDSTACK",
+        "BusinessServerUrl": "http://localhost:8080/transact/api/transaction/execute",
+        "CircuitBreakResetSecond": 60,
+        "DefaultCommandTimeout": 180,
+        "IsExceptionDetailText": true,
+        "IsLogServer": false,
+        "LogServerUrl": "http://localhost:8080/logger/api/log/insert",
+        "ModuleLogFilePath": "../log/wwwroot/module.log",
+        "ContractRequestPath": "view",
+        "ContractBasePath": "../contracts/wwwroot",
+        "WWWRootBasePath": "../modules/wwwroot/wwwroot"
+    }
+}

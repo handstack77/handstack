@@ -1,0 +1,48 @@
+﻿<link type="text/css" rel="stylesheet" href="../../assets/report.css">
+<div class="report">
+    <table>
+        <tbody>
+            <tr>
+                <td>
+                    <h1>기안서</h1>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <p></p>
+    <table>
+        <tbody>
+            <tr>
+                <td class="label text-justify">제 목</td>
+                <td colspan="3">{{Title}}</td>
+            </tr>
+            <tr>
+                <td class="label text-justify w20%">작 성 일</td>
+                <td class="w30%">{{CreatedAt}}</td>
+                <td class="label text-justify w20%">시 행 일</td>
+                <td class="w30%">{{WorkDate}}</td>
+            </tr>
+            <tr>
+                <td class="label text-justify">작 성 자</td>
+                <td colspan="3">{{CreatorName}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <p></p>
+    <table>
+        <tbody>
+            <tr>
+                <td class="label">
+                    <h3>업 무 내 용</h3>
+                </td>
+            </tr>
+            <tr>
+                <td class="vertical-top" style="height: 740px;">{{{Contents}}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <p></p>
+    <footer>
+        <img src="{{Logo}}" style="max-width: 48px;" />
+    </footer>
+</div>

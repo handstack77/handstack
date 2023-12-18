@@ -1,0 +1,33 @@
+{
+    "ModuleID": "dbclient",
+    "Name": "dbclient",
+    "IsBundledWithHost": false,
+    "Version": "1.0.0",
+    "ModuleConfig": {
+        "SystemID": "HANDSTACK",
+        "BusinessServerUrl": "http://localhost:8080/transact/api/transaction/execute",
+        "CircuitBreakResetSecond": 60,
+        "DefaultCommandTimeout": 180,
+        "IsExceptionDetailText": true,
+        "IsLogServer": true,
+        "LogServerUrl": "http://localhost:8080/logger/api/log/insert",
+        "ContractBasePath": [
+            "../contracts/dbclient"
+        ],
+        "TransactionLogFilePath": "../log/dbclient/transaction.log",
+        "ProfileLogFilePath": "../log/dbclient/profile.log",
+        "EventAction": [],
+        "SubscribeAction": [],
+        "DataSource": [
+            {
+                "ApplicationID": "HDS",
+                "ProjectID": "*",
+                "DataSourceID": "DB01",
+                "DataProvider": "SQLite",
+                "ConnectionString": "URI=file:../sqlite/HDS/dbclient/HDS.db;Journal Mode=MEMORY;Cache Size=4000;Synchronous=Normal;Page Size=4096;Pooling=True;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;",
+                "IsEncryption": "N",
+                "Comment": "HandStack 기본 데이터베이스"
+            }
+        ]
+    }
+}

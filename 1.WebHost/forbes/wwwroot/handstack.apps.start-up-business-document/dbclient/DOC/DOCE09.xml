@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+    <header>
+        <datasource>DB01</datasource>
+        <use>Y</use>
+        <desc>문서양식 > 일반업무 > 업무명세서</desc>
+    </header>
+    <commands>
+        <statement id="GD01" seq="0" use="Y" timeout="0" desc="문서 조회">
+            <![CDATA[
+SELECT DF.DocumentNo
+    , DF.FormID
+    , DF.Customer
+    , DF.PublishID
+    , DF.PublishOwnerName
+    , DF.PublishName
+    , DF.PublishPhoneNo
+    , DF.PublishAddress
+    , DF.PublishBusiness
+    , DF.PublishSector
+    , DF.CreatorName
+    , DF.Tags
+    , DF.CreatedAt
+FROM 
+    DocumentForm DF
+WHERE DF.DocumentNo = @DocumentNo
+    AND DF.FormID = @FormID;
+
+SELECT DD.DetailNo
+    , DD.DocumentNo
+    , DD.WorkDate
+    , DD.ProductName
+    , DD.Quantity
+    , DD.UnitPrice
+    , DD.Amount
+    , DD.Surtax
+FROM DocumentForm DF
+    INNER JOIN DocumentDetail DD ON DF.DocumentNo = DD.DocumentNo
+WHERE DD.DocumentNo = @DocumentNo
+    AND DF.FormID = @FormID
+    AND DD.DetailCategory = 'DetailItems1';
+			]]>
+            <param id="@DocumentNo" type="String" length="-1" value="NULL" />
+            <param id="@FormID" type="String" length="-1" value="NULL" />
+        </statement>
+
+        <statement id="MD01" seq="0" use="Y" timeout="0" desc="문서 입력, 수정">
+            <if test="(Flag == 'C')">
+                <![CDATA[
+INSERT INTO DocumentForm
+(
+    DocumentNo
+    , FormID
+    , Customer
+    , PublishID
+    , PublishOwnerName
+    , PublishName
+    , PublishPhoneNo
+    , PublishAddress
+    , PublishBusiness
+    , PublishSector
+    , CreatorName
+    , Tags
+    , CreatedAt
+) 
+VALUES
+(
+    @DocumentNo
+    , @FormID
+    , @Customer
+    , @PublishID
+    , @PublishOwnerName
+    , @PublishName
+    , @PublishPhoneNo
+    , @PublishAddress
+    , @PublishBusiness
+    , @PublishSector
+    , @CreatorName
+    , @Tags
+    , DATETIME('NOW', 'localtime')
+);
+		        ]]>
+            </if>
+
+            <if test="(Flag == 'U')">
+                <![CDATA[
+UPDATE DocumentForm SET FormID = @FormID
+    , Customer = @Customer
+    , PublishID = @PublishID
+    , PublishOwnerName = @PublishOwnerName
+    , PublishName = @PublishName
+    , PublishPhoneNo = @PublishPhoneNo
+    , PublishAddress = @PublishAddress
+    , PublishBusiness = @PublishBusiness
+    , PublishSector = @PublishSector
+    , CreatorName = @CreatorName
+    , Tags = @Tags
+	, ModifiedAt = DATETIME('NOW', 'localtime')
+WHERE DocumentNo = @DocumentNo;
+		        ]]>
+            </if>
+
+            <![CDATA[
+SELECT @DocumentNo AS DocumentNo;
+		    ]]>
+            <param id="@DocumentNo" type="String" length="36" value="NULL" />
+            <param id="@FormID" type="String" length="10" value="NULL" />
+            <param id="@Customer" type="String" length="100" value="NULL" />
+            <param id="@PublishAddress" type="String" length="300" value="NULL" />
+            <param id="@PublishBusiness" type="String" length="50" value="NULL" />
+            <param id="@PublishID" type="String" length="20" value="NULL" />
+            <param id="@PublishName" type="String" length="50" value="NULL" />
+            <param id="@PublishOwnerName" type="String" length="50" value="NULL" />
+            <param id="@PublishPhoneNo" type="String" length="50" value="NULL" />
+            <param id="@PublishSector" type="String" length="50" value="NULL" />
+            <param id="@CreatorName" type="String" length="50" value="NULL" />
+            <param id="@Tags" type="String" length="200" value="NULL" />
+        </statement>
+
+        <statement id="MD01" seq="1" use="Y" timeout="0" desc="문서 상세 1 입력, 수정, 삭제">
+            <if test="(Flag == 'C')">
+                <![CDATA[
+INSERT INTO DocumentDetail
+(
+    DocumentNo
+    , WorkDate
+    , ProductName
+    , Quantity
+    , UnitPrice
+    , Amount
+    , Surtax
+    , DetailCategory
+    , CreatedAt
+) 
+VALUES
+(
+    @DocumentNo
+    , @WorkDate
+    , @ProductName
+    , @Quantity
+    , @UnitPrice
+    , @Amount
+    , @Surtax
+    , 'DetailItems1'
+    , DATETIME('NOW', 'localtime')
+);
+		        ]]>
+            </if>
+
+            <if test="(Flag == 'U')">
+                <![CDATA[
+UPDATE DocumentDetail SET WorkDate = @WorkDate
+    , ProductName = @ProductName
+    , Quantity = @Quantity
+    , UnitPrice = @UnitPrice
+    , Amount = @Amount
+    , Surtax = @Surtax
+	, ModifiedAt = DATETIME('NOW', 'localtime')
+WHERE DetailNo = @DetailNo
+    AND DocumentNo = @DocumentNo
+    AND DetailCategory = 'DetailItems1';
+		        ]]>
+            </if>
+
+            <if test="(Flag == 'D')">
+                <![CDATA[
+DELETE FROM DocumentDetail
+WHERE DetailNo = @DetailNo
+    AND DocumentNo = @DocumentNo
+    AND DetailCategory = 'DetailItems1';
+		        ]]>
+            </if>
+            <param id="@DetailNo" type="Int32" length="-1" value="NULL" />
+            <param id="@DocumentNo" type="String" length="36" value="NULL" />
+            <param id="@WorkDate" type="String" length="10" value="NULL" />
+            <param id="@ProductName" type="String" length="50" value="NULL" />
+            <param id="@Quantity" type="Int32" length="-1" value="NULL" />
+            <param id="@UnitPrice" type="Int32" length="-1" value="NULL" />
+            <param id="@Amount" type="Int64" length="8" value="NULL" />
+            <param id="@Surtax" type="Int32" length="-1" value="NULL" />
+        </statement>
+
+        <statement id="DD01" seq="0" use="Y" timeout="0" desc="문서 삭제">
+            <![CDATA[
+DELETE FROM DocumentDetail
+WHERE DocumentNo = @DocumentNo;
+    
+DELETE FROM DocumentForm
+WHERE DocumentNo = @DocumentNo;
+			]]>
+            <param id="@DocumentNo" type="String" length="-1" value="NULL" />
+        </statement>
+    </commands>
+</mapper>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+	<header>
+		<application>HDS</application>
+		<project>ZZD</project>
+		<transaction>ZZA010</transaction>
+		<datasource>DB01</datasource>
+		<use>Y</use>
+		<desc>HandStack 내부 시스템 업무 처리용</desc>
+	</header>
+	<commands>
+		<statement id="M01" seq="0" use="Y" timeout="0" desc="배치 프로그램 실행 이력 로그 저장" modified="2023-09-25 00:00:00">
+			<![CDATA[
+			SELECT * FROM WB_BOARD_FILE WHERE BOARDSEQ = @BOARDSEQ AND FILESEQ = @FILESEQ;
+			]]>
+			<param id="@TaskResult" type="String" length="-1" value="NULL" />
+		</statement>
+		<statement id="G01" seq="0" use="Y" timeout="0" desc="템플릿 파일 정보" modified="2021-04-19 00:00:00">
+			<![CDATA[
+				SELECT * FROM MailAttachmentFile AF WHERE AF.MessageTempleteID = @MessageTemplateID;
+			]]>
+			<param id="@MessageTemplateID" type="String" length="-1" value="NULL" />
+		</statement>
+	</commands>
+</mapper>

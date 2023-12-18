@@ -1,0 +1,221 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/lib/highlight.js@11.6.0/styles/atom-one-dark.min.css">
+</head>
+<body hidden style="display: none;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="mt-3">$date: Date 객체에 대한 확장 함수를 제공합니다.</h1>
+
+                <div class="card">
+                    <div class="card-status-top bg-red"></div>
+                    <div class="card-header">
+                        <h3 class="card-title">속성</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$date.version</label>
+                                <input type="text" id="txt_version" class="form-control">
+                                <div class="form-text">
+                                    $date version을 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$date.interval</label>
+                                <input type="text" id="txt_interval" class="form-control">
+                                <div class="form-text">
+                                    초 단위 날짜 표현 상수를 조회합니다.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-status-top bg-red"></div>
+                    <div class="card-header">
+                        <h3 class="card-title">메서드</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$date.now()</label>
+                                <input type="text" id="txt_now" class="form-control">
+                                <button type="button" id="btn_now" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    Date 객체를 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$date.clone()</label>
+                                <input type="text" id="txt_clone" class="form-control">
+                                <button type="button" id="btn_clone" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    Date 객체를 복사하여 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$date.isBetween()</label>
+                                <input type="text" id="txt_isBetween" class="form-control">
+                                <button type="button" id="btn_isBetween" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    Date 객체가 지정된 기간내에 포함되는지 확인합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$date.equals()</label>
+                                <input type="text" id="txt_equals" class="form-control">
+                                <button type="button" id="btn_equals" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    Date 객체의 밀리초 단위가 동일한지 확인합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$date.equalDay()</label>
+                                <input type="text" id="txt_equalDay" class="form-control">
+                                <button type="button" id="btn_equalDay" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    Date 객체의 일자 단위가 동일한지 확인합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$date.isToday()</label>
+                                <input type="text" id="txt_isToday" class="form-control">
+                                <button type="button" id="btn_isToday" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    Date 객체의 일자 단위가 오늘과 동일한지 확인합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$date.toString()</label>
+                                <input type="text" id="txt_toString" class="form-control">
+                                <button type="button" id="btn_toString_d" class="mt-2 btn btn-primary" syn-events="['click']">yyyy-MM-dd 확인</button>
+                                <button type="button" id="btn_toString_t" class="mt-2 btn btn-primary" syn-events="['click']">hh:mm:ss 확인</button>
+                                <button type="button" id="btn_toString_a" class="mt-2 btn btn-primary" syn-events="['click']">yyyy-MM-dd hh:mm:ss 확인</button>
+                                <button type="button" id="btn_toString_f" class="mt-2 btn btn-primary" syn-events="['click']">yyyyMMddhhmmssfff 확인</button>
+                                <button type="button" id="btn_toString_s" class="mt-2 btn btn-primary" syn-events="['click']">hhmmssfff 확인</button>
+                                <button type="button" id="btn_toString_n" class="mt-2 btn btn-primary" syn-events="['click']">yyyy년 MM월 dd일 (dayName) 확인</button>
+                                <button type="button" id="btn_toString_mdn" class="mt-2 btn btn-primary" syn-events="['click']">MM월 dd일 확인</button>
+                                <button type="button" id="btn_toString_w" class="mt-2 btn btn-primary" syn-events="['click']">week 확인</button>
+                                <button type="button" id="btn_toString_wn" class="mt-2 btn btn-primary" syn-events="['click']">weekName 확인</button>
+                                <button type="button" id="btn_toString_m" class="mt-2 btn btn-primary" syn-events="['click']">MM 확인</button>
+                                <button type="button" id="btn_toString_ym" class="mt-2 btn btn-primary" syn-events="['click']">yyyy-MM 확인</button>
+                                <button type="button" id="btn_toString_day" class="mt-2 btn btn-primary" syn-events="['click']">dd 확인</button>
+                                <div class="form-text">
+                                    Date 객체 값을 사용자에게 친숙한 문자열로 변환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$date.addSecond(), $date.addMinute(), $date.addHour() , $date.addDay(), $date.addWeek(), $date.addMonth(), $date.addYear()</label>
+                                <input type="text" id="txt_toTimeCount" class="form-control">
+                                <button type="button" id="btn_addSecond" class="mt-2 btn btn-primary" syn-events="['click']">초 단위 확인</button>
+                                <button type="button" id="btn_addMinute" class="mt-2 btn btn-primary" syn-events="['click']">분 단위 확인</button>
+                                <button type="button" id="btn_addHour" class="mt-2 btn btn-primary" syn-events="['click']">시 단위 확인</button>
+                                <button type="button" id="btn_addDay" class="mt-2 btn btn-primary" syn-events="['click']">일 단위 확인</button>
+                                <button type="button" id="btn_addWeek" class="mt-2 btn btn-primary" syn-events="['click']">주 단위 확인</button>
+                                <button type="button" id="btn_addMonth" class="mt-2 btn btn-primary" syn-events="['click']">월 단위 확인</button>
+                                <button type="button" id="btn_addYear" class="mt-2 btn btn-primary" syn-events="['click']">년 단위 확인</button>
+                                <div class="form-text">
+                                    Date 객체 값에 초, 분, 시, 일, 주, 월, 년 단위을 조정합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$date.getFirstDate(), $date.getLastDate()</label>
+                                <input type="text" id="txt_getFirstLastDate" class="form-control">
+                                <button type="button" id="btn_getFirstDate" class="mt-2 btn btn-primary" syn-events="['click']">첫번째 일자 확인</button>
+                                <button type="button" id="btn_getLastDate" class="mt-2 btn btn-primary" syn-events="['click']">마지막 일자 확인</button>
+                                <div class="form-text">
+                                    Date 객체 첫번째와 마지막 일자를 변환하여 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$date.diff()</label>
+                                <input type="text" id="txt_toDiffCount" class="form-control">
+                                <button type="button" id="btn_diff_second" class="mt-2 btn btn-primary" syn-events="['click']">초 단위 확인</button>
+                                <button type="button" id="btn_diff_minute" class="mt-2 btn btn-primary" syn-events="['click']">분 단위 확인</button>
+                                <button type="button" id="btn_diff_hour" class="mt-2 btn btn-primary" syn-events="['click']">시 단위 확인</button>
+                                <button type="button" id="btn_diff_day" class="mt-2 btn btn-primary" syn-events="['click']">일 단위 확인</button>
+                                <button type="button" id="btn_diff_week" class="mt-2 btn btn-primary" syn-events="['click']">주 단위 확인</button>
+                                <button type="button" id="btn_diff_month" class="mt-2 btn btn-primary" syn-events="['click']">월 단위 확인</button>
+                                <button type="button" id="btn_diff_year" class="mt-2 btn btn-primary" syn-events="['click']">년 단위 확인</button>
+                                <div class="form-text">
+                                    Date 객체 값에 초, 분, 시, 일, 주, 월, 년 단위을 조정합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$date.toTicks()</label>
+                                <input type="text" id="txt_toTicks" class="form-control">
+                                <button type="button" id="btn_toTicks" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    Date 객체의 값을 ticks로 변환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$date.isDate()</label>
+                                <input type="text" id="txt_isDate" class="form-control">
+                                <button type="button" id="btn_isDate" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    입력한 문자열이 Date 객체로 변환이 가능한지 확인합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$date.isISOString()</label>
+                                <input type="text" id="txt_isISOString" class="form-control">
+                                <button type="button" id="btn_isISOString" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    입력한 문자열이 ISO 규격 인지 확인합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$date.weekOfMonth()</label>
+                                <input type="text" id="txt_weekOfMonth" class="form-control">
+                                <button type="button" id="btn_weekOfMonth" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    년월의 주차를 조회합니다.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/lib/highlight.js@11.6.0/highlight.min.js"></script>
+    <script src="/lib/showdownjs@2.1.0/showdown.min.js"></script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

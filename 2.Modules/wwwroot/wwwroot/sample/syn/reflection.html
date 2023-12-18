@@ -1,0 +1,148 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>reflection</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/lib/highlight.js@11.6.0/styles/atom-one-dark.min.css">
+</head>
+<body hidden style="display: none;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div id="wrap" class="sub">
+            <div class="bx_sep">
+                <header>
+                    syn.reflection (syn.$reflection)
+                </header>
+                <div class="tb_ly_a">
+                    <table>
+                        <colgroup>
+                            <col style="width:25%" />
+                            <col />
+                        </colgroup>
+                        <tr>
+                            <th scope="col">
+                                $reflection.getType
+                            </th>
+                            <td>
+                                <input type="text" id="txtGetType" value="" />
+                                <input type="button" id="btnGetType" value="txtGetType 텍스트박스 타입 조회" syn-events="['click']" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="col">
+                                $reflection.isDefined
+                            </th>
+                            <td>
+                                <input type="text" id="txtIsDefined" value="" />
+                                <input type="button" id="btnIsDefined" value="undefined 확인" syn-events="['click']" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="col">
+                                $reflection.isNull
+                            </th>
+                            <td>
+                                <p id="pIsNull">매개변수가 null 인지 확인</p>
+                                <input type="text" id="txtIsNull" value="" />
+                                <input type="button" id="btnIsNull" value="null 확인" syn-events="['click']" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="col">
+                                $reflection.isArray
+                            </th>
+                            <td>
+                                <p id="pIsArray">매개변수가 배열 인지 확인</p>
+                                <input type="text" id="txtIsArray" value="" />
+                                <input type="button" id="btnIsArray" value="배열 확인" syn-events="['click']" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="col">
+                                $reflection.isDate
+                            </th>
+                            <td>
+                                <p id="pIsDate">매개변수가 날짜 인지 확인</p>
+                                <input type="text" id="txtIsDate" value="2019-10-22T12:12:12" />
+                                <input type="button" id="btnIsDate" value="매개변수 날짜 확인" syn-events="['click']" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="col">
+                                $reflection.isString
+                            </th>
+                            <td>
+                                <p id="pIsString">매개변수가 문자열 인지 확인</p>
+                                <input type="text" id="txtIsString" value="" />
+                                <input type="button" id="btnIsString" value="매개변수 문자열 확인" syn-events="['click']" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="col">
+                                $reflection.isNumber
+                            </th>
+                            <td>
+                                <p id="pIsNumber">매개변수가 숫자 인지 확인</p>
+                                <input type="text" id="txtIsNumber" value="" />
+                                <input type="button" id="btnIsNumber" value="매개변수 숫자 확인" syn-events="['click']" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="col">
+                                $reflection.isFunction
+                            </th>
+                            <td>
+                                <p id="pIsFunction">매개변수가 함수 인지 확인</p>
+                                <input type="text" id="txtIsFunction" value="" />
+                                <input type="button" id="btnIsFunction" value="매개변수 함수 확인" syn-events="['click']" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="col">
+                                $reflection.isObject
+                            </th>
+                            <td>
+                                <p id="pIsObject">매개변수가 객체 인지 확인</p>
+                                <input type="text" id="txtIsObject" value="" />
+                                <input type="button" id="btnIsObject" value="매개변수 객체 확인" syn-events="['click']" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="col">
+                                $reflection.isBoolean
+                            </th>
+                            <td>
+                                <p id="pIsBoolean">매개변수가 boolean 인지 확인</p>
+                                <input type="text" id="txtIsBoolean" value="" />
+                                <input type="button" id="btnIsBoolean" value="매개변수 boolean 확인" syn-events="['click']" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="col">
+                                $reflection.clone
+                            </th>
+                            <td>
+                                <p id="pClone">객체의 사본을 반환</p>
+                                <input type="text" id="txtClone" value="" />
+                                <input type="button" id="btnClone" value="객체 반환" syn-events="['click']" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="col">
+                                $reflection.method
+                            </th>
+                            <td>
+                                <p id="pMethod">메서드를 동적으로 추가</p>
+                                <input type="button" id="btnMethod" value="메서드 추가" syn-events="['click']" />
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </form>
+    <script src="/lib/highlight.js@11.6.0/highlight.min.js"></script>
+    <script src="/lib/showdownjs@2.1.0/showdown.min.js"></script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

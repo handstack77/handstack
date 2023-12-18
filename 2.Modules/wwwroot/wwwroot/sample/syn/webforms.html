@@ -1,0 +1,203 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>webform</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/lib/highlight.js@11.6.0/styles/atom-one-dark.min.css">
+</head>
+<body hidden style="display: none;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <h1 class="mt-3">syn.$w: 화면 개발 및 거래 업무 기능을 제공합니다.</h1>
+
+                    <div class="card">
+                        <div class="card-status-top bg-red"></div>
+                        <div class="card-header">
+                            <h3 class="card-title">속성</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                                <div class="col-12">
+                                    <label class="form-label">syn.$w.version</label>
+                                    <input type="text" id="txt_version" class="form-control">
+                                    <div class="form-text">
+                                        $webform version을 반환합니다.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mt-3">
+                        <div class="card-status-top bg-red"></div>
+                        <div class="card-header">
+                            <h3 class="card-title">메서드</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                                <div class="col-12">
+                                    <label class="form-label">syn.$w.setStorage()</label>
+                                    <input type="text" id="txt_setStorage" syn-datafield="setStorage" syn-options="{belongID: ['GD01']}" class="form-control" />
+                                    <button type="button" id="btn_setStorage_sessionStorage" class="mt-2 btn btn-primary" syn-events="['click']">sessionStorage 확인</button>
+                                    <button type="button" id="btn_setStorage_localStorage" class="mt-2 btn btn-primary" syn-events="['click']">localStorage 확인</button>
+                                    <div class="form-text">
+                                        sessionStorage 또는 localStorage에 데이터를 저장합니다.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                                <div class="col-12">
+                                    <label class="form-label">syn.$w.getStorage()</label>
+                                    <input type="text" id="txt_getStorage" class="form-control" syn-datafield="getStorage" syn-options="{belongID: ['GD01']}" />
+                                    <button type="button" id="btn_getStorage_sessionStorage" class="mt-2 btn btn-primary" syn-events="['click']">sessionStorage 확인</button>
+                                    <button type="button" id="btn_getStorage_localStorage" class="mt-2 btn btn-primary" syn-events="['click']">localStorage 확인</button>
+                                    <div class="form-text">
+                                        sessionStorage 또는 localStorage에 데이터를 조회합니다.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                                <div class="col-12">
+                                    <label class="form-label">syn.$w.removeStorage()</label>
+                                    <input type="text" id="txt_removeStorage" syn-datafield="removeStorage" syn-options="{belongID: ['GD01']}" class="form-control" />
+                                    <button type="button" id="btn_removeStorage_sessionStorage" class="mt-2 btn btn-primary" syn-events="['click']">sessionStorage 확인</button>
+                                    <button type="button" id="btn_removeStorage_localStorage" class="mt-2 btn btn-primary" syn-events="['click']">localStorage 확인</button>
+                                    <div class="form-text">
+                                        sessionStorage 또는 localStorage에 데이터를 삭제합니다.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                                <div class="col-12">
+                                    <label class="form-label">syn.$w.activeControl()</label>
+                                    <input type="text" id="txt_activeControl" syn-datafield="activeControl" syn-options="{belongID: ['GD01']}" class="form-control" />
+                                    <button type="button" id="btn_activeControl" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                    <div class="form-text">
+                                        화면 내 이벤트가 발생하는 노드 > 활성화 중인 노드 > 포커스중인 노드 순서로 조회합니다.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                                <div class="col-12">
+                                    <label class="form-label">syn.$w.argumentsExtend()</label>
+                                    <input type="text" id="txt_argumentsExtend" syn-datafield="argumentsExtend" syn-options="{belongID: ['GD01']}" class="form-control" />
+                                    <button type="button" id="btn_argumentsExtend" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                    <div class="form-text">
+                                        JSON 객체를 확장합니다.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                                <div class="col-12">
+                                    <label class="form-label">syn.$w.getterValue()</label>
+                                    <input type="text" id="txt_getterValue" syn-datafield="getterValue" syn-options="{belongID: ['GD01']}" class="form-control" />
+                                    <button type="button" id="btn_getterValue" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                    <div class="form-text">
+                                        거래 요청 정보를 조회합니다.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                                <div class="col-12">
+                                    <label class="form-label">syn.$w.setterValue()</label>
+                                    <input type="text" id="txt_setterValue" syn-datafield="setterValue" syn-options="{belongID: ['GD01']}" class="form-control" />
+                                    <button type="button" id="btn_setterValue" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                    <div class="form-text">
+                                        거래 응답 정보를 적용합니다.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                                <div class="col-12">
+                                    <label class="form-label">syn.$w.scrollToTop()</label>
+                                    <button type="button" id="btn_scrollToTop" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                    <div class="form-text">
+                                        화면 스크롤을 최상위로 이동합니다.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                                <div class="col-12">
+                                    <label class="form-label">syn.$w.setFavicon()</label>
+                                    <button type="button" id="btn_setFavicon" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                    <div class="form-text">
+                                        웹 페이지의 favicon 이미지를 설정합니다.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                                <div class="col-12">
+                                    <label class="form-label">syn.$w.fileDownload()</label>
+                                    <input type="text" id="txt_fileDownload" class="form-control" value="/sample/syn/webforms.html" />
+                                    <button type="button" id="btn_fileDownload" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                    <div class="form-text">
+                                        웹 페이지 주소의 결과를 파일로 다운로드 합니다.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                                <div class="col-12">
+                                    <label class="form-label">syn.$w.apiHttp()</label>
+                                    <textarea id="txt_apiHttp" class="form-control" rows="5"></textarea>
+                                    <button type="button" id="btn_apiHttp_get" class="mt-2 btn btn-primary" syn-events="['click']">GET 요청 확인</button>
+                                    <button type="button" id="btn_apiHttp_post" class="mt-2 btn btn-primary" syn-events="['click']">Json POST 요청 확인</button>
+                                    <button type="button" id="btn_apiHttp_form" class="mt-2 btn btn-primary" syn-events="['click']">FormData POST 요청 확인</button>
+                                    <div class="form-text">
+                                        api 방식으로 http 프로토콜 요청을 수행합니다.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                                <div class="col-12">
+                                    <label class="form-label">syn.$w.loadScript()</label>
+                                    <input type="text" id="txt_loadScript" class="form-control" value="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.13.6/underscore-min.js" />
+                                    <button type="button" id="btn_loadScript" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                    <div class="form-text">
+                                        외부 javascript를 화면에 동적으로 로드합니다.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                                <div class="col-12">
+                                    <label class="form-label">syn.$w.loadStyle()</label>
+                                    <input type="text" id="txt_loadStyle" class="form-control" value="style.css" />
+                                    <button type="button" id="btn_loadStyle" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                    <div class="form-text">
+                                        외부 stylesheet를 화면에 동적으로 로드합니다.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                                <div class="col-12">
+                                    <label class="form-label">syn.$w.fetchText()</label>
+                                    <textarea id="txt_fetchText" class="form-control" rows="5"></textarea>
+                                    <button type="button" id="btn_fetchText" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                    <div class="form-text">
+                                        웹 페이지 주소의 결과를 텍스트로 조회합니다.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                                <div class="col-12">
+                                    <label class="form-label">syn.$w.fetchJson()</label>
+                                    <textarea id="txt_fetchJson" class="form-control" rows="5"></textarea>
+                                    <button type="button" id="btn_fetchJson" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                    <div class="form-text">
+                                        웹 페이지 주소의 결과를 Json 객체로 조회합니다.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <script src="/lib/highlight.js@11.6.0/highlight.min.js"></script>
+    <script src="/lib/showdownjs@2.1.0/showdown.min.js"></script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

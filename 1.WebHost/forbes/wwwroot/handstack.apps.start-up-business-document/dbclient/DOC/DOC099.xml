@@ -1,0 +1,578 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+	<header>
+		<datasource>DB01</datasource>
+		<use>Y</use>
+		<desc></desc>
+	</header>
+	<commands>
+		<statement id="LD01" seq="0" use="Y" timeout="0" desc="" modified="2023-11-04 12:27:41">
+			<![CDATA[
+SELECT
+	BFT.Comment,
+	BFT.FormID,
+	BFT.FormName,
+	BFT.FormType,
+	BFT.SortingNo,
+	BFT.UseYN
+FROM
+	BusinessFormType BFT
+WHERE
+	(BFT.FormID = @FormID)
+			]]>
+			<param id="@Comment" type="String" length="200" value="NULL" />
+			<param id="@FormID" type="String" length="10" value="NULL" />
+			<param id="@FormName" type="String" length="50" value="NULL" />
+			<param id="@FormType" type="String" length="3" value="NULL" />
+			<param id="@SortingNo" type="Int32" length="0" value="NULL" />
+			<param id="@UseYN" type="String" length="1" value="NULL" />
+		</statement>
+		<statement id="GD01" seq="0" use="Y" timeout="0" desc="" modified="2023-11-04 12:27:41">
+			<![CDATA[
+SELECT
+	DF.AfternoonDivision,
+	DF.AnnualLeaveType,
+	DF.AnnualLeaveUnit,
+	DF.Attendees,
+	DF.BirthDate,
+	DF.BusinessTripPlace,
+	DF.Celluar,
+	DF.CompanionsCode,
+	DF.CompanionsName,
+	DF.Contents,
+	DF.CreatedAt,
+	DF.CreatorName,
+	DF.Customer,
+	DF.DecisionText,
+	DF.DepartmentName,
+	DF.DocumentNo,
+	DF.DueDate,
+	DF.Email,
+	DF.EndDate,
+	DF.EndTime,
+	DF.FormID,
+	DF.GoalResult,
+	DF.Importance,
+	DF.IssuanceCardYN,
+	DF.LeaveOfAbsence,
+	DF.ModifiedAt,
+	DF.NextWorkSchedule,
+	DF.Note,
+	DF.PendingText,
+	DF.Period,
+	DF.PositionName,
+	DF.PrevWorkSchedule,
+	DF.ProgressText,
+	DF.PublishAddress,
+	DF.PublishBusiness,
+	DF.PublishComment,
+	DF.PublishID,
+	DF.PublishName,
+	DF.PublishOwnerName,
+	DF.PublishPhoneNo,
+	DF.PublishSector,
+	DF.Purpose,
+	DF.PurposeRatio,
+	DF.ReinstatementDate,
+	DF.ReinstatementType,
+	DF.RetireHopeDate,
+	DF.ReturnDate,
+	DF.StartDate,
+	DF.StartTime,
+	DF.SubscribeAddress,
+	DF.SubscribeBusiness,
+	DF.SubscribeComment,
+	DF.SubscribeID,
+	DF.SubscribeName,
+	DF.SubscribeOwnerName,
+	DF.SubscribePhoneNo,
+	DF.SubscribeSector,
+	DF.SubstituteWorkerName,
+	DF.SubTotalAmount,
+	DF.Supplies,
+	DF.Tags,
+	DF.Title,
+	DF.TotalAmount,
+	DF.TransactionID,
+	DF.WorkDate,
+	DF.WorkTime
+FROM
+	DocumentForm DF
+WHERE
+	(DF.DocumentNo = @DocumentNo)
+			]]>
+			<param id="@AfternoonDivision" type="String" length="1" value="NULL" />
+			<param id="@AnnualLeaveType" type="String" length="2" value="NULL" />
+			<param id="@AnnualLeaveUnit" type="String" length="2" value="NULL" />
+			<param id="@Attendees" type="String" length="2000" value="NULL" />
+			<param id="@BirthDate" type="String" length="10" value="NULL" />
+			<param id="@BusinessTripPlace" type="String" length="100" value="NULL" />
+			<param id="@Celluar" type="String" length="20" value="NULL" />
+			<param id="@CompanionsCode" type="String" length="2000" value="NULL" />
+			<param id="@CompanionsName" type="String" length="2000" value="NULL" />
+			<param id="@Contents" type="String" length="65536" value="NULL" />
+			<param id="@CreatedAt" type="String" length="30" value="NULL" />
+			<param id="@CreatorName" type="String" length="50" value="NULL" />
+			<param id="@Customer" type="String" length="100" value="NULL" />
+			<param id="@DecisionText" type="String" length="65536" value="NULL" />
+			<param id="@DepartmentName" type="String" length="50" value="NULL" />
+			<param id="@DocumentNo" type="String" length="36" value="NULL" />
+			<param id="@DueDate" type="String" length="10" value="NULL" />
+			<param id="@Email" type="String" length="256" value="NULL" />
+			<param id="@EndDate" type="String" length="10" value="NULL" />
+			<param id="@EndTime" type="String" length="8" value="NULL" />
+			<param id="@FormID" type="String" length="10" value="NULL" />
+			<param id="@GoalResult" type="String" length="50" value="NULL" />
+			<param id="@Importance" type="String" length="50" value="NULL" />
+			<param id="@IssuanceCardYN" type="String" length="1" value="NULL" />
+			<param id="@LeaveOfAbsence" type="String" length="1" value="NULL" />
+			<param id="@ModifiedAt" type="String" length="30" value="NULL" />
+			<param id="@NextWorkSchedule" type="String" length="65536" value="NULL" />
+			<param id="@Note" type="String" length="65536" value="NULL" />
+			<param id="@PendingText" type="String" length="65536" value="NULL" />
+			<param id="@Period" type="String" length="50" value="NULL" />
+			<param id="@PositionName" type="String" length="50" value="NULL" />
+			<param id="@PrevWorkSchedule" type="String" length="65536" value="NULL" />
+			<param id="@ProgressText" type="String" length="65536" value="NULL" />
+			<param id="@PublishAddress" type="String" length="300" value="NULL" />
+			<param id="@PublishBusiness" type="String" length="50" value="NULL" />
+			<param id="@PublishComment" type="String" length="50" value="NULL" />
+			<param id="@PublishID" type="String" length="20" value="NULL" />
+			<param id="@PublishName" type="String" length="50" value="NULL" />
+			<param id="@PublishOwnerName" type="String" length="50" value="NULL" />
+			<param id="@PublishPhoneNo" type="String" length="50" value="NULL" />
+			<param id="@PublishSector" type="String" length="50" value="NULL" />
+			<param id="@Purpose" type="String" length="1000" value="NULL" />
+			<param id="@PurposeRatio" type="String" length="50" value="NULL" />
+			<param id="@ReinstatementDate" type="String" length="10" value="NULL" />
+			<param id="@ReinstatementType" type="String" length="1" value="NULL" />
+			<param id="@RetireHopeDate" type="String" length="10" value="NULL" />
+			<param id="@ReturnDate" type="String" length="10" value="NULL" />
+			<param id="@StartDate" type="String" length="10" value="NULL" />
+			<param id="@StartTime" type="String" length="8" value="NULL" />
+			<param id="@SubscribeAddress" type="String" length="300" value="NULL" />
+			<param id="@SubscribeBusiness" type="String" length="50" value="NULL" />
+			<param id="@SubscribeComment" type="String" length="50" value="NULL" />
+			<param id="@SubscribeID" type="String" length="20" value="NULL" />
+			<param id="@SubscribeName" type="String" length="50" value="NULL" />
+			<param id="@SubscribeOwnerName" type="String" length="50" value="NULL" />
+			<param id="@SubscribePhoneNo" type="String" length="50" value="NULL" />
+			<param id="@SubscribeSector" type="String" length="50" value="NULL" />
+			<param id="@SubstituteWorkerName" type="String" length="50" value="NULL" />
+			<param id="@SubTotalAmount" type="Int64" length="0" value="NULL" />
+			<param id="@Supplies" type="String" length="4000" value="NULL" />
+			<param id="@Tags" type="String" length="200" value="NULL" />
+			<param id="@Title" type="String" length="100" value="NULL" />
+			<param id="@TotalAmount" type="Int64" length="0" value="NULL" />
+			<param id="@TransactionID" type="String" length="36" value="NULL" />
+			<param id="@WorkDate" type="String" length="10" value="NULL" />
+			<param id="@WorkTime" type="String" length="8" value="NULL" />
+		</statement>
+		<statement id="UD01" seq="0" use="Y" timeout="0" desc="" modified="2023-11-04 12:27:42">
+			<![CDATA[
+UPDATE DocumentForm
+SET
+	AfternoonDivision = @AfternoonDivision,
+	AnnualLeaveType = @AnnualLeaveType,
+	AnnualLeaveUnit = @AnnualLeaveUnit,
+	Attendees = @Attendees,
+	BirthDate = @BirthDate,
+	BusinessTripPlace = @BusinessTripPlace,
+	Celluar = @Celluar,
+	CompanionsCode = @CompanionsCode,
+	CompanionsName = @CompanionsName,
+	Contents = @Contents,
+	CreatedAt = @CreatedAt,
+	CreatorName = @CreatorName,
+	Customer = @Customer,
+	DecisionText = @DecisionText,
+	DepartmentName = @DepartmentName,
+	DocumentNo = @DocumentNo,
+	DueDate = @DueDate,
+	Email = @Email,
+	EndDate = @EndDate,
+	EndTime = @EndTime,
+	FormID = @FormID,
+	GoalResult = @GoalResult,
+	Importance = @Importance,
+	IssuanceCardYN = @IssuanceCardYN,
+	LeaveOfAbsence = @LeaveOfAbsence,
+	ModifiedAt = @ModifiedAt,
+	NextWorkSchedule = @NextWorkSchedule,
+	Note = @Note,
+	PendingText = @PendingText,
+	Period = @Period,
+	PositionName = @PositionName,
+	PrevWorkSchedule = @PrevWorkSchedule,
+	ProgressText = @ProgressText,
+	PublishAddress = @PublishAddress,
+	PublishBusiness = @PublishBusiness,
+	PublishComment = @PublishComment,
+	PublishID = @PublishID,
+	PublishName = @PublishName,
+	PublishOwnerName = @PublishOwnerName,
+	PublishPhoneNo = @PublishPhoneNo,
+	PublishSector = @PublishSector,
+	Purpose = @Purpose,
+	PurposeRatio = @PurposeRatio,
+	ReinstatementDate = @ReinstatementDate,
+	ReinstatementType = @ReinstatementType,
+	RetireHopeDate = @RetireHopeDate,
+	ReturnDate = @ReturnDate,
+	StartDate = @StartDate,
+	StartTime = @StartTime,
+	SubscribeAddress = @SubscribeAddress,
+	SubscribeBusiness = @SubscribeBusiness,
+	SubscribeComment = @SubscribeComment,
+	SubscribeID = @SubscribeID,
+	SubscribeName = @SubscribeName,
+	SubscribeOwnerName = @SubscribeOwnerName,
+	SubscribePhoneNo = @SubscribePhoneNo,
+	SubscribeSector = @SubscribeSector,
+	SubstituteWorkerName = @SubstituteWorkerName,
+	SubTotalAmount = @SubTotalAmount,
+	Supplies = @Supplies,
+	Tags = @Tags,
+	Title = @Title,
+	TotalAmount = @TotalAmount,
+	TransactionID = @TransactionID,
+	WorkDate = @WorkDate,
+	WorkTime = @WorkTime
+WHERE
+	(DocumentNo = @DocumentNo)
+			]]>
+			<param id="@AfternoonDivision" type="String" length="1" value="NULL" />
+			<param id="@AnnualLeaveType" type="String" length="2" value="NULL" />
+			<param id="@AnnualLeaveUnit" type="String" length="2" value="NULL" />
+			<param id="@Attendees" type="String" length="2000" value="NULL" />
+			<param id="@BirthDate" type="String" length="10" value="NULL" />
+			<param id="@BusinessTripPlace" type="String" length="100" value="NULL" />
+			<param id="@Celluar" type="String" length="20" value="NULL" />
+			<param id="@CompanionsCode" type="String" length="2000" value="NULL" />
+			<param id="@CompanionsName" type="String" length="2000" value="NULL" />
+			<param id="@Contents" type="String" length="65536" value="NULL" />
+			<param id="@CreatedAt" type="String" length="30" value="NULL" />
+			<param id="@CreatorName" type="String" length="50" value="NULL" />
+			<param id="@Customer" type="String" length="100" value="NULL" />
+			<param id="@DecisionText" type="String" length="65536" value="NULL" />
+			<param id="@DepartmentName" type="String" length="50" value="NULL" />
+			<param id="@DocumentNo" type="String" length="36" value="NULL" />
+			<param id="@DueDate" type="String" length="10" value="NULL" />
+			<param id="@Email" type="String" length="256" value="NULL" />
+			<param id="@EndDate" type="String" length="10" value="NULL" />
+			<param id="@EndTime" type="String" length="8" value="NULL" />
+			<param id="@FormID" type="String" length="10" value="NULL" />
+			<param id="@GoalResult" type="String" length="50" value="NULL" />
+			<param id="@Importance" type="String" length="50" value="NULL" />
+			<param id="@IssuanceCardYN" type="String" length="1" value="NULL" />
+			<param id="@LeaveOfAbsence" type="String" length="1" value="NULL" />
+			<param id="@ModifiedAt" type="String" length="30" value="NULL" />
+			<param id="@NextWorkSchedule" type="String" length="65536" value="NULL" />
+			<param id="@Note" type="String" length="65536" value="NULL" />
+			<param id="@PendingText" type="String" length="65536" value="NULL" />
+			<param id="@Period" type="String" length="50" value="NULL" />
+			<param id="@PositionName" type="String" length="50" value="NULL" />
+			<param id="@PrevWorkSchedule" type="String" length="65536" value="NULL" />
+			<param id="@ProgressText" type="String" length="65536" value="NULL" />
+			<param id="@PublishAddress" type="String" length="300" value="NULL" />
+			<param id="@PublishBusiness" type="String" length="50" value="NULL" />
+			<param id="@PublishComment" type="String" length="50" value="NULL" />
+			<param id="@PublishID" type="String" length="20" value="NULL" />
+			<param id="@PublishName" type="String" length="50" value="NULL" />
+			<param id="@PublishOwnerName" type="String" length="50" value="NULL" />
+			<param id="@PublishPhoneNo" type="String" length="50" value="NULL" />
+			<param id="@PublishSector" type="String" length="50" value="NULL" />
+			<param id="@Purpose" type="String" length="1000" value="NULL" />
+			<param id="@PurposeRatio" type="String" length="50" value="NULL" />
+			<param id="@ReinstatementDate" type="String" length="10" value="NULL" />
+			<param id="@ReinstatementType" type="String" length="1" value="NULL" />
+			<param id="@RetireHopeDate" type="String" length="10" value="NULL" />
+			<param id="@ReturnDate" type="String" length="10" value="NULL" />
+			<param id="@StartDate" type="String" length="10" value="NULL" />
+			<param id="@StartTime" type="String" length="8" value="NULL" />
+			<param id="@SubscribeAddress" type="String" length="300" value="NULL" />
+			<param id="@SubscribeBusiness" type="String" length="50" value="NULL" />
+			<param id="@SubscribeComment" type="String" length="50" value="NULL" />
+			<param id="@SubscribeID" type="String" length="20" value="NULL" />
+			<param id="@SubscribeName" type="String" length="50" value="NULL" />
+			<param id="@SubscribeOwnerName" type="String" length="50" value="NULL" />
+			<param id="@SubscribePhoneNo" type="String" length="50" value="NULL" />
+			<param id="@SubscribeSector" type="String" length="50" value="NULL" />
+			<param id="@SubstituteWorkerName" type="String" length="50" value="NULL" />
+			<param id="@SubTotalAmount" type="Int64" length="0" value="NULL" />
+			<param id="@Supplies" type="String" length="4000" value="NULL" />
+			<param id="@Tags" type="String" length="200" value="NULL" />
+			<param id="@Title" type="String" length="100" value="NULL" />
+			<param id="@TotalAmount" type="Int64" length="0" value="NULL" />
+			<param id="@TransactionID" type="String" length="36" value="NULL" />
+			<param id="@WorkDate" type="String" length="10" value="NULL" />
+			<param id="@WorkTime" type="String" length="8" value="NULL" />
+		</statement>
+		<statement id="ID01" seq="0" use="Y" timeout="0" desc="" modified="2023-11-04 12:27:42">
+			<![CDATA[
+INSERT INTO
+	DocumentDetail (
+		Address,
+		Amount,
+		BusinessNo,
+		CategoryName,
+		Comment,
+		CompanyName,
+		CreatedAt,
+		CumulativeAmount,
+		DateName,
+		DayName,
+		DeadLineAt,
+		DeadLineDate,
+		DepartmentName,
+		DetailCategory,
+		DetailContent,
+		DetailNo,
+		DocumentNo,
+		ExecutionWorkName,
+		GrandTotal,
+		History,
+		KeyResult,
+		ModifiedAt,
+		Note,
+		Objective,
+		OwenerName,
+		PaymentToName,
+		PeriodName1,
+		PeriodName10,
+		PeriodName11,
+		PeriodName12,
+		PeriodName2,
+		PeriodName3,
+		PeriodName4,
+		PeriodName5,
+		PeriodName6,
+		PeriodName7,
+		PeriodName8,
+		PeriodName9,
+		PositionName,
+		ProductName,
+		ProgressRate,
+		Quantity,
+		Result1,
+		Result2,
+		Result3,
+		Result4,
+		Result5,
+		ResultText,
+		SortingNo,
+		Standard,
+		SubTotal,
+		Surtax,
+		TelNo,
+		Unit,
+		UnitPrice,
+		UserName,
+		Work1,
+		Work2,
+		Work3,
+		Work4,
+		Work5,
+		WorkDate
+	)
+VALUES
+	(
+		@Address,
+		@Amount,
+		@BusinessNo,
+		@CategoryName,
+		@Comment,
+		@CompanyName,
+		@CreatedAt,
+		@CumulativeAmount,
+		@DateName,
+		@DayName,
+		@DeadLineAt,
+		@DeadLineDate,
+		@DepartmentName,
+		@DetailCategory,
+		@DetailContent,
+		@DetailNo,
+		@DocumentNo,
+		@ExecutionWorkName,
+		@GrandTotal,
+		@History,
+		@KeyResult,
+		@ModifiedAt,
+		@Note,
+		@Objective,
+		@OwenerName,
+		@PaymentToName,
+		@PeriodName1,
+		@PeriodName10,
+		@PeriodName11,
+		@PeriodName12,
+		@PeriodName2,
+		@PeriodName3,
+		@PeriodName4,
+		@PeriodName5,
+		@PeriodName6,
+		@PeriodName7,
+		@PeriodName8,
+		@PeriodName9,
+		@PositionName,
+		@ProductName,
+		@ProgressRate,
+		@Quantity,
+		@Result1,
+		@Result2,
+		@Result3,
+		@Result4,
+		@Result5,
+		@ResultText,
+		@SortingNo,
+		@Standard,
+		@SubTotal,
+		@Surtax,
+		@TelNo,
+		@Unit,
+		@UnitPrice,
+		@UserName,
+		@Work1,
+		@Work2,
+		@Work3,
+		@Work4,
+		@Work5,
+		@WorkDate
+	)
+			]]>
+			<param id="@Address" type="String" length="256" value="NULL" />
+			<param id="@Amount" type="Int64" length="50" value="NULL" />
+			<param id="@BusinessNo" type="String" length="12" value="NULL" />
+			<param id="@CategoryName" type="String" length="30" value="NULL" />
+			<param id="@Comment" type="String" length="500" value="NULL" />
+			<param id="@CompanyName" type="String" length="50" value="NULL" />
+			<param id="@CreatedAt" type="DateTime" length="50" value="NULL" />
+			<param id="@CumulativeAmount" type="Int64" length="50" value="NULL" />
+			<param id="@DateName" type="String" length="10" value="NULL" />
+			<param id="@DayName" type="String" length="10" value="NULL" />
+			<param id="@DeadLineAt" type="DateTime" length="50" value="NULL" />
+			<param id="@DeadLineDate" type="String" length="10" value="NULL" />
+			<param id="@DepartmentName" type="String" length="50" value="NULL" />
+			<param id="@DetailCategory" type="String" length="50" value="NULL" />
+			<param id="@DetailContent" type="String" length="65536" value="NULL" />
+			<param id="@DetailNo" type="Int32" length="0" value="NULL" />
+			<param id="@DocumentNo" type="String" length="36" value="NULL" />
+			<param id="@ExecutionWorkName" type="String" length="200" value="NULL" />
+			<param id="@GrandTotal" type="Int64" length="50" value="NULL" />
+			<param id="@History" type="String" length="1000" value="NULL" />
+			<param id="@KeyResult" type="String" length="1000" value="NULL" />
+			<param id="@ModifiedAt" type="DateTime" length="50" value="NULL" />
+			<param id="@Note" type="String" length="65536" value="NULL" />
+			<param id="@Objective" type="String" length="1000" value="NULL" />
+			<param id="@OwenerName" type="String" length="50" value="NULL" />
+			<param id="@PaymentToName" type="String" length="50" value="NULL" />
+			<param id="@PeriodName1" type="String" length="10" value="NULL" />
+			<param id="@PeriodName10" type="String" length="10" value="NULL" />
+			<param id="@PeriodName11" type="String" length="10" value="NULL" />
+			<param id="@PeriodName12" type="String" length="10" value="NULL" />
+			<param id="@PeriodName2" type="String" length="10" value="NULL" />
+			<param id="@PeriodName3" type="String" length="10" value="NULL" />
+			<param id="@PeriodName4" type="String" length="10" value="NULL" />
+			<param id="@PeriodName5" type="String" length="10" value="NULL" />
+			<param id="@PeriodName6" type="String" length="10" value="NULL" />
+			<param id="@PeriodName7" type="String" length="10" value="NULL" />
+			<param id="@PeriodName8" type="String" length="10" value="NULL" />
+			<param id="@PeriodName9" type="String" length="10" value="NULL" />
+			<param id="@PositionName" type="String" length="50" value="NULL" />
+			<param id="@ProductName" type="String" length="50" value="NULL" />
+			<param id="@ProgressRate" type="String" length="50" value="NULL" />
+			<param id="@Quantity" type="Int32" length="50" value="NULL" />
+			<param id="@Result1" type="Int32" length="10" value="NULL" />
+			<param id="@Result2" type="Int32" length="10" value="NULL" />
+			<param id="@Result3" type="Int32" length="10" value="NULL" />
+			<param id="@Result4" type="Int32" length="10" value="NULL" />
+			<param id="@Result5" type="Int32" length="10" value="NULL" />
+			<param id="@ResultText" type="String" length="65536" value="NULL" />
+			<param id="@SortingNo" type="Int32" length="50" value="NULL" />
+			<param id="@Standard" type="String" length="50" value="NULL" />
+			<param id="@SubTotal" type="Int64" length="50" value="NULL" />
+			<param id="@Surtax" type="Int32" length="50" value="NULL" />
+			<param id="@TelNo" type="String" length="20" value="NULL" />
+			<param id="@Unit" type="String" length="1" value="NULL" />
+			<param id="@UnitPrice" type="Int32" length="50" value="NULL" />
+			<param id="@UserName" type="String" length="50" value="NULL" />
+			<param id="@Work1" type="String" length="50" value="NULL" />
+			<param id="@Work2" type="String" length="50" value="NULL" />
+			<param id="@Work3" type="String" length="50" value="NULL" />
+			<param id="@Work4" type="String" length="50" value="NULL" />
+			<param id="@Work5" type="String" length="50" value="NULL" />
+			<param id="@WorkDate" type="String" length="10" value="NULL" />
+		</statement>
+		<statement id="DD01" seq="0" use="Y" timeout="0" desc="" modified="2023-11-04 12:27:42">
+			<![CDATA[
+DELETE FROM DocumentDetail
+WHERE
+	(DetailNo = @DetailNo)
+	AND (DocumentNo = @DocumentNo)
+			]]>
+			<param id="@Address" type="String" length="256" value="NULL" />
+			<param id="@Amount" type="Int64" length="50" value="NULL" />
+			<param id="@BusinessNo" type="String" length="12" value="NULL" />
+			<param id="@CategoryName" type="String" length="30" value="NULL" />
+			<param id="@Comment" type="String" length="500" value="NULL" />
+			<param id="@CompanyName" type="String" length="50" value="NULL" />
+			<param id="@CreatedAt" type="DateTime" length="50" value="NULL" />
+			<param id="@CumulativeAmount" type="Int64" length="50" value="NULL" />
+			<param id="@DateName" type="String" length="10" value="NULL" />
+			<param id="@DayName" type="String" length="10" value="NULL" />
+			<param id="@DeadLineAt" type="DateTime" length="50" value="NULL" />
+			<param id="@DeadLineDate" type="String" length="10" value="NULL" />
+			<param id="@DepartmentName" type="String" length="50" value="NULL" />
+			<param id="@DetailCategory" type="String" length="50" value="NULL" />
+			<param id="@DetailContent" type="String" length="65536" value="NULL" />
+			<param id="@DetailNo" type="Int32" length="0" value="NULL" />
+			<param id="@DocumentNo" type="String" length="36" value="NULL" />
+			<param id="@ExecutionWorkName" type="String" length="200" value="NULL" />
+			<param id="@GrandTotal" type="Int64" length="50" value="NULL" />
+			<param id="@History" type="String" length="1000" value="NULL" />
+			<param id="@KeyResult" type="String" length="1000" value="NULL" />
+			<param id="@ModifiedAt" type="DateTime" length="50" value="NULL" />
+			<param id="@Note" type="String" length="65536" value="NULL" />
+			<param id="@Objective" type="String" length="1000" value="NULL" />
+			<param id="@OwenerName" type="String" length="50" value="NULL" />
+			<param id="@PaymentToName" type="String" length="50" value="NULL" />
+			<param id="@PeriodName1" type="String" length="10" value="NULL" />
+			<param id="@PeriodName10" type="String" length="10" value="NULL" />
+			<param id="@PeriodName11" type="String" length="10" value="NULL" />
+			<param id="@PeriodName12" type="String" length="10" value="NULL" />
+			<param id="@PeriodName2" type="String" length="10" value="NULL" />
+			<param id="@PeriodName3" type="String" length="10" value="NULL" />
+			<param id="@PeriodName4" type="String" length="10" value="NULL" />
+			<param id="@PeriodName5" type="String" length="10" value="NULL" />
+			<param id="@PeriodName6" type="String" length="10" value="NULL" />
+			<param id="@PeriodName7" type="String" length="10" value="NULL" />
+			<param id="@PeriodName8" type="String" length="10" value="NULL" />
+			<param id="@PeriodName9" type="String" length="10" value="NULL" />
+			<param id="@PositionName" type="String" length="50" value="NULL" />
+			<param id="@ProductName" type="String" length="50" value="NULL" />
+			<param id="@ProgressRate" type="String" length="50" value="NULL" />
+			<param id="@Quantity" type="Int32" length="50" value="NULL" />
+			<param id="@Result1" type="Int32" length="10" value="NULL" />
+			<param id="@Result2" type="Int32" length="10" value="NULL" />
+			<param id="@Result3" type="Int32" length="10" value="NULL" />
+			<param id="@Result4" type="Int32" length="10" value="NULL" />
+			<param id="@Result5" type="Int32" length="10" value="NULL" />
+			<param id="@ResultText" type="String" length="65536" value="NULL" />
+			<param id="@SortingNo" type="Int32" length="50" value="NULL" />
+			<param id="@Standard" type="String" length="50" value="NULL" />
+			<param id="@SubTotal" type="Int64" length="50" value="NULL" />
+			<param id="@Surtax" type="Int32" length="50" value="NULL" />
+			<param id="@TelNo" type="String" length="20" value="NULL" />
+			<param id="@Unit" type="String" length="1" value="NULL" />
+			<param id="@UnitPrice" type="Int32" length="50" value="NULL" />
+			<param id="@UserName" type="String" length="50" value="NULL" />
+			<param id="@Work1" type="String" length="50" value="NULL" />
+			<param id="@Work2" type="String" length="50" value="NULL" />
+			<param id="@Work3" type="String" length="50" value="NULL" />
+			<param id="@Work4" type="String" length="50" value="NULL" />
+			<param id="@Work5" type="String" length="50" value="NULL" />
+			<param id="@WorkDate" type="String" length="10" value="NULL" />
+		</statement>
+	</commands>
+</mapper>

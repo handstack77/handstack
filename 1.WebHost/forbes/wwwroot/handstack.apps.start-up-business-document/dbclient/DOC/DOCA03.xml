@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+    <header>
+        <datasource>DB01</datasource>
+        <use>Y</use>
+        <desc>문서양식 > 경영지원 > 연간 업무 계획</desc>
+    </header>
+    <commands>
+        <statement id="GD01" seq="0" use="Y" timeout="0" desc="문서 조회">
+            <![CDATA[
+SELECT DF.DocumentNo
+    , DF.FormID
+    , DF.Title
+    , DF.CreatorName
+    , DF.NextWorkSchedule
+    , DF.Tags
+    , DF.CreatedAt
+FROM 
+    DocumentForm DF
+WHERE DF.DocumentNo = @DocumentNo
+    AND DF.FormID = @FormID;
+
+SELECT DD.DetailNo
+    , DD.DocumentNo
+    , DD.DateName
+    , DD.ExecutionWorkName
+    , DD.Objective
+    , DD.KeyResult
+FROM DocumentForm DF
+    INNER JOIN DocumentDetail DD ON DF.DocumentNo = DD.DocumentNo
+WHERE DD.DocumentNo = @DocumentNo
+    AND DF.FormID = @FormID
+    AND DD.DetailCategory = 'DetailItems1';
+			]]>
+            <param id="@DocumentNo" type="String" length="-1" value="NULL" />
+            <param id="@FormID" type="String" length="-1" value="NULL" />
+        </statement>
+
+        <statement id="MD01" seq="0" use="Y" timeout="0" desc="문서 입력, 수정">
+            <if test="(Flag == 'C')">
+                <![CDATA[
+INSERT INTO DocumentForm
+(
+    DocumentNo
+    , FormID
+    , Title
+    , CreatorName
+    , NextWorkSchedule
+    , Tags
+    , CreatedAt
+) 
+VALUES
+(
+    @DocumentNo
+    , @FormID
+    , @Title
+    , @CreatorName
+    , @NextWorkSchedule
+    , @Tags
+    , DATETIME('NOW', 'localtime')
+);
+		        ]]>
+            </if>
+
+            <if test="(Flag == 'U')">
+                <![CDATA[
+UPDATE DocumentForm SET FormID = @FormID
+    , Title = @Title
+    , CreatorName = @CreatorName
+    , NextWorkSchedule = @NextWorkSchedule
+    , Tags = @Tags
+	, ModifiedAt = DATETIME('NOW', 'localtime')
+WHERE DocumentNo = @DocumentNo;
+		        ]]>
+            </if>
+
+            <![CDATA[
+SELECT @DocumentNo AS DocumentNo;
+		    ]]>
+            <param id="@DocumentNo" type="String" length="36" value="NULL" />
+            <param id="@FormID" type="String" length="10" value="NULL" />
+            <param id="@Title" type="String" length="100" value="NULL" />
+            <param id="@CreatorName" type="String" length="50" value="NULL" />
+            <param id="@NextWorkSchedule" type="String" length="-1" value="NULL" />
+            <param id="@Tags" type="String" length="200" value="NULL" />
+        </statement>
+
+        <statement id="MD01" seq="1" use="Y" timeout="0" desc="문서 상세 1 입력, 수정, 삭제">
+            <if test="(Flag == 'C')">
+                <![CDATA[
+INSERT INTO DocumentDetail
+(
+    DocumentNo
+    , Objective
+    , DateName
+    , KeyResult
+    , DetailCategory
+    , CreatedAt
+) 
+VALUES
+(
+    @DocumentNo
+    , @Objective
+    , @DateName
+    , @KeyResult
+    , 'DetailItems1'
+    , DATETIME('NOW', 'localtime')
+);
+		        ]]>
+            </if>
+
+            <if test="(Flag == 'U')">
+                <![CDATA[
+UPDATE DocumentDetail SET Objective = @Objective
+    , DateName = @DateName
+    , KeyResult = @KeyResult
+	, ModifiedAt = DATETIME('NOW', 'localtime')
+WHERE DetailNo = @DetailNo
+    AND DocumentNo = @DocumentNo
+    AND DetailCategory = 'DetailItems1';
+		        ]]>
+            </if>
+
+            <if test="(Flag == 'D')">
+                <![CDATA[
+DELETE FROM DocumentDetail
+WHERE DetailNo = @DetailNo
+    AND DocumentNo = @DocumentNo
+    AND DetailCategory = 'DetailItems1';
+		        ]]>
+            </if>
+            <param id="@DetailNo" type="Int32" length="-1" value="NULL" />
+            <param id="@DocumentNo" type="String" length="36" value="NULL" />
+            <param id="@Objective" type="String" length="10" value="NULL" />
+            <param id="@DateName" type="String" length="10" value="NULL" />
+            <param id="@KeyResult" type="String" length="1000" value="NULL" />
+        </statement>
+
+        <statement id="DD01" seq="0" use="Y" timeout="0" desc="문서 삭제">
+            <![CDATA[
+DELETE FROM DocumentDetail
+WHERE DocumentNo = @DocumentNo;
+    
+DELETE FROM DocumentForm
+WHERE DocumentNo = @DocumentNo;
+			]]>
+            <param id="@DocumentNo" type="String" length="-1" value="NULL" />
+        </statement>
+    </commands>
+</mapper>

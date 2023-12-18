@@ -1,0 +1,23 @@
+.syn-treeview {
+	color: #000;
+}
+
+.tree-container {
+	overflow: scroll;
+}
+
+ul.fancytree-container {
+  /*border: 1px dotted #fff !important;*/
+}
+
+.fancytree-ext-filter span.fancytree-title mark {
+  background-color: #E09090;
+}
+
+ul.fancytree-container {
+  border: 0 !important;
+}
+
+ul.fancytree-container li {
+  line-height: 19px !important;
+}

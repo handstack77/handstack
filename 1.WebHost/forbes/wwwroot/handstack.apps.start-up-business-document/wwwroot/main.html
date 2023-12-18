@@ -1,0 +1,184 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="/img/favicon.ico" type="image/x-icon" />
+</head>
+<body hidden style="display: none;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <input type="hidden" id="txtApplicationID" syn-datafield="ApplicationID" syn-options="{belongID: ['LF01', 'LF02', 'AF01']}">
+        <input type="hidden" id="txtYear" syn-datafield="Year" syn-options="{belongID: ['LF01', 'LF02']}">
+        <input type="hidden" id="txtWeekOfYear" syn-datafield="WeekOfYear" syn-options="{belongID: ['LF01', 'LF02']}">
+        <input type="hidden" id="txtRequestDate" syn-datafield="RequestDate" syn-options="{belongID: ['LF01', 'LF02']}">
+        <input type="hidden" id="txtRequestHour" syn-datafield="RequestHour" syn-options="{belongID: ['LF01', 'LF02']}">
+        <div class="page">
+            <div class="page-wrapper">
+                <div class="page-header d-print-none">
+                    <div class="container-xl">
+                        <div class="row g-2 align-items-center">
+                            <div class="col">
+                                <h2 class="page-title">
+                                    스타트업 필수 업무 문서 서식
+                                </h2>
+                            </div>
+                            <div class="col-auto ms-auto d-print-none">
+                                <div class="input-group">
+                                    <label class="col-form-label px-2">문서 페이지</label>
+                                    <select id="ddlPageIndex" syn-datafield="PageIndex" syn-events="['change']" syn-options="{toSynControl: false, belongID: ['LF03']}" class="form-select mx-2">
+                                        <option value="0">0</option>
+                                    </select>
+                                    <div class="btn-list">
+                                        <button type="button" id="btnSQLEditor" syn-events="['click']" class="btn btn-primary">
+                                            <i class="font:20 mr:4 ti ti-news"></i>
+                                            신규 문서 작성하기
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Page body -->
+                <div class="page-body">
+                    <div class="container-xl">
+                        <div class="row g-4">
+                            <div class="col-md-3">
+                                <div class="form-label f:18!">서식 분류</div>
+                                <div class="mb-4">
+                                    <label class="form-check">
+                                        <input type="checkbox" class="form-check-input" value="A">
+                                        <span class="form-check-label f:16">경영지원</span>
+                                    </label>
+                                    <label class="form-check">
+                                        <input type="checkbox" class="form-check-input" value="B">
+                                        <span class="form-check-label f:16">매입매출</span>
+                                    </label>
+                                    <label class="form-check">
+                                        <input type="checkbox" class="form-check-input" value="E">
+                                        <span class="form-check-label f:16">일반업무</span>
+                                    </label>
+                                </div>
+                                <div class="form-label f:18!">검색 기간</div>
+                                <div class="mb-4">
+                                    <div class="input-group">
+                                        <syn_datepicker id="dtpCreatedStartAt" syn-datafield="CreatedStartAt" syn-options="{value: 'month:-6', useRangeSelect: true, rangeEndControlID: 'dtpCreatedEndAt', belongID: ['LD01']}"></syn_datepicker>
+                                        <label class="col-form-label border-left:0! px-2">~</label>
+                                        <syn_datepicker id="dtpCreatedEndAt" syn-datafield="CreatedEndAt" syn-options="{value: 'now', useRangeSelect: true, rangeStartControlID: 'dtpCreatedStartAt', belongID: ['LD01']}"></syn_datepicker>
+                                    </div>
+                                </div>
+                                <div class="form-label f:18!">문서 태그</div>
+                                <div class="mb-4">
+                                    <div class="card">
+                                        <div class="card-body p-2">
+                                            <div class="tags-list">
+                                                <span class="tag">
+                                                    <input type="checkbox" class="form-check-input tag-check">
+                                                    Label
+                                                </span>
+                                                <span class="tag">
+                                                    <input type="checkbox" class="form-check-input tag-check">
+                                                    Label
+                                                </span>
+                                                <span class="tag">
+                                                    <input type="checkbox" class="form-check-input tag-check">
+                                                    Label
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-label f:18!">정렬</div>
+                                <div class="mb-2">
+                                    <select class="form-select">
+                                        <option>Anywhere</option>
+                                        <option>London</option>
+                                        <option>San Francisco</option>
+                                        <option>New York</option>
+                                        <option>Berlin</option>
+                                    </select>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox">
+                                        <span class="form-check-label form-check-label-on">정순</span>
+                                        <span class="form-check-label form-check-label-off">역순</span>
+                                    </label>
+                                    <div class="small text-secondary">기준 항목에 대해 정렬 순서를 설정합니다</div>
+                                </div>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="row row-cards">
+                                    <div class="space-y">
+                                        <div class="card">
+                                            <div class="row g-0">
+                                                <div class="col">
+                                                    <div class="card-body">
+                                                        <div class="row">
+                                                            <div class="col">
+                                                                <h3 class="mb-0"><a href="#">Frontend Web Engineer</a></h3>
+                                                            </div>
+                                                            <div class="col-auto fs-3 text-blue">Tue Oct 17 2023 16:04:46 GMT+0900 (한국 표준시)</div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-md">
+                                                                <div class="mt-3 list-inline list-inline-dots mb-0 text-secondary d-sm-block d-none">
+                                                                    <div class="list-inline-item">
+                                                                        <!-- Download SVG icon from http://tabler-icons.io/i/building-community -->
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-inline" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M8 9l5 5v7h-5v-4m0 4h-5v-7l5 -5m1 1v-6a1 1 0 0 1 1 -1h10a1 1 0 0 1 1 1v17h-8"></path><path d="M13 7l0 .01"></path><path d="M17 7l0 .01"></path><path d="M17 11l0 .01"></path><path d="M17 15l0 .01"></path></svg>
+                                                                        Center Pixel, Inc
+                                                                    </div>
+                                                                    <div class="list-inline-item">
+                                                                        <!-- Download SVG icon from http://tabler-icons.io/i/license -->
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-inline" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M15 21h-9a3 3 0 0 1 -3 -3v-1h10v2a2 2 0 0 0 4 0v-14a2 2 0 1 1 2 2h-2m2 -4h-11a3 3 0 0 0 -3 3v11"></path><path d="M9 7l4 0"></path><path d="M9 11l4 0"></path></svg>
+                                                                        Full-time or Contract
+                                                                    </div>
+                                                                    <div class="list-inline-item">
+                                                                        <!-- Download SVG icon from http://tabler-icons.io/i/map-pin -->
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-inline" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"></path><path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z"></path></svg>
+                                                                        Remote / Palo Alto, CA
+                                                                    </div>
+                                                                </div>
+                                                                <div class="mt-3 list mb-0 text-secondary d-block d-sm-none">
+                                                                    <div class="list-item">
+                                                                        <!-- Download SVG icon from http://tabler-icons.io/i/building-community -->
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-inline" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M8 9l5 5v7h-5v-4m0 4h-5v-7l5 -5m1 1v-6a1 1 0 0 1 1 -1h10a1 1 0 0 1 1 1v17h-8"></path><path d="M13 7l0 .01"></path><path d="M17 7l0 .01"></path><path d="M17 11l0 .01"></path><path d="M17 15l0 .01"></path></svg>
+                                                                        Center Pixel, Inc
+                                                                    </div>
+                                                                    <div class="list-item">
+                                                                        <!-- Download SVG icon from http://tabler-icons.io/i/license -->
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-inline" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M15 21h-9a3 3 0 0 1 -3 -3v-1h10v2a2 2 0 0 0 4 0v-14a2 2 0 1 1 2 2h-2m2 -4h-11a3 3 0 0 0 -3 3v11"></path><path d="M9 7l4 0"></path><path d="M9 11l4 0"></path></svg>
+                                                                        Full-time or Contract
+                                                                    </div>
+                                                                    <div class="list-item">
+                                                                        <!-- Download SVG icon from http://tabler-icons.io/i/map-pin -->
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-inline" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"></path><path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z"></path></svg>
+                                                                        Remote / Palo Alto, CA
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-auto">
+                                                                <div class="mt-3 badges">
+                                                                    <a href="#" class="badge badge-outline text-secondary fw-normal badge-pill">HTML</a>
+                                                                    <a href="#" class="badge badge-outline text-secondary fw-normal badge-pill">CSS</a>
+                                                                    <a href="#" class="badge badge-outline text-secondary fw-normal badge-pill">React</a>
+                                                                    <a href="#" class="badge badge-outline text-secondary fw-normal badge-pill">+3</a>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <script src="/js/syn.loader.tr.js"></script>
+</body>
+</html>

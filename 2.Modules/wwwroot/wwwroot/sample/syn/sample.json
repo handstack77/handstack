@@ -1,0 +1,13 @@
+{
+    "SystemID": "HANDSTACK",
+    "ApplicationID": "HDS",
+    "ProjectID": "SYS",
+    "SystemVersion": "1.0.0",
+    "TransactionTimeout": 180000,
+    "IsConfiguration": false,
+    "HostName": "WebClient",
+    "SolutionName": "HDS Solution",
+    "UIEventLogLevel": "Verbose",
+    "IsClientCaching": true,
+    "IsDebugMode": false
+}

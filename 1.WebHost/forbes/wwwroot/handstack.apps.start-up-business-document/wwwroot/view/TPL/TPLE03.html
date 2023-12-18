@@ -1,0 +1,99 @@
+﻿<link type="text/css" rel="stylesheet" href="../../assets/report.css">
+<div class="report">
+    <table>
+        <tbody>
+            <tr>
+                <td>
+                    <h1>사업계획서</h1>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <p></p>
+    <table>
+        <tbody>
+            <tr>
+                <td class="label text-justify">제 목</td>
+                <td colspan="3">{{Title}}</td>
+            </tr>
+            <tr>
+                <td class="label text-justify w20%">기 간</td>
+                <td colspan="3">{{Period}}</td>
+            </tr>
+            <tr>
+                <td class="label text-justify w20%">목 표</td>
+                <td class="w85% h100px" colspan="3">{{GoalResult}}</td>
+            </tr>
+            <tr>
+                <td class="label text-justify w20%">작 성 자</td>
+                <td class="w30%">{{CreatorName}}</td>
+                <td class="label text-justify w20%">작 성 일</td>
+                <td class="w30%">{{CreatedAt}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <p></p>
+    <table>
+        <thead>
+            <tr>
+                <th class="label" colspan="8">
+                    <h3>추진 업무</h3>
+                </th>
+            </tr>
+            <tr>
+                <td class="label text-center" style="width: 5%;">No</td>
+                <td class="label text-center" style="width: 30%;">주요업무</td>
+                <td class="label text-center" style="width: 20%;">목표</td>
+                <td class="label text-center" style="width: 25%;">핵심성과</td>
+                <td class="label text-center" style="width: 20%;">주관담당</td>
+            </tr>
+        </thead>
+        <tbody>
+            {{#DetailItems1}}
+            <tr>
+                <td class="text-center">{{No}}</td>
+                <td>{{ExecutionWorkName}}</td>
+                <td>{{Objective}}</td>
+                <td>{{KeyResult}}</td>
+                <td>{{OwenerName}}</td>
+            </tr>
+            {{/DetailItems1}}
+        </tbody>
+    </table>
+    <p></p>
+    <table>
+        <thead>
+            <tr>
+                <th class="label" colspan="8">
+                    <h3>업무 진행 일정</h3>
+                </th>
+            </tr>
+            <tr>
+                <td class="label text-center" style="width: 5%;">No</td>
+                <td class="label text-center" style="width: 19%;">시작일정</td>
+                <td class="label text-center" style="width: 24%;">업무</td>
+                <td class="label text-center" style="width: 13%;">1분기</td>
+                <td class="label text-center" style="width: 13%;">2분기</td>
+                <td class="label text-center" style="width: 13%;">3분기</td>
+                <td class="label text-center" style="width: 13%;">4분기</td>
+            </tr>
+        </thead>
+        <tbody>
+            {{#DetailItems2}}
+            <tr>
+                <td class="text-center">{{No}}</td>
+                <td class="text-center">{{WorkDate}}</td>
+                <td>{{ExecutionWorkName}}</td>
+                <td>{{Work1}}</td>
+                <td>{{Work2}}</td>
+                <td>{{Work3}}</td>
+                <td>{{Work4}}</td>
+            </tr>
+            {{/DetailItems2}}
+        </tbody>
+    </table>
+    <p></p>
+    <footer>
+        <img src="{{Logo}}" style="max-width: 48px;" />
+    </footer>
+</div>

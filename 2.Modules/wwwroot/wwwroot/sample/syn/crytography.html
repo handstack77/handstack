@@ -1,0 +1,136 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/lib/highlight.js@11.6.0/styles/atom-one-dark.min.css">
+</head>
+<body hidden style="display: none;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="mt-3">syn.$c: base64, sha256 및 암호화 기능 제공합니다.</h1>
+
+                <div class="card">
+                    <div class="card-status-top bg-red"></div>
+                    <div class="card-header">
+                        <h3 class="card-title">속성</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$c.version</label>
+                                <input type="text" id="txt_version" class="form-control">
+                                <div class="form-text">
+                                    $crytography version을 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-status-top bg-red"></div>
+                    <div class="card-header">
+                        <h3 class="card-title">메서드</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$c.base64Encode()</label>
+                                <input type="text" id="txt_base64Encode" class="form-control mb-2" />
+                                <textarea type="text" id="txt_base64EncodeResult" class="form-control" rows="3"></textarea>
+                                <button type="button" id="btn_base64Encode" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    일반 문자열을 base64 문자열로 인코딩 합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$c.base64Decode()</label>
+                                <input type="text" id="txt_base64Decode" class="form-control mb-2" />
+                                <textarea type="text" id="txt_base64DecodeResult" class="form-control" rows="3"></textarea>
+                                <button type="button" id="btn_base64Decode" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    base64 문자열을 일반 문자열로 디코딩 합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$c.utf8Encode()</label>
+                                <input type="text" id="txt_utf8Encode" class="form-control mb-2" />
+                                <textarea type="text" id="txt_utf8EncodeResult" class="form-control" rows="3"></textarea>
+                                <button type="button" id="btn_utf8Encode" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    일반 문자열을 utf8 문자열로 인코딩 합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$c.utf8Decode()</label>
+                                <input type="text" id="txt_utf8Decode" class="form-control mb-2" />
+                                <textarea type="text" id="txt_utf8DecodeResult" class="form-control" rows="3"></textarea>
+                                <button type="button" id="btn_utf8Decode" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    utf8 문자열을 일반 문자열로 디코딩 합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$c.sha256()</label>
+                                <input type="text" id="txt_sha256" class="form-control mb-2" />
+                                <textarea type="text" id="txt_sha256Result" class="form-control" rows="3"></textarea>
+                                <button type="button" id="btn_sha256" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    일반 문자열을 sha256로 해시 값을 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$c.encrypt()</label>
+                                <input type="text" id="txt_encrypt" class="form-control mb-2" />
+                                <textarea type="text" id="txt_encryptResult" class="form-control" rows="3"></textarea>
+                                <button type="button" id="btn_encrypt" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    문자열을 지정된 키로 암호화 합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$c.decrypt()</label>
+                                <input type="text" id="txt_decrypt" class="form-control mb-2" />
+                                <textarea type="text" id="txt_decryptResult" class="form-control" rows="3"></textarea>
+                                <button type="button" id="btn_decrypt" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    문자열을 지정된 키로 복호화 합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">syn.$c.LZString()</label>
+                                <input type="text" id="txt_LZString" class="form-control mb-2" />
+                                <textarea type="text" id="txt_LZStringResult" class="form-control" rows="3"></textarea>
+                                <button type="button" id="btn_LZStringEncode" class="mt-2 btn btn-primary" syn-events="['click']">Encode 확인</button>
+                                <button type="button" id="btn_LZStringDecode" class="mt-2 btn btn-primary" syn-events="['click']">Decode 확인</button>
+                                <div class="form-text">
+                                    문자열을 LZString 기반으로 압축/해제 합니다.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/lib/highlight.js@11.6.0/highlight.min.js"></script>
+    <script src="/lib/showdownjs@2.1.0/showdown.min.js"></script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

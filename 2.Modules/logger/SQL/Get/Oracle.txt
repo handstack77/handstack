@@ -1,0 +1,6 @@
+SELECT TL.Message
+    , TL.Properties
+FROM 
+    {TableName} TL
+WHERE 
+	LogNo = @LogNo;

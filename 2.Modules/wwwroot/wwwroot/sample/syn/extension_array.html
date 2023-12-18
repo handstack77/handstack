@@ -1,0 +1,191 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/lib/highlight.js@11.6.0/styles/atom-one-dark.min.css">
+</head>
+<body hidden style="display: none;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="mt-3">$array: Array 객체에 대한 확장 함수를 제공합니다.</h1>
+
+                <div class="card">
+                    <div class="card-status-top bg-red"></div>
+                    <div class="card-header">
+                        <h3 class="card-title">속성</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$array.version</label>
+                                <input type="text" id="txt_version" class="form-control">
+                                <div class="form-text">
+                                    $array version을 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-status-top bg-red"></div>
+                    <div class="card-header">
+                        <h3 class="card-title">메서드</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$array.distinct()</label>
+                                <input type="text" id="txt_distinct" class="form-control" />
+                                <button type="button" id="btn_distinct" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    배열의 항목에서 중복된 항목을 삭제합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$array.sort()</label>
+                                <input type="text" id="txt_sort" class="form-control" />
+                                <button type="button" id="btn_sort" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    배열의 항목에서 정순, 역순 정렬후 배열을 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$array.objectSort()</label>
+                                <input type="text" id="txt_objectSort" class="form-control" />
+                                <button type="button" id="btn_objectSort" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    객체 배열의 항목에서 정순, 역순 정렬후 배열을 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$array.groupBy()</label>
+                                <input type="text" id="txt_groupBy" class="form-control" />
+                                <button type="button" id="btn_groupBy" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <button type="button" id="btn_groupBy_length" class="mt-2 btn btn-primary" syn-events="['click']">length 확인</button>
+                                <button type="button" id="btn_groupBy_floor" class="mt-2 btn btn-primary" syn-events="['click']">floor 확인</button>
+                                <button type="button" id="btn_groupBy_predicate" class="mt-2 btn btn-primary" syn-events="['click']">predicate 확인</button>
+                                <div class="form-text">
+                                    객체 배열의 항목에서 그룹화후 배열을 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$array.shuffle()</label>
+                                <input type="text" id="txt_shuffle" class="form-control" />
+                                <button type="button" id="btn_shuffle" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    객체 배열의 항목을 섞은 후 배열을 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$array.addAt()</label>
+                                <input type="text" id="txt_addAt" class="form-control" />
+                                <button type="button" id="btn_addAt" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    객체 배열의 항목을 지정된 위치에 추가 후 배열을 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$array.removeAt()</label>
+                                <input type="text" id="txt_removeAt" class="form-control" />
+                                <button type="button" id="btn_removeAt" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    지정된 위치에 있는 객체 배열의 항목을 삭제 후 배열을 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$array.contains()</label>
+                                <input type="text" id="txt_contains" class="form-control" />
+                                <button type="button" id="btn_contains" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    객체 배열의 항목을 섞은 후 배열을 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$array.merge()</label>
+                                <input type="text" id="txt_merge" class="form-control" />
+                                <button type="button" id="btn_merge" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    2 객체 배열의 항목을 합친 후 배열을 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$array.union()</label>
+                                <input type="text" id="txt_union" class="form-control" />
+                                <button type="button" id="btn_union" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    2 배열의 항목을 합친 후 배열을 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$array.difference()</label>
+                                <input type="text" id="txt_difference" class="form-control" />
+                                <button type="button" id="btn_difference" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    2 배열의 항목을 합친 후 배열을 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$array.intersect()</label>
+                                <input type="text" id="txt_intersect" class="form-control" />
+                                <button type="button" id="btn_intersect" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    2 배열의 항목을 합친 후 배열을 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$array.symmetryDifference()</label>
+                                <input type="text" id="txt_symmetryDifference" class="form-control" />
+                                <button type="button" id="btn_symmetryDifference" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    2 배열의 항목을 합친 후 배열을 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                            <div class="col-12">
+                                <label class="form-label">$array.ranks()</label>
+                                <input type="text" id="txt_ranks" class="form-control" />
+                                <button type="button" id="btn_ranks" class="mt-2 btn btn-primary" syn-events="['click']">확인</button>
+                                <div class="form-text">
+                                    배열의 항목 데이터에 순위를 적용 후 배열을 반환합니다.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/lib/highlight.js@11.6.0/highlight.min.js"></script>
+    <script src="/lib/showdownjs@2.1.0/showdown.min.js"></script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

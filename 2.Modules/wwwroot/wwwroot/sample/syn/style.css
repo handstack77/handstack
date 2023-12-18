@@ -1,0 +1,5 @@
+.btn-primary, .open > .dropdown-toggle.btn-primary {
+    color: #fff;
+    background-color: #60717d;
+    border-color: #60717d;
+}

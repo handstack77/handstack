@@ -1,0 +1,74 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>request</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/lib/highlight.js@11.6.0/styles/atom-one-dark.min.css">
+</head>
+<body hidden style="display: none;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div id="wrap" class="sub">
+            <div class="bx_sep">
+                <header>
+                    syn.request (syn.$r)
+                </header>
+                <div class="tb_ly_a">
+                    <table>
+                        <colgroup>
+                            <col style="width:25%" />
+                            <col />
+                        </colgroup>
+                        <tr>
+                            <th scope="col">
+                                $request.query
+                            </th>
+                            <td>
+                                <input type="text" id="txtQuery" value="" />
+                                <input type="button" id="btnQuery" value="값 조회" syn-events="['click']" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="col">
+                                $request.url
+                            </th>
+                            <td>
+                                <input type="text" id="txtUrl" value="" />
+                                <input type="button" id="btnUrl" value="주소 반환" syn-events="['click']" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="col">
+                                $request.setCookie
+                            </th>
+                            <td>
+                                <input type="button" id="btnSetCookie" value="쿠키 값 설정('hello')" syn-events="['click']" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="col">
+                                $request.getCookie
+                            </th>
+                            <td>
+                                <input type="text" id="txtGetCookie" value="" />
+                                <input type="button" id="btnGetCookie" value="쿠키 값 조회" syn-events="['click']" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="col">
+                                $request.deleteCookie
+                            </th>
+                            <td>
+                                <input type="button" id="btnDeleteCookie" value="쿠키 값 삭제" syn-events="['click']" />
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </form>
+    <script src="/lib/highlight.js@11.6.0/highlight.min.js"></script>
+    <script src="/lib/showdownjs@2.1.0/showdown.min.js"></script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

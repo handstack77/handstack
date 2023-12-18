@@ -1,0 +1,69 @@
+﻿<link type="text/css" rel="stylesheet" href="../../assets/report.css">
+<div class="report">
+    <table>
+        <tbody>
+            <tr>
+                <td>
+                    <h1>회의록</h1>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <p></p>
+    <table>
+        <tbody>
+            <tr>
+                <td class="label text-justify">제 목</td>
+                <td colspan="5">{{Title}}</td>
+            </tr>
+            <tr>
+                <td class="label text-justify w20%">미 팅 일 정</td>
+                <td colspan="3">{{Period}}</td>
+            </tr>
+            <tr>
+                <td class="label text-justify w20%">장 소 / 인 원</td>
+                <td class="w85% h100px" colspan="3">{{ProgressText}}</td>
+            </tr>
+            <tr>
+                <td class="label text-justify w20%">회 의 안 건</td>
+                <td class="w85% h100px" colspan="3">{{DecisionText}}</td>
+            </tr>
+            <tr>
+                <td class="label text-justify w20%">작 성 자</td>
+                <td class="w30%">{{CreatorName}}</td>
+                <td class="label text-justify w20%">작 성 일</td>
+                <td class="w30%">{{CreatedAt}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <p></p>
+    <table>
+        <tbody>
+            <tr>
+                <td class="label">
+                    <h3>회 의 내 용</h3>
+                </td>
+            </tr>
+            <tr>
+                <td class="vertical-top" style="height: 380px;">{{{Contents}}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <p></p>
+    <table>
+        <tbody>
+            <tr>
+                <td class="label">
+                    <h3>다음 예정업무</h3>
+                </td>
+            </tr>
+            <tr>
+                <td class="vertical-top" style="height: 100px;">{{{NextWorkSchedule}}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <p></p>
+    <footer>
+        <img src="{{Logo}}" style="max-width: 48px;" />
+    </footer>
+</div>

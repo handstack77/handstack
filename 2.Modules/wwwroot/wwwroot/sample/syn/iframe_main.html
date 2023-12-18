@@ -1,0 +1,36 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+</head>
+<body hidden style="display: none;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <h1 class="mt-3">iframe_main.html</h1>
+
+                    <div class="card">
+                        <div class="card-status-top bg-red"></div>
+                        <div class="card-body">
+                            <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                                <div class="col-12">
+                                    <input type="button" id="btnChildrenLoad" class="btn btn-primary" value="iframe 화면 로드" syn-events="['click']" />
+                                    <input type="button" id="btnChildrenConnect" class="btn btn-primary" value="iframe 연결" syn-events="['click']" />
+                                    <input type="button" id="btnParent2Children" class="btn btn-primary" value="iframe 호출하기" syn-events="['click']" />
+                                </div>
+                            </div>
+                            <div class="row p-2 mt-1 b:1|solid|#e5e5e5">
+                                <div class="col-12">
+                                    <iframe id="ifmChildren" class="form-control h:200"></iframe>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>
