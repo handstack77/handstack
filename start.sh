@@ -2,23 +2,10 @@
 # chmod +x /home/handstack/start.sh
 # 빌드된 프로그램 기본 디렉토리(/home/handstack)에서 ack 프로그램을 실행
 
-if [ -f /etc/os-release ]; then
-    . /etc/os-release
-    if [ "$NAME" == "Ubuntu" ] && [ $(echo "$VERSION_ID >= 20.04" | bc -l) -eq 1 ]; then
-        echo "Ubuntu $VERSION_ID"
-    else
-        echo "우분투 20.04 이상 버전이 필요합니다"
-		exit
-    fi
-else
-    echo "우분투 20.04 이상 버전이 필요합니다"
-	exit
-fi
-
 echo "dotnet 및 node.js 설치 확인 중..."
 if ! dotnet --version | grep -q "^8\.0\."
 then
-    wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+    wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
     sudo dpkg -i packages-microsoft-prod.deb
     sudo apt-get update
     sudo apt-get install -y apt-transport-https
@@ -28,7 +15,12 @@ fi
 
 if ! node --version | grep -q "^v20\."
 then
-    curl -sL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+    sudo apt-get update
+    sudo apt-get install -y ca-certificates curl gnupg
+    sudo mkdir -p /etc/apt/keyrings
+    curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+    echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
+    sudo apt-get update
     sudo apt-get install -y nodejs
 fi
 

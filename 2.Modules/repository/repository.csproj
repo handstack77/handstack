@@ -47,8 +47,6 @@
 
     <ItemGroup>
         <None Include="wwwroot\**" />
-        <None Remove="Contracts\repository\HDS\storage.json.publish" />
-        <Content Include="Contracts\repository\HDS\storage.json.publish" />
         <None Update="wwwroot\**">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>

@@ -26,6 +26,8 @@ namespace ack
         {
             int exitCode = 0;
 
+            
+            Console.WriteLine($"Current Directory from {Directory.GetCurrentDirectory()}");
             Console.WriteLine($"Launched from {Environment.CurrentDirectory}");
             Console.WriteLine($"Physical location {AppDomain.CurrentDomain.BaseDirectory}");
             Console.WriteLine($"Runtime call {Path.GetDirectoryName(Process.GetCurrentProcess().MainModule?.FileName)}");

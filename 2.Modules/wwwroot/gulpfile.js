@@ -80,7 +80,6 @@ gulp.task('bundle', async function () {
     return gulp.src([
         'wwwroot/js/syn.scripts.js',
         'wwwroot/js/syn.js',
-        'wwwroot/js/syn.domain.js',
         'wwwroot/js/syn.controls.js',
     ])
         .pipe(concat('syn.bundle.js'))

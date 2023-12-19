@@ -114,7 +114,6 @@ namespace ack
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStaticWebAssets();
                     webBuilder.UseStartup<Startup>();
                     webBuilder.UseKestrel((options) =>
                     {
