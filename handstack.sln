@@ -17,6 +17,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitignore = .gitignore
 		LICENSE.txt = LICENSE.txt
 		README.md = README.md
+		start.bat = start.bat
+		start.sh = start.sh
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ack", "1.WebHost\ack\ack.csproj", "{EFC7711F-7874-46A9-A8A3-7A93F53B7B63}"
@@ -123,7 +125,7 @@ Global
 		{26A81090-4BDA-4A0C-B017-0AF6A787D786} = {8AAA6308-ECA2-43A5-8D46-1C7C1BC9088D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		VisualSVNWorkingCopyRoot = .
 		SolutionGuid = {0075CE72-935C-4F87-A6BA-989C82F06F8F}
+		VisualSVNWorkingCopyRoot = .
 	EndGlobalSection
 EndGlobal

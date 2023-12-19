@@ -76,6 +76,26 @@ gulp.task('controls', async function () {
         .pipe(gulp.dest('wwwroot/js'));
 });
 
+gulp.task('bundle', async function () {
+    return gulp.src([
+        'wwwroot/js/syn.scripts.js',
+        'wwwroot/js/syn.js',
+        'wwwroot/js/syn.domain.js',
+        'wwwroot/js/syn.controls.js',
+    ])
+        .pipe(concat('syn.bundle.js'))
+        .pipe(gulp.dest('wwwroot/js'))
+        .pipe(uglify({
+            mangle: true,
+            compress: true
+        }))
+        .pipe(rename({
+            basename: "syn.bundle.min",
+            extname: ".js"
+        }))
+        .pipe(gulp.dest('wwwroot/js'));
+});
+
 gulp.task('styles', async function () {
     return gulp.src([
         // syn.scripts.js
@@ -134,4 +154,4 @@ gulp.task('watch', async function () {
     gulp.watch(files, gulp.series(['controls']));
 });
 
-gulp.task('default', gulp.series(['controls', 'scripts', 'styles']));
+gulp.task('default', gulp.series(['controls', 'scripts', 'bundle', 'styles']));
