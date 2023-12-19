@@ -97,7 +97,7 @@ namespace ack
 
                 try
                 {
-                    int listenPort = (port == null ? 8080 : (int)port);
+                    int listenPort = (port == null ? 8000 : (int)port);
                     if (SocketExtensions.PortInUse(listenPort) == true)
                     {
                         Log.Error($"{listenPort} 포트는 이미 사용중입니다. 참고 명령어) netstat -ano | findstr {listenPort}");
