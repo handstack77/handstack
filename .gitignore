@@ -366,5 +366,3 @@ FodyWeavers.xsd
 # handstack
 .managed/
 .nupkg/
-publish.bat
-publish.sh
