@@ -38,7 +38,7 @@ namespace transact.Areas.transact.Controllers
             this.loggerClient = loggerClient;
         }
 
-        // http://localhost:8080/transact/api/managed/reset-contract
+        // http://localhost:8000/transact/api/managed/reset-contract
         [HttpGet("[action]")]
         public ActionResult ResetContract()
         {
@@ -78,7 +78,7 @@ namespace transact.Areas.transact.Controllers
             return result;
         }
 
-        // http://localhost:8080/transact/api/managed/reset-app-contract?applicationID=helloworld
+        // http://localhost:8000/transact/api/managed/reset-app-contract?applicationID=helloworld
         [HttpGet("[action]")]
         public ActionResult ResetAppContract(string applicationID)
         {
@@ -168,7 +168,7 @@ namespace transact.Areas.transact.Controllers
             return result;
         }
 
-        // http://localhost:8080/transact/api/managed/string-encrypt?value=helloworld
+        // http://localhost:8000/transact/api/managed/string-encrypt?value=helloworld
         [HttpGet("[action]")]
         public ActionResult StringEncrypt(string value)
         {
@@ -206,7 +206,7 @@ namespace transact.Areas.transact.Controllers
             return result;
         }
 
-        // http://localhost:8080/transact/api/managed/string-decrypt?value=WzE2MSwxNTIsMTYyLDIwNSwxNjAsMTc1LDE2OCwxNjUsMTYyLDE5N10uOTM2YTE4
+        // http://localhost:8000/transact/api/managed/string-decrypt?value=WzE2MSwxNTIsMTYyLDIwNSwxNjAsMTc1LDE2OCwxNjUsMTYyLDE5N10uOTM2YTE4
         [HttpGet("[action]")]
         public ActionResult StringDecrypt(string value)
         {

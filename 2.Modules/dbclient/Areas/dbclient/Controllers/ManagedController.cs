@@ -41,7 +41,7 @@ namespace dbclient.Areas.dbclient.Controllers
             this.environment = environment;
         }
 
-        // http://localhost:8080/dbclient/api/managed/reset-contract
+        // http://localhost:8000/dbclient/api/managed/reset-contract
         [HttpGet("[action]")]
         public ActionResult ResetContract()
         {
@@ -73,7 +73,7 @@ namespace dbclient.Areas.dbclient.Controllers
             return result;
         }
 
-        // http://localhost:8080/dbclient/api/managed/reset-app-contract?applicationID=helloworld
+        // http://localhost:8000/dbclient/api/managed/reset-app-contract?applicationID=helloworld
         [HttpGet("[action]")]
         public ActionResult ResetAppContract(string applicationID)
         {

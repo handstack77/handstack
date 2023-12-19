@@ -26,7 +26,7 @@ namespace transact.Areas.transact.Controllers
             this.loggerClient = loggerClient;
         }
 
-        // http://localhost:8080/transact/api/base64/encode?value={"ProjectID":"SYN","BusinessID":"DSO","TransactionID":"0001","FunctionID":"R01"}
+        // http://localhost:8000/transact/api/base64/encode?value={"ProjectID":"SYN","BusinessID":"DSO","TransactionID":"0001","FunctionID":"R01"}
         [HttpGet("[action]")]
         public string Encode(string value)
         {
@@ -59,7 +59,7 @@ namespace transact.Areas.transact.Controllers
             return result;
         }
 
-        // http://localhost:8080/transact/api/base64/decode?value=eyJQcm9qZWN0SUQiOiJRQUYiLCJCdXNpbmVzc0lEIjoiRFNPIiwiVHJhbnNhY3Rpb25JRCI6IjAwMDEiLCJGdW5jdGlvbklEIjoiUjAxIn0=
+        // http://localhost:8000/transact/api/base64/decode?value=eyJQcm9qZWN0SUQiOiJRQUYiLCJCdXNpbmVzc0lEIjoiRFNPIiwiVHJhbnNhY3Rpb25JRCI6IjAwMDEiLCJGdW5jdGlvbklEIjoiUjAxIn0=
         [HttpGet("[action]")]
         public string Decode(string value)
         {

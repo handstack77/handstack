@@ -6,13 +6,13 @@
     "ModuleConfig": {
         "SystemID": "HANDSTACK",
         "EncryptionAES256Key": "1234567890123456",
-        "FileServerUrl": "http://localhost:8080",
-        "BusinessServerUrl": "http://localhost:8080/transact/api/transaction/execute",
+        "FileServerUrl": "http://localhost:8000",
+        "BusinessServerUrl": "http://localhost:8000/transact/api/transaction/execute",
         "CircuitBreakResetSecond": 60,
         "DefaultCommandTimeout": 180,
         "IsExceptionDetailText": true,
         "IsLogServer": false,
-        "LogServerUrl": "http://localhost:8080/logger/api/log/insert",
+        "LogServerUrl": "http://localhost:8000/logger/api/log/insert",
         "ContractBasePath": [
             "../contracts/repository"
         ],
@@ -24,7 +24,7 @@
         "AllowMaxFileUploadLength": 120000000, // 114 MB
         "PurgeTokenTimeout": 1200,
         "TokenGenerateIPCheck": false,
-        "XFrameOptions": "ALLOW-FROM http://127.0.0.1:8080,http://localhost:8080",
+        "XFrameOptions": "ALLOW-FROM http://127.0.0.1:8000,http://localhost:8000",
         "FileRootPath": "../storage"
     }
 }

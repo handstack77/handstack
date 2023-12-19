@@ -67,7 +67,7 @@ namespace transact.Areas.transact.Controllers
             this.loggerClient = loggerClient;
         }
 
-        // http://localhost:8080/transact/api/transaction/test
+        // http://localhost:8000/transact/api/transaction/test
         [HttpGet("[action]")]
         public ActionResult Test()
         {
@@ -81,7 +81,7 @@ namespace transact.Areas.transact.Controllers
             return result;
         }
 
-        // http://localhost:8080/transact/api/transaction/has?projectID=HDS&businessID=SYS&transactionID=SYS010
+        // http://localhost:8000/transact/api/transaction/has?projectID=HDS&businessID=SYS&transactionID=SYS010
         [HttpGet("[action]")]
         public ActionResult Has(string projectID, string businessID, string transactionID)
         {
@@ -119,7 +119,7 @@ namespace transact.Areas.transact.Controllers
             return result;
         }
 
-        // http://localhost:8080/transact/api/transaction/add?contractFilePath=HDS/ZZW/TST010.json
+        // http://localhost:8000/transact/api/transaction/add?contractFilePath=HDS/ZZW/TST010.json
         [HttpGet("[action]")]
         public ActionResult Add(string contractFilePath)
         {
@@ -157,7 +157,7 @@ namespace transact.Areas.transact.Controllers
             return result;
         }
 
-        // http://localhost:8080/transact/api/transaction/remove?contractFilePath=HDS/ZZW/TST010.json
+        // http://localhost:8000/transact/api/transaction/remove?contractFilePath=HDS/ZZW/TST010.json
         [HttpGet("[action]")]
         public ActionResult Remove(string contractFilePath)
         {
@@ -195,7 +195,7 @@ namespace transact.Areas.transact.Controllers
             return result;
         }
 
-        // http://localhost:8080/transact/api/transaction/refresh?changeType=Created&filePath=HDS/ZZW/TST010.json
+        // http://localhost:8000/transact/api/transaction/refresh?changeType=Created&filePath=HDS/ZZW/TST010.json
         [HttpGet("[action]")]
         public ActionResult Refresh(string changeType, string filePath)
         {
@@ -277,7 +277,7 @@ namespace transact.Areas.transact.Controllers
             return result;
         }
 
-        // http://localhost:8080/transact/api/transaction/cache-clear?cacheKey=
+        // http://localhost:8000/transact/api/transaction/cache-clear?cacheKey=
         [HttpGet("[action]")]
         public ActionResult CacheClear(string cacheKey)
         {
@@ -322,7 +322,7 @@ namespace transact.Areas.transact.Controllers
             return result;
         }
 
-        // http://localhost:8080/transact/api/transaction/cache-keys
+        // http://localhost:8000/transact/api/transaction/cache-keys
         [HttpGet("[action]")]
         public ActionResult CacheKeys()
         {
@@ -388,8 +388,8 @@ namespace transact.Areas.transact.Controllers
             return result;
         }
 
-        // http://localhost:8080/transact/api/base64/encode?value={"ApplicationID":"SYN","ProjectID":"ZZD","TransactionID":"TST010"}
-        // http://localhost:8080/transact/api/transaction/get?base64Json=eyJQcm9qZWN0SUQiOiJRQUYiLCJCdXNpbmVzc0lEIjoiRFNPIiwiVHJhbnNhY3Rpb25JRCI6IjAwMDEiLCJGdW5jdGlvbklEIjoiUjAxMDAifQ==
+        // http://localhost:8000/transact/api/base64/encode?value={"ApplicationID":"SYN","ProjectID":"ZZD","TransactionID":"TST010"}
+        // http://localhost:8000/transact/api/transaction/get?base64Json=eyJQcm9qZWN0SUQiOiJRQUYiLCJCdXNpbmVzc0lEIjoiRFNPIiwiVHJhbnNhY3Rpb25JRCI6IjAwMDEiLCJGdW5jdGlvbklEIjoiUjAxMDAifQ==
         [HttpGet("[action]")]
         public ActionResult Get(string base64Json)
         {
@@ -447,8 +447,8 @@ namespace transact.Areas.transact.Controllers
             return result;
         }
 
-        // http://localhost:8080/transact/api/base64/encode?value={"ApplicationID":"SYN","ProjectID":"ZZD","TransactionID":"TST010"}
-        // http://localhost:8080/transact/api/transaction/retrieve?base64Json=eyJQcm9qZWN0SUQiOiJRQUYiLCJCdXNpbmVzc0lEIjoiIiwiVHJhbnNhY3Rpb25JRCI6IiIsIkZ1bmN0aW9uSUQiOiIifQ==
+        // http://localhost:8000/transact/api/base64/encode?value={"ApplicationID":"SYN","ProjectID":"ZZD","TransactionID":"TST010"}
+        // http://localhost:8000/transact/api/transaction/retrieve?base64Json=eyJQcm9qZWN0SUQiOiJRQUYiLCJCdXNpbmVzc0lEIjoiIiwiVHJhbnNhY3Rpb25JRCI6IiIsIkZ1bmN0aW9uSUQiOiIifQ==
         [HttpGet("[action]")]
         public ActionResult Retrieve(string base64Json)
         {
@@ -516,8 +516,8 @@ namespace transact.Areas.transact.Controllers
             return result;
         }
 
-        // http://localhost:8080/transact/api/base64/encode?value={"ApplicationID":"SYN","ProjectID":"ZZD","TransactionID":"TST010","ServiceID":"G01","TransactionLog":true}
-        // http://localhost:8080/transact/api/transaction/Log?base64Json=eyJQcm9qZWN0SUQiOiJTVlUiLCJCdXNpbmVzc0lEIjoiWlpEIiwiVHJhbnNhY3Rpb25JRCI6IlRTVDAxMCIsIkZ1bmN0aW9uSUQiOiJHMDEwMCIsIlRyYW5zYWN0aW9uTG9nIjp0cnVlfQ==
+        // http://localhost:8000/transact/api/base64/encode?value={"ApplicationID":"SYN","ProjectID":"ZZD","TransactionID":"TST010","ServiceID":"G01","TransactionLog":true}
+        // http://localhost:8000/transact/api/transaction/Log?base64Json=eyJQcm9qZWN0SUQiOiJTVlUiLCJCdXNpbmVzc0lEIjoiWlpEIiwiVHJhbnNhY3Rpb25JRCI6IlRTVDAxMCIsIkZ1bmN0aW9uSUQiOiJHMDEwMCIsIlRyYW5zYWN0aW9uTG9nIjp0cnVlfQ==
         [HttpGet("[action]")]
         public ActionResult Log(string base64Json)
         {
@@ -592,7 +592,7 @@ namespace transact.Areas.transact.Controllers
             return result;
         }
 
-        // http://localhost:8080/transact/api/transaction/meta
+        // http://localhost:8000/transact/api/transaction/meta
         [HttpGet("[action]")]
         public ActionResult Meta()
         {
@@ -634,7 +634,7 @@ namespace transact.Areas.transact.Controllers
             return result;
         }
 
-        // http://localhost:8080/transact/api/transaction/execute
+        // http://localhost:8000/transact/api/transaction/execute
         [HttpPost("[action]")]
         public async Task<ActionResult> Execute(TransactionRequest request)
         {

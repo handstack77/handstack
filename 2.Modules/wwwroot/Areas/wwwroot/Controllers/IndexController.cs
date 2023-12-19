@@ -37,14 +37,14 @@ namespace wwwroot.Areas.wwwroot.Controllers
             this.distributedCache = distributedCache;
         }
 
-        // http://localhost:8080/wwwroot/api/index
+        // http://localhost:8000/wwwroot/api/index
         [HttpGet]
         public string Get()
         {
             return "wwwroot IndexController";
         }
 
-        // http://localhost:8080/wwwroot/api/index/create-id?applicationID=HDS&projectID=SYS&transactionID=SYS010&serviceID=LD01&screenID=web&tokenID=123456
+        // http://localhost:8000/wwwroot/api/index/create-id?applicationID=HDS&projectID=SYS&transactionID=SYS010&serviceID=LD01&screenID=web&tokenID=123456
         [HttpGet("[action]")]
         [HttpPost("[action]")]
         public async Task<ActionResult> CreateID(string? applicationID, string? projectID, string? transactionID, string? serviceID, string? tokenID, string? screenID, int? fromMinutes = 10)
@@ -160,7 +160,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
             return requestID;
         }
 
-        // http://localhost:8080/handsup/api/index/client-ip
+        // http://localhost:8000/handsup/api/index/client-ip
         [HttpGet("[action]")]
         public Task<string> ClientIP()
         {

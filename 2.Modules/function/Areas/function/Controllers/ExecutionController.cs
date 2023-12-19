@@ -42,8 +42,8 @@ namespace function.Areas.function.Controllers
         }
 
         /// <example>
-        /// http://localhost:8080/api/base64/encode?value={"ProjectID":"QAF","BusinessID":"DSO","TransactionID":"0001","FunctionID":"R0100"}
-        /// http://localhost:8080/api/execution/has?base64Json=eyJQcm9qZWN0SUQiOiJRQUYiLCJCdXNpbmVzc0lEIjoiRFNPIiwiVHJhbnNhY3Rpb25JRCI6IjAwMDEiLCJGdW5jdGlvbklEIjoiUjAxMDAifQ==
+        /// http://localhost:8000/api/base64/encode?value={"ProjectID":"QAF","BusinessID":"DSO","TransactionID":"0001","FunctionID":"R0100"}
+        /// http://localhost:8000/api/execution/has?base64Json=eyJQcm9qZWN0SUQiOiJRQUYiLCJCdXNpbmVzc0lEIjoiRFNPIiwiVHJhbnNhY3Rpb25JRCI6IjAwMDEiLCJGdW5jdGlvbklEIjoiUjAxMDAifQ==
         /// </example>
         [HttpGet("Has")]
         public ActionResult Has(string base64Json)
@@ -97,8 +97,8 @@ namespace function.Areas.function.Controllers
         }
 
         /// <example>
-        /// http://localhost:8080/api/base64/encode?value={"ScriptFilePath":"QAF\DSO\TST010","ForceUpdate":true}
-        /// http://localhost:8080/api/execution/upsert?base64Json=eyJTcWxGaWxlUGF0aCI6IlFBRlxEU09cUUFGRFNPMDAwMS54bWwiLCJGb3JjZVVwZGF0ZSI6dHJ1ZX0=
+        /// http://localhost:8000/api/base64/encode?value={"ScriptFilePath":"QAF\DSO\TST010","ForceUpdate":true}
+        /// http://localhost:8000/api/execution/upsert?base64Json=eyJTcWxGaWxlUGF0aCI6IlFBRlxEU09cUUFGRFNPMDAwMS54bWwiLCJGb3JjZVVwZGF0ZSI6dHJ1ZX0=
         /// </example>
         [HttpGet("Upsert")]
         public ActionResult Upsert(string base64Json)
@@ -161,7 +161,7 @@ namespace function.Areas.function.Controllers
         }
 
         /// <example>
-        // http://localhost:8080/function/api/execution/refresh?changeType=Created&filePath=EWP/ZZD/TST010/featureMain.js
+        // http://localhost:8000/function/api/execution/refresh?changeType=Created&filePath=EWP/ZZD/TST010/featureMain.js
         /// </example>
         [HttpGet("Refresh")]
         public ActionResult Refresh(string changeType, string filePath)
@@ -251,8 +251,8 @@ namespace function.Areas.function.Controllers
         }
 
         /// <example>
-        /// http://localhost:8080/api/base64/encode?value={"ProjectID":"QAF","BusinessID":"DSO","TransactionID":"0001","FunctionID":"R0100"}
-        /// http://localhost:8080/api/execution/delete?base64Json=eyJQcm9qZWN0SUQiOiJRQUYiLCJCdXNpbmVzc0lEIjoiRFNPIiwiVHJhbnNhY3Rpb25JRCI6IjAwMDEiLCJGdW5jdGlvbklEIjoiUjAxMDAifQ==
+        /// http://localhost:8000/api/base64/encode?value={"ProjectID":"QAF","BusinessID":"DSO","TransactionID":"0001","FunctionID":"R0100"}
+        /// http://localhost:8000/api/execution/delete?base64Json=eyJQcm9qZWN0SUQiOiJRQUYiLCJCdXNpbmVzc0lEIjoiRFNPIiwiVHJhbnNhY3Rpb25JRCI6IjAwMDEiLCJGdW5jdGlvbklEIjoiUjAxMDAifQ==
         /// </example>
         [HttpGet("Delete")]
         public ActionResult Delete(string base64Json)
@@ -306,8 +306,8 @@ namespace function.Areas.function.Controllers
         }
 
         /// <example>
-        /// http://localhost:8080/api/base64/encode?value={"ProjectID":"QAF","BusinessID":"DSO","TransactionID":"0001","FunctionID":"R0100"}
-        /// http://localhost:8080/api/execution/get?base64Json=eyJQcm9qZWN0SUQiOiJRQUYiLCJCdXNpbmVzc0lEIjoiRFNPIiwiVHJhbnNhY3Rpb25JRCI6IjAwMDEiLCJGdW5jdGlvbklEIjoiUjAxMDAifQ==
+        /// http://localhost:8000/api/base64/encode?value={"ProjectID":"QAF","BusinessID":"DSO","TransactionID":"0001","FunctionID":"R0100"}
+        /// http://localhost:8000/api/execution/get?base64Json=eyJQcm9qZWN0SUQiOiJRQUYiLCJCdXNpbmVzc0lEIjoiRFNPIiwiVHJhbnNhY3Rpb25JRCI6IjAwMDEiLCJGdW5jdGlvbklEIjoiUjAxMDAifQ==
         /// </example>
         [HttpGet("Get")]
         public ActionResult Get(string base64Json)
@@ -369,8 +369,8 @@ namespace function.Areas.function.Controllers
         }
 
         /// <example>
-        /// http://localhost:8080/api/base64/encode?value={%22ProjectID%22:%22QAF%22,%22BusinessID%22:%22%22,%22TransactionID%22:%22%22,%22FunctionID%22:%22%22}
-        /// http://localhost:8080/api/execution/retrieve?base64Json=eyJQcm9qZWN0SUQiOiJRQUYiLCJCdXNpbmVzc0lEIjoiIiwiVHJhbnNhY3Rpb25JRCI6IiIsIkZ1bmN0aW9uSUQiOiIifQ==
+        /// http://localhost:8000/api/base64/encode?value={%22ProjectID%22:%22QAF%22,%22BusinessID%22:%22%22,%22TransactionID%22:%22%22,%22FunctionID%22:%22%22}
+        /// http://localhost:8000/api/execution/retrieve?base64Json=eyJQcm9qZWN0SUQiOiJRQUYiLCJCdXNpbmVzc0lEIjoiIiwiVHJhbnNhY3Rpb25JRCI6IiIsIkZ1bmN0aW9uSUQiOiIifQ==
         /// </example>
         [HttpGet("Retrieve")]
         public ActionResult Retrieve(string base64Json)
@@ -455,7 +455,7 @@ namespace function.Areas.function.Controllers
         }
 
         /// <example>
-        /// http://localhost:8080/api/execution/meta
+        /// http://localhost:8000/api/execution/meta
         /// </example>
         [HttpGet("Meta")]
         public ActionResult Meta()

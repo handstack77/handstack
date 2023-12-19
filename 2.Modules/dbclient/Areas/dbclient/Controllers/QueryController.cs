@@ -40,8 +40,8 @@ namespace dbclient.Areas.dbclient.Controllers
             this.dataClient = dataClient;
         }
 
-        // http://localhost:8080/dbclient/api/base64/encode?value={"ApplicationID":"SYN","ProjectID":"ZZD","TransactionID":"TST010","FunctionID":"G0100"}
-        // http://localhost:8080/dbclient/api/query/has?base64Json=eyJQcm9qZWN0SUQiOiJRQUYiLCJCdXNpbmVzc0lEIjoiRFNPIiwiVHJhbnNhY3Rpb25JRCI6IjAwMDEiLCJGdW5jdGlvbklEIjoiUjAxMDAifQ==
+        // http://localhost:8000/dbclient/api/base64/encode?value={"ApplicationID":"SYN","ProjectID":"ZZD","TransactionID":"TST010","FunctionID":"G0100"}
+        // http://localhost:8000/dbclient/api/query/has?base64Json=eyJQcm9qZWN0SUQiOiJRQUYiLCJCdXNpbmVzc0lEIjoiRFNPIiwiVHJhbnNhY3Rpb25JRCI6IjAwMDEiLCJGdW5jdGlvbklEIjoiUjAxMDAifQ==
         [HttpGet("[action]")]
         public ActionResult Has(string base64Json)
         {
@@ -93,8 +93,8 @@ namespace dbclient.Areas.dbclient.Controllers
             return result;
         }
 
-        // http://localhost:8080/dbclient/api/base64/encode?value={"SqlFilePath":"SYN\DSO\SYNDSO0001.xml","ForceUpdate":true}
-        // http://localhost:8080/dbclient/api/query/upsert?base64Json=eyJTcWxGaWxlUGF0aCI6IlFBRlxEU09cUUFGRFNPMDAwMS54bWwiLCJGb3JjZVVwZGF0ZSI6dHJ1ZX0=
+        // http://localhost:8000/dbclient/api/base64/encode?value={"SqlFilePath":"SYN\DSO\SYNDSO0001.xml","ForceUpdate":true}
+        // http://localhost:8000/dbclient/api/query/upsert?base64Json=eyJTcWxGaWxlUGF0aCI6IlFBRlxEU09cUUFGRFNPMDAwMS54bWwiLCJGb3JjZVVwZGF0ZSI6dHJ1ZX0=
         [HttpGet("[action]")]
         public ActionResult Upsert(string base64Json)
         {
@@ -144,7 +144,7 @@ namespace dbclient.Areas.dbclient.Controllers
             return result;
         }
 
-        // http://localhost:8080/dbclient/api/query/refresh?changeType=Created&filePath=HDS/ZZD/TST010.xml
+        // http://localhost:8000/dbclient/api/query/refresh?changeType=Created&filePath=HDS/ZZD/TST010.xml
         [HttpGet("[action]")]
         public ActionResult Refresh(string changeType, string filePath)
         {
@@ -230,8 +230,8 @@ namespace dbclient.Areas.dbclient.Controllers
             return result;
         }
 
-        // http://localhost:8080/dbclient/api/base64/encode?value={"ApplicationID":"SYN","ProjectID":"ZZD","TransactionID":"TST010","FunctionID":"G0100"}
-        // http://localhost:8080/dbclient/api/query/delete?base64Json=eyJQcm9qZWN0SUQiOiJRQUYiLCJCdXNpbmVzc0lEIjoiRFNPIiwiVHJhbnNhY3Rpb25JRCI6IjAwMDEiLCJGdW5jdGlvbklEIjoiUjAxMDAifQ==
+        // http://localhost:8000/dbclient/api/base64/encode?value={"ApplicationID":"SYN","ProjectID":"ZZD","TransactionID":"TST010","FunctionID":"G0100"}
+        // http://localhost:8000/dbclient/api/query/delete?base64Json=eyJQcm9qZWN0SUQiOiJRQUYiLCJCdXNpbmVzc0lEIjoiRFNPIiwiVHJhbnNhY3Rpb25JRCI6IjAwMDEiLCJGdW5jdGlvbklEIjoiUjAxMDAifQ==
         [HttpGet("Delete")]
         public ActionResult Delete(string base64Json)
         {
@@ -283,8 +283,8 @@ namespace dbclient.Areas.dbclient.Controllers
             return result;
         }
 
-        // http://localhost:8080/dbclient/api/base64/encode?value={"ApplicationID":"SYN","ProjectID":"ZZD","TransactionID":"TST010","FunctionID":"G0100"}
-        // http://localhost:8080/dbclient/api/query/get?base64Json=eyJQcm9qZWN0SUQiOiJRQUYiLCJCdXNpbmVzc0lEIjoiRFNPIiwiVHJhbnNhY3Rpb25JRCI6IjAwMDEiLCJGdW5jdGlvbklEIjoiUjAxMDAifQ==
+        // http://localhost:8000/dbclient/api/base64/encode?value={"ApplicationID":"SYN","ProjectID":"ZZD","TransactionID":"TST010","FunctionID":"G0100"}
+        // http://localhost:8000/dbclient/api/query/get?base64Json=eyJQcm9qZWN0SUQiOiJRQUYiLCJCdXNpbmVzc0lEIjoiRFNPIiwiVHJhbnNhY3Rpb25JRCI6IjAwMDEiLCJGdW5jdGlvbklEIjoiUjAxMDAifQ==
         [HttpGet("[action]")]
         public ActionResult Get(string base64Json)
         {
@@ -345,8 +345,8 @@ namespace dbclient.Areas.dbclient.Controllers
             return result;
         }
 
-        // http://localhost:8080/dbclient/api/base64/encode?value={"ApplicationID":"SYN","ProjectID":"ZZD","TransactionID":"TST010","FunctionID":"G0100"}
-        // http://localhost:8080/dbclient/api/query/retrieve?base64Json=eyJQcm9qZWN0SUQiOiJRQUYiLCJCdXNpbmVzc0lEIjoiIiwiVHJhbnNhY3Rpb25JRCI6IiIsIkZ1bmN0aW9uSUQiOiIifQ==
+        // http://localhost:8000/dbclient/api/base64/encode?value={"ApplicationID":"SYN","ProjectID":"ZZD","TransactionID":"TST010","FunctionID":"G0100"}
+        // http://localhost:8000/dbclient/api/query/retrieve?base64Json=eyJQcm9qZWN0SUQiOiJRQUYiLCJCdXNpbmVzc0lEIjoiIiwiVHJhbnNhY3Rpb25JRCI6IiIsIkZ1bmN0aW9uSUQiOiIifQ==
         [HttpGet("[action]")]
         public ActionResult Retrieve(string base64Json)
         {
@@ -420,8 +420,8 @@ namespace dbclient.Areas.dbclient.Controllers
             return result;
         }
 
-        // http://localhost:8080/dbclient/api/base64/encode?value={"ApplicationID":"SYN","ProjectID":"ZZD","TransactionID":"TST010","FunctionID":"G0100","TransactionLog":true}
-        // http://localhost:8080/dbclient/api/query/log?base64Json=eyJQcm9qZWN0SUQiOiJTVlUiLCJCdXNpbmVzc0lEIjoiWlpEIiwiVHJhbnNhY3Rpb25JRCI6IlRTVDAxMCIsIkZ1bmN0aW9uSUQiOiJHMDEwMCIsIlRyYW5zYWN0aW9uTG9nIjp0cnVlfQ==
+        // http://localhost:8000/dbclient/api/base64/encode?value={"ApplicationID":"SYN","ProjectID":"ZZD","TransactionID":"TST010","FunctionID":"G0100","TransactionLog":true}
+        // http://localhost:8000/dbclient/api/query/log?base64Json=eyJQcm9qZWN0SUQiOiJTVlUiLCJCdXNpbmVzc0lEIjoiWlpEIiwiVHJhbnNhY3Rpb25JRCI6IlRTVDAxMCIsIkZ1bmN0aW9uSUQiOiJHMDEwMCIsIlRyYW5zYWN0aW9uTG9nIjp0cnVlfQ==
         [HttpGet("[action]")]
         public ActionResult Log(string base64Json)
         {
@@ -488,7 +488,7 @@ namespace dbclient.Areas.dbclient.Controllers
             return result;
         }
 
-        // http://localhost:8080/dbclient/api/query/meta
+        // http://localhost:8000/dbclient/api/query/meta
         [HttpGet("[action]")]
         public ActionResult Meta()
         {
@@ -531,7 +531,7 @@ namespace dbclient.Areas.dbclient.Controllers
             return result;
         }
 
-        // http://localhost:8080/dbclient/api/query/reports
+        // http://localhost:8000/dbclient/api/query/reports
         [HttpGet("[action]")]
         public ActionResult Reports()
         {
@@ -589,7 +589,7 @@ namespace dbclient.Areas.dbclient.Controllers
             return result;
         }
 
-        // http://localhost:8080/dbclient/api/query/execute
+        // http://localhost:8000/dbclient/api/query/execute
         [HttpPost()]
         public async Task<ActionResult> Execute(DynamicRequest request)
         {

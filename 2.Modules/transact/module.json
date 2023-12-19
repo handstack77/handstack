@@ -5,7 +5,7 @@
     "Version": "1.0.0",
     "ModuleConfig": {
         "SystemID": "HANDSTACK",
-        "BusinessServerUrl": "http://localhost:8080/transact/api/transaction/execute",
+        "BusinessServerUrl": "http://localhost:8000/transact/api/transaction/execute",
         "CircuitBreakResetSecond": 60,
         "DefaultCommandTimeout": 180,
         "IsExceptionDetailText": true,
@@ -20,7 +20,7 @@
             "../contracts/transact"
         ],
         "AvailableEnvironment": "P,D,S",
-        "LogServerUrl": "http://localhost:8080/logger/api/log/insert",
+        "LogServerUrl": "http://localhost:8000/logger/api/log/insert",
         "IsCodeDataCache": true,
         "CodeDataCacheTimeout": 20,
         "ModuleBasePath": "../modules/transact",
@@ -32,20 +32,20 @@
         ],
         "WithOrigins": [
             "http://127.0.0.1",
-            "http://127.0.0.1:8080",
+            "http://127.0.0.1:8000",
             "http://localhost",
-            "http://localhost:8080"
+            "http://localhost:8000"
         ],
         "AllowRequestTransactions": {
             "HDS": [ "*" ]
         },
         "RoutingCommandUri": {
-            "HDS|*|D|D": "http://localhost:8080/dbclient/api/query",
-            "HDS|*|F|D": "http://localhost:8080/function/api/execution",
-            "HDS|*|D|P": "http://localhost:8080/dbclient/api/query",
-            "HDS|*|F|P": "http://localhost:8080/function/api/execution",
-            "HDS|*|D|T": "http://localhost:8080/dbclient/api/query",
-            "HDS|*|F|T": "http://localhost:8080/function/api/execution"
+            "HDS|*|D|D": "http://localhost:8000/dbclient/api/query",
+            "HDS|*|F|D": "http://localhost:8000/function/api/execution",
+            "HDS|*|D|P": "http://localhost:8000/dbclient/api/query",
+            "HDS|*|F|P": "http://localhost:8000/function/api/execution",
+            "HDS|*|D|T": "http://localhost:8000/dbclient/api/query",
+            "HDS|*|F|T": "http://localhost:8000/function/api/execution"
         },
         "EventAction": [],
         "SubscribeAction": [],

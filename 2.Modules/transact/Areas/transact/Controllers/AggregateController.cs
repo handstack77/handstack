@@ -29,7 +29,7 @@ namespace transact.Areas.transact.Controllers
             this.loggerClient = loggerClient;
         }
 
-        // http://localhost:8080/transact/api/aggregate/transaction-list?applicationID=HDS&year=2023&weekOfYear=39&resultType=L
+        // http://localhost:8000/transact/api/aggregate/transaction-list?applicationID=HDS&year=2023&weekOfYear=39&resultType=L
         [HttpGet("[action]")]
         public ActionResult TransactionList(string applicationID, string year, string weekOfYear, string? requestDate, string? requestHour, string? resultType = "L")
         {
@@ -75,7 +75,7 @@ namespace transact.Areas.transact.Controllers
             return result;
         }
 
-        // http://localhost:8080/transact/api/aggregate/summary?applicationID=HDS&year=2023&weekOfYear=39&requestDate=20230926
+        // http://localhost:8000/transact/api/aggregate/summary?applicationID=HDS&year=2023&weekOfYear=39&requestDate=20230926
         [HttpGet("[action]")]
         public ActionResult Summary(string applicationID, string year, string weekOfYear, string requestDate)
         {

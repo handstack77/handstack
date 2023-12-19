@@ -48,7 +48,7 @@ namespace logger.Areas.logger.Controllers
         // logMessage.Properties = "프롭프롭";
         // logMessage.UserID = "system";
         // logMessage.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
-        // http://localhost:8080/logger/api/log/insert
+        // http://localhost:8000/logger/api/log/insert
         [HttpGet("[action]")]
         [HttpPost("[action]")]
         public ActionResult Insert(LogMessage logMessage)
@@ -89,7 +89,7 @@ namespace logger.Areas.logger.Controllers
             return result;
         }
 
-        // http://localhost:8080/logger/api/log/list?applicationID=HDS
+        // http://localhost:8000/logger/api/log/list?applicationID=HDS
         [HttpGet("[action]")]
         public async Task<ActionResult> List(string applicationID, string? serverID, string? globalID, string? environment, string? projectID, string? serviceID, string? transactionID, string? startedAt, string? endedAt)
         {
@@ -147,7 +147,7 @@ namespace logger.Areas.logger.Controllers
             return result;
         }
 
-        // http://localhost:8080/logger/api/log/detail?applicationID=HDS&logNo=1
+        // http://localhost:8000/logger/api/log/detail?applicationID=HDS&logNo=1
         [HttpGet("[action]")]
         public async Task<ActionResult> Detail(string applicationID, string logNo)
         {

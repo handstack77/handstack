@@ -20,7 +20,7 @@ namespace repository.Areas.repository.Controllers
             this.logger = logger;
         }
 
-        // http://localhost:8080/repository/api/index
+        // http://localhost:8000/repository/api/index
         [HttpGet]
         public string Get()
         {

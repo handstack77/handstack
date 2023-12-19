@@ -7,7 +7,7 @@
         "SystemID": "HANDSTACK",
         "IsSQLiteCreateOnNotSettingRequest": true,
         "ModuleBasePath": "../modules/logger",
-        "BusinessServerUrl": "http://localhost:8080/transact/api/transaction/execute",
+        "BusinessServerUrl": "http://localhost:8000/transact/api/transaction/execute",
         "EventAction": [],
         "SubscribeAction": [],
         "DataSource": [
