@@ -247,9 +247,9 @@ namespace dbclient.Areas.dbclient.Controllers
                                                 dataSourceMap.DataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), item.DataProvider);
                                                 dataSourceMap.ConnectionString = item.ConnectionString;
 
-                                                if (item.IsEncryption == "Y")
+                                                if (item.IsEncryption.ParseBool() == true)
                                                 {
-                                                    // ConnectionString 복호화 처리
+                                                    item.ConnectionString = DatabaseMapper.DecryptConnectionString(item);
                                                 }
 
                                                 if (DatabaseMapper.DataSourceMappings.ContainsKey(tanantMap) == false)

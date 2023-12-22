@@ -578,13 +578,13 @@ namespace ack
                 Log.Error(exception, "[{LogCategory}] ncloudconfig.json 코드설정 확인 필요", "ack ModuleInitializer/InitailizeAppSetting");
             }
 
-            string physicalPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+            string physicalPath = Path.Combine(GlobalConfiguration.EntryBasePath, "wwwroot");
             if (Directory.Exists(physicalPath) == true)
             {
                 // wwwroot 디렉토리내 파일들은 Cache-Control 값을 적용
                 app.UseStaticFiles(new StaticFileOptions
                 {
-                    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot")),
+                    FileProvider = new PhysicalFileProvider(physicalPath),
                     ServeUnknownFileTypes = true,
                     ContentTypeProvider = GlobalConfiguration.ContentTypeProvider,
                     OnPrepareResponse = httpContext =>

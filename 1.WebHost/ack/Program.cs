@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.CommandLine;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -26,7 +26,6 @@ namespace ack
         {
             int exitCode = 0;
 
-            
             Console.WriteLine($"Current Directory from {Directory.GetCurrentDirectory()}");
             Console.WriteLine($"Launched from {Environment.CurrentDirectory}");
             Console.WriteLine($"Physical location {AppDomain.CurrentDomain.BaseDirectory}");
@@ -58,45 +57,58 @@ namespace ack
                 environmentName = "";
             }
 
-            IConfigurationRoot configuration;
-            string appSettingsFilePath = Path.Combine(GlobalConfiguration.EntryBasePath, "appsettings.json");
-            Console.WriteLine($"appSettings.json FilePath {appSettingsFilePath}");
-            var configurationBuilder = new ConfigurationBuilder().AddJsonFile(appSettingsFilePath);
-            configurationBuilder.AddEnvironmentVariables();
-
-            string environmentFileName = $"appsettings.{environmentName}.json";
-            if (File.Exists(Path.Combine(GlobalConfiguration.EntryBasePath, environmentFileName)) == true)
-            {
-                configuration = configurationBuilder.AddJsonFile(environmentFileName).Build();
-            }
-            else
-            {
-                configuration = configurationBuilder.Build();
-            }
-
-            Log.Logger = new LoggerConfiguration()
-                .ReadFrom.Configuration(configuration)
-                .CreateLogger();
-
-            var optionFile = new Option<FileInfo?>(name: "--file", description: "handstack 프로그램 전체 파일 경로입니다");
-            var optionArguments = new Option<string?>("--arguments", description: "handstack 프로그램 실행시 전달할 매개변수 입니다. 예) \"--modules=wwwroot,transact,dbclient,function\"");
+            var optionFile = new Option<FileInfo?>(name: "--file", description: "ack 프로그램 전체 파일 경로입니다");
+            var optionArguments = new Option<string?>("--arguments", description: "ack 프로그램 실행시 전달할 매개변수 입니다. 예) \"--modules=wwwroot,transact,dbclient,function\"");
             var optionPort = new Option<int?>("--port", description: "프로그램 수신 포트를 설정합니다. (기본값: 8080)");
             var optionDebug = new Option<bool?>("--debug", description: "프로그램 시작시 디버거에 프로세스가 연결 될 수 있도록 지연 후 시작됩니다.(기본값: 10초)");
             var optionDelay = new Option<int?>("--delay", description: "프로그램 시작시 지연 시간(밀리초)을 설정합니다. (기본값: 10000)");
             var optionProcessID = new Option<int>("--pid", description: "OS에서 부여한 프로세스 ID 입니다");
+            var optionKey = new Option<string?>(name: "--key", description: "ack 프로그램 실행 검증키입니다");
+            var optionAppSettings = new Option<string?>(name: "--appsettings", description: "ack 프로그램 appsettings 파일명입니다");
 
             var rootOptionModules = new Option<string?>("--modules", description: "프로그램 시작시 포함할 모듈을 설정합니다. 예) --modules=wwwroot,transact,dbclient,function");
 
             var rootCommand = new RootCommand("IT 혁신은 고객과 업무에 들여야 하는 시간과 노력을 줄이는 데 있습니다. HandStack은 기업 경쟁력 유지를 위한 도구입니다") {
-                optionDebug, optionDelay, optionPort, rootOptionModules
+                optionDebug, optionDelay, optionPort, rootOptionModules, optionKey, optionAppSettings
             };
 
-            rootCommand.SetHandler(async (debug, delay, port, modules) =>
+            rootCommand.SetHandler(async (debug, delay, port, modules, key, settings) =>
             {
                 await DebuggerAttach(args, debug, delay);
 
                 try
                 {
+                    IConfigurationRoot configuration;
+                    string appSettingsFilePath = Path.Combine(GlobalConfiguration.EntryBasePath, "appsettings.json");
+                    Console.WriteLine($"appSettings.json FilePath {appSettingsFilePath}");
+                    var configurationBuilder = new ConfigurationBuilder().AddJsonFile(appSettingsFilePath);
+                    configurationBuilder.AddEnvironmentVariables();
+
+                    if (string.IsNullOrEmpty(key) == false && string.IsNullOrEmpty(settings) == false)
+                    {
+                        byte[] buffer = Encoding.UTF8.GetBytes(settings.DecryptAES(key));
+                        using MemoryStream stream = new MemoryStream(buffer);
+                        configurationBuilder = configurationBuilder.AddJsonStream(stream);
+
+                        configuration = configurationBuilder.Build();
+                    }
+                    else
+                    {
+                        string environmentFileName = $"appsettings.{environmentName}.json";
+                        if (File.Exists(Path.Combine(GlobalConfiguration.EntryBasePath, environmentFileName)) == true)
+                        {
+                            configuration = configurationBuilder.AddJsonFile(environmentFileName).Build();
+                        }
+                        else
+                        {
+                            configuration = configurationBuilder.Build();
+                        }
+                    }
+
+                    Log.Logger = new LoggerConfiguration()
+                        .ReadFrom.Configuration(configuration)
+                        .CreateLogger();
+
                     int listenPort = (port == null ? 8000 : (int)port);
                     if (SocketExtensions.PortInUse(listenPort) == true)
                     {
@@ -107,10 +119,10 @@ namespace ack
 
                     if (string.IsNullOrEmpty(modules) == false)
                     {
-                        var runningModules = modules.Split(",");
-                        foreach (var runningModule in runningModules)
+                        var loadModules = modules.Split(",");
+                        foreach (var item in loadModules)
                         {
-                            string module = runningModule.Trim();
+                            string module = item.Trim();
                             if (string.IsNullOrEmpty(module) == false)
                             {
                                 GlobalConfiguration.ModuleNames.Add(module);
@@ -161,7 +173,7 @@ namespace ack
                     Log.Fatal(exception, "프로그램 실행 중 오류가 발생했습니다");
                     exitCode = -1;
                 }
-            }, optionDebug, optionDelay, optionPort, rootOptionModules);
+            }, optionDebug, optionDelay, optionPort, rootOptionModules, optionKey, optionAppSettings);
 
             await rootCommand.InvokeAsync(args);
             return exitCode;

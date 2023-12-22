@@ -9,7 +9,7 @@
         "CircuitBreakResetSecond": 60,
         "DefaultCommandTimeout": 180,
         "IsExceptionDetailText": true,
-        "IsLogServer": true,
+        "IsLogServer": false,
         "LogServerUrl": "http://localhost:8000/logger/api/log/insert",
         "ContractBasePath": [
             "../contracts/dbclient"

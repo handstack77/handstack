@@ -103,7 +103,7 @@ namespace ack
         public static IHostBuilder CreateWebHostBuilder(int port, string[] args)
         {
             return Host.CreateDefaultBuilder(args)
-                .UseContentRoot(Directory.GetCurrentDirectory())
+                .UseContentRoot(GlobalConfiguration.EntryBasePath)
                 .UseSerilog((context, config) =>
                 {
                     config.ReadFrom.Configuration(context.Configuration);

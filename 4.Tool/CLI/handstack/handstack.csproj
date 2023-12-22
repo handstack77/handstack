@@ -1,0 +1,67 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <PackageProjectUrl>https://handstack.kr</PackageProjectUrl>
+        <PackAsTool>True</PackAsTool>
+        <PackageId>handstack</PackageId>
+        <PackageOutputPath>./.nupkg</PackageOutputPath>
+        <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+        <ToolCommandName>ack</ToolCommandName>
+        <PackageTags>비즈니스 앱;로우코드;솔루션;개발도구;business app;lowcode;solution;development tool;handstack;handshake;</PackageTags>
+        <RepositoryUrl>https://github.com/Junworks77/handstack</RepositoryUrl>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageIcon>handstack.jpg</PackageIcon>
+        <Copyright>Apache License 2.0</Copyright>
+        <Authors>handstack77</Authors>
+        <Company>handstack</Company>
+        <Title>HandStack은 기업 경쟁력 유지를 위한 도구입니다</Title>
+        <Version>1.0.0-alpha4</Version>
+        <IsPackable>true</IsPackable>
+        <IncludeSymbols>True</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+        <DebugType>full</DebugType>
+        <Optimize>True</Optimize>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+        <DebugType>full</DebugType>
+        <Optimize>False</Optimize>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="appsettings\**" />
+        <None Update="appsettings\**">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="modulesettings\**" />
+        <None Update="modulesettings\**">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="8.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
+        <PackageReference Include="Serilog.Settings.Configuration" Version="7.0.0" />
+        <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+        <PackageReference Include="Serilog" Version="3.0.1" />
+        <PackageReference Include="Serilog.Extensions.Logging" Version="7.0.0" />
+        <PackageReference Include="Serilog.Extensions.Hosting" Version="7.0.0" />
+        <PackageReference Include="Serilog.Sinks.Console" Version="4.1.0" />
+        <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\3.Infrastructure\HandStack.Core\HandStack.Core.csproj" />
+    </ItemGroup>
+</Project>

@@ -155,7 +155,8 @@ namespace HandStack.Web
         {
             bool result = false;
             var clearModuleAppSettings = ApplicationCodes.Where(x => x.Value != null && x.Value.Area == moduleID && x.Value.CommonYN == false).ToList();
-            if (clearModuleAppSettings.Any() == true) {
+            if (clearModuleAppSettings.Any() == true)
+            {
                 lock (ApplicationCodes)
                 {
                     for (int i = clearModuleAppSettings.Count(); 0 < i; --i)
@@ -191,7 +192,7 @@ namespace HandStack.Web
             var rule = string.Concat(nl, new string('-', 40), nl);
 
             sb.Append($"{nl}");
-            sb.Append($"CurrentDirectory: {Directory.GetCurrentDirectory()}");
+            sb.Append($"EntryBasePath: {GlobalConfiguration.EntryBasePath}");
             sb.Append($"{nl}Configuration{rule}");
             foreach (var pair in configuration.AsEnumerable())
             {

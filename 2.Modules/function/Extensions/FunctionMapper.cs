@@ -729,7 +729,7 @@ namespace function.Extensions
 
                             if (item.IsEncryption.ParseBool() == true)
                             {
-                                connectionString = SynCryptoHelper.Decrypt(connectionString);
+                                connectionString = FunctionMapper.DecryptConnectionString(item);
                             }
 
                             if (dataProvider == DataProviders.SQLite)
@@ -760,6 +760,35 @@ namespace function.Extensions
             {
                 logger.Error("[{LogCategory}] " + $"LoadContract 오류 - {exception.ToMessage()}", "FunctionMapper/LoadContract");
             }
+        }
+
+        public static string DecryptConnectionString(FunctionSource? functionSource)
+        {
+            string result = "";
+            if (functionSource != null)
+            {
+                try
+                {
+                    var values = functionSource.ConnectionString.SplitAndTrim('.');
+
+                    string encrypt = values[0];
+                    string decryptKey = values[1];
+                    string hostName = values[2];
+                    string hash = values[3];
+
+                    if ($"{encrypt}.{decryptKey}.{hostName}".ToSHA256() == hash)
+                    {
+                        decryptKey = decryptKey.DecodeBase64().PadRight(32, '0').Substring(0, 32);
+                        result = encrypt.DecryptAES(decryptKey);
+                    }
+                }
+                catch (Exception exception)
+                {
+                    Log.Logger.Error("[{LogCategory}] " + $"{JsonConvert.SerializeObject(functionSource)} 확인 필요: " + exception.ToMessage(), "DatabaseMapper/DecryptConnectionString");
+                }
+            }
+
+            return result;
         }
     }
 }

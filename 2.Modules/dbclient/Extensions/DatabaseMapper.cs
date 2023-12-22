@@ -28,8 +28,6 @@ using Newtonsoft.Json.Linq;
 
 using Serilog;
 
-using static System.Net.Mime.MediaTypeNames;
-
 namespace dbclient.Extensions
 {
     public static class DatabaseMapper
@@ -119,9 +117,9 @@ namespace dbclient.Extensions
                                             dataSourceMap.DataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), item.DataProvider);
                                             dataSourceMap.ConnectionString = item.ConnectionString;
 
-                                            if (item.IsEncryption == "Y")
+                                            if (item.IsEncryption.ParseBool() == true)
                                             {
-                                                // ConnectionString 복호화 처리
+                                                item.ConnectionString = DatabaseMapper.DecryptConnectionString(item);
                                             }
 
                                             if (DataSourceMappings.ContainsKey(tanantMap) == false)
@@ -269,9 +267,38 @@ namespace dbclient.Extensions
                         }
                         catch (Exception exception)
                         {
-                            Log.Logger.Error("[{LogCategory}] " + $"{sqlMapFile} 업무 계약 파일 오류 - " + exception.ToMessage(), "DatabaseMapper/GetStatementMap");
+                            Log.Logger.Error(exception, "[{LogCategory}] " + $"{sqlMapFile} 업무 계약 파일 오류 - " + exception.ToMessage(), "DatabaseMapper/GetStatementMap");
                         }
                     }
+                }
+            }
+
+            return result;
+        }
+
+        public static string DecryptConnectionString(DataSource? dataSource)
+        {
+            string result = "";
+            if (dataSource != null)
+            {
+                try
+                {
+                    var values = dataSource.ConnectionString.SplitAndTrim('.');
+
+                    string encrypt = values[0];
+                    string decryptKey = values[1];
+                    string hostName = values[2];
+                    string hash = values[3];
+
+                    if ($"{encrypt}.{decryptKey}.{hostName}".ToSHA256() == hash)
+                    {
+                        decryptKey = decryptKey.DecodeBase64().PadRight(32, '0').Substring(0, 32);
+                        result = encrypt.DecryptAES(decryptKey);
+                    }
+                }
+                catch (Exception exception)
+                {
+                    Log.Logger.Error("[{LogCategory}] " + $"{JsonConvert.SerializeObject(dataSource)} 확인 필요: " + exception.ToMessage(), "DatabaseMapper/DecryptConnectionString");
                 }
             }
 
@@ -1025,9 +1052,9 @@ namespace dbclient.Extensions
                         dataSourceMap.DataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), item.DataProvider);
                         dataSourceMap.ConnectionString = item.ConnectionString;
 
-                        if (item.IsEncryption == "Y")
+                        if (item.IsEncryption.ParseBool() == true)
                         {
-                            // ConnectionString 복호화 처리
+                            item.ConnectionString = DatabaseMapper.DecryptConnectionString(item);
                         }
 
                         DataSourceMappings.Add(tanantMap, dataSourceMap);
