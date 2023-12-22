@@ -3,7 +3,6 @@
         <TargetFramework>net8.0</TargetFramework>
         <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
         <Nullable>enable</Nullable>
-        <BaseOutputPath>..\Assemblies</BaseOutputPath>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -15,4 +14,8 @@
         <PackageReference Include="BouncyCastle.Cryptography" Version="2.2.1" />
         <PackageReference Include="System.Reactive" Version="6.0.0" />
     </ItemGroup>
+
+    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+        <Exec Command="(robocopy $(TargetDir) ../Assemblies /e /copy:dat) ^&amp; IF %25ERRORLEVEL%25 LEQ 1 exit 0" />
+    </Target>
 </Project>
