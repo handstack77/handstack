@@ -48,6 +48,7 @@ namespace HandStack.Web.Modules
                         var moduleInfo = new ModuleInfo();
                         moduleInfo.ModuleID = moduleID;
                         moduleInfo.BasePath = moduleBasePath;
+                        moduleInfo.ModuleSettingFilePath = moduleSettingFilePath;
                         moduleInfo.Name = moduleID;
                         moduleInfo.Version = Version.Parse(module.Version.ToString());
                         moduleInfo.IsBundledWithHost = module.IsBundledWithHost;

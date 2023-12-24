@@ -309,7 +309,7 @@ namespace function.Extensions
                                     }
                                     else
                                     {
-                                        Log.Logger.Warning("[{LogCategory}] " + $"ScriptMap 정보 중복 오류 - {scriptMapFile}, ApplicationID - {moduleScriptMap.ApplicationID}, ProjectID - {moduleScriptMap.ProjectID}, TransactionID - {moduleScriptMap.TransactionID}, ScriptID - {moduleScriptMap.ScriptID}", "FunctionMapper/MergeContractFile");
+                                        Log.Logger.Warning("[{LogCategory}] " + $"ScriptMap 정보 중복 확인 필요 - {scriptMapFile}, ApplicationID - {moduleScriptMap.ApplicationID}, ProjectID - {moduleScriptMap.ProjectID}, TransactionID - {moduleScriptMap.TransactionID}, ScriptID - {moduleScriptMap.ScriptID}", "FunctionMapper/MergeContractFile");
                                     }
                                 }
                             }
@@ -550,7 +550,7 @@ namespace function.Extensions
                                             }
                                             else
                                             {
-                                                logger.Warning("[{LogCategory}] " + $"ScriptMap 정보 중복 오류 - {filePath}, ApplicationID - {moduleScriptMap.ApplicationID}, ProjectID - {moduleScriptMap.ProjectID}, TransactionID - {moduleScriptMap.TransactionID}, ScriptID - {moduleScriptMap.ScriptID}", "FunctionMapper/AddScriptMap");
+                                                logger.Warning("[{LogCategory}] " + $"ScriptMap 정보 중복 확인 필요 - {filePath}, ApplicationID - {moduleScriptMap.ApplicationID}, ProjectID - {moduleScriptMap.ProjectID}, TransactionID - {moduleScriptMap.TransactionID}, ScriptID - {moduleScriptMap.ScriptID}", "FunctionMapper/AddScriptMap");
                                             }
                                         }
                                     }
@@ -715,7 +715,7 @@ namespace function.Extensions
                                             }
                                             else
                                             {
-                                                logger.Warning("[{LogCategory}] " + $"ScriptMap 정보 중복 오류 - {scriptMapFile}, ApplicationID - {moduleScriptMap.ApplicationID}, ProjectID - {moduleScriptMap.ProjectID}, TransactionID - {moduleScriptMap.TransactionID}, ScriptID - {moduleScriptMap.ScriptID}", "FunctionMapper/LoadContract");
+                                                logger.Warning("[{LogCategory}] " + $"ScriptMap 정보 중복 확인 필요 - {scriptMapFile}, ApplicationID - {moduleScriptMap.ApplicationID}, ProjectID - {moduleScriptMap.ProjectID}, TransactionID - {moduleScriptMap.TransactionID}, ScriptID - {moduleScriptMap.ScriptID}", "FunctionMapper/LoadContract");
                                             }
                                         }
                                     }

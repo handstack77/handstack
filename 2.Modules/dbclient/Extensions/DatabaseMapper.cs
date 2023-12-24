@@ -119,7 +119,7 @@ namespace dbclient.Extensions
 
                                             if (item.IsEncryption.ParseBool() == true)
                                             {
-                                                item.ConnectionString = DatabaseMapper.DecryptConnectionString(item);
+                                                dataSourceMap.ConnectionString = DatabaseMapper.DecryptConnectionString(item);
                                             }
 
                                             if (DataSourceMappings.ContainsKey(tanantMap) == false)
@@ -1044,7 +1044,14 @@ namespace dbclient.Extensions
                     tanantMap.TanantPattern = item.TanantPattern;
                     tanantMap.TanantValue = item.TanantValue;
 
-                    if (DataSourceMappings.ContainsKey(tanantMap) == false)
+                    var dataSourceMaps = DataSourceMappings.Where(p =>
+                        p.Value.ApplicationID == item.ApplicationID
+                        && p.Value.ProjectListID.SequenceEqual(item.ProjectID.Split(",").Where(s => string.IsNullOrWhiteSpace(s) == false).Distinct().ToList())
+                        && p.Key.DataSourceID == item.DataSourceID
+                        && string.IsNullOrEmpty(p.Key.TanantPattern) == false
+                    ).ToList();
+
+                    if (dataSourceMaps.Count == 0)
                     {
                         DataSourceMap dataSourceMap = new DataSourceMap();
                         dataSourceMap.ApplicationID = item.ApplicationID;
@@ -1054,10 +1061,14 @@ namespace dbclient.Extensions
 
                         if (item.IsEncryption.ParseBool() == true)
                         {
-                            item.ConnectionString = DatabaseMapper.DecryptConnectionString(item);
+                            dataSourceMap.ConnectionString = DatabaseMapper.DecryptConnectionString(item);
                         }
 
                         DataSourceMappings.Add(tanantMap, dataSourceMap);
+                    }
+                    else
+                    {
+                        Log.Logger.Warning("[{LogCategory}] " + $"DataSourceMap 정보 중복 확인 필요 - ApplicationID - {item.ApplicationID}, ProjectID - {item.ProjectID}, DataSourceID - {item.DataSourceID}, DataProvider - {item.DataProvider}, TanantPattern - {item.TanantPattern}, TanantValue - {item.TanantValue}", "DatabaseMapper/LoadContract");
                     }
                 }
             }

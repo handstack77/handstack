@@ -12,6 +12,8 @@ namespace HandStack.Web.Modules
 
         public string BasePath { get; set; }
 
+        public string ModuleSettingFilePath { get; set; }
+
         public bool IsBundledWithHost { get; set; }
 
         public Version Version { get; set; }
@@ -27,6 +29,7 @@ namespace HandStack.Web.Modules
             ModuleID = "";
             Name = "";
             BasePath = "";
+            ModuleSettingFilePath = "";
             IsBundledWithHost = false;
             Version = Version.Parse("0.0.0");
             Assembly = null;

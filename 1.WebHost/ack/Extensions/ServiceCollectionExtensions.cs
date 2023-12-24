@@ -96,7 +96,7 @@ namespace ack.Extensions
 
             Log.Logger.Information($"LoadModule: {moduleID}, moduleBasePath: {moduleBasePath}");
 
-            if (GlobalConfiguration.ModuleNames.IndexOf(moduleID) > -1 && Directory.Exists(moduleBasePath) == true)
+            if (binariesFolder.Exists == true)
             {
                 var files = binariesFolder.GetFileSystemInfos("*.dll", SearchOption.AllDirectories);
                 foreach (var file in files)
