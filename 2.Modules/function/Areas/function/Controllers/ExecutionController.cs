@@ -20,6 +20,8 @@ using Microsoft.Extensions.Logging;
 
 using Newtonsoft.Json;
 
+using static System.Net.Mime.MediaTypeNames;
+
 namespace function.Areas.function.Controllers
 {
     [Area("function")]
@@ -29,7 +31,7 @@ namespace function.Areas.function.Controllers
     public class ExecutionController : ControllerBase
     {
         private FunctionLoggerClient loggerClient { get; }
-        
+
         private Serilog.ILogger logger { get; }
 
         private IFunctionClient dataClient { get; }
@@ -184,6 +186,17 @@ namespace function.Areas.function.Controllers
                     logger.Information("[{LogCategory}] " + $"WatcherChangeTypes: {changeType}, FilePath: {filePath}", "Execution/Refresh");
 
                     FileInfo fileInfo = new FileInfo(filePath);
+
+                    lock (FunctionMapper.FunctionSourceMappings)
+                    {
+                        var functionSourceMappings = FunctionMapper.FunctionSourceMappings.Where(x => x.Key.IndexOf($"{fileInfo.Directory?.Parent?.Parent?.Name}|") > -1).ToList();
+                        for (int i = functionSourceMappings.Count(); i > 0; i--)
+                        {
+                            var item = functionSourceMappings[i - 1].Key;
+                            FunctionMapper.FunctionSourceMappings.Remove(item);
+                        }
+                    }
+
                     var existScriptMaps = FunctionMapper.ScriptMappings.Select(p => p.Value).Where(p =>
                         p.ApplicationID == fileInfo.Directory?.Parent?.Parent?.Name &&
                         p.ProjectID == fileInfo.Directory?.Parent?.Name &&
@@ -198,12 +211,15 @@ namespace function.Areas.function.Controllers
                             mapStrings.Add($"{item.ApplicationID}|{item.ProjectID}|{item.TransactionID}|{item.ScriptID}");
                         }
 
-                        for (int i = 0; i < mapStrings.Count; i++)
+                        lock (FunctionMapper.ScriptMappings)
                         {
-                            var item = existScriptMaps[i];
-                            var items = mapStrings[i].SplitAndTrim('|');
-                            logger.Information("[{LogCategory}] " + $"Delete ScriptMap ApplicationID: {item.ApplicationID}, ProjectID: {item.ProjectID}, TransactionID: {item.TransactionID}, FunctionID: {item.ScriptID}", "Execution/Refresh");
-                            FunctionMapper.Remove(items[0], items[1], items[2], items[3]);
+                            for (int i = 0; i < mapStrings.Count; i++)
+                            {
+                                var item = existScriptMaps[i];
+                                var items = mapStrings[i].SplitAndTrim('|');
+                                logger.Information("[{LogCategory}] " + $"Delete ScriptMap ApplicationID: {item.ApplicationID}, ProjectID: {item.ProjectID}, TransactionID: {item.TransactionID}, FunctionID: {item.ScriptID}", "Execution/Refresh");
+                                FunctionMapper.Remove(items[0], items[1], items[2], items[3]);
+                            }
                         }
                     }
 

@@ -19,6 +19,8 @@ using Microsoft.AspNetCore.Mvc;
 
 using Newtonsoft.Json;
 
+using static System.Net.Mime.MediaTypeNames;
+
 namespace dbclient.Areas.dbclient.Controllers
 {
     [Area("dbclient")]
@@ -28,7 +30,7 @@ namespace dbclient.Areas.dbclient.Controllers
     public class QueryController : ControllerBase
     {
         private DbClientLoggerClient loggerClient { get; }
-        
+
         private Serilog.ILogger logger { get; }
 
         private IQueryDataClient dataClient { get; }
@@ -167,6 +169,17 @@ namespace dbclient.Areas.dbclient.Controllers
 
                     List<StatementMap> existStatementMaps = new List<StatementMap>();
                     FileInfo fileInfo = new FileInfo(filePath);
+
+                    lock (DatabaseMapper.DataSourceMappings)
+                    {
+                        var dataSourceMappings = DatabaseMapper.DataSourceMappings.Where(x => x.Value.ApplicationID == fileInfo.Directory?.Parent?.Name).ToList();
+                        for (int i = dataSourceMappings.Count(); i > 0; i--)
+                        {
+                            var item = dataSourceMappings[i - 1].Key;
+                            DatabaseMapper.DataSourceMappings.Remove(item);
+                        }
+                    }
+
                     lock (DatabaseMapper.StatementMappings)
                     {
                         existStatementMaps = DatabaseMapper.StatementMappings.Select(p => p.Value).Where(p =>

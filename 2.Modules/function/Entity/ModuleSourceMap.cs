@@ -14,6 +14,8 @@ namespace function.Entity
 
         public string ConnectionString { get; set; } = "";
 
+        public string IsEncryption { get; set; } = "";
+
         public string WorkingDirectoryPath { get; set; } = "";
     }
 }

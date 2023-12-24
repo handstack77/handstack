@@ -41,7 +41,8 @@ namespace function.Extensions
             ModuleSourceMap? result = null;
             if (FunctionSourceMappings != null)
             {
-                result = FunctionSourceMappings.FirstOrDefault(item => item.Key == $"{applicationID}|{dataSourceID}"
+                string functionSourceMappingsKey = $"{applicationID}|{dataSourceID}";
+                result = FunctionSourceMappings.FirstOrDefault(item => item.Key == functionSourceMappingsKey
                     && (item.Value.ProjectListID.IndexOf(projectID) > -1 || item.Value.ProjectListID.IndexOf("*") > -1)).Value;
 
                 if (result == null)
@@ -68,20 +69,38 @@ namespace function.Extensions
                                         string connectionString = item["ConnectionString"].ToStringSafe();
                                         if (projects.IndexOf(projectID) > -1 || projects.IndexOf("*") > -1)
                                         {
-                                            ModuleSourceMap moduleSourceMap = new ModuleSourceMap();
-                                            moduleSourceMap.ProjectListID = projects;
-                                            moduleSourceMap.DataSourceID = dataSourceID;
-                                            moduleSourceMap.DataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), dataProvider);
-                                            moduleSourceMap.ConnectionString = connectionString;
-
-                                            string workingDirectoryPath = Path.Combine(appBasePath, "function", "working", projectID, transactionID);
-                                            if (Directory.Exists(workingDirectoryPath) == false)
+                                            if (FunctionSourceMappings.ContainsKey(functionSourceMappingsKey) == false)
                                             {
-                                                Directory.CreateDirectory(workingDirectoryPath);
-                                            }
-                                            moduleSourceMap.WorkingDirectoryPath = workingDirectoryPath;
+                                                ModuleSourceMap moduleSourceMap = new ModuleSourceMap();
+                                                moduleSourceMap.ProjectListID = projects;
+                                                moduleSourceMap.DataSourceID = dataSourceID;
+                                                moduleSourceMap.DataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), dataProvider);
+                                                moduleSourceMap.ConnectionString = connectionString;
+                                                if (moduleSourceMap.IsEncryption.ParseBool() == true)
+                                                {
+                                                    moduleSourceMap.ConnectionString = FunctionMapper.DecryptConnectionString(moduleSourceMap);
+                                                }
 
-                                            result = moduleSourceMap;
+                                                if (moduleSourceMap.DataProvider == DataProviders.SQLite)
+                                                {
+                                                    if (moduleSourceMap.ConnectionString.IndexOf("#{ContentRootPath}") > -1)
+                                                    {
+                                                        moduleSourceMap.ConnectionString = moduleSourceMap.ConnectionString.Replace("#{ContentRootPath}", GlobalConfiguration.ContentRootPath);
+                                                    }
+                                                }
+
+                                                string workingDirectoryPath = Path.Combine(appBasePath, "function", "working", projectID, transactionID);
+                                                if (Directory.Exists(workingDirectoryPath) == false)
+                                                {
+                                                    Directory.CreateDirectory(workingDirectoryPath);
+                                                }
+                                                moduleSourceMap.WorkingDirectoryPath = workingDirectoryPath;
+
+                                                FunctionSourceMappings.Add(functionSourceMappingsKey, moduleSourceMap);
+                                            }
+
+                                            result = FunctionSourceMappings.FirstOrDefault(item => item.Key == functionSourceMappingsKey
+                                                && (item.Value.ProjectListID.IndexOf(projectID) > -1 || item.Value.ProjectListID.IndexOf("*") > -1)).Value;
                                         }
                                     }
                                 }
@@ -477,7 +496,7 @@ namespace function.Extensions
                                     {
                                         moduleScriptMap.EntryMethod = item.EntryMethod;
                                     }
-                                    
+
                                     moduleScriptMap.DataSourceID = header.DataSourceID;
                                     moduleScriptMap.LanguageType = header.LanguageType;
                                     moduleScriptMap.ProgramPath = functionScriptFile;
@@ -740,6 +759,11 @@ namespace function.Extensions
                                 }
                             }
 
+                            if (Directory.Exists(item.WorkingDirectoryPath) == false)
+                            {
+                                Directory.CreateDirectory(item.WorkingDirectoryPath);
+                            }
+
                             FunctionSourceMappings.Add(dataSourceID, new ModuleSourceMap()
                             {
                                 DataSourceID = item.DataSourceID,
@@ -784,7 +808,36 @@ namespace function.Extensions
                 }
                 catch (Exception exception)
                 {
-                    Log.Logger.Error("[{LogCategory}] " + $"{JsonConvert.SerializeObject(functionSource)} 확인 필요: " + exception.ToMessage(), "DatabaseMapper/DecryptConnectionString");
+                    Log.Logger.Error("[{LogCategory}] " + $"FunctionSource: {JsonConvert.SerializeObject(functionSource)} 확인 필요: " + exception.ToMessage(), "DatabaseMapper/DecryptConnectionString");
+                }
+            }
+
+            return result;
+        }
+
+        public static string DecryptConnectionString(ModuleSourceMap? moduleSourceMap)
+        {
+            string result = "";
+            if (moduleSourceMap != null)
+            {
+                try
+                {
+                    var values = moduleSourceMap.ConnectionString.SplitAndTrim('.');
+
+                    string encrypt = values[0];
+                    string decryptKey = values[1];
+                    string hostName = values[2];
+                    string hash = values[3];
+
+                    if ($"{encrypt}.{decryptKey}.{hostName}".ToSHA256() == hash)
+                    {
+                        decryptKey = decryptKey.DecodeBase64().PadRight(32, '0').Substring(0, 32);
+                        result = encrypt.DecryptAES(decryptKey);
+                    }
+                }
+                catch (Exception exception)
+                {
+                    Log.Logger.Error("[{LogCategory}] " + $"ModuleSourceMap: {JsonConvert.SerializeObject(moduleSourceMap)} 확인 필요: " + exception.ToMessage(), "DatabaseMapper/DecryptConnectionString");
                 }
             }
 
