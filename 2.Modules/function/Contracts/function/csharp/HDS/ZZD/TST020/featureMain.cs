@@ -31,7 +31,7 @@ namespace DynamicRun.Sources
             string connectionString = @"Server=(localdb)";
             // string connectionString = @"Server=(localdb)/mssqllocaldb;Database=Test;";
             // string connectionString = "Server=localhost;Port=3306;Database=HandStack;Uid=handstack;Pwd=handstack~!@34;PersistSecurityInfo=True;SslMode=none;Charset=utf8;Allow User Variables=True;";
-            // string connectionString = @"URI=file:C:/home/handstack/sqlite/HDS/HDS.db;Pooling=True;Max Pool Size=100;Version=3;";
+            // string connectionString = @"URI=file:C:/home/handstack/sqlite/HDS/dbclient/HDS.db;Pooling=True;Max Pool Size=100;Version=3;";
             // string connectionString = "User ID=postgres;Password=handstack~!@34;Host=localhost;Port=5432;Database=postgres;Pooling=true;Minimum Pool Size=0;Maximum Pool Size=100;ConnectionLifetime=0;";
             // string connectionString = "Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=XE)));User Id=system;Password=handstack~!@34;Connection Timeout=120;";
 

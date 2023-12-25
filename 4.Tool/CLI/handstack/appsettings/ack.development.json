@@ -32,9 +32,7 @@
             "dbclient",
             "function",
             "repository",
-            "logger",
-            "handsup",
-            "ncloudsender"
+            "logger"
         ],
         "ModuleConfigurationUrl": [
         ],

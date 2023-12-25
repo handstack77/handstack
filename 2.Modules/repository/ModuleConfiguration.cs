@@ -1,7 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
-using repository.Entities;
-using System.Collections.Generic;
-using System;
+﻿using System.Collections.Generic;
+
 using HandStack.Web.Entity;
 
 namespace repository
@@ -9,7 +7,7 @@ namespace repository
     public static class ModuleConfiguration
     {
         public static bool IsConfigure = false;
-        public static string ModuleID = "handsup";
+        public static string ModuleID = "repository";
         public static string ApplicationID = "HDS";
         public static string Version = "";
         public static string AuthorizationKey = "";

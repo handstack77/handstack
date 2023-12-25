@@ -89,7 +89,7 @@ namespace handstack
 
             #region startlog
 
-            // startlog --file=C:/home/handstack/app/ack.exe --arguments="--debug --delay=1000000" --appsettings=handsup.localhost.json
+            // startlog --file=C:/home/handstack/app/ack.exe --arguments="--debug --delay=1000000" --appsettings=qrame.localhost.json
             var subCommandStartLog = new Command("startlog", "ack 프로세스를 시작합니다") {
                 optionDebug, optionDelay, optionFile, optionArguments, optionAppSettings
             };
@@ -136,7 +136,7 @@ namespace handstack
 
             #region start
 
-            // start --file=C:/home/handstack/app/ack.exe --arguments="--debug --delay=1000000" --appsettings=handsup.localhost.json
+            // start --file=C:/home/handstack/app/ack.exe --arguments="--debug --delay=1000000" --appsettings=qrame.localhost.json
             var subCommandStart = new Command("start", "ack 프로세스를 시작합니다") {
                 optionDebug, optionDelay, optionFile, optionArguments, optionAppSettings
             };
@@ -232,6 +232,7 @@ namespace handstack
             };
 
             // qrame encrypt --format=base64 --value="helloworld"
+            // qrame encrypt --format=connectionstring --value="[connection string]"
             subCommandEncrypt.SetHandler(async (debug, delay, format, key, value) =>
             {
                 await DebuggerAttach(args, debug, delay);

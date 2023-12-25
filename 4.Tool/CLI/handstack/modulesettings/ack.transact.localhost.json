@@ -1,0 +1,60 @@
+{
+    "ModuleID": "transact",
+    "Name": "transact",
+    "IsBundledWithHost": false,
+    "Version": "1.0.0",
+    "ModuleConfig": {
+        "SystemID": "HANDSTACK",
+        "BusinessServerUrl": "http://localhost:8000/transact/api/transaction/execute",
+        "CircuitBreakResetSecond": 60,
+        "DefaultCommandTimeout": 180,
+        "IsExceptionDetailText": true,
+        "IsValidationRequest": true,
+        "IsAllowDynamicRequest": true,
+        "IsLogServer": false,
+        "IsTransactAggregate": false,
+        "IsDataMasking": false,
+        "MaskingChar": "*",
+        "MaskingMethod": "Syn",
+        "ContractBasePath": [
+            "../contracts/transact"
+        ],
+        "AvailableEnvironment": "P,D,S",
+        "LogServerUrl": "http://localhost:8000/logger/api/log/insert",
+        "IsCodeDataCache": true,
+        "CodeDataCacheTimeout": 20,
+        "ModuleBasePath": "../modules/transact",
+        "TransactionLogBasePath": "../log/aggregate",
+        "UseApiAuthorize": false,
+        "BypassAuthorizeIP": [
+            "localhost",
+            "127.0.0.1"
+        ],
+        "WithOrigins": [
+            "http://127.0.0.1",
+            "http://127.0.0.1:8000",
+            "http://localhost",
+            "http://localhost:8000"
+        ],
+        "AllowRequestTransactions": {
+            "HDS": [ "*" ]
+        },
+        "RoutingCommandUri": {
+            "HDS|*|D|D": "http://localhost:8000/dbclient/api/query",
+            "HDS|*|F|D": "http://localhost:8000/function/api/execution",
+            "HDS|*|D|P": "http://localhost:8000/dbclient/api/query",
+            "HDS|*|F|P": "http://localhost:8000/function/api/execution",
+            "HDS|*|D|T": "http://localhost:8000/dbclient/api/query",
+            "HDS|*|F|T": "http://localhost:8000/function/api/execution"
+        },
+        "EventAction": [],
+        "SubscribeAction": [],
+        "PublicTransactions": [
+            {
+                "ApplicationID": "HDS",
+                "ProjectID": "*",
+                "TransactionID": "*"
+            }
+        ]
+    }
+}

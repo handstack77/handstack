@@ -1,0 +1,52 @@
+{
+    "ModuleID": "function",
+    "Name": "function",
+    "IsBundledWithHost": false,
+    "Version": "1.0.0",
+    "ModuleConfig": {
+        "SystemID": "HANDSTACK",
+        "BusinessServerUrl": "http://localhost:8000/transact/api/transaction/execute",
+        "CircuitBreakResetSecond": 60,
+        "DefaultCommandTimeout": 180,
+        "IsExceptionDetailText": true,
+        "IsLogServer": false,
+        "LogServerUrl": "http://localhost:8000/logger/api/log/insert",
+        "ContractBasePath": [
+            "../contracts/function"
+        ],
+        "TransactionLogFilePath": "../log/function/transaction.log",
+        "ProfileLogFilePath": "../log/function/profile.log",
+        "NodeFunctionConfig": {
+            "LocalStoragePath": "../cache/function",
+            "NodeScriptMapBasePath": "",
+            "LogMinimumLevel": "trace",
+            "FileLogBasePath": "../log/function/javascript",
+            "TimeoutMS": -1,
+            "IsSingleThread": true,
+            "WatchGracefulShutdown": true,
+            "EnableFileWatching": true,
+            "WatchFileNamePatterns": [ "featureMain.js", "featureMeta.json", "featureSQL.xml", "syn.config.json" ],
+            "NodeAndV8Options": "",
+            "EnvironmentVariables": ""
+        },
+        "CSharpFunctionConfig": {
+            "EnableFileWatching": true,
+            "FileLogBasePath": "../log/function/csharp",
+            "WatchFileNamePatterns": [ "featureMain.cs", "featureMeta.json", "featureSQL.xml" ]
+        },
+        "EventAction": [],
+        "SubscribeAction": [],
+        "FunctionSource": [
+            {
+                "ApplicationID": "HDS",
+                "ProjectID": "*",
+                "DataSourceID": "DB01",
+                "DataProvider": "SQLite",
+                "ConnectionString": "URI=file:../sqlite/HDS/dbclient/HDS.db;Journal Mode=MEMORY;Cache Size=4000;Synchronous=Normal;Page Size=4096;Pooling=True;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;",
+                "IsEncryption": "N",
+                "WorkingDirectoryPath": "../tmp/HDS/function/HDS_DB01",
+                "Comment": "기본 기능 거래"
+            }
+        ]
+    }
+}

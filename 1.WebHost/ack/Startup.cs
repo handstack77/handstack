@@ -815,7 +815,7 @@ namespace ack
                     await context.Response.WriteAsync(JsonConvert.SerializeObject(result, Formatting.Indented));
                 });
 
-                endpoints.MapGet("/checkip", async context =>
+                endpoints.MapGet("/check-ip", async context =>
                 {
                     context.Response.Headers["Content-Type"] = "text/html";
                     await context.Response.WriteAsync(context.GetRemoteIpAddress().ToStringSafe());

@@ -18,7 +18,7 @@
     "IsApiFindServer": false,
     "DiscoveryApiServerUrl": "http://localhost:8000/api/find",
     "FileManagerServer": "http://localhost:8000",
-    "FindClientIPServer": "http://localhost:8000/handsup/api/index/client-ip",
+    "FindClientIPServer": "/check-ip",
     "FindGlobalIDServer": "http://localhost:8000/wwwroot/api/index/create-id",
     "FileServerType": "L",
     "CookiePrefixName": "HandStack",
