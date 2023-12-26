@@ -42,17 +42,7 @@ namespace transact.Areas.transact.Controllers
                 result = exception.ToMessage();
 
                 string exceptionText = result;
-                if (ModuleConfiguration.IsLogServer == true)
-                {
-                    loggerClient.ProgramMessageLogging("N", "E", exceptionText, "Base64/Encode", (string error) =>
-                    {
-                        logger.Error("[{LogCategory}] fallback error: " + error + ", " + exceptionText, "Base64/Encode");
-                    });
-                }
-                else
-                {
-                    logger.Error("[{LogCategory}] " + exceptionText, "Base64/Encode");
-                }
+                logger.Error("[{LogCategory}] " + exceptionText, "Base64/Encode");
             }
 
             // throw new Exception("hello world");
@@ -74,17 +64,7 @@ namespace transact.Areas.transact.Controllers
                 result = exception.ToMessage();
 
                 string exceptionText = result;
-                if (ModuleConfiguration.IsLogServer == true)
-                {
-                    loggerClient.ProgramMessageLogging("N", "E", exceptionText, "Base64/Decode", (string error) =>
-                    {
-                        logger.Error("[{LogCategory}] fallback error: " + error + ", " + exceptionText, "Base64/Decode");
-                    });
-                }
-                else
-                {
-                    logger.Error("[{LogCategory}] " + exceptionText, "Base64/Decode");
-                }
+                logger.Error("[{LogCategory}] " + exceptionText, "Base64/Decode");
             }
 
             return result;

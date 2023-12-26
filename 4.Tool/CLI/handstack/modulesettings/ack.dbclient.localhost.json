@@ -14,7 +14,7 @@
         "ContractBasePath": [
             "../contracts/dbclient"
         ],
-        "TransactionLogFilePath": "../log/dbclient/transaction.log",
+        "ModuleLogFilePath": "../log/dbclient/module.log",
         "ProfileLogFilePath": "../log/dbclient/profile.log",
         "EventAction": [],
         "SubscribeAction": [],

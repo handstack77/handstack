@@ -65,7 +65,7 @@ namespace dbclient.Extensions
             if (stopwatch != null)
             {
                 stopwatch.Stop();
-                // Logger.Log($"Connection Open Duration - {stopwatch.Elapsed.TotalMilliseconds} ms");
+                ModuleConfiguration.ProfileLogger?.Debug($"Connection Open Duration - {stopwatch.Elapsed.TotalMilliseconds} ms");
             }
         }
 
@@ -79,13 +79,13 @@ namespace dbclient.Extensions
             if (stopwatch != null)
             {
                 stopwatch.Stop();
-                // Logger.Log($"Connection Close Duration - {stopwatch.Elapsed.TotalMilliseconds} ms");
+                ModuleConfiguration.ProfileLogger?.Debug($"Connection Close Duration - {stopwatch.Elapsed.TotalMilliseconds} ms");
             }
 
             if (connectionStopwatch != null)
             {
                 connectionStopwatch.Stop();
-                // Logger.Log($"Connection Lifetime - {connectionStopwatch.Elapsed.TotalMilliseconds} ms");
+                ModuleConfiguration.ProfileLogger?.Debug($"Connection Lifetime - {connectionStopwatch.Elapsed.TotalMilliseconds} ms");
             }
         }
 
@@ -100,7 +100,7 @@ namespace dbclient.Extensions
             if (stopwatch != null)
             {
                 stopwatch.Stop();
-                // Logger.Log($"Transaction Start Duration - {stopwatch.Elapsed.TotalMilliseconds} ms");
+                ModuleConfiguration.ProfileLogger?.Debug($"Transaction Start Duration - {stopwatch.Elapsed.TotalMilliseconds} ms");
             }
         }
 
@@ -114,13 +114,13 @@ namespace dbclient.Extensions
             if (stopwatch != null)
             {
                 stopwatch.Stop();
-                // Logger.Log($"Transaction Commit Duration - {stopwatch.Elapsed.TotalMilliseconds} ms");
+                ModuleConfiguration.ProfileLogger?.Debug($"Transaction Commit Duration - {stopwatch.Elapsed.TotalMilliseconds} ms");
             }
 
             if (transactionStopwatch != null)
             {
                 transactionStopwatch.Stop();
-                // Logger.Log($"Transaction Lifetime - {transactionStopwatch.Elapsed.TotalMilliseconds} ms");
+                ModuleConfiguration.ProfileLogger?.Debug($"Transaction Lifetime - {transactionStopwatch.Elapsed.TotalMilliseconds} ms");
             }
         }
 
@@ -134,13 +134,13 @@ namespace dbclient.Extensions
             if (stopwatch != null)
             {
                 stopwatch.Stop();
-                // Logger.Log($"Transaction Rollback Duration - {stopwatch.Elapsed.TotalMilliseconds} ms");
+                ModuleConfiguration.ProfileLogger?.Debug($"Transaction Rollback Duration - {stopwatch.Elapsed.TotalMilliseconds} ms");
             }
 
             if (transactionStopwatch != null)
             {
                 transactionStopwatch.Stop();
-                // Logger.Log($"Transaction Lifetime - {transactionStopwatch.Elapsed.TotalMilliseconds} ms");
+                ModuleConfiguration.ProfileLogger?.Debug($"Transaction Lifetime - {transactionStopwatch.Elapsed.TotalMilliseconds} ms");
             }
         }
 
@@ -164,7 +164,7 @@ namespace dbclient.Extensions
             if (stopwatch != null && command != null)
             {
                 stopwatch.Stop();
-                // Logger.Log($"Command Info - Command : {command.CommandText}, Records : {records}, Duration {stopwatch.Elapsed.TotalMilliseconds} ms");
+                ModuleConfiguration.ProfileLogger?.Debug($"Command Info - Command : {command.CommandText}, Records : {records}, Duration {stopwatch.Elapsed.TotalMilliseconds} ms");
             }
         }
 
@@ -180,7 +180,7 @@ namespace dbclient.Extensions
             if (stopwatch != null && command != null)
             {
                 stopwatch.Stop();
-                // Logger.Log($"Command Info - Command : {command.CommandText}, Result : {executionRestlt}, Duration {stopwatch.Elapsed.TotalMilliseconds} ms");
+                ModuleConfiguration.ProfileLogger?.Debug($"Command Info - Command : {command.CommandText}, Result : {executionRestlt}, Duration {stopwatch.Elapsed.TotalMilliseconds} ms");
             }
         }
 
@@ -195,7 +195,7 @@ namespace dbclient.Extensions
             if (stopwatch != null && command != null)
             {
                 stopwatch.Stop();
-                // Logger.Log($"Command Info - Command : {command.CommandText}, Result : {executionRestlt}, Duration {stopwatch.Elapsed.TotalMilliseconds} ms");
+                ModuleConfiguration.ProfileLogger?.Debug($"Command Info - Command : {command.CommandText}, Result : {executionRestlt}, Duration {stopwatch.Elapsed.TotalMilliseconds} ms");
             }
         }
 
@@ -203,7 +203,7 @@ namespace dbclient.Extensions
         {
             if (ModuleConfiguration.IsProfileLogging == true && IsLogger == true)
             {
-                // Logger.Log(Level.Error, $"OnCommandError Request GlobalID: {globalID}, SQL: {exception.ToMessage()}");
+                ModuleConfiguration.ProfileLogger?.Error($"OnCommandError Request GlobalID: {globalID}, SQL: {exception.ToMessage()}");
             }
         }
     }

@@ -9,12 +9,14 @@
         "CircuitBreakResetSecond": 60,
         "DefaultCommandTimeout": 180,
         "IsExceptionDetailText": true,
-        "IsLogServer": false,
-        "LogServerUrl": "http://localhost:8000/logger/api/log/insert",
         "ContractBasePath": [
             "../contracts/dbclient"
         ],
-        "TransactionLogFilePath": "../log/dbclient/transaction.log",
+        "IsTransactionLogging": false,
+        "ModuleLogFilePath": "../log/dbclient/module.log",
+        "IsLogServer": false,
+        "LogServerUrl": "http://localhost:8000/logger/api/log/insert",
+        "IsProfileLogging": false,
         "ProfileLogFilePath": "../log/dbclient/profile.log",
         "EventAction": [],
         "SubscribeAction": [],

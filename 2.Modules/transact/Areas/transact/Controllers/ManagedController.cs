@@ -59,17 +59,7 @@ namespace transact.Areas.transact.Controllers
                 catch (Exception exception)
                 {
                     string exceptionText = exception.ToMessage();
-                    if (ModuleConfiguration.IsLogServer == true)
-                    {
-                        loggerClient.ProgramMessageLogging("N", "E", exceptionText, "Managed/ResetContract", (string error) =>
-                        {
-                            logger.Error("[{LogCategory}] fallback error: " + error + ", " + exceptionText, "Managed/ResetContract");
-                        });
-                    }
-                    else
-                    {
-                        logger.Error("[{LogCategory}] " + exceptionText, "Managed/ResetContract");
-                    }
+                    logger.Error("[{LogCategory}] " + exceptionText, "Managed/ResetContract");
 
                     result = StatusCode(500, exceptionText);
                 }
@@ -187,17 +177,7 @@ namespace transact.Areas.transact.Controllers
                 catch (Exception exception)
                 {
                     string exceptionText = exception.ToMessage();
-                    if (ModuleConfiguration.IsLogServer == true)
-                    {
-                        loggerClient.ProgramMessageLogging("N", "E", exceptionText, "Managed/StringEncrypt", (string error) =>
-                        {
-                            logger.Error("[{LogCategory}] fallback error: " + error + ", " + exceptionText, "Managed/StringEncrypt");
-                        });
-                    }
-                    else
-                    {
-                        logger.Error("[{LogCategory}] " + exceptionText, "Managed/ResetContract");
-                    }
+                    logger.Error("[{LogCategory}] " + exceptionText, "Managed/StringEncrypt");
 
                     result = StatusCode(500, exceptionText);
                 }
@@ -225,17 +205,7 @@ namespace transact.Areas.transact.Controllers
                 catch (Exception exception)
                 {
                     string exceptionText = exception.ToMessage();
-                    if (ModuleConfiguration.IsLogServer == true)
-                    {
-                        loggerClient.ProgramMessageLogging("N", "E", exceptionText, "Managed/StringDecrypt", (string error) =>
-                        {
-                            logger.Error("[{LogCategory}] fallback error: " + error + ", " + exceptionText, "Managed/StringDecrypt");
-                        });
-                    }
-                    else
-                    {
-                        logger.Error("[{LogCategory}] " + exceptionText, "Managed/ResetContract");
-                    }
+                    logger.Error("[{LogCategory}] " + exceptionText, "Managed/StringDecrypt");
 
                     result = StatusCode(500, exceptionText);
                 }

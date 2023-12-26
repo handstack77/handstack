@@ -18,6 +18,8 @@ using Polly.CircuitBreaker;
 
 using RestSharp;
 
+using static System.Net.Mime.MediaTypeNames;
+
 namespace transact.Extensions
 {
     public class TransactLoggerClient
@@ -26,13 +28,16 @@ namespace transact.Extensions
 
         private Serilog.ILogger logger { get; }
 
+        private Serilog.ILogger? transactionLogger { get; }
+
         public CircuitBreakerPolicy<RestResponse>? circuitBreakerPolicy = null;
 
         public DateTime? BreakDateTime = DateTime.Now;
 
-        public TransactLoggerClient(Serilog.ILogger logger)
+        public TransactLoggerClient(Serilog.ILogger logger, Serilog.ILogger? transactionLogger = null)
         {
             this.logger = logger;
+            this.transactionLogger = transactionLogger;
 
             circuitBreakerPolicy = Policy
                 .HandleResult<RestResponse>(x =>
@@ -141,13 +146,13 @@ namespace transact.Extensions
             return result;
         }
 
-        public void ProgramMessageLogging(string acknowledge, string level, string message, string properties, Action<string> fallbackFunction)
+        public void ProgramMessageLogging(string globalID, string acknowledge, string message, string properties, Action<string> fallbackFunction)
         {
             LogMessage logMessage = new LogMessage();
             logMessage.ServerID = GlobalConfiguration.HostName;
             logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
             logMessage.ProgramName = ModuleConfiguration.ModuleID;
-            logMessage.GlobalID = "";
+            logMessage.GlobalID = globalID;
             logMessage.Acknowledge = acknowledge;
             logMessage.ApplicationID = GlobalConfiguration.ApplicationID;
             logMessage.ProjectID = "";
@@ -155,7 +160,7 @@ namespace transact.Extensions
             logMessage.ServiceID = "";
             logMessage.Type = "A";
             logMessage.Flow = "N";
-            logMessage.Level = level;
+            logMessage.Level = "V";
             logMessage.Format = "P";
             logMessage.Message = message;
             logMessage.Properties = properties;
@@ -166,6 +171,40 @@ namespace transact.Extensions
             logRequest.FallbackFunction = fallbackFunction;
 
             Task.Run(() => { BackgroundTask(logRequest); });
+        }
+
+        public void TransactionMessageLogging(string globalID, string acknowledge, string applicationID, string projectID, string transactionID, string serviceID, string message, string properties, Action<string> fallbackFunction)
+        {
+            LogMessage logMessage = new LogMessage();
+            if (ModuleConfiguration.IsLogServer == true)
+            {
+                logMessage.ServerID = GlobalConfiguration.HostName;
+                logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
+                logMessage.ProgramName = ModuleConfiguration.ModuleID;
+                logMessage.GlobalID = globalID;
+                logMessage.Acknowledge = acknowledge;
+                logMessage.ApplicationID = applicationID;
+                logMessage.ProjectID = projectID;
+                logMessage.TransactionID = transactionID;
+                logMessage.ServiceID = serviceID;
+                logMessage.Type = "A";
+                logMessage.Flow = "N";
+                logMessage.Level = "V";
+                logMessage.Format = "P";
+                logMessage.Message = message;
+                logMessage.Properties = properties;
+                logMessage.UserID = "";
+
+                LogRequest logRequest = new LogRequest();
+                logRequest.LogMessage = logMessage;
+                logRequest.FallbackFunction = fallbackFunction;
+
+                Task.Run(() => { BackgroundTask(logRequest); });
+            }
+            else
+            {
+                transactionLogger?.Information($"Transaction GlobalID: {globalID}, {JsonConvert.SerializeObject(logMessage)}");
+            }
         }
 
         public void TransactionRequestLogging(TransactionRequest request, string acknowledge, Action<string> fallbackFunction)
@@ -198,7 +237,7 @@ namespace transact.Extensions
             }
             else
             {
-                logger.Warning($"Request GlobalID: {request.Transaction.GlobalID}, JSON: {JsonConvert.SerializeObject(request)}");
+                transactionLogger?.Warning($"Request GlobalID: {request.Transaction.GlobalID}, JSON: {JsonConvert.SerializeObject(request)}");
             }
 
             if (ModuleConfiguration.IsTransactAggregate == true && request.AcceptDateTime != null)
@@ -264,7 +303,7 @@ namespace transact.Extensions
             }
             else
             {
-                logger.Warning($"Response GlobalID: {response.Transaction.GlobalID}, JSON: {JsonConvert.SerializeObject(response)}");
+                transactionLogger?.Warning($"Response GlobalID: {response.Transaction.GlobalID}, JSON: {JsonConvert.SerializeObject(response)}");
             }
 
             if (ModuleConfiguration.IsTransactAggregate == true && response.AcceptDateTime != null)

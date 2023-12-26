@@ -57,27 +57,30 @@ namespace ack
                 environmentName = "";
             }
 
-            var optionFile = new Option<FileInfo?>(name: "--file", description: "ack 프로그램 전체 파일 경로입니다");
-            var optionArguments = new Option<string?>("--arguments", description: "ack 프로그램 실행시 전달할 매개변수 입니다. 예) \"--modules=wwwroot,transact,dbclient,function\"");
             var optionPort = new Option<int?>("--port", description: "프로그램 수신 포트를 설정합니다. (기본값: 8080)");
             var optionDebug = new Option<bool?>("--debug", description: "프로그램 시작시 디버거에 프로세스가 연결 될 수 있도록 지연 후 시작됩니다.(기본값: 10초)");
             var optionDelay = new Option<int?>("--delay", description: "프로그램 시작시 지연 시간(밀리초)을 설정합니다. (기본값: 10000)");
-            var optionProcessID = new Option<int>("--pid", description: "OS에서 부여한 프로세스 ID 입니다");
+            var optionProcessName = new Option<string?>("--pname", description: "관리 업무 목적으로 부여한 프로세스 이름입니다");
             var optionKey = new Option<string?>(name: "--key", description: "ack 프로그램 실행 검증키입니다");
             var optionAppSettings = new Option<string?>(name: "--appsettings", description: "ack 프로그램 appsettings 파일명입니다");
 
             var rootOptionModules = new Option<string?>("--modules", description: "프로그램 시작시 포함할 모듈을 설정합니다. 예) --modules=wwwroot,transact,dbclient,function");
 
             var rootCommand = new RootCommand("IT 혁신은 고객과 업무에 들여야 하는 시간과 노력을 줄이는 데 있습니다. HandStack은 기업 경쟁력 유지를 위한 도구입니다") {
-                optionDebug, optionDelay, optionPort, rootOptionModules, optionKey, optionAppSettings
+                optionDebug, optionDelay, optionPort, rootOptionModules, optionKey, optionAppSettings, optionProcessName
             };
 
-            rootCommand.SetHandler(async (debug, delay, port, modules, key, settings) =>
+            rootCommand.SetHandler(async (debug, delay, port, modules, key, settings, pname) =>
             {
                 await DebuggerAttach(args, debug, delay);
 
                 try
                 {
+                    if (string.IsNullOrEmpty(pname) == false)
+                    {
+                        GlobalConfiguration.ProcessName = pname;
+                    }
+
                     IConfigurationRoot configuration;
                     string appSettingsFilePath = Path.Combine(GlobalConfiguration.EntryBasePath, "appsettings.json");
                     Console.WriteLine($"appSettings.json FilePath {appSettingsFilePath}");
@@ -105,9 +108,41 @@ namespace ack
                         }
                     }
 
-                    Log.Logger = new LoggerConfiguration()
-                        .ReadFrom.Configuration(configuration)
-                        .CreateLogger();
+                    var loggerConfiguration = new LoggerConfiguration()
+                        .ReadFrom.Configuration(configuration);
+
+                    if (string.IsNullOrEmpty(GlobalConfiguration.ProcessName) == false)
+                    {
+                        var writeToSection = configuration.GetSection("Serilog:WriteTo");
+                        foreach (var childSection in writeToSection.GetChildren())
+                        {
+                            var sinkName = childSection.GetValue<string>("Name");
+                            var sinkArgs = childSection.GetSection("Args").GetChildren().ToDictionary(x => x.Key, x => x.Value);
+                            if (sinkName == "File")
+                            {
+                                var sinkFilePath = sinkArgs["path"];
+                                if (string.IsNullOrEmpty(sinkFilePath) == false)
+                                {
+                                    FileInfo fileInfo = new FileInfo(sinkFilePath);
+                                    if (string.IsNullOrEmpty(fileInfo.DirectoryName) == false)
+                                    {
+                                        if (fileInfo.Directory == null || fileInfo.Directory.Exists == false)
+                                        {
+                                            Directory.CreateDirectory(fileInfo.DirectoryName);
+                                        }
+
+                                        sinkFilePath = Path.Combine(fileInfo.DirectoryName, GlobalConfiguration.ProcessName + "_" + fileInfo.Name);
+
+                                        loggerConfiguration.WriteTo.File(
+                                            path: sinkFilePath
+                                        );
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    Log.Logger = loggerConfiguration.CreateLogger();
 
                     int listenPort = (port == null ? 8000 : (int)port);
                     if (SocketExtensions.PortInUse(listenPort) == true)
@@ -173,7 +208,7 @@ namespace ack
                     Log.Fatal(exception, "프로그램 실행 중 오류가 발생했습니다");
                     exitCode = -1;
                 }
-            }, optionDebug, optionDelay, optionPort, rootOptionModules, optionKey, optionAppSettings);
+            }, optionDebug, optionDelay, optionPort, rootOptionModules, optionKey, optionAppSettings, optionProcessName);
 
             await rootCommand.InvokeAsync(args);
             return exitCode;

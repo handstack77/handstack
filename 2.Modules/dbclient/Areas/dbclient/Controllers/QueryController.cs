@@ -76,17 +76,7 @@ namespace dbclient.Areas.dbclient.Controllers
                 catch (Exception exception)
                 {
                     string exceptionText = exception.ToMessage();
-                    if (ModuleConfiguration.IsLogServer == true)
-                    {
-                        loggerClient.ProgramMessageLogging("N", GlobalConfiguration.ApplicationID, exceptionText, "Query/Has", (string error) =>
-                        {
-                            logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + exceptionText, "Query/Has");
-                        });
-                    }
-                    else
-                    {
-                        logger.Error("[{LogCategory}] " + exceptionText, "Query/Has");
-                    }
+                    logger.Error("[{LogCategory}] " + exceptionText, "Query/Has");
 
                     result = StatusCode(500, exception.ToMessage());
                 }
@@ -127,17 +117,7 @@ namespace dbclient.Areas.dbclient.Controllers
                 catch (Exception exception)
                 {
                     string exceptionText = exception.ToMessage();
-                    if (ModuleConfiguration.IsLogServer == true)
-                    {
-                        loggerClient.ProgramMessageLogging("N", GlobalConfiguration.ApplicationID, exceptionText, "Query/Upsert", (string error) =>
-                        {
-                            logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + exceptionText, "Query/Upsert");
-                        });
-                    }
-                    else
-                    {
-                        logger.Error("[{LogCategory}] " + exceptionText, "Query/Upsert");
-                    }
+                    logger.Error("[{LogCategory}] " + exceptionText, "Query/Upsert");
 
                     result = StatusCode(500, exception.ToMessage());
                 }
@@ -225,16 +205,7 @@ namespace dbclient.Areas.dbclient.Controllers
                 catch (Exception exception)
                 {
                     string exceptionText = exception.ToMessage();
-                    if (ModuleConfiguration.IsLogServer == true)
-                    {
-                        loggerClient.ProgramMessageLogging("N", GlobalConfiguration.ApplicationID, exceptionText, "Query/Refresh", (string error) => {
-                            logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + exceptionText, "Query/Refresh");
-                        });
-                    }
-                    else
-                    {
-                        logger.Error("[{LogCategory}] " + exceptionText, "Query/Refresh");
-                    }
+                    logger.Error("[{LogCategory}] " + exceptionText, "Query/Refresh");
 
                     result = StatusCode(500, exception.ToMessage());
                 }
@@ -277,17 +248,7 @@ namespace dbclient.Areas.dbclient.Controllers
                 catch (Exception exception)
                 {
                     string exceptionText = exception.ToMessage();
-                    if (ModuleConfiguration.IsLogServer == true)
-                    {
-                        loggerClient.ProgramMessageLogging("N", GlobalConfiguration.ApplicationID, exceptionText, "Query/Delete", (string error) =>
-                        {
-                            logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + exceptionText, "Query/Delete");
-                        });
-                    }
-                    else
-                    {
-                        logger.Error("[{LogCategory}] " + exceptionText, "Query/Delete");
-                    }
+                    logger.Error("[{LogCategory}] " + exceptionText, "Query/Delete");
 
                     result = StatusCode(500, exception.ToMessage());
                 }
@@ -339,17 +300,7 @@ namespace dbclient.Areas.dbclient.Controllers
                 catch (Exception exception)
                 {
                     string exceptionText = exception.ToMessage();
-                    if (ModuleConfiguration.IsLogServer == true)
-                    {
-                        loggerClient.ProgramMessageLogging("N", GlobalConfiguration.ApplicationID, exceptionText, "Query/Get", (string error) =>
-                        {
-                            logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + exceptionText, "Query/Get");
-                        });
-                    }
-                    else
-                    {
-                        logger.Error("[{LogCategory}] " + exceptionText, "Query/Get");
-                    }
+                    logger.Error("[{LogCategory}] " + exceptionText, "Query/Get");
 
                     result = StatusCode(500, exception.ToMessage());
                 }
@@ -414,17 +365,7 @@ namespace dbclient.Areas.dbclient.Controllers
                 catch (Exception exception)
                 {
                     string exceptionText = exception.ToMessage();
-                    if (ModuleConfiguration.IsLogServer == true)
-                    {
-                        loggerClient.ProgramMessageLogging("N", GlobalConfiguration.ApplicationID, exceptionText, "Query/Retrieve", (string error) =>
-                        {
-                            logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + exceptionText, "Query/Retrieve");
-                        });
-                    }
-                    else
-                    {
-                        logger.Error("[{LogCategory}] " + exceptionText, "Query/Retrieve");
-                    }
+                    logger.Error("[{LogCategory}] " + exceptionText, "Query/Retrieve");
 
                     result = StatusCode(500, exception.ToMessage());
                 }
@@ -482,17 +423,7 @@ namespace dbclient.Areas.dbclient.Controllers
                 catch (Exception exception)
                 {
                     string exceptionText = exception.ToMessage();
-                    if (ModuleConfiguration.IsLogServer == true)
-                    {
-                        loggerClient.ProgramMessageLogging("N", GlobalConfiguration.ApplicationID, exceptionText, "Query/Log", (string error) =>
-                        {
-                            logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + exceptionText, "Query/Log");
-                        });
-                    }
-                    else
-                    {
-                        logger.Error("[{LogCategory}] " + exceptionText, "Query/Log");
-                    }
+                    logger.Error("[{LogCategory}] " + exceptionText, "Query/Log");
 
                     result = StatusCode(500, exception.ToMessage());
                 }
@@ -525,17 +456,7 @@ namespace dbclient.Areas.dbclient.Controllers
                 catch (Exception exception)
                 {
                     string exceptionText = exception.ToMessage();
-                    if (ModuleConfiguration.IsLogServer == true)
-                    {
-                        loggerClient.ProgramMessageLogging("N", GlobalConfiguration.ApplicationID, exceptionText, "Query/Meta", (string error) =>
-                        {
-                            logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + exceptionText, "Query/Meta");
-                        });
-                    }
-                    else
-                    {
-                        logger.Error("[{LogCategory}] " + exceptionText, "Query/Meta");
-                    }
+                    logger.Error("[{LogCategory}] " + exceptionText, "Query/Meta");
 
                     result = StatusCode(500, exception.ToMessage());
                 }
@@ -583,17 +504,7 @@ namespace dbclient.Areas.dbclient.Controllers
                 catch (Exception exception)
                 {
                     string exceptionText = exception.ToMessage();
-                    if (ModuleConfiguration.IsLogServer == true)
-                    {
-                        loggerClient.ProgramMessageLogging("N", GlobalConfiguration.ApplicationID, exceptionText, "Query/Reports", (string error) =>
-                        {
-                            logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + exceptionText, "Query/Reports");
-                        });
-                    }
-                    else
-                    {
-                        logger.Error("[{LogCategory}] " + exceptionText, "Query/Reports");
-                    }
+                    logger.Error("[{LogCategory}] " + exceptionText, "Query/Reports");
 
                     result = StatusCode(500, exception.ToMessage());
                 }

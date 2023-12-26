@@ -35,6 +35,8 @@ using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
+using Org.BouncyCastle.Asn1.Ocsp;
+
 using RestSharp;
 
 using transact.Entity;
@@ -72,12 +74,6 @@ namespace transact.Areas.transact.Controllers
         public ActionResult Test()
         {
             ActionResult result = Ok();
-
-            loggerClient.ProgramMessageLogging("N", "E", "", "Transaction/Log", (string error) =>
-            {
-                logger.Error("[{LogCategory}] fallback error: " + error + ", " + "E", "Transaction/Log");
-            });
-
             return result;
         }
 
@@ -101,17 +97,7 @@ namespace transact.Areas.transact.Controllers
                 catch (Exception exception)
                 {
                     string exceptionText = exception.ToMessage();
-                    if (ModuleConfiguration.IsLogServer == true)
-                    {
-                        loggerClient.ProgramMessageLogging("N", "E", exceptionText, "Transaction/Has", (string error) =>
-                        {
-                            logger.Error("[{LogCategory}] fallback error: " + error + ", " + exceptionText, "Transaction/Has");
-                        });
-                    }
-                    else
-                    {
-                        logger.Warning("[{LogCategory}] " + exceptionText, "Transaction/Has");
-                    }
+                    logger.Warning("[{LogCategory}] " + exceptionText, "Transaction/Has");
                     result = StatusCode(500, exceptionText);
                 }
             }
@@ -139,17 +125,7 @@ namespace transact.Areas.transact.Controllers
                 catch (Exception exception)
                 {
                     string exceptionText = exception.ToMessage();
-                    if (ModuleConfiguration.IsLogServer == true)
-                    {
-                        loggerClient.ProgramMessageLogging("N", "E", exceptionText, "Transaction/Add", (string error) =>
-                        {
-                            logger.Error("[{LogCategory}] fallback error: " + error + ", " + exceptionText, "Transaction/Add");
-                        });
-                    }
-                    else
-                    {
-                        logger.Warning("[{LogCategory}] " + exceptionText, "Transaction/Add");
-                    }
+                    logger.Warning("[{LogCategory}] " + exceptionText, "Transaction/Add");
                     result = StatusCode(500, exceptionText);
                 }
             }
@@ -177,17 +153,7 @@ namespace transact.Areas.transact.Controllers
                 catch (Exception exception)
                 {
                     string exceptionText = exception.ToMessage();
-                    if (ModuleConfiguration.IsLogServer == true)
-                    {
-                        loggerClient.ProgramMessageLogging("N", "E", exceptionText, "Transaction/Remove", (string error) =>
-                        {
-                            logger.Error("[{LogCategory}] fallback error: " + error + ", " + exceptionText, "Transaction/Remove");
-                        });
-                    }
-                    else
-                    {
-                        logger.Warning("[{LogCategory}] " + exceptionText, "Transaction/Remove");
-                    }
+                    logger.Warning("[{LogCategory}] " + exceptionText, "Transaction/Remove");
                     result = StatusCode(500, exceptionText);
                 }
             }
@@ -259,16 +225,7 @@ namespace transact.Areas.transact.Controllers
                 catch (Exception exception)
                 {
                     string exceptionText = exception.ToMessage();
-                    if (ModuleConfiguration.IsLogServer == true)
-                    {
-                        loggerClient.ProgramMessageLogging("N", GlobalConfiguration.ApplicationID, exceptionText, "Transaction/Refresh", (string error) => {
-                            logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + exceptionText, "Transaction/Refresh");
-                        });
-                    }
-                    else
-                    {
-                        logger.Error("[{LogCategory}] " + exceptionText, "Transaction/Refresh");
-                    }
+                    logger.Error("[{LogCategory}] " + exceptionText, "Transaction/Refresh");
 
                     result = StatusCode(500, exception.ToMessage());
                 }
@@ -305,17 +262,7 @@ namespace transact.Areas.transact.Controllers
             catch (Exception exception)
             {
                 string exceptionText = exception.ToMessage();
-                if (ModuleConfiguration.IsLogServer == true)
-                {
-                    loggerClient.ProgramMessageLogging("N", "E", exceptionText, "Transaction/CacheClear", (string error) =>
-                    {
-                        logger.Error("[{LogCategory}] fallback error: " + error + ", " + exceptionText, "Transaction/CacheClear");
-                    });
-                }
-                else
-                {
-                    logger.Warning("[{LogCategory}] " + exceptionText, "Transaction/CacheClear");
-                }
+                logger.Warning("[{LogCategory}] " + exceptionText, "Transaction/CacheClear");
                 result = StatusCode(500, exceptionText);
             }
 
@@ -342,17 +289,7 @@ namespace transact.Areas.transact.Controllers
                 catch (Exception exception)
                 {
                     string exceptionText = exception.ToMessage();
-                    if (ModuleConfiguration.IsLogServer == true)
-                    {
-                        loggerClient.ProgramMessageLogging("N", "E", exceptionText, "Transaction/CacheKeys", (string error) =>
-                        {
-                            logger.Error("[{LogCategory}] fallback error: " + error + ", " + exceptionText, "Transaction/CacheKeys");
-                        });
-                    }
-                    else
-                    {
-                        logger.Warning("[{LogCategory}] " + exceptionText, "Transaction/CacheKeys");
-                    }
+                    logger.Warning("[{LogCategory}] " + exceptionText, "Transaction/CacheKeys");
                     result = StatusCode(500, exceptionText);
                 }
             }
@@ -429,17 +366,7 @@ namespace transact.Areas.transact.Controllers
                 catch (Exception exception)
                 {
                     string exceptionText = exception.ToMessage();
-                    if (ModuleConfiguration.IsLogServer == true)
-                    {
-                        loggerClient.ProgramMessageLogging("N", "E", exceptionText, "Transaction/Get", (string error) =>
-                        {
-                            logger.Error("[{LogCategory}] fallback error: " + error + ", " + exceptionText, "Transaction/Get");
-                        });
-                    }
-                    else
-                    {
-                        logger.Warning("[{LogCategory}] " + exceptionText, "Transaction/Get");
-                    }
+                    logger.Warning("[{LogCategory}] " + exceptionText, "Transaction/Get");
                     result = StatusCode(500, exceptionText);
                 }
             }
@@ -498,17 +425,7 @@ namespace transact.Areas.transact.Controllers
                 catch (Exception exception)
                 {
                     string exceptionText = exception.ToMessage();
-                    if (ModuleConfiguration.IsLogServer == true)
-                    {
-                        loggerClient.ProgramMessageLogging("N", "E", exceptionText, "Transaction/Retrieve", (string error) =>
-                        {
-                            logger.Error("[{LogCategory}] fallback error: " + error + ", " + exceptionText, "Transaction/Retrieve");
-                        });
-                    }
-                    else
-                    {
-                        logger.Error("[{LogCategory}] " + exceptionText, "Transaction/Retrieve");
-                    }
+                    logger.Error("[{LogCategory}] " + exceptionText, "Transaction/Retrieve");
                     result = StatusCode(500, exceptionText);
                 }
             }
@@ -574,17 +491,7 @@ namespace transact.Areas.transact.Controllers
                 catch (Exception exception)
                 {
                     string exceptionText = exception.ToMessage();
-                    if (ModuleConfiguration.IsLogServer == true)
-                    {
-                        loggerClient.ProgramMessageLogging("N", "E", exceptionText, "Transaction/Log", (string error) =>
-                        {
-                            logger.Error("[{LogCategory}] fallback error: " + error + ", " + exceptionText, "Transaction/Log");
-                        });
-                    }
-                    else
-                    {
-                        logger.Error("[{LogCategory}] " + exceptionText, "Transaction/Log");
-                    }
+                    logger.Error("[{LogCategory}] " + exceptionText, "Transaction/Log");
                     result = StatusCode(500, exceptionText);
                 }
             }
@@ -616,17 +523,7 @@ namespace transact.Areas.transact.Controllers
                 catch (Exception exception)
                 {
                     string exceptionText = exception.ToMessage();
-                    if (ModuleConfiguration.IsLogServer == true)
-                    {
-                        loggerClient.ProgramMessageLogging("N", "E", exceptionText, "Transaction/Meta", (string error) =>
-                        {
-                            logger.Error("[{LogCategory}] fallback error: " + error + ", " + exceptionText, "Transaction/Meta");
-                        });
-                    }
-                    else
-                    {
-                        logger.Error("[{LogCategory}] " + exceptionText, "Transaction/Meta");
-                    }
+                    logger.Error("[{LogCategory}] " + exceptionText, "Transaction/Meta");
                     result = StatusCode(500, exceptionText);
                 }
             }
@@ -692,8 +589,7 @@ namespace transact.Areas.transact.Controllers
                 {
                     loggerClient.TransactionRequestLogging(request, "Y", (string error) =>
                     {
-                        // var transactionLogger = loggerFactory.CreateLogger($"{request.TH.PGM_ID}|{request.TH.BIZ_ID}|{request.TH.TRN_CD}|{request.TH.FUNC_CD}");
-                        // transactionLogger.LogWarning($"Request GlobalID: {request.SH.GLBL_ID}, JSON: {JsonConvert.SerializeObject(request)}");
+                        logger.Information("[{LogCategory}] [{GlobalID}] " + $"fallback error: {error}, Request JSON: {JsonConvert.SerializeObject(request)}", "Transaction/Execute", response.Transaction.GlobalID);
                     });
                 }
 
@@ -1604,19 +1500,12 @@ namespace transact.Areas.transact.Controllers
 
                         if (responseObject != null)
                         {
-                            if (ModuleConfiguration.IsTransactionLogging == true || transactionInfo == null || transactionInfo.TransactionLog == true)
+                            if (ModuleConfiguration.IsTransactionLogging == true || transactionInfo?.TransactionLog == true)
                             {
-                                if (ModuleConfiguration.IsLogServer == true)
+                                loggerClient.TransactionMessageLogging(response.Transaction.GlobalID, "Y", response.System.ProgramID, response.Transaction.BusinessID, response.Transaction.TransactionID, response.Transaction.FunctionID, responseObject.Length.ToString(), properties, (string error) =>
                                 {
-                                    loggerClient.ProgramMessageLogging("Y", "D", responseObject.Length.ToString(), properties, (string error) =>
-                                    {
-                                        logger.Error("[{LogCategory}] fallback error: " + error + ", " + responseObject.Length.ToString(), properties);
-                                    });
-                                }
-                                else
-                                {
-                                    logger.Warning("[{LogCategory}] " + responseObject.Length.ToString(), properties);
-                                }
+                                    logger.Information("[{LogCategory}] fallback error: " + error + ", " + responseObject.Length.ToString(), properties);
+                                });
                             }
                         }
                         else
@@ -1628,76 +1517,48 @@ namespace transact.Areas.transact.Controllers
                     case "Scalar":
                         responseData = applicationResponse.ResultObject.ToStringSafe();
 
-                        if (ModuleConfiguration.IsTransactionLogging == true || transactionInfo == null || transactionInfo.TransactionLog == true)
+                        if (ModuleConfiguration.IsTransactionLogging == true || transactionInfo?.TransactionLog == true)
                         {
-                            if (ModuleConfiguration.IsLogServer == true)
+                            loggerClient.TransactionMessageLogging(response.Transaction.GlobalID, "Y", response.System.ProgramID, response.Transaction.BusinessID, response.Transaction.TransactionID, response.Transaction.FunctionID, responseData, properties, (string error) =>
                             {
-                                loggerClient.ProgramMessageLogging("Y", "D", responseData, properties, (string error) =>
-                                {
-                                    logger.Error("[{LogCategory}] fallback error: " + error + ", " + responseData, properties);
-                                });
-                            }
-                            else
-                            {
-                                logger.Warning("[{LogCategory}] " + responseData, properties);
-                            }
+                                logger.Information("[{LogCategory}] fallback error: " + error + ", " + responseData, properties);
+                            });
                         }
 
                         return Content(responseData, "text/html");
                     case "NonQuery":
                         responseData = applicationResponse.ResultInteger.ToString();
 
-                        if (ModuleConfiguration.IsTransactionLogging == true || transactionInfo == null || transactionInfo.TransactionLog == true)
+                        if (ModuleConfiguration.IsTransactionLogging == true || transactionInfo?.TransactionLog == true)
                         {
-                            if (ModuleConfiguration.IsLogServer == true)
+                            loggerClient.TransactionMessageLogging(response.Transaction.GlobalID, "Y", response.System.ProgramID, response.Transaction.BusinessID, response.Transaction.TransactionID, response.Transaction.FunctionID, responseData, properties, (string error) =>
                             {
-                                loggerClient.ProgramMessageLogging("Y", "D", responseData, properties, (string error) =>
-                                {
-                                    logger.Error("[{LogCategory}] fallback error: " + error + ", " + responseData, properties);
-                                });
-                            }
-                            else
-                            {
-                                logger.Warning("[{LogCategory}] " + responseData, properties);
-                            }
+                                logger.Information("[{LogCategory}] fallback error: " + error + ", " + responseData, properties);
+                            });
                         }
 
                         return Content(responseData, "text/html");
                     case "Xml":
                         responseData = applicationResponse.ResultObject == null ? "" : applicationResponse.ResultObject.ToStringSafe();
 
-                        if (ModuleConfiguration.IsTransactionLogging == true || transactionInfo == null || transactionInfo.TransactionLog == true)
+                        if (ModuleConfiguration.IsTransactionLogging == true || transactionInfo?.TransactionLog == true)
                         {
-                            if (ModuleConfiguration.IsLogServer == true)
+                            loggerClient.TransactionMessageLogging(response.Transaction.GlobalID, "Y", response.System.ProgramID, response.Transaction.BusinessID, response.Transaction.TransactionID, response.Transaction.FunctionID, responseData, properties, (string error) =>
                             {
-                                loggerClient.ProgramMessageLogging("Y", "D", responseData, properties, (string error) =>
-                                {
-                                    logger.Error("[{LogCategory}] fallback error: " + error + ", " + responseData, properties);
-                                });
-                            }
-                            else
-                            {
-                                logger.Warning("[{LogCategory}] " + responseData, properties);
-                            }
+                                logger.Information("[{LogCategory}] fallback error: " + error + ", " + responseData, properties);
+                            });
                         }
 
                         return Content(responseData, "application/xml");
                     case "DynamicJson":
                         responseData = applicationResponse.ResultJson == null ? "" : applicationResponse.ResultJson.ToString();
 
-                        if (ModuleConfiguration.IsTransactionLogging == true || transactionInfo == null || transactionInfo.TransactionLog == true)
+                        if (ModuleConfiguration.IsTransactionLogging == true || transactionInfo?.TransactionLog == true)
                         {
-                            if (ModuleConfiguration.IsLogServer == true)
+                            loggerClient.TransactionMessageLogging(response.Transaction.GlobalID, "Y", response.System.ProgramID, response.Transaction.BusinessID, response.Transaction.TransactionID, response.Transaction.FunctionID, responseData, properties, (string error) =>
                             {
-                                loggerClient.ProgramMessageLogging("Y", "D", responseData, properties, (string error) =>
-                                {
-                                    logger.Error("[{LogCategory}] fallback error: " + error + ", " + responseData, properties);
-                                });
-                            }
-                            else
-                            {
-                                logger.Warning("[{LogCategory}] " + responseData, properties);
-                            }
+                                logger.Information("[{LogCategory}] fallback error: " + error + ", " + responseData, properties);
+                            });
                         }
 
                         return Content(responseData, "application/json");
@@ -1705,12 +1566,6 @@ namespace transact.Areas.transact.Controllers
                         response.Message.ResponseStatus = "N"; // N: Normal, W: Warning, E: Error
                         response.Message.MainCode = nameof(MessageCode.T200);
                         response.Message.MainText = MessageCode.T200;
-
-                        // 거래 명령 응답 시간 기록
-                        // 거래 명령 결과 확인
-                        // 거래 명령 성공/ 실패 응답 횟수 기록
-                        // 거래 Transaction 응답 전문 생성
-                        // 응답 반환
 
                         response.ResponseID = string.Concat(ModuleConfiguration.SystemID, GlobalConfiguration.HostName, request.Environment, DateTime.Now.ToString("yyyyMMddHHmmddsss"));
                         response.Acknowledge = AcknowledgeType.Success;
@@ -2944,7 +2799,7 @@ namespace transact.Areas.transact.Controllers
                 responseObject.ExceptionText = exception.ToMessage();
                 if (ModuleConfiguration.IsLogServer == true)
                 {
-                    loggerClient.ProgramMessageLogging("N", "E", responseObject.ExceptionText, "Transaction/SequentialRequestDataTransaction", (string error) =>
+                    loggerClient.ProgramMessageLogging(request.Transaction.GlobalID, "N", responseObject.ExceptionText, "Transaction/SequentialRequestDataTransaction", (string error) =>
                     {
                         logger.Error("[{LogCategory}] [{GlobalID}] " + "fallback error: " + error + ", " + responseObject.ExceptionText, "Transaction/SequentialRequestDataTransaction", request.Transaction.GlobalID);
                     });
@@ -3191,7 +3046,7 @@ namespace transact.Areas.transact.Controllers
                 responseObject.ExceptionText = exception.ToMessage();
                 if (ModuleConfiguration.IsLogServer == true)
                 {
-                    loggerClient.ProgramMessageLogging("N", "E", responseObject.ExceptionText, "Transaction/RequestDataTransaction", (string error) =>
+                    loggerClient.ProgramMessageLogging(request.Transaction.GlobalID, "N", responseObject.ExceptionText, "Transaction/RequestDataTransaction", (string error) =>
                     {
                         logger.Error("[{LogCategory}] [{GlobalID}] " + "fallback error: " + error + ", " + responseObject.ExceptionText, "Transaction/RequestDataTransaction", request.Transaction.GlobalID);
                     });
@@ -3293,8 +3148,7 @@ namespace transact.Areas.transact.Controllers
             {
                 loggerClient.TransactionResponseLogging(response, acknowledge, (string error) =>
                 {
-                    // var transactionLogger = loggerFactory.CreateLogger($"{response.TH.PGM_ID}|{response.TH.BIZ_ID}|{response.TH.TRN_CD}|{response.TH.FUNC_CD}");
-                    // transactionLogger.LogWarning($"Response GlobalID: {response.SH.GLBL_ID}, JSON: {JsonConvert.SerializeObject(response)}");
+                    logger.Information("[{LogCategory}] [{GlobalID}] " + $"fallback error: {error}, Response JSON: {JsonConvert.SerializeObject(response)}", "Transaction/RequestDataTransaction", response.Transaction.GlobalID);
                 });
             }
 

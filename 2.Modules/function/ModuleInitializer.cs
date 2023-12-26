@@ -53,6 +53,8 @@ using RestSharp;
 using Serilog;
 using HandStack.Data.ExtensionMethod;
 using HandStack.Data.Client;
+using Serilog.Events;
+using Serilog.Sinks.SystemConsole.Themes;
 
 namespace function
 {
@@ -96,10 +98,14 @@ namespace function
                             ModuleConfiguration.ContractBasePath.Add(GlobalConfiguration.GetBasePath(basePath));
                         }
 
-                        ModuleConfiguration.IsTransactionLogging = string.IsNullOrEmpty(moduleConfig.TransactionLogFilePath) == false;
-                        ModuleConfiguration.TransactionLogFilePath = GlobalConfiguration.GetBasePath(moduleConfig.TransactionLogFilePath);
-                        ModuleConfiguration.IsProfileLogging = string.IsNullOrEmpty(moduleConfig.ProfileLogFilePath) == false;
-                        ModuleConfiguration.ProfileLogFilePath = GlobalConfiguration.GetBasePath(moduleConfig.ProfileLogFilePath);
+                        ModuleConfiguration.IsTransactionLogging = moduleConfig.IsTransactionLogging;
+                        ModuleConfiguration.ModuleLogFilePath = string.IsNullOrEmpty(moduleConfig.ModuleLogFilePath) == true ? "transaction.log" : new FileInfo(moduleConfig.ModuleLogFilePath).FullName;
+                        if (ModuleConfiguration.IsTransactionLogging == true)
+                        {
+                            var loggerConfiguration = CreateLoggerConfiguration(ModuleConfiguration.ModuleLogFilePath);
+                            ModuleConfiguration.ModuleLogger = loggerConfiguration.CreateLogger();
+                        }
+
                         ModuleConfiguration.LocalStoragePath = GlobalConfiguration.GetBasePath(moduleConfig.NodeFunctionConfig.LocalStoragePath);
                         ModuleConfiguration.LogMinimumLevel = moduleConfig.NodeFunctionConfig.LogMinimumLevel;
                         ModuleConfiguration.NodeFunctionLogBasePath = GlobalConfiguration.GetBasePath(moduleConfig.NodeFunctionConfig.FileLogBasePath);
@@ -138,11 +144,6 @@ namespace function
                                     });
                                 }
                             }
-                        }
-
-                        if (string.IsNullOrEmpty(ModuleConfiguration.ProfileLogFilePath) != true)
-                        {
-                            FileInfo fileInfo = new FileInfo(ModuleConfiguration.ProfileLogFilePath);
                         }
 
                         ModuleConfiguration.IsConfigure = true;
@@ -207,7 +208,7 @@ namespace function
                     }
                     else
                     {
-                        string defaultEnvironmentVariables = "{\"ApplicationID\":\"HDS\",\"ProjectID\":\"WBD\",\"SystemID\":\"BOP01\",\"TransactionTimeout\":60000,\"IsConfiguration\":false,\"SolutionName\":\"HDS Solution\",\"ProgramName\":\"function\",\"IsDebugMode\":true,\"IsApiFindServer\":false,\"DiscoveryApiServerUrl\":\"http://localhost:8000/api/find\",\"FileManagerUrl\":\"http://localhost:8000/repository/api/storage\",\"FileManagerServer\":\"http://localhost:8080\",\"FileServerType\":\"L\",\"Environment\":\"Development\",\"LocalStoragePath\":\"C:\\\\home\\\\ack\\\\cache\\\\function\",\"LogMinimumLevel\":\"trace\",\"FileLogBasePath\":\"C:\\\\home\\\\ack\\\\log\\\\function\",\"DomainAPIServer\":{\"ServerID\":\"SERVERD01\",\"ServerType\":\"D\",\"Protocol\":\"http\",\"IP\":\"localhost\",\"Port\":\"8080\",\"Path\":\"/api/transaction\",\"ClientIP\":\"127.0.0.1\"},\"IntranetServerIP\":\"127.0.0.1\",\"IntranetServerPort\":\"8080\",\"Program\":{\"ProgramVersion\":\"1.0.0\",\"LanguageID\":\"KO\",\"LocaleID\":\"ko-KR\",\"TerminalBranchCode\":\"\"},\"Transaction\":{\"ProtocolVersion\":\"001\",\"RunningEnvironment\":\"D\",\"DataFormat\":\"J\",\"MachineName\":\"\",\"SystemCode\":\"DTS\",\"SystemID\":\"BOP01\",\"MachineTypeID\":\"SVR\",\"DataEncryptionYN\":\"N\"}}";
+                        string defaultEnvironmentVariables = "{\"ApplicationID\":\"HDS\",\"ProjectID\":\"WBD\",\"SystemID\":\"BOP01\",\"TransactionTimeout\":60000,\"IsConfiguration\":false,\"SolutionName\":\"HDS Solution\",\"ProgramName\":\"function\",\"IsDebugMode\":true,\"IsApiFindServer\":false,\"DiscoveryApiServerUrl\":\"http://localhost:8000/api/find\",\"FileManagerUrl\":\"http://localhost:8000/repository/api/storage\",\"FileManagerServer\":\"http://localhost:8000\",\"FileServerType\":\"L\",\"Environment\":\"Development\",\"LocalStoragePath\":\"C:\\\\home\\\\ack\\\\cache\\\\function\",\"LogMinimumLevel\":\"trace\",\"FileLogBasePath\":\"C:\\\\home\\\\ack\\\\log\\\\function\",\"DomainAPIServer\":{\"ServerID\":\"SERVERD01\",\"ServerType\":\"D\",\"Protocol\":\"http\",\"IP\":\"localhost\",\"Port\":\"8080\",\"Path\":\"/api/transaction\",\"ClientIP\":\"127.0.0.1\"},\"IntranetServerIP\":\"127.0.0.1\",\"IntranetServerPort\":\"8080\",\"Program\":{\"ProgramVersion\":\"1.0.0\",\"LanguageID\":\"KO\",\"LocaleID\":\"ko-KR\",\"TerminalBranchCode\":\"\"},\"Transaction\":{\"ProtocolVersion\":\"001\",\"RunningEnvironment\":\"D\",\"DataFormat\":\"J\",\"MachineName\":\"\",\"SystemCode\":\"DTS\",\"SystemID\":\"BOP01\",\"MachineTypeID\":\"SVR\",\"DataEncryptionYN\":\"N\"}}";
                         nodeEnvironmentVariables.Add("SYN_CONFIG", defaultEnvironmentVariables);
                     }
                     options.EnvironmentVariables = nodeEnvironmentVariables;
@@ -232,21 +233,49 @@ namespace function
                     options.WatchFileNamePatterns = ModuleConfiguration.WatchFileNamePatterns;
                 });
 
-                //services.AddMvc().AddMvcOptions(option =>
-                //{
-                //    option.InputFormatters.Add(new RawRequestBodyFormatter(Log.Logger));
-                //})
-                //.AddJsonOptions(jsonOptions =>
-                //{
-                //    jsonOptions.JsonSerializerOptions.PropertyNamingPolicy = null;
-                //});
-
-                FunctionLoggerClient loggerClient = new FunctionLoggerClient(Log.Logger);
-                services.AddSingleton(loggerClient);
+                services.AddSingleton(new FunctionLoggerClient(Log.Logger, ModuleConfiguration.ModuleLogger));
                 services.AddTransient<IFunctionClient, FunctionClient>();
 
                 services.AddTransient<IRequestHandler<FunctionRequest, object?>, FunctionRequestHandler>();
             }
+        }
+
+        private static LoggerConfiguration CreateLoggerConfiguration(string logFilePath)
+        {
+            FileInfo fileInfo = new FileInfo(logFilePath);
+            if (string.IsNullOrEmpty(fileInfo.DirectoryName) == false)
+            {
+                if (fileInfo.Directory == null || fileInfo.Directory.Exists == false)
+                {
+                    Directory.CreateDirectory(fileInfo.DirectoryName);
+                }
+
+                if (string.IsNullOrEmpty(GlobalConfiguration.ProcessName) == true)
+                {
+                    logFilePath = fileInfo.FullName;
+                }
+                else
+                {
+                    logFilePath = Path.Combine(fileInfo.DirectoryName, GlobalConfiguration.ProcessName + "_" + fileInfo.Name);
+                }
+            }
+
+            var loggerConfiguration = new LoggerConfiguration()
+                .Enrich.FromLogContext()
+                .MinimumLevel.Override("Microsoft", LogEventLevel.Error)
+                .MinimumLevel.Override("System", LogEventLevel.Error)
+                .WriteTo.Console(
+                    outputTemplate: "[{Timestamp:HH:mm:ss.fff} {Level:u3}] {Message:lj}{NewLine}{Exception}",
+                    theme: AnsiConsoleTheme.Code)
+                .WriteTo.File(
+                    path: logFilePath,
+                    outputTemplate: "[{Timestamp:HH:mm:ss.fff} {Level:u3}] {Message:lj}{NewLine}{Exception}",
+                    fileSizeLimitBytes: 104857600,
+                    rollOnFileSizeLimit: true,
+                    rollingInterval: RollingInterval.Day,
+                    flushToDiskInterval: TimeSpan.FromSeconds(3),
+                    shared: true);
+            return loggerConfiguration;
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment? environment, ICorsService corsService, ICorsPolicyProvider corsPolicyProvider)

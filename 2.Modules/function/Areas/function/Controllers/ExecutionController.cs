@@ -16,11 +16,8 @@ using HandStack.Web.MessageContract.Message;
 
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 using Newtonsoft.Json;
-
-using static System.Net.Mime.MediaTypeNames;
 
 namespace function.Areas.function.Controllers
 {
@@ -79,17 +76,7 @@ namespace function.Areas.function.Controllers
                 catch (Exception exception)
                 {
                     string exceptionText = exception.ToMessage();
-                    if (ModuleConfiguration.IsLogServer == true)
-                    {
-                        loggerClient.ProgramMessageLogging("N", GlobalConfiguration.ApplicationID, exceptionText, "Execution/has", (string error) =>
-                        {
-                            logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + exceptionText, "Execution/has");
-                        });
-                    }
-                    else
-                    {
-                        logger.Error("[{LogCategory}] " + exceptionText, "Execution/has");
-                    }
+                    logger.Error("[{LogCategory}] " + exceptionText, "Execution/has");
 
                     result = StatusCode(500, exceptionText);
                 }
@@ -143,17 +130,7 @@ namespace function.Areas.function.Controllers
                 catch (Exception exception)
                 {
                     string exceptionText = exception.ToMessage();
-                    if (ModuleConfiguration.IsLogServer == true)
-                    {
-                        loggerClient.ProgramMessageLogging("N", GlobalConfiguration.ApplicationID, exceptionText, "Execution/upsert", (string error) =>
-                        {
-                            logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + exceptionText, "Execution/upsert");
-                        });
-                    }
-                    else
-                    {
-                        logger.Error("[{LogCategory}] " + exceptionText, "Execution/upsert");
-                    }
+                    logger.Error("[{LogCategory}] " + exceptionText, "Execution/Upsert");
 
                     result = StatusCode(500, exceptionText);
                 }
@@ -247,17 +224,7 @@ namespace function.Areas.function.Controllers
                 catch (Exception exception)
                 {
                     string exceptionText = exception.ToMessage();
-                    if (ModuleConfiguration.IsLogServer == true)
-                    {
-                        loggerClient.ProgramMessageLogging("N", GlobalConfiguration.ApplicationID, exceptionText, "Execution/Refresh", (string error) =>
-                        {
-                            logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + exceptionText, "Execution/Refresh");
-                        });
-                    }
-                    else
-                    {
-                        logger.Error("[{LogCategory}] " + exceptionText, "Execution/Refresh");
-                    }
+                    logger.Error("[{LogCategory}] " + exceptionText, "Execution/Refresh");
 
                     result = StatusCode(500, exception.ToMessage());
                 }
@@ -302,17 +269,7 @@ namespace function.Areas.function.Controllers
                 catch (Exception exception)
                 {
                     string exceptionText = exception.ToMessage();
-                    if (ModuleConfiguration.IsLogServer == true)
-                    {
-                        loggerClient.ProgramMessageLogging("N", GlobalConfiguration.ApplicationID, exceptionText, "Execution/Delete", (string error) =>
-                        {
-                            logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + exceptionText, "Execution/Delete");
-                        });
-                    }
-                    else
-                    {
-                        logger.Error("[{LogCategory}] " + exceptionText, "Execution/Delete");
-                    }
+                    logger.Error("[{LogCategory}] " + exceptionText, "Execution/Delete");
 
                     result = StatusCode(500, exceptionText);
                 }
@@ -365,17 +322,7 @@ namespace function.Areas.function.Controllers
                 catch (Exception exception)
                 {
                     string exceptionText = exception.ToMessage();
-                    if (ModuleConfiguration.IsLogServer == true)
-                    {
-                        loggerClient.ProgramMessageLogging("N", GlobalConfiguration.ApplicationID, exceptionText, "Execution/Get", (string error) =>
-                        {
-                            logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + exceptionText, "Execution/Get");
-                        });
-                    }
-                    else
-                    {
-                        logger.Error("[{LogCategory}] " + exceptionText, "Execution/Get");
-                    }
+                    logger.Error("[{LogCategory}] " + exceptionText, "Execution/Get");
 
                     result = StatusCode(500, exceptionText);
                 }
@@ -451,17 +398,7 @@ namespace function.Areas.function.Controllers
                 catch (Exception exception)
                 {
                     string exceptionText = exception.ToMessage();
-                    if (ModuleConfiguration.IsLogServer == true)
-                    {
-                        loggerClient.ProgramMessageLogging("N", GlobalConfiguration.ApplicationID, exceptionText, "Execution/Retrieve", (string error) =>
-                        {
-                            logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + exceptionText, "Execution/Retrieve");
-                        });
-                    }
-                    else
-                    {
-                        logger.Error("[{LogCategory}] " + exceptionText, "Execution/Retrieve");
-                    }
+                    logger.Error("[{LogCategory}] " + exceptionText, "Execution/Retrieve");
 
                     result = StatusCode(500, exceptionText);
                 }
@@ -498,17 +435,7 @@ namespace function.Areas.function.Controllers
                 catch (Exception exception)
                 {
                     string exceptionText = exception.ToMessage();
-                    if (ModuleConfiguration.IsLogServer == true)
-                    {
-                        loggerClient.ProgramMessageLogging("N", GlobalConfiguration.ApplicationID, exceptionText, "Execution/Meta", (string error) =>
-                        {
-                            logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + exceptionText, "Execution/Meta");
-                        });
-                    }
-                    else
-                    {
-                        logger.Error("[{LogCategory}] " + exceptionText, "Execution/Meta");
-                    }
+                    logger.Error("[{LogCategory}] " + exceptionText, "Execution/Meta");
 
                     result = StatusCode(500, exceptionText);
                 }

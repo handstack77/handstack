@@ -383,17 +383,10 @@ namespace dbclient.DataClient
                     if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                     {
                         string logData = $"Pretreatment: {executeDataID}, ParseSQL Parameters: {JsonConvert.SerializeObject(dynamicObject)}";
-                        if (ModuleConfiguration.IsLogServer == true)
+                        loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMap", (string error) =>
                         {
-                            loggerClient.ProgramMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMap", (string error) =>
-                            {
-                                logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMap");
-                            });
-                        }
-                        else
-                        {
-                            logger.Information("[{LogCategory}] [{GlobalID}] " + logData, "QueryDataClient/ExecuteDynamicSQLMap", request.GlobalID);
-                        }
+                            logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMap");
+                        });
                     }
 
                     var pretreatment = DatabaseMapper.FindPretreatment(statementMap, dynamicObject);
@@ -412,20 +405,13 @@ namespace dbclient.DataClient
                             if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                             {
                                 string logData = $"SQLID: {SQLID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
-                                if (ModuleConfiguration.IsLogServer == true)
+                                loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMap", (string error) =>
                                 {
-                                    loggerClient.ProgramMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMap", (string error) =>
-                                    {
-                                        logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMap");
-                                    });
-                                }
-                                else
-                                {
-                                    logger.Information("[{LogCategory}] [{GlobalID}] " + logData, "QueryDataClient/ExecuteDynamicSQLMap", request.GlobalID);
-                                }
+                                    logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMap");
+                                });
                             }
 
-                            ConsoleProfiler pretreatmentProfiler = new ConsoleProfiler(request.RequestID, SQLID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.TransactionLogFilePath : null);
+                            ConsoleProfiler pretreatmentProfiler = new ConsoleProfiler(request.RequestID, SQLID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
                             var pretreatmentConnection = new ProfilerDbConnection(transactionDynamicObject.Value.PretreatmentConnectionFactory?.Connection, pretreatmentProfiler);
 
                             try
@@ -531,34 +517,19 @@ namespace dbclient.DataClient
                                 string logData = $"SQLID: {SQLID}, ExecuteSQL: \n\n{pretreatmentProfiler.ExecuteSQL}";
                                 if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                                 {
-                                    if (ModuleConfiguration.IsLogServer == true)
+                                    loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMap", (string error) =>
                                     {
-                                        loggerClient.ProgramMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMap", (string error) =>
-                                        {
-                                            logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMap");
-                                        });
-                                    }
-                                    else
-                                    {
-                                        logger.Information("[{LogCategory}] [{GlobalID}] " + logData, "QueryDataClient/ExecuteDynamicSQLMap", request.GlobalID);
-                                    }
+                                        logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMap");
+                                    });
                                 }
                             }
                             catch (Exception exception)
                             {
                                 response.ExceptionText = $"SQLID: {SQLID}, ExceptionText: {exception.ToMessage()}, ExecuteSQL: \n\n{pretreatmentProfiler.ExecuteSQL}";
-
-                                if (ModuleConfiguration.IsLogServer == true)
+                                loggerClient.TransactionMessageLogging(request.GlobalID, "N", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, response.ExceptionText, "QueryDataClient/ExecuteDynamicSQLMap", (string error) =>
                                 {
-                                    loggerClient.ProgramMessageLogging(request.GlobalID, "N", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, response.ExceptionText, "QueryDataClient/ExecuteDynamicSQLMap", (string error) =>
-                                    {
-                                        logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + response.ExceptionText, "QueryDataClient/ExecuteDynamicSQLMap");
-                                    });
-                                }
-                                else
-                                {
-                                    logger.Error("[{LogCategory}] [{GlobalID}] " + response.ExceptionText, "QueryDataClient/ExecuteDynamicSQLMap", request.GlobalID);
-                                }
+                                    logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + response.ExceptionText, "QueryDataClient/ExecuteDynamicSQLMap");
+                                });
 
                                 isCommandError = true;
                                 goto TransactionException;
@@ -609,24 +580,17 @@ namespace dbclient.DataClient
                     }
 
                     SQLID = executeDataID + "_statement";
-                    ConsoleProfiler profiler = new ConsoleProfiler(request.RequestID, executeDataID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.TransactionLogFilePath : null);
+                    ConsoleProfiler profiler = new ConsoleProfiler(request.RequestID, executeDataID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
 
                     try
                     {
                         if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                         {
                             string logData = $"SQLID: {SQLID}, ParseSQL Parameters: {JsonConvert.SerializeObject(dynamicObject)}";
-                            if (ModuleConfiguration.IsLogServer == true)
+                            loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMap", (string error) =>
                             {
-                                loggerClient.ProgramMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMap", (string error) =>
-                                {
-                                    logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMap");
-                                });
-                            }
-                            else
-                            {
-                                logger.Information("[{LogCategory}] [{GlobalID}] " + logData, "QueryDataClient/ExecuteDynamicSQLMap", request.GlobalID);
-                            }
+                                logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMap");
+                            });
                         }
 
                         string parseSQL = DatabaseMapper.Find(statementMap, dynamicObject);
@@ -635,17 +599,10 @@ namespace dbclient.DataClient
                             if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                             {
                                 string logData = $"SQLID: {SQLID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
-                                if (ModuleConfiguration.IsLogServer == true)
+                                loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMap", (string error) =>
                                 {
-                                    loggerClient.ProgramMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMap", (string error) =>
-                                    {
-                                        logger.Information("[{LogCategory}] " + "fallback error: " + error + ", empty SQL passing" + logData, "QueryDataClient/ExecuteDynamicSQLMap");
-                                    });
-                                }
-                                else
-                                {
-                                    logger.Information("[{LogCategory}] [{GlobalID}] empty SQL passing" + logData, "QueryDataClient/ExecuteDynamicSQLMap", request.GlobalID);
-                                }
+                                    logger.Information("[{LogCategory}] " + "fallback error: " + error + ", empty SQL passing" + logData, "QueryDataClient/ExecuteDynamicSQLMap");
+                                });
                             }
 
                             continue;
@@ -654,17 +611,10 @@ namespace dbclient.DataClient
                         if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                         {
                             string logData = $"SQLID: {SQLID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
-                            if (ModuleConfiguration.IsLogServer == true)
+                            loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMap", (string error) =>
                             {
-                                loggerClient.ProgramMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMap", (string error) =>
-                                {
-                                    logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMap");
-                                });
-                            }
-                            else
-                            {
-                                logger.Information("[{LogCategory}] [{GlobalID}] " + logData, "QueryDataClient/ExecuteDynamicSQLMap", request.GlobalID);
-                            }
+                                logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMap");
+                            });
                         }
 
                         var connection = new ProfilerDbConnection(transactionDynamicObject.Value.ConnectionFactory.Connection, profiler);
@@ -673,17 +623,10 @@ namespace dbclient.DataClient
                         if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                         {
                             string logData = $"SQLID: {SQLID}, ExecuteSQL: \n\n{profiler.ExecuteSQL}";
-                            if (ModuleConfiguration.IsLogServer == true)
+                            loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMap", (string error) =>
                             {
-                                loggerClient.ProgramMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMap", (string error) =>
-                                {
-                                    logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMap");
-                                });
-                            }
-                            else
-                            {
-                                logger.Information("[{LogCategory}] [{GlobalID}] " + logData, "QueryDataClient/ExecuteDynamicSQLMap", request.GlobalID);
-                            }
+                                logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMap");
+                            });
                         }
 
                         if (dynamicObject.IgnoreResult == true)
@@ -824,17 +767,10 @@ namespace dbclient.DataClient
                         response.ExceptionText = exception.ToMessage();
                         string logData = $"SQLID: {SQLID}, ExceptionText: {response.ExceptionText}, ExecuteSQL: \n\n{profiler.ExecuteSQL}";
 
-                        if (ModuleConfiguration.IsLogServer == true)
+                        loggerClient.TransactionMessageLogging(request.GlobalID, "N", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMap", (string error) =>
                         {
-                            loggerClient.ProgramMessageLogging(request.GlobalID, "N", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMap", (string error) =>
-                            {
-                                logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMap");
-                            });
-                        }
-                        else
-                        {
-                            logger.Error("[{LogCategory}] [{GlobalID}] " + logData, "QueryDataClient/ExecuteDynamicSQLMap", request.GlobalID);
-                        }
+                            logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMap");
+                        });
 
                         if (string.IsNullOrEmpty(statementMap.FallbackTransactionCommand) == false)
                         {
@@ -1150,17 +1086,10 @@ TransactionException:
                     if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                     {
                         string logData = $"Pretreatment {executeDataID}, ParseSQL Parameters: {JsonConvert.SerializeObject(dynamicObject)}";
-                        if (ModuleConfiguration.IsLogServer == true)
+                        loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLToScalar", (string error) =>
                         {
-                            loggerClient.ProgramMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLToScalar", (string error) =>
-                            {
-                                logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLToScalar");
-                            });
-                        }
-                        else
-                        {
-                            logger.Information("[{LogCategory}] [{GlobalID}] " + logData, "QueryDataClient/ExecuteDynamicSQLToScalar", request.GlobalID);
-                        }
+                            logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLToScalar");
+                        });
                     }
 
                     var pretreatment = DatabaseMapper.FindPretreatment(statementMap, dynamicObject);
@@ -1179,20 +1108,13 @@ TransactionException:
                             if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                             {
                                 string logData = $"SQLID: {SQLID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
-                                if (ModuleConfiguration.IsLogServer == true)
+                                loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLToScalar", (string error) =>
                                 {
-                                    loggerClient.ProgramMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLToScalar", (string error) =>
-                                    {
-                                        logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLToScalar");
-                                    });
-                                }
-                                else
-                                {
-                                    logger.Information("[{LogCategory}] [{GlobalID}] " + logData, "QueryDataClient/ExecuteDynamicSQLToScalar", request.GlobalID);
-                                }
+                                    logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLToScalar");
+                                });
                             }
 
-                            ConsoleProfiler pretreatmentProfiler = new ConsoleProfiler(request.RequestID, SQLID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.TransactionLogFilePath : null);
+                            ConsoleProfiler pretreatmentProfiler = new ConsoleProfiler(request.RequestID, SQLID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
                             var pretreatmentConnection = new ProfilerDbConnection(transactionDynamicObject.Value.PretreatmentConnectionFactory?.Connection, pretreatmentProfiler);
 
                             try
@@ -1299,34 +1221,19 @@ TransactionException:
                                 string logData = $"SQLID: {SQLID}, ExecuteSQL: \n\n{pretreatmentProfiler.ExecuteSQL}";
                                 if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                                 {
-                                    if (ModuleConfiguration.IsLogServer == true)
+                                    loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLToScalar", (string error) =>
                                     {
-                                        loggerClient.ProgramMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLToScalar", (string error) =>
-                                        {
-                                            logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLToScalar");
-                                        });
-                                    }
-                                    else
-                                    {
-                                        logger.Information("[{LogCategory}] [{GlobalID}] " + logData, "QueryDataClient/ExecuteDynamicSQLToScalar", request.GlobalID);
-                                    }
+                                        logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLToScalar");
+                                    });
                                 }
                             }
                             catch (Exception exception)
                             {
                                 response.ExceptionText = $"SQLID: {SQLID}, ExceptionText: {exception.ToMessage()}, ExecuteSQL: \n\n{pretreatmentProfiler.ExecuteSQL}";
-
-                                if (ModuleConfiguration.IsLogServer == true)
+                                loggerClient.TransactionMessageLogging(request.GlobalID, "N", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, response.ExceptionText, "QueryDataClient/ExecuteDynamicSQLToScalar", (string error) =>
                                 {
-                                    loggerClient.ProgramMessageLogging(request.GlobalID, "N", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, response.ExceptionText, "QueryDataClient/ExecuteDynamicSQLToScalar", (string error) =>
-                                    {
-                                        logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + response.ExceptionText, "QueryDataClient/ExecuteDynamicSQLToScalar");
-                                    });
-                                }
-                                else
-                                {
-                                    logger.Error("[{LogCategory}] [{GlobalID}] " + response.ExceptionText, "QueryDataClient/ExecuteDynamicSQLToScalar", request.GlobalID);
-                                }
+                                    logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + response.ExceptionText, "QueryDataClient/ExecuteDynamicSQLToScalar");
+                                });
 
                                 isCommandError = true;
                                 goto TransactionException;
@@ -1377,24 +1284,17 @@ TransactionException:
                     }
 
                     SQLID = executeDataID + "_statement";
-                    ConsoleProfiler profiler = new ConsoleProfiler(request.RequestID, executeDataID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.TransactionLogFilePath : null);
+                    ConsoleProfiler profiler = new ConsoleProfiler(request.RequestID, executeDataID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
 
                     try
                     {
                         if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                         {
                             string logData = $"SQLID: {SQLID}, ParseSQL Parameters: {JsonConvert.SerializeObject(dynamicObject)}";
-                            if (ModuleConfiguration.IsLogServer == true)
+                            loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMapToScalar", (string error) =>
                             {
-                                loggerClient.ProgramMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMapToScalar", (string error) =>
-                                {
-                                    logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToScalar");
-                                });
-                            }
-                            else
-                            {
-                                logger.Information("[{LogCategory}] [{GlobalID}] " + logData, "QueryDataClient/ExecuteDynamicSQLMapToScalar", request.GlobalID);
-                            }
+                                logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToScalar");
+                            });
                         }
 
                         string parseSQL = DatabaseMapper.Find(statementMap, dynamicObject);
@@ -1403,17 +1303,10 @@ TransactionException:
                             if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                             {
                                 string logData = $"SQLID: {SQLID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
-                                if (ModuleConfiguration.IsLogServer == true)
+                                loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLToScalar", (string error) =>
                                 {
-                                    loggerClient.ProgramMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLToScalar", (string error) =>
-                                    {
-                                        logger.Information("[{LogCategory}] " + "fallback error: " + error + ", empty SQL passing" + logData, "QueryDataClient/ExecuteDynamicSQLMapToScalar");
-                                    });
-                                }
-                                else
-                                {
-                                    logger.Information("[{LogCategory}] [{GlobalID}] empty SQL passing" + logData, "QueryDataClient/ExecuteDynamicSQLMapToScalar", request.GlobalID);
-                                }
+                                    logger.Information("[{LogCategory}] " + "fallback error: " + error + ", empty SQL passing" + logData, "QueryDataClient/ExecuteDynamicSQLMapToScalar");
+                                });
                             }
 
                             continue;
@@ -1422,17 +1315,10 @@ TransactionException:
                         if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                         {
                             string logData = $"SQLID: {SQLID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
-                            if (ModuleConfiguration.IsLogServer == true)
+                            loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMapToScalar", (string error) =>
                             {
-                                loggerClient.ProgramMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMapToScalar", (string error) =>
-                                {
-                                    logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToScalar");
-                                });
-                            }
-                            else
-                            {
-                                logger.Information("[{LogCategory}] [{GlobalID}] " + logData, "QueryDataClient/ExecuteDynamicSQLMapToScalar", request.GlobalID);
-                            }
+                                logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToScalar");
+                            });
                         }
 
                         var connection = new ProfilerDbConnection(transactionDynamicObject.Value.ConnectionFactory.Connection, profiler);
@@ -1520,35 +1406,20 @@ TransactionException:
                         if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                         {
                             string logData = $"SQLID: {SQLID}, ExecuteSQL: \n\n{profiler.ExecuteSQL}";
-                            if (ModuleConfiguration.IsLogServer == true)
+                            loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMapToScalar", (string error) =>
                             {
-                                loggerClient.ProgramMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMapToScalar", (string error) =>
-                                {
-                                    logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToScalar");
-                                });
-                            }
-                            else
-                            {
-                                logger.Information("[{LogCategory}] [{GlobalID}] " + logData, "QueryDataClient/ExecuteDynamicSQLMapToScalar", request.GlobalID);
-                            }
+                                logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToScalar");
+                            });
                         }
                     }
                     catch (Exception exception)
                     {
                         response.ExceptionText = exception.ToMessage();
                         string logData = $"SQLID: {SQLID}, ExceptionText: {response.ExceptionText}, ExecuteSQL: \n\n{profiler.ExecuteSQL}";
-
-                        if (ModuleConfiguration.IsLogServer == true)
+                        loggerClient.TransactionMessageLogging(request.GlobalID, "N", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMapToScalar", (string error) =>
                         {
-                            loggerClient.ProgramMessageLogging(request.GlobalID, "N", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMapToScalar", (string error) =>
-                            {
-                                logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToScalar");
-                            });
-                        }
-                        else
-                        {
-                            logger.Error("[{LogCategory}] [{GlobalID}] " + logData, "QueryDataClient/ExecuteDynamicSQLMapToScalar", request.GlobalID);
-                        }
+                            logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToScalar");
+                        });
 
                         if (string.IsNullOrEmpty(statementMap.FallbackTransactionCommand) == false)
                         {
@@ -1859,17 +1730,10 @@ TransactionException:
                     if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                     {
                         string logData = $"Pretreatment {executeDataID}, ParseSQL Parameters: {JsonConvert.SerializeObject(dynamicObject)}";
-                        if (ModuleConfiguration.IsLogServer == true)
+                        loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLToNonQuery", (string error) =>
                         {
-                            loggerClient.ProgramMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLToNonQuery", (string error) =>
-                            {
-                                logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLToNonQuery");
-                            });
-                        }
-                        else
-                        {
-                            logger.Information("[{LogCategory}] [{GlobalID}] " + logData, "QueryDataClient/ExecuteDynamicSQLToNonQuery", request.GlobalID);
-                        }
+                            logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLToNonQuery");
+                        });
                     }
 
                     var pretreatment = DatabaseMapper.FindPretreatment(statementMap, dynamicObject);
@@ -1882,20 +1746,13 @@ TransactionException:
                             if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                             {
                                 string logData = $"SQLID: {SQLID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
-                                if (ModuleConfiguration.IsLogServer == true)
+                                loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLToNonQuery", (string error) =>
                                 {
-                                    loggerClient.ProgramMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLToNonQuery", (string error) =>
-                                    {
-                                        logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLToNonQuery");
-                                    });
-                                }
-                                else
-                                {
-                                    logger.Information("[{LogCategory}] [{GlobalID}] " + logData, "QueryDataClient/ExecuteDynamicSQLToNonQuery", request.GlobalID);
-                                }
+                                    logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLToNonQuery");
+                                });
                             }
 
-                            ConsoleProfiler pretreatmentProfiler = new ConsoleProfiler(request.RequestID, SQLID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.TransactionLogFilePath : null);
+                            ConsoleProfiler pretreatmentProfiler = new ConsoleProfiler(request.RequestID, SQLID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
                             var pretreatmentConnection = new ProfilerDbConnection(transactionDynamicObject.Value.PretreatmentConnectionFactory?.Connection, pretreatmentProfiler);
 
                             try
@@ -2001,34 +1858,19 @@ TransactionException:
                                 string logData = $"SQLID: {SQLID}, ExecuteSQL: \n\n{pretreatmentProfiler.ExecuteSQL}";
                                 if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                                 {
-                                    if (ModuleConfiguration.IsLogServer == true)
+                                    loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLToNonQuery", (string error) =>
                                     {
-                                        loggerClient.ProgramMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLToNonQuery", (string error) =>
-                                        {
-                                            logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLToNonQuery");
-                                        });
-                                    }
-                                    else
-                                    {
-                                        logger.Information("[{LogCategory}] [{GlobalID}] " + logData, "QueryDataClient/ExecuteDynamicSQLToNonQuery", request.GlobalID);
-                                    }
+                                        logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLToNonQuery");
+                                    });
                                 }
                             }
                             catch (Exception exception)
                             {
                                 response.ExceptionText = $"SQLID: {SQLID}, ExceptionText: {exception.ToMessage()}, ExecuteSQL: \n\n{pretreatmentProfiler.ExecuteSQL}";
-
-                                if (ModuleConfiguration.IsLogServer == true)
+                                loggerClient.TransactionMessageLogging(request.GlobalID, "N", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, response.ExceptionText, "QueryDataClient/ExecuteDynamicSQLToNonQuery", (string error) =>
                                 {
-                                    loggerClient.ProgramMessageLogging(request.GlobalID, "N", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, response.ExceptionText, "QueryDataClient/ExecuteDynamicSQLToNonQuery", (string error) =>
-                                    {
-                                        logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + response.ExceptionText, "QueryDataClient/ExecuteDynamicSQLToNonQuery");
-                                    });
-                                }
-                                else
-                                {
-                                    logger.Error("[{LogCategory}] [{GlobalID}] " + response.ExceptionText, "QueryDataClient/ExecuteDynamicSQLToNonQuery", request.GlobalID);
-                                }
+                                    logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + response.ExceptionText, "QueryDataClient/ExecuteDynamicSQLToNonQuery");
+                                });
 
                                 isCommandError = true;
                                 goto TransactionException;
@@ -2079,24 +1921,17 @@ TransactionException:
                     }
 
                     SQLID = executeDataID + "_statement";
-                    ConsoleProfiler profiler = new ConsoleProfiler(request.RequestID, executeDataID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.TransactionLogFilePath : null);
+                    ConsoleProfiler profiler = new ConsoleProfiler(request.RequestID, executeDataID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
 
                     try
                     {
                         if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                         {
                             string logData = $"SQLID: {SQLID}, ParseSQL Parameters: {JsonConvert.SerializeObject(dynamicObject)}";
-                            if (ModuleConfiguration.IsLogServer == true)
+                            loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMapToNonQuery", (string error) =>
                             {
-                                loggerClient.ProgramMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMapToNonQuery", (string error) =>
-                                {
-                                    logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToNonQuery");
-                                });
-                            }
-                            else
-                            {
-                                logger.Information("[{LogCategory}] [{GlobalID}] " + logData, "QueryDataClient/ExecuteDynamicSQLMapToNonQuery", request.GlobalID);
-                            }
+                                logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToNonQuery");
+                            });
                         }
 
                         string parseSQL = DatabaseMapper.Find(statementMap, dynamicObject);
@@ -2105,17 +1940,10 @@ TransactionException:
                             if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                             {
                                 string logData = $"SQLID: {SQLID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
-                                if (ModuleConfiguration.IsLogServer == true)
+                                loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLToNonQuery", (string error) =>
                                 {
-                                    loggerClient.ProgramMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLToNonQuery", (string error) =>
-                                    {
-                                        logger.Information("[{LogCategory}] " + "fallback error: " + error + ", empty SQL passing" + logData, "QueryDataClient/ExecuteDynamicSQLMapToNonQuery");
-                                    });
-                                }
-                                else
-                                {
-                                    logger.Information("[{LogCategory}] [{GlobalID}] empty SQL passing" + logData, "QueryDataClient/ExecuteDynamicSQLMapToNonQuery", request.GlobalID);
-                                }
+                                    logger.Information("[{LogCategory}] " + "fallback error: " + error + ", empty SQL passing" + logData, "QueryDataClient/ExecuteDynamicSQLMapToNonQuery");
+                                });
                             }
 
                             continue;
@@ -2124,17 +1952,10 @@ TransactionException:
                         if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                         {
                             string logData = $"SQLID: {SQLID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
-                            if (ModuleConfiguration.IsLogServer == true)
+                            loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMapToNonQuery", (string error) =>
                             {
-                                loggerClient.ProgramMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMapToNonQuery", (string error) =>
-                                {
-                                    logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToNonQuery");
-                                });
-                            }
-                            else
-                            {
-                                logger.Information("[{LogCategory}] [{GlobalID}] " + logData, "QueryDataClient/ExecuteDynamicSQLMapToNonQuery", request.GlobalID);
-                            }
+                                logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToNonQuery");
+                            });
                         }
 
                         var connection = new ProfilerDbConnection(transactionDynamicObject.Value.ConnectionFactory.Connection, profiler);
@@ -2143,17 +1964,10 @@ TransactionException:
                         if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                         {
                             string logData = $"SQLID: {SQLID}, ExecuteSQL: \n\n{profiler.ExecuteSQL}";
-                            if (ModuleConfiguration.IsLogServer == true)
+                            loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMapToNonQuery", (string error) =>
                             {
-                                loggerClient.ProgramMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMapToNonQuery", (string error) =>
-                                {
-                                    logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToNonQuery");
-                                });
-                            }
-                            else
-                            {
-                                logger.Information("[{LogCategory}] [{GlobalID}] " + logData, "QueryDataClient/ExecuteDynamicSQLMapToNonQuery", request.GlobalID);
-                            }
+                                logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToNonQuery");
+                            });
                         }
 
                         if (dynamicObject.IgnoreResult == true)
@@ -2242,18 +2056,10 @@ TransactionException:
                     {
                         response.ExceptionText = exception.ToMessage();
                         string logData = $"SQLID: {SQLID}, ExceptionText: {response.ExceptionText}, ExecuteSQL: \n\n{profiler.ExecuteSQL}";
-
-                        if (ModuleConfiguration.IsLogServer == true)
+                        loggerClient.TransactionMessageLogging(request.GlobalID, "N", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMapToNonQuery", (string error) =>
                         {
-                            loggerClient.ProgramMessageLogging(request.GlobalID, "N", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMapToNonQuery", (string error) =>
-                            {
-                                logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToNonQuery");
-                            });
-                        }
-                        else
-                        {
-                            logger.Error("[{LogCategory}] [{GlobalID}] " + logData, "QueryDataClient/ExecuteDynamicSQLMapToNonQuery", request.GlobalID);
-                        }
+                            logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToNonQuery");
+                        });
 
                         if (string.IsNullOrEmpty(statementMap.FallbackTransactionCommand) == false)
                         {
@@ -2559,17 +2365,10 @@ TransactionException:
                     if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                     {
                         string logData = $"Pretreatment {executeDataID}, ParseSQL Parameters: {JsonConvert.SerializeObject(dynamicObject)}";
-                        if (ModuleConfiguration.IsLogServer == true)
+                        loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLToXml", (string error) =>
                         {
-                            loggerClient.ProgramMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLToXml", (string error) =>
-                            {
-                                logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLToXml");
-                            });
-                        }
-                        else
-                        {
-                            logger.Information("[{LogCategory}] [{GlobalID}] " + logData, "QueryDataClient/ExecuteDynamicSQLToXml", request.GlobalID);
-                        }
+                            logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLToXml");
+                        });
                     }
 
                     var pretreatment = DatabaseMapper.FindPretreatment(statementMap, dynamicObject);
@@ -2582,20 +2381,13 @@ TransactionException:
                             if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                             {
                                 string logData = $"SQLID: {SQLID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
-                                if (ModuleConfiguration.IsLogServer == true)
+                                loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLToXml", (string error) =>
                                 {
-                                    loggerClient.ProgramMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLToXml", (string error) =>
-                                    {
-                                        logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLToXml");
-                                    });
-                                }
-                                else
-                                {
-                                    logger.Information("[{LogCategory}] [{GlobalID}] " + logData, "QueryDataClient/ExecuteDynamicSQLToXml", request.GlobalID);
-                                }
+                                    logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLToXml");
+                                });
                             }
 
-                            ConsoleProfiler pretreatmentProfiler = new ConsoleProfiler(request.RequestID, SQLID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.TransactionLogFilePath : null);
+                            ConsoleProfiler pretreatmentProfiler = new ConsoleProfiler(request.RequestID, SQLID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
                             var pretreatmentConnection = new ProfilerDbConnection(transactionDynamicObject.Value.PretreatmentConnectionFactory?.Connection, pretreatmentProfiler);
 
                             try
@@ -2701,34 +2493,19 @@ TransactionException:
                                 string logData = $"SQLID: {SQLID}, ExecuteSQL: \n\n{pretreatmentProfiler.ExecuteSQL}";
                                 if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                                 {
-                                    if (ModuleConfiguration.IsLogServer == true)
+                                    loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLToXml", (string error) =>
                                     {
-                                        loggerClient.ProgramMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLToXml", (string error) =>
-                                        {
-                                            logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLToXml");
-                                        });
-                                    }
-                                    else
-                                    {
-                                        logger.Information("[{LogCategory}] [{GlobalID}] " + logData, "QueryDataClient/ExecuteDynamicSQLToXml", request.GlobalID);
-                                    }
+                                        logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLToXml");
+                                    });
                                 }
                             }
                             catch (Exception exception)
                             {
                                 response.ExceptionText = $"SQLID: {SQLID}, ExceptionText: {exception.ToMessage()}, ExecuteSQL: \n\n{pretreatmentProfiler.ExecuteSQL}";
-
-                                if (ModuleConfiguration.IsLogServer == true)
+                                loggerClient.TransactionMessageLogging(request.GlobalID, "N", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, response.ExceptionText, "QueryDataClient/ExecuteDynamicSQLToXml", (string error) =>
                                 {
-                                    loggerClient.ProgramMessageLogging(request.GlobalID, "N", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, response.ExceptionText, "QueryDataClient/ExecuteDynamicSQLToXml", (string error) =>
-                                    {
-                                        logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + response.ExceptionText, "QueryDataClient/ExecuteDynamicSQLToXml");
-                                    });
-                                }
-                                else
-                                {
-                                    logger.Error("[{LogCategory}] [{GlobalID}] " + response.ExceptionText, "QueryDataClient/ExecuteDynamicSQLToXml", request.GlobalID);
-                                }
+                                    logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + response.ExceptionText, "QueryDataClient/ExecuteDynamicSQLToXml");
+                                });
 
                                 isCommandError = true;
                                 goto TransactionException;
@@ -2779,24 +2556,17 @@ TransactionException:
                     }
 
                     SQLID = executeDataID + "_statement";
-                    ConsoleProfiler profiler = new ConsoleProfiler(request.RequestID, executeDataID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.TransactionLogFilePath : null);
+                    ConsoleProfiler profiler = new ConsoleProfiler(request.RequestID, executeDataID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
 
                     try
                     {
                         if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                         {
                             string logData = $"SQLID: {SQLID}, ParseSQL Parameters: {JsonConvert.SerializeObject(dynamicObject)}";
-                            if (ModuleConfiguration.IsLogServer == true)
+                            loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMapToXml", (string error) =>
                             {
-                                loggerClient.ProgramMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMapToXml", (string error) =>
-                                {
-                                    logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToXml");
-                                });
-                            }
-                            else
-                            {
-                                logger.Information("[{LogCategory}] [{GlobalID}] " + logData, "QueryDataClient/ExecuteDynamicSQLMapToXml", request.GlobalID);
-                            }
+                                logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToXml");
+                            });
                         }
 
                         string parseSQL = DatabaseMapper.Find(statementMap, dynamicObject);
@@ -2805,17 +2575,10 @@ TransactionException:
                             if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                             {
                                 string logData = $"SQLID: {SQLID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
-                                if (ModuleConfiguration.IsLogServer == true)
+                                loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLToXml", (string error) =>
                                 {
-                                    loggerClient.ProgramMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLToXml", (string error) =>
-                                    {
-                                        logger.Information("[{LogCategory}] " + "fallback error: " + error + ", empty SQL passing" + logData, "QueryDataClient/ExecuteDynamicSQLMapToXml");
-                                    });
-                                }
-                                else
-                                {
-                                    logger.Information("[{LogCategory}] [{GlobalID}] empty SQL passing" + logData, "QueryDataClient/ExecuteDynamicSQLMapToXml", request.GlobalID);
-                                }
+                                    logger.Information("[{LogCategory}] " + "fallback error: " + error + ", empty SQL passing" + logData, "QueryDataClient/ExecuteDynamicSQLMapToXml");
+                                });
                             }
 
                             continue;
@@ -2824,17 +2587,10 @@ TransactionException:
                         if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                         {
                             string logData = $"SQLID: {SQLID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
-                            if (ModuleConfiguration.IsLogServer == true)
+                            loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMapToXml", (string error) =>
                             {
-                                loggerClient.ProgramMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMapToXml", (string error) =>
-                                {
-                                    logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToXml");
-                                });
-                            }
-                            else
-                            {
-                                logger.Information("[{LogCategory}] [{GlobalID}] " + logData, "QueryDataClient/ExecuteDynamicSQLMapToXml", request.GlobalID);
-                            }
+                                logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToXml");
+                            });
                         }
 
                         var connection = new ProfilerDbConnection(transactionDynamicObject.Value.ConnectionFactory.Connection, profiler);
@@ -2925,35 +2681,20 @@ TransactionException:
                         if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                         {
                             string logData = $"SQLID: {SQLID}, ExecuteSQL: \n\n{profiler.ExecuteSQL}";
-                            if (ModuleConfiguration.IsLogServer == true)
+                            loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMapToXml", (string error) =>
                             {
-                                loggerClient.ProgramMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMapToXml", (string error) =>
-                                {
-                                    logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToXml");
-                                });
-                            }
-                            else
-                            {
-                                logger.Information("[{LogCategory}] [{GlobalID}] " + logData, "QueryDataClient/ExecuteDynamicSQLMapToXml", request.GlobalID);
-                            }
+                                logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToXml");
+                            });
                         }
                     }
                     catch (Exception exception)
                     {
                         response.ExceptionText = exception.ToMessage();
                         string logData = $"SQLID: {SQLID}, ExceptionText: {response.ExceptionText}, ExecuteSQL: \n\n{profiler.ExecuteSQL}";
-
-                        if (ModuleConfiguration.IsLogServer == true)
+                        loggerClient.TransactionMessageLogging(request.GlobalID, "N", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMapToXml", (string error) =>
                         {
-                            loggerClient.ProgramMessageLogging(request.GlobalID, "N", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMapToXml", (string error) =>
-                            {
-                                logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToXml");
-                            });
-                        }
-                        else
-                        {
-                            logger.Error("[{LogCategory}] [{GlobalID}] " + logData, "QueryDataClient/ExecuteDynamicSQLMapToXml", request.GlobalID);
-                        }
+                            logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToXml");
+                        });
 
                         if (string.IsNullOrEmpty(statementMap.FallbackTransactionCommand) == false)
                         {
@@ -3204,24 +2945,17 @@ TransactionException:
                     }
 
                     string SQLID = queryObject.QueryID + "_" + i.ToString();
-                    ConsoleProfiler profiler = new ConsoleProfiler(request.RequestID, queryObject.QueryID + "_" + i.ToString() + "_statment", ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.TransactionLogFilePath : null);
+                    ConsoleProfiler profiler = new ConsoleProfiler(request.RequestID, queryObject.QueryID + "_" + i.ToString() + "_statment", ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
 
                     try
                     {
                         if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                         {
                             string logData = $"SQLID: {SQLID}, ParseSQL Parameters: {JsonConvert.SerializeObject(queryObject)}";
-                            if (ModuleConfiguration.IsLogServer == true)
+                            loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteCodeHelpSQLMap", (string error) =>
                             {
-                                loggerClient.ProgramMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteCodeHelpSQLMap", (string error) =>
-                                {
-                                    logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteCodeHelpSQLMap");
-                                });
-                            }
-                            else
-                            {
-                                logger.Information("[{LogCategory}] [{GlobalID}] " + logData, "QueryDataClient/ExecuteCodeHelpSQLMap", request.GlobalID);
-                            }
+                                logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteCodeHelpSQLMap");
+                            });
                         }
 
                         string parseSQL = DatabaseMapper.Find(statementMap, queryObject);
@@ -3235,17 +2969,10 @@ TransactionException:
                             if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                             {
                                 string logData = $"SQLID: {SQLID}, ExecuteSQL: \n\n{profiler.ExecuteSQL}";
-                                if (ModuleConfiguration.IsLogServer == true)
+                                loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteCodeHelpSQLMap", (string error) =>
                                 {
-                                    loggerClient.ProgramMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteCodeHelpSQLMap", (string error) =>
-                                    {
-                                        logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteCodeHelpSQLMap");
-                                    });
-                                }
-                                else
-                                {
-                                    logger.Information("[{LogCategory}] [{GlobalID}] " + logData, "QueryDataClient/ExecuteCodeHelpSQLMap", request.GlobalID);
-                                }
+                                    logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteCodeHelpSQLMap");
+                                });
                             }
 
                             using (DataSet? ds = DataTableHelper.DataReaderToDataSet(dataReader))
@@ -3343,18 +3070,10 @@ TransactionException:
                     {
                         response.ExceptionText = exception.ToMessage();
                         string logData = $"SQLID: {SQLID}, ExceptionText: {response.ExceptionText}, ExecuteSQL: \n\n{profiler.ExecuteSQL}";
-
-                        if (ModuleConfiguration.IsLogServer == true)
+                        loggerClient.TransactionMessageLogging(request.GlobalID, "N", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteCodeHelpSQLMap", (string error) =>
                         {
-                            loggerClient.ProgramMessageLogging(request.GlobalID, "N", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteCodeHelpSQLMap", (string error) =>
-                            {
-                                logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteCodeHelpSQLMap");
-                            });
-                        }
-                        else
-                        {
-                            logger.Error("[{LogCategory}] [{GlobalID}] " + logData, "QueryDataClient/ExecuteCodeHelpSQLMap", request.GlobalID);
-                        }
+                            logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteCodeHelpSQLMap");
+                        });
                     }
 
                     if (string.IsNullOrEmpty(response.ExceptionText) == true)
@@ -3563,17 +3282,10 @@ TransactionException:
                     if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                     {
                         string logData = $"Pretreatment {executeDataID}, ParseSQL Parameters: {JsonConvert.SerializeObject(dynamicObject)}";
-                        if (ModuleConfiguration.IsLogServer == true)
+                        loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteSchemeOnlySQLMap", (string error) =>
                         {
-                            loggerClient.ProgramMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteSchemeOnlySQLMap", (string error) =>
-                            {
-                                logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteSchemeOnlySQLMap");
-                            });
-                        }
-                        else
-                        {
-                            logger.Information("[{LogCategory}] [{GlobalID}] " + logData, "QueryDataClient/ExecuteSchemeOnlySQLMap", request.GlobalID);
-                        }
+                            logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteSchemeOnlySQLMap");
+                        });
                     }
 
                     var pretreatment = DatabaseMapper.FindPretreatment(statementMap, dynamicObject);
@@ -3592,20 +3304,13 @@ TransactionException:
                             if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                             {
                                 string logData = $"SQLID: {SQLID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
-                                if (ModuleConfiguration.IsLogServer == true)
+                                loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteSchemeOnlySQLMap", (string error) =>
                                 {
-                                    loggerClient.ProgramMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteSchemeOnlySQLMap", (string error) =>
-                                    {
-                                        logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteSchemeOnlySQLMap");
-                                    });
-                                }
-                                else
-                                {
-                                    logger.Information("[{LogCategory}] [{GlobalID}] " + logData, "QueryDataClient/ExecuteSchemeOnlySQLMap", request.GlobalID);
-                                }
+                                    logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteSchemeOnlySQLMap");
+                                });
                             }
 
-                            ConsoleProfiler pretreatmentProfiler = new ConsoleProfiler(request.RequestID, SQLID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.TransactionLogFilePath : null);
+                            ConsoleProfiler pretreatmentProfiler = new ConsoleProfiler(request.RequestID, SQLID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
                             var pretreatmentConnection = new ProfilerDbConnection(transactionDynamicObject.Value.PretreatmentConnectionFactory?.Connection, pretreatmentProfiler);
 
                             try
@@ -3712,34 +3417,19 @@ TransactionException:
                                 string logData = $"SQLID: {SQLID}, ExecuteSQL: \n\n{pretreatmentProfiler.ExecuteSQL}";
                                 if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                                 {
-                                    if (ModuleConfiguration.IsLogServer == true)
+                                    loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteSchemeOnlySQLMap", (string error) =>
                                     {
-                                        loggerClient.ProgramMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteSchemeOnlySQLMap", (string error) =>
-                                        {
-                                            logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteSchemeOnlySQLMap");
-                                        });
-                                    }
-                                    else
-                                    {
-                                        logger.Information("[{LogCategory}] [{GlobalID}] " + logData, "QueryDataClient/ExecuteSchemeOnlySQLMap", request.GlobalID);
-                                    }
+                                        logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteSchemeOnlySQLMap");
+                                    });
                                 }
                             }
                             catch (Exception exception)
                             {
                                 response.ExceptionText = $"SQLID: {SQLID}, ExceptionText: {exception.ToMessage()}, ExecuteSQL: \n\n{pretreatmentProfiler.ExecuteSQL}";
-
-                                if (ModuleConfiguration.IsLogServer == true)
+                                loggerClient.TransactionMessageLogging(request.GlobalID, "N", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, response.ExceptionText, "QueryDataClient/ExecuteSchemeOnlySQLMap", (string error) =>
                                 {
-                                    loggerClient.ProgramMessageLogging(request.GlobalID, "N", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, response.ExceptionText, "QueryDataClient/ExecuteSchemeOnlySQLMap", (string error) =>
-                                    {
-                                        logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + response.ExceptionText, "QueryDataClient/ExecuteSchemeOnlySQLMap");
-                                    });
-                                }
-                                else
-                                {
-                                    logger.Error("[{LogCategory}] [{GlobalID}] " + response.ExceptionText, "QueryDataClient/ExecuteSchemeOnlySQLMap", request.GlobalID);
-                                }
+                                    logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + response.ExceptionText, "QueryDataClient/ExecuteSchemeOnlySQLMap");
+                                });
 
                                 isCommandError = true;
                                 goto TransactionException;
@@ -3748,23 +3438,16 @@ TransactionException:
                     }
 
                     SQLID = dynamicObject.QueryID + "_" + i.ToString();
-                    ConsoleProfiler profiler = new ConsoleProfiler(request.RequestID, executeDataID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.TransactionLogFilePath : null);
+                    ConsoleProfiler profiler = new ConsoleProfiler(request.RequestID, executeDataID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
 
                     if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                     {
                         SQLID = dynamicObject.QueryID + "_" + i.ToString();
                         string logData = $"SQLID: {SQLID}, ParseSQL Parameters: {JsonConvert.SerializeObject(dynamicObject)}";
-                        if (ModuleConfiguration.IsLogServer == true)
+                        loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteSchemeOnlySQLMap", (string error) =>
                         {
-                            loggerClient.ProgramMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteSchemeOnlySQLMap", (string error) =>
-                            {
-                                logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteSchemeOnlySQLMap");
-                            });
-                        }
-                        else
-                        {
-                            logger.Information("[{LogCategory}] [{GlobalID}] " + logData, "QueryDataClient/ExecuteSchemeOnlySQLMap", request.GlobalID);
-                        }
+                            logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteSchemeOnlySQLMap");
+                        });
                     }
 
                     string parseSQL = DatabaseMapper.Find(statementMap, dynamicObject);
@@ -4140,17 +3823,10 @@ TransactionException:
                     if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                     {
                         string logData = $"Pretreatment {executeDataID}, ParseSQL Parameters: {JsonConvert.SerializeObject(dynamicObject)}";
-                        if (ModuleConfiguration.IsLogServer == true)
+                        loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLText", (string error) =>
                         {
-                            loggerClient.ProgramMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLText", (string error) =>
-                            {
-                                logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLText");
-                            });
-                        }
-                        else
-                        {
-                            logger.Information("[{LogCategory}] [{GlobalID}] " + logData, "QueryDataClient/ExecuteDynamicSQLText", request.GlobalID);
-                        }
+                            logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLText");
+                        });
                     }
 
                     var pretreatment = DatabaseMapper.FindPretreatment(statementMap, dynamicObject);
@@ -4195,7 +3871,7 @@ TransactionException:
 
                             result.Parameters.Add(pretreatmentSQLID, pretreatmentParametersDictionary);
 
-                            ConsoleProfiler pretreatmentProfiler = new ConsoleProfiler(request.RequestID, pretreatmentSQLID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.TransactionLogFilePath : null);
+                            ConsoleProfiler pretreatmentProfiler = new ConsoleProfiler(request.RequestID, pretreatmentSQLID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
                             var pretreatmentConnection = new ProfilerDbConnection(transactionDynamicObject.Value.PretreatmentConnectionFactory?.Connection, pretreatmentProfiler);
 
                             try
@@ -4321,24 +3997,17 @@ TransactionException:
                     }
 
                     SQLID = executeDataID + "_statement";
-                    ConsoleProfiler profiler = new ConsoleProfiler(request.RequestID, SQLID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.TransactionLogFilePath : null);
+                    ConsoleProfiler profiler = new ConsoleProfiler(request.RequestID, SQLID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
 
                     try
                     {
                         if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                         {
                             string logData = $"SQLID: {SQLID}, ParseSQL Parameters: {JsonConvert.SerializeObject(dynamicObject)}";
-                            if (ModuleConfiguration.IsLogServer == true)
+                            loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLText", (string error) =>
                             {
-                                loggerClient.ProgramMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLText", (string error) =>
-                                {
-                                    logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLText");
-                                });
-                            }
-                            else
-                            {
-                                logger.Information("[{LogCategory}] [{GlobalID}] " + logData, "QueryDataClient/ExecuteDynamicSQLText", request.GlobalID);
-                            }
+                                logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLText");
+                            });
                         }
 
                         string parseSQL = DatabaseMapper.Find(statementMap, dynamicObject);
@@ -5020,47 +4689,6 @@ TransactionException:
                     item.MaxLength
                 );
             }
-        }
-
-        private DataSet DecryptDataSet(DataSet dataSet, List<string> decryptColumns)
-        {
-            try
-            {
-                foreach (DataRow dr in dataSet.Tables[0].Rows)
-                {
-                    foreach (DataColumn dc in dataSet.Tables[0].Columns)
-                    {
-                        if (dc.DataType.ToString() == "System.String")
-                        {
-                            //if (IsDBNull(dr[dc.Caption]))
-                            //{
-                            //}
-                            //else
-                            //{
-                            //    dr[dc.Caption] = obj.DecryptData(dr[dc.Caption]);
-                            //}
-                        }
-                    }
-                }
-            }
-            catch (Exception exception)
-            {
-                string exceptionText = exception.ToMessage();
-
-                if (ModuleConfiguration.IsLogServer == true)
-                {
-                    loggerClient.ProgramMessageLogging("N", GlobalConfiguration.ApplicationID, exceptionText, "QueryDataClient/DecryptDataSet", (string error) =>
-                    {
-                        logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + exceptionText, "QueryDataClient/DecryptDataSet");
-                    });
-                }
-                else
-                {
-                    logger.Error("[{LogCategory}] " + exceptionText, "QueryDataClient/DecryptDataSet");
-                }
-            }
-
-            return dataSet;
         }
 
         private static Tuple<string, DataProviders>? GetConnectionInfomation(QueryObject queryObject, string applicationID, string projectID, string dataSourceID)

@@ -28,6 +28,8 @@ using Newtonsoft.Json;
 using RestSharp;
 
 using Serilog;
+using Serilog.Events;
+using Serilog.Sinks.SystemConsole.Themes;
 
 namespace dbclient
 {
@@ -71,10 +73,21 @@ namespace dbclient
                             ModuleConfiguration.ContractBasePath.Add(GlobalConfiguration.GetBasePath(basePath));
                         }
 
-                        ModuleConfiguration.IsTransactionLogging = string.IsNullOrEmpty(moduleConfig.TransactionLogFilePath) == false;
-                        ModuleConfiguration.TransactionLogFilePath = string.IsNullOrEmpty(moduleConfig.TransactionLogFilePath) == true ? "transaction.log" : new FileInfo(moduleConfig.TransactionLogFilePath).FullName;
-                        ModuleConfiguration.IsProfileLogging = string.IsNullOrEmpty(moduleConfig.ProfileLogFilePath) == false;
+                        ModuleConfiguration.IsTransactionLogging = moduleConfig.IsTransactionLogging;
+                        ModuleConfiguration.ModuleLogFilePath = string.IsNullOrEmpty(moduleConfig.ModuleLogFilePath) == true ? "transaction.log" : new FileInfo(moduleConfig.ModuleLogFilePath).FullName;
+                        if (ModuleConfiguration.IsTransactionLogging == true)
+                        {
+                            var loggerConfiguration = CreateLoggerConfiguration(ModuleConfiguration.ModuleLogFilePath);
+                            ModuleConfiguration.ModuleLogger = loggerConfiguration.CreateLogger();
+                        }
+
+                        ModuleConfiguration.IsProfileLogging = moduleConfig.IsProfileLogging;
                         ModuleConfiguration.ProfileLogFilePath = string.IsNullOrEmpty(moduleConfig.ProfileLogFilePath) == true ? "profile.log" : new FileInfo(moduleConfig.ProfileLogFilePath).FullName;
+                        if (ModuleConfiguration.IsProfileLogging == true)
+                        {
+                            var loggerConfiguration = CreateLoggerConfiguration(ModuleConfiguration.ProfileLogFilePath);
+                            ModuleConfiguration.ProfileLogger = loggerConfiguration.CreateLogger();
+                        }
 
                         ModuleConfiguration.DataSource.Clear();
                         if (moduleConfig.DataSource != null && moduleConfig.DataSource.Count > 0)
@@ -92,15 +105,6 @@ namespace dbclient
                                     Comment = item.Comment
                                 });
                             }
-                        }
-
-                        if (string.IsNullOrEmpty(ModuleConfiguration.ProfileLogFilePath) != true)
-                        {
-                            FileInfo fileInfo = new FileInfo(ModuleConfiguration.ProfileLogFilePath);
-                            // Logger.LoggerHandlerManager
-                            //     .AddHandler(new ConsoleLoggerHandler())
-                            //     .AddHandler(new FileLoggerHandler(fileInfo.Name, fileInfo.DirectoryName))
-                            //     .AddHandler(new DebugConsoleLoggerHandler());
                         }
 
                         ModuleConfiguration.IsConfigure = true;
@@ -158,20 +162,49 @@ namespace dbclient
 
                 DatabaseMapper.LoadContract(environment.EnvironmentName, Log.Logger, configuration);
 
-                //services.AddMvc().AddMvcOptions(option =>
-                //{
-                //    option.InputFormatters.Add(new RawRequestBodyFormatter(Log.Logger));
-                //})
-                //.AddJsonOptions(jsonOptions =>
-                //{
-                //    jsonOptions.JsonSerializerOptions.PropertyNamingPolicy = null;
-                //});
-
-                services.AddSingleton(new DbClientLoggerClient(Log.Logger));
+                services.AddSingleton(new DbClientLoggerClient(Log.Logger, ModuleConfiguration.ModuleLogger));
                 services.AddTransient<IQueryDataClient, QueryDataClient>();
 
                 services.AddTransient<IRequestHandler<DbClientRequest, object?>, DbClientRequestHandler>();
             }
+        }
+
+        private static LoggerConfiguration CreateLoggerConfiguration(string logFilePath)
+        {
+            FileInfo fileInfo = new FileInfo(logFilePath);
+            if (string.IsNullOrEmpty(fileInfo.DirectoryName) == false)
+            {
+                if (fileInfo.Directory == null || fileInfo.Directory.Exists == false)
+                {
+                    Directory.CreateDirectory(fileInfo.DirectoryName);
+                }
+
+                if (string.IsNullOrEmpty(GlobalConfiguration.ProcessName) == true)
+                {
+                    logFilePath = fileInfo.FullName;
+                }
+                else
+                {
+                    logFilePath = Path.Combine(fileInfo.DirectoryName, GlobalConfiguration.ProcessName + "_" + fileInfo.Name);
+                }
+            }
+
+            var loggerConfiguration = new LoggerConfiguration()
+                .Enrich.FromLogContext()
+                .MinimumLevel.Override("Microsoft", LogEventLevel.Error)
+                .MinimumLevel.Override("System", LogEventLevel.Error)
+                .WriteTo.Console(
+                    outputTemplate: "[{Timestamp:HH:mm:ss.fff} {Level:u3}] {Message:lj}{NewLine}{Exception}",
+                    theme: AnsiConsoleTheme.Code)
+                .WriteTo.File(
+                    path: logFilePath,
+                    outputTemplate: "[{Timestamp:HH:mm:ss.fff} {Level:u3}] {Message:lj}{NewLine}{Exception}",
+                    fileSizeLimitBytes: 104857600,
+                    rollOnFileSizeLimit: true,
+                    rollingInterval: RollingInterval.Day,
+                    flushToDiskInterval: TimeSpan.FromSeconds(3),
+                    shared: true);
+            return loggerConfiguration;
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment? environment, ICorsService corsService, ICorsPolicyProvider corsPolicyProvider)

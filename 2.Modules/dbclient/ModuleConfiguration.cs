@@ -4,6 +4,8 @@ using dbclient.Extensions;
 
 using HandStack.Web.Entity;
 
+using Serilog;
+
 namespace dbclient
 {
     public static class ModuleConfiguration
@@ -18,7 +20,7 @@ namespace dbclient
         public static List<FileSyncManager> SQLFileSyncManager = new List<FileSyncManager>();
         public static string BusinessServerUrl = "";
         public static bool IsTransactionLogging = false;
-        public static string TransactionLogFilePath = "";
+        public static string ModuleLogFilePath = "";
         public static bool IsProfileLogging = false;
         public static string ProfileLogFilePath = "";
         public static int CircuitBreakResetSecond = 60;
@@ -28,5 +30,7 @@ namespace dbclient
         public static int DefaultCommandTimeout = 30;
         public static bool IsApiFindServer = false;
         public static List<DataSource> DataSource = new List<DataSource>();
+        public static ILogger? ModuleLogger = null;
+        public static ILogger? ProfileLogger = null;
     }
 }

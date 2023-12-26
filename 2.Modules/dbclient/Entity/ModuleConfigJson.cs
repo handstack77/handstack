@@ -37,7 +37,7 @@ namespace dbclient.Entity
 
         public bool IsTransactionLogging { get; set; }
 
-        public string TransactionLogFilePath { get; set; }
+        public string ModuleLogFilePath { get; set; }
 
         public int TransactionLogFileSizeLimitBytes { get; set; }
 
@@ -61,7 +61,7 @@ namespace dbclient.Entity
             LogServerUrl = "";
             ContractBasePath = new List<string>();
             IsTransactionLogging = false;
-            TransactionLogFilePath = "";
+            ModuleLogFilePath = "";
             TransactionLogFileSizeLimitBytes = 104857600;
             TransactionLogMaxRollingFiles = 30;
             IsProfileLogging = false;

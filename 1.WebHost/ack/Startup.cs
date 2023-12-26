@@ -177,7 +177,7 @@ namespace ack
             TransactionConfig.Program.InstallType = appSettings["InstallType"].ToStringSafe();
             TransactionConfig.Program.ProgramVersion = GlobalConfiguration.ApplicationVersion;
             TransactionConfig.Program.ProgramName = GlobalConfiguration.ApplicationName;
-            TransactionConfig.Program.ClientTokenID = string.IsNullOrEmpty(GlobalConfiguration.ProcessID) == true ? Guid.NewGuid().ToString("N").Substring(0, 6) : GlobalConfiguration.ProcessID;
+            TransactionConfig.Program.ClientTokenID = string.IsNullOrEmpty(GlobalConfiguration.ProcessID) == true ? Guid.NewGuid().ToString("N").Substring(0, 6) : GlobalConfiguration.ProcessID.PadLeft(6, '0');
             TransactionConfig.Transaction.SystemID = GlobalConfiguration.SystemID;
             TransactionConfig.Transaction.MachineName = GlobalConfiguration.HostName;
             TransactionConfig.Transaction.RunningEnvironment = GlobalConfiguration.RunningEnvironment;

@@ -6,14 +6,14 @@
         "ProgramName": "ack",
         "HostName": "HOSTNAME",
         "InstallType": "L",
-        "BusinessServerUrl": "http://localhost:8080/transact/api/transaction/execute",
-        "FindGlobalIDServer": "http://localhost:8080/wwwroot/api/index/create-id",
+        "BusinessServerUrl": "http://localhost:8000/transact/api/transaction/execute",
+        "FindGlobalIDServer": "http://localhost:8000/wwwroot/api/index/create-id",
         "DomainAPIServer": {
             "ServerID": "SERVERD01",
             "ServerType": "D",
             "Protocol": "http",
             "IP": "localhost",
-            "Port": "8080",
+            "Port": "8000",
             "Path": "/api/transaction",
             "ClientIP": "127.0.0.1"
         },
@@ -21,11 +21,11 @@
         "IsTananetFunction": true,
         "IsExceptionDetailText": true,
         "TenantAppRequestPath": "app",
-        "TenantAppBasePath": "C:/home/ack/tenants",
-        "BatchProgramBasePath": "C:/home/ack/batchs",
-        "CreateAppTempPath": "C:/home/ack/tmp/create_apps",
-        "ForbesBasePath": "C:/projects/qcn.qrame/forbes/tenantapps/wwwroot",
-        "LoadModuleBasePath": "C:/home/ack/modules",
+        "TenantAppBasePath": "C:/home/handstack/tenants",
+        "BatchProgramBasePath": "C:/home/handstack/batchs",
+        "CreateAppTempPath": "C:/home/handstack/tmp/create_apps",
+        "ForbesBasePath": "C:/home/handstack/forbes",
+        "LoadModuleBasePath": "C:/home/handstack/modules",
         "LoadModules": [
             "wwwroot",
             "transact",
@@ -42,9 +42,9 @@
         "UseSameIPProxy": false,
         "WithOrigins": [
             "http://127.0.0.1",
-            "http://127.0.0.1:8080",
+            "http://127.0.0.1:8000",
             "http://localhost",
-            "http://localhost:8080"
+            "http://localhost:8000"
         ],
         "SessionState": {
             "IsSession": true,
@@ -91,7 +91,7 @@
                     "fileSizeLimitBytes": 104857600,
                     "flushToDiskInterval": 3,
                     "outputTemplate": "[{Timestamp:HH:mm:ss.fff} {Level:u3}] {Message:lj}{NewLine}{Exception}",
-                    "path": "C:/home/ack/log/app.log",
+                    "path": "C:/home/handstack/log/app.log",
                     "rollingInterval": "Day",
                     "rollOnFileSizeLimit": true,
                     "shared": true

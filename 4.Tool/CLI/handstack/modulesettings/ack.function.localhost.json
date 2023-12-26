@@ -14,7 +14,7 @@
         "ContractBasePath": [
             "../contracts/function"
         ],
-        "TransactionLogFilePath": "../log/function/transaction.log",
+        "ModuleLogFilePath": "../log/function/module.log",
         "ProfileLogFilePath": "../log/function/profile.log",
         "NodeFunctionConfig": {
             "LocalStoragePath": "../cache/function",

@@ -3,6 +3,8 @@
 using function.Entity;
 using function.Extensions;
 
+using Serilog;
+
 namespace function
 {
     public static class ModuleConfiguration
@@ -32,9 +34,7 @@ namespace function
         public static List<string> CSharpWatchFileNamePatterns = new List<string>();
         public static string BusinessServerUrl = "";
         public static bool IsTransactionLogging = false;
-        public static string TransactionLogFilePath = "";
-        public static bool IsProfileLogging = false;
-        public static string ProfileLogFilePath = "";
+        public static string ModuleLogFilePath = "";
         public static int CircuitBreakResetSecond = 60;
         public static bool IsLogServer = false;
         public static string LogServerUrl = "";
@@ -42,5 +42,6 @@ namespace function
         public static int DefaultCommandTimeout = 30;
         public static bool IsApiFindServer = false;
         public static List<FunctionSource> FunctionSource = new List<FunctionSource>();
+        public static ILogger? ModuleLogger = null;
     }
 }

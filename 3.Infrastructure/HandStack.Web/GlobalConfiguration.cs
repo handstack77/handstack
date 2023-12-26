@@ -55,6 +55,7 @@ namespace HandStack.Web
         public static string HostAccessID = "HANDSTACK_HOSTACCESSID";
         public static string SystemID = "HANDSTACK";
         public static string ProcessID = "";
+        public static string ProcessName = "";
         public static bool UseStaticFilesAuthorize = false;
         public static string ApplicationID = "HDS";
         public static string ApplicationName = "";

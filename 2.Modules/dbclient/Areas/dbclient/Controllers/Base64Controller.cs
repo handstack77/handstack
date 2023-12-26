@@ -50,17 +50,7 @@ namespace dbclient.Areas.dbclient.Controllers
                 catch (Exception exception)
                 {
                     string exceptionText = exception.ToMessage();
-                    if (ModuleConfiguration.IsLogServer == true)
-                    {
-                        loggerClient.ProgramMessageLogging("N", GlobalConfiguration.ApplicationID, exceptionText, "Base64/Encode", (string error) =>
-                        {
-                            logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + exceptionText, "Base64/Encode");
-                        });
-                    }
-                    else
-                    {
-                        logger.Error("[{LogCategory}] " + exceptionText, "Base64/Encode");
-                    }
+                    logger.Error("[{LogCategory}] " + exceptionText, "Base64/Encode");
 
                     result = StatusCode(500, exceptionText);
                 }
@@ -88,17 +78,7 @@ namespace dbclient.Areas.dbclient.Controllers
                 catch (Exception exception)
                 {
                     string exceptionText = exception.ToMessage();
-                    if (ModuleConfiguration.IsLogServer == true)
-                    {
-                        loggerClient.ProgramMessageLogging("N", GlobalConfiguration.ApplicationID, exceptionText, "Base64/Decode", (string error) =>
-                        {
-                            logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + exceptionText, "Base64/Decode");
-                        });
-                    }
-                    else
-                    {
-                        logger.Error("[{LogCategory}] " + exceptionText, "Base64/Decode");
-                    }
+                    logger.Error("[{LogCategory}] " + exceptionText, "Base64/Decode");
 
                     result = StatusCode(500, exceptionText);
                 }

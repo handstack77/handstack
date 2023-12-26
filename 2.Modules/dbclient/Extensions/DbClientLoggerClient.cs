@@ -8,6 +8,8 @@ using HandStack.Web.MessageContract.Message;
 
 using Newtonsoft.Json;
 
+using Org.BouncyCastle.Asn1.Ocsp;
+
 using Polly;
 using Polly.CircuitBreaker;
 
@@ -21,13 +23,16 @@ namespace dbclient.Extensions
 
         private Serilog.ILogger logger { get; }
 
+        private Serilog.ILogger? transactionLogger { get; }
+
         public CircuitBreakerPolicy<RestResponse>? circuitBreakerPolicy = null;
 
         public DateTime? BreakDateTime = DateTime.Now;
 
-        public DbClientLoggerClient(Serilog.ILogger logger)
+        public DbClientLoggerClient(Serilog.ILogger logger, Serilog.ILogger? transactionLogger = null)
         {
             this.logger = logger;
+            this.transactionLogger = transactionLogger;
 
             circuitBreakerPolicy = Policy
                 .HandleResult<RestResponse>(x =>
@@ -143,33 +148,6 @@ namespace dbclient.Extensions
             return result;
         }
 
-        public void ProgramMessageLogging(string acknowledge, string applicationID, string message, string properties, Action<string> fallbackFunction)
-        {
-            LogMessage logMessage = new LogMessage();
-            logMessage.ServerID = GlobalConfiguration.HostName;
-            logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
-            logMessage.ProgramName = ModuleConfiguration.ModuleID;
-            logMessage.GlobalID = "";
-            logMessage.Acknowledge = string.IsNullOrEmpty(acknowledge) == true ? "N" : acknowledge;
-            logMessage.ApplicationID = string.IsNullOrEmpty(applicationID) == true ? GlobalConfiguration.ApplicationID : applicationID;
-            logMessage.ProjectID = "";
-            logMessage.TransactionID = "";
-            logMessage.ServiceID = "";
-            logMessage.Type = "A";
-            logMessage.Flow = "N";
-            logMessage.Level = "V";
-            logMessage.Format = "P";
-            logMessage.Message = message;
-            logMessage.Properties = properties;
-            logMessage.UserID = "";
-
-            LogRequest logRequest = new LogRequest();
-            logRequest.LogMessage = logMessage;
-            logRequest.FallbackFunction = fallbackFunction;
-
-            Task.Run(() => { BackgroundTask(logRequest); });
-        }
-
         public void ProgramMessageLogging(string globalID, string acknowledge, string applicationID, string message, string properties, Action<string> fallbackFunction)
         {
             LogMessage logMessage = new LogMessage();
@@ -197,65 +175,45 @@ namespace dbclient.Extensions
             Task.Run(() => { BackgroundTask(logRequest); });
         }
 
-        public void ProgramMessageLogging(string globalID, string acknowledge, string applicationID, string projectID, string transactionID, string serviceID, string level, string userID, string message, string properties, Action<string> fallbackFunction)
+        public void TransactionMessageLogging(string globalID, string acknowledge, string applicationID, string projectID, string transactionID, string serviceID, string message, string properties, Action<string> fallbackFunction)
         {
             LogMessage logMessage = new LogMessage();
-            logMessage.ServerID = GlobalConfiguration.HostName;
-            logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
-            logMessage.ProgramName = ModuleConfiguration.ModuleID;
-            logMessage.GlobalID = globalID;
-            logMessage.Acknowledge = acknowledge;
-            logMessage.ApplicationID = applicationID;
-            logMessage.ProjectID = projectID;
-            logMessage.TransactionID = transactionID;
-            logMessage.ServiceID = serviceID;
-            logMessage.Type = "A";
-            logMessage.Flow = "N";
-            logMessage.Level = level;
-            logMessage.Format = "P";
-            logMessage.Message = message;
-            logMessage.Properties = properties;
-            logMessage.UserID = userID;
+            if (ModuleConfiguration.IsLogServer == true)
+            {
+                logMessage.ServerID = GlobalConfiguration.HostName;
+                logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
+                logMessage.ProgramName = ModuleConfiguration.ModuleID;
+                logMessage.GlobalID = globalID;
+                logMessage.Acknowledge = string.IsNullOrEmpty(acknowledge) == true ? "N" : acknowledge;
+                logMessage.ApplicationID = applicationID;
+                logMessage.ProjectID = projectID;
+                logMessage.TransactionID = transactionID;
+                logMessage.ServiceID = serviceID;
+                logMessage.Type = "A";
+                logMessage.Flow = "N";
+                logMessage.Level = "V";
+                logMessage.Format = "P";
+                logMessage.Message = message;
+                logMessage.Properties = properties;
+                logMessage.UserID = "";
 
-            LogRequest logRequest = new LogRequest();
-            logRequest.LogMessage = logMessage;
-            logRequest.FallbackFunction = fallbackFunction;
+                LogRequest logRequest = new LogRequest();
+                logRequest.LogMessage = logMessage;
+                logRequest.FallbackFunction = fallbackFunction;
 
-            Task.Run(() => { BackgroundTask(logRequest); });
-        }
-
-        public void ProgramMessageLogging(string globalID, string acknowledge, string applicationID, string projectID, string transactionID, string serviceID, string message, string properties, Action<string> fallbackFunction)
-        {
-            LogMessage logMessage = new LogMessage();
-            logMessage.ServerID = GlobalConfiguration.HostName;
-            logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
-            logMessage.ProgramName = ModuleConfiguration.ModuleID;
-            logMessage.GlobalID = globalID;
-            logMessage.Acknowledge = string.IsNullOrEmpty(acknowledge) == true ? "N" : acknowledge;
-            logMessage.ApplicationID = applicationID;
-            logMessage.ProjectID = projectID;
-            logMessage.TransactionID = transactionID;
-            logMessage.ServiceID = serviceID;
-            logMessage.Type = "A";
-            logMessage.Flow = "N";
-            logMessage.Level = "V";
-            logMessage.Format = "P";
-            logMessage.Message = message;
-            logMessage.Properties = properties;
-            logMessage.UserID = "";
-
-            LogRequest logRequest = new LogRequest();
-            logRequest.LogMessage = logMessage;
-            logRequest.FallbackFunction = fallbackFunction;
-
-            Task.Run(() => { BackgroundTask(logRequest); });
+                Task.Run(() => { BackgroundTask(logRequest); });
+            }
+            else
+            {
+                transactionLogger?.Information($"Transaction GlobalID: {globalID}, {JsonConvert.SerializeObject(logMessage)}");
+            }
         }
 
         public void DynamicResponseLogging(string globalID, string acknowledge, string applicationID, string message, string properties, Action<string> fallbackFunction)
         {
+            LogMessage logMessage = new LogMessage();
             if (ModuleConfiguration.IsLogServer == true)
             {
-                LogMessage logMessage = new LogMessage();
                 logMessage.ServerID = GlobalConfiguration.HostName;
                 logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
                 logMessage.ProgramName = ModuleConfiguration.ModuleID;
@@ -281,7 +239,7 @@ namespace dbclient.Extensions
             }
             else
             {
-                logger.Warning($"Response GlobalID: {globalID}, {properties}, {message}");
+                transactionLogger?.Information($"Response GlobalID: {globalID}, {JsonConvert.SerializeObject(logMessage)}");
             }
         }
 
@@ -315,7 +273,7 @@ namespace dbclient.Extensions
             }
             else
             {
-                logger.Warning($"Request GlobalID: {request.GlobalID}, {JsonConvert.SerializeObject(request)}");
+                transactionLogger?.Information($"Request GlobalID: {request.GlobalID}, {JsonConvert.SerializeObject(request)}");
             }
         }
 

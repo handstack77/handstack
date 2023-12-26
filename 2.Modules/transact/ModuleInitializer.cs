@@ -24,6 +24,8 @@ using Newtonsoft.Json;
 using RestSharp;
 
 using Serilog;
+using Serilog.Events;
+using Serilog.Sinks.SystemConsole.Themes;
 
 using transact.Entity;
 using transact.Extensions;
@@ -154,12 +156,45 @@ namespace transact
                 }
 
                 TransactionMapper.LoadContract(environment.EnvironmentName, Log.Logger, configuration);
-
-                //services.AddMvc().AddMvcOptions(option =>
-                //{
-                //    option.InputFormatters.Add(new RawRequestBodyFormatter(Log.Logger));
-                //});
             }
+        }
+
+        private static LoggerConfiguration CreateLoggerConfiguration(string logFilePath)
+        {
+            FileInfo fileInfo = new FileInfo(logFilePath);
+            if (string.IsNullOrEmpty(fileInfo.DirectoryName) == false)
+            {
+                if (fileInfo.Directory == null || fileInfo.Directory.Exists == false)
+                {
+                    Directory.CreateDirectory(fileInfo.DirectoryName);
+                }
+
+                if (string.IsNullOrEmpty(GlobalConfiguration.ProcessName) == true)
+                {
+                    logFilePath = fileInfo.FullName;
+                }
+                else
+                {
+                    logFilePath = Path.Combine(fileInfo.DirectoryName, GlobalConfiguration.ProcessName + "_" + fileInfo.Name);
+                }
+            }
+
+            var loggerConfiguration = new LoggerConfiguration()
+                .Enrich.FromLogContext()
+                .MinimumLevel.Override("Microsoft", LogEventLevel.Error)
+                .MinimumLevel.Override("System", LogEventLevel.Error)
+                .WriteTo.Console(
+                    outputTemplate: "[{Timestamp:HH:mm:ss.fff} {Level:u3}] {Message:lj}{NewLine}{Exception}",
+                    theme: AnsiConsoleTheme.Code)
+                .WriteTo.File(
+                    path: logFilePath,
+                    outputTemplate: "[{Timestamp:HH:mm:ss.fff} {Level:u3}] {Message:lj}{NewLine}{Exception}",
+                    fileSizeLimitBytes: 104857600,
+                    rollOnFileSizeLimit: true,
+                    rollingInterval: RollingInterval.Day,
+                    flushToDiskInterval: TimeSpan.FromSeconds(3),
+                    shared: true);
+            return loggerConfiguration;
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment? environment, ICorsService corsService, ICorsPolicyProvider corsPolicyProvider)

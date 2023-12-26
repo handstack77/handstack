@@ -339,7 +339,7 @@ namespace function.DataClient
                             if (ModuleConfiguration.IsTransactionLogging == true || moduleScriptMap.TransactionLog == true)
                             {
                                 string requestData = $"ProgramPath: {programPath}, Arguments: {jsonArguments}";
-                                loggerClient.ProgramMessageLogging(request.GlobalID, "Y", GlobalConfiguration.ApplicationID, requestData, "FunctionClient/InvokeFromFileAsync ReturnType: " + request.ReturnType.ToString(), (string error) =>
+                                loggerClient.TransactionMessageLogging(request.GlobalID, "Y", moduleScriptMap.ApplicationID, moduleScriptMap.ProjectID, moduleScriptMap.TransactionID, moduleScriptMap.ScriptID, requestData, "FunctionClient/InvokeFromFileAsync ReturnType: " + request.ReturnType.ToString(), (string error) =>
                                 {
                                     logger.Warning("[{LogCategory}] [{GlobalID}] " + $"Request JSON: {requestData}", "FunctionClient/InvokeFromFileAsync", response.CorrelationID);
                                 });
@@ -377,25 +377,18 @@ namespace function.DataClient
                                 }
                             }
                         }
-                        catch (ConnectionException exception)
-                        {
-                            response.ExceptionText = $"GlobalID: {request.GlobalID}, QueryID: {queryObject.QueryID}, ConnectionException: '{exception.ToMessage()}'";
-                        }
-                        catch (InvocationException exception)
-                        {
-                            response.ExceptionText = $"GlobalID: {request.GlobalID}, QueryID: {queryObject.QueryID}, InvocationException: '{exception.ToMessage()}'";
-                        }
-                        catch (ObjectDisposedException exception)
-                        {
-                            response.ExceptionText = $"GlobalID: {request.GlobalID}, QueryID: {queryObject.QueryID}, ObjectDisposedException: '{exception.ToMessage()}'";
-                        }
-                        catch (OperationCanceledException exception)
-                        {
-                            response.ExceptionText = $"GlobalID: {request.GlobalID}, QueryID: {queryObject.QueryID}, OperationCanceledException: '{exception.ToMessage()}'";
-                        }
                         catch (Exception exception)
                         {
                             response.ExceptionText = $"GlobalID: {request.GlobalID}, QueryID: {queryObject.QueryID}, Exception: '{exception.ToMessage()}'";
+
+                            if (ModuleConfiguration.IsTransactionLogging == true || moduleScriptMap.TransactionLog == true)
+                            {
+                                string requestData = $"ProgramPath: {programPath}, Arguments: {jsonArguments}";
+                                loggerClient.TransactionMessageLogging(request.GlobalID, "N", moduleScriptMap.ApplicationID, moduleScriptMap.ProjectID, moduleScriptMap.TransactionID, moduleScriptMap.ScriptID, requestData, "FunctionClient/InvokeFromFileAsync ReturnType: " + request.ReturnType.ToString(), (string error) =>
+                                {
+                                    logger.Warning("[{LogCategory}] [{GlobalID}] " + $"Request JSON: {requestData}, ExceptionText: {response.ExceptionText}", "FunctionClient/InvokeFromFileAsync", response.CorrelationID);
+                                });
+                            }
                         }
                     }
                     else if (moduleScriptMap.LanguageType == "csharp")
@@ -403,6 +396,16 @@ namespace function.DataClient
                         try
                         {
                             arguments = listParams.ToArray();
+
+                            if (ModuleConfiguration.IsTransactionLogging == true || moduleScriptMap.TransactionLog == true)
+                            {
+                                string requestData = $"ProgramPath: {programPath}, Arguments: {jsonArguments}";
+                                loggerClient.TransactionMessageLogging(request.GlobalID, "Y", moduleScriptMap.ApplicationID, moduleScriptMap.ProjectID, moduleScriptMap.TransactionID, moduleScriptMap.ScriptID, requestData, "FunctionClient/InvokeFromFileAsync ReturnType: " + request.ReturnType.ToString(), (string error) =>
+                                {
+                                    logger.Warning("[{LogCategory}] [{GlobalID}] " + $"Request JSON: {requestData}", "FunctionClient/InvokeFromFileAsync", response.CorrelationID);
+                                });
+                            }
+
                             if (string.IsNullOrEmpty(moduleScriptMap.EntryType) == true || string.IsNullOrEmpty(moduleScriptMap.EntryMethod) == true)
                             {
                                 response.ExceptionText = $"GlobalID: {request.GlobalID}, QueryID: {queryObject.QueryID}, Exception: EntryType, EntryMethod 확인 필요";
@@ -418,6 +421,15 @@ namespace function.DataClient
                         catch (Exception exception)
                         {
                             response.ExceptionText = $"GlobalID: {request.GlobalID}, QueryID: {queryObject.QueryID}, Exception: '{exception.ToMessage()}'";
+
+                            if (ModuleConfiguration.IsTransactionLogging == true || moduleScriptMap.TransactionLog == true)
+                            {
+                                string requestData = $"ProgramPath: {programPath}, Arguments: {jsonArguments}";
+                                loggerClient.TransactionMessageLogging(request.GlobalID, "N", moduleScriptMap.ApplicationID, moduleScriptMap.ProjectID, moduleScriptMap.TransactionID, moduleScriptMap.ScriptID, requestData, "FunctionClient/InvokeFromFileAsync ReturnType: " + request.ReturnType.ToString(), (string error) =>
+                                {
+                                    logger.Warning("[{LogCategory}] [{GlobalID}] " + $"Request JSON: {requestData}, ExceptionText: {response.ExceptionText}", "FunctionClient/InvokeFromFileAsync", response.CorrelationID);
+                                });
+                            }
                         }
                     }
                     else

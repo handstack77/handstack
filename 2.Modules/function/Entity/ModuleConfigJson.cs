@@ -123,15 +123,11 @@ namespace function.Entity
 
         public bool IsTransactionLogging { get; set; }
 
-        public string TransactionLogFilePath { get; set; }
+        public string ModuleLogFilePath { get; set; }
 
         public int TransactionLogFileSizeLimitBytes { get; set; }
 
         public int TransactionLogMaxRollingFiles { get; set; }
-
-        public bool IsProfileLogging { get; set; }
-
-        public string ProfileLogFilePath { get; set; }
 
         public NodeScriptConfig NodeFunctionConfig { get; set; }
 
@@ -151,11 +147,9 @@ namespace function.Entity
             LogServerUrl = "";
             ContractBasePath = new List<string>();
             IsTransactionLogging = false;
-            TransactionLogFilePath = "";
+            ModuleLogFilePath = "";
             TransactionLogFileSizeLimitBytes = 104857600;
             TransactionLogMaxRollingFiles = 30;
-            IsProfileLogging = false;
-            ProfileLogFilePath = "";
             CSharpFunctionConfig = new CSharpScriptConfig();
             NodeFunctionConfig = new NodeScriptConfig();
             FunctionSource = new List<FunctionSource>();
