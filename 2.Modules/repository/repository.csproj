@@ -35,19 +35,19 @@
 
     <ItemGroup>
         <Reference Include="HandStack.Core">
-            <HintPath>..\..\3.Infrastructure\Assemblies\HandStack.Core.dll</HintPath>
+            <HintPath>../../3.Infrastructure/Assemblies/HandStack.Core.dll</HintPath>
         </Reference>
         <Reference Include="HandStack.Web">
-            <HintPath>..\..\3.Infrastructure\Assemblies\HandStack.Web.dll</HintPath>
+            <HintPath>../../3.Infrastructure/Assemblies/HandStack.Web.dll</HintPath>
         </Reference>
         <Reference Include="HandStack.Data">
-            <HintPath>..\..\3.Infrastructure\Assemblies\HandStack.Data.dll</HintPath>
+            <HintPath>../../3.Infrastructure/Assemblies/HandStack.Data.dll</HintPath>
         </Reference>
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="wwwroot\**" />
-        <None Update="wwwroot\**">
+        <None Include="wwwroot/**" />
+        <None Update="wwwroot/**">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <Content Update="module.json">
@@ -57,10 +57,12 @@
     </ItemGroup>
 
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-        <Exec Command="IF NOT EXIST C:/home/handstack/modules/repository mkdir C:\home\handstack\modules\repository&#xD;&#xA;rmdir /s /q $(TargetDir)" />
+        <Exec Condition="'$(OS)'=='Windows_NT'" Command="IF NOT EXIST ..\..\1.WebHost\ack\build\handstack\modules\repository mkdir ..\..\1.WebHost\ack\build\handstack\modules\repository&#xD;&#xA;rmdir /s /q $(TargetDir)" />
+        <Exec Condition="'$(OS)'!='Windows_NT'" Command="if [ ! -d ../../1.WebHost/ack/build/handstack/modules/repository ]; then mkdir ../../1.WebHost/ack/build/handstack/modules/repository fi&#xD;&#xA;rm -rf $(TargetDir)" />
     </Target>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-        <Exec Command="(robocopy $(TargetDir)Contracts C:/home/handstack/contracts /e /copy:dat)&#xD;&#xA;DEL $(TargetDir)HandStack.*&#xD;&#xA;(robocopy $(TargetDir) C:/home/handstack/modules/repository /e /copy:dat) ^&amp; IF %25ERRORLEVEL%25 LEQ 1 exit 0" />
+        <Exec Condition="'$(OS)'=='Windows_NT'" Command="(robocopy $(TargetDir)Contracts ../../1.WebHost/ack/build/handstack/contracts /e /copy:dat)&#xD;&#xA;DEL $(TargetDir)HandStack.*&#xD;&#xA;(robocopy $(TargetDir) ../../1.WebHost/ack/build/handstack/modules/repository /e /copy:dat) ^&amp; IF %25ERRORLEVEL%25 LEQ 1 exit 0" />
+        <Exec Condition="'$(OS)'!='Windows_NT'" Command="(rsync -av --delete $(TargetDir)Contracts ../../1.WebHost/ack/build/handstack/contracts)&#xD;&#xA;rm -f $TargetDir/HandStack.*&#xD;&#xA;(rsync -av --delete $(TargetDir) ../../1.WebHost/ack/build/handstack/modules/repository) ^&amp; if [ $? -le 1 ]; then exit 0 fi" />
     </Target>
 </Project>
