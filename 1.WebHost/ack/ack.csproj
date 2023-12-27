@@ -93,6 +93,6 @@
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
         <Exec Condition="'$(OS)'=='Windows_NT'" Command="(robocopy $(TargetDir) build/handstack/app /e /copy:dat /purge) ^&amp; IF %25ERRORLEVEL%25 LEQ 1 exit 0" />
-        <Exec Condition="'$(OS)'!='Windows_NT'" Command="(rsync -av --delete $(TargetDir) build/handstack/app) ^&amp; if [ $? -le 1 ]; then exit 0 fi" />
+        <Exec Condition="'$(OS)'!='Windows_NT'" Command="(rsync -av --delete $(TargetDir) build/handstack/app)" />
     </Target>
 </Project>

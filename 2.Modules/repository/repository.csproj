@@ -63,6 +63,6 @@
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
         <Exec Condition="'$(OS)'=='Windows_NT'" Command="(robocopy $(TargetDir)Contracts ../../1.WebHost/ack/build/handstack/contracts /e /copy:dat)&#xD;&#xA;DEL $(TargetDir)HandStack.*&#xD;&#xA;(robocopy $(TargetDir) ../../1.WebHost/ack/build/handstack/modules/repository /e /copy:dat) ^&amp; IF %25ERRORLEVEL%25 LEQ 1 exit 0" />
-        <Exec Condition="'$(OS)'!='Windows_NT'" Command="(rsync -av --delete $(TargetDir)Contracts ../../1.WebHost/ack/build/handstack/contracts)&#xD;&#xA;rm -f $TargetDir/HandStack.*&#xD;&#xA;(rsync -av --delete $(TargetDir) ../../1.WebHost/ack/build/handstack/modules/repository) ^&amp; if [ $? -le 1 ]; then exit 0 fi" />
+        <Exec Condition="'$(OS)'!='Windows_NT'" Command="(rsync -av --delete $(TargetDir)Contracts ../../1.WebHost/ack/build/handstack/contracts)&#xD;&#xA;rm -f $TargetDir/HandStack.*&#xD;&#xA;(rsync -av --delete $(TargetDir) ../../1.WebHost/ack/build/handstack/modules/repository)" />
     </Target>
 </Project>
