@@ -14,4 +14,4 @@ if [ ! -d ../../1.WebHost/ack/build/handstack/modules/logger ]; then
 fi
 
 rm -f $TargetDir/HandStack.*
-rsync -av $target_dir ../../1.WebHost/ack/build/handstack/modules/logger
+rsync -avq $target_dir ../../1.WebHost/ack/build/handstack/modules/logger

@@ -14,4 +14,4 @@ if [ ! -d ../../1.WebHost/ack/build/handstack/modules/wwwroot ]; then
 fi
 
 rm -f $TargetDir/HandStack.*
-rsync -av --delete $target_dir ../../1.WebHost/ack/build/handstack/modules/wwwroot
+rsync -avq --delete $target_dir ../../1.WebHost/ack/build/handstack/modules/wwwroot
