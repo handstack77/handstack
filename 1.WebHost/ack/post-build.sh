@@ -13,4 +13,4 @@ if [ ! -d build/handstack/app ]; then
     mkdir -p build/handstack/app
 fi
     
-rsync -av --delete $target_dir build/handstack/app
+rsync -av $target_dir build/handstack/app

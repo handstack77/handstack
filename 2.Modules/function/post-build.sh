@@ -9,10 +9,10 @@ project_dir=${4}
 
 echo "target_dir: $target_dir, configuration_name: $configuration_name, platform_name: $platform_name, project_dir: $project_dir"
 
-if [ ! -d ../../1.WebHost/ack/build/handstack/modules/dbclient ]; then 
-    mkdir -p ../../1.WebHost/ack/build/handstack/modules/dbclient
+if [ ! -d ../../1.WebHost/ack/build/handstack/modules/function ]; then 
+    mkdir -p ../../1.WebHost/ack/build/handstack/modules/function
 fi
 
 rsync -av $(target_dir)Contracts ../../1.WebHost/ack/build/handstack/contracts
 rm -f $TargetDir/HandStack.*
-rsync -av $(target_dir) ../../1.WebHost/ack/build/handstack/modules/dbclient
+rsync -av $(target_dir) ../../1.WebHost/ack/build/handstack/modules/function

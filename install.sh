@@ -1,6 +1,6 @@
 #!/bin/bash
-# chmod +x /home/handstack/start.sh
-# 빌드된 프로그램 기본 디렉토리(/home/handstack)에서 ack 프로그램을 실행
+# chmod +x /home/handstack/install.sh
+# 빌드된 프로그램 기본 디렉토리에서 ack 프로그램을 실행
 
 echo "dotnet 및 node.js 설치 확인 중..."
 if ! dotnet --version | grep -q "^8\.0\."
@@ -65,6 +65,6 @@ if [ -f "$current_path/app/ack.dll" ]; then
         npm install
     fi
 
-    cd $current_path
-    dotnet $current_path/app/ack.dll
+    # cd $current_path
+    # dotnet $current_path/app/ack.dll
 fi

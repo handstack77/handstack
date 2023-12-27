@@ -83,11 +83,11 @@
 
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
         <Exec Condition="'$(OS)'=='Windows_NT'" Command="IF NOT EXIST ..\..\1.WebHost\ack\build\handstack\modules\function mkdir ..\..\1.WebHost\ack\build\handstack\modules\function&#xD;&#xA;rmdir /s /q $(TargetDir)" />
-        <Exec Condition="'$(OS)'!='Windows_NT'" Command="if [ ! -d ../../1.WebHost/ack/build/handstack/modules/function ]; then mkdir -p ../../1.WebHost/ack/build/handstack/modules/function fi&#xD;&#xA;rm -rf $(TargetDir)" />
+        <Exec Condition="'$(OS)'!='Windows_NT'" Command="rm -rf $(TargetDir)" />
     </Target>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
         <Exec Condition="'$(OS)'=='Windows_NT'" Command="(robocopy $(TargetDir)Contracts ../../1.WebHost/ack/build/handstack/contracts /e /copy:dat)&#xD;&#xA;DEL $(TargetDir)HandStack.*&#xD;&#xA;(robocopy $(TargetDir) ../../1.WebHost/ack/build/handstack/modules/function /e /copy:dat) ^&amp; IF %25ERRORLEVEL%25 LEQ 1 exit 0" />
-        <Exec Condition="'$(OS)'!='Windows_NT'" Command="(rsync -av --delete $(TargetDir)Contracts ../../1.WebHost/ack/build/handstack/contracts)&#xD;&#xA;rm -f $TargetDir/HandStack.*&#xD;&#xA;(rsync -av --delete $(TargetDir) ../../1.WebHost/ack/build/handstack/modules/function)" />
+        <Exec Condition="'$(OS)'!='Windows_NT'" Command="$(ProjectDir)post-build.sh $(TargetDir) $(ConfigurationName) $(PlatformName) $(ProjectDir)" />
     </Target>
 </Project>

@@ -1,7 +1,7 @@
 @echo off
 chcp 65001
 
-REM 빌드된 프로그램 기본 디렉토리(C:/home/handstack)에서 ack 프로그램을 실행
+REM 빌드된 프로그램 기본 디렉토리에서 ack 프로그램을 실행
 
 echo winget 설치 확인 중...
 where winget.exe >nul 2>nul
@@ -65,6 +65,6 @@ if exist %current_path%/app/ack.dll (
 		call npm install
 	)
 
-	cd %current_path%
-	call dotnet %current_path%/app/ack.dll
+	REM cd %current_path%
+	REM call dotnet %current_path%/app/ack.dll
 )
