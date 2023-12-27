@@ -13,6 +13,5 @@ if [ ! -d ../../1.WebHost/ack/build/handstack/modules/logger ]; then
     mkdir -p ../../1.WebHost/ack/build/handstack/modules/logger
 fi
 
-rsync -av "$target_dir"Contracts ../../1.WebHost/ack/build/handstack/contracts
 rm -f $TargetDir/HandStack.*
 rsync -av $target_dir ../../1.WebHost/ack/build/handstack/modules/logger

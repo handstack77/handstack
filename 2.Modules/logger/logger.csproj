@@ -8,6 +8,7 @@
         <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
         <BaseOutputPath></BaseOutputPath>
         <OutputType>Library</OutputType>
+        <NoWarn>ASP0023</NoWarn>
     </PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -76,7 +77,7 @@
     </Target>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-        <Exec Condition="'$(OS)'=='Windows_NT'" Command="(robocopy $(TargetDir)Contracts ../../1.WebHost/ack/build/handstack/contracts /e /copy:dat)&#xD;&#xA;DEL $(TargetDir)HandStack.*&#xD;&#xA;(robocopy $(TargetDir) ../../1.WebHost/ack/build/handstack/modules/logger /e /copy:dat) ^&amp; IF %25ERRORLEVEL%25 LEQ 1 exit 0" />
+        <Exec Condition="'$(OS)'=='Windows_NT'" Command="DEL $(TargetDir)HandStack.*&#xD;&#xA;(robocopy $(TargetDir) ../../1.WebHost/ack/build/handstack/modules/logger /e /copy:dat) ^&amp; IF %25ERRORLEVEL%25 LEQ 1 exit 0" />
         <Exec Condition="'$(OS)'!='Windows_NT'" Command="$(ProjectDir)post-build.sh $(TargetDir) $(ConfigurationName) $(PlatformName) $(ProjectDir)" />
     </Target>
 </Project>

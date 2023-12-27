@@ -8,6 +8,7 @@
         <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
         <BaseOutputPath></BaseOutputPath>
         <OutputType>Library</OutputType>
+        <NoWarn>ASP0023</NoWarn>
     </PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

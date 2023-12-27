@@ -13,6 +13,7 @@
         <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
         <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
         <OutputType>Library</OutputType>
+        <NoWarn>ASP0023</NoWarn>
     </PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
