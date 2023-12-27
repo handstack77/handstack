@@ -9289,7 +9289,7 @@ globalRoot.syn = syn;
                         for (var i = 0; i < module.extends.length; i++) {
                             var name = module.extends[i];
                             var result = await syn.$w.fetchText(name + '.js');
-                            var moduleText = result.substring(result.indexOf('{')).replace(/;\r\n?$/, '');
+                            var moduleText = result.substring(result.indexOf('{')).replace(/;\n?$/, '');
                             var base = eval('(' + moduleText + ')');
 
                             var $base = new syn.module();
