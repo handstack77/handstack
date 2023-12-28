@@ -58,12 +58,12 @@
     </ItemGroup>
 
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-        <Exec Condition="'$(OS)'=='Windows_NT'" Command="if not exist ..\..\1.WebHost\publish\handstack\modules\repository mkdir ..\..\1.WebHost\publish\handstack\modules\repository&#xD;&#xA;rmdir /s /q $(TargetDir)" />
+        <Exec Condition="'$(OS)'=='Windows_NT'" Command="if not exist ..\..\1.WebHost\build\handstack\modules\repository mkdir ..\..\1.WebHost\build\handstack\modules\repository&#xD;&#xA;rmdir /s /q $(TargetDir)" />
         <Exec Condition="'$(OS)'!='Windows_NT'" Command="rm -rf $(TargetDir)" />
     </Target>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-        <Exec Condition="'$(OS)'=='Windows_NT'" Command="(robocopy $(TargetDir)Contracts ../../1.WebHost/publish/handstack/contracts /e /copy:dat)&#xD;&#xA;DEL $(TargetDir)HandStack.*&#xD;&#xA;(robocopy $(TargetDir) ../../1.WebHost/publish/handstack/modules/repository /e /copy:dat) ^&amp; IF %25ERRORLEVEL%25 LEQ 1 exit 0" />
+        <Exec Condition="'$(OS)'=='Windows_NT'" Command="(robocopy $(TargetDir)Contracts ../../1.WebHost/build/handstack/contracts /e /copy:dat)&#xD;&#xA;DEL $(TargetDir)HandStack.*&#xD;&#xA;(robocopy $(TargetDir) ../../1.WebHost/build/handstack/modules/repository /e /copy:dat) ^&amp; IF %25ERRORLEVEL%25 LEQ 1 exit 0" />
         <Exec Condition="'$(OS)'!='Windows_NT'" Command="$(ProjectDir)post-build.sh $(TargetDir) $(ConfigurationName) $(PlatformName) $(ProjectDir)" />
     </Target>
 </Project>
