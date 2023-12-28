@@ -59,10 +59,6 @@ namespace transact.Extensions
             if (fileInfo.Exists == false)
             {
                 SQLiteConnection.CreateFile(logDbFilePath);
-            }
-
-            if (fileInfo.Exists == true)
-            {
                 ExecuteMetaSQL(ReturnType.NonQuery, result, "TAG.TAG010.ZD01");
             }
 

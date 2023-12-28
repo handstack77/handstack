@@ -24,7 +24,7 @@
         "IsCodeDataCache": true,
         "CodeDataCacheTimeout": 20,
         "ModuleBasePath": "../modules/transact",
-        "TransactionLogBasePath": "../log/aggregate",
+        "TransactionLogBasePath": "../sqlite/aggregate",
         "UseApiAuthorize": false,
         "BypassAuthorizeIP": [
             "localhost",
