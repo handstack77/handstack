@@ -24,4 +24,4 @@ dotnet build 2.Modules/logger/logger.csproj --configuration $configuration_mode 
 dotnet build 2.Modules/repository/repository.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/modules/repository
 dotnet build 2.Modules/transact/transact.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/modules/transact
 dotnet build 2.Modules/wwwroot/wwwroot.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/modules/wwwroot
-rsync -avq 1.WebHost/build/handstack/contracts ../publish/$os_mode-$arch_mode/handstack/contracts
+rsync -avq 1.WebHost/build/handstack/contracts/ ../publish/$os_mode-$arch_mode/handstack/contracts
