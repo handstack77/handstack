@@ -49,22 +49,5 @@
         "EncryptionType": "P",
         "EncryptionKey": "G",
         "CompressionYN": "N"
-    },
-    "EnvironmentSetting": {
-        "Application": {
-            "LoaderPath": "/js/syn.domain.js",
-            "IsDebugMode": true,
-            "CodeHelpID": "CHP|CHP010|LD01"
-        },
-        "Cookie": {
-            "CustomCookie1": "ValueCookie1",
-            "CustomCookie2": "ValueCookie2",
-            "CustomCookie3": "ValueCookie3"
-        },
-        "Header": {
-            "CustomHeader1": "ValueHeader1",
-            "CustomHeader2": "ValueHeader2",
-            "CustomHeader3": "ValueHeader3"
-        }
     }
 }

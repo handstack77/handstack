@@ -112,11 +112,11 @@
             {
                 "Endpoint": "*",
                 "Period": "1s",
-                "Limit": 0
+                "Limit": 200
             }
         ],
         "QuotaExceededResponse": {
-            "Content": "서버의 정책에 따라 응답이 제한되었습니다.",
+            "Content": "The response was restricted by the server's policies.",
             "ContentType": "text/html",
             "StatusCode": 429
         }

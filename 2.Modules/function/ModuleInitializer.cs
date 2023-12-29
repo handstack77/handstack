@@ -201,14 +201,68 @@ namespace function
                     nodeEnvironmentVariables.Add("SYN_LogMinimumLevel", ModuleConfiguration.LogMinimumLevel);
                     nodeEnvironmentVariables.Add("SYN_LocalStoragePath", ModuleConfiguration.LocalStoragePath);
 
-                    string synConfigFilePath = Path.Combine(module.BasePath, "syn.config.json");
-                    if (File.Exists(synConfigFilePath) == true)
+                    string nodeConfigFilePath = Path.Combine(module.BasePath, "node.config.json");
+                    if (File.Exists(nodeConfigFilePath) == true)
                     {
-                        nodeEnvironmentVariables.Add("SYN_CONFIG", File.ReadAllText(synConfigFilePath));
+                        nodeEnvironmentVariables.Add("SYN_CONFIG", File.ReadAllText(nodeConfigFilePath));
                     }
                     else
                     {
-                        string defaultEnvironmentVariables = "{\"ApplicationID\":\"HDS\",\"ProjectID\":\"WBD\",\"SystemID\":\"BOP01\",\"TransactionTimeout\":60000,\"IsConfiguration\":false,\"SolutionName\":\"HDS Solution\",\"ProgramName\":\"function\",\"IsDebugMode\":true,\"IsApiFindServer\":false,\"DiscoveryApiServerUrl\":\"http://localhost:8000/api/find\",\"FileManagerUrl\":\"http://localhost:8000/repository/api/storage\",\"FileManagerServer\":\"http://localhost:8000\",\"FileServerType\":\"L\",\"Environment\":\"Development\",\"LocalStoragePath\":\"C:\\\\home\\\\ack\\\\cache\\\\function\",\"LogMinimumLevel\":\"trace\",\"FileLogBasePath\":\"C:\\\\home\\\\ack\\\\log\\\\function\",\"DomainAPIServer\":{\"ServerID\":\"SERVERD01\",\"ServerType\":\"D\",\"Protocol\":\"http\",\"IP\":\"localhost\",\"Port\":\"8080\",\"Path\":\"/api/transaction\",\"ClientIP\":\"127.0.0.1\"},\"IntranetServerIP\":\"127.0.0.1\",\"IntranetServerPort\":\"8080\",\"Program\":{\"ProgramVersion\":\"1.0.0\",\"LanguageID\":\"KO\",\"LocaleID\":\"ko-KR\",\"TerminalBranchCode\":\"\"},\"Transaction\":{\"ProtocolVersion\":\"001\",\"RunningEnvironment\":\"D\",\"DataFormat\":\"J\",\"MachineName\":\"\",\"SystemCode\":\"DTS\",\"SystemID\":\"BOP01\",\"MachineTypeID\":\"SVR\",\"DataEncryptionYN\":\"N\"}}";
+                        string defaultEnvironmentVariables = """
+                        {
+                            "SystemID": "HANDSTACK",
+                            "ApplicationID": "HDS",
+                            "ProjectID": "SYS",
+                            "SystemVersion": "1.0.0",
+                            "TransactionTimeout": 180000,
+                            "IsConfiguration": false,
+                            "HostName": "WebClient",
+                            "SolutionName": "HDS Solution",
+                            "UIEventLogLevel": "Verbose",
+                            "IsLocaleTranslations": true,
+                            "LocaleAssetUrl": "/assets/shared/language/",
+                            "IsClientCaching": true,
+                            "IsDebugMode": false,
+                            "BaseDirectory": "/",
+                            "TenantAppRequestPath": "app",
+                            "SharedAssetUrl": "/assets/shared/",
+                            "IsApiFindServer": false,
+                            "DiscoveryApiServerUrl": "http://localhost:8000/api/find",
+                            "FileManagerServer": "http://localhost:8000",
+                            "FindClientIPServer": "/checkip",
+                            "FindGlobalIDServer": "http://localhost:8000/wwwroot/api/index/create-id",
+                            "FileServerType": "L",
+                            "CookiePrefixName": "HandStack",
+                            "Environment": "Development",
+                            "DomainAPIServer": {
+                                "ServerID": "SERVERD01",
+                                "ServerType": "D",
+                                "Protocol": "http",
+                                "IP": "localhost",
+                                "Port": "8000",
+                                "Path": "/api/transaction",
+                                "ClientIP": "localhost"
+                            },
+                            "IntranetServerIP": "localhost",
+                            "IntranetServerPort": "8000",
+                            "Program": {
+                                "ProgramName": "ack",
+                                "ProgramVersion": "1.0.0",
+                                "LanguageID": "ko",
+                                "LocaleID": "ko-KR",
+                                "BranchCode": ""
+                            },
+                            "Transaction": {
+                                "ProtocolVersion": "001",
+                                "SimulationType": "P",
+                                "DataFormat": "J",
+                                "MachineTypeID": "WEB",
+                                "EncryptionType": "P",
+                                "EncryptionKey": "G",
+                                "CompressionYN": "N"
+                            }
+                        }
+                        """;
                         nodeEnvironmentVariables.Add("SYN_CONFIG", defaultEnvironmentVariables);
                     }
                     options.EnvironmentVariables = nodeEnvironmentVariables;
