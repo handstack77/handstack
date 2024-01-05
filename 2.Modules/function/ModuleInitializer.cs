@@ -275,11 +275,11 @@ namespace function
 
                     if (ModuleConfiguration.ContractBasePath.Count > 0)
                     {
-                        options.EnableFileWatching = false;
+                        options.EnableFileWatching = ModuleConfiguration.EnableFileWatching;
                     }
                     else
                     {
-                        options.EnableFileWatching = ModuleConfiguration.EnableFileWatching;
+                        options.EnableFileWatching = false;
                     }
 
                     options.WatchPath = ModuleConfiguration.ContractBasePath.Count > 0 ? ModuleConfiguration.ContractBasePath[0] : "";
@@ -376,7 +376,7 @@ namespace function
                     var nodeFileSyncManager = new FileSyncManager(nodeContractBasePath, string.Join("|", ModuleConfiguration.WatchFileNamePatterns));
                     nodeFileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
                     {
-                        if (fileInfo.FullName.IndexOf(nodeContractBasePath) > -1 && changeTypes != WatcherChangeTypes.Changed && (fileInfo.Name == "featureMain.js" || fileInfo.Name == "featureMeta.json" || fileInfo.Name == "featureSQL.xml") == true)
+                        if (fileInfo.FullName.IndexOf(nodeContractBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed) && (fileInfo.Name == "featureMain.js" || fileInfo.Name == "featureMeta.json" || fileInfo.Name == "featureSQL.xml") == true)
                         {
                             string filePath = fileInfo.FullName.Replace(nodeContractBasePath, "");
                             string hostUrl = $"http://localhost:{GlobalConfiguration.ServerPort}/function/api/execution/refresh?changeType={changeTypes}&filePath={filePath}";
@@ -410,7 +410,7 @@ namespace function
                     var csharpFileSyncManager = new FileSyncManager(csharpContractBasePath, string.Join("|", ModuleConfiguration.CSharpWatchFileNamePatterns));
                     csharpFileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
                     {
-                        if (fileInfo.FullName.IndexOf(csharpContractBasePath) > -1 && changeTypes != WatcherChangeTypes.Changed && (fileInfo.Name == "featureMain.cs" || fileInfo.Name == "featureMeta.json" || fileInfo.Name == "featureSQL.xml") == true)
+                        if (fileInfo.FullName.IndexOf(csharpContractBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed) && (fileInfo.Name == "featureMain.cs" || fileInfo.Name == "featureMeta.json" || fileInfo.Name == "featureSQL.xml") == true)
                         {
                             string filePath = fileInfo.FullName.Replace(csharpContractBasePath, "");
                             string hostUrl = $"http://localhost:{GlobalConfiguration.ServerPort}/function/api/execution/refresh?changeType={changeTypes}&filePath={filePath}";

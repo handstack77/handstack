@@ -6570,7 +6570,7 @@ globalRoot.syn = syn;
                                         controlType = 'button';
                                         break;
                                     case 'INPUT':
-                                        controlType = synControl.getAttribute('type').toLowerCase();
+                                        controlType = synControl.getAttribute('type') == null ? 'text' : synControl.getAttribute('type').toLowerCase();
                                         switch (controlType) {
                                             case 'hidden':
                                             case 'text':

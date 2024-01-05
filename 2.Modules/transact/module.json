@@ -9,7 +9,7 @@
         "CircuitBreakResetSecond": 60,
         "DefaultCommandTimeout": 180,
         "IsExceptionDetailText": true,
-        "IsValidationRequest": true,
+        "IsValidationRequest": false,
         "IsAllowDynamicRequest": true,
         "IsLogServer": false,
         "IsTransactAggregate": false,

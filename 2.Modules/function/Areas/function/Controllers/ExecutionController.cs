@@ -164,13 +164,16 @@ namespace function.Areas.function.Controllers
 
                     FileInfo fileInfo = new FileInfo(filePath);
 
-                    lock (FunctionMapper.FunctionSourceMappings)
+                    if (filePath.StartsWith(GlobalConfiguration.ApplicationID) == false)
                     {
-                        var functionSourceMappings = FunctionMapper.FunctionSourceMappings.Where(x => x.Key.IndexOf($"{fileInfo.Directory?.Parent?.Parent?.Name}|") > -1).ToList();
-                        for (int i = functionSourceMappings.Count(); i > 0; i--)
+                        lock (FunctionMapper.FunctionSourceMappings)
                         {
-                            var item = functionSourceMappings[i - 1].Key;
-                            FunctionMapper.FunctionSourceMappings.Remove(item);
+                            var functionSourceMappings = FunctionMapper.FunctionSourceMappings.Where(x => x.Key.IndexOf($"{fileInfo.Directory?.Parent?.Parent?.Name}|") > -1).ToList();
+                            for (int i = functionSourceMappings.Count(); i > 0; i--)
+                            {
+                                var item = functionSourceMappings[i - 1].Key;
+                                FunctionMapper.FunctionSourceMappings.Remove(item);
+                            }
                         }
                     }
 
@@ -488,20 +491,6 @@ namespace function.Areas.function.Controllers
                     {
                     }
                 }
-
-                // string validClientTag = ""; // ConfigurationManager.AppSettings["validateClientTag"];
-                // if (string.IsNullOrEmpty(validClientTag) == false)
-                // {
-                //     if (request.ClientTag != validClientTag)
-                //     {
-                //         response.Acknowledge = AcknowledgeType.Failure;
-                //         response.ExceptionText = "알수 없는 요청입니다.";
-                //     }
-                // }
-                // else
-                // {
-                //     dataClient.ExecuteNodeScriptMap(request, response);
-                // }
 
                 switch (request.ReturnType)
                 {

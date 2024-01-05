@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body hidden style="display: none;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div class="page">
+            <div class="page-wrapper">
+                <div class="page-body">
+                    <div class="container-xl">
+                        <div class="row row-cards">
+                            <div class="container-xl">
+                                <div class="col">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h3 class="card-title">Javascript 함수 거래 예제</h3>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <label class="form-label">응답 서버시간</label>
+                                                <input id="txtServerDate" syn-datafield="ServerDate" class="form-control">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">응답 서버명</label>
+                                                <input id="txtServerName" syn-datafield="ServerName" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="card-footer">
+                                            <div class="row align-items-center">
+                                                <div class="col-auto">
+                                                    <button type="button" id="btnSearch" syn-events="['click']" class="btn btn-primary">조회</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

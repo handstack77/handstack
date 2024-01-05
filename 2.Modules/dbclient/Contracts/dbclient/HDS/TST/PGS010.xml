@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+    <header>
+        <application>HDS</application>
+        <project>TST</project>
+        <transaction>PGS010</transaction>
+        <datasource>DB05</datasource>
+        <use>Y</use>
+        <desc>PostgreSQL 거래 테스트</desc>
+    </header>
+    <commands>
+        <statement id="GD01" seq="0" use="Y" timeout="0" desc="데이터베이스 현재 시간 및 서버명 조회" modified="2023-09-25 00:00:00">
+            <![CDATA[
+			SELECT CURRENT_DATE AS "ServerDate", current_database() AS "ServerName";
+			]]>
+        </statement>
+    </commands>
+</mapper>

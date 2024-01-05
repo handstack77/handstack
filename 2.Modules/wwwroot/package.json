@@ -2,7 +2,7 @@
     "name": "wwwroot",
     "version": "1.0.0",
     "description": "HandStack Javascript Library",
-    "author": "junworks77",
+    "author": "handstack77",
     "license": "MIT",
     "devDependencies": {
         "@babel/core": "^7.17.9",

@@ -2,7 +2,7 @@
     "name": "syn",
     "version": "0.0.1",
     "description": "HAND Stack Javascript Library",
-    "author": "junworks77",
+    "author": "handstack77",
     "license": "MIT",
     "devDependencies": {
         "@babel/core": "^7.17.9",

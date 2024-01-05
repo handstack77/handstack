@@ -150,13 +150,16 @@ namespace dbclient.Areas.dbclient.Controllers
                     List<StatementMap> existStatementMaps = new List<StatementMap>();
                     FileInfo fileInfo = new FileInfo(filePath);
 
-                    lock (DatabaseMapper.DataSourceMappings)
+                    if (filePath.StartsWith(GlobalConfiguration.ApplicationID) == false)
                     {
-                        var dataSourceMappings = DatabaseMapper.DataSourceMappings.Where(x => x.Value.ApplicationID == fileInfo.Directory?.Parent?.Name).ToList();
-                        for (int i = dataSourceMappings.Count(); i > 0; i--)
+                        lock (DatabaseMapper.DataSourceMappings)
                         {
-                            var item = dataSourceMappings[i - 1].Key;
-                            DatabaseMapper.DataSourceMappings.Remove(item);
+                            var dataSourceMappings = DatabaseMapper.DataSourceMappings.Where(x => x.Value.ApplicationID == fileInfo.Directory?.Parent?.Name).ToList();
+                            for (int i = dataSourceMappings.Count(); i > 0; i--)
+                            {
+                                var item = dataSourceMappings[i - 1].Key;
+                                DatabaseMapper.DataSourceMappings.Remove(item);
+                            }
                         }
                     }
 

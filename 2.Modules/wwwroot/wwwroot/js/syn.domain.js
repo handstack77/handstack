@@ -1134,11 +1134,11 @@
                         options.minWidth = textWidth;
                     }
 
-                    if (textHeight > (options.minHeight - 160)) {
+                    if (textHeight > (options.minHeight - 200)) {
                         if (textHeight > 600) {
                             textHeight = 600;
                         }
-                        options.minHeight = textHeight + 160;
+                        options.minHeight = textHeight + 200;
                         options.textHeight = textHeight;
                     }
 
@@ -1149,7 +1149,7 @@
             if (options && options.stack) {
                 var elStack = syn.$m.append(el, 'div');
                 var textHeight = options.textHeight ? options.textHeight + 'px' : '100%';
-                syn.$m.addCssText(elStack, 'margin: 15px; height: {0}; overflow: auto; color: #000'.format(textHeight));
+                syn.$m.addCssText(elStack, 'margin: 15px; height: {0}; overflow: auto; color: #000; background-color: #eee;'.format(textHeight));
                 elStack.innerHTML = options.stack.replace(/(\n|\r\n)/gm, '<br />');
             }
 
@@ -1269,10 +1269,6 @@
                     syn.$m.addClass(button3, 'btn-default');
                     syn.$l.addEvent(button3, 'click', buttonCallback);
                 }
-
-                button1 = null;
-                button2 = null;
-                button3 = null;
             }
 
             if (options) {
@@ -1292,12 +1288,6 @@
                 syn.$w.isShowAlert = true;
                 parent.$main.prop.buttonAction = false;
             }
-
-            el = null;
-            elCaption = null;
-            elText = null;
-            elIcon = null;
-            elButtons = null;
         },
 
         showDialog(el, options, callback) {

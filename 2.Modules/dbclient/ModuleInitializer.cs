@@ -250,7 +250,7 @@ namespace dbclient
                     var fileSyncManager = new FileSyncManager(basePath, "*.xml");
                     fileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
                     {
-                        if (fileInfo.FullName.IndexOf(basePath) > -1 && changeTypes != WatcherChangeTypes.Changed && fileInfo.Name != "DataSource.xml")
+                        if (fileInfo.FullName.IndexOf(basePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))
                         {
                             string filePath = fileInfo.FullName.Replace(basePath, "");
                             string hostUrl = $"http://localhost:{GlobalConfiguration.ServerPort}/dbclient/api/query/refresh?changeType={changeTypes}&filePath={filePath}";

@@ -1,12 +1,12 @@
 {
     "Header": {
         "ApplicationID": "HDS",
-        "ProjectID": "ZZD",
-        "TransactionID": "TST010",
-        "DataSourceID": "DB01",
+        "ProjectID": "TST",
+        "TransactionID": "JSF010",
+        "DataSourceID": "FN01",
         "LanguageType": "javascript",
         "Use": true,
-        "Comment": "MSSQL 거래 테스트"
+        "Comment": "Javascript 거래 함수 테스트"
     },
 	"Commands": [
         {
@@ -15,37 +15,20 @@
             "Use": true,
             "Timeout": 0,
             "Comment": "Form 반환 거래 로직",
-            "ModifiedAt": "2023-09-25 00:00:00",
             "Params": [
                 {
-                    "id": "ApplicationID",
+                    "id": "ServerDate",
                     "type": "String",
                     "length": 0,
                     "value": null
                 },
                 {
-                    "id": "CodeGroupID",
+                    "id": "ServerName",
                     "type": "String",
                     "length": 0,
                     "value": null
                 }
             ]
-        },
-		{
-			"ID": "LF01",
-			"Seq": 0,
-			"Use": true,
-			"Timeout": 0,
-			"Comment": "Grid 반환 거래 로직",
-			"ModifiedAt": "2023-09-25 00:00:00",
-			"Params": [
-				{
-					"id": "ApplicationID",
-					"type": "String",
-					"length": 0,
-					"value": null
-				}
-			]
-		}
+        }
 	]
 }

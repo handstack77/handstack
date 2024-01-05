@@ -33,42 +33,6 @@ namespace function.DataClient
 {
     public class FunctionClient : IFunctionClient
     {
-        // using (FunctionClient dynamicDataClient = new FunctionClient())
-        // {
-        //   DynamicRequest dynamicRequest = new DynamicRequest();
-        //   DynamicResponse dynamicResponse = new DynamicResponse();
-        //   List<DynamicObject> dynamicObjects = new List<DynamicObject>();
-        // 
-        //   DynamicObject queryObject = new DynamicObject();
-        //   queryObject.QueryID = "DZAAA001L00"; // HELLOWORLDR01
-        // 
-        //   List<DynamicParameter> parameters = new List<DynamicParameter>();
-        //   parameters.Add("#ApplicationID", 0);
-        //   parameters.Add("@ApplicationID", 0);
-        //   parameters.Add("@BusinessID", 0);
-        //   parameters.Add("@CodeGroupID", "hello world");
-        // 
-        //   // queryObject.Parameters = parameters;
-        //   dynamicObjects.Add(queryObject);
-        // 
-        //   dynamicRequest.DynamicObjects = dynamicObjects;
-        // 
-        //   var dynamicConnection = dynamicDataClient.ExecuteConsoleMap(dynamicRequest, dynamicResponse);
-        //   if (string.IsNullOrEmpty(dynamicResponse.ExceptionText) == true)
-        //   {
-        //     string sql = dynamicConnection.Item1;
-        //     var sqlParameters = dynamicConnection.Item2;
-        //     List<Client> clients = dynamicDataClient.DbConnection.Query<Client>(sql, sqlParameters).AsList();
-        // 
-        //     return clients;
-        //   }
-        //	 var dynamicResult = dynamicDataClient.ExecuteConsoleMap("DZAAA001L00", parameters);
-        //	 if (string.IsNullOrEmpty(dynamicResult.ExceptionText) == true)
-        //	 {
-        //	 	List<DomainClient> clients = dynamicDataClient.DbConnection.Query<DomainClient>(dynamicResult.ParseSQL, dynamicResult.DynamicParameters).AsList();
-        //	 }
-        // }
-
         private readonly IHttpContextAccessor httpContextAccessor;
 
         private INodeJSService nodeJSService { get; }

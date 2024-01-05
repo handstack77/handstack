@@ -531,27 +531,24 @@ namespace function.Extensions
 
                                     lock (ScriptMappings)
                                     {
+                                        if (functionScriptContract.Header.LanguageType == "csharp")
+                                        {
+                                            var runner = Runner.Instance;
+                                            runner.FileAssemblyCache.Remove(functionScriptFile);
+                                        }
+
                                         if (ScriptMappings.ContainsKey(queryID) == false)
                                         {
                                             ScriptMappings.Add(queryID, moduleScriptMap);
                                         }
+                                        else if (forceUpdate == true)
+                                        {
+                                            ScriptMappings.Remove(queryID);
+                                            ScriptMappings.Add(queryID, moduleScriptMap);
+                                        }
                                         else
                                         {
-                                            if (forceUpdate == true)
-                                            {
-                                                ScriptMappings.Remove(queryID);
-                                                ScriptMappings.Add(queryID, moduleScriptMap);
-
-                                                if (functionScriptContract.Header.LanguageType == "csharp")
-                                                {
-                                                    var runner = Runner.Instance;
-                                                    runner.FileAssemblyCache.Remove(functionScriptFile);
-                                                }
-                                            }
-                                            else
-                                            {
-                                                logger.Warning("[{LogCategory}] " + $"ScriptMap 정보 중복 확인 필요 - {filePath}, ApplicationID - {moduleScriptMap.ApplicationID}, ProjectID - {moduleScriptMap.ProjectID}, TransactionID - {moduleScriptMap.TransactionID}, ScriptID - {moduleScriptMap.ScriptID}", "FunctionMapper/AddScriptMap");
-                                            }
+                                            logger.Warning("[{LogCategory}] " + $"ScriptMap 정보 중복 확인 필요 - {filePath}, ApplicationID - {moduleScriptMap.ApplicationID}, ProjectID - {moduleScriptMap.ProjectID}, TransactionID - {moduleScriptMap.TransactionID}, ScriptID - {moduleScriptMap.ScriptID}", "FunctionMapper/AddScriptMap");
                                         }
                                     }
                                 }

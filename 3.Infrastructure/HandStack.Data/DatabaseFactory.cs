@@ -95,25 +95,8 @@ namespace HandStack.Data
                     break;
                 case DataProviders.SQLite:
                     SqlFactory = SQLiteFactory.Instance;
-                    break;
-            }
 
-            connectionProvider = dataProviders;
-            databaseConnection = SqlFactory.CreateConnection();
-            databaseCommand = SqlFactory.CreateCommand();
-            outputCommand = SqlFactory.CreateCommand();
-
-            if (databaseConnection != null && databaseCommand != null && outputCommand != null)
-            {
-                if (dataProviders == DataProviders.Oracle)
-                {
-                    ((OracleCommand)databaseCommand).BindByName = true;
-                    ((OracleCommand)outputCommand).BindByName = true;
-                }
-                else if (dataProviders == DataProviders.SQLite)
-                {
-                    SQLiteConnection sqliteConnection = (SQLiteConnection)databaseConnection;
-                    var items = ConnectionString.Split(";");
+                    var items = connectionString.Split(";");
                     foreach (var item in items)
                     {
                         if (string.IsNullOrEmpty(item) == false)
@@ -138,6 +121,20 @@ namespace HandStack.Data
                             }
                         }
                     }
+                    break;
+            }
+
+            connectionProvider = dataProviders;
+            databaseConnection = SqlFactory.CreateConnection();
+            databaseCommand = SqlFactory.CreateCommand();
+            outputCommand = SqlFactory.CreateCommand();
+
+            if (databaseConnection != null && databaseCommand != null && outputCommand != null)
+            {
+                if (dataProviders == DataProviders.Oracle)
+                {
+                    ((OracleCommand)databaseCommand).BindByName = true;
+                    ((OracleCommand)outputCommand).BindByName = true;
                 }
 
                 databaseConnection.ConnectionString = ConnectionString;

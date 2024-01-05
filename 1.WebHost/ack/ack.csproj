@@ -21,6 +21,11 @@
         <Optimize>True</Optimize>
     </PropertyGroup>
 
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+        <DebugType>full</DebugType>
+        <Optimize>True</Optimize>
+    </PropertyGroup>
+
     <ItemGroup Label="ack">
         <PackageReference Include="IronSoftware.System.Drawing" Version="2023.10.1" />
         <PackageReference Include="MediatR" Version="12.1.1" />
