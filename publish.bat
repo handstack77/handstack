@@ -30,3 +30,5 @@ dotnet build 2.Modules/repository/repository.csproj --configuration %configurati
 dotnet build 2.Modules/transact/transact.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/transact
 dotnet build 2.Modules/wwwroot/wwwroot.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/wwwroot
 robocopy 1.WebHost/build/handstack/contracts ../publish/%os_mode%-%arch_mode%/handstack/contracts /s /e /copy:dat
+robocopy . ../publish/%os_mode%-%arch_mode%/handstack install.* /copy:dat
+robocopy 2.Modules/function ../publish/%os_mode%-%arch_mode%/handstack package*.* /copy:dat

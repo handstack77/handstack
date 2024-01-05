@@ -49,14 +49,15 @@ echo current_path: %current_path%
 
 if exist %current_path%/app/ack.dll (
 	if not exist %current_path%/node_modules (
-		echo function 모듈 %current_path%/package.json 설치
-		call npm install
+        echo function 모듈 %current_path%/package.json 설치
+        call npm install
+        robocopy %current_path%/app/wwwroot/assets/js node_modules/syn index.js /copy:dat
 	)
 
 	if not exist %current_path%/app/node_modules (
-		echo syn.js 번들링 모듈 %current_path%/app/package.json 설치
-		cd %current_path%/app
-		call npm install
+        echo syn.js 번들링 모듈 %current_path%/app/package.json 설치
+        cd %current_path%/app
+        call npm install
 	)
 
 	if not exist %current_path%/modules/wwwroot/node_modules (

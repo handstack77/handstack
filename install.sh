@@ -51,6 +51,7 @@ if [ -f "$current_path/app/ack.dll" ]; then
     if [ ! -d "$current_path/node_modules" ]; then
         echo "function 모듈 $current_path/package.json 설치"
         npm install
+        rsync -av --progress --exclude='*' --include='index.js' %current_path%/app/wwwroot/assets/js/ node_modules/syn/
     fi
 
     if [ ! -d "$current_path/app/node_modules" ]; then
