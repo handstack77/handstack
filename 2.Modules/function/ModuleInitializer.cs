@@ -230,7 +230,7 @@ namespace function
                             "DiscoveryApiServerUrl": "http://localhost:8000/api/find",
                             "FileManagerServer": "http://localhost:8000",
                             "FindClientIPServer": "/checkip",
-                            "FindGlobalIDServer": "http://localhost:8000/wwwroot/api/index/create-id",
+                            "FindGlobalIDServer": "",
                             "FileServerType": "L",
                             "CookiePrefixName": "HandStack",
                             "Environment": "Development",
