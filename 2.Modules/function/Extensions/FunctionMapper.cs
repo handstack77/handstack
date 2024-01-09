@@ -47,13 +47,28 @@ namespace function.Extensions
 
                 if (result == null)
                 {
-                    string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, applicationID);
+                    string userWorkID = string.Empty;
+                    string appBasePath = string.Empty;
+                    DirectoryInfo baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
+                    var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
+                    foreach (string directory in directories)
+                    {
+                        DirectoryInfo directoryInfo = new DirectoryInfo(directory);
+                        if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
+                        {
+                            appBasePath = directoryInfo.FullName;
+                            userWorkID = (directoryInfo.Parent?.Name).ToStringSafe();
+                            break;
+                        }
+                    }
+
+                    string tenantID = $"{userWorkID}|{applicationID}";
                     if (Directory.Exists(appBasePath) == true)
                     {
                         string settingFilePath = Path.Combine(appBasePath, "settings.json");
-                        if (System.IO.File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(applicationID) == false)
+                        if (File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                         {
-                            string appSettingText = System.IO.File.ReadAllText(settingFilePath);
+                            string appSettingText = File.ReadAllText(settingFilePath);
                             var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
                             if (appSetting != null)
                             {
@@ -156,28 +171,47 @@ namespace function.Extensions
                         }
                     }
 
-                    if (result == null && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(Path.Combine(GlobalConfiguration.TenantAppBasePath, applicationID)) == true)
+                    if (result == null && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
                     {
-                        var scriptMapFile = Path.Combine(GlobalConfiguration.TenantAppBasePath, applicationID, "csharp", "javascript", projectID, transactionID, "featureMeta.json");
-                        if (File.Exists(scriptMapFile) == true)
+                        string userWorkID = string.Empty;
+                        string appBasePath = string.Empty;
+                        DirectoryInfo baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
+                        var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
+                        foreach (string directory in directories)
                         {
-                            filePath = scriptMapFile;
+                            DirectoryInfo directoryInfo = new DirectoryInfo(directory);
+                            if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
+                            {
+                                appBasePath = directoryInfo.FullName;
+                                userWorkID = (directoryInfo.Parent?.Name).ToStringSafe();
+                                break;
+                            }
                         }
-                        else
+
+                        if (string.IsNullOrEmpty(appBasePath) == false)
                         {
-                            scriptMapFile = Path.Combine(GlobalConfiguration.TenantAppBasePath, applicationID, "function", "javascript", projectID, transactionID, "featureMeta.json");
+                            string tenantID = $"{userWorkID}|{applicationID}";
+                            var scriptMapFile = Path.Combine(appBasePath, "csharp", "javascript", projectID, transactionID, "featureMeta.json");
                             if (File.Exists(scriptMapFile) == true)
                             {
                                 filePath = scriptMapFile;
                             }
-                        }
+                            else
+                            {
+                                scriptMapFile = Path.Combine(appBasePath, "function", "javascript", projectID, transactionID, "featureMeta.json");
+                                if (File.Exists(scriptMapFile) == true)
+                                {
+                                    filePath = scriptMapFile;
+                                }
+                            }
 
-                        if (File.Exists(filePath) == true)
-                        {
-                            MergeContractFile(filePath);
-                        }
+                            if (File.Exists(filePath) == true)
+                            {
+                                MergeContractFile(filePath);
+                            }
 
-                        result = ScriptMappings.FirstOrDefault(item => item.Key == queryID).Value;
+                            result = ScriptMappings.FirstOrDefault(item => item.Key == queryID).Value;
+                        }
                     }
                 }
             }
@@ -194,7 +228,7 @@ namespace function.Extensions
                         return;
                     }
 
-                    if (scriptMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && GlobalConfiguration.IsTananetFunction == false)
+                    if (scriptMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && GlobalConfiguration.IsTenantFunction == false)
                     {
                         return;
                     }
@@ -405,7 +439,7 @@ namespace function.Extensions
             {
                 foreach (var basePath in ModuleConfiguration.ContractBasePath)
                 {
-                    if (scriptMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && GlobalConfiguration.IsTananetFunction == false)
+                    if (scriptMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && GlobalConfiguration.IsTenantFunction == false)
                     {
                         return result;
                     }
@@ -582,7 +616,7 @@ namespace function.Extensions
 
                 foreach (var basePath in ModuleConfiguration.ContractBasePath)
                 {
-                    if (Directory.Exists(basePath) == false || (basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && GlobalConfiguration.IsTananetFunction == false))
+                    if (Directory.Exists(basePath) == false || (basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && GlobalConfiguration.IsTenantFunction == false))
                     {
                         continue;
                     }

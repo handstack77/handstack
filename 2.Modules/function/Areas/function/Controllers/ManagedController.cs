@@ -68,7 +68,7 @@ namespace function.Areas.function.Controllers
 
         // http://localhost:8000/function/api/managed/reset-app-contract?applicationID=helloworld
         [HttpGet("[action]")]
-        public ActionResult ResetAppContract(string applicationID)
+        public ActionResult ResetAppContract(string userWorkID, string applicationID)
         {
             ActionResult result = BadRequest();
             string? authorizationKey = Request.Headers["AuthorizationKey"];
@@ -98,7 +98,7 @@ namespace function.Areas.function.Controllers
                                 FunctionMapper.ScriptMappings.Remove(item);
                             }
 
-                            var basePath = System.IO.Path.Combine(GlobalConfiguration.TenantAppBasePath, applicationID, "function");
+                            var basePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID, "function");
 
                             if (Directory.Exists(basePath) == false)
                             {

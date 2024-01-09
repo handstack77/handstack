@@ -83,13 +83,28 @@ namespace dbclient.Extensions
                         && string.IsNullOrEmpty(item.Key.TanantPattern) == true
                     ).Value;
 
-                    if (result == null)
+                    if (result == null && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
                     {
-                        string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, applicationID);
-                        string settingFilePath = Path.Combine(appBasePath, "settings.json");
-                        if (System.IO.File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(applicationID) == false)
+                        string userWorkID = string.Empty;
+                        string appBasePath = string.Empty;
+                        DirectoryInfo baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
+                        var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
+                        foreach (string directory in directories)
                         {
-                            string appSettingText = System.IO.File.ReadAllText(settingFilePath);
+                            DirectoryInfo directoryInfo = new DirectoryInfo(directory);
+                            if (baseDirectoryInfo.Name ==  directoryInfo.Parent?.Parent?.Name)
+                            {
+                                appBasePath = directoryInfo.FullName;
+                                userWorkID = (directoryInfo.Parent?.Name).ToStringSafe();
+                                break;
+                            }
+                        }
+
+                        string tenantID = $"{userWorkID}|{applicationID}";
+                        string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                        if (string.IsNullOrEmpty(appBasePath) == false && File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
+                        {
+                            string appSettingText = File.ReadAllText(settingFilePath);
                             var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
                             if (appSetting != null)
                             {
@@ -159,9 +174,25 @@ namespace dbclient.Extensions
                     string projectID = itemKeys[1];
                     string transactionID = itemKeys[2];
 
-                    if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(Path.Combine(GlobalConfiguration.TenantAppBasePath, applicationID)) == true)
+                    string userWorkID = string.Empty;
+                    string appBasePath = string.Empty;
+                    DirectoryInfo baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
+                    var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
+                    foreach (string directory in directories)
                     {
-                        var sqlMapFile = Path.Combine(GlobalConfiguration.TenantAppBasePath, applicationID, "dbclient", projectID, transactionID + ".xml");
+                        DirectoryInfo directoryInfo = new DirectoryInfo(directory);
+                        if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
+                        {
+                            appBasePath = directoryInfo.FullName;
+                            userWorkID = (directoryInfo.Parent?.Name).ToStringSafe();
+                            break;
+                        }
+                    }
+
+                    string tenantID = $"{userWorkID}|{applicationID}";
+                    if (string.IsNullOrEmpty(appBasePath) == false && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(appBasePath) == true)
+                    {
+                        var sqlMapFile = Path.Combine(appBasePath, "dbclient", projectID, transactionID + ".xml");
                         try
                         {
                             if (File.Exists(sqlMapFile) == true)

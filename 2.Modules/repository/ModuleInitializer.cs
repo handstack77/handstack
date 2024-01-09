@@ -139,70 +139,75 @@ namespace repository
 
                 if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(Path.Combine(GlobalConfiguration.TenantAppBasePath)) == true)
                 {
-                    foreach (var appBasePath in Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath))
+                    foreach (var userWorkPath in Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath))
                     {
-                        DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
-                        string applicationID = directoryInfo.Name;
-
-                        string settingFilePath = Path.Combine(appBasePath, "settings.json");
-                        if (System.IO.File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(applicationID) == false)
+                        DirectoryInfo workDirectoryInfo = new DirectoryInfo(userWorkPath);
+                        string userWorkID = workDirectoryInfo.Name;
+                        foreach (var appBasePath in Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath))
                         {
-                            string appSettingText = System.IO.File.ReadAllText(settingFilePath);
-                            var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
-                            if (appSetting != null)
+                            DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
+                            string applicationID = directoryInfo.Name;
+                            string tenantID = $"{userWorkID}|{applicationID}";
+                            string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                            if (File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                             {
-                                var storages = appSetting.Storage;
-                                if (storages != null)
+                                string appSettingText = File.ReadAllText(settingFilePath);
+                                var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
+                                if (appSetting != null)
                                 {
-                                    foreach (var storage in storages)
+                                    var storages = appSetting.Storage;
+                                    if (storages != null)
                                     {
-                                        Repository repository = new Repository();
-
-                                        repository.ApplicationID = storage.ApplicationID;
-                                        repository.RepositoryID = storage.RepositoryID;
-                                        repository.RepositoryName = storage.RepositoryName;
-                                        repository.AccessID = storage.AccessID;
-                                        repository.StorageType = storage.StorageType;
-                                        repository.PhysicalPath = storage.PhysicalPath;
-                                        repository.BlobContainerID = storage.BlobContainerID;
-                                        repository.BlobConnectionString = storage.BlobConnectionString;
-                                        repository.BlobItemUrl = storage.BlobItemUrl;
-                                        repository.IsVirtualPath = storage.IsVirtualPath;
-                                        repository.AccessMethod = storage.AccessMethod;
-                                        repository.IsFileUploadDownloadOnly = storage.IsFileUploadDownloadOnly;
-                                        repository.IsMultiUpload = storage.IsMultiUpload;
-                                        repository.IsFileOverWrite = storage.IsFileOverWrite;
-                                        repository.IsFileNameEncrypt = storage.IsFileNameEncrypt;
-                                        repository.IsKeepFileExtension = storage.IsKeepFileExtension;
-                                        repository.IsAutoPath = storage.IsAutoPath;
-                                        repository.PolicyPathID = storage.PolicyPathID;
-                                        repository.UploadTypeID = storage.UploadTypeID;
-                                        repository.UploadExtensions = storage.UploadExtensions;
-                                        repository.UploadCount = storage.UploadCount;
-                                        repository.UploadSizeLimit = storage.UploadSizeLimit;
-                                        repository.IsLocalDbFileManaged = storage.IsLocalDbFileManaged;
-                                        repository.SQLiteConnectionString = storage.SQLiteConnectionString;
-                                        repository.TransactionGetItem = storage.TransactionGetItem;
-                                        repository.TransactionDeleteItem = storage.TransactionDeleteItem;
-                                        repository.TransactionUpsertItem = storage.TransactionUpsertItem;
-                                        repository.TransactionUpdateDependencyID = storage.TransactionUpdateDependencyID;
-                                        repository.TransactionUpdateFileName = storage.TransactionUpdateFileName;
-                                        repository.Comment = storage.Comment;
-                                        repository.CreatedAt = storage.CreatedAt;
-                                        repository.ModifiedAt = storage.ModifiedAt;
-
-                                        if (ModuleConfiguration.FileRepositorys.Contains(repository) == false)
+                                        foreach (var storage in storages)
                                         {
-                                            if (repository.PhysicalPath.IndexOf("{appBasePath}") == -1)
+                                            Repository repository = new Repository();
+
+                                            repository.ApplicationID = storage.ApplicationID;
+                                            repository.RepositoryID = storage.RepositoryID;
+                                            repository.RepositoryName = storage.RepositoryName;
+                                            repository.AccessID = storage.AccessID;
+                                            repository.StorageType = storage.StorageType;
+                                            repository.PhysicalPath = storage.PhysicalPath;
+                                            repository.BlobContainerID = storage.BlobContainerID;
+                                            repository.BlobConnectionString = storage.BlobConnectionString;
+                                            repository.BlobItemUrl = storage.BlobItemUrl;
+                                            repository.IsVirtualPath = storage.IsVirtualPath;
+                                            repository.AccessMethod = storage.AccessMethod;
+                                            repository.IsFileUploadDownloadOnly = storage.IsFileUploadDownloadOnly;
+                                            repository.IsMultiUpload = storage.IsMultiUpload;
+                                            repository.IsFileOverWrite = storage.IsFileOverWrite;
+                                            repository.IsFileNameEncrypt = storage.IsFileNameEncrypt;
+                                            repository.IsKeepFileExtension = storage.IsKeepFileExtension;
+                                            repository.IsAutoPath = storage.IsAutoPath;
+                                            repository.PolicyPathID = storage.PolicyPathID;
+                                            repository.UploadTypeID = storage.UploadTypeID;
+                                            repository.UploadExtensions = storage.UploadExtensions;
+                                            repository.UploadCount = storage.UploadCount;
+                                            repository.UploadSizeLimit = storage.UploadSizeLimit;
+                                            repository.IsLocalDbFileManaged = storage.IsLocalDbFileManaged;
+                                            repository.SQLiteConnectionString = storage.SQLiteConnectionString;
+                                            repository.TransactionGetItem = storage.TransactionGetItem;
+                                            repository.TransactionDeleteItem = storage.TransactionDeleteItem;
+                                            repository.TransactionUpsertItem = storage.TransactionUpsertItem;
+                                            repository.TransactionUpdateDependencyID = storage.TransactionUpdateDependencyID;
+                                            repository.TransactionUpdateFileName = storage.TransactionUpdateFileName;
+                                            repository.Comment = storage.Comment;
+                                            repository.CreatedAt = storage.CreatedAt;
+                                            repository.ModifiedAt = storage.ModifiedAt;
+
+                                            if (ModuleConfiguration.FileRepositorys.Contains(repository) == false)
                                             {
-                                                repository.PhysicalPath = GlobalConfiguration.GetBasePath(repository.PhysicalPath);
-                                                DirectoryInfo repositoryDirectoryInfo = new DirectoryInfo(repository.PhysicalPath);
-                                                if (repositoryDirectoryInfo.Exists == false)
+                                                if (repository.PhysicalPath.IndexOf("{appBasePath}") == -1)
                                                 {
-                                                    repositoryDirectoryInfo.Create();
+                                                    repository.PhysicalPath = GlobalConfiguration.GetBasePath(repository.PhysicalPath);
+                                                    DirectoryInfo repositoryDirectoryInfo = new DirectoryInfo(repository.PhysicalPath);
+                                                    if (repositoryDirectoryInfo.Exists == false)
+                                                    {
+                                                        repositoryDirectoryInfo.Create();
+                                                    }
                                                 }
+                                                ModuleConfiguration.FileRepositorys.Add(repository);
                                             }
-                                            ModuleConfiguration.FileRepositorys.Add(repository);
                                         }
                                     }
                                 }

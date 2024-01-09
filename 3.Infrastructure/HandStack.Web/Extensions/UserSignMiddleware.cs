@@ -285,14 +285,15 @@ namespace HandStack.Core.Extensions
                         if (requestPath.StartsWith(tenantAppRequestPath) == true)
                         {
                             var splits = requestPath.Split('/');
-                            string applicationID = splits.Length > 2 ? splits[2] : "";
+                            string userWorkID = splits.Length > 3 ? splits[2] : "";
+                            string applicationID = splits.Length > 3 ? splits[3] : "";
                             if (string.IsNullOrEmpty(applicationID) == false)
                             {
-                                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, applicationID);
+                                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                                 DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
                                 if (directoryInfo.Exists == true)
                                 {
-                                    string tenantAppBasePath = $"/{GlobalConfiguration.TenantAppRequestPath}/{applicationID}/";
+                                    string tenantAppBasePath = $"/{GlobalConfiguration.TenantAppRequestPath}/{userWorkID}/{applicationID}/";
                                     unAuthorizedPath = $"{tenantAppBasePath}unauthorized.html";
                                 }
                             }

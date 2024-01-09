@@ -70,7 +70,7 @@ namespace transact.Areas.transact.Controllers
 
         // http://localhost:8000/transact/api/managed/reset-app-contract?applicationID=helloworld
         [HttpGet("[action]")]
-        public ActionResult ResetAppContract(string applicationID)
+        public ActionResult ResetAppContract(string userWorkID, string applicationID)
         {
             ActionResult result = BadRequest();
             string? authorizationKey = Request.Headers["AuthorizationKey"];
@@ -94,7 +94,7 @@ namespace transact.Areas.transact.Controllers
                                 businessContracts.Remove(item);
                             }
 
-                            var basePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, applicationID, "transact");
+                            var basePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID, "transact");
 
                             if (Directory.Exists(basePath) == false)
                             {

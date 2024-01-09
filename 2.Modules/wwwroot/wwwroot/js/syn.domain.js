@@ -1897,7 +1897,7 @@
                             featureID = items[2];
                         }
                         else {
-                            syn.$w.alert(`호스트 앱 환경변수의 코드헬프 값 확인이 필요합니다. '${codeHelpID}'`, '정보');
+                            syn.$w.alert(`태넌트 앱 환경변수의 코드헬프 값 확인이 필요합니다. '${codeHelpID}'`, '정보');
                             return;
                         }
                     }
@@ -2448,6 +2448,7 @@ function domainLibraryLoad() {
         ApplicationID: '',
         ApplicationName: '',
         MemberNo: '',
+        UserWorkID: '',
         ExpiredAt: new Date()
     };
     syn.$w.ManagedApp.ExpiredAt = new Date(syn.$w.ManagedApp.ExpiredAt);

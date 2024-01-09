@@ -342,25 +342,27 @@
 
     var loaderRequest = async function () {
         if (location.pathname.startsWith((synConfig.TenantAppRequestPath ? `/${synConfig.TenantAppRequestPath}/` : '/app/')) == true) {
-            var hostAppName = location.pathname.split('/')[2];
-            var cacheAppConfig = sessionStorage.getItem(`${hostAppName}Config`);
+            var userWorkID = location.pathname.split('/')[2];
+            var applicationID = location.pathname.split('/')[3];
+            var tenantID = `${userWorkID}|${applicationID}`;
+            var cacheAppConfig = sessionStorage.getItem(`${tenantID}Config`);
             if (cacheAppConfig && cacheSynConfig.Environment == 'Production') {
                 window.Configuration = JSON.parse(cacheAppConfig);
                 if (window.Configuration.CreatedAt) {
                     var diffHours = Math.abs(new Date() - new Date(window.Configuration.CreatedAt)) / 3600000;
                     if (diffHours >= 1) {
                         window.Configuration = null;
-                        sessionStorage.removeItem(`${hostAppName}Config`);
+                        sessionStorage.removeItem(`${tenantID}Config`);
                     }
                 }
                 else {
                     window.Configuration = null;
-                    sessionStorage.removeItem(`${hostAppName}Config`);
+                    sessionStorage.removeItem(`${tenantID}Config`);
                 }
             }
 
             if (window.Configuration == null || window.Configuration == undefined) {
-                var appConfigName = `/app/${hostAppName}/app.environment.json`;
+                var appConfigName = `/app/${userWorkID}/${applicationID}/wwwroot/app.environment.json`;
                 var response = await fetch(appConfigName, { cache: 'no-cache' });
                 if (response.status === 200) {
                     window.Configuration = await response.json();
@@ -370,7 +372,7 @@
                     window.Configuration = { Application: {}, Cookie: {}, Header: {}, Definition: { Scripts: [], Styles: [], Controls: [] } };
                 }
 
-                sessionStorage.setItem(`${hostAppName}Config`, JSON.stringify(window.Configuration));
+                sessionStorage.setItem(`${tenantID}Config`, JSON.stringify(window.Configuration));
             }
         }
         else {

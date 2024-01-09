@@ -87,7 +87,7 @@ namespace repository.Extensions
                     var transactionInfo = string.IsNullOrEmpty(repository.TransactionGetItem) == true ? $"{ModuleConfiguration.ApplicationID}|STR|STR010|LD01".Split("|") : repository.TransactionGetItem.Split("|");
                     TransactionClientObject transactionObject = new TransactionClientObject();
                     transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
-                    if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(Path.Combine(GlobalConfiguration.TenantAppBasePath, applicationID)) == true)
+                    if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
                     {
                         if (transactionInfo.Length == 3)
                         {
@@ -98,7 +98,7 @@ namespace repository.Extensions
                         }
                         else
                         {
-                            logger.Error("[{LogCategory}] " + $"호스트 앱 transactionInfo: {transactionInfo} 확인 필요", "FileManagerController/GetRepositoryItem");
+                            logger.Error("[{LogCategory}] " + $"태넌트 앱 transactionInfo: {transactionInfo} 확인 필요", "FileManagerController/GetRepositoryItem");
                             return result;
                         }
                     }
@@ -169,7 +169,7 @@ namespace repository.Extensions
                     var transactionInfo = string.IsNullOrEmpty(repository.TransactionGetItems) == true ? $"{ModuleConfiguration.ApplicationID}|STR|STR010|LD02".Split("|") : repository.TransactionGetItems.Split("|");
                     TransactionClientObject transactionObject = new TransactionClientObject();
                     transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
-                    if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(Path.Combine(GlobalConfiguration.TenantAppBasePath, applicationID)) == true)
+                    if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
                     {
                         if (transactionInfo.Length == 3)
                         {
@@ -180,7 +180,7 @@ namespace repository.Extensions
                         }
                         else
                         {
-                            logger.Error("[{LogCategory}] " + $"호스트 앱 transactionInfo: {transactionInfo} 확인 필요", "FileManagerController/GetRepositoryItems");
+                            logger.Error("[{LogCategory}] " + $"태넌트 앱 transactionInfo: {transactionInfo} 확인 필요", "FileManagerController/GetRepositoryItems");
                             return result;
                         }
                     }
@@ -247,7 +247,7 @@ namespace repository.Extensions
                     var transactionInfo = string.IsNullOrEmpty(repository.TransactionDeleteItem) == true ? $"{ModuleConfiguration.ApplicationID}|STR|STR010|DD01".Split("|") : repository.TransactionDeleteItem.Split("|");
                     TransactionClientObject transactionObject = new TransactionClientObject();
                     transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
-                    if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(Path.Combine(GlobalConfiguration.TenantAppBasePath, applicationID)) == true)
+                    if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
                     {
                         if (transactionInfo.Length == 3)
                         {
@@ -258,7 +258,7 @@ namespace repository.Extensions
                         }
                         else
                         {
-                            logger.Error("[{LogCategory}] " + $"호스트 앱 transactionInfo: {transactionInfo} 확인 필요", "FileManagerController/DeleteRepositoryItem");
+                            logger.Error("[{LogCategory}] " + $"태넌트 앱 transactionInfo: {transactionInfo} 확인 필요", "FileManagerController/DeleteRepositoryItem");
                             return result;
                         }
                     }
@@ -336,7 +336,7 @@ namespace repository.Extensions
                         }
                         else
                         {
-                            logger.Error("[{LogCategory}] " + $"호스트 앱 transactionInfo: {transactionInfo} 확인 필요", "FileManagerController/UpsertRepositoryItem");
+                            logger.Error("[{LogCategory}] " + $"태넌트 앱 transactionInfo: {transactionInfo} 확인 필요", "FileManagerController/UpsertRepositoryItem");
                             return result;
                         }
                     }
@@ -432,7 +432,7 @@ namespace repository.Extensions
                         }
                         else
                         {
-                            logger.Error("[{LogCategory}] " + $"호스트 앱 transactionInfo: {transactionInfo} 확인 필요", "FileManagerController/UpdateDependencyID");
+                            logger.Error("[{LogCategory}] " + $"태넌트 앱 transactionInfo: {transactionInfo} 확인 필요", "FileManagerController/UpdateDependencyID");
                             return result;
                         }
                     }
@@ -512,7 +512,7 @@ namespace repository.Extensions
                         }
                         else
                         {
-                            logger.Error("[{LogCategory}] " + $"호스트 앱 transactionInfo: {transactionInfo} 확인 필요", "FileManagerController/UpdateFileName");
+                            logger.Error("[{LogCategory}] " + $"태넌트 앱 transactionInfo: {transactionInfo} 확인 필요", "FileManagerController/UpdateFileName");
                             return result;
                         }
                     }

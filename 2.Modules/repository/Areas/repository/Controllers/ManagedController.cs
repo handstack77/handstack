@@ -52,17 +52,22 @@ namespace repository.Areas.repository.Controllers
                         {
                             if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(Path.Combine(GlobalConfiguration.TenantAppBasePath)) == true)
                             {
-                                foreach (var appBasePath in Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath))
+                                foreach (var userWorkPath in Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath))
                                 {
-                                    DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
-                                    string applicationID = directoryInfo.Name;
-
-                                    string settingFilePath = Path.Combine(appBasePath, "settings.json");
-                                    if (System.IO.File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(applicationID) == false)
+                                    DirectoryInfo workDirectoryInfo = new DirectoryInfo(userWorkPath);
+                                    string userWorkID = workDirectoryInfo.Name;
+                                    foreach (var appBasePath in Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath))
                                     {
-                                        string appSettingText = System.IO.File.ReadAllText(settingFilePath);
-                                        var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
-                                        TenantAppStorageRefresh(appSetting);
+                                        DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
+                                        string applicationID = directoryInfo.Name;
+                                        string tenantID = $"{userWorkID}|{applicationID}";
+                                        string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                                        if (System.IO.File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
+                                        {
+                                            string appSettingText = System.IO.File.ReadAllText(settingFilePath);
+                                            var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
+                                            TenantAppStorageRefresh(appSetting);
+                                        }
                                     }
                                 }
                             }
@@ -170,7 +175,7 @@ namespace repository.Areas.repository.Controllers
 
         // http://localhost:8000/repository/api/managed/reset-app-contract?applicationID=helloworld
         [HttpGet("[action]")]
-        public ActionResult ResetAppContract(string applicationID)
+        public ActionResult ResetAppContract(string userWorkID, string applicationID)
         {
             ActionResult result = BadRequest();
             string? authorizationKey = Request.Headers["AuthorizationKey"];
@@ -191,11 +196,12 @@ namespace repository.Areas.repository.Controllers
                             ModuleConfiguration.FileRepositorys.Remove(item);
                         }
 
-                        if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(Path.Combine(GlobalConfiguration.TenantAppBasePath, applicationID)) == true)
+                        string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                        if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(appBasePath) == true)
                         {
-                            string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, applicationID);
+                            string tenantID = $"{userWorkID}|{applicationID}";
                             string settingFilePath = Path.Combine(appBasePath, "settings.json");
-                            if (System.IO.File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(applicationID) == false)
+                            if (System.IO.File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                             {
                                 string appSettingText = System.IO.File.ReadAllText(settingFilePath);
                                 var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
@@ -205,7 +211,7 @@ namespace repository.Areas.repository.Controllers
                                 }
                             }
 
-                            var repositoryFile = Path.Combine(GlobalConfiguration.TenantAppBasePath, applicationID, "repository", "storage.json");
+                            var repositoryFile = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID, "repository", "storage.json");
                             try
                             {
                                 if (System.IO.File.Exists(repositoryFile) == true)

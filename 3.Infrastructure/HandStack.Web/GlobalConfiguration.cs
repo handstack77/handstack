@@ -66,7 +66,7 @@ namespace HandStack.Web
         public static string WebRootPath = "";
         public static string BusinessServerUrl = "";
         public static int StaticFileCacheMaxAge = 0;
-        public static bool IsTananetFunction = false;
+        public static bool IsTenantFunction = false;
         public static bool IsExceptionDetailText = false;
         public static string TenantAppRequestPath = "";
         public static string TenantAppBasePath = "";

@@ -1847,7 +1847,22 @@ namespace repository.Controllers
                     string tenantAppRequestPath = $"/{GlobalConfiguration.TenantAppRequestPath}/";
                     if (requestPath.StartsWith(tenantAppRequestPath) == true)
                     {
-                        string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, applicationID);
+                        string userWorkID = string.Empty;
+                        string appBasePath = string.Empty;
+                        DirectoryInfo baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
+                        var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
+                        foreach (string directory in directories)
+                        {
+                            DirectoryInfo directoryInfo = new DirectoryInfo(directory);
+                            if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
+                            {
+                                appBasePath = directoryInfo.FullName;
+                                userWorkID = (directoryInfo.Parent?.Name).ToStringSafe();
+                                break;
+                            }
+                        }
+
+                        string tenantID = $"{userWorkID}|{applicationID}";
                         if (Directory.Exists(appBasePath) == true)
                         {
                             string settingFilePath = Path.Combine(appBasePath, "settings.json");
@@ -1960,7 +1975,22 @@ namespace repository.Controllers
                     string tenantAppRequestPath = $"/{GlobalConfiguration.TenantAppRequestPath}/";
                     if (requestPath.StartsWith(tenantAppRequestPath) == true)
                     {
-                        string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, applicationID);
+                        string userWorkID = string.Empty;
+                        string appBasePath = string.Empty;
+                        DirectoryInfo baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
+                        var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
+                        foreach (string directory in directories)
+                        {
+                            DirectoryInfo directoryInfo = new DirectoryInfo(directory);
+                            if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
+                            {
+                                appBasePath = directoryInfo.FullName;
+                                userWorkID = (directoryInfo.Parent?.Name).ToStringSafe();
+                                break;
+                            }
+                        }
+
+                        string tenantID = $"{userWorkID}|{applicationID}";
                         if (Directory.Exists(appBasePath) == true)
                         {
                             string settingFilePath = Path.Combine(appBasePath, "settings.json");

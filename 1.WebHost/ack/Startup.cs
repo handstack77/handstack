@@ -96,7 +96,7 @@ namespace ack
             GlobalConfiguration.HostAccessID = appSettings["HostAccessID"].ToStringSafe();
             GlobalConfiguration.SystemID = appSettings["SystemID"].ToStringSafe();
             GlobalConfiguration.FindGlobalIDServer = appSettings["FindGlobalIDServer"].ToStringSafe();
-            GlobalConfiguration.IsTananetFunction = bool.Parse(appSettings["IsTananetFunction"].ToStringSafe("false"));
+            GlobalConfiguration.IsTenantFunction = bool.Parse(appSettings["IsTenantFunction"].ToStringSafe("false"));
             GlobalConfiguration.IsExceptionDetailText = bool.Parse(appSettings["IsExceptionDetailText"].ToStringSafe("false"));
             GlobalConfiguration.SessionCookieName = appSettings.GetSection("SessionState").Exists() == true && bool.Parse(appSettings["SessionState:IsSession"].ToStringSafe("false")) == true ? appSettings["SessionState:SessionCookieName"].ToStringSafe("") : "";
             GlobalConfiguration.CookiePrefixName = appSettings["CookiePrefixName"].ToStringSafe("HandStack");
@@ -387,35 +387,41 @@ namespace ack
 
             if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(Path.Combine(GlobalConfiguration.TenantAppBasePath)) == true)
             {
-                foreach (var appBasePath in Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath))
+                foreach (var userWorkPath in Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath))
                 {
-                    DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
-                    if (directoryInfo.Exists == true)
+                    DirectoryInfo workDirectoryInfo = new DirectoryInfo(userWorkPath);
+                    string userWorkID = workDirectoryInfo.Name;
+                    foreach (var appBasePath in Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath))
                     {
-                        string applicationID = directoryInfo.Name;
-
-                        string settingFilePath = Path.Combine(appBasePath, "settings.json");
-                        if (File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(applicationID) == false)
+                        DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
+                        if (directoryInfo.Exists == true)
                         {
-                            string appSettingText = File.ReadAllText(settingFilePath);
-                            var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
-                            if (appSetting != null)
+                            string applicationID = directoryInfo.Name;
+                            string tenantID = $"{userWorkID}|{applicationID}";
+
+                            string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                            if (File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                             {
-                                var withOriginUri = appSetting.WithOrigin;
-                                if (withOriginUri != null)
+                                string appSettingText = File.ReadAllText(settingFilePath);
+                                var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
+                                if (appSetting != null)
                                 {
-                                    services.AddCors(options =>
+                                    var withOriginUri = appSetting.WithOrigin;
+                                    if (withOriginUri != null)
                                     {
-                                        options.AddPolicy(name: applicationID,
-                                        builder => builder
-                                            .AllowAnyHeader()
-                                            .AllowAnyMethod()
-                                            .WithOrigins(withOriginUri.ToArray())
-                                            .SetIsOriginAllowedToAllowWildcardSubdomains()
-                                            .SetPreflightMaxAge(TimeSpan.FromSeconds(86400))
-                                            .WithHeaders(HeaderNames.CacheControl)
-                                        );
-                                    });
+                                        services.AddCors(options =>
+                                        {
+                                            options.AddPolicy(name: tenantID,
+                                            builder => builder
+                                                .AllowAnyHeader()
+                                                .AllowAnyMethod()
+                                                .WithOrigins(withOriginUri.ToArray())
+                                                .SetIsOriginAllowedToAllowWildcardSubdomains()
+                                                .SetPreflightMaxAge(TimeSpan.FromSeconds(86400))
+                                                .WithHeaders(HeaderNames.CacheControl)
+                                            );
+                                        });
+                                    }
                                 }
                             }
                         }

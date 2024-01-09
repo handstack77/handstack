@@ -923,17 +923,18 @@ namespace transact.Areas.transact.Controllers
                         requestSystemID = route.SystemID;
                     }
 
-                    // Referer 실행 경로가 호스트 앱이고 요청 헤더에 Authorization가 있으면 인증 검증
+                    // Referer 실행 경로가 태넌트 앱이고 요청 헤더에 Authorization가 있으면 인증 검증
                     UserAccount? userAccount = null;
                     string requestPath = HttpContext.Request.Headers.Referer.ToString();
                     string tenantAppRequestPath = $"/{GlobalConfiguration.TenantAppRequestPath}/";
                     if (requestPath.StartsWith(tenantAppRequestPath) == true)
                     {
                         var splits = requestPath.Split('/');
-                        string applicationID = splits.Length > 2 ? splits[2] : "";
-                        if (string.IsNullOrEmpty(applicationID) == false)
+                        string userWorkID = splits.Length > 3 ? splits[2] : "";
+                        string applicationID = splits.Length > 3 ? splits[3] : "";
+                        if (string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false)
                         {
-                            string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, applicationID);
+                            string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                             DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
                             if (directoryInfo.Exists == true)
                             {

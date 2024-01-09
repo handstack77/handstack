@@ -39,11 +39,27 @@ namespace transact.Extensions
                     && item.Value.ProjectID == projectID
                     && item.Value.TransactionID == transactionID).Value;
 
-                if (businessContract == null)
+                if (businessContract == null && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
                 {
-                    if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(Path.Combine(GlobalConfiguration.TenantAppBasePath, applicationID)) == true)
+                    string userWorkID = string.Empty;
+                    string appBasePath = string.Empty;
+                    DirectoryInfo baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
+                    var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
+                    foreach (string directory in directories)
                     {
-                        var filePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, applicationID, "transact", projectID, transactionID + ".json");
+                        DirectoryInfo directoryInfo = new DirectoryInfo(directory);
+                        if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
+                        {
+                            appBasePath = directoryInfo.FullName;
+                            userWorkID = (directoryInfo.Parent?.Name).ToStringSafe();
+                            break;
+                        }
+                    }
+
+                    if (string.IsNullOrEmpty(appBasePath) == false)
+                    {
+                        string tenantID = $"{userWorkID}|{applicationID}";
+                        var filePath = Path.Combine(appBasePath, "transact", projectID, transactionID + ".json");
                         if (File.Exists(filePath) == true)
                         {
                             try
@@ -51,14 +67,6 @@ namespace transact.Extensions
                                 businessContract = BusinessContract.FromJson(File.ReadAllText(filePath));
                                 if (businessContract != null)
                                 {
-                                    if (filePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
-                                    {
-                                        FileInfo fileInfo = new FileInfo(filePath);
-                                        businessContract.ApplicationID = string.IsNullOrEmpty(businessContract.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : businessContract.ApplicationID;
-                                        businessContract.ProjectID = string.IsNullOrEmpty(businessContract.ProjectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : businessContract.ProjectID;
-                                        businessContract.TransactionID = string.IsNullOrEmpty(businessContract.TransactionID) == true ? fileInfo.Name.Replace(fileInfo.Extension, "") : businessContract.TransactionID;
-                                    }
-
                                     lock (businessContracts)
                                     {
                                         if (businessContracts.ContainsKey(filePath) == true)
@@ -101,11 +109,26 @@ namespace transact.Extensions
                 {
                     string applicationID = itemKeys[0];
 
-                    if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(Path.Combine(GlobalConfiguration.TenantAppBasePath, applicationID)) == true)
+                    if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
                     {
-                        string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, applicationID);
+                        string userWorkID = string.Empty;
+                        string appBasePath = string.Empty;
+                        DirectoryInfo baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
+                        var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
+                        foreach (string directory in directories)
+                        {
+                            DirectoryInfo directoryInfo = new DirectoryInfo(directory);
+                            if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
+                            {
+                                appBasePath = directoryInfo.FullName;
+                                userWorkID = (directoryInfo.Parent?.Name).ToStringSafe();
+                                break;
+                            }
+                        }
+
+                        string tenantID = $"{userWorkID}|{applicationID}";
                         string settingFilePath = Path.Combine(appBasePath, "settings.json");
-                        if (File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(applicationID) == false)
+                        if (string.IsNullOrEmpty(appBasePath) == false && File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                         {
                             string appSettingText = File.ReadAllText(settingFilePath);
                             var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
@@ -116,10 +139,10 @@ namespace transact.Extensions
                                 {
                                     foreach (var item in routingCommandUri.AsEnumerable())
                                     {
-                                        routeSegmentID = $"{item.ApplicationID}|{item.ProjectID}|{item.CommandType}|{item.Environment}";
-                                        if (ModuleConfiguration.RoutingCommandUri.ContainsKey(routeSegmentID) == false)
+                                        string tenantRouteSegmentID = $"{userWorkID}|{item.ApplicationID}|{item.ProjectID}|{item.CommandType}|{item.Environment}";
+                                        if (ModuleConfiguration.RoutingCommandUri.ContainsKey(tenantRouteSegmentID) == false)
                                         {
-                                            ModuleConfiguration.RoutingCommandUri.Add(routeSegmentID, item.Uri);
+                                            ModuleConfiguration.RoutingCommandUri.Add(tenantRouteSegmentID, item.Uri);
                                         }
                                     }
 
@@ -152,13 +175,28 @@ namespace transact.Extensions
 
             if (result == null)
             {
-                if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(Path.Combine(GlobalConfiguration.TenantAppBasePath, applicationID)) == true)
+                if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
                 {
-                    string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, applicationID);
-                    string settingFilePath = Path.Combine(appBasePath, "settings.json");
-                    if (System.IO.File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(applicationID) == false)
+                    string userWorkID = string.Empty;
+                    string appBasePath = string.Empty;
+                    DirectoryInfo baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
+                    var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
+                    foreach (string directory in directories)
                     {
-                        string appSettingText = System.IO.File.ReadAllText(settingFilePath);
+                        DirectoryInfo directoryInfo = new DirectoryInfo(directory);
+                        if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
+                        {
+                            appBasePath = directoryInfo.FullName;
+                            userWorkID = (directoryInfo.Parent?.Name).ToStringSafe();
+                            break;
+                        }
+                    }
+
+                    string tenantID = $"{userWorkID}|{applicationID}";
+                    string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                    if (string.IsNullOrEmpty(appBasePath) == false && File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
+                    {
+                        string appSettingText = File.ReadAllText(settingFilePath);
                         var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
                         if (appSetting != null)
                         {

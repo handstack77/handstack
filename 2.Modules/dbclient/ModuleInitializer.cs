@@ -125,38 +125,43 @@ namespace dbclient
 
                 if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(Path.Combine(GlobalConfiguration.TenantAppBasePath)) == true)
                 {
-                    foreach (var appBasePath in Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath))
+                    foreach (var userWorkPath in Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath))
                     {
-                        DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
-                        string applicationID = directoryInfo.Name;
-
-                        string settingFilePath = Path.Combine(appBasePath, "settings.json");
-                        if (System.IO.File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(applicationID) == false)
+                        DirectoryInfo workDirectoryInfo = new DirectoryInfo(userWorkPath);
+                        string userWorkID = workDirectoryInfo.Name;
+                        foreach (var appBasePath in Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath))
                         {
-                            string appSettingText = System.IO.File.ReadAllText(settingFilePath);
-                            var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
-                            if (appSetting != null)
+                            DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
+                            string applicationID = directoryInfo.Name;
+                            string tenantID = $"{userWorkID}|{applicationID}";
+                            string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                            if (File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                             {
-                                var dataSourceJson = appSetting.DataSource;
-                                if (dataSourceJson != null)
+                                string appSettingText = System.IO.File.ReadAllText(settingFilePath);
+                                var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
+                                if (appSetting != null)
                                 {
-                                    foreach (var dataSource in dataSourceJson)
+                                    var dataSourceJson = appSetting.DataSource;
+                                    if (dataSourceJson != null)
                                     {
-                                        if (ModuleConfiguration.DataSource.Contains(dataSource) == false)
+                                        foreach (var dataSource in dataSourceJson)
                                         {
-                                            dataSource.ConnectionString = dataSource.ConnectionString.Replace("{appBasePath}", appBasePath);
-                                            ModuleConfiguration.DataSource.Add(dataSource);
-                                        }
-                                        else
-                                        {
-                                            Log.Logger.Error("[{LogCategory}] " + $"applicationID: {applicationID}의 데이터 원본 설정 확인 필요, dataSource: {JsonConvert.SerializeObject(dataSource)}", $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
+                                            if (ModuleConfiguration.DataSource.Contains(dataSource) == false)
+                                            {
+                                                dataSource.ConnectionString = dataSource.ConnectionString.Replace("{appBasePath}", appBasePath);
+                                                ModuleConfiguration.DataSource.Add(dataSource);
+                                            }
+                                            else
+                                            {
+                                                Log.Logger.Error("[{LogCategory}] " + $"applicationID: {applicationID}의 데이터 원본 설정 확인 필요, dataSource: {JsonConvert.SerializeObject(dataSource)}", $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
+                                            }
                                         }
                                     }
                                 }
                             }
-                        }
 
-                        ModuleConfiguration.ContractBasePath.Add(Path.Combine(appBasePath, "dbclient"));
+                            ModuleConfiguration.ContractBasePath.Add(Path.Combine(appBasePath, "dbclient"));
+                        }
                     }
                 }
 

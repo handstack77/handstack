@@ -120,38 +120,43 @@ namespace transact
 
                 if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(Path.Combine(GlobalConfiguration.TenantAppBasePath)) == true)
                 {
-                    foreach (var appBasePath in Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath))
+                    foreach (var userWorkPath in Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath))
                     {
-                        DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
-                        string applicationID = directoryInfo.Name;
-
-                        string settingFilePath = Path.Combine(appBasePath, "settings.json");
-                        if (System.IO.File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(applicationID) == false)
+                        DirectoryInfo workDirectoryInfo = new DirectoryInfo(userWorkPath);
+                        string userWorkID = workDirectoryInfo.Name;
+                        foreach (var appBasePath in Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath))
                         {
-                            string appSettingText = System.IO.File.ReadAllText(settingFilePath);
-                            var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
-                            if (appSetting != null)
+                            DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
+                            string applicationID = directoryInfo.Name;
+                            string tenantID = $"{userWorkID}|{applicationID}";
+                            string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                            if (File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                             {
-                                var routingCommandUri = appSetting.Routing;
-                                if (routingCommandUri != null)
+                                string appSettingText = File.ReadAllText(settingFilePath);
+                                var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
+                                if (appSetting != null)
                                 {
-                                    foreach (var item in routingCommandUri.AsEnumerable())
+                                    var routingCommandUri = appSetting.Routing;
+                                    if (routingCommandUri != null)
                                     {
-                                        string routeSegmentID = $"{item.ApplicationID}|{item.ProjectID}|{item.CommandType}|{item.Environment}";
-                                        if (ModuleConfiguration.RoutingCommandUri.ContainsKey(routeSegmentID) == false)
+                                        foreach (var item in routingCommandUri.AsEnumerable())
                                         {
-                                            ModuleConfiguration.RoutingCommandUri.Add(routeSegmentID, item.Uri);
-                                        }
-                                        else
-                                        {
-                                            Log.Logger.Error("[{LogCategory}] " + $"applicationID: {applicationID}의 transact 거래 프록시 설정 확인 필요, key: {routeSegmentID}, value: {item.Uri}", $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
+                                            string routeSegmentID = $"{userWorkID}|{item.ApplicationID}|{item.ProjectID}|{item.CommandType}|{item.Environment}";
+                                            if (ModuleConfiguration.RoutingCommandUri.ContainsKey(routeSegmentID) == false)
+                                            {
+                                                ModuleConfiguration.RoutingCommandUri.Add(routeSegmentID, item.Uri);
+                                            }
+                                            else
+                                            {
+                                                Log.Logger.Error("[{LogCategory}] " + $"applicationID: {applicationID}의 transact 거래 프록시 설정 확인 필요, key: {routeSegmentID}, value: {item.Uri}", $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
+                                            }
                                         }
                                     }
                                 }
                             }
-                        }
 
-                        ModuleConfiguration.ContractBasePath.Add(Path.Combine(appBasePath, "transact"));
+                            ModuleConfiguration.ContractBasePath.Add(Path.Combine(appBasePath, "transact"));
+                        }
                     }
                 }
 

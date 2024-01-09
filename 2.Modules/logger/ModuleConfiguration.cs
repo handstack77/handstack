@@ -45,66 +45,85 @@ namespace logger
             var dataSource = DataSource.FirstOrDefault(p => p.ApplicationID == applicationID);
             if (dataSource == null)
             {
-                string transactionLogBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, applicationID, ".managed", "sqlite");
-                if (Directory.Exists(transactionLogBasePath) == false)
+                string userWorkID = string.Empty;
+                string appBasePath = string.Empty;
+                DirectoryInfo baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
+                var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
+                foreach (string directory in directories)
                 {
-                    Directory.CreateDirectory(transactionLogBasePath);
-                }
-
-                string logDbFilePath = Path.Combine(transactionLogBasePath, $"transact.db");
-                string connectionString = $"URI=file:{logDbFilePath};Journal Mode=MEMORY;Cache Size=4000;Synchronous=Normal;Page Size=4096;Pooling=True;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;";
-
-                FileInfo fileInfo = new FileInfo(logDbFilePath);
-                if (fileInfo.Directory != null && fileInfo.Directory.Exists == false)
-                {
-                    Directory.CreateDirectory(fileInfo.Directory.FullName);
-                }
-
-                if (fileInfo.Exists == false)
-                {
-                    SQLiteConnection.CreateFile(logDbFilePath);
-                }
-
-                try
-                {
-                    bool isExistTable = CreateNotExistTable(connectionString, "TransactLog");
-                    if (isExistTable == true)
+                    DirectoryInfo directoryInfo = new DirectoryInfo(directory);
+                    if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
                     {
-                        DataSource.Add(new DataSource()
-                        {
-                            ApplicationID = applicationID,
-                            TableName = "TransactLog",
-                            DataProvider = "SQLite",
-                            RemovePeriod = -30,
-                            ConnectionString = connectionString,
-                            IsEncryption = "N"
-                        });
-
-                        if (ApplicationIDCircuitBreakers.ContainsKey(applicationID) == false)
-                        {
-                            ApplicationCircuitBreakerPolicy applicationCircuitBreakerPolicy = new ApplicationCircuitBreakerPolicy();
-                            applicationCircuitBreakerPolicy.ApplicationCircuitBreaker = Polly.Policy
-                                .Handle<SqlException>()
-                                .Or<Exception>()
-                                .CircuitBreaker(1, TimeSpan.FromSeconds(CircuitBreakResetSecond), onBreak: (exception, timespan, context) =>
-                                {
-                                    Log.Error(exception, $"CircuitBreaker Reason: {exception.Message}");
-                                },
-                                onReset: (context) =>
-                                {
-                                    Log.Information($"CircuitBreaker 복구, DateTime={DateTime.Now}");
-                                });
-
-                            applicationCircuitBreakerPolicy.ApplicationCircuitState = CircuitState.Closed;
-                            applicationCircuitBreakerPolicy.BreakDateTime = null;
-
-                            ApplicationIDCircuitBreakers.TryAdd(applicationID, applicationCircuitBreakerPolicy);
-                        }
+                        appBasePath = directoryInfo.FullName;
+                        userWorkID = (directoryInfo.Parent?.Name).ToStringSafe();
+                        break;
                     }
                 }
-                catch
+
+                string tenantID = $"{userWorkID}|{applicationID}";
+                if (string.IsNullOrEmpty(appBasePath) == false)
                 {
-                    Log.Logger.Error("[{LogCategory}] " + $"'{applicationID}' 데이터베이스 연결문자열 또는 권한 확인 필요", $"ModuleInitializer/CheckSQLiteCreate");
+                    string transactionLogBasePath = Path.Combine(appBasePath, ".managed", "sqlite");
+                    if (Directory.Exists(transactionLogBasePath) == false)
+                    {
+                        Directory.CreateDirectory(transactionLogBasePath);
+                    }
+
+                    string logDbFilePath = Path.Combine(transactionLogBasePath, $"transact.db");
+                    string connectionString = $"URI=file:{logDbFilePath};Journal Mode=MEMORY;Cache Size=4000;Synchronous=Normal;Page Size=4096;Pooling=True;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;";
+
+                    FileInfo fileInfo = new FileInfo(logDbFilePath);
+                    if (fileInfo.Directory != null && fileInfo.Directory.Exists == false)
+                    {
+                        Directory.CreateDirectory(fileInfo.Directory.FullName);
+                    }
+
+                    if (fileInfo.Exists == false)
+                    {
+                        SQLiteConnection.CreateFile(logDbFilePath);
+                    }
+
+                    try
+                    {
+                        bool isExistTable = CreateNotExistTable(connectionString, "TransactLog");
+                        if (isExistTable == true)
+                        {
+                            DataSource.Add(new DataSource()
+                            {
+                                ApplicationID = applicationID,
+                                TableName = "TransactLog",
+                                DataProvider = "SQLite",
+                                RemovePeriod = -30,
+                                ConnectionString = connectionString,
+                                IsEncryption = "N"
+                            });
+
+                            if (ApplicationIDCircuitBreakers.ContainsKey(applicationID) == false)
+                            {
+                                ApplicationCircuitBreakerPolicy applicationCircuitBreakerPolicy = new ApplicationCircuitBreakerPolicy();
+                                applicationCircuitBreakerPolicy.ApplicationCircuitBreaker = Polly.Policy
+                                    .Handle<SqlException>()
+                                    .Or<Exception>()
+                                    .CircuitBreaker(1, TimeSpan.FromSeconds(CircuitBreakResetSecond), onBreak: (exception, timespan, context) =>
+                                    {
+                                        Log.Error(exception, $"CircuitBreaker Reason: {exception.Message}");
+                                    },
+                                    onReset: (context) =>
+                                    {
+                                        Log.Information($"CircuitBreaker 복구, DateTime={DateTime.Now}");
+                                    });
+
+                                applicationCircuitBreakerPolicy.ApplicationCircuitState = CircuitState.Closed;
+                                applicationCircuitBreakerPolicy.BreakDateTime = null;
+
+                                ApplicationIDCircuitBreakers.TryAdd(applicationID, applicationCircuitBreakerPolicy);
+                            }
+                        }
+                    }
+                    catch
+                    {
+                        Log.Logger.Error("[{LogCategory}] " + $"'{applicationID}' 데이터베이스 연결문자열 또는 권한 확인 필요", $"ModuleInitializer/CheckSQLiteCreate");
+                    }
                 }
 
                 dataSource = DataSource.FirstOrDefault(p => p.ApplicationID == applicationID);
