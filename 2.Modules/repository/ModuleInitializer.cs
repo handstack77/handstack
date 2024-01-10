@@ -206,6 +206,9 @@ namespace repository
                                                         repositoryDirectoryInfo.Create();
                                                     }
                                                 }
+
+                                                repository.UserWorkID = userWorkID;
+                                                repository.SettingFilePath = settingFilePath;
                                                 ModuleConfiguration.FileRepositorys.Add(repository);
                                             }
                                         }
@@ -222,18 +225,12 @@ namespace repository
                 {
                     if (item.StorageType == "FileSystem" && item.IsVirtualPath == true)
                     {
-                        if (string.IsNullOrEmpty(item.PhysicalPath) == true)
+                        if (string.IsNullOrEmpty(item.PhysicalPath) == true || item.SettingFilePath.ToStringSafe().StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                         {
                             continue;
                         }
 
                         string physicalPath = item.PhysicalPath;
-                        if (physicalPath.IndexOf("{appBasePath}") > -1)
-                        {
-                            string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, item.ApplicationID);
-                            physicalPath = physicalPath.Replace("{appBasePath}", appBasePath);
-                        }
-
                         if (Directory.Exists(physicalPath) == false)
                         {
                             Directory.CreateDirectory(physicalPath);
@@ -241,16 +238,7 @@ namespace repository
 
                         try
                         {
-                            string virtualPath = string.Empty;
-                            if (string.IsNullOrEmpty(item.UserWorkID) == true)
-                            {
-                                virtualPath = $"/{ModuleID}/{item.ApplicationID}/{item.RepositoryID}";
-                            }
-                            else
-                            {
-                                virtualPath = $"/{ModuleID}/{item.UserWorkID}/{item.ApplicationID}/{item.RepositoryID}";
-                            }
-
+                            string virtualPath = $"/{ModuleID}/{item.ApplicationID}/{item.RepositoryID}";
                             app.UseStaticFiles(new StaticFileOptions
                             {
                                 ServeUnknownFileTypes = true,
@@ -397,7 +385,7 @@ namespace repository
                     {
                         try
                         {
-                            if (File.Exists(repositoryFile) == true)
+                            if (File.Exists(repositoryFile) == true && repositoryFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == false)
                             {
                                 var repositoryText = File.ReadAllText(repositoryFile);
                                 if (repositoryText.StartsWith("{") == true)
@@ -417,6 +405,9 @@ namespace repository
                                                     repositoryDirectoryInfo.Create();
                                                 }
                                             }
+
+                                            repository.UserWorkID = "";
+                                            repository.SettingFilePath = repositoryFile;
                                             ModuleConfiguration.FileRepositorys.Add(repository);
                                         }
                                         else
@@ -444,6 +435,9 @@ namespace repository
                                                         repositoryDirectoryInfo.Create();
                                                     }
                                                 }
+
+                                                repository.UserWorkID = "";
+                                                repository.SettingFilePath = repositoryFile;
                                                 ModuleConfiguration.FileRepositorys.Add(repository);
                                             }
                                             else

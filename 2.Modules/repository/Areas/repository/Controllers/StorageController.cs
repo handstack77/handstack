@@ -206,7 +206,6 @@ namespace repository.Controllers
             string repositoryID = Request.Query["RepositoryID"].ToString();
             string itemID = Request.Query["ItemID"].ToString();
             string changeFileName = Request.Query["FileName"].ToString();
-            string? userWorkID = Request.Query["UserWorkID"].ToString();
 
             if (string.IsNullOrEmpty(repositoryID) == true || string.IsNullOrEmpty(itemID) == true || string.IsNullOrEmpty(changeFileName) == true)
             {
@@ -263,11 +262,10 @@ namespace repository.Controllers
                 }
 
                 RepositoryManager repositoryManager = new RepositoryManager();
-                repositoryManager.PersistenceDirectoryPath = repositoryManager.GetPhysicalPath(repository, applicationID, customPath1, customPath2, customPath3, userWorkID);
-                string relativeDirectoryPath = repositoryManager.GetRelativePath(repository, applicationID, customPath1, customPath2, customPath3, userWorkID);
+                repositoryManager.PersistenceDirectoryPath = repositoryManager.GetPhysicalPath(repository, customPath1, customPath2, customPath3);
+                string relativeDirectoryPath = repositoryManager.GetRelativePath(repository, customPath1, customPath2, customPath3);
                 string relativeDirectoryUrlPath = string.IsNullOrEmpty(relativeDirectoryPath) == true ? $"/{ModuleConfiguration.ModuleID}/" : relativeDirectoryPath.Replace(@"\", "/");
                 relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.Substring(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
-                string policyPath = repositoryManager.GetPolicyPath(repository);
 
                 bool isExistFile = false;
                 // 파일명 변경
@@ -514,7 +512,7 @@ namespace repository.Controllers
 
         // http://localhost:8000/repository/api/storage/get-repository
         [HttpGet("[action]")]
-        public ContentResult GetRepository(string applicationID, string repositoryID, string? userWorkID)
+        public ContentResult GetRepository(string applicationID, string repositoryID)
         {
             string result = "{}";
 
@@ -574,7 +572,6 @@ namespace repository.Controllers
             string customPath2 = string.IsNullOrEmpty(Request.Query["CustomPath2"]) == true ? "" : Request.Query["CustomPath2"].ToString();
             string customPath3 = string.IsNullOrEmpty(Request.Query["CustomPath3"]) == true ? "" : Request.Query["CustomPath3"].ToString();
             string userID = string.IsNullOrEmpty(Request.Query["UserID"]) == true ? "" : Request.Query["UserID"].ToString();
-            string? userWorkID = string.IsNullOrEmpty(Request.Query["UserWorkID"]) == true ? "" : Request.Query["UserWorkID"].ToString();
 
             RepositoryItems? repositoryItem = null;
             if (Request.HasFormContentType == true)
@@ -595,8 +592,8 @@ namespace repository.Controllers
                         }
 
                         RepositoryManager repositoryManager = new RepositoryManager();
-                        repositoryManager.PersistenceDirectoryPath = repositoryManager.GetPhysicalPath(repository, applicationID, customPath1, customPath2, customPath3, userWorkID);
-                        string relativeDirectoryPath = repositoryManager.GetRelativePath(repository, applicationID, customPath1, customPath2, customPath3, userWorkID);
+                        repositoryManager.PersistenceDirectoryPath = repositoryManager.GetPhysicalPath(repository, customPath1, customPath2, customPath3);
+                        string relativeDirectoryPath = repositoryManager.GetRelativePath(repository, customPath1, customPath2, customPath3);
                         string relativeDirectoryUrlPath = string.IsNullOrEmpty(relativeDirectoryPath) == true ? $"/{ModuleConfiguration.ModuleID}/" : relativeDirectoryPath.Replace(@"\", "/");
                         relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.Substring(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
 
@@ -834,8 +831,16 @@ namespace repository.Controllers
 
                                 if (repository.IsVirtualPath == true)
                                 {
-                                    relativePath = string.Concat($"/{ModuleConfiguration.ModuleID}/", repository.RepositoryID, "/");
-                                    relativePath = relativePath + relativeDirectoryUrlPath + repositoryItem.ItemID;
+                                    if (string.IsNullOrEmpty(repository.UserWorkID) == true)
+                                    {
+                                        relativePath = $"/{ModuleConfiguration.ModuleID}/{repository.ApplicationID}/{repository.RepositoryID}/";
+                                        relativePath = relativePath + relativeDirectoryUrlPath + repositoryItem.ItemID;
+                                    }
+                                    else
+                                    {
+                                        relativePath = $"/{ModuleConfiguration.ModuleID}/api/storage/virtual-download-file?applicationID={repository.ApplicationID}&repositoryID={repository.RepositoryID}&subDirectory={repositoryItem.CustomPath1}&fileName={repositoryItem.ItemID}";
+                                    }
+                                    
                                     absolutePath = ModuleConfiguration.FileServerUrl + relativePath;
                                 }
                                 else
@@ -916,8 +921,8 @@ namespace repository.Controllers
                         }
 
                         RepositoryManager repositoryManager = new RepositoryManager();
-                        repositoryManager.PersistenceDirectoryPath = repositoryManager.GetPhysicalPath(repository, applicationID, customPath1, customPath2, customPath3, userWorkID);
-                        string relativeDirectoryPath = repositoryManager.GetRelativePath(repository, applicationID, customPath1, customPath2, customPath3, userWorkID);
+                        repositoryManager.PersistenceDirectoryPath = repositoryManager.GetPhysicalPath(repository, customPath1, customPath2, customPath3);
+                        string relativeDirectoryPath = repositoryManager.GetRelativePath(repository, customPath1, customPath2, customPath3);
                         string relativeDirectoryUrlPath = string.IsNullOrEmpty(relativeDirectoryPath) == true ? $"/{ModuleConfiguration.ModuleID}/" : relativeDirectoryPath.Replace(@"\", "/");
                         relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.Substring(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
 
@@ -1144,8 +1149,16 @@ namespace repository.Controllers
 
                                 if (repository.IsVirtualPath == true)
                                 {
-                                    relativePath = string.Concat($"/{ModuleConfiguration.ModuleID}/", repository.RepositoryID, "/");
-                                    relativePath = relativePath + relativeDirectoryUrlPath + repositoryItem.ItemID;
+                                    if (string.IsNullOrEmpty(repository.UserWorkID) == true)
+                                    {
+                                        relativePath = $"/{ModuleConfiguration.ModuleID}/{repository.ApplicationID}/{repository.RepositoryID}/";
+                                        relativePath = relativePath + relativeDirectoryUrlPath + repositoryItem.ItemID;
+                                    }
+                                    else
+                                    {
+                                        relativePath = $"/{ModuleConfiguration.ModuleID}/api/storage/virtual-download-file?applicationID={repository.ApplicationID}&repositoryID={repository.RepositoryID}&subDirectory={repositoryItem.CustomPath1}&fileName={repositoryItem.ItemID}";
+                                    }
+
                                     absolutePath = ModuleConfiguration.FileServerUrl + relativePath;
                                 }
                                 else
@@ -1252,7 +1265,6 @@ namespace repository.Controllers
             string customPath3 = Request.Query["CustomPath3"].ToString();
             string responseType = string.IsNullOrEmpty(Request.Query["responseType"]) == true ? "callback" : Request.Query["responseType"].ToString();
             string userID = string.IsNullOrEmpty(Request.Query["UserID"]) == true ? "" : Request.Query["UserID"].ToString();
-            string? userWorkID = string.IsNullOrEmpty(Request.Query["UserWorkID"]) == true ? "" : Request.Query["UserWorkID"].ToString();
             string callback = string.IsNullOrEmpty(Request.Query["Callback"]) == true ? "" : Request.Query["Callback"].ToString();
 
             RepositoryItems? repositoryItem = null;
@@ -1287,8 +1299,8 @@ namespace repository.Controllers
                 }
 
                 RepositoryManager repositoryManager = new RepositoryManager();
-                repositoryManager.PersistenceDirectoryPath = repositoryManager.GetPhysicalPath(repository, applicationID, customPath1, customPath2, customPath3, userWorkID);
-                string relativeDirectoryPath = repositoryManager.GetRelativePath(repository, applicationID, customPath1, customPath2, customPath3, userWorkID);
+                repositoryManager.PersistenceDirectoryPath = repositoryManager.GetPhysicalPath(repository, customPath1, customPath2, customPath3);
+                string relativeDirectoryPath = repositoryManager.GetRelativePath(repository, customPath1, customPath2, customPath3);
                 string relativeDirectoryUrlPath = string.IsNullOrEmpty(relativeDirectoryPath) == true ? $"/{ModuleConfiguration.ModuleID}/" : relativeDirectoryPath.Replace(@"\", "/");
                 relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.Substring(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
                 string policyPath = repositoryManager.GetPolicyPath(repository);
@@ -1541,8 +1553,16 @@ namespace repository.Controllers
 
                                     if (repository.IsVirtualPath == true)
                                     {
-                                        relativePath = string.Concat($"/{ModuleConfiguration.ModuleID}/", repository.RepositoryID, "/");
-                                        relativePath = relativePath + relativeDirectoryUrlPath + repositoryItem.ItemID;
+                                        if (string.IsNullOrEmpty(repository.UserWorkID) == true)
+                                        {
+                                            relativePath = $"/{ModuleConfiguration.ModuleID}/{repository.ApplicationID}/{repository.RepositoryID}/";
+                                            relativePath = relativePath + relativeDirectoryUrlPath + repositoryItem.ItemID;
+                                        }
+                                        else
+                                        {
+                                            relativePath = $"/{ModuleConfiguration.ModuleID}/api/storage/virtual-download-file?applicationID={repository.ApplicationID}&repositoryID={repository.RepositoryID}&subDirectory={repositoryItem.CustomPath1}&fileName={repositoryItem.ItemID}";
+                                        }
+
                                         absolutePath = ModuleConfiguration.FileServerUrl + relativePath;
                                     }
                                     else
@@ -1759,7 +1779,6 @@ namespace repository.Controllers
             downloadResult.Result = false;
 
             string applicationID = downloadRequest.ApplicationID;
-            string? userWorkID = downloadRequest.UserWorkID;
             string repositoryID = downloadRequest.RepositoryID;
             string itemID = downloadRequest.ItemID;
             string fileMD5 = downloadRequest.FileMD5;
@@ -1786,10 +1805,10 @@ namespace repository.Controllers
             switch (repository.StorageType)
             {
                 case "AzureBlob":
-                    result = await ExecuteBlobFileDownload(downloadResult, applicationID, repositoryID, itemID, userWorkID);
+                    result = await ExecuteBlobFileDownload(downloadResult, applicationID, repositoryID, itemID);
                     break;
                 case "FileSystem":
-                    result = await ExecuteFileDownload(downloadResult, applicationID, repositoryID, itemID, userWorkID);
+                    result = await ExecuteFileDownload(downloadResult, applicationID, repositoryID, itemID);
                     break;
                 default:
                     string errorText = $"ApplicationID: {repository.ApplicationID}, RepositoryID: {repository.RepositoryID}, StorageType: {repository.StorageType} 확인 필요";
@@ -1811,7 +1830,7 @@ namespace repository.Controllers
 
         // http://localhost:8000/repository/api/storage/http-download-file?repositoryid=2FD91746-D77A-4EE1-880B-14AA604ACE5A&itemID=
         [HttpGet("[action]")]
-        public async Task<ActionResult> HttpDownloadFile(string applicationID, string repositoryID, string itemID, string fileMD5, string tokenID, string disposition, string? userWorkID)
+        public async Task<ActionResult> HttpDownloadFile(string applicationID, string repositoryID, string itemID, string fileMD5, string tokenID, string disposition)
         {
             ActionResult result = NotFound();
 
@@ -1847,10 +1866,10 @@ namespace repository.Controllers
                 string? requestRefererUrl = Request.Headers.Referer.ToString();
                 if (string.IsNullOrEmpty(requestRefererUrl) == false)
                 {
-                    string requestPath = Request.Path.ToString();
                     string tenantAppRequestPath = $"/{GlobalConfiguration.TenantAppRequestPath}/";
-                    if (requestPath.StartsWith(tenantAppRequestPath) == true)
+                    if (requestRefererUrl.IndexOf(tenantAppRequestPath) > -1)
                     {
+                        string userWorkID = string.Empty;
                         string appBasePath = string.Empty;
                         DirectoryInfo baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
                         var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
@@ -1916,10 +1935,10 @@ namespace repository.Controllers
             switch (repository.StorageType)
             {
                 case "AzureBlob":
-                    result = await ExecuteBlobFileDownload(downloadResult, applicationID, repositoryID, itemID, userWorkID);
+                    result = await ExecuteBlobFileDownload(downloadResult, applicationID, repositoryID, itemID);
                     break;
                 case "FileSystem":
-                    result = await ExecuteFileDownload(downloadResult, applicationID, repositoryID, itemID, userWorkID);
+                    result = await ExecuteFileDownload(downloadResult, applicationID, repositoryID, itemID);
                     break;
                 default:
                     string errorText = $"ApplicationID: {repository.ApplicationID}, RepositoryID: {repository.RepositoryID}, StorageType: {repository.StorageType} 확인 필요";
@@ -1974,9 +1993,8 @@ namespace repository.Controllers
                 string? requestRefererUrl = Request.Headers.Referer.ToString();
                 if (string.IsNullOrEmpty(requestRefererUrl) == false)
                 {
-                    string requestPath = Request.Path.ToString();
                     string tenantAppRequestPath = $"/{GlobalConfiguration.TenantAppRequestPath}/";
-                    if (requestPath.StartsWith(tenantAppRequestPath) == true)
+                    if (requestRefererUrl.IndexOf(tenantAppRequestPath) > -1)
                     {
                         string? userWorkID = string.Empty;
                         string appBasePath = string.Empty;
@@ -2187,7 +2205,7 @@ namespace repository.Controllers
 
         // http://localhost:8000/repository/api/storage/remove-item?repositoryID=AttachFile&itemid=12345678
         [HttpGet("[action]")]
-        public async Task<ActionResult> RemoveItem(string applicationID, string repositoryID, string itemID, string? userWorkID)
+        public async Task<ActionResult> RemoveItem(string applicationID, string repositoryID, string itemID)
         {
             JsonContentResult jsonContentResult = new JsonContentResult();
             jsonContentResult.Result = false;
@@ -2235,8 +2253,8 @@ namespace repository.Controllers
                 if (repositoryItem != null)
                 {
                     RepositoryManager repositoryManager = new RepositoryManager();
-                    repositoryManager.PersistenceDirectoryPath = repositoryManager.GetRepositoryItemPath(repository, repositoryItem, userWorkID);
-                    string relativeDirectoryPath = repositoryManager.GetRelativePath(repository, repositoryItem.ApplicationID, repositoryItem.CustomPath1, repositoryItem.CustomPath2, repositoryItem.CustomPath3, userWorkID);
+                    repositoryManager.PersistenceDirectoryPath = repositoryManager.GetRepositoryItemPath(repository, repositoryItem);
+                    string relativeDirectoryPath = repositoryManager.GetRelativePath(repository, repositoryItem.CustomPath1, repositoryItem.CustomPath2, repositoryItem.CustomPath3);
                     string relativeDirectoryUrlPath = string.IsNullOrEmpty(relativeDirectoryPath) == true ? $"/{ModuleConfiguration.ModuleID}/" : relativeDirectoryPath.Replace(@"\", "/");
                     relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.Substring(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
 
@@ -2308,7 +2326,7 @@ namespace repository.Controllers
 
         // http://localhost:8000/repository/api/storage/remove-items?repositoryID=AttachFile&dependencyID=helloworld
         [HttpGet("[action]")]
-        public async Task<ActionResult> RemoveItems(string applicationID, string repositoryID, string dependencyID, string? userWorkID)
+        public async Task<ActionResult> RemoveItems(string applicationID, string repositoryID, string dependencyID)
         {
             JsonContentResult jsonContentResult = new JsonContentResult();
             jsonContentResult.Result = false;
@@ -2363,8 +2381,8 @@ namespace repository.Controllers
 
                     foreach (var repositoryItem in repositoryItems)
                     {
-                        repositoryManager.PersistenceDirectoryPath = repositoryManager.GetRepositoryItemPath(repository, repositoryItem, userWorkID);
-                        string relativeDirectoryPath = repositoryManager.GetRelativePath(repository, repositoryItem.ApplicationID, repositoryItem.CustomPath1, repositoryItem.CustomPath2, repositoryItem.CustomPath3, userWorkID);
+                        repositoryManager.PersistenceDirectoryPath = repositoryManager.GetRepositoryItemPath(repository, repositoryItem);
+                        string relativeDirectoryPath = repositoryManager.GetRelativePath(repository, repositoryItem.CustomPath1, repositoryItem.CustomPath2, repositoryItem.CustomPath3);
                         string relativeDirectoryUrlPath = string.IsNullOrEmpty(relativeDirectoryPath) == true ? $"/{ModuleConfiguration.ModuleID}/" : relativeDirectoryPath.Replace(@"\", "/");
                         relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.Substring(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
 
@@ -2534,7 +2552,7 @@ namespace repository.Controllers
             return result;
         }
 
-        private async Task<ActionResult> ExecuteBlobFileDownload(DownloadResult downloadResult, string applicationID, string repositoryID, string itemID, string? userWorkID)
+        private async Task<ActionResult> ExecuteBlobFileDownload(DownloadResult downloadResult, string applicationID, string repositoryID, string itemID)
         {
             ActionResult result = NotFound();
 
@@ -2581,7 +2599,7 @@ namespace repository.Controllers
             }
 
             RepositoryManager repositoryManager = new RepositoryManager();
-            string relativeDirectoryPath = repositoryManager.GetRelativePath(repository, repositoryItem.ApplicationID, repositoryItem.CustomPath1, repositoryItem.CustomPath2, repositoryItem.CustomPath3, userWorkID);
+            string relativeDirectoryPath = repositoryManager.GetRelativePath(repository, repositoryItem.CustomPath1, repositoryItem.CustomPath2, repositoryItem.CustomPath3);
             string relativeDirectoryUrlPath = string.IsNullOrEmpty(relativeDirectoryPath) == true ? $"/{ModuleConfiguration.ModuleID}/" : relativeDirectoryPath.Replace(@"\", "/");
             relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.Substring(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
 
@@ -2634,7 +2652,7 @@ namespace repository.Controllers
             return result;
         }
 
-        private async Task<ActionResult> ExecuteFileDownload(DownloadResult downloadResult, string applicationID, string repositoryID, string itemID, string? userWorkID)
+        private async Task<ActionResult> ExecuteFileDownload(DownloadResult downloadResult, string applicationID, string repositoryID, string itemID)
         {
             ActionResult result = NotFound();
 
