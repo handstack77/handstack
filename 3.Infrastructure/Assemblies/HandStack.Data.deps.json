@@ -9,14 +9,14 @@
       "HandStack.Data/1.0.0": {
         "dependencies": {
           "HandStack.Core": "1.0.0",
-          "HtmlAgilityPack": "1.11.53",
-          "MySql.Data": "8.1.0",
+          "HtmlAgilityPack": "1.11.57",
+          "MySql.Data": "8.2.0",
           "Newtonsoft.Json": "13.0.3",
-          "Npgsql": "7.0.6",
-          "Oracle.ManagedDataAccess.Core": "3.21.110",
-          "Serilog": "3.0.1",
+          "Npgsql": "8.0.1",
+          "Oracle.ManagedDataAccess.Core": "3.21.130",
+          "Serilog": "3.1.1",
           "System.Data.SQLite.Core": "1.0.118",
-          "System.Data.SqlClient": "4.8.5"
+          "System.Data.SqlClient": "4.8.6"
         },
         "runtime": {
           "HandStack.Data.dll": {}
@@ -38,11 +38,11 @@
           }
         }
       },
-      "HtmlAgilityPack/1.11.53": {
+      "HtmlAgilityPack/1.11.57": {
         "runtime": {
           "lib/netstandard2.0/HtmlAgilityPack.dll": {
-            "assemblyVersion": "1.11.53.0",
-            "fileVersion": "1.11.53.0"
+            "assemblyVersion": "1.11.57.0",
+            "fileVersion": "1.11.57.0"
           }
         }
       },
@@ -75,11 +75,22 @@
           }
         }
       },
-      "Microsoft.Extensions.Logging.Abstractions/6.0.0": {
+      "Microsoft.Extensions.DependencyInjection.Abstractions/8.0.0": {
         "runtime": {
-          "lib/net6.0/Microsoft.Extensions.Logging.Abstractions.dll": {
-            "assemblyVersion": "6.0.0.0",
-            "fileVersion": "6.0.21.52210"
+          "lib/net8.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll": {
+            "assemblyVersion": "8.0.0.0",
+            "fileVersion": "8.0.23.53103"
+          }
+        }
+      },
+      "Microsoft.Extensions.Logging.Abstractions/8.0.0": {
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.0"
+        },
+        "runtime": {
+          "lib/net8.0/Microsoft.Extensions.Logging.Abstractions.dll": {
+            "assemblyVersion": "8.0.0.0",
+            "fileVersion": "8.0.23.53103"
           }
         }
       },
@@ -107,11 +118,11 @@
           }
         }
       },
-      "MySql.Data/8.1.0": {
+      "MySql.Data/8.2.0": {
         "dependencies": {
+          "BouncyCastle.Cryptography": "2.2.1",
           "Google.Protobuf": "3.21.9",
           "K4os.Compression.LZ4.Streams": "1.3.5",
-          "Portable.BouncyCastle": "1.9.0",
           "System.Buffers": "4.5.1",
           "System.Configuration.ConfigurationManager": "6.0.0",
           "System.Diagnostics.DiagnosticSource": "7.0.2",
@@ -124,9 +135,9 @@
           "ZstdSharp.Port": "0.7.1"
         },
         "runtime": {
-          "lib/net7.0/MySql.Data.dll": {
-            "assemblyVersion": "8.1.0.0",
-            "fileVersion": "8.1.0.0"
+          "lib/net8.0/MySql.Data.dll": {
+            "assemblyVersion": "8.2.0.0",
+            "fileVersion": "8.2.0.0"
           }
         },
         "runtimeTargets": {
@@ -165,35 +176,27 @@
           }
         }
       },
-      "Npgsql/7.0.6": {
+      "Npgsql/8.0.1": {
         "dependencies": {
-          "Microsoft.Extensions.Logging.Abstractions": "6.0.0"
+          "Microsoft.Extensions.Logging.Abstractions": "8.0.0"
         },
         "runtime": {
-          "lib/net7.0/Npgsql.dll": {
-            "assemblyVersion": "7.0.6.0",
-            "fileVersion": "7.0.6.0"
+          "lib/net8.0/Npgsql.dll": {
+            "assemblyVersion": "8.0.1.0",
+            "fileVersion": "8.0.1.0"
           }
         }
       },
-      "Oracle.ManagedDataAccess.Core/3.21.110": {
+      "Oracle.ManagedDataAccess.Core/3.21.130": {
         "dependencies": {
           "System.Diagnostics.PerformanceCounter": "6.0.1",
           "System.DirectoryServices": "6.0.1",
-          "System.DirectoryServices.Protocols": "6.0.1"
+          "System.DirectoryServices.Protocols": "6.0.2"
         },
         "runtime": {
           "lib/netstandard2.1/Oracle.ManagedDataAccess.dll": {
             "assemblyVersion": "3.1.21.1",
             "fileVersion": "3.1.21.1"
-          }
-        }
-      },
-      "Portable.BouncyCastle/1.9.0": {
-        "runtime": {
-          "lib/netstandard2.0/BouncyCastle.Crypto.dll": {
-            "assemblyVersion": "1.9.0.0",
-            "fileVersion": "1.9.0.1"
           }
         }
       },
@@ -231,11 +234,11 @@
           }
         }
       },
-      "Serilog/3.0.1": {
+      "Serilog/3.1.1": {
         "runtime": {
           "lib/net7.0/Serilog.dll": {
             "assemblyVersion": "2.0.0.0",
-            "fileVersion": "3.0.1.0"
+            "fileVersion": "3.1.1.0"
           }
         }
       },
@@ -282,7 +285,7 @@
           }
         }
       },
-      "System.Data.SqlClient/4.8.5": {
+      "System.Data.SqlClient/4.8.6": {
         "dependencies": {
           "Microsoft.Win32.Registry": "4.7.0",
           "System.Security.Principal.Windows": "4.7.0",
@@ -290,22 +293,22 @@
         },
         "runtime": {
           "lib/netcoreapp2.1/System.Data.SqlClient.dll": {
-            "assemblyVersion": "4.6.1.5",
-            "fileVersion": "4.700.22.51706"
+            "assemblyVersion": "4.6.1.6",
+            "fileVersion": "4.700.23.52603"
           }
         },
         "runtimeTargets": {
           "runtimes/unix/lib/netcoreapp2.1/System.Data.SqlClient.dll": {
             "rid": "unix",
             "assetType": "runtime",
-            "assemblyVersion": "4.6.1.5",
-            "fileVersion": "4.700.22.51706"
+            "assemblyVersion": "4.6.1.6",
+            "fileVersion": "4.700.23.52603"
           },
           "runtimes/win/lib/netcoreapp2.1/System.Data.SqlClient.dll": {
             "rid": "win",
             "assetType": "runtime",
-            "assemblyVersion": "4.6.1.5",
-            "fileVersion": "4.700.22.51706"
+            "assemblyVersion": "4.6.1.6",
+            "fileVersion": "4.700.23.52603"
           }
         }
       },
@@ -354,31 +357,31 @@
           }
         }
       },
-      "System.DirectoryServices.Protocols/6.0.1": {
+      "System.DirectoryServices.Protocols/6.0.2": {
         "runtime": {
           "lib/net6.0/System.DirectoryServices.Protocols.dll": {
-            "assemblyVersion": "6.0.0.1",
-            "fileVersion": "6.0.222.6406"
+            "assemblyVersion": "6.0.0.2",
+            "fileVersion": "6.0.1823.26907"
           }
         },
         "runtimeTargets": {
           "runtimes/linux/lib/net6.0/System.DirectoryServices.Protocols.dll": {
             "rid": "linux",
             "assetType": "runtime",
-            "assemblyVersion": "6.0.0.1",
-            "fileVersion": "6.0.222.6406"
+            "assemblyVersion": "6.0.0.2",
+            "fileVersion": "6.0.1823.26907"
           },
           "runtimes/osx/lib/net6.0/System.DirectoryServices.Protocols.dll": {
             "rid": "osx",
             "assetType": "runtime",
-            "assemblyVersion": "6.0.0.1",
-            "fileVersion": "6.0.222.6406"
+            "assemblyVersion": "6.0.0.2",
+            "fileVersion": "6.0.1823.26907"
           },
           "runtimes/win/lib/net6.0/System.DirectoryServices.Protocols.dll": {
             "rid": "win",
             "assetType": "runtime",
-            "assemblyVersion": "6.0.0.1",
-            "fileVersion": "6.0.222.6406"
+            "assemblyVersion": "6.0.0.2",
+            "fileVersion": "6.0.1823.26907"
           }
         }
       },
@@ -576,12 +579,12 @@
       "path": "google.protobuf/3.21.9",
       "hashPath": "google.protobuf.3.21.9.nupkg.sha512"
     },
-    "HtmlAgilityPack/1.11.53": {
+    "HtmlAgilityPack/1.11.57": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-FeBqVmrMVoKFcsg6BhMJ5FYSx476AKDic9oHk5DsYSj606agR1XuxaaicxJ28X/LZkPTX51e3NaB8QJ5G+1B/w==",
-      "path": "htmlagilitypack/1.11.53",
-      "hashPath": "htmlagilitypack.1.11.53.nupkg.sha512"
+      "sha512": "sha512-zDxnHcAvi+qhZG602eKaPJKmzm0T8npKVML0RMwjrRBabpmTRtu2OVpfNkMUfYMgQ+5EllOkSeGxu0uFVV2zFw==",
+      "path": "htmlagilitypack/1.11.57",
+      "hashPath": "htmlagilitypack.1.11.57.nupkg.sha512"
     },
     "K4os.Compression.LZ4/1.3.5": {
       "type": "package",
@@ -604,12 +607,19 @@
       "path": "k4os.hash.xxhash/1.0.8",
       "hashPath": "k4os.hash.xxhash.1.0.8.nupkg.sha512"
     },
-    "Microsoft.Extensions.Logging.Abstractions/6.0.0": {
+    "Microsoft.Extensions.DependencyInjection.Abstractions/8.0.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-/HggWBbTwy8TgebGSX5DBZ24ndhzi93sHUBDvP1IxbZD7FDokYzdAr6+vbWGjw2XAfR2EJ1sfKUotpjHnFWPxA==",
-      "path": "microsoft.extensions.logging.abstractions/6.0.0",
-      "hashPath": "microsoft.extensions.logging.abstractions.6.0.0.nupkg.sha512"
+      "sha512": "sha512-cjWrLkJXK0rs4zofsK4bSdg+jhDLTaxrkXu4gS6Y7MAlCvRyNNgwY/lJi5RDlQOnSZweHqoyvgvbdvQsRIW+hg==",
+      "path": "microsoft.extensions.dependencyinjection.abstractions/8.0.0",
+      "hashPath": "microsoft.extensions.dependencyinjection.abstractions.8.0.0.nupkg.sha512"
+    },
+    "Microsoft.Extensions.Logging.Abstractions/8.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-arDBqTgFCyS0EvRV7O3MZturChstm50OJ0y9bDJvAcmEPJm0FFpFyjU/JLYyStNGGey081DvnQYlncNX5SJJGA==",
+      "path": "microsoft.extensions.logging.abstractions/8.0.0",
+      "hashPath": "microsoft.extensions.logging.abstractions.8.0.0.nupkg.sha512"
     },
     "Microsoft.NETCore.Platforms/2.0.0": {
       "type": "package",
@@ -639,12 +649,12 @@
       "path": "microsoft.win32.systemevents/6.0.0",
       "hashPath": "microsoft.win32.systemevents.6.0.0.nupkg.sha512"
     },
-    "MySql.Data/8.1.0": {
+    "MySql.Data/8.2.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-7kEJLyty7HcqJD0lnfs+2fdMrvCl0RY5oykvZThbmg6QVLT55dwygI69Eqxl0M6IThP9woyjpsezT6m7gKRrLA==",
-      "path": "mysql.data/8.1.0",
-      "hashPath": "mysql.data.8.1.0.nupkg.sha512"
+      "sha512": "sha512-p62lWlKvJJ5UnBNvtal3JM9SOyQaaIA4C6E5LO2TOlO8CF5BDX0I8HsihbzP8wOELZhD4I3vpferDRv7uBNkOg==",
+      "path": "mysql.data/8.2.0",
+      "hashPath": "mysql.data.8.2.0.nupkg.sha512"
     },
     "Newtonsoft.Json/13.0.3": {
       "type": "package",
@@ -653,26 +663,19 @@
       "path": "newtonsoft.json/13.0.3",
       "hashPath": "newtonsoft.json.13.0.3.nupkg.sha512"
     },
-    "Npgsql/7.0.6": {
+    "Npgsql/8.0.1": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-TAqvwRnm3NJ0QvN7cvu6geJkbI0XPzGVRElVY5hF4gsgA+BnE12x6GM1TLhdeq+7ZKvvo3BD8jXKnXmr3tvdEw==",
-      "path": "npgsql/7.0.6",
-      "hashPath": "npgsql.7.0.6.nupkg.sha512"
+      "sha512": "sha512-/XQX6n2gKQPnRoP5AhOnz33qL5V6CEY2vqluHPIvK4VZqY/sE/dHOFj+/8Ok7Y5Cbkj6/OZOFLZCiaKcryhS9A==",
+      "path": "npgsql/8.0.1",
+      "hashPath": "npgsql.8.0.1.nupkg.sha512"
     },
-    "Oracle.ManagedDataAccess.Core/3.21.110": {
+    "Oracle.ManagedDataAccess.Core/3.21.130": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-LYQ124w755pmQCbhMe5WYBMAHim40RQVdXq50kADQVEFowsm5R/vvMxSwpkauhMv6oI99GF6q869BuyW1EJ21A==",
-      "path": "oracle.manageddataaccess.core/3.21.110",
-      "hashPath": "oracle.manageddataaccess.core.3.21.110.nupkg.sha512"
-    },
-    "Portable.BouncyCastle/1.9.0": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-eZZBCABzVOek+id9Xy04HhmgykF0wZg9wpByzrWN7q8qEI0Qen9b7tfd7w8VA3dOeesumMG7C5ZPy0jk7PSRHw==",
-      "path": "portable.bouncycastle/1.9.0",
-      "hashPath": "portable.bouncycastle.1.9.0.nupkg.sha512"
+      "sha512": "sha512-bXNwPyAaDivO84HEYiegK7r/LleSEfA0nc70bE88wkqd1E0Q1+r/SUbJ51xOK2vk6iHbTSMuhnC79BU8svPBjQ==",
+      "path": "oracle.manageddataaccess.core/3.21.130",
+      "hashPath": "oracle.manageddataaccess.core.3.21.130.nupkg.sha512"
     },
     "runtime.native.System.Data.SqlClient.sni/4.7.0": {
       "type": "package",
@@ -702,12 +705,12 @@
       "path": "runtime.win-x86.runtime.native.system.data.sqlclient.sni/4.4.0",
       "hashPath": "runtime.win-x86.runtime.native.system.data.sqlclient.sni.4.4.0.nupkg.sha512"
     },
-    "Serilog/3.0.1": {
+    "Serilog/3.1.1": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-E4UmOQ++eNJax1laE+lws7E3zbhKgHsGJbO7ra0yE5smUh+5FfUPIKKBxM3MO1tK4sgpQke6/pLReDxIc/ggNw==",
-      "path": "serilog/3.0.1",
-      "hashPath": "serilog.3.0.1.nupkg.sha512"
+      "sha512": "sha512-P6G4/4Kt9bT635bhuwdXlJ2SCqqn2nhh4gqFqQueCOr9bK/e7W9ll/IoX1Ter948cV2Z/5+5v8pAfJYUISY03A==",
+      "path": "serilog/3.1.1",
+      "hashPath": "serilog.3.1.1.nupkg.sha512"
     },
     "Stub.System.Data.SQLite.Core.NetStandard/1.0.118": {
       "type": "package",
@@ -730,12 +733,12 @@
       "path": "system.configuration.configurationmanager/6.0.0",
       "hashPath": "system.configuration.configurationmanager.6.0.0.nupkg.sha512"
     },
-    "System.Data.SqlClient/4.8.5": {
+    "System.Data.SqlClient/4.8.6": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-fRqxut4lrndPHrXD+ht1XRmCL3obuKldm4XjCRYS9p5f7FSR7shBxAwTkDrpFMsHC9BhNgjjmUtiIjvehn5zkg==",
-      "path": "system.data.sqlclient/4.8.5",
-      "hashPath": "system.data.sqlclient.4.8.5.nupkg.sha512"
+      "sha512": "sha512-2Ij/LCaTQRyAi5lAv7UUTV9R2FobC8xN9mE0fXBZohum/xLl8IZVmE98Rq5ugQHjCgTBRKqpXRb4ORulRdA6Ig==",
+      "path": "system.data.sqlclient/4.8.6",
+      "hashPath": "system.data.sqlclient.4.8.6.nupkg.sha512"
     },
     "System.Data.SQLite.Core/1.0.118": {
       "type": "package",
@@ -765,12 +768,12 @@
       "path": "system.directoryservices/6.0.1",
       "hashPath": "system.directoryservices.6.0.1.nupkg.sha512"
     },
-    "System.DirectoryServices.Protocols/6.0.1": {
+    "System.DirectoryServices.Protocols/6.0.2": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-ndUZlEkAMc1XzM0xGN++SsJrNhRkIHaKI8+te325vrUgoLT1ufWNI6KB8FFrL7NpRMHPrdxP99aF3fHbAPxW0A==",
-      "path": "system.directoryservices.protocols/6.0.1",
-      "hashPath": "system.directoryservices.protocols.6.0.1.nupkg.sha512"
+      "sha512": "sha512-vDDPWwHn3/DNZ+kPkdXHoada+tKPEC9bVqDOr4hK6HBSP7hGCUTA0Zw6WU5qpGaqa5M1/V+axHMIv+DNEbIf6g==",
+      "path": "system.directoryservices.protocols/6.0.2",
+      "hashPath": "system.directoryservices.protocols.6.0.2.nupkg.sha512"
     },
     "System.Drawing.Common/6.0.0": {
       "type": "package",
