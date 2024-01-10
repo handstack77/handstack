@@ -87,42 +87,24 @@ namespace repository.Extensions
                     var transactionInfo = string.IsNullOrEmpty(repository.TransactionGetItem) == true ? $"{ModuleConfiguration.ApplicationID}|STR|STR010|LD01".Split("|") : repository.TransactionGetItem.Split("|");
                     TransactionClientObject transactionObject = new TransactionClientObject();
                     transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
-                    if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
+                    if (transactionInfo.Length == 3)
                     {
-                        if (transactionInfo.Length == 3)
-                        {
-                            transactionObject.ProgramID = applicationID;
-                            transactionObject.BusinessID = transactionInfo[1];
-                            transactionObject.TransactionID = transactionInfo[2];
-                            transactionObject.FunctionID = transactionInfo[3];
-                        }
-                        else
-                        {
-                            logger.Error("[{LogCategory}] " + $"태넌트 앱 transactionInfo: {transactionInfo} 확인 필요", "FileManagerController/GetRepositoryItem");
-                            return result;
-                        }
+                        transactionObject.ProgramID = applicationID;
+                        transactionObject.BusinessID = transactionInfo[1];
+                        transactionObject.TransactionID = transactionInfo[2];
+                        transactionObject.FunctionID = transactionInfo[3];
+                    }
+                    else if (transactionInfo.Length == 4)
+                    {
+                        transactionObject.ProgramID = transactionInfo[0];
+                        transactionObject.BusinessID = transactionInfo[1];
+                        transactionObject.TransactionID = transactionInfo[2];
+                        transactionObject.FunctionID = transactionInfo[3];
                     }
                     else
                     {
-                        if (transactionInfo.Length == 3)
-                        {
-                            transactionObject.ProgramID = applicationID;
-                            transactionObject.BusinessID = transactionInfo[1];
-                            transactionObject.TransactionID = transactionInfo[2];
-                            transactionObject.FunctionID = transactionInfo[3];
-                        }
-                        else if (transactionInfo.Length == 4)
-                        {
-                            transactionObject.ProgramID = transactionInfo[0];
-                            transactionObject.BusinessID = transactionInfo[1];
-                            transactionObject.TransactionID = transactionInfo[2];
-                            transactionObject.FunctionID = transactionInfo[3];
-                        }
-                        else
-                        {
-                            logger.Error("[{LogCategory}] " + $"transactionInfo: {transactionInfo} 확인 필요", "FileManagerController/GetRepositoryItem");
-                            return result;
-                        }
+                        logger.Error("[{LogCategory}] " + $"transactionInfo: {transactionInfo} 확인 필요", "FileManagerController/GetRepositoryItem");
+                        return result;
                     }
                     transactionObject.ScreenID = transactionObject.TransactionID;
 
@@ -169,42 +151,24 @@ namespace repository.Extensions
                     var transactionInfo = string.IsNullOrEmpty(repository.TransactionGetItems) == true ? $"{ModuleConfiguration.ApplicationID}|STR|STR010|LD02".Split("|") : repository.TransactionGetItems.Split("|");
                     TransactionClientObject transactionObject = new TransactionClientObject();
                     transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
-                    if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
+                    if (transactionInfo.Length == 3)
                     {
-                        if (transactionInfo.Length == 3)
-                        {
-                            transactionObject.ProgramID = applicationID;
-                            transactionObject.BusinessID = transactionInfo[1];
-                            transactionObject.TransactionID = transactionInfo[2];
-                            transactionObject.FunctionID = transactionInfo[3];
-                        }
-                        else
-                        {
-                            logger.Error("[{LogCategory}] " + $"태넌트 앱 transactionInfo: {transactionInfo} 확인 필요", "FileManagerController/GetRepositoryItems");
-                            return result;
-                        }
+                        transactionObject.ProgramID = applicationID;
+                        transactionObject.BusinessID = transactionInfo[1];
+                        transactionObject.TransactionID = transactionInfo[2];
+                        transactionObject.FunctionID = transactionInfo[3];
+                    }
+                    else if (transactionInfo.Length == 4)
+                    {
+                        transactionObject.ProgramID = transactionInfo[0];
+                        transactionObject.BusinessID = transactionInfo[1];
+                        transactionObject.TransactionID = transactionInfo[2];
+                        transactionObject.FunctionID = transactionInfo[3];
                     }
                     else
                     {
-                        if (transactionInfo.Length == 3)
-                        {
-                            transactionObject.ProgramID = applicationID;
-                            transactionObject.BusinessID = transactionInfo[1];
-                            transactionObject.TransactionID = transactionInfo[2];
-                            transactionObject.FunctionID = transactionInfo[3];
-                        }
-                        else if (transactionInfo.Length == 4)
-                        {
-                            transactionObject.ProgramID = transactionInfo[0];
-                            transactionObject.BusinessID = transactionInfo[1];
-                            transactionObject.TransactionID = transactionInfo[2];
-                            transactionObject.FunctionID = transactionInfo[3];
-                        }
-                        else
-                        {
-                            logger.Error("[{LogCategory}] " + $"transactionInfo: {transactionInfo} 확인 필요", "FileManagerController/GetRepositoryItems");
-                            return result;
-                        }
+                        logger.Error("[{LogCategory}] " + $"transactionInfo: {transactionInfo} 확인 필요", "FileManagerController/GetRepositoryItems");
+                        return result;
                     }
                     transactionObject.ScreenID = transactionObject.TransactionID;
 
@@ -247,42 +211,24 @@ namespace repository.Extensions
                     var transactionInfo = string.IsNullOrEmpty(repository.TransactionDeleteItem) == true ? $"{ModuleConfiguration.ApplicationID}|STR|STR010|DD01".Split("|") : repository.TransactionDeleteItem.Split("|");
                     TransactionClientObject transactionObject = new TransactionClientObject();
                     transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
-                    if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
+                    if (transactionInfo.Length == 3)
                     {
-                        if (transactionInfo.Length == 3)
-                        {
-                            transactionObject.ProgramID = applicationID;
-                            transactionObject.BusinessID = transactionInfo[1];
-                            transactionObject.TransactionID = transactionInfo[2];
-                            transactionObject.FunctionID = transactionInfo[3];
-                        }
-                        else
-                        {
-                            logger.Error("[{LogCategory}] " + $"태넌트 앱 transactionInfo: {transactionInfo} 확인 필요", "FileManagerController/DeleteRepositoryItem");
-                            return result;
-                        }
+                        transactionObject.ProgramID = applicationID;
+                        transactionObject.BusinessID = transactionInfo[1];
+                        transactionObject.TransactionID = transactionInfo[2];
+                        transactionObject.FunctionID = transactionInfo[3];
+                    }
+                    else if (transactionInfo.Length == 4)
+                    {
+                        transactionObject.ProgramID = transactionInfo[0];
+                        transactionObject.BusinessID = transactionInfo[1];
+                        transactionObject.TransactionID = transactionInfo[2];
+                        transactionObject.FunctionID = transactionInfo[3];
                     }
                     else
                     {
-                        if (transactionInfo.Length == 3)
-                        {
-                            transactionObject.ProgramID = applicationID;
-                            transactionObject.BusinessID = transactionInfo[1];
-                            transactionObject.TransactionID = transactionInfo[2];
-                            transactionObject.FunctionID = transactionInfo[3];
-                        }
-                        else if (transactionInfo.Length == 4)
-                        {
-                            transactionObject.ProgramID = transactionInfo[0];
-                            transactionObject.BusinessID = transactionInfo[1];
-                            transactionObject.TransactionID = transactionInfo[2];
-                            transactionObject.FunctionID = transactionInfo[3];
-                        }
-                        else
-                        {
-                            logger.Error("[{LogCategory}] " + $"transactionInfo: {transactionInfo} 확인 필요", "FileManagerController/DeleteRepositoryItem");
-                            return result;
-                        }
+                        logger.Error("[{LogCategory}] " + $"transactionInfo: {transactionInfo} 확인 필요", "FileManagerController/DeleteRepositoryItem");
+                        return result;
                     }
                     transactionObject.ScreenID = transactionObject.TransactionID;
 
@@ -325,42 +271,24 @@ namespace repository.Extensions
                     var transactionInfo = string.IsNullOrEmpty(repository.TransactionUpsertItem) == true ? $"{ModuleConfiguration.ApplicationID}|STR|STR010|MD01".Split("|") : repository.TransactionUpsertItem.Split("|");
                     TransactionClientObject transactionObject = new TransactionClientObject();
                     transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
-                    if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(Path.Combine(GlobalConfiguration.TenantAppBasePath, repositoryItem.ApplicationID)) == true)
+                    if (transactionInfo.Length == 3)
                     {
-                        if (transactionInfo.Length == 3)
-                        {
-                            transactionObject.ProgramID = repositoryItem.ApplicationID;
-                            transactionObject.BusinessID = transactionInfo[1];
-                            transactionObject.TransactionID = transactionInfo[2];
-                            transactionObject.FunctionID = transactionInfo[3];
-                        }
-                        else
-                        {
-                            logger.Error("[{LogCategory}] " + $"태넌트 앱 transactionInfo: {transactionInfo} 확인 필요", "FileManagerController/UpsertRepositoryItem");
-                            return result;
-                        }
+                        transactionObject.ProgramID = repositoryItem.ApplicationID;
+                        transactionObject.BusinessID = transactionInfo[1];
+                        transactionObject.TransactionID = transactionInfo[2];
+                        transactionObject.FunctionID = transactionInfo[3];
+                    }
+                    else if (transactionInfo.Length == 4)
+                    {
+                        transactionObject.ProgramID = transactionInfo[0];
+                        transactionObject.BusinessID = transactionInfo[1];
+                        transactionObject.TransactionID = transactionInfo[2];
+                        transactionObject.FunctionID = transactionInfo[3];
                     }
                     else
                     {
-                        if (transactionInfo.Length == 3)
-                        {
-                            transactionObject.ProgramID = repositoryItem.ApplicationID;
-                            transactionObject.BusinessID = transactionInfo[1];
-                            transactionObject.TransactionID = transactionInfo[2];
-                            transactionObject.FunctionID = transactionInfo[3];
-                        }
-                        else if (transactionInfo.Length == 4)
-                        {
-                            transactionObject.ProgramID = transactionInfo[0];
-                            transactionObject.BusinessID = transactionInfo[1];
-                            transactionObject.TransactionID = transactionInfo[2];
-                            transactionObject.FunctionID = transactionInfo[3];
-                        }
-                        else
-                        {
-                            logger.Error("[{LogCategory}] " + $"transactionInfo: {transactionInfo} 확인 필요", "FileManagerController/GetRepUpsertRepositoryItemositoryItems");
-                            return result;
-                        }
+                        logger.Error("[{LogCategory}] " + $"transactionInfo: {transactionInfo} 확인 필요", "FileManagerController/GetRepUpsertRepositoryItemositoryItems");
+                        return result;
                     }
                     transactionObject.ScreenID = transactionObject.TransactionID;
 
@@ -421,42 +349,24 @@ namespace repository.Extensions
                     var transactionInfo = string.IsNullOrEmpty(repository.TransactionUpdateDependencyID) == true ? $"{ModuleConfiguration.ApplicationID}|STR|STR010|UD01".Split("|") : repository.TransactionUpdateDependencyID.Split("|");
                     TransactionClientObject transactionObject = new TransactionClientObject();
                     transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
-                    if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(Path.Combine(GlobalConfiguration.TenantAppBasePath, repositoryItem.ApplicationID)) == true)
+                    if (transactionInfo.Length == 3)
                     {
-                        if (transactionInfo.Length == 3)
-                        {
-                            transactionObject.ProgramID = repositoryItem.ApplicationID;
-                            transactionObject.BusinessID = transactionInfo[1];
-                            transactionObject.TransactionID = transactionInfo[2];
-                            transactionObject.FunctionID = transactionInfo[3];
-                        }
-                        else
-                        {
-                            logger.Error("[{LogCategory}] " + $"태넌트 앱 transactionInfo: {transactionInfo} 확인 필요", "FileManagerController/UpdateDependencyID");
-                            return result;
-                        }
+                        transactionObject.ProgramID = repositoryItem.ApplicationID;
+                        transactionObject.BusinessID = transactionInfo[1];
+                        transactionObject.TransactionID = transactionInfo[2];
+                        transactionObject.FunctionID = transactionInfo[3];
+                    }
+                    else if (transactionInfo.Length == 4)
+                    {
+                        transactionObject.ProgramID = transactionInfo[0];
+                        transactionObject.BusinessID = transactionInfo[1];
+                        transactionObject.TransactionID = transactionInfo[2];
+                        transactionObject.FunctionID = transactionInfo[3];
                     }
                     else
                     {
-                        if (transactionInfo.Length == 3)
-                        {
-                            transactionObject.ProgramID = repositoryItem.ApplicationID;
-                            transactionObject.BusinessID = transactionInfo[1];
-                            transactionObject.TransactionID = transactionInfo[2];
-                            transactionObject.FunctionID = transactionInfo[3];
-                        }
-                        else if (transactionInfo.Length == 4)
-                        {
-                            transactionObject.ProgramID = transactionInfo[0];
-                            transactionObject.BusinessID = transactionInfo[1];
-                            transactionObject.TransactionID = transactionInfo[2];
-                            transactionObject.FunctionID = transactionInfo[3];
-                        }
-                        else
-                        {
-                            logger.Error("[{LogCategory}] " + $"transactionInfo: {transactionInfo} 확인 필요", "FileManagerController/UpdateDependencyID");
-                            return result;
-                        }
+                        logger.Error("[{LogCategory}] " + $"transactionInfo: {transactionInfo} 확인 필요", "FileManagerController/UpdateDependencyID");
+                        return result;
                     }
                     transactionObject.ScreenID = transactionObject.TransactionID;
 
@@ -501,42 +411,24 @@ namespace repository.Extensions
                     var transactionInfo = string.IsNullOrEmpty(repository.TransactionUpdateFileName) == true ? $"{ModuleConfiguration.ApplicationID}|STR|STR010|UD02".Split("|") : repository.TransactionUpdateFileName.Split("|");
                     TransactionClientObject transactionObject = new TransactionClientObject();
                     transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
-                    if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(Path.Combine(GlobalConfiguration.TenantAppBasePath, repositoryItem.RepositoryID)) == true)
+                    if (transactionInfo.Length == 3)
                     {
-                        if (transactionInfo.Length == 3)
-                        {
-                            transactionObject.ProgramID = repositoryItem.RepositoryID;
-                            transactionObject.BusinessID = transactionInfo[1];
-                            transactionObject.TransactionID = transactionInfo[2];
-                            transactionObject.FunctionID = transactionInfo[3];
-                        }
-                        else
-                        {
-                            logger.Error("[{LogCategory}] " + $"태넌트 앱 transactionInfo: {transactionInfo} 확인 필요", "FileManagerController/UpdateFileName");
-                            return result;
-                        }
+                        transactionObject.ProgramID = repositoryItem.RepositoryID;
+                        transactionObject.BusinessID = transactionInfo[1];
+                        transactionObject.TransactionID = transactionInfo[2];
+                        transactionObject.FunctionID = transactionInfo[3];
+                    }
+                    else if (transactionInfo.Length == 4)
+                    {
+                        transactionObject.ProgramID = transactionInfo[0];
+                        transactionObject.BusinessID = transactionInfo[1];
+                        transactionObject.TransactionID = transactionInfo[2];
+                        transactionObject.FunctionID = transactionInfo[3];
                     }
                     else
                     {
-                        if (transactionInfo.Length == 3)
-                        {
-                            transactionObject.ProgramID = repositoryItem.RepositoryID;
-                            transactionObject.BusinessID = transactionInfo[1];
-                            transactionObject.TransactionID = transactionInfo[2];
-                            transactionObject.FunctionID = transactionInfo[3];
-                        }
-                        else if (transactionInfo.Length == 4)
-                        {
-                            transactionObject.ProgramID = transactionInfo[0];
-                            transactionObject.BusinessID = transactionInfo[1];
-                            transactionObject.TransactionID = transactionInfo[2];
-                            transactionObject.FunctionID = transactionInfo[3];
-                        }
-                        else
-                        {
-                            logger.Error("[{LogCategory}] " + $"transactionInfo: {transactionInfo} 확인 필요", "FileManagerController/UpdateFileName");
-                            return result;
-                        }
+                        logger.Error("[{LogCategory}] " + $"transactionInfo: {transactionInfo} 확인 필요", "FileManagerController/UpdateFileName");
+                        return result;
                     }
                     transactionObject.ScreenID = transactionObject.TransactionID;
 

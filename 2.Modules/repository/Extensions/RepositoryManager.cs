@@ -65,7 +65,7 @@ namespace repository.Extensions
             return result;
         }
 
-        public string GetPhysicalPath(Repository repository, string applicationID, string customPath1, string customPath2, string customPath3)
+        public string GetPhysicalPath(Repository repository, string applicationID, string customPath1, string customPath2, string customPath3, string? userWorkID)
         {
             string result = "";
             if (repository.IsAutoPath == true)
@@ -74,30 +74,30 @@ namespace repository.Extensions
                 switch (repository.PolicyPathID)
                 {
                     case "1": // 참조식별자+년도
-                        dynamicPath = GetCustomFileStoragePath(applicationID, customPath1, customPath2, customPath3) + DateTime.Now.ToString("yyyy") + directoryPathFlag;
+                        dynamicPath = GetCustomFileStoragePath(applicationID, customPath1, customPath2, customPath3, userWorkID) + DateTime.Now.ToString("yyyy") + directoryPathFlag;
                         break;
                     case "2": // 참조식별자+년월
-                        dynamicPath = GetCustomFileStoragePath(applicationID, customPath1, customPath2, customPath3) + DateTime.Now.ToString("yyyy-MM") + directoryPathFlag;
+                        dynamicPath = GetCustomFileStoragePath(applicationID, customPath1, customPath2, customPath3, userWorkID) + DateTime.Now.ToString("yyyy-MM") + directoryPathFlag;
                         break;
                     case "3": // 참조식별자+년월일
-                        dynamicPath = GetCustomFileStoragePath(applicationID, customPath1, customPath2, customPath3) + DateTime.Now.ToString("yyyy-MM-dd") + directoryPathFlag;
+                        dynamicPath = GetCustomFileStoragePath(applicationID, customPath1, customPath2, customPath3, userWorkID) + DateTime.Now.ToString("yyyy-MM-dd") + directoryPathFlag;
                         break;
                     default:
-                        dynamicPath = GetCustomFileStoragePath(applicationID, customPath1, customPath2, customPath3);
+                        dynamicPath = GetCustomFileStoragePath(applicationID, customPath1, customPath2, customPath3, userWorkID);
                         break;
                 }
                 result = Path.Combine(repository.PhysicalPath, dynamicPath);
             }
             else
             {
-                result = Path.Combine(repository.PhysicalPath, GetCustomFileStoragePath(applicationID, customPath1, customPath2, customPath3));
+                result = Path.Combine(repository.PhysicalPath, GetCustomFileStoragePath(applicationID, customPath1, customPath2, customPath3, userWorkID));
             }
 
             result = new DirectoryInfo(result).FullName;
             return result;
         }
 
-        public string GetRelativePath(Repository repository, string applicationID, string customPath1, string customPath2, string customPath3)
+        public string GetRelativePath(Repository repository, string applicationID, string customPath1, string customPath2, string customPath3, string? userWorkID)
         {
             string result;
             if (repository.IsAutoPath == true)
@@ -106,29 +106,29 @@ namespace repository.Extensions
                 switch (repository.PolicyPathID)
                 {
                     case "1": // 참조식별자+년도
-                        dynamicPath = GetCustomFileStoragePath(applicationID, customPath1, customPath2, customPath3) + DateTime.Now.ToString("yyyy") + directoryPathFlag;
+                        dynamicPath = GetCustomFileStoragePath(applicationID, customPath1, customPath2, customPath3, userWorkID) + DateTime.Now.ToString("yyyy") + directoryPathFlag;
                         break;
                     case "2": // 참조식별자+년월
-                        dynamicPath = GetCustomFileStoragePath(applicationID, customPath1, customPath2, customPath3) + DateTime.Now.ToString("yyyy-MM") + directoryPathFlag;
+                        dynamicPath = GetCustomFileStoragePath(applicationID, customPath1, customPath2, customPath3, userWorkID) + DateTime.Now.ToString("yyyy-MM") + directoryPathFlag;
                         break;
                     case "3": // 참조식별자+년월일
-                        dynamicPath = GetCustomFileStoragePath(applicationID, customPath1, customPath2, customPath3) + DateTime.Now.ToString("yyyy-MM-dd") + directoryPathFlag;
+                        dynamicPath = GetCustomFileStoragePath(applicationID, customPath1, customPath2, customPath3, userWorkID) + DateTime.Now.ToString("yyyy-MM-dd") + directoryPathFlag;
                         break;
                     default:
-                        dynamicPath = GetCustomFileStoragePath(applicationID, customPath1, customPath2, customPath3);
+                        dynamicPath = GetCustomFileStoragePath(applicationID, customPath1, customPath2, customPath3, userWorkID);
                         break;
                 }
                 result = dynamicPath;
             }
             else
             {
-                result = GetCustomFileStoragePath(applicationID, customPath1, customPath2, customPath3);
+                result = GetCustomFileStoragePath(applicationID, customPath1, customPath2, customPath3, userWorkID);
             }
 
             return result;
         }
 
-        public string GetRepositoryItemPath(Repository repository, RepositoryItems repositoryItem)
+        public string GetRepositoryItemPath(Repository repository, RepositoryItems repositoryItem, string? userWorkID)
         {
             string result = "";
 
@@ -136,23 +136,23 @@ namespace repository.Extensions
             {
                 if (repository.IsAutoPath == true)
                 {
-                    result = GetCustomUrlPath(repositoryItem.ApplicationID, repositoryItem.CustomPath1, repositoryItem.CustomPath2, repositoryItem.CustomPath3) + repositoryItem.PolicyPath;
+                    result = GetCustomUrlPath(repositoryItem.ApplicationID, repositoryItem.CustomPath1, repositoryItem.CustomPath2, repositoryItem.CustomPath3, userWorkID) + repositoryItem.PolicyPath;
                 }
                 else
                 {
-                    result = GetCustomUrlPath(repositoryItem.ApplicationID, repositoryItem.CustomPath1, repositoryItem.CustomPath2, repositoryItem.CustomPath3);
+                    result = GetCustomUrlPath(repositoryItem.ApplicationID, repositoryItem.CustomPath1, repositoryItem.CustomPath2, repositoryItem.CustomPath3, userWorkID);
                 }
             }
             else
             {
                 if (repository.IsAutoPath == true)
                 {
-                    string dynamicPath = GetCustomFileStoragePath(repositoryItem.ApplicationID, repositoryItem.CustomPath1, repositoryItem.CustomPath2, repositoryItem.CustomPath3) + repositoryItem.PolicyPath;
+                    string dynamicPath = GetCustomFileStoragePath(repositoryItem.ApplicationID, repositoryItem.CustomPath1, repositoryItem.CustomPath2, repositoryItem.CustomPath3, userWorkID) + repositoryItem.PolicyPath;
                     result = Path.Combine(repository.PhysicalPath, dynamicPath);
                 }
                 else
                 {
-                    result = Path.Combine(repository.PhysicalPath, GetCustomFileStoragePath(repositoryItem.ApplicationID, repositoryItem.CustomPath1, repositoryItem.CustomPath2, repositoryItem.CustomPath3));
+                    result = Path.Combine(repository.PhysicalPath, GetCustomFileStoragePath(repositoryItem.ApplicationID, repositoryItem.CustomPath1, repositoryItem.CustomPath2, repositoryItem.CustomPath3, userWorkID));
                 }
             }
 
@@ -230,9 +230,14 @@ namespace repository.Extensions
             }
         }
 
-        public string GetCustomUrlPath(string applicationID, string customPath1, string customPath2, string customPath3)
+        public string GetCustomUrlPath(string applicationID, string customPath1, string customPath2, string customPath3, string? userWorkID)
         {
             string result = "";
+
+            if (string.IsNullOrEmpty(userWorkID) == false)
+            {
+                result += userWorkID + "/";
+            }
 
             if (string.IsNullOrEmpty(applicationID) == false)
             {
@@ -257,9 +262,14 @@ namespace repository.Extensions
             return result;
         }
 
-        public string GetCustomFileStoragePath(string applicationID, string customPath1, string customPath2, string customPath3)
+        public string GetCustomFileStoragePath(string applicationID, string customPath1, string customPath2, string customPath3, string? userWorkID)
         {
             string result = "";
+
+            if (string.IsNullOrEmpty(userWorkID) == false)
+            {
+                result += userWorkID + directoryPathFlag;
+            }
 
             if (string.IsNullOrEmpty(applicationID) == false)
             {

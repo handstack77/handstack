@@ -4,7 +4,7 @@
 		<application>HDS</application>
 		<project>STR</project>
 		<transaction>STR010</transaction>
-		<datasource>FS02</datasource>
+		<datasource>FS01</datasource>
 		<use>Y</use>
 		<desc>저장소 및 파일 관리</desc>
 	</header>

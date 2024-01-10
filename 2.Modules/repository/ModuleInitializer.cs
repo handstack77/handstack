@@ -241,12 +241,22 @@ namespace repository
 
                         try
                         {
+                            string virtualPath = string.Empty;
+                            if (string.IsNullOrEmpty(item.UserWorkID) == true)
+                            {
+                                virtualPath = $"/{ModuleID}/{item.ApplicationID}/{item.RepositoryID}";
+                            }
+                            else
+                            {
+                                virtualPath = $"/{ModuleID}/{item.UserWorkID}/{item.ApplicationID}/{item.RepositoryID}";
+                            }
+
                             app.UseStaticFiles(new StaticFileOptions
                             {
                                 ServeUnknownFileTypes = true,
                                 DefaultContentType = "text/html",
                                 FileProvider = new PhysicalFileProvider(physicalPath),
-                                RequestPath = $"/{ModuleID}/{item.ApplicationID}/{item.RepositoryID}",
+                                RequestPath = virtualPath,
                                 OnPrepareResponse = (httpContext) =>
                                 {
                                     bool isResponse = true;

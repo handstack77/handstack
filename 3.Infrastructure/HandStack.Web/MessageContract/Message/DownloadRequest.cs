@@ -4,6 +4,7 @@
     {
         public DownloadRequest()
         {
+            UserWorkID = "";
             ApplicationID = "";
             RepositoryID = "";
             ItemID = "";
@@ -12,6 +13,8 @@
             TokenID = "";
             Disposition = "";
         }
+
+        public string UserWorkID { get; set; }
 
         public string ApplicationID { get; set; }
 
