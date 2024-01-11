@@ -179,12 +179,34 @@
             return height;
         },
 
-        measureSize(text, fontSize) {
+        measureSize(text, fontSize, maxWidth) {
+            maxWidth = maxWidth || '800px';
+            if ($object.isNumber(maxWidth) == true) {
+                maxWidth = maxWidth.toString() + 'px';
+            }
+
             if ($object.isNullOrUndefined(text) == true) {
                 return null;
             }
 
             var width = syn.$d.measureWidth(text, fontSize);
+            if (width.endsWith('px') == true && $string.isNullOrEmpty(maxWidth) == false) {
+                var calcWidth = $string.toNumber(width.substring(0, width.indexOf('px')));
+
+                if (maxWidth.endsWith('px') == true) {
+                    maxWidth = $string.toNumber(maxWidth.substring(0, maxWidth.indexOf('px')));
+                }
+                else {
+                    maxWidth = $string.toNumber(maxWidth);
+                }
+
+                if (isNaN(maxWidth) == false) {
+                    if (calcWidth > maxWidth) {
+                        width = maxWidth.toString() + 'px';
+                    }
+                }
+            }
+
             return {
                 width: width,
                 height: syn.$d.measureHeight(text, width, fontSize)
