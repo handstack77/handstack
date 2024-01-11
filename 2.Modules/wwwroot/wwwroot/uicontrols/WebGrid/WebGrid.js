@@ -528,7 +528,7 @@
                                 var colHeader = colHeaders[i];
                                 var gridColumn = gridColumns[i];
 
-                                var liEL = syn.$m.createElement('li');
+                                var liEL = document.createElement('li');
                                 var liEL = syn.$m.create({ tag: 'li', className: 'col-12' });
                                 syn.$m.setStyle(liEL, 'padding-top', '10px');
                                 var checkboxID = '{0}_checkbox_{1}'.format(elID, gridColumn.data);

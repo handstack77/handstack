@@ -183,20 +183,25 @@ namespace transact.Areas.transact.Controllers
                     logger.Information("[{LogCategory}] " + $"WatcherChangeTypes: {changeType}, FilePath: {filePath}", "Transaction/Refresh");
 
                     FileInfo fileInfo = new FileInfo(filePath);
-                    var existContracts = TransactionMapper.GetBusinessContracts().Select(p => p.Value).Where(p =>
-                        p.ApplicationID == fileInfo.Directory?.Parent?.Name &&
-                        p.ProjectID == fileInfo.Directory?.Name &&
-                        p.TransactionID == fileInfo.Name.Replace(fileInfo.Extension, ""))
-                        .ToList();
 
-                    if (existContracts != null && existContracts.Count() > 0)
+                    var businessContracts = TransactionMapper.GetBusinessContracts();
+                    lock (businessContracts)
                     {
-                        foreach (var item in existContracts)
-                        {
-                            logger.Information("[{LogCategory}] " + $"Delete Contract ApplicationID: {item.ApplicationID}, ProjectID: {item.ProjectID}, TransactionID: {item.TransactionID}", "Transaction/Refresh");
-                        }
+                        var existContracts = businessContracts.Select(p => p.Value).Where(p =>
+                            p.ApplicationID == fileInfo.Directory?.Parent?.Name &&
+                            p.ProjectID == fileInfo.Directory?.Name &&
+                            p.TransactionID == fileInfo.Name.Replace(fileInfo.Extension, ""))
+                            .ToList();
 
-                        TransactionMapper.Remove(filePath);
+                        if (existContracts != null && existContracts.Count() > 0)
+                        {
+                            foreach (var item in existContracts)
+                            {
+                                logger.Information("[{LogCategory}] " + $"Delete Contract ApplicationID: {item.ApplicationID}, ProjectID: {item.ProjectID}, TransactionID: {item.TransactionID}", "Transaction/Refresh");
+                            }
+
+                            TransactionMapper.Remove(filePath);
+                        }
                     }
 
                     WatcherChangeTypes watcherChangeTypes = (WatcherChangeTypes)Enum.Parse(typeof(WatcherChangeTypes), changeType);

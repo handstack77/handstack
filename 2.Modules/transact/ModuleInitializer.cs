@@ -85,7 +85,7 @@ namespace transact
                         }
 
                         ModuleConfiguration.ModuleBasePath = GlobalConfiguration.GetBasePath(moduleConfig.ModuleBasePath);
-                        ModuleConfiguration.DatabaseContractPath = GlobalConfiguration.GetBasePath(moduleConfig.DatabaseContractPath, $"{ModuleConfiguration.ModuleBasePath}/Contracts/dbclient");
+                        ModuleConfiguration.DatabaseContractPath = GlobalConfiguration.GetBasePath(moduleConfig.DatabaseContractPath, Path.Combine(ModuleConfiguration.ModuleBasePath, "Contracts", "dbclient"));
                         ModuleConfiguration.TransactionLogBasePath = GlobalConfiguration.GetBasePath(moduleConfig.TransactionLogBasePath);
 
                         ModuleConfiguration.PublicTransactions = moduleConfig.PublicTransactions;

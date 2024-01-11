@@ -1544,7 +1544,7 @@
                     windowHandle.attr('channelID', channelID ? channelID : '');
                     windowHandle.attr('baseELID', popupOptions.baseELID);
                     if (popupOptions.isModal == true) {
-                        var overlayEL = syn.$m.createElement('div');
+                        var overlayEL = document.createElement('div');
                         var overlayZIndex = windowHandle.css('zIndex');
                         windowHandle.attr('overlayZIndex', overlayZIndex);
                         overlayEL.id = elID + '_overlay';
@@ -2429,9 +2429,11 @@ function domainLibraryLoad() {
         UserName: '',
         Email: '',
         Roles: [],
-        Claims: []
+        Claims: {}
     };
 
+    syn.$w.User.Claims.UserWorkID = syn.$w.User.Claims.UserWorkID || '';
+    syn.$w.User.Claims.TenantAppRequestPath = syn.$w.User.Claims.TenantAppRequestPath || 'app';
     syn.$w.User.WorkCompanyNo = (syn.$r.query('companyNo') || syn.$r.query('CompanyNo') || syn.$r.query('companyNO') || syn.$r.query('CompanyNO') || syn.$r.query('COMPANYNO') || syn.$r.query('companyno')) || null;
     syn.$w.User.WorkUserNo = (syn.$r.query('employeeNo') || syn.$r.query('EmployeeNo') || syn.$r.query('employeeNO') || syn.$r.query('EmployeeNO') || syn.$r.query('EMPLOYEENO') || syn.$r.query('employeeno')) || null;
 

@@ -169,23 +169,23 @@ namespace dbclient.Areas.dbclient.Controllers
                             p.ApplicationID == fileInfo.Directory?.Parent?.Name &&
                             p.ProjectID == fileInfo.Directory?.Name &&
                             p.TransactionID == fileInfo.Name.Replace(fileInfo.Extension, "")).ToList();
-                    }
 
-                    if (existStatementMaps.Count > 0)
-                    {
-                        List<string> mapStrings = new List<string>();
-                        for (int i = 0; i < existStatementMaps.Count; i++)
+                        if (existStatementMaps.Count > 0)
                         {
-                            var item = existStatementMaps[i];
-                            mapStrings.Add($"{item.ApplicationID}|{item.ProjectID}|{item.TransactionID}|{item.StatementID}");
-                        }
+                            List<string> mapStrings = new List<string>();
+                            for (int i = 0; i < existStatementMaps.Count; i++)
+                            {
+                                var item = existStatementMaps[i];
+                                mapStrings.Add($"{item.ApplicationID}|{item.ProjectID}|{item.TransactionID}|{item.StatementID}");
+                            }
 
-                        for (int i = 0; i < mapStrings.Count; i++)
-                        {
-                            var item = existStatementMaps[i];
-                            var items = mapStrings[i].SplitAndTrim('|');
-                            logger.Information("[{LogCategory}] " + $"Delete StatementMap ApplicationID: {item.ApplicationID}, ProjectID: {item.ProjectID}, TransactionID: {item.TransactionID}, FunctionID: {item.StatementID}", "Query/Refresh");
-                            DatabaseMapper.Remove(items[0], items[1], items[2], items[3]);
+                            for (int i = 0; i < mapStrings.Count; i++)
+                            {
+                                var item = existStatementMaps[i];
+                                var items = mapStrings[i].SplitAndTrim('|');
+                                logger.Information("[{LogCategory}] " + $"Delete StatementMap ApplicationID: {item.ApplicationID}, ProjectID: {item.ProjectID}, TransactionID: {item.TransactionID}, FunctionID: {item.StatementID}", "Query/Refresh");
+                                DatabaseMapper.Remove(items[0], items[1], items[2], items[3]);
+                            }
                         }
                     }
 

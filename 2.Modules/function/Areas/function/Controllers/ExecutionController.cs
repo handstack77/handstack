@@ -44,7 +44,7 @@ namespace function.Areas.function.Controllers
         /// http://localhost:8000/api/base64/encode?value={"ProjectID":"QAF","BusinessID":"DSO","TransactionID":"0001","FunctionID":"R0100"}
         /// http://localhost:8000/api/execution/has?base64Json=eyJQcm9qZWN0SUQiOiJRQUYiLCJCdXNpbmVzc0lEIjoiRFNPIiwiVHJhbnNhY3Rpb25JRCI6IjAwMDEiLCJGdW5jdGlvbklEIjoiUjAxMDAifQ==
         /// </example>
-        [HttpGet("Has")]
+        [HttpGet("[action]")]
         public ActionResult Has(string base64Json)
         {
             var definition = new
@@ -89,7 +89,7 @@ namespace function.Areas.function.Controllers
         /// http://localhost:8000/api/base64/encode?value={"ScriptFilePath":"QAF\DSO\TST010","ForceUpdate":true}
         /// http://localhost:8000/api/execution/upsert?base64Json=eyJTcWxGaWxlUGF0aCI6IlFBRlxEU09cUUFGRFNPMDAwMS54bWwiLCJGb3JjZVVwZGF0ZSI6dHJ1ZX0=
         /// </example>
-        [HttpGet("Upsert")]
+        [HttpGet("[action]")]
         public ActionResult Upsert(string base64Json)
         {
             var definition = new
@@ -142,7 +142,7 @@ namespace function.Areas.function.Controllers
         /// <example>
         // http://localhost:8000/function/api/execution/refresh?changeType=Created&filePath=EWP/ZZD/TST010/featureMain.js
         /// </example>
-        [HttpGet("Refresh")]
+        [HttpGet("[action]")]
         public ActionResult Refresh(string changeType, string filePath)
         {
             ActionResult result = NotFound();
@@ -177,22 +177,22 @@ namespace function.Areas.function.Controllers
                         }
                     }
 
-                    var existScriptMaps = FunctionMapper.ScriptMappings.Select(p => p.Value).Where(p =>
+                    lock (FunctionMapper.ScriptMappings)
+                    {
+                        var existScriptMaps = FunctionMapper.ScriptMappings.Select(p => p.Value).Where(p =>
                         p.ApplicationID == fileInfo.Directory?.Parent?.Parent?.Name &&
                         p.ProjectID == fileInfo.Directory?.Parent?.Name &&
                         p.TransactionID == fileInfo.Directory?.Name).ToList();
 
-                    if (existScriptMaps.Count > 0)
-                    {
-                        List<string> mapStrings = new List<string>();
-                        for (int i = 0; i < existScriptMaps.Count; i++)
+                        if (existScriptMaps.Count > 0)
                         {
-                            var item = existScriptMaps[i];
-                            mapStrings.Add($"{item.ApplicationID}|{item.ProjectID}|{item.TransactionID}|{item.ScriptID}");
-                        }
+                            List<string> mapStrings = new List<string>();
+                            for (int i = 0; i < existScriptMaps.Count; i++)
+                            {
+                                var item = existScriptMaps[i];
+                                mapStrings.Add($"{item.ApplicationID}|{item.ProjectID}|{item.TransactionID}|{item.ScriptID}");
+                            }
 
-                        lock (FunctionMapper.ScriptMappings)
-                        {
                             for (int i = 0; i < mapStrings.Count; i++)
                             {
                                 var item = existScriptMaps[i];
@@ -240,7 +240,7 @@ namespace function.Areas.function.Controllers
         /// http://localhost:8000/api/base64/encode?value={"ProjectID":"QAF","BusinessID":"DSO","TransactionID":"0001","FunctionID":"R0100"}
         /// http://localhost:8000/api/execution/delete?base64Json=eyJQcm9qZWN0SUQiOiJRQUYiLCJCdXNpbmVzc0lEIjoiRFNPIiwiVHJhbnNhY3Rpb25JRCI6IjAwMDEiLCJGdW5jdGlvbklEIjoiUjAxMDAifQ==
         /// </example>
-        [HttpGet("Delete")]
+        [HttpGet("[action]")]
         public ActionResult Delete(string base64Json)
         {
             var definition = new
@@ -285,7 +285,7 @@ namespace function.Areas.function.Controllers
         /// http://localhost:8000/api/base64/encode?value={"ProjectID":"QAF","BusinessID":"DSO","TransactionID":"0001","FunctionID":"R0100"}
         /// http://localhost:8000/api/execution/get?base64Json=eyJQcm9qZWN0SUQiOiJRQUYiLCJCdXNpbmVzc0lEIjoiRFNPIiwiVHJhbnNhY3Rpb25JRCI6IjAwMDEiLCJGdW5jdGlvbklEIjoiUjAxMDAifQ==
         /// </example>
-        [HttpGet("Get")]
+        [HttpGet("[action]")]
         public ActionResult Get(string base64Json)
         {
             var definition = new
@@ -338,7 +338,7 @@ namespace function.Areas.function.Controllers
         /// http://localhost:8000/api/base64/encode?value={%22ProjectID%22:%22QAF%22,%22BusinessID%22:%22%22,%22TransactionID%22:%22%22,%22FunctionID%22:%22%22}
         /// http://localhost:8000/api/execution/retrieve?base64Json=eyJQcm9qZWN0SUQiOiJRQUYiLCJCdXNpbmVzc0lEIjoiIiwiVHJhbnNhY3Rpb25JRCI6IiIsIkZ1bmN0aW9uSUQiOiIifQ==
         /// </example>
-        [HttpGet("Retrieve")]
+        [HttpGet("[action]")]
         public ActionResult Retrieve(string base64Json)
         {
             var definition = new
@@ -413,7 +413,7 @@ namespace function.Areas.function.Controllers
         /// <example>
         /// http://localhost:8000/api/execution/meta
         /// </example>
-        [HttpGet("Meta")]
+        [HttpGet("[action]")]
         public ActionResult Meta()
         {
             ActionResult result = NotFound();
