@@ -10,7 +10,7 @@ namespace HandStack.Web.MessageContract.Contract
         public Dictionary<string, object>? Property { get; set; }
 
         [JsonProperty("outputAction")]
-        public OutputAction OutputAction { get; set; }
+        public OutputAction? OutputAction { get; set; }
 
         [JsonProperty("responseType")]
         public string ResponseType { get; set; }
@@ -28,7 +28,7 @@ namespace HandStack.Web.MessageContract.Contract
         {
             ResponseType = "";
             Property = null;
-            OutputAction = new OutputAction();
+            OutputAction = null;
             DataSetMeta = new List<string>();
             DataMapCount = new List<int>();
             DataSet = new List<DataMapItem>();

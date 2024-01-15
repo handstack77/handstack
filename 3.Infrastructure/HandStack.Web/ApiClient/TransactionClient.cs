@@ -332,7 +332,6 @@ namespace HandStack.Web.ApiClient
             transactionRequest.Transaction.CompressionYN = TransactionConfig.Transaction.CompressionYN;
             transactionRequest.Transaction.StartTraceID = transactionObject.StartTraceID;
 
-            transactionRequest.PayLoad.MapID = transactionObject.TransactionMapID;
             transactionRequest.PayLoad.DataMapCount = transactionObject.InputsItemCount;
             transactionRequest.PayLoad.DataMapSet = new List<List<DataMapItem>>();
 
