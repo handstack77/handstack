@@ -3612,7 +3612,6 @@
                     },
                     payLoad: {
                         property: {},
-                        mapID: '',
                         dataMapInterface: '',
                         dataMapCount: [],
                         dataMapSet: []
@@ -3805,7 +3804,6 @@
                                         var jsonResult = [];
                                         var message = transactionResponse.message;
                                         if (transactionResponse.result.dataSet != null && transactionResponse.result.dataSet.length > 0) {
-                                            var mapID = transactionResponse.result.mapID;
                                             var dataMapItem = transactionResponse.result.dataSet;
                                             var length = dataMapItem.length;
                                             for (var i = 0; i < length; i++) {
@@ -3951,7 +3949,6 @@
                                         if (transactionResponse && transactionResponse.acknowledge && transactionResponse.acknowledge == 1) {
                                             try {
                                                 if (transactionResponse.result.dataSet != null && transactionResponse.result.dataSet.length > 0) {
-                                                    var mapID = transactionResponse.result.mapID;
                                                     var dataMapItem = transactionResponse.result.dataSet;
                                                     var length = dataMapItem.length;
                                                     for (var i = 0; i < length; i++) {

@@ -9,9 +9,6 @@ namespace HandStack.Web.MessageContract.Contract
         [JsonProperty("property")]
         public Dictionary<string, object> Property { get; set; }
 
-        [JsonProperty("mapID")]
-        public string MapID { get; set; }
-
         [JsonProperty("dataMapInterface")]
         public string DataMapInterface { get; set; }
 
@@ -27,7 +24,6 @@ namespace HandStack.Web.MessageContract.Contract
         public PayLoadType()
         {
             Property = new Dictionary<string, object>();
-            MapID = "";
             DataMapInterface = "";
             DataMapCount = new List<int>();
             DataMapSet = new List<List<DataMapItem>>();

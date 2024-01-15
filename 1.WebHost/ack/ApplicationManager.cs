@@ -66,7 +66,10 @@ namespace ack
 
             ThreadPool.QueueUserWorkItem(BackgroundTaskAsync);
 
-            Log.Information($"Bootstrapping IConfigurationRoot... {GlobalConfiguration.BootstrappingVariables(configuration)}");
+            if (Array.Exists(args, p => p == "showenv=1") == true || Array.Exists(args, p => p == "showenv=Y") == true)
+            {
+                Log.Information($"Bootstrapping IConfigurationRoot... {GlobalConfiguration.BootstrappingVariables(configuration)}");
+            }
 
             host = CreateWebHostBuilder(port, args).Build();
 

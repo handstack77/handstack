@@ -12,9 +12,6 @@ namespace HandStack.Web.MessageContract.Contract
         [JsonProperty("outputAction")]
         public OutputAction OutputAction { get; set; }
 
-        [JsonProperty("mapID")]
-        public string DataSetID { get; set; }
-
         [JsonProperty("responseType")]
         public string ResponseType { get; set; }
 
@@ -32,7 +29,6 @@ namespace HandStack.Web.MessageContract.Contract
             ResponseType = "";
             Property = null;
             OutputAction = new OutputAction();
-            DataSetID = "";
             DataSetMeta = new List<string>();
             DataMapCount = new List<int>();
             DataSet = new List<DataMapItem>();

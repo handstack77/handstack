@@ -1950,7 +1950,6 @@ namespace transact.Areas.transact.Controllers
                 string serviceID = string.IsNullOrEmpty(sequentialOption.ServiceID) == true ? transactionObject.ServiceID : sequentialOption.ServiceID;
 
                 response.Result = new ResultType();
-                response.Result.DataSetID = request.PayLoad.MapID;
                 response.Result.DataSet = new List<DataMapItem>();
 
                 if (transactionInfo.ReturnType == "Json")
@@ -2212,7 +2211,6 @@ namespace transact.Areas.transact.Controllers
             }
 
             response.Result = new ResultType();
-            response.Result.DataSetID = request.PayLoad.MapID;
             response.Result.DataSet = new List<DataMapItem>();
 
             switch (transactionInfo.ReturnType)
