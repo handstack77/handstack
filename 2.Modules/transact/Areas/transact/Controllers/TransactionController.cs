@@ -722,7 +722,7 @@ namespace transact.Areas.transact.Controllers
                                 transactionResponse = new TransactionResponse();
                             }
 
-                            transactionResponse.ResponseID = string.Concat(ModuleConfiguration.SystemID, GlobalConfiguration.HostName, request.Environment, DateTime.Now.ToString("yyyyMMddHHmmddsss"));
+                            transactionResponse.ResponseID = string.Concat(ModuleConfiguration.SystemID, GlobalConfiguration.HostName, request.Environment, DateTime.Now.ToString("yyyyMMddHHmmss"));
                             DefaultResponseHeaderConfiguration(request, transactionResponse);
                             return LoggingAndReturn(transactionResponse, "Y", null);
                         }
@@ -3175,11 +3175,18 @@ namespace transact.Areas.transact.Controllers
             response.Version = request.Version;
             response.System.ProgramID = request.System.ProgramID;
             response.System.LocaleID = request.System.LocaleID;
+            response.System.HostName = GlobalConfiguration.HostName;
+            response.System.PathName = Request.Path;
             response.Transaction.GlobalID = request.Transaction.GlobalID;
             response.Transaction.BusinessID = request.Transaction.BusinessID;
             response.Transaction.TransactionID = request.Transaction.TransactionID;
             response.Transaction.FunctionID = request.Transaction.FunctionID;
+            response.Transaction.CommandType = request.Transaction.CommandType;
             response.Transaction.SimulationType = request.Transaction.SimulationType;
+            response.Transaction.TerminalGroupID = request.Transaction.TerminalGroupID;
+            response.Transaction.OperatorID = request.Transaction.OperatorID;
+            response.Transaction.ScreenID = request.Transaction.ScreenID;
+            response.Transaction.StartTraceID = request.Transaction.StartTraceID;
             response.Transaction.CompressionYN = request.Transaction.CompressionYN;
             response.Transaction.DataFormat = request.Transaction.DataFormat;
             response.System.Routes = request.System.Routes;
@@ -3189,6 +3196,7 @@ namespace transact.Areas.transact.Controllers
                 var route = response.System.Routes[response.System.Routes.Count - 1];
                 route.SystemID = GlobalConfiguration.SystemID;
                 route.HostName = GlobalConfiguration.HostName;
+                route.Environment = request.Environment;
                 route.AcceptTick = DateTime.UtcNow.GetJavascriptTime();
             }
         }

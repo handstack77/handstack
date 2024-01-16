@@ -29,6 +29,5 @@
         public static string T504 = "(게이트웨이 시간초과): 서버가 게이트웨이나 프록시 역할을 하고 있거나 또는 업스트림 서버에서 제때 요청을 받지 못함";
         public static string T520 = "(Unknown Error, 알 수 없음)";
         public static string T598 = "(네트워크 읽기 시간초과 오류, 알 수 없음)";
-        public static string T599 = "(네트워크 연결 시간초과 오류, 알 수 없음)";
     }
 }
