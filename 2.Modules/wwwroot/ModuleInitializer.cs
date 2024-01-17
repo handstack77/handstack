@@ -241,7 +241,8 @@ namespace wwwroot
                         app.UseDirectoryBrowser(new DirectoryBrowserOptions
                         {
                             FileProvider = new PhysicalFileProvider(libDirectoryPath),
-                            RequestPath = "/lib"
+                            RequestPath = "/lib",
+                            RedirectToAppendTrailingSlash = false
                         });
                     }
                 }

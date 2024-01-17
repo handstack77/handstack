@@ -27,6 +27,7 @@ gulp.task('scripts', async function () {
         'wwwroot/lib/mustache-4.2.0/mustache.js',
         'wwwroot/lib/printjs-1.6.0/print.min.js',
         'wwwroot/lib/notifier-1.0.0/notifier.js',
+        'wwwroot/lib/tinymce-5.6.0/tinymce.min.js',
         'wwwroot/lib/master@1.37.8/master-css.min.js'
     ])
         .pipe(concat('syn.scripts.js'))
@@ -56,7 +57,6 @@ gulp.task('controls', async function () {
         'wwwroot/uicontrols/RadioButton/RadioButton.js',
         'wwwroot/uicontrols/TextArea/TextArea.js',
         'wwwroot/uicontrols/TextBox/TextBox.js',
-        'wwwroot/uicontrols/TextButton/TextButton.js',
         'wwwroot/uicontrols/SourceEditor/SourceEditor.js',
         'wwwroot/uicontrols/HtmlEditor/HtmlEditor.js',
         'wwwroot/uicontrols/TreeView/TreeView.js',
@@ -127,7 +127,6 @@ gulp.task('styles', async function () {
         'wwwroot/uicontrols/RadioButton/RadioButton.css',
         'wwwroot/uicontrols/TextArea/TextArea.css',
         'wwwroot/uicontrols/TextBox/TextBox.css',
-        'wwwroot/uicontrols/TextButton/TextButton.css',
         'wwwroot/uicontrols/SourceEditor/SourceEditor.css',
         'wwwroot/uicontrols/HtmlEditor/HtmlEditor.css',
         'wwwroot/uicontrols/TreeView/TreeView.css',
