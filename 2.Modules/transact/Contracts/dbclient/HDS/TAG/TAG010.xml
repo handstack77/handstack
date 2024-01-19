@@ -67,7 +67,7 @@ CREATE TABLE IF NOT EXISTS  "ErrorDetail" (
     "UserID" TEXT NULL,
 
     -- 로그 구분
-    "TAGType" TEXT NULL,
+    "LogType" TEXT NULL,
 
     -- 입력일시
     "CreatedAt" TEXT NULL
@@ -330,7 +330,7 @@ SELECT ED.ProjectID
 	, ED.FeatureID
 	, ED.GlobalID
 	, ED.UserID
-	, ED.TAGType
+	, ED.LogType
 	, strftime('%H:%M:%S', ED.CreatedAt) AS CreatedAt
 FROM ErrorDetail ED
 WHERE strftime('%Y%m%d-%H', ED.CreatedAt) = (@CreateDate || '-' || @CreateHour)
@@ -432,7 +432,7 @@ INSERT INTO ErrorDetail
     , FeatureID
     , GlobalID
     , UserID
-    , TAGType
+    , LogType
     , CreatedAt
 ) 
 VALUES
@@ -442,7 +442,7 @@ VALUES
     , @FeatureID
     , @GlobalID
     , @UserID
-    , @TAGType
+    , @LogType
     , @CreatedAt
 );
 			]]>
@@ -451,7 +451,7 @@ VALUES
             <param id="@FeatureID" type="String" length="36" value="" />
             <param id="@GlobalID" type="String" length="50" value="" />
             <param id="@UserID" type="String" length="256" value="" />
-            <param id="@TAGType" type="String" length="1" value="" />
+            <param id="@LogType" type="String" length="1" value="" />
             <param id="@CreatedAt" type="String" length="30" value="" />
         </statement>
 	</commands>
