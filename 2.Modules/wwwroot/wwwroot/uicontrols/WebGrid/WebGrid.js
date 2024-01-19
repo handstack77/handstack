@@ -31,7 +31,7 @@
 
                 button = document.createElement('BUTTON');
                 syn.$m.addCssText(button, 'height: 21px;;');
-                syn.$m.addClass(button, 'btn w:21px mt:1px mr:-3px float:right');
+                syn.$m.addClass(button, 'btn w:21px mt:1px float:right');
                 button.tag = [instance, td, row, column, prop, value, cellProperties];
                 button.innerHTML = '<i class="ti ti-search"></i>';
 
@@ -395,7 +395,7 @@
             language: 'ko-KR',
             data: [],
             colWidths: 120,
-            rowHeights: 24,
+            rowHeights: 31,
             rowHeaders: true,
             copyPaste: true,
             beforePaste(data, coords) {

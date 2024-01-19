@@ -129,7 +129,7 @@ namespace dbclient
                     {
                         DirectoryInfo workDirectoryInfo = new DirectoryInfo(userWorkPath);
                         string userWorkID = workDirectoryInfo.Name;
-                        foreach (var appBasePath in Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath))
+                        foreach (var appBasePath in Directory.GetDirectories(userWorkPath))
                         {
                             DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
                             string applicationID = directoryInfo.Name;
