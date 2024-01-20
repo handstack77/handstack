@@ -829,13 +829,21 @@
         transactionLoadOptions(loadOptions) {
             try {
                 if (location.pathname.startsWith((syn.Config.TenantAppRequestPath ? `/${syn.Config.TenantAppRequestPath}/` : '/app/')) == true) {
-                    loadOptions['app-id'] = location.pathname.split('/')[2];
+                    var paths = location.pathname.split('/');
+                    loadOptions['work-id'] = paths[2];
+                    loadOptions['app-id'] = paths[3];
                 }
                 else if (syn.$r.query('app-id') == true) {
                     loadOptions['app-id'] = syn.$r.query('app-id');
+                    if (syn.$r.query('work-id') == true) {
+                        loadOptions['work-id'] = syn.$r.query('work-id');
+                    }
                 }
                 else if ($this && $this.prop && $this.prop.selectedAppID) {
                     loadOptions['app-id'] = $this.prop.selectedAppID;
+                    if ($this && $this.prop && $this.prop.selectedUserWorkID) {
+                        loadOptions['work-id'] = $this.prop.selectedUserWorkID;
+                    }
                 }
             } catch (error) {
                 syn.$l.eventLog('transactionLoadOptions', error, 'Error');

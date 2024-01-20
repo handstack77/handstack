@@ -69,6 +69,14 @@ namespace transact.Extensions
                                 {
                                     lock (businessContracts)
                                     {
+                                        if (filePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
+                                        {
+                                            FileInfo fileInfo = new FileInfo(filePath);
+                                            businessContract.ApplicationID = string.IsNullOrEmpty(businessContract.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : businessContract.ApplicationID;
+                                            businessContract.ProjectID = string.IsNullOrEmpty(businessContract.ProjectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : businessContract.ProjectID;
+                                            businessContract.TransactionID = string.IsNullOrEmpty(businessContract.TransactionID) == true ? fileInfo.Name.Replace(fileInfo.Extension, "") : businessContract.TransactionID;
+                                        }
+
                                         if (businessContracts.ContainsKey(filePath) == true)
                                         {
                                             businessContracts.Remove(filePath);
@@ -102,6 +110,11 @@ namespace transact.Extensions
                 if (itemKeys.Length == 4)
                 {
                     string publicRouteSegmentID = $"{itemKeys[0]}|*|{itemKeys[2]}|{itemKeys[3]}";
+                    result = ModuleConfiguration.RoutingCommandUri.GetValueOrDefault(publicRouteSegmentID);
+                }
+                else if (itemKeys.Length == 5)
+                {
+                    string publicRouteSegmentID = $"{itemKeys[0]}|{itemKeys[1]}|*|{itemKeys[3]}|{itemKeys[4]}";
                     result = ModuleConfiguration.RoutingCommandUri.GetValueOrDefault(publicRouteSegmentID);
                 }
 
@@ -152,6 +165,11 @@ namespace transact.Extensions
                                         if (itemKeys.Length == 4)
                                         {
                                             string publicRouteSegmentID = $"{itemKeys[0]}|*|{itemKeys[2]}|{itemKeys[3]}";
+                                            result = ModuleConfiguration.RoutingCommandUri.GetValueOrDefault(publicRouteSegmentID);
+                                        }
+                                        else if (itemKeys.Length == 5)
+                                        {
+                                            string publicRouteSegmentID = $"{itemKeys[0]}|{itemKeys[1]}|*|{itemKeys[3]}|{itemKeys[4]}";
                                             result = ModuleConfiguration.RoutingCommandUri.GetValueOrDefault(publicRouteSegmentID);
                                         }
                                     }

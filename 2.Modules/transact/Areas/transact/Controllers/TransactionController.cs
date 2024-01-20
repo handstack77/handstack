@@ -552,6 +552,10 @@ namespace transact.Areas.transact.Controllers
 
             try
             {
+                string baseUrl = HttpContext.Request.GetBaseUrl();
+                string refererPath = HttpContext.Request.Headers.Referer.ToString();
+                string tenantAppRequestPath = $"{baseUrl}/{GlobalConfiguration.TenantAppRequestPath}/";
+                var transactionUserWorkID = request.LoadOptions?.Get<string>("work-id").ToStringSafe();
                 var transactionApplicationID = request.LoadOptions?.Get<string>("app-id").ToStringSafe();
                 request.System.ProgramID = string.IsNullOrEmpty(transactionApplicationID) == false ? transactionApplicationID : request.System.ProgramID;
 
@@ -580,6 +584,10 @@ namespace transact.Areas.transact.Controllers
                     {
                         isAllowRequestTransactions = true;
                     }
+                }
+                else if (refererPath.StartsWith(tenantAppRequestPath) && string.IsNullOrEmpty(transactionUserWorkID) == false && string.IsNullOrEmpty(transactionApplicationID) == false)
+                {
+                    isAllowRequestTransactions = true;
                 }
 
                 if (isAllowRequestTransactions == false)
@@ -891,7 +899,7 @@ namespace transact.Areas.transact.Controllers
 
                     if (isAccessScreenID == false)
                     {
-                        response.ExceptionText = $"TRN_SCRN_CD '{request.Transaction.ScreenID}' 요청 가능화면 거래 매핑 정보 확인 필요";
+                        response.ExceptionText = $"ScreenID '{request.Transaction.ScreenID}' 요청 가능화면 거래 매핑 정보 확인 필요";
                         return LoggingAndReturn(response, "Y", transactionInfo);
                     }
                 }
@@ -930,11 +938,9 @@ namespace transact.Areas.transact.Controllers
 
                     // Referer 실행 경로가 태넌트 앱이고 요청 헤더에 Authorization가 있으면 인증 검증
                     UserAccount? userAccount = null;
-                    string requestPath = HttpContext.Request.Headers.Referer.ToString();
-                    string tenantAppRequestPath = $"/{GlobalConfiguration.TenantAppRequestPath}/";
-                    if (requestPath.StartsWith(tenantAppRequestPath) == true)
+                    if (refererPath.StartsWith(tenantAppRequestPath) == true)
                     {
-                        var splits = requestPath.Split('/');
+                        var splits = refererPath.Split('/');
                         string userWorkID = splits.Length > 3 ? splits[2] : "";
                         string applicationID = splits.Length > 3 ? splits[3] : "";
                         if (string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false)
@@ -2627,6 +2633,13 @@ namespace transact.Areas.transact.Controllers
                 string transactionProjectID = transactionObject.TransactionID.Split("|")[1];
 
                 string routeSegmentID = $"{transactionApplicationID}|{transactionProjectID}|{request.Transaction.CommandType}|{request.Environment}";
+
+                var transactionUserWorkID = request.LoadOptions?.Get<string>("work-id").ToStringSafe();
+                if (string.IsNullOrEmpty(transactionUserWorkID) == false)
+                {
+                    routeSegmentID = transactionUserWorkID + "|" + routeSegmentID;
+                }
+
                 string? messageServerUrl = TransactionMapper.GetRoutingCommandUri(routeSegmentID);
 
                 if (string.IsNullOrEmpty(messageServerUrl) == true)
@@ -2827,6 +2840,13 @@ namespace transact.Areas.transact.Controllers
                 string transactionApplicationID = transactionObject.TransactionID.Split("|")[0];
                 string transactionProjectID = transactionObject.TransactionID.Split("|")[1];
                 string routeSegmentID = $"{transactionApplicationID}|{transactionProjectID}|{request.Transaction.CommandType}|{request.Environment}";
+
+                var transactionUserWorkID = request.LoadOptions?.Get<string>("work-id").ToStringSafe();
+                if (string.IsNullOrEmpty(transactionUserWorkID) == false)
+                {
+                    routeSegmentID = transactionUserWorkID + "|" + routeSegmentID;
+                }
+
                 string? messageServerUrl = TransactionMapper.GetRoutingCommandUri(routeSegmentID);
 
                 if (string.IsNullOrEmpty(messageServerUrl) == true)
