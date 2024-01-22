@@ -99,7 +99,6 @@
 
 .handsontable table.htCore td button.codehelp {
     float: right;
-    margin-top: 1px;
     margin-right: -3px;
     height: 20px;
     text-align: center;
@@ -108,12 +107,11 @@
 
 .handsontable table.htCore td button.celltype {
     width: 100%;
-    line-height: 16px;
+    height: 20px;
     text-align: center;
     vertical-align: middle;
     border: 1px solid #ccc;
     background-color: #e1e6f4;
-    margin-top: -2px;
     border-radius: 3px;
 }
 
