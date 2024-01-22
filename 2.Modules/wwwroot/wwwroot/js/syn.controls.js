@@ -6558,15 +6558,15 @@
 
                     if (value.indexOf && value.indexOf('|') > -1) {
                         var values = value.split('|');
-
-                        if (values[0].split(' ').length > 1) {
-                            var classValues = values[0].split(' ');
-                            for (var classValue in classValues) {
-                                button.classList.add(classValue);
+                        var classLists = values[0];
+                        if (classLists.split(' ').length > 1) {
+                            var classValues = classLists.split(' ');
+                            for (var key in classValues) {
+                                button.classList.add(classValues[key]);
                             }
                         }
                         else {
-                            button.classList.add(values[0]);
+                            button.classList.add(classLists);
                         }
 
                         value = values[1];
