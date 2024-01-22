@@ -31823,14 +31823,14 @@ ul.fancytree-container li {
 .handsontable table.htCore td button.codehelp {
     float: right;
     margin-right: -3px;
-    height: 20px;
+    height: 28px;
     text-align: center;
     border-radius: 3px;
 }
 
 .handsontable table.htCore td button.celltype {
     width: 100%;
-    height: 20px;
+    height: 28px;
     text-align: center;
     vertical-align: middle;
     border: 1px solid #ccc;
@@ -31909,13 +31909,18 @@ div.summaryRow .ht_master.handsontable table.htCore > tbody > tr:last-child {
     vertical-align: middle;
 }
 
-.handsontable th:first-child, .handsontable td:first-child {
-    height: 32px;
-    line-height: 32px;
-}
+    .handsontable th:first-child, .handsontable td:first-child {
+        height: 32px;
+        line-height: 32px;
+    }
 
 .handsontable .htCheckboxRendererInput {
     margin-top: -2px;
+}
+
+.handsontable.listbox {
+    margin: 0;
+    min-height: 300px !important;
 }
 
 :root {

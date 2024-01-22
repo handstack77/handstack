@@ -1,4 +1,4 @@
-﻿/*!
+/*!
 HandStack Javascript Library v1.0.0
 https://syn.handshake.kr
 
@@ -6324,26 +6324,6 @@ globalRoot.syn = syn;
                     syn.$l.deepFreeze(syn.$w.Variable);
                 }
 
-                var hidden = null;
-                if (document.forms) {
-                    for (var i = 0; i < document.forms.length; i++) {
-                        var form = document.forms[i];
-                        hidden = form.getAttribute('hidden');
-                        if ($object.isNullOrUndefined(hidden) == false && $string.toBoolean(hidden) == false) {
-                            form.removeAttribute('hidden');
-                            syn.$m.removeClass(form, 'hidden');
-                            form.style.display = '';
-                        }
-                    }
-                }
-
-                hidden = document.body.getAttribute('hidden');
-                if ($object.isNullOrUndefined(hidden) == false && $string.toBoolean(hidden) == false) {
-                    document.body.removeAttribute('hidden');
-                    syn.$m.removeClass(document.body, 'hidden');
-                    document.body.style.display = '';
-                }
-
                 if (mod && mod.context.synControls && ($object.isNullOrUndefined(mod.context.tabOrderControls) == true || mod.context.tabOrderControls.length == 0)) {
                     var synTagNames = [];
                     var syn_tags = document.body.outerHTML.match(/<(syn_).+?>/gi);
@@ -9630,7 +9610,6 @@ globalRoot.syn = syn;
                     },
                     payLoad: {
                         property: {},
-                        mapID: '',
                         dataMapInterface: '',
                         dataMapCount: [],
                         dataMapSet: []
@@ -9823,7 +9802,6 @@ globalRoot.syn = syn;
                                         var jsonResult = [];
                                         var message = transactionResponse.message;
                                         if (transactionResponse.result.dataSet != null && transactionResponse.result.dataSet.length > 0) {
-                                            var mapID = transactionResponse.result.mapID;
                                             var dataMapItem = transactionResponse.result.dataSet;
                                             var length = dataMapItem.length;
                                             for (var i = 0; i < length; i++) {
@@ -9969,7 +9947,6 @@ globalRoot.syn = syn;
                                         if (transactionResponse && transactionResponse.acknowledge && transactionResponse.acknowledge == 1) {
                                             try {
                                                 if (transactionResponse.result.dataSet != null && transactionResponse.result.dataSet.length > 0) {
-                                                    var mapID = transactionResponse.result.mapID;
                                                     var dataMapItem = transactionResponse.result.dataSet;
                                                     var length = dataMapItem.length;
                                                     for (var i = 0; i < length; i++) {

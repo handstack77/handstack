@@ -2531,6 +2531,26 @@ function domainPageLoad() {
     var pageStyleLoadedIntervalID = setInterval(function () {
         if (checkCount > 200 || (window.pageStyleLoaded != undefined && window.pageStyleLoaded == true)) {
             clearInterval(pageStyleLoadedIntervalID);
+
+            var hidden = null;
+            if (document.forms) {
+                for (var i = 0; i < document.forms.length; i++) {
+                    var form = document.forms[i];
+                    hidden = form.getAttribute('hidden');
+                    if ($object.isNullOrUndefined(hidden) == false && $string.toBoolean(hidden) == false) {
+                        form.removeAttribute('hidden');
+                        syn.$m.removeClass(form, 'hidden');
+                        form.style.display = '';
+                    }
+                }
+            }
+
+            hidden = document.body.getAttribute('hidden');
+            if ($object.isNullOrUndefined(hidden) == false && $string.toBoolean(hidden) == false) {
+                document.body.removeAttribute('hidden');
+                syn.$m.removeClass(document.body, 'hidden');
+            }
+
             if (document.forms) {
                 for (var i = 0; i < document.forms.length; i++) {
                     var form = document.forms[i];
@@ -2542,6 +2562,10 @@ function domainPageLoad() {
 
             if (document.body.style.display == 'none') {
                 document.body.style.display = '';
+            }
+
+            if (document.body.style.visibility == 'hidden') {
+                document.body.style.visibility = '';
             }
 
             var mod = window[syn.$w.pageScript];

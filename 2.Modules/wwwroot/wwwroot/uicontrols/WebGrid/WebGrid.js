@@ -1375,7 +1375,7 @@
                         }
 
                         columnInfo.source = source;
-                        columnInfo.visibleRows = $object.isNullOrUndefined(source) == true ? 0 : source.length + 1;
+                        columnInfo.visibleRows = 10;
                         columnInfo.trimDropdown = true;
                         columnInfo.trimWhitespace = true;
                         columnInfo.wordWrap = false;
