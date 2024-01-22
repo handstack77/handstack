@@ -25,6 +25,7 @@ namespace transact
         public static string DatabaseContractPath = "";
         public static bool IsValidationRequest = false;
         public static bool IsAllowDynamicRequest = false;
+        public static List<string> AllowTenantTransactionCommands = new List<string>();
         public static bool IsLogServer = false;
         public static bool IsTransactAggregate = false;
         public static bool IsDataMasking = false;

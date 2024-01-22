@@ -11,6 +11,7 @@
         "IsExceptionDetailText": true,
         "IsValidationRequest": false,
         "IsAllowDynamicRequest": true,
+        "AllowTenantTransactionCommands": [ "D" ],
         "IsLogServer": false,
         "IsTransactAggregate": false,
         "IsDataMasking": false,

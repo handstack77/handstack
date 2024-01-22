@@ -40,6 +40,8 @@ namespace transact.Entity
 
         public bool IsAllowDynamicRequest { get; set; }
 
+        public List<string> AllowTenantTransactionCommands { get; set; }
+
         public string ModuleBasePath { get; set; }
 
         public List<string> ContractBasePath { get; set; }
@@ -84,6 +86,8 @@ namespace transact.Entity
             IsLogServer = false;
             IsTransactAggregate = false;
             IsDataMasking = false;
+            IsAllowDynamicRequest = false;
+            AllowTenantTransactionCommands = new List<string>();
             MaskingChar = "";
             MaskingMethod = "";
             ModuleBasePath = "";

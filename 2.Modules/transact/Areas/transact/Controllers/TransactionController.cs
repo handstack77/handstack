@@ -1481,6 +1481,18 @@ namespace transact.Areas.transact.Controllers
                 response.Transaction.CommandType = transactionInfo.CommandType;
                 ApplicationResponse applicationResponse = new ApplicationResponse();
 
+                if (refererPath.StartsWith(tenantAppRequestPath) && string.IsNullOrEmpty(transactionUserWorkID) == false && string.IsNullOrEmpty(transactionApplicationID) == false)
+                {
+                    if (ModuleConfiguration.AllowTenantTransactionCommands.IndexOf(transactionInfo.CommandType) > -1)
+                    {
+                    }
+                    else
+                    {
+                        response.ExceptionText = "제한된 거래 요청입니다.";
+                        return LoggingAndReturn(response, "Y", transactionInfo);
+                    }
+                }
+
                 if (request.Action == "PSH")
                 {
                     _ = Task.Run(async () =>
