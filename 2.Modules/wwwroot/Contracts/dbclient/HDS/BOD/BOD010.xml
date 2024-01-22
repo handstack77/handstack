@@ -1,0 +1,458 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+	<header>
+		<application>HDS</application>
+		<project>BOD</project>
+		<transaction>BOD010</transaction>
+		<datasource>DB01</datasource>
+		<use>Y</use>
+		<desc>게시판 CRUD</desc>
+	</header>
+	<commands>
+        <statement id="ZD01" seq="0" use="Y" timeout="0" desc="Aggregate, ErrorDetail 테이블 DDL" native="Y" modified="2023-09-25 00:00:00">
+            <![CDATA[
+CREATE TABLE IF NOT EXISTS "Aggregate" (
+    -- 입력일자
+    "CreateDate" INTEGER NOT NULL,
+
+    -- 입력시간
+    "CreateHour" INTEGER NOT NULL,
+
+    -- 프로젝트 ID
+    "ProjectID" TEXT NOT NULL,
+
+    -- 거래 ID
+    "TransactionID" TEXT NOT NULL,
+
+    -- 기능 ID
+    "FeatureID" TEXT NOT NULL,
+
+    -- 요청수
+    "RequestCount" INTEGER NULL,
+
+    -- 응답수
+    "ResponseCount" INTEGER NULL,
+
+    -- 오류수
+    "ErrorCount" INTEGER NULL,
+
+    -- 최근요청일시
+    "LatelyRequestAt" TEXT NULL,
+
+    -- 최근응답일시
+    "LatelyResponseAt" TEXT NULL,
+
+    -- 최근응답구분
+    "Acknowledge" TEXT NULL,
+    CONSTRAINT "PK_Aggregate" PRIMARY KEY ("CreateDate", "CreateHour", "ProjectID", "TransactionID", "FeatureID")
+);
+
+CREATE TABLE IF NOT EXISTS  "ErrorDetail" (
+    -- 에러상세 NO
+    "ErrorDetailNo" INTEGER NOT NULL CONSTRAINT "PK_ErrorDetail" PRIMARY KEY AUTOINCREMENT,
+
+    -- 프로젝트 ID
+    "ProjectID" TEXT NULL,
+
+    -- 거래 ID
+    "TransactionID" TEXT NULL,
+
+    -- 기능 ID
+    "FeatureID" TEXT NULL,
+
+    -- 거래 글로벌 ID
+    "GlobalID" TEXT NULL,
+
+    -- 사용자 ID
+    "UserID" TEXT NULL,
+
+    -- 로그 구분
+    "LogType" TEXT NULL,
+
+    -- 입력일시
+    "CreatedAt" TEXT NULL
+);
+			]]>
+        </statement>
+
+        <statement id="GD01" seq="0" use="Y" timeout="0" desc="당일 및 금주 거래 요청/응답/오류 집계 조회" native="Y" modified="2023-09-25 00:00:00">
+            <![CDATA[
+SELECT 'TODAY' AS DateType
+	, IFNULL(SUM(AG.RequestCount), 0) AS RequestCount
+	, IFNULL(SUM(AG.ResponseCount), 0) AS ResponseCount
+	, IFNULL(SUM(AG.ErrorCount), 0) AS ErrorCount
+FROM Aggregate AG
+WHERE AG.CreateDate = @RequestDate
+UNION
+SELECT 'WEEK' AS DateType
+	, IFNULL(SUM(AG.RequestCount), 0) AS RequestCount
+	, IFNULL(SUM(AG.ResponseCount), 0) AS ResponseCount
+	, IFNULL(SUM(AG.ErrorCount), 0) AS ErrorCount
+FROM Aggregate AG
+WHERE AG.CreateDate BETWEEN @FirstDateOfWeek AND @LastDateOfWeek;
+			]]>
+            <param id="@RequestDate" type="String" length="8" value="" />
+            <param id="@FirstDateOfWeek" type="String" length="8" value="" />
+            <param id="@LastDateOfWeek" type="String" length="8" value="" />
+        </statement>
+
+        <statement id="LD01" seq="0" use="Y" timeout="0" desc="최근 7일 일시별 요청수, 오류수 합계 조회" native="Y" modified="2023-09-25 00:00:00">
+            <![CDATA[
+DROP TABLE IF EXISTS Temp_Aggregate;
+
+CREATE TEMPORARY TABLE Temp_Aggregate AS   
+SELECT (AG.CreateDate || AG.CreateHour) AS DateHour
+	, AG.RequestCount 
+	, AG.ErrorCount 
+FROM Aggregate AG
+WHERE 1>2;
+
+DELETE FROM Temp_Aggregate;
+
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '23', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '22', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '21', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '20', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '19', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '18', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '17', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '16', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '15', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '14', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '13', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '12', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '11', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '10', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '09', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '08', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '07', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '06', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '05', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '04', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '03', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '02', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '01', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '00', 0, 0;
+
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '23', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '22', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '21', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '20', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '19', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '18', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '17', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '16', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '15', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '14', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '13', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '12', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '11', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '10', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '09', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '08', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '07', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '06', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '05', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '04', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '03', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '02', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '01', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '00', 0, 0;
+
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '23', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '22', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '21', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '20', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '19', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '18', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '17', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '16', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '15', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '14', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '13', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '12', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '11', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '10', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '09', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '08', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '07', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '06', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '05', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '04', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '03', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '02', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '01', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '00', 0, 0;
+
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '23', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '22', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '21', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '20', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '19', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '18', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '17', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '16', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '15', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '14', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '13', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '12', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '11', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '10', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '09', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '08', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '07', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '06', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '05', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '04', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '03', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '02', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '01', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '00', 0, 0;
+
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '23', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '22', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '21', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '20', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '19', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '18', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '17', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '16', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '15', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '14', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '13', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '12', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '11', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '10', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '09', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '08', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '07', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '06', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '05', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '04', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '03', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '02', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '01', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '00', 0, 0;
+
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '23', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '22', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '21', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '20', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '19', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '18', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '17', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '16', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '15', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '14', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '13', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '12', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '11', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '10', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '09', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '08', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '07', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '06', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '05', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '04', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '03', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '02', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '01', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '00', 0, 0;
+
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '23', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '22', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '21', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '20', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '19', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '18', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '17', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '16', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '15', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '14', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '13', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '12', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '11', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '10', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '09', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '08', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '07', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '06', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '05', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '04', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '03', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '02', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '01', 0, 0;
+INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '00', 0, 0;
+
+SELECT DateHour
+	, IFNULL(MAX(RequestCount), 0) AS RequestCount
+	, IFNULL(MAX(ErrorCount), 0) AS ErrorCount
+FROM (
+	SELECT (AG.CreateDate || SUBSTR('00' || AG.CreateHour, -2, 2)) AS DateHour
+		, IFNULL(SUM(RequestCount), 0) AS RequestCount 
+		, IFNULL(SUM(ErrorCount), 0) AS ErrorCount 
+	FROM Aggregate AG
+	GROUP BY AG.CreateDate, AG.CreateHour
+	UNION
+	SELECT DateHour
+		, RequestCount
+		, ErrorCount
+	FROM Temp_Aggregate
+) A
+GROUP BY DateHour
+ORDER BY DateHour ASC;
+			]]>
+        </statement>
+
+        <statement id="LD02" seq="0" use="Y" timeout="0" desc="일시별 거래 요청 조회" native="Y" modified="2023-09-25 00:00:00">
+            <![CDATA[
+SELECT AG.ProjectID
+	, AG.TransactionID
+	, AG.FeatureID
+	, AG.RequestCount
+	, AG.ResponseCount
+	, AG.ErrorCount
+	, strftime('%H:%M:%S', AG.LatelyRequestAt) || ' / ' || strftime('%H:%M:%S', AG.LatelyResponseAt) AS RequestResponseTime
+	, strftime('%s', AG.LatelyResponseAt) - strftime('%s', AG.LatelyRequestAt) AS DurationSecond
+FROM Aggregate AG
+WHERE AG.CreateDate = @CreateDate
+	AND AG.CreateHour = @CreateHour
+ORDER BY 7 DESC;
+			]]>
+            <param id="@CreateDate" type="String" length="8" value="" />
+            <param id="@CreateHour" type="String" length="2" value="" />
+        </statement>
+
+        <statement id="LD03" seq="0" use="Y" timeout="0" desc="일시별 거래 오류 조회" native="Y" modified="2023-09-25 00:00:00">
+            <![CDATA[
+SELECT ED.ProjectID
+	, ED.TransactionID
+	, ED.FeatureID
+	, ED.GlobalID
+	, ED.UserID
+	, ED.LogType
+	, strftime('%H:%M:%S', ED.CreatedAt) AS CreatedAt
+FROM ErrorDetail ED
+WHERE strftime('%Y%m%d-%H', ED.CreatedAt) = (@CreateDate || '-' || @CreateHour)
+ORDER BY 7 DESC;
+			]]>
+            <param id="@CreateDate" type="String" length="8" value="" />
+            <param id="@CreateHour" type="String" length="2" value="" />
+        </statement>
+
+        <statement id="MD01" seq="0" use="Y" timeout="0" desc="거래 요청/응답/오류 집계 정보 입력 또는 변경" native="Y" modified="2023-09-25 00:00:00">
+            <![CDATA[
+INSERT OR REPLACE INTO Aggregate
+(
+    CreateDate
+    , CreateHour
+    , ProjectID
+    , TransactionID
+    , FeatureID
+    , RequestCount
+    , ResponseCount
+    , ErrorCount
+    , LatelyRequestAt
+    , LatelyResponseAt
+    , Acknowledge
+) 
+VALUES
+(
+    @CreateDate
+    , @CreateHour
+    , @ProjectID
+    , @TransactionID
+    , @FeatureID
+    , (SELECT IFNULL(MAX(RequestCount), 0) + 1 FROM Aggregate S WHERE S.CreateDate = @CreateDate AND S.CreateHour = @CreateHour AND S.ProjectID = @ProjectID AND S.TransactionID = @TransactionID AND S.FeatureID = @FeatureID)
+    , (SELECT IFNULL(MAX(ResponseCount), 0) FROM Aggregate S WHERE S.CreateDate = @CreateDate AND S.CreateHour = @CreateHour AND S.ProjectID = @ProjectID AND S.TransactionID = @TransactionID AND S.FeatureID = @FeatureID)
+    , (SELECT IFNULL(MAX(ErrorCount), 0) FROM Aggregate S WHERE S.CreateDate = @CreateDate AND S.CreateHour = @CreateHour AND S.ProjectID = @ProjectID AND S.TransactionID = @TransactionID AND S.FeatureID = @FeatureID)
+    , @LatelyRequestAt
+    , @LatelyResponseAt
+    , @Acknowledge
+);
+			]]>
+            <param id="@CreateDate" type="Int32" length="-1" value="" />
+            <param id="@CreateHour" type="Int32" length="-1" value="" />
+            <param id="@ProjectID" type="String" length="36" value="" />
+            <param id="@TransactionID" type="String" length="36" value="" />
+            <param id="@FeatureID" type="String" length="36" value="" />
+            <param id="@LatelyRequestAt" type="String" length="30" value="" />
+            <param id="@LatelyResponseAt" type="String" length="30" value="" />
+            <param id="@Acknowledge" type="String" length="30" value="" />
+        </statement>
+
+        <statement id="UD01" seq="0" use="Y" timeout="0" desc="거래 응답 집계 정보 변경" native="Y" modified="2023-09-25 00:00:00">
+            <![CDATA[
+UPDATE Aggregate SET 
+    ResponseCount = (SELECT IFNULL(MAX(ResponseCount), 0) + 1 FROM Aggregate S WHERE S.CreateDate = @CreateDate AND S.CreateHour = @CreateHour AND S.ProjectID = @ProjectID AND S.TransactionID = @TransactionID AND S.FeatureID = @FeatureID)
+    , LatelyResponseAt = @LatelyResponseAt
+    , Acknowledge = @Acknowledge
+WHERE CreateDate = @CreateDate
+    AND CreateHour = @CreateHour
+    AND ProjectID = @ProjectID
+    AND TransactionID = @TransactionID
+    AND FeatureID = @FeatureID;
+			]]>
+            <param id="@CreateDate" type="Int32" length="-1" value="" />
+            <param id="@CreateHour" type="Int32" length="-1" value="" />
+            <param id="@ProjectID" type="String" length="36" value="" />
+            <param id="@TransactionID" type="String" length="36" value="" />
+            <param id="@FeatureID" type="String" length="36" value="" />
+            <param id="@LatelyResponseAt" type="String" length="30" value="" />
+            <param id="@Acknowledge" type="String" length="30" value="" />
+        </statement>
+
+        <statement id="UD02" seq="0" use="Y" timeout="0" desc="거래 오류 집계 정보 변경" native="Y" modified="2023-09-25 00:00:00">
+            <![CDATA[
+UPDATE Aggregate SET 
+    ErrorCount = (SELECT IFNULL(MAX(ErrorCount), 0) + 1 FROM Aggregate S WHERE S.CreateDate = @CreateDate AND S.CreateHour = @CreateHour AND S.ProjectID = @ProjectID AND S.TransactionID = @TransactionID AND S.FeatureID = @FeatureID)
+    , LatelyResponseAt = @LatelyResponseAt
+    , Acknowledge = @Acknowledge
+WHERE CreateDate = @CreateDate
+    AND CreateHour = @CreateHour
+    AND ProjectID = @ProjectID
+    AND TransactionID = @TransactionID
+    AND FeatureID = @FeatureID;
+			]]>
+            <param id="@CreateDate" type="Int32" length="-1" value="" />
+            <param id="@CreateHour" type="Int32" length="-1" value="" />
+            <param id="@ProjectID" type="String" length="36" value="" />
+            <param id="@TransactionID" type="String" length="36" value="" />
+            <param id="@FeatureID" type="String" length="36" value="" />
+            <param id="@LatelyResponseAt" type="String" length="30" value="" />
+            <param id="@Acknowledge" type="String" length="30" value="" />
+        </statement>
+
+        <statement id="ID01" seq="0" use="Y" timeout="0" desc="거래 오류 정보 입력" native="Y" modified="2023-09-25 00:00:00">
+            <![CDATA[
+INSERT INTO ErrorDetail
+(
+    ProjectID
+    , TransactionID
+    , FeatureID
+    , GlobalID
+    , UserID
+    , LogType
+    , CreatedAt
+) 
+VALUES
+(
+    @ProjectID
+    , @TransactionID
+    , @FeatureID
+    , @GlobalID
+    , @UserID
+    , @LogType
+    , @CreatedAt
+);
+			]]>
+            <param id="@ProjectID" type="String" length="36" value="" />
+            <param id="@TransactionID" type="String" length="36" value="" />
+            <param id="@FeatureID" type="String" length="36" value="" />
+            <param id="@GlobalID" type="String" length="50" value="" />
+            <param id="@UserID" type="String" length="256" value="" />
+            <param id="@LogType" type="String" length="1" value="" />
+            <param id="@CreatedAt" type="String" length="30" value="" />
+        </statement>
+	</commands>
+</mapper>
