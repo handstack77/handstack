@@ -15,6 +15,7 @@
             maskPattern: null,
             maxCount: null,
             minCount: 0,
+            allowChars: [],
             placeText: [],
             defaultSetValue: '0',
             dataType: 'string',
@@ -346,7 +347,11 @@
 
         event_english_blur(evt) {
             var el = evt.target || evt.srcElement || evt;
-            el.value = el.value.replace(/[^a-z0-9]/gi, '');
+            var synOptions = JSON.parse(el.getAttribute('syn-options'));
+            var allowChars = synOptions.allowChars || [];
+            if (allowChars.length > 0 && allowChars.indexOf(el.value) == -1) {
+                el.value = el.value.replace(/[^a-z0-9]/gi, '');
+            }
         },
 
         event_number_blur(evt) {
