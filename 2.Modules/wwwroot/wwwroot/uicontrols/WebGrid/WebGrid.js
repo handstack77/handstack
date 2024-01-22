@@ -146,9 +146,9 @@
 
                         var el = event.target || event.srcElement;
                         var mod = window[syn.$w.pageScript];
-                        var eventHandler = mod.event['{0}_cellButtonClick'.format(instance.elID)];
+                        var eventHandler = mod.event['{0}_cellButtonClick'.format(instance.rootElement.id)];
                         if (eventHandler) {
-                            eventHandler.apply(el, [instance.elID, row, column, prop, value]);
+                            eventHandler.apply(el, [instance.rootElement.id, row, column, prop, value]);
                         }
                     });
 
@@ -253,7 +253,7 @@
         Handsontable.cellTypes.registerCellType('radio', {
             renderer(instance, td, row, column, prop, value, cellProperties) {
                 Handsontable.renderers.TextRenderer.apply(this, arguments);
-                var inputID = 'rdo_{0}_{1}_{2}'.format(instance.elID, row, column);
+                var inputID = 'rdo_{0}_{1}_{2}'.format(instance.rootElement.id, row, column);
                 var input = document.createElement('INPUT');
                 input.id = inputID;
                 input.type = 'radio';
@@ -287,7 +287,7 @@
                                     }
 
                                     data[i][prop] = 0;
-                                    var radio = syn.$l.get('rdo_{0}_{1}_{2}'.format(instance.elID, i, column));
+                                    var radio = syn.$l.get('rdo_{0}_{1}_{2}'.format(instance.rootElement.id, i, column));
                                     if (radio) {
                                         radio.checked = false;
                                     }
@@ -297,9 +297,9 @@
 
                         instance.setDataAtCell(row, column, (el.checked === true ? '1' : '0'));
 
-                        var eventHandler = mod.event['{0}_cellRadioClick'.format(instance.elID)];
+                        var eventHandler = mod.event['{0}_cellRadioClick'.format(instance.rootElement.id)];
                         if (eventHandler) {
-                            eventHandler.apply(el, [instance.elID, row, column, prop, (el.checked === true ? '1' : '0')]);
+                            eventHandler.apply(el, [instance.rootElement.id, row, column, prop, (el.checked === true ? '1' : '0')]);
                         }
                         instance.render();
                     }
@@ -329,7 +329,7 @@
         Handsontable.cellTypes.registerCellType('checkbox2', {
             renderer(instance, td, row, column, prop, value, cellProperties) {
                 Handsontable.renderers.TextRenderer.apply(this, arguments);
-                var inputID = 'chk_syngrid_{0}_{1}_{2}'.format(instance.elID, row, column);
+                var inputID = 'chk_syngrid_{0}_{1}_{2}'.format(instance.rootElement.id, row, column);
                 var input = document.createElement('INPUT');
                 input.id = inputID;
                 input.type = 'checkbox';
@@ -355,9 +355,9 @@
                     if (readonly == false || cellMeta.readOnly == false) {
                         instance.setDataAtCell(row, column, (el.checked === true ? '1' : '0'));
 
-                        var eventHandler = mod.event['{0}_cellCheckboxClick'.format(instance.elID)];
+                        var eventHandler = mod.event['{0}_cellCheckboxClick'.format(instance.rootElement.id)];
                         if (eventHandler) {
-                            eventHandler.apply(el, [instance.elID, row, column, prop, (el.checked === true ? '1' : '0')]);
+                            eventHandler.apply(el, [instance.rootElement.id, row, column, prop, (el.checked === true ? '1' : '0')]);
                         }
                     }
                 });

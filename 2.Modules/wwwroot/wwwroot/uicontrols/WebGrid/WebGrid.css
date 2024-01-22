@@ -162,12 +162,14 @@
 .handsontable input[type=radio].form-check-input {
     width: 18px;
     height: 18px;
+    margin-left: 1px;
     border: var(--tblr-border-width) var(--tblr-border-style) var(--tblr-border-color-translucent);
 }
 
 .handsontable input[type=checkbox].form-check-input {
     width: 18px;
     height: 18px;
+    margin-left: 1px;
     border: var(--tblr-border-width) var(--tblr-border-style) var(--tblr-border-color-translucent);
 }
 
