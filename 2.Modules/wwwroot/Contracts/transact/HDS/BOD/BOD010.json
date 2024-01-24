@@ -2,13 +2,32 @@
     "ApplicationID": "HDS",
     "ProjectID": "BOD",
     "TransactionID": "BOD010",
-    "Comment": "게시판 CRUD 거래",
+    "Comment": "게시글 목록 거래",
     "Services": [
         {
-            "ServiceID": "GF01",
+            "ServiceID": "ZD01",
             "Authorize": false,
             "ReturnType": "Json",
-            "CommandType": "F",
+            "CommandType": "D",
+            "TransactionScope": false,
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": []
+        },
+        {
+            "ServiceID": "LD01",
+            "Authorize": false,
+            "ReturnType": "Json",
+            "CommandType": "D",
             "TransactionScope": false,
             "Inputs": [
                 {
@@ -26,7 +45,7 @@
                     "ModelID": "Dynamic",
                     "Fields": [
                     ],
-                    "Type": "Form"
+                    "Type": "Grid"
                 }
             ]
         }

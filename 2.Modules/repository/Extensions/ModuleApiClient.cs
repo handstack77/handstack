@@ -84,7 +84,7 @@ namespace repository.Extensions
                 var repository = GetRepository(applicationID, repositoryID);
                 if (repository != null)
                 {
-                    var transactionInfo = string.IsNullOrEmpty(repository.TransactionGetItem) == true ? $"{ModuleConfiguration.ApplicationID}|STR|STR010|LD01".Split("|") : repository.TransactionGetItem.Split("|");
+                    var transactionInfo = string.IsNullOrEmpty(repository.TransactionGetItem) == true ? $"{ModuleConfiguration.ApplicationID}|STR|STR010|GD01".Split("|") : repository.TransactionGetItem.Split("|");
                     TransactionClientObject transactionObject = new TransactionClientObject();
                     transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
                     if (transactionInfo.Length == 3)
@@ -115,7 +115,6 @@ namespace repository.Extensions
                     transactionObject.Inputs.Add(inputs);
 
                     var transactionResult = await transactionClient.TransactionDirect(ModuleConfiguration.BusinessServerUrl, transactionObject);
-
                     if (transactionResult.ContainsKey("HasException") == true)
                     {
                         logger.Error("[{LogCategory}] " + $"ErrorMessage: {transactionResult?["HasException"]?["ErrorMessage"]?.ToString()}", "FileManagerController/GetRepositoryItem");
@@ -139,7 +138,6 @@ namespace repository.Extensions
             return result;
         }
 
-
         public async Task<List<RepositoryItems>?> GetRepositoryItems(string applicationID, string repositoryID, string dependencyID)
         {
             List<RepositoryItems>? result = null;
@@ -148,7 +146,7 @@ namespace repository.Extensions
                 var repository = GetRepository(applicationID, repositoryID);
                 if (repository != null)
                 {
-                    var transactionInfo = string.IsNullOrEmpty(repository.TransactionGetItems) == true ? $"{ModuleConfiguration.ApplicationID}|STR|STR010|LD02".Split("|") : repository.TransactionGetItems.Split("|");
+                    var transactionInfo = string.IsNullOrEmpty(repository.TransactionGetItems) == true ? $"{ModuleConfiguration.ApplicationID}|STR|STR010|LD01".Split("|") : repository.TransactionGetItems.Split("|");
                     TransactionClientObject transactionObject = new TransactionClientObject();
                     transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
                     if (transactionInfo.Length == 3)
@@ -179,7 +177,6 @@ namespace repository.Extensions
                     transactionObject.Inputs.Add(inputs);
 
                     var transactionResult = await transactionClient.TransactionDirect(ModuleConfiguration.BusinessServerUrl, transactionObject);
-
                     if (transactionResult.ContainsKey("HasException") == true)
                     {
                         logger.Error("[{LogCategory}] " + $"ErrorMessage: {transactionResult?["HasException"]?["ErrorMessage"]?.ToString()}", "FileManagerController/GetRepositoryItems");
@@ -239,7 +236,6 @@ namespace repository.Extensions
                     transactionObject.Inputs.Add(inputs);
 
                     var transactionResult = await transactionClient.TransactionDirect(ModuleConfiguration.BusinessServerUrl, transactionObject);
-
                     if (transactionResult.ContainsKey("HasException") == true)
                     {
                         logger.Error("[{LogCategory}] " + $"ErrorMessage: {transactionResult?["HasException"]?["ErrorMessage"]?.ToString()}", "FileManagerController/DeleteRepositoryItem");
@@ -379,7 +375,6 @@ namespace repository.Extensions
                     transactionObject.Inputs.Add(inputs);
 
                     var transactionResult = await transactionClient.TransactionDirect(ModuleConfiguration.BusinessServerUrl, transactionObject);
-
                     if (transactionResult.ContainsKey("HasException") == true)
                     {
                         logger.Error("[{LogCategory}] " + $"ErrorMessage: {transactionResult?["HasException"]?["ErrorMessage"]?.ToString()}", "FileManagerController/UpdateDependencyID");
@@ -440,7 +435,6 @@ namespace repository.Extensions
                     transactionObject.Inputs.Add(inputs);
 
                     var transactionResult = await transactionClient.TransactionDirect(ModuleConfiguration.BusinessServerUrl, transactionObject);
-
                     if (transactionResult.ContainsKey("HasException") == true)
                     {
                         logger.Error("[{LogCategory}] " + $"ErrorMessage: {transactionResult?["HasException"]?["ErrorMessage"]?.ToString()}", "FileManagerController/UpdateFileName");

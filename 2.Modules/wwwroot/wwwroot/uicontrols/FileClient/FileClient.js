@@ -777,7 +777,7 @@
         var el = evt.target || evt.srcElement;
         if (el.files.length > $this.remainingCount) {
             syn.$l.get('fleReviewImageUpload').value = '';
-            syn.$w.alert('{0} 파일 개수 이상 업로드 할 수 없습니다'.format($this.uploadOptions.uploadCount));
+            syn.$w.alert('{0} 건 이상 파일 업로드 할 수 없습니다'.format($this.uploadOptions.uploadCount));
         }
 
         $this.inValidFileNames = [];

@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+	<header>
+		<application>HDS</application>
+		<project>STR</project>
+		<transaction>STR014</transaction>
+		<datasource>DB01</datasource>
+		<use>Y</use>
+		<desc>PostgreSQL 저장소 및 파일 관리</desc>
+	</header>
+	<commands>
+        <statement id="ZD01" seq="0" use="Y" timeout="0" desc="RepositoryFile 테이블 DDL" native="Y" modified="2023-09-25 00:00:00">
+            <![CDATA[
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1
+        FROM   information_schema.tables 
+        WHERE  table_schema = 'public'
+        AND    table_name = 'RepositoryFile'
+    )
+    THEN
+        CREATE TABLE public."RepositoryFile"(
+            "ItemID" varchar(36) NOT NULL,
+            "RepositoryID" varchar(36) NOT NULL,
+            "DependencyID" varchar(36),
+            "FileName" varchar(256) NOT NULL,
+            "PhysicalPath" varchar(1000),
+            "AbsolutePath" varchar(1000),
+            "RelativePath" varchar(1000),
+            "Extension" varchar(50),
+            "Size" bigint,
+            "MD5" varchar(50),
+            "CustomPath1" varchar(50),
+            "CustomPath2" varchar(50),
+            "CustomPath3" varchar(50),
+            "PolicyPath" varchar(1),
+            "SortingNo" integer,
+            "Comment" varchar(200),
+            "CreatedMemberNo" varchar(36),
+            "CreatedAt" timestamp,
+            PRIMARY KEY ("ItemID")
+        );
+
+        CREATE INDEX "IX_RepositoryFile" 
+        ON public."RepositoryFile" ("RepositoryID", "DependencyID");
+    END IF;
+END $$;
+			]]>
+        </statement>
+        
+		<statement id="GD01" seq="0" use="Y" timeout="0" desc="단일 파일 조회" native="Y" modified="2023-09-25 00:00:00">
+			<![CDATA[
+SELECT RF."ItemID"
+       , RF."RepositoryID"
+       , RF."DependencyID"
+       , RF."FileName"
+       , RF."PhysicalPath"
+       , RF."AbsolutePath"
+       , RF."RelativePath"
+       , RF."Extension"
+       , RF."Size"
+       , RF."MD5"
+       , RF."CustomPath1"
+       , RF."CustomPath2"
+       , RF."CustomPath3"
+       , RF."PolicyPath"
+       , RF."SortingNo"
+       , RF."Comment"
+       , RF."CreatedMemberNo"
+       , TO_CHAR(RF."CreatedAt", 'YYYY-MM-DD HH24:MI:SS.US') AS "CreatedAt"
+FROM   "RepositoryFile" RF
+WHERE  RF."RepositoryID" = :RepositoryID
+    AND RF."ItemID" = :ItemID;
+			]]>
+            <param id=":RepositoryID" type="Varchar" length="36" value="" />
+            <param id=":ItemID" type="Varchar" length="36" value="" />
+		</statement>
+
+        <statement id="LD01" seq="0" use="Y" timeout="0" desc="멀티 파일 조회" native="Y" modified="2023-09-25 00:00:00">
+            <![CDATA[
+SELECT RF."ItemID"
+       , RF."RepositoryID"
+       , RF."DependencyID"
+       , RF."FileName"
+       , RF."PhysicalPath"
+       , RF."AbsolutePath"
+       , RF."RelativePath"
+       , RF."Extension"
+       , RF."Size"
+       , RF."MD5"
+       , RF."CustomPath1"
+       , RF."CustomPath2"
+       , RF."CustomPath3"
+       , RF."PolicyPath"
+       , RF."SortingNo"
+       , RF."Comment"
+       , RF."CreatedMemberNo"
+       , TO_CHAR(RF."CreatedAt", 'YYYY-MM-DD HH24:MI:SS.US') AS "CreatedAt"
+FROM   "RepositoryFile" RF
+WHERE  RF."RepositoryID" = :RepositoryID
+       AND COALESCE(:DependencyID, RF."DependencyID") = :DependencyID;
+			]]>
+            <param id=":RepositoryID" type="Varchar" length="36" value="" />
+            <param id=":DependencyID" type="Varchar" length="36" value="" />
+        </statement>
+
+        <statement id="DD01" seq="0" use="Y" timeout="0" desc="파일 정보 삭제" native="Y" modified="2023-09-25 00:00:00">
+            <![CDATA[
+DELETE FROM "RepositoryFile" WHERE "RepositoryID" = :RepositoryID AND "ItemID" = :ItemID;
+			]]>
+            <param id=":RepositoryID" type="Varchar" length="36" value="" />
+            <param id=":ItemID" type="Varchar" length="36" value="" />
+        </statement>
+
+        <statement id="MD01" seq="0" use="Y" timeout="0" desc="파일 정보 입력 또는 변경" native="Y" modified="2023-09-25 00:00:00">
+            <![CDATA[
+WITH vals AS (
+    SELECT :ItemID AS ItemID, :RepositoryID AS RepositoryID
+),
+upsert AS (
+    UPDATE "RepositoryFile" RF
+    SET "DependencyID" = :DependencyID,
+        "FileName" = :FileName,
+        "PhysicalPath" = :PhysicalPath,
+        "AbsolutePath" = :AbsolutePath,
+        "RelativePath" = :RelativePath,
+        "Extension" = :Extension,
+        "Size" = :Size,
+        "MD5" = :MD5,
+        "CustomPath1" = :CustomPath1,
+        "CustomPath2" = :CustomPath2,
+        "CustomPath3" = :CustomPath3,
+        "PolicyPath" = :PolicyPath,
+        "SortingNo" = :SortingNo,
+        "Comment" = :Comment,
+        "CreatedMemberNo" = :CreatedMemberNo
+    FROM vals
+    WHERE RF."ItemID" = vals.ItemID AND RF."RepositoryID" = vals.RepositoryID
+    RETURNING RF.*
+)
+INSERT INTO "RepositoryFile" ("ItemID", "RepositoryID", "DependencyID", "FileName", "PhysicalPath", "AbsolutePath", "RelativePath", "Extension", "Size", "MD5", "CustomPath1", "CustomPath2", "CustomPath3", "PolicyPath", "SortingNo", "Comment", "CreatedMemberNo", "CreatedAt")
+SELECT :ItemID, :RepositoryID, :DependencyID, :FileName, :PhysicalPath, :AbsolutePath, :RelativePath, :Extension, :Size, :MD5, :CustomPath1, :CustomPath2, :CustomPath3, :PolicyPath, :SortingNo, :Comment, :CreatedMemberNo, CURRENT_TIMESTAMP
+WHERE NOT EXISTS (SELECT 1 FROM upsert);
+			]]>
+            <param id=":ItemID" type="Varchar" length="36" value="" />
+            <param id=":RepositoryID" type="Varchar" length="36" value="" />
+            <param id=":DependencyID" type="Varchar" length="36" value="" />
+            <param id=":FileName" type="Varchar" length="256" value="" />
+            <param id=":PhysicalPath" type="Varchar" length="1000" value="" />
+            <param id=":AbsolutePath" type="Varchar" length="1000" value="" />
+            <param id=":RelativePath" type="Varchar" length="1000" value="" />
+            <param id=":Extension" type="Varchar" length="50" value="" />
+            <param id=":Size" type="Bigint" length="-1" value="" />
+            <param id=":MD5" type="Varchar" length="50" value="" />
+            <param id=":CustomPath1" type="Varchar" length="50" value="" />
+            <param id=":CustomPath2" type="Varchar" length="50" value="" />
+            <param id=":CustomPath3" type="Varchar" length="50" value="" />
+            <param id=":PolicyPath" type="Varchar" length="1" value="" />
+            <param id=":SortingNo" type="Integer" length="-1" value="" />
+            <param id=":Comment" type="Varchar" length="200" value="" />
+            <param id=":CreatedMemberNo" type="Varchar" length="36" value="" />
+        </statement>
+
+        <statement id="UD01" seq="0" use="Y" timeout="0" desc="파일 참조 ID 변경" native="Y" modified="2023-09-25 00:00:00">
+            <![CDATA[
+UPDATE "RepositoryFile" 
+SET "DependencyID" = :TargetDependencyID
+WHERE "RepositoryID" = :RepositoryID
+    AND "DependencyID" = :SourceDependencyID
+    AND COALESCE(:ItemID, "ItemID") = :ItemID;
+			]]>
+            <param id=":RepositoryID" type="Varchar" length="36" value="NULL" />
+            <param id=":ItemID" type="Varchar" length="36" value="NULL" />
+            <param id=":SourceDependencyID" type="Varchar" length="36" value="NULL" />
+            <param id=":TargetDependencyID" type="Varchar" length="36" value="NULL" />
+        </statement>
+
+        <statement id="UD02" seq="0" use="Y" timeout="0" desc="파일명 변경" native="Y" modified="2023-09-25 00:00:00">
+            <![CDATA[
+UPDATE "RepositoryFile" 
+SET "FileName" = :FileName,
+    "PhysicalPath" = REPLACE("PhysicalPath", "FileName", :FileName), 
+    "AbsolutePath" = REPLACE("AbsolutePath", "FileName", :FileName), 
+    "RelativePath" = REPLACE("RelativePath", "FileName", :FileName)
+WHERE "RepositoryID" = :RepositoryID
+    AND "ItemID" = :ItemID;
+			]]>
+            <param id=":RepositoryID" type="Varchar" length="36" value="NULL" />
+            <param id=":ItemID" type="Varchar" length="36" value="NULL" />
+            <param id=":FileName" type="Varchar" length="256" value="NULL" />
+        </statement>
+	</commands>
+</mapper>

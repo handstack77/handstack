@@ -6,7 +6,9 @@ using System.Net.Http;
 
 using HandStack.Core.ExtensionMethod;
 using HandStack.Core.Extensions;
+using HandStack.Data.Enumeration;
 using HandStack.Web;
+using HandStack.Web.ApiClient;
 using HandStack.Web.Entity;
 using HandStack.Web.Helper;
 using HandStack.Web.MessageContract.DataObject;
@@ -137,6 +139,7 @@ namespace repository
                     });
                 }
 
+                ModuleApiClient moduleApiClient = new ModuleApiClient(Log.Logger, new TransactionClient(Log.Logger));
                 if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(Path.Combine(GlobalConfiguration.TenantAppBasePath)) == true)
                 {
                     foreach (var userWorkPath in Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath))
@@ -209,6 +212,12 @@ namespace repository
 
                                                 repository.UserWorkID = userWorkID;
                                                 repository.SettingFilePath = settingFilePath;
+
+                                                if (repository.IsLocalDbFileManaged == true)
+                                                {
+                                                    ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.STR010.ZD01");
+                                                }
+
                                                 ModuleConfiguration.FileRepositorys.Add(repository);
                                             }
                                         }
@@ -219,7 +228,7 @@ namespace repository
                     }
                 }
 
-                LoadContract();
+                LoadContract(moduleApiClient);
 
                 foreach (Repository item in ModuleConfiguration.FileRepositorys)
                 {
@@ -362,7 +371,7 @@ namespace repository
             }
         }
 
-        public void LoadContract()
+        public void LoadContract(ModuleApiClient moduleApiClient)
         {
             try
             {
@@ -408,6 +417,12 @@ namespace repository
 
                                             repository.UserWorkID = "";
                                             repository.SettingFilePath = repositoryFile;
+
+                                            if (repository.IsLocalDbFileManaged == true)
+                                            {
+                                                ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.STR010.ZD01");
+                                            }
+
                                             ModuleConfiguration.FileRepositorys.Add(repository);
                                         }
                                         else
@@ -438,6 +453,12 @@ namespace repository
 
                                                 repository.UserWorkID = "";
                                                 repository.SettingFilePath = repositoryFile;
+
+                                                if (repository.IsLocalDbFileManaged == true)
+                                                {
+                                                    ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.STR010.ZD01");
+                                                }
+
                                                 ModuleConfiguration.FileRepositorys.Add(repository);
                                             }
                                             else

@@ -6,51 +6,49 @@
 		<transaction>STR011</transaction>
 		<datasource>DB01</datasource>
 		<use>Y</use>
-		<desc>저장소 및 파일 관리</desc>
+		<desc>SQL Server 저장소 및 파일 관리</desc>
 	</header>
 	<commands>
         <statement id="ZD01" seq="0" use="Y" timeout="0" desc="RepositoryFile 테이블 DDL" native="Y" modified="2023-09-25 00:00:00">
             <![CDATA[
 SET ANSI_NULLS ON
 GO
-
 SET QUOTED_IDENTIFIER ON
 GO
 
-CREATE TABLE [dbo].[RepositoryFile](
-	[ItemID] [varchar](36) NOT NULL,
-	[RepositoryID] [varchar](36) NOT NULL,
-	[DependencyID] [varchar](36) NULL,
-	[FileName] [nvarchar](256) NOT NULL,
-	[PhysicalPath] [nvarchar](1000) NULL,
-	[AbsolutePath] [nvarchar](1000) NULL,
-	[RelativePath] [nvarchar](1000) NULL,
-	[Extension] [varchar](50) NULL,
-	[Size] [bigint] NULL,
-	[MD5] [varchar](50) NULL,
-	[CustomPath1] [varchar](50) NULL,
-	[CustomPath2] [varchar](50) NULL,
-	[CustomPath3] [varchar](50) NULL,
-	[PolicyPath] [varchar](1) NULL,
-	[SortingNo] [int] NULL,
-	[Comment] [nvarchar](200) NULL,
-	[CreatedMemberNo] [varchar](36) NULL,
-	[CreatedAt] [datetime] NULL,
- CONSTRAINT [PK_RepositoryFile] PRIMARY KEY CLUSTERED 
-(
-	[ItemNo] DESC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
-) ON [PRIMARY]
-GO
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[RepositoryFile]') AND type in (N'U'))
+BEGIN
+	CREATE TABLE [dbo].[RepositoryFile](
+		[ItemID] [varchar](36) NOT NULL,
+		[RepositoryID] [varchar](36) NOT NULL,
+		[DependencyID] [varchar](36) NULL,
+		[FileName] [nvarchar](256) NOT NULL,
+		[PhysicalPath] [nvarchar](1000) NULL,
+		[AbsolutePath] [nvarchar](1000) NULL,
+		[RelativePath] [nvarchar](1000) NULL,
+		[Extension] [varchar](50) NULL,
+		[Size] [bigint] NULL,
+		[MD5] [varchar](50) NULL,
+		[CustomPath1] [varchar](50) NULL,
+		[CustomPath2] [varchar](50) NULL,
+		[CustomPath3] [varchar](50) NULL,
+		[PolicyPath] [varchar](1) NULL,
+		[SortingNo] [int] NULL,
+		[Comment] [nvarchar](200) NULL,
+		[CreatedMemberNo] [varchar](36) NULL,
+		[CreatedAt] [datetime] NULL,
+	 CONSTRAINT [PK_RepositoryFile] PRIMARY KEY CLUSTERED 
+	(
+		[ItemID] DESC
+	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+	) ON [PRIMARY];
 
-ALTER TABLE [dbo].[RepositoryFile] ADD  CONSTRAINT [DF_RepositoryItems_CreatedMemberNo]  DEFAULT (getdate()) FOR [CreatedMemberNo]
-GO
-			]]>
-        </statement>
-
-        <statement id="ZD02" seq="0" use="Y" timeout="0" desc="SqlServer 서버 시간 조회" native="Y" modified="2023-09-25 00:00:00">
-            <![CDATA[
-SELECT GETDATE() AS ServerAt;
+	CREATE NONCLUSTERED INDEX [IX_RepositoryFile] ON [dbo].[RepositoryFile]
+	(
+		[RepositoryID] ASC,
+		[DependencyID] ASC
+	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY];
+END
 			]]>
         </statement>
         

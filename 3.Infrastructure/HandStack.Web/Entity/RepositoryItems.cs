@@ -14,7 +14,7 @@ namespace HandStack.Web.Entity
 
         public string FileName { get; set; } = "";
 
-        public int SortingNo { get; set; } = 0;
+        public long SortingNo { get; set; } = 0;
 
         public string Comment { get; set; } = "";
 

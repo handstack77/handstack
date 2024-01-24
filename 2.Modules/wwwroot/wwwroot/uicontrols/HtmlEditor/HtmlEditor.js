@@ -9,9 +9,11 @@
         name: 'syn.uicontrols.$htmleditor',
         version: '1.0.0',
         applicationID: '',
+        editorPendings: [],
         editorControls: [],
         defaultSetting: {
             applicationID: '',
+            isLoadScript: false,
             selector: '',
             fileManagerServer: '',
             repositoryID: null,
@@ -75,6 +77,39 @@
         },
 
         controlLoad(elID, setting) {
+            if (window.tinymce) {
+                $htmleditor.lazyControlLoad(elID, setting);
+            }
+            else {
+                if ($htmleditor.defaultSetting.isLoadScript == false) {
+                    $htmleditor.defaultSetting.isLoadScript = true;
+
+                    syn.$w.loadScript('/lib/tinymce-5.6.0/tinymce.min.js');
+                }
+
+                var editorIntervalID = setInterval(function () {
+                    if (window.tinymce) {
+                        var length = $htmleditor.editorPendings.length;
+                        for (var i = 0; i < length; i++) {
+                            var item = $htmleditor.editorPendings[i];
+
+                            clearInterval(item.intervalID);
+                            $htmleditor.lazyControlLoad(item.elID, item.setting);
+                        }
+
+                        $htmleditor.editorPendings.length = 0;
+                    }
+                }, 25);
+
+                $htmleditor.editorPendings.push({
+                    elID: elID,
+                    setting: setting,
+                    intervalID: editorIntervalID
+                });
+            }
+        },
+
+        lazyControlLoad(elID, setting) {
             var el = syn.$l.get(elID);
 
             setting = syn.$w.argumentsExtend($htmleditor.defaultSetting, setting);
@@ -87,7 +122,7 @@
 
             if ($string.isNullOrEmpty(setting.repositoryID) == false) {
                 if ($string.isNullOrEmpty($htmleditor.applicationID) == true) {
-                    $htmleditor.applicationID = syn.$w.User.ApplicationID;
+                    $htmleditor.applicationID = syn.$w.User.ApplicationID || syn.Config.ApplicationID;
                 }
 
                 if ($string.isNullOrEmpty($htmleditor.applicationID) == true) {
@@ -239,7 +274,7 @@
                                 }]);
                             }
                             else {
-                                $htmleditor.resizeImage(file.blob(), 0).then((adjustBlob) => {
+                                $htmleditor.resizeImage(file, 0).then((adjustBlob) => {
                                     uploadHandler({
                                         blob: adjustBlob.blob,
                                         width: adjustBlob.width,
@@ -315,10 +350,22 @@
             setting.selector = '#' + elID;
 
             setting.init_instance_callback = function (editor) {
+                var length = $htmleditor.editorControls.length;
+                for (var i = 0; i < length; i++) {
+                    var item = $htmleditor.editorControls[i];
+                    if (item.id == elID) {
+                        item.editor = editor;
+                        break;
+                    }
+                }
+
                 var el = syn.$l.get(elID);
                 var setInitValue = el.getAttribute('setInitValue');
                 if (setInitValue) {
-                    editor.setContent(setInitValue);
+                    var editorValue = $htmleditor.getValue(elID);
+                    if ($string.isNullOrEmpty(editorValue) == true || editorValue == '<div></div>') {
+                        $htmleditor.setValue(elID, setInitValue);
+                    }
                 }
 
                 editor.on('keydown', function (e) {
@@ -388,12 +435,6 @@
                     editor.setContent(setting.defaultHtmlContent);
                 }
 
-                $htmleditor.editorControls.push({
-                    id: elID,
-                    editor: editor,
-                    setting: $object.clone(setting)
-                });
-
                 if (setting.readonly == true) {
                     Array.from(editor.getDoc().querySelectorAll('a')).map(function (el) {
                         el.target = '_blank';
@@ -412,6 +453,12 @@
                     eventHandler.apply(el, [elID, editor]);
                 }
             };
+
+            $htmleditor.editorControls.push({
+                id: elID,
+                editor: null,
+                setting: $object.clone(setting)
+            });
 
             tinymce.init(setting);
             if ($string.isNullOrEmpty(setting.limitGuideLineWidth) == false) {
@@ -592,7 +639,7 @@
         },
 
         getValue(elID, meta) {
-            var result = null;
+            var result = '';
             var editor = $htmleditor.getHtmlEditor(elID);
             if (editor) {
                 result = editor.getContent();
@@ -629,24 +676,23 @@
 
         setValue(elID, value, meta) {
             var editor = $htmleditor.getHtmlEditor(elID);
-
-            var controlOptions = syn.$l.get('{0}_hidden'.format(elID)).getAttribute('syn-options');
-            if ($object.isNullOrUndefined(controlOptions) == false) {
-                var setting = JSON.parse(controlOptions);
-                if ($string.isNullOrEmpty(setting.prefixHtml) == false) {
-                    if ($string.isNullOrEmpty(setting.prefixHtml) == false && value.startsWith(setting.prefixHtml) == true) {
-                        value = value.replace(setting.prefixHtml, '');
-                    }
-                }
-
-                if ($string.isNullOrEmpty(setting.suffixHtml) == false) {
-                    if ($string.isNullOrEmpty(setting.suffixHtml) == false && value.endsWith(setting.suffixHtml) == true) {
-                        value = value.replace(setting.suffixHtml, '');
-                    }
-                }
-            }
-
             if (editor) {
+                var controlOptions = syn.$l.get('{0}_hidden'.format(elID)).getAttribute('syn-options');
+                if ($object.isNullOrUndefined(controlOptions) == false) {
+                    var setting = JSON.parse(controlOptions);
+                    if ($string.isNullOrEmpty(setting.prefixHtml) == false) {
+                        if ($string.isNullOrEmpty(setting.prefixHtml) == false && value.startsWith(setting.prefixHtml) == true) {
+                            value = value.replace(setting.prefixHtml, '');
+                        }
+                    }
+
+                    if ($string.isNullOrEmpty(setting.suffixHtml) == false) {
+                        if ($string.isNullOrEmpty(setting.suffixHtml) == false && value.endsWith(setting.suffixHtml) == true) {
+                            value = value.replace(setting.suffixHtml, '');
+                        }
+                    }
+                }
+
                 editor.setContent(value);
             }
             else {

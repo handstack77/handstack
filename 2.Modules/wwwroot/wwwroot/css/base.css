@@ -4015,6 +4015,12 @@
     color: rgb(131, 24, 67);
 }
 
+.ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 /* fancytree custom start */
 .tree-container {
     overflow: visible;
@@ -4190,8 +4196,8 @@ span.fancytree-node {
     }
 
 .notifier-container {
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
 }
 
 /* tabler overwrite */

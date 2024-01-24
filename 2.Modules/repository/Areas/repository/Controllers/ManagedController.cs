@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 using HandStack.Core.Extensions;
+using HandStack.Data.Enumeration;
 using HandStack.Web;
 using HandStack.Web.Entity;
 
@@ -12,6 +14,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 
 using Newtonsoft.Json;
+
+using repository.Extensions;
 
 using Serilog;
 
@@ -23,17 +27,21 @@ namespace repository.Areas.repository.Controllers
     public class ManagedController : ControllerBase
     {
         private IConfiguration configuration { get; }
+
         private IWebHostEnvironment environment { get; }
 
-        public ManagedController(IWebHostEnvironment environment, IConfiguration configuration)
+        private readonly ModuleApiClient moduleApiClient;
+
+        public ManagedController(IWebHostEnvironment environment, IConfiguration configuration, ModuleApiClient moduleApiClient)
         {
             this.configuration = configuration;
             this.environment = environment;
+            this.moduleApiClient = moduleApiClient;
         }
 
         // http://localhost:8000/repository/api/managed/reset-app-contract?applicationID=helloworld
         [HttpGet("[action]")]
-        public ActionResult ResetAppContract(string userWorkID, string applicationID)
+        public async Task<ActionResult> ResetAppContract(string userWorkID, string applicationID)
         {
             ActionResult result = BadRequest();
             string? authorizationKey = Request.Headers["AuthorizationKey"];
@@ -119,6 +127,12 @@ namespace repository.Areas.repository.Controllers
 
                                                 repository.UserWorkID = userWorkID;
                                                 repository.SettingFilePath = settingFilePath;
+
+                                                if (repository.IsLocalDbFileManaged == true)
+                                                {
+                                                    ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.STR010.ZD01");
+                                                }
+
                                                 ModuleConfiguration.FileRepositorys.Add(repository);
                                             }
                                         }
@@ -152,6 +166,12 @@ namespace repository.Areas.repository.Controllers
 
                                                 repository.UserWorkID = userWorkID;
                                                 repository.SettingFilePath = repositoryFile;
+
+                                                if (repository.IsLocalDbFileManaged == true)
+                                                {
+                                                    ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.STR010.ZD01");
+                                                }
+
                                                 ModuleConfiguration.FileRepositorys.Add(repository);
                                             }
                                             else
@@ -182,6 +202,12 @@ namespace repository.Areas.repository.Controllers
 
                                                     repository.UserWorkID = userWorkID;
                                                     repository.SettingFilePath = repositoryFile;
+
+                                                    if (repository.IsLocalDbFileManaged == true)
+                                                    {
+                                                        ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.STR010.ZD01");
+                                                    }
+
                                                     ModuleConfiguration.FileRepositorys.Add(repository);
                                                 }
                                                 else

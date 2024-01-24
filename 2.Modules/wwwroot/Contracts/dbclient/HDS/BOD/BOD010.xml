@@ -6,453 +6,137 @@
 		<transaction>BOD010</transaction>
 		<datasource>DB01</datasource>
 		<use>Y</use>
-		<desc>게시판 CRUD</desc>
+		<desc>게시판 Board 테이블 DDL 및 게시글 조회</desc>
 	</header>
 	<commands>
-        <statement id="ZD01" seq="0" use="Y" timeout="0" desc="Aggregate, ErrorDetail 테이블 DDL" native="Y" modified="2023-09-25 00:00:00">
+        <statement id="ZD01" seq="0" use="Y" timeout="0" desc="Board 테이블 DDL 및 초기 데이터 입력 적용">
             <![CDATA[
-CREATE TABLE IF NOT EXISTS "Aggregate" (
-    -- 입력일자
-    "CreateDate" INTEGER NOT NULL,
-
-    -- 입력시간
-    "CreateHour" INTEGER NOT NULL,
-
-    -- 프로젝트 ID
-    "ProjectID" TEXT NOT NULL,
-
-    -- 거래 ID
-    "TransactionID" TEXT NOT NULL,
-
-    -- 기능 ID
-    "FeatureID" TEXT NOT NULL,
-
-    -- 요청수
-    "RequestCount" INTEGER NULL,
-
-    -- 응답수
-    "ResponseCount" INTEGER NULL,
-
-    -- 오류수
-    "ErrorCount" INTEGER NULL,
-
-    -- 최근요청일시
-    "LatelyRequestAt" TEXT NULL,
-
-    -- 최근응답일시
-    "LatelyResponseAt" TEXT NULL,
-
-    -- 최근응답구분
-    "Acknowledge" TEXT NULL,
-    CONSTRAINT "PK_Aggregate" PRIMARY KEY ("CreateDate", "CreateHour", "ProjectID", "TransactionID", "FeatureID")
+CREATE TABLE IF NOT EXISTS Board (
+	ID INTEGER PRIMARY KEY AUTOINCREMENT,
+	Category TEXT,
+	Title TEXT,
+	Content TEXT,
+	Author TEXT,
+	DatePosted TEXT
 );
 
-CREATE TABLE IF NOT EXISTS  "ErrorDetail" (
-    -- 에러상세 NO
-    "ErrorDetailNo" INTEGER NOT NULL CONSTRAINT "PK_ErrorDetail" PRIMARY KEY AUTOINCREMENT,
+DELETE FROM Board;
 
-    -- 프로젝트 ID
-    "ProjectID" TEXT NULL,
+DELETE FROM sqlite_sequence WHERE name = 'Board';
 
-    -- 거래 ID
-    "TransactionID" TEXT NULL,
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('정보', '정보 게시물 제목1', '정보 게시물 내용1', '개발자', datetime('now', 'localtime', '-1 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('강좌', '강좌 게시물 제목1', '강좌 게시물 내용1', '개발자', datetime('now', 'localtime', '-1 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('소식', '소식 게시물 제목1', '소식 게시물 내용1', '개발자', datetime('now', 'localtime', '-1 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('정보', '정보 게시물 제목2', '정보 게시물 내용2', '개발자', datetime('now', 'localtime', '-2 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('강좌', '강좌 게시물 제목2', '강좌 게시물 내용2', '개발자', datetime('now', 'localtime', '-2 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('소식', '소식 게시물 제목2', '소식 게시물 내용2', '개발자', datetime('now', 'localtime', '-2 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('정보', '정보 게시물 제목3', '정보 게시물 내용3', '개발자', datetime('now', 'localtime', '-3 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('강좌', '강좌 게시물 제목3', '강좌 게시물 내용3', '개발자', datetime('now', 'localtime', '-3 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('소식', '소식 게시물 제목3', '소식 게시물 내용3', '개발자', datetime('now', 'localtime', '-3 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('정보', '정보 게시물 제목4', '정보 게시물 내용4', '개발자', datetime('now', 'localtime', '-4 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('강좌', '강좌 게시물 제목4', '강좌 게시물 내용4', '개발자', datetime('now', 'localtime', '-4 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('소식', '소식 게시물 제목4', '소식 게시물 내용4', '개발자', datetime('now', 'localtime', '-4 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('정보', '정보 게시물 제목5', '정보 게시물 내용5', '개발자', datetime('now', 'localtime', '-5 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('강좌', '강좌 게시물 제목5', '강좌 게시물 내용5', '개발자', datetime('now', 'localtime', '-5 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('소식', '소식 게시물 제목5', '소식 게시물 내용5', '개발자', datetime('now', 'localtime', '-5 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('정보', '정보 게시물 제목6', '정보 게시물 내용6', '개발자', datetime('now', 'localtime', '-6 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('강좌', '강좌 게시물 제목6', '강좌 게시물 내용6', '개발자', datetime('now', 'localtime', '-6 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('소식', '소식 게시물 제목6', '소식 게시물 내용6', '개발자', datetime('now', 'localtime', '-6 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('정보', '정보 게시물 제목7', '정보 게시물 내용7', '개발자', datetime('now', 'localtime', '-7 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('강좌', '강좌 게시물 제목7', '강좌 게시물 내용7', '개발자', datetime('now', 'localtime', '-7 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('소식', '소식 게시물 제목7', '소식 게시물 내용7', '개발자', datetime('now', 'localtime', '-7 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('정보', '정보 게시물 제목8', '정보 게시물 내용8', '개발자', datetime('now', 'localtime', '-8 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('강좌', '강좌 게시물 제목8', '강좌 게시물 내용8', '개발자', datetime('now', 'localtime', '-8 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('소식', '소식 게시물 제목8', '소식 게시물 내용8', '개발자', datetime('now', 'localtime', '-8 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('정보', '정보 게시물 제목9', '정보 게시물 내용9', '개발자', datetime('now', 'localtime', '-9 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('강좌', '강좌 게시물 제목9', '강좌 게시물 내용9', '개발자', datetime('now', 'localtime', '-9 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('소식', '소식 게시물 제목9', '소식 게시물 내용9', '개발자', datetime('now', 'localtime', '-9 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('정보', '정보 게시물 제목10', '정보 게시물 내용10', '개발자', datetime('now', 'localtime', '-10 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('강좌', '강좌 게시물 제목10', '강좌 게시물 내용10', '개발자', datetime('now', 'localtime', '-10 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('소식', '소식 게시물 제목10', '소식 게시물 내용10', '개발자', datetime('now', 'localtime', '-10 day'));
 
-    -- 기능 ID
-    "FeatureID" TEXT NULL,
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('정보', '정보 게시물 제목11', '정보 게시물 내용11', '개발자', datetime('now', 'localtime', '-11 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('강좌', '강좌 게시물 제목11', '강좌 게시물 내용11', '개발자', datetime('now', 'localtime', '-11 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('소식', '소식 게시물 제목11', '소식 게시물 내용11', '개발자', datetime('now', 'localtime', '-11 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('정보', '정보 게시물 제목12', '정보 게시물 내용12', '개발자', datetime('now', 'localtime', '-12 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('강좌', '강좌 게시물 제목12', '강좌 게시물 내용12', '개발자', datetime('now', 'localtime', '-12 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('소식', '소식 게시물 제목12', '소식 게시물 내용12', '개발자', datetime('now', 'localtime', '-12 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('정보', '정보 게시물 제목13', '정보 게시물 내용13', '개발자', datetime('now', 'localtime', '-13 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('강좌', '강좌 게시물 제목13', '강좌 게시물 내용13', '개발자', datetime('now', 'localtime', '-13 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('소식', '소식 게시물 제목13', '소식 게시물 내용13', '개발자', datetime('now', 'localtime', '-13 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('정보', '정보 게시물 제목14', '정보 게시물 내용14', '개발자', datetime('now', 'localtime', '-14 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('강좌', '강좌 게시물 제목14', '강좌 게시물 내용14', '개발자', datetime('now', 'localtime', '-14 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('소식', '소식 게시물 제목14', '소식 게시물 내용14', '개발자', datetime('now', 'localtime', '-14 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('정보', '정보 게시물 제목15', '정보 게시물 내용15', '개발자', datetime('now', 'localtime', '-15 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('강좌', '강좌 게시물 제목15', '강좌 게시물 내용15', '개발자', datetime('now', 'localtime', '-15 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('소식', '소식 게시물 제목15', '소식 게시물 내용15', '개발자', datetime('now', 'localtime', '-15 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('정보', '정보 게시물 제목16', '정보 게시물 내용16', '개발자', datetime('now', 'localtime', '-16 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('강좌', '강좌 게시물 제목16', '강좌 게시물 내용16', '개발자', datetime('now', 'localtime', '-16 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('소식', '소식 게시물 제목16', '소식 게시물 내용16', '개발자', datetime('now', 'localtime', '-16 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('정보', '정보 게시물 제목17', '정보 게시물 내용17', '개발자', datetime('now', 'localtime', '-17 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('강좌', '강좌 게시물 제목17', '강좌 게시물 내용17', '개발자', datetime('now', 'localtime', '-17 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('소식', '소식 게시물 제목17', '소식 게시물 내용17', '개발자', datetime('now', 'localtime', '-17 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('정보', '정보 게시물 제목18', '정보 게시물 내용18', '개발자', datetime('now', 'localtime', '-18 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('강좌', '강좌 게시물 제목18', '강좌 게시물 내용18', '개발자', datetime('now', 'localtime', '-18 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('소식', '소식 게시물 제목18', '소식 게시물 내용18', '개발자', datetime('now', 'localtime', '-18 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('정보', '정보 게시물 제목19', '정보 게시물 내용19', '개발자', datetime('now', 'localtime', '-19 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('강좌', '강좌 게시물 제목19', '강좌 게시물 내용19', '개발자', datetime('now', 'localtime', '-19 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('소식', '소식 게시물 제목19', '소식 게시물 내용19', '개발자', datetime('now', 'localtime', '-19 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('정보', '정보 게시물 제목20', '정보 게시물 내용20', '개발자', datetime('now', 'localtime', '-20 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('강좌', '강좌 게시물 제목20', '강좌 게시물 내용20', '개발자', datetime('now', 'localtime', '-20 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('소식', '소식 게시물 제목20', '소식 게시물 내용20', '개발자', datetime('now', 'localtime', '-20 day'));
 
-    -- 거래 글로벌 ID
-    "GlobalID" TEXT NULL,
-
-    -- 사용자 ID
-    "UserID" TEXT NULL,
-
-    -- 로그 구분
-    "LogType" TEXT NULL,
-
-    -- 입력일시
-    "CreatedAt" TEXT NULL
-);
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('정보', '정보 게시물 제목21', '정보 게시물 내용21', '개발자', datetime('now', 'localtime', '-21 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('강좌', '강좌 게시물 제목21', '강좌 게시물 내용21', '개발자', datetime('now', 'localtime', '-21 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('소식', '소식 게시물 제목21', '소식 게시물 내용21', '개발자', datetime('now', 'localtime', '-21 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('정보', '정보 게시물 제목22', '정보 게시물 내용22', '개발자', datetime('now', 'localtime', '-22 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('강좌', '강좌 게시물 제목22', '강좌 게시물 내용22', '개발자', datetime('now', 'localtime', '-22 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('소식', '소식 게시물 제목22', '소식 게시물 내용22', '개발자', datetime('now', 'localtime', '-22 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('정보', '정보 게시물 제목23', '정보 게시물 내용23', '개발자', datetime('now', 'localtime', '-23 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('강좌', '강좌 게시물 제목23', '강좌 게시물 내용23', '개발자', datetime('now', 'localtime', '-23 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('소식', '소식 게시물 제목23', '소식 게시물 내용23', '개발자', datetime('now', 'localtime', '-23 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('정보', '정보 게시물 제목24', '정보 게시물 내용24', '개발자', datetime('now', 'localtime', '-24 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('강좌', '강좌 게시물 제목24', '강좌 게시물 내용24', '개발자', datetime('now', 'localtime', '-24 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('소식', '소식 게시물 제목24', '소식 게시물 내용24', '개발자', datetime('now', 'localtime', '-24 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('정보', '정보 게시물 제목25', '정보 게시물 내용25', '개발자', datetime('now', 'localtime', '-25 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('강좌', '강좌 게시물 제목25', '강좌 게시물 내용25', '개발자', datetime('now', 'localtime', '-25 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('소식', '소식 게시물 제목25', '소식 게시물 내용25', '개발자', datetime('now', 'localtime', '-25 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('정보', '정보 게시물 제목26', '정보 게시물 내용26', '개발자', datetime('now', 'localtime', '-26 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('강좌', '강좌 게시물 제목26', '강좌 게시물 내용26', '개발자', datetime('now', 'localtime', '-26 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('소식', '소식 게시물 제목26', '소식 게시물 내용26', '개발자', datetime('now', 'localtime', '-26 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('정보', '정보 게시물 제목27', '정보 게시물 내용27', '개발자', datetime('now', 'localtime', '-27 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('강좌', '강좌 게시물 제목27', '강좌 게시물 내용27', '개발자', datetime('now', 'localtime', '-27 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('소식', '소식 게시물 제목27', '소식 게시물 내용27', '개발자', datetime('now', 'localtime', '-27 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('정보', '정보 게시물 제목28', '정보 게시물 내용28', '개발자', datetime('now', 'localtime', '-28 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('강좌', '강좌 게시물 제목28', '강좌 게시물 내용28', '개발자', datetime('now', 'localtime', '-28 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('소식', '소식 게시물 제목28', '소식 게시물 내용28', '개발자', datetime('now', 'localtime', '-28 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('정보', '정보 게시물 제목29', '정보 게시물 내용29', '개발자', datetime('now', 'localtime', '-29 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('강좌', '강좌 게시물 제목29', '강좌 게시물 내용29', '개발자', datetime('now', 'localtime', '-29 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('소식', '소식 게시물 제목29', '소식 게시물 내용29', '개발자', datetime('now', 'localtime', '-29 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('정보', '정보 게시물 제목30', '정보 게시물 내용30', '개발자', datetime('now', 'localtime', '-30 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('강좌', '강좌 게시물 제목30', '강좌 게시물 내용30', '개발자', datetime('now', 'localtime', '-30 day'));
+INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('소식', '소식 게시물 제목30', '소식 게시물 내용30', '개발자', datetime('now', 'localtime', '-30 day'));
 			]]>
         </statement>
-
-        <statement id="GD01" seq="0" use="Y" timeout="0" desc="당일 및 금주 거래 요청/응답/오류 집계 조회" native="Y" modified="2023-09-25 00:00:00">
+        
+        <statement id="LD01" seq="0" use="Y" timeout="0" desc="분류, 기간, 제목을 기준으로 게시글 조회">
             <![CDATA[
-SELECT 'TODAY' AS DateType
-	, IFNULL(SUM(AG.RequestCount), 0) AS RequestCount
-	, IFNULL(SUM(AG.ResponseCount), 0) AS ResponseCount
-	, IFNULL(SUM(AG.ErrorCount), 0) AS ErrorCount
-FROM Aggregate AG
-WHERE AG.CreateDate = @RequestDate
-UNION
-SELECT 'WEEK' AS DateType
-	, IFNULL(SUM(AG.RequestCount), 0) AS RequestCount
-	, IFNULL(SUM(AG.ResponseCount), 0) AS ResponseCount
-	, IFNULL(SUM(AG.ErrorCount), 0) AS ErrorCount
-FROM Aggregate AG
-WHERE AG.CreateDate BETWEEN @FirstDateOfWeek AND @LastDateOfWeek;
+SELECT B.ID
+    , B.Category
+    , B.Title
+    , B.Author
+    , B.DatePosted
+    , '확인' AS EditPost
+FROM Board B 
+WHERE B.DatePosted BETWEEN @StartDate AND (@EndDate || '23:59:59')
+    AND CASE WHEN @Category = '' THEN @Category ELSE B.Category END = @Category
+    AND CASE WHEN @Title = '' THEN @Title ELSE B.Title END LIKE ('%' || @Title || '%')
+ORDER BY B.ID DESC;
 			]]>
-            <param id="@RequestDate" type="String" length="8" value="" />
-            <param id="@FirstDateOfWeek" type="String" length="8" value="" />
-            <param id="@LastDateOfWeek" type="String" length="8" value="" />
-        </statement>
-
-        <statement id="LD01" seq="0" use="Y" timeout="0" desc="최근 7일 일시별 요청수, 오류수 합계 조회" native="Y" modified="2023-09-25 00:00:00">
-            <![CDATA[
-DROP TABLE IF EXISTS Temp_Aggregate;
-
-CREATE TEMPORARY TABLE Temp_Aggregate AS   
-SELECT (AG.CreateDate || AG.CreateHour) AS DateHour
-	, AG.RequestCount 
-	, AG.ErrorCount 
-FROM Aggregate AG
-WHERE 1>2;
-
-DELETE FROM Temp_Aggregate;
-
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '23', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '22', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '21', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '20', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '19', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '18', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '17', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '16', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '15', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '14', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '13', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '12', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '11', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '10', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '09', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '08', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '07', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '06', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '05', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '04', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '03', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '02', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '01', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '0 day')) || '00', 0, 0;
-
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '23', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '22', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '21', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '20', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '19', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '18', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '17', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '16', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '15', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '14', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '13', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '12', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '11', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '10', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '09', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '08', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '07', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '06', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '05', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '04', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '03', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '02', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '01', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-1 day')) || '00', 0, 0;
-
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '23', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '22', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '21', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '20', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '19', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '18', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '17', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '16', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '15', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '14', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '13', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '12', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '11', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '10', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '09', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '08', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '07', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '06', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '05', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '04', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '03', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '02', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '01', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-2 day')) || '00', 0, 0;
-
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '23', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '22', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '21', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '20', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '19', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '18', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '17', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '16', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '15', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '14', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '13', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '12', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '11', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '10', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '09', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '08', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '07', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '06', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '05', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '04', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '03', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '02', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '01', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-3 day')) || '00', 0, 0;
-
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '23', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '22', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '21', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '20', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '19', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '18', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '17', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '16', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '15', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '14', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '13', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '12', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '11', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '10', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '09', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '08', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '07', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '06', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '05', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '04', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '03', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '02', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '01', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-4 day')) || '00', 0, 0;
-
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '23', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '22', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '21', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '20', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '19', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '18', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '17', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '16', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '15', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '14', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '13', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '12', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '11', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '10', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '09', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '08', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '07', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '06', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '05', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '04', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '03', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '02', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '01', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-5 day')) || '00', 0, 0;
-
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '23', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '22', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '21', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '20', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '19', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '18', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '17', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '16', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '15', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '14', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '13', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '12', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '11', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '10', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '09', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '08', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '07', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '06', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '05', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '04', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '03', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '02', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '01', 0, 0;
-INSERT INTO Temp_Aggregate SELECT strftime('%Y%m%d', DATE('NOW', 'localtime', '-6 day')) || '00', 0, 0;
-
-SELECT DateHour
-	, IFNULL(MAX(RequestCount), 0) AS RequestCount
-	, IFNULL(MAX(ErrorCount), 0) AS ErrorCount
-FROM (
-	SELECT (AG.CreateDate || SUBSTR('00' || AG.CreateHour, -2, 2)) AS DateHour
-		, IFNULL(SUM(RequestCount), 0) AS RequestCount 
-		, IFNULL(SUM(ErrorCount), 0) AS ErrorCount 
-	FROM Aggregate AG
-	GROUP BY AG.CreateDate, AG.CreateHour
-	UNION
-	SELECT DateHour
-		, RequestCount
-		, ErrorCount
-	FROM Temp_Aggregate
-) A
-GROUP BY DateHour
-ORDER BY DateHour ASC;
-			]]>
-        </statement>
-
-        <statement id="LD02" seq="0" use="Y" timeout="0" desc="일시별 거래 요청 조회" native="Y" modified="2023-09-25 00:00:00">
-            <![CDATA[
-SELECT AG.ProjectID
-	, AG.TransactionID
-	, AG.FeatureID
-	, AG.RequestCount
-	, AG.ResponseCount
-	, AG.ErrorCount
-	, strftime('%H:%M:%S', AG.LatelyRequestAt) || ' / ' || strftime('%H:%M:%S', AG.LatelyResponseAt) AS RequestResponseTime
-	, strftime('%s', AG.LatelyResponseAt) - strftime('%s', AG.LatelyRequestAt) AS DurationSecond
-FROM Aggregate AG
-WHERE AG.CreateDate = @CreateDate
-	AND AG.CreateHour = @CreateHour
-ORDER BY 7 DESC;
-			]]>
-            <param id="@CreateDate" type="String" length="8" value="" />
-            <param id="@CreateHour" type="String" length="2" value="" />
-        </statement>
-
-        <statement id="LD03" seq="0" use="Y" timeout="0" desc="일시별 거래 오류 조회" native="Y" modified="2023-09-25 00:00:00">
-            <![CDATA[
-SELECT ED.ProjectID
-	, ED.TransactionID
-	, ED.FeatureID
-	, ED.GlobalID
-	, ED.UserID
-	, ED.LogType
-	, strftime('%H:%M:%S', ED.CreatedAt) AS CreatedAt
-FROM ErrorDetail ED
-WHERE strftime('%Y%m%d-%H', ED.CreatedAt) = (@CreateDate || '-' || @CreateHour)
-ORDER BY 7 DESC;
-			]]>
-            <param id="@CreateDate" type="String" length="8" value="" />
-            <param id="@CreateHour" type="String" length="2" value="" />
-        </statement>
-
-        <statement id="MD01" seq="0" use="Y" timeout="0" desc="거래 요청/응답/오류 집계 정보 입력 또는 변경" native="Y" modified="2023-09-25 00:00:00">
-            <![CDATA[
-INSERT OR REPLACE INTO Aggregate
-(
-    CreateDate
-    , CreateHour
-    , ProjectID
-    , TransactionID
-    , FeatureID
-    , RequestCount
-    , ResponseCount
-    , ErrorCount
-    , LatelyRequestAt
-    , LatelyResponseAt
-    , Acknowledge
-) 
-VALUES
-(
-    @CreateDate
-    , @CreateHour
-    , @ProjectID
-    , @TransactionID
-    , @FeatureID
-    , (SELECT IFNULL(MAX(RequestCount), 0) + 1 FROM Aggregate S WHERE S.CreateDate = @CreateDate AND S.CreateHour = @CreateHour AND S.ProjectID = @ProjectID AND S.TransactionID = @TransactionID AND S.FeatureID = @FeatureID)
-    , (SELECT IFNULL(MAX(ResponseCount), 0) FROM Aggregate S WHERE S.CreateDate = @CreateDate AND S.CreateHour = @CreateHour AND S.ProjectID = @ProjectID AND S.TransactionID = @TransactionID AND S.FeatureID = @FeatureID)
-    , (SELECT IFNULL(MAX(ErrorCount), 0) FROM Aggregate S WHERE S.CreateDate = @CreateDate AND S.CreateHour = @CreateHour AND S.ProjectID = @ProjectID AND S.TransactionID = @TransactionID AND S.FeatureID = @FeatureID)
-    , @LatelyRequestAt
-    , @LatelyResponseAt
-    , @Acknowledge
-);
-			]]>
-            <param id="@CreateDate" type="Int32" length="-1" value="" />
-            <param id="@CreateHour" type="Int32" length="-1" value="" />
-            <param id="@ProjectID" type="String" length="36" value="" />
-            <param id="@TransactionID" type="String" length="36" value="" />
-            <param id="@FeatureID" type="String" length="36" value="" />
-            <param id="@LatelyRequestAt" type="String" length="30" value="" />
-            <param id="@LatelyResponseAt" type="String" length="30" value="" />
-            <param id="@Acknowledge" type="String" length="30" value="" />
-        </statement>
-
-        <statement id="UD01" seq="0" use="Y" timeout="0" desc="거래 응답 집계 정보 변경" native="Y" modified="2023-09-25 00:00:00">
-            <![CDATA[
-UPDATE Aggregate SET 
-    ResponseCount = (SELECT IFNULL(MAX(ResponseCount), 0) + 1 FROM Aggregate S WHERE S.CreateDate = @CreateDate AND S.CreateHour = @CreateHour AND S.ProjectID = @ProjectID AND S.TransactionID = @TransactionID AND S.FeatureID = @FeatureID)
-    , LatelyResponseAt = @LatelyResponseAt
-    , Acknowledge = @Acknowledge
-WHERE CreateDate = @CreateDate
-    AND CreateHour = @CreateHour
-    AND ProjectID = @ProjectID
-    AND TransactionID = @TransactionID
-    AND FeatureID = @FeatureID;
-			]]>
-            <param id="@CreateDate" type="Int32" length="-1" value="" />
-            <param id="@CreateHour" type="Int32" length="-1" value="" />
-            <param id="@ProjectID" type="String" length="36" value="" />
-            <param id="@TransactionID" type="String" length="36" value="" />
-            <param id="@FeatureID" type="String" length="36" value="" />
-            <param id="@LatelyResponseAt" type="String" length="30" value="" />
-            <param id="@Acknowledge" type="String" length="30" value="" />
-        </statement>
-
-        <statement id="UD02" seq="0" use="Y" timeout="0" desc="거래 오류 집계 정보 변경" native="Y" modified="2023-09-25 00:00:00">
-            <![CDATA[
-UPDATE Aggregate SET 
-    ErrorCount = (SELECT IFNULL(MAX(ErrorCount), 0) + 1 FROM Aggregate S WHERE S.CreateDate = @CreateDate AND S.CreateHour = @CreateHour AND S.ProjectID = @ProjectID AND S.TransactionID = @TransactionID AND S.FeatureID = @FeatureID)
-    , LatelyResponseAt = @LatelyResponseAt
-    , Acknowledge = @Acknowledge
-WHERE CreateDate = @CreateDate
-    AND CreateHour = @CreateHour
-    AND ProjectID = @ProjectID
-    AND TransactionID = @TransactionID
-    AND FeatureID = @FeatureID;
-			]]>
-            <param id="@CreateDate" type="Int32" length="-1" value="" />
-            <param id="@CreateHour" type="Int32" length="-1" value="" />
-            <param id="@ProjectID" type="String" length="36" value="" />
-            <param id="@TransactionID" type="String" length="36" value="" />
-            <param id="@FeatureID" type="String" length="36" value="" />
-            <param id="@LatelyResponseAt" type="String" length="30" value="" />
-            <param id="@Acknowledge" type="String" length="30" value="" />
-        </statement>
-
-        <statement id="ID01" seq="0" use="Y" timeout="0" desc="거래 오류 정보 입력" native="Y" modified="2023-09-25 00:00:00">
-            <![CDATA[
-INSERT INTO ErrorDetail
-(
-    ProjectID
-    , TransactionID
-    , FeatureID
-    , GlobalID
-    , UserID
-    , LogType
-    , CreatedAt
-) 
-VALUES
-(
-    @ProjectID
-    , @TransactionID
-    , @FeatureID
-    , @GlobalID
-    , @UserID
-    , @LogType
-    , @CreatedAt
-);
-			]]>
-            <param id="@ProjectID" type="String" length="36" value="" />
-            <param id="@TransactionID" type="String" length="36" value="" />
-            <param id="@FeatureID" type="String" length="36" value="" />
-            <param id="@GlobalID" type="String" length="50" value="" />
-            <param id="@UserID" type="String" length="256" value="" />
-            <param id="@LogType" type="String" length="1" value="" />
-            <param id="@CreatedAt" type="String" length="30" value="" />
+            <param id="@Category" type="String" length="-1" value="" />
+            <param id="@Title" type="String" length="-1" value="" />
+            <param id="@StartDate" type="String" length="-1" value="" />
+            <param id="@EndDate" type="String" length="-1" value="" />
         </statement>
 	</commands>
 </mapper>

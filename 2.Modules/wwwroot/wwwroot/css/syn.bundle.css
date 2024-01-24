@@ -31920,7 +31920,7 @@ div.summaryRow .ht_master.handsontable table.htCore > tbody > tr:last-child {
 
 .handsontable.listbox {
     margin: 0;
-    min-height: 300px !important;
+    height: 160px !important;
 }
 
 :root {
@@ -35940,6 +35940,12 @@ div.summaryRow .ht_master.handsontable table.htCore > tbody > tr:last-child {
     color: rgb(131, 24, 67);
 }
 
+.ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 /* fancytree custom start */
 .tree-container {
     overflow: visible;
@@ -36115,8 +36121,8 @@ span.fancytree-node {
     }
 
 .notifier-container {
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
 }
 
 /* tabler overwrite */

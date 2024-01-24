@@ -1,4 +1,4 @@
-/// <reference path="/assets/js/syn.js" />
+﻿/// <reference path="/assets/js/syn.js" />
 
 (function (window) {
     syn.uicontrols = syn.uicontrols || new syn.module();
@@ -33,7 +33,7 @@
 
         controlLoad(elID, setting) {
             if (window.monaco) {
-                $sourceeditor.awaitControlLoad(elID, setting);
+                $sourceeditor.lazyControlLoad(elID, setting);
             }
             else {
                 if ($sourceeditor.defaultSetting.isLoadScript == false) {
@@ -71,7 +71,7 @@
                             var item = $sourceeditor.editorPendings[i];
 
                             clearInterval(item.intervalID);
-                            $sourceeditor.awaitControlLoad(item.elID, item.setting);
+                            $sourceeditor.lazyControlLoad(item.elID, item.setting);
                         }
 
                         $sourceeditor.editorPendings.length = 0;
@@ -86,7 +86,7 @@
             }
         },
 
-        awaitControlLoad(elID, setting) {
+        lazyControlLoad(elID, setting) {
             var el = syn.$l.get(elID);
 
             setting = syn.$w.argumentsExtend($sourceeditor.defaultSetting, setting);

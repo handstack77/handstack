@@ -141,7 +141,7 @@ namespace repository.Controllers
             List<RepositoryItems>? items = null;
             if (repository.IsLocalDbFileManaged == true)
             {
-                items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.LD02", new
+                items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.LD01", new
                 {
                     ApplicationID = applicationID,
                     RepositoryID = repositoryID,
@@ -223,7 +223,7 @@ namespace repository.Controllers
             RepositoryItems? item = null;
             if (repository.IsLocalDbFileManaged == true)
             {
-                var items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.LD01", new
+                var items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.GD01", new
                 {
                     ApplicationID = applicationID,
                     RepositoryID = repositoryID,
@@ -388,7 +388,7 @@ namespace repository.Controllers
             RepositoryItems? item = null;
             if (repository.IsLocalDbFileManaged == true)
             {
-                var items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.LD01", new
+                var items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.GD01", new
                 {
                     ApplicationID = applicationID,
                     RepositoryID = repositoryID,
@@ -461,7 +461,7 @@ namespace repository.Controllers
             List<RepositoryItems>? items = null;
             if (repository.IsLocalDbFileManaged == true)
             {
-                items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.LD02", new
+                items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.LD01", new
                 {
                     ApplicationID = applicationID,
                     RepositoryID = repositoryID,
@@ -608,7 +608,7 @@ namespace repository.Controllers
                             {
                                 if (repository.IsLocalDbFileManaged == true)
                                 {
-                                    items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.LD02", new
+                                    items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.LD01", new
                                     {
                                         ApplicationID = applicationID,
                                         RepositoryID = repositoryID,
@@ -622,9 +622,9 @@ namespace repository.Controllers
 
                                 if (items != null && items.Count() > 0)
                                 {
-                                    if (result.RemainingCount <= 0 || items.Count >= repository.UploadCount)
+                                    if (items.Count > repository.UploadCount)
                                     {
-                                        result.Message = $"{repository.UploadCount} 파일 개수 이상 업로드 할 수 없습니다";
+                                        result.Message = $"{repository.UploadCount} 건 이상 파일 업로드 할 수 없습니다";
                                         return Content(JsonConvert.SerializeObject(result), "application/json");
                                     }
                                 }
@@ -643,7 +643,7 @@ namespace repository.Controllers
                             {
                                 if (repository.IsLocalDbFileManaged == true)
                                 {
-                                    items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.LD02", new
+                                    items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.LD01", new
                                     {
                                         ApplicationID = applicationID,
                                         RepositoryID = repositoryID,
@@ -789,7 +789,7 @@ namespace repository.Controllers
                                 }
                                 else
                                 {
-                                    relativePath = $"/{ModuleConfiguration.ModuleID}/http-download-file?repositoryID={repositoryItem.RepositoryID}&itemID={repositoryItem.ItemID}&applicationID={repositoryItem.ApplicationID}";
+                                    relativePath = $"/http-download-file?repositoryID={repositoryItem.RepositoryID}&itemID={repositoryItem.ItemID}&applicationID={repositoryItem.ApplicationID}";
                                     relativePath = $"{Request.Path.Value?.Replace("/upload-file", "")}{relativePath}";
                                     absolutePath = ModuleConfiguration.FileServerUrl + relativePath;
                                 }
@@ -845,7 +845,7 @@ namespace repository.Controllers
                                 }
                                 else
                                 {
-                                    relativePath = $"/{ModuleConfiguration.ModuleID}/http-download-file?repositoryID={repositoryItem.RepositoryID}&itemID={repositoryItem.ItemID}&applicationID={repositoryItem.ApplicationID}";
+                                    relativePath = $"/http-download-file?repositoryID={repositoryItem.RepositoryID}&itemID={repositoryItem.ItemID}&applicationID={repositoryItem.ApplicationID}";
                                     relativePath = $"{Request.Path.Value?.Replace("/upload-file", "")}{relativePath}";
                                     absolutePath = ModuleConfiguration.FileServerUrl + relativePath;
                                 }
@@ -931,7 +931,7 @@ namespace repository.Controllers
                             List<RepositoryItems>? items = null;
                             if (repository.IsLocalDbFileManaged == true)
                             {
-                                items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.LD02", new
+                                items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.LD01", new
                                 {
                                     ApplicationID = applicationID,
                                     RepositoryID = repositoryID,
@@ -945,9 +945,9 @@ namespace repository.Controllers
 
                             if (items != null && items.Count() > 0)
                             {
-                                if (result.RemainingCount <= 0 || items.Count >= repository.UploadCount)
+                                if (items.Count > repository.UploadCount)
                                 {
-                                    result.Message = $"{repository.UploadCount} 파일 개수 이상 업로드 할 수 없습니다";
+                                    result.Message = $"{repository.UploadCount} 건 이상 파일 업로드 할 수 없습니다";
                                     return Content(JsonConvert.SerializeObject(result), "application/json");
                                 }
                             }
@@ -959,7 +959,7 @@ namespace repository.Controllers
                             List<RepositoryItems>? items = null;
                             if (repository.IsLocalDbFileManaged == true)
                             {
-                                items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.LD02", new
+                                items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.LD01", new
                                 {
                                     ApplicationID = applicationID,
                                     RepositoryID = repositoryID,
@@ -1045,7 +1045,7 @@ namespace repository.Controllers
                         repositoryItem.FileName = fileName;
                         repositoryItem.Extension = extension;
                         repositoryItem.MimeType = GetMimeType(xFileName);
-                        repositoryItem.Size = fileLength;
+                        repositoryItem.Size = file.Length;
                         repositoryItem.RepositoryID = repositoryID;
                         repositoryItem.DependencyID = dependencyID;
                         repositoryItem.CustomPath1 = customPath1;
@@ -1106,7 +1106,7 @@ namespace repository.Controllers
                                 }
                                 else
                                 {
-                                    relativePath = $"/{ModuleConfiguration.ModuleID}/http-download-file?repositoryID={repositoryItem.RepositoryID}&itemID={repositoryItem.ItemID}&applicationID={repositoryItem.ApplicationID}";
+                                    relativePath = $"/http-download-file?repositoryID={repositoryItem.RepositoryID}&itemID={repositoryItem.ItemID}&applicationID={repositoryItem.ApplicationID}";
                                     relativePath = $"{Request.Path.Value?.Replace("/upload-file", "")}{relativePath}";
                                     absolutePath = ModuleConfiguration.FileServerUrl + relativePath;
                                 }
@@ -1163,7 +1163,7 @@ namespace repository.Controllers
                                 }
                                 else
                                 {
-                                    relativePath = $"/{ModuleConfiguration.ModuleID}/http-download-file?repositoryID={repositoryItem.RepositoryID}&itemID={repositoryItem.ItemID}&applicationID={repositoryItem.ApplicationID}";
+                                    relativePath = $"/http-download-file?repositoryID={repositoryItem.RepositoryID}&itemID={repositoryItem.ItemID}&applicationID={repositoryItem.ApplicationID}";
                                     relativePath = $"{Request.Path.Value?.Replace("/upload-file", "")}{relativePath}";
                                     absolutePath = ModuleConfiguration.FileServerUrl + relativePath;
                                 }
@@ -1316,7 +1316,7 @@ namespace repository.Controllers
                         List<RepositoryItems>? items = null;
                         if (repository.IsLocalDbFileManaged == true)
                         {
-                            items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.LD02", new
+                            items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.LD01", new
                             {
                                 ApplicationID = applicationID,
                                 RepositoryID = repositoryID,
@@ -1333,7 +1333,7 @@ namespace repository.Controllers
                             if (result.RemainingCount <= 0 || (items.Count + files.Count) > repository.UploadCount)
                             {
                                 stringBuilder.AppendLine(scriptStart);
-                                stringBuilder.AppendLine("alert('" + $"{repository.UploadCount} 파일 개수 이상 업로드 할 수 없습니다');");
+                                stringBuilder.AppendLine("alert('" + $"{repository.UploadCount} 건 이상 파일 업로드 할 수 없습니다');");
                                 stringBuilder.AppendLine("history.go(-1);");
                                 stringBuilder.AppendLine(scriptEnd);
                                 return Content(stringBuilder.ToString(), "text/html", Encoding.UTF8);
@@ -1354,7 +1354,7 @@ namespace repository.Controllers
                         List<RepositoryItems>? items = null;
                         if (repository.IsLocalDbFileManaged == true)
                         {
-                            items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.LD02", new
+                            items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.LD01", new
                             {
                                 ApplicationID = applicationID,
                                 RepositoryID = repositoryID,
@@ -1511,7 +1511,7 @@ namespace repository.Controllers
                                     }
                                     else
                                     {
-                                        relativePath = $"/{ModuleConfiguration.ModuleID}/http-download-file?repositoryID={repositoryItem.RepositoryID}&itemID={repositoryItem.ItemID}&applicationID={repositoryItem.ApplicationID}";
+                                        relativePath = $"/http-download-file?repositoryID={repositoryItem.RepositoryID}&itemID={repositoryItem.ItemID}&applicationID={repositoryItem.ApplicationID}";
                                         relativePath = $"{Request.Path.Value?.Replace("/upload-files", "")}{relativePath}";
                                         absolutePath = ModuleConfiguration.FileServerUrl + relativePath;
                                     }
@@ -1567,7 +1567,7 @@ namespace repository.Controllers
                                     }
                                     else
                                     {
-                                        relativePath = $"/{ModuleConfiguration.ModuleID}/http-download-file?repositoryID={repositoryItem.RepositoryID}&itemID={repositoryItem.ItemID}&applicationID={repositoryItem.ApplicationID}";
+                                        relativePath = $"/http-download-file?repositoryID={repositoryItem.RepositoryID}&itemID={repositoryItem.ItemID}&applicationID={repositoryItem.ApplicationID}";
                                         relativePath = $"{Request.Path.Value?.Replace("/upload-files", "")}{relativePath}";
                                         absolutePath = ModuleConfiguration.FileServerUrl + relativePath;
                                     }
@@ -1665,7 +1665,7 @@ namespace repository.Controllers
                 List<RepositoryItems>? repositoryItems = null;
                 if (repository.IsLocalDbFileManaged == true)
                 {
-                    repositoryItems = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.LD02", new
+                    repositoryItems = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.LD01", new
                     {
                         ApplicationID = applicationID,
                         RepositoryID = repositoryID,
@@ -1830,7 +1830,7 @@ namespace repository.Controllers
 
         // http://localhost:8000/repository/api/storage/http-download-file?repositoryid=2FD91746-D77A-4EE1-880B-14AA604ACE5A&itemID=
         [HttpGet("[action]")]
-        public async Task<ActionResult> HttpDownloadFile(string applicationID, string repositoryID, string itemID, string fileMD5, string tokenID, string disposition)
+        public async Task<ActionResult> HttpDownloadFile(string applicationID, string repositoryID, string itemID, string? fileMD5, string? tokenID, string? disposition)
         {
             ActionResult result = NotFound();
 
@@ -1960,7 +1960,7 @@ namespace repository.Controllers
 
         // http://localhost:8000/repository/api/storage/virtual-download-file?repositoryID=2FD91746-D77A-4EE1-880B-14AA604ACE5A&fileName=강아지.jpg&subDirectory=2020
         [HttpGet("[action]")]
-        public async Task<ActionResult> VirtualDownloadFile(string applicationID, string repositoryID, string fileName, string subDirectory, string disposition)
+        public async Task<ActionResult> VirtualDownloadFile(string applicationID, string repositoryID, string fileName, string? subDirectory, string? disposition)
         {
             ActionResult result = NotFound();
 
@@ -2233,7 +2233,7 @@ namespace repository.Controllers
                 RepositoryItems? repositoryItem = null;
                 if (repository.IsLocalDbFileManaged == true)
                 {
-                    var items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.LD01", new
+                    var items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.GD01", new
                     {
                         ApplicationID = applicationID,
                         RepositoryID = repositoryID,
@@ -2355,7 +2355,7 @@ namespace repository.Controllers
                 List<RepositoryItems>? repositoryItems = null;
                 if (repository.IsLocalDbFileManaged == true)
                 {
-                    repositoryItems = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.LD02", new
+                    repositoryItems = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.LD01", new
                     {
                         ApplicationID = applicationID,
                         RepositoryID = repositoryID,
@@ -2574,7 +2574,7 @@ namespace repository.Controllers
             RepositoryItems? repositoryItem = null;
             if (repository.IsLocalDbFileManaged == true)
             {
-                var items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.LD01", new
+                var items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.GD01", new
                 {
                     ApplicationID = applicationID,
                     RepositoryID = repositoryID,
@@ -2674,7 +2674,7 @@ namespace repository.Controllers
             RepositoryItems? repositoryItem = null;
             if (repository.IsLocalDbFileManaged == true)
             {
-                var items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.LD01", new
+                var items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.GD01", new
                 {
                     ApplicationID = applicationID,
                     RepositoryID = repositoryID,

@@ -27,7 +27,6 @@ gulp.task('scripts', async function () {
         'wwwroot/lib/mustache-4.2.0/mustache.js',
         'wwwroot/lib/printjs-1.6.0/print.min.js',
         'wwwroot/lib/notifier-1.0.0/notifier.js',
-        'wwwroot/lib/tinymce-5.6.0/tinymce.min.js',
         'wwwroot/lib/master@1.37.8/master-css.min.js'
     ])
         .pipe(concat('syn.scripts.js'))
