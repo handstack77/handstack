@@ -5062,7 +5062,6 @@
             theme: 'vs-dark',
             dataType: 'string',
             basePath: '/lib/monaco-editor-0.39.0/vs',
-            isLoadScript: false,
             belongID: null,
             controlText: null,
             validators: null,
@@ -5070,39 +5069,42 @@
             triggerConfig: null
         },
 
+        concreate() {
+            if (window.monaco) {
+            }
+            else {
+                if (window.require) {
+                    require.config({
+                        paths: { 'vs': $sourceeditor.defaultSetting.basePath },
+                        'vs/nls': {
+                            availableLanguages: {
+                                '*': 'ko'
+                            }
+                        }
+                    });
+                }
+                else {
+                    window.require = {
+                        paths: { 'vs': $sourceeditor.defaultSetting.basePath },
+                        'vs/nls': {
+                            availableLanguages: {
+                                '*': 'ko'
+                            }
+                        }
+                    };
+                }
+
+                syn.$w.loadScript($sourceeditor.defaultSetting.basePath + '/loader.js');
+                syn.$w.loadScript($sourceeditor.defaultSetting.basePath + '/editor/editor.main.nls.ko.js');
+                syn.$w.loadScript($sourceeditor.defaultSetting.basePath + '/editor/editor.main.js');
+            }
+        },
+
         controlLoad(elID, setting) {
             if (window.monaco) {
                 $sourceeditor.lazyControlLoad(elID, setting);
             }
             else {
-                if ($sourceeditor.defaultSetting.isLoadScript == false) {
-                    $sourceeditor.defaultSetting.isLoadScript = true;
-                    if (window.require) {
-                        require.config({
-                            paths: { 'vs': $sourceeditor.defaultSetting.basePath },
-                            'vs/nls': {
-                                availableLanguages: {
-                                    '*': 'ko'
-                                }
-                            }
-                        });
-                    }
-                    else {
-                        window.require = {
-                            paths: { 'vs': $sourceeditor.defaultSetting.basePath },
-                            'vs/nls': {
-                                availableLanguages: {
-                                    '*': 'ko'
-                                }
-                            }
-                        };
-                    }
-
-                    syn.$w.loadScript($sourceeditor.defaultSetting.basePath + '/loader.js');
-                    syn.$w.loadScript($sourceeditor.defaultSetting.basePath + '/editor/editor.main.nls.ko.js');
-                    syn.$w.loadScript($sourceeditor.defaultSetting.basePath + '/editor/editor.main.js');
-                }
-
                 var editorIntervalID = setInterval(function () {
                     if (window.monaco) {
                         var length = $sourceeditor.editorPendings.length;
@@ -5405,7 +5407,6 @@
         editorControls: [],
         defaultSetting: {
             applicationID: '',
-            isLoadScript: false,
             selector: '',
             fileManagerServer: '',
             repositoryID: null,
@@ -5468,17 +5469,19 @@
             });
         },
 
+        concreate() {
+            if (window.tinymce) {
+            }
+            else {
+                syn.$w.loadScript('/lib/tinymce-5.6.0/tinymce.min.js');
+            }
+        },
+
         controlLoad(elID, setting) {
             if (window.tinymce) {
                 $htmleditor.lazyControlLoad(elID, setting);
             }
             else {
-                if ($htmleditor.defaultSetting.isLoadScript == false) {
-                    $htmleditor.defaultSetting.isLoadScript = true;
-
-                    syn.$w.loadScript('/lib/tinymce-5.6.0/tinymce.min.js');
-                }
-
                 var editorIntervalID = setInterval(function () {
                     if (window.tinymce) {
                         var length = $htmleditor.editorPendings.length;
@@ -5753,11 +5756,8 @@
 
                 var el = syn.$l.get(elID);
                 var setInitValue = el.getAttribute('setInitValue');
-                if (setInitValue) {
-                    var editorValue = $htmleditor.getValue(elID);
-                    if ($string.isNullOrEmpty(editorValue) == true || editorValue == '<div></div>') {
-                        $htmleditor.setValue(elID, setInitValue);
-                    }
+                if ($string.isNullOrEmpty(setInitValue) == false) {
+                    $htmleditor.setValue(elID, setInitValue);
                 }
 
                 editor.on('keydown', function (e) {

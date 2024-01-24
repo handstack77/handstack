@@ -131,12 +131,25 @@ FROM Board B
 WHERE B.DatePosted BETWEEN @StartDate AND (@EndDate || '23:59:59')
     AND CASE WHEN @Category = '' THEN @Category ELSE B.Category END = @Category
     AND CASE WHEN @Title = '' THEN @Title ELSE B.Title END LIKE ('%' || @Title || '%')
-ORDER BY B.ID DESC;
+ORDER BY (CASE @Sequence WHEN 'ASC' THEN CASE @OrderBy 
+        WHEN 'ID' THEN ID 
+        WHEN 'Category' THEN Category 
+        WHEN 'Title' THEN Title 
+        WHEN 'Author' THEN Author END
+    END) ASC
+    , (CASE @Sequence WHEN 'DESC' THEN CASE @OrderBy 
+        WHEN 'ID' THEN ID 
+        WHEN 'Category' THEN Category 
+        WHEN 'Title' THEN Title 
+        WHEN 'Author' THEN Author END
+    END) DESC;
 			]]>
             <param id="@Category" type="String" length="-1" value="" />
             <param id="@Title" type="String" length="-1" value="" />
             <param id="@StartDate" type="String" length="-1" value="" />
             <param id="@EndDate" type="String" length="-1" value="" />
+            <param id="@OrderBy" type="String" length="-1" value="" />
+            <param id="@Sequence" type="String" length="-1" value="" />
         </statement>
 	</commands>
 </mapper>

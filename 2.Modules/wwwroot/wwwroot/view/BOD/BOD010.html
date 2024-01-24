@@ -66,6 +66,19 @@
                                         </div>
                                     </div>
                                     <div class="col-sm-12 col-md-6 col-lg-3 mt-2 pl-0">
+                                        <div class="input-group">
+                                            <label class="w:86 col-form-label px-3">정렬순서</label>
+                                            <select class="form-select" id="ddlOrderBy" syn-datafield="OrderBy" syn-options="{toSynControl: false, belongID: ['LD01']}">
+                                                <option value="ID" selected="">게시글 ID</option>
+                                                <option value="Category">분류</option>
+                                                <option value="Title">제목</option>
+                                                <option value="Author">작성자</option>
+                                            </select>
+                                            <select class="form-select" id="ddlSequence" syn-datafield="Sequence" syn-options="{toSynControl: false, belongID: ['LD01']}">
+                                                <option value="DESC" selected="">역순</option>
+                                                <option value="ASC">정순</option>
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

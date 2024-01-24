@@ -13,7 +13,6 @@
         editorControls: [],
         defaultSetting: {
             applicationID: '',
-            isLoadScript: false,
             selector: '',
             fileManagerServer: '',
             repositoryID: null,
@@ -76,17 +75,19 @@
             });
         },
 
+        concreate() {
+            if (window.tinymce) {
+            }
+            else {
+                syn.$w.loadScript('/lib/tinymce-5.6.0/tinymce.min.js');
+            }
+        },
+
         controlLoad(elID, setting) {
             if (window.tinymce) {
                 $htmleditor.lazyControlLoad(elID, setting);
             }
             else {
-                if ($htmleditor.defaultSetting.isLoadScript == false) {
-                    $htmleditor.defaultSetting.isLoadScript = true;
-
-                    syn.$w.loadScript('/lib/tinymce-5.6.0/tinymce.min.js');
-                }
-
                 var editorIntervalID = setInterval(function () {
                     if (window.tinymce) {
                         var length = $htmleditor.editorPendings.length;
@@ -361,11 +362,8 @@
 
                 var el = syn.$l.get(elID);
                 var setInitValue = el.getAttribute('setInitValue');
-                if (setInitValue) {
-                    var editorValue = $htmleditor.getValue(elID);
-                    if ($string.isNullOrEmpty(editorValue) == true || editorValue == '<div></div>') {
-                        $htmleditor.setValue(elID, setInitValue);
-                    }
+                if ($string.isNullOrEmpty(setInitValue) == false) {
+                    $htmleditor.setValue(elID, setInitValue);
                 }
 
                 editor.on('keydown', function (e) {
