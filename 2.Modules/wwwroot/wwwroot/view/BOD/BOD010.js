@@ -7,6 +7,7 @@ let $BOD010 = {
             callback: (error, responseObject, addtionalData) => {
                 if ($string.isNullOrEmpty(error) == true) {
                     syn.$w.notify('success', `게시판 테이블이 초기화 되었습니다 !`);
+                    syn.$w.transactionAction('LD01');
                 }
             }
         },
