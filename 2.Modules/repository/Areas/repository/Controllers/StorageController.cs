@@ -2445,7 +2445,7 @@ namespace repository.Controllers
             return Content(JsonConvert.SerializeObject(jsonContentResult), "application/json");
         }
 
-        private async Task<ActionResult> VirtualFileDownload(DownloadResult downloadResult, string applicationID, string repositoryID, string fileName, string subDirectory)
+        private async Task<ActionResult> VirtualFileDownload(DownloadResult downloadResult, string applicationID, string repositoryID, string fileName, string? subDirectory)
         {
             ActionResult result;
 

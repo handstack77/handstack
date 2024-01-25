@@ -2975,7 +2975,7 @@ TransactionException:
                                 });
                             }
 
-                            using (DataSet? ds = DataTableHelper.DataReaderToDataSet(dataReader))
+                            using DataSet? ds = DataTableHelper.DataReaderToDataSet(dataReader);
                             {
                                 if (ds == null || ds.Tables.Count < 2)
                                 {
@@ -3050,16 +3050,19 @@ TransactionException:
 
                                     logger.Warning("[{LogCategory}] [{GlobalID}] " + $"Request QueryID: {queryObject.QueryID}, SQL: {commandText}", "QueryDataClient/ExecuteCodeHelpSQLMap", request.GlobalID);
 
-                                    using (DatabaseFactory businessDatabase = new DatabaseFactory(businessConnectionInfo.Item1, businessConnectionInfo.Item2))
-                                    using (var businessReader = await businessDatabase.Connection.ExecuteReaderAsync(commandText, businessParameters))
-                                    using (DataSet? dsCodes = DataTableHelper.DataReaderToDataSet(businessReader))
+                                    DatabaseFactory businessDatabase = new DatabaseFactory(businessConnectionInfo.Item1, businessConnectionInfo.Item2);
+                                    if (businessDatabase.Connection != null)
                                     {
-                                        if (dsCodes == null || dsCodes.Tables.Count == 0)
+                                        using (var businessReader = await businessDatabase.Connection.ExecuteReaderAsync(commandText, businessParameters))
+                                        using (DataSet? dsCodes = DataTableHelper.DataReaderToDataSet(businessReader))
                                         {
-                                        }
-                                        else
-                                        {
-                                            responseCodeObject.DataSource = dsCodes.Tables[0];
+                                            if (dsCodes == null || dsCodes.Tables.Count == 0)
+                                            {
+                                            }
+                                            else
+                                            {
+                                                responseCodeObject.DataSource = dsCodes.Tables[0];
+                                            }
                                         }
                                     }
                                 }
