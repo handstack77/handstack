@@ -1,6 +1,9 @@
 #!/bin/bash
 
-# publish.sh linux build Debug
+# publish.sh win build Debug x64
+# publish.sh linux build Debug x64
+# publish.sh osx build Debug x64
+# publish.sh osx build Debug arm64
 
 # win, linux, osx
 os_mode=${1:-linux}
