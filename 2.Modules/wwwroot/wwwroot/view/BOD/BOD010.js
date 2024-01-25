@@ -53,8 +53,7 @@ let $BOD010 = {
                 }
             });
 
-            syn.$w.windowOpen(windowID, popupOptions, (elID) => {
-            });
+            syn.$w.windowOpen(windowID, popupOptions);
         },
 
         btnSearch_click(evt) {
