@@ -19,7 +19,7 @@ SELECT B.ID
     , B.DatePosted
 FROM Board B 
 WHERE B.ID = @ID;
-			]]>
+            ]]>
             <param id="@ID" type="String" length="-1" value="" />
         </statement>
 
@@ -31,7 +31,7 @@ SET Category = @Category
     , Content = @Content
     , Author = @Author
 WHERE ID = @ID;
-			]]>
+            ]]>
             <param id="@ID" type="String" length="-1" value="" />
             <param id="@Category" type="String" length="-1" value="" />
             <param id="@Title" type="String" length="-1" value="" />
@@ -43,7 +43,7 @@ WHERE ID = @ID;
             <![CDATA[
 DELETE FROM Board
 WHERE ID = @ID;
-			]]>
+            ]]>
             <param id="@ID" type="String" length="-1" value="" />
         </statement>
 	</commands>

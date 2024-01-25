@@ -27,7 +27,7 @@ VALUES
     , @Author
     , CASE WHEN @CreateDate = '' THEN datetime('now', 'localtime') ELSE (@CreateDate || ' ' || strftime('%H:%M:%S', 'now', 'localtime')) END
 );
-			]]>
+            ]]>
             <param id="@Category" type="String" length="-1" value="" />
             <param id="@Title" type="String" length="-1" value="" />
             <param id="@Content" type="String" length="-1" value="" />

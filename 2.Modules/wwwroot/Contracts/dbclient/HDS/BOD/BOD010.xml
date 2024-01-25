@@ -116,7 +116,7 @@ INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('소식
 INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('정보', '정보 게시물 제목30', '정보 게시물 내용30', '개발자', datetime('now', 'localtime', '-30 day'));
 INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('강좌', '강좌 게시물 제목30', '강좌 게시물 내용30', '개발자', datetime('now', 'localtime', '-30 day'));
 INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('소식', '소식 게시물 제목30', '소식 게시물 내용30', '개발자', datetime('now', 'localtime', '-30 day'));
-			]]>
+            ]]>
         </statement>
         
         <statement id="LD01" seq="0" use="Y" timeout="0" desc="분류, 기간, 제목을 기준으로 게시글 조회">
@@ -132,7 +132,7 @@ WHERE B.DatePosted BETWEEN @StartDate AND (@EndDate || '23:59:59')
     AND CASE WHEN @Category = '' THEN @Category ELSE B.Category END = @Category
     AND CASE WHEN @Title = '' THEN @Title ELSE B.Title END LIKE ('%' || @Title || '%')
 ORDER BY B.ID DESC;
-			]]>
+            ]]>
             <param id="@Category" type="String" length="-1" value="" />
             <param id="@Title" type="String" length="-1" value="" />
             <param id="@StartDate" type="String" length="-1" value="" />
