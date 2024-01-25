@@ -41,7 +41,7 @@ namespace repository.Areas.repository.Controllers
 
         // http://localhost:8000/repository/api/managed/reset-app-contract?applicationID=helloworld
         [HttpGet("[action]")]
-        public async Task<ActionResult> ResetAppContract(string userWorkID, string applicationID)
+        public ActionResult ResetAppContract(string userWorkID, string applicationID)
         {
             ActionResult result = BadRequest();
             string? authorizationKey = Request.Headers["AuthorizationKey"];
