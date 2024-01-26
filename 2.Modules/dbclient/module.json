@@ -7,7 +7,7 @@
         "SystemID": "HANDSTACK",
         "BusinessServerUrl": "http://localhost:8000/transact/api/transaction/execute",
         "CircuitBreakResetSecond": 60,
-        "DefaultCommandTimeout": 180,
+        "DefaultCommandTimeout": 30,
         "IsExceptionDetailText": true,
         "ContractBasePath": [
             "../contracts/dbclient"

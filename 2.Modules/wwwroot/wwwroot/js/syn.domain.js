@@ -1954,7 +1954,7 @@
                     }
 
                     var inputObjects = [];
-                    inputObjects.push({ prop: 'ApplicationID', val: 1 });
+                    inputObjects.push({ prop: 'ApplicationID', val: transactionObject.programID });
                     inputObjects.push({ prop: 'CodeHelpID', val: dataSourceID });
                     inputObjects.push({ prop: 'Parameters', val: parameters });
 
