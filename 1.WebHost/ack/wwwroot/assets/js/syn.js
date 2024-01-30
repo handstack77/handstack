@@ -8171,8 +8171,8 @@ globalRoot.syn = syn;
                                         var responseFieldID = dataMapItem['id'];
                                         var outputData = dataMapItem['value'];
 
-                                        if ($this.outputDataBinding) {
-                                            $this.outputDataBinding(functionID, responseFieldID, outputData);
+                                        if ($this.hook.outputDataBinding) {
+                                            $this.hook.outputDataBinding(functionID, responseFieldID, outputData);
                                         }
 
                                         if (outputMapping.responseType == 'Form') {
