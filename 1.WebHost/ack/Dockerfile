@@ -1,7 +1,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0
 
 # 서비스 포트 설정
-EXPOSE 8080
+EXPOSE 8000
 
 # 변수 선언 (전달 예: docker build --tag handstack:1.0.0 --build-arg NODE_MAJOR=20 .)
 ARG NODE_MAJOR=20
