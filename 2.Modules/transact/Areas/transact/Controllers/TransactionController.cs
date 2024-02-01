@@ -1519,25 +1519,6 @@ namespace transact.Areas.transact.Controllers
 
                 switch (transactionInfo.ReturnType)
                 {
-                    case "DataSet":
-                        var responseObject = applicationResponse.ResultObject as byte[];
-
-                        if (responseObject != null)
-                        {
-                            if (ModuleConfiguration.IsTransactionLogging == true || transactionInfo?.TransactionLog == true)
-                            {
-                                loggerClient.TransactionMessageLogging(response.Transaction.GlobalID, "Y", response.System.ProgramID, response.Transaction.BusinessID, response.Transaction.TransactionID, response.Transaction.FunctionID, responseObject.Length.ToString(), properties, (string error) =>
-                                {
-                                    logger.Information("[{LogCategory}] fallback error: " + error + ", " + responseObject.Length.ToString(), properties);
-                                });
-                            }
-                        }
-                        else
-                        {
-                            responseObject = new byte[0];
-                        }
-
-                        return File(responseObject, "application/octet-stream");
                     case "Scalar":
                         responseData = applicationResponse.ResultObject.ToStringSafe();
 
@@ -1586,7 +1567,7 @@ namespace transact.Areas.transact.Controllers
                         }
 
                         return Content(responseData, "application/json");
-                    default:
+                    case "Json":
                         response.Message.ResponseStatus = "N"; // N: Normal, W: Warning, E: Error
                         response.Message.MainCode = nameof(MessageCode.T200);
                         response.Message.MainText = MessageCode.T200;
@@ -1722,6 +1703,10 @@ namespace transact.Areas.transact.Controllers
                         }
 
                         return LoggingAndReturn(response, "Y", transactionInfo);
+
+                    default:
+                        response.ExceptionText = "ReturnType 확인 필요";
+                        return LoggingAndReturn(response, "N", null);
                 }
 
                 #endregion

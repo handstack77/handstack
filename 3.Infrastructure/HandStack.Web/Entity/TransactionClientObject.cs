@@ -36,7 +36,7 @@ namespace HandStack.Web.Entity
 
         public string ReturnType { get; set; }
 
-        public string TransactionMapID { get; set; }
+        public string DataMapInterface { get; set; }
 
         public List<Masking> Maskings = new List<Masking>();
 
@@ -57,7 +57,7 @@ namespace HandStack.Web.Entity
             Kind = "BIZ";
             SimulationType = "N";
             ReturnType = "";
-            TransactionMapID = "";
+            DataMapInterface = "";
         }
     }
 }

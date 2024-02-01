@@ -114,10 +114,10 @@ namespace HandStack.Web.ApiClient
             return result;
         }
 
-        public async Task<Dictionary<string, JToken?>> TransactionDirect(string businessServerUrl, TransactionClientObject transactionObject)
+        public async Task<Dictionary<string, JToken>> TransactionDirect(string businessServerUrl, TransactionClientObject transactionObject)
         {
             dynamic hasException = new ExpandoObject();
-            Dictionary<string, JToken?> result = new Dictionary<string, JToken?>();
+            Dictionary<string, JToken> result = new Dictionary<string, JToken>();
             string requestID = string.Empty;
 
             try
@@ -149,7 +149,7 @@ namespace HandStack.Web.ApiClient
                     }), DataFormat.Json);
                     idRequest.AddHeader("Content-Type", "application/json");
                     idRequest.AddHeader("cache-control", "no-cache");
-                    idRequest.Timeout = 1000;
+                    idRequest.Timeout = 10000;
                     var idResponse = await client.ExecuteAsync<string>(idRequest);
                     var globalID = idResponse.Data;
                     if (string.IsNullOrEmpty(globalID) == false)
@@ -182,7 +182,18 @@ namespace HandStack.Web.ApiClient
                                 {
                                     try
                                     {
-                                        result.Add(item.FieldID, item.Value as JToken);
+                                        if (item.Value is JToken)
+                                        {
+                                            result.Add(item.FieldID, (JToken)item.Value);
+                                        }
+                                        else if (item.Value != null)
+                                        {
+                                            result.Add(item.FieldID, JToken.FromObject(item.Value));
+                                        }
+                                        else
+                                        {
+                                            result.Add(item.FieldID, JToken.FromObject(""));
+                                        }
                                     }
                                     catch (Exception exception)
                                     {
@@ -332,6 +343,7 @@ namespace HandStack.Web.ApiClient
             transactionRequest.Transaction.CompressionYN = TransactionConfig.Transaction.CompressionYN;
             transactionRequest.Transaction.StartTraceID = transactionObject.StartTraceID;
 
+            transactionRequest.PayLoad.DataMapInterface = transactionObject.DataMapInterface;
             transactionRequest.PayLoad.DataMapCount = transactionObject.InputsItemCount;
             transactionRequest.PayLoad.DataMapSet = new List<List<DataMapItem>>();
 
