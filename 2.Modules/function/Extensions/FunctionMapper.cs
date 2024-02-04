@@ -228,7 +228,7 @@ namespace function.Extensions
                         return;
                     }
 
-                    if (scriptMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && GlobalConfiguration.IsTenantFunction == false)
+                    if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && scriptMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && GlobalConfiguration.IsTenantFunction == false)
                     {
                         return;
                     }
@@ -439,7 +439,7 @@ namespace function.Extensions
             {
                 foreach (var basePath in ModuleConfiguration.ContractBasePath)
                 {
-                    if (scriptMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && GlobalConfiguration.IsTenantFunction == false)
+                    if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && scriptMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && GlobalConfiguration.IsTenantFunction == false)
                     {
                         return result;
                     }
@@ -616,7 +616,7 @@ namespace function.Extensions
 
                 foreach (var basePath in ModuleConfiguration.ContractBasePath)
                 {
-                    if (Directory.Exists(basePath) == false || (basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && GlobalConfiguration.IsTenantFunction == false))
+                    if (Directory.Exists(basePath) == false || (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && GlobalConfiguration.IsTenantFunction == false))
                     {
                         continue;
                     }
