@@ -1,4 +1,4 @@
-/*!
+﻿/*!
 HandStack Javascript Library v1.0.0
 https://syn.handshake.kr
 
@@ -8173,7 +8173,7 @@ globalRoot.syn = syn;
             }
         }
     });
-    context.$system = context.$s = syn.$s = context.$system || $system;
+    syn.$s = context.$system || $system;
 })(globalRoot);
 
 /// <summary>

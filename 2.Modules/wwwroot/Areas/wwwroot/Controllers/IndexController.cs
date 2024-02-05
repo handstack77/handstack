@@ -79,8 +79,6 @@ namespace wwwroot.Areas.wwwroot.Controllers
                 && string.IsNullOrEmpty(projectID) == false
                 && string.IsNullOrEmpty(transactionID) == false
                 && string.IsNullOrEmpty(serviceID) == false
-                && string.IsNullOrEmpty(screenID) == false
-                && string.IsNullOrEmpty(tokenID) == false
             )
             {
                 bool isWithOrigin = false;
@@ -119,7 +117,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
                         transactionObject.ScreenID = string.IsNullOrEmpty(screenID) == true ? transactionID : screenID;
 
                         string requestID = GetRequestID(transactionObject, tokenID);
-                        if (distributedCache.Get(requestID) == null)
+                        if (distributedCache.Get(requestID) != null)
                         {
                             distributedCache.Remove(requestID);
                         }

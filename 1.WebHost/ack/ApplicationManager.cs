@@ -64,8 +64,6 @@ namespace ack
             cancellationTokenSource.Token.ThrowIfCancellationRequested();
             isServiceRunning = true;
 
-            ThreadPool.QueueUserWorkItem(BackgroundTaskAsync);
-
             if (Array.Exists(args, p => p == "showenv=1") == true || Array.Exists(args, p => p == "showenv=Y") == true)
             {
                 Log.Information($"Bootstrapping IConfigurationRoot... {GlobalConfiguration.BootstrappingVariables(configuration)}");
@@ -85,6 +83,8 @@ namespace ack
             }
 
             Log.Information($"ack {port} Start...");
+
+            ThreadPool.QueueUserWorkItem(BackgroundTaskAsync);
             await host.RunAsync(cancellationTokenSource.Token);
             host.Dispose();
         }

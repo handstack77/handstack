@@ -166,8 +166,7 @@ namespace HandStack.Web.ApiClient
                 restRequest.AddHeader("ClientTag", TransactionConfig.ClientTag);
 
                 var restResponse = await client.ExecuteAsync<TransactionResponse>(restRequest);
-
-                if (restResponse.ResponseStatus == ResponseStatus.Completed)
+                if (restResponse != null && restResponse.StatusCode != HttpStatusCode.NotFound && restResponse.ResponseStatus == ResponseStatus.Completed)
                 {
                     var content = restResponse.Content;
                     if (content != null)
