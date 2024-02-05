@@ -94,23 +94,23 @@ namespace HandStack.Web.Extensions
             }
         }
 
-        public static string? GetParamData(this HttpRequest request, string requestKey, string? defaultValue = null)
+        public static string GetParamData(this HttpRequest request, string requestKey, string defaultValue = "")
         {
-            string? result = null;
+            string result = "";
             if (request.HasFormContentType == true && request.Form.ContainsKey(requestKey) == true)
             {
                 result = request.Form[requestKey].ToString();
             }
             else if (request.RouteValues.ContainsKey(requestKey) == true)
             {
-                result = request.RouteValues[requestKey]?.ToString();
+                result = (request.RouteValues[requestKey]?.ToString()).ToStringSafe();
             }
             else if (request.Query.ContainsKey(requestKey) == true)
             {
                 result = request.Query[requestKey].ToString();
             }
 
-            if (result == null && defaultValue != null)
+            if (string.IsNullOrEmpty(result) == true && string.IsNullOrEmpty(defaultValue) == false)
             {
                 result = defaultValue;
             }
