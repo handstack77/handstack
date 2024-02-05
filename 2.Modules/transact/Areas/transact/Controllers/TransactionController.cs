@@ -2629,7 +2629,7 @@ namespace transact.Areas.transact.Controllers
                 string transactionApplicationID = transactionObject.TransactionID.Split("|")[0];
                 string transactionProjectID = transactionObject.TransactionID.Split("|")[1];
 
-                string routeSegmentID = $"{transactionApplicationID}|{transactionProjectID}|{request.Transaction.CommandType}|{request.Environment}";
+                string routeSegmentID = $"{transactionApplicationID}|{transactionProjectID}|{sequentialOption.CommandType}|{request.Environment}";
 
                 var transactionUserWorkID = request.LoadOptions?.Get<string>("work-id").ToStringSafe();
                 if (string.IsNullOrEmpty(transactionUserWorkID) == false)

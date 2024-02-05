@@ -162,6 +162,10 @@
             if (synLoader.scriptFiles.length > 0) {
                 synLoader.loadScript(0);
             }
+
+            if (synLoader.styleFiles.length == 0) {
+                window.pageStyleLoaded = true;
+            }
         },
 
         loadScript(i) {
