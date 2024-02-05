@@ -58,7 +58,7 @@ namespace transact
                         ModuleConfiguration.ModuleID = moduleConfigJson.ModuleID;
                         ModuleConfiguration.ApplicationID = moduleConfigJson.ApplicationID;
                         ModuleConfiguration.Version = moduleConfigJson.Version;
-                        ModuleConfiguration.AuthorizationKey = GlobalConfiguration.SystemID + GlobalConfiguration.RunningEnvironment + GlobalConfiguration.HostName;
+                        ModuleConfiguration.AuthorizationKey = string.IsNullOrEmpty(moduleConfig.AuthorizationKey) == false ? moduleConfig.AuthorizationKey : GlobalConfiguration.SystemID + GlobalConfiguration.RunningEnvironment + GlobalConfiguration.HostName;
                         ModuleConfiguration.IsBundledWithHost = moduleConfigJson.IsBundledWithHost;
                         ModuleConfiguration.BusinessServerUrl = moduleConfig.BusinessServerUrl;
                         ModuleConfiguration.CircuitBreakResetSecond = moduleConfig.CircuitBreakResetSecond;

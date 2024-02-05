@@ -16,6 +16,8 @@ namespace transact.Entity
 
     public class ModuleConfig
     {
+        public string AuthorizationKey { get; set; }
+
         public string SystemID { get; set; }
 
         public string BusinessServerUrl { get; set; }
@@ -78,6 +80,7 @@ namespace transact.Entity
 
         public ModuleConfig()
         {
+            AuthorizationKey = "";
             SystemID = "";
             BusinessServerUrl = "";
             CircuitBreakResetSecond = 60;

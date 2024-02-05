@@ -16,6 +16,8 @@ namespace logger.Entity
 
     public class ModuleConfig
     {
+        public string AuthorizationKey { get; set; }
+
         public string ModuleBasePath { get; set; }
 
         public bool IsSQLiteCreateOnNotSettingRequest { get; set; }
@@ -28,6 +30,7 @@ namespace logger.Entity
 
         public ModuleConfig()
         {
+            AuthorizationKey = "";
             ModuleBasePath = "";
             IsSQLiteCreateOnNotSettingRequest = false;
             BusinessServerUrl = "";

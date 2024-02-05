@@ -154,6 +154,7 @@ namespace ack
                         request.AddHeader("HostName", GlobalConfiguration.HostName);
                         request.AddHeader("RunningEnvironment", GlobalConfiguration.RunningEnvironment);
                         request.AddHeader("ApplicationRuntimeID", GlobalConfiguration.ApplicationRuntimeID);
+                        request.AddHeader("AuthorizationKey", GlobalConfiguration.SystemID + GlobalConfiguration.RunningEnvironment + GlobalConfiguration.HostName);
 
                         var response = await client.ExecuteAsync(request);
                         if (response.StatusCode != HttpStatusCode.OK)
