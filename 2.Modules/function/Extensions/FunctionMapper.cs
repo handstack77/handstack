@@ -45,7 +45,7 @@ namespace function.Extensions
                 result = FunctionSourceMappings.FirstOrDefault(item => item.Key == functionSourceMappingsKey
                     && (item.Value.ProjectListID.IndexOf(projectID) > -1 || item.Value.ProjectListID.IndexOf("*") > -1)).Value;
 
-                if (result == null)
+                if (result == null && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
                 {
                     string userWorkID = string.Empty;
                     string appBasePath = string.Empty;

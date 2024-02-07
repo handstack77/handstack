@@ -308,10 +308,24 @@ namespace ack
                     options.Secure = CookieSecurePolicy.SameAsRequest;
                 });
 
+                var authenticationLoginPath = appSettings["AuthenticationLoginPath"].ToStringSafe();
+                if (string.IsNullOrEmpty(authenticationLoginPath) == true)
+                {
+                    authenticationLoginPath = "/account/login";
+                }
+
+                var authenticationLogoutPath = appSettings["AuthenticationLogoutPath"].ToStringSafe();
+                if (string.IsNullOrEmpty(authenticationLogoutPath) == true)
+                {
+                    authenticationLogoutPath = "/account/logout";
+                }
+
                 services.AddAuthentication($"{GlobalConfiguration.CookiePrefixName}.AuthenticationScheme")
                      .AddCookie($"{GlobalConfiguration.CookiePrefixName}.AuthenticationScheme", options =>
                      {
                          options.Cookie.Name = $"{GlobalConfiguration.CookiePrefixName}.AuthenticationScheme";
+                         options.LoginPath = authenticationLoginPath;
+                         options.LogoutPath = authenticationLoginPath;
                      });
 
                 services.Configure<CookieTempDataProviderOptions>(options => options.Cookie.Name = $"{GlobalConfiguration.CookiePrefixName}.ApplicationCookie");
@@ -324,6 +338,8 @@ namespace ack
 
                     options.SlidingExpiration = true;
                     options.ExpireTimeSpan = TimeSpan.FromSeconds(GlobalConfiguration.UserSignExpire);
+                    options.LoginPath = authenticationLoginPath;
+                    options.LogoutPath = authenticationLoginPath;
                 });
             }
 

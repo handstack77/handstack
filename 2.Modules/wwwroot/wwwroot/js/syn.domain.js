@@ -738,8 +738,8 @@
                 if (tabID) {
                     parent.$main.method.focusTabUI(tabID);
                     var pageWindow = parent.$main.method.getActiveTabContent(tabID);
-                    if (pageWindow) {
-                        var pageScript = pageWindow[pageWindow['$w'].pageScript];
+                    if (pageWindow && pageWindow.syn) {
+                        var pageScript = pageWindow[pageWindow.syn.$w.pageScript];
                         var targetFunction = pageScript[func];
 
                         if (targetFunction) {
@@ -2440,6 +2440,7 @@ function domainLibraryLoad() {
         Claims: {}
     };
 
+    syn.$w.User.Claims = syn.$w.User.Claims || {};
     syn.$w.User.Claims.UserWorkID = syn.$w.User.Claims.UserWorkID || '';
     syn.$w.User.Claims.TenantAppRequestPath = syn.$w.User.Claims.TenantAppRequestPath || 'app';
     syn.$w.User.WorkCompanyNo = (syn.$r.query('companyNo') || syn.$r.query('CompanyNo') || syn.$r.query('companyNO') || syn.$r.query('CompanyNO') || syn.$r.query('COMPANYNO') || syn.$r.query('companyno')) || null;
@@ -2568,10 +2569,9 @@ function domainPageLoad() {
                 document.body.style.visibility = '';
             }
 
-            var mod = window[syn.$w.pageScript];
-            if (mod && mod['$grid']) {
-                for (var i = 0; i < mod.$grid.gridControls.length; i++) {
-                    mod.$grid.gridControls[i].hot.render();
+            if (syn.uicontrols && syn.uicontrols.$grid) {
+                for (var i = 0; i < syn.uicontrols.$grid.gridControls.length; i++) {
+                    syn.uicontrols.$grid.gridControls[i].hot.render();
                 }
             }
 

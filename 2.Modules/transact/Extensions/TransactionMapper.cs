@@ -118,83 +118,9 @@ namespace transact.Extensions
                     result = ModuleConfiguration.RoutingCommandUri.GetValueOrDefault(publicRouteSegmentID);
                 }
 
-                if (result == null)
+                if (result == null && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
                 {
                     string applicationID = itemKeys[0];
-
-                    if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
-                    {
-                        string userWorkID = string.Empty;
-                        string appBasePath = string.Empty;
-                        DirectoryInfo baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
-                        var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
-                        foreach (string directory in directories)
-                        {
-                            DirectoryInfo directoryInfo = new DirectoryInfo(directory);
-                            if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
-                            {
-                                appBasePath = directoryInfo.FullName;
-                                userWorkID = (directoryInfo.Parent?.Name).ToStringSafe();
-                                break;
-                            }
-                        }
-
-                        string tenantID = $"{userWorkID}|{applicationID}";
-                        string settingFilePath = Path.Combine(appBasePath, "settings.json");
-                        if (string.IsNullOrEmpty(appBasePath) == false && File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
-                        {
-                            string appSettingText = File.ReadAllText(settingFilePath);
-                            var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
-                            if (appSetting != null)
-                            {
-                                var routingCommandUri = appSetting.Routing;
-                                if (routingCommandUri != null)
-                                {
-                                    foreach (var item in routingCommandUri.AsEnumerable())
-                                    {
-                                        string tenantRouteSegmentID = $"{userWorkID}|{item.ApplicationID}|{item.ProjectID}|{item.CommandType}|{item.Environment}";
-                                        if (ModuleConfiguration.RoutingCommandUri.ContainsKey(tenantRouteSegmentID) == false)
-                                        {
-                                            ModuleConfiguration.RoutingCommandUri.Add(tenantRouteSegmentID, item.Uri);
-                                        }
-                                    }
-
-                                    result = ModuleConfiguration.RoutingCommandUri.GetValueOrDefault(routeSegmentID);
-                                    if (result == null)
-                                    {
-                                        if (itemKeys.Length == 4)
-                                        {
-                                            string publicRouteSegmentID = $"{itemKeys[0]}|*|{itemKeys[2]}|{itemKeys[3]}";
-                                            result = ModuleConfiguration.RoutingCommandUri.GetValueOrDefault(publicRouteSegmentID);
-                                        }
-                                        else if (itemKeys.Length == 5)
-                                        {
-                                            string publicRouteSegmentID = $"{itemKeys[0]}|{itemKeys[1]}|*|{itemKeys[3]}|{itemKeys[4]}";
-                                            result = ModuleConfiguration.RoutingCommandUri.GetValueOrDefault(publicRouteSegmentID);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            return result;
-        }
-
-        public static PublicTransaction? GetPublicTransaction(string applicationID, string projectID, string transactionID)
-        {
-            PublicTransaction? result = null;
-            result = ModuleConfiguration.PublicTransactions?.FirstOrDefault(p => p.ApplicationID == applicationID
-                && (p.ProjectID == "*" || p.ProjectID == projectID)
-                && (p.TransactionID == "*" || p.TransactionID == transactionID)
-            );
-
-            if (result == null)
-            {
-                if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
-                {
                     string userWorkID = string.Empty;
                     string appBasePath = string.Empty;
                     DirectoryInfo baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
@@ -218,33 +144,100 @@ namespace transact.Extensions
                         var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
                         if (appSetting != null)
                         {
-                            var publicTransactions = appSetting.Public;
-                            if (ModuleConfiguration.PublicTransactions == null)
+                            var routingCommandUri = appSetting.Routing;
+                            if (routingCommandUri != null)
                             {
-                                ModuleConfiguration.PublicTransactions = new List<PublicTransaction>();
-                            }
-
-                            if (publicTransactions != null && publicTransactions.Count() > 0)
-                            {
-                                for (int i = 0; i < publicTransactions.Count(); i++)
+                                foreach (var item in routingCommandUri.AsEnumerable())
                                 {
-                                    var publicTransaction = publicTransactions[i];
-
-                                    PublicTransaction appPublicTransaction = new PublicTransaction();
-                                    appPublicTransaction.ApplicationID = applicationID;
-                                    appPublicTransaction.ProjectID = publicTransaction.ProjectID;
-                                    appPublicTransaction.TransactionID = publicTransaction.TransactionID;
-                                    if (ModuleConfiguration.PublicTransactions.Contains(appPublicTransaction) == false)
+                                    string tenantRouteSegmentID = $"{userWorkID}|{item.ApplicationID}|{item.ProjectID}|{item.CommandType}|{item.Environment}";
+                                    if (ModuleConfiguration.RoutingCommandUri.ContainsKey(tenantRouteSegmentID) == false)
                                     {
-                                        ModuleConfiguration.PublicTransactions.Add(appPublicTransaction);
+                                        ModuleConfiguration.RoutingCommandUri.Add(tenantRouteSegmentID, item.Uri);
                                     }
                                 }
 
-                                result = ModuleConfiguration.PublicTransactions?.FirstOrDefault(p => p.ApplicationID == applicationID
-                                    && (p.ProjectID == "*" || p.ProjectID == projectID)
-                                    && (p.TransactionID == "*" || p.TransactionID == transactionID)
-                                );
+                                result = ModuleConfiguration.RoutingCommandUri.GetValueOrDefault(routeSegmentID);
+                                if (result == null)
+                                {
+                                    if (itemKeys.Length == 4)
+                                    {
+                                        string publicRouteSegmentID = $"{itemKeys[0]}|*|{itemKeys[2]}|{itemKeys[3]}";
+                                        result = ModuleConfiguration.RoutingCommandUri.GetValueOrDefault(publicRouteSegmentID);
+                                    }
+                                    else if (itemKeys.Length == 5)
+                                    {
+                                        string publicRouteSegmentID = $"{itemKeys[0]}|{itemKeys[1]}|*|{itemKeys[3]}|{itemKeys[4]}";
+                                        result = ModuleConfiguration.RoutingCommandUri.GetValueOrDefault(publicRouteSegmentID);
+                                    }
+                                }
                             }
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public static PublicTransaction? GetPublicTransaction(string applicationID, string projectID, string transactionID)
+        {
+            PublicTransaction? result = null;
+            result = ModuleConfiguration.PublicTransactions?.FirstOrDefault(p => p.ApplicationID == applicationID
+                && (p.ProjectID == "*" || p.ProjectID == projectID)
+                && (p.TransactionID == "*" || p.TransactionID == transactionID)
+            );
+
+            if (result == null && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
+            {
+                string userWorkID = string.Empty;
+                string appBasePath = string.Empty;
+                DirectoryInfo baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
+                var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
+                foreach (string directory in directories)
+                {
+                    DirectoryInfo directoryInfo = new DirectoryInfo(directory);
+                    if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
+                    {
+                        appBasePath = directoryInfo.FullName;
+                        userWorkID = (directoryInfo.Parent?.Name).ToStringSafe();
+                        break;
+                    }
+                }
+
+                string tenantID = $"{userWorkID}|{applicationID}";
+                string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                if (string.IsNullOrEmpty(appBasePath) == false && File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
+                {
+                    string appSettingText = File.ReadAllText(settingFilePath);
+                    var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
+                    if (appSetting != null)
+                    {
+                        var publicTransactions = appSetting.Public;
+                        if (ModuleConfiguration.PublicTransactions == null)
+                        {
+                            ModuleConfiguration.PublicTransactions = new List<PublicTransaction>();
+                        }
+
+                        if (publicTransactions != null && publicTransactions.Count() > 0)
+                        {
+                            for (int i = 0; i < publicTransactions.Count(); i++)
+                            {
+                                var publicTransaction = publicTransactions[i];
+
+                                PublicTransaction appPublicTransaction = new PublicTransaction();
+                                appPublicTransaction.ApplicationID = applicationID;
+                                appPublicTransaction.ProjectID = publicTransaction.ProjectID;
+                                appPublicTransaction.TransactionID = publicTransaction.TransactionID;
+                                if (ModuleConfiguration.PublicTransactions.Contains(appPublicTransaction) == false)
+                                {
+                                    ModuleConfiguration.PublicTransactions.Add(appPublicTransaction);
+                                }
+                            }
+
+                            result = ModuleConfiguration.PublicTransactions?.FirstOrDefault(p => p.ApplicationID == applicationID
+                                && (p.ProjectID == "*" || p.ProjectID == projectID)
+                                && (p.TransactionID == "*" || p.TransactionID == transactionID)
+                            );
                         }
                     }
                 }

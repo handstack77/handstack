@@ -325,7 +325,7 @@
                     for (var idx = 0; idx < length; idx++) {
                         var el = findElements[idx];
                         if (el && el.style && el.style.display == 'none' || el.type == 'hidden') {
-                            if (el.id && el.tagName.toUpperCase() == 'SELECT' && (el.getAttribute('syn-datafield') != null || el.getAttribute('syn-datafield') != undefined)) {
+                            if (el.id && el.tagName.toUpperCase() == 'SELECT' && $string.isNullOrEmpty(el.getAttribute('syn-datafield')) == false) {
                                 els.push(el);
                             }
                             else {
@@ -336,7 +336,7 @@
                             if (el.id && el.id.includes('btn_syneditor_') == false && el.id.includes('chk_syngrid_') == false && el.id.includes('_hidden') == false) {
                                 els.push(el);
                             }
-                            else if (el.id && el.tagName.toUpperCase() == 'SELECT' && (el.getAttribute('syn-datafield') != null || el.getAttribute('syn-datafield') != undefined)) {
+                            else if (el.id && el.tagName.toUpperCase() == 'SELECT' && $string.isNullOrEmpty(el.getAttribute('syn-datafield')) == false) {
                                 els.push(el);
                             }
                             else if (el.id && el.tagName.includes('SYN_') == true) {
@@ -378,7 +378,7 @@
                                 });
                             }
                         }
-                        else if (el.id && el.tagName.toUpperCase() == 'SELECT' && (el.getAttribute('syn-datafield') != null || el.getAttribute('syn-datafield') != undefined)) {
+                        else if (el.id && el.tagName.toUpperCase() == 'SELECT' && $string.isNullOrEmpty(el.getAttribute('syn-datafield')) == false) {
                             var offset = null;
                             if (el.getAttribute('multiple') === false) {
                                 var control = syn.uicontrols.$select.getControl(el.id);
@@ -669,7 +669,10 @@
 
                     try {
                         var el = syn.$l.get(synControl.id + '_hidden') || syn.$l.get(synControl.id);
-                        options = eval('(' + el.getAttribute('syn-options') + ')');
+                        var synOptions = el.getAttribute('syn-options') || null;
+                        if (synOptions != null) {
+                            options = eval('(' + synOptions + ')');
+                        }
                     } catch (error) {
                         syn.$l.eventLog('$w.contentLoaded', 'elID: "{0}" syn-options 확인 필요'.format(synControl.id) + error.message, 'Warning');
                     }
@@ -678,7 +681,11 @@
                         if ($object.isString(options.transactConfig.triggerEvent) == true) {
                             syn.$l.addEvent(elID, options.transactConfig.triggerEvent, function (evt) {
                                 var el = $webform.activeControl(evt);
-                                var options = eval('(' + el.getAttribute('syn-options') + ')');
+                                var synOptions = el.getAttribute('syn-options') || null;
+                                if (synOptions != null) {
+                                    options = eval('(' + synOptions + ')');
+                                }
+
                                 var transactConfig = null;
                                 if (options && options.transactConfig) {
                                     transactConfig = options.transactConfig;
@@ -692,7 +699,11 @@
                         else if ($object.isArray(options.transactConfig.triggerEvent) == true) {
                             var triggerFunction = function (evt) {
                                 var el = $webform.activeControl(evt);
-                                var options = eval('(' + el.getAttribute('syn-options') + ')');
+                                var synOptions = el.getAttribute('syn-options') || null;
+                                if (synOptions != null) {
+                                    options = eval('(' + synOptions + ')');
+                                }
+
                                 var transactConfig = null;
                                 if (options && options.transactConfig) {
                                     transactConfig = options.transactConfig;
@@ -712,17 +723,16 @@
 
                     if (options && options.triggerConfig && options.triggerConfig.triggerEvent) {
                         if ($object.isString(options.triggerConfig.triggerEvent) == true) {
-                            syn.$l.addEvent(elID, options.triggerConfig.triggerEvent, function (triggerConfig) {
+                            syn.$l.addEvent(elID, options.triggerConfig.triggerEvent, function (evt) {
+                                var triggerConfig = null;
                                 var el = $webform.activeControl(evt);
-                                if (triggerConfig && $object.isNullOrUndefined(triggerConfig.triggerEvent) == true) {
-                                    var options = eval('(' + el.getAttribute('syn-options') + ')');
-                                    triggerConfig = options.triggerConfig;
+                                var synOptions = el.getAttribute('syn-options') || null;
+                                if (synOptions != null) {
+                                    options = eval('(' + synOptions + ')');
                                 }
-                                else {
-                                    var options = eval('(' + el.getAttribute('syn-options') + ')');
-                                    if (options && options.triggerConfig) {
-                                        triggerConfig = options.triggerConfig;
-                                    }
+
+                                if (options && options.triggerConfig) {
+                                    triggerConfig = options.triggerConfig;
                                 }
 
                                 if (triggerConfig) {
@@ -731,17 +741,16 @@
                             });
                         }
                         else if ($object.isArray(options.triggerConfig.triggerEvent) == true) {
-                            var triggerFunction = function (triggerConfig) {
+                            var triggerFunction = function (evt) {
+                                var triggerConfig = null;
                                 var el = $webform.activeControl(evt);
-                                if (triggerConfig && $object.isNullOrUndefined(triggerConfig.triggerEvent) == true) {
-                                    var options = eval('(' + el.getAttribute('syn-options') + ')');
-                                    triggerConfig = options.triggerConfig;
+                                var synOptions = el.getAttribute('syn-options') || null;
+                                if (synOptions != null) {
+                                    options = eval('(' + synOptions + ')');
                                 }
-                                else {
-                                    var options = eval('(' + el.getAttribute('syn-options') + ')');
-                                    if (options && options.triggerConfig) {
-                                        triggerConfig = options.triggerConfig;
-                                    }
+
+                                if (options && options.triggerConfig) {
+                                    triggerConfig = options.triggerConfig;
                                 }
 
                                 if (triggerConfig) {

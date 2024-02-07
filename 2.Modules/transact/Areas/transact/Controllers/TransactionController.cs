@@ -1113,15 +1113,26 @@ namespace transact.Areas.transact.Controllers
                 {
                     string clientIP = HttpContext.GetRemoteIpAddress().ToStringSafe();
                     string verifyTokenID = bearerToken.Policy.VerifyTokenID;
-                    bearerToken.Policy.VerifyTokenID = "";
-                    if (verifyTokenID == JsonConvert.SerializeObject(bearerToken).ToSHA256() && bearerToken.ClientIP == clientIP)
+                    if (string.IsNullOrEmpty(verifyTokenID) == true)
                     {
-                        bearerToken.Policy.VerifyTokenID = verifyTokenID;
+                        if (bearerToken.ClientIP != clientIP)
+                        {
+                            response.ExceptionText = $"거래 액세스 토큰 IP 유효성 오류";
+                            return LoggingAndReturn(response, "N", transactionInfo);
+                        }
                     }
                     else
                     {
-                        response.ExceptionText = $"거래 액세스 토큰 유효성 오류";
-                        return LoggingAndReturn(response, "N", transactionInfo);
+                        bearerToken.Policy.VerifyTokenID = "";
+                        if (verifyTokenID == JsonConvert.SerializeObject(bearerToken).ToSHA256() && bearerToken.ClientIP == clientIP)
+                        {
+                            bearerToken.Policy.VerifyTokenID = verifyTokenID;
+                        }
+                        else
+                        {
+                            response.ExceptionText = $"거래 액세스 토큰 유효성 오류";
+                            return LoggingAndReturn(response, "N", transactionInfo);
+                        }
                     }
 
                     if (bearerToken.ExpiredAt != null && bearerToken.ExpiredAt < DateTime.UtcNow)

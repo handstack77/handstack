@@ -18,6 +18,7 @@
         fileManagers: [],
         fileControls: [],
         applicationID: '',
+        businessID: '',
 
         mimeType: {
             'html': 'text/html'

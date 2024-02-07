@@ -167,7 +167,7 @@ namespace dbclient.Extensions
             {
                 result = StatementMappings.FirstOrDefault(item => item.Key == queryID).Value;
 
-                if (result == null)
+                if (result == null && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
                 {
                     var itemKeys = queryID.Split("|");
                     string applicationID = itemKeys[0];
