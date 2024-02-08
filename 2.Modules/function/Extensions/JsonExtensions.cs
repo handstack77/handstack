@@ -16,14 +16,14 @@ namespace function.Extensions
             foreach (DataRow dataRow in schemaTable.Rows)
             {
                 MetaColumn metaColumn = new MetaColumn();
-                metaColumn.ColumnName = dataRow.GetStringEmpty("ColumnName");
-                metaColumn.BaseColumnName = dataRow.GetStringEmpty("BaseColumnName");
+                metaColumn.ColumnName = dataRow.GetStringSafe("ColumnName");
+                metaColumn.BaseColumnName = dataRow.GetStringSafe("BaseColumnName");
                 metaColumn.ColumnOrdinal = dataRow.GetInt32("ColumnOrdinal");
                 metaColumn.ColumnSize = dataRow.GetInt32("ColumnSize");
                 metaColumn.NumericPrecision = dataRow.GetInt32("NumericPrecision");
                 metaColumn.NumericScale = dataRow.GetInt32("NumericScale");
-                metaColumn.DataType = dataRow.GetStringEmpty("ColumnName").Replace("System.", "");
-                metaColumn.DataTypeName = dataRow.GetStringEmpty("DataTypeName");
+                metaColumn.DataType = dataRow.GetStringSafe("ColumnName").Replace("System.", "");
+                metaColumn.DataTypeName = dataRow.GetStringSafe("DataTypeName");
                 metaColumn.AllowDBNull = dataRow.GetBoolean("AllowDBNull");
                 metaColumn.IsReadOnly = dataRow.GetBoolean("IsReadOnly");
                 metaColumn.IsAutoIncrement = dataRow.GetBoolean("IsAutoIncrement");
@@ -42,10 +42,10 @@ namespace function.Extensions
             foreach (DataRow dataRow in schemaTable.Rows)
             {
                 DatabaseColumn dbColumn = new DatabaseColumn();
-                dbColumn.Name = dataRow.GetStringEmpty("ColumnName");
-                dbColumn.Comment = dataRow.GetStringEmpty("BaseColumnName");
+                dbColumn.Name = dataRow.GetStringSafe("ColumnName");
+                dbColumn.Comment = dataRow.GetStringSafe("BaseColumnName");
                 dbColumn.Length = dataRow.GetInt32("ColumnSize");
-                dbColumn.DataType = dataRow.GetStringEmpty("DataType").Replace("System.", "");
+                dbColumn.DataType = dataRow.GetStringSafe("DataType").Replace("System.", "");
                 dbColumn.Require = false;
                 dbColumn.Default = "";
 

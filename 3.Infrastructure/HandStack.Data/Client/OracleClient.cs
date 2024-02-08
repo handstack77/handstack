@@ -342,7 +342,7 @@ namespace HandStack.Data.Client
                         List<string> columnNames = new List<string>();
                         foreach (DataRow row in schemaTable.Rows)
                         {
-                            columnNames.Add(row["ColumnName"].ToStringSafe());
+                            columnNames.Add(row.GetStringSafe("ColumnName"));
                         }
 
                         while (reader.Read())

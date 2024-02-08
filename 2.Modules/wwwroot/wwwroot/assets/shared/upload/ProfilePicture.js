@@ -20,7 +20,7 @@ let $ProfilePicture = {
 
         pageLoad() {
             if ($string.isNullOrEmpty(syn.uicontrols.$fileclient.applicationID) == true) {
-                syn.uicontrols.$fileclient.applicationID = syn.$w.User.ApplicationID;
+                syn.uicontrols.$fileclient.applicationID = syn.$w.Variable.ApplicationID || syn.$w.User.ApplicationID || syn.Config.ApplicationID;
             }
 
             if ($string.isNullOrEmpty(syn.uicontrols.$fileclient.applicationID) == true) {

@@ -128,7 +128,7 @@
             }
             else {
                 if ($string.isNullOrEmpty($fileclient.applicationID) == true) {
-                    $fileclient.applicationID = syn.$w.Variable.ApplicationID || syn.$w.User.ApplicationID;
+                    $fileclient.applicationID = syn.$w.Variable.ApplicationID || syn.$w.User.ApplicationID || syn.Config.ApplicationID;
                 }
             }
 
@@ -214,10 +214,10 @@
                         var mod = window[syn.$w.pageScript];
                         if (mod) {
                             var clientCallback = null;
-                            clientCallback = mod[repositoryData.callback];
+                            clientCallback = mod.event[repositoryData.callback];
                             if ($object.isNullOrUndefined(clientCallback) == true) {
                                 try {
-                                    clientCallback = eval('$this.' + repositoryData.callback);
+                                    clientCallback = eval('$this.event.' + repositoryData.callback);
                                 } catch (error) {
                                     syn.$l.eventLog('clientCallback', error, 'Warning');
                                 }

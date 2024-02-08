@@ -1578,6 +1578,7 @@ namespace transact.Areas.transact.Controllers
                         }
 
                         return Content(responseData, "application/json");
+                    case "CodeHelp":
                     case "Json":
                         response.Message.ResponseStatus = "N"; // N: Normal, W: Warning, E: Error
                         response.Message.MainCode = nameof(MessageCode.T200);

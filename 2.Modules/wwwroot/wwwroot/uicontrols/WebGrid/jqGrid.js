@@ -462,28 +462,28 @@
                     gridParams.beforeSelectRow = $jqgrid.webGrid_beforeSelectRow;
                     gridParams.onSortCol = $jqgrid.webGrid_onSortCol;
 
-                    if (mod[eid + '_ondblClickRow']) {
-                        gridParams.ondblClickRow = mod[eid + '_ondblClickRow'];
+                    if (mod.event[eid + '_ondblClickRow']) {
+                        gridParams.ondblClickRow = mod.event[eid + '_ondblClickRow'];
                     }
 
-                    if (mod[eid + '_onRightClickRow']) {
-                        gridParams.onRightClickRow = mod[eid + '_onRightClickRow'];
+                    if (mod.event[eid + '_onRightClickRow']) {
+                        gridParams.onRightClickRow = mod.event[eid + '_onRightClickRow'];
                     }
 
-                    if (mod[eid + '_onSelectRow']) {
-                        gridParams.onSelectRow = mod[eid + '_onSelectRow'];
+                    if (mod.event[eid + '_onSelectRow']) {
+                        gridParams.onSelectRow = mod.event[eid + '_onSelectRow'];
                     }
 
-                    if (mod[eid + '_onSelectAll']) {
-                        gridParams.onSelectAll = mod[eid + '_onSelectAll'];
+                    if (mod.event[eid + '_onSelectAll']) {
+                        gridParams.onSelectAll = mod.event[eid + '_onSelectAll'];
                     }
 
-                    if (mod[eid + '_resizeStart']) {
-                        gridParams.resizeStart = mod[eid + '_resizeStart'];
+                    if (mod.event[eid + '_resizeStart']) {
+                        gridParams.resizeStart = mod.event[eid + '_resizeStart'];
                     }
 
-                    if (mod[eid + '_resizeStop']) {
-                        gridParams.resizeStop = mod[eid + '_resizeStop'];
+                    if (mod.event[eid + '_resizeStop']) {
+                        gridParams.resizeStop = mod.event[eid + '_resizeStop'];
                     }
                 }
                 mod = null;
@@ -501,7 +501,7 @@
             var gridID = el.getAttribute('gid');
             var mod = window[syn.$webform.pageScript];
             if (mod) {
-                var codePickerCallback = mod[gridID + '_onCodePickerCallback'];
+                var codePickerCallback = mod.event[gridID + '_onCodePickerCallback'];
                 if (codePickerCallback) {
                     var rowid = el.id.split('_')[0];
                     var colid = $jqgrid.getColumnID(gridID, $.jgrid.getCellIndex(el.parentElement.parentElement));
@@ -526,7 +526,7 @@
             var grid = syn.$l.get(gridID);
             var mod = window[syn.$w.pageScript];
             if (mod) {
-                var headerClick = mod[gridID + '_onHeaderClick'];
+                var headerClick = mod.event[gridID + '_onHeaderClick'];
                 if (headerClick) {
                     headerClick(gridID, iCol);
                     return 'stop';
@@ -586,7 +586,7 @@
                     }
 
                     if (mod) {
-                        var sortCol = mod[gridID + '_onSortCol'];
+                        var sortCol = mod.event[gridID + '_onSortCol'];
                         if (sortCol) {
                             return sortCol(index, iCol, sortorder);
                         }
@@ -633,7 +633,7 @@
 
             var mod = window[syn.$w.pageScript];
             if (mod) {
-                var sortingCol = mod[gridID + '_onSortingCol'];
+                var sortingCol = mod.event[gridID + '_onSortingCol'];
                 if (sortingCol) {
                     return sortingCol(index, iCol, sortorder);
                 }
@@ -662,7 +662,7 @@
 
             var mod = window[syn.$webform.pageScript];
             if (mod) {
-                var beforeSelectRow = mod[e.delegateTarget.id + '_beforeSelectRow'];
+                var beforeSelectRow = mod.event[e.delegateTarget.id + '_beforeSelectRow'];
                 if (beforeSelectRow) {
                     beforeSelectRow(arguments[0], arguments[1]);
                 }
@@ -801,7 +801,7 @@
                 var isContinue = true;
                 var mod = window[syn.$webform.pageScript];
                 if (mod) {
-                    var beforeNavigation = mod[eid + '_beforeNavigation'];
+                    var beforeNavigation = mod.event[eid + '_beforeNavigation'];
                     if (beforeNavigation) {
                         isContinue = beforeNavigation(eid, $jqgrid.isUpdateDatas(eid), pagingSetting.currentPageIndex, 1);
                     }
@@ -814,7 +814,7 @@
                 }
 
                 if (mod) {
-                    var afterNavigation = mod[eid + '_afterNavigation'];
+                    var afterNavigation = mod.event[eid + '_afterNavigation'];
                     if (afterNavigation) {
                         isContinue = afterNavigation(eid);
                     }
@@ -846,7 +846,7 @@
 
                 if (pagingSetting.currentPageIndex > 1) {
                     if (mod) {
-                        var beforeNavigation = mod[eid + '_beforeNavigation'];
+                        var beforeNavigation = mod.event[eid + '_beforeNavigation'];
                         if (beforeNavigation) {
                             isContinue = beforeNavigation(eid, $jqgrid.isUpdateDatas(eid), pagingSetting.currentPageIndex, (pagingSetting.currentPageIndex - 1));
                         }
@@ -862,7 +862,7 @@
                 }
 
                 if (mod) {
-                    var afterNavigation = mod[eid + '_afterNavigation'];
+                    var afterNavigation = mod.event[eid + '_afterNavigation'];
                     if (afterNavigation) {
                         isContinue = afterNavigation(eid);
                     }
@@ -894,9 +894,9 @@
 
                 if (pagingSetting.currentPageIndex < pagingSetting.totalPages) {
                     if (mod) {
-                        var beforeNavigation = mod[eid + '_beforeNavigation'];
-                        if (mod[eid + '_beforeNavigation']) {
-                            isContinue = mod[eid + '_beforeNavigation'](eid, $jqgrid.isUpdateDatas(eid), pagingSetting.currentPageIndex, (pagingSetting.currentPageIndex + 1));
+                        var beforeNavigation = mod.event[eid + '_beforeNavigation'];
+                        if (mod.event[eid + '_beforeNavigation']) {
+                            isContinue = mod.event[eid + '_beforeNavigation'](eid, $jqgrid.isUpdateDatas(eid), pagingSetting.currentPageIndex, (pagingSetting.currentPageIndex + 1));
                         }
                     }
 
@@ -910,7 +910,7 @@
                 }
 
                 if (mod) {
-                    var afterNavigation = mod[eid + '_afterNavigation'];
+                    var afterNavigation = mod.event[eid + '_afterNavigation'];
                     if (afterNavigation) {
                         isContinue = afterNavigation(eid);
                     }
@@ -941,7 +941,7 @@
                 var mod = window[syn.$webform.pageScript];
 
                 if (mod) {
-                    var beforeNavigation = mod[eid + '_beforeNavigation'];
+                    var beforeNavigation = mod.event[eid + '_beforeNavigation'];
                     if (beforeNavigation) {
                         isContinue = beforeNavigation(eid, $jqgrid.isUpdateDatas(eid), pagingSetting.currentPageIndex, pagingSetting.totalPages);
                     }
@@ -954,7 +954,7 @@
                 }
 
                 if (mod) {
-                    var afterNavigation = mod[eid + '_afterNavigation'];
+                    var afterNavigation = mod.event[eid + '_afterNavigation'];
                     if (afterNavigation) {
                         isContinue = afterNavigation(eid);
                     }
@@ -2386,7 +2386,7 @@
 
             var mod = window[syn.$webform.pageScript];
             if (mod) {
-                var func = mod[gid + '_beforeUpdateRow'];
+                var func = mod.event[gid + '_beforeUpdateRow'];
                 if (func) {
                     func(gid, rowid, colIndex, rowObject);
                 }

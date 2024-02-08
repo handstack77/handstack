@@ -123,13 +123,18 @@ namespace HandStack.Core.ExtensionMethod
             return (@this[fieldName] as byte[]);
         }
 
-        public static string GetStringEmpty(this DataRow @this, string fieldName)
+        public static string GetStringSafe(this DataRow @this, string fieldName)
         {
-            return @this.GetStringEmpty(fieldName, "");
+            return @this.GetStringSafe(fieldName, "");
         }
 
-        public static string GetStringEmpty(this DataRow @this, string fieldName, string defaultValue)
+        public static string GetStringSafe(this DataRow @this, string fieldName, string defaultValue)
         {
+            if (@this.Table.Columns.Contains(fieldName) == false)
+            {
+                return defaultValue;
+            }
+
             var value = @this[fieldName];
             return (value is string ? (string)value : defaultValue);
         }
@@ -141,12 +146,22 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string? GetString(this DataRow @this, string fieldName, string? defaultValue)
         {
+            if (@this.Table.Columns.Contains(fieldName) == false)
+            {
+                return defaultValue;
+            }
+
             var value = @this[fieldName];
             return (value is string ? (string)value : defaultValue);
         }
 
         public static Guid GetGuid(this DataRow @this, string fieldName)
         {
+            if (@this.Table.Columns.Contains(fieldName) == false)
+            {
+                return Guid.Empty;
+            }
+
             var value = @this[fieldName];
             return (value is Guid ? (Guid)value : Guid.Empty);
         }
@@ -158,6 +173,22 @@ namespace HandStack.Core.ExtensionMethod
 
         public static DateTime GetDateTime(this DataRow @this, string fieldName, DateTime defaultValue)
         {
+            if (@this.Table.Columns.Contains(fieldName) == false)
+            {
+                return defaultValue;
+            }
+
+            var value = @this[fieldName];
+            return (value is DateTime ? (DateTime)value : defaultValue);
+        }
+
+        public static DateTime? GetDateTime(this DataRow @this, string fieldName, DateTime? defaultValue)
+        {
+            if (@this.Table.Columns.Contains(fieldName) == false)
+            {
+                return defaultValue;
+            }
+
             var value = @this[fieldName];
             return (value is DateTime ? (DateTime)value : defaultValue);
         }
@@ -180,6 +211,11 @@ namespace HandStack.Core.ExtensionMethod
 
         public static short GetInt16(this DataRow @this, string fieldName, short defaultValue)
         {
+            if (@this.Table.Columns.Contains(fieldName) == false)
+            {
+                return defaultValue;
+            }
+
             var value = @this[fieldName];
             return (value is short ? (short)value : defaultValue);
         }
@@ -191,6 +227,11 @@ namespace HandStack.Core.ExtensionMethod
 
         public static ushort GetUInt16(this DataRow @this, string fieldName, ushort defaultValue)
         {
+            if (@this.Table.Columns.Contains(fieldName) == false)
+            {
+                return defaultValue;
+            }
+
             var value = @this[fieldName];
             return (value is ushort ? (ushort)value : defaultValue);
         }
@@ -202,6 +243,11 @@ namespace HandStack.Core.ExtensionMethod
 
         public static int GetInt32(this DataRow @this, string fieldName, int defaultValue)
         {
+            if (@this.Table.Columns.Contains(fieldName) == false)
+            {
+                return defaultValue;
+            }
+
             var value = @this[fieldName];
             return (value is int ? (int)value : defaultValue);
         }
@@ -213,6 +259,11 @@ namespace HandStack.Core.ExtensionMethod
 
         public static uint GetUInt32(this DataRow @this, string fieldName, uint defaultValue)
         {
+            if (@this.Table.Columns.Contains(fieldName) == false)
+            {
+                return defaultValue;
+            }
+
             var value = @this[fieldName];
             return (value is uint ? (uint)value : defaultValue);
         }
@@ -224,6 +275,11 @@ namespace HandStack.Core.ExtensionMethod
 
         public static long GetInt64(this DataRow @this, string fieldName, long defaultValue)
         {
+            if (@this.Table.Columns.Contains(fieldName) == false)
+            {
+                return defaultValue;
+            }
+
             var value = @this[fieldName];
             return (value is long ? (long)value : defaultValue);
         }
@@ -235,6 +291,11 @@ namespace HandStack.Core.ExtensionMethod
 
         public static ulong GetUInt64(this DataRow @this, string fieldName, ulong defaultValue)
         {
+            if (@this.Table.Columns.Contains(fieldName) == false)
+            {
+                return defaultValue;
+            }
+
             var value = @this[fieldName];
             return (value is ulong ? (ulong)value : defaultValue);
         }
@@ -246,6 +307,11 @@ namespace HandStack.Core.ExtensionMethod
 
         public static decimal GetDecimal(this DataRow @this, string fieldName, decimal defaultValue)
         {
+            if (@this.Table.Columns.Contains(fieldName) == false)
+            {
+                return defaultValue;
+            }
+
             var value = @this[fieldName];
             return (value is decimal ? (decimal)value : defaultValue);
         }
@@ -257,6 +323,11 @@ namespace HandStack.Core.ExtensionMethod
 
         public static double GetDouble(this DataRow @this, string fieldName, double defaultValue)
         {
+            if (@this.Table.Columns.Contains(fieldName) == false)
+            {
+                return defaultValue;
+            }
+
             var value = @this[fieldName];
             return (value is double ? (double)value : defaultValue);
         }
@@ -268,6 +339,11 @@ namespace HandStack.Core.ExtensionMethod
 
         public static float GetSingle(this DataRow @this, string fieldName, float defaultValue)
         {
+            if (@this.Table.Columns.Contains(fieldName) == false)
+            {
+                return defaultValue;
+            }
+
             var value = @this[fieldName];
             return (value is float ? (float)value : defaultValue);
         }
@@ -279,12 +355,22 @@ namespace HandStack.Core.ExtensionMethod
 
         public static bool GetBoolean(this DataRow @this, string fieldName, bool defaultValue)
         {
+            if (@this.Table.Columns.Contains(fieldName) == false)
+            {
+                return defaultValue;
+            }
+
             var value = @this[fieldName];
             return (value is bool ? (bool)value : defaultValue);
         }
 
         public static bool IsDBNull(this DataRow @this, string fieldName)
         {
+            if (@this.Table.Columns.Contains(fieldName) == false)
+            {
+                return false;
+            }
+
             var value = @this[fieldName];
             return (value == DBNull.Value);
         }

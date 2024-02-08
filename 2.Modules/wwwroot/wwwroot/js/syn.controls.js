@@ -531,7 +531,7 @@
             }
             else {
                 if ($object.isArray(setting.belongID) == true) {
-                    textboxCode.setAttribute('syn-options', `{editType: 'text', dataType: 'string', belongID: '[${eval(setting.belongID).join('\',\'')}]'}`);
+                    textboxCode.setAttribute('syn-options', `{editType: 'text', dataType: 'string', belongID: ${JSON.stringify(setting.belongID)}}`);
                 }
                 else {
                     textboxCode.setAttribute('syn-options', `{editType: 'text', dataType: 'string', belongID: '${setting.belongID}'}`);
@@ -539,7 +539,7 @@
             }
 
             if ($object.isNullOrUndefined(events) == false) {
-                textboxCode.setAttribute('syn-events', `['${eval(events).join('\',\'')}']'`);
+                textboxCode.setAttribute('syn-events', events);
             }
             syn.$m.insertAfter(textboxCode, el);
 
@@ -594,7 +594,7 @@
             }
             else {
                 if ($object.isArray(setting.textBelongID) == true) {
-                    textboxText.setAttribute('syn-options', `{editType: 'text', dataType: 'string', belongID: '['${eval(setting.textBelongID).join('\',\'')}']'}`);
+                    textboxText.setAttribute('syn-options', `{editType: 'text', dataType: 'string', belongID: ${JSON.stringify(setting.textBelongID)}}`);
                 }
                 else {
                     textboxText.setAttribute('syn-options', `{editType: 'text', dataType: 'string', belongID: '${setting.textBelongID}'}`);
@@ -602,7 +602,7 @@
             }
 
             if ($object.isNullOrUndefined(events) == false) {
-                textboxText.setAttribute('syn-events', `['${eval(events).join('\',\'')}']'`);
+                textboxText.setAttribute('syn-events', events);
             }
             syn.$m.insertAfter(textboxText, buttonOpen);
 
@@ -611,7 +611,7 @@
                 var el = evt.srcElement || evt.target;
                 var mod = window[syn.$w.pageScript];
                 if (mod) {
-                    mod.focusControl = el;
+                    mod.prop.focusControl = el;
                 }
             });
 
@@ -626,14 +626,20 @@
                 }
             });
 
-            syn.uicontrols.$textbox.controlLoad(codeEL.id, eval(`(${codeEL.getAttribute('syn-options')})`));
+            var synOptions = codeEL.getAttribute('syn-options');
+            if ($string.isNullOrEmpty(synOptions) == false) {
+                syn.uicontrols.$textbox.controlLoad(codeEL.id, eval('(' + synOptions + ')'));
+            }
+            else {
+                syn.uicontrols.$textbox.controlLoad(codeEL.id, {});
+            }
 
             var textEL = syn.$l.get(elID + '_Text');
             syn.$l.addEvent(textEL, 'focus', function (evt) {
                 var el = evt.srcElement || evt.target;
                 var mod = window[syn.$w.pageScript];
                 if (mod) {
-                    mod.focusControl = el;
+                    mod.prop.focusControl = el;
                 }
             });
 
@@ -648,14 +654,20 @@
                 }
             });
 
-            syn.uicontrols.$textbox.controlLoad(textEL.id, eval(`(${textEL.getAttribute('syn-options')})`));
+            synOptions = textEL.getAttribute('syn-options');
+            if ($string.isNullOrEmpty(synOptions) == false) {
+                syn.uicontrols.$textbox.controlLoad(textEL.id, eval('(' + synOptions + ')'));
+            }
+            else {
+                syn.uicontrols.$textbox.controlLoad(textEL.id, {});
+            }
 
             var buttonEL = syn.$l.get(elID + '_Button');
             syn.$l.addEvent(buttonEL, 'focus', function (evt) {
                 var el = evt.srcElement || evt.target;
                 var mod = window[syn.$w.pageScript];
                 if (mod) {
-                    mod.focusControl = el;
+                    mod.prop.focusControl = el;
                 }
             });
 
@@ -674,7 +686,7 @@
                 var inputText = syn.$l.get(synOptions.textElementID).value;
                 syn.uicontrols.$codepicker.find(synOptions, function (result) {
                     if (result && result.length > 0) {
-                        var changeHandler = mod[elID + '_change'];
+                        var changeHandler = mod.event[elID + '_change'];
                         if (changeHandler) {
                             changeHandler(inputValue, inputText, result);
                         }
@@ -1629,7 +1641,7 @@
                 tag: 'input',
                 className: 'form-control'
             });
-
+            textbox.type = 'text';
             if ($string.isNullOrEmpty(dataField) == false) {
                 textbox.setAttribute('syn-datafield', dataField);
             }
@@ -1639,7 +1651,7 @@
             }
             else {
                 if ($object.isArray(setting.belongID) == true) {
-                    textbox.setAttribute('syn-options', `{editType: 'date', maskPattern: '9999-99-99', dataType: 'string', belongID: '[${eval(setting.belongID).join('\',\'')}]'}`);
+                    textbox.setAttribute('syn-options', `{editType: 'date', maskPattern: '9999-99-99', dataType: 'string', belongID: ${JSON.stringify(setting.belongID)}}`);
                 }
                 else {
                     textbox.setAttribute('syn-options', `{editType: 'date', maskPattern: '9999-99-99', dataType: 'string', belongID: '${setting.belongID}'}`);
@@ -1647,7 +1659,7 @@
             }
 
             if ($object.isNullOrUndefined(events) == false) {
-                textbox.setAttribute('syn-events', `['${eval(events).join('\',\'')}']'`);
+                textbox.setAttribute('syn-events', events);
             }
 
             syn.$m.insertAfter(textbox, el);
@@ -1672,8 +1684,8 @@
 
                     var mod = window[syn.$w.pageScript];
                     var selectFunction = '{0}_onselect'.format(elID);
-                    if (mod && mod[selectFunction]) {
-                        mod[selectFunction](elID, date);
+                    if (mod && mod.event[selectFunction]) {
+                        mod.event[selectFunction](elID, date);
                     }
                 },
                 onClose() {
@@ -1683,8 +1695,8 @@
 
                     var mod = window[syn.$w.pageScript];
                     var selectFunction = '{0}_onselect'.format(elID);
-                    if (mod && mod[selectFunction]) {
-                        mod[selectFunction](elID, date);
+                    if (mod && mod.event[selectFunction]) {
+                        mod.event[selectFunction](elID, date);
                     }
                 },
                 onSelect(date) {
@@ -1697,8 +1709,8 @@
 
                     var mod = window[syn.$w.pageScript];
                     var selectFunction = '{0}_onselect'.format(elID);
-                    if (mod && mod[selectFunction]) {
-                        mod[selectFunction](elID, date);
+                    if (mod && mod.event[selectFunction]) {
+                        mod.event[selectFunction](elID, date);
                     }
                 }
             }, setting);
@@ -2967,7 +2979,7 @@
             }
             else {
                 if ($string.isNullOrEmpty($fileclient.applicationID) == true) {
-                    $fileclient.applicationID = syn.$w.Variable.ApplicationID || syn.$w.User.ApplicationID;
+                    $fileclient.applicationID = syn.$w.Variable.ApplicationID || syn.$w.User.ApplicationID || syn.Config.ApplicationID;
                 }
             }
 
@@ -3053,10 +3065,10 @@
                         var mod = window[syn.$w.pageScript];
                         if (mod) {
                             var clientCallback = null;
-                            clientCallback = mod[repositoryData.callback];
+                            clientCallback = mod.event[repositoryData.callback];
                             if ($object.isNullOrUndefined(clientCallback) == true) {
                                 try {
-                                    clientCallback = eval('$this.' + repositoryData.callback);
+                                    clientCallback = eval('$this.event.' + repositoryData.callback);
                                 } catch (error) {
                                     syn.$l.eventLog('clientCallback', error, 'Warning');
                                 }
@@ -4690,7 +4702,7 @@
                     events = eval(events);
                     for (var i = 0; i < events.length; i++) {
                         var editorEvent = events[i];
-                        var eventHandler = mod[el.id + '_' + editorEvent];
+                        var eventHandler = mod.event[el.id + '_' + editorEvent];
                         if (eventHandler) {
                             editor.on(editorEvent, eventHandler);
                         }
@@ -4819,6 +4831,7 @@
     });
     syn.uicontrols.$textarea = $textarea;
 })(window);
+
 /// <reference path="/js/syn.js" />
 /// <reference path="/lib/superplaceholder-1.0.0/superplaceholder.js" />
 
@@ -6112,8 +6125,15 @@
             }
 
             if ($string.isNullOrEmpty(setting.repositoryID) == false) {
-                if ($string.isNullOrEmpty($htmleditor.applicationID) == true) {
-                    $htmleditor.applicationID = syn.$w.User.ApplicationID || syn.Config.ApplicationID;
+                if (location.pathname.startsWith((syn.Config.TenantAppRequestPath ? `/${syn.Config.TenantAppRequestPath}/` : '/app/')) == true) {
+                    if ($string.isNullOrEmpty($htmleditor.applicationID) == true) {
+                        $htmleditor.applicationID = syn.$w.ManagedApp.ApplicationID;
+                    }
+                }
+                else {
+                    if ($string.isNullOrEmpty($htmleditor.applicationID) == true) {
+                        $htmleditor.applicationID = syn.$w.Variable.ApplicationID || syn.$w.User.ApplicationID || syn.Config.ApplicationID;
+                    }
                 }
 
                 if ($string.isNullOrEmpty($htmleditor.applicationID) == true) {
@@ -8238,7 +8258,7 @@
                     Handsontable.dom.addEvent(input, 'focus', function (evt) {
                         var mod = window[syn.$w.pageScript];
                         if (mod) {
-                            mod.focusControl = syn.$l.get(input.gridID);
+                            mod.prop.focusControl = syn.$l.get(input.gridID);
                         }
                     });
 
@@ -8722,7 +8742,7 @@
                         gridValue.previousCol = arguments[1];
 
                         if (mod) {
-                            mod.focusControl = syn.$l.get(elID);
+                            mod.prop.focusControl = syn.$l.get(elID);
                         }
                     }
                 }
@@ -8747,7 +8767,7 @@
             Handsontable.dom.addEvent(wtHolder, 'click', function (evt) {
                 var mod = window[syn.$w.pageScript];
                 if (mod) {
-                    mod.focusControl = syn.$l.get(wtHolder.gridID);
+                    mod.prop.focusControl = syn.$l.get(wtHolder.gridID);
                 }
             });
 

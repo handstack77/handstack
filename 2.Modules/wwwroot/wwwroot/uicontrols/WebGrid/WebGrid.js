@@ -777,7 +777,7 @@
                     Handsontable.dom.addEvent(input, 'focus', function (evt) {
                         var mod = window[syn.$w.pageScript];
                         if (mod) {
-                            mod.focusControl = syn.$l.get(input.gridID);
+                            mod.prop.focusControl = syn.$l.get(input.gridID);
                         }
                     });
 
@@ -1261,7 +1261,7 @@
                         gridValue.previousCol = arguments[1];
 
                         if (mod) {
-                            mod.focusControl = syn.$l.get(elID);
+                            mod.prop.focusControl = syn.$l.get(elID);
                         }
                     }
                 }
@@ -1286,7 +1286,7 @@
             Handsontable.dom.addEvent(wtHolder, 'click', function (evt) {
                 var mod = window[syn.$w.pageScript];
                 if (mod) {
-                    mod.focusControl = syn.$l.get(wtHolder.gridID);
+                    mod.prop.focusControl = syn.$l.get(wtHolder.gridID);
                 }
             });
 

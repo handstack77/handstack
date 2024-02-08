@@ -2988,11 +2988,11 @@ TransactionException:
                                 if (table.Rows.Count == 1)
                                 {
                                     DataRow item = table.Rows[0];
-                                    Tuple<string, DataProviders>? businessConnectionInfo = GetConnectionInfomation(queryObject, statementMap.ApplicationID, statementMap.ProjectID, item["DataSourceID"].ToStringSafe());
+                                    Tuple<string, DataProviders>? businessConnectionInfo = GetConnectionInfomation(queryObject, statementMap.ApplicationID, statementMap.ProjectID, item.GetStringSafe("DataSourceID"));
 
                                     if (businessConnectionInfo == null)
                                     {
-                                        response.ExceptionText = $"DataSourceID - {statementMap.ApplicationID}_{statementMap.ProjectID}_{item["DataSourceID"].ToStringSafe()}에 대한 데이터 원본 정보 필요";
+                                        response.ExceptionText = $"DataSourceID - {statementMap.ApplicationID}_{statementMap.ProjectID}_{item.GetStringSafe("DataSourceID")}에 대한 데이터 원본 정보 필요";
                                         isCommandError = true;
                                         goto TransactionException;
                                     }
@@ -3026,21 +3026,21 @@ TransactionException:
                                         }
                                     }
 
-                                    responseCodeObject.Comment = item["Comment"].ToStringSafe();
-                                    responseCodeObject.CodeColumnID = item["CodeColumnID"].ToStringSafe();
-                                    responseCodeObject.ValueColumnID = item["ValueColumnID"].ToStringSafe();
-                                    responseCodeObject.CreatedAt = item["CreatedAt"].ToStringSafe();
+                                    responseCodeObject.Comment = item.GetStringSafe("Comment");
+                                    responseCodeObject.CodeColumnID = item.GetStringSafe("CodeColumnID");
+                                    responseCodeObject.ValueColumnID = item.GetStringSafe("ValueColumnID");
+                                    responseCodeObject.CreatedAt = item.GetStringSafe("CreatedAt");
                                     responseCodeObject.Scheme = new List<Scheme>();
 
                                     DataTable schemeDataTable = ds.Tables[1];
                                     foreach (DataRow row in schemeDataTable.Rows)
                                     {
-                                        string val = row["HiddenYN"].ToStringSafe();
+                                        string val = row.GetStringSafe("HiddenYN");
 
                                         responseCodeObject.Scheme.Add(new Scheme()
                                         {
-                                            ColumnID = row["ColumnID"].ToStringSafe(),
-                                            ColumnText = row["ColumnText"].ToStringSafe(),
+                                            ColumnID = row.GetStringSafe("ColumnID"),
+                                            ColumnText = row.GetStringSafe("ColumnText"),
                                             HiddenYN = (val == "true" || val == "True" || val == "TRUE" || val == "Y" || val == "1")
                                         });
                                     }

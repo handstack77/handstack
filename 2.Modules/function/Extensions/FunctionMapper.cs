@@ -79,9 +79,9 @@ namespace function.Extensions
                                     if (items != null && items.Length > 0)
                                     {
                                         var item = items[0];
-                                        List<string> projects = item["ProjectID"].ToStringSafe().SplitComma();
-                                        string dataProvider = item["DataProvider"].ToStringSafe();
-                                        string connectionString = item["ConnectionString"].ToStringSafe();
+                                        List<string> projects = item.GetStringSafe("ProjectID").SplitComma();
+                                        string dataProvider = item.GetStringSafe("DataProvider");
+                                        string connectionString = item.GetStringSafe("ConnectionString");
                                         if (projects.IndexOf(projectID) > -1 || projects.IndexOf("*") > -1)
                                         {
                                             if (FunctionSourceMappings.ContainsKey(functionSourceMappingsKey) == false)

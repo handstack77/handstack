@@ -92,7 +92,7 @@
                 tag: 'input',
                 className: 'form-control'
             });
-
+            textbox.type = 'text';
             if ($string.isNullOrEmpty(dataField) == false) {
                 textbox.setAttribute('syn-datafield', dataField);
             }
@@ -102,7 +102,7 @@
             }
             else {
                 if ($object.isArray(setting.belongID) == true) {
-                    textbox.setAttribute('syn-options', `{editType: 'date', maskPattern: '9999-99-99', dataType: 'string', belongID: '[${eval(setting.belongID).join('\',\'')}]'}`);
+                    textbox.setAttribute('syn-options', `{editType: 'date', maskPattern: '9999-99-99', dataType: 'string', belongID: ${JSON.stringify(setting.belongID)}}`);
                 }
                 else {
                     textbox.setAttribute('syn-options', `{editType: 'date', maskPattern: '9999-99-99', dataType: 'string', belongID: '${setting.belongID}'}`);
@@ -110,7 +110,7 @@
             }
 
             if ($object.isNullOrUndefined(events) == false) {
-                textbox.setAttribute('syn-events', `['${eval(events).join('\',\'')}']'`);
+                textbox.setAttribute('syn-events', events);
             }
 
             syn.$m.insertAfter(textbox, el);
@@ -135,8 +135,8 @@
 
                     var mod = window[syn.$w.pageScript];
                     var selectFunction = '{0}_onselect'.format(elID);
-                    if (mod && mod[selectFunction]) {
-                        mod[selectFunction](elID, date);
+                    if (mod && mod.event[selectFunction]) {
+                        mod.event[selectFunction](elID, date);
                     }
                 },
                 onClose() {
@@ -146,8 +146,8 @@
 
                     var mod = window[syn.$w.pageScript];
                     var selectFunction = '{0}_onselect'.format(elID);
-                    if (mod && mod[selectFunction]) {
-                        mod[selectFunction](elID, date);
+                    if (mod && mod.event[selectFunction]) {
+                        mod.event[selectFunction](elID, date);
                     }
                 },
                 onSelect(date) {
@@ -160,8 +160,8 @@
 
                     var mod = window[syn.$w.pageScript];
                     var selectFunction = '{0}_onselect'.format(elID);
-                    if (mod && mod[selectFunction]) {
-                        mod[selectFunction](elID, date);
+                    if (mod && mod.event[selectFunction]) {
+                        mod.event[selectFunction](elID, date);
                     }
                 }
             }, setting);

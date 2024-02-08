@@ -1,4 +1,4 @@
-/// <reference path="/js/syn.js" />
+﻿/// <reference path="/js/syn.js" />
 
 (function (window) {
     'use strict';
@@ -102,7 +102,7 @@
                     events = eval(events);
                     for (var i = 0; i < events.length; i++) {
                         var editorEvent = events[i];
-                        var eventHandler = mod[el.id + '_' + editorEvent];
+                        var eventHandler = mod.event[el.id + '_' + editorEvent];
                         if (eventHandler) {
                             editor.on(editorEvent, eventHandler);
                         }

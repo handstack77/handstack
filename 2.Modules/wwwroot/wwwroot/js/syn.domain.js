@@ -372,10 +372,10 @@
                         }
 
                         var mod = globalThis[syn.$w.pageScript];
-                        if (mod['afterTransaction']) {
+                        if (mod.hook['afterTransaction']) {
                             var addtionalData = {};
                             addtionalData.exceptionText = exceptionText;
-                            mod['afterTransaction'](null, response.transaction.functionID, null, addtionalData);
+                            mod.hook['afterTransaction'](null, response.transaction.functionID, null, addtionalData);
                         }
                         return false;
                     }
@@ -553,8 +553,8 @@
 
                         if (contentType === 'warning') {
                             var mod = window[syn.$w.pageScript];
-                            if (mod['serviceClientException']) {
-                                mod['serviceClientException'](url, jsonObject, xhr);
+                            if (mod.hook['serviceClientException']) {
+                                mod.hook['serviceClientException'](url, jsonObject, xhr);
                             }
                             else {
                                 alert('ServiceID : ' + serviceID + '\n' + jsonObject.Result);
@@ -1895,17 +1895,17 @@
                     var businessID = '';
                     var transactionID = '';
                     var featureID = 'LD01';
-                    var codeHelpID = window.Environment ? Environment.Application.CodeHelpID : '';
+                    var codeHelpID = syn.Environment ? syn.Environment.Application.CodeHelpID : '';
                     if ($string.isNullOrEmpty(codeHelpID) == false) {
                         var items = codeHelpID.split('|');
                         if (items.length == 3) {
-                            applicationID = syn.$w.ManagedApp.ApplicationID;
+                            applicationID = (location.pathname.startsWith((syn.Config.TenantAppRequestPath ? `/${syn.Config.TenantAppRequestPath}/` : '/app/')) == true) ? syn.$w.ManagedApp.ApplicationID : syn.Config.ApplicationID;
                             businessID = items[0];
                             transactionID = items[1];
                             featureID = items[2];
                         }
                         else {
-                            syn.$w.alert(`태넌트 앱 환경변수의 코드헬프 값 확인이 필요합니다. '${codeHelpID}'`, '정보');
+                            syn.$w.alert(`앱 환경변수의 코드헬프 값 확인이 필요합니다. '${codeHelpID}'`, '정보');
                             return;
                         }
                     }
