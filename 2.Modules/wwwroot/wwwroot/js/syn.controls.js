@@ -1,4 +1,253 @@
-/// <reference path="/assets/js/syn.js" />
+/// <reference path="/js/syn.js" />
+
+(function (window) {
+    syn.uicontrols = syn.uicontrols || new syn.module();
+    var $chart = syn.uicontrols.$chart || new syn.module();
+
+    $chart.extend({
+        name: 'syn.uicontrols.$chart',
+        version: '1.0',
+        chartControls: [],
+        randomSeed: Date.now(),
+        defaultSetting: {
+            chart: {
+                type: 'column'
+            },
+            title: {
+                text: ''
+            },
+            xAxis: {
+                categories: ['A', 'B', 'C']
+            },
+            yAxis: {
+                title: {
+                    text: 'Values'
+                }
+            },
+            series: [{
+                name: 'Series 1',
+                data: [1, 0, 4]
+            }, {
+                name: 'Series 2',
+                data: [5, 7, 3]
+            }],
+            dataType: 'string',
+            belongID: null,
+            controlText: null,
+            validators: null,
+            transactConfig: null,
+            triggerConfig: null
+        },
+
+        addModuleList(el, moduleList, setting, controlType) {
+            var elementID = el.getAttribute('id');
+            var dataField = el.getAttribute('syn-datafield');
+            var formDataField = el.closest('form') ? el.closest('form').getAttribute('syn-datafield') : '';
+
+            moduleList.push({
+                id: elementID,
+                formDataFieldID: formDataField,
+                field: dataField,
+                module: this.name,
+                type: controlType
+            });
+        },
+
+        controlLoad: function (elID, setting) {
+            var el = syn.$l.get(elID);
+
+            setting = syn.$w.argumentsExtend($chart.defaultSetting, setting);
+
+            var mod = window[syn.$w.pageScript];
+            if (mod && mod.hook.controlInit) {
+                var moduleSettings = mod.hook.controlInit(elID, setting);
+                setting = syn.$w.argumentsExtend(setting, moduleSettings);
+            }
+
+            setting.width = el.style.width || 320;
+            setting.height = el.style.height || 240;
+
+            el.setAttribute('id', el.id + '_hidden');
+            el.setAttribute('syn-options', JSON.stringify(setting));
+            el.style.display = 'none';
+
+            var parent = el.parentNode;
+            var wrapper = document.createElement('div');
+            wrapper.style.width = setting.width
+            wrapper.style.height = setting.height
+            wrapper.id = elID;
+
+            parent.appendChild(wrapper);
+
+            syn.$l.addEvent(syn.$l.get(elID), 'click', function (evt) {
+                var el = evt.target || evt.srcElement;
+                debugger;
+                // var control = $chart.getChartControl(el.id);
+                // if (control) {
+                //     var chart = control.chart;
+                //     // chart.getElementAtEvent(evt);
+                //     // chart.getDatasetAtEvent(evt);
+                //     var activePoints = chart.getElementsAtEventForMode(evt, 'point', control.config);
+                //     if (activePoints.length > 0) {
+                //         var firstPoint = activePoints[0];
+                //         var label = chart.data.labels[firstPoint._index];
+                //         var value = chart.data.datasets[firstPoint._datasetIndex].data[firstPoint._index];
+                //         console.log(label + ": " + value);
+                //     }
+                // }
+            });
+
+            $chart.chartControls.push({
+                id: elID,
+                chart: Highcharts.chart(elID, setting),
+                setting: $objectlection.clone(setting)
+            });
+
+            if (setting.bindingID && syn.uicontrols.$data) {
+                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+            }
+        },
+
+        getValue: function (elID, meta) {
+            debugger;
+            var result = null;
+            var chart = $chart.getChartControl(elID);
+            if (chart) {
+                result = [];
+                var length = chart.series.length;
+                for (var i = 0; i < length; i++) {
+                    var serie = chart.series[i];
+                    result.push({
+                        name: serie.name,
+                        data: serie.yData
+                    });
+                }
+            }
+            return result;
+        },
+
+        setValue: function (elID, value, meta) {
+            debugger;
+            var chart = $chart.getChartControl(elID);
+            if (chart) {
+                var seriesLength = chart.series.length;
+                for (var i = seriesLength - 1; i > -1; i--) {
+                    chart.series[i].remove();
+                }
+            }
+
+            var length = value.length;
+            for (var i = 0; i < length; i++) {
+                var item = value[i];
+                chart.addSeries(item);
+            }
+
+            var columnKeys = [];
+            for (var key in item) {
+                if (control.config.labelID != key) {
+                    columnKeys.push(key);
+                }
+            }
+
+            // var labels = value.map(function (item) { return item[control.config.labelID] });
+            // control.config.data.labels = labels;
+            // 
+            // var length = columnKeys.length;
+            // for (var i = 0; i < length; i++) {
+            //     var columnID = columnKeys[i];
+            // 
+            //     if (control.config.series && control.config.series.length > 0) {
+            //         var series = control.config.series.find(function (item) { return item.columnID == columnID });
+            //         if (series) {
+            //             var labelName = series.label ? series.label : series.columnID;
+            //             var data = value.map(function (item) { return item[columnID] });
+            // 
+            //             var dataset = {
+            //                 label: labelName,
+            //                 data: data,
+            //                 fill: series.fill
+            //             };
+            // 
+            //             control.config.data.datasets.push(dataset);
+            //         }
+            //     }
+            //     else {
+            //         var labelName = columnID;
+            //         var data = value.map(function (item) { return item[columnID] });
+            // 
+            //         var dataset = {
+            //             label: labelName,
+            //             data: data,
+            //             fill: false
+            //         };
+            // 
+            //         control.config.data.datasets.push(dataset);
+            //     }
+            // }
+            // control.chart.update();|| chart.redraw();
+        },
+
+        randomScalingFactor: function (min, max) {
+            min = min === undefined ? 0 : min;
+            max = max === undefined ? 100 : max;
+            return Math.round($chart.rand(min, max));
+        },
+
+        rand: function (min, max) {
+            var seed = $chart.randomSeed;
+            min = min === undefined ? 0 : min;
+            max = max === undefined ? 1 : max;
+            $chart.randomSeed = (seed * 9301 + 49297) % 233280;
+            return min + ($chart.randomSeed / 233280) * (max - min);
+        },
+
+        toImage: function (elID, fileID) {
+            var control = $chart.getChartControl(elID);
+            if (control) {
+                var fileName = '{0}.png'.format(fileID || elID);
+                var base64Image = control.chart.toBase64Image();
+
+                if (download) {
+                    download(base64Image, fileName, 'image/png');
+                }
+                else {
+                    var a = document.createElement('a');
+                    a.href = base64Image
+                    a.download = fileName;
+                    a.click();
+                }
+            }
+        },
+
+        getChartControl: function (elID) {
+            var result = null;
+
+            var length = $chart.chartControls.length;
+            for (var i = 0; i < length; i++) {
+                var item = $chart.chartControls[i];
+                if (item.id == elID) {
+                    result = item.chart;
+                    break;
+                }
+            }
+
+            return result;
+        },
+
+        clear: function (elID, isControlLoad) {
+            var chart = $chart.getChartControl(elID);
+            while (chart.series.length > 0) {
+                chart.series[0].remove(true);
+            }
+        },
+
+        setLocale: function (elID, translations, control, options) {
+        }
+    });
+    syn.uicontrols.$chart = $chart;
+})(window);
+
+/// <reference path="/js/syn.js" />
 
 (function (window) {
     'use strict';
@@ -159,8 +408,8 @@
     syn.uicontrols.$checkbox = $checkbox;
 })(window);
 
-/// <reference path="/assets/js/syn.js" />
-/// <reference path="/Scripts/syn.domain.js" />
+/// <reference path="/js/syn.js" />
+/// <reference path="/js/syn.domain.js" />
 
 (function (window) {
     'use strict';
@@ -578,7 +827,7 @@
     syn.uicontrols.$codepicker = $codepicker;
 })(window);
 
-/// <reference path="/assets/js/syn.js" />
+/// <reference path="/js/syn.js" />
 
 (function (window) {
     'use strict';
@@ -776,7 +1025,7 @@
     });
     syn.uicontrols.$colorpicker = $colorpicker;
 })(window);
-/// <reference path="/assets/js/syn.js" />
+/// <reference path="/js/syn.js" />
 
 (function (window) {
     'use strict';
@@ -1014,7 +1263,7 @@
     });
     syn.uicontrols.$contextmenu = $contextmenu;
 })(window);
-/// <reference path="/assets/js/syn.js" />
+/// <reference path="/js/syn.js" />
 
 (function (window) {
     'use strict';
@@ -1286,7 +1535,7 @@
     syn.uicontrols.$data = $data;
 })(window);
 
-/// <reference path="/assets/js/syn.js" />
+/// <reference path="/js/syn.js" />
 
 (function (window) {
     'use strict';
@@ -1588,7 +1837,7 @@
     syn.uicontrols.$datepicker = $datepicker;
 })(window);
 
-/// <reference path="/assets/js/syn.js" />
+/// <reference path="/js/syn.js" />
 
 (function (window) {
     'use strict';
@@ -2112,7 +2361,7 @@
     syn.uicontrols.$multiselect = $multiselect;
 })(window);
 
-/// <reference path="/assets/js/syn.js" />
+/// <reference path="/js/syn.js" />
 
 (function (window) {
     'use strict';
@@ -2588,8 +2837,8 @@
     syn.uicontrols.$select = $select;
 })(window);
 
-/// <reference path="/assets/js/syn.js" />
-/// <reference path="/Scripts/syn.domain.js" />
+/// <reference path="/js/syn.js" />
+/// <reference path="/js/syn.domain.js" />
 
 (function (window) {
     'use strict';
@@ -3826,7 +4075,372 @@
     syn.uicontrols.$fileclient = $fileclient;
 })(window);
 
-/// <reference path="/assets/js/syn.js" />
+/// <reference path="/js/syn.js" />
+
+(function (window) {
+    'use strict';
+    syn.uicontrols = syn.uicontrols || new syn.module();
+    var $list = syn.uicontrols.$list || new syn.module();
+
+    /*
+    // 업무 화면 사용자 검색 필터 처리 필요
+    var listDataTable = $this.$list.getControl('lstDataTable');
+    $('#toDate, #fromDate').unbind().bind('keyup', function () {
+        listDataTable.table.draw();
+    });
+
+    $.fn.dataTable.ext.search.push(
+        function (settings, data, dataIndex) {
+            var min = Date.parse($('#fromDate').val());
+            var max = Date.parse($('#toDate').val());
+            var targetDate = Date.parse(data[5]);
+
+            if ((isNaN(min) && isNaN(max)) ||
+                (isNaN(min) && targetDate <= max) ||
+                (min <= targetDate && isNaN(max)) ||
+                (targetDate >= min && targetDate <= max)) {
+                return true;
+            }
+            return false;
+        }
+    );
+    */
+
+    $list.extend({
+        name: 'syn.uicontrols.$list',
+        version: '1.0',
+        listControls: [],
+        defaultSetting: {
+            width: '100%',
+            height: '300px',
+            paging: true,
+            ordering: true,
+            info: true,
+            searching: true,
+            select: true,
+            lengthChange: false,
+            autoWidth: true,
+            pageLength: 50,
+            orderCellsTop: true,
+            fixedHeader: true,
+            responsive: true,
+            checkbox: false,
+            order: [],
+            sScrollY: '0px',
+            footerCallback: function () {
+                // 업무 화면 footer 영역에 사용자 지정 집계 구현
+                // <tfoot>
+                //     <tr>
+                //         <th colspan="2" style="text-align:right;white-space:nowrap;">TOTAL : </th>
+                //         <th colspan="6" style="text-align:left;white-space:nowrap;"></th>
+                //     </tr>
+                // </tfoot>
+                // var api = this.api();
+                // var result = 0;
+                // api.column(7, { search: 'applied' }).data().each(function (data, index) {
+                //     result += parseFloat(data);
+                // });
+                // $(api.column(3).footer()).html(result.toLocaleString() + '원');
+            },
+            fnDrawCallback: function () {
+                var $dataTable = this.dataTable();
+                var $dataTableWrapper = this.closest('.dataTables_wrapper');
+                setTimeout(function () {
+                    // $dataTable.fnAdjustColumnSizing(false);
+
+                    if (typeof (TableTools) != 'undefined') {
+                        var tableTools = TableTools.fnGetInstance(table);
+                        if (tableTools != null && tableTools.fnResizeRequired()) {
+                            tableTools.fnResizeButtons();
+                        }
+                    }
+
+                    var panelHeight = $dataTableWrapper.parent().height();
+                    var paginateHeight = $dataTableWrapper.find('.dataTables_paginate').height();
+
+                    var toolbarHeights = 0;
+                    $dataTableWrapper.find('.fg-toolbar').each(function (i, obj) {
+                        toolbarHeights = toolbarHeights + $(obj).height();
+                    });
+
+                    var scrollHeadHeight = 0;
+                    $dataTableWrapper.find('.dataTables_scrollHead').each(function (i, obj) {
+                        scrollHeadHeight = scrollHeadHeight + $(obj).height();
+                    });
+
+                    var height = panelHeight - toolbarHeights - scrollHeadHeight - paginateHeight;
+                    var elScrollY = $dataTableWrapper.find('.dataTables_scrollBody');
+                    elScrollY.height(height);
+                    elScrollY.css({ 'maxHeight': (height).toString() + 'px' });
+                    $dataTable._fnScrollDraw();
+                }, 150);
+            },
+            language: {
+                emptyTable: '데이터가 없습니다',
+                info: '_START_ - _END_ \/ _TOTAL_',
+                infoEmpty: '0 - 0 \/ 0',
+                infoFiltered: '(총 _MAX_ 개)',
+                infoThousands: ',',
+                lengthMenu: '페이지당 줄수 _MENU_',
+                loadingRecords: '읽는중...',
+                processing: '처리중...',
+                search: '검색:',
+                zeroRecords: '검색 결과가 없습니다',
+                paginate: {
+                    first: '처음',
+                    last: '마지막',
+                    next: '다음',
+                    previous: '이전'
+                }
+            },
+            dataType: 'string',
+            belongID: null,
+            getter: false,
+            setter: false,
+            controlText: null,
+            validators: null,
+            transactConfig: null,
+            triggerConfig: null
+        },
+
+        addModuleList: function (el, moduleList, setting, controlType) {
+            var elementID = el.getAttribute('id');
+            var dataField = el.getAttribute('syn-datafield');
+            var formDataField = el.closest('form') ? el.closest('form').getAttribute('syn-datafield') : '';
+
+            moduleList.push({
+                id: elementID,
+                formDataFieldID: formDataField,
+                field: dataField,
+                module: this.name,
+                type: controlType
+            });
+        },
+
+        controlLoad: function (elID, setting) {
+            var el = syn.$l.get(elID);
+            setting = syn.$w.argumentsExtend($list.defaultSetting, setting);
+
+            var mod = window[syn.$w.pageScript];
+            if (mod && mod.hook.controlInit) {
+                var moduleSettings = mod.hook.controlInit(elID, setting);
+                setting = syn.$w.argumentsExtend(setting, moduleSettings);
+            }
+
+            setting.width = el.style.width || setting.width;
+            setting.height = el.style.height || setting.height;
+
+            el.setAttribute('id', elID + '_hidden');
+            el.setAttribute('syn-options', JSON.stringify(setting));
+            el.style.display = 'none';
+
+            var parent = el.parentNode;
+            var wrapper = document.createElement('div');
+            wrapper.style.width = setting.width;
+            wrapper.style.height = setting.height;
+            wrapper.style.position = 'relative';
+            wrapper.className = 'list-container';
+
+            var headers = [];
+
+            headers.push('<thead><tr>');
+
+            if (setting.checkbox === true) {
+                // $this.$list.getControl('lstDataTable').table.column(0).checkboxes.selected().toArray();
+                setting.columnDefs = [{
+                    targets: 0,
+                    checkboxes: {
+                        selectRow: true
+                    }
+                }];
+
+                setting.select = {
+                    style: 'multi'
+                };
+
+                delete setting.sScrollY;
+                delete setting.fnDrawCallback;
+            };
+
+            for (var i = 0; i < setting.columns.length; i++) {
+                var column = setting.columns[i];
+                headers.push('<th>{0}</th>'.format(column.title));
+
+                delete column.title;
+            }
+            headers.push('</tr></thead>');
+
+            wrapper.innerHTML = '<table id="' + elID + '" class="display" style="width:100%">' + headers.join('') + '</table>';
+
+            parent.appendChild(wrapper);
+
+            if (setting.searching === true) {
+                $('#{0} thead tr'.format(elID)).clone(true).appendTo('#{0} thead'.format(elID));
+                $('#{0} thead tr:eq(1) th'.format(elID)).each(function (i) {
+                    var title = $(this).text();
+                    $(this).html('<input type="text" class="dataTables_searchtext" />');
+
+                    $('input', this).on('keyup change', function () {
+                        var elID = this.closest('.dataTables_wrapper').id.split('_')[0];
+                        var table = $list.getControl(elID).table;
+                        if (table.column(i).search() !== this.value) {
+                            table.column(i).search(this.value).draw();
+                        }
+                    });
+                });
+
+                if (setting.checkbox === true) {
+                    $('#lstDataTable thead tr:eq(1) th:first-child input').hide();
+                }
+            }
+
+            var elDataTable = $('#' + elID);
+            var table = elDataTable.DataTable(setting);
+
+            var gridHookEvents = syn.$l.get(elID + '_hidden').getAttribute('syn-events');
+            try {
+                if (gridHookEvents) {
+                    gridHookEvents = eval(gridHookEvents);
+                }
+            } catch (error) {
+                syn.$l.eventLog('GridList_controlLoad', error.toString(), 'Debug');
+            }
+
+            if (gridHookEvents) {
+                for (var i = 0; i < gridHookEvents.length; i++) {
+                    var hook = gridHookEvents[i];
+
+                    var mod = window[syn.$w.pageScript];
+                    if (mod) {
+                        var eventHandler = mod.event['{0}_{1}'.format(elID, hook)];
+                        if (eventHandler) {
+                            switch (hook) {
+                                case 'select':
+                                    table.on('select', function (e, dt, type, indexes) {
+                                        table[type](indexes).nodes().to$().addClass('custom-selected');
+                                        if (type === 'row') {
+                                            var data = table.rows(indexes).data();
+                                            var eventHandler = mod.event['{0}_{1}'.format(elID, hook)];
+                                            eventHandler.apply(syn.$l.get(elID), [data, e, dt, type, indexes]);
+                                        }
+                                    });
+                                    break;
+                                case 'deselect':
+                                    table.on('deselect', function (e, dt, type, indexes) {
+                                        var eventHandler = mod.event['{0}_{1}'.format(elID, hook)];
+                                        eventHandler.apply(syn.$l.get(elID), [e, dt, type, indexes]);
+                                    });
+                                    break;
+                                case 'dblclick':
+                                    $('#{0}_wrapper table tbody'.format(elID)).on('dblclick', 'tr', function () {
+                                        var data = table.row(this).data();
+                                        var eventHandler = mod.event['{0}_{1}'.format(elID, hook)];
+                                        eventHandler.apply(syn.$l.get(elID), [this, data]);
+                                    });
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            $list.listControls.push({
+                id: elID,
+                table: table,
+                list: elDataTable.dataTable(),
+                config: setting,
+                value: null
+            });
+
+            if (setting.bindingID && syn.uicontrols.$data) {
+                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+            }
+        },
+
+        getValue: function (elID, meta) {
+            var result = null;
+            var listControl = $('#' + elID).DataTable();
+
+            if (listControl.context) {
+                result = listControl.data().toArray();
+            }
+
+            return result;
+        },
+
+        setValue: function (elID, value, meta) {
+            var listControl = $list.getControl(elID);
+            if (listControl) {
+                listControl.list.fnClearTable();
+                listControl.list.fnAddData(value);
+            }
+        },
+
+        clear: function (elID, isControlLoad) {
+            var listControl = $list.getControl(elID);
+            if (listControl) {
+                listControl.list.fnClearTable();
+                listControl.table.columns().search('').draw();
+                var els = document.getElementById(elID + '_wrapper').querySelectorAll('.dataTables_searchtext');
+                for (var i = 0; i < els.length; i++) {
+                    var el = els[i];
+                    el.value = '';
+                }
+            }
+        },
+
+        getControl: function (elID) {
+            var result = null;
+            var length = $list.listControls.length;
+            for (var i = 0; i < length; i++) {
+                var item = $list.listControls[i];
+
+                if (item.id == elID) {
+                    result = item;
+                    break;
+                }
+            }
+
+            return result;
+        },
+
+        setCellData: function (elID, row, col, value) {
+            var control = $list.getControl(elID);
+            if (control) {
+                if ($object.isString(col) == true) {
+                    col = $list.propToCol(elID, col);
+                }
+
+                var cell = control.table.cell(row, col);
+                if (cell.length > 0) {
+                    control.table.cell(row, col).data(value).draw();
+                }
+            }
+        },
+
+        propToCol: function (elID, columnName) {
+            var result = -1;
+            var control = $list.getControl(elID);
+            if (control) {
+                var columns = control.table.settings().toArray()[0].aoColumns;
+                for (var i = 0; i < columns.length; i++) {
+                    if (columns[i].data == columnName) {
+                        result = i;
+                        break;
+                    }
+                }
+            }
+
+            return result;
+        },
+
+        setLocale: function (elID, translations, control, options) {
+        }
+    });
+    syn.uicontrols.$list = $list;
+})(window);
+
+/// <reference path="/js/syn.js" />
 
 (function (window) {
     'use strict';
@@ -3972,7 +4586,7 @@
     });
     syn.uicontrols.$radio = $radio;
 })(window);
-/// <reference path="/assets/js/syn.js" />
+/// <reference path="/js/syn.js" />
 
 (function (window) {
     'use strict';
@@ -4205,8 +4819,8 @@
     });
     syn.uicontrols.$textarea = $textarea;
 })(window);
-/// <reference path="/assets/js/syn.js" />
-/// <reference path="/js/lib/superplaceholder-1.0.0/superplaceholder.js" />
+/// <reference path="/js/syn.js" />
+/// <reference path="/lib/superplaceholder-1.0.0/superplaceholder.js" />
 
 (function (window) {
     'use strict';
@@ -5038,7 +5652,7 @@
     syn.uicontrols.$textbox = $textbox;
 })(window);
 
-/// <reference path="/assets/js/syn.js" />
+/// <reference path="/js/syn.js" />
 
 (function (window) {
     syn.uicontrols = syn.uicontrols || new syn.module();
@@ -5374,7 +5988,7 @@
     syn.uicontrols.$sourceeditor = $sourceeditor;
 })(window);
 
-/// <reference path="/assets/js/syn.js" />
+/// <reference path="/js/syn.js" />
 
 (function (context) {
     'use strict';
@@ -6087,7 +6701,390 @@
     syn.uicontrols.$htmleditor = $htmleditor;
 })(globalRoot);
 
-/// <reference path="/assets/js/syn.js" />
+/// <reference path="/js/syn.js" />
+
+(function (window) {
+    'use strict';
+    syn.uicontrols = syn.uicontrols || new syn.module();
+    var $organization = syn.uicontrols.$organization || new syn.module();
+
+    $organization.extend({
+        name: 'syn.uicontrols.$organization',
+        version: '1.0',
+        organizationControls: [],
+        eventHooks: [
+            'nodedrop',
+            'select',
+            'click'
+        ],
+        defaultSetting: {
+            width: '100%',
+            height: '300px',
+            itemID: 'id',
+            parentItemID: 'parentID',
+            childrenID: 'children',
+            reduceMap: {
+                key: 'id',
+                title: 'title',
+                parentID: 'parentID',
+            },
+            nodeTitle: 'name',
+            nodeContent: 'title',
+            direction: 't2b',
+            pan: false,
+            zoom: false,
+            zoominLimit: 2,
+            zoomoutLimit: 0.8,
+            draggable: false,
+            className: 'top-level',
+            verticalLevel: 4,
+            nodeTemplate: null, // $this.elID_nodeTemplate: function (data) {}
+            createNode: null, // $this.elID_createNode: function ($node, data) {}
+            dataType: 'string',
+            belongID: null,
+            getter: false,
+            setter: false,
+            controlText: null,
+            validators: null,
+            transactConfig: null,
+            triggerConfig: null
+        },
+
+        addModuleList: function (el, moduleList, setting, controlType) {
+            var elementID = el.getAttribute('id');
+            var dataField = el.getAttribute('syn-datafield');
+            var formDataField = el.closest('form') ? el.closest('form').getAttribute('syn-datafield') : '';
+
+            moduleList.push({
+                id: elementID,
+                formDataFieldID: formDataField,
+                field: dataField,
+                module: this.name,
+                type: controlType
+            });
+        },
+
+        controlLoad: function (elID, setting) {
+            var el = syn.$l.get(elID);
+            setting = syn.$w.argumentsExtend($organization.defaultSetting, setting);
+
+            var mod = window[syn.$w.pageScript];
+            if (mod && mod.hook.controlInit) {
+                var moduleSettings = mod.hook.controlInit(elID, setting);
+                setting = syn.$w.argumentsExtend(setting, moduleSettings);
+            }
+
+            setting.width = el.style.width || setting.width;
+            setting.height = el.style.height || setting.height;
+
+            el.setAttribute('id', elID + '_hidden');
+            el.setAttribute('syn-options', JSON.stringify(setting));
+            el.style.display = 'none';
+
+            if (setting.nodeTemplate != null && $object.isString(setting.nodeTemplate) == true) {
+                setting.nodeTemplate = eval(setting.nodeTemplate);
+            }
+
+            if (setting.createNode != null && $object.isString(setting.createNode) == true) {
+                setting.createNode = eval(setting.createNode);
+            }
+
+            var hookEvents = el.getAttribute('syn-events');
+            try {
+                if (hookEvents) {
+                    hookEvents = eval(hookEvents);
+                }
+            } catch (error) {
+                syn.$l.eventLog('OrganizationView_controlLoad', error.toString(), 'Debug');
+            }
+
+            var parent = el.parentNode;
+            var wrapper = document.createElement('div');
+            wrapper.style.width = setting.width;
+            wrapper.style.height = setting.height;
+            wrapper.className = 'organization-container';
+            wrapper.innerHTML = '<div id="' + elID + '"></div>';
+            parent.appendChild(wrapper);
+
+            setting.data = {};
+            var orgchart = $('#' + elID).orgchart(setting);
+
+            for (var i = 0; i < hookEvents.length; i++) {
+                var hookEvent = hookEvents[i];
+                if ($organization.eventHooks.indexOf(hookEvent) > -1) {
+                    if ($object.isNullOrUndefined(setting[hookEvent]) == true) {
+                        switch (hookEvent) {
+                            case 'nodedrop':
+                                setting[hookEvent] = function (evt, params) {
+                                    var mod = window[syn.$w.pageScript];
+                                    if (mod) {
+                                        var eventHandler = mod.event['{0}_{1}'.format(elID, 'nodedrop')];
+                                        if (eventHandler) {
+                                            eventHandler.apply(syn.$l.get(elID), [evt, params]);
+                                        }
+                                    }
+                                }
+
+                                orgchart.$chart.on('nodedrop.orgchart', setting[hookEvent]);
+                                break;
+                            case 'select':
+                                setting[hookEvent] = function (evt) {
+                                    var mod = window[syn.$w.pageScript];
+                                    if (mod) {
+                                        var that = $(this);
+                                        var eventHandler = mod.event['{0}_{1}'.format(elID, 'select')];
+                                        if (eventHandler) {
+                                            eventHandler.apply(syn.$l.get(elID), [evt, that]);
+                                        }
+                                    }
+                                }
+
+                                orgchart.$chartContainer.on('click', '.node', setting[hookEvent]);
+                                break;
+                            case 'click':
+                                setting[hookEvent] = function (evt) {
+                                    var mod = window[syn.$w.pageScript];
+                                    if (mod) {
+                                        var eventHandler = mod.event['{0}_{1}'.format(elID, 'click')];
+                                        if (eventHandler) {
+                                            eventHandler.apply(syn.$l.get(elID), [evt, $(evt.target).closest('.node').length]);
+                                        }
+                                    }
+                                }
+
+                                orgchart.$chartContainer.on('click', '.orgchart', setting[hookEvent]);
+                                break;
+                        }
+                    }
+                }
+            }
+
+            $organization.organizationControls.push({
+                id: elID,
+                orgchart: orgchart,
+                config: setting
+            });
+
+            if (setting.bindingID && syn.uicontrols.$data) {
+                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+            }
+        },
+
+        getValue: function (elID, meta) {
+            var result = null;
+            var orgchart = $organization.getControl(elID).orgchart;
+            if (orgchart) {
+                var setting = $organization.getControl(elID).config;
+                var map = setting.reduceMap;
+                var jsonRoot = orgchart.getHierarchy();
+                var flatValue = syn.$l.nested2Flat(jsonRoot, setting.itemID, setting.parentItemID, setting.childrenID);
+
+                var reduceSource = [];
+                var length = flatValue.length;
+                for (var i = 0; i < length; i++) {
+                    var item = flatValue[i];
+
+                    var dataItem = item.data;
+                    if (dataItem) {
+                        dataItem[map.key] = item.key;
+                        dataItem[map.title] = item.title;
+                        dataItem[map.parentID] = item.parentID;
+                        reduceSource.push(dataItem);
+                    }
+                }
+
+                result = reduceSource;
+            }
+            return result;
+        },
+
+        setValue: function (elID, value, meta) {
+            var orgchart = $organization.getControl(elID).orgchart;
+            if (orgchart) {
+                var setting = $organization.getControl(elID).config;
+                var map = setting.reduceMap;
+                var reduceSource = [];
+                var length = value.length;
+                for (var i = 0; i < length; i++) {
+                    var item = value[i];
+
+                    reduceSource.push({
+                        id: item[map.key],
+                        key: item[map.key],
+                        title: item[map.title],
+                        parentID: item[map.parentID],
+                        data: $object.clone(item, false)
+                    });
+                }
+
+                var nestedValue = syn.$l.flat2Nested(reduceSource, setting.itemID, setting.parentItemID, setting.childrenID);
+                orgchart.init({ data: nestedValue });
+
+                var nodedropFunc = setting['nodedrop'];
+                if (nodedropFunc) {
+                    orgchart.$chart.on('nodedrop.orgchart', nodedropFunc);
+                }
+            }
+        },
+
+        clear: function (elID, isControlLoad) {
+            var orgchart = $organization.getControl(elID).orgchart;
+            if (orgchart) {
+                orgchart.init({ data: null });
+            }
+        },
+
+        getControl: function (elID) {
+            var result = null;
+            var length = $organization.organizationControls.length;
+            for (var i = 0; i < length; i++) {
+                var item = $organization.organizationControls[i];
+
+                if (item.id == elID) {
+                    result = item;
+                    break;
+                }
+            }
+
+            return result;
+        },
+
+        init: function (elID, newOptions) {
+            var orgchart = $organization.getControl(elID).orgchart;
+            if (orgchart) {
+                orgchart.init(newOptions);
+            }
+        },
+
+        addParent: function (elID, data) {
+            var orgchart = $organization.getControl(elID).orgchart;
+            if (orgchart) {
+                orgchart.addParent($('#' + elID).find('.node:first'), data);
+            }
+        },
+
+        addSiblings: function (elID, node, data) {
+            var orgchart = $organization.getControl(elID).orgchart;
+            if (orgchart && node) {
+                orgchart.addSiblings(node, data);
+            }
+        },
+
+        addChildren: function (elID, node, data) {
+            var orgchart = $organization.getControl(elID).orgchart;
+            if (orgchart && node) {
+                orgchart.addChildren(node, data);
+            }
+        },
+
+        removeNodes: function (elID, node) {
+            var orgchart = $organization.getControl(elID).orgchart;
+            if (orgchart && node) {
+                orgchart.removeNodes(node);
+            }
+        },
+
+        getHierarchy: function (elID, includeNodeData) {
+            var result = null;
+            var orgchart = $organization.getControl(elID).orgchart;
+            if (orgchart) {
+                if ($object.isNullOrUndefined(includeNodeData) == true) {
+                    includeNodeData = false;
+                }
+
+                result = orgchart.getHierarchy(includeNodeData);
+            }
+
+            return result;
+        },
+
+        hideParent: function (elID, node) {
+            var orgchart = $organization.getControl(elID).orgchart;
+            if (orgchart && node) {
+                orgchart.hideParent(node);
+            }
+        },
+
+        showParent: function (elID, node) {
+            var orgchart = $organization.getControl(elID).orgchart;
+            if (orgchart && node) {
+                orgchart.showParent(node);
+            }
+        },
+
+        showChildren: function (elID, node) {
+            var orgchart = $organization.getControl(elID).orgchart;
+            if (orgchart && node) {
+                orgchart.showChildren(node);
+            }
+        },
+
+        hideSiblings: function (elID, node, direction) {
+            var orgchart = $organization.getControl(elID).orgchart;
+            if (orgchart && node) {
+                orgchart.hideSiblings(node, direction);
+            }
+        },
+
+        showSiblings: function (elID, node, direction) {
+            var orgchart = $organization.getControl(elID).orgchart;
+            if (orgchart && node) {
+                orgchart.showSiblings(node, direction);
+            }
+        },
+
+        getNodeState: function (elID, node, relation) {
+            var result = null;
+            var orgchart = $organization.getControl(elID).orgchart;
+            if (orgchart && node) {
+                if ($object.isNullOrUndefined(relation) == true) {
+                    relation = 'children'; // "parent", "children", "siblings"
+                }
+
+                result = orgchart.getNodeState(node, relation);
+            }
+
+            return result;
+        },
+
+        getRelatedNodes: function (elID, node, relation) {
+            var result = null;
+            var orgchart = $organization.getControl(elID).orgchart;
+            if (orgchart && node) {
+                if ($object.isNullOrUndefined(relation) == true) {
+                    relation = 'children'; // "parent", "children", "siblings"
+                }
+
+                result = orgchart.getRelatedNodes(node, relation);
+            }
+            return result;
+        },
+
+        setChartScale: function (elID, node, newScale) {
+            var orgchart = $organization.getControl(elID).orgchart;
+            if (orgchart && node) {
+                orgchart.setChartScale(node, newScale);
+            }
+        },
+
+        export: function (elID, fileName, fileExtension) {
+            var orgchart = $organization.getControl(elID).orgchart;
+            if (orgchart) {
+                if ($object.isNullOrUndefined(fileName) == true) {
+                    fileName = syn.$l.random();
+                }
+
+                orgchart.export(fileName, fileExtension);
+            }
+        },
+
+        setLocale: function (elID, translations, control, options) {
+        }
+    });
+    syn.uicontrols.$organization = $organization;
+})(window);
+
+/// <reference path="/js/syn.js" />
 
 (function (window) {
     'use strict';
@@ -6462,7 +7459,7 @@
     syn.uicontrols.$tree = $tree;
 })(window);
 
-/// <reference path="/assets/js/syn.js" />
+/// <reference path="/js/syn.js" />
 
 (function (window) {
     'use strict';
@@ -10184,7 +11181,7 @@
     syn.uicontrols.$grid = $grid;
 })(window);
 
-/// <reference path="/assets/js/syn.js" />
+/// <reference path="/js/syn.js" />
 
 (function (window) {
     'use strict';

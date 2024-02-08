@@ -1,0 +1,41 @@
+.syn-gridlist {
+	color: #000;
+}
+
+.dataTables_length, .dataTables_filter {
+	display: none;
+}
+
+
+/* 검색창, 페이지당 select 등 input 관련 */
+.dataTables_wrapper .dataTables_filter input,
+select[name=myTable_length] {
+    padding: 0.5em;
+    margin-right: 0.5em;
+}
+
+/* page button */
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background: #337ab7;
+    color: white !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+    background: linear-gradient(to bottom, #585858 0%, #111 100%);
+    color: white !important;
+}
+
+table.dataTable tbody tr {
+    transition-duration: .28s;
+    transition-timing-function: cubic-bezier(.4, 0, .2, 1);
+    transition-property: background-color;
+}
+
+table.dataTable.display tbody tr.odd>.sorting_1,
+table.dataTable.order-column.stripe tbody tr.odd>.sorting_1,
+table.dataTable.display tbody tr.even>.sorting_1,
+table.dataTable.order-column.stripe tbody tr.even>.sorting_1,
+table.dataTable.hover tbody tr:hover,
+table.dataTable.display tbody tr:hover {
+    background: #E1F5FE;
+}

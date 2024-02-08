@@ -1,5 +1,5 @@
-﻿/// <reference path="/assets/js/syn.js" />
-/// <reference path="/Scripts/syn.domain.js" />
+﻿/// <reference path="/js/syn.js" />
+/// <reference path="/js/syn.domain.js" />
 
 (function (window) {
     'use strict';

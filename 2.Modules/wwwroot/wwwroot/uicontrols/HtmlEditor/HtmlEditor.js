@@ -1,4 +1,4 @@
-﻿/// <reference path="/assets/js/syn.js" />
+﻿/// <reference path="/js/syn.js" />
 
 (function (context) {
     'use strict';

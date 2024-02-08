@@ -1,4 +1,4 @@
-﻿/// <reference path="/assets/js/syn.js" />
+﻿/// <reference path="/js/syn.js" />
 
 (function (window) {
     syn.uicontrols = syn.uicontrols || new syn.module();
