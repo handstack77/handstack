@@ -125,7 +125,7 @@ namespace dbclient.Areas.dbclient.Controllers
                                     applicationID = (header.Element("application")?.InnerText).ToStringSafe();
                                     string projectID = (header.Element("project")?.InnerText).ToStringSafe();
                                     string transactionID = (header.Element("transaction")?.InnerText).ToStringSafe();
-                                    if (sqlMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
+                                    if (sqlMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
                                     {
                                         applicationID = string.IsNullOrEmpty(applicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : applicationID;
                                         projectID = string.IsNullOrEmpty(projectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : projectID;

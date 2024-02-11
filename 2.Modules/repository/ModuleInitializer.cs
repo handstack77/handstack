@@ -234,7 +234,7 @@ namespace repository
                 {
                     if (item.StorageType == "FileSystem" && item.IsVirtualPath == true)
                     {
-                        if (string.IsNullOrEmpty(item.PhysicalPath) == true || item.SettingFilePath.ToStringSafe().StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
+                        if (string.IsNullOrEmpty(item.PhysicalPath) == true || (item.SettingFilePath.ToStringSafe().StartsWith(GlobalConfiguration.TenantAppBasePath) == true && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false))
                         {
                             continue;
                         }
@@ -394,7 +394,7 @@ namespace repository
                     {
                         try
                         {
-                            if (File.Exists(repositoryFile) == true && repositoryFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == false)
+                            if (File.Exists(repositoryFile) == true && (repositoryFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == false || string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == true))
                             {
                                 var repositoryText = File.ReadAllText(repositoryFile);
                                 if (repositoryText.StartsWith("{") == true)

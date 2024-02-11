@@ -6879,7 +6879,7 @@ a.ui-button:active,
 	.ui_progressbar .loading {
 		width: 32px;
 		height: 32px;
-		/*background: url("/img/common/loading_rnd_32.gif") 0 0 no-repeat*/
+		background: url("/img/common/loading_rnd_32.gif") 0 0 no-repeat
 	}
 
 	.ui_progressbar .message {

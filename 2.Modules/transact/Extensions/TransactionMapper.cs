@@ -69,7 +69,7 @@ namespace transact.Extensions
                                 {
                                     lock (businessContracts)
                                     {
-                                        if (filePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
+                                        if (filePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
                                         {
                                             FileInfo fileInfo = new FileInfo(filePath);
                                             businessContract.ApplicationID = string.IsNullOrEmpty(businessContract.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : businessContract.ApplicationID;
@@ -296,7 +296,7 @@ namespace transact.Extensions
                             BusinessContract? businessContract = BusinessContract.FromJson(File.ReadAllText(filePath));
                             if (businessContract != null)
                             {
-                                if (filePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
+                                if (filePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
                                 {
                                     FileInfo fileInfo = new FileInfo(filePath);
                                     businessContract.ApplicationID = string.IsNullOrEmpty(businessContract.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : businessContract.ApplicationID;
@@ -344,7 +344,7 @@ namespace transact.Extensions
                             BusinessContract? businessContract = BusinessContract.FromJson(File.ReadAllText(filePath));
                             if (businessContract != null && businessContracts.ContainsKey(filePath) == false)
                             {
-                                if (filePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
+                                if (filePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
                                 {
                                     FileInfo fileInfo = new FileInfo(filePath);
                                     businessContract.ApplicationID = string.IsNullOrEmpty(businessContract.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : businessContract.ApplicationID;
@@ -506,7 +506,7 @@ namespace transact.Extensions
                                 }
                                 else
                                 {
-                                    if (configFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
+                                    if (configFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
                                     {
                                         FileInfo fileInfo = new FileInfo(configFile);
                                         businessContract.ApplicationID = string.IsNullOrEmpty(businessContract.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : businessContract.ApplicationID;

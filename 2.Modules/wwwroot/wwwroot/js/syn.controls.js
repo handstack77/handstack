@@ -3056,7 +3056,7 @@
         moduleInit() {
             syn.$l.addEvent(window, 'message', function (e) {
                 var repositoryData = e.data;
-                if ((syn.Config.FileManagerServer + '/repository/api/storage').indexOf(e.origin) > -1 && repositoryData && repositoryData.action == 'UploadFiles') {
+                if ((syn.Config.FileManagerServer + '/repository/api/storage').indexOf(e.origin) > -1 && repositoryData && repositoryData.action == 'upload-files') {
                     if (window.$progressBar) {
                         $progressBar.close();
                     }
@@ -3451,7 +3451,7 @@
                 isSingleUpload = true;
             }
 
-            syn.$r.path = syn.Config.FileManagerServer + '/repository/api/storage/' + (isSingleUpload == true ? 'UploadFile' : 'UploadFiles');
+            syn.$r.path = syn.Config.FileManagerServer + '/repository/api/storage/' + (isSingleUpload == true ? 'upload-file' : 'upload-files');
             syn.$r.params['repositoryID'] = repositoryID;
             syn.$r.params['dependencyID'] = dependencyID;
             syn.$r.params['responseType'] = 'json';

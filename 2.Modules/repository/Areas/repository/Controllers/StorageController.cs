@@ -544,7 +544,7 @@ namespace repository.Controllers
 
         // http://localhost:8000/repository/api/storage/upload-file
         [HttpPost("[action]")]
-        public async Task<ActionResult> UploadFile([FromForm] IFormFile file)
+        public async Task<ActionResult> UploadFile([FromForm] IFormFile? file)
         {
             FileUploadResult result = new FileUploadResult();
             result.Result = false;
@@ -1045,7 +1045,7 @@ namespace repository.Controllers
                         repositoryItem.FileName = fileName;
                         repositoryItem.Extension = extension;
                         repositoryItem.MimeType = GetMimeType(xFileName);
-                        repositoryItem.Size = file.Length;
+                        repositoryItem.Size = fileLength;
                         repositoryItem.RepositoryID = repositoryID;
                         repositoryItem.DependencyID = dependencyID;
                         repositoryItem.CustomPath1 = customPath1;
