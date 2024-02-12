@@ -6,6 +6,8 @@ namespace HandStack.Web.Entity
     {
         public string ApplicationID { get; set; } = "";
 
+        public string BusinessID { get; set; } = "0";
+
         public string RepositoryID { get; set; } = "";
 
         public string ItemID { get; set; } = "";

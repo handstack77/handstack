@@ -21,6 +21,7 @@
     "FindClientIPServer": "/checkip",
     "FindGlobalIDServer": "",
     "FileServerType": "L",
+    "FileBusinessIDSource": "None",
     "CookiePrefixName": "HandStack",
     "Environment": "Development",
     "DomainAPIServer": {

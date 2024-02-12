@@ -26,13 +26,37 @@ let $SingleFile = {
         },
 
         pageLoad() {
-            if ($string.isNullOrEmpty(syn.uicontrols.$fileclient.applicationID) == true) {
-                syn.uicontrols.$fileclient.applicationID = syn.$w.Variable.ApplicationID || syn.$w.User.ApplicationID || syn.Config.ApplicationID;
+            if (location.pathname.startsWith((syn.Config.TenantAppRequestPath ? `/${syn.Config.TenantAppRequestPath}/` : '/app/')) == true) {
+                if ($string.isNullOrEmpty(syn.uicontrols.$fileclient.applicationID) == true) {
+                    syn.uicontrols.$fileclient.applicationID = syn.$w.ManagedApp.ApplicationID;
+                }
+            }
+            else {
+                if ($string.isNullOrEmpty(syn.uicontrols.$fileclient.applicationID) == true) {
+                    syn.uicontrols.$fileclient.applicationID = syn.$w.Variable.ApplicationID || syn.$w.User.ApplicationID || syn.Config.ApplicationID;
+                }
             }
 
             if ($string.isNullOrEmpty(syn.uicontrols.$fileclient.applicationID) == true) {
-                syn.$l.eventLog('$fileclient.controlLoad', '파일 컨트롤 초기화 오류, 파일 업무 ID 정보 확인 필요', 'Warning');
+                syn.$l.eventLog('$fileclient.controlLoad', '파일 컨트롤 초기화 오류, ApplicationID 정보 확인 필요', 'Error');
                 return;
+            }
+
+            if (syn.Config.FileBusinessIDSource && syn.Config.FileBusinessIDSource != 'None') {
+                if (syn.Config.FileBusinessIDSource == 'Cookie') {
+                    syn.uicontrols.$fileclient.businessID = syn.$r.getCookie('FileBusinessID');
+                }
+                else if (syn.Config.FileBusinessIDSource == 'SessionStorage') {
+                    syn.uicontrols.$fileclient.businessID = syn.$w.getStorage('FileBusinessID');
+                }
+            }
+
+            if ($string.isNullOrEmpty(syn.uicontrols.$fileclient.businessID) == true) {
+                syn.uicontrols.$fileclient.businessID = syn.$w.User.WorkCompanyNo;
+            }
+
+            if ($string.isNullOrEmpty(syn.uicontrols.$fileclient.businessID) == true) {
+                syn.uicontrols.$fileclient.businessID = '0';
             }
 
             $this.prop.fileUploadOptions = parent.fileUploadOptions;

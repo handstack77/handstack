@@ -86,9 +86,10 @@
             var textboxCode = syn.$m.create({
                 id: `${elID}_Code`,
                 tag: 'input',
-                className: 'form-control'
+                className: 'form-control mr-1 pr-1'
             });
 
+            textboxCode.type = 'text';
             textboxCode.setAttribute('syn-events', `['keydown']`);
             textboxCode.setAttribute('baseID', elID);
 
@@ -152,6 +153,7 @@
                 className: 'form-control'
             });
 
+            textboxText.type = 'text';
             textboxText.setAttribute('syn-events', `['keydown']`);
             textboxText.setAttribute('baseID', elID);
 

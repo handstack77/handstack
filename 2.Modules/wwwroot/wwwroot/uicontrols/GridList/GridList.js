@@ -7,7 +7,7 @@
 
     /*
     // 업무 화면 사용자 검색 필터 처리 필요
-    var listDataTable = $this.$list.getControl('lstDataTable');
+    var listDataTable = syn.uicontrols.$list.getControl('lstDataTable');
     $('#toDate, #fromDate').unbind().bind('keyup', function () {
         listDataTable.table.draw();
     });
@@ -169,7 +169,7 @@
             headers.push('<thead><tr>');
 
             if (setting.checkbox === true) {
-                // $this.$list.getControl('lstDataTable').table.column(0).checkboxes.selected().toArray();
+                // syn.uicontrols.$list.getControl('lstDataTable').table.column(0).checkboxes.selected().toArray();
                 setting.columnDefs = [{
                     targets: 0,
                     checkboxes: {

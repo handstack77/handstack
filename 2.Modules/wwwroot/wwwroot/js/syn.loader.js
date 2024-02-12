@@ -259,7 +259,7 @@
                 else if (synLoader.endsWith(resource, '.js')) {
                     synLoader.scriptFiles.push(resource);
                 }
-                else if (resource.indexOf('/template/') > -1 || resource.indexOf('/TPL/') > -1) {
+                else if (resource.indexOf('/template/') > -1 || resource.indexOf('/TPL') > -1) {
                     synLoader.templateFiles.push(resource);
                 }
                 else {

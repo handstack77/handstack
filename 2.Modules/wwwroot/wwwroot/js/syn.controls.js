@@ -496,9 +496,10 @@
             var textboxCode = syn.$m.create({
                 id: `${elID}_Code`,
                 tag: 'input',
-                className: 'form-control'
+                className: 'form-control mr-1 pr-1'
             });
 
+            textboxCode.type = 'text';
             textboxCode.setAttribute('syn-events', `['keydown']`);
             textboxCode.setAttribute('baseID', elID);
 
@@ -562,6 +563,7 @@
                 className: 'form-control'
             });
 
+            textboxText.type = 'text';
             textboxText.setAttribute('syn-events', `['keydown']`);
             textboxText.setAttribute('baseID', elID);
 
@@ -2915,6 +2917,7 @@
             tokenID: '',
             repositoryID: '',
             dependencyID: '',
+            businessID: '',
             applicationID: '',
             fileUpdateCallback: null,
             accept: '*/*', // .gif, .jpg, .png, .doc, audio/*,video/*,image/*
@@ -2968,7 +2971,7 @@
             }
 
             if ($string.isNullOrEmpty(setting.fileManagerServer) == true) {
-                syn.$l.eventLog('$fileclient.controlLoad', '파일 컨트롤 초기화 오류, 파일 서버 정보 확인 필요', 'Information');
+                syn.$l.eventLog('$fileclient.controlLoad', '파일 컨트롤 초기화 오류, 파일 서버 정보 확인 필요', 'Error');
                 return;
             }
 
@@ -2984,8 +2987,25 @@
             }
 
             if ($string.isNullOrEmpty($fileclient.applicationID) == true) {
-                syn.$l.eventLog('$fileclient.controlLoad', '파일 컨트롤 초기화 오류, 파일 업무 ID 정보 확인 필요', 'Information');
+                syn.$l.eventLog('$fileclient.controlLoad', '파일 컨트롤 초기화 오류, ApplicationID 정보 확인 필요', 'Error');
                 return;
+            }
+
+            if (syn.Config.FileBusinessIDSource && syn.Config.FileBusinessIDSource != 'None') {
+                if (syn.Config.FileBusinessIDSource == 'Cookie') {
+                    $fileclient.businessID = syn.$r.getCookie('FileBusinessID');
+                }
+                else if (syn.Config.FileBusinessIDSource == 'SessionStorage') {
+                    $fileclient.businessID = syn.$w.getStorage('FileBusinessID');
+                }
+            }
+
+            if ($string.isNullOrEmpty($fileclient.businessID) == true) {
+                $fileclient.businessID = syn.$w.User.WorkCompanyNo;
+            }
+
+            if ($string.isNullOrEmpty($fileclient.businessID) == true) {
+                $fileclient.businessID = '0';
             }
 
             syn.$w.loadJson(setting.fileManagerServer + '/repository/api/storage/get-repository?applicationID={0}&repositoryID={1}'.format($fileclient.applicationID, setting.repositoryID), setting, function (setting, repositoryData) {
@@ -3418,6 +3438,10 @@
                             syn.$r.params['callback'] = manager.datas.fileUpdateCallback;
                         }
 
+                        if ($string.isNullOrEmpty($fileclient.businessID) == false) {
+                            syn.$r.params['businessID'] = $fileclient.businessID;
+                        }
+
                         syn.$r.params['applicationID'] = $fileclient.applicationID;
 
                         var form = document.forms[0];
@@ -3510,6 +3534,7 @@
             }
 
             syn.$r.params['applicationID'] = $fileclient.applicationID;
+            syn.$r.params['businessID'] = $fileclient.businessID;
 
             $fileclient.executeProxy(syn.$r.url(), callback);
         },
@@ -3538,6 +3563,7 @@
             }
 
             syn.$r.params['applicationID'] = $fileclient.applicationID;
+            syn.$r.params['businessID'] = $fileclient.businessID;
 
             $fileclient.executeProxy(syn.$r.url(), callback);
         },
@@ -3566,6 +3592,7 @@
             }
 
             syn.$r.params['applicationID'] = $fileclient.applicationID;
+            syn.$r.params['businessID'] = $fileclient.businessID;
 
             $fileclient.executeProxy(syn.$r.url(), callback);
         },
@@ -3578,6 +3605,7 @@
             syn.$r.params['sourceDependencyID'] = sourceDependencyID;
             syn.$r.params['targetDependencyID'] = targetDependencyID;
             syn.$r.params['applicationID'] = $fileclient.applicationID;
+            syn.$r.params['businessID'] = $fileclient.businessID;
 
             $fileclient.executeProxy(syn.$r.url(), callback);
         },
@@ -3590,6 +3618,7 @@
             syn.$r.params['itemID'] = itemID;
             syn.$r.params['fileName'] = fileName;
             syn.$r.params['applicationID'] = $fileclient.applicationID;
+            syn.$r.params['businessID'] = $fileclient.businessID;
 
             $fileclient.executeProxy(syn.$r.url(), callback);
         },
@@ -3658,8 +3687,11 @@
                 url = uploadUrl;
             }
 
-            if ($string.isNullOrEmpty(syn.uicontrols.$fileclient.applicationID) == false) {
-                url = url + '&applicationID=' + syn.uicontrols.$fileclient.applicationID;
+            if (url.indexOf('?') == -1) {
+                url = url + `?applicationID=${syn.uicontrols.$fileclient.applicationID}&businessID=${syn.uicontrols.$fileclient.businessID}`;
+            }
+            else {
+                url = url + `&applicationID=${syn.uicontrols.$fileclient.applicationID}&businessID=${syn.uicontrols.$fileclient.businessID}`;
             }
 
             el = $object.isString(el) == true ? syn.$l.get(el) : el;
@@ -3705,7 +3737,8 @@
                         ItemID: itemID,
                         FileMD5: '',
                         TokenID: setting.tokenID,
-                        ApplicationID: $fileclient.applicationID
+                        ApplicationID: $fileclient.applicationID,
+                        BusinessID: $fileclient.businessID
                     });
                 }
                 else {
@@ -3720,7 +3753,8 @@
                         ItemID: options.itemID,
                         FileMD5: options.fileMD5,
                         TokenID: options.tokenID,
-                        ApplicationID: $fileclient.applicationID
+                        ApplicationID: $fileclient.applicationID,
+                        BusinessID: $fileclient.businessID
                     });
                 }
                 else {
@@ -3775,6 +3809,7 @@
             syn.$r.params['fileMD5'] = fileMD5;
             syn.$r.params['tokenID'] = tokenID;
             syn.$r.params['applicationID'] = $fileclient.applicationID;
+            syn.$r.params['businessID'] = $fileclient.businessID;
 
             syn.$l.get('repositoryDownload').src = syn.$r.url();
         },
@@ -3793,6 +3828,7 @@
             syn.$r.params['fileName'] = fileName;
             syn.$r.params['subDirectory'] = subDirectory;
             syn.$r.params['applicationID'] = $fileclient.applicationID;
+            syn.$r.params['businessID'] = $fileclient.businessID;
 
             syn.$l.get('repositoryDownload').src = syn.$r.url();
         },
@@ -3803,6 +3839,7 @@
             syn.$r.params['fileName'] = fileName;
             syn.$r.params['subDirectory'] = subDirectory;
             syn.$r.params['applicationID'] = $fileclient.applicationID;
+            syn.$r.params['businessID'] = $fileclient.businessID;
 
             $fileclient.executeProxy(syn.$r.url(), function (response) {
                 if (response.Result == false) {
@@ -3833,6 +3870,7 @@
             }
 
             syn.$r.params['applicationID'] = $fileclient.applicationID;
+            syn.$r.params['businessID'] = $fileclient.businessID;
 
             $fileclient.executeProxy(syn.$r.url(), function (response) {
                 if (setting.uploadType == 'Single' || setting.uploadType == 'Profile') {
@@ -3889,6 +3927,7 @@
             }
 
             syn.$r.params['applicationID'] = $fileclient.applicationID;
+            syn.$r.params['businessID'] = $fileclient.businessID;
 
             $fileclient.executeProxy(syn.$r.url(), function (response) {
                 if (response && response.Result == true) {
@@ -3918,6 +3957,7 @@
                 syn.$r.params['repositoryID'] = options.repositoryID;
                 syn.$r.params['dependencyID'] = options.dependencyID;
                 syn.$r.params['applicationID'] = $fileclient.applicationID;
+                syn.$r.params['businessID'] = $fileclient.businessID;
 
                 var xhr = syn.$w.xmlHttp();
                 xhr.open('POST', syn.$r.url());
@@ -4096,7 +4136,7 @@
 
     /*
     // 업무 화면 사용자 검색 필터 처리 필요
-    var listDataTable = $this.$list.getControl('lstDataTable');
+    var listDataTable = syn.uicontrols.$list.getControl('lstDataTable');
     $('#toDate, #fromDate').unbind().bind('keyup', function () {
         listDataTable.table.draw();
     });
@@ -4258,7 +4298,7 @@
             headers.push('<thead><tr>');
 
             if (setting.checkbox === true) {
-                // $this.$list.getControl('lstDataTable').table.column(0).checkboxes.selected().toArray();
+                // syn.uicontrols.$list.getControl('lstDataTable').table.column(0).checkboxes.selected().toArray();
                 setting.columnDefs = [{
                     targets: 0,
                     checkboxes: {
@@ -6015,6 +6055,7 @@
         editorPendings: [],
         editorControls: [],
         defaultSetting: {
+            businessID: '',
             applicationID: '',
             selector: '',
             fileManagerServer: '',
@@ -6137,7 +6178,24 @@
                 }
 
                 if ($string.isNullOrEmpty($htmleditor.applicationID) == true) {
-                    syn.$l.eventLog('$htmleditor.controlLoad', '파일 컨트롤 초기화 오류, 파일 업무 ID 정보 확인 필요', 'Information');
+                    syn.$l.eventLog('$htmleditor.controlLoad', '파일 컨트롤 초기화 오류, ApplicationID 정보 확인 필요', 'Error');
+                }
+
+                if (syn.Config.FileBusinessIDSource && syn.Config.FileBusinessIDSource != 'None') {
+                    if (syn.Config.FileBusinessIDSource == 'Cookie') {
+                        syn.uicontrols.$fileclient.businessID = syn.$r.getCookie('FileBusinessID');
+                    }
+                    else if (syn.Config.FileBusinessIDSource == 'SessionStorage') {
+                        syn.uicontrols.$fileclient.businessID = syn.$w.getStorage('FileBusinessID');
+                    }
+                }
+
+                if ($string.isNullOrEmpty(syn.uicontrols.$fileclient.businessID) == true) {
+                    syn.uicontrols.$fileclient.businessID = syn.$w.User.WorkCompanyNo;
+                }
+
+                if ($string.isNullOrEmpty(syn.uicontrols.$fileclient.businessID) == true) {
+                    syn.uicontrols.$fileclient.businessID = '0';
                 }
 
                 if (syn.Config && syn.Config.FileManagerServer) {
@@ -6145,7 +6203,7 @@
                 }
 
                 if ($string.isNullOrEmpty(setting.fileManagerServer) == true) {
-                    syn.$l.eventLog('$htmleditor.fileManagerServer', 'HTML 편집기 업로드 초기화 오류, 파일 서버 정보 확인 필요', 'Information');
+                    syn.$l.eventLog('$htmleditor.fileManagerServer', 'HTML 편집기 업로드 초기화 오류, 파일 서버 정보 확인 필요', 'Error');
                 }
 
                 if ($string.isNullOrEmpty(setting.dependencyID) == true) {

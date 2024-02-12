@@ -290,7 +290,7 @@
         },
 
         executeChannelMessage(executeName, methodName, parameters, callback, channelID) {
-            var frameMessage = syn.$w.channels.find(function (item) { return item.id == (channelID || $this.channelID) });
+            var frameMessage = syn.$w.channels.find(function (item) { return item.id == (channelID || $this.prop.channelID) });
             if ($object.isNullOrUndefined(frameMessage) == false) {
                 frameMessage.channel[executeName]({
                     method: methodName,
@@ -2443,7 +2443,7 @@ function domainLibraryLoad() {
     syn.$w.User.Claims = syn.$w.User.Claims || {};
     syn.$w.User.Claims.UserWorkID = syn.$w.User.Claims.UserWorkID || '';
     syn.$w.User.Claims.TenantAppRequestPath = syn.$w.User.Claims.TenantAppRequestPath || 'app';
-    syn.$w.User.WorkCompanyNo = (syn.$r.query('companyNo') || syn.$r.query('CompanyNo') || syn.$r.query('companyNO') || syn.$r.query('CompanyNO') || syn.$r.query('COMPANYNO') || syn.$r.query('companyno')) || null;
+    syn.$w.User.WorkCompanyNo = (syn.$r.query('companyNo') || syn.$r.query('CompanyNo') || syn.$r.query('companyNO') || syn.$r.query('CompanyNO') || syn.$r.query('COMPANYNO') || syn.$r.query('companyno')) || syn.$w.User.CompanyNo;
     syn.$w.User.WorkUserNo = (syn.$r.query('employeeNo') || syn.$r.query('EmployeeNo') || syn.$r.query('employeeNO') || syn.$r.query('EmployeeNO') || syn.$r.query('EMPLOYEENO') || syn.$r.query('employeeno')) || null;
 
     syn.$w.Variable = syn.$w.getVariable() || {

@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
 using HandStack.Core.Extensions;
-using HandStack.Web;
 using HandStack.Web.ApiClient;
 using HandStack.Web.Entity;
 
@@ -76,7 +74,7 @@ namespace repository.Extensions
             return result;
         }
 
-        public async Task<RepositoryItems?> GetRepositoryItem(string applicationID, string repositoryID, string itemID)
+        public async Task<RepositoryItems?> GetRepositoryItem(string applicationID, string repositoryID, string itemID, string businessID)
         {
             RepositoryItems? result = null;
             try
@@ -112,6 +110,7 @@ namespace repository.Extensions
                     inputs.Add("RepositoryID", repositoryID);
                     inputs.Add("ItemID", itemID);
                     inputs.Add("ApplicationID", applicationID);
+                    inputs.Add("BusinessID", businessID);
                     transactionObject.Inputs.Add(inputs);
 
                     var transactionResult = await transactionClient.TransactionDirect(ModuleConfiguration.BusinessServerUrl, transactionObject);
@@ -138,7 +137,7 @@ namespace repository.Extensions
             return result;
         }
 
-        public async Task<List<RepositoryItems>?> GetRepositoryItems(string applicationID, string repositoryID, string dependencyID)
+        public async Task<List<RepositoryItems>?> GetRepositoryItems(string applicationID, string repositoryID, string dependencyID, string businessID)
         {
             List<RepositoryItems>? result = null;
             try
@@ -174,6 +173,7 @@ namespace repository.Extensions
                     inputs.Add("RepositoryID", repositoryID);
                     inputs.Add("DependencyID", dependencyID);
                     inputs.Add("ApplicationID", applicationID);
+                    inputs.Add("BusinessID", businessID);
                     transactionObject.Inputs.Add(inputs);
 
                     var transactionResult = await transactionClient.TransactionDirect(ModuleConfiguration.BusinessServerUrl, transactionObject);
@@ -196,7 +196,7 @@ namespace repository.Extensions
             return result;
         }
 
-        public async Task<bool> DeleteRepositoryItem(string applicationID, string repositoryID, string itemID)
+        public async Task<bool> DeleteRepositoryItem(string applicationID, string repositoryID, string itemID, string businessID)
         {
             bool result = false;
 
@@ -233,6 +233,7 @@ namespace repository.Extensions
                     inputs.Add("RepositoryID", repositoryID);
                     inputs.Add("ItemID", itemID);
                     inputs.Add("ApplicationID", applicationID);
+                    inputs.Add("BusinessID", businessID);
                     transactionObject.Inputs.Add(inputs);
 
                     var transactionResult = await transactionClient.TransactionDirect(ModuleConfiguration.BusinessServerUrl, transactionObject);
@@ -291,6 +292,7 @@ namespace repository.Extensions
                     List<ServiceParameter> inputs = new List<ServiceParameter>();
                     inputs.Add("ItemID", repositoryItem.ItemID);
                     inputs.Add("ApplicationID", repositoryItem.ApplicationID);
+                    inputs.Add("BusinessID", repositoryItem.BusinessID);
                     inputs.Add("RepositoryID", repositoryItem.RepositoryID);
                     inputs.Add("DependencyID", repositoryItem.DependencyID);
                     inputs.Add("FileName", repositoryItem.FileName);
@@ -369,6 +371,7 @@ namespace repository.Extensions
                     List<ServiceParameter> inputs = new List<ServiceParameter>();
                     inputs.Add("RepositoryID", repositoryItem.RepositoryID);
                     inputs.Add("ItemID", repositoryItem.ItemID);
+                    inputs.Add("BusinessID", repositoryItem.BusinessID);
                     inputs.Add("ApplicationID", repositoryItem.ApplicationID);
                     inputs.Add("SourceDependencyID", repositoryItem.DependencyID);
                     inputs.Add("TargetDependencyID", targetDependencyID);
@@ -428,9 +431,10 @@ namespace repository.Extensions
                     transactionObject.ScreenID = transactionObject.TransactionID;
 
                     List<ServiceParameter> inputs = new List<ServiceParameter>();
+                    inputs.Add("ApplicationID", repositoryItem.ApplicationID);
                     inputs.Add("RepositoryID", repositoryItem.RepositoryID);
                     inputs.Add("ItemID", sourceItemID);
-                    inputs.Add("ApplicationID", repositoryItem.ApplicationID);
+                    inputs.Add("BusinessID", repositoryItem.BusinessID);
                     inputs.Add("FileName", repositoryItem.FileName);
                     transactionObject.Inputs.Add(inputs);
 
