@@ -3772,8 +3772,8 @@
             http.onload = function (e) {
                 if (http.status == 200) {
                     if (http.getResponseHeader('FileModelType') == 'DownloadResult') {
-                        var handstackResult = $c.base64Decode(http.getResponseHeader('HandStack_Result'));
-                        var downloadResult = JSON.parse(handstackResult);
+                        var responseData = syn.$c.base64Decode(http.getResponseHeader('FileResult'));
+                        var downloadResult = JSON.parse(responseData);
                         if (downloadResult.Result == true) {
                             syn.$l.blobToDownload(http.response, downloadResult.FileName);
                         }
