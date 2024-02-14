@@ -17,6 +17,7 @@
     "SharedAssetUrl": "/assets/shared/",
     "IsApiFindServer": false,
     "DiscoveryApiServerUrl": "http://localhost:8000/api/find",
+    "ReportServer": "http://localhost:8283",
     "FileManagerServer": "http://localhost:8000",
     "FindClientIPServer": "/checkip",
     "FindGlobalIDServer": "",
@@ -30,7 +31,7 @@
         "Protocol": "http",
         "IP": "localhost",
         "Port": "8000",
-        "Path": "/api/transaction",
+        "Path": "/transact/api/transaction/execute",
         "ClientIP": "localhost"
     },
     "IntranetServerIP": "localhost",

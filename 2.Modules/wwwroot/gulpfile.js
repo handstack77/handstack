@@ -259,9 +259,6 @@ gulp.task('basestyles', async function () {
         'wwwroot/uicontrols/OrganizationView/OrganizationView.css',
         'wwwroot/uicontrols/TreeView/TreeView.css',
         'wwwroot/uicontrols/WebGrid/WebGrid.css',
-
-        // 프로젝트 화면 디자인
-        'wwwroot/css/base.css',
     ])
         .pipe(concat('syn.bundle.base.css'))
         .pipe(gulp.dest('wwwroot/css'))

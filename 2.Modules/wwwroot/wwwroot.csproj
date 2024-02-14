@@ -54,6 +54,8 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Include="Contracts/**" />
+        <Content Remove="wwwroot\js\syn.js" />
+        <Content Remove="wwwroot\js\syn.min.js" />
         <None Update="Contracts/**">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>

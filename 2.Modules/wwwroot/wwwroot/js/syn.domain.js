@@ -906,13 +906,28 @@
         },
 
         statusMessage(val) {
-            if (parent.$main) {
+            if (parent.$mainframe) {
                 var tabInfo = syn.$w.getCurrentTabInfo();
                 if (tabInfo) {
-                    parent.$main.method.setStatusMessage(tabInfo.tabID, val);
+                    parent.$layout.method.setStatusMessage(tabInfo.tabID, val);
                 }
                 else {
                     syn.$l.eventLog('statusMessage', val, 'Information');
+                }
+            }
+
+            if (window == top || syn.$w.pageScript == '$mainframe') {
+                var tabInfo = syn.$w.getCurrentTabInfo();
+                if (tabInfo) {
+                    parent.$layout.method.setStatusMessage(tabInfo.tabID, val);
+                }
+                else {
+                    syn.$l.eventLog('statusMessage', val, 'Information');
+                }
+            }
+            else {
+                if (window.parent) {
+                    window.parent.syn.$w.statusMessage(val);
                 }
             }
         },

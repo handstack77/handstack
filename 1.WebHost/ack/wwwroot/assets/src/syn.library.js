@@ -1015,6 +1015,10 @@
                         globalRoot.$logger.trace(value);
                         break;
                 }
+
+                if (globalRoot.console) {
+                    console.log(`${logLevelText}: ${value}`);
+                }
             }
             else {
                 value = syn.$l.eventLogCount.toString() +
@@ -1062,6 +1066,25 @@
             }
 
             syn.$l.eventLogCount++;
+        },
+
+        getBasePath(basePath, defaultPath) {
+            const path = require('path');
+            let entryBasePath = process.cwd();
+
+            if (!basePath) {
+                basePath = '';
+            } else if (basePath.startsWith('.')) {
+                basePath = path.resolve(entryBasePath, basePath);
+            } else {
+                basePath = path.resolve(basePath);
+            }
+
+            if (!basePath && defaultPath) {
+                basePath = defaultPath;
+            }
+
+            return basePath;
         },
 
         moduleEventLog(moduleID, event, data, logLevel) {
@@ -1114,6 +1137,10 @@
                         logger.trace(value);
                         break;
                 }
+
+                if (globalRoot.console) {
+                    console.log(`${logLevelText}: ${value}`);
+                }
             }
             else {
                 console.log('ModuleID 확인 필요 - {0}'.format(moduleID));
@@ -1141,6 +1168,7 @@
         delete syn.$l.getElementsByTagName;
     }
     else {
+        delete syn.$l.getBasePath;
         delete syn.$l.moduleEventLog;
 
         context.onevent = syn.$l.addEvent;

@@ -413,10 +413,13 @@
                     '/lib/handsontable-13.1.0/dist/handsontable.full.css',
                     '/lib/tail.select-0.5.15/css/default/tail.select-light.css',
                     '/lib/ispin-2.0.1/ispin.css',
-                    '/lib/filedrop-1.0.0/filedrop.css',
                     '/lib/css-checkbox-1.0.0/checkboxes.css',
                     '/lib/color-picker-1.0.0/color-picker.css',
                     '/lib/codemirror-5.50.2/codemirror.css',
+                    "/lib/fancytree-2.38.0/skin-win8/ui.fancytree.css",
+                    "/lib/jquery-ui-contextmenu-1.18.1/jquery-ui.css",
+                    "/lib/orgchart-3.1.1/jquery.orgchart.css",
+                    "/lib/printjs-1.6.0/print.min.css",
                     '/lib/notifier-1.0.0/notifier.css',
 
                     // syn.domain.js
@@ -428,6 +431,7 @@
                     '/css/uicontrols/Control.css',
 
                     // syn.controls.js
+                    '/uicontrols/Chart/Chart.css',
                     '/uicontrols/CheckBox/CheckBox.css',
                     '/uicontrols/ColorPicker/ColorPicker.css',
                     '/uicontrols/ContextMenu/ContextMenu.css',
@@ -436,10 +440,13 @@
                     '/uicontrols/DropDownCheckList/DropDownCheckList.css',
                     '/uicontrols/DropDownList/DropDownList.css',
                     '/uicontrols/FileClient/FileClient.css',
+                    '/uicontrols/GridList/GridList.css',
                     '/uicontrols/RadioButton/RadioButton.css',
                     '/uicontrols/TextArea/TextArea.css',
                     '/uicontrols/TextBox/TextBox.css',
+                    '/uicontrols/SourceEditor/SourceEditor.css',
                     '/uicontrols/HtmlEditor/HtmlEditor.css',
+                    '/uicontrols/OrganizationView/OrganizationView.css',
                     '/uicontrols/TreeView/TreeView.css',
                     '/uicontrols/WebGrid/WebGrid.css',
 

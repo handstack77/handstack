@@ -1727,7 +1727,7 @@
         */
         transactionDirect(directObject, callback, options) {
             directObject.transactionResult = $object.isNullOrUndefined(directObject.transactionResult) == true ? true : directObject.transactionResult === true;
-            directObject.systemID = directObject.systemID || $this.config.systemID;
+            directObject.systemID = directObject.systemID || (globalRoot.devicePlatform == 'browser' ? $this.config.systemID : '');
 
             var transactionObject = syn.$w.transactionObject(directObject.functionID, 'Json');
 
@@ -3253,6 +3253,8 @@
                 moduleName = moduleUrl;
             }
 
+            moduleName = moduleName.replaceAll('-', '_');
+
             var moduleScript;
             if ($string.isNullOrEmpty(moduleName) == false) {
                 try {
@@ -3513,8 +3515,6 @@
                     url = '{0}://{1}{2}'.format(apiService.Protocol, apiService.IP, apiService.Path);
                 }
 
-                url = '/transact/api/transaction/execute';
-
                 var installType = syn.$w.Variable && syn.$w.Variable.InstallType ? syn.$w.Variable.InstallType : 'L';
                 var environment = syn.Config && syn.Config.Environment ? syn.Config.Environment.substring(0, 1) : 'D';
                 var machineTypeID = syn.Config && syn.Config.Transaction ? syn.Config.Transaction.MachineTypeID.substring(0, 1) : 'W';
@@ -3558,7 +3558,7 @@
                     loadOptions: {
                         encryptionType: syn.Config.Transaction.EncryptionType, // "P:Plain, F:Full, H:Header, B:Body",
                         encryptionKey: syn.Config.Transaction.EncryptionKey, // "P:프로그램, K:KMS 서버, G:GlobalID 키",
-                        platform: syn.$b.platform
+                        platform: globalRoot.devicePlatform == 'browser' ? syn.$b.platform : globalRoot.devicePlatform
                     },
                     requestID: requestID,
                     version: syn.Config.Transaction.ProtocolVersion,
@@ -3718,7 +3718,7 @@
                     }
                 }
 
-                if (transactionRequest.action == 'PSH') {
+                if (globalThis.devicePlatform != 'node' && transactionRequest.action == 'PSH') {
                     var blob = new Blob([JSON.stringify(transactionRequest)], { type: 'application/json; charset=UTF-8' });
                     navigator.sendBeacon(url, blob);
 

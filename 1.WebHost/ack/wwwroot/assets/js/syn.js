@@ -1,4 +1,4 @@
-﻿/*!
+/*!
 HandStack Javascript Library v1.0.0
 https://syn.handshake.kr
 
@@ -4907,6 +4907,10 @@ globalRoot.syn = syn;
                         globalRoot.$logger.trace(value);
                         break;
                 }
+
+                if (globalRoot.console) {
+                    console.log(`${logLevelText}: ${value}`);
+                }
             }
             else {
                 value = syn.$l.eventLogCount.toString() +
@@ -4954,6 +4958,25 @@ globalRoot.syn = syn;
             }
 
             syn.$l.eventLogCount++;
+        },
+
+        getBasePath(basePath, defaultPath) {
+            const path = require('path');
+            let entryBasePath = process.cwd();
+
+            if (!basePath) {
+                basePath = '';
+            } else if (basePath.startsWith('.')) {
+                basePath = path.resolve(entryBasePath, basePath);
+            } else {
+                basePath = path.resolve(basePath);
+            }
+
+            if (!basePath && defaultPath) {
+                basePath = defaultPath;
+            }
+
+            return basePath;
         },
 
         moduleEventLog(moduleID, event, data, logLevel) {
@@ -5006,6 +5029,10 @@ globalRoot.syn = syn;
                         logger.trace(value);
                         break;
                 }
+
+                if (globalRoot.console) {
+                    console.log(`${logLevelText}: ${value}`);
+                }
             }
             else {
                 console.log('ModuleID 확인 필요 - {0}'.format(moduleID));
@@ -5033,6 +5060,7 @@ globalRoot.syn = syn;
         delete syn.$l.getElementsByTagName;
     }
     else {
+        delete syn.$l.getBasePath;
         delete syn.$l.moduleEventLog;
 
         context.onevent = syn.$l.addEvent;
@@ -7745,7 +7773,7 @@ globalRoot.syn = syn;
         */
         transactionDirect(directObject, callback, options) {
             directObject.transactionResult = $object.isNullOrUndefined(directObject.transactionResult) == true ? true : directObject.transactionResult === true;
-            directObject.systemID = directObject.systemID || $this.config.systemID;
+            directObject.systemID = directObject.systemID || (globalRoot.devicePlatform == 'browser' ? $this.config.systemID : '');
 
             var transactionObject = syn.$w.transactionObject(directObject.functionID, 'Json');
 
@@ -9271,6 +9299,8 @@ globalRoot.syn = syn;
                 moduleName = moduleUrl;
             }
 
+            moduleName = moduleName.replaceAll('-', '_');
+
             var moduleScript;
             if ($string.isNullOrEmpty(moduleName) == false) {
                 try {
@@ -9531,8 +9561,6 @@ globalRoot.syn = syn;
                     url = '{0}://{1}{2}'.format(apiService.Protocol, apiService.IP, apiService.Path);
                 }
 
-                url = '/transact/api/transaction/execute';
-
                 var installType = syn.$w.Variable && syn.$w.Variable.InstallType ? syn.$w.Variable.InstallType : 'L';
                 var environment = syn.Config && syn.Config.Environment ? syn.Config.Environment.substring(0, 1) : 'D';
                 var machineTypeID = syn.Config && syn.Config.Transaction ? syn.Config.Transaction.MachineTypeID.substring(0, 1) : 'W';
@@ -9576,7 +9604,7 @@ globalRoot.syn = syn;
                     loadOptions: {
                         encryptionType: syn.Config.Transaction.EncryptionType, // "P:Plain, F:Full, H:Header, B:Body",
                         encryptionKey: syn.Config.Transaction.EncryptionKey, // "P:프로그램, K:KMS 서버, G:GlobalID 키",
-                        platform: syn.$b.platform
+                        platform: globalRoot.devicePlatform == 'browser' ? syn.$b.platform : globalRoot.devicePlatform
                     },
                     requestID: requestID,
                     version: syn.Config.Transaction.ProtocolVersion,
@@ -9736,7 +9764,7 @@ globalRoot.syn = syn;
                     }
                 }
 
-                if (transactionRequest.action == 'PSH') {
+                if (globalThis.devicePlatform != 'node' && transactionRequest.action == 'PSH') {
                     var blob = new Blob([JSON.stringify(transactionRequest)], { type: 'application/json; charset=UTF-8' });
                     navigator.sendBeacon(url, blob);
 
