@@ -148,7 +148,6 @@ namespace ack
                         Uri baseUri = new Uri(item);
                         var client = new RestClient();
                         var request = new RestRequest(baseUri, Method.Get);
-                        request.Timeout = 3000;
                         request.AddHeader("ApplicationName", GlobalConfiguration.ApplicationName);
                         request.AddHeader("SystemID", GlobalConfiguration.SystemID);
                         request.AddHeader("HostName", GlobalConfiguration.HostName);

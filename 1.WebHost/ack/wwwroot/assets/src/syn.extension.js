@@ -230,6 +230,9 @@
                 case 'm':
                     result = month;
                     break;
+                case 'y':
+                    result = year.toString();
+                    break;
                 case 'ym':
                     result = year.toString().concat('-', month);
                     break;
