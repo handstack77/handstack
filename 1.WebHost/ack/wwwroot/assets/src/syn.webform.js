@@ -4008,6 +4008,41 @@
                     xhr.send(JSON.stringify(transactionRequest));
                 }
             }
+        },
+
+        // syn.$w.pseudoStyle('styGrid1', '.handsontable tbody tr td:nth-of-type(3)', `color: red;text-decoration: underline;font-weight: 600;cursor: pointer;`)
+        pseudoStyle(elID, selector, cssText) {
+            var head = document.head || (document.getElementsByTagName('head').length == 0 ? null : document.getElementsByTagName('head')[0]);
+            if (head) {
+                var sheet = document.getElementById(elID) || document.createElement('style');
+                if (sheet.id == '') {
+                    sheet.id = elID;
+                }
+
+                sheet.innerHTML = selector + '{' + cssText + '}';
+                head.appendChild(sheet);
+            }
+        },
+
+        // syn.$w.pseudoStyles('styGrid1', [{selector: '.handsontable tbody tr td:nth-of-type(3)', cssText: `color: red;text-decoration: underline;font-weight: 600;cursor: pointer;`}])
+        pseudoStyles(elID, styles) {
+            var head = document.head || (document.getElementsByTagName('head').length == 0 ? null : document.getElementsByTagName('head')[0]);
+            if (head && $object.isArray(styles) == true && styles.length > 0) {
+                var sheet = document.getElementById(elID) || document.createElement('style');
+                if (sheet.id == '') {
+                    sheet.id = elID;
+                }
+
+                var styleTexts = [];
+                for (var i = 0, length = styles.length; i < length; i++) {
+                    var style = styles[i];
+
+                    styleTexts.push(style.selector + '{' + style.cssText + '}');
+                }
+
+                sheet.innerHTML = styleTexts.join('\n');
+                head.appendChild(sheet);
+            }
         }
     });
 
@@ -4049,6 +4084,7 @@
         delete syn.$w.scrollToTop;
         delete syn.$w.setFavicon;
         delete syn.$w.fileDownload;
+        delete syn.$w.pseudoStyle;
     }
     else {
         var pathname = location.pathname;

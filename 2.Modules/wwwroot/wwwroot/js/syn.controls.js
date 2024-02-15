@@ -7983,13 +7983,13 @@
                                     targetColumns.push(startIndex);
                                 }
 
-                                $grid.visibleColumns(this.elID, targetColumns, false);
+                                $grid.visibleColumns(this.rootElement.id, targetColumns, false);
 
                                 var mod = window[syn.$w.pageScript];
                                 if (mod) {
-                                    var eventHandler = mod.event ? mod.event['{0}_{1}'.format(this.elID, 'afterHiddenColumns')] : null;
+                                    var eventHandler = mod.event ? mod.event['{0}_{1}'.format(this.rootElement.id, 'afterHiddenColumns')] : null;
                                     if (eventHandler) {
-                                        eventHandler.apply(syn.$l.get(this.elID), [targetColumns]);
+                                        eventHandler.apply(syn.$l.get(this.rootElement.id), [targetColumns]);
                                     }
                                 }
                             }
@@ -8008,13 +8008,13 @@
                                     targetColumns.push(startIndex);
                                 }
 
-                                $grid.visibleColumns(this.elID, targetColumns, true);
+                                $grid.visibleColumns(this.rootElement.id, targetColumns, true);
 
                                 var mod = window[syn.$w.pageScript];
                                 if (mod) {
-                                    var eventHandler = mod.event ? mod.event['{0}_{1}'.format(this.elID, 'afterUnHiddenColumns')] : null;
+                                    var eventHandler = mod.event ? mod.event['{0}_{1}'.format(this.rootElement.id, 'afterUnHiddenColumns')] : null;
                                     if (eventHandler) {
-                                        eventHandler.apply(syn.$l.get(this.elID), targetColumns);
+                                        eventHandler.apply(syn.$l.get(this.rootElement.id), targetColumns);
                                     }
                                 }
                             }
@@ -8024,7 +8024,7 @@
                         name: '컬럼 표시 선택',
                         callback(key, selection, clickEvent) {
                             var hot = this;
-                            var elID = this.elID;
+                            var elID = this.rootElement.id;
                             var dialogOptions = $object.clone(syn.$w.dialogOptions);
                             dialogOptions.minWidth = 240;
                             dialogOptions.minHeight = 240;
@@ -8101,6 +8101,14 @@
 
                                     $grid.visibleColumns(elID, showColumns, true);
                                     $grid.visibleColumns(elID, hideColumns, false);
+
+                                    var mod = window[syn.$w.pageScript];
+                                    if (mod) {
+                                        var eventHandler = mod.event ? mod.event['{0}_{1}'.format(elID, 'afterVisibleColumns')] : null;
+                                        if (eventHandler) {
+                                            eventHandler.apply(syn.$l.get(elID), showColumns, hideColumns);
+                                        }
+                                    }
                                 }
                             });
                         }
@@ -10252,6 +10260,22 @@
             var hot = $grid.getGridControl(elID);
             if (hot) {
                 result = hot.toPhysicalColumn(logicalColIndex);
+            }
+            return result;
+        },
+
+        getPhysicalColText(elID, columnText) {
+            var result = -1;
+            var head = syn.$l.querySelector(`#${elID} .handsontable thead tr`);
+            if (head) {
+                var childNodes = head.childNodes;
+                for (var i = 0; i < childNodes.length; i++) {
+                    var childNode = childNodes[i];
+                    if (childNode.innerHTML.indexOf(`>${columnText}<`) > -1) {
+                        result = i;
+                        break;
+                    }
+                }
             }
             return result;
         },
