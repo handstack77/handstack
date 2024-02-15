@@ -213,10 +213,17 @@ namespace HandStack.Web.ApiClient
                 }
                 else
                 {
-                    ResponseStatus responseStatus = restResponse.ResponseStatus;
-                    HttpStatusCode statusCode = restResponse.StatusCode;
+                    if (restResponse != null)
+                    {
+                        ResponseStatus responseStatus = restResponse.ResponseStatus;
+                        HttpStatusCode statusCode = restResponse.StatusCode;
 
-                    hasException.ErrorMessage = $"{statusCode}|{responseStatus}|{restResponse.ErrorMessage}";
+                        hasException.ErrorMessage = $"{statusCode}|{responseStatus}|{restResponse.ErrorMessage}";
+                    }
+                    else { 
+                        hasException.ErrorMessage = $"{HttpStatusCode.Gone}|None|연결 오류";
+                    }
+
                     result.Add("HasException", JObject.FromObject(hasException));
                 }
             }

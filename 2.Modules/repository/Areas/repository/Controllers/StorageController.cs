@@ -1955,10 +1955,10 @@ namespace repository.Controllers
             switch (repository.StorageType)
             {
                 case "AzureBlob":
-                    result = await ExecuteBlobFileDownload(downloadResult, applicationID, repositoryID, itemID, businessID);
+                    result = await ExecuteBlobFileDownload(downloadResult, applicationID, repositoryID, itemID, businessID.ToStringSafe());
                     break;
                 case "FileSystem":
-                    result = await ExecuteFileDownload(downloadResult, applicationID, repositoryID, itemID, businessID);
+                    result = await ExecuteFileDownload(downloadResult, applicationID, repositoryID, itemID, businessID.ToStringSafe());
                     break;
                 default:
                     string errorText = $"ApplicationID: {repository.ApplicationID}, RepositoryID: {repository.RepositoryID}, StorageType: {repository.StorageType} 확인 필요";

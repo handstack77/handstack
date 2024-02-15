@@ -28,9 +28,9 @@ namespace wwwroot.Extensions
         // var repositoryItems = result?["FormData0"]?.ToObject<RepositoryItems>();
         // var repositorys = result?["GridData0"]?.ToObject<List<Repository>>();
         // var formData = JsonConvert.DeserializeObject<DataTable>($"[{result?["FormData0"]}]");
-        public async Task<Dictionary<string, JToken?>?> TransactionDirect(string transactionCommandID, List<ServiceParameter>? serviceParameters = null, string? startTraceID = null)
+        public async Task<Dictionary<string, JToken>?> TransactionDirect(string transactionCommandID, List<ServiceParameter>? serviceParameters = null, string? startTraceID = null)
         {
-            Dictionary<string, JToken?>? result = null;
+            Dictionary<string, JToken>? result = null;
 
             if (string.IsNullOrEmpty(transactionCommandID) == false)
             {
