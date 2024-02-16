@@ -9,7 +9,6 @@ using function.Entity;
 
 using HandStack.Core.ExtensionMethod;
 using HandStack.Core.Extensions;
-using HandStack.Core.Helpers;
 using HandStack.Data;
 using HandStack.Web;
 using HandStack.Web.Entity;
@@ -17,13 +16,9 @@ using HandStack.Web.MessageContract.DataObject;
 
 using Microsoft.Extensions.Configuration;
 
-using MySqlX.XDevAPI.Common;
-
 using Newtonsoft.Json;
 
 using Serilog;
-
-using static System.Net.Mime.MediaTypeNames;
 
 namespace function.Extensions
 {
