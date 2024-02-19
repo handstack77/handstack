@@ -55,16 +55,34 @@ namespace HandStack.Web.Extensions
 
         public static string GetBaseUrl(this HttpRequest request)
         {
+            var protocol = request.GetHeaderValueAs<string>("X-Forwarded-Proto");
+            if (string.IsNullOrEmpty(protocol) == false)
+            {
+                request.Scheme = protocol;
+            }
+
             return $"{request.Scheme}://{request.Host}";
         }
 
         public static string GetUrlAuthority(this HttpRequest request)
         {
+            var protocol = request.GetHeaderValueAs<string>("X-Forwarded-Proto");
+            if (string.IsNullOrEmpty(protocol) == false)
+            {
+                request.Scheme = protocol;
+            }
+
             return $"{request.Scheme}://{request.Host}{request.Path}";
         }
 
         public static string GetAbsoluteUrl(this HttpRequest request)
         {
+            var protocol = request.GetHeaderValueAs<string>("X-Forwarded-Proto");
+            if (string.IsNullOrEmpty(protocol) == false)
+            {
+                request.Scheme = protocol;
+            }
+
             return $"{request.Scheme}://{request.Host}{request.PathBase}{request.Path}{request.QueryString}";
         }
 

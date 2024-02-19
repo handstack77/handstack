@@ -136,8 +136,12 @@
 
                 var style = document.createElement('link');
                 style.rel = 'stylesheet';
-                style.href = styleFile + (styleFile.indexOf('?') > -1 ? '&' : '?') + synLoader.argArgs;
                 style.type = 'text/css';
+                style.href = styleFile;
+
+                if (synLoader.argArgs != '') {
+                    style.href = style.href + (styleFile.indexOf('?') > -1 ? '&' : '?') + synLoader.argArgs;
+                }
 
                 if (styleFile.indexOf('dark_mode') > -1) {
                     style.id = 'dark_mode';
@@ -176,10 +180,15 @@
                 if (nextIndex < synLoader.scriptFiles.length) {
                     synLoader.loadScript(nextIndex);
                 }
+                else {
+                    synLoader.loadCallback();
+                }
             };
 
             var src = synLoader.scriptFiles[i];
-            src = src + (src.indexOf('?') > -1 ? '&' : '?') + synLoader.argArgs;
+            if (synLoader.argArgs != '') {
+                src = src + (src.indexOf('?') > -1 ? '&' : '?') + synLoader.argArgs;
+            }
 
             var script = document.createElement('script');
             script.type = 'text/javascript';
@@ -189,23 +198,13 @@
                 synLoader.eventLog('loaded', 'Loaded script: ' + evt.target.src);
                 synLoader.currentLoadedCount++;
 
-                if (synLoader.remainLoadedCount === synLoader.currentLoadedCount) {
-                    synLoader.loadCallback();
-                }
-                else {
-                    loadNextScript();
-                }
+                loadNextScript();
             };
             script.onerror = function (evt) {
                 synLoader.eventLog('load error', 'Loaded fail script: ' + evt.target.src);
                 synLoader.currentLoadedCount++;
 
-                if (synLoader.remainLoadedCount === synLoader.currentLoadedCount) {
-                    synLoader.loadCallback();
-                }
-                else {
-                    loadNextScript();
-                }
+                loadNextScript();
             };
 
             document.body.appendChild(script);
@@ -532,7 +531,7 @@
             }
         }
 
-        // synLoader.argArgs = getCookie('syn.iscache') == 'true' ? '' : 'tick=' + new Date().getTime();
+        synLoader.argArgs = getCookie('syn.iscache') == 'true' ? '' : 'tick=' + new Date().getTime();
         await synLoader.request(loadFiles);
     }
 
