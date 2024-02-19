@@ -1,4 +1,4 @@
-/*!
+﻿/*!
 HandStack Javascript Library v1.0.0
 https://syn.handshake.kr
 
@@ -9505,9 +9505,24 @@ globalRoot.syn = syn;
                 var apiServices = syn.$w.getStorage('apiServices', false);
                 if (apiServices) {
                     apiService = apiServices[syn.Config.SystemID + syn.Config.Environment.substring(0, 1)];
-                    if ($object.isNullOrUndefined(apiServices.BearerToken) == true && globalRoot.bearerToken) {
-                        apiServices.BearerToken = globalRoot.bearerToken;
+                    if (apiService) {
+                        if ($object.isNullOrUndefined(apiServices.BearerToken) == true && globalRoot.bearerToken) {
+                            apiServices.BearerToken = globalRoot.bearerToken;
+                            syn.$w.setStorage('apiServices', apiServices, false);
+                        }
+                    }
+                    else if (syn.Config.DomainAPIServer != null) {
+                        apiService = syn.Config.DomainAPIServer;
+                        apiServices = {};
+                        if (token || globalRoot.bearerToken) {
+                            apiServices.BearerToken = token || globalRoot.bearerToken;
+                        }
+                        apiServices[syn.Config.SystemID + syn.Config.Environment.substring(0, 1)] = apiService;
                         syn.$w.setStorage('apiServices', apiServices, false);
+                        syn.$l.eventLog('$w.executeTransaction', 'apiService 확인 필요 systemApi: {0}'.format(JSON.stringify(apiService)), 'Warning');
+                    }
+                    else {
+                        syn.$l.eventLog('$w.executeTransaction', '서비스 호출에 필요한 BP 정보가 구성되지 확인 필요', 'Error');
                     }
                 }
                 else {

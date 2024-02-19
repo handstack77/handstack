@@ -2494,8 +2494,19 @@ function domainLibraryLoad() {
     var apiServices = syn.$w.getStorage('apiServices', false);
     if (apiServices) {
         apiService = apiServices[syn.Config.SystemID + syn.Config.Environment.substring(0, 1)];
-        if ((apiServices.BearerToken == null || apiServices.BearerToken == undefined) && window.bearerToken) {
-            apiServices.BearerToken = window.bearerToken;
+        if (apiService) {
+            if ((apiServices.BearerToken == null || apiServices.BearerToken == undefined) && window.bearerToken) {
+                apiServices.BearerToken = window.bearerToken;
+                syn.$w.setStorage('apiServices', apiServices, false);
+            }
+        }
+        else if (syn.Config.DomainAPIServer != null) {
+            apiService = syn.Config.DomainAPIServer;
+            apiServices = {};
+            if (window.bearerToken) {
+                apiServices.BearerToken = window.bearerToken;
+            }
+            apiServices[syn.Config.SystemID + syn.Config.Environment.substring(0, 1)] = apiService;
             syn.$w.setStorage('apiServices', apiServices, false);
         }
     }
