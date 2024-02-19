@@ -1,13 +1,15 @@
-﻿using System.CommandLine;
-using System.Diagnostics;
-using System.Net;
-
-using HandStack.Core.ExtensionMethod;
+﻿using HandStack.Core.ExtensionMethod;
 using HandStack.Core.Helpers;
 
 using Microsoft.Extensions.Configuration;
 
+using Newtonsoft.Json.Linq;
+
 using Serilog;
+
+using System.CommandLine;
+using System.Diagnostics;
+using System.Net;
 
 namespace handstack
 {
@@ -87,9 +89,136 @@ namespace handstack
 
             #endregion
 
+            #region configuration
+
+            // configuration --file=C:/projects/handstack77/handstack/1.WebHost/build/handstack/app/ack.exe --appsettings=qrame.localhost.json
+            var subCommandConfiguration = new Command("configuration", "의도된 ack 프로그램 및 모듈 환경설정을 적용합니다") {
+                optionDebug, optionDelay, optionFile, optionAppSettings
+            };
+
+            subCommandConfiguration.SetHandler(async (debug, delay, file, settings) =>
+            {
+                await DebuggerAttach(args, debug, delay);
+
+                if (file != null && file.Exists == true)
+                {
+                    if (string.IsNullOrEmpty(settings) == false)
+                    {
+                        string settingFilePath = Path.Combine(entryBasePath, "appsettings", settings);
+                        if (File.Exists(settingFilePath) == true)
+                        {
+                            try
+                            {
+                                string settingText = File.ReadAllText(settingFilePath);
+                                var setting = JObject.Parse(settingText);
+                                var moduleBasePath = setting.SelectToken("AppSettings.LoadModuleBasePath").ToStringSafe();
+                                var loadModules = setting.SelectToken("AppSettings.LoadModules");
+                                if (string.IsNullOrEmpty(moduleBasePath) == false && loadModules != null && loadModules.Count() > 0)
+                                {
+                                    string functionModuleBasePath = string.Empty;
+                                    string moduleSettingFile = "module.json";
+                                    var modules = (JArray)loadModules;
+                                    for (int i = 0; i < modules.Count; i++)
+                                    {
+                                        var module = modules[i];
+                                        var moduleID = module.ToString();
+                                        if (string.IsNullOrEmpty(moduleID) == false)
+                                        {
+                                            var splits = settings.SplitAndTrim('.');
+                                            string programID = splits[0];
+                                            string environment = splits[1];
+
+                                            string sourceModuleSettingFilePath = string.Empty;
+                                            if (moduleID.IndexOf("|") > -1)
+                                            {
+                                                int moduleIndex = modules.IndexOf(module);
+                                                sourceModuleSettingFilePath = moduleID.Substring(moduleID.IndexOf("|") + 1);
+                                                moduleID = moduleID.Substring(0, moduleID.IndexOf("|"));
+                                                if (moduleIndex > -1)
+                                                {
+                                                    modules[moduleIndex] = moduleID;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                sourceModuleSettingFilePath = Path.Combine(entryBasePath, "modulesettings", $"{programID}.{moduleID}.{environment}.json");
+                                            }
+
+                                            if (File.Exists(sourceModuleSettingFilePath) == true)
+                                            {
+                                                DirectoryInfo directoryInfo = new DirectoryInfo(Path.Combine(moduleBasePath, moduleID));
+                                                if (directoryInfo.Exists == true)
+                                                {
+                                                    if (moduleID == "function")
+                                                    {
+                                                        functionModuleBasePath = directoryInfo.FullName;
+                                                    }
+
+                                                    FileInfo sourceModuleSettingFileInfo = new FileInfo(sourceModuleSettingFilePath);
+                                                    string targetModuleSettingFilePath = Path.Combine(moduleBasePath, moduleID, moduleSettingFile);
+                                                    File.Copy(sourceModuleSettingFilePath, targetModuleSettingFilePath, true);
+                                                    Log.Information($"modulesettings: {targetModuleSettingFilePath}");
+                                                }
+                                                else
+                                                {
+                                                    Log.Warning($"moduleBasePath: {moduleBasePath}, moduleID: {moduleID} 확인 필요");
+                                                }
+                                            }
+                                            else
+                                            {
+                                                Log.Warning($"moduleSettingFilePath: {sourceModuleSettingFilePath}, moduleID: {moduleID} 확인 필요");
+                                            }
+                                        }
+                                    }
+
+                                    string appBasePath = file.DirectoryName.ToStringSafe();
+                                    FileInfo appSettingFileInfo = new FileInfo(Path.Combine(appBasePath, "appsettings.json"));
+                                    var appSettingFilePath = appSettingFileInfo.FullName;
+                                    File.WriteAllText(appSettingFilePath, setting.ToString());
+                                    FileInfo settingFileInfo = new FileInfo(settingFilePath);
+                                    Log.Information($"appsettings: {appSettingFilePath}");
+
+                                    string synConfigFilePath = Path.Combine(entryBasePath, "synconfigs", settings);
+                                    if (File.Exists(synConfigFilePath) == true)
+                                    {
+                                        FileInfo synConfigFileInfo = new FileInfo(Path.Combine(appBasePath, "wwwroot", "syn.config.json"));
+                                        File.Copy(synConfigFilePath, synConfigFileInfo.FullName, true);
+                                        Log.Information($"synconfigs: {synConfigFileInfo.FullName}");
+                                    }
+
+                                    string nodeConfigFilePath = Path.Combine(entryBasePath, "nodeconfigs", settings);
+                                    if (File.Exists(nodeConfigFilePath) == true && string.IsNullOrEmpty(functionModuleBasePath) == false)
+                                    {
+                                        FileInfo nodeConfigFileInfo = new FileInfo(Path.Combine(functionModuleBasePath, "node.config.json"));
+                                        File.Copy(nodeConfigFilePath, nodeConfigFileInfo.FullName, true);
+                                        Log.Information($"nodeconfigs: {nodeConfigFileInfo.FullName}");
+                                    }
+                                }
+                            }
+                            catch (Exception exception)
+                            {
+                                Log.Error(exception, $"settingFilePath: {settingFilePath} 확인 필요");
+                            }
+                        }
+                        else
+                        {
+                            Log.Warning($"settingFilePath: {settingFilePath} 확인 필요");
+                        }
+                    }
+                }
+                else
+                {
+                    Log.Information($"file:{file?.FullName} 파일 확인이 필요합니다");
+                }
+            }, optionDebug, optionDelay, optionFile, optionAppSettings);
+
+            rootCommand.Add(subCommandConfiguration);
+
+            #endregion
+
             #region startlog
 
-            // startlog --file=C:/home/handstack/app/ack.exe --arguments="--debug --delay=1000000" --appsettings=qrame.localhost.json
+            // startlog --file=C:/projects/handstack77/handstack/1.WebHost/build/handstack/app/ack.exe --arguments="--debug --delay=1000000" --appsettings=qrame.localhost.json
             var subCommandStartLog = new Command("startlog", "ack 프로세스를 시작합니다") {
                 optionDebug, optionDelay, optionFile, optionArguments, optionAppSettings
             };
@@ -136,7 +265,7 @@ namespace handstack
 
             #region start
 
-            // start --file=C:/home/handstack/app/ack.exe --arguments="--debug --delay=1000000" --appsettings=qrame.localhost.json
+            // start --file=C:/projects/handstack77/handstack/1.WebHost/build/handstack/app/ack.exe --arguments="--debug --delay=1000000" --appsettings=qrame.localhost.json
             var subCommandStart = new Command("start", "ack 프로세스를 시작합니다") {
                 optionDebug, optionDelay, optionFile, optionArguments, optionAppSettings
             };
@@ -358,7 +487,7 @@ namespace handstack
                 }
             }, optionDebug, optionDelay, optionPort, rootOptionModules);
 
-            await rootCommand.InvokeAsync(args);
+            exitCode = await rootCommand.InvokeAsync(args);
             return exitCode;
         }
 
