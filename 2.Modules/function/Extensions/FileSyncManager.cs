@@ -69,6 +69,7 @@ namespace function.Extensions
                 fileSystemWatcher.Error += HandleError;
 
                 workerThread = new Thread(ProcessQueue) { IsBackground = true };
+                workerThread.Start();
             }
         }
 
