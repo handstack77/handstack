@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
 using System.Runtime.Caching;
+using System.Threading;
 using System.Threading.Tasks;
 
 using HandStack.Core.ExtensionMethod;
@@ -20,6 +22,8 @@ namespace dbclient.Extensions
         private const int expireMilliSeconds = 100;
         private bool isDesposed;
         private readonly FileSystemWatcher fileSystemWatcher;
+        private readonly ConcurrentQueue<string> queue = new ConcurrentQueue<string>();
+        private readonly Thread? workerThread;
         private string sourceRootDirectory;
 
         internal class CacheItemValue
@@ -41,7 +45,7 @@ namespace dbclient.Extensions
 
             if (string.IsNullOrEmpty(filter) == false)
             {
-                fileSystemWatcher.InternalBufferSize = 524288;
+                fileSystemWatcher.InternalBufferSize = 65536;
                 if (filter.IndexOf("|") > -1)
                 {
                     foreach (var item in filter.Split("|"))
@@ -54,14 +58,17 @@ namespace dbclient.Extensions
                     fileSystemWatcher.Filter = filter;
                 }
                 fileSystemWatcher.IncludeSubdirectories = true;
-                fileSystemWatcher.NotifyFilter = NotifyFilters.DirectoryName
-                                            | NotifyFilters.FileName
-                                            | NotifyFilters.Size;
+                fileSystemWatcher.NotifyFilter = NotifyFilters.FileName | NotifyFilters.Size;
 
-                fileSystemWatcher.Created += HandleCreated;
-                fileSystemWatcher.Deleted += HandleDeleted;
-                fileSystemWatcher.Changed += HandleChanged;
+                fileSystemWatcher.Created += (s, e) => queue.Enqueue("Created|" + e.FullPath);
+                fileSystemWatcher.Deleted += (s, e) => queue.Enqueue("Deleted|" + e.FullPath);
+                fileSystemWatcher.Changed += (s, e) => queue.Enqueue("Changed|" + e.FullPath);
+                // fileSystemWatcher.Created += HandleCreated;
+                // fileSystemWatcher.Deleted += HandleDeleted;
+                // fileSystemWatcher.Changed += HandleChanged;
                 fileSystemWatcher.Error += HandleError;
+
+                workerThread = new Thread(ProcessQueue) { IsBackground = true };
             }
         }
 
@@ -73,6 +80,29 @@ namespace dbclient.Extensions
         public void Stop()
         {
             fileSystemWatcher.EnableRaisingEvents = false;
+        }
+
+        private void ProcessQueue()
+        {
+            while (true)
+            {
+                if (queue.TryDequeue(out string? watchFilePath) == true)
+                {
+                    if (string.IsNullOrEmpty(watchFilePath) == false)
+                    {
+                        WatcherChangeTypes watcherChangeTypes = Enum.Parse<WatcherChangeTypes>(watchFilePath.Split("|")[0]);
+                        string filePath = watchFilePath.Split("|")[1];
+                        if (File.Exists(filePath) == true)
+                        {
+                            MonitoringFile?.Invoke(watcherChangeTypes, new FileInfo(filePath));
+                        }
+                    }
+                }
+                else
+                {
+                    Thread.Sleep(1000);
+                }
+            }
         }
 
         private async void HandleChanged(object sender, FileSystemEventArgs e)
