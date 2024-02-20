@@ -41,7 +41,7 @@ namespace transact.Extensions
 
             if (string.IsNullOrEmpty(filter) == false)
             {
-                fileSystemWatcher.InternalBufferSize = 65536;
+                fileSystemWatcher.InternalBufferSize = 524288;
                 if (filter.IndexOf("|") > -1)
                 {
                     foreach (var item in filter.Split("|"))
@@ -56,11 +56,10 @@ namespace transact.Extensions
                 fileSystemWatcher.IncludeSubdirectories = true;
                 fileSystemWatcher.NotifyFilter = NotifyFilters.DirectoryName
                                             | NotifyFilters.FileName
-                                            | NotifyFilters.LastWrite;
+                                            | NotifyFilters.Size;
 
                 fileSystemWatcher.Created += HandleCreated;
                 fileSystemWatcher.Deleted += HandleDeleted;
-                fileSystemWatcher.Renamed += HandleRenamed;
                 fileSystemWatcher.Changed += HandleChanged;
                 fileSystemWatcher.Error += HandleError;
             }
@@ -108,40 +107,6 @@ namespace transact.Extensions
         private void HandleError(object sender, ErrorEventArgs e)
         {
             Log.Error(e.GetException(), e.ToStringSafe());
-        }
-
-        private async void HandleRenamed(object sender, RenamedEventArgs e)
-        {
-            var fileData = new CacheItemValue()
-            {
-                FileCacheType = Enum.GetName(e.ChangeType),
-                FilePath = e.FullPath,
-                RetryCount = 0
-            };
-
-            var value = memoryCache.AddOrGetExisting($"{fileData.FileCacheType}_{fileData.FilePath}", fileData, new CacheItemPolicy
-            {
-                AbsoluteExpiration = DateTimeOffset.Now.AddMilliseconds(expireMilliSeconds)
-            });
-
-            if (value == null)
-            {
-                Log.Information($"[FileSyncManager/HandleRenamed] Rename: {e.OldFullPath} => {e.FullPath}");
-
-                if (File.Exists(e.OldFullPath) == true)
-                {
-                    MonitoringFile?.Invoke(WatcherChangeTypes.Deleted, new FileInfo(e.OldFullPath));
-                }
-
-                if (File.Exists(e.FullPath) == true)
-                {
-                    await Task.Delay(1);
-                    if (File.Exists(e.FullPath) == true)
-                    {
-                        MonitoringFile?.Invoke(WatcherChangeTypes.Created, new FileInfo(e.FullPath));
-                    }
-                }
-            }
         }
 
         private void HandleDeleted(object sender, FileSystemEventArgs e)
