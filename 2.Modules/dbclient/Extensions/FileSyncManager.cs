@@ -58,7 +58,7 @@ namespace dbclient.Extensions
                     fileSystemWatcher.Filter = filter;
                 }
                 fileSystemWatcher.IncludeSubdirectories = true;
-                fileSystemWatcher.NotifyFilter = NotifyFilters.FileName | NotifyFilters.Size;
+                fileSystemWatcher.NotifyFilter = NotifyFilters.DirectoryName | NotifyFilters.FileName | NotifyFilters.LastWrite;
 
                 fileSystemWatcher.Created += (s, e) => queue.Enqueue("Created|" + e.FullPath);
                 fileSystemWatcher.Deleted += (s, e) => queue.Enqueue("Deleted|" + e.FullPath);
@@ -93,7 +93,12 @@ namespace dbclient.Extensions
                     {
                         WatcherChangeTypes watcherChangeTypes = Enum.Parse<WatcherChangeTypes>(watchFilePath.Split("|")[0]);
                         string filePath = watchFilePath.Split("|")[1];
-                        if (File.Exists(filePath) == true)
+
+                        if (watcherChangeTypes == WatcherChangeTypes.Deleted)
+                        {
+                            MonitoringFile?.Invoke(watcherChangeTypes, new FileInfo(filePath));
+                        }
+                        else if ((watcherChangeTypes == WatcherChangeTypes.Created && watcherChangeTypes == WatcherChangeTypes.Changed) && File.Exists(filePath) == true)
                         {
                             MonitoringFile?.Invoke(watcherChangeTypes, new FileInfo(filePath));
                         }
