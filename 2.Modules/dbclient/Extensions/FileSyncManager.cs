@@ -98,7 +98,7 @@ namespace dbclient.Extensions
                         {
                             MonitoringFile?.Invoke(watcherChangeTypes, new FileInfo(filePath));
                         }
-                        else if ((watcherChangeTypes == WatcherChangeTypes.Created && watcherChangeTypes == WatcherChangeTypes.Changed) && File.Exists(filePath) == true)
+                        else if ((watcherChangeTypes == WatcherChangeTypes.Created || watcherChangeTypes == WatcherChangeTypes.Changed) && File.Exists(filePath) == true)
                         {
                             MonitoringFile?.Invoke(watcherChangeTypes, new FileInfo(filePath));
                         }
