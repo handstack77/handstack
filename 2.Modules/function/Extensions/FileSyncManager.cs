@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.IO;
-using System.Linq;
-using System.Runtime.Caching;
 using System.Threading;
-using System.Threading.Tasks;
 
 using HandStack.Core.ExtensionMethod;
 
@@ -18,29 +15,13 @@ namespace function.Extensions
     {
         public event ChangedFile? MonitoringFile;
 
-        private readonly MemoryCache memoryCache;
-        private const int expireMilliSeconds = 100;
         private bool isDesposed;
         private readonly FileSystemWatcher fileSystemWatcher;
         private readonly ConcurrentQueue<string> queue = new ConcurrentQueue<string>();
         private readonly Thread? workerThread;
-        private string sourceRootDirectory;
-
-        internal class CacheItemValue
-        {
-            public string? FileCacheType { get; set; }
-
-            public string? FilePath { get; set; }
-
-            public int RetryCount { get; set; }
-        }
 
         public FileSyncManager(string sourceRootDirectory, string filter)
         {
-            this.sourceRootDirectory = sourceRootDirectory;
-
-            memoryCache = MemoryCache.Default;
-
             fileSystemWatcher = new FileSystemWatcher(sourceRootDirectory);
 
             if (string.IsNullOrEmpty(filter) == false)
