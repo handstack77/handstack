@@ -74,9 +74,6 @@ namespace function.Extensions
                         queue.Enqueue("Created|" + e.FullPath);
                     }
                 };
-                // fileSystemWatcher.Created += HandleCreated;
-                // fileSystemWatcher.Deleted += HandleDeleted;
-                // fileSystemWatcher.Changed += HandleChanged;
                 fileSystemWatcher.Error += HandleError;
 
                 workerThread = new Thread(ProcessQueue) { IsBackground = true };
