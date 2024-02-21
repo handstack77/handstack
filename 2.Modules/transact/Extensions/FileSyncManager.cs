@@ -63,6 +63,17 @@ namespace transact.Extensions
                 fileSystemWatcher.Created += (s, e) => queue.Enqueue("Created|" + e.FullPath);
                 fileSystemWatcher.Deleted += (s, e) => queue.Enqueue("Deleted|" + e.FullPath);
                 fileSystemWatcher.Changed += (s, e) => queue.Enqueue("Changed|" + e.FullPath);
+                fileSystemWatcher.Renamed += (s, e) =>
+                {
+                    if (File.Exists(e.FullPath) == true)
+                    {
+                        queue.Enqueue("Changed|" + e.FullPath);
+                    }
+                    else
+                    {
+                        queue.Enqueue("Created|" + e.FullPath);
+                    }
+                };
                 // fileSystemWatcher.Created += HandleCreated;
                 // fileSystemWatcher.Deleted += HandleDeleted;
                 // fileSystemWatcher.Changed += HandleChanged;
@@ -83,7 +94,12 @@ namespace transact.Extensions
                     {
                         WatcherChangeTypes watcherChangeTypes = Enum.Parse<WatcherChangeTypes>(watchFilePath.Split("|")[0]);
                         string filePath = watchFilePath.Split("|")[1];
-                        if (File.Exists(filePath) == true)
+
+                        if (watcherChangeTypes == WatcherChangeTypes.Deleted)
+                        {
+                            MonitoringFile?.Invoke(watcherChangeTypes, new FileInfo(filePath));
+                        }
+                        else if ((watcherChangeTypes == WatcherChangeTypes.Created || watcherChangeTypes == WatcherChangeTypes.Changed) && File.Exists(filePath) == true)
                         {
                             MonitoringFile?.Invoke(watcherChangeTypes, new FileInfo(filePath));
                         }
@@ -106,134 +122,9 @@ namespace transact.Extensions
             fileSystemWatcher.EnableRaisingEvents = false;
         }
 
-        private async void HandleChanged(object sender, FileSystemEventArgs e)
-        {
-            var fileData = new CacheItemValue()
-            {
-                FileCacheType = Enum.GetName(e.ChangeType),
-                FilePath = e.FullPath,
-                RetryCount = 0
-            };
-
-            var value = memoryCache.AddOrGetExisting($"{fileData.FileCacheType}_{fileData.FilePath}", fileData, new CacheItemPolicy
-            {
-                AbsoluteExpiration = DateTimeOffset.Now.AddMilliseconds(expireMilliSeconds)
-            });
-
-            if (value == null)
-            {
-                Log.Information($"[FileSyncManager/HandleChanged] Change: {Enum.GetName(e.ChangeType)} {e.FullPath}");
-
-                if (File.Exists(e.FullPath) == true)
-                {
-                    await Task.Delay(1);
-                    if (File.Exists(e.FullPath) == true)
-                    {
-                        MonitoringFile?.Invoke(WatcherChangeTypes.Changed, new FileInfo(e.FullPath));
-                    }
-                }
-            }
-        }
-
         private void HandleError(object sender, ErrorEventArgs e)
         {
             Log.Error(e.GetException(), e.ToStringSafe());
-        }
-
-        private void HandleDeleted(object sender, FileSystemEventArgs e)
-        {
-            var fileData = new CacheItemValue()
-            {
-                FileCacheType = Enum.GetName(e.ChangeType),
-                FilePath = e.FullPath,
-                RetryCount = 0
-            };
-
-            var value = memoryCache.AddOrGetExisting($"{fileData.FileCacheType}_{fileData.FilePath}", fileData, new CacheItemPolicy
-            {
-                AbsoluteExpiration = DateTimeOffset.Now.AddMilliseconds(expireMilliSeconds)
-            });
-
-            if (value == null)
-            {
-                Log.Information($"[FileSyncManager/HandleDeleted] Delete: {e.FullPath}");
-
-                if (Directory.Exists(e.FullPath) == true)
-                {
-                    // 디렉토리 삭제 이벤트는 무시
-                }
-                else
-                {
-                    MonitoringFile?.Invoke(WatcherChangeTypes.Deleted, new FileInfo(e.FullPath));
-                }
-            }
-        }
-
-        private async void HandleCreated(object sender, FileSystemEventArgs e)
-        {
-            var fileData = new CacheItemValue()
-            {
-                FileCacheType = Enum.GetName(e.ChangeType),
-                FilePath = e.FullPath,
-                RetryCount = 0
-            };
-
-            var value = memoryCache.AddOrGetExisting($"{fileData.FileCacheType}_{fileData.FilePath}", fileData, new CacheItemPolicy
-            {
-                AbsoluteExpiration = DateTimeOffset.Now.AddMilliseconds(expireMilliSeconds)
-            });
-
-            if (value == null)
-            {
-                Log.Information($"[FileSyncManager/HandleCreated] Create: {e.FullPath}");
-                if (Directory.Exists(e.FullPath) == true)
-                {
-                    Stop();
-
-                    DirectoryInfo info = new DirectoryInfo(e.FullPath);
-                    int checkCount = 0;
-                    long firstCheckFileCount = 0;
-                    long secondCheckFileCount = info.EnumerateFiles().Sum(file => file.Length);
-                    do
-                    {
-                        if (checkCount == 0)
-                        {
-                            firstCheckFileCount = info.EnumerateFiles().Sum(file => file.Length);
-                        }
-                        else
-                        {
-                            secondCheckFileCount = info.EnumerateFiles().Sum(file => file.Length);
-                        }
-
-                        if (firstCheckFileCount == secondCheckFileCount)
-                        {
-                            checkCount++;
-                        }
-                        else
-                        {
-                            checkCount = 0;
-                        }
-
-                        await Task.Delay(25);
-                    } while (checkCount < 2);
-
-                    var files = Directory.GetFiles(e.FullPath, fileSystemWatcher.Filter, SearchOption.AllDirectories);
-                    foreach (var item in files)
-                    {
-                        MonitoringFile?.Invoke(WatcherChangeTypes.Created, new FileInfo(item));
-                    }
-
-                    Start();
-                }
-                else if (File.Exists(e.FullPath) == true)
-                {
-                    await Task.Delay(1);
-                    if (File.Exists(e.FullPath) == true)
-                    {
-                        MonitoringFile?.Invoke(WatcherChangeTypes.Created, new FileInfo(e.FullPath));
-                    }
-                }
-            }
         }
 
         ~FileSyncManager()
