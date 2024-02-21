@@ -58,11 +58,17 @@ namespace dbclient.Extensions
                     fileSystemWatcher.Filter = filter;
                 }
                 fileSystemWatcher.IncludeSubdirectories = true;
-                fileSystemWatcher.NotifyFilter = NotifyFilters.DirectoryName | NotifyFilters.FileName | NotifyFilters.LastWrite | NotifyFilters.CreationTime | NotifyFilters.Size;
+                fileSystemWatcher.NotifyFilter = NotifyFilters.FileName | NotifyFilters.Size;
 
                 fileSystemWatcher.Created += (s, e) => queue.Enqueue("Created|" + e.FullPath);
                 fileSystemWatcher.Deleted += (s, e) => queue.Enqueue("Deleted|" + e.FullPath);
                 fileSystemWatcher.Changed += (s, e) => queue.Enqueue("Changed|" + e.FullPath);
+                fileSystemWatcher.Renamed += (s, e) =>
+                {
+                    queue.Enqueue("Deleted|" + e.OldFullPath);
+                    queue.Enqueue("Created|" + e.FullPath);
+                };
+
                 // fileSystemWatcher.Created += HandleCreated;
                 // fileSystemWatcher.Deleted += HandleDeleted;
                 // fileSystemWatcher.Changed += HandleChanged;
