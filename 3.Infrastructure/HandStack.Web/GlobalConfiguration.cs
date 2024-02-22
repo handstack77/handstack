@@ -51,6 +51,7 @@ namespace HandStack.Web
     {
         public static string InstallType = "L";
         public static string RunningEnvironment = "D";
+        public static string OSPlatform = "";
         public static string HostName = Dns.GetHostName();
         public static string HostAccessID = "HANDSTACK_HOSTACCESSID";
         public static string SystemID = "HANDSTACK";

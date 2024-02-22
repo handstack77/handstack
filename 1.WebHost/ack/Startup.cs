@@ -102,29 +102,40 @@ namespace ack
             GlobalConfiguration.CookiePrefixName = appSettings["CookiePrefixName"].ToStringSafe("HandStack");
             GlobalConfiguration.UserSignExpire = int.Parse(appSettings["UserSignExpire"].ToStringSafe("1440"));
 
-            if (GlobalConfiguration.RunningEnvironment == "")
+            switch (GlobalConfiguration.RunningEnvironment)
             {
-                GlobalConfiguration.EnvironmentName = environment.EnvironmentName;
-                GlobalConfiguration.RunningEnvironment = environment.EnvironmentName.Substring(0, 1);
+                case "D":
+                    environment.EnvironmentName = "Development";
+                    break;
+                case "P":
+                    environment.EnvironmentName = "Production";
+                    break;
+                case "S":
+                    environment.EnvironmentName = "Staging";
+                    break;
+                default:
+                    environment.EnvironmentName = "Development";
+                    break;
+            }
+
+            GlobalConfiguration.EnvironmentName = environment.EnvironmentName;
+            GlobalConfiguration.RunningEnvironment = environment.EnvironmentName.Substring(0, 1);
+
+            if (OperatingSystem.IsWindows() == true)
+            {
+                GlobalConfiguration.OSPlatform = "Windows";
+            }
+            else if (OperatingSystem.IsLinux() == true)
+            {
+                GlobalConfiguration.OSPlatform = "Linux";
+            }
+            else if (OperatingSystem.IsMacOS() == true)
+            {
+                GlobalConfiguration.OSPlatform = "MacOS";
             }
             else
             {
-                switch (GlobalConfiguration.RunningEnvironment)
-                {
-                    case "D":
-                        environment.EnvironmentName = "Development";
-                        break;
-                    case "P":
-                        environment.EnvironmentName = "Production";
-                        break;
-                    case "S":
-                        environment.EnvironmentName = "Staging";
-                        break;
-                    default:
-                        GlobalConfiguration.RunningEnvironment = "D";
-                        environment.EnvironmentName = "Development";
-                        break;
-                }
+                GlobalConfiguration.OSPlatform = "Etc";
             }
 
             GlobalConfiguration.ContentRootPath = environment.ContentRootPath;

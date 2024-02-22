@@ -14,6 +14,8 @@ namespace HandStack.Web.MessageContract.DataObject
 
         public string environment { get; set; }
 
+        public string platform { get; set; }
+
         public string? dataProvider { get; set; }
 
         public string? connectionString { get; set; }
@@ -34,6 +36,7 @@ namespace HandStack.Web.MessageContract.DataObject
         {
             globalID = "";
             environment = "";
+            platform = "";
             featureMeta = new ModuleScriptMap();
             functionHeader = new FunctionHeader();
             fileDirectory = "";
