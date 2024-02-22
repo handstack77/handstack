@@ -278,7 +278,8 @@ namespace function.DataClient
                     dataContext.accessToken = request.AccessToken;
                     dataContext.loadOptions = request.LoadOptions;
                     dataContext.globalID = request.GlobalID;
-                    dataContext.environment = request.Environment;
+                    dataContext.environment = GlobalConfiguration.RunningEnvironment;
+                    dataContext.platform = GlobalConfiguration.OSPlatform;
                     dataContext.dataProvider = dataSourceMap?.DataProvider.ToString();
                     dataContext.connectionString = dataSourceMap?.ConnectionString;
                     dataContext.workingDirectoryPath = dataSourceMap?.WorkingDirectoryPath;

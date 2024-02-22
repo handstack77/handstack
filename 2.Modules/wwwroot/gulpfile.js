@@ -159,7 +159,7 @@ gulp.task('bundle', async function () {
 gulp.task('styles', async function () {
     return gulp.src([
         // syn.scripts.js
-        'wwwroot/lib/tabler@1.0.0-beta20/css/tabler.syn.css',
+        'wwwroot/lib/tabler@1.0.0-beta20/css/tabler.css',
         'wwwroot/lib/handsontable-13.1.0/dist/handsontable.full.css',
         'wwwroot/lib/tail.select-0.5.15/css/default/tail.select-light.css',
         'wwwroot/lib/ispin-2.0.1/ispin.css',

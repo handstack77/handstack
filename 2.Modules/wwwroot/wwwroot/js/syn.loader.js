@@ -408,7 +408,7 @@
             if (synConfig.Environment == 'Development') {
                 styleFiles = [
                     // syn.scripts.js
-                    '/lib/tabler@1.0.0-beta20/css/tabler.syn.css',
+                    '/lib/tabler@1.0.0-beta20/css/tabler.css',
                     '/lib/handsontable-13.1.0/dist/handsontable.full.css',
                     '/lib/tail.select-0.5.15/css/default/tail.select-light.css',
                     '/lib/ispin-2.0.1/ispin.css',
