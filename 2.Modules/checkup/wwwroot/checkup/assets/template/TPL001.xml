@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+	<header>
+		<datasource>{{dataSourceID}}</datasource>
+		<use>Y</use>
+		<desc>{{comment}}</desc>
+	</header>
+	<commands>
+        {{#statements}}
+		<statement id="{{featureID}}" seq="{{seq}}" use="Y" timeout="0" desc="{{comment}}" modified="{{createAt}}">
+			<![CDATA[
+{{{commandSql}}}
+			]]>
+            {{#params}}
+			<param id="@{{id}}" type="{{type}}" length="{{length}}" value="NULL" />
+            {{/params}}
+		</statement>
+        {{/statements}}
+	</commands>
+</mapper>

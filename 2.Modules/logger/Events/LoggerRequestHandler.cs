@@ -19,7 +19,7 @@ namespace logger.Events
     MediatorRequest mediatorRequest = new MediatorRequest()
     {
         ActionModuleID = ModuleConfiguration.ModuleID,
-        SubscribeEventID = "ncloudsender.Events.PublishHtmlMail",
+        SubscribeEventID = "module.Events.PublishHtmlMail",
     };
 
     Dictionary<string, object> templateParameters = new Dictionary<string, object>();

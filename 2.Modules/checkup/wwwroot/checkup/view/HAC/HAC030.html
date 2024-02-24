@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .list-group-flush > .list-group-item:last-child {
+            border-bottom-width: 1px !important;
+        }
+    </style>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <input type="hidden" id="txtUserWorkID" syn-datafield="UserWorkID" syn-options="{belongID: ['LF01', 'GF01', 'MF01', 'DF01']}">
+        <input type="hidden" id="txtApplicationID" syn-datafield="ApplicationID" syn-options="{belongID: ['LF01', 'GF01', 'MF01', 'DF01']}">
+        <input type="hidden" id="txtTransactProxyID" syn-datafield="TransactProxyID" syn-options="{belongID: ['LF01', 'GF01', 'MF01', 'DF01']}">
+        <input type="hidden" id="txtPageMode" syn-datafield="PageMode" syn-options="{belongID: ['MF01']}">
+        <div class="page">
+            <div class="page-wrapper">
+                <div class="page-header mt-2 d-print-none">
+                    <div class="container-fluid max-width:1600!">
+                        <div class="row g-2 align-items-center">
+                            <div class="col">
+                                <div class="page-pretitle font:12!">
+                                    GNB 메뉴 / LNB 메뉴
+                                </div>
+                                <h2 class="page-title">
+                                    거래 라우팅
+                                </h2>
+                            </div>
+                            <div class="col-auto ms-auto d-print-none">
+                                <div class="btn-list">
+                                    <button type="button" id="btnNewTransactProxy" syn-events="['click']" class="btn btn-primary">
+                                        <i class="font:20 mr:4 ti ti-news"></i>
+                                        신규 거래 라우팅
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-body mt-2">
+                    <div class="container-fluid max-width:1600!">
+                        <div class="card">
+                            <div class="row g-0">
+                                <div class="col-3 d-none d-md-block border-end">
+                                    <div id="lstTransactProxy" class="list-group list-group-flush overflow-auto">
+                                        <div class="list-group-header sticky-top">거래 라우팅</div>
+                                    </div>
+                                </div>
+                                <div class="col d-flex flex-column">
+                                    <div class="card-body">
+                                        <h3 class="card-title">프로젝트 ID</h3>
+                                        <div class="mb-3">
+                                            <input id="txtProjectID" syn-datafield="ProjectID" syn-options="{editType: 'english', allowChars: ['*'], belongID: ['MF01', 'DF01']}" type="text" class="form-control" placeholder="거래 요청을 허용할 프로젝트 ID를 설정합니다. 모든 프로젝트에서 허용하려면 '*' 를 입력하세요." maxlengthB="36">
+                                        </div>
+                                        <h3 class="card-title mt-2">거래 실행 방법</h3>
+                                        <p class="card-subtitle">거래 요청을 수행할 방법을 선택하세요. transact 모듈 설정에 따라 요청이 제한됩니다.</p>
+                                        <div class="mb-3">
+                                            <div class="row g-2">
+                                                <div class="col-auto">
+                                                    <select id="ddlCommandType" syn-datafield="CommandType" syn-options="{toSynControl: false, belongID: ['GF01', 'MF01', 'DF01']}" class="form-select">
+                                                        <option value="D" selected>SQL</option>
+                                                        <option value="F">Function (OnPremise 전용)</option>
+                                                        <option value="C">Console Program (OnPremise 전용)</option>
+                                                        <option value="T">Transaction (OnPremise 전용)</option>
+                                                        <option value="A">REST API 호출 (OnPremise 전용)</option>
+                                                        <option value="J">Task 호출 (OnPremise 전용)</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <h3 class="card-title mt-2">서버 환경</h3>
+                                        <p class="card-subtitle">거래를 수행할 서버 환경 구분을 선택하세요</p>
+                                        <div>
+                                            <div class="row g-2">
+                                                <div class="col-auto">
+                                                    <select id="ddlEnvironment" syn-datafield="Environment" syn-options="{toSynControl: false, belongID: ['GF01', 'MF01', 'DF01']}" class="form-select">
+                                                        <option value="D" selected>개발</option>
+                                                        <option value="T">운영</option>
+                                                        <option value="P">테스트</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <h3 class="card-title mt-2">통합 자원 식별자 (Uniform Resource Identifier)</h3>
+                                        <div class="mb-3">
+                                            <input id="txtUri" syn-datafield="Uri" syn-options="{editType: 'text', belongID: ['GF01', 'MF01', 'DF01']}" type="text" class="form-control" placeholder="네트워크상에서 통합 자원(리소스)의 식별자를 입력하세요. 예) http://localhost:8000/dbclient/api/query, event://dbclient.Events.DbClientRequest" maxlengthB="2000">
+                                        </div>
+                                        <h3 class="card-title mt-2">설명</h3>
+                                        <div class="mb-3">
+                                            <textarea id="txtComment" syn-datafield="Comment" syn-options="{toSynControl: false, belongID: ['MF01']}" rows="2" class="form-control h:56! resize:none" maxlengthB="1000"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <syn_data id="srcException" syn-options="{
+            dataSourceID: 'Exception',
+            storeType: 'Form',
+			columns: [
+                { data: 'Error', dataType: 'string' },
+                { data: 'Level', dataType: 'string' },
+                { data: 'Message', dataType: 'string' },
+                { data: 'StackTrace', dataType: 'string' },
+                { data: 'TypeMember', dataType: 'string' }
+			]
+		}"></syn_data>
+        <syn_data id="srcRouting" syn-options="{
+            dataSourceID: 'Routing',
+            storeType: 'Grid',
+			columns: [
+                { data: 'TransactProxyID', dataType: 'string' },
+                { data: 'ApplicationID', dataType: 'string' },
+                { data: 'ProjectID', dataType: 'string' },
+                { data: 'CommandType', dataType: 'string' },
+                { data: 'Environment', dataType: 'string' },
+                { data: 'Uri', dataType: 'string' },
+                { data: 'Comment', dataType: 'string' }
+			]
+		}"></syn_data>
+        <script id="tplTransactProxyItem" type="text/x-mustache">
+            {{#items}}
+            <div id="divItem_{{TransactProxyID}}" class="list-group-item" onclick="$this.event.divTransactProxyItem_click(this, '{{TransactProxyID}}')">
+                <div class="row align-items:center">
+                    <div class="col-auto">
+                        <span class="avatar" style="background-image: url(/checkup/img/icon/command-icon-{{CommandType}}.svg)"></span>
+                    </div>
+                    <div class="col text-truncate">
+                        <span class="text-body d-block">프로젝트: {{ProjectID}}</span>
+                        <div class="text-muted text-truncate mt-n1">환경: {{EnvironmentName}} {{Comment}}</div>
+                    </div>
+                </div>
+            </div>
+            {{/items}}
+        </script>
+        <script src="/js/syn.loader.js"></script>
+    </form>
+</body>
+</html>

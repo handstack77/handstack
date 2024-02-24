@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .list-group-flush > .list-group-item:last-child {
+            border-bottom-width: 1px !important;
+        }
+    </style>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <input type="hidden" id="txtUserWorkID" syn-datafield="UserWorkID" syn-options="{belongID: ['LF01', 'GF01', 'MF01', 'DF01']}">
+        <input type="hidden" id="txtApplicationID" syn-datafield="ApplicationID" syn-options="{belongID: ['LF01', 'GF01', 'MF01', 'DF01']}">
+        <input type="hidden" id="txtPageMode" syn-datafield="PageMode" syn-options="{belongID: ['MF01']}">
+        <input type="hidden" id="txtRequestOrigin" syn-datafield="RequestOrigin" syn-options="{belongID: ['GF01', 'MF01', 'DF01']}">
+        <div class="page">
+            <div class="page-wrapper">
+                <div class="page-header mt-2 d-print-none">
+                    <div class="container-fluid max-width:1600!">
+                        <div class="row g-2 align-items-center">
+                            <div class="col">
+                                <div class="page-pretitle font:12!">
+                                    GNB 메뉴 / LNB 메뉴
+                                </div>
+                                <h2 class="page-title">
+                                    저장소 관리
+                                </h2>
+                            </div>
+                            <div class="col-auto ms-auto d-print-none">
+                                <div class="btn-list">
+                                    <button type="button" id="btnNewRepository" syn-events="['click']" class="btn btn-primary">
+                                        <i class="font:20 mr:4 ti ti-news"></i>
+                                        신규 저장소
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-body mt-2">
+                    <div class="container-fluid max-width:1600!">
+                        <div class="card">
+                            <div class="row g-0">
+                                <div class="col-3 d-none d-md-block border-end">
+                                    <div id="lstRepository" class="list-group list-group-flush overflow-auto">
+                                        <div class="list-group-header sticky-top">저장소</div>
+                                    </div>
+                                </div>
+                                <div class="col d-flex flex-column">
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md">
+                                                <div class="form-label font:1rem! required">저장소 ID</div>
+                                                <input id="txtRepositoryID" syn-datafield="RepositoryID" syn-options="{editType: 'english', belongID: ['GF01', 'MF01', 'DF01']}" type="text" class="form-control" placeholder="고유한 저장소 ID를 입력하세요" maxlengthB="36">
+                                            </div>
+                                            <div class="col-md">
+                                                <div class="form-label font:1rem! required">저장소 명</div>
+                                                <input id="txtRepositoryName" syn-datafield="RepositoryName" syn-options="{editType: 'text', belongID: ['MF01', 'DF01']}" type="text" class="form-control" placeholder="저장소 명을 입력하세요" maxlengthB="100">
+                                            </div>
+                                        </div>
+                                        <div class="row g-3 mt-2">
+                                            <div class="col-md">
+                                                <div class="form-label font:1rem! required">저장소 타입</div>
+                                                <div class="input-group">
+                                                    <select id="ddlUploadTypeID" syn-datafield="UploadTypeID" syn-options="{toSynControl: false, belongID: ['MF01', 'DF01']}" class="form-select">
+                                                        <option value="Single" selected>Single: 단일 파일</option>
+                                                        <option value="Multi">Multi: 여러개 파일</option>
+                                                        <option value="Profile">Profile: 프로필 이미지</option>
+                                                        <option value="ImageLink">ImageLink: 편집기내 이미지</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md">
+                                                <div class="form-label font:1rem!">접근키</div>
+                                                <div class="input-group">
+                                                    <input id="txtAccessID" syn-datafield="AccessID" syn-options="{editType: 'text', belongID: ['MF01', 'DF01']}" type="text" class="form-control" placeholder="파일 업로드/다운로드에 접근 허가 키를 입력하세요" maxlengthB="36">
+                                                    <button type="button" id="btnAccessIDGenerate" syn-events="['click']" class="btn btn-icon bg-muted-lt"><i class="f:18 ti ti-refresh"></i></button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <h3 class="card-title mt-3 required">저장 방식</h3>
+                                        <p class="card-subtitle">앱에서 파일을 연동할 저장소 제공자를 선택하세요</p>
+                                        <div class="card">
+                                            <input type="hidden" id="txtStorageType" syn-datafield="StorageType" value="FileSystem" syn-options="{belongID: ['LF01', 'MF01', 'DF01']}">
+                                            <div class="card-header" style="padding: 24px !important;height: 48px !important;">
+                                                <ul class="nav nav-tabs card-header-tabs" data-bs-toggle="tabs" role="tablist">
+                                                    <li id="tabFileSystem" syn-options="{triggerConfig: {
+		                                                triggerEvent:'click',
+		                                                triggerID: 'txtStorageType',
+		                                                action: 'syn.uicontrols.$textbox.setValue',
+		                                                params: {
+			                                                options:{value: 'FileSystem'}
+		                                                }
+	                                                }}" class="nav-item" role="presentation">
+                                                        <a href="#tabs-home-3" class="nav-link active" data-bs-toggle="tab" aria-selected="true" role="tab">
+                                                            <i class="f:18 ti ti-file-database mr-2"></i>
+                                                            파일 시스템
+                                                        </a>
+                                                    </li>
+                                                    <li id="tabAzureBlob" syn-options="{triggerConfig: {
+		                                                triggerEvent:'click',
+		                                                triggerID: 'txtStorageType',
+		                                                action: 'syn.uicontrols.$textbox.setValue',
+		                                                params: {
+			                                                options:{value: 'AzureBlob'}
+		                                                }
+	                                                }}" class="nav-item ml-2" role="presentation">
+                                                        <a href="#tabs-profile-3" class="nav-link" data-bs-toggle="tab" aria-selected="false" tabindex="-1" role="tab">
+                                                            <i class="f:18 ti ti-brand-azure mr-2"></i>
+                                                            마이크로소프트 Azure Blob
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div class="card-body p-2">
+                                                <div class="tab-content">
+                                                    <div class="tab-pane active show" id="tabs-home-3" role="tabpanel">
+                                                        <div class="col-md p-2">
+                                                            <h3 class="card-title mb-2">저장소 디렉토리 명</h3>
+                                                            <div class="input-group">
+                                                                <input id="txtPhysicalPath" syn-datafield="PhysicalPath" syn-options="{editType: 'text', belongID: ['MF01', 'DF01']}" type="hidden">
+                                                                <input id="txtRelativePath" syn-options="{editType: 'english' }" type="text" class="form-control" placeholder="고유한 디렉토리 명을 입력하세요" maxlengthB="1000">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="tab-pane" id="tabs-profile-3" role="tabpanel">
+                                                        <div class="col-md p-2">
+                                                            <h3 class="card-title mb-2">컨테이너 ID</h3>
+                                                            <input id="txtBlobContainerID" syn-datafield="BlobContainerID" syn-options="{editType: 'text', belongID: ['MF01', 'DF01']}" type="text" class="form-control" placeholder="Azure Blob 컨테이너 ID를 입력하세요" maxlengthB="1000">
+                                                        </div>
+                                                        <div class="col-md p-2">
+                                                            <h3 class="card-title mb-2">연결 문자열</h3>
+                                                            <input id="txtBlobConnectionString" syn-datafield="BlobConnectionString" syn-options="{editType: 'text', belongID: ['MF01', 'DF01']}" type="text" class="form-control" placeholder="Azure Blob 연결 문자열을 입력하세요. 예) DefaultEndpointsProtocol=https;AccountName=..." maxlengthB="1000">
+                                                        </div>
+                                                        <div class="col-md p-2">
+                                                            <h3 class="card-title mb-2">항목 기본 Url</h3>
+                                                            <input id="txtBlobItemUrl" syn-datafield="BlobItemUrl" syn-options="{editType: 'text', belongID: ['MF01', 'DF01']}" type="text" class="form-control" placeholder="Azure Blob 항목 Url을 입력하세요. 예) https://blabla.blob.core.windows.net/container-id/[BLOBID]" maxlengthB="1000">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <h3 class="card-title mt-3">접근 제한 방법</h3>
+                                        <p class="card-subtitle">파일 다운로드시 접근 제한 방법을 지정합니다</p>
+                                        <div>
+                                            <div class="row g-2">
+                                                <div class="col-auto">
+                                                    <select id="ddlAccessMethod" syn-datafield="AccessMethod" syn-options="{toSynControl: false, belongID: ['MF01', 'DF01']}" class="form-select">
+                                                        <option value="public" selected>공개</option>
+                                                        <option value="protected">동일한 Url 내에서만 허용</option>
+                                                        <option value="private">사용자 로그인 인증 필수</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <h3 class="card-title mt-3">가상 디렉토리 사용 여부</h3>
+                                        <p class="card-subtitle">디렉토리 경로를 직접 지정하여 파일 다운로드가 가능합니다</p>
+                                        <div>
+                                            <div class="row g-2">
+                                                <div class="col-auto">
+                                                    <label class="form-check form-switch form-switch-lg">
+                                                        <input id="chkIsVirtualPath" syn-datafield="IsVirtualPath" syn-options="{toSynControl: false, belongID: ['MF01', 'DF01']}" class="form-check-input" type="checkbox">
+                                                        <span class="form-check-label form-check-label-on">사용</span>
+                                                        <span class="form-check-label form-check-label-off">미사용</span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <h3 class="card-title mt-2">파일 저장 옵션</h3>
+                                        <p class="card-subtitle">업로드 된 파일의 저장 방식을 지정합니다</p>
+                                        <div class="card-body form-fieldset">
+                                            <div class="row g-2">
+                                                <div class="col-md">
+                                                    <h3 class="card-title mt-2">파일 확장자</h3>
+                                                    <p class="card-subtitle">업로드 가능한 파일 확장자를 입력합니다</p>
+                                                    <div class="mb-3">
+                                                        <input id="txtUploadExtensions" syn-datafield="UploadExtensions" syn-options="{editType: 'text', belongID: ['MF01', 'DF01']}" type="text" class="form-control" placeholder="예) */* 또는 gif;jpg;jpeg;png;bmp" maxlengthB="100">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md">
+                                                    <h3 class="card-title mt-2">여러 파일 업로드 가능</h3>
+                                                    <p class="card-subtitle">한번에 여러 개의 파일 업로드를 허용합니다</p>
+                                                    <div class="mb-3">
+                                                        <input id="txtUploadCount" syn-datafield="UploadCount" syn-options="{editType: 'number', belongID: ['MF01', 'DF01']}" type="text" class="form-control" placeholder="예) 1 ~ 99" maxlengthB="10">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md">
+                                                    <h3 class="card-title mt-2">파일 크기 제한</h3>
+                                                    <p class="card-subtitle">업로드 가능한 파일 크기 (바이트)를 입력합니다</p>
+                                                    <div class="mb-3">
+                                                        <input id="txtUploadSizeLimit" syn-datafield="UploadSizeLimit" syn-options="{editType: 'number', belongID: ['MF01', 'DF01']}" type="text" class="form-control" placeholder="예) 1024는 1메가입니다" maxlengthB="10">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row g-2">
+                                                <div class="col-md">
+                                                    <h3 class="card-title mt-2">하위 디렉토리 생성 여부</h3>
+                                                    <p class="card-subtitle">하위 디렉토리 경로를 자동으로 생성하여 저장합니다</p>
+                                                    <div class="mb-3">
+                                                        <div class="input-group">
+                                                            <label class="form-check form-switch form-switch-lg">
+                                                                <input id="chkIsAutoPath" syn-datafield="IsAutoPath" syn-options="{toSynControl: false, belongID: ['MF01', 'DF01']}" class="form-check-input" type="checkbox">
+                                                                <span class="form-check-label form-check-label-on">사용</span>
+                                                                <span class="form-check-label form-check-label-off">미사용</span>
+                                                            </label>
+                                                            <select id="ddlPolicyPathID" syn-datafield="PolicyPathID" syn-options="{toSynControl: false, belongID: ['MF01', 'DF01']}" class="form-select h:36 ml:16! mt:-6">
+                                                                <option value="1" selected>년도</option>
+                                                                <option value="2">년월</option>
+                                                                <option value="3">년월일</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md">
+                                                    <h3 class="card-title mt-2">여러 파일 업로드 가능</h3>
+                                                    <p class="card-subtitle">한번에 여러 개의 파일 업로드를 허용합니다</p>
+                                                    <div class="mb-3">
+                                                        <label class="form-check form-switch form-switch-lg">
+                                                            <input id="chkIsMultiUpload" syn-datafield="IsMultiUpload" syn-options="{toSynControl: false, belongID: ['MF01', 'DF01']}" class="form-check-input" type="checkbox">
+                                                            <span class="form-check-label form-check-label-on">사용</span>
+                                                            <span class="form-check-label form-check-label-off">미사용</span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md">
+                                                    <h3 class="card-title mt-2">중복 파일 덮어쓰기</h3>
+                                                    <p class="card-subtitle">덮어쓰거나 다른 이름으로 저장합니다</p>
+                                                    <div class="mb-3">
+                                                        <label class="form-check form-switch form-switch-lg">
+                                                            <input id="chkIsFileOverWrite" syn-datafield="IsFileOverWrite" syn-options="{toSynControl: false, belongID: ['MF01', 'DF01']}" class="form-check-input" type="checkbox">
+                                                            <span class="form-check-label form-check-label-on">사용</span>
+                                                            <span class="form-check-label form-check-label-off">미사용</span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row g-2">
+                                                <div class="col-md">
+                                                    <h3 class="card-title mt-2">파일명 난독화 사용 여부 (권장)</h3>
+                                                    <p class="card-subtitle">업로드 되는 파일을 안전하게 난독화 합니다</p>
+                                                    <div class="mb-3">
+                                                        <label class="form-check form-switch form-switch-lg">
+                                                            <input id="chkIsFileNameEncrypt" syn-datafield="IsFileNameEncrypt" syn-options="{toSynControl: false, belongID: ['MF01', 'DF01']}" class="form-check-input" type="checkbox">
+                                                            <span class="form-check-label form-check-label-on">사용</span>
+                                                            <span class="form-check-label form-check-label-off">미사용</span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md">
+                                                    <h3 class="card-title mt-2">파일 확장자 추가 저장 여부</h3>
+                                                    <p class="card-subtitle">동일한 디렉토리에 확장자를 추가한 파일을 만듭니다</p>
+                                                    <div class="mb-3">
+                                                        <label class="form-check form-switch form-switch-lg">
+                                                            <input id="chkIsKeepFileExtension" syn-datafield="IsKeepFileExtension" syn-options="{toSynControl: false, belongID: ['MF01', 'DF01']}" class="form-check-input" type="checkbox">
+                                                            <span class="form-check-label form-check-label-on">사용</span>
+                                                            <span class="form-check-label form-check-label-off">미사용</span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md">
+                                                    <h3 class="card-title mt-2">파일 정보 및 이력 관리 안함 여부</h3>
+                                                    <p class="card-subtitle">단순 파일 업로드/다운로드만 사용합니다</p>
+                                                    <div class="mb-3">
+                                                        <label class="form-check form-switch form-switch-lg">
+                                                            <input id="chkIsFileUploadDownloadOnly" syn-datafield="IsFileUploadDownloadOnly" syn-options="{toSynControl: false, belongID: ['MF01', 'DF01']}" class="form-check-input" type="checkbox">
+                                                            <span class="form-check-label form-check-label-on">사용</span>
+                                                            <span class="form-check-label form-check-label-off">미사용</span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="hidden">
+                                            <h3 class="card-title mt-2">파일 정보 관리 옵션</h3>
+                                            <p class="card-subtitle">업로드 된 파일의 정보 관리 방식을 지정합니다. 이 항목은 수정할 수 없습니다</p>
+                                            <div>
+                                                <div class="row g-2">
+                                                    <div class="col">
+                                                        <input id="txtSQLiteConnectionString" syn-datafield="SQLiteConnectionString" syn-options="{belongID: ['MF01', 'DF01']}" type="hidden">
+                                                        <select id="ddlIsLocalDBFileManaged" syn-datafield="IsLocalDbFileManaged" syn-options="{toSynControl: false, belongID: ['MF01', 'DF01']}" class="form-select">
+                                                            <option value="false" selected>거래 관리 사용 (권장)</option>
+                                                            <option value="true">로컬 DB 사용</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-auto">
+                                                        <button type="button" id="btnDefaultTransactionCommand" syn-events="['click']" class="btn">기본값 사용</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="card-body form-fieldset mt-4">
+                                                <div class="row g-2">
+                                                    <div class="col-md">
+                                                        <h3 class="card-title mt-2">GetItem</h3>
+                                                        <p class="card-subtitle">단일 파일 조회</p>
+                                                        <div class="mb-3">
+                                                            <input id="txtTransactionGetItem" syn-datafield="TransactionGetItem" syn-options="{editType: 'text', belongID: ['MF01', 'DF01']}" type="text" class="form-control" placeholder="HDS|STR|STR010|LD01" maxlengthB="100">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md">
+                                                        <h3 class="card-title mt-2">GetItems</h3>
+                                                        <p class="card-subtitle">여러 파일 조회</p>
+                                                        <div class="mb-3">
+                                                            <input id="txtTransactionGetItems" syn-datafield="TransactionGetItems" syn-options="{editType: 'text', belongID: ['MF01', 'DF01']}" type="text" class="form-control" placeholder="HDS|STR|STR010|LD02" maxlengthB="100">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md">
+                                                        <h3 class="card-title mt-2">DeleteItem</h3>
+                                                        <p class="card-subtitle">단일 파일 삭제</p>
+                                                        <div class="mb-3">
+                                                            <input id="txtTransactionDeleteItem" syn-datafield="TransactionDeleteItem" syn-options="{editType: 'text', belongID: ['MF01', 'DF01']}" type="text" class="form-control" placeholder="HDS|STR|STR010|DD01" maxlengthB="100">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row g-2">
+                                                    <div class="col-md">
+                                                        <h3 class="card-title mt-2">UpsertItem</h3>
+                                                        <p class="card-subtitle">단일 파일 추가 및 변경</p>
+                                                        <div class="mb-3">
+                                                            <input id="txtTransactionUpsertItem" syn-datafield="TransactionUpsertItem" syn-options="{editType: 'text', belongID: ['MF01', 'DF01']}" type="text" class="form-control" placeholder="HDS|STR|STR010|MD01" maxlengthB="100">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md">
+                                                        <h3 class="card-title mt-2">UpdateDependencyID</h3>
+                                                        <p class="card-subtitle">파일참조 ID 변경</p>
+                                                        <div class="mb-3">
+                                                            <input id="txtTransactionUpdateDependencyID" syn-datafield="TransactionUpdateDependencyID" syn-options="{editType: 'text', belongID: ['MF01', 'DF01']}" type="text" class="form-control" placeholder="HDS|STR|STR010|UD01" maxlengthB="100">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md">
+                                                        <h3 class="card-title mt-2">UpdateFileName</h3>
+                                                        <p class="card-subtitle">파일명 변경</p>
+                                                        <div class="mb-3">
+                                                            <input id="txtTransactionUpdateFileName" syn-datafield="TransactionUpdateFileName" syn-options="{editType: 'text', belongID: ['MF01', 'DF01']}" type="text" class="form-control" placeholder="HDS|STR|STR010|UD02" maxlengthB="100">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <h3 class="card-title mt-2">설명</h3>
+                                        <div>
+                                            <textarea id="txtComment" syn-datafield="Comment" syn-options="{toSynControl: false, belongID: ['MF01']}" rows="2" class="form-control h:56! resize:none" maxlengthB="1000"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <syn_data id="srcException" syn-options="{
+            dataSourceID: 'Exception',
+            storeType: 'Form',
+			columns: [
+                { data: 'Error', dataType: 'string' },
+                { data: 'Level', dataType: 'string' },
+                { data: 'Message', dataType: 'string' },
+                { data: 'StackTrace', dataType: 'string' },
+                { data: 'TypeMember', dataType: 'string' }
+			]
+		}"></syn_data>
+        <syn_data id="srcRepository" syn-options="{
+            dataSourceID: 'Repository',
+            storeType: 'Grid',
+			columns: [
+                { data: 'ApplicationID', dataType: 'string' },
+                { data: 'RepositoryID', dataType: 'string' },
+                { data: 'RepositoryName', dataType: 'string' },
+                { data: 'AccessID', dataType: 'string' },
+                { data: 'StorageType', dataType: 'string' },
+                { data: 'IsEncryption', dataType: 'string' },
+                { data: 'PhysicalPath', dataType: 'string' },
+                { data: 'BlobContainerID', dataType: 'string' },
+                { data: 'BlobConnectionString', dataType: 'string' },
+                { data: 'BlobItemUrl', dataType: 'string' },
+                { data: 'IsVirtualPath', dataType: 'bool' },
+                { data: 'AccessMethod', dataType: 'string' },
+                { data: 'IsFileUploadDownloadOnly', dataType: 'bool' },
+                { data: 'IsMultiUpload', dataType: 'bool' },
+                { data: 'IsFileOverWrite', dataType: 'bool' },
+                { data: 'IsFileNameEncrypt', dataType: 'bool' },
+                { data: 'IsKeepFileExtension', dataType: 'bool' },
+                { data: 'IsAutoPath', dataType: 'bool' },
+                { data: 'PolicyPathID', dataType: 'string' },
+                { data: 'UploadTypeID', dataType: 'string' },
+                { data: 'UploadExtensions', dataType: 'string' },
+                { data: 'UploadCount', dataType: 'number' },
+                { data: 'UploadSizeLimit', dataType: 'number' },
+                { data: 'IsLocalDbFileManaged', dataType: 'bool' },
+                { data: 'SQLiteConnectionString', dataType: 'string' },
+                { data: 'TransactionGetItem', dataType: 'string' },
+                { data: 'TransactionDeleteItem', dataType: 'string' },
+                { data: 'TransactionUpsertItem', dataType: 'string' },
+                { data: 'TransactionUpdateDependencyID', dataType: 'string' },
+                { data: 'TransactionUpdateFileName', dataType: 'string' },
+                { data: 'Comment', dataType: 'string' },
+                { data: 'CreatedMemberID', dataType: 'string' },
+                { data: 'CreateUserName', dataType: 'string' },
+                { data: 'CreatedAt', dataType: 'string' }
+			]
+		}"></syn_data>
+    </form>
+    <script id="tplRepositoryItem" type="text/x-mustache">
+        {{#items}}
+        <div id="divItem_{{RepositoryID}}" class="list-group-item" onclick="$this.event.divRepositoryItem_click(this, '{{RepositoryID}}')">
+            <div class="row align-items:center">
+                <div class="col-auto">
+                    <span class="avatar" style="background-image: url(/checkup/img/icon/{{StorageType}}.png)"></span>
+                </div>
+                <div class="col text-truncate">
+                    <span class="text-body d-block">{{UploadTypeID}}: {{RepositoryID}}</span>
+                    <div class="text-muted text-truncate mt-n1">{{RepositoryName}}</div>
+                    <div class="text-muted text-truncate mt-n1">{{Comment}}</div>
+                </div>
+            </div>
+        </div>
+        {{/items}}
+    </script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

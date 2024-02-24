@@ -1,0 +1,177 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <input type="hidden" id="txtApplicationNo" syn-datafield="ApplicationNo" syn-options="{belongID: ['LD01', 'ID01', 'MD01']}">
+        <input type="hidden" id="txtUserNo" syn-datafield="UserNo" syn-options="{belongID: ['LD01']}">
+        <input type="hidden" id="txtSeedData" syn-datafield="SeedData">
+        <div class="page">
+            <div class="page-wrapper">
+                <div class="page-header mt-2 d-print-none">
+                    <div class="container-fluid max-width:1600!">
+                        <div class="row g-2 align-items-center">
+                            <div class="col">
+                                <div class="page-pretitle font:12!">
+                                    GNB 메뉴 / LNB 메뉴
+                                </div>
+                                <h2 class="page-title">
+                                    데이터 모델 관리
+                                </h2>
+                            </div>
+                            <div class="col-auto ms-auto d-print-none">
+                                <div class="btn-list">
+                                    <button type="button" id="btnInitialData" syn-events="['click']" class="btn" disabled>
+                                        <i class="font:20 mr:4 ti ti-text-plus"></i>
+                                        초기 데이터 관리
+                                    </button>
+                                    <button type="button" id="btnNewMetaEntity" syn-events="['click']" class="btn btn-primary">
+                                        <i class="font:20 mr:4 ti ti-news"></i>
+                                        신규 엔티티
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-body mt-2">
+                    <div class="container-fluid max-width:1600!">
+                        <div class="card">
+                            <div class="row g-0">
+                                <div class="col-5 d-none d-md-block border-end">
+                                    <div class="card-header">
+                                        <h3 class="card-title">엔티티</h3>
+                                    </div>
+                                    <div class="card-body p-2">
+                                        <div class="form-fieldset p-0">
+                                            <syn_grid id="grdMetaEntity" syn-datafield="MetaEntity" syn-options="{
+                                                height: 584
+                                                , outsideClickDeselects: false
+				                                , columns: [
+                                                    ['EntityNo', '엔티티NO', 100, true, 'text', true, 'left', ['LD02', 'MD01', 'DD01', 'GD01']]
+                                                    , ['EntityID', '엔티티 ID', 130, false, 'text', false, 'left', 'MD01']
+                                                    , ['EntityName', '엔티티 명', 130, false, 'text', false, 'left', 'MD01']
+                                                    , ['Acronyms', '약어', 50, false, 'text', false, 'left', 'MD01']
+                                                    , ['Comment', '설명', 150, false, 'text', false, 'left', 'MD01']
+                                                    , ['CreatedMemberNo', '작성자 NO', 100, true, 'text', true, 'left', 'MD01']
+                                                    , ['CreatedMemberName', '작성자명', 100, true, 'text', true, 'left', 'MD01']
+                                                    , ['CreatedAt', '입력일자', 100, false, 'text', true, 'center', 'MD01']
+                                                    , ['ModifiedMemberNo', '변경자 NO', 100, true, 'text', true, 'left', ['MD01', 'DD01']]
+                                                    , ['ModifiedMemberName', '변경자명', 100, true, 'text', true, 'left', 'MD01']
+                                                    , ['ModifiedAt', '변경일자', 100, true, 'text', true, 'center', 'MD01']
+				                                ]
+			                                }" syn-events="['afterSelectionEnd', 'afterChange']"></syn_grid>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col d-flex flex-column">
+                                    <div class="card-header">
+                                        <h3 class="card-title">필드</h3>
+                                        <div class="card-actions">
+                                            <div class="input-group">
+                                                <select id="ddlAddCount" class="form-select mx-2">
+                                                    <option value="1" selected="selected">1</option>
+                                                    <option value="3">3</option>
+                                                    <option value="6">6</option>
+                                                    <option value="9">9</option>
+                                                </select>
+                                                <div class="btn-group">
+                                                    <button type="button" id="btnAddMetaField" syn-events="['click']" class="btn btn-icon bg-muted-lt"><i class="f:18 ti ti-plus"></i></button>
+                                                    <button type="button" id="btnRemoveMetaField" syn-events="['click']" class="btn btn-icon bg-muted-lt"><i class="f:18 ti ti-minus"></i></button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-body p-2">
+                                        <div class="form-fieldset p-0">
+                                            <syn_grid id="grdMetaField" syn-datafield="MetaField" syn-options="{
+                                                height: 584
+                                                , isContainFilterHeader: true
+				                                , columns: [
+                                                ['EntityNo', '엔티티NO', 100, true, 'text', true, 'left', ['LD02', 'MD01']]
+                                                , ['FieldID', '필드 ID', 120, false, 'text', false, 'left', 'MD01']
+                                                , ['FieldName', '필드명', 130, false, 'text', false, 'left', 'MD01']
+                                                , ['FieldTypeName', '필드 타입', 100, false, {
+                                                    columnType: 'dropdown',
+                                                    dataSourceID: 'FieldType',
+                                                    required: true,
+                                                    local: true,
+                                                    codeBelongID: 'MD01',
+                                                    codeColumnID: 'FieldType'
+                                                }, false, 'left', 'MD01']
+                                                , ['PK', 'PK', 40, false, 'checkbox2', false, 'center', 'MD01']
+                                                , ['IX', 'IX', 40, false, 'checkbox2', false, 'center', 'MD01']
+                                                , ['UI', 'UI', 40, false, 'checkbox2', false, 'center', 'MD01']
+                                                , ['NN', 'NN', 40, false, 'checkbox2', false, 'center', 'MD01']
+                                                , ['AI', 'AI', 40, false, 'checkbox2', false, 'center', 'MD01']
+                                                , ['MaxLength', '길이', 60, false, 'numeric', false, 'right', 'MD01']
+                                                , ['DefaultValue', '기본값', 100, true, 'text', false, 'left', 'MD01']
+                                                , ['Comment', '설명', 150, false, 'text', false, 'left', 'MD01']
+                                                , ['SortingNo', '정렬', 60, false, 'numeric', false, 'right', 'MD01']
+				                                ]
+			                                }" syn-events="['afterSelectionEnd']"></syn_grid>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="tplMetaEntity" class="hidden h:100%">
+            <h3 class="mt-0 mb-0">신규 엔티티</h3>
+            <div class="card mt:-1" style="height: calc(100% - 37px) !important;">
+                <div class="card-body">
+                    <div class="mb-3 row">
+                        <label class="col-3 col-form-label required">엔티티 ID</label>
+                        <div class="col">
+                            <input id="txtEntityNo" syn-datafield="EntityNo" syn-options="{belongID: 'ID01'}" type="hidden" />
+                            <input id="txtCreatedMemberNo" syn-datafield="CreatedMemberNo" syn-options="{belongID: 'ID01'}" type="hidden" />
+                            <input id="txtEntityID" syn-datafield="EntityID" syn-options="{editType: 'english', belongID: 'ID01'}" type="text" class="form-control" placeholder="고유한 식별자를 입력하세요">
+                            <small class="form-hint">의미가 분명한 영문자를 입력합니다 공백, 특수문자, 숫자를 포함할 수 없습니다</small>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label class="col-3 col-form-label required">엔티티 명</label>
+                        <div class="col">
+                            <input id="txtEntityName" syn-datafield="EntityName" syn-options="{belongID: 'ID01'}" type="text" class="form-control" placeholder="예) 회사, 부서, 직원...">
+                            <small class="form-hint">
+                                엔티티 ID를 식별을 위한 정보성 명칭을 입력합니다
+                            </small>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label class="col-3 col-form-label">약어</label>
+                        <div class="col">
+                            <input id="txtAcronyms" syn-datafield="Acronyms" syn-options="{belongID: 'ID01'}" type="text" class="form-control" placeholder="예) User > U, Entity > E">
+                            <small class="form-hint">
+                                엔티티 ID를 식별을 위한 약어를 입력합니다
+                            </small>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label class="col-3 col-form-label">설명</label>
+                        <div class="col">
+                            <textarea id="txtComment" syn-datafield="Comment" syn-options="{toSynControl: false, belongID: 'ID01', height: '56px'}" rows="3" class="form-control resize:none"></textarea>
+                            <small class="form-hint">
+                                앱 내에서 사용할 엔티티에 대한 설명을 자유롭게 입력합니다
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer text-end p:10!">
+                    <button type="button" id="btnSaveMetaEntity" syn-events="['click']" class="btn btn-primary">
+                        <i class="font:20 mr:4 ti ti-check"></i>
+                        확인
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

@@ -1,0 +1,163 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <input type="hidden" id="txtUserWorkID" syn-datafield="UserWorkID" syn-options="{belongID: ['LF01', 'LF02', 'AF01']}">
+        <input type="hidden" id="txtApplicationID" syn-datafield="ApplicationID" syn-options="{belongID: ['LF01', 'LF02', 'AF01']}">
+        <input type="hidden" id="txtYear" syn-datafield="Year" syn-options="{belongID: ['LF01', 'LF02']}">
+        <input type="hidden" id="txtWeekOfYear" syn-datafield="WeekOfYear" syn-options="{belongID: ['LF01', 'LF02']}">
+        <input type="hidden" id="txtRequestDate" syn-datafield="RequestDate" syn-options="{belongID: ['LF01', 'LF02']}">
+        <input type="hidden" id="txtRequestHour" syn-datafield="RequestHour" syn-options="{belongID: ['LF01', 'LF02']}">
+        <div class="page">
+            <div class="page-wrapper">
+                <div class="page-header mt-2 d-print-none">
+                    <div class="container-fluid max-width:1600!">
+                        <div class="row g-2 align-items-center">
+                            <div class="col">
+                                <div class="page-pretitle font:12!">
+                                    대시보드
+                                </div>
+                                <h2 id="lblAppTitle" class="page-title">
+                                    앱 정보
+                                </h2>
+                            </div>
+                            <div class="col-auto ms-auto d-print-none">
+                                <div class="btn-list">
+                                    <button type="button" id="btnDataRefresh" syn-events="['click']" class="btn">
+                                        새로고침
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-body mt-2">
+                    <div class="container-fluid max-width:1600!">
+                        <div class="row row-cards mb-3">
+                            <div class="col-md-4">
+                                <div class="card">
+                                    <div class="card-body p-2">
+                                        <div class="subheader">마지막 확인 시간</div>
+                                        <div id="lblResponseDateTime" class="h3 m-0"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card">
+                                    <div class="card-body p-2">
+                                        <div class="subheader">당일 요청/응답/오류 수</div>
+                                        <div id="lblTransactionTodayCount" class="h3 m-0">0 / 0 / 0</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card">
+                                    <div class="card-body p-2">
+                                        <div class="subheader">금주 요청/응답/오류 수</div>
+                                        <div id="lblTransactionWeekCount" class="h3 m-0">0 / 0 / 0</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="card">
+                                    <div class="card-body p-2">
+                                        <h3 class="card-title">주간 시간별 거래 및 오류 수</h3>
+                                        <div id="chart-uptime">
+                                            <div class="chart-area" style="position: relative; height:200px; width:100%; padding: 4px;">
+                                                <canvas id="chtTransactionAggregate" style="height:200px; width:calc(100vw - 48px);"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="row g-0">
+                                <div class="col-6 d-none d-md-block border-end">
+                                    <div class="card-header">
+                                        <h3 class="card-title">요청/응답 거래 정보</h3>
+                                    </div>
+                                    <div class="card-body p-2">
+                                        <div class="form-fieldset p-0">
+                                            <syn_grid id="grdValidTransaction" syn-datafield="ValidTransaction" syn-options="{
+                                                height: 280
+				                                , columns: [
+                                                    ['ProjectID', '프로젝트 ID', 80, false, 'text', true, 'center']
+                                                    , ['TransactionID', '거래 ID', 80, false, 'text', true, 'center']
+                                                    , ['FeatureID', '기능 ID', 80, false, 'text', true, 'center']
+                                                    , ['RequestResponseTime', '요청/응답', 140, false, 'text', true, 'center']
+                                                    , ['DurationSecond', '소요시간', 60, false, 'text', true, 'center']
+                                                    , ['RequestCount', '요청수', 80, false, 'numeric', true, 'center']
+                                                    , ['ResponseCount', '응답수', 80, false, 'numeric', true, 'center']
+                                                    , ['ErrorCount', '오류수', 80, false, 'numeric', true, 'center']
+				                                ]
+			                                }" syn-events="['afterSelectionEnd', 'afterChange']"></syn_grid>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col d-flex flex-column">
+                                    <div class="card-header">
+                                        <h3 class="card-title">오류 거래 정보</h3>
+                                    </div>
+                                    <div class="card-body p-2">
+                                        <div class="form-fieldset p-0">
+                                            <syn_grid id="grdErrorTransaction" syn-datafield="ErrorTransaction" syn-options="{
+                                                height: 280
+				                                , columns: [
+                                                    ['ProjectID', '프로젝트 ID', 80, false, 'text', true, 'center']
+                                                    , ['TransactionID', '거래 ID', 80, false, 'text', true, 'center']
+                                                    , ['FeatureID', '기능 ID', 80, false, 'text', true, 'center']
+                                                    , ['GlobalID', 'Global ID', 320, false, 'text', true, 'left']
+                                                    , ['LogType', '로깅', 40, false, 'text', true, 'center']
+                                                    , ['CreatedAt', '요청시간', 80, false, 'text', true, 'center']
+				                                ]
+			                                }" syn-events="['afterSelectionEnd', 'afterChange']"></syn_grid>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <syn_data id="srcException" syn-options="{
+            dataSourceID: 'Exception',
+            storeType: 'Form',
+			columns: [
+                { data: 'Error', dataType: 'string' },
+                { data: 'Level', dataType: 'string' },
+                { data: 'Message', dataType: 'string' },
+                { data: 'StackTrace', dataType: 'string' },
+                { data: 'TypeMember', dataType: 'string' }
+			]
+		}"></syn_data>
+        <syn_data id="srcAggregate" syn-options="{
+            dataSourceID: 'Aggregate',
+            storeType: 'Grid',
+			columns: [
+                { data: 'DateType', dataType: 'string' },
+                { data: 'RequestCount', dataType: 'number' },
+                { data: 'ResponseCount', dataType: 'number' },
+                { data: 'ErrorCount', dataType: 'number' }
+			]
+		}"></syn_data>
+        <syn_data id="srcLineChart" syn-options="{
+            dataSourceID: 'LineChart',
+            storeType: 'Grid',
+			columns: [
+                { data: 'DateHour', dataType: 'number' },
+                { data: 'RequestCount', dataType: 'number' },
+                { data: 'ErrorCount', dataType: 'number' }
+			]
+		}"></syn_data>
+    </form>
+    <script src="/lib/chartjs-4.3.0/chart.umd.js"></script>
+    <script src="/lib/chartjs-4.3.0/chart-utils.min.js"></script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

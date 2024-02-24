@@ -1,0 +1,107 @@
+{
+    "Header": {
+        "ApplicationID": "HDS",
+        "ProjectID": "HAC",
+        "TransactionID": "HAC000",
+        "DataSourceID": "DB01",
+        "LanguageType": "csharp",
+        "ReferenceModuleID": "checkup",
+        "Configuration": {
+            "TransactServerUrl": "http://localhost:8000/transact/api/aggregate"
+        },
+        "Use": true,
+        "Description": "태넌트 앱 대시보드 정보"
+    },
+    "Commands": [
+        {
+            "ID": "AF01",
+            "Seq": 0,
+            "Use": true,
+            "Timeout": 0,
+            "Description": "앱 거래 요약정보 및 차트 데이터 조회",
+            "ModifiedAt": "2023-07-10 00:00:00",
+            "Params": [
+                {
+                    "id": "UserWorkID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "ApplicationID",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                }
+            ]
+        },
+        {
+            "ID": "LF01",
+            "Seq": 0,
+            "Use": true,
+            "Timeout": 0,
+            "Description": "요청/응답 거래 정보 조회",
+            "ModifiedAt": "2023-07-10 00:00:00",
+            "Params": [
+                {
+                    "id": "UserWorkID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "ApplicationID",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "RequestDate",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "RequestHour",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                }
+            ]
+        },
+        {
+            "ID": "LF02",
+            "Seq": 0,
+            "Use": true,
+            "Timeout": 0,
+            "Description": "오류 거래 정보 조회",
+            "ModifiedAt": "2023-07-10 00:00:00",
+            "Params": [
+                {
+                    "id": "UserWorkID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "ApplicationID",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "RequestDate",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "RequestHour",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                }
+            ]
+        }
+    ]
+}

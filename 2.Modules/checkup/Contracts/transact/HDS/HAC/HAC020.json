@@ -1,0 +1,142 @@
+{
+    "ApplicationID": "HDS",
+    "ProjectID": "HAC",
+    "TransactionID": "HAC020",
+    "Description": "태넌트 앱 repository 저장소 관리",
+    "ModifiedDate": "2023-08-10 00:00:00",
+    "Services": [
+        {
+            "ServiceID": "LF01",
+            "Authorize": false,
+            "ReturnType": "Json",
+            "CommandType": "F",
+            "TransactionScope": false,
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "Form"
+                },
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "Grid"
+                }
+            ]
+        },
+        {
+            "ServiceID": "GF01",
+            "Authorize": false,
+            "ReturnType": "Json",
+            "CommandType": "F",
+            "TransactionScope": true,
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "Form"
+                },
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "Form"
+                }
+            ]
+        },
+        {
+            "ServiceID": "MF01",
+            "Authorize": false,
+            "ReturnType": "Json",
+            "CommandType": "F",
+            "TransactionScope": true,
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "Form"
+                },
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "Form"
+                }
+            ]
+        },
+        {
+            "ServiceID": "DF01",
+            "Authorize": false,
+            "ReturnType": "Json",
+            "CommandType": "F",
+            "TransactionScope": true,
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "Form"
+                },
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "Form"
+                }
+            ]
+        }
+    ],
+    "Models": []
+}

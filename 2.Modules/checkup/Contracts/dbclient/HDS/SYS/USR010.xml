@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+	<header>
+		<application>HDS</application>
+		<project>SYS</project>
+		<transaction>USR010</transaction>
+		<datasource>DB01</datasource>
+		<use>Y</use>
+		<desc>사용자 인증 및 정보 조회</desc>
+	</header>
+	<commands>
+		<statement id="GD01" seq="0" use="Y" timeout="0" desc="로그인 사용자 검증" native="Y" modified="2020-07-31 00:00:00">
+			<![CDATA[
+SELECT COUNT(1) AS UserCount
+FROM   Person P
+WHERE  P.DeleteYN = 'N'
+       AND P.PersonID = @PersonID;
+			]]>
+			<param id="@PersonID" type="VarChar" length="256" value="" />
+		</statement>
+
+		<statement id="GD02" seq="0" use="Y" timeout="0" desc="로그인 사용자 정보 조회" native="Y" modified="2020-07-31 00:00:00">
+			<![CDATA[
+SELECT P.PersonNo
+       , P.PersonID
+       , P.PersonName
+FROM   Person P
+WHERE  P.DeleteYN = 'N'
+       AND P.PersonID = @PersonID; 
+			]]>
+			<param id="@PersonID" type="VarChar" length="50" value="" />
+		</statement>
+
+		<statement id="GD03" seq="0" use="Y" timeout="0" desc="회원 정보 조회" native="Y" modified="2020-07-31 00:00:00">
+			<![CDATA[
+INSERT INTO Member
+(
+	MemberNo
+	, MemberName
+	, EmailID
+	, EmailVerifyAt
+    , Roles
+    , PositionName
+    , DepartmentName
+    , CompanyName
+	, TenantAppRequestPath
+	, DeleteYN
+	, CreatedUserNo
+	, CreatedAt
+) 
+SELECT
+	@MemberNo
+	, @MemberName
+	, @EmailID
+	, datetime('now')
+    , 'User'
+    , ''
+    , ''
+    , ''
+	, 'app'
+	, 'N'
+	, (SELECT PersonNo FROM Person WHERE PersonID = @EmailID)
+	, datetime('now')
+WHERE NOT EXISTS (SELECT 1 FROM Member WHERE EmailID = @EmailID);
+
+UPDATE ApplicationMember SET MemberNo = @MemberNo 
+WHERE EmailID = @EmailID 
+	AND (MemberNo IS NULL OR MemberNo = '');
+
+SELECT 'handstack-checkup' AS ApplicationNo
+	, 'HDS' AS ApplicationID
+	, 'HandStack 프로그램' AS ApplicationName
+	, '6eac215f2f5e495cad4f2abfdcad7644' AS AccessKey
+	, M.MemberNo AS UserNo
+	, M.EmailID AS UserID
+	, M.MemberName AS UserName
+    , M.EmailID AS Email
+	, M.Roles
+	, M.Celluar
+	, M.PositionName
+	, M.DepartmentName
+	, M.CompanyName
+	, (SELECT COUNT(1) FROM [Application] A WHERE A.CreatedMemberNo = M.MemberNo) AS ApplicationCount
+	, (CASE WHEN EXISTS (SELECT 1 FROM Member WHERE EmailID = @EmailID) THEN '1' ELSE '0' END) AS IsNewMember
+FROM [Member] M
+WHERE M.DeleteYN = 'N'
+	AND M.RetireAt IS NULL
+	AND M.EmailID = @EmailID;
+    
+SELECT 'UserWorkID' AS ClaimType
+	, M.UserWorkID AS ClaimValue
+FROM [Member] M
+WHERE M.DeleteYN = 'N'
+	AND M.RetireAt IS NULL
+	AND M.EmailID = @EmailID
+UNION
+SELECT 'TenantAppRequestPath' AS ClaimType
+	, M.TenantAppRequestPath AS ClaimValue
+FROM [Member] M
+WHERE M.DeleteYN = 'N'
+	AND M.RetireAt IS NULL
+	AND M.EmailID = @EmailID
+UNION
+SELECT MC.ClaimType
+	, MC.ClaimValue
+FROM [Member] M
+    INNER JOIN MemberClaims MC ON M.MemberNo = MC.MemberNo
+WHERE M.DeleteYN = 'N'
+	AND M.RetireAt IS NULL
+	AND M.EmailID = @EmailID;
+			]]>
+			<param id="@MemberNo" type="VarChar" length="36" value="" />
+			<param id="@MemberName" type="NVarChar" length="50" value="" />
+			<param id="@EmailID" type="VarChar" length="256" value="" />
+		</statement>
+
+		<statement id="GD04" seq="0" use="Y" timeout="0" desc="로그인 사용자 정보 조회" native="Y" modified="2020-07-31 00:00:00">
+			<![CDATA[
+SELECT *
+FROM   Person P
+WHERE  P.DeleteYN = 'N'
+       AND P.PersonID = @PersonID;
+			]]>
+			<param id="@PersonID" type="VarChar" length="256" value="" />
+		</statement>
+
+		<statement id="ID01" seq="0" use="Y" timeout="0" desc="신규 사용자 입력" native="Y" modified="2020-07-31 00:00:00">
+			<![CDATA[
+INSERT INTO Person
+(
+    PersonNo,
+    PersonID,
+    PersonName,
+    BrowserTokenID,
+    BrowserTokenAt,
+    LoginErrorCount,
+    DeleteYN,
+    DeletedAt,
+    CreatedAt
+) 
+VALUES
+(
+    @PersonNo,
+    @PersonID,
+    @PersonName,
+    NULL,
+    NULL,
+    0,
+    'N',
+    NULL,
+    CURRENT_TIMESTAMP
+);
+			]]>
+			<param id="@PersonNo" type="VarChar" length="36" value="" />
+			<param id="@PersonID" type="VarChar" length="256" value="" />
+			<param id="@PersonName" type="NVarChar" length="50" value="" />
+		</statement>
+
+		<statement id="UD01" seq="0" use="Y" timeout="0" desc="사용자 이름 및 부가 정보 변경" native="Y" modified="2020-07-31 00:00:00">
+            <![CDATA[
+UPDATE Person SET PersonName = @MemberName
+WHERE DeleteYN = 'N'
+	AND PersonID = @UserID;
+	
+UPDATE [Member] SET MemberName = @MemberName
+    , PositionName = @PositionName
+    , DepartmentName = @DepartmentName
+    , CompanyName = @CompanyName
+WHERE DeleteYN = 'N'
+	AND MemberNo = @MemberNo
+	AND EmailID = @UserID;
+			]]>
+			<param id="@MemberNo" type="VarChar" length="36" value="" />
+            <param id="@UserID" type="VarChar" length="256" value="" />
+			<param id="@MemberName" type="NVarChar" length="100" value="" />
+			<param id="@PositionName" type="NVarChar" length="100" value="" />
+            <param id="@DepartmentName" type="NVarChar" length="100" value="" />
+            <param id="@CompanyName" type="NVarChar" length="100" value="" />
+		</statement>
+
+		<statement id="UD02" seq="0" use="Y" timeout="0" desc="회원 UserWorkID 정보 변경" native="Y" modified="2020-07-31 00:00:00">
+			<![CDATA[
+UPDATE Member SET UserWorkID = @UserWorkID
+WHERE MemberNo = @MemberNo;
+			]]>
+			<param id="@MemberNo" type="VarChar" length="36" value="" />
+			<param id="@UserWorkID" type="VarChar" length="36" value="" />
+		</statement>
+	</commands>
+</mapper>

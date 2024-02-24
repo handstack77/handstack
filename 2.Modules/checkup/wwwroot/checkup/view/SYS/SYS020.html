@@ -1,0 +1,266 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .buttonFocus {
+            border-color: #2E46AF !important;
+            background-color: #2E46AF !important;
+            color: #fff !important;
+        }
+
+        .json-grid-container {
+            display: inline-block;
+        }
+
+            .json-grid-container th,
+            .json-grid-container td {
+                vertical-align: top;
+            }
+
+                .json-grid-container th,
+                .json-grid-container td.rowName {
+                    font-weight: 500;
+                    color: #000;
+                }
+
+            .json-grid-container table.shrinked {
+                display: block;
+            }
+
+            .json-grid-container span.string {
+                color: #a31515;
+            }
+
+            .json-grid-container span.number {
+                color: #09885a;
+            }
+
+            .json-grid-container span.boolean {
+                color: #0000ff;
+            }
+
+
+        .border-box {
+            border-color: #e0e0e0;
+        }
+
+        table {
+            border-collapse: collapse;
+            border-spacing: 0;
+        }
+
+            table td, table th {
+                border: 1px solid #ddd;
+                text-align: left;
+                padding: 8px;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                white-space: nowrap;
+            }
+
+            table th {
+                padding-top: 11px;
+                padding-bottom: 11px;
+                background-color: #e0e0e0;
+            }
+    </style>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <input type="hidden" id="txtUserWorkID" syn-datafield="UserWorkID" syn-options="{belongID: ['LF01', 'GF01']}">
+        <input type="hidden" id="txtApplicationID" syn-datafield="ApplicationID" syn-options="{belongID: ['LF01', 'GF01']}">
+        <input type="hidden" id="txtLogNo" syn-datafield="LogNo" syn-options="{belongID: ['GF01']}">
+        <input type="hidden" id="txtStartedAt" syn-datafield="StartedAt" syn-options="{belongID: ['LF01']}">
+        <input type="hidden" id="txtEndedAt" syn-datafield="EndedAt" syn-options="{belongID: ['LF01']}">
+        <div class="page">
+            <div class="page-wrapper">
+                <div class="page-header mt-2 d-print-none">
+                    <div class="container-fluid max-width:1600!">
+                        <div class="row g-2 align-items-center">
+                            <div class="col">
+                                <div class="page-pretitle font:12!">
+                                    GNB 메뉴 / LNB 메뉴
+                                </div>
+                                <h2 class="page-title">
+                                    거래 이력정보
+                                </h2>
+                            </div>
+                            <div class="col-auto ms-auto d-print-none">
+                                <div class="btn-group">
+                                    <button type="button" id="btnTime1" syn-events="['click']" class="btn btn-outline-primary">
+                                        10분전
+                                    </button>
+                                    <button type="button" id="btnTime2" syn-events="['click']" class="btn btn-outline-primary">
+                                        30분전
+                                    </button>
+                                    <button type="button" id="btnTime3" syn-events="['click']" class="btn btn-outline-primary">
+                                        1시간전
+                                    </button>
+                                    <button type="button" id="btnTime4" syn-events="['click']" class="btn btn-outline-primary">
+                                        당일
+                                    </button>
+                                    <button type="button" id="btnClearCondition" syn-events="['click']" class="btn btn-outline-primary">
+                                        <i class="font:20 mr:4 ti ti-clock-cancel mr:4"></i>
+                                        검색조건 초기화
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-body mt-2">
+                    <div class="container-fluid max-width:1600!">
+                        <div class="card mb-4">
+                            <div class="card-body p-2">
+                                <div class="row mt--2">
+                                    <div class="col-sm-12 col-md-6 col-lg-3 mt-2 pl-0">
+                                        <div class="input-group">
+                                            <label class="w:100 col-form-label px-3">Global ID</label>
+                                            <input id="txtGlobalID" syn-datafield="GlobalID" syn-options="{editType: 'english', belongID: ['LF01']}" type="text" class="form-control" maxlengthB="50">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-6 col-lg-3 mt-2 pl-0">
+                                        <div class="input-group">
+                                            <label class="w:100 col-form-label px-3">환경</label>
+                                            <input id="txtEnvironment" syn-datafield="Environment" syn-options="{editType: 'text', belongID: ['LF01']}" type="text" class="form-control" maxlengthB="1">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-6 col-lg-3 mt-2 pl-0">
+                                        <div class="input-group">
+                                            <label class="w:100 col-form-label px-3">서버 ID</label>
+                                            <input id="txtServerID" syn-datafield="ServerID" syn-options="{editType: 'english', belongID: ['LF01']}" type="text" class="form-control" maxlengthB="30">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-6 col-lg-3 mt-2 pl-0">
+                                        <div class="input-group">
+                                            <label class="w:100 col-form-label px-3">프로젝트 ID</label>
+                                            <input id="txtProjectID" syn-datafield="ProjectID" syn-options="{editType: 'english', belongID: ['LF01']}" type="text" class="form-control" maxlengthB="36">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-12 col-md-6 col-lg-3 mt-2 pl-0">
+                                        <div class="input-group">
+                                            <label class="w:100 col-form-label px-3">거래 ID</label>
+                                            <input id="txtTransactionID" syn-datafield="TransactionID" syn-options="{editType: 'english', belongID: ['LF01']}" type="text" class="form-control" maxlengthB="36">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-6 col-lg-3 mt-2 pl-0">
+                                        <div class="input-group">
+                                            <label class="w:100 col-form-label px-3">기능 ID</label>
+                                            <input id="txtServiceID" syn-datafield="ServiceID" syn-options="{editType: 'english', belongID: ['LF01']}" type="text" class="form-control" maxlengthB="36">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-6 col-lg-3 mt-2 pl-0">
+                                        <div class="input-group">
+                                            <label class="w:100 col-form-label px-3">시작시간</label>
+                                            <syn_datepicker id="dtpStartedDate" syn-options="{value: 'now', useRangeSelect: true, rangeEndControlID: 'dtpEndedDate'}"></syn_datepicker>
+                                            <input id="txtStartedTime" syn-options="{editType: 'text', maskPattern: '99:99:99'}" type="text" class="form-control" value="00:00:00" maxlengthB="8">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-6 col-lg-3 mt-2 pl-0">
+                                        <div class="input-group">
+                                            <label class="w:100 col-form-label px-3">종료시간</label>
+                                            <syn_datepicker id="dtpEndedDate" syn-options="{value: 'now', useRangeSelect: true, rangeStartControlID: 'dtpStartedDate'}"></syn_datepicker>
+                                            <input id="txtEndedTime" syn-options="{editType: 'text', maskPattern: '99:99:99'}" type="text" class="form-control" value="00:00:00" maxlengthB="8">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card">
+                                <div class="row g-0">
+                                    <div class="col-6 d-none d-md-block border-end">
+                                        <div class="row g-0">
+                                            <div class="card-header">
+                                                <h3 class="card-title">거래 이력 <span id="lblRowText"></span></h3>
+                                            </div>
+                                            <div class="card-body p-2">
+                                                <div class="form-fieldset p-0">
+                                                    <syn_grid id="grdTraceLog" syn-datafield="TraceLog" syn-options="{
+                                                    height: 510
+                                                    , isContainFilterHeader: true
+                                                    , outsideClickDeselects: false
+				                                    , columns: [
+	                                                    ['LogNo', '로그ID', 80, true, 'text', true, 'left']
+	                                                    , ['ServerID', '서버ID', 120, false, 'text', true, 'left']
+	                                                    , ['RunningEnvironment', '환경', 30, false, 'text', true, 'center']
+	                                                    , ['GlobalID', 'GlobalID', 315, false, 'text', true, 'left']
+	                                                    , ['ApplicationID', 'AppID', 50, true, 'text', true, 'center']
+	                                                    , ['ProjectID', '프로젝트ID', 70, true, 'text', true, 'center']
+	                                                    , ['TransactionID', '거래ID', 70, true, 'text', true, 'center']
+	                                                    , ['ServiceID', '서비스ID', 70, true, 'text', true, 'center']
+	                                                    , ['Acknowledge', '성공', 30, false, 'text', true, 'center']
+	                                                    , ['Type', '구분', 30, true, 'text', true, 'center']
+	                                                    , ['Flow', '흐름', 30, false, 'text', true, 'center']
+	                                                    , ['Level', '레벨', 30, true, 'text', true, 'center']
+	                                                    , ['Format', '포맷', 30, false, 'text', true, 'center']
+	                                                    , ['UserID', '사용자ID', 160, true, 'text', true, 'left']
+	                                                    , ['CreatedAt', '입력시간', 140, false, 'text', true, 'center']
+				                                    ]
+			                                    }" syn-events="['afterSelectionEnd']"></syn_grid>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 d-flex flex-column">
+                                        <div class="row g-0">
+                                            <div class="card-header">
+                                                <h3 class="card-title">로그 속성 및 메시지</h3>
+                                                <div class="card-actions">
+                                                    <div class="btn-group">
+                                                        <button type="button" id="btnJsonToTable" syn-events="['click']" class="btn btn-primary">
+                                                            <i class="f:18 ti ti-table mr:4"></i>
+                                                            거래 메시지 표 보기
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="card-body p-2">
+                                                <div class="row mb-2">
+                                                    <div class="col-12">
+                                                        <textarea id="txtProperties" syn-datafield="Properties" class="form-control resize:none" spellcheck="false" style="height: 60px;" placeholder="로그 속성" syn-options="{toSynControl: false}"></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-12">
+                                                        <textarea id="txtMessage" syn-datafield="Message" class="form-control resize:none" spellcheck="false" style="height: 444px;" placeholder="로그 메시지" syn-options="{toSynControl: false}"></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="tplJsonToTable" class="hidden h:100%">
+            <h3 class="mt-0 mb-0">거래 메시지 표</h3>
+            <div class="card mt:-1" style="height: calc(100% - 37px) !important;">
+                <div class="card-body p-0">
+                    <div id="htmJsonToTable" class="overflow-auto p-2 w:100% h:723">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <syn_data id="srcException" syn-options="{
+            dataSourceID: 'Exception',
+            storeType: 'Form',
+			columns: [
+                { data: 'Error', dataType: 'string' },
+                { data: 'Level', dataType: 'string' },
+                { data: 'Message', dataType: 'string' },
+                { data: 'StackTrace', dataType: 'string' },
+                { data: 'TypeMember', dataType: 'string' }
+			]
+		}"></syn_data>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

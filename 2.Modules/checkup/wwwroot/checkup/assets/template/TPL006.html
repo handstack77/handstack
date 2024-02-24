@@ -1,0 +1,23 @@
+﻿{{#items}}
+<div id="divTemplate_{{ForbesID}}" class="list-group-item" onclick="$this.event.divProjectTemplateItem_click(this, '{{ForbesID}}')">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            {{#LogoPath}}
+            <span class="avatar" style="background-image: url({{LogoPath}})"></span>
+            {{/LogoPath}}
+            {{^LogoPath}}
+            <span class="avatar">{{Acronyms}}</span>
+            {{/LogoPath}}
+        </div>
+        <div class="col">
+            <div class="font-medium text-truncate">
+                {{#LogoPath}}
+                {{Acronyms}},
+                {{/LogoPath}}
+                {{ForbesName}}
+            </div>
+            <div class="text-secondary text-truncate">{{Comment}}</div>
+        </div>
+    </div>
+</div>
+{{/items}}

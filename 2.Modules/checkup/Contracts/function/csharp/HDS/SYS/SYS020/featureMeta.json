@@ -1,0 +1,116 @@
+{
+    "Header": {
+        "ApplicationID": "HDS",
+        "ProjectID": "SYS",
+        "TransactionID": "SYS020",
+        "DataSourceID": "DB01",
+        "LanguageType": "csharp",
+        "ReferenceModuleID": "checkup",
+        "Configuration": {
+            "LogServerListUrl": "http://localhost:8000/logger/api/log/list",
+            "LogServerDetailUrl": "http://localhost:8000/logger/api/log/detail"
+        },
+        "Use": true,
+        "Description": "거래 이력정보 관리"
+    },
+    "Commands": [
+        {
+            "ID": "LF01",
+            "Seq": 0,
+            "Use": true,
+            "Timeout": 0,
+            "Description": "거래 이력정보 조회",
+            "ModifiedAt": "2023-07-10 00:00:00",
+            "Params": [
+                {
+                    "id": "UserWorkID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "ApplicationID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "GlobalID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "Environment",
+                    "type": "String",
+                    "length": 1,
+                    "value": null
+                },
+                {
+                    "id": "ServerID",
+                    "type": "String",
+                    "length": 30,
+                    "value": null
+                },
+                {
+                    "id": "ProjectID",
+                    "type": "String",
+                    "length": 30,
+                    "value": null
+                },
+                {
+                    "id": "TransactionID",
+                    "type": "String",
+                    "length": 30,
+                    "value": null
+                },
+                {
+                    "id": "ServiceID",
+                    "type": "String",
+                    "length": 30,
+                    "value": null
+                },
+                {
+                    "id": "StartedAt",
+                    "type": "String",
+                    "length": 30,
+                    "value": null
+                },
+                {
+                    "id": "EndedAt",
+                    "type": "String",
+                    "length": 30,
+                    "value": null
+                }
+            ]
+        },
+        {
+            "ID": "GF01",
+            "Seq": 0,
+            "Use": true,
+            "Timeout": 0,
+            "Description": "거래 이력정보 상세",
+            "ModifiedAt": "2023-07-10 00:00:00",
+            "Params": [
+                {
+                    "id": "UserWorkID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "ApplicationID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "LogNo",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                }
+            ]
+        }
+    ]
+}

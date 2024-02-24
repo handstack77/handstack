@@ -1,0 +1,455 @@
+{
+    "ApplicationID": "HDS",
+    "ProjectID": "SYS",
+    "TransactionID": "SYS010",
+    "Description": "시스템 관리 > 코드 데이터 관리",
+    "ModifiedDate": "2023-08-10 00:00:00",
+    "Services": [
+        {
+            "ServiceID": "LD01",
+            "Authorize": false,
+            "ReturnType": "CodeHelp",
+            "CommandType": "D",
+            "TransactionScope": false,
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+            ]
+        },
+        {
+            "ServiceID": "LD02",
+            "ReturnType": "Json",
+            "CommandType": "D",
+            "TransactionScope": false,
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "Grid"
+                },
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "Grid"
+                }
+            ]
+        },
+        {
+            "ServiceID": "LD03",
+            "Authorize": true,
+            "ReturnType": "Json",
+            "CommandType": "D",
+            "TransactionScope": true,
+            "Inputs": [],
+            "Outputs": []
+        },
+        {
+            "ServiceID": "LD04",
+            "ReturnType": "Json",
+            "CommandType": "D",
+            "TransactionScope": false,
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "Grid"
+                },
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "Grid"
+                }
+            ]
+        },
+        {
+            "ServiceID": "GD01",
+            "ReturnType": "Json",
+            "CommandType": "D",
+            "TransactionScope": false,
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "Form"
+                }
+            ]
+        },
+        {
+            "ServiceID": "GD02",
+            "ReturnType": "Json",
+            "CommandType": "D",
+            "TransactionScope": false,
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "Form"
+                }
+            ]
+        },
+        {
+            "ServiceID": "MD01",
+            "Authorize": true,
+            "ReturnType": "Json",
+            "CommandType": "D",
+            "TransactionScope": true,
+            "Inputs": [],
+            "Outputs": []
+        },
+        {
+            "ServiceID": "IF01",
+            "ReturnType": "Json",
+            "CommandType": "F",
+            "TransactionScope": false,
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "Form"
+                }
+            ]
+        },
+        {
+            "ServiceID": "IF02",
+            "ReturnType": "Json",
+            "CommandType": "F",
+            "TransactionScope": false,
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "Form"
+                }
+            ]
+        },
+        {
+            "ServiceID": "DF01",
+            "ReturnType": "Json",
+            "CommandType": "F",
+            "TransactionScope": false,
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "Form"
+                }
+            ]
+        },
+        {
+            "ServiceID": "DF02",
+            "ReturnType": "Json",
+            "CommandType": "F",
+            "TransactionScope": false,
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "Form"
+                }
+            ]
+        },
+        {
+            "ServiceID": "LF01",
+            "ReturnType": "Json",
+            "CommandType": "F",
+            "TransactionScope": false,
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "Form"
+                },
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "Form"
+                }
+            ]
+        },
+        {
+            "ServiceID": "LF02",
+            "ReturnType": "Json",
+            "CommandType": "F",
+            "TransactionScope": false,
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "Form"
+                },
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "Form"
+                }
+            ]
+        },
+        {
+            "ServiceID": "LF03",
+            "ReturnType": "Json",
+            "CommandType": "F",
+            "TransactionScope": false,
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "Form"
+                },
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "Grid"
+                }
+            ]
+        },
+        {
+            "ServiceID": "LF04",
+            "ReturnType": "Json",
+            "CommandType": "F",
+            "TransactionScope": false,
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "Form"
+                },
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "Grid"
+                }
+            ]
+        },
+        {
+            "ServiceID": "GF01",
+            "ReturnType": "Json",
+            "CommandType": "F",
+            "TransactionScope": false,
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "Form"
+                },
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "Form"
+                }
+            ]
+        },
+        {
+            "ServiceID": "MF01",
+            "ReturnType": "Json",
+            "CommandType": "F",
+            "TransactionScope": false,
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "Form"
+                }
+            ]
+        }
+    ],
+    "Models": []
+}

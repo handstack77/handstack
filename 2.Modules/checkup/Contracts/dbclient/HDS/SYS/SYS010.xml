@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+	<header>
+		<application>HDS</application>
+		<project>SYS</project>
+		<transaction>SYS010</transaction>
+		<datasource>DB01</datasource>
+		<use>Y</use>
+		<desc>프로그램 정보 관리</desc>
+	</header>
+	<commands>
+        <statement id="LD01" seq="0" use="Y" timeout="0" desc="코드헬프 데이터 정보 조회" modified="2023-08-31 00:00:00">
+            <![CDATA[
+SELECT A.CodeHelpID
+       , A.DataSourceID
+       , A.CodeHelpName
+       , A.CommandType
+       , A.CommandText
+       , A.CodeColumnID
+       , A.ValueColumnID
+       , A.Comment
+       , A.CreatedAt
+FROM   CodeHelp A
+WHERE  A.UseYN = 'Y'
+    AND A.CodeHelpID = @CodeHelpID; 
+
+SELECT CHS.ColumnID
+       , CHS.ColumnText
+       , CHS.HiddenYN
+FROM   CodeHelp CH 
+       INNER JOIN CodeHelpScheme CHS ON CH.UseYN = 'Y' 
+           AND CH.CodeHelpID = CHS.CodeHelpID
+WHERE  CH.CodeHelpID = @CodeHelpID
+ORDER  BY CHS.DisplayOrder; 
+			]]>
+            <param id="@CodeHelpID" type="String" length="-1" value="NULL" />
+        </statement>
+
+        <statement id="LD04" seq="0" use="Y" timeout="0" desc="나의 프로젝트 및 참여 프로젝트 목록 조회" modified="2023-08-31 00:00:00">
+            <![CDATA[
+SELECT A.ApplicationNo
+    , A.ApplicationID
+    , A.ApplicationName
+    , UPPER(IFNULL(A.Acronyms, SUBSTR(A.ApplicationID, 0, 4))) AS Acronyms
+    , A.LogoPath
+    , A.PublicYN
+	, '' AS Roles
+    , A.CompanyName
+    , A.OwnerName
+    , A.Comment
+FROM 
+    [Application] A
+WHERE A.CreatedMemberNo = @MemberNo
+	AND A.DeleteYN = 'N'
+ORDER BY A.WorkedAt DESC;
+
+SELECT
+    A.ApplicationNo
+    , A.ApplicationID
+    , A.ApplicationName
+    , UPPER(IFNULL(A.Acronyms, SUBSTR(A.ApplicationID, 0, 4))) AS Acronyms
+    , A.LogoPath
+    , A.PublicYN
+	, AM.RoleDevelop || ',' || AM.RoleBusiness || ',' || AM.RoleOperation || ',' || AM.RoleManaged AS Roles
+    , A.CompanyName
+    , A.OwnerName
+    , A.Comment
+FROM 
+    [Application] A
+	INNER JOIN ApplicationMember AM ON A.ApplicationNo = AM.ApplicationNo
+		AND AM.EmailID = (SELECT EmailID FROM [Member] S WHERE S.MemberNo = @MemberNo)
+        AND AM.MemberStatus IN ('R', 'J')
+		AND AM.ExpiredAt > datetime('now')
+WHERE A.DeleteYN = 'N'
+	AND AM.CreatedMemberNo <> AM.MemberNo
+ORDER BY A.WorkedAt DESC;
+			]]>
+            <param id="@MemberNo" type="String" length="36" value="NULL" />
+        </statement>
+        
+        <statement id="LD05" seq="0" use="Y" timeout="0" desc="백업용 태넌트 앱 데이터 모델 및 필드 조회" modified="2020-07-31 00:00:00">
+            <![CDATA[
+SELECT ME.EntityNo
+    , '' AS ApplicationNo
+    , ME.EntityID
+    , ME.EntityName
+    , ME.Acronyms
+    , ME.SeedData
+    , ME.Comment
+FROM 
+    MetaEntity ME
+WHERE ME.DeletedAt IS NULL
+    AND ME.ApplicationNo = (SELECT A.ApplicationNo FROM [Application] A WHERE A.ApplicationID = @ApplicationID)
+ORDER BY ME.CreatedAt;
+
+SELECT MF.EntityNo
+    , MF.FieldID
+    , MF.FieldName
+    , MF.FieldType
+    , MF.PK
+    , MF.IX
+    , MF.UI
+    , MF.NN
+    , MF.AI
+    , MF.MaxLength
+    , MF.DefaultValue
+    , MF.Comment
+    , MF.SortingNo
+FROM 
+	MetaEntity ME
+    INNER JOIN MetaField MF ON ME.EntityNo = MF.EntityNo
+WHERE ME.DeletedAt IS NULL
+    AND ME.ApplicationNo = (SELECT A.ApplicationNo FROM [Application] A WHERE A.ApplicationID = @ApplicationID)
+ORDER BY ME.CreatedAt
+    , ME.EntityNo
+    , MF.SortingNo
+    , MF.FieldID;
+    
+SELECT
+    MR.RelationNo
+    , '' AS ApplicationNo
+    , MR.DepartureEntityNo
+    , MR.DepartureEntityName
+    , MR.DepartureNote
+    , MR.DepartureFlowSymbol
+    , MR.DepartureFlowSymbolName
+    , MR.FlowLineType
+    , MR.FlowLineTypeName
+    , MR.ArrivalFlowSymbol
+    , MR.ArrivalFlowSymbolName
+    , MR.ArrivalEntityNo
+    , MR.ArrivalEntityName
+    , MR.ArrivalNote
+    , MR.SortingNo
+FROM 
+    MetaRelation MR
+WHERE 
+	MR.ApplicationNo = (SELECT A.ApplicationNo FROM [Application] A WHERE A.ApplicationID = @ApplicationID);
+			]]>
+            <param id="@ApplicationID" type="VarChar" length="36" value="" />
+        </statement>
+
+        <statement id="GD01" seq="0" use="Y" timeout="0" desc="ManagedApp 정보 조회" native="Y" modified="2023-08-31 00:00:00">
+            <![CDATA[
+SELECT A.ApplicationNo
+	, A.ApplicationID
+	, A.ApplicationName
+    , AM.MemberNo
+	, (SELECT UserWorkID FROM [Member] S WHERE S.MemberNo = A.CreatedMemberNo) AS UserWorkID
+    , CASE WHEN AM.RoleDevelop = 'Y' THEN '1' ELSE '0' END AS RoleDevelop
+    , CASE WHEN AM.RoleBusiness = 'Y' THEN '1' ELSE '0' END AS RoleBusiness
+    , CASE WHEN AM.RoleOperation = 'Y' THEN '1' ELSE '0' END AS RoleOperation
+    , CASE WHEN AM.RoleManaged = 'Y' THEN '1' ELSE '0' END AS RoleManaged
+    , strftime('%Y-%m-%d %H:%M:%S', IFNULL(AM.ExpiredAt, '9999-12-31')) AS ExpiredAt
+    , IFNULL(AM.Options, '') AS Options
+FROM [Application] A
+	INNER JOIN ApplicationMember AM ON A.ApplicationNo = AM.ApplicationNo
+		AND AM.EmailID = (SELECT EmailID FROM [Member] S WHERE S.MemberNo = @MemberNo)
+		AND AM.MemberStatus IN ('R', 'J')
+		AND IFNULL(AM.ExpiredAt, '9999-12-31') > datetime('now')
+WHERE AM.ApplicationNo = @ApplicationNo
+	AND AM.MemberNo = @MemberNo;
+			]]>
+            <param id="@ApplicationNo" type="VarChar" length="36" value="NULL" />
+            <param id="@MemberNo" type="VarChar" length="36" value="NULL" />
+        </statement>
+
+        <statement id="GD02" seq="0" use="Y" timeout="0" desc="사용자 검증 및 어플리케이션 생성 수 확인" native="Y" modified="2020-07-31 00:00:00">
+            <![CDATA[
+SELECT COUNT(1) AS MemberCount
+	, (SELECT COUNT(1)
+	FROM [Application] A
+	WHERE A.CreatedMemberNo = @MemberNo
+		AND A.DeleteYN = 'N') AS ApplicationCount
+FROM [Member] M
+WHERE M.DeleteYN = 'N'
+	AND M.MemberNo = @MemberNo;
+			]]>
+            <param id="@MemberNo" type="VarChar" length="36" value="" />
+        </statement>
+
+        <statement id="GD03" seq="0" use="Y" timeout="0" desc="Application, Member 등등 고유 번호 생성 및 조회" native="Y" modified="2023-08-31 00:00:00">
+            <![CDATA[
+INSERT INTO IdentityNo VALUES ((SELECT IFNULL(MAX(Sequence), 0) + 1 FROM IdentityNo WHERE GroupID = @GroupID)
+    , @GroupID
+    , @MemberNo
+    , datetime('now'));
+
+SELECT MAX(Sequence) AS IdentityNo FROM IdentityNo WHERE GroupID = @GroupID;
+			]]>
+            <param id="@GroupID" type="VarChar" length="1" value="NULL" />
+            <param id="@MemberNo" type="VarChar" length="36" value="NULL" />
+        </statement>
+
+        <statement id="GD04" seq="0" use="Y" timeout="0" desc="어플리케이션 삭제를 위한 사용자 검증 확인" native="Y" modified="2020-07-31 00:00:00">
+            <![CDATA[
+SELECT COUNT(1) AS MemberCount 
+FROM [Application] A
+	INNER JOIN [Member] M ON A.CreatedMemberNo = M.MemberNo
+WHERE A.ApplicationID = @ApplicationID
+	AND M.MemberNo = @MemberNo
+	AND M.UserWorkID = @UserWorkID;
+			]]>
+            <param id="@ApplicationID" type="VarChar" length="36" value="" />
+            <param id="@MemberNo" type="VarChar" length="36" value="" />
+            <param id="@UserWorkID" type="VarChar" length="36" value="" />
+        </statement>
+
+        <statement id="MD01" seq="0" use="Y" timeout="0" desc="어플리케이션 로고 정보 변경 및 경로 조회" native="Y" modified="2023-08-31 00:00:00">
+            <![CDATA[
+UPDATE RepositoryFile SET DependencyID = @ApplicationNo FROM RepositoryFile WHERE ItemID = @ItemID;
+SELECT AbsolutePath FROM RepositoryFile WHERE ItemID = @ItemID;
+			]]>
+            <param id="@ApplicationNo" type="VarChar" length="36" value="NULL" />
+            <param id="@ItemID" type="VarChar" length="36" value="NULL" />
+        </statement>
+
+        <statement id="DD01" seq="0" use="Y" timeout="0" desc="Application, Member 등등 고유 번호 정보 삭제" native="Y" modified="2023-08-31 00:00:00">
+            <![CDATA[
+DELETE FROM IdentityNo WHERE No = @IdentityNo
+    AND GroupID = @GroupID
+    AND CreatedMemberNo = @MemberNo;
+			]]>
+            <param id="@IdentityNo" type="Int" length="-1" value="NULL" />
+            <param id="@GroupID" type="VarChar" length="1" value="NULL" />
+            <param id="@MemberNo" type="VarChar" length="36" value="NULL" />
+        </statement>
+
+        <statement id="ID01" seq="0" use="Y" timeout="0" desc="어플리케이션 정보 생성" native="Y" modified="2020-07-31 00:00:00">
+            <![CDATA[
+INSERT INTO Application (ApplicationNo
+    , ApplicationID
+    , ApplicationName
+    , Acronyms
+    , LogoPath
+    , CompanyName
+    , OwnerName
+    , PublicYN
+    , Comment
+    , CreatedMemberNo
+    , CreatedAt
+) 
+VALUES (@ApplicationNo
+    , @ApplicationID
+    , @ApplicationName
+    , @Acronyms
+    , @LogoPath
+    , @CompanyName
+    , @OwnerName
+    , @PublicYN
+    , @Comment
+    , @MemberNo
+    , CURRENT_TIMESTAMP
+);
+
+INSERT INTO ApplicationMember (ApplicationNo
+    , EmailID
+    , MemberNo
+    , MemberStatus
+    , RoleDevelop
+    , RoleBusiness
+    , RoleOperation
+    , RoleManaged
+    , JoinAt
+    , ExpiredAt
+    , Options
+    , CreatedMemberNo
+    , CreatedAt
+)
+VALUES (@ApplicationNo
+    , (SELECT M.EmailID FROM [Member] M WHERE M.MemberNo = @MemberNo)
+    , @MemberNo
+    , 'J'
+    , 'Y'
+    , 'Y'
+    , 'Y'
+    , 'Y'
+    , CURRENT_TIMESTAMP
+    , '9999-12-31 23:59:59'
+    , ''
+    , @MemberNo
+    , CURRENT_TIMESTAMP
+);
+
+SELECT strftime('%Y-%m-%d %H:%M:%S', A.CreatedAt) AS CreatedAt FROM [Application] A WHERE A.ApplicationNo = @ApplicationNo;
+			]]>
+            <param id="@ApplicationNo" type="VarChar" length="36" value="" />
+            <param id="@ApplicationID" type="VarChar" length="36" value="" />
+            <param id="@ApplicationName" type="VarChar" length="50" value="" />
+            <param id="@Acronyms" type="VarChar" length="3" value="" />
+            <param id="@LogoPath" type="VarChar" length="200" value="" />
+            <param id="@CompanyName" type="VarChar" length="50" value="" />
+            <param id="@OwnerName" type="VarChar" length="50" value="" />
+            <param id="@PublicYN" type="VarChar" length="1" value="" />
+            <param id="@Comment" type="VarChar" length="2000" value="" />
+            <param id="@MemberNo" type="VarChar" length="36" value="" />
+        </statement>
+	</commands>
+</mapper>

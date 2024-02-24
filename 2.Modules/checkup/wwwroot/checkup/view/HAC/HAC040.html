@@ -1,0 +1,114 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .list-group-flush > .list-group-item:last-child {
+            border-bottom-width: 1px !important;
+        }
+    </style>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <input type="hidden" id="txtApplicationNo" syn-datafield="ApplicationNo" syn-options="{belongID: ['GF01', 'MF01']}">
+        <input type="hidden" id="txtUserWorkID" syn-datafield="UserWorkID" syn-options="{belongID: ['GF01', 'MF01']}">
+        <input type="hidden" id="txtUserNo" syn-datafield="UserNo" syn-options="{belongID: ['GF01', 'MF01']}">
+        <input type="hidden" id="txtPageMode" syn-datafield="PageMode" syn-options="{belongID: ['MF01']}">
+        <div class="page">
+            <div class="page-wrapper">
+                <div class="page-header mt-2 d-print-none">
+                    <div class="container-xl">
+                        <div class="row g-2 align-items-center">
+                            <div class="col">
+                                <div class="page-pretitle font:12!">
+                                    GNB 메뉴 / LNB 메뉴
+                                </div>
+                                <h2 class="page-title">
+                                    앱 환경설정
+                                </h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-body mt-2">
+                    <div class="container-xl">
+                        <div class="card">
+                            <div class="row g-0">
+                                <div class="col d-flex flex-column">
+                                    <div class="card-body">
+                                        <div class="row mb-3">
+                                            <label class="col-3 col-form-label required">어플리케이션 ID</label>
+                                            <div class="col">
+                                                <input id="txtApplicationID" syn-datafield="ApplicationID" syn-options="{editType: 'text', belongID: ['MF01', 'GF01']}" type="text" class="form-control" disabled="disabled">
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <label class="col-3 col-form-label">버전</label>
+                                            <div class="col">
+                                                <input id="txtVersion" syn-datafield="Version" type="text" class="form-control" disabled="disabled">
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <label class="col-3 col-form-label required">어플리케이션 명</label>
+                                            <div class="col">
+                                                <input id="txtApplicationName" syn-datafield="ApplicationName" syn-options="{editType: 'text', belongID: ['MF01']}" type="text" class="form-control" maxlengthB="100">
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <label class="col-3 col-form-label">접근키</label>
+                                            <div class="col">
+                                                <div class="input-group">
+                                                    <input id="txtAppSecret" syn-datafield="AppSecret" syn-options="{editType: 'text', belongID: ['MF01']}" type="text" class="form-control" maxlengthB="36">
+                                                    <button type="button" id="btnAppSecretGenerate" syn-events="['click']" class="btn btn-icon bg-muted-lt"><i class="f:18 ti ti-refresh"></i></button>
+                                                </div>
+                                                <small class="form-hint">
+                                                    외부에서 앱에 접근 가능한 허가 키를 입력하세요
+                                                </small>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <label class="col-3 col-form-label">사용자 인증 ID</label>
+                                            <div class="col">
+                                                <input id="txtSignInID" syn-datafield="SignInID" syn-options="{editType: 'text', belongID: ['MF01']}" type="text" class="form-control" placeholder="[프로젝트 ID]|[거래 ID]|[기능 ID]를 입력하세요. 예) USR|USR010|GD01" maxlengthB="100">
+                                                <small class="form-hint">
+                                                    앱 사용자 인증에 사용될 거래 ID를 입력하세요. 자세한 내용은 다음을 참고하세요 <a href="#">[로그인 인증 거래 확인]</a>
+                                                </small>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <label class="col-3 col-form-label">앱 설명</label>
+                                            <div class="col">
+                                                <textarea id="txtComment" syn-datafield="Comment" syn-options="{toSynControl: false, belongID: ['MF01']}" rows="2" class="form-control h:56! resize:none" maxlengthB="1000"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-12 text-align:center">
+                                                <button type="button" id="btnDeleteApp" syn-events="['click']" class="btn btn-danger w-2/12">
+                                                    <i class="f:18 ti ti-alert-circle-filled mr:4"></i> 앱 삭제
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <syn_data id="srcException" syn-options="{
+            dataSourceID: 'Exception',
+            storeType: 'Form',
+			columns: [
+                { data: 'Error', dataType: 'string' },
+                { data: 'Level', dataType: 'string' },
+                { data: 'Message', dataType: 'string' },
+                { data: 'StackTrace', dataType: 'string' },
+                { data: 'TypeMember', dataType: 'string' }
+			]
+		}"></syn_data>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

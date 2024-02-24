@@ -1,0 +1,33 @@
+﻿{{#items}}
+<div id="divItem_{{ApplicationNo}}" class="list-group-item" onclick="$this.event.divApplicationItem_click(this, '{{ApplicationNo}}')">
+    <div class="row align-items-center">
+        <div class="col-auto">
+            {{#LogoPath}}
+            <span class="avatar" style="background-image: url({{LogoPath}})"></span>
+            {{/LogoPath}}
+            {{^LogoPath}}
+            <span class="avatar">{{Acronyms}}</span>
+            {{/LogoPath}}
+        </div>
+        <div class="col">
+            <div class="font-medium text-truncate">
+                {{#IsPublic}}
+                <span class="badge badge-outline text-danger">{{IsPublic}}</span>
+                {{/IsPublic}}
+                {{#roles}}
+                <span class="badge badge-outline text-primary">{{RoleName}}</span>
+                {{/roles}}
+                {{#LogoPath}}
+                {{Acronyms}},
+                {{/LogoPath}}
+                {{ApplicationName}} ({{ApplicationID}})
+            </div>
+            <div class="text-secondary text-truncate">{{Comment}}</div>
+        </div>
+        <div class="col-auto">
+            <div class="font-medium">{{CompanyName}}</div>
+            <div class="text-secondary">{{OwnerName}}</div>
+        </div>
+    </div>
+</div>
+{{/items}}

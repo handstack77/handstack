@@ -1,0 +1,41 @@
+{
+    "Header": {
+        "ApplicationID": "HDS",
+        "ProjectID": "HFM",
+        "TransactionID": "HFM020",
+        "DataSourceID": "DB01",
+        "LanguageType": "csharp",
+        "Use": true,
+        "Description": "function 모듈 사용가능 nuget 라이브러리 정보"
+    },
+    "Commands": [
+        {
+            "ID": "LF01",
+            "Seq": 0,
+            "Use": true,
+            "Timeout": 0,
+            "Description": "Assembly.GetExecutingAssembly().GetReferencedAssemblies() 데이터 목록 조회",
+            "ModifiedAt": "2023-07-10 00:00:00",
+            "Params": [
+                {
+                    "id": "UserWorkID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "ApplicationID",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "UserNo",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+	<header>
+		<application>HDS</application>
+		<project>SYS</project>
+		<transaction>SYS010</transaction>
+		<datasource>DB01</datasource>
+		<use>Y</use>
+		<desc>프로그램 정보 관리</desc>
+	</header>
+	<commands>
+        <statement id="GD01" seq="0" use="Y" timeout="0" desc="태넌트 앱 프로젝트/항목 잠금 정보 조회" native="Y" modified="2023-08-31 00:00:00">
+            <![CDATA[
+DECLARE @ApplicationLockYN VARCHAR(1)
+	, @ProjectLockYN VARCHAR(1)
+	, @ItemLockYN VARCHAR(1)
+	, @ParentLockYN VARCHAR(1);
+
+SELECT @ApplicationLockYN = PI.LockYN
+FROM 
+    ProjectItem PI
+WHERE PI.ApplicationNo = @ApplicationNo
+	AND PI.ProjectType = @ProjectType
+    AND PI.ProjectItemType = 'A';
+
+IF @ApplicationLockYN = 'Y'
+BEGIN
+	SELECT @ProjectLockYN = PI.LockYN
+	FROM 
+		ProjectItem PI
+	WHERE PI.ApplicationNo = @ApplicationNo
+		AND PI.ProjectType = @ProjectType
+		AND PI.ProjectItemName = @ProjectItemName
+		AND PI.ProjectItemType = 'P';
+	
+	SELECT @ItemLockYN = PI.LockYN
+	FROM 
+		ProjectItem PI
+	WHERE PI.ApplicationNo = @ApplicationNo
+		AND PI.ProjectType = @ProjectType
+		AND PI.ProjectItemName = @ProjectItemName
+		AND PI.ProjectItemType = 'I';
+
+	SELECT @ParentLockYN = PI.LockYN
+	FROM 
+		ProjectItem PI
+	WHERE PI.ApplicationNo = @ApplicationNo
+		AND PI.ProjectType = @ProjectType
+		AND PI.ProjectItemType = 'P'
+		AND PI.ProjectItemNo = (SELECT TOP 1 S.ParentProjectItemNo
+			FROM 
+				ProjectItem S
+			WHERE S.ApplicationNo = @ApplicationNo
+				AND S.ProjectType = @ProjectType
+				AND S.ProjectItemName = @ProjectItemName
+				AND S.ProjectItemType = 'I');
+
+	SELECT CASE WHEN ISNULL(@ProjectLockYN, 'N') = 'Y'
+		OR ISNULL(@ItemLockYN, 'N') = 'Y'
+		OR ISNULL(@ParentLockYN, 'N') = 'Y' THEN 'Y' ELSE 'N' END AS LockYN;
+END
+ELSE
+BEGIN
+	SELECT 'N' AS LockYN;
+END
+			]]>
+            <param id="@ApplicationNo" type="VarChar" length="36" value="NULL" />
+            <param id="@ProjectType" type="VarChar" length="1" value="NULL" />
+            <param id="@ProjectItemName" type="VarChar" length="256" value="NULL" />
+        </statement>
+	</commands>
+</mapper>

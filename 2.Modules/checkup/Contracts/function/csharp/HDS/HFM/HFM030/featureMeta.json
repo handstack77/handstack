@@ -1,0 +1,45 @@
+{
+    "Header": {
+        "ApplicationID": "HDS",
+        "ProjectID": "HFM",
+        "TransactionID": "HFM030",
+        "DataSourceID": "DB01",
+        "LanguageType": "csharp",
+        "Use": true,
+        "Configuration": {
+            "WindowsPackageLockFilePath": "../package-lock.json",
+            "LinuxPackageLockFilePath": "../package-lock.json"
+        },
+        "Description": "function 모듈 사용가능 npm 라이브러리 정보"
+    },
+    "Commands": [
+        {
+            "ID": "LF01",
+            "Seq": 0,
+            "Use": true,
+            "Timeout": 0,
+            "Description": "handstack/node_modules/package-lock.json 데이터 목록 조회",
+            "ModifiedAt": "2023-07-10 00:00:00",
+            "Params": [
+                {
+                    "id": "UserWorkID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "ApplicationID",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "UserNo",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                }
+            ]
+        }
+    ]
+}

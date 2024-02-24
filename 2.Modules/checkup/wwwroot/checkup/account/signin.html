@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="/checkup/img/favicon.ico" type="image/x-icon" />
+</head>
+<body style="visibility: hidden;">
+    <div class="page page-center">
+        <div class="container container-tight py-4 wp-400">
+            <main class="form-signin w-100 m-auto">
+                <form autocomplete="off" method="post" id="form1" syn-datafield="MainForm">
+                    <input type="hidden" id="txtClientIP">
+                    <input type="hidden" id="txtBrowserTokenID">
+                    <img class="block margin:auto mb-4" src="/checkup/img/logo-1.svg" alt="" width="72" height="72">
+                    <h1 class="h1 mb-3 fw-normal">업무흐름과 수익을 개선하세요</h1>
+                    <h2 class="h3 mb-3 fw-normal">중소기업, 에이전시, 프리랜서의 비즈니스를 성공적으로 이끄는 방법을 제공합니다</h2>
+                    <div class="form-floating">
+                        <input id="txtLoginID" type="email" class="form-control" placeholder="name@handstack.io">
+                        <label for="txtLoginID">이메일 주소</label>
+                    </div>
+                    <p class="my-3"></p>
+                    <button type="button" id="btnLogin" syn-events="['click']" class="btn btn-primary w-100 py-2">로그인</button>
+                    <p class="p-2 text-center">또는</p>
+                    <div>
+                        <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline" data-text="Google 계정으로 로그인" data-shape="rectangular" data-logo_alignment="left"></div>
+                    </div>
+                    <p class="mt-5 mb-3 text-body-secondary">&copy; 2023 HandShake</p>
+                </form>
+            </main>
+        </div>
+    </div>
+
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

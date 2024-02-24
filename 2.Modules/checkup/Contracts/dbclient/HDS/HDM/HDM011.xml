@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+	<header>
+		<application>HDS</application>
+		<project>HDM</project>
+		<transaction>HDM011</transaction>
+		<datasource>DB01</datasource>
+		<use>Y</use>
+		<desc>데이터 모델 초기 데이터 변경</desc>
+	</header>
+	<commands>
+        <statement id="UD01" seq="0" use="Y" timeout="0" desc="데이터 모델 정보 변경" modified="2020-07-31 00:00:00">
+            <![CDATA[
+UPDATE MetaEntity SET SeedData = @SeedData
+WHERE 
+    EntityNo = @EntityNo;
+			]]>
+            <param id="@EntityNo" type="String" length="36" value="" />
+            <param id="@SeedData" type="String" length="-1" value="" />
+        </statement>
+	</commands>
+</mapper>

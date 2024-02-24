@@ -1,0 +1,318 @@
+{
+    "Header": {
+        "ApplicationID": "HDS",
+        "ProjectID": "HAC",
+        "TransactionID": "HAC020",
+        "DataSourceID": "DB01",
+        "LanguageType": "csharp",
+        "ReferenceModuleID": "checkup",
+        "Use": true,
+        "Description": "태넌트 앱 repository 저장소 관리"
+    },
+    "Commands": [
+        {
+            "ID": "LF01",
+            "Seq": 0,
+            "Use": true,
+            "Timeout": 0,
+            "Description": "파일 저장소 데이터 목록 조회",
+            "ModifiedAt": "2023-07-10 00:00:00",
+            "Params": [
+                {
+                    "id": "UserWorkID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "ApplicationID",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                }
+            ]
+        },
+        {
+            "ID": "GF01",
+            "Seq": 0,
+            "Use": true,
+            "Timeout": 0,
+            "Description": "저장소 테스트 여부 확인",
+            "ModifiedAt": "2023-07-10 00:00:00",
+            "Params": [
+                {
+                    "id": "UserWorkID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "ApplicationID",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "RepositoryID",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "RequestOrigin",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                }
+            ]
+        },
+        {
+            "ID": "MF01",
+            "Seq": 0,
+            "Use": true,
+            "Timeout": 0,
+            "Description": "저장소 정보 추가 및 변경",
+            "ModifiedAt": "2023-07-10 00:00:00",
+            "Params": [
+                {
+                    "id": "PageMode",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "UserWorkID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "ApplicationID",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "RepositoryID",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "RepositoryName",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "AccessID",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "StorageType",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "PhysicalPath",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "BlobContainerID",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "BlobConnectionString",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "BlobItemUrl",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "IsVirtualPath",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "AccessMethod",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "IsFileUploadDownloadOnly",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "IsMultiUpload",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "IsFileOverWrite",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "IsFileNameEncrypt",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "IsKeepFileExtension",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "IsAutoPath",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "PolicyPathID",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "UploadTypeID",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "UploadExtensions",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "UploadCount",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "UploadSizeLimit",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "IsLocalDbFileManaged",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "SQLiteConnectionString",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "TransactionGetItem",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "TransactionGetItems",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "TransactionDeleteItem",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "TransactionUpsertItem",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "TransactionUpdateDependencyID",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "TransactionUpdateFileName",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "Comment",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "RequestOrigin",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                }
+            ]
+        },
+        {
+            "ID": "DF01",
+            "Seq": 0,
+            "Use": true,
+            "Timeout": 0,
+            "Description": "저장소 정보 삭제",
+            "ModifiedAt": "2023-07-10 00:00:00",
+            "Params": [
+                {
+                    "id": "UserWorkID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "ApplicationID",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "RepositoryID",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "RequestOrigin",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                }
+            ]
+        }
+    ]
+}

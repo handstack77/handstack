@@ -1,0 +1,207 @@
+{
+    "Header": {
+        "ApplicationID": "HDS",
+        "ProjectID": "HED",
+        "TransactionID": "HED030",
+        "DataSourceID": "DB01",
+        "LanguageType": "csharp",
+        "ReferenceModuleID": "checkup",
+        "IsHttpContext": true,
+        "Use": true,
+        "Description": "앱 데이터베이스 관리"
+    },
+    "Commands": [
+        {
+            "ID": "LF01",
+            "Seq": 0,
+            "Use": true,
+            "Timeout": 0,
+            "Description": "데이터베이스 메타 정보 조회",
+            "ModifiedAt": "2023-07-10 00:00:00",
+            "Params": [
+                {
+                    "id": "UserWorkID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "ApplicationID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "DeployID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                }
+            ]
+        },
+        {
+            "ID": "LF02",
+            "Seq": 0,
+            "Use": true,
+            "Timeout": 0,
+            "Description": "데이터베이스 테이블 컬럼 정보 조회",
+            "ModifiedAt": "2023-07-10 00:00:00",
+            "Params": [
+                {
+                    "id": "UserWorkID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "ApplicationID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "DeployID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "TableName",
+                    "type": "String",
+                    "length": 64,
+                    "value": null
+                }
+            ]
+        },
+        {
+            "ID": "LF03",
+            "Seq": 0,
+            "Use": true,
+            "Timeout": 0,
+            "Description": "데이터베이스 테이블 데이터 정보 조회",
+            "ModifiedAt": "2023-07-10 00:00:00",
+            "Params": [
+                {
+                    "id": "UserWorkID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "ApplicationID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "DeployID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "TableName",
+                    "type": "String",
+                    "length": 64,
+                    "value": null
+                },
+                {
+                    "id": "PageIndex",
+                    "type": "String",
+                    "length": 10,
+                    "value": null
+                }
+            ]
+        },
+        {
+            "ID": "MF01",
+            "Seq": 0,
+            "Use": true,
+            "Timeout": 0,
+            "Description": "데이터베이스 백업 파일 생성 및 토큰 생성",
+            "ModifiedAt": "2023-07-10 00:00:00",
+            "Params": [
+                {
+                    "id": "UserWorkID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "ApplicationID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "DeployID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                }
+            ]
+        },
+        {
+            "ID": "MF02",
+            "Seq": 0,
+            "Use": true,
+            "Timeout": 0,
+            "Description": "데이터베이스 복원 파일 생성 및 토큰 생성",
+            "ModifiedAt": "2023-07-10 00:00:00",
+            "Params": [
+                {
+                    "id": "UserWorkID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "ApplicationID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "DeployID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                }
+            ]
+        },
+        {
+            "ID": "IF01",
+            "Seq": 0,
+            "Use": true,
+            "Timeout": 0,
+            "Description": "데이터베이스 ExecuteNonQuery 수행",
+            "ModifiedAt": "2023-07-10 00:00:00",
+            "Params": [
+                {
+                    "id": "UserWorkID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "ApplicationID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "DeployID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "CompressBase64",
+                    "type": "String",
+                    "length": 64,
+                    "value": null
+                }
+            ]
+        }
+    ]
+}

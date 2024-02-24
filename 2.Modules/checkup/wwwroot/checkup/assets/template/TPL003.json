@@ -1,0 +1,35 @@
+{
+    "Header": {
+        "DataSourceID": "{{dataSourceID}}",
+        "LanguageType": "{{languageType}}",
+        "Use": true,
+        "Configuration": {
+            {{#configuration}}
+            "{{id}}": "{{value}}",
+            {{/configuration}}
+        },
+        "Comment": "{{comment}}"
+    },
+    "Commands": [
+        {{#commands}}
+        {
+            "ID": "{{featureID}}",
+            "Seq": {{seq}},
+            "Use": true,
+            "Timeout": 0,
+            "Comment": "{{comment}}",
+            "ModifiedAt": "{{createAt}}",
+            "Params": [
+                {{#params}}
+                {
+                    "id": "{{id}}",
+                    "type": "{{type}}",
+                    "length": {{length}},
+                    "value": null
+                }{{#comma}},{{/comma}}
+                {{/params}}
+            ]
+        }{{#comma}},{{/comma}}
+        {{/commands}}
+    ]
+}

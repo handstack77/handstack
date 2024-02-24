@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+    <header>
+        <application>HDS</application>
+        <project>HDM</project>
+        <transaction>HDM010</transaction>
+        <datasource>DB01</datasource>
+        <use>Y</use>
+        <desc>데이터 모델 관리</desc>
+    </header>
+    <commands>
+        <statement id="LD01" seq="0" use="Y" timeout="0" desc="데이터 모델 목록 조회" modified="2020-07-31 00:00:00">
+            <![CDATA[
+SELECT ME.EntityNo
+    , ME.EntityID
+    , ME.EntityName
+    , ME.Acronyms
+    , ME.Comment
+    , ME.CreatedMemberNo
+    , (SELECT (S.MemberName || ' ' || S.PositionName || ' [' || S.DepartmentName || ']') FROM Member S WHERE S.MemberNo = ME.CreatedMemberNo) AS CreatedMemberName
+    , strftime('%Y-%m-%d', ME.CreatedAt) AS CreatedAt
+    , ME.ModifiedMemberNo
+    , (SELECT (S.MemberName || ' ' || S.PositionName || ' [' || S.DepartmentName || ']') FROM Member S WHERE S.MemberNo = ME.ModifiedMemberNo) AS ModifiedMemberName
+    , strftime('%Y-%m-%d', ME.ModifiedAt) AS ModifiedAt
+FROM 
+    MetaEntity ME
+WHERE ME.DeletedAt IS NULL
+    AND ME.ApplicationNo = @ApplicationNo
+ORDER BY ME.CreatedAt;
+			]]>
+            <param id="@ApplicationNo" type="String" length="36" value="" />
+        </statement>
+
+        <statement id="LD02" seq="0" use="Y" timeout="0" desc="데이터 모델 필드 목록 조회" modified="2020-07-31 00:00:00">
+            <![CDATA[
+SELECT MF.EntityNo
+    , MF.FieldID
+    , MF.FieldName
+    , MF.FieldType
+    , CASE WHEN MF.PK = 'Y' THEN '1' ELSE '0' END AS PK
+    , CASE WHEN MF.IX = 'Y' THEN '1' ELSE '0' END AS IX
+    , CASE WHEN MF.UI = 'Y' THEN '1' ELSE '0' END AS UI
+    , CASE WHEN MF.NN = 'Y' THEN '1' ELSE '0' END AS NN
+    , CASE WHEN MF.AI = 'Y' THEN '1' ELSE '0' END AS AI
+    , MF.MaxLength
+    , MF.DefaultValue
+    , MF.Comment
+    , MF.SortingNo
+FROM 
+    MetaField MF
+WHERE MF.EntityNo = @EntityNo
+ORDER BY MF.SortingNo
+    , MF.FieldID;
+			]]>
+            <param id="@EntityNo" type="String" length="36" value="" />
+        </statement>
+
+        <statement id="ID01" seq="0" use="Y" timeout="0" desc="데이터 모델 정보 입력" modified="2020-07-31 00:00:00">
+            <![CDATA[
+INSERT INTO MetaEntity
+(
+    ApplicationNo
+    , EntityNo
+    , EntityID
+    , EntityName
+    , Acronyms
+    , Comment
+    , CreatedMemberNo
+    , CreatedAt
+) 
+VALUES
+(
+    @ApplicationNo
+    , @EntityNo
+    , @EntityID
+    , @EntityName
+    , @Acronyms
+    , @Comment
+    , @CreatedMemberNo
+    , CURRENT_TIMESTAMP
+);
+			]]>
+            <param id="@ApplicationNo" type="String" length="36" value="" />
+            <param id="@EntityNo" type="String" length="36" value="" />
+            <param id="@EntityID" type="String" length="255" value="" />
+            <param id="@EntityName" type="String" length="50" value="" />
+            <param id="@Acronyms" type="String" length="10" value="" />
+            <param id="@Comment" type="String" length="1000" value="" />
+            <param id="@CreatedMemberNo" type="String" length="36" value="" />
+        </statement>
+
+        <statement id="DD01" seq="0" use="Y" timeout="0" desc="데이터 모델 정보 삭제" modified="2020-07-31 00:00:00">
+            <![CDATA[
+UPDATE MetaEntity SET DeletedAt = CURRENT_TIMESTAMP
+    , ModifiedMemberNo = @ModifiedMemberNo
+WHERE DeletedAt IS NULL
+    AND EntityNo = @EntityNo;
+			]]>
+            <param id="@EntityNo" type="String" length="36" value="" />
+            <param id="@ModifiedMemberNo" type="String" length="36" value="" />
+        </statement>
+
+        <statement id="GD01" seq="0" use="Y" timeout="0" desc="데이터 모델 초기 데이터 조회" modified="2020-07-31 00:00:00">
+            <![CDATA[
+SELECT ME.SeedData
+FROM MetaEntity ME 
+WHERE ME.DeletedAt IS NULL
+    AND ME.EntityNo = @EntityNo;
+			]]>
+            <param id="@EntityNo" type="String" length="36" value="" />
+        </statement>
+
+        <statement id="MD01" seq="0" use="Y" timeout="0" desc="데이터 모델 정보 변경" modified="2020-07-31 00:00:00">
+            <if test="(Flag == 'U')">
+                <![CDATA[
+UPDATE MetaEntity SET EntityID = @EntityID
+    , EntityName = @EntityName
+    , Acronyms = @Acronyms
+    , Comment = @Comment
+    , ModifiedMemberNo = @ModifiedMemberNo
+    , ModifiedAt = CURRENT_TIMESTAMP
+WHERE DeletedAt IS NULL
+    AND EntityNo = @EntityNo;
+			    ]]>
+            </if>
+            <param id="@EntityNo" type="String" length="36" value="" />
+            <param id="@EntityID" type="String" length="255" value="" />
+            <param id="@EntityName" type="String" length="50" value="" />
+            <param id="@Acronyms" type="String" length="10" value="" />
+            <param id="@Comment" type="String" length="1000" value="" />
+            <param id="@ModifiedMemberNo" type="String" length="36" value="" />
+        </statement>
+
+        <statement id="MD01" seq="1" use="Y" timeout="0" desc="데이터 모델 필드 정보 입력 또는 변경, 삭제" modified="2020-07-31 00:00:00">
+            <if test="(Flag == 'C')">
+                <![CDATA[
+INSERT INTO MetaField (EntityNo
+    , FieldID
+    , FieldName
+    , FieldType
+    , PK
+    , IX
+    , UI
+    , NN
+    , AI
+    , MaxLength
+    , DefaultValue
+    , Comment
+    , SortingNo
+) 
+SELECT @EntityNo
+    , @FieldID
+    , @FieldName
+    , @FieldType
+    , CASE WHEN @PK = '1' THEN 'Y' ELSE 'N' END
+    , CASE WHEN @IX = '1' THEN 'Y' ELSE 'N' END
+    , CASE WHEN @UI = '1' THEN 'Y' ELSE 'N' END
+    , CASE WHEN @NN = '1' THEN 'Y' ELSE 'N' END
+    , CASE WHEN @AI = '1' THEN 'Y' ELSE 'N' END
+    , @MaxLength
+    , @DefaultValue
+    , @Comment
+    , @SortingNo
+WHERE NOT EXISTS (SELECT 1 FROM MetaField WHERE EntityNo = @EntityNo AND FieldID = @FieldID);
+			    ]]>
+            </if>
+
+            <if test="(Flag == 'U')">
+                <![CDATA[
+UPDATE MetaField SET FieldName = @FieldName
+    , FieldType = @FieldType
+    , PK = CASE WHEN @PK = '1' THEN 'Y' ELSE 'N' END
+    , IX = CASE WHEN @IX = '1' THEN 'Y' ELSE 'N' END
+    , UI = CASE WHEN @UI = '1' THEN 'Y' ELSE 'N' END
+    , NN = CASE WHEN @NN = '1' THEN 'Y' ELSE 'N' END
+    , AI = CASE WHEN @AI = '1' THEN 'Y' ELSE 'N' END
+    , MaxLength = @MaxLength
+    , DefaultValue = @DefaultValue
+    , Comment = @Comment
+    , SortingNo = @SortingNo
+WHERE EntityNo = @EntityNo
+    AND FieldID = @FieldID;
+				]]>
+            </if>
+            
+            <if test="(Flag == 'D')">
+                <![CDATA[
+DELETE FROM MetaField WHERE EntityNo = @EntityNo
+    AND FieldID = @FieldID;
+				]]>
+            </if>
+            <param id="@EntityNo" type="String" length="36" value="" />
+            <param id="@FieldID" type="String" length="50" value="" />
+            <param id="@FieldName" type="String" length="50" value="" />
+            <param id="@FieldType" type="String" length="50" value="" />
+            <param id="@PK" type="String" length="1" value="" />
+            <param id="@IX" type="String" length="1" value="" />
+            <param id="@UI" type="String" length="1" value="" />
+            <param id="@NN" type="String" length="1" value="" />
+            <param id="@AI" type="String" length="1" value="" />
+            <param id="@MaxLength" type="Int32" length="-1" value="" />
+            <param id="@DefaultValue" type="String" length="1000" value="" />
+            <param id="@Comment" type="String" length="1000" value="" />
+            <param id="@SortingNo" type="Int32" length="-1" value="NULL" />
+        </statement>
+    </commands>
+</mapper>

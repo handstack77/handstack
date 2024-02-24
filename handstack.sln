@@ -64,6 +64,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CLI", "CLI", "{FA291842-9FD
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "handstack", "4.Tool\CLI\handstack\handstack.csproj", "{3314A371-F013-4C45-B52E-B31C77360F29}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "checkup", "2.Modules\checkup\checkup.csproj", "{D546C016-49CF-4693-A7F9-CFC93107EBA1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -118,6 +120,10 @@ Global
 		{3314A371-F013-4C45-B52E-B31C77360F29}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3314A371-F013-4C45-B52E-B31C77360F29}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3314A371-F013-4C45-B52E-B31C77360F29}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D546C016-49CF-4693-A7F9-CFC93107EBA1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D546C016-49CF-4693-A7F9-CFC93107EBA1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D546C016-49CF-4693-A7F9-CFC93107EBA1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D546C016-49CF-4693-A7F9-CFC93107EBA1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -137,9 +143,10 @@ Global
 		{26A81090-4BDA-4A0C-B017-0AF6A787D786} = {8AAA6308-ECA2-43A5-8D46-1C7C1BC9088D}
 		{FA291842-9FD5-4508-A423-7421803FDA88} = {AED6D86D-3CC1-4D7B-80FD-1E7EBF83566F}
 		{3314A371-F013-4C45-B52E-B31C77360F29} = {FA291842-9FD5-4508-A423-7421803FDA88}
+		{D546C016-49CF-4693-A7F9-CFC93107EBA1} = {43B577AB-74FA-4B53-A2BE-E369622F970F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {0075CE72-935C-4F87-A6BA-989C82F06F8F}
 		VisualSVNWorkingCopyRoot = .
+		SolutionGuid = {0075CE72-935C-4F87-A6BA-989C82F06F8F}
 	EndGlobalSection
 EndGlobal

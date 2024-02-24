@@ -1,0 +1,136 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .maximize {
+            position: absolute !important;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: calc(100vh) !important;
+        }
+
+        .minimize {
+            height: 620px !important;
+        }
+    </style>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <iframe id="ifmCommons" width="0" height="0" scrolling="yes" class="hidden"></iframe>
+        <input type="hidden" id="txtUserWorkID" syn-datafield="UserWorkID" syn-options="{belongID: ['LF01', 'GF01', 'MF01']}">
+        <input type="hidden" id="txtApplicationID" syn-datafield="ApplicationID" syn-options="{belongID: ['LF01', 'GF01', 'MF01']}">
+        <input type="hidden" id="txtApplicationName" syn-datafield="ApplicationName" syn-options="{belongID: ['LF01', 'GF01', 'MF01']}">
+        <input type="hidden" id="txtItemPath" syn-datafield="ItemPath" syn-options="{belongID: ['LF01', 'GF01', 'MF01']}">
+        <input type="hidden" id="txtUserNo" syn-datafield="UserNo" syn-options="{belongID: ['LF01', 'GF01', 'MF01']}">
+        <input type="hidden" id="txtCompressBase64" syn-datafield="CompressBase64" syn-options="{belongID: ['LF01', 'GF01', 'MF01']}">
+        <div class="page">
+            <div class="page-wrapper">
+                <div class="page-header mt-2 d-print-none">
+                    <div class="container-fluid max-width:1600!">
+                        <div class="row g-2 align-items-center">
+                            <div class="col">
+                                <div class="page-pretitle font:12!">
+                                    GNB 메뉴 / LNB 메뉴
+                                </div>
+                                <h2 class="page-title">
+                                    공통 파일 관리
+                                </h2>
+                            </div>
+                            <div class="col-auto ms-auto d-print-none">
+                                <div class="btn-list">
+                                    <input id="fleCommon" syn-events="['change']" type="file" accept="*.html,*.js,*.json,*.css" class="form-control hidden" multiple />
+                                    <button type="button" id="btnCommonFileUpload" syn-events="['click']" class="btn btn-primary">
+                                        <i class="font:20 mr:4 ti ti-upload"></i>
+                                        HTML, Javascript, CSS, JSON 파일 업로드
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-body mt-2">
+                    <div class="container-fluid max-width:1600!">
+                        <div class="row">
+                            <div class="col-4">
+                                <div class="card h:696! overflow-auto">
+                                    <div class="card-body px-2">
+                                        <div class="table-responsive">
+                                            <table class="table table-vcenter card-table table-striped text-center mt-1">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="w:38">&nbsp;</th>
+                                                        <th class="f:14! px-2">No</th>
+                                                        <th class="f:14! px-2">이름</th>
+                                                        <th class="f:14! px-2">크기</th>
+                                                        <th class="f:14! px-2">수정한 날짜 (UTC)</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="lstFile">
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-8">
+                                <div id="pnlSourceEditor" class="card h:696!">
+                                    <div class="card-header">
+                                        <h3 id="lblFileName" class="card-title">&nbsp;</h3>
+                                        <div class="card-actions">
+                                            <div class="btn-group">
+                                                <button type="button" id="btnMaximize" syn-events="['click']" class="btn btn-icon bg-muted-lt"><i class="f:18 ti ti-arrows-maximize"></i></button>
+                                                <button type="button" id="btnMinimize" syn-events="['click']" class="btn btn-icon bg-muted-lt hidden"><i class="f:18 ti ti-arrows-minimize"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-body p-2">
+                                        <div id="divSourceEditor" class="minimize" width="100%" style="height: 100%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <syn_data id="srcException" syn-options="{
+        dataSourceID: 'Exception',
+        storeType: 'Form',
+		columns: [
+            { data: 'Error', dataType: 'string' },
+            { data: 'Level', dataType: 'string' },
+            { data: 'Message', dataType: 'string' },
+            { data: 'StackTrace', dataType: 'string' },
+            { data: 'TypeMember', dataType: 'string' }
+		]
+	}"></syn_data>
+    <syn_data id="srcFileItem" syn-options="{
+        dataSourceID: 'FileItem',
+        storeType: 'Grid',
+		columns: [
+            { data: 'FileID', dataType: 'string' },
+            { data: 'FileName', dataType: 'string' },
+            { data: 'Extension', dataType: 'string' },
+            { data: 'MD5', dataType: 'string' },
+            { data: 'Length', dataType: 'string' },
+            { data: 'LastWriteTime', dataType: 'string' }
+		]
+	}"></syn_data>
+    <script id="tplFileItem" type="text/x-mustache">
+        {{#items}}
+        <tr>
+            <td class="p-1"><input type="checkbox" id="chkItem_{{No}}" class="form-check-input"></td>
+            <td class="p-1">{{No}}</td>
+            <td class="text-primary p-1 text-left"><label class="form-selectgroup-item" onclick="$this.event.lblFileItem_click(this, '{{FileID}}', '{{FileName}}', '{{Extension}}')">{{FileName}}</label></td>
+            <td class="p-1">{{FileLength}}</td>
+            <td class="text-secondary p-1">{{LastWriteTime}}</td>
+        </tr>
+        {{/items}}
+    </script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

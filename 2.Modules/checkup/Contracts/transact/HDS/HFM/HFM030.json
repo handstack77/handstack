@@ -1,0 +1,43 @@
+{
+    "ApplicationID": "HDS",
+    "ProjectID": "HFM",
+    "TransactionID": "HFM030",
+    "Description": "function 모듈 사용가능 npm 라이브러리 정보",
+    "ModifiedDate": "2023-08-10 00:00:00",
+    "Services": [
+        {
+            "ServiceID": "LF01",
+            "Authorize": false,
+            "ReturnType": "Json",
+            "CommandType": "F",
+            "TransactionScope": false,
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "Form"
+                },
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "Grid"
+                }
+            ]
+        }
+    ],
+    "Models": []
+}

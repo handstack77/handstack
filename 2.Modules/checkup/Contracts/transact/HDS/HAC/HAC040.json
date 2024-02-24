@@ -1,0 +1,103 @@
+{
+    "ApplicationID": "HDS",
+    "ProjectID": "HAC",
+    "TransactionID": "HAC040",
+    "Description": "태넌트 앱 환경설정",
+    "ModifiedDate": "2023-08-10 00:00:00",
+    "Services": [
+        {
+            "ServiceID": "GF01",
+            "Authorize": false,
+            "ReturnType": "Json",
+            "CommandType": "F",
+            "TransactionScope": true,
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "Form"
+                },
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "Form"
+                }
+            ]
+        },
+        {
+            "ServiceID": "MF01",
+            "Authorize": false,
+            "ReturnType": "Json",
+            "CommandType": "F",
+            "TransactionScope": true,
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "Form"
+                },
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "Form"
+                }
+            ]
+        },
+        {
+            "ServiceID": "DF01",
+            "Authorize": false,
+            "ReturnType": "Json",
+            "CommandType": "F",
+            "TransactionScope": true,
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "Form"
+                }
+            ]
+        }
+    ],
+    "Models": []
+}

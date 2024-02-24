@@ -1,0 +1,186 @@
+{
+    "Header": {
+        "ApplicationID": "HDS",
+        "ProjectID": "HAC",
+        "TransactionID": "HAC030",
+        "DataSourceID": "DB01",
+        "LanguageType": "csharp",
+        "IsHttpContext": true,
+        "Use": true,
+        "Description": "태넌트 앱 transact 거래 라우팅 관리"
+    },
+    "Commands": [
+        {
+            "ID": "LF01",
+            "Seq": 0,
+            "Use": true,
+            "Timeout": 0,
+            "Description": "거래 라우팅 데이터 목록 조회",
+            "ModifiedAt": "2023-07-10 00:00:00",
+            "Params": [
+                {
+                    "id": "UserWorkID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "ApplicationID",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                }
+            ]
+        },
+        {
+            "ID": "GF01",
+            "Seq": 0,
+            "Use": true,
+            "Timeout": 0,
+            "Description": "거래 라우팅 테스트 여부 확인",
+            "ModifiedAt": "2023-07-10 00:00:00",
+            "Params": [
+                {
+                    "id": "UserWorkID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "ApplicationID",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "Uri",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                }
+            ]
+        },
+        {
+            "ID": "MF01",
+            "Seq": 0,
+            "Use": true,
+            "Timeout": 0,
+            "Description": "거래 라우팅 정보 추가 및 변경",
+            "ModifiedAt": "2023-07-10 00:00:00",
+            "Params": [
+                {
+                    "id": "PageMode",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "TransactProxyID",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "UserWorkID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "ApplicationID",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "ProjectID",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "CommandType",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "Environment",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "Uri",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "Comment",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                }
+            ]
+        },
+        {
+            "ID": "DF01",
+            "Seq": 0,
+            "Use": true,
+            "Timeout": 0,
+            "Description": "거래 라우팅 정보 삭제",
+            "ModifiedAt": "2023-07-10 00:00:00",
+            "Params": [
+                {
+                    "id": "TransactProxyID",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "UserWorkID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "ApplicationID",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "UserWorkID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "ApplicationID",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "ProjectID",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "CommandType",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "Environment",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                }
+            ]
+        }
+    ]
+}

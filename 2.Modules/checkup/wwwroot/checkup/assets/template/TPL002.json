@@ -1,0 +1,39 @@
+{
+    "Comment": "{{comment}}",
+    "ModifiedDate": "{{createAt}}",
+    "Services": [
+    {{#services}}
+        {
+            "ServiceID": "{{serviceID}}",
+            "Authorize": {{authorize}},
+            "ReturnType": "{{returnType}}",
+            "CommandType": "{{commandType}}",
+            "TransactionScope": {{transactionScope}},
+            "Inputs": [
+            {{#inputs}}
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "{{type}}",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }{{#comma}},{{/comma}}
+            {{/inputs}}
+            ],
+            "Outputs": [
+            {{#outputs}}
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "{{type}}"
+                }{{#comma}},{{/comma}}
+            {{/outputs}}
+            ]
+        }{{#comma}},{{/comma}}
+    {{/services}}
+    ]
+}

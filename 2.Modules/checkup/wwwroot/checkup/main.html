@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>HandStack</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <meta name="msapplication-TileColor" content="" />
+    <meta name="theme-color" content="" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+
+    <link rel="icon" href="/checkup/img/favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="/checkup/img/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="/lib/fancytree-2.38.0/skin-win8/ui.fancytree.css" type="text/css">
+    <link rel="stylesheet" href="main.css?tick=1212" type="text/css">
+
+    <style>
+        .ti {
+            font-size: 20px;
+        }
+
+        label.btn, input.form-control, span.input-group-text {
+            border-color: gray;
+        }
+
+        .btn.disabled, .btn:disabled {
+            border-color: transparent !important;
+        }
+
+        .fancytree-ext-filter-hide tr.fancytree-match span.fancytree-title,
+        .fancytree-ext-filter-hide span.fancytree-node.fancytree-match span.fancytree-title {
+            color: #fff;
+            font-weight: normal;
+        }
+    </style>
+</head>
+<body hidden style="display: none;" class="layout-fluid">
+    <div class="page">
+        <!-- #navBar.ml:62 및 .page-wrapper { margin-left: calc(15rem + 62px); } 사용자 뷰어에는 대(모듈),중,소 메뉴 정보 표시-->
+        <div class="fixed h:100vh hidden">
+            <div class="list-group list-group-flush overflow-hidden">
+                <div class="list-group-header px-2">
+                    <div class="row">
+                        <div class="col-auto">
+                            <button class="btn btn-icon w:46"><i class="ti ti-menu-2 f:24!"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="list-group-item px-2">
+                    <div class="row mb-2">
+                        <div class="col-auto">
+                            <button class="btn btn-icon w:46"><i class="ti ti-settings f:24!"></i></button>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-auto">
+                            <button class="btn btn-icon w:46"><i class="ti ti-user-cog f:24!"></i></button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-auto">
+                            <button class="btn btn-icon w:46"><i class="ti ti-database-cog f:24!"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="list-group-footer px-2 abs bottom-0">
+                    <div class="row mb-2">
+                        <div class="col-auto">
+                            <button class="btn btn-icon w:46"><i class="ti ti-settings f:24!"></i></button>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-auto">
+                            <button class="btn btn-icon w:46"><i class="ti ti-user-cog f:24!"></i></button>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-auto">
+                            <button class="btn btn-icon w:46"><i class="ti ti-database-cog f:24!"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <aside id="navBar" class="navbar navbar-vertical navbar-expand-lg" data-bs-theme="dark">
+            <div class="container-fluid">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar-menu" aria-controls="sidebar-menu" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <h1 class="navbar-brand navbar-brand-autodark">
+                    <img src="/checkup/img/logo.png" width="110" height="32" alt="Tabler" class="navbar-brand-image">
+                    <span>HandStack</span>
+                </h1>
+                <div class="navbar-nav flex-row d-lg-none">
+                    <div class="nav-item dropdown">
+                        <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="Open user menu">
+                            <span class="avatar avatar-sm" style="background-image: url(/checkup/img/default_user.png)"></span>
+                            <div class="d-none d-xl-block ps-2">
+                                <div id="lblLoginUserName2"></div>
+                                <div id="lblLoginUserBelong2" class="mt-1 small text-muted"></div>
+                            </div>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                            <a href="#" class="dropdown-item">Status</a>
+                            <a href="./profile.html" class="dropdown-item">Profile</a>
+                            <a href="#" class="dropdown-item">Feedback</a>
+                            <div class="dropdown-divider"></div>
+                            <a href="./settings.html" class="dropdown-item">Settings</a>
+                            <a href="./sign-in.html" class="dropdown-item">Logout</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center ms-2 mt-2">
+                    <div class="btn-group" role="group">
+                        <input id="btnBusiness" syn-events="['click']" type="radio" class="btn-check" name="menuType" checked="checked">
+                        <label for="btnBusiness" type="button" class="btn">업무</label>
+                        <input id="btnDevelopment" syn-events="['click']" type="radio" class="btn-check" name="menuType">
+                        <label for="btnDevelopment" type="button" class="btn">개발</label>
+                    </div>
+                </div>
+                <div class="input-group input-group-flat ms-2 mt-2 w:95%! hidden">
+                    <input type="text" class="form-control" autocomplete="off">
+                    <span class="input-group-text">
+                        <a href="#" class="link-secondary" data-bs-toggle="tooltip" aria-label="Clear search" data-bs-original-title="Clear search">
+                            <!-- Download SVG icon from http://tabler-icons.io/i/x -->
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M18 6l-12 12"></path><path d="M6 6l12 12"></path></svg>
+                        </a>
+                        <a href="#" class="link-secondary ms-2 disabled" data-bs-toggle="tooltip" aria-label="Add notification" data-bs-original-title="Add notification">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="24" height="24" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path>
+                                <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path>
+                            </svg>
+                        </a>
+                    </span>
+                </div>
+                <div id="divEditorButton" class="btn-group ml-1 mt-2 mb--2 hidden top:0 position-sticky" style="background: var(--tblr-navbar-bg);z-index: 10;zoom:90%">
+                    <button type="button" id="btnDevelopmentAddDirectory" syn-events="['click']" class="btn btn-icon">
+                        <i class="f:18 ti ti-folder-plus"></i>
+                    </button>
+                    <button type="button" id="btnDevelopmentAddFile" syn-events="['click']" class="btn btn-icon">
+                        <i class="f:18 ti ti-file-plus"></i>
+                    </button>
+                    <button type="button" id="btnDevelopmentTrash" syn-events="['click']" class="btn btn-icon">
+                        <i class="f:18 ti ti-trash"></i>
+                    </button>
+                    <button type="button" id="btnDevelopmentSearch" syn-events="['click']" class="btn btn-icon">
+                        <i class="f:18 ti ti-search"></i>
+                    </button>
+                    <button type="button" id="btnDevelopmentRefresh" syn-events="['click']" class="btn btn-icon">
+                        <i class="f:18 ti ti-refresh"></i>
+                    </button>
+                    <button type="button" id="btnDevelopmentSetting" syn-events="['click']" class="btn btn-icon">
+                        <i class="f:18 ti ti-settings"></i>
+                    </button>
+                </div>
+                <div id="divTreeView" class="ms-2 mt-2 hidden">
+                    <div id="divTreeSearch" class="mt-2 mb-1 hidden">
+                        <div class="input-group input-group-flat">
+                            <input id="txtTreeSearch" syn-events="['keydown']" type="text" class="form-control" placeholder="검색…">
+                            <span class="input-group-text">
+                                <a id="btnClearTreeFilter" syn-events="['click']" href="#" class="link-secondary">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M18 6l-12 12"></path><path d="M6 6l12 12"></path></svg>
+                                </a>
+                                <a id="btnApplyTreeFilter" syn-events="['click']" href="#" class="link-secondary ms-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"></path><path d="M21 21l-6 -6"></path></svg>
+                                </a>
+                            </span>
+                        </div>
+                    </div>
+                    <div>
+                        <syn_tree id="tvlTreeView" syn-options="{
+                            checkbox: false,
+                            extensions: ['filter'],
+                            height: '100%',
+                            itemID: 'key',
+                            parentItemID: 'parentID',
+                            childrenID: 'children',
+                            reduceMap: {
+                                key: 'menuID',
+                                title: 'menuName',
+                                parentID: 'parentMenuID',
+                                folder: 'directoryYN',
+                                icon: false
+                            }
+			            }" syn-events="['focus', 'dblclick']"></syn_tree>
+                    </div>
+                </div>
+                <div id="divTreeMenu" class="collapse navbar-collapse"></div>
+            </div>
+        </aside>
+        <header class="navbar navbar-expand-md d-print-none sticky-top pt-0 pb-0">
+            <div class="container-xl">
+                <button type="button" id="btnMenuSelector" class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+                    <i class="f:18 ti ti-search"></i>
+                </button>
+                <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3" style="margin-top: -2px;">
+                    <i class="f:18 ti ti-layout-dashboard mt:2" id="icoDashBoard"></i>
+                    <span id="lblActiveTabTitle" class="navbar-toggler ml:20! mr:20!">대시보드</span>
+                </h1>
+                <div class="collapse navbar-collapse" id="navbar-menu">
+                    <div class="navbar surface">
+                        <div class="mock-browser">
+                            <div class="chrome-tabs">
+                                <div class="chrome-tabs-content"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="navbar-nav flex-row order-md-last ms-md-2">
+                    <div class="d-none d-md-flex">
+                        <div class="nav-link px-0" id="btnOffCanvas">
+                            <i class="f:18 ti ti-layout-sidebar-right-expand"></i>
+                        </div>
+                        <div class="nav-item dropdown d-none d-md-flex me-3">
+                            <a href="#" class="nav-link px-0" data-bs-toggle="dropdown" tabindex="-1" aria-label="Show notifications">
+                                <i class="f:18 ti ti-bell"></i>
+                                <span class="badge bg-red"></span>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-arrow dropdown-menu-end dropdown-menu-card">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Last updates</h3>
+                                    </div>
+                                    <div class="list-group list-group-flush list-group-hoverable">
+                                        <div class="list-group-item">
+                                            <div class="row align-items-center">
+                                                <div class="col-auto"><span class="status-dot status-dot-animated bg-red d-block"></span></div>
+                                                <div class="col text-truncate">
+                                                    <a href="#" class="text-body d-block">Example 1</a>
+                                                    <div class="d-block text-muted text-truncate mt-n1">
+                                                        Change deprecated html tags to text decoration classes (#29604)
+                                                    </div>
+                                                </div>
+                                                <div class="col-auto">
+                                                    <a href="#" class="list-group-item-actions">
+                                                        <i class="f:18 ti ti-star"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="list-group-item">
+                                            <div class="row align-items-center">
+                                                <div class="col-auto"><span class="status-dot d-block"></span></div>
+                                                <div class="col text-truncate">
+                                                    <a href="#" class="text-body d-block">Example 2</a>
+                                                    <div class="d-block text-muted text-truncate mt-n1">
+                                                        justify-content:between ⇒ justify-content:space-between (#29734)
+                                                    </div>
+                                                </div>
+                                                <div class="col-auto">
+                                                    <a href="#" class="list-group-item-actions show">
+                                                        <i class="f:18 ti ti-star"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="list-group-item">
+                                            <div class="row align-items-center">
+                                                <div class="col-auto"><span class="status-dot d-block"></span></div>
+                                                <div class="col text-truncate">
+                                                    <a href="#" class="text-body d-block">Example 3</a>
+                                                    <div class="d-block text-muted text-truncate mt-n1">
+                                                        Update change-version.js (#29736)
+                                                    </div>
+                                                </div>
+                                                <div class="col-auto">
+                                                    <a href="#" class="list-group-item-actions">
+                                                        <i class="f:18 ti ti-star"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="list-group-item">
+                                            <div class="row align-items-center">
+                                                <div class="col-auto"><span class="status-dot status-dot-animated bg-green d-block"></span></div>
+                                                <div class="col text-truncate">
+                                                    <a href="#" class="text-body d-block">Example 4</a>
+                                                    <div class="d-block text-muted text-truncate mt-n1">
+                                                        Regenerate package-lock.json (#29730)
+                                                    </div>
+                                                </div>
+                                                <div class="col-auto">
+                                                    <a href="#" class="list-group-item-actions">
+                                                        <i class="f:18 ti ti-star"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="nav-item dropdown d-none d-md-flex">
+                        <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="Open user menu" aria-expanded="false">
+                            <span class="avatar avatar-sm" style="background-image: url(/checkup/img/default_user.png)"></span>
+                            <div class="d-none d-xl-block ps-2">
+                                <div id="lblLoginUserName1"></div>
+                                <div id="lblLoginUserBelong1" class="mt-1 small text-muted"></div>
+                            </div>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                            <div class="dropdown-item">프로젝트 담당자</div>
+                            <div class="dropdown-divider m-0"></div>
+                            <div class="dropdown-item">개인설정</div>
+                            <div id="btnCloseProject" class="dropdown-item">프로젝트 닫기</div>
+                            <div id="btnLogout" class="dropdown-item">로그아웃</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <div class="page-wrapper">
+            <div id="tabContainer" class="p:10">
+                <iframe id="HAC$HAC000$HAC000$HAC$i" tag="iframe" width="100%" height="100%" scrolling="yes" src="./view/HAC/HAC000.html?tabID=HAC$HAC000$HAC000$HAC"></iframe>
+            </div>
+            <footer class="footer d-print-none p:10! border-top:1px|solid|#dadfe5! sticky bottom:0">
+                <div class="container-xl">
+                    <div class="row">
+                        <div class="col-4 d-md-block d-none">
+                            <div class="navbar-nav flex-row">
+                                <div class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
+                                        <span class="nav-link-icon d-lg-inline-block">
+                                            <i class="f:18 ti ti-package"></i>
+                                        </span>
+                                        <span class="fg-black">
+                                            바로가기
+                                        </span>
+                                    </a>
+                                    <div class="dropdown-menu">
+                                        <div class="dropdown-menu-columns">
+                                            <div class="dropdown-menu-column">
+                                                <div class="dropdown-item">
+                                                    거래 API 테스트
+                                                    <span class="badge badge-sm bg-green-lt text-uppercase ms-auto">준비중</span>
+                                                </div>
+                                                <div class="dropdown-item">
+                                                    UI 항목 예제
+                                                    <span class="badge badge-sm bg-green-lt text-uppercase ms-auto">준비중</span>
+                                                </div>
+                                                <div class="dropdown-item">
+                                                    SQL 생성 도구
+                                                    <span class="badge badge-sm bg-green-lt text-uppercase ms-auto">준비중</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="nav-item d-md-flex ml-4">
+                                    <div class="btn-list hidden">
+                                        <button type="button" id="btnTransactionHistory" class="btn btn-icon"><i class="f:18 ti ti-history"></i></button>
+                                        <button type="button" id="btnViewPreview" class="btn btn-icon"><i class="f:18 ti ti-presentation"></i></button>
+                                        <button type="button" id="btnDevelopUIHtml" class="btn btn-icon"><i class="f:18 ti ti-source-code"></i></button>
+                                        <button type="button" id="btnDevelopUIJavascript" class="btn btn-icon"><i class="f:18 ti ti-brand-javascript"></i></button>
+                                        <button type="button" id="btnDevelopTransact" class="btn btn-icon"><i class="f:18 ti ti-route"></i></button>
+                                        <button type="button" id="btnDevelopDbClient" class="btn btn-icon"><i class="f:18 ti ti-sql"></i></button>
+                                        <button type="button" id="btnDevelopFunction" class="btn btn-icon"><i class="f:18 ti ti-function"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-8">
+                            <div id="divActionButtons" class="btn-list flex:row-reverse"></div>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="divOffcanvasEnd">
+            <div class="offcanvas-header p-3">
+                <h2 id="lblOffCanvasLabel" class="offcanvas-title">현재 화면에 대한 업무/참고 정보</h2>
+                <button type="button" id="btnCloseOffCanvas" class="btn-close text-reset" data-bs-dismiss="offcanvas"></button>
+            </div>
+            <div class="offcanvas-body font:18">
+                <div>
+                    기획/분석/설계/참고 파일
+                </div>
+                <div>
+                    VOC 요청 정보 및 관련 자료
+                </div>
+                <div>
+                    개발 markdown 문서 및 참고 링크
+                </div>
+            </div>
+        </div>
+        <div id="divOffCanvasBackdrop" class="offcanvas-backdrop fade show hidden"></div>
+    </div>
+
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <input type="hidden" id="txtApplicationID" syn-datafield="ApplicationID" syn-options="{belongID: ['IF01', 'IF02']}">
+        <input type="hidden" id="txtProjectType" syn-datafield="ProjectType" syn-options="{belongID: ['IF01', 'IF02']}">
+        <input type="hidden" id="txtUserNo" syn-datafield="UserNo" syn-options="{belongID: ['IF01', 'IF02']}">
+        <div id="tplCreateDirectory" class="hidden h:100%">
+            <h3 id="lblModuleDirectory" class="mt-0 mb-0">신규 디렉토리</h3>
+            <div class="card mt:-1">
+                <div class="card-body">
+                    <div class="mb-3 row">
+                        <label class="col-3 col-form-label required">디렉토리 ID</label>
+                        <div class="col">
+                            <input id="txtDirectoryName" type="text" class="form-control" placeholder="고유한 식별자를 입력하세요">
+                            <small class="form-hint">의미가 분명한 영문자를 입력합니다 공백, 특수문자, 숫자를 포함할 수 없습니다</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer text-end p:10!">
+                    <button type="button" id="btnConfirmCreateDirectory" syn-events="['click']" class="btn btn-primary">
+                        <i class="font:20 mr:4 ti ti-check"></i>
+                        확인
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="tplCreateViewItem" class="hidden h:100%">
+            <h3 id="lblViewModuleItem" class="mt-0 mb-0">신규 항목</h3>
+            <div class="card mt:-1">
+                <div class="card-body">
+                    <div class="mb-3 row">
+                        <label class="col-3 col-form-label required">항목 ID</label>
+                        <div class="col">
+                            <input id="txtViewItemName" class="form-control" placeholder="고유한 식별자를 입력하세요">
+                            <small class="form-hint">의미가 분명한 영문자를 입력합니다 공백, 특수문자, 숫자를 포함할 수 없습니다</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer text-end p:10!">
+                    <button type="button" id="btnConfirmCreateView" syn-events="['click']" class="btn btn-primary">
+                        <i class="font:20 mr:4 ti ti-check"></i>
+                        확인
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="tplCreateTransactItem" class="hidden h:100%">
+            <h3 id="lblTransactModuleItem" class="mt-0 mb-0">신규 항목</h3>
+            <div class="card mt:-1">
+                <div class="card-body pb-0">
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="mb-3 row">
+                                <label class="col-4 col-form-label required">항목 ID</label>
+                                <div class="col">
+                                    <input id="txtTransactItemName" syn-options="{editType: 'english'}" type="text" class="form-control" placeholder="고유한 식별자를 입력하세요">
+                                    <small class="form-hint">의미가 분명한 영문자를 입력합니다 공백, 특수문자, 숫자를 포함할 수 없습니다</small>
+                                </div>
+                            </div>
+                            <div class="mb-3 row">
+                                <label class="col-4 col-form-label">프로젝트 ID</label>
+                                <div class="col">
+                                    <input id="txtTransactionProjectID" syn-options="{editType: 'english'}" type="text" class="form-control" placeholder="거래 프로젝트 ID를 입력하세요">
+                                </div>
+                            </div>
+                            <div class="mb-3 row">
+                                <label class="col-4 col-form-label">설명</label>
+                                <div class="col">
+                                    <textarea id="txtTransactComment" syn-options="{toSynControl: false, height: '136px'}" rows="3" class="form-control resize:none"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-8">
+                            <div class="mb-2 row">
+                                <label class="absolute col-4 col-form-label required">기능 목록</label>
+                                <div class="text-right">
+                                    <div class="btn-group">
+                                        <button type="button" id="btnAddTransactItemField" syn-events="['click']" class="btn btn-icon"><i class="f:18 ti ti-plus font:14!"></i></button>
+                                        <button type="button" id="btnRemoveTransactItemField" syn-events="['click']" class="btn btn-icon"><i class="f:18 ti ti-minus font:14!"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-fieldset p-0">
+                                <syn_grid id="grdFeatureTransactItem" syn-options="{
+                                    height: 238
+				                    , columns: [
+                                        ['FeatureID', '기능 ID', 100, false, 'text', false, 'left']
+                                        , ['Authorize', '인증', 60, false, 'checkbox', false, 'center']
+                                        , ['ReturnTypeName', '반환결과', 80, false, {
+                                            columnType: 'dropdown',
+                                            dataSourceID: 'ReturnType',
+                                            required: true,
+                                            local: true,
+                                            codeColumnID: 'ReturnType'
+                                        }, false, 'left']
+                                        , ['CommandTypeName', '실행대상', 100, false, {
+                                            columnType: 'dropdown',
+                                            dataSourceID: 'ExecuteType',
+                                            required: true,
+                                            local: true,
+                                            codeColumnID: 'CommandType'
+                                        }, false, 'left']
+                                        , ['TransactionScope', 'T/S', 60, false, 'checkbox', false, 'center']
+                                        , ['DTI', '입력/출력 DTI', 180, false, 'text', false, 'left']
+				                    ]
+			                    }" syn-events="['afterSelectionEnd']"></syn_grid>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer text-end p:10!">
+                    <button type="button" id="btnConfirmTransactCreateItem" syn-events="['click']" class="btn btn-primary">
+                        <i class="font:20 mr:4 ti ti-check"></i>
+                        확인
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="tplCreateFunctionItem" class="hidden h:100%">
+            <input id="txtFunctionLanguage" syn-options="{editType: 'english'}" type="hidden">
+            <h3 id="lblFunctionModuleItem" class="mt-0 mb-0">신규 항목</h3>
+            <div class="card mt:-1">
+                <div class="card-body pb-0">
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="mb-3 row">
+                                <label class="col-4 col-form-label required">항목 ID</label>
+                                <div class="col">
+                                    <input id="txtFunctionItemName" syn-options="{editType: 'english'}" type="text" class="form-control" placeholder="고유한 식별자를 입력하세요">
+                                    <small class="form-hint">의미가 분명한 영문자를 입력합니다 공백, 특수문자, 숫자를 포함할 수 없습니다</small>
+                                </div>
+                            </div>
+                            <div class="mb-3 row">
+                                <label class="col-4 col-form-label required">데이터 소스 ID</label>
+                                <div class="col">
+                                    <select id="ddlFunctionDataSource" syn-options="{toSynControl: false}" class="form-select"></select>
+                                </div>
+                            </div>
+                            <div class="mb-3 row">
+                                <label class="col-4 col-form-label">설명</label>
+                                <div class="col">
+                                    <textarea id="txtFunctionComment" syn-options="{toSynControl: false, height: '136px'}" rows="3" class="form-control resize:none"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-8">
+                            <div class="mb-2 row">
+                                <label class="absolute col-4 col-form-label required">기능 목록</label>
+                                <div class="text-right">
+                                    <div class="btn-group">
+                                        <button type="button" id="btnAddFunctionItemField" syn-events="['click']" class="btn btn-icon"><i class="f:18 ti ti-plus font:14!"></i></button>
+                                        <button type="button" id="btnRemoveFunctionItemField" syn-events="['click']" class="btn btn-icon"><i class="f:18 ti ti-minus font:14!"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-fieldset p-0">
+                                <syn_grid id="grdFeatureFunctionItem" syn-options="{
+                                    height: 238
+				                    , columns: [
+                                        ['FeatureID', '기능 ID', 100, false, 'text', false, 'left']
+                                        , ['Sequence', '순서', 60, false, 'text', false, 'center']
+                                        , ['EntityName', '모델 ID', 200, false, {
+                                            columnType: 'dropdown',
+                                            dataSourceID: 'Empty',
+                                            required: false,
+                                            local: true,
+                                            codeColumnID: 'EntityNo'
+                                        }, false, 'left']
+                                        , ['Comment', '설명', 220, false, 'text', false, 'left']
+				                    ]
+			                    }" syn-events="['afterSelectionEnd']"></syn_grid>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mb-2 row">
+                                <label class="absolute col-4 col-form-label">추가 설정</label>
+                                <div class="text-right">
+                                    <div class="btn-group">
+                                        <button type="button" id="btnAddFunctionConfiguration" syn-events="['click']" class="btn btn-icon"><i class="f:18 ti ti-plus font:14!"></i></button>
+                                        <button type="button" id="btnRemoveFunctionConfiguration" syn-events="['click']" class="btn btn-icon"><i class="f:18 ti ti-minus font:14!"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-fieldset p-0">
+                                <syn_grid id="grdFeatureFunctionConfiguration" syn-options="{
+                                    height: 100
+				                    , columns: [
+                                        ['ID', '변수 ID', 200, false, 'text', false, 'left']
+                                        , ['Value', '데이터', 700, false, 'text', false, 'left']
+				                    ]
+			                    }" syn-events="['afterSelectionEnd']"></syn_grid>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer text-end p:10!">
+                    <button type="button" id="btnConfirmFunctionCreateItem" syn-events="['click']" class="btn btn-primary">
+                        <i class="font:20 mr:4 ti ti-check"></i>
+                        확인
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="tplCreateDbClientItem" class="hidden h:100%">
+            <h3 id="lblDbClientModuleItem" class="mt-0 mb-0">신규 항목</h3>
+            <div class="card mt:-1">
+                <div class="card-body pb-0">
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="mb-3 row">
+                                <label class="col-4 col-form-label required">항목 ID</label>
+                                <div class="col">
+                                    <input id="txtDbClientItemName" syn-options="{editType: 'english'}" type="text" class="form-control" placeholder="고유한 식별자를 입력하세요">
+                                    <small class="form-hint">의미가 분명한 영문자를 입력합니다 공백, 특수문자, 숫자를 포함할 수 없습니다</small>
+                                </div>
+                            </div>
+                            <div class="mb-3 row">
+                                <label class="col-4 col-form-label required">데이터 소스 ID</label>
+                                <div class="col">
+                                    <select id="ddlDbClientDataSource" syn-options="{toSynControl: false}" class="form-select"></select>
+                                </div>
+                            </div>
+                            <div class="mb-3 row">
+                                <label class="col-4 col-form-label">설명</label>
+                                <div class="col">
+                                    <textarea id="txtDbClientComment" syn-options="{toSynControl: false, height: '136px'}" rows="3" class="form-control resize:none"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-8">
+                            <div class="mb-2 row">
+                                <label class="absolute col-4 col-form-label required">기능 목록</label>
+                                <div class="text-right">
+                                    <div class="btn-group">
+                                        <button type="button" id="btnAddDbClientItemField" syn-events="['click']" class="btn btn-icon"><i class="f:18 ti ti-plus font:14!"></i></button>
+                                        <button type="button" id="btnRemoveDbClientItemField" syn-events="['click']" class="btn btn-icon"><i class="f:18 ti ti-minus font:14!"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-fieldset p-0">
+                                <syn_grid id="grdFeatureDbClientItem" syn-options="{
+                                    height: 238
+				                    , columns: [
+                                        ['FeatureID', '기능 ID', 100, false, 'text', false, 'left']
+                                        , ['Sequence', '순서', 60, false, 'text', false, 'center']
+                                        , ['CommandTypeName', '명령구분', 80, false, {
+                                            columnType: 'dropdown',
+                                            dataSourceID: 'QueryType',
+                                            required: true,
+                                            local: true,
+                                            codeColumnID: 'CommandType'
+                                        }, false, 'left']
+                                        , ['EntityName', '모델 ID', 200, false, {
+                                            columnType: 'dropdown',
+                                            dataSourceID: 'Empty',
+                                            required: false,
+                                            local: true,
+                                            codeColumnID: 'EntityNo'
+                                        }, false, 'left']
+                                        , ['Comment', '설명', 140, false, 'text', false, 'left']
+				                    ]
+			                    }" syn-events="['afterSelectionEnd']"></syn_grid>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer text-end p:10!">
+                    <button type="button" id="btnConfirmDbClientCreateItem" syn-events="['click']" class="btn btn-primary">
+                        <i class="font:20 mr:4 ti ti-check"></i>
+                        확인
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="tplDevelopmentSetting" class="hidden h:100%">
+            <h3 class="mt-0 mb-0">에디터 설정</h3>
+            <div class="card mt:-1">
+                <div class="card-body pb-0">
+                    <div class="row">
+                        <div class="col">
+                            <div class="mb-3 row">
+                                <label class="col-3 col-form-label">기본 폰트</label>
+                                <div class="col">
+                                    <input id="txtFontFamily" syn-options="{editType: 'text'}" type="text" class="form-control" placeholder="D2Coding, Consolas 등 선호하는 개발 폰트를 입력하세요">
+                                    <small class="form-hint">입력하신 폰트가 없는 경우 OS의 기본 폰트가 적용됩니다</small>
+                                </div>
+                            </div>
+                            <div class="mb-3 row">
+                                <label class="col-3 col-form-label">폰트 크기</label>
+                                <div class="col">
+                                    <input id="txtFontSize" syn-options="{editType: 'number'}" type="text" class="form-control" placeholder="14 ~ 20 사이를 권장합니다">
+                                    <small class="form-hint">폰트의 기본 크기입니다</small>
+                                </div>
+                            </div>
+                            <div class="mb-3 row">
+                                <label class="col-3 col-form-label">미니 맵 표시</label>
+                                <div class="col p:8">
+                                    <label class="form-check form-switch">
+                                        <input id="chkMinimap" class="form-check-input" type="checkbox">
+                                        <span class="form-check-label">소스 코드 오른쪽 끝에 미니 맵 표시 여부입니다</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="mb-3 row">
+                                <label class="col-3 col-form-label">라인 수</label>
+                                <div class="col p:8">
+                                    <label class="form-check form-switch">
+                                        <input id="chkLineNumbers" class="form-check-input" type="checkbox">
+                                        <span class="form-check-label">소스 코드 왼쪽 앞에 라인 수 표시 여부입니다</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="mb-3 row">
+                                <label class="col-3 col-form-label">다크모드</label>
+                                <div class="col p:8">
+                                    <label class="form-check form-switch">
+                                        <input id="chkDarkMode" class="form-check-input" type="checkbox">
+                                        <span class="form-check-label">다크모드 적용 여부입니다</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="mb-3 row">
+                                <label class="col-3 col-form-label">마우스 휠 확대/축소</label>
+                                <div class="col p:8">
+                                    <label class="form-check form-switch">
+                                        <input id="chkMouseWheelZoom" class="form-check-input" type="checkbox">
+                                        <span class="form-check-label">Ctrl 키와 마우스 휠 동작으로 확대/축소를 변경합니다</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="mb-3 row">
+                                <label class="col-3 col-form-label">자동 들여쓰기</label>
+                                <div class="col p:8">
+                                    <label class="form-check form-switch">
+                                        <input id="chkAutoIndent" class="form-check-input" type="checkbox">
+                                        <span class="form-check-label">엔터 키 입력시 현재 위치로 자동 들여쓰기가 적용됩니다</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer text-end p:10!">
+                    <button type="button" id="btnApplyDevelopmentSetting" syn-events="['click']" class="btn btn-primary">
+                        <i class="font:20 mr:4 ti ti-check"></i>
+                        확인
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+    <syn_data id="srcException" syn-options="{
+        dataSourceID: 'Exception',
+        storeType: 'Form',
+		columns: [
+            { data: 'Error', dataType: 'string' },
+            { data: 'Level', dataType: 'string' },
+            { data: 'Message', dataType: 'string' },
+            { data: 'StackTrace', dataType: 'string' },
+            { data: 'TypeMember', dataType: 'string' }
+		]
+	}"></syn_data>
+    <script type="text/javascript">
+        function pageLoadFiles(styleFiles, jsFiles, templateFiles) {
+            templateFiles.push('/checkup/assets/template/TPL001.xml?id=tplDbClientItem');
+            templateFiles.push('/checkup/assets/template/TPL002.json?id=tplTransactItem');
+            templateFiles.push('/checkup/assets/template/TPL003.cs?id=tplFunctionCSharpItem');
+            templateFiles.push('/checkup/assets/template/TPL003.json?id=tplFunctionContractItem');
+            templateFiles.push('/checkup/assets/template/TPL003.js?id=tplFunctionJavascriptItem');
+            templateFiles.push('/checkup/assets/template/TPL004.html?id=tplUIViewItem');
+            templateFiles.push('/checkup/assets/template/TPL004.js?id=tplUIJavascriptItem');
+
+            window.afterLoadFiles = [];
+            afterLoadFiles.push('/lib/fancytree-2.38.0/modules/jquery.fancytree.ui-deps.js');
+            afterLoadFiles.push('/lib/fancytree-2.38.0/modules/jquery.fancytree.filter.js');
+            afterLoadFiles.push('/lib/fancytree-2.38.0/modules/jquery.fancytree.js');
+            afterLoadFiles.push('/lib/jquery-ui-contextmenu-1.18.1/jquery-ui.js');
+        }
+    </script>
+    <script src="/lib/draggabilly-3.0.0/draggabilly.pkgd.min.js"></script>
+    <script src="/lib/chrome-tabs-1.0.0/js/chrome-tabs.js"></script>
+    <script src="/lib/sql-formatter-12.2.4/dist/sql-formatter.min.js"></script>
+    <script src="/lib/squel-5.13.0/squel.min.js"></script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>
+
+
+

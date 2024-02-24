@@ -1,0 +1,159 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        #grdAppMember tbody tr td:nth-of-type(2), #grdAppMember tbody tr td:nth-of-type(3), #grdAppMember tbody tr td:nth-of-type(4), #grdAppMember tbody tr td:nth-of-type(10), #grdAppMember tbody tr td:nth-of-type(12) {
+            background-color: #f6f8fb !important;
+        }
+    </style>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <input type="hidden" id="txtApplicationNo" syn-datafield="ApplicationNo" syn-options="{belongID: ['LD01', 'MD01']}">
+        <div class="page">
+            <div class="page-wrapper">
+                <div class="page-header mt-2 d-print-none">
+                    <div class="container-fluid max-width:1600!">
+                        <div class="row g-2 align-items-center">
+                            <div class="col">
+                                <div class="page-pretitle font:12!">
+                                    GNB 메뉴 / LNB 메뉴
+                                </div>
+                                <h2 class="page-title">
+                                    프로젝트 담당자
+                                </h2>
+                            </div>
+                            <div class="col-auto ms-auto d-print-none">
+                                <div class="btn-list">
+                                    <button type="button" id="btnNewAppMember" syn-events="['click']" class="btn btn-primary">
+                                        <i class="font:20 mr:4 ti ti-news"></i>
+                                        신규 담당자 초대
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-body mt-2">
+                    <div class="container-fluid max-width:1600!">
+                        <div class="card mb-4">
+                            <div class="card-body p-2">
+                                <div class="row mt--2">
+                                    <div class="col-sm-12 col-md-6 col-lg-3 mt-2 pl-0">
+                                        <div class="input-group">
+                                            <label class="w:86 col-form-label px-3">이메일</label>
+                                            <input id="txtEmailID" syn-datafield="EmailID" syn-options="{editType: 'text', belongID: ['LD01']}" type="text" class="form-control" maxlengthB="256">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-6 col-lg-3 mt-2 pl-0">
+                                        <div class="input-group">
+                                            <label class="w:86 col-form-label px-3">역할</label>
+                                            <select class="form-select" id="ddlProjectRole" syn-datafield="ProjectRole" syn-options="{toSynControl: false, belongID: ['LD01']}">
+                                                <option value="" selected="">전체</option>
+                                                <option value="D">개발</option>
+                                                <option value="B">업무</option>
+                                                <option value="O">운영</option>
+                                                <option value="M">관리</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-6 col-lg-3 mt-2 pl-0">
+                                        <div class="input-group">
+                                            <label class="w:86 col-form-label px-3">입력기간</label>
+                                            <syn_datepicker id="dtpCreatedStartAt" syn-datafield="CreatedStartAt" syn-options="{value: 'month:-6', useRangeSelect: true, rangeEndControlID: 'dtpCreatedEndAt', belongID: ['LD01']}"></syn_datepicker>
+                                            <label class="bg-white col-form-label border-left:0! ml:1! mr:2!">~</label>
+                                            <syn_datepicker id="dtpCreatedEndAt" syn-datafield="CreatedEndAt" syn-options="{value: 'now', useRangeSelect: true, rangeStartControlID: 'dtpCreatedStartAt', belongID: ['LD01']}"></syn_datepicker>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-6 col-lg-3 mt-2 pl-0">
+                                        <div class="input-group">
+                                            <label class="w:86 col-form-label px-3">회원상태</label>
+                                            <select class="form-select" id="ddlMemberStatus" syn-datafield="MemberStatus" syn-options="{dataSourceID: 'SYS034', local: true, toSynControl: false, required: false, belongID: ['LD01']}"></select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-12 col-md-6 col-lg-3 mt-2 pl-0">
+                                        <div class="input-group">
+                                            <label class="w:86 col-form-label px-3">사용자명</label>
+                                            <input id="txtMemberName" syn-datafield="MemberName" syn-options="{editType: 'text', belongID: ['LD01']}" type="text" class="form-control" maxlengthB="50">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-6 col-lg-3 mt-2 pl-0">
+                                        <div class="input-group">
+                                            <label class="w:86 col-form-label px-3">직급명</label>
+                                            <input id="txtPositionName" syn-datafield="PositionName" syn-options="{editType: 'text', belongID: ['LD01']}" type="text" class="form-control" maxlengthB="50">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-6 col-lg-3 mt-2 pl-0">
+                                        <div class="input-group">
+                                            <label class="w:86 col-form-label px-3">부서명</label>
+                                            <input id="txtDepartmentName" syn-datafield="DepartmentName" syn-options="{editType: 'text', belongID: ['LD01']}" type="text" class="form-control" maxlengthB="50">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-6 col-lg-3 mt-2 pl-0">
+                                        <div class="input-group">
+                                            <label class="w:86 col-form-label px-3">회사명</label>
+                                            <input id="txtCompanyName" syn-datafield="CompanyName" syn-options="{editType: 'text', belongID: ['LD01']}" type="text" class="form-control" maxlengthB="50">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">앱 담당자</h3>
+                                <div class="card-actions">
+                                    <div class="btn-group">
+                                        <button type="button" id="btnAddAppMember" syn-events="['click']" class="btn btn-icon bg-muted-lt"><i class="f:18 ti ti-plus"></i></button>
+                                        <button type="button" id="btnRemoveAppMember" syn-events="['click']" class="btn btn-icon bg-muted-lt"><i class="f:18 ti ti-minus"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body p-2">
+                                <div class="form-fieldset p-0">
+                                    <syn_grid id="grdAppMember" syn-datafield="AppMember" syn-options="{
+                                    height: 448
+				                    , columns: [
+                                        ['ApplicationNo', '어플리케이션 NO', 100, true, 'text', false, 'left', 'MD01']
+                                        , ['MemberNo', '회원 NO', 150, true, 'text', false, 'left', 'MD01']
+                                        , ['EmailID', '이메일', 200, false, 'text', false, 'left', 'MD01']
+                                        , ['Celluar', '연락처', 100, false, 'text', true, 'left']
+                                        , ['MemberName', '사용자명', 250, false, 'text', true, 'left']
+                                        , ['CompanyName', '회사명', 150, false, 'text', true, 'left']
+                                        , ['MemberStatusName', '회원상태', 80, false, {
+                                            columnType: 'dropdown',
+                                            dataSourceID: 'SYS034',
+                                            required: true,
+                                            local: true,
+                                            codeBelongID: 'MD01',
+                                            codeColumnID: 'MemberStatus'
+                                        }, false, 'left']
+                                        , ['RoleDevelop', '개발', 80, false, 'checkbox2', false, 'center', 'MD01']
+                                        , ['RoleBusiness', '업무', 80, false, 'checkbox2', false, 'center', 'MD01']
+                                        , ['RoleOperation', '운영', 80, false, 'checkbox2', false, 'center', 'MD01']
+                                        , ['RoleManaged', '관리', 80, false, 'checkbox2', false, 'center', 'MD01']
+                                        , ['JoinAt', '합류일자', 100, false, 'text', true, 'left']
+                                        , ['ExpiredAt', '만료일자', 100, false, 'date', false, 'left', 'MD01']
+                                        , ['Options', '옵션', 200, true, 'text', false, 'left', 'MD01']
+                                        , ['CreatedMemberNo', '작성자 NO', 100, true, 'text', true, 'left', 'MD01']
+                                        , ['CreatedMemberName', '작성자명', 100, true, 'text', true, 'left']
+                                        , ['CreatedAt', '입력일자', 100, false, 'text', true, 'center']
+                                        , ['ModifiedMemberNo', '변경자 NO', 100, true, 'text', true, 'left', 'MD01']
+                                        , ['ModifiedMemberName', '변경자명', 100, true, 'text', true, 'left']
+                                        , ['ModifiedAt', '변경일자', 100, true, 'text', true, 'center']
+				                    ]
+			                    }" syn-events="['afterSelectionEnd', 'afterChange']"></syn_grid>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <input type="hidden" id="txtApplicationNo" syn-datafield="ApplicationNo" syn-options="{belongID: ['ID01']}">
+        <input type="hidden" id="txtCreatedMemberNo" syn-datafield="CreatedMemberNo" syn-options="{belongID: ['ID01']}">
+        <input type="hidden" id="txtInviteSendMail" syn-datafield="InviteSendMail">
+        <div class="page">
+            <div class="page-wrapper">
+                <div class="page-body mt-2">
+                    <div class="container-fluid max-width:1600!">
+                        <div class="card card-md">
+                            <div class="card-body text-center py-4 p-sm-5">
+                                <img src="/checkup/img/invite-person.svg" height="120" class="mb-n2" alt="">
+                                <h1 class="mt-5">앱 담당자를 초대합니다</h1>
+                                <p class="text-muted">HandStack으로 앱 개발을 시작하고 운영 담당을 위한 프로젝트 멤버를 구성하세요</p>
+                            </div>
+                            <div class="hr-text hr-text-center hr-text-spaceless text-sm">초대 정보</div>
+                            <div class="card-body p-2 mt-3 mb-3">
+                                <div class="row row-cards">
+                                    <div class="col-5">
+                                        <label class="form-label required">역할</label>
+                                    </div>
+                                    <div class="col-7">
+                                        <label class="form-label required">이메일</label>
+                                    </div>
+                                </div>
+                                <div class="row row-cards mt-2">
+                                    <div class="col-5">
+                                        <div class="form-selectgroup">
+                                            <label class="form-selectgroup-item">
+                                                <input id="chkRoleDevelop1" syn-datafield="RoleDevelop1" syn-options="{belongID: ['ID01']}" type="checkbox" name="name" class="form-selectgroup-input" checked>
+                                                <span class="form-selectgroup-label">개발</span>
+                                            </label>
+                                            <label class="form-selectgroup-item">
+                                                <input id="chkRoleBusiness1" syn-datafield="RoleBusiness1" syn-options="{belongID: ['ID01']}" type="checkbox" name="name" class="form-selectgroup-input">
+                                                <span class="form-selectgroup-label">업무</span>
+                                            </label>
+                                            <label class="form-selectgroup-item">
+                                                <input id="chkRoleOperation1" syn-datafield="RoleOperation1" syn-options="{belongID: ['ID01']}" type="checkbox" name="name" class="form-selectgroup-input">
+                                                <span class="form-selectgroup-label">운영</span>
+                                            </label>
+                                            <label class="form-selectgroup-item">
+                                                <input id="chkRoleManaged1" syn-datafield="RoleManaged1" syn-options="{belongID: ['ID01']}" type="checkbox" name="name" class="form-selectgroup-input">
+                                                <span class="form-selectgroup-label">관리</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-7">
+                                        <div class="input-group">
+                                            <input id="txtUserName1" syn-datafield="UserName1" syn-options="{belongID: ['ID01']}" type="text" class="form-control w:30%!" placeholder="이름 (선택)">
+                                            <input id="txtUserEmailID1" syn-datafield="UserEmailID1" syn-options="{editType: 'email', belongID: ['ID01']}" type="email" class="form-control w:70%!" placeholder="email@handstack.io">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row row-cards mt-2">
+                                    <div class="col-5">
+                                        <div class="form-selectgroup">
+                                            <label class="form-selectgroup-item">
+                                                <input id="chkRoleDevelop2" syn-datafield="RoleDevelop2" syn-options="{belongID: ['ID01']}" type="checkbox" name="name" class="form-selectgroup-input" checked>
+                                                <span class="form-selectgroup-label">개발</span>
+                                            </label>
+                                            <label class="form-selectgroup-item">
+                                                <input id="chkRoleBusiness2" syn-datafield="RoleBusiness2" syn-options="{belongID: ['ID01']}" type="checkbox" name="name" class="form-selectgroup-input">
+                                                <span class="form-selectgroup-label">업무</span>
+                                            </label>
+                                            <label class="form-selectgroup-item">
+                                                <input id="chkRoleOperation2" syn-datafield="RoleOperation2" syn-options="{belongID: ['ID01']}" type="checkbox" name="name" class="form-selectgroup-input">
+                                                <span class="form-selectgroup-label">운영</span>
+                                            </label>
+                                            <label class="form-selectgroup-item">
+                                                <input id="chkRoleManaged2" syn-datafield="RoleManaged2" syn-options="{belongID: ['ID01']}" type="checkbox" name="name" class="form-selectgroup-input">
+                                                <span class="form-selectgroup-label">관리</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-7">
+                                        <div class="input-group">
+                                            <input id="txtUserName2" syn-datafield="UserName2" syn-options="{belongID: ['ID01']}" type="text" class="form-control w:30%!" placeholder="이름 (선택)">
+                                            <input id="txtUserEmailID2" syn-datafield="UserEmailID2" syn-options="{editType: 'email', belongID: ['ID01']}" type="email" class="form-control w:70%!" placeholder="email@handstack.io">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row row-cards mt-2">
+                                    <div class="col-5">
+                                        <div class="form-selectgroup">
+                                            <label class="form-selectgroup-item">
+                                                <input id="chkRoleDevelop3" syn-datafield="RoleDevelop3" syn-options="{belongID: ['ID01']}" type="checkbox" name="name" class="form-selectgroup-input" checked>
+                                                <span class="form-selectgroup-label">개발</span>
+                                            </label>
+                                            <label class="form-selectgroup-item">
+                                                <input id="chkRoleBusiness3" syn-datafield="RoleBusiness3" syn-options="{belongID: ['ID01']}" type="checkbox" name="name" class="form-selectgroup-input">
+                                                <span class="form-selectgroup-label">업무</span>
+                                            </label>
+                                            <label class="form-selectgroup-item">
+                                                <input id="chkRoleOperation3" syn-datafield="RoleOperation3" syn-options="{belongID: ['ID01']}" type="checkbox" name="name" class="form-selectgroup-input">
+                                                <span class="form-selectgroup-label">운영</span>
+                                            </label>
+                                            <label class="form-selectgroup-item">
+                                                <input id="chkRoleManaged3" syn-datafield="RoleManaged3" syn-options="{belongID: ['ID01']}" type="checkbox" name="name" class="form-selectgroup-input">
+                                                <span class="form-selectgroup-label">관리</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-7">
+                                        <div class="input-group">
+                                            <input id="txtUserName3" syn-datafield="UserName3" syn-options="{belongID: ['ID01']}" type="text" class="form-control w:30%!" placeholder="이름 (선택)">
+                                            <input id="txtUserEmailID3" syn-datafield="UserEmailID3" syn-options="{editType: 'email', belongID: ['ID01']}" type="email" class="form-control w:70%!" placeholder="email@handstack.io">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <div class="d-flex">
+                                    <button id="btnInviteSendMail" syn-events="['click']" type="button" class="btn btn-primary ms-auto">
+                                        <i class="font:20 mr:4 ti ti-mail-forward"></i>
+                                        초대 메일 보내기
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="/js/syn.loader.js"></script>
+    </form>
+</body>
+</html>

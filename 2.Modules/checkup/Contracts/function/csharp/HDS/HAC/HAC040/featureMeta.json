@@ -1,0 +1,144 @@
+{
+    "Header": {
+        "ApplicationID": "HDS",
+        "ProjectID": "HAC",
+        "TransactionID": "HAC040",
+        "DataSourceID": "DB01",
+        "LanguageType": "csharp",
+        "ReferenceModuleID": "handsup",
+        "Use": true,
+        "Configuration": {
+            "WindowsBaseUrl": "http://localhost:8000",
+            "LinuxBaseUrl": "https://qrame.qcnservice.co.kr"
+        },
+        "Description": "태넌트 앱 환경설정"
+    },
+    "Commands": [
+        {
+            "ID": "GF01",
+            "Seq": 0,
+            "Use": true,
+            "Timeout": 0,
+            "Description": "앱 환경설정 정보 조회",
+            "ModifiedAt": "2023-07-10 00:00:00",
+            "Params": [
+                {
+                    "id": "ApplicationNo",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "UserWorkID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "ApplicationID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "UserNo",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                }
+            ]
+        },
+        {
+            "ID": "MF01",
+            "Seq": 0,
+            "Use": true,
+            "Timeout": 0,
+            "Description": "앱 환경설정 정보 변경",
+            "ModifiedAt": "2023-07-10 00:00:00",
+            "Params": [
+                {
+                    "id": "ApplicationNo",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "UserWorkID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "ApplicationID",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "ApplicationName",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "AppSecret",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "SignInID",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "UserNo",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "Comment",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                }
+            ]
+        },
+        {
+            "ID": "DF01",
+            "Seq": 0,
+            "Use": true,
+            "Timeout": 0,
+            "Description": "앱 삭제",
+            "ModifiedAt": "2023-07-10 00:00:00",
+            "Params": [
+                {
+                    "id": "ApplicationNo",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "UserWorkID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "ApplicationID",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                },
+                {
+                    "id": "MemberNo",
+                    "type": "String",
+                    "length": 36,
+                    "value": null
+                }
+            ]
+        }
+    ]
+}

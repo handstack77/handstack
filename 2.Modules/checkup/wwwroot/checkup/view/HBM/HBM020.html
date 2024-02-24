@@ -1,0 +1,73 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <input type="hidden" id="txtUserWorkID" syn-datafield="UserWorkID" syn-options="{belongID: ['LF01', 'MF01']}">
+        <input type="hidden" id="txtApplicationID" syn-datafield="ApplicationID" syn-options="{belongID: ['LF01', 'MF01']}">
+        <input type="hidden" id="txtWithPublics" syn-datafield="WithPublics" syn-options="{belongID: ['MF01']}">
+        <div class="page">
+            <div class="page-wrapper">
+                <div class="page-header mt-2 d-print-none">
+                    <div class="container-fluid max-width:1600!">
+                        <div class="row g-2 align-items-center">
+                            <div class="col">
+                                <div class="page-pretitle font:12!">
+                                    GNB 메뉴 / LNB 메뉴
+                                </div>
+                                <h2 class="page-title">
+                                    공개 거래 설정
+                                </h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-body mt-2">
+                    <div class="container-fluid max-width:1600!">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">공개 거래 허용 정보</h3>
+                                <div class="card-actions">
+                                    <div class="btn-group">
+                                        <button type="button" id="btnAddAppPublics" syn-events="['click']" class="btn btn-icon bg-muted-lt"><i class="f:18 ti ti-plus"></i></button>
+                                        <button type="button" id="btnRemoveAppPublics" syn-events="['click']" class="btn btn-icon bg-muted-lt"><i class="f:18 ti ti-minus"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body p-2">
+                                <div class="form-fieldset p-0">
+                                    <syn_grid id="grdAppPublics" syn-datafield="AppPublics" syn-options="{
+                                        autoColumnSize: true
+                                        , height: 584
+				                        , columns: [
+					                        ['ProjectID', '프로젝트 ID', 100, false, 'text', false, 'left']
+					                        , ['TransactionID', '거래 ID', 100, false, 'text', false, 'left']
+					                        , ['Comment', '설명', 680, false, 'text', false, 'left']
+				                        ]
+				                        , stretchH: 'last'
+			                        }" syn-events="['afterSelectionEnd']"></syn_grid>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <syn_data id="srcException" syn-options="{
+            dataSourceID: 'Exception',
+            storeType: 'Form',
+			columns: [
+                { data: 'Error', dataType: 'string' },
+                { data: 'Level', dataType: 'string' },
+                { data: 'Message', dataType: 'string' },
+                { data: 'StackTrace', dataType: 'string' },
+                { data: 'TypeMember', dataType: 'string' }
+			]
+		}"></syn_data>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

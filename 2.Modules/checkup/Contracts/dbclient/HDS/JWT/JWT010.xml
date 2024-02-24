@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+	<header>
+		<application>HDS</application>
+		<project>JWT</project>
+		<transaction>JWT010</transaction>
+		<datasource>DB01</datasource>
+		<use>Y</use>
+		<desc>JWT(Json Web Token) 정보 발급갱신폐기 관리</desc>
+	</header>
+	<commands>
+        <statement id="ZD01" seq="0" use="Y" timeout="0" desc="기본 태넌트 앱 User 테이블 DDL" modified="2023-09-25 00:00:00">
+            <![CDATA[
+CREATE TABLE "User" (
+    -- 사용자 NO
+    "UserNo" INTEGER NOT NULL CONSTRAINT "PK_User" PRIMARY KEY AUTOINCREMENT,
+
+    -- 사용자 ID
+    "UserID" TEXT NULL,
+
+    -- 사용자 명
+    "UserName" TEXT NULL,
+
+    -- 비밀번호
+    "Password" TEXT NULL,
+
+    -- 이메일
+    "Email" TEXT NULL,
+
+    -- 직위
+    "PositionName" TEXT NULL,
+
+    -- 연락처
+    "Celluar" TEXT NULL,
+
+    -- 부서명
+    "DepartmentName" TEXT NULL,
+
+    -- 회사명
+    "CompanyName" TEXT NULL,
+
+    -- 클레임
+    "Claims" TEXT NULL,
+
+    -- 계정인증NO
+    "AccountSignNo" TEXT NULL,
+
+    -- 사용자계정ID
+    "UserAccountID" TEXT NULL,
+
+    -- 입력일자
+    "CreatedAt" TEXT NULL
+);
+
+
+INSERT INTO "User" ("UserNo", "AccountSignNo", "Celluar", "Claims", "CompanyName", "CreatedAt", "DepartmentName", "Email", "Password", "PositionName", "UserAccountID", "UserID", "UserName")
+VALUES (1, NULL, '01012341234', '{"BusinessRole": "Manager"}', 'HandStack', NULL, '개발팀', 'developer@handstack.com', '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4', '프로', NULL, 'developer@handstack.com', '홍길동');
+
+
+CREATE INDEX "IX_User_Email" ON "User" ("Email");
+			]]>
+        </statement>
+        
+        <statement id="AD01" seq="0" use="Y" timeout="0" desc="사용자 정보 조회" modified="2023-09-25 00:00:00">
+            <![CDATA[
+SELECT UA.UserAccountID
+    , UA.ApplicationID
+    , UA.UserID
+    , UA.UserName
+    , UA.Email
+    , UA.Celluar
+    , UA.PositionName
+    , UA.DepartmentName
+    , UA.CompanyName
+    , UA.BirthDate
+    , UA.Address
+    , UA.Gender
+    , UA.Roles
+    , UA.Claims
+    , UA.ExtendOption
+    , UA.CreatedMemberNo
+    , UA.CreatedAt
+    , UA.ModifiedMemberNo
+    , UA.ModifiedAt
+FROM 
+    UserAccount UA
+WHERE UA.UserAccountID = @UserAccountID;
+
+SELECT RT.Token
+    , RT.ExpiredAt
+    , RT.ReplacedByToken
+    , RT.RevokedByIP
+    , RT.RevokedAt
+    , RT.CreatedByIP
+    , RT.CreatedAt
+FROM 
+    RefreshToken RT
+WHERE RT.UserAccountID = @UserAccountID;
+			]]>
+            <param id="@UserAccountID" type="String" length="36" value="" />
+        </statement>
+
+        <statement id="GD01" seq="0" use="Y" timeout="0" desc="토큰 정보 조회" modified="2023-09-25 00:00:00">
+            <![CDATA[
+SELECT RT.Token
+    , RT.ExpiredAt
+    , RT.ReplacedByToken
+    , RT.RevokedByIP
+    , RT.RevokedAt
+    , RT.CreatedByIP
+    , RT.CreatedAt
+FROM 
+    RefreshToken RT
+WHERE RT.Token = @Token
+	AND RT.RevokedAt IS NULL;
+			]]>
+            <param id="@Token" type="String" length="36" value="" />
+        </statement>
+
+        <statement id="GD02" seq="0" use="Y" timeout="0" desc="RefreshToken로 사용자 정보 조회" modified="2023-09-25 00:00:00">
+            <![CDATA[
+SELECT UA.UserAccountID 
+    , UA.ApplicationID 
+    , UA.UserID 
+    , UA.UserName 
+    , UA.Email 
+    , UA.Celluar 
+    , UA.PositionName 
+    , UA.DepartmentName 
+    , UA.CompanyName 
+    , UA.BirthDate 
+    , UA.Address 
+    , UA.Gender 
+    , UA.Roles 
+    , UA.Claims 
+    , UA.ExtendOption 
+    , strftime('%Y-%m-%d %H:%M:%S', UA.CreatedAt) AS CreatedAt
+FROM 
+    UserAccount UA
+WHERE UA.UserAccountID = (SELECT UserAccountID
+	FROM RefreshToken RT
+	WHERE RT.Token = @RefreshToken
+	    AND RT.RevokedAt IS NULL);
+			]]>
+            <param id="@RefreshToken" type="String" length="4000" value="" />
+        </statement>
+
+        <statement id="GD03" seq="0" use="Y" timeout="0" desc="RefreshToken로 토큰 정보 조회" modified="2023-09-25 00:00:00">
+            <![CDATA[
+SELECT RT.RefreshTokenNo 
+    , RT.UserAccountID 
+    , RT.Token 
+    , strftime('%Y-%m-%d %H:%M:%S', RT.ExpiredAt) AS ExpiredAt
+    , RT.ReplacedByToken 
+    , RT.RevokedByIP 
+    , strftime('%Y-%m-%d %H:%M:%S', RT.RevokedAt) AS RevokedAt
+    , RT.CreatedByIP 
+    , strftime('%Y-%m-%d %H:%M:%S', RT.CreatedAt) AS CreatedAt
+FROM RefreshToken RT
+WHERE RT.Token = @RefreshToken
+	AND RT.RevokedAt IS NULL;
+			]]>
+            <param id="@RefreshToken" type="String" length="4000" value="" />
+        </statement>
+
+        <statement id="GD04" seq="0" use="Y" timeout="0" desc="UserAccountID로 사용자 정보 조회" modified="2023-09-25 00:00:00">
+            <![CDATA[
+SELECT UA.UserAccountID 
+    , UA.ApplicationID 
+    , UA.UserID 
+    , UA.UserName 
+    , UA.Email 
+    , UA.Celluar 
+    , UA.PositionName 
+    , UA.DepartmentName 
+    , UA.CompanyName 
+    , UA.BirthDate 
+    , UA.Address 
+    , UA.Gender 
+    , UA.Roles 
+    , UA.Claims 
+    , UA.ExtendOption 
+    , strftime('%Y-%m-%d %H:%M:%S', UA.CreatedAt) AS CreatedAt
+FROM 
+    UserAccount UA
+WHERE UA.ApplicationID = @ApplicationID
+    AND UA.UserAccountID = @UserAccountID;
+			]]>
+            <param id="@ApplicationID" type="String" length="36" value="" />
+            <param id="@UserAccountID" type="String" length="36" value="" />
+        </statement>
+
+        <statement id="ID01" seq="0" use="Y" timeout="0" desc="기존 계정 및 토큰 정보 삭제 후 인증 사용자 정보 입력" modified="2023-09-25 00:00:00">
+            <![CDATA[
+DELETE FROM RefreshToken
+WHERE UserAccountID = (SELECT UserAccountID FROM UserAccount
+    WHERE ApplicationID = @ApplicationID
+	    AND UserID = @UserID);
+    
+DELETE FROM UserAccount
+WHERE ApplicationID = @ApplicationID
+	AND UserID = @UserID;
+    
+INSERT INTO UserAccount
+(
+    UserAccountID
+    , ApplicationID
+    , UserID
+    , UserName
+    , Email
+    , Celluar
+    , PositionName
+    , DepartmentName
+    , CompanyName
+    , BirthDate
+    , Address
+    , Gender
+    , IPAddress
+    , Roles
+    , Claims
+    , ExtendOption
+    , CreatedMemberNo
+    , CreatedAt
+) 
+VALUES
+(
+    @UserAccountID
+    , @ApplicationID
+    , @UserID
+    , @UserName
+    , @Email
+    , @Celluar
+    , @PositionName
+    , @DepartmentName
+    , @CompanyName
+    , @BirthDate
+    , @Address
+    , @Gender
+    , @IPAddress
+    , @Roles
+    , @Claims
+    , @ExtendOption
+    , @CreatedMemberNo
+    , CURRENT_TIMESTAMP
+);
+			]]>
+            <param id="@UserAccountID" type="String" length="36" value="" />
+            <param id="@ApplicationID" type="String" length="36" value="" />
+            <param id="@UserID" type="String" length="256" value="" />
+            <param id="@UserName" type="String" length="50" value="" />
+            <param id="@Email" type="String" length="256" value="" />
+            <param id="@Celluar" type="String" length="20" value="" />
+            <param id="@PositionName" type="String" length="50" value="" />
+            <param id="@DepartmentName" type="String" length="50" value="" />
+            <param id="@CompanyName" type="String" length="50" value="" />
+            <param id="@BirthDate" type="String" length="10" value="" />
+            <param id="@Address" type="String" length="255" value="" />
+            <param id="@Gender" type="String" length="1" value="" />
+            <param id="@IPAddress" type="String" length="64" value="" />
+            <param id="@Roles" type="String" length="100" value="" />
+            <param id="@Claims" type="String" length="4000" value="" />
+            <param id="@ExtendOption" type="String" length="4000" value="" />
+            <param id="@CreatedMemberNo" type="String" length="36" value="" />
+        </statement>
+
+        <statement id="ID02" seq="0" use="Y" timeout="0" desc="신규 RefreshToken 정보 추가" modified="2023-09-25 00:00:00">
+            <![CDATA[
+INSERT INTO RefreshToken
+(
+    UserAccountID
+    , Token
+    , ExpiredAt
+    , CreatedByIP
+    , CreatedAt
+) 
+VALUES
+(
+    @UserAccountID
+    , @Token
+    , @ExpiredAt
+    , @CreatedByIP
+    , @CreatedAt
+);
+			]]>
+            <param id="@UserAccountID" type="String" length="36" value="" />
+            <param id="@Token" type="String" length="4000" value="" />
+            <param id="@ExpiredAt" type="String" length="30" value="" />
+            <param id="@CreatedByIP" type="String" length="64" value="" />
+            <param id="@CreatedAt" type="String" length="30" value="" />
+        </statement>
+
+        <statement id="DD01" seq="0" use="Y" timeout="0" desc="오래된 사용자 RefreshToken 정보 삭제" modified="2023-09-25 00:00:00">
+            <![CDATA[
+DELETE FROM RefreshToken
+WHERE UserAccountID = @UserAccountID
+	AND RevokedAt IS NULL
+	AND datetime('now') >= ExpiredAt
+	AND datetime(CreatedAt, '+3 day') <= datetime('now');
+			]]>
+            <param id="@UserAccountID" type="String" length="36" value="" />
+        </statement>
+
+        <statement id="UD01" seq="0" use="Y" timeout="0" desc="RefreshToken 정보 폐기" modified="2023-09-25 00:00:00">
+            <![CDATA[
+UPDATE RefreshToken SET ReplacedByToken = @ReplacedByToken
+    , RevokedByIP = @RevokedByIP
+    , RevokedAt = @RevokedAt
+WHERE Token = @RefreshToken;
+			]]>
+            <param id="@RefreshToken" type="String" length="4000" value="" />
+            <param id="@ReplacedByToken" type="String" length="4000" value="" />
+            <param id="@RevokedByIP" type="String" length="64" value="" />
+            <param id="@RevokedAt" type="String" length="30" value="" />
+        </statement>
+	</commands>
+</mapper>

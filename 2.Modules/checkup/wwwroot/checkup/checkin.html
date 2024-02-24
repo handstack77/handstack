@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="/checkup/img/favicon.ico" type="image/x-icon" />
+</head>
+<body class="d-flex flex-column" style="display: none;">
+    <div class="page page-center">
+        <div class="container container-narrow py-4">
+            <form autocomplete="off" method="post" id="form1" syn-datafield="MainForm">
+                <input type="hidden" id="txtApplicationNo" syn-datafield="ApplicationNo" syn-options="{belongID: ['GD01']}">
+                <input type="hidden" id="txtMemberNo" syn-datafield="MemberNo" syn-options="{belongID: ['LD04', 'GD01']}">
+                <div class="card card-md">
+                    <div class="card-body text-center py-4 p-sm-5">
+                        <h1>반갑습니다!</h1>
+                        <p class="text-secondary">HandStack에는 잘 디자인된 수많은 구성 요소와 기능이 포함되어 있습니다. HandStack으로 당신의 비즈니스를 더욱 멋지게 만들어 보세요.</p>
+                    </div>
+                    <div class="hr-text hr-text-center hr-text-spaceless text-sm">기존 프로젝트나 신규 프로젝트를 시작하세요</div>
+                    <div class="card-body">
+                        <input type="hidden" id="txtClientIP">
+                        <input type="hidden" id="txtBrowserTokenID">
+                        <div class="row">
+                            <div id="divExistProject" class="col">
+                                <div class="card mb-3">
+                                    <div class="card-header list-group-header p-2">
+                                        <h3 class="card-title">나의 프로젝트</h3>
+                                    </div>
+                                    <div id="lstMyProjects" class="list-group list-group-flush overflow-auto" style="max-height: 242px;">
+                                    </div>
+                                </div>
+                                <div class="card">
+                                    <div class="card-header list-group-header p-2">
+                                        <h3 class="card-title">참여 프로젝트</h3>
+                                    </div>
+                                    <div id="lstParticipateProjects" class="list-group list-group-flush overflow-auto" style="max-height: 242px;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="my-3"></p>
+                        <div class="card-body text-center pb-0">
+                            <div class="btn-group-lg">
+                                <button type="button" id="btnCreateProject" syn-events="['click']" class="btn btn-secondary px-4">
+                                    <i class="ti ti-plus mr-2"></i>
+                                    프로젝트 만들기
+                                </button>
+                                <button type="button" id="btnStartWorkSpace" syn-events="['click']" class="btn btn-primary mx-2 px-4" disabled>
+                                    <i class="ti ti-player-play mr-2"></i>
+                                    프로젝트 시작하기
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="tplNewApplication" class="h:100%" style="display: none;">
+                    <h3 class="mt-0 mb-0">프로젝트 만들기</h3>
+                    <div class="card mt:-1" style="height: calc(100% - 37px) !important;">
+                        <div class="card-body">
+                            <input id="txtGroupID" syn-datafield="GroupID" syn-options="{belongID: ['GD02']}" type="hidden" />
+                            <input id="txtCreatedMemberNo" syn-datafield="CreatedMemberNo" syn-options="{belongID: ['GD02']}" type="hidden" />
+                            <input id="txtNewApplicationNo" syn-datafield="NewApplicationNo" type="hidden">
+                            <input id="txtNewApplicationID" syn-datafield="NewApplicationID" type="hidden">
+                            <input id="txtLogoItemID" syn-datafield="LogoItemID" type="hidden">
+                            <ul class="steps steps-counter my-4">
+                                <li id="lsiStep1" class="step-item active">기본정보</li>
+                                <li id="lsiStep2" class="step-item">선택정보</li>
+                                <li id="lsiStep3" class="step-item">정보확인</li>
+                            </ul>
+                            <div id="divStep1">
+                                <div class="mb-3 row">
+                                    <label class="col-3 col-form-label required">어플리케이션 명</label>
+                                    <div class="col">
+                                        <input id="txtApplicationName" syn-datafield="ApplicationName" syn-events="['change']" type="text" class="form-control" placeholder="어플리케이션을 식별을 위한 정보성 명칭입니다" maxlength="50">
+                                    </div>
+                                </div>
+                                <div class="mb-3 row">
+                                    <label class="col-3 col-form-label required">약어</label>
+                                    <div class="col">
+                                        <input id="txtAcronyms" syn-datafield="Acronyms" syn-events="['change']" type="text" class="form-control" placeholder="예) HDS, PMS, MAG" maxlength="3">
+                                        <small class="form-hint">
+                                            의미를 부여한 영어 대문자 또는 숫자로 구성된 3자리의 약어를 입력합니다
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="mb-3 row">
+                                    <label class="col-3 col-form-label">공개 여부</label>
+                                    <div class="col">
+                                        <label class="form-check">
+                                            <input id="chkPublicYN" syn-datafield="Public" syn-options="{checkedValue: 'Y', uncheckedValue: 'N'}" class="form-check-input" type="checkbox">
+                                            <span class="form-check-label">공개 프로젝트</span>
+                                        </label>
+                                        <small class="form-hint">
+                                            웹 사이트에 현재 프로젝트를 공개합니다
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="mb-3 row">
+                                    <label class="col-3 col-form-label">설명</label>
+                                    <div class="col">
+                                        <textarea id="txtComment" syn-datafield="Comment" syn-options="{toSynControl: false, height: '60px'}" rows="2" class="form-control resize:none" maxlength="1000"></textarea>
+                                        <small class="form-hint">
+                                            어플리케이션에 대한 설명을 자유롭게 입력합니다
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="divStep2" class="hidden">
+                                <div class="mb-3 row">
+                                    <label class="col-3 col-form-label">로고 이미지</label>
+                                    <div class="col">
+                                        <img id="imgLogoProfile1" src="/checkup/img/common/profile.png" class="border max-h-80 max-width:80 mb-2" alt="">
+                                        <div class="input-group">
+                                            <input id="fleUploadLogoPath" type="file" syn-events="['change']" class="form-control" accept="gif;jpg;jpeg;png;bmp">
+                                            <button type="button" id="btnClearUploadLogoPath" syn-events="['click']" class="btn btn-icon bg-muted-lt">
+                                                <i class="font:18 ti ti-trash"></i>
+                                            </button>
+                                        </div>
+                                        <small class="form-hint">
+                                            80px X 80px 크기의 이미지를 권장합니다
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="mb-3 row">
+                                    <label class="col-3 col-form-label">회사명</label>
+                                    <div class="col">
+                                        <input id="txtCompanyName" syn-datafield="CompanyName"" type="text" class="form-control" placeholder="빈 값 입력시 작성자의 회사명이 저장됩니다" maxlength="100">
+                                    </div>
+                                </div>
+                                <div class="mb-3 row">
+                                    <label class="col-3 col-form-label">소유자명</label>
+                                    <div class="col">
+                                        <input id="txtOwnerName" syn-datafield="OwnerName"" type="text" class="form-control" placeholder="빈 값 입력시 작성자의 이름이 저장됩니다" maxlength="50">
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="divStep3" class="hidden">
+                                <div class="row row-cards">
+                                    <div class="col-6">
+                                        <div class="card">
+                                            <div class="card-body text-center overflow-auto h:377">
+                                                <img id="imgLogoProfile2" src="/checkup/img/common/profile.png" class="border max-h-80 max-width:80 mb-2" alt="">
+                                                <h1 id="lblApplicationName" class="mt-3">어플리케이션 명</h1>
+                                                <h4 id="lblAcronymsPublic" class="mt-2">약어, 공개여부</h4>
+                                                <h4 id="lblCompanyOwner" class="mt-2">회사명, 소유자명</h4>
+                                                <p id="lblComment" class="text-secondary">설명</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div id="divNewProject" class="card">
+                                            <div class="card-header p-2">
+                                                <h3 class="card-title bg-white" style="border-bottom: none;">프로젝트 템플릿</h3>
+                                            </div>
+
+                                            <div id="lstProjectTemplates" class="list-group list-group-flush overflow-auto h:323">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer text-end p:10!">
+                            <button type="button" id="btnPrevInfomation" syn-events="['click']" class="btn hidden">
+                                <i class="font:20 mr:4 ti ti-arrow-left"></i>
+                                이전
+                            </button>
+                            <button type="button" id="btnNextInfomation" syn-events="['click']" class="btn" disabled>
+                                <i class="font:20 mr:4 ti ti-arrow-right"></i>
+                                다음
+                            </button>
+                            <button type="button" id="btnCreateApplication" syn-events="['click']" class="btn btn-primary hidden">
+                                <i class="font:20 mr:4 ti ti-check"></i>
+                                확인
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <syn_fileclient id="txtLogoPath" syn-datafield="LogoPath" syn-options="{
+				    repositoryID: 'LFSLP01'
+			    }"></syn_fileclient>
+            </form>
+        </div>
+        <syn_data id="srcMyProjects" syn-options="{
+            dataSourceID: 'MyProjects',
+            storeType: 'Grid',
+		    columns: [
+                { data: 'ApplicationNo', dataType: 'string' },
+                { data: 'ApplicationID', dataType: 'string' },
+                { data: 'ApplicationName', dataType: 'string' },
+                { data: 'Acronyms', dataType: 'string' },
+                { data: 'LogoPath', dataType: 'string' },
+                { data: 'Roles', dataType: 'string' },
+                { data: 'CompanyName', dataType: 'string' },
+                { data: 'OwnerName', dataType: 'string' },
+                { data: 'Comment', dataType: 'string' }
+		    ]
+	    }">
+        </syn_data>
+        <syn_data id="srcParticipateProjects" syn-options="{
+            dataSourceID: 'ParticipateProjects',
+            storeType: 'Grid',
+		    columns: [
+                { data: 'ApplicationNo', dataType: 'string' },
+                { data: 'ApplicationID', dataType: 'string' },
+                { data: 'ApplicationName', dataType: 'string' },
+                { data: 'Acronyms', dataType: 'string' },
+                { data: 'LogoPath', dataType: 'string' },
+                { data: 'Roles', dataType: 'string' },
+                { data: 'CompanyName', dataType: 'string' },
+                { data: 'OwnerName', dataType: 'string' },
+                { data: 'Comment', dataType: 'string' }
+		    ]
+	    }">
+        </syn_data>
+        <syn_data id="srcManagedApp" syn-options="{
+            dataSourceID: 'ManagedApp',
+            storeType: 'Form',
+		    columns: [
+                { data: 'ApplicationNo', dataType: 'string' },
+                { data: 'ApplicationID', dataType: 'string' },
+                { data: 'ApplicationName', dataType: 'string' },
+                { data: 'MemberNo', dataType: 'string' },
+                { data: 'UserWorkID', dataType: 'string' },
+                { data: 'RoleDevelop', dataType: 'string' },
+                { data: 'RoleBusiness', dataType: 'string' },
+                { data: 'RoleOperation', dataType: 'string' },
+                { data: 'RoleManaged', dataType: 'string' },
+                { data: 'ExpiredAt', dataType: 'string' },
+                { data: 'Options', dataType: 'string' }
+		    ]
+	    }">
+        </syn_data>
+        <script type="text/javascript">
+            function pageLoadFiles(styleFiles, jsFiles, templateFiles) {
+                templateFiles.push('/checkup/assets/template/TPL005.html?id=tplProjectItem');
+                templateFiles.push('/checkup/assets/template/TPL006.html?id=tplProjectTemplate');
+            }
+        </script>
+        <script src="/js/syn.loader.js"></script>
+    </div>
+</body>
+</html>
