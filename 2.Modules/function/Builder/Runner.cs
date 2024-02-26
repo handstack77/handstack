@@ -20,32 +20,29 @@ namespace function.Builder
     public sealed class Runner
     {
         private Runner() { }
-
-        public HttpContext? httpContext;
-
         private static readonly Lazy<Runner> instance = new Lazy<Runner>(() => new Runner());
 
         public static Runner Instance { get { return instance.Value; } }
 
         internal Dictionary<string, UnloadableAssemblyLoadContext> FileAssemblyCache = new Dictionary<string, UnloadableAssemblyLoadContext>();
 
-        public object? ExecuteDynamicText(string sourceText, string queryID, string typeName, string methodName, params object[] args)
+        public object? ExecuteDynamicText(HttpContext? httpContext, string sourceText, string queryID, string typeName, string methodName, params object[] args)
         {
             object? result = null;
-            result = ExecuteDynamicMethod(false, sourceText, queryID, typeName, methodName, args);
+            result = ExecuteDynamicMethod(httpContext, false, sourceText, queryID, typeName, methodName, args);
 
             return result;
         }
 
-        public object? ExecuteDynamicFile(string sourceFilePath, string queryID, string typeName, string methodName, params object[] args)
+        public object? ExecuteDynamicFile(HttpContext? httpContext, string sourceFilePath, string queryID, string typeName, string methodName, params object[] args)
         {
             object? result = null;
-            result = ExecuteDynamicMethod(true, sourceFilePath, queryID, typeName, methodName, args);
+            result = ExecuteDynamicMethod(httpContext, true, sourceFilePath, queryID, typeName, methodName, args);
 
             return result;
         }
 
-        public object? ExecuteDynamicFile(string sourceFilePath, string queryID, ModuleScriptMap moduleScriptMap, params object[] args)
+        public object? ExecuteDynamicFile(HttpContext? httpContext, string sourceFilePath, string queryID, ModuleScriptMap moduleScriptMap, params object[] args)
         {
             object? result = null;
 
@@ -120,7 +117,7 @@ namespace function.Builder
             return result;
         }
 
-        private object? ExecuteDynamicMethod(bool isFileSource, string dataSource, string queryID, string typeName, string methodName, object[] args)
+        private object? ExecuteDynamicMethod(HttpContext? httpContext, bool isFileSource, string dataSource, string queryID, string typeName, string methodName, object[] args)
         {
             object? result = null;
             Assembly? entryAssembly = null;
@@ -194,7 +191,7 @@ namespace function.Builder
             return result;
         }
 
-        public object? ExecuteAndUnload(Tuple<byte[]?, string?>? compiledResult, string typeName, string methodName, params string[] args)
+        public object? ExecuteAndUnload(HttpContext? httpContext, Tuple<byte[]?, string?>? compiledResult, string typeName, string methodName, params string[] args)
         {
             object? result = null;
             if (compiledResult != null)
@@ -203,7 +200,7 @@ namespace function.Builder
                 var errorText = compiledResult.Item2;
                 if (string.IsNullOrEmpty(errorText) == false && compiledAssembly != null)
                 {
-                    var executeResult = LoadAndExecute(compiledAssembly, typeName, methodName, args);
+                    var executeResult = LoadAndExecute(httpContext, compiledAssembly, typeName, methodName, args);
 
                     for (var i = 0; i < 8 && executeResult.Item2.IsAlive; i++)
                     {
@@ -219,7 +216,7 @@ namespace function.Builder
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        private Tuple<object?, WeakReference> LoadAndExecute(byte[] compiledAssembly, string typeName, string methodName, params string[] args)
+        private Tuple<object?, WeakReference> LoadAndExecute(HttpContext? httpContext, byte[] compiledAssembly, string typeName, string methodName, params string[] args)
         {
             Tuple<object?, WeakReference>? result = null;
             using (var asm = new MemoryStream(compiledAssembly))

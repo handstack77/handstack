@@ -377,9 +377,17 @@ namespace function.DataClient
                             }
                             else
                             {
+                                object? result;
                                 var runner = Runner.Instance;
-                                runner.httpContext = moduleScriptMap.IsHttpContext == true ? httpContextAccessor.HttpContext : null;
-                                var result = runner.ExecuteDynamicFile(programPath, queryObject.QueryID, moduleScriptMap, arguments);
+                                if (moduleScriptMap.IsHttpContext == true)
+                                {
+                                    result = runner.ExecuteDynamicFile(httpContextAccessor.HttpContext, programPath, queryObject.QueryID, moduleScriptMap, arguments);
+                                }
+                                else
+                                {
+                                    result = runner.ExecuteDynamicFile(null, programPath, queryObject.QueryID, moduleScriptMap, arguments);
+                                }
+
                                 executeResult = JsonConvert.SerializeObject(result);
                             }
                         }
