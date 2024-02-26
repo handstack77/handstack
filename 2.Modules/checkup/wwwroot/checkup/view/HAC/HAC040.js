@@ -58,11 +58,11 @@ let $HAC040 = {
                 if ($string.toBoolean($this.store.Exception.Error) == false) {
                     syn.$w.notify('success', '앱 삭제가 완료 되었습니다');
 
-                    syn.$r.httpRequest('GET', '/handsup/api/tenant-app/logout');
+                    syn.$r.httpRequest('GET', '/checkup/api/tenant-app/logout');
                     syn.$w.removeStorage('program_token', true);
                     syn.$w.removeStorage('handstack_managedapp', true);
                     setTimeout(() => {
-                        location.href = `/handsup/checkin.html?tick=${(new Date()).getTime()}`;
+                        location.href = `/checkup/checkin.html?tick=${(new Date()).getTime()}`;
                     }, 3000);
                 }
                 else {

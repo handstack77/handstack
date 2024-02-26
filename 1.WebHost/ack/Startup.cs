@@ -495,7 +495,7 @@ namespace ack
             services.AddSingleton<ISequentialIdGenerator, SequentialIdGenerator>();
             services.AddSingleton(new SqidsEncoder<int>(new()
             {
-                Alphabet = "abcdefghijklmnopqrstuvwxyz1234567890",
+                Alphabet = appSettings["SqidsAlphabet"].ToStringSafe() == "" ? "abcdefghijklmnopqrstuvwxyz1234567890" : appSettings["SqidsAlphabet"].ToStringSafe(),
                 MinLength = 8,
             }));
 

@@ -1,8 +1,24 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
-
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+        <Compile Remove="build/**" />
+        <None Include="wwwroot/**" />
+        <None Update="wwwroot/**">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
+    <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+        <Exec Condition="'$(OS)'=='Windows_NT'" Command="rmdir /s /q $(TargetDir)" />
+        <Exec Condition="'$(OS)'!='Windows_NT'" Command="rm -rf $(TargetDir)" />
+    </Target>
+
+    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+        <Exec Condition="'$(OS)'=='Windows_NT'" Command="(robocopy $(TargetDir)wwwroot ../../1.WebHost/build/handstack/forbes /e /copy:dat /purge) ^&amp; IF %25ERRORLEVEL%25 LEQ 1 exit 0" />
+        <Exec Condition="'$(OS)'!='Windows_NT'" Command="$(ProjectDir)post-build.sh $(TargetDir)wwwroot $(ConfigurationName) $(PlatformName) $(ProjectDir)" />
+    </Target>
 </Project>

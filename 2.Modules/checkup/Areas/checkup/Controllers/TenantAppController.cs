@@ -1115,8 +1115,8 @@ namespace checkup.Areas.checkup.Controllers
                 else if (verifyMemberResults.Count > 0)
                 {
                     var item = verifyMemberResults[0];
-                    memberCount = item.MemberCount;
-                    applicationCount = item.ApplicationCount;
+                    memberCount = (int)item.MemberCount;
+                    applicationCount = (int)item.ApplicationCount;
                 }
 
                 if (memberCount == 0)
@@ -1133,7 +1133,7 @@ namespace checkup.Areas.checkup.Controllers
 
                 string applicationID = string.Empty;
                 string applicationNo = string.Empty;
-                if (scalarResults != null && scalarResults is int)
+                if (scalarResults != null)
                 {
                     applicationNo = sequentialIdGenerator.NewId().ToString("N");
                     applicationID = tenantSqids.Encode((int)scalarResults);

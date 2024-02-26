@@ -307,7 +307,7 @@ let $checkin = {
             formData.append("publicYN", syn.$l.get('chkPublicYN').checked == true ? 'Y' : 'N');
             formData.append("comment", syn.$l.get('txtComment').value.trim());
             formData.append("forbesID", $this.prop.forbesID);
-            formData.append("userWorkID", syn.$w.ManagedApp.UserWorkID);
+            formData.append("userWorkID", syn.$w.User.Claims.UserWorkID);
 
             var requestOptions = {
                 method: 'POST',
@@ -345,14 +345,14 @@ let $checkin = {
                 };
 
                 var dependencyID = syn.uicontrols.$fileclient.getTemporaryDependencyID('temp-id-');
-                var uploadUrl = `/repository/api/storage/upload-file?applicationID=${syn.$w.User.ApplicationID}&repositoryID=LFSLP01&dependencyID=${dependencyID}`;
+                var uploadUrl = `/repository/api/storage/upload-file?applicationID=${syn.$w.User.ApplicationID}&repositoryID=CHECKUPLP01&dependencyID=${dependencyID}`;
                 var response = await fetch(uploadUrl, requestOptions);
                 if (response.status == 200) {
                     var item = await response.json();
                     $this.prop.logoItemID = item.ItemID;
 
-                    syn.$l.get('imgLogoProfile1').src = `/repository/HDS/LFSLP01/${$this.prop.logoItemID}`;
-                    syn.$l.get('imgLogoProfile2').src = `/repository/HDS/LFSLP01/${$this.prop.logoItemID}`;
+                    syn.$l.get('imgLogoProfile1').src = `/repository/HDS/CHECKUPLP01/${$this.prop.logoItemID}`;
+                    syn.$l.get('imgLogoProfile2').src = `/repository/HDS/CHECKUPLP01/${$this.prop.logoItemID}`;
 
                 }
                 else {

@@ -58,6 +58,8 @@ namespace checkup
                             && (moduleConfig.EncryptionAES256Key.Length == 16 || moduleConfig.EncryptionAES256Key.Length == 32) ? moduleConfig.EncryptionAES256Key : "1234567890123456";
                         ModuleConfiguration.AuthorizationKey = GlobalConfiguration.SystemID + GlobalConfiguration.RunningEnvironment + GlobalConfiguration.HostName;
                         ModuleConfiguration.IsBundledWithHost = moduleConfigJson.IsBundledWithHost;
+                        ModuleConfiguration.AdministratorEmailID = moduleConfig.AdministratorEmailID;
+                        ModuleConfiguration.ModuleConfigurationUrl = moduleConfig.ModuleConfigurationUrl;
                         ModuleConfiguration.BusinessServerUrl = moduleConfig.BusinessServerUrl;
                         ModuleConfiguration.CircuitBreakResetSecond = moduleConfig.CircuitBreakResetSecond;
                         ModuleConfiguration.DefaultCommandTimeout = moduleConfig.DefaultCommandTimeout;
@@ -89,6 +91,8 @@ namespace checkup
                         {
                             ModuleConfiguration.ConnectionString = moduleConfig.ConnectionString;
                         }
+
+                        GlobalConfiguration.ModuleConfigurationUrl.Add(moduleConfig.ModuleConfigurationUrl);
 
                         ModuleConfiguration.IsConfigure = true;
                     }

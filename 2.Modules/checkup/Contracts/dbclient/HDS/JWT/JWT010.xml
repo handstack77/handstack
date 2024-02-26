@@ -4,7 +4,7 @@
 		<application>HDS</application>
 		<project>JWT</project>
 		<transaction>JWT010</transaction>
-		<datasource>DB01</datasource>
+		<datasource>CHECKUPDB</datasource>
 		<use>Y</use>
 		<desc>JWT(Json Web Token) 정보 발급갱신폐기 관리</desc>
 	</header>
@@ -52,12 +52,11 @@ CREATE TABLE "User" (
     "CreatedAt" TEXT NULL
 );
 
+CREATE INDEX IF NOT EXISTS "IX_User_Email" ON "User" ("Email");
 
 INSERT INTO "User" ("UserNo", "AccountSignNo", "Celluar", "Claims", "CompanyName", "CreatedAt", "DepartmentName", "Email", "Password", "PositionName", "UserAccountID", "UserID", "UserName")
 VALUES (1, NULL, '01012341234', '{"BusinessRole": "Manager"}', 'HandStack', NULL, '개발팀', 'developer@handstack.com', '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4', '프로', NULL, 'developer@handstack.com', '홍길동');
 
-
-CREATE INDEX "IX_User_Email" ON "User" ("Email");
 			]]>
         </statement>
         

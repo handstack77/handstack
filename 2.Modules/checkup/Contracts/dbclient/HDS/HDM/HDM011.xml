@@ -4,12 +4,12 @@
 		<application>HDS</application>
 		<project>HDM</project>
 		<transaction>HDM011</transaction>
-		<datasource>DB01</datasource>
+		<datasource>CHECKUPDB</datasource>
 		<use>Y</use>
 		<desc>데이터 모델 초기 데이터 변경</desc>
 	</header>
 	<commands>
-        <statement id="UD01" seq="0" use="Y" timeout="0" desc="데이터 모델 정보 변경" modified="2020-07-31 00:00:00">
+        <statement id="UD01" seq="0" use="Y" timeout="0" desc="데이터 모델 정보 변경">
             <![CDATA[
 UPDATE MetaEntity SET SeedData = @SeedData
 WHERE 

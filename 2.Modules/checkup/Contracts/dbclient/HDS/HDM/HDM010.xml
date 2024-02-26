@@ -4,12 +4,12 @@
         <application>HDS</application>
         <project>HDM</project>
         <transaction>HDM010</transaction>
-        <datasource>DB01</datasource>
+        <datasource>CHECKUPDB</datasource>
         <use>Y</use>
         <desc>데이터 모델 관리</desc>
     </header>
     <commands>
-        <statement id="LD01" seq="0" use="Y" timeout="0" desc="데이터 모델 목록 조회" modified="2020-07-31 00:00:00">
+        <statement id="LD01" seq="0" use="Y" timeout="0" desc="데이터 모델 목록 조회">
             <![CDATA[
 SELECT ME.EntityNo
     , ME.EntityID
@@ -31,7 +31,7 @@ ORDER BY ME.CreatedAt;
             <param id="@ApplicationNo" type="String" length="36" value="" />
         </statement>
 
-        <statement id="LD02" seq="0" use="Y" timeout="0" desc="데이터 모델 필드 목록 조회" modified="2020-07-31 00:00:00">
+        <statement id="LD02" seq="0" use="Y" timeout="0" desc="데이터 모델 필드 목록 조회">
             <![CDATA[
 SELECT MF.EntityNo
     , MF.FieldID
@@ -55,7 +55,7 @@ ORDER BY MF.SortingNo
             <param id="@EntityNo" type="String" length="36" value="" />
         </statement>
 
-        <statement id="ID01" seq="0" use="Y" timeout="0" desc="데이터 모델 정보 입력" modified="2020-07-31 00:00:00">
+        <statement id="ID01" seq="0" use="Y" timeout="0" desc="데이터 모델 정보 입력">
             <![CDATA[
 INSERT INTO MetaEntity
 (
@@ -89,7 +89,7 @@ VALUES
             <param id="@CreatedMemberNo" type="String" length="36" value="" />
         </statement>
 
-        <statement id="DD01" seq="0" use="Y" timeout="0" desc="데이터 모델 정보 삭제" modified="2020-07-31 00:00:00">
+        <statement id="DD01" seq="0" use="Y" timeout="0" desc="데이터 모델 정보 삭제">
             <![CDATA[
 UPDATE MetaEntity SET DeletedAt = CURRENT_TIMESTAMP
     , ModifiedMemberNo = @ModifiedMemberNo
@@ -100,7 +100,7 @@ WHERE DeletedAt IS NULL
             <param id="@ModifiedMemberNo" type="String" length="36" value="" />
         </statement>
 
-        <statement id="GD01" seq="0" use="Y" timeout="0" desc="데이터 모델 초기 데이터 조회" modified="2020-07-31 00:00:00">
+        <statement id="GD01" seq="0" use="Y" timeout="0" desc="데이터 모델 초기 데이터 조회">
             <![CDATA[
 SELECT ME.SeedData
 FROM MetaEntity ME 
@@ -110,7 +110,7 @@ WHERE ME.DeletedAt IS NULL
             <param id="@EntityNo" type="String" length="36" value="" />
         </statement>
 
-        <statement id="MD01" seq="0" use="Y" timeout="0" desc="데이터 모델 정보 변경" modified="2020-07-31 00:00:00">
+        <statement id="MD01" seq="0" use="Y" timeout="0" desc="데이터 모델 정보 변경">
             <if test="(Flag == 'U')">
                 <![CDATA[
 UPDATE MetaEntity SET EntityID = @EntityID
@@ -131,7 +131,7 @@ WHERE DeletedAt IS NULL
             <param id="@ModifiedMemberNo" type="String" length="36" value="" />
         </statement>
 
-        <statement id="MD01" seq="1" use="Y" timeout="0" desc="데이터 모델 필드 정보 입력 또는 변경, 삭제" modified="2020-07-31 00:00:00">
+        <statement id="MD01" seq="1" use="Y" timeout="0" desc="데이터 모델 필드 정보 입력 또는 변경, 삭제">
             <if test="(Flag == 'C')">
                 <![CDATA[
 INSERT INTO MetaField (EntityNo

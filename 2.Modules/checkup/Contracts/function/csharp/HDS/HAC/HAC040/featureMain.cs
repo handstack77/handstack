@@ -6,7 +6,7 @@ using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.Contract;
 using HandStack.Web.MessageContract.DataObject;
 
-using handsup;
+using checkup;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -203,7 +203,7 @@ TransactionException:
                     if (Directory.Exists(appBasePath) == true)
                     {
                         string baseUrl = dataContext.functionHeader.Configuration?[$"{dataContext.platform}BaseUrl"].ToStringSafe();
-                        string url = $"{baseUrl}/handsup/api/tenant-app/delete-app?memberNo={memberNo}&userWorkID={userWorkID}&applicationID={applicationID}&accessKey={ModuleConfiguration.ManagedAccessKey}";
+                        string url = $"{baseUrl}/checkup/api/tenant-app/delete-app?memberNo={memberNo}&userWorkID={userWorkID}&applicationID={applicationID}&accessKey={ModuleConfiguration.ManagedAccessKey}";
 
                         var client = new RestClient();
                         var request = new RestRequest(url, Method.Get);

@@ -66,119 +66,9 @@ namespace checkup.Areas.checkup.Controllers
             return "checkup AccountController";
         }
 
-        // http://localhost:8000/checkup/api/account/email?userID=dev@handstack.io&clientIP=1.1.1.67
-        [AllowAnonymous]
-        [HttpGet("checkin")]
-        [HttpGet("[action]")]
-        public async Task<ActionResult> Email(string userID, string? userName, string clientIP)
-        {
-            ActionResult result = BadRequest("요청 정보 확인이 필요합니다");
-            var entityResult = new EntityResult();
-
-            string? remoteClientIP = HttpContext.GetRemoteIpAddress();
-
-            if (string.IsNullOrEmpty(userID) == false
-                && string.IsNullOrEmpty(clientIP) == false
-                && string.IsNullOrEmpty(remoteClientIP) == false
-                && clientIP == remoteClientIP)
-            {
-                string? personNo = null;
-
-                try
-                {
-                    string existUser = "0";
-                    var scalarResults = ModuleExtensions.ExecuteMetaSQL(ReturnType.Scalar, "SYS.USR010.GD01", new
-                    {
-                        PersonID = userID,
-                    });
-
-                    if (scalarResults == null)
-                    {
-                        entityResult.ErrorText = "SYS.USR010.GD01 확인 필요";
-                        logger.Error("[{LogCategory}] " + $"{ModuleConfiguration.DatabaseContractPath}: ${entityResult.ErrorText}", "AccountController/Email");
-                        return Ok(entityResult);
-                    }
-                    else
-                    {
-                        existUser = scalarResults.ToString();
-                    }
-
-                    if (existUser == "0")
-                    {
-                        var nonResults = ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, "SYS.USR010.ID01", new
-                        {
-                            PersonNo = sequentialIdGenerator.NewId().ToString("N"),
-                            PersonID = userID,
-                            PersonName = string.IsNullOrEmpty(userName) == true ? Guid.NewGuid().ToString("N").Replace("-", "").Substring(0, 8).ToUpper() : userName,
-                        });
-
-                        if (nonResults == null)
-                        {
-                            entityResult.ErrorText = "SYS.USR010.ID01 확인 필요";
-                            logger.Error("[{LogCategory}] " + $"{ModuleConfiguration.DatabaseContractPath}: ${entityResult.ErrorText}", "AccountController/Email");
-                            return Ok(entityResult);
-                        }
-                    }
-
-                    var dynamicResults = ModuleExtensions.ExecuteMetaSQL(ReturnType.Dynamic, "SYS.USR010.GD02", new
-                    {
-                        PersonID = userID,
-                    });
-
-                    if (dynamicResults == null)
-                    {
-                        entityResult.ErrorText = "SYS.USR010.GD02 확인 필요";
-                        logger.Error("[{LogCategory}] " + $"{ModuleConfiguration.DatabaseContractPath}: ${entityResult.ErrorText}", "AccountController/Email");
-                        return Ok(entityResult);
-                    }
-                    else if (dynamicResults.Count > 0)
-                    {
-                        var item = dynamicResults[0];
-                        personNo = item.PersonNo;
-                        userName = item.PersonName;
-                    }
-
-                    if (string.IsNullOrEmpty(personNo) == true || string.IsNullOrEmpty(userName) == true)
-                    {
-                        entityResult.ErrorText = "SYS.USR010.GD02 결과 필요";
-                        logger.Error("[{LogCategory}] " + $"{ModuleConfiguration.DatabaseContractPath}: ${entityResult.ErrorText}", "AccountController/Email");
-                        return Ok(entityResult);
-                    }
-
-                    string issueID = sequentialIdGenerator.NewId().ToString("N");
-                    string signInUrl = Request.GetBaseUrl() + $"/checkup/api/account/sign-in?userID={userID}&issueID={issueID}&validID={issueID.EncryptAES(ModuleConfiguration.EncryptionAES256Key).EncodeBase64()}";
-                    string signID = signInUrl.ToSHA256();
-                    signInUrl = signInUrl + $"&signID={signID}";
-
-                    string shortenerNo = sequentialIdGenerator.NewId().ToString("N");
-                    string shortenerUrl = Request.GetBaseUrl() + $"/checkup/api/link/{shortenerNo.Replace("-", "")}";
-
-                    if ((new FileInfo(Request.Path)).Name == "checkin")
-                    {
-                        entityResult.Message = shortenerUrl;
-                        result = Ok(entityResult);
-                    }
-                    else
-                    {
-                        if (await SignInEmail(userID, userName.ToStringSafe(), shortenerUrl, "EML001.html") == true)
-                        {
-                            result = Ok(entityResult);
-                        }
-                    }
-                }
-                catch (Exception exception)
-                {
-                    logger.Error(exception, "[{LogCategory}] " + $"로그인 이메일 검증 오류", "AccountController/Email");
-                    result = BadRequest(exception.Message);
-                }
-            }
-
-            return result;
-        }
-
         // http://localhost:8000/checkup/api/account/invite-member?userID=dev@handstack.io&clientIP=1.1.1.67
         [HttpGet("[action]")]
-        public async Task<ActionResult> InviteMember(string emailID, string applicationName, string roles, string? userName)
+        public ActionResult InviteMember(string emailID, string applicationName, string roles, string? userName)
         {
             ActionResult result = BadRequest("요청 정보 확인이 필요합니다");
             var entityResult = new EntityResult();
@@ -255,18 +145,7 @@ namespace checkup.Areas.checkup.Controllers
                         return Ok(entityResult);
                     }
 
-                    string issueID = sequentialIdGenerator.NewId().ToString("N");
-                    string signInUrl = Request.GetBaseUrl() + $"/checkup/api/account/sign-in?userID={emailID}&issueID={issueID}&validID={issueID.EncryptAES(ModuleConfiguration.EncryptionAES256Key).EncodeBase64()}";
-                    string signID = signInUrl.ToSHA256();
-                    signInUrl = signInUrl + $"&signID={signID}";
-
-                    string shortenerNo = sequentialIdGenerator.NewId().ToString("N");
-                    string shortenerUrl = Request.GetBaseUrl() + $"/checkup/api/link/{shortenerNo.Replace("-", "")}";
-
-                    if (await InviteEmail(emailID, userName.ToStringSafe(), applicationName, roles, shortenerUrl, "EML002.html") == true)
-                    {
-                        result = Ok(entityResult);
-                    }
+                    result = Ok(entityResult);
                 }
                 catch (Exception exception)
                 {
@@ -279,143 +158,62 @@ namespace checkup.Areas.checkup.Controllers
             return result;
         }
 
-        private async Task<bool> SignInEmail(string emailID, string userName, string shortenerUrl, string templateFileName)
+        // http://localhost:8000/checkup/api/account/login?userID=dev@handstack.io&password=sha256&clientIP=1.1.1.67
+        [AllowAnonymous]
+        [HttpGet("[action]")]
+        public ActionResult Login(string userID, string password, string clientIP)
         {
-            bool result = false;
-            MediatorRequest mediatorRequest = new MediatorRequest()
-            {
-                ActionModuleID = ModuleConfiguration.ModuleID,
-                SubscribeEventID = "ncloudsender.Events.PublishHtmlMail",
-            };
+            ActionResult result = BadRequest("요청 정보 확인이 필요합니다");
+            var entityResult = new EntityResult();
 
-            try
+            string? remoteClientIP = HttpContext.GetRemoteIpAddress();
+            if (clientIP == remoteClientIP)
             {
-                string templateFilePath = Path.Combine(ModuleConfiguration.WWWRootBasePath, "assets", "template", templateFileName.ToStringSafe());
-                if (System.IO.File.Exists(templateFilePath) == true)
+                string? personNo = null;
+
+                try
                 {
-                    string mailBody = System.IO.File.ReadAllText(templateFilePath);
-
-                    if (string.IsNullOrEmpty(userName) == true)
+                    var dynamicResults = ModuleExtensions.ExecuteMetaSQL(ReturnType.Dynamic, "SYS.USR010.GD02", new
                     {
-                        mailBody = mailBody.Replace("#{이름}", "");
+                        PersonID = userID
+                    });
+
+                    if (dynamicResults == null)
+                    {
+                        entityResult.ErrorText = "SYS.USR010.GD02 확인 필요";
+                        logger.Error("[{LogCategory}] " + $"{ModuleConfiguration.DatabaseContractPath}: ${entityResult.ErrorText}", "AccountController/Email");
+                        return Ok(entityResult);
                     }
-                    else
+                    else if (dynamicResults.Count > 0)
                     {
-                        mailBody = mailBody.Replace("#{이름}", $"{userName}님");
-                    }
-
-                    mailBody = mailBody.Replace("#{로그인주소}", shortenerUrl);
-
-                    mediatorRequest.Parameters = new Dictionary<string, object?>();
-                    mediatorRequest.Parameters.Add("SenderGroupID", "MessageSender");
-
-                    string title = string.Empty;
-                    if (string.IsNullOrEmpty(userName) == true)
-                    {
-                        title = "안녕하세요! 인증 이메일을 확인해 주세요";
-                    }
-                    else
-                    {
-                        title = $"안녕하세요! {userName}님. 인증 이메일을 확인해 주세요";
+                        var item = dynamicResults[0];
+                        personNo = item.PersonNo;
+                        if (item.Password != password)
+                        {
+                            personNo = null;
+                        }
                     }
 
-                    mediatorRequest.Parameters.Add("Body", mailBody);
-                    mediatorRequest.Parameters.Add("MailAddress", emailID);
-                    mediatorRequest.Parameters.Add("MemberName", userName);
+                    if (string.IsNullOrEmpty(personNo) == true)
+                    {
+                        entityResult.ErrorText = "SYS.USR010.GD02 결과 필요";
+                        logger.Error("[{LogCategory}] " + $"{ModuleConfiguration.DatabaseContractPath}: ${entityResult.ErrorText}", "AccountController/Email");
+                        return Ok(entityResult);
+                    }
 
-                    result = await SendEmail(emailID, userName, title, mailBody);
+                    string issueID = sequentialIdGenerator.NewId().ToString("N");
+                    string signInUrl = Request.GetBaseUrl() + $"/checkup/api/account/sign-in?userID={userID}&issueID={issueID}&validID={issueID.EncryptAES(ModuleConfiguration.EncryptionAES256Key).EncodeBase64()}";
+                    string signID = signInUrl.ToSHA256();
+                    signInUrl = signInUrl + $"&signID={signID}";
+
+                    entityResult.Message = signInUrl;
+                    result = Ok(entityResult);
                 }
-            }
-            catch (Exception exception)
-            {
-                logger.Error(exception, "[{LogCategory}] " + $"이메일 발송 오류", "AccountController/SignInEmail");
-            }
-
-            return result;
-        }
-
-        private async Task<bool> InviteEmail(string emailID, string userName, string applicationName, string roles, string shortenerUrl, string templateFileName)
-        {
-            bool result = false;
-            MediatorRequest mediatorRequest = new MediatorRequest()
-            {
-                ActionModuleID = ModuleConfiguration.ModuleID,
-                SubscribeEventID = "ncloudsender.Events.PublishHtmlMail",
-            };
-
-            try
-            {
-                string templateFilePath = Path.Combine(ModuleConfiguration.WWWRootBasePath, "assets", "template", templateFileName.ToStringSafe());
-                if (System.IO.File.Exists(templateFilePath) == true)
+                catch (Exception exception)
                 {
-                    string mailBody = System.IO.File.ReadAllText(templateFilePath);
-
-                    if (string.IsNullOrEmpty(userName) == true)
-                    {
-                        mailBody = mailBody.Replace("#{이름}", "");
-                    }
-                    else
-                    {
-                        mailBody = mailBody.Replace("#{이름}", $"{userName}님");
-                    }
-
-                    mailBody = mailBody.Replace("#{로그인주소}", shortenerUrl);
-                    mailBody = mailBody.Replace("#{프로젝트명}", applicationName);
-                    mailBody = mailBody.Replace("#{역할명}", roles);
-
-                    mediatorRequest.Parameters = new Dictionary<string, object?>();
-                    mediatorRequest.Parameters.Add("SenderGroupID", "MessageSender");
-
-                    string title = string.Empty;
-                    if (string.IsNullOrEmpty(userName) == true)
-                    {
-                        title = "안녕하세요! 인증 이메일을 확인해 주세요";
-                    }
-                    else
-                    {
-                        title = $"안녕하세요! {userName}님. 인증 이메일을 확인해 주세요";
-                    }
-
-                    mediatorRequest.Parameters.Add("Body", mailBody);
-                    mediatorRequest.Parameters.Add("MailAddress", emailID);
-                    mediatorRequest.Parameters.Add("MemberName", userName);
-
-                    result = await SendEmail(emailID, userName, title, mailBody);
+                    logger.Error(exception, "[{LogCategory}] " + $"로그인 이메일 검증 오류", "AccountController/Email");
+                    result = BadRequest(exception.Message);
                 }
-            }
-            catch (Exception exception)
-            {
-                logger.Error(exception, "[{LogCategory}] " + $"이메일 발송 오류", "AccountController/SignInEmail");
-            }
-
-            return result;
-        }
-
-        private async Task<bool> SendEmail(string emailID, string userName, string title, string mailBody)
-        {
-            bool result = false;
-            MediatorRequest mediatorRequest = new MediatorRequest()
-            {
-                ActionModuleID = ModuleConfiguration.ModuleID,
-                SubscribeEventID = "ncloudsender.Events.PublishHtmlMail",
-            };
-
-            try
-            {
-                mediatorRequest.Parameters = new Dictionary<string, object?>();
-                mediatorRequest.Parameters.Add("SenderGroupID", "MessageSender");
-
-                mediatorRequest.Parameters.Add("Title", title);
-                mediatorRequest.Parameters.Add("Body", mailBody);
-                mediatorRequest.Parameters.Add("MailAddress", emailID);
-                mediatorRequest.Parameters.Add("MemberName", userName);
-
-                await mediatorClient.PublishAsync(mediatorRequest);
-                result = true;
-            }
-            catch (Exception exception)
-            {
-                logger.Error(exception, "[{LogCategory}] " + $"이메일 발송 오류", "AccountController/SendEmail");
             }
 
             return result;
@@ -470,7 +268,7 @@ namespace checkup.Areas.checkup.Controllers
                     else if (dynamicPersons.Count > 0)
                     {
                         var user = dynamicPersons[0];
-                        string memberNo = sequentialIdGenerator.NewId().ToString("N");
+                        string memberNo = user.MemberNo;
                         // 사용자 명, 프로그램 명 확인
                         var dsMembers = ModuleExtensions.ExecuteMetaSQL(ReturnType.DataSet, "SYS.USR010.GD03", new
                         {
@@ -519,16 +317,7 @@ namespace checkup.Areas.checkup.Controllers
                                     }
                                 }
 
-                                if (member.GetString("PositionName") == "" && member.GetString("DepartmentName") == "" && member.GetString("CompanyName") == "")
-                                {
-                                    issueID = sequentialIdGenerator.NewId().ToString("N");
-                                    signID = userID.ToSHA256();
-                                    linkUrl = $"/checkup/account/signup.html?tick={DateTime.Now.Ticks}&issueID={issueID}&validID={issueID.EncryptAES(ModuleConfiguration.EncryptionAES256Key).EncodeBase64()}&signID={signID}";
-                                }
-                                else
-                                {
-                                    linkUrl = $"/checkup/checkin.html?tick={DateTime.Now.Ticks}";
-                                }
+                                linkUrl = $"/checkup/checkin.html?tick={DateTime.Now.Ticks}";
 
                                 var userAccount = new UserAccount()
                                 {
@@ -676,227 +465,6 @@ namespace checkup.Areas.checkup.Controllers
                     logger.Error(exception, "[{LogCategory}] " + errorText + Request.GetAbsoluteUrl(), "AccountController/SignIn");
                     result = Redirect($"/checkup/redirection.html?tick={DateTime.Now.Ticks}");
                     return result;
-                }
-            }
-
-            return result;
-        }
-
-        // http://localhost:8000/checkup/api/account/sign-update?userID=email@handstack.io&issueID=08db76189fd09485ca91a8521400025c&validID=WlGVxKVMiG3UYsrZlvY2lWg+AC9472BfOhJbj+r4mniaTdyNBuUayunuCB9oj/En&signID=5aea84ed469249b1cdb1cddf6618d4eb2f346e88fcfd8eff58580a675646f568
-        [HttpGet("[action]")]
-        public async Task<ActionResult> SignUpdate(string userID, string issueID, string validID, string signID)
-        {
-            ActionResult result = BadRequest();
-            var entityResult = new EntityResult();
-
-            string errorText;
-            string linkUrl = $"/checkup/redirection.html?tick={DateTime.Now.Ticks}";
-            string clientIP = HttpContext.GetRemoteIpAddress().ToStringSafe();
-
-            if (string.IsNullOrEmpty(userID) == false
-                && string.IsNullOrEmpty(issueID) == false
-                && string.IsNullOrEmpty(validID) == false
-                && string.IsNullOrEmpty(signID) == false
-                && userID.ToSHA256() == signID)
-            {
-                try
-                {
-                    var issueDateTime = Guid.Parse(issueID).ToDateTime();
-                    string decryptIssueID = validID.DecodeBase64().DecryptAES(ModuleConfiguration.EncryptionAES256Key);
-
-                    if (issueID != decryptIssueID)
-                    {
-                        entityResult.ErrorText = "잘못된 요청 입니다";
-                        return Ok(entityResult);
-                    }
-
-                    // 로그인 처리
-                    var dynamicPersons = ModuleExtensions.ExecuteMetaSQL(ReturnType.Dynamic, "SYS.USR010.GD02", new
-                    {
-                        PersonID = userID,
-                    });
-
-                    if (dynamicPersons == null)
-                    {
-                        errorText = "SYS.USR010.GD02 확인 필요";
-                        logger.Error("[{LogCategory}] " + $"{ModuleConfiguration.DatabaseContractPath}: ${errorText}", "AccountController/Email");
-                        entityResult.ErrorText = errorText;
-                        return Ok(entityResult);
-                    }
-                    else if (dynamicPersons.Count > 0)
-                    {
-                        var user = dynamicPersons[0];
-
-                        // 사용자 명, 프로그램 명 확인
-                        var dsMembers = ModuleExtensions.ExecuteMetaSQL(ReturnType.DataSet, "SYS.USR010.GD03", new
-                        {
-                            MemberNo = sequentialIdGenerator.NewId().ToString("N"),
-                            MemberName = user.PersonName,
-                            EmailID = userID,
-                        }) as DataSet;
-
-                        if (dsMembers == null)
-                        {
-                            errorText = "SYS.USR010.GD03 확인 필요";
-                            logger.Error("[{LogCategory}] " + $"{ModuleConfiguration.DatabaseContractPath}: ${errorText}", "AccountController/Email");
-                            entityResult.ErrorText = errorText;
-                            return Ok(entityResult);
-                        }
-                        else if (dsMembers.Tables.Count > 0)
-                        {
-                            var member = dsMembers.Tables[0].Rows[0];
-                            var memberClaims = dsMembers.Tables[1].Rows;
-
-                            if (member != null)
-                            {
-                                linkUrl = $"/checkup/checkin.html?tick={DateTime.Now.Ticks}";
-
-                                var userAccount = new UserAccount()
-                                {
-                                    ApplicationID = GlobalConfiguration.ApplicationID,
-                                    UserNo = member.GetString("UserNo").ToStringSafe(),
-                                    UserID = member.GetString("UserID").ToStringSafe(),
-                                    UserName = member.GetString("UserName").ToStringSafe(),
-                                    Email = member.GetString("Email").ToStringSafe(),
-                                    Roles = new List<Role>(),
-                                    Claims = new Dictionary<string, string>(),
-                                    LoginedAt = DateTime.Now
-                                };
-
-                                var memberRoles = member.GetString("Roles").ToStringSafe().Split(",", StringSplitOptions.RemoveEmptyEntries);
-                                foreach (var memberRole in memberRoles)
-                                {
-                                    if (Enum.TryParse<Role>(memberRole, out var role) == true)
-                                    {
-                                        if (userAccount.Roles.Contains(role) == false)
-                                        {
-                                            userAccount.Roles.Add(role);
-                                        }
-                                    }
-                                }
-
-                                var claims = new List<Claim>
-                                {
-                                    new Claim("UserID", userAccount.UserID),
-                                    new Claim("UserName", userAccount.UserName.ToStringSafe()),
-                                    new Claim("UserNo", userAccount.UserNo),
-                                    new Claim("Roles", string.Join(",", userAccount.Roles.ToArray())),
-                                    new Claim("LoginedAt", userAccount.LoginedAt.ToString())
-                                };
-
-                                foreach (DataRow item in memberClaims)
-                                {
-                                    var claimType = item.GetString("ClaimType");
-                                    string claimValue = item.GetString("ClaimValue").ToStringSafe();
-                                    if (string.IsNullOrEmpty(claimType) == false)
-                                    {
-                                        var claim = new Claim(claimType, claimValue);
-                                        if (claims.Contains(claim) == false)
-                                        {
-                                            userAccount.Claims.Add(claimType, claimValue);
-                                            claims.Add(claim);
-                                        }
-                                    }
-                                }
-
-                                userAccount.Celluar = member["Celluar"]?.ToString();
-                                userAccount.PositionName = member["PositionName"]?.ToString();
-                                userAccount.DepartmentName = member["DepartmentName"]?.ToString();
-                                userAccount.CompanyName = member["CompanyName"]?.ToString();
-
-                                var columns = member.Table.Columns;
-                                userAccount.BirthDate = columns.Contains("BirthDate") == true ? member["BirthDate"]?.ToString() : null;
-                                userAccount.Gender = columns.Contains("Gender") == true ? member["Gender"]?.ToString() : null;
-                                userAccount.Address = columns.Contains("Address") == true ? member["Address"]?.ToString() : null;
-                                userAccount.ExtendOption = columns.Contains("ExtendOption") == true ? member["ExtendOption"]?.ToString() : null;
-
-                                // applicationUser에서 UserNo, UserID, UserName, Email, Roles를 제외한 추가 정보
-                                var excludeColumnNames = new string[] { "UserNo", "UserID", "UserName", "Email", "Roles" };
-                                Dictionary<string, string> dictionary = new Dictionary<string, string>();
-                                dictionary.Add("ClientIP", clientIP);
-
-                                foreach (DataColumn item in columns)
-                                {
-                                    if (excludeColumnNames.Contains(item.ColumnName) == false)
-                                    {
-                                        dictionary.Add(item.ColumnName, member.GetString(item.ColumnName).ToStringSafe());
-                                    }
-                                }
-
-                                var variable = JObject.FromObject(dictionary);
-                                variable.Add("InstallType", GlobalConfiguration.InstallType);
-                                BearerToken bearerToken = CreateBearerToken(userAccount, claims, variable);
-
-                                var claimsIdentity = new ClaimsIdentity(claims, $"{GlobalConfiguration.CookiePrefixName}.AuthenticationScheme");
-                                var authenticationProperties = new AuthenticationProperties()
-                                {
-                                    AllowRefresh = true,
-                                    IsPersistent = true
-                                };
-
-                                CookieOptions cookieOptions = new CookieOptions();
-                                cookieOptions.HttpOnly = false;
-                                cookieOptions.SameSite = SameSiteMode.Lax;
-
-                                DateTime expiredAt = DateTime.UtcNow;
-                                if (GlobalConfiguration.UserSignExpire > 0)
-                                {
-                                    expiredAt = DateTime.UtcNow.AddMinutes(GlobalConfiguration.UserSignExpire);
-                                }
-                                else if (GlobalConfiguration.UserSignExpire < 0)
-                                {
-                                    int addDay = DateTime.Now.Day == userAccount.LoginedAt.Day ? 1 : 0;
-                                    expiredAt = DateTime.Parse(DateTime.Now.AddDays(addDay).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00");
-                                }
-
-                                cookieOptions.Expires = expiredAt;
-                                authenticationProperties.ExpiresUtc = expiredAt;
-
-                                long expireTicks = ((expiredAt.ToUniversalTime().Ticks - (new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).Ticks) / 10000);
-                                string jsonAcount = JsonConvert.SerializeObject(userAccount);
-
-                                WriteCookie($"{GlobalConfiguration.CookiePrefixName}.TokenID", bearerToken.TokenID, cookieOptions);
-                                WriteCookie($"{GlobalConfiguration.CookiePrefixName}.ExpireTicks", expireTicks.ToString(), cookieOptions);
-                                WriteCookie($"{GlobalConfiguration.CookiePrefixName}.Member", jsonAcount.EncodeBase64(), cookieOptions);
-                                WriteCookie($"{GlobalConfiguration.CookiePrefixName}.Variable", JsonConvert.SerializeObject(variable).EncodeBase64(), cookieOptions);
-                                WriteCookie($"{GlobalConfiguration.CookiePrefixName}.BearerToken", userAccount.UserID.EncodeBase64() + "." + JsonConvert.SerializeObject(bearerToken).EncryptAES(userAccount.UserID.PadRight(32, ' ')), cookieOptions);
-
-                                await HttpContext.AuthenticateAsync();
-                                await HttpContext.SignInAsync(new ClaimsPrincipal(claimsIdentity), authenticationProperties);
-
-                                try
-                                {
-                                    HttpContext.Request.Cookies.TryGetValue(GlobalConfiguration.SessionCookieName, out string? cookieValue);
-                                    if (string.IsNullOrEmpty(cookieValue) == false)
-                                    {
-                                        var protectedData = Convert.FromBase64String(cookieValue.SessionDecryptPad());
-                                        var unprotectedData = dataProtector.Unprotect(protectedData);
-                                        userAccount.SessionKey = Encoding.UTF8.GetString(unprotectedData);
-
-                                        if (HttpContext.Session.IsAvailable == true)
-                                        {
-                                            HttpContext.Session.SetString($"{GlobalConfiguration.CookiePrefixName}.Member", jsonAcount);
-                                        }
-                                    }
-                                }
-                                catch (Exception exception)
-                                {
-                                    logger.Warning(exception, "[{LogCategory}] " + $"{userAccount.UserID} 세션 키 확인 오류", "AccountController/SignIn");
-                                }
-
-                                logger.Information("[{LogCategory}] " + $"{userAccount.UserID} 로그인", "AccountController/SignIn");
-
-                                result = Ok(entityResult);
-                            }
-                        }
-                    }
-                }
-                catch (Exception exception)
-                {
-                    errorText = $"만료된 요청 이거나 잘못된 요청 정보입니다";
-                    logger.Error(exception, "[{LogCategory}] " + errorText + Request.GetAbsoluteUrl(), "AccountController/SignIn");
-                    entityResult.ErrorText = errorText;
-                    result = Ok(entityResult);
                 }
             }
 

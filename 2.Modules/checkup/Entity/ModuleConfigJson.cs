@@ -20,6 +20,10 @@ namespace checkup.Entity
 
         public string EncryptionAES256Key { get; set; }
 
+        public string AdministratorEmailID { get; set; }
+
+        public string ModuleConfigurationUrl { get; set; }
+
         public string BusinessServerUrl { get; set; }
 
         public int CircuitBreakResetSecond { get; set; }
@@ -63,6 +67,8 @@ namespace checkup.Entity
             ManagedAccessKey = "";
             EncryptionAES256Key = "";
             AuthorizationKey = "";
+            AdministratorEmailID = "";
+            ModuleConfigurationUrl = "";
             BusinessServerUrl = "";
             CircuitBreakResetSecond = 60;
             DefaultCommandTimeout = 30;

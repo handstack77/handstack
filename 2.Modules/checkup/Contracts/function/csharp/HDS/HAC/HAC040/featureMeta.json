@@ -5,7 +5,7 @@
         "TransactionID": "HAC040",
         "DataSourceID": "DB01",
         "LanguageType": "csharp",
-        "ReferenceModuleID": "handsup",
+        "ReferenceModuleID": "checkup",
         "Use": true,
         "Configuration": {
             "WindowsBaseUrl": "http://localhost:8000",

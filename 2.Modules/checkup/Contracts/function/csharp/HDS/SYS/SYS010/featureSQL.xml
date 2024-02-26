@@ -4,12 +4,12 @@
 		<application>HDS</application>
 		<project>SYS</project>
 		<transaction>SYS010</transaction>
-		<datasource>DB01</datasource>
+		<datasource>CHECKUPDB</datasource>
 		<use>Y</use>
 		<desc>프로그램 정보 관리</desc>
 	</header>
 	<commands>
-        <statement id="GD01" seq="0" use="Y" timeout="0" desc="태넌트 앱 프로젝트/항목 잠금 정보 조회" native="Y" modified="2023-08-31 00:00:00">
+        <statement id="GD01" seq="0" use="Y" timeout="0" desc="태넌트 앱 프로젝트/항목 잠금 정보 조회">
             <![CDATA[
 DECLARE @ApplicationLockYN VARCHAR(1)
 	, @ProjectLockYN VARCHAR(1)

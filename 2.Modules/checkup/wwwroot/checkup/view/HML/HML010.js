@@ -146,28 +146,6 @@ let $HML010 = {
             }
         },
 
-        btnNewAppMember_click(evt) {
-            var windowID = 'HML010';
-
-            var popupOptions = $object.clone(syn.$w.popupOptions);
-            popupOptions.title = '신규 담당자 초대';
-            popupOptions.src = 'HML011.html';
-            popupOptions.channelID = windowID;
-            popupOptions.isModal = true;
-            popupOptions.width = 620;
-            popupOptions.height = 690;
-            popupOptions.notifyActions.push({
-                actionID: 'response',
-                handler(evt, val) {
-                    syn.$w.windowClose(windowID);
-                }
-            });
-
-            syn.$w.windowOpen(windowID, popupOptions, (elID) => {
-                console.log(elID + ' window Open');
-            });
-        },
-
         btnAddAppMember_click() {
             syn.uicontrols.$grid.insertRow('grdAppMember', {
                 amount: 1,

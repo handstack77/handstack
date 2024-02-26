@@ -26,12 +26,16 @@ echo os_mode: %os_mode%, action_mode: %action_mode%, configuration_mode: %config
 
 rmdir /s /q ..\publish\%os_mode%-%arch_mode%\handstack
 dotnet %action_mode% 1.WebHost/ack/ack.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/app
+dotnet %action_mode% 1.WebHost/forbes/forbes.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/forbes
+
 dotnet build 2.Modules/dbclient/dbclient.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/dbclient
 dotnet build 2.Modules/function/function.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/function
 dotnet build 2.Modules/logger/logger.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/logger
 dotnet build 2.Modules/repository/repository.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/repository
 dotnet build 2.Modules/transact/transact.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/transact
 dotnet build 2.Modules/wwwroot/wwwroot.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/wwwroot
+dotnet build 2.Modules/checkup/checkup.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/checkup
+
 robocopy 1.WebHost/build/handstack/contracts ../publish/%os_mode%-%arch_mode%/handstack/contracts /s /e /copy:dat
 robocopy . ../publish/%os_mode%-%arch_mode%/handstack install.* /copy:dat
 robocopy 2.Modules/function ../publish/%os_mode%-%arch_mode%/handstack package*.* /copy:dat

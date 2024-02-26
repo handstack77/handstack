@@ -10,7 +10,8 @@
         "DefaultCommandTimeout": 30,
         "IsExceptionDetailText": true,
         "ContractBasePath": [
-            "../contracts/dbclient"
+            "../contracts/dbclient",
+            "C:/projects/handstack77/handstack/2.Modules/checkup/Contracts/dbclient"
         ],
         "IsTransactionLogging": false,
         "ModuleLogFilePath": "../log/dbclient/module.log",
@@ -21,6 +22,15 @@
         "EventAction": [],
         "SubscribeAction": [],
         "DataSource": [
+            {
+                "ApplicationID": "HDS",
+                "ProjectID": "*",
+                "DataSourceID": "CHECKUPDB",
+                "DataProvider": "SQLite",
+                "ConnectionString": "URI=file:../sqlite/HDS/dbclient/checkup.db;Journal Mode=MEMORY;Cache Size=4000;Synchronous=Normal;Page Size=4096;Pooling=True;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;",
+                "IsEncryption": "N",
+                "Comment": "SQLite 기본 데이터베이스"
+            },
             {
                 "ApplicationID": "HDS",
                 "ProjectID": "*",

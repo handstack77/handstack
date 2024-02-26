@@ -4,12 +4,597 @@
 		<application>HDS</application>
 		<project>SYS</project>
 		<transaction>SYS010</transaction>
-		<datasource>DB01</datasource>
+		<datasource>CHECKUPDB</datasource>
 		<use>Y</use>
 		<desc>프로그램 정보 관리</desc>
 	</header>
 	<commands>
-        <statement id="LD01" seq="0" use="Y" timeout="0" desc="코드헬프 데이터 정보 조회" modified="2023-08-31 00:00:00">
+        <statement id="ZD01" seq="0" use="Y" timeout="0" desc="checkup 테이블 및 인덱스 생성">
+            <![CDATA[
+CREATE TABLE IF NOT EXISTS "Application" (
+    -- 태넌트 앱 NO
+    "ApplicationNo" TEXT NOT NULL CONSTRAINT "PK_Application" PRIMARY KEY,
+
+    -- 태넌트 앱 ID
+    "ApplicationID" TEXT NULL DEFAULT '',
+
+    -- 태넌트 앱 명
+    "ApplicationName" TEXT NOT NULL DEFAULT '',
+
+    -- 약어
+    "Acronyms" TEXT NULL,
+
+    -- 로고이미지경로
+    "LogoPath" TEXT NULL,
+
+    -- 회사명
+    "CompanyName" TEXT NULL,
+
+    -- 대표자명
+    "OwnerName" TEXT NULL,
+
+    -- 공개여부
+    "PublicYN" TEXT NULL,
+
+    -- 설명
+    "Comment" TEXT NULL,
+
+    -- 설립일자
+    "WorkedAt" TEXT NULL,
+
+    -- 삭제여부
+    "DeleteYN" TEXT NULL,
+
+    -- 삭제일자
+    "DeletedAt" TEXT NULL,
+
+    -- 생성회원NO
+    "CreatedMemberNo" TEXT NULL,
+
+    -- 생성일시
+    "CreatedAt" TEXT NULL,
+
+    -- 수정일시
+    "ModifiedAt" TEXT NULL
+);
+
+
+CREATE TABLE IF NOT EXISTS "ApplicationMember" (
+    -- 태넌트 앱 NO
+    "ApplicationNo" TEXT NOT NULL,
+
+    -- 이메일ID
+    "EmailID" TEXT NOT NULL,
+
+    -- 회원NO
+    "MemberNo" TEXT NULL,
+
+    -- 회원상태
+    "MemberStatus" TEXT NULL,
+
+    -- 개발역할
+    "RoleDevelop" TEXT NULL,
+
+    -- 업무역할
+    "RoleBusiness" TEXT NULL,
+
+    -- 운영역할
+    "RoleOperation" TEXT NULL,
+
+    -- 관리역할
+    "RoleManaged" TEXT NULL,
+
+    -- 가입일시
+    "JoinAt" TEXT NULL,
+
+    -- 만료일시
+    "ExpiredAt" TEXT NULL,
+
+    -- 추가옵션
+    "Options" TEXT NULL,
+
+    -- 생성회원NO
+    "CreatedMemberNo" TEXT NULL,
+
+    -- 생성일시
+    "CreatedAt" TEXT NULL,
+
+    -- 수정회원NO
+    "ModifiedMemberNo" TEXT NULL,
+
+    -- 수정일시
+    "ModifiedAt" TEXT NULL,
+    CONSTRAINT "PK_ApplicationMember" PRIMARY KEY ("ApplicationNo", "EmailID")
+);
+
+
+CREATE TABLE IF NOT EXISTS "BaseCode" (
+    -- 코드NO
+    "CodeNo" TEXT NOT NULL CONSTRAINT "PK_BaseCode" PRIMARY KEY,
+
+    -- 코드ID
+    "CodeID" TEXT NOT NULL DEFAULT '',
+
+    -- 코드데이터
+    "CodeValue" TEXT NULL,
+
+    -- 부모코드NO
+    "ParentCodeNo" TEXT NULL,
+
+    -- 그룹ID
+    "GroupID" TEXT NULL,
+
+    -- 옵션1
+    "Option1" TEXT NULL,
+
+    -- 옵션2
+    "Option2" TEXT NULL,
+
+    -- 옵션3
+    "Option3" TEXT NULL,
+
+    -- 옵션4
+    "Option4" TEXT NULL,
+
+    -- 옵션5
+    "Option5" TEXT NULL,
+
+    -- 데이터1
+    "Value1" TEXT NULL,
+
+    -- 데이터2
+    "Value2" TEXT NULL,
+
+    -- 데이터3
+    "Value3" TEXT NULL,
+
+    -- 데이터4
+    "Value4" TEXT NULL,
+
+    -- 데이터5
+    "Value5" TEXT NULL,
+
+    -- 설명
+    "Comment" TEXT NULL,
+
+    -- 정렬순서
+    "SortingNo" INTEGER NULL,
+
+    -- 생성회원NO
+    "CreatedMemberNo" TEXT NULL,
+
+    -- 생성일시
+    "CreatedAt" TEXT NULL
+);
+
+
+CREATE TABLE IF NOT EXISTS "CodeHelp" (
+    -- 코드헬프ID
+    "CodeHelpID" TEXT NOT NULL CONSTRAINT "PK_CodeHelp" PRIMARY KEY,
+
+    -- 데이터소스ID
+    "DataSourceID" TEXT NOT NULL DEFAULT '',
+
+    -- 코드헬프명
+    "CodeHelpName" TEXT NULL,
+
+    -- 명령구분
+    "CommandType" TEXT NULL,
+
+    -- SQL명령
+    "CommandText" TEXT NULL,
+
+    -- 코드컬럼ID
+    "CodeColumnID" TEXT NULL,
+
+    -- 데이터컬럼ID
+    "ValueColumnID" TEXT NULL,
+
+    -- 사용여부
+    "UseYN" TEXT NULL,
+
+    -- 설명
+    "Comment" TEXT NULL,
+
+    -- 생성회원NO
+    "CreatedMemberNo" TEXT NULL,
+
+    -- 생성일시
+    "CreatedAt" TEXT NULL
+);
+
+
+CREATE TABLE IF NOT EXISTS "IdentityNo" (
+    -- 고유NO
+    "No" INTEGER NOT NULL CONSTRAINT "PK_IdentityNo" PRIMARY KEY AUTOINCREMENT,
+
+    -- 순번
+    "Sequence" INTEGER NULL,
+
+    -- 그룹ID
+    "GroupID" TEXT NULL,
+
+    -- 입력회원NO
+    "CreatedMemberNo" TEXT NULL,
+
+    -- 입력일시
+    "CreatedAt" TEXT NULL
+);
+
+
+CREATE TABLE IF NOT EXISTS "Member" (
+    -- 회원NO
+    "MemberNo" TEXT NOT NULL CONSTRAINT "PK_Member" PRIMARY KEY,
+
+    -- 이메일ID
+    "EmailID" TEXT NOT NULL DEFAULT '',
+
+    -- 이메일확인일시
+    "EmailVerifyAt" TEXT NULL,
+
+    -- 핸드폰번호
+    "Celluar" TEXT NULL,
+
+    -- 핸드폰확인일시
+    "CelluarVerifyAt" TEXT NULL,
+
+    -- 회원명
+    "MemberName" TEXT NULL,
+
+    -- 직위명
+    "PositionName" TEXT NULL,
+
+    -- 부서명
+    "DepartmentName" TEXT NULL,
+
+    -- 회사명
+    "CompanyName" TEXT NULL,
+
+    -- 역할
+    "Roles" TEXT NULL,
+
+    -- 생년월일
+    "BirthDate" TEXT NULL,
+
+    -- 가입일시
+    "JoinAt" TEXT NULL,
+
+    -- 탈퇴일시
+    "RetireAt" TEXT NULL,
+
+    -- 주소
+    "Address" TEXT NULL,
+
+    -- 상세주소
+    "AddressDetail" TEXT NULL,
+
+    -- 성별
+    "Gender" TEXT NULL,
+
+    -- 삭제여부
+    "DeleteYN" TEXT NULL,
+
+    -- 설명
+    "Comment" TEXT NULL,
+
+    -- 사용자업무ID
+    "UserWorkID" TEXT NULL,
+
+    -- 태넌트요청경로
+    "TenantAppRequestPath" TEXT NULL,
+
+    -- 생성사용자NO
+    "CreatedUserNo" TEXT NULL,
+
+    -- 생성일시
+    "CreatedAt" TEXT NULL,
+
+    -- 수정회원NO
+    "ModifiedMemberNo" TEXT NULL,
+
+    -- 수정일시
+    "ModifiedAt" TEXT NULL
+);
+
+
+CREATE TABLE IF NOT EXISTS "MetaEntity" (
+    -- 엔티티NO
+    "EntityNo" TEXT NOT NULL CONSTRAINT "PK_MetaEntity" PRIMARY KEY,
+
+    -- 어플리케이션NO
+    "ApplicationNo" TEXT NOT NULL DEFAULT '',
+
+    -- 엔티티ID
+    "EntityID" TEXT NOT NULL DEFAULT '',
+
+    -- 엔티티명
+    "EntityName" TEXT NOT NULL DEFAULT '',
+
+    -- 약어
+    "Acronyms" TEXT NULL,
+
+    -- 초기데이터
+    "SeedData" TEXT NULL,
+
+    -- 설명
+    "Comment" TEXT NULL,
+
+    -- 삭제일시
+    "DeletedAt" TEXT NULL,
+
+    -- 생성회원NO
+    "CreatedMemberNo" TEXT NULL,
+
+    -- 생성일시
+    "CreatedAt" TEXT NULL,
+
+    -- 수정회원NO
+    "ModifiedMemberNo" TEXT NULL,
+
+    -- 수정일시
+    "ModifiedAt" TEXT NULL
+);
+
+
+CREATE TABLE IF NOT EXISTS "MetaField" (
+    -- 엔티티NO
+    "EntityNo" TEXT NOT NULL CONSTRAINT "PK_MetaField" PRIMARY KEY,
+
+    -- 필드ID
+    "FieldID" TEXT NOT NULL DEFAULT '',
+
+    -- 필드명
+    "FieldName" TEXT NULL,
+
+    -- 필드타입
+    "FieldType" TEXT NULL,
+
+    -- 기본키
+    "PK" TEXT NULL,
+
+    -- 인덱스
+    "IX" TEXT NULL,
+
+    -- 고유인덱스
+    "UI" TEXT NULL,
+
+    -- NULL허용안함
+    "NN" TEXT NULL,
+
+    -- 자동증가
+    "AI" TEXT NULL,
+
+    -- 크기
+    "MaxLength" INTEGER NULL,
+
+    -- 기본값
+    "DefaultValue" TEXT NULL,
+
+    -- 설명
+    "Comment" TEXT NULL,
+
+    -- 정렬순서
+    "SortingNo" INTEGER NULL
+);
+
+
+CREATE TABLE IF NOT EXISTS "Person" (
+    -- 사용자NO
+    "PersonNo" TEXT NOT NULL CONSTRAINT "PK_Person" PRIMARY KEY,
+
+    -- 사용자ID
+    "PersonID" TEXT NULL DEFAULT '',
+
+    -- 사용자명
+    "PersonName" TEXT NULL,
+
+    -- 비밀번호
+    "Password" TEXT NOT NULL DEFAULT '',
+
+    -- 브라우저토큰ID
+    "BrowserTokenID" TEXT NULL,
+
+    -- 브라우저토큰일시
+    "BrowserTokenAt" TEXT NULL,
+
+    -- 로그인오류횟수
+    "LoginErrorCount" INTEGER NULL,
+
+    -- 삭제여부
+    "DeleteYN" TEXT NULL,
+
+    -- 삭제일시
+    "DeletedAt" TEXT NULL,
+
+    -- 생성일시
+    "CreatedAt" TEXT NULL
+);
+
+
+CREATE TABLE IF NOT EXISTS "RefreshToken" (
+    -- 갱신토큰NO
+    "RefreshTokenNo" INTEGER NOT NULL CONSTRAINT "PK_RefreshToken" PRIMARY KEY AUTOINCREMENT,
+
+    -- 사용자계정ID
+    "UserAccountID" TEXT NOT NULL DEFAULT '',
+
+    -- 토큰
+    "Token" TEXT NOT NULL DEFAULT '',
+
+    -- 만료일시
+    "ExpiredAt" TEXT NOT NULL,
+
+    -- 변경토큰
+    "ReplacedByToken" TEXT NULL,
+
+    -- 폐기IP주소
+    "RevokedByIP" TEXT NULL,
+
+    -- 폐기일시
+    "RevokedAt" TEXT NULL,
+
+    -- 생성IP주소
+    "CreatedByIP" TEXT NULL,
+
+    -- 생성일시
+    "CreatedAt" TEXT NOT NULL
+);
+
+
+CREATE TABLE IF NOT EXISTS "UserAccount" (
+    -- 사용자계정ID
+    "UserAccountID" TEXT NOT NULL CONSTRAINT "PK_UserAccount" PRIMARY KEY,
+
+    -- 태넌트 앱 ID
+    "ApplicationID" TEXT NULL,
+
+    -- 사용자ID
+    "UserID" TEXT NULL,
+
+    -- 사용자명
+    "UserName" TEXT NULL,
+
+    -- 이메일
+    "Email" TEXT NOT NULL DEFAULT '',
+
+    -- 핸드폰번호
+    "Celluar" TEXT NULL,
+
+    -- 직책명
+    "PositionName" TEXT NULL,
+
+    -- 부서명
+    "DepartmentName" TEXT NULL,
+
+    -- 회사명
+    "CompanyName" TEXT NULL,
+
+    -- 생년월일
+    "BirthDate" TEXT NULL,
+
+    -- 주소
+    "Address" TEXT NULL,
+
+    -- 성별
+    "Gender" TEXT NULL,
+
+    -- IP주소
+    "IPAddress" TEXT NULL,
+
+    -- 역할
+    "Roles" TEXT NULL,
+
+    -- 클레임
+    "Claims" TEXT NULL,
+
+    -- 확장옵션
+    "ExtendOption" TEXT NULL,
+
+    -- 생성회원NO
+    "CreatedMemberNo" TEXT NULL,
+
+    -- 생성일시
+    "CreatedAt" TEXT NULL,
+
+    -- 수정회원NO
+    "ModifiedMemberNo" TEXT NULL,
+
+    -- 수정일시
+    "ModifiedAt" TEXT NULL
+);
+
+
+CREATE INDEX IF NOT EXISTS "IX_ApplicationMember_ApplicationNo_EmailID_MemberNo" ON "ApplicationMember" ("ApplicationNo", "EmailID", "MemberNo");
+
+
+CREATE INDEX IF NOT EXISTS "IX_BaseCode_CodeID_GroupID" ON "BaseCode" ("CodeID", "GroupID");
+
+
+CREATE INDEX IF NOT EXISTS "IX_IdentityNo_Sequence_GroupID" ON "IdentityNo" ("Sequence", "GroupID");
+
+
+CREATE INDEX IF NOT EXISTS "IX_Member_EmailID" ON "Member" ("EmailID");
+
+
+CREATE INDEX IF NOT EXISTS "IX_MetaEntity_ApplicationNo" ON "MetaEntity" ("ApplicationNo");
+
+
+CREATE INDEX IF NOT EXISTS "IX_MetaField_EntityNo_FieldID" ON "MetaField" ("EntityNo", "FieldID");
+
+
+CREATE INDEX IF NOT EXISTS "IX_RefreshToken_UserAccountID" ON "RefreshToken" ("UserAccountID");
+
+
+CREATE INDEX IF NOT EXISTS "IX_UserAccount_ApplicationID" ON "UserAccount" ("ApplicationID");
+			]]>
+            <param id="@CodeHelpID" type="String" length="-1" value="NULL" />
+        </statement>
+        
+        <statement id="ZD02" seq="0" use="Y" timeout="0" desc="AdministratorEmailID 관리자 계정 생성">
+            <![CDATA[
+INSERT OR REPLACE INTO Person
+(
+    PersonNo
+    , PersonID
+    , PersonName
+    , Password
+    , BrowserTokenID
+    , BrowserTokenAt
+    , LoginErrorCount
+    , DeleteYN
+    , DeletedAt
+    , CreatedAt
+) 
+VALUES
+(
+    @PersonNo
+    , @EmailID
+    , 'Admin'
+    , @Password
+    , NULL
+    , NULL
+    , 0
+    , 'N'
+    , NULL
+    , CURRENT_TIMESTAMP
+);
+
+INSERT OR REPLACE INTO Member
+(
+	MemberNo
+	, MemberName
+	, EmailID
+	, EmailVerifyAt
+    , Roles
+    , PositionName
+    , DepartmentName
+    , CompanyName
+	, TenantAppRequestPath
+	, DeleteYN
+	, CreatedUserNo
+	, CreatedAt
+) 
+SELECT
+	@MemberNo
+	, 'Admin'
+	, @EmailID
+	, datetime('now')
+    , 'Root,Administrator'
+    , '관리자'
+    , '시스템'
+    , 'HandStack'
+	, 'app'
+	, 'N'
+	, @PersonNo
+	, datetime('now');
+			]]>
+            <param id="@MemberNo" type="String" length="36" value="" />
+            <param id="@PersonNo" type="String" length="36" value="" />
+            <param id="@EmailID" type="String" length="256" value="" />
+            <param id="@Password" type="String" length="256" value="" />
+        </statement>
+        
+        <statement id="LD01" seq="0" use="Y" timeout="0" desc="코드헬프 데이터 정보 조회">
             <![CDATA[
 SELECT A.CodeHelpID
        , A.DataSourceID
@@ -36,7 +621,7 @@ ORDER  BY CHS.DisplayOrder;
             <param id="@CodeHelpID" type="String" length="-1" value="NULL" />
         </statement>
 
-        <statement id="LD04" seq="0" use="Y" timeout="0" desc="나의 프로젝트 및 참여 프로젝트 목록 조회" modified="2023-08-31 00:00:00">
+        <statement id="LD04" seq="0" use="Y" timeout="0" desc="나의 프로젝트 및 참여 프로젝트 목록 조회">
             <![CDATA[
 SELECT A.ApplicationNo
     , A.ApplicationID
@@ -78,7 +663,7 @@ ORDER BY A.WorkedAt DESC;
             <param id="@MemberNo" type="String" length="36" value="NULL" />
         </statement>
         
-        <statement id="LD05" seq="0" use="Y" timeout="0" desc="백업용 태넌트 앱 데이터 모델 및 필드 조회" modified="2020-07-31 00:00:00">
+        <statement id="LD05" seq="0" use="Y" timeout="0" desc="백업용 태넌트 앱 데이터 모델 및 필드 조회">
             <![CDATA[
 SELECT ME.EntityNo
     , '' AS ApplicationNo
@@ -137,10 +722,10 @@ FROM
 WHERE 
 	MR.ApplicationNo = (SELECT A.ApplicationNo FROM [Application] A WHERE A.ApplicationID = @ApplicationID);
 			]]>
-            <param id="@ApplicationID" type="VarChar" length="36" value="" />
+            <param id="@ApplicationID" type="String" length="36" value="" />
         </statement>
 
-        <statement id="GD01" seq="0" use="Y" timeout="0" desc="ManagedApp 정보 조회" native="Y" modified="2023-08-31 00:00:00">
+        <statement id="GD01" seq="0" use="Y" timeout="0" desc="ManagedApp 정보 조회">
             <![CDATA[
 SELECT A.ApplicationNo
 	, A.ApplicationID
@@ -161,11 +746,11 @@ FROM [Application] A
 WHERE AM.ApplicationNo = @ApplicationNo
 	AND AM.MemberNo = @MemberNo;
 			]]>
-            <param id="@ApplicationNo" type="VarChar" length="36" value="NULL" />
-            <param id="@MemberNo" type="VarChar" length="36" value="NULL" />
+            <param id="@ApplicationNo" type="String" length="36" value="NULL" />
+            <param id="@MemberNo" type="String" length="36" value="NULL" />
         </statement>
 
-        <statement id="GD02" seq="0" use="Y" timeout="0" desc="사용자 검증 및 어플리케이션 생성 수 확인" native="Y" modified="2020-07-31 00:00:00">
+        <statement id="GD02" seq="0" use="Y" timeout="0" desc="사용자 검증 및 어플리케이션 생성 수 확인">
             <![CDATA[
 SELECT COUNT(1) AS MemberCount
 	, (SELECT COUNT(1)
@@ -176,23 +761,23 @@ FROM [Member] M
 WHERE M.DeleteYN = 'N'
 	AND M.MemberNo = @MemberNo;
 			]]>
-            <param id="@MemberNo" type="VarChar" length="36" value="" />
+            <param id="@MemberNo" type="String" length="36" value="" />
         </statement>
 
-        <statement id="GD03" seq="0" use="Y" timeout="0" desc="Application, Member 등등 고유 번호 생성 및 조회" native="Y" modified="2023-08-31 00:00:00">
+        <statement id="GD03" seq="0" use="Y" timeout="0" desc="Application, Member 등등 고유 번호 생성 및 조회">
             <![CDATA[
-INSERT INTO IdentityNo VALUES ((SELECT IFNULL(MAX(Sequence), 0) + 1 FROM IdentityNo WHERE GroupID = @GroupID)
+INSERT INTO IdentityNo (Sequence, GroupID, CreatedMemberNo, CreatedAt) VALUES ((SELECT IFNULL(MAX(Sequence), 0) + 1 FROM IdentityNo WHERE GroupID = @GroupID)
     , @GroupID
     , @MemberNo
     , datetime('now'));
 
 SELECT MAX(Sequence) AS IdentityNo FROM IdentityNo WHERE GroupID = @GroupID;
 			]]>
-            <param id="@GroupID" type="VarChar" length="1" value="NULL" />
-            <param id="@MemberNo" type="VarChar" length="36" value="NULL" />
+            <param id="@GroupID" type="String" length="1" value="NULL" />
+            <param id="@MemberNo" type="String" length="36" value="NULL" />
         </statement>
 
-        <statement id="GD04" seq="0" use="Y" timeout="0" desc="어플리케이션 삭제를 위한 사용자 검증 확인" native="Y" modified="2020-07-31 00:00:00">
+        <statement id="GD04" seq="0" use="Y" timeout="0" desc="어플리케이션 삭제를 위한 사용자 검증 확인">
             <![CDATA[
 SELECT COUNT(1) AS MemberCount 
 FROM [Application] A
@@ -201,32 +786,32 @@ WHERE A.ApplicationID = @ApplicationID
 	AND M.MemberNo = @MemberNo
 	AND M.UserWorkID = @UserWorkID;
 			]]>
-            <param id="@ApplicationID" type="VarChar" length="36" value="" />
-            <param id="@MemberNo" type="VarChar" length="36" value="" />
-            <param id="@UserWorkID" type="VarChar" length="36" value="" />
+            <param id="@ApplicationID" type="String" length="36" value="" />
+            <param id="@MemberNo" type="String" length="36" value="" />
+            <param id="@UserWorkID" type="String" length="36" value="" />
         </statement>
 
-        <statement id="MD01" seq="0" use="Y" timeout="0" desc="어플리케이션 로고 정보 변경 및 경로 조회" native="Y" modified="2023-08-31 00:00:00">
+        <statement id="MD01" seq="0" use="Y" timeout="0" desc="어플리케이션 로고 정보 변경 및 경로 조회">
             <![CDATA[
 UPDATE RepositoryFile SET DependencyID = @ApplicationNo FROM RepositoryFile WHERE ItemID = @ItemID;
 SELECT AbsolutePath FROM RepositoryFile WHERE ItemID = @ItemID;
 			]]>
-            <param id="@ApplicationNo" type="VarChar" length="36" value="NULL" />
-            <param id="@ItemID" type="VarChar" length="36" value="NULL" />
+            <param id="@ApplicationNo" type="String" length="36" value="NULL" />
+            <param id="@ItemID" type="String" length="36" value="NULL" />
         </statement>
 
-        <statement id="DD01" seq="0" use="Y" timeout="0" desc="Application, Member 등등 고유 번호 정보 삭제" native="Y" modified="2023-08-31 00:00:00">
+        <statement id="DD01" seq="0" use="Y" timeout="0" desc="Application, Member 등등 고유 번호 정보 삭제">
             <![CDATA[
 DELETE FROM IdentityNo WHERE No = @IdentityNo
     AND GroupID = @GroupID
     AND CreatedMemberNo = @MemberNo;
 			]]>
-            <param id="@IdentityNo" type="Int" length="-1" value="NULL" />
-            <param id="@GroupID" type="VarChar" length="1" value="NULL" />
-            <param id="@MemberNo" type="VarChar" length="36" value="NULL" />
+            <param id="@IdentityNo" type="Int32" length="-1" value="NULL" />
+            <param id="@GroupID" type="String" length="1" value="NULL" />
+            <param id="@MemberNo" type="String" length="36" value="NULL" />
         </statement>
 
-        <statement id="ID01" seq="0" use="Y" timeout="0" desc="어플리케이션 정보 생성" native="Y" modified="2020-07-31 00:00:00">
+        <statement id="ID01" seq="0" use="Y" timeout="0" desc="어플리케이션 정보 생성">
             <![CDATA[
 INSERT INTO Application (ApplicationNo
     , ApplicationID
@@ -284,16 +869,16 @@ VALUES (@ApplicationNo
 
 SELECT strftime('%Y-%m-%d %H:%M:%S', A.CreatedAt) AS CreatedAt FROM [Application] A WHERE A.ApplicationNo = @ApplicationNo;
 			]]>
-            <param id="@ApplicationNo" type="VarChar" length="36" value="" />
-            <param id="@ApplicationID" type="VarChar" length="36" value="" />
-            <param id="@ApplicationName" type="VarChar" length="50" value="" />
-            <param id="@Acronyms" type="VarChar" length="3" value="" />
-            <param id="@LogoPath" type="VarChar" length="200" value="" />
-            <param id="@CompanyName" type="VarChar" length="50" value="" />
-            <param id="@OwnerName" type="VarChar" length="50" value="" />
-            <param id="@PublicYN" type="VarChar" length="1" value="" />
-            <param id="@Comment" type="VarChar" length="2000" value="" />
-            <param id="@MemberNo" type="VarChar" length="36" value="" />
+            <param id="@ApplicationNo" type="String" length="36" value="" />
+            <param id="@ApplicationID" type="String" length="36" value="" />
+            <param id="@ApplicationName" type="String" length="50" value="" />
+            <param id="@Acronyms" type="String" length="3" value="" />
+            <param id="@LogoPath" type="String" length="200" value="" />
+            <param id="@CompanyName" type="String" length="50" value="" />
+            <param id="@OwnerName" type="String" length="50" value="" />
+            <param id="@PublicYN" type="String" length="1" value="" />
+            <param id="@Comment" type="String" length="2000" value="" />
+            <param id="@MemberNo" type="String" length="36" value="" />
         </statement>
 	</commands>
 </mapper>

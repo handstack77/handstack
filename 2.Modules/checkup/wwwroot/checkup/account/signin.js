@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 let $signin = {
     prop: {
         clientIP: '',
@@ -7,25 +7,6 @@ let $signin = {
 
     hook: {
         async pageLoad() {
-            // https://developers.google.com/identity/gsi/web/reference/html-reference?hl=ko
-            window.googleLoginCallback = function (response) {
-                var token = response.credential;
-                var base64Url = token.split('.')[1];
-                var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                $this.method.handleLoginCredentialMail(JSON.parse(syn.$c.base64Decode(base64)));
-            };
-
-            syn.$w.loadScript('https://accounts.google.com/gsi/client', null, true);
-
-            syn.$m.insertAfter(syn.$m.create({
-                tag: 'div',
-                id: 'g_id_onload',
-                attributes: {
-                    'data-client_id': '368671882552-bng2l9m6lkd10jv87gsubl6p6ifqujcc.apps.googleusercontent.com',
-                    'data-callback':'googleLoginCallback'
-                }
-            }), document.body);
-
             var tokenID = syn.$w.getStorage('program_token', true);
             if (tokenID && syn.$r.getCookie('HandStack.TokenID')) {
                 var cookieTokenID = syn.$r.getCookie('HandStack.TokenID');
@@ -81,44 +62,29 @@ let $signin = {
 
         async btnLogin_click() {
             var loginID = syn.$l.get('txtLoginID').value.trim();
-
             if ($string.isNullOrEmpty(loginID) == true) {
                 syn.$w.alert('로그인 이메일 주소를 입력하세요');
                 return;
             }
 
-            $this.method.handleLoginCredentialMail({
-                name: '',
-                email: loginID,
-            });
+            var password = syn.$l.get('txtPassword').value.trim();
+            if ($string.isNullOrEmpty(password) == true) {
+                syn.$w.alert('비밀번호를 입력하세요');
+                return;
+            }
+
+            $this.method.handleLoginCredentialMail(loginID, password);
         }
     },
 
     method: {
-        async handleLoginCredentialMail(payload) {
-            if (payload) {
-                if (payload.iss && payload.iss.indexOf('google') > -1) {
-                    var result = await syn.$w.apiHttp(`/checkup/api/account/checkin?userID=${payload.email}&userName=${payload.name}&clientIP=${$this.prop.clientIP}`).send();
-                    if (result && $string.isNullOrEmpty(result.error) == true && $string.isNullOrEmpty(result.message) == false) {
-                        location.href = result.message;
-                    }
-                    else {
-                        syn.$w.alert(`로그인을 할 수 없습니다.<br/>${result.error}`);
-                    }
-                }
-                else {
-                    var result = await syn.$w.apiHttp(`/checkup/api/account/email?userID=${payload.email}&userName=${payload.name}&clientIP=${$this.prop.clientIP}`).send();
-                    if (result && $string.isNullOrEmpty(result.error) == true) {
-                        syn.$l.get('txtLoginID').value = '';
-                        syn.$w.alert(`"${payload.email}"에 로그인 인증 메일을 전송했습니다. 메일 수신함을 확인하세요`);
-                    }
-                    else {
-                        syn.$w.alert(`로그인 인증 메일을 발송하지 못했습니다.<br/>${result.error}`);
-                    }
-                }
+        async handleLoginCredentialMail(loginID, password) {
+            var result = await syn.$w.apiHttp(`/checkup/api/account/login?userID=${loginID}&password=${syn.$c.sha256(password)}&clientIP=${$this.prop.clientIP}`).send();
+            if (result && $string.isNullOrEmpty(result.error) == true) {
+                location.href = result.message;
             }
             else {
-                syn.$w.alert(`이메일 주소 확인이 필요합니다`);
+                syn.$w.alert('로그인 이메일 주소 또는 비밀번호를 확인하세요');
             }
         }
     }

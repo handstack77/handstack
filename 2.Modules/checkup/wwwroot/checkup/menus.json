@@ -64,22 +64,6 @@
         "sortingNo": 51
     },
     {
-        "menuID": "DDB",
-        "menuName": "업무 SQL",
-        "parentMenuID": "000",
-        "parentMenuName": "HandStack",
-        "showYN": "Y",
-        "menuType": "D",
-        "functions": null,
-        "projectID": null,
-        "fileID": null,
-        "roles": "BM",
-        "depth": 1,
-        "icon": "sql",
-        "badge": null,
-        "sortingNo": 61
-    },
-    {
         "menuID": "DDD",
         "menuName": "도메인 모델",
         "parentMenuID": "000",
@@ -251,22 +235,6 @@
         "fileID": "HBM020",
         "roles": "BM",
         "depth": 3,
-        "icon": null,
-        "badge": null,
-        "sortingNo": 0
-    },
-    {
-        "menuID": "HDB",
-        "menuName": "관리도구",
-        "parentMenuID": "DDB",
-        "parentMenuName": "업무 SQL",
-        "showYN": "Y",
-        "menuType": "D",
-        "functions": null,
-        "projectID": null,
-        "fileID": null,
-        "roles": "BM",
-        "depth": 2,
         "icon": null,
         "badge": null,
         "sortingNo": 0

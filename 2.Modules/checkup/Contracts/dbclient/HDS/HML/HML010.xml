@@ -4,12 +4,12 @@
         <application>HDS</application>
         <project>HML</project>
         <transaction>HML010</transaction>
-        <datasource>DB01</datasource>
+        <datasource>CHECKUPDB</datasource>
         <use>Y</use>
         <desc>프로젝트 담당자 관리</desc>
     </header>
     <commands>
-        <statement id="LD01" seq="0" use="Y" timeout="0" desc="프로젝트 담당자 목록 조회" modified="2020-07-31 00:00:00">
+        <statement id="LD01" seq="0" use="Y" timeout="0" desc="프로젝트 담당자 목록 조회">
             <![CDATA[
 SELECT AM.ApplicationNo
     , AM.MemberNo
@@ -32,10 +32,10 @@ SELECT AM.ApplicationNo
     , AM.ModifiedMemberNo
     , (SELECT (S.MemberName || ' ' || S.PositionName || ' [' || S.DepartmentName || ']') FROM Member S WHERE S.MemberNo = AM.ModifiedMemberNo) AS ModifiedMemberName
     , strftime('%Y-%m-%d', AM.ModifiedAt) AS ModifiedAt
-FROM 
-    ApplicationMember AM
+FROM
+    Member M
+    INNER JOIN ApplicationMember AM ON AM.MemberNo = M.MemberNo
     INNER JOIN BaseCode BC ON BC.GroupID = 'SYS034' AND BC.CodeID = AM.MemberStatus
-    LEFT JOIN Member M ON AM.MemberNo = M.MemberNo
 WHERE 
     AM.ApplicationNo = @ApplicationNo
     AND AM.CreatedMemberNo != AM.MemberNo
@@ -66,7 +66,7 @@ WHERE
             <param id="@CompanyName" type="String" length="50" value="" />
         </statement>
 
-        <statement id="MD01" seq="0" use="Y" timeout="0" desc="프로젝트 담당자 정보 변경" modified="2020-07-31 00:00:00">
+        <statement id="MD01" seq="0" use="Y" timeout="0" desc="프로젝트 담당자 정보 변경">
             <if test="(Flag == 'C')">
                 <![CDATA[
 INSERT INTO ApplicationMember (ApplicationNo
