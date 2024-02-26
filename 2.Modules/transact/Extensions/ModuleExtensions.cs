@@ -17,18 +17,18 @@ namespace transact.Extensions
 {
     public static class ModuleExtensions
     {
-        public static bool IsLogDbFile(string applicationID, string rollingID)
+        public static bool IsLogDbFile(string userWorkID, string applicationID, string rollingID)
         {
-            string transactionLogBasePath = Path.Combine(ModuleConfiguration.TransactionLogBasePath, applicationID);
+            string transactionLogBasePath = Path.Combine(ModuleConfiguration.TransactionLogBasePath, userWorkID, applicationID);
             string logDbFilePath = Path.Combine(transactionLogBasePath, $"{rollingID}-{applicationID}.db");
             FileInfo fileInfo = new FileInfo(logDbFilePath);
             return fileInfo.Exists;
         }
 
-        public static string? GetLogDbConnectionString(string applicationID, string? rollingID = "")
+        public static string? GetLogDbConnectionString(string userWorkID, string applicationID, string? rollingID = "")
         {
             string? result = null;
-            string transactionLogBasePath = Path.Combine(ModuleConfiguration.TransactionLogBasePath, applicationID);
+            string transactionLogBasePath = Path.Combine(ModuleConfiguration.TransactionLogBasePath, userWorkID, applicationID);
             if (Directory.Exists(transactionLogBasePath) == false)
             {
                 Directory.CreateDirectory(transactionLogBasePath);

@@ -71,7 +71,8 @@ let $SYS020 = {
         },
 
         pageLoad() {
-            syn.$l.get('txtApplicationID').value = syn.Config.ApplicationID;
+            syn.$l.get('txtUserWorkID').value = syn.$w.ManagedApp.UserWorkID;
+            syn.$l.get('txtApplicationID').value = syn.$w.ManagedApp.ApplicationID;
 
             $this.event.btnClearCondition_click();
             $this.method.search();

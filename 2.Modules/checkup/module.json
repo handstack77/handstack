@@ -13,7 +13,7 @@
         "CircuitBreakResetSecond": 60,
         "DefaultCommandTimeout": 180,
         "IsExceptionDetailText": true,
-        "IsLogServer": false,
+        "IsLogServer": true,
         "IsContractFileUpdateToCaching": true,
         "LogServerUrl": "http://localhost:8000/api/log",
         "ModuleLogFilePath": "../log/checkup/module.log",

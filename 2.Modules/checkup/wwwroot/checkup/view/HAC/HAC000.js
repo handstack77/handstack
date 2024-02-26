@@ -188,6 +188,8 @@ let $HAC000 = {
                     }
                 }
             });
+
+            syn.$w.transactionAction('AF01');
         }
     },
 

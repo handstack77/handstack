@@ -31,16 +31,16 @@ namespace transact.Areas.transact.Controllers
 
         // http://localhost:8000/transact/api/aggregate/transaction-list?applicationID=HDS&year=2023&weekOfYear=39&resultType=L
         [HttpGet("[action]")]
-        public ActionResult TransactionList(string applicationID, string year, string weekOfYear, string? requestDate, string? requestHour, string? resultType = "L")
+        public ActionResult TransactionList(string userWorkID, string applicationID, string year, string weekOfYear, string? requestDate, string? requestHour, string? resultType = "L")
         {
             ActionResult result = BadRequest();
             try
             {
                 string rollingID = year + weekOfYear.PadLeft(2, '0');
-                var isLogDbFile = ModuleExtensions.IsLogDbFile(applicationID, rollingID);
+                var isLogDbFile = ModuleExtensions.IsLogDbFile(userWorkID, applicationID, rollingID);
                 if (isLogDbFile == true)
                 {
-                    var connectionString = ModuleExtensions.GetLogDbConnectionString(applicationID, rollingID);
+                    var connectionString = ModuleExtensions.GetLogDbConnectionString(userWorkID, applicationID, rollingID);
                     if (string.IsNullOrEmpty(connectionString) == false)
                     {
                         // resultType - L: List, V: Valid, E: Error
@@ -77,16 +77,16 @@ namespace transact.Areas.transact.Controllers
 
         // http://localhost:8000/transact/api/aggregate/summary?applicationID=HDS&year=2023&weekOfYear=39&requestDate=20230926
         [HttpGet("[action]")]
-        public ActionResult Summary(string applicationID, string year, string weekOfYear, string requestDate)
+        public ActionResult Summary(string userWorkID, string applicationID, string year, string weekOfYear, string requestDate)
         {
             ActionResult result = BadRequest();
             try
             {
                 string rollingID = year + weekOfYear.PadLeft(2, '0');
-                var isLogDbFile = ModuleExtensions.IsLogDbFile(applicationID, rollingID);
+                var isLogDbFile = ModuleExtensions.IsLogDbFile(userWorkID, applicationID, rollingID);
                 if (isLogDbFile == true)
                 {
-                    var connectionString = ModuleExtensions.GetLogDbConnectionString(applicationID, rollingID);
+                    var connectionString = ModuleExtensions.GetLogDbConnectionString(userWorkID, applicationID, rollingID);
                     if (string.IsNullOrEmpty(connectionString) == false)
                     {
                         string format = "yyyyMMdd";

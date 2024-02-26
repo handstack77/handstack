@@ -15,7 +15,7 @@
         ],
         "IsTransactionLogging": false,
         "ModuleLogFilePath": "../log/dbclient/module.log",
-        "IsLogServer": false,
+        "IsLogServer": true,
         "LogServerUrl": "http://localhost:8000/logger/api/log/insert",
         "IsProfileLogging": false,
         "ProfileLogFilePath": "../log/dbclient/profile.log",

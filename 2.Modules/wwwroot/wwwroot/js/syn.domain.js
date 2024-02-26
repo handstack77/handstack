@@ -693,7 +693,7 @@
                             tabFrame.style.height = `${scrollHeight}px`;
                         }
 
-                        var frameHeight = syn.$d.getSize(parent.document.body).height - (56 + 57 + 20);
+                        var frameHeight = syn.$d.getSize(parent.document.body).height - (56 + 57 + 24);
                         var uiHeight = syn.$d.getSize(tabFrame).height;
                         if (frameHeight > uiHeight) {
                             tabFrame.style.height = `${frameHeight}px`;

@@ -207,7 +207,7 @@ namespace transact.Extensions
             }
         }
 
-        public void TransactionRequestLogging(TransactionRequest request, string acknowledge, Action<string> fallbackFunction)
+        public void TransactionRequestLogging(TransactionRequest request, string userWorkID, string acknowledge, Action<string> fallbackFunction)
         {
             if (ModuleConfiguration.IsLogServer == true)
             {
@@ -245,7 +245,7 @@ namespace transact.Extensions
                 try
                 {
                     string applicationID = request.System.ProgramID;
-                    var connectionString = ModuleExtensions.GetLogDbConnectionString(applicationID);
+                    var connectionString = ModuleExtensions.GetLogDbConnectionString(userWorkID, applicationID);
                     if (string.IsNullOrEmpty(connectionString) == false)
                     {
                         DateTime acceptDateTime = (DateTime)request.AcceptDateTime;
@@ -273,7 +273,7 @@ namespace transact.Extensions
             }
         }
 
-        public void TransactionResponseLogging(TransactionResponse response, string acknowledge, Action<string> fallbackFunction)
+        public void TransactionResponseLogging(TransactionResponse response, string userWorkID, string acknowledge, Action<string> fallbackFunction)
         {
             if (ModuleConfiguration.IsLogServer == true)
             {
@@ -311,7 +311,7 @@ namespace transact.Extensions
                 try
                 {
                     string applicationID = response.System.ProgramID;
-                    var connectionString = ModuleExtensions.GetLogDbConnectionString(applicationID);
+                    var connectionString = ModuleExtensions.GetLogDbConnectionString(userWorkID, applicationID);
                     if (string.IsNullOrEmpty(connectionString) == false)
                     {
                         DateTime acceptDateTime = (DateTime)response.AcceptDateTime;

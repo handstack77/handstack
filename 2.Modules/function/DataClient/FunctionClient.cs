@@ -240,7 +240,7 @@ namespace function.DataClient
                     {
                         FileInfo fileInfo = new FileInfo(programPath);
                         var directoryInfo = fileInfo.Directory;
-                        if (directoryInfo != null)
+                        if (directoryInfo != null && fileInfo.Exists == true)
                         {
                             string fileDirectory = directoryInfo.FullName;
                             string fileDirectoryName = directoryInfo.Name;

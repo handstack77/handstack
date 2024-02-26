@@ -53,7 +53,7 @@ namespace HDS.Function.HAC
                     logger?.Information($"{typeMember} 작업 시작");
 
                     var transactServerUrl = dataContext.functionHeader.Configuration?["TransactServerUrl"].ToStringSafe();
-                    string url = $"{transactServerUrl}/summary?applicationID={applicationID}&year={year}&weekOfYear={weekOfYear}&requestDate={currentDate}";
+                    string url = $"{transactServerUrl}/summary?userWorkID={userWorkID}&applicationID={applicationID}&year={year}&weekOfYear={weekOfYear}&requestDate={currentDate}";
                     var client = new RestClient();
                     var request = new RestRequest(url, Method.Get);
                     
@@ -95,7 +95,7 @@ namespace HDS.Function.HAC
                         previousWeekOfYear = CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(lastDayOfYear, weekRule, firstDayOfWeek).ToString().PadLeft(2, '0');
                     }
 
-                    url = $"{transactServerUrl}/transaction-list?applicationID={applicationID}&year={previousYear}&weekOfYear={previousWeekOfYear}&resultType=L";
+                    url = $"{transactServerUrl}/transaction-list?userWorkID={userWorkID}&applicationID={applicationID}&year={previousYear}&weekOfYear={previousWeekOfYear}&resultType=L";
                     request = new RestRequest(url, Method.Get);
                     
                     request.AddHeader("AuthorizationKey", ModuleConfiguration.AuthorizationKey);
@@ -114,7 +114,7 @@ namespace HDS.Function.HAC
                         }
                     }
 
-                    url = $"{transactServerUrl}/transaction-list?applicationID={applicationID}&year={year}&weekOfYear={weekOfYear}&resultType=L";
+                    url = $"{transactServerUrl}/transaction-list?userWorkID={userWorkID}&applicationID={applicationID}&year={year}&weekOfYear={weekOfYear}&resultType=L";
                     request = new RestRequest(url, Method.Get);
                     
                     request.AddHeader("AuthorizationKey", ModuleConfiguration.AuthorizationKey);
@@ -202,7 +202,7 @@ TransactionException:
                     }
 
                     var transactServerUrl = dataContext.functionHeader.Configuration?["TransactServerUrl"].ToStringSafe();
-                    string url = $"{transactServerUrl}/transaction-list?applicationID={applicationID}&year={year}&weekOfYear={weekOfYear}&requestDate={requestDate}&requestHour={requestHour}&resultType=V";
+                    string url = $"{transactServerUrl}/transaction-list?userWorkID={userWorkID}&applicationID={applicationID}&year={year}&weekOfYear={weekOfYear}&requestDate={requestDate}&requestHour={requestHour}&resultType=V";
                     var client = new RestClient();
                     var request = new RestRequest(url, Method.Get);
                     
@@ -274,7 +274,7 @@ TransactionException:
                     }
 
                     var transactServerUrl = dataContext.functionHeader.Configuration?["TransactServerUrl"].ToStringSafe();
-                    string url = $"{transactServerUrl}/transaction-list?applicationID={applicationID}&year={year}&weekOfYear={weekOfYear}&requestDate={requestDate}&requestHour={requestHour}&resultType=E";
+                    string url = $"{transactServerUrl}/transaction-list?userWorkID={userWorkID}&applicationID={applicationID}&year={year}&weekOfYear={weekOfYear}&requestDate={requestDate}&requestHour={requestHour}&resultType=E";
                     var client = new RestClient();
                     var request = new RestRequest(url, Method.Get);
                     

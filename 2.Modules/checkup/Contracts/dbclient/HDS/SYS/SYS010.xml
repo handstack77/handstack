@@ -821,6 +821,7 @@ INSERT INTO Application (ApplicationNo
     , CompanyName
     , OwnerName
     , PublicYN
+    , DeleteYN
     , Comment
     , CreatedMemberNo
     , CreatedAt
@@ -833,6 +834,7 @@ VALUES (@ApplicationNo
     , @CompanyName
     , @OwnerName
     , @PublicYN
+    , 'N'
     , @Comment
     , @MemberNo
     , CURRENT_TIMESTAMP

@@ -95,7 +95,7 @@ namespace function.Builder
                     }
                     else
                     {
-                        myObject = Activator.CreateInstance(myType, httpContext);
+                        myObject = Activator.CreateInstance(myType, [httpContext]);
                     }
 
                     MethodInfo? entry = myObject?.GetType().GetMethod(methodName);
@@ -169,7 +169,7 @@ namespace function.Builder
                     }
                     else
                     {
-                        myObject = Activator.CreateInstance(myType, httpContext);
+                        myObject = Activator.CreateInstance(myType, [httpContext]);
                     }
 
                     MethodInfo? entry = myObject?.GetType().GetMethod(methodName);
@@ -241,7 +241,7 @@ namespace function.Builder
                         }
                         else
                         {
-                            myObject = Activator.CreateInstance(myType, httpContext);
+                            myObject = Activator.CreateInstance(myType, [httpContext]);
                             myObject = null;
                         }
 

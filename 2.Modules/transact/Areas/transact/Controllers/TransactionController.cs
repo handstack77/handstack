@@ -550,6 +550,7 @@ namespace transact.Areas.transact.Controllers
                 return Content(JsonConvert.SerializeObject(response), "application/json");
             }
 
+            string transactionWorkID = "mainapp";
             try
             {
                 string baseUrl = HttpContext.Request.GetBaseUrl();
@@ -558,6 +559,11 @@ namespace transact.Areas.transact.Controllers
                 var transactionUserWorkID = request.LoadOptions?.Get<string>("work-id").ToStringSafe();
                 var transactionApplicationID = request.LoadOptions?.Get<string>("app-id").ToStringSafe();
                 request.System.ProgramID = string.IsNullOrEmpty(transactionApplicationID) == false ? transactionApplicationID : request.System.ProgramID;
+
+                if (string.IsNullOrEmpty(transactionUserWorkID) == false)
+                {
+                    transactionWorkID = transactionUserWorkID;
+                }
 
                 if (ModuleConfiguration.IsValidationRequest == true)
                 {
@@ -600,7 +606,7 @@ namespace transact.Areas.transact.Controllers
 
                 if (ModuleConfiguration.IsTransactionLogging == true)
                 {
-                    loggerClient.TransactionRequestLogging(request, "Y", (string error) =>
+                    loggerClient.TransactionRequestLogging(request, transactionWorkID, "Y", (string error) =>
                     {
                         logger.Information("[{LogCategory}] [{GlobalID}] " + $"fallback error: {error}, Request JSON: {JsonConvert.SerializeObject(request)}", "Transaction/Execute", response.Transaction.GlobalID);
                     });
@@ -616,7 +622,7 @@ namespace transact.Areas.transact.Controllers
                     request.Interface == null)
                 {
                     response.ExceptionText = "잘못된 입력 전문";
-                    return LoggingAndReturn(response, "Y", null);
+                    return LoggingAndReturn(response, transactionWorkID, "Y", null);
                 }
 
                 #endregion
@@ -638,7 +644,7 @@ namespace transact.Areas.transact.Controllers
                 if (string.IsNullOrEmpty(contentType) == false && contentType.IndexOf("application/json") == -1)
                 {
                     response.ExceptionText = $"'{contentType}' 입력 타입 확인 필요";
-                    return LoggingAndReturn(response, "Y", null);
+                    return LoggingAndReturn(response, transactionWorkID, "Y", null);
                 }
 
                 if (request.Transaction.DataFormat == "T")
@@ -704,7 +710,7 @@ namespace transact.Areas.transact.Controllers
                 else
                 {
                     response.ExceptionText = $"데이터 포맷 '{request.Transaction.DataFormat}' 확인 필요";
-                    return LoggingAndReturn(response, "Y", null);
+                    return LoggingAndReturn(response, transactionWorkID, "Y", null);
                 }
 
                 string cacheKey = string.Empty;
@@ -732,13 +738,13 @@ namespace transact.Areas.transact.Controllers
 
                             transactionResponse.ResponseID = string.Concat(ModuleConfiguration.SystemID, GlobalConfiguration.HostName, request.Environment, DateTime.Now.ToString("yyyyMMddHHmmss"));
                             DefaultResponseHeaderConfiguration(request, transactionResponse);
-                            return LoggingAndReturn(transactionResponse, "Y", null);
+                            return LoggingAndReturn(transactionResponse, transactionWorkID, "Y", null);
                         }
                     }
                     else
                     {
                         response.ExceptionText = $"ProgramID: '{request.System.ProgramID}', BusinessID: '{request.Transaction.BusinessID}', TransactionID: '{request.Transaction.TransactionID}' 코드 데이터 거래 입력 전문 확인 필요";
-                        return LoggingAndReturn(response, "Y", null);
+                        return LoggingAndReturn(response, transactionWorkID, "Y", null);
                     }
                 }
 
@@ -752,13 +758,13 @@ namespace transact.Areas.transact.Controllers
                     if (string.IsNullOrEmpty(ModuleConfiguration.AvailableEnvironment) == true || (string.IsNullOrEmpty(ModuleConfiguration.AvailableEnvironment) == false && ModuleConfiguration.AvailableEnvironment.Split(",").Where(p => p == request.Environment).Count() == 0))
                     {
                         response.ExceptionText = $"'{request.Environment}' 환경정보 구분코드가 허용 안됨";
-                        return LoggingAndReturn(response, "Y", null);
+                        return LoggingAndReturn(response, transactionWorkID, "Y", null);
                     }
                 }
                 else
                 {
                     response.ExceptionText = $"입력 전문 '{request.Environment}' 환경정보 구분코드 확인 필요";
-                    return LoggingAndReturn(response, "Y", null);
+                    return LoggingAndReturn(response, transactionWorkID, "Y", null);
                 }
 
                 #endregion
@@ -812,7 +818,7 @@ namespace transact.Areas.transact.Controllers
                 if (businessContract == null)
                 {
                     response.ExceptionText = $"ProgramID '{request.System.ProgramID}', BusinessID '{request.Transaction.BusinessID}', TransactionID '{request.Transaction.TransactionID}' 거래 Transaction 입력 전문 확인 필요";
-                    return LoggingAndReturn(response, "Y", null);
+                    return LoggingAndReturn(response, transactionWorkID, "Y", null);
                 }
                 else
                 {
@@ -839,7 +845,7 @@ namespace transact.Areas.transact.Controllers
                 else if (services != null && services.Count() > 1)
                 {
                     response.ExceptionText = $"FunctionID '{request.Transaction.FunctionID}' 거래 매핑 중복 정보 확인 필요";
-                    return LoggingAndReturn(response, "Y", transactionInfo);
+                    return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                 }
 
                 if (transactionInfo == null && dynamicContract == true)
@@ -866,7 +872,7 @@ namespace transact.Areas.transact.Controllers
                 if (transactionInfo == null)
                 {
                     response.ExceptionText = $"FunctionID '{request.Transaction.FunctionID}' 거래 매핑 정보 확인 필요";
-                    return LoggingAndReturn(response, "Y", transactionInfo);
+                    return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                 }
 
                 bool isAccessScreenID = false;
@@ -900,7 +906,7 @@ namespace transact.Areas.transact.Controllers
                     if (isAccessScreenID == false)
                     {
                         response.ExceptionText = $"ScreenID '{request.Transaction.ScreenID}' 요청 가능화면 거래 매핑 정보 확인 필요";
-                        return LoggingAndReturn(response, "Y", transactionInfo);
+                        return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                     }
                 }
 
@@ -976,7 +982,7 @@ namespace transact.Areas.transact.Controllers
                                 if (isRoleYN == false)
                                 {
                                     response.ExceptionText = "JwtToken 역할 권한 확인 필요";
-                                    return LoggingAndReturn(response, "Y", transactionInfo);
+                                    return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                                 }
                             }
 
@@ -999,7 +1005,7 @@ namespace transact.Areas.transact.Controllers
                                 if (isClaimYN == false)
                                 {
                                     response.ExceptionText = "JwtToken 정책 권한 확인 필요";
-                                    return LoggingAndReturn(response, "Y", transactionInfo);
+                                    return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                                 }
                             }
                         }
@@ -1020,14 +1026,14 @@ namespace transact.Areas.transact.Controllers
                         if (ModuleConfiguration.SystemID != requestSystemID)
                         {
                             response.ExceptionText = $"SystemID: {requestSystemID} 확인 필요";
-                            return LoggingAndReturn(response, "Y", transactionInfo);
+                            return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                         }
                         else if (string.IsNullOrEmpty(token) == true)
                         {
                             if (ModuleConfiguration.UseApiAuthorize == true && transactionInfo.Authorize == true)
                             {
                                 response.ExceptionText = $"'{businessContract.ApplicationID}' 애플리케이션 또는 '{businessContract.ProjectID}' 프로젝트 권한 확인 필요";
-                                return LoggingAndReturn(response, "Y", transactionInfo);
+                                return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                             }
                         }
                         else if (ModuleConfiguration.UseApiAuthorize == true)
@@ -1035,7 +1041,7 @@ namespace transact.Areas.transact.Controllers
                             if (token.IndexOf(".") == -1)
                             {
                                 response.ExceptionText = "BearerToken 기본 무결성 확인 필요";
-                                return LoggingAndReturn(response, "Y", transactionInfo);
+                                return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                             }
 
                             string[] tokenArray = token.Split(".");
@@ -1044,7 +1050,7 @@ namespace transact.Areas.transact.Controllers
                             if (userID != request.Transaction.OperatorID)
                             {
                                 response.ExceptionText = "BearerToken 사용자 무결성 확인 필요";
-                                return LoggingAndReturn(response, "Y", transactionInfo);
+                                return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                             }
 
                             token = tokenArray[1];
@@ -1053,7 +1059,7 @@ namespace transact.Areas.transact.Controllers
                             if (bearerToken == null)
                             {
                                 response.ExceptionText = "BearerToken 정보 무결성 확인 필요";
-                                return LoggingAndReturn(response, "Y", transactionInfo);
+                                return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                             }
 
                             if (transactionInfo.Authorize == true)
@@ -1073,7 +1079,7 @@ namespace transact.Areas.transact.Controllers
                                     if (isRoleYN == false)
                                     {
                                         response.ExceptionText = "BearerToken 역할 권한 확인 필요";
-                                        return LoggingAndReturn(response, "Y", transactionInfo);
+                                        return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                                     }
                                 }
 
@@ -1096,7 +1102,7 @@ namespace transact.Areas.transact.Controllers
                                     if (isClaimYN == false)
                                     {
                                         response.ExceptionText = "BearerToken 정책 권한 확인 필요";
-                                        return LoggingAndReturn(response, "Y", transactionInfo);
+                                        return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                                     }
                                 }
                             }
@@ -1106,7 +1112,7 @@ namespace transact.Areas.transact.Controllers
                 catch (Exception exception)
                 {
                     response.ExceptionText = $"인증 또는 권한 확인 오류 - {exception.ToMessage()}";
-                    return LoggingAndReturn(response, "N", transactionInfo);
+                    return LoggingAndReturn(response, transactionWorkID, "N", transactionInfo);
                 }
 
                 if (bearerToken != null)
@@ -1118,7 +1124,7 @@ namespace transact.Areas.transact.Controllers
                         if (bearerToken.ClientIP != clientIP)
                         {
                             response.ExceptionText = $"거래 액세스 토큰 IP 유효성 오류";
-                            return LoggingAndReturn(response, "N", transactionInfo);
+                            return LoggingAndReturn(response, transactionWorkID, "N", transactionInfo);
                         }
                     }
                     else
@@ -1131,14 +1137,14 @@ namespace transact.Areas.transact.Controllers
                         else
                         {
                             response.ExceptionText = $"거래 액세스 토큰 유효성 오류";
-                            return LoggingAndReturn(response, "N", transactionInfo);
+                            return LoggingAndReturn(response, transactionWorkID, "N", transactionInfo);
                         }
                     }
 
                     if (bearerToken.ExpiredAt != null && bearerToken.ExpiredAt < DateTime.UtcNow)
                     {
                         response.ExceptionText = $"거래 액세스 토큰 유효기간 만료";
-                        return LoggingAndReturn(response, "N", transactionInfo);
+                        return LoggingAndReturn(response, transactionWorkID, "N", transactionInfo);
                     }
                 }
 
@@ -1214,7 +1220,7 @@ namespace transact.Areas.transact.Controllers
                 if (inputContracts.Count > 0 && inputContracts.Count != request.PayLoad.DataMapCount.Count)
                 {
                     response.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력 항목이 계약과 동일한지 확인 필요";
-                    return LoggingAndReturn(response, "Y", transactionInfo);
+                    return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                 }
 
                 // 입력 항목ID가 계약에 적합한지 확인
@@ -1228,20 +1234,20 @@ namespace transact.Areas.transact.Controllers
                     if (model == null && inputContract.ModelID != "Unknown" && inputContract.ModelID != "Dynamic")
                     {
                         response.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 '{inputContract.ModelID}' 입력 모델 ID가 계약에 있는지 확인";
-                        return LoggingAndReturn(response, "Y", transactionInfo);
+                        return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                     }
 
                     int inputCount = request.PayLoad.DataMapCount[i];
                     if (inputContract.Type == "Row" && inputCount != 1)
                     {
                         response.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력 항목이 계약과 동일한지 확인 필요";
-                        return LoggingAndReturn(response, "Y", transactionInfo);
+                        return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                     }
 
                     if (inputContract.ParameterHandling == "Rejected" && inputCount == 0)
                     {
                         response.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 필요한 입력 항목이 필요";
-                        return LoggingAndReturn(response, "Y", transactionInfo);
+                        return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                     }
 
                     if (inputContract.ParameterHandling == "ByPassing" && inputCount == 0)
@@ -1255,7 +1261,7 @@ namespace transact.Areas.transact.Controllers
                         if (inputContract.DefaultValues == null)
                         {
                             response.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 필요한 기본값 입력 항목 확인 필요";
-                            return LoggingAndReturn(response, "Y", transactionInfo);
+                            return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                         }
 
                         request.PayLoad.DataMapCount[i] = 1;
@@ -1314,7 +1320,7 @@ namespace transact.Areas.transact.Controllers
                                 else
                                 {
                                     response.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 '{item.FieldID}' 항목 ID가 계약에 있는지 확인";
-                                    return LoggingAndReturn(response, "Y", transactionInfo);
+                                    return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                                 }
                             }
                         }
@@ -1339,7 +1345,7 @@ namespace transact.Areas.transact.Controllers
                     if (model == null && inputContract.ModelID != "Unknown" && inputContract.ModelID != "Dynamic")
                     {
                         response.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 '{inputContract.ModelID}' 입력 모델 ID가 계약에 있는지 확인";
-                        return LoggingAndReturn(response, "Y", transactionInfo);
+                        return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                     }
 
                     for (int i = 0; i < inputItems.Count; i++)
@@ -1370,7 +1376,7 @@ namespace transact.Areas.transact.Controllers
                             if (column == null)
                             {
                                 response.ExceptionText = $"'{inputContract.ModelID}' 입력 모델 또는 '{item.FieldID}' 항목 확인 필요";
-                                return LoggingAndReturn(response, "Y", transactionInfo);
+                                return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                             }
                             else
                             {
@@ -1417,7 +1423,7 @@ namespace transact.Areas.transact.Controllers
                                 if (jToken == null)
                                 {
                                     response.ExceptionText = $"{REQ_FIELD_ID} Bearer 필드 확인 필요";
-                                    return LoggingAndReturn(response, "Y", transactionInfo);
+                                    return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                                 }
 
                                 DatabaseColumn column = new DatabaseColumn()
@@ -1500,7 +1506,7 @@ namespace transact.Areas.transact.Controllers
                     else
                     {
                         response.ExceptionText = "제한된 거래 요청입니다.";
-                        return LoggingAndReturn(response, "Y", transactionInfo);
+                        return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                     }
                 }
 
@@ -1510,7 +1516,7 @@ namespace transact.Areas.transact.Controllers
                     {
                         applicationResponse = await applicationRequest(request, response, transactionInfo, transactionObject, businessModels, inputContracts, outputContracts, applicationResponse);
                     });
-                    return LoggingAndReturn(response, "Y", transactionInfo);
+                    return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                 }
 
                 applicationResponse = await applicationRequest(request, response, transactionInfo, transactionObject, businessModels, inputContracts, outputContracts, applicationResponse);
@@ -1518,7 +1524,7 @@ namespace transact.Areas.transact.Controllers
                 if (string.IsNullOrEmpty(applicationResponse.ExceptionText) == false)
                 {
                     response.ExceptionText = applicationResponse.ExceptionText;
-                    return LoggingAndReturn(response, "Y", transactionInfo);
+                    return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                 }
 
                 #endregion
@@ -1714,11 +1720,11 @@ namespace transact.Areas.transact.Controllers
                             }
                         }
 
-                        return LoggingAndReturn(response, "Y", transactionInfo);
+                        return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
 
                     default:
                         response.ExceptionText = "ReturnType 확인 필요";
-                        return LoggingAndReturn(response, "N", null);
+                        return LoggingAndReturn(response, transactionWorkID, "N", null);
                 }
 
                 #endregion
@@ -1728,7 +1734,7 @@ namespace transact.Areas.transact.Controllers
                 response.ExceptionText = exception.ToMessage();
             }
 
-            return LoggingAndReturn(response, "N", null);
+            return LoggingAndReturn(response, transactionWorkID, "N", null);
         }
 
         private async Task<ApplicationResponse> applicationRequest(TransactionRequest request, TransactionResponse response, TransactionInfo? transactionInfo, TransactionObject transactionObject, List<Model> businessModels, List<ModelInputContract> inputContracts, List<ModelOutputContract> outputContracts, ApplicationResponse applicationResponse)
@@ -3175,11 +3181,11 @@ namespace transact.Areas.transact.Controllers
             return result;
         }
 
-        private ActionResult LoggingAndReturn(TransactionResponse response, string acknowledge, TransactionInfo? transactionInfo)
+        private ActionResult LoggingAndReturn(TransactionResponse response, string transactionWorkID, string acknowledge, TransactionInfo? transactionInfo)
         {
             if (ModuleConfiguration.IsTransactionLogging == true || (transactionInfo != null && transactionInfo.TransactionLog == true))
             {
-                loggerClient.TransactionResponseLogging(response, acknowledge, (string error) =>
+                loggerClient.TransactionResponseLogging(response, transactionWorkID, acknowledge, (string error) =>
                 {
                     logger.Information("[{LogCategory}] [{GlobalID}] " + $"fallback error: {error}, Response JSON: {JsonConvert.SerializeObject(response)}", "Transaction/RequestDataTransaction", response.Transaction.GlobalID);
                 });

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
@@ -212,90 +212,6 @@
                     </div>
                 </div>
                 <div class="navbar-nav flex-row order-md-last ms-md-2">
-                    <div class="d-none d-md-flex">
-                        <div class="nav-link px-0" id="btnOffCanvas">
-                            <i class="f:18 ti ti-layout-sidebar-right-expand"></i>
-                        </div>
-                        <div class="nav-item dropdown d-none d-md-flex me-3">
-                            <a href="#" class="nav-link px-0" data-bs-toggle="dropdown" tabindex="-1" aria-label="Show notifications">
-                                <i class="f:18 ti ti-bell"></i>
-                                <span class="badge bg-red"></span>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-arrow dropdown-menu-end dropdown-menu-card">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h3 class="card-title">Last updates</h3>
-                                    </div>
-                                    <div class="list-group list-group-flush list-group-hoverable">
-                                        <div class="list-group-item">
-                                            <div class="row align-items-center">
-                                                <div class="col-auto"><span class="status-dot status-dot-animated bg-red d-block"></span></div>
-                                                <div class="col text-truncate">
-                                                    <a href="#" class="text-body d-block">Example 1</a>
-                                                    <div class="d-block text-muted text-truncate mt-n1">
-                                                        Change deprecated html tags to text decoration classes (#29604)
-                                                    </div>
-                                                </div>
-                                                <div class="col-auto">
-                                                    <a href="#" class="list-group-item-actions">
-                                                        <i class="f:18 ti ti-star"></i>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="list-group-item">
-                                            <div class="row align-items-center">
-                                                <div class="col-auto"><span class="status-dot d-block"></span></div>
-                                                <div class="col text-truncate">
-                                                    <a href="#" class="text-body d-block">Example 2</a>
-                                                    <div class="d-block text-muted text-truncate mt-n1">
-                                                        justify-content:between ⇒ justify-content:space-between (#29734)
-                                                    </div>
-                                                </div>
-                                                <div class="col-auto">
-                                                    <a href="#" class="list-group-item-actions show">
-                                                        <i class="f:18 ti ti-star"></i>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="list-group-item">
-                                            <div class="row align-items-center">
-                                                <div class="col-auto"><span class="status-dot d-block"></span></div>
-                                                <div class="col text-truncate">
-                                                    <a href="#" class="text-body d-block">Example 3</a>
-                                                    <div class="d-block text-muted text-truncate mt-n1">
-                                                        Update change-version.js (#29736)
-                                                    </div>
-                                                </div>
-                                                <div class="col-auto">
-                                                    <a href="#" class="list-group-item-actions">
-                                                        <i class="f:18 ti ti-star"></i>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="list-group-item">
-                                            <div class="row align-items-center">
-                                                <div class="col-auto"><span class="status-dot status-dot-animated bg-green d-block"></span></div>
-                                                <div class="col text-truncate">
-                                                    <a href="#" class="text-body d-block">Example 4</a>
-                                                    <div class="d-block text-muted text-truncate mt-n1">
-                                                        Regenerate package-lock.json (#29730)
-                                                    </div>
-                                                </div>
-                                                <div class="col-auto">
-                                                    <a href="#" class="list-group-item-actions">
-                                                        <i class="f:18 ti ti-star"></i>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                     <div class="nav-item dropdown d-none d-md-flex">
                         <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="Open user menu" aria-expanded="false">
                             <span class="avatar avatar-sm" style="background-image: url(/checkup/img/default_user.png)"></span>
@@ -305,9 +221,6 @@
                             </div>
                         </a>
                         <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                            <div class="dropdown-item">프로젝트 담당자</div>
-                            <div class="dropdown-divider m-0"></div>
-                            <div class="dropdown-item">개인설정</div>
                             <div id="btnCloseProject" class="dropdown-item">프로젝트 닫기</div>
                             <div id="btnLogout" class="dropdown-item">로그아웃</div>
                         </div>
@@ -324,34 +237,6 @@
                     <div class="row">
                         <div class="col-4 d-md-block d-none">
                             <div class="navbar-nav flex-row">
-                                <div class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
-                                        <span class="nav-link-icon d-lg-inline-block">
-                                            <i class="f:18 ti ti-package"></i>
-                                        </span>
-                                        <span class="fg-black">
-                                            바로가기
-                                        </span>
-                                    </a>
-                                    <div class="dropdown-menu">
-                                        <div class="dropdown-menu-columns">
-                                            <div class="dropdown-menu-column">
-                                                <div class="dropdown-item">
-                                                    거래 API 테스트
-                                                    <span class="badge badge-sm bg-green-lt text-uppercase ms-auto">준비중</span>
-                                                </div>
-                                                <div class="dropdown-item">
-                                                    UI 항목 예제
-                                                    <span class="badge badge-sm bg-green-lt text-uppercase ms-auto">준비중</span>
-                                                </div>
-                                                <div class="dropdown-item">
-                                                    SQL 생성 도구
-                                                    <span class="badge badge-sm bg-green-lt text-uppercase ms-auto">준비중</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
                                 <div class="nav-item d-md-flex ml-4">
                                     <div class="btn-list hidden">
                                         <button type="button" id="btnTransactionHistory" class="btn btn-icon"><i class="f:18 ti ti-history"></i></button>
@@ -372,23 +257,7 @@
                 </div>
             </footer>
         </div>
-        <div class="offcanvas offcanvas-end" tabindex="-1" id="divOffcanvasEnd">
-            <div class="offcanvas-header p-3">
-                <h2 id="lblOffCanvasLabel" class="offcanvas-title">현재 화면에 대한 업무/참고 정보</h2>
-                <button type="button" id="btnCloseOffCanvas" class="btn-close text-reset" data-bs-dismiss="offcanvas"></button>
-            </div>
-            <div class="offcanvas-body font:18">
-                <div>
-                    기획/분석/설계/참고 파일
-                </div>
-                <div>
-                    VOC 요청 정보 및 관련 자료
-                </div>
-                <div>
-                    개발 markdown 문서 및 참고 링크
-                </div>
-            </div>
-        </div>
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="divOffcanvasEnd"></div>
         <div id="divOffCanvasBackdrop" class="offcanvas-backdrop fade show hidden"></div>
     </div>
 
