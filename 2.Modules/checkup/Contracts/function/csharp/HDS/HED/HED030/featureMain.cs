@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -123,7 +123,7 @@ namespace HDS.Function.HED
                                 var client = new RestClient();
                                 var url = $"{protocol}://{host}{resource}";
                                 var request = new RestRequest(url, Method.Get);
-                                
+
                                 request.AddHeader("AuthorizationKey", ModuleConfiguration.AuthorizationKey);
                                 RestResponse response = client.Execute(request);
                                 if (response.StatusCode != HttpStatusCode.OK)
@@ -248,7 +248,7 @@ TransactionException:
                                 var client = new RestClient();
                                 var url = $"{protocol}://{host}{resource}";
                                 var request = new RestRequest(url, Method.Get);
-                                
+
                                 request.AddHeader("AuthorizationKey", ModuleConfiguration.AuthorizationKey);
                                 RestResponse response = client.Execute(request);
                                 if (response.StatusCode != HttpStatusCode.OK)
@@ -374,7 +374,7 @@ TransactionException:
                                 var client = new RestClient();
                                 var url = $"{protocol}://{host}{resource}";
                                 var request = new RestRequest(url, Method.Get);
-                                
+
                                 request.AddHeader("AuthorizationKey", ModuleConfiguration.AuthorizationKey);
                                 RestResponse response = client.Execute(request);
                                 if (response.StatusCode != HttpStatusCode.OK)
@@ -498,7 +498,7 @@ TransactionException:
                                 var client = new RestClient();
                                 var url = $"{protocol}://{host}{resource}";
                                 var request = new RestRequest(url, Method.Get);
-                                
+
                                 request.AddHeader("AuthorizationKey", ModuleConfiguration.AuthorizationKey);
                                 RestResponse response = client.Execute(request);
                                 if (response.StatusCode != HttpStatusCode.OK)
@@ -630,7 +630,7 @@ TransactionException:
                                 var client = new RestClient();
                                 var url = $"{protocol}://{host}{resource}";
                                 var request = new RestRequest(url, Method.Get);
-                                
+
                                 request.AddHeader("AuthorizationKey", ModuleConfiguration.AuthorizationKey);
                                 RestResponse response = client.Execute(request);
                                 if (response.StatusCode != HttpStatusCode.OK)
@@ -765,7 +765,7 @@ TransactionException:
                                 var url = $"{protocol}://{host}{resource}";
                                 var request = new RestRequest(url, Method.Post);
                                 request.AddParameter("compressBase64", compressBase64);
-                                
+
                                 RestResponse response = client.Execute(request);
                                 if (response.StatusCode != HttpStatusCode.OK)
                                 {

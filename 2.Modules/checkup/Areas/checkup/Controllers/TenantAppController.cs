@@ -46,6 +46,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Drawing.Imaging;
 
 namespace checkup.Areas.checkup.Controllers
 {
@@ -1252,6 +1253,20 @@ namespace checkup.Areas.checkup.Controllers
                     return BadRequest("어플리케이션 정보 또는 요청 정보 확인이 필요합니다");
                 }
 
+                string connectionString = appDbConnectionString.Replace("{appBasePath}", appBasePath);
+                string logDbFilePath = Path.Combine(appBasePath, $".managed/sqlite/app.db");
+
+                FileInfo fileInfo = new FileInfo(logDbFilePath);
+                if (fileInfo.Directory != null && fileInfo.Directory.Exists == false)
+                {
+                    Directory.CreateDirectory(fileInfo.Directory.FullName);
+                }
+
+                if (fileInfo.Exists == false)
+                {
+                    SQLiteConnection.CreateFile(logDbFilePath);
+                }
+
                 // checkup Forbes 앱 데이터 모델 정보를 태넌트 앱에 복사
                 string forbesMetaFilePath = Path.Combine(forbesAppBasePath, "meta.xml");
                 if (System.IO.File.Exists(forbesMetaFilePath) == true)
@@ -1294,7 +1309,6 @@ namespace checkup.Areas.checkup.Controllers
                             }
                         }
 
-                        string connectionString = ModuleConfiguration.ConnectionString;
                         using (SQLiteConnection connection = new SQLiteConnection(connectionString))
                         {
                             connection.Open();
@@ -1320,6 +1334,13 @@ namespace checkup.Areas.checkup.Controllers
                     else
                     {
                         return Content("Forbes 앱 메타 정보 검증이 필요합니다");
+                    }
+                }
+                else
+                {
+                    using (SQLiteConnection connection = new SQLiteConnection(connectionString))
+                    {
+                        connection.Open();
                     }
                 }
 
@@ -1486,7 +1507,10 @@ namespace checkup.Areas.checkup.Controllers
                 DeleteDirectoryExceptManaged(dir);
             }
 
-            Directory.Delete(path, false);
+            if (Directory.GetFiles(path).Length == 0)
+            {
+                Directory.Delete(path, false);
+            }
         }
 
         private void BulkInsertData(string tableName, DataTable data, SQLiteConnection connection)

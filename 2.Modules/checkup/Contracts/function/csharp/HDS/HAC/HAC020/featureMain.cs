@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -110,7 +110,7 @@ TransactionException:
                 var url = $"{requestOrigin}/repository/api/storage/get-repository?applicationID={applicationID}&repositoryID={repositoryID}";
                 var client = new RestClient();
                 var request = new RestRequest(url, Method.Get);
-                
+
                 request.AddHeader("AuthorizationKey", ModuleConfiguration.AuthorizationKey);
                 request.AddHeader("Content-Type", "application/json; charset=utf-8");
 
@@ -351,7 +351,7 @@ TransactionException:
                                 var url = $"{requestOrigin}/repository/api/managed/reset-app-contract?applicationID={applicationID}&userWorkID={userWorkID}";
                                 var client = new RestClient();
                                 var request = new RestRequest(url, Method.Get);
-                                
+
                                 request.AddHeader("AuthorizationKey", ModuleConfiguration.AuthorizationKey);
                                 request.AddHeader("Content-Type", "application/json; charset=utf-8");
 
@@ -434,7 +434,7 @@ TransactionException:
                                     var url = $"{requestOrigin}/repository/api/managed/reset-app-contract?applicationID={applicationID}&userWorkID={userWorkID}";
                                     var client = new RestClient();
                                     var request = new RestRequest(url, Method.Get);
-                                    
+
                                     request.AddHeader("AuthorizationKey", ModuleConfiguration.AuthorizationKey);
                                     request.AddHeader("Content-Type", "application/json; charset=utf-8");
 

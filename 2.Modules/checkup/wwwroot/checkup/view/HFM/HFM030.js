@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 let $HFM030 = {
     config: {
         actionButtons: [{
@@ -63,8 +63,10 @@ let $HFM030 = {
 
     event: {
         lblNpmItem_click(evt, name, version) {
-            syn.$l.get('ifmPreview').src = `/checkup/api/tenant-app/npm-package?packageName=${name}&version=${version}`;
-            syn.$l.get('lblPreviewName').textContent = `${name}${$string.isNullOrEmpty(version) == true ? '' : '@' + version}`;
+            if ($string.isNullOrEmpty(name) == false) {
+                syn.$l.get('ifmPreview').src = `/checkup/api/tenant-app/npm-package?packageName=${name}&version=${version}`;
+                syn.$l.get('lblPreviewName').textContent = `${name}${$string.isNullOrEmpty(version) == true ? '' : '@' + version}`;
+            }
         }
     },
 
