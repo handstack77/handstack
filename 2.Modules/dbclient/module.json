@@ -10,8 +10,7 @@
         "DefaultCommandTimeout": 30,
         "IsExceptionDetailText": true,
         "ContractBasePath": [
-            "../contracts/dbclient",
-            "C:/projects/handstack77/handstack/2.Modules/checkup/Contracts/dbclient"
+            "../contracts/dbclient"
         ],
         "IsTransactionLogging": false,
         "ModuleLogFilePath": "../log/dbclient/module.log",
