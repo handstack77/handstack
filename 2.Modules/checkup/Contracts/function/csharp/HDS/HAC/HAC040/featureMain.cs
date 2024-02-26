@@ -109,7 +109,6 @@ TransactionException:
             {
                 result.BuildExceptionData();
 
-                string applicationNo = dynamicParameters.Value("ApplicationNo").ToStringSafe();
                 string userWorkID = dynamicParameters.Value("UserWorkID").ToStringSafe();
                 string applicationID = dynamicParameters.Value("ApplicationID").ToStringSafe();
                 string applicationName = dynamicParameters.Value("ApplicationName").ToStringSafe();
@@ -118,8 +117,7 @@ TransactionException:
                 string userNo = dynamicParameters.Value("UserNo").ToStringSafe();
                 string comment = dynamicParameters.Value("Comment").ToStringSafe();
 
-                if (string.IsNullOrEmpty(applicationNo) == true
-                    || string.IsNullOrEmpty(userWorkID) == true
+                if (string.IsNullOrEmpty(userWorkID) == true
                     || string.IsNullOrEmpty(applicationID) == true
                     || string.IsNullOrEmpty(applicationName) == true
                     || string.IsNullOrEmpty(userNo) == true
@@ -187,11 +185,11 @@ TransactionException:
 
                 string userWorkID = dynamicParameters.Value("UserWorkID").ToStringSafe();
                 string applicationID = dynamicParameters.Value("ApplicationID").ToStringSafe();
-                string memberNo = dynamicParameters.Value("MemberNo").ToStringSafe();
+                string userNo = dynamicParameters.Value("UserNo").ToStringSafe();
 
                 if (string.IsNullOrEmpty(userWorkID) == true
                     || string.IsNullOrEmpty(applicationID) == true
-                    || string.IsNullOrEmpty(memberNo) == true)
+                    || string.IsNullOrEmpty(userNo) == true)
                 {
                     result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
                     goto TransactionException;
@@ -203,7 +201,7 @@ TransactionException:
                     if (Directory.Exists(appBasePath) == true)
                     {
                         string baseUrl = dataContext.functionHeader.Configuration?[$"{dataContext.platform}BaseUrl"].ToStringSafe();
-                        string url = $"{baseUrl}/checkup/api/tenant-app/delete-app?memberNo={memberNo}&userWorkID={userWorkID}&applicationID={applicationID}&accessKey={ModuleConfiguration.ManagedAccessKey}";
+                        string url = $"{baseUrl}/checkup/api/tenant-app/delete-app?memberNo={userNo}&userWorkID={userWorkID}&applicationID={applicationID}&accessKey={ModuleConfiguration.ManagedAccessKey}";
 
                         var client = new RestClient();
                         var request = new RestRequest(url, Method.Get);

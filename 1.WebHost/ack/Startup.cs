@@ -141,30 +141,46 @@ namespace ack
             GlobalConfiguration.ContentRootPath = environment.ContentRootPath;
             GlobalConfiguration.WebRootPath = environment.WebRootPath;
 
-            string disposeTenantAppsFilePath = Path.Combine(GlobalConfiguration.EntryBasePath, "dispose-tenantapps.json");
-            if (File.Exists(disposeTenantAppsFilePath) == true)
-            {
-                try
-                {
-                    var disposeTenantApps = JsonConvert.DeserializeObject<List<string>>(File.ReadAllText(disposeTenantAppsFilePath));
-                    if (disposeTenantApps != null)
-                    {
-                        GlobalConfiguration.DisposeTenantApps = disposeTenantApps;
-                    }
-                }
-                catch (Exception exception)
-                {
-                    Log.Warning(exception, "[{LogCategory}] " + $"DisposeTenantApps 환경설정 확인 필요: {disposeTenantAppsFilePath}", "Startup/ConfigureServices");
-                }
-            }
-
             GlobalConfiguration.TenantAppRequestPath = appSettings["TenantAppRequestPath"].ToStringSafe();
-
             GlobalConfiguration.TenantAppBasePath = GlobalConfiguration.GetBasePath(appSettings["TenantAppBasePath"]);
             GlobalConfiguration.BatchProgramBasePath = GlobalConfiguration.GetBasePath(appSettings["BatchProgramBasePath"]);
             GlobalConfiguration.CreateAppTempPath = GlobalConfiguration.GetBasePath(appSettings["CreateAppTempPath"]);
             GlobalConfiguration.ForbesBasePath = GlobalConfiguration.GetBasePath(appSettings["ForbesBasePath"]);
             GlobalConfiguration.LoadModuleBasePath = GlobalConfiguration.GetBasePath(appSettings["LoadModuleBasePath"]);
+
+            string disposeTenantAppsFilePath = Path.Combine(GlobalConfiguration.EntryBasePath, "dispose-tenantapps.log");
+            if (File.Exists(disposeTenantAppsFilePath) == true)
+            {
+                using (StreamReader file = new StreamReader(disposeTenantAppsFilePath))
+                {
+                    string? line;
+                    while ((line = file.ReadLine()) != null)
+                    {
+                        if (line.Contains("|") == true)
+                        {
+                            string tenantID = line.Split('|')[0];
+                            string path = line.Split('|')[1];
+                            try
+                            {
+                                if (Directory.Exists(path) == true && path.StartsWith(GlobalConfiguration.TenantAppRequestPath) == true)
+                                {
+                                    Directory.Delete(path, true);
+                                }
+                                else
+                                {
+                                    Log.Warning("[{LogCategory}] " + $"DisposeTenantApps 디렉토리 확인 필요: {path}", "Startup/ConfigureServices");
+                                }
+                            }
+                            catch
+                            {
+                                Log.Error("[{LogCategory}] " + $"DisposeTenantApps 디렉토리 확인 필요: {path}", "Startup/ConfigureServices");
+                            }
+                        }
+                    }
+                }
+
+                File.Delete(disposeTenantAppsFilePath);
+            }
 
             var withOrigins = appSettings.GetSection("WithOrigins").AsEnumerable();
             foreach (var item in withOrigins)

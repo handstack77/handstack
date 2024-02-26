@@ -779,7 +779,8 @@ SELECT MAX(Sequence) AS IdentityNo FROM IdentityNo WHERE GroupID = @GroupID;
 
         <statement id="GD04" seq="0" use="Y" timeout="0" desc="어플리케이션 삭제를 위한 사용자 검증 확인">
             <![CDATA[
-SELECT COUNT(1) AS MemberCount 
+SELECT ApplicationNo
+    , COUNT(1) AS MemberCount 
 FROM [Application] A
 	INNER JOIN [Member] M ON A.CreatedMemberNo = M.MemberNo
 WHERE A.ApplicationID = @ApplicationID
@@ -809,6 +810,15 @@ DELETE FROM IdentityNo WHERE No = @IdentityNo
             <param id="@IdentityNo" type="Int32" length="-1" value="NULL" />
             <param id="@GroupID" type="String" length="1" value="NULL" />
             <param id="@MemberNo" type="String" length="36" value="NULL" />
+        </statement>
+
+        <statement id="DD02" seq="0" use="Y" timeout="0" desc="Application, ApplicationMember 정보 삭제">
+            <![CDATA[
+DELETE FROM ApplicationMember WHERE ApplicationNo = @ApplicationNo;
+
+DELETE FROM Application WHERE ApplicationNo = @ApplicationNo;
+			]]>
+            <param id="@ApplicationNo" type="String" length="36" value="NULL" />
         </statement>
 
         <statement id="ID01" seq="0" use="Y" timeout="0" desc="어플리케이션 정보 생성">

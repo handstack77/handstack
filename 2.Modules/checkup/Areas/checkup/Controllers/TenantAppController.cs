@@ -676,6 +676,11 @@ namespace checkup.Areas.checkup.Controllers
                 try
                 {
                     string tenantID = $"{userWorkID}|{applicationID}";
+                    if (ModuleConfiguration.TenantAppOrigins.ContainsKey(tenantID) == true)
+                    {
+                        ModuleConfiguration.TenantAppOrigins.Remove(tenantID);
+                    }
+
                     string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                     if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(appBasePath) == true)
                     {
@@ -690,21 +695,16 @@ namespace checkup.Areas.checkup.Controllers
                                 if (appSetting != null && appSetting.ApplicationID == applicationID && appSetting.AppSecret == appSecret)
                                 {
                                     var withOriginUris = appSetting.WithOrigin;
-
                                     if (withOriginUris != null)
                                     {
-                                        if (ModuleConfiguration.TenantAppOrigins.ContainsKey(tenantID) == true)
-                                        {
-                                            ModuleConfiguration.TenantAppOrigins.Remove(tenantID);
-                                        }
-
                                         ModuleConfiguration.TenantAppOrigins.Add(tenantID, withOriginUris);
                                     }
-                                    result = Ok();
                                 }
                             }
                         }
                     }
+
+                    result = Ok();
                 }
                 catch (Exception exception)
                 {
@@ -732,6 +732,11 @@ namespace checkup.Areas.checkup.Controllers
                 try
                 {
                     string tenantID = $"{userWorkID}|{applicationID}";
+                    if (ModuleConfiguration.TenantAppReferers.ContainsKey(tenantID) == true)
+                    {
+                        ModuleConfiguration.TenantAppReferers.Remove(tenantID);
+                    }
+
                     string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                     if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(appBasePath) == true)
                     {
@@ -746,21 +751,16 @@ namespace checkup.Areas.checkup.Controllers
                                 if (appSetting != null && appSetting.ApplicationID == applicationID && appSetting.AppSecret == appSecret)
                                 {
                                     var withRefererUris = appSetting.WithReferer;
-
                                     if (withRefererUris != null)
                                     {
-                                        if (ModuleConfiguration.TenantAppReferers.ContainsKey(tenantID) == true)
-                                        {
-                                            ModuleConfiguration.TenantAppReferers.Remove(tenantID);
-                                        }
-
                                         ModuleConfiguration.TenantAppReferers.Add(tenantID, withRefererUris);
                                     }
-                                    result = Ok();
                                 }
                             }
                         }
                     }
+
+                    result = Ok();
                 }
                 catch (Exception exception)
                 {
@@ -1349,6 +1349,146 @@ namespace checkup.Areas.checkup.Controllers
             return result;
         }
 
+        // http://localhost:8000/checkup/api/tenant-app/delete-app?applicationID=9ysztou4&userWorkID=9ysztou4&memberNo=08db77a3cba70039ca91a82878021905&accessKey=6eac215f2f5e495cad4f2abfdcad7644
+        [HttpGet("[action]")]
+        public async Task<ActionResult> DeleteApp(string accessKey
+            , string memberNo
+            , string userWorkID
+            , string applicationID
+        )
+        {
+            ActionResult result = BadRequest("요청 정보 확인이 필요합니다");
+
+            if (ModuleConfiguration.ManagedAccessKey == accessKey
+                && string.IsNullOrEmpty(applicationID) == false
+                && string.IsNullOrEmpty(memberNo) == false
+                && string.IsNullOrEmpty(userWorkID) == false)
+            {
+                // memberNo 확인 및 제한 조건 검증
+                var verifyMemberResults = ModuleExtensions.ExecuteMetaSQL(ReturnType.Dynamic, "SYS.SYS010.GD04", new
+                {
+                    ApplicationID = applicationID,
+                    MemberNo = memberNo,
+                    UserWorkID = userWorkID
+                });
+
+                string applicationNo = string.Empty;
+                if (verifyMemberResults == null)
+                {
+                }
+                else if (verifyMemberResults.Count > 0)
+                {
+                    var item = verifyMemberResults[0];
+                    applicationNo = item.ApplicationNo;
+                }
+
+                if (string.IsNullOrEmpty(applicationNo) == true)
+                {
+                    return BadRequest("어플리케이션 정보 또는 요청 정보 확인이 필요합니다");
+                }
+
+                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
+                if (directoryInfo.Exists == true)
+                {
+                    string tenantID = $"{userWorkID}|{applicationID}";
+                    string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                    if (System.IO.File.Exists(settingFilePath) == true || GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == true)
+                    {
+                        string appSettingText = await System.IO.File.ReadAllTextAsync(settingFilePath);
+                        var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
+                        if (appSetting != null)
+                        {
+                            ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, "SYS.SYS010.DD02", new
+                            {
+                                ApplicationNo = applicationNo
+                            });
+
+                            try
+                            {
+                                string disposeTenantAppsFilePath = Path.Combine(GlobalConfiguration.EntryBasePath, "dispose-tenantapps.log");
+                                using (StreamWriter file = new StreamWriter(disposeTenantAppsFilePath, true))
+                                {
+                                    file.WriteLine($"{tenantID}|{appBasePath}");
+                                }
+
+                                if (GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
+                                {
+                                    GlobalConfiguration.DisposeTenantApps.Add(tenantID);
+                                }
+                            }
+                            catch (Exception exception)
+                            {
+                                Log.Warning(exception, "[{LogCategory}] " + $"DisposeTenantApps 확인 필요: {tenantID}, {appBasePath}", "TenantAppController/DeleteApp");
+                            }
+
+                            DeleteDirectoryExceptManaged(appBasePath);
+
+                            string baseUrl = Request.GetBaseUrl();
+
+                            string contractUrl = $"{baseUrl}/checkup/api/tenant-app/refresh-referer-app?userWorkID={userWorkID}&applicationID={applicationID}&appSecret={appSetting.AppSecret}";
+                            ContractUpdate(contractUrl);
+
+                            contractUrl = $"{baseUrl}/checkup/api/tenant-app/refresh-origin-app?userWorkID={userWorkID}&applicationID={applicationID}&appSecret={appSetting.AppSecret}";
+                            ContractUpdate(contractUrl);
+
+                            contractUrl = $"{baseUrl}/dbclient/api/managed/reset-app-contract?userWorkID={userWorkID}&applicationID={applicationID}";
+                            ContractUpdate(contractUrl);
+
+                            contractUrl = $"{baseUrl}/repository/api/managed/reset-app-contract?userWorkID={userWorkID}&applicationID={applicationID}";
+                            ContractUpdate(contractUrl);
+
+                            contractUrl = $"{baseUrl}/transact/api/managed/reset-app-contract?userWorkID={userWorkID}&applicationID={applicationID}";
+                            ContractUpdate(contractUrl);
+
+                            contractUrl = $"{baseUrl}/function/api/managed/reset-app-contract?userWorkID={userWorkID}&applicationID={applicationID}";
+                            ContractUpdate(contractUrl);
+
+                            result = Ok();
+                        }
+                        else
+                        {
+                            result = BadRequest($"{tenantID} settings.json 정보 확인이 필요합니다");
+                        }
+                    }
+                    else
+                    {
+                        result = BadRequest($"{tenantID} settings.json 정보가 필요합니다");
+                    }
+                }
+                else
+                {
+                    result = BadRequest("이미 삭제 된 앱입니다");
+                }
+            }
+
+            return result;
+        }
+
+        private void DeleteDirectoryExceptManaged(string path)
+        {
+            var files = Directory.GetFiles(path);
+            var directories = Directory.GetDirectories(path);
+
+            foreach (var file in files)
+            {
+                System.IO.File.SetAttributes(file, FileAttributes.Normal);
+                System.IO.File.Delete(file);
+            }
+
+            foreach (var dir in directories)
+            {
+                if (Path.GetFileName(dir).Equals(".managed", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    continue;
+                }
+
+                DeleteDirectoryExceptManaged(dir);
+            }
+
+            Directory.Delete(path, false);
+        }
+
         private void BulkInsertData(string tableName, DataTable data, SQLiteConnection connection)
         {
             using (var command = new SQLiteCommand(connection))
@@ -1363,12 +1503,23 @@ namespace checkup.Areas.checkup.Controllers
 
         private void ContractUpdate(string contractUrl)
         {
-            Task.Run(() =>
+            Task.Run(async () =>
             {
-                var httpClient = new HttpClient();
-                httpClient.Timeout = TimeSpan.FromSeconds(10);
-                var request = new HttpRequestMessage(HttpMethod.Get, contractUrl);
-                httpClient.Send(request);
+                Uri baseUri = new Uri(contractUrl);
+                var client = new RestClient();
+                var request = new RestRequest(baseUri, Method.Get);
+                request.AddHeader("ApplicationName", GlobalConfiguration.ApplicationName);
+                request.AddHeader("SystemID", GlobalConfiguration.SystemID);
+                request.AddHeader("HostName", GlobalConfiguration.HostName);
+                request.AddHeader("RunningEnvironment", GlobalConfiguration.RunningEnvironment);
+                request.AddHeader("ApplicationRuntimeID", GlobalConfiguration.ApplicationRuntimeID);
+                request.AddHeader("AuthorizationKey", GlobalConfiguration.SystemID + GlobalConfiguration.RunningEnvironment + GlobalConfiguration.HostName);
+
+                var response = await client.ExecuteAsync(request);
+                if (response.StatusCode != HttpStatusCode.OK)
+                {
+                    logger.Error("[{LogCategory}] " + $"{contractUrl} 요청 실패", "TenantAppController/ContractUpdate");
+                }
             });
         }
 

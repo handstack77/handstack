@@ -23,12 +23,6 @@
             "ModifiedAt": "2023-07-10 00:00:00",
             "Params": [
                 {
-                    "id": "ApplicationNo",
-                    "type": "String",
-                    "length": 36,
-                    "value": null
-                },
-                {
                     "id": "UserWorkID",
                     "type": "String",
                     "length": 36,
@@ -56,12 +50,6 @@
             "Description": "앱 환경설정 정보 변경",
             "ModifiedAt": "2023-07-10 00:00:00",
             "Params": [
-                {
-                    "id": "ApplicationNo",
-                    "type": "String",
-                    "length": 0,
-                    "value": null
-                },
                 {
                     "id": "UserWorkID",
                     "type": "String",
@@ -115,12 +103,6 @@
             "ModifiedAt": "2023-07-10 00:00:00",
             "Params": [
                 {
-                    "id": "ApplicationNo",
-                    "type": "String",
-                    "length": 36,
-                    "value": null
-                },
-                {
                     "id": "UserWorkID",
                     "type": "String",
                     "length": 36,
@@ -133,7 +115,7 @@
                     "value": null
                 },
                 {
-                    "id": "MemberNo",
+                    "id": "UserNo",
                     "type": "String",
                     "length": 36,
                     "value": null
