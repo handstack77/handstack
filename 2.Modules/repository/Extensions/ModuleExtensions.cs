@@ -47,7 +47,7 @@ namespace repository.Extensions
                     try
                     {
                         string? parseParameters = parameters == null ? null : JsonConvert.SerializeObject(parameters);
-                        var sqlMeta = DatabaseExtensions.GetSQLiteMetaSQL(ModuleConfiguration.DatabaseContractPath, repository.ApplicationID, paths[0], paths[1], paths[2], parseParameters);
+                        var sqlMeta = DatabaseExtensions.GetSQLiteMetaSQL(ModuleConfiguration.DatabaseContractPath, GlobalConfiguration.ApplicationID, paths[0], paths[1], paths[2], parseParameters);
                         if (sqlMeta != null)
                         {
                             string connectionString = repository.SQLiteConnectionString;
@@ -107,7 +107,7 @@ namespace repository.Extensions
                     try
                     {
                         string? parseParameters = parameters == null ? null : JsonConvert.SerializeObject(parameters);
-                        var sqlMeta = DatabaseExtensions.GetSQLiteMetaSQL(ModuleConfiguration.DatabaseContractPath, repository.ApplicationID, paths[0], paths[1], paths[2], parseParameters);
+                        var sqlMeta = DatabaseExtensions.GetSQLiteMetaSQL(ModuleConfiguration.DatabaseContractPath, GlobalConfiguration.ApplicationID, paths[0], paths[1], paths[2], parseParameters);
                         if (sqlMeta != null)
                         {
                             using (SQLiteClient sqliteClient = new SQLiteClient(repository.SQLiteConnectionString))

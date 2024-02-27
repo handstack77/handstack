@@ -135,7 +135,7 @@ namespace repository.Controllers
             var repository = moduleApiClient.GetRepository(applicationID, repositoryID);
             if (repository == null)
             {
-                jsonContentResult.Message = "RepositoryID 요청 정보 확인 필요";
+                jsonContentResult.Message = "UpdateDependencyID RepositoryID 요청 정보 확인 필요";
                 return Content(JsonConvert.SerializeObject(jsonContentResult), "application/json");
             }
 
@@ -220,7 +220,7 @@ namespace repository.Controllers
             var repository = moduleApiClient.GetRepository(applicationID, repositoryID);
             if (repository == null)
             {
-                jsonContentResult.Message = "RepositoryID 요청 정보 확인 필요";
+                jsonContentResult.Message = "UpdateFileName RepositoryID 요청 정보 확인 필요";
                 return BadRequest(jsonContentResult.Message);
             }
 
@@ -565,14 +565,14 @@ namespace repository.Controllers
 
             if (string.IsNullOrEmpty(repositoryID) == true || string.IsNullOrEmpty(dependencyID) == true)
             {
-                result.Message = "RepositoryID 또는 DependencyID 필수 요청 정보 필요";
+                result.Message = "UploadFile RepositoryID 또는 DependencyID 필수 요청 정보 필요";
                 return Content(JsonConvert.SerializeObject(result), "application/json");
             }
 
             var repository = moduleApiClient.GetRepository(applicationID, repositoryID);
             if (repository == null)
             {
-                result.Message = "RepositoryID 요청 정보 확인 필요";
+                result.Message = "UploadFile RepositoryID 요청 정보 확인 필요";
                 return Content(JsonConvert.SerializeObject(result), "application/json");
             }
 
@@ -1267,14 +1267,14 @@ namespace repository.Controllers
 
             if (string.IsNullOrEmpty(repositoryID) == true || string.IsNullOrEmpty(dependencyID) == true)
             {
-                result.Message = "RepositoryID 또는 DependencyID 필수 요청 정보 필요";
+                result.Message = "UploadFiles RepositoryID 또는 DependencyID 필수 요청 정보 필요";
                 return Content(JsonConvert.SerializeObject(result), "application/json");
             }
 
             var repository = moduleApiClient.GetRepository(applicationID, repositoryID);
             if (repository == null)
             {
-                result.Message = "RepositoryID 요청 정보 확인 필요";
+                result.Message = "UploadFiles RepositoryID 요청 정보 확인 필요";
                 return Content(JsonConvert.SerializeObject(result), "application/json");
             }
 
@@ -1815,7 +1815,7 @@ namespace repository.Controllers
 
             if (string.IsNullOrEmpty(applicationID) == true || string.IsNullOrEmpty(repositoryID) == true || string.IsNullOrEmpty(itemID) == true)
             {
-                downloadResult.Message = "RepositoryID 또는 ItemID 필수 요청 정보 필요";
+                downloadResult.Message = "DownloadFile RepositoryID 또는 ItemID 필수 요청 정보 필요";
                 result = StatusCode(400, downloadResult.Message);
                 return result;
             }
@@ -1823,7 +1823,7 @@ namespace repository.Controllers
             var repository = moduleApiClient.GetRepository(applicationID, repositoryID);
             if (repository == null)
             {
-                downloadResult.Message = "RepositoryID 요청 정보 확인 필요";
+                downloadResult.Message = "DownloadFile RepositoryID 요청 정보 확인 필요";
                 result = StatusCode(400, downloadResult.Message);
                 return result;
             }
@@ -1867,7 +1867,7 @@ namespace repository.Controllers
 
             if (string.IsNullOrEmpty(applicationID) == true || string.IsNullOrEmpty(repositoryID) == true || string.IsNullOrEmpty(itemID) == true)
             {
-                downloadResult.Message = "RepositoryID 또는 ItemID 필수 요청 정보 필요";
+                downloadResult.Message = "HttpDownloadFile RepositoryID 또는 ItemID 필수 요청 정보 필요";
                 result = StatusCode(400, downloadResult.Message);
                 return result;
             }
@@ -1875,7 +1875,7 @@ namespace repository.Controllers
             var repository = moduleApiClient.GetRepository(applicationID, repositoryID);
             if (repository == null)
             {
-                downloadResult.Message = "RepositoryID 요청 정보 확인 필요";
+                downloadResult.Message = "HttpDownloadFile RepositoryID 요청 정보 확인 필요";
                 result = StatusCode(400, downloadResult.Message);
                 return result;
             }
@@ -1989,7 +1989,7 @@ namespace repository.Controllers
 
             if (string.IsNullOrEmpty(repositoryID) == true || string.IsNullOrEmpty(fileName) == true)
             {
-                downloadResult.Message = "RepositoryID 또는 fileName 필수 요청 정보 필요";
+                downloadResult.Message = "VirtualDownloadFile RepositoryID 또는 fileName 필수 요청 정보 필요";
                 result = StatusCode(400, downloadResult.Message);
                 return result;
             }
@@ -1997,7 +1997,7 @@ namespace repository.Controllers
             var repository = moduleApiClient.GetRepository(applicationID, repositoryID);
             if (repository == null)
             {
-                downloadResult.Message = "RepositoryID 요청 정보 확인 필요";
+                downloadResult.Message = "VirtualDownloadFile RepositoryID 요청 정보 확인 필요";
                 result = StatusCode(400, downloadResult.Message);
                 return result;
             }
@@ -2099,7 +2099,7 @@ namespace repository.Controllers
 
             if (string.IsNullOrEmpty(repositoryID) == true || string.IsNullOrEmpty(fileName) == true)
             {
-                deleteResult.Message = "RepositoryID 또는 fileName 필수 요청 정보 필요";
+                deleteResult.Message = "VirtualDeleteFile RepositoryID 또는 fileName 필수 요청 정보 필요";
                 result = StatusCode(400, deleteResult.Message);
                 return result;
             }
@@ -2107,14 +2107,14 @@ namespace repository.Controllers
             var repository = moduleApiClient.GetRepository(applicationID, repositoryID);
             if (repository == null)
             {
-                deleteResult.Message = "RepositoryID 요청 정보 확인 필요";
+                deleteResult.Message = "VirtualDeleteFile RepositoryID 요청 정보 확인 필요";
                 result = StatusCode(400, deleteResult.Message);
                 return result;
             }
 
             if (string.IsNullOrEmpty(repositoryID) == true || string.IsNullOrEmpty(fileName) == true)
             {
-                deleteResult.Message = "RepositoryID 또는 fileName 필수 요청 정보 필요";
+                deleteResult.Message = "VirtualDeleteFile RepositoryID 또는 fileName 필수 요청 정보 필요";
                 result = StatusCode(400, deleteResult.Message);
                 return result;
             }
@@ -2222,14 +2222,14 @@ namespace repository.Controllers
 
             if (string.IsNullOrEmpty(applicationID) == true || string.IsNullOrEmpty(repositoryID) == true || string.IsNullOrEmpty(itemID) == true)
             {
-                jsonContentResult.Message = "RepositoryID 또는 ItemID 필수 요청 정보 필요";
+                jsonContentResult.Message = "RemoveItem RepositoryID 또는 ItemID 필수 요청 정보 필요";
                 return Content(JsonConvert.SerializeObject(jsonContentResult), "application/json");
             }
 
             var repository = moduleApiClient.GetRepository(applicationID, repositoryID);
             if (repository == null)
             {
-                jsonContentResult.Message = "RepositoryID 요청 정보 확인 필요";
+                jsonContentResult.Message = "RemoveItem RepositoryID 요청 정보 확인 필요";
                 return Content(JsonConvert.SerializeObject(jsonContentResult), "application/json");
             }
 

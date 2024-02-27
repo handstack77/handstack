@@ -872,7 +872,14 @@
             var divProgressBar = syn.$m.create({
                 id: 'divProgressBar',
                 tag: 'div',
-                className: 'progress fixed top:0 border-radius:0 h:2! z:10000'
+                className: 'progress fixed',
+                styles: {
+                    'top': '0',
+                    'left': '0',
+                    'height': '0.125rem',
+                    'border-radius': '0',
+                    'z-index': '10000'
+                }
             });
             divProgressBar.innerHTML = '<div class="progress-bar progress-bar-indeterminate bg-primary"></div><div class="progress-backdrop"></div>';
             syn.$m.appendChild(document.body, divProgressBar);
