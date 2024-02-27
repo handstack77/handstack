@@ -1235,11 +1235,11 @@ namespace checkup.Areas.checkup.Controllers
                     using DataSet dsMetaData = new DataSet();
                     dsMetaData.LoadFile(forbesMetaFilePath);
 
-                    if (dsMetaData.Tables.Count == 3)
+                    if (dsMetaData.Tables.Count > 1)
                     {
                         DataTable metaEntity = dsMetaData.Tables[0];
                         DataTable metaField = dsMetaData.Tables[1];
-                        DataTable metaRelation = dsMetaData.Tables[2];
+                        DataTable? metaRelation = dsMetaData.Tables.Count > 2 ? dsMetaData.Tables[2] : null;
 
                         for (int i = 0; i < metaEntity.Rows.Count; i++)
                         {
@@ -1259,24 +1259,27 @@ namespace checkup.Areas.checkup.Controllers
                                 rowField["EntityNo"] = newEntityNo;
                             }
 
-                            var filteredDepartureRelationRows = from DataRow row in metaRelation.AsEnumerable()
-                                                       where row.Field<string>("DepartureEntityNo") == oldEntityNo
-                                                       select row;
-
-                            foreach (DataRow rowField in filteredDepartureRelationRows)
+                            if (metaRelation != null)
                             {
-                                rowField["ApplicationNo"] = applicationNo;
-                                rowField["DepartureEntityNo"] = newEntityNo;
-                            }
+                                var filteredDepartureRelationRows = from DataRow row in metaRelation.AsEnumerable()
+                                                                    where row.Field<string>("DepartureEntityNo") == oldEntityNo
+                                                                    select row;
 
-                            var filteredArrivalRelationRows = from DataRow row in metaRelation.AsEnumerable()
-                                                                where row.Field<string>("ArrivalEntityNo") == oldEntityNo
-                                                                select row;
+                                foreach (DataRow rowField in filteredDepartureRelationRows)
+                                {
+                                    rowField["ApplicationNo"] = applicationNo;
+                                    rowField["DepartureEntityNo"] = newEntityNo;
+                                }
 
-                            foreach (DataRow rowField in filteredArrivalRelationRows)
-                            {
-                                rowField["ApplicationNo"] = applicationNo;
-                                rowField["ArrivalEntityNo"] = newEntityNo;
+                                var filteredArrivalRelationRows = from DataRow row in metaRelation.AsEnumerable()
+                                                                  where row.Field<string>("ArrivalEntityNo") == oldEntityNo
+                                                                  select row;
+
+                                foreach (DataRow rowField in filteredArrivalRelationRows)
+                                {
+                                    rowField["ApplicationNo"] = applicationNo;
+                                    rowField["ArrivalEntityNo"] = newEntityNo;
+                                }
                             }
                         }
 
@@ -1290,7 +1293,11 @@ namespace checkup.Areas.checkup.Controllers
                                 {
                                     BulkInsertData("MetaEntity", metaEntity, connection);
                                     BulkInsertData("MetaField", metaField, connection);
-                                    BulkInsertData("MetaRelation", metaRelation, connection);
+
+                                    if (metaRelation != null)
+                                    {
+                                        BulkInsertData("MetaRelation", metaRelation, connection);
+                                    }
 
                                     transaction.Commit();
                                 }
