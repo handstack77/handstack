@@ -21,18 +21,19 @@
         "IsTenantFunction": true,
         "IsExceptionDetailText": true,
         "TenantAppRequestPath": "app",
-        "TenantAppBasePath": "C:/home/handstack/tenants",
-        "BatchProgramBasePath": "C:/home/handstack/batchs",
-        "CreateAppTempPath": "C:/home/handstack/tmp/create_apps",
-        "ForbesBasePath": "C:/home/handstack/forbes",
-        "LoadModuleBasePath": "C:/home/handstack/modules",
+        "TenantAppBasePath": "../tenants",
+        "BatchProgramBasePath": "../batchs",
+        "CreateAppTempPath": "../tmp/create_apps",
+        "ForbesBasePath": "../forbes",
+        "LoadModuleBasePath": "../modules",
         "LoadModules": [
             "wwwroot",
             "transact",
             "dbclient",
             "function",
             "repository",
-            "logger"
+            "logger",
+            "checkup"
         ],
         "ModuleConfigurationUrl": [
         ],
@@ -49,7 +50,7 @@
         "SessionState": {
             "IsSession": true,
             "SessionCookieName": "HandStack.Session",
-            "CacheType": "Memory", // Memory, MySql, SqlServer
+            "CacheType": "Memory",
             "MySqlConnectionString": "Server=127.0.0.1;Port=3306;Database=HandStack_Cache;Uid=handstack;Pwd=handstack~!@34;PersistSecurityInfo=True;SslMode=none;Charset=utf8;Allow User Variables=True;",
             "MySqlSchemaName": "HandStack_Cache",
             "MySqlTableName": "SessionData",
@@ -58,7 +59,7 @@
             "SqlServerTableName": "SessionData"
         },
         "CookiePrefixName": "HandStack",
-        "UserSignExpire": -1 // 60 Minute (기본값 1시간, 0이면 세션 유지, 0이하면 -1 ~ -24 사이 고정시간대 만료)
+        "UserSignExpire": -1
     },
     "Logging": {
         "LogLevel": {
@@ -91,7 +92,7 @@
                     "fileSizeLimitBytes": 104857600,
                     "flushToDiskInterval": 3,
                     "outputTemplate": "[{Timestamp:HH:mm:ss.fff} {Level:u3}] {Message:lj}{NewLine}{Exception}",
-                    "path": "C:/home/handstack/log/app.log",
+                    "path": "../log/app.log",
                     "rollingInterval": "Day",
                     "rollOnFileSizeLimit": true,
                     "shared": true

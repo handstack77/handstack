@@ -21,10 +21,10 @@
         "ModuleBasePath": "../modules/repository",
         "EventAction": [],
         "SubscribeAction": [],
-        "AllowMaxFileUploadLength": 120000000,
+        "AllowMaxFileUploadLength": 120000000, // 114 MB
         "PurgeTokenTimeout": 1200,
         "TokenGenerateIPCheck": false,
-        "XFrameOptions": "ALLOW-FROM http://127.0.0.1:8080,http://localhost:8000",
+        "XFrameOptions": "ALLOW-FROM http://127.0.0.1:8000,http://localhost:8000",
         "FileRootPath": "../storage"
     }
 }

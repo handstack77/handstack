@@ -20,7 +20,7 @@
     "ReportServer": "http://localhost:8283",
     "FileManagerServer": "http://localhost:8000",
     "FindClientIPServer": "/checkip",
-    "FindGlobalIDServer": "http://localhost:8000/wwwroot/api/index/create-id",
+    "FindGlobalIDServer": "",
     "FileServerType": "L",
     "FileBusinessIDSource": "None",
     "CookiePrefixName": "HandStack",

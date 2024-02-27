@@ -102,6 +102,7 @@ namespace handstack
 
                 if (file != null && file.Exists == true)
                 {
+                    string targetBasePath = file.DirectoryName.ToStringSafe();
                     if (string.IsNullOrEmpty(settings) == false)
                     {
                         string settingFilePath = Path.Combine(entryBasePath, "appsettings", settings);
@@ -112,6 +113,11 @@ namespace handstack
                                 string settingText = File.ReadAllText(settingFilePath);
                                 var setting = JObject.Parse(settingText);
                                 var moduleBasePath = setting.SelectToken("AppSettings.LoadModuleBasePath").ToStringSafe();
+                                if (moduleBasePath.StartsWith(".") == true)
+                                {
+                                    moduleBasePath = Path.Combine(targetBasePath, moduleBasePath);
+                                }
+
                                 var loadModules = setting.SelectToken("AppSettings.LoadModules");
                                 if (string.IsNullOrEmpty(moduleBasePath) == false && loadModules != null && loadModules.Count() > 0)
                                 {

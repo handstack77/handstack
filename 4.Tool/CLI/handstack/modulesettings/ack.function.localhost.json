@@ -15,7 +15,6 @@
             "../contracts/function"
         ],
         "ModuleLogFilePath": "../log/function/module.log",
-        "ProfileLogFilePath": "../log/function/profile.log",
         "NodeFunctionConfig": {
             "LocalStoragePath": "../cache/function",
             "NodeScriptMapBasePath": "",
@@ -40,12 +39,52 @@
             {
                 "ApplicationID": "HDS",
                 "ProjectID": "*",
-                "DataSourceID": "DB01",
+                "DataSourceID": "FN01",
                 "DataProvider": "SQLite",
                 "ConnectionString": "URI=file:../sqlite/HDS/dbclient/HDS.db;Journal Mode=MEMORY;Cache Size=4000;Synchronous=Normal;Page Size=4096;Pooling=True;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;",
                 "IsEncryption": "N",
-                "WorkingDirectoryPath": "../tmp/HDS/function/HDS_DB01",
-                "Comment": "기본 기능 거래"
+                "WorkingDirectoryPath": "../tmp/HDS/function/HDS_FN01",
+                "Comment": "SQLite 기본 거래"
+            },
+            {
+                "ApplicationID": "HDS",
+                "ProjectID": "*",
+                "DataSourceID": "FN02",
+                "DataProvider": "SqlServer",
+                "ConnectionString": "Data Source=localhost;Initial Catalog=master;User ID=sa;Password=Strong@Passw0rd;",
+                "IsEncryption": "N",
+                "WorkingDirectoryPath": "../tmp/HDS/function/HDS_FN02",
+                "Comment": "SqlServer 기본 거래"
+            },
+            {
+                "ApplicationID": "HDS",
+                "ProjectID": "*",
+                "DataSourceID": "FN03",
+                "DataProvider": "Oracle",
+                "ConnectionString": "Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521))(CONNECT_DATA=(SID=ORCL)));User Id=system;Password=Strong@Passw0rd;",
+                "IsEncryption": "N",
+                "WorkingDirectoryPath": "../tmp/HDS/function/HDS_FN03",
+                "Comment": "Oracle 기본 거래"
+            },
+            {
+                "ApplicationID": "HDS",
+                "ProjectID": "*",
+                "DataSourceID": "FN04",
+                "DataProvider": "MySQL",
+                "ConnectionString": "Server=localhost;Port=3306;Uid=root;Pwd=Strong@Passw0rd;PersistSecurityInfo=True;SslMode=none;Charset=utf8;Allow User Variables=True;",
+                "IsEncryption": "N",
+                "WorkingDirectoryPath": "../tmp/HDS/function/HDS_FN04",
+                "Comment": "MySQL 기본 거래"
+            },
+            {
+                "ApplicationID": "HDS",
+                "ProjectID": "*",
+                "DataSourceID": "FN05",
+                "DataProvider": "PostgreSQL",
+                "ConnectionString": "Host=localhost;Port=5432;Database=postgres;User ID=postgres;Password=Strong@Passw0rd;",
+                "IsEncryption": "N",
+                "WorkingDirectoryPath": "../tmp/HDS/function/HDS_FN05",
+                "Comment": "PostgreSQL 기본 거래"
             }
         ]
     }

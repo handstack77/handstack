@@ -1,0 +1,26 @@
+{
+    "ModuleID": "checkup",
+    "Name": "checkup",
+    "IsBundledWithHost": false,
+    "Version": "1.0.0",
+    "ModuleConfig": {
+        "SystemID": "HANDSTACK",
+        "ManagedAccessKey": "6eac215f2f5e495cad4f2abfdcad7644",
+        "EncryptionAES256Key": "1234567890123456",
+        "AdministratorEmailID": "administrator@handstack.kr",
+        "ModuleConfigurationUrl": "http://localhost:8000/checkup/api/managed/initailize-settings",
+        "BusinessServerUrl": "http://localhost:8000/transact/api/transaction/execute",
+        "CircuitBreakResetSecond": 60,
+        "DefaultCommandTimeout": 180,
+        "IsExceptionDetailText": true,
+        "IsLogServer": true,
+        "IsContractFileUpdateToCaching": true,
+        "LogServerUrl": "http://localhost:8000/api/log",
+        "ModuleLogFilePath": "../log/checkup/module.log",
+        "ModuleBasePath": "../modules/checkup",
+        "WWWRootBasePath": "../modules/checkup/wwwroot/checkup",
+        "EventAction": [],
+        "SubscribeAction": [],
+        "ConnectionString": "URI=file:../sqlite/HDS/dbclient/checkup.db;Journal Mode=MEMORY;Cache Size=4000;Synchronous=Normal;Page Size=4096;Pooling=True;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;"
+    }
+}
