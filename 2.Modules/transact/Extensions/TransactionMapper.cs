@@ -106,34 +106,46 @@ namespace transact.Extensions
 
             if (result == null)
             {
+                string applicationID = string.Empty;
+                string userWorkID = string.Empty;
                 var itemKeys = routeSegmentID.Split("|");
                 if (itemKeys.Length == 4)
                 {
+                    applicationID = itemKeys[0];
+                    userWorkID = string.Empty;
                     string publicRouteSegmentID = $"{itemKeys[0]}|*|{itemKeys[2]}|{itemKeys[3]}";
                     result = ModuleConfiguration.RoutingCommandUri.GetValueOrDefault(publicRouteSegmentID);
                 }
                 else if (itemKeys.Length == 5)
                 {
+                    userWorkID = itemKeys[0];
+                    applicationID = itemKeys[1];
                     string publicRouteSegmentID = $"{itemKeys[0]}|{itemKeys[1]}|*|{itemKeys[3]}|{itemKeys[4]}";
                     result = ModuleConfiguration.RoutingCommandUri.GetValueOrDefault(publicRouteSegmentID);
                 }
 
                 if (result == null && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
                 {
-                    string applicationID = itemKeys[0];
-                    string userWorkID = string.Empty;
                     string appBasePath = string.Empty;
                     DirectoryInfo baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
-                    var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
-                    foreach (string directory in directories)
+
+                    if (string.IsNullOrEmpty(userWorkID) == true)
                     {
-                        DirectoryInfo directoryInfo = new DirectoryInfo(directory);
-                        if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
+                        var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
+                        foreach (string directory in directories)
                         {
-                            appBasePath = directoryInfo.FullName;
-                            userWorkID = (directoryInfo.Parent?.Name).ToStringSafe();
-                            break;
+                            DirectoryInfo directoryInfo = new DirectoryInfo(directory);
+                            if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
+                            {
+                                appBasePath = directoryInfo.FullName;
+                                userWorkID = (directoryInfo.Parent?.Name).ToStringSafe();
+                                break;
+                            }
                         }
+                    }
+                    else
+                    {
+                        appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                     }
 
                     string tenantID = $"{userWorkID}|{applicationID}";

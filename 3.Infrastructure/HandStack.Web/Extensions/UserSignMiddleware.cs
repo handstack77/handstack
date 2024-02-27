@@ -293,8 +293,8 @@ namespace HandStack.Core.Extensions
                                 DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
                                 if (directoryInfo.Exists == true)
                                 {
-                                    string tenantAppBasePath = $"/{GlobalConfiguration.TenantAppRequestPath}/{userWorkID}/{applicationID}/";
-                                    unAuthorizedPath = $"{tenantAppBasePath}unauthorized.html";
+                                    string tenantAppBasePath = $"/{GlobalConfiguration.TenantAppRequestPath}/{userWorkID}/{applicationID}/wwwroot";
+                                    unAuthorizedPath = $"{tenantAppBasePath}/unauthorized.html";
                                 }
                             }
                         }

@@ -338,10 +338,10 @@ CREATE TABLE IF NOT EXISTS "MetaEntity" (
 
 CREATE TABLE IF NOT EXISTS "MetaField" (
     -- 엔티티NO
-    "EntityNo" TEXT NOT NULL CONSTRAINT "PK_MetaField" PRIMARY KEY,
+    "EntityNo" TEXT NOT NULL,
 
     -- 필드ID
-    "FieldID" TEXT NOT NULL DEFAULT '',
+    "FieldID" TEXT NOT NULL,
 
     -- 필드명
     "FieldName" TEXT NULL,
@@ -374,7 +374,65 @@ CREATE TABLE IF NOT EXISTS "MetaField" (
     "Comment" TEXT NULL,
 
     -- 정렬순서
-    "SortingNo" INTEGER NULL
+    "SortingNo" INTEGER NULL,
+    CONSTRAINT "PK_MetaField" PRIMARY KEY ("EntityNo", "FieldID")
+);
+
+
+CREATE TABLE IF NOT EXISTS "MetaRelation" (
+    -- 관계NO
+    "RelationNo" TEXT NOT NULL CONSTRAINT "PK_MetaRelation" PRIMARY KEY,
+
+    -- 어플리케이션NO
+    "ApplicationNo" TEXT NULL,
+
+    -- 출발엔티티NO
+    "DepartureEntityNo" TEXT NULL,
+
+    -- 출발엔티티명
+    "DepartureEntityName" TEXT NULL,
+
+    -- 출발설명
+    "DepartureNote" TEXT NULL,
+
+    -- 출발흐름표시ID
+    "DepartureFlowSymbol" TEXT NULL,
+
+    -- 출발흐름표시명
+    "DepartureFlowSymbolName" TEXT NULL,
+
+    -- 흐름라인구분
+    "FlowLineType" TEXT NULL,
+
+    -- 흐름라인구분명
+    "FlowLineTypeName" TEXT NULL,
+
+    -- 도착흐름표시ID
+    "ArrivalFlowSymbol" TEXT NULL,
+
+    -- 도착흐름표시명
+    "ArrivalFlowSymbolName" TEXT NULL,
+
+    -- 도착엔티티NO
+    "ArrivalEntityNo" TEXT NULL,
+
+    -- 도착엔티티명
+    "ArrivalEntityName" TEXT NULL,
+
+    -- 도착설명
+    "ArrivalNote" TEXT NULL,
+
+    -- 정렬순서
+    "SortingNo" INTEGER NULL,
+
+    -- 생성회원NO
+    "CreatedMemberNo" TEXT NULL,
+
+    -- 생성일시
+    "CreatedAt" TEXT NULL,
+
+    -- 수정일시
+    "ModifiedAt" TEXT NULL
 );
 
 
@@ -522,6 +580,9 @@ CREATE INDEX IF NOT EXISTS "IX_MetaEntity_ApplicationNo" ON "MetaEntity" ("Appli
 CREATE INDEX IF NOT EXISTS "IX_MetaField_EntityNo_FieldID" ON "MetaField" ("EntityNo", "FieldID");
 
 
+CREATE INDEX IF NOT EXISTS "IX_MetaRelation_ApplicationNo_CreatedMemberNo" ON "MetaRelation" ("ApplicationNo", "CreatedMemberNo");
+
+
 CREATE INDEX IF NOT EXISTS "IX_RefreshToken_UserAccountID" ON "RefreshToken" ("UserAccountID");
 
 
@@ -593,7 +654,159 @@ SELECT
             <param id="@EmailID" type="String" length="256" value="" />
             <param id="@Password" type="String" length="256" value="" />
         </statement>
-        
+
+        <statement id="ZD03" seq="0" use="Y" timeout="0" desc="태넌트 앱 기본 테이블 및 인덱스 생성">
+            <![CDATA[
+CREATE TABLE IF NOT EXISTS "MetaEntity" (
+    -- 엔티티NO
+    "EntityNo" TEXT NOT NULL CONSTRAINT "PK_MetaEntity" PRIMARY KEY,
+
+    -- 어플리케이션NO
+    "ApplicationNo" TEXT NOT NULL DEFAULT '',
+
+    -- 엔티티ID
+    "EntityID" TEXT NOT NULL DEFAULT '',
+
+    -- 엔티티명
+    "EntityName" TEXT NOT NULL DEFAULT '',
+
+    -- 약어
+    "Acronyms" TEXT NULL,
+
+    -- 초기데이터
+    "SeedData" TEXT NULL,
+
+    -- 설명
+    "Comment" TEXT NULL,
+
+    -- 삭제일시
+    "DeletedAt" TEXT NULL,
+
+    -- 생성회원NO
+    "CreatedMemberNo" TEXT NULL,
+
+    -- 생성일시
+    "CreatedAt" TEXT NULL,
+
+    -- 수정회원NO
+    "ModifiedMemberNo" TEXT NULL,
+
+    -- 수정일시
+    "ModifiedAt" TEXT NULL
+);
+
+
+CREATE TABLE IF NOT EXISTS "MetaField" (
+    -- 엔티티NO
+    "EntityNo" TEXT NOT NULL,
+
+    -- 필드ID
+    "FieldID" TEXT NOT NULL,
+
+    -- 필드명
+    "FieldName" TEXT NULL,
+
+    -- 필드타입
+    "FieldType" TEXT NULL,
+
+    -- 기본키
+    "PK" TEXT NULL,
+
+    -- 인덱스
+    "IX" TEXT NULL,
+
+    -- 고유인덱스
+    "UI" TEXT NULL,
+
+    -- NULL허용안함
+    "NN" TEXT NULL,
+
+    -- 자동증가
+    "AI" TEXT NULL,
+
+    -- 크기
+    "MaxLength" INTEGER NULL,
+
+    -- 기본값
+    "DefaultValue" TEXT NULL,
+
+    -- 설명
+    "Comment" TEXT NULL,
+
+    -- 정렬순서
+    "SortingNo" INTEGER NULL,
+    CONSTRAINT "PK_MetaField" PRIMARY KEY ("EntityNo", "FieldID")
+);
+
+
+CREATE TABLE IF NOT EXISTS "MetaRelation" (
+    -- 관계NO
+    "RelationNo" TEXT NOT NULL CONSTRAINT "PK_MetaRelation" PRIMARY KEY,
+
+    -- 어플리케이션NO
+    "ApplicationNo" TEXT NULL,
+
+    -- 출발엔티티NO
+    "DepartureEntityNo" TEXT NULL,
+
+    -- 출발엔티티명
+    "DepartureEntityName" TEXT NULL,
+
+    -- 출발설명
+    "DepartureNote" TEXT NULL,
+
+    -- 출발흐름표시ID
+    "DepartureFlowSymbol" TEXT NULL,
+
+    -- 출발흐름표시명
+    "DepartureFlowSymbolName" TEXT NULL,
+
+    -- 흐름라인구분
+    "FlowLineType" TEXT NULL,
+
+    -- 흐름라인구분명
+    "FlowLineTypeName" TEXT NULL,
+
+    -- 도착흐름표시ID
+    "ArrivalFlowSymbol" TEXT NULL,
+
+    -- 도착흐름표시명
+    "ArrivalFlowSymbolName" TEXT NULL,
+
+    -- 도착엔티티NO
+    "ArrivalEntityNo" TEXT NULL,
+
+    -- 도착엔티티명
+    "ArrivalEntityName" TEXT NULL,
+
+    -- 도착설명
+    "ArrivalNote" TEXT NULL,
+
+    -- 정렬순서
+    "SortingNo" INTEGER NULL,
+
+    -- 생성회원NO
+    "CreatedMemberNo" TEXT NULL,
+
+    -- 생성일시
+    "CreatedAt" TEXT NULL,
+
+    -- 수정일시
+    "ModifiedAt" TEXT NULL
+);
+
+
+CREATE INDEX IF NOT EXISTS "IX_MetaEntity_ApplicationNo" ON "MetaEntity" ("ApplicationNo");
+
+
+CREATE INDEX IF NOT EXISTS "IX_MetaField_EntityNo_FieldID" ON "MetaField" ("EntityNo", "FieldID");
+
+
+CREATE INDEX IF NOT EXISTS "IX_MetaRelation_ApplicationNo_CreatedMemberNo" ON "MetaRelation" ("ApplicationNo", "CreatedMemberNo");
+			]]>
+            <param id="@CodeHelpID" type="String" length="-1" value="NULL" />
+        </statement>
+
         <statement id="LD01" seq="0" use="Y" timeout="0" desc="코드헬프 데이터 정보 조회">
             <![CDATA[
 SELECT A.CodeHelpID

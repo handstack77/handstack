@@ -13,7 +13,7 @@ let $checkin = {
         logoItemID: '',
         projectTemplates: [
             {
-                ForbesID: 'handstack.apps.empty-app',
+                ForbesID: 'handstack.apps.empty',
                 LogoPath: '',
                 Acronyms: 'EPT',
                 ForbesName: '빈 프로젝트',
@@ -27,11 +27,18 @@ let $checkin = {
                 Comment: '기본 화면 및 거래가 포함되어 있습니다'
             },
             {
-                ForbesID: 'handstack.apps.uicontrols-example',
+                ForbesID: 'handstack.apps.uicontrols',
                 LogoPath: '',
                 Acronyms: 'UIC',
                 ForbesName: 'UI 화면 컨트롤 샘플',
                 Comment: '화면에서 제공하는 UI 커스텀 컨트롤 예제입니다'
+            },
+            {
+                ForbesID: 'handstack.apps.board',
+                LogoPath: '',
+                Acronyms: 'BOD',
+                ForbesName: '간단 게시판 예제',
+                Comment: '게시글 목록, 신규, 편집 기능 예제입니다'
             }
         ],
 

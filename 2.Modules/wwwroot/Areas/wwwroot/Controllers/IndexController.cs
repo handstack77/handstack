@@ -12,6 +12,7 @@ using HandStack.Web.Extensions;
 
 using MediatR;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 
@@ -29,12 +30,14 @@ namespace wwwroot.Areas.wwwroot.Controllers
         private readonly IMediator mediator;
         private readonly ILogger logger;
         private readonly IDistributedCache distributedCache;
+        private readonly ISequentialIdGenerator sequentialIdGenerator;
 
-        public IndexController(IMediator mediator, ILogger logger, IDistributedCache distributedCache)
+        public IndexController(IMediator mediator, ILogger logger, IDistributedCache distributedCache, ISequentialIdGenerator sequentialIdGenerator)
         {
             this.mediator = mediator;
             this.logger = logger;
             this.distributedCache = distributedCache;
+            this.sequentialIdGenerator = sequentialIdGenerator;
         }
 
         // http://localhost:8000/wwwroot/api/index
@@ -158,11 +161,81 @@ namespace wwwroot.Areas.wwwroot.Controllers
             return requestID;
         }
 
-        // http://localhost:8000/handsup/api/index/client-ip
+        // http://localhost:8000/wwwroot/api/index/client-ip
         [HttpGet("[action]")]
         public Task<string> ClientIP()
         {
             return Task.FromResult(HttpContext.GetRemoteIpAddress().ToStringSafe());
+        }
+
+
+
+        // http://localhost:8000/wwwroot/api/index/sha256hash?text=handstack12345
+        [HttpGet("[action]")]
+        public string SHA256Hash(string text)
+        {
+            return text.ToSHA256();
+        }
+
+        // http://localhost:8000/wwwroot/api/index/id
+        [HttpGet("[action]")]
+        public ActionResult ID(int? count, bool? hasSplits = false)
+        {
+            ActionResult result = BadRequest();
+
+            if (hasSplits == true)
+            {
+                if (count != null && count > 0)
+                {
+                    List<string> list = new List<string>();
+                    for (int i = 0; i < count; i++)
+                    {
+                        list.Add(sequentialIdGenerator.NewId().ToString());
+                    }
+                    result = new JsonResult(list);
+                }
+                else
+                {
+                    result = Content(sequentialIdGenerator.NewId().ToString());
+                }
+            }
+            else
+            {
+                if (count != null && count > 0)
+                {
+                    List<string> list = new List<string>();
+                    for (int i = 0; i < count; i++)
+                    {
+                        list.Add(sequentialIdGenerator.NewId().ToString("N"));
+                    }
+                    result = new JsonResult(list);
+                }
+                else
+                {
+                    result = Content(sequentialIdGenerator.NewId().ToString("N"));
+                }
+            }
+
+            // var issueDateTime = Guid.Parse(shortenerNo).ToDateTime();
+            // DateTime dateTime = (issueDateTime == null ? DateTime.UtcNow : (DateTime)issueDateTime);
+            // var adjustHours = TimeZoneInfo.Local.GetUtcOffset(dateTime).TotalHours;
+            // var shortenerDateTime = dateTime.AddHours(adjustHours);
+
+            return result;
+        }
+
+        // http://localhost:8000/wwwroot/api/index/guid
+        [HttpGet("[action]")]
+        public ActionResult GUID(bool? hasSplits = false)
+        {
+            if (hasSplits == true)
+            {
+                return Content(Guid.NewGuid().ToString());
+            }
+            else
+            {
+                return Content(Guid.NewGuid().ToString("N"));
+            }
         }
     }
 }

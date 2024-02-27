@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
@@ -63,7 +63,7 @@ namespace checkup.Extensions
                                 {
                                     if (appSetting.AllowAnonymousPath?.Contains("*") == false)
                                     {
-                                        string tenantAppBasePath = $"/{GlobalConfiguration.TenantAppRequestPath}/{userWorkID}/{applicationID}";
+                                        string tenantAppBasePath = $"/{GlobalConfiguration.TenantAppRequestPath}/{userWorkID}/{applicationID}/wwwroot";
                                         string? member = httpContext.Request.Cookies[$"{applicationID}.Member"];
                                         if (string.IsNullOrEmpty(member) == true)
                                         {

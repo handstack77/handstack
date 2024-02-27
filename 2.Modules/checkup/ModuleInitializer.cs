@@ -336,7 +336,7 @@ namespace checkup
                                                 }
                                                 else
                                                 {
-                                                    string tenantAppBasePath = $"/{GlobalConfiguration.TenantAppRequestPath}/{userWorkID}/{applicationID}";
+                                                    string tenantAppBasePath = $"/{GlobalConfiguration.TenantAppRequestPath}/{userWorkID}/{applicationID}/wwwroot";
                                                     if (appSetting.AllowAnonymousPath?.Contains(requestPath.Replace(new FileInfo(requestPath).Name, "*").Replace(tenantAppBasePath, "")) == true || appSetting.AllowAnonymousPath?.Contains(requestPath.Replace(tenantAppBasePath, "")) == true)
                                                     {
                                                         isWithReferer = true;

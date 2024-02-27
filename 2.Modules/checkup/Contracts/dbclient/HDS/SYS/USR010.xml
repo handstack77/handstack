@@ -17,7 +17,6 @@ WHERE  P.DeleteYN = 'N'
     AND P.PersonID = @PersonID;
 			]]>
 			<param id="@PersonID" type="String" length="256" value="" />
-            <param id="@Password" type="String" length="256" value="" />
 		</statement>
 
 		<statement id="GD02" seq="0" use="Y" timeout="0" desc="로그인 사용자 정보 조회">

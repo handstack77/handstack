@@ -1,4 +1,22 @@
-﻿using HandStack.Core.ExtensionMethod;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SQLite;
+using System.IO;
+using System.IO.Compression;
+using System.Linq;
+using System.Net;
+using System.Runtime.InteropServices;
+using System.Security.Claims;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+
+using checkup.Entity;
+using checkup.Extensions;
+using checkup.Services;
+
+using HandStack.Core.ExtensionMethod;
 using HandStack.Core.Extensions;
 using HandStack.Core.Helpers;
 using HandStack.Data.Client;
@@ -9,10 +27,6 @@ using HandStack.Web.Extensions;
 using HandStack.Web.Helper;
 using HandStack.Web.MessageContract.DataObject;
 using HandStack.Web.Modules;
-
-using checkup.Entity;
-using checkup.Extensions;
-using checkup.Services;
 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Cors.Infrastructure;
@@ -30,23 +44,6 @@ using RestSharp;
 using Serilog;
 
 using Sqids;
-
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
-using System.Data.SQLite;
-using System.IO;
-using System.IO.Compression;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Runtime.InteropServices;
-using System.Security.Claims;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Drawing.Imaging;
 
 namespace checkup.Areas.checkup.Controllers
 {
@@ -1265,6 +1262,7 @@ namespace checkup.Areas.checkup.Controllers
                 if (fileInfo.Exists == false)
                 {
                     SQLiteConnection.CreateFile(logDbFilePath);
+                    ModuleExtensions.TenantAppExecuteMetaSQL(connectionString, ReturnType.NonQuery, "SYS.SYS010.ZD03");
                 }
 
                 // checkup Forbes 앱 데이터 모델 정보를 태넌트 앱에 복사
@@ -1274,7 +1272,7 @@ namespace checkup.Areas.checkup.Controllers
                     using DataSet dsMetaData = new DataSet();
                     dsMetaData.LoadFile(forbesMetaFilePath);
 
-                    if (dsMetaData.Tables.Count == 2)
+                    if (dsMetaData.Tables.Count == 3)
                     {
                         DataTable metaEntity = dsMetaData.Tables[0];
                         DataTable metaField = dsMetaData.Tables[1];
@@ -1298,14 +1296,24 @@ namespace checkup.Areas.checkup.Controllers
                                 rowField["EntityNo"] = newEntityNo;
                             }
 
-                            var filteredRelationRows = from DataRow row in metaRelation.AsEnumerable()
-                                                       where row.Field<string>("EntityNo") == oldEntityNo
+                            var filteredDepartureRelationRows = from DataRow row in metaRelation.AsEnumerable()
+                                                       where row.Field<string>("DepartureEntityNo") == oldEntityNo
                                                        select row;
 
-                            foreach (DataRow rowField in filteredRelationRows)
+                            foreach (DataRow rowField in filteredDepartureRelationRows)
                             {
                                 rowField["ApplicationNo"] = applicationNo;
-                                rowField["EntityNo"] = newEntityNo;
+                                rowField["DepartureEntityNo"] = newEntityNo;
+                            }
+
+                            var filteredArrivalRelationRows = from DataRow row in metaRelation.AsEnumerable()
+                                                                where row.Field<string>("ArrivalEntityNo") == oldEntityNo
+                                                                select row;
+
+                            foreach (DataRow rowField in filteredArrivalRelationRows)
+                            {
+                                rowField["ApplicationNo"] = applicationNo;
+                                rowField["ArrivalEntityNo"] = newEntityNo;
                             }
                         }
 
@@ -1323,9 +1331,11 @@ namespace checkup.Areas.checkup.Controllers
 
                                     transaction.Commit();
                                 }
-                                catch
+                                catch (Exception exception)
                                 {
                                     transaction.Rollback();
+
+                                    logger.Error(exception, "[{LogCategory}] " + $"forbesID: {forbesID}, tenantID: {tenantID}, meta.xml", "TenantAppController/CreateApp");
                                     return Content("Forbes 앱 메타 정보 정합성 확인이 필요합니다");
                                 }
                             }
@@ -1336,11 +1346,33 @@ namespace checkup.Areas.checkup.Controllers
                         return Content("Forbes 앱 메타 정보 검증이 필요합니다");
                     }
                 }
-                else
+
+                // checkup Forbes 앱 데이터 정보를 태넌트 앱에 복사
+                string forbesMetaDataFilePath = Path.Combine(forbesAppBasePath, "meta.sql");
+                if (System.IO.File.Exists(forbesMetaDataFilePath) == true)
                 {
+                    string forbesMetaDataText = System.IO.File.ReadAllText(forbesMetaDataFilePath);
                     using (SQLiteConnection connection = new SQLiteConnection(connectionString))
                     {
                         connection.Open();
+
+                        using (var transaction = connection.BeginTransaction())
+                        using (var command = new SQLiteCommand(connection))
+                        {
+                            try
+                            {
+                                command.CommandText = forbesMetaDataText;
+                                command.ExecuteNonQuery();
+                                transaction.Commit();
+                            }
+                            catch (Exception exception)
+                            {
+                                transaction.Rollback();
+
+                                logger.Error(exception, "[{LogCategory}] " + $"forbesID: {forbesID}, tenantID: {tenantID}, meta.sql", "TenantAppController/CreateApp");
+                                return Content("Forbes 앱 데이터 정보 정합성 확인이 필요합니다");
+                            }
+                        }
                     }
                 }
 
@@ -1443,7 +1475,14 @@ namespace checkup.Areas.checkup.Controllers
                                 Log.Warning(exception, "[{LogCategory}] " + $"DisposeTenantApps 확인 필요: {tenantID}, {appBasePath}", "TenantAppController/DeleteApp");
                             }
 
-                            DeleteDirectoryExceptManaged(appBasePath);
+                            try
+                            {
+                                DeleteDirectoryExceptManaged(appBasePath);
+                            }
+                            catch (Exception exception)
+                            {
+                                Log.Warning(exception, "[{LogCategory}] " + $"DeleteDirectoryExceptManaged 확인 필요: {tenantID}, {appBasePath}", "TenantAppController/DeleteApp");
+                            }
 
                             string baseUrl = Request.GetBaseUrl();
 
@@ -1507,7 +1546,7 @@ namespace checkup.Areas.checkup.Controllers
                 DeleteDirectoryExceptManaged(dir);
             }
 
-            if (Directory.GetFiles(path).Length == 0)
+            if (Directory.GetFiles(path).Length == 0 && Directory.GetDirectories(path).Length == 0)
             {
                 Directory.Delete(path, false);
             }
@@ -1515,11 +1554,17 @@ namespace checkup.Areas.checkup.Controllers
 
         private void BulkInsertData(string tableName, DataTable data, SQLiteConnection connection)
         {
+            List<string> columnNames = new List<string>();
+            for (int i = 0; i < data.Columns.Count; i++)
+            {
+                columnNames.Add(data.Columns[i].ColumnName);
+            }
+
             using (var command = new SQLiteCommand(connection))
             {
                 foreach (DataRow row in data.Rows)
                 {
-                    command.CommandText = $"INSERT INTO {tableName} VALUES ({string.Join(", ", row.ItemArray.Select(i => $"'{i}'"))})";
+                    command.CommandText = $"INSERT INTO {tableName} ({string.Join(", ", columnNames)}) VALUES ({string.Join(", ", row.ItemArray.Select(i => $"'{i}'"))})";
                     command.ExecuteNonQuery();
                 }
             }
