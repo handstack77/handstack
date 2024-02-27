@@ -876,68 +876,6 @@ ORDER BY A.WorkedAt DESC;
             <param id="@MemberNo" type="String" length="36" value="NULL" />
         </statement>
         
-        <statement id="LD05" seq="0" use="Y" timeout="0" desc="백업용 태넌트 앱 데이터 모델 및 필드 조회">
-            <![CDATA[
-SELECT ME.EntityNo
-    , '' AS ApplicationNo
-    , ME.EntityID
-    , ME.EntityName
-    , ME.Acronyms
-    , ME.SeedData
-    , ME.Comment
-FROM 
-    MetaEntity ME
-WHERE ME.DeletedAt IS NULL
-    AND ME.ApplicationNo = (SELECT A.ApplicationNo FROM [Application] A WHERE A.ApplicationID = @ApplicationID)
-ORDER BY ME.CreatedAt;
-
-SELECT MF.EntityNo
-    , MF.FieldID
-    , MF.FieldName
-    , MF.FieldType
-    , MF.PK
-    , MF.IX
-    , MF.UI
-    , MF.NN
-    , MF.AI
-    , MF.MaxLength
-    , MF.DefaultValue
-    , MF.Comment
-    , MF.SortingNo
-FROM 
-	MetaEntity ME
-    INNER JOIN MetaField MF ON ME.EntityNo = MF.EntityNo
-WHERE ME.DeletedAt IS NULL
-    AND ME.ApplicationNo = (SELECT A.ApplicationNo FROM [Application] A WHERE A.ApplicationID = @ApplicationID)
-ORDER BY ME.CreatedAt
-    , ME.EntityNo
-    , MF.SortingNo
-    , MF.FieldID;
-    
-SELECT
-    MR.RelationNo
-    , '' AS ApplicationNo
-    , MR.DepartureEntityNo
-    , MR.DepartureEntityName
-    , MR.DepartureNote
-    , MR.DepartureFlowSymbol
-    , MR.DepartureFlowSymbolName
-    , MR.FlowLineType
-    , MR.FlowLineTypeName
-    , MR.ArrivalFlowSymbol
-    , MR.ArrivalFlowSymbolName
-    , MR.ArrivalEntityNo
-    , MR.ArrivalEntityName
-    , MR.ArrivalNote
-    , MR.SortingNo
-FROM 
-    MetaRelation MR
-WHERE 
-	MR.ApplicationNo = (SELECT A.ApplicationNo FROM [Application] A WHERE A.ApplicationID = @ApplicationID);
-			]]>
-            <param id="@ApplicationID" type="String" length="36" value="" />
-        </statement>
-
         <statement id="GD01" seq="0" use="Y" timeout="0" desc="ManagedApp 정보 조회">
             <![CDATA[
 SELECT A.ApplicationNo

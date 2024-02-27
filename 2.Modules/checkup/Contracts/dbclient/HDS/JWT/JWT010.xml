@@ -9,7 +9,7 @@
 		<desc>JWT(Json Web Token) 정보 발급갱신폐기 관리</desc>
 	</header>
 	<commands>
-        <statement id="ZD01" seq="0" use="Y" timeout="0" desc="기본 태넌트 앱 User 테이블 DDL" modified="2023-09-25 00:00:00">
+        <statement id="ZD01" seq="0" use="Y" timeout="0" desc="기본 태넌트 앱 User 테이블 DDL">
             <![CDATA[
 CREATE TABLE "User" (
     -- 사용자 NO
@@ -60,7 +60,7 @@ VALUES (1, NULL, '01012341234', '{"BusinessRole": "Manager"}', 'HandStack', NULL
 			]]>
         </statement>
         
-        <statement id="AD01" seq="0" use="Y" timeout="0" desc="사용자 정보 조회" modified="2023-09-25 00:00:00">
+        <statement id="AD01" seq="0" use="Y" timeout="0" desc="사용자 정보 조회">
             <![CDATA[
 SELECT UA.UserAccountID
     , UA.ApplicationID
@@ -99,7 +99,7 @@ WHERE RT.UserAccountID = @UserAccountID;
             <param id="@UserAccountID" type="String" length="36" value="" />
         </statement>
 
-        <statement id="GD01" seq="0" use="Y" timeout="0" desc="토큰 정보 조회" modified="2023-09-25 00:00:00">
+        <statement id="GD01" seq="0" use="Y" timeout="0" desc="토큰 정보 조회">
             <![CDATA[
 SELECT RT.Token
     , RT.ExpiredAt
@@ -116,7 +116,7 @@ WHERE RT.Token = @Token
             <param id="@Token" type="String" length="36" value="" />
         </statement>
 
-        <statement id="GD02" seq="0" use="Y" timeout="0" desc="RefreshToken로 사용자 정보 조회" modified="2023-09-25 00:00:00">
+        <statement id="GD02" seq="0" use="Y" timeout="0" desc="RefreshToken로 사용자 정보 조회">
             <![CDATA[
 SELECT UA.UserAccountID 
     , UA.ApplicationID 
@@ -144,7 +144,7 @@ WHERE UA.UserAccountID = (SELECT UserAccountID
             <param id="@RefreshToken" type="String" length="4000" value="" />
         </statement>
 
-        <statement id="GD03" seq="0" use="Y" timeout="0" desc="RefreshToken로 토큰 정보 조회" modified="2023-09-25 00:00:00">
+        <statement id="GD03" seq="0" use="Y" timeout="0" desc="RefreshToken로 토큰 정보 조회">
             <![CDATA[
 SELECT RT.RefreshTokenNo 
     , RT.UserAccountID 
@@ -162,7 +162,7 @@ WHERE RT.Token = @RefreshToken
             <param id="@RefreshToken" type="String" length="4000" value="" />
         </statement>
 
-        <statement id="GD04" seq="0" use="Y" timeout="0" desc="UserAccountID로 사용자 정보 조회" modified="2023-09-25 00:00:00">
+        <statement id="GD04" seq="0" use="Y" timeout="0" desc="UserAccountID로 사용자 정보 조회">
             <![CDATA[
 SELECT UA.UserAccountID 
     , UA.ApplicationID 
@@ -189,7 +189,7 @@ WHERE UA.ApplicationID = @ApplicationID
             <param id="@UserAccountID" type="String" length="36" value="" />
         </statement>
 
-        <statement id="ID01" seq="0" use="Y" timeout="0" desc="기존 계정 및 토큰 정보 삭제 후 인증 사용자 정보 입력" modified="2023-09-25 00:00:00">
+        <statement id="ID01" seq="0" use="Y" timeout="0" desc="기존 계정 및 토큰 정보 삭제 후 인증 사용자 정보 입력">
             <![CDATA[
 DELETE FROM RefreshToken
 WHERE UserAccountID = (SELECT UserAccountID FROM UserAccount
@@ -262,7 +262,7 @@ VALUES
             <param id="@CreatedMemberNo" type="String" length="36" value="" />
         </statement>
 
-        <statement id="ID02" seq="0" use="Y" timeout="0" desc="신규 RefreshToken 정보 추가" modified="2023-09-25 00:00:00">
+        <statement id="ID02" seq="0" use="Y" timeout="0" desc="신규 RefreshToken 정보 추가">
             <![CDATA[
 INSERT INTO RefreshToken
 (
@@ -288,7 +288,7 @@ VALUES
             <param id="@CreatedAt" type="String" length="30" value="" />
         </statement>
 
-        <statement id="DD01" seq="0" use="Y" timeout="0" desc="오래된 사용자 RefreshToken 정보 삭제" modified="2023-09-25 00:00:00">
+        <statement id="DD01" seq="0" use="Y" timeout="0" desc="오래된 사용자 RefreshToken 정보 삭제">
             <![CDATA[
 DELETE FROM RefreshToken
 WHERE UserAccountID = @UserAccountID
@@ -299,7 +299,7 @@ WHERE UserAccountID = @UserAccountID
             <param id="@UserAccountID" type="String" length="36" value="" />
         </statement>
 
-        <statement id="UD01" seq="0" use="Y" timeout="0" desc="RefreshToken 정보 폐기" modified="2023-09-25 00:00:00">
+        <statement id="UD01" seq="0" use="Y" timeout="0" desc="RefreshToken 정보 폐기">
             <![CDATA[
 UPDATE RefreshToken SET ReplacedByToken = @ReplacedByToken
     , RevokedByIP = @RevokedByIP

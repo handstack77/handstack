@@ -9,7 +9,7 @@
 		<desc>PostgreSQL 저장소 및 파일 관리</desc>
 	</header>
 	<commands>
-        <statement id="ZD01" seq="0" use="Y" timeout="0" desc="RepositoryFile 테이블 DDL" native="Y" modified="2023-09-25 00:00:00">
+        <statement id="ZD01" seq="0" use="Y" timeout="0" desc="RepositoryFile 테이블 DDL" native="Y">
             <![CDATA[
 DO $$
 BEGIN
@@ -49,7 +49,7 @@ END $$;
 			]]>
         </statement>
         
-		<statement id="GD01" seq="0" use="Y" timeout="0" desc="단일 파일 조회" native="Y" modified="2023-09-25 00:00:00">
+		<statement id="GD01" seq="0" use="Y" timeout="0" desc="단일 파일 조회" native="Y">
 			<![CDATA[
 SELECT RF."ItemID"
        , RF."RepositoryID"
@@ -77,7 +77,7 @@ WHERE  RF."RepositoryID" = :RepositoryID
             <param id=":ItemID" type="Varchar" length="36" value="" />
 		</statement>
 
-        <statement id="LD01" seq="0" use="Y" timeout="0" desc="멀티 파일 조회" native="Y" modified="2023-09-25 00:00:00">
+        <statement id="LD01" seq="0" use="Y" timeout="0" desc="멀티 파일 조회" native="Y">
             <![CDATA[
 SELECT RF."ItemID"
        , RF."RepositoryID"
@@ -105,7 +105,7 @@ WHERE  RF."RepositoryID" = :RepositoryID
             <param id=":DependencyID" type="Varchar" length="36" value="" />
         </statement>
 
-        <statement id="DD01" seq="0" use="Y" timeout="0" desc="파일 정보 삭제" native="Y" modified="2023-09-25 00:00:00">
+        <statement id="DD01" seq="0" use="Y" timeout="0" desc="파일 정보 삭제" native="Y">
             <![CDATA[
 DELETE FROM "RepositoryFile" WHERE "RepositoryID" = :RepositoryID AND "ItemID" = :ItemID;
 			]]>
@@ -113,7 +113,7 @@ DELETE FROM "RepositoryFile" WHERE "RepositoryID" = :RepositoryID AND "ItemID" =
             <param id=":ItemID" type="Varchar" length="36" value="" />
         </statement>
 
-        <statement id="MD01" seq="0" use="Y" timeout="0" desc="파일 정보 입력 또는 변경" native="Y" modified="2023-09-25 00:00:00">
+        <statement id="MD01" seq="0" use="Y" timeout="0" desc="파일 정보 입력 또는 변경" native="Y">
             <![CDATA[
 WITH vals AS (
     SELECT :ItemID AS ItemID, :RepositoryID AS RepositoryID
@@ -162,7 +162,7 @@ WHERE NOT EXISTS (SELECT 1 FROM upsert);
             <param id=":CreatedMemberNo" type="Varchar" length="36" value="" />
         </statement>
 
-        <statement id="UD01" seq="0" use="Y" timeout="0" desc="파일 참조 ID 변경" native="Y" modified="2023-09-25 00:00:00">
+        <statement id="UD01" seq="0" use="Y" timeout="0" desc="파일 참조 ID 변경" native="Y">
             <![CDATA[
 UPDATE "RepositoryFile" 
 SET "DependencyID" = :TargetDependencyID
@@ -176,7 +176,7 @@ WHERE "RepositoryID" = :RepositoryID
             <param id=":TargetDependencyID" type="Varchar" length="36" value="NULL" />
         </statement>
 
-        <statement id="UD02" seq="0" use="Y" timeout="0" desc="파일명 변경" native="Y" modified="2023-09-25 00:00:00">
+        <statement id="UD02" seq="0" use="Y" timeout="0" desc="파일명 변경" native="Y">
             <![CDATA[
 UPDATE "RepositoryFile" 
 SET "FileName" = :FileName,

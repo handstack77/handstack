@@ -9,7 +9,7 @@
 		<desc>거래 로그 집계 관리</desc>
 	</header>
 	<commands>
-        <statement id="ZD01" seq="0" use="Y" timeout="0" desc="Aggregate, ErrorDetail 테이블 DDL" native="Y" modified="2023-09-25 00:00:00">
+        <statement id="ZD01" seq="0" use="Y" timeout="0" desc="Aggregate, ErrorDetail 테이블 DDL" native="Y">
             <![CDATA[
 CREATE TABLE IF NOT EXISTS "Aggregate" (
     -- 입력일자
@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS  "ErrorDetail" (
 			]]>
         </statement>
 
-        <statement id="GD01" seq="0" use="Y" timeout="0" desc="당일 및 금주 거래 요청/응답/오류 집계 조회" native="Y" modified="2023-09-25 00:00:00">
+        <statement id="GD01" seq="0" use="Y" timeout="0" desc="당일 및 금주 거래 요청/응답/오류 집계 조회" native="Y">
             <![CDATA[
 SELECT 'TODAY' AS DateType
 	, IFNULL(SUM(AG.RequestCount), 0) AS RequestCount
@@ -96,7 +96,7 @@ WHERE AG.CreateDate BETWEEN @FirstDateOfWeek AND @LastDateOfWeek;
             <param id="@LastDateOfWeek" type="String" length="8" value="" />
         </statement>
 
-        <statement id="LD01" seq="0" use="Y" timeout="0" desc="최근 7일 일시별 요청수, 오류수 합계 조회" native="Y" modified="2023-09-25 00:00:00">
+        <statement id="LD01" seq="0" use="Y" timeout="0" desc="최근 7일 일시별 요청수, 오류수 합계 조회" native="Y">
             <![CDATA[
 DROP TABLE IF EXISTS Temp_Aggregate;
 
@@ -304,7 +304,7 @@ ORDER BY DateHour ASC;
 			]]>
         </statement>
 
-        <statement id="LD02" seq="0" use="Y" timeout="0" desc="일시별 거래 요청 조회" native="Y" modified="2023-09-25 00:00:00">
+        <statement id="LD02" seq="0" use="Y" timeout="0" desc="일시별 거래 요청 조회" native="Y">
             <![CDATA[
 SELECT AG.ProjectID
 	, AG.TransactionID
@@ -323,7 +323,7 @@ ORDER BY 7 DESC;
             <param id="@CreateHour" type="String" length="2" value="" />
         </statement>
 
-        <statement id="LD03" seq="0" use="Y" timeout="0" desc="일시별 거래 오류 조회" native="Y" modified="2023-09-25 00:00:00">
+        <statement id="LD03" seq="0" use="Y" timeout="0" desc="일시별 거래 오류 조회" native="Y">
             <![CDATA[
 SELECT ED.ProjectID
 	, ED.TransactionID
@@ -340,7 +340,7 @@ ORDER BY 7 DESC;
             <param id="@CreateHour" type="String" length="2" value="" />
         </statement>
 
-        <statement id="MD01" seq="0" use="Y" timeout="0" desc="거래 요청/응답/오류 집계 정보 입력 또는 변경" native="Y" modified="2023-09-25 00:00:00">
+        <statement id="MD01" seq="0" use="Y" timeout="0" desc="거래 요청/응답/오류 집계 정보 입력 또는 변경" native="Y">
             <![CDATA[
 INSERT OR REPLACE INTO Aggregate
 (
@@ -381,7 +381,7 @@ VALUES
             <param id="@Acknowledge" type="String" length="30" value="" />
         </statement>
 
-        <statement id="UD01" seq="0" use="Y" timeout="0" desc="거래 응답 집계 정보 변경" native="Y" modified="2023-09-25 00:00:00">
+        <statement id="UD01" seq="0" use="Y" timeout="0" desc="거래 응답 집계 정보 변경" native="Y">
             <![CDATA[
 UPDATE Aggregate SET 
     ResponseCount = (SELECT IFNULL(MAX(ResponseCount), 0) + 1 FROM Aggregate S WHERE S.CreateDate = @CreateDate AND S.CreateHour = @CreateHour AND S.ProjectID = @ProjectID AND S.TransactionID = @TransactionID AND S.FeatureID = @FeatureID)
@@ -402,7 +402,7 @@ WHERE CreateDate = @CreateDate
             <param id="@Acknowledge" type="String" length="30" value="" />
         </statement>
 
-        <statement id="UD02" seq="0" use="Y" timeout="0" desc="거래 오류 집계 정보 변경" native="Y" modified="2023-09-25 00:00:00">
+        <statement id="UD02" seq="0" use="Y" timeout="0" desc="거래 오류 집계 정보 변경" native="Y">
             <![CDATA[
 UPDATE Aggregate SET 
     ErrorCount = (SELECT IFNULL(MAX(ErrorCount), 0) + 1 FROM Aggregate S WHERE S.CreateDate = @CreateDate AND S.CreateHour = @CreateHour AND S.ProjectID = @ProjectID AND S.TransactionID = @TransactionID AND S.FeatureID = @FeatureID)
@@ -423,7 +423,7 @@ WHERE CreateDate = @CreateDate
             <param id="@Acknowledge" type="String" length="30" value="" />
         </statement>
 
-        <statement id="ID01" seq="0" use="Y" timeout="0" desc="거래 오류 정보 입력" native="Y" modified="2023-09-25 00:00:00">
+        <statement id="ID01" seq="0" use="Y" timeout="0" desc="거래 오류 정보 입력" native="Y">
             <![CDATA[
 INSERT INTO ErrorDetail
 (

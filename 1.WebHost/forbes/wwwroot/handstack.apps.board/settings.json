@@ -1,0 +1,98 @@
+{
+    "ApplicationNo": "#{ApplicationNo}",
+    "ApplicationID": "#{ApplicationID}",
+    "Version": "1.0.0",
+    "ApplicationName": "#{ApplicationName}",
+    "AppSecret": "#{RandomID}",
+    "SignInID": "",
+    "Comment": "#{Comment}",
+    "CreatedMemberID": "#{MemberNo}",
+    "CreatedAt": "#{CreatedAt}",
+    "ModifiedMemberID": "",
+    "ModifiedAt": "",
+    "AllowAnonymousPath": [
+        "signin.html",
+        "readme.html",
+        "warning.html",
+        "unauthorized.html",
+        "main.html",
+        "assets/*",
+        "view/*"
+    ],
+    "WithOrigin": [
+        "#{ApplicationBaseUrl}",
+        "http://localhost:8000",
+        "http://127.0.0.1:8000"
+    ],
+    "WithReferer": [
+        "#{ApplicationBaseUrl}",
+        "http://localhost:8000",
+        "http://127.0.0.1:8000"
+    ],
+    "DataSource": [
+        {
+            "ApplicationID": "#{ApplicationID}",
+            "ProjectID": "*",
+            "DataSourceID": "DB01",
+            "DataProvider": "SQLite",
+            "TanantPattern": "",
+            "TanantValue": "",
+            "ConnectionString": "URI=file:{appBasePath}/.managed/sqlite/app.db;Journal Mode=MEMORY;Cache Size=4000;Synchronous=Normal;Page Size=4096;Pooling=True;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;",
+            "IsEncryption": "N",
+            "Comment": "로컬 데이터베이스"
+        }
+    ],
+    "Storage": [
+        {
+            "ApplicationID": "#{ApplicationID}",
+            "AccessID": "LFS",
+            "RepositoryID": "LFSLS01",
+            "RepositoryName": "단일 첨부파일",
+            "StorageType": "FileSystem",
+            "PhysicalPath": "{appBasePath}/.managed/storage/LFSLS01",
+            "BlobContainerID": "",
+            "BlobConnectionString": "",
+            "BlobItemUrl": "",
+            "IsVirtualPath": false,
+            "AccessMethod": "protected",
+            "IsFileUploadDownloadOnly": false,
+            "IsMultiUpload": false,
+            "IsFileOverWrite": false,
+            "IsFileNameEncrypt": true,
+            "IsKeepFileExtension": false,
+            "IsAutoPath": true,
+            "PolicyPathID": "1",
+            "UploadTypeID": "Single",
+            "UploadExtensions": "*/*",
+            "UploadCount": 1,
+            "UploadSizeLimit": 10240,
+            "IsLocalDbFileManaged": true,
+            "SQLiteConnectionString": "URI=file:{appBasePath}/.managed/sqlite/storage.db;Journal Mode=MEMORY;Cache Size=4000;Synchronous=Normal;Page Size=4096;Pooling=True;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;",
+            "TransactionGetItem": "STR|STR010|LD01",
+            "TransactionGetItems": "STR|STR010|LD02",
+            "TransactionDeleteItem": "STR|STR010|DD01",
+            "TransactionUpsertItem": "STR|STR010|MD01",
+            "TransactionUpdateDependencyID": "STR|STR010|UD01",
+            "TransactionUpdateFileName": "STR|STR010|UD02",
+            "Comment": "",
+            "CreatedMemberID": "HandStack",
+            "CreateUserName": "HandStack",
+            "CreatedAt": "#{CreatedAt}",
+            "ModifiedAt": null
+        }
+    ],
+    "Public": [
+    ],
+    "Routing": [
+        {
+            "ApplicationID": "#{ApplicationID}",
+            "ProjectID": "*",
+            "CommandType": "D",
+            "Environment": "D",
+            "Uri": "#{ApplicationBaseUrl}/dbclient/api/query",
+            "Comment": "개발 환경의 모든 프로젝트 데이터베이스 요청을 dbclient 모듈 API로 전달합니다"
+        }
+    ],
+    "Receive": [],
+    "Publish": []
+}

@@ -1024,43 +1024,6 @@ namespace checkup.Areas.checkup.Controllers
             return Ok();
         }
 
-        // http://localhost:8000/checkup/api/tenant-app/backup-entity-model?applicationID=16f0edaab65f4cd2b4c9d77c07fc64e5&accessKey=6eac215f2f5e495cad4f2abfdcad7644
-        [HttpGet("[action]")]
-        public ActionResult BackupEntityModel(string accessKey, string userWorkID, string applicationID)
-        {
-            ActionResult result = NotFound();
-
-            if (ModuleConfiguration.ManagedAccessKey == accessKey && string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false)
-            {
-                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-                if (Directory.Exists(appBasePath) == true)
-                {
-                    var dsMetaData = ModuleExtensions.ExecuteMetaSQL(ReturnType.DataSet, "SYS.SYS010.LD05", new
-                    {
-                        ApplicationID = applicationID
-                    }) as DataSet;
-
-                    if (dsMetaData == null)
-                    {
-                    }
-                    else if (dsMetaData.Tables.Count > 0)
-                    {
-                        DirectoryInfo directoryInfo = new DirectoryInfo(GlobalConfiguration.ForbesBasePath);
-                        var parentDirectoryPath = directoryInfo.Parent?.FullName;
-                        if (string.IsNullOrEmpty(parentDirectoryPath) == false)
-                        {
-                            string entityModelFilePath = Path.Combine(parentDirectoryPath, "entitymodel", applicationID, "meta.xml");
-                            dsMetaData.SaveFile(entityModelFilePath);
-                        }
-
-                        result = Ok();
-                    }
-                }
-            }
-
-            return result;
-        }
-
         // http://localhost:8000/checkup/api/tenant-app/create-app?applicationName=나의 첫번째 앱&memberNo=08db77a3cba70039ca91a82878021905&accessKey=6eac215f2f5e495cad4f2abfdcad7644
         [HttpGet("[action]")]
         [HttpPost("[action]")]
