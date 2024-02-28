@@ -75,34 +75,34 @@ INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('정보
     , ('소식', '소식 게시물 제목20', '소식 게시물 내용20', '개발자', datetime('now', 'localtime', '-20 day'));
 
 INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('정보', '정보 게시물 제목21', '정보 게시물 내용21', '개발자', datetime('now', 'localtime', '-21 day'))
-    , ('강좌', '강좌 게시물 제목21', '강좌 게시물 내용21', '개발자', datetime('now', 'localtime', '-21 day')),
-    , ('소식', '소식 게시물 제목21', '소식 게시물 내용21', '개발자', datetime('now', 'localtime', '-21 day')),
-    , ('정보', '정보 게시물 제목22', '정보 게시물 내용22', '개발자', datetime('now', 'localtime', '-22 day')),
-    , ('강좌', '강좌 게시물 제목22', '강좌 게시물 내용22', '개발자', datetime('now', 'localtime', '-22 day')),
-    , ('소식', '소식 게시물 제목22', '소식 게시물 내용22', '개발자', datetime('now', 'localtime', '-22 day')),
-    , ('정보', '정보 게시물 제목23', '정보 게시물 내용23', '개발자', datetime('now', 'localtime', '-23 day')),
-    , ('강좌', '강좌 게시물 제목23', '강좌 게시물 내용23', '개발자', datetime('now', 'localtime', '-23 day')),
-    , ('소식', '소식 게시물 제목23', '소식 게시물 내용23', '개발자', datetime('now', 'localtime', '-23 day')),
-    , ('정보', '정보 게시물 제목24', '정보 게시물 내용24', '개발자', datetime('now', 'localtime', '-24 day')),
-    , ('강좌', '강좌 게시물 제목24', '강좌 게시물 내용24', '개발자', datetime('now', 'localtime', '-24 day')),
-    , ('소식', '소식 게시물 제목24', '소식 게시물 내용24', '개발자', datetime('now', 'localtime', '-24 day')),
-    , ('정보', '정보 게시물 제목25', '정보 게시물 내용25', '개발자', datetime('now', 'localtime', '-25 day')),
-    , ('강좌', '강좌 게시물 제목25', '강좌 게시물 내용25', '개발자', datetime('now', 'localtime', '-25 day')),
-    , ('소식', '소식 게시물 제목25', '소식 게시물 내용25', '개발자', datetime('now', 'localtime', '-25 day')),
-    , ('정보', '정보 게시물 제목26', '정보 게시물 내용26', '개발자', datetime('now', 'localtime', '-26 day')),
-    , ('강좌', '강좌 게시물 제목26', '강좌 게시물 내용26', '개발자', datetime('now', 'localtime', '-26 day')),
-    , ('소식', '소식 게시물 제목26', '소식 게시물 내용26', '개발자', datetime('now', 'localtime', '-26 day')),
-    , ('정보', '정보 게시물 제목27', '정보 게시물 내용27', '개발자', datetime('now', 'localtime', '-27 day')),
-    , ('강좌', '강좌 게시물 제목27', '강좌 게시물 내용27', '개발자', datetime('now', 'localtime', '-27 day')),
-    , ('소식', '소식 게시물 제목27', '소식 게시물 내용27', '개발자', datetime('now', 'localtime', '-27 day')),
-    , ('정보', '정보 게시물 제목28', '정보 게시물 내용28', '개발자', datetime('now', 'localtime', '-28 day')),
-    , ('강좌', '강좌 게시물 제목28', '강좌 게시물 내용28', '개발자', datetime('now', 'localtime', '-28 day')),
-    , ('소식', '소식 게시물 제목28', '소식 게시물 내용28', '개발자', datetime('now', 'localtime', '-28 day')),
-    , ('정보', '정보 게시물 제목29', '정보 게시물 내용29', '개발자', datetime('now', 'localtime', '-29 day')),
-    , ('강좌', '강좌 게시물 제목29', '강좌 게시물 내용29', '개발자', datetime('now', 'localtime', '-29 day')),
-    , ('소식', '소식 게시물 제목29', '소식 게시물 내용29', '개발자', datetime('now', 'localtime', '-29 day')),
-    , ('정보', '정보 게시물 제목30', '정보 게시물 내용30', '개발자', datetime('now', 'localtime', '-30 day')),
-    , ('강좌', '강좌 게시물 제목30', '강좌 게시물 내용30', '개발자', datetime('now', 'localtime', '-30 day')),
+    , ('강좌', '강좌 게시물 제목21', '강좌 게시물 내용21', '개발자', datetime('now', 'localtime', '-21 day'))
+    , ('소식', '소식 게시물 제목21', '소식 게시물 내용21', '개발자', datetime('now', 'localtime', '-21 day'))
+    , ('정보', '정보 게시물 제목22', '정보 게시물 내용22', '개발자', datetime('now', 'localtime', '-22 day'))
+    , ('강좌', '강좌 게시물 제목22', '강좌 게시물 내용22', '개발자', datetime('now', 'localtime', '-22 day'))
+    , ('소식', '소식 게시물 제목22', '소식 게시물 내용22', '개발자', datetime('now', 'localtime', '-22 day'))
+    , ('정보', '정보 게시물 제목23', '정보 게시물 내용23', '개발자', datetime('now', 'localtime', '-23 day'))
+    , ('강좌', '강좌 게시물 제목23', '강좌 게시물 내용23', '개발자', datetime('now', 'localtime', '-23 day'))
+    , ('소식', '소식 게시물 제목23', '소식 게시물 내용23', '개발자', datetime('now', 'localtime', '-23 day'))
+    , ('정보', '정보 게시물 제목24', '정보 게시물 내용24', '개발자', datetime('now', 'localtime', '-24 day'))
+    , ('강좌', '강좌 게시물 제목24', '강좌 게시물 내용24', '개발자', datetime('now', 'localtime', '-24 day'))
+    , ('소식', '소식 게시물 제목24', '소식 게시물 내용24', '개발자', datetime('now', 'localtime', '-24 day'))
+    , ('정보', '정보 게시물 제목25', '정보 게시물 내용25', '개발자', datetime('now', 'localtime', '-25 day'))
+    , ('강좌', '강좌 게시물 제목25', '강좌 게시물 내용25', '개발자', datetime('now', 'localtime', '-25 day'))
+    , ('소식', '소식 게시물 제목25', '소식 게시물 내용25', '개발자', datetime('now', 'localtime', '-25 day'))
+    , ('정보', '정보 게시물 제목26', '정보 게시물 내용26', '개발자', datetime('now', 'localtime', '-26 day'))
+    , ('강좌', '강좌 게시물 제목26', '강좌 게시물 내용26', '개발자', datetime('now', 'localtime', '-26 day'))
+    , ('소식', '소식 게시물 제목26', '소식 게시물 내용26', '개발자', datetime('now', 'localtime', '-26 day'))
+    , ('정보', '정보 게시물 제목27', '정보 게시물 내용27', '개발자', datetime('now', 'localtime', '-27 day'))
+    , ('강좌', '강좌 게시물 제목27', '강좌 게시물 내용27', '개발자', datetime('now', 'localtime', '-27 day'))
+    , ('소식', '소식 게시물 제목27', '소식 게시물 내용27', '개발자', datetime('now', 'localtime', '-27 day'))
+    , ('정보', '정보 게시물 제목28', '정보 게시물 내용28', '개발자', datetime('now', 'localtime', '-28 day'))
+    , ('강좌', '강좌 게시물 제목28', '강좌 게시물 내용28', '개발자', datetime('now', 'localtime', '-28 day'))
+    , ('소식', '소식 게시물 제목28', '소식 게시물 내용28', '개발자', datetime('now', 'localtime', '-28 day'))
+    , ('정보', '정보 게시물 제목29', '정보 게시물 내용29', '개발자', datetime('now', 'localtime', '-29 day'))
+    , ('강좌', '강좌 게시물 제목29', '강좌 게시물 내용29', '개발자', datetime('now', 'localtime', '-29 day'))
+    , ('소식', '소식 게시물 제목29', '소식 게시물 내용29', '개발자', datetime('now', 'localtime', '-29 day'))
+    , ('정보', '정보 게시물 제목30', '정보 게시물 내용30', '개발자', datetime('now', 'localtime', '-30 day'))
+    , ('강좌', '강좌 게시물 제목30', '강좌 게시물 내용30', '개발자', datetime('now', 'localtime', '-30 day'))
     , ('소식', '소식 게시물 제목30', '소식 게시물 내용30', '개발자', datetime('now', 'localtime', '-30 day'));
             ]]>
         </statement>

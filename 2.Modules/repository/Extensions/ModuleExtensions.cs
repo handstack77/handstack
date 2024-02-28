@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
+using HandStack.Core.ExtensionMethod;
 using HandStack.Data.Client;
 using HandStack.Data.Enumeration;
 using HandStack.Data.ExtensionMethod;
@@ -53,7 +54,7 @@ namespace repository.Extensions
                             string connectionString = repository.SQLiteConnectionString;
                             if (connectionString.IndexOf("{appBasePath}") > -1)
                             {
-                                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, repository.ApplicationID);
+                                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, repository.UserWorkID.ToStringSafe(), repository.ApplicationID);
                                 connectionString = connectionString.Replace("{appBasePath}", appBasePath);
                             }
 
@@ -110,7 +111,14 @@ namespace repository.Extensions
                         var sqlMeta = DatabaseExtensions.GetSQLiteMetaSQL(ModuleConfiguration.DatabaseContractPath, GlobalConfiguration.ApplicationID, paths[0], paths[1], paths[2], parseParameters);
                         if (sqlMeta != null)
                         {
-                            using (SQLiteClient sqliteClient = new SQLiteClient(repository.SQLiteConnectionString))
+                            string connectionString = repository.SQLiteConnectionString;
+                            if (connectionString.IndexOf("{appBasePath}") > -1)
+                            {
+                                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, repository.UserWorkID.ToStringSafe(), repository.ApplicationID);
+                                connectionString = connectionString.Replace("{appBasePath}", appBasePath);
+                            }
+
+                            using (SQLiteClient sqliteClient = new SQLiteClient(connectionString))
                             {
                                 result = sqliteClient.ExecutePocoMappings<T>(sqlMeta.Item1, sqlMeta.Item2);
                             }

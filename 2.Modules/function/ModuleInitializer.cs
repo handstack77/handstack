@@ -55,6 +55,7 @@ using HandStack.Data.ExtensionMethod;
 using HandStack.Data.Client;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
+using HandStack.Web.MessageContract.DataObject;
 
 namespace function
 {
@@ -444,6 +445,57 @@ namespace function
 
     internal class Program
     {
+        public static dynamic? ExecuteModuleSQL(DataContext dataContext, ReturnType returnType, string featureID, object? parameters = null)
+        {
+            dynamic? result = null;
+            try
+            {
+                if (string.IsNullOrEmpty(dataContext.featureSQLPath) == true || string.IsNullOrEmpty(dataContext.connectionString) == true)
+                {
+                    Log.Error("[{LogCategory}] " + $"globalID: {dataContext.globalID}, featureID: {featureID}, dataSourceMap DataProvider의 DataSource 또는 featureSQL 확인 필요", "ModuleExtensions/ExecuteModuleSQL");
+                }
+                else
+                {
+                    string? parseParameters = parameters == null ? null : JsonConvert.SerializeObject(parameters);
+                    var sqlMeta = DatabaseExtensions.GetSQLiteMetaSQL(dataContext.featureSQLPath, featureID, parseParameters);
+                    if (sqlMeta != null)
+                    {
+                        JObject? adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
+                        string commandText = sqlMeta.Item1;
+                        commandText = DatabaseExtensions.RecursiveParameters(commandText, adHocParameters, "", false);
+
+                        using (SQLiteClient sqliteClient = new SQLiteClient(dataContext.connectionString))
+                        {
+                            switch (returnType)
+                            {
+                                case ReturnType.NonQuery:
+                                    result = sqliteClient.ExecuteNonQuery(commandText, sqlMeta.Item2);
+                                    break;
+                                case ReturnType.Scalar:
+                                    result = sqliteClient.ExecuteScalar(commandText, sqlMeta.Item2);
+                                    break;
+                                case ReturnType.DataSet:
+                                    result = sqliteClient.ExecuteDataSet(commandText, sqlMeta.Item2);
+                                    break;
+                                case ReturnType.DataReader:
+                                    result = sqliteClient.ExecuteReader(commandText, sqlMeta.Item2);
+                                    break;
+                                case ReturnType.Dynamic:
+                                    result = sqliteClient.ExecuteDynamic(commandText, sqlMeta.Item2);
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception exception)
+            {
+                Log.Error(exception, "[{LogCategory}] " + $"returnType: {returnType}, featureID: {featureID}, parameters: {parameters}", "ModuleExtensions/ExecuteMetaSQL");
+            }
+
+            return result;
+        }
+
         public static dynamic? ExecuteModuleSQL(ReturnType returnType, string queryID, object? parameters = null)
         {
             dynamic? result = null;

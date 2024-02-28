@@ -1294,6 +1294,20 @@ namespace HandStack.Data.ExtensionMethod
                 return result;
             }
 
+            result = GetSQLiteMetaSQL(filePath, queryID, parameters);
+
+            return result;
+        }
+
+        public static Tuple<string, List<SQLiteParameter>>? GetSQLiteMetaSQL(string filePath, string queryID, string? parameters)
+        {
+            Tuple<string, List<SQLiteParameter>>? result = null;
+
+            if (File.Exists(filePath) == false || string.IsNullOrEmpty(queryID) == true)
+            {
+                return result;
+            }
+
             var htmlDocument = new HtmlDocument();
             htmlDocument.OptionDefaultStreamEncoding = Encoding.UTF8;
 
@@ -1348,9 +1362,9 @@ namespace HandStack.Data.ExtensionMethod
             }
             catch (Exception exception)
             {
-                Log.Error(exception, "[{LogCategory}] " + $"fileID: {fileID}, queryID: {queryID} 데이터 확인 필요", "DatabaseExtensions/GetJObject");
+                Log.Error(exception, "[{LogCategory}] " + $"filePath: {filePath}, queryID: {queryID} 데이터 확인 필요", "DatabaseExtensions/GetJObject");
             }
-
+            
             return result;
         }
     }

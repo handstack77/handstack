@@ -1920,7 +1920,7 @@ namespace repository.Controllers
                                         for (int i = 0; i < withRefererUris.Count; i++)
                                         {
                                             string withRefererUri = withRefererUris[i];
-                                            if (withRefererUri.IndexOf(requestRefererUrl) > -1)
+                                            if (requestRefererUrl.IndexOf(withRefererUri) > -1)
                                             {
                                                 isWithOrigin = true;
                                                 break;
@@ -2042,7 +2042,7 @@ namespace repository.Controllers
                                         for (int i = 0; i < withRefererUris.Count; i++)
                                         {
                                             string withRefererUri = withRefererUris[i];
-                                            if (withRefererUri.IndexOf(requestRefererUrl) > -1)
+                                            if (requestRefererUrl.IndexOf(withRefererUri) > -1)
                                             {
                                                 isWithOrigin = true;
                                                 break;

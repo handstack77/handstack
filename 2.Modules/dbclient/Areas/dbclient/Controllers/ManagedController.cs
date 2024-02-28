@@ -234,6 +234,12 @@ namespace dbclient.Areas.dbclient.Controllers
                                     {
                                         foreach (var item in dataSourceJson)
                                         {
+                                            if (ModuleConfiguration.DataSource.Contains(item) == false)
+                                            {
+                                                item.ConnectionString = item.ConnectionString.Replace("{appBasePath}", appBasePath);
+                                                ModuleConfiguration.DataSource.Add(item);
+                                            }
+
                                             DataSourceTanantKey tanantMap = new DataSourceTanantKey();
                                             tanantMap.DataSourceID = item.DataSourceID;
                                             tanantMap.TanantPattern = item.TanantPattern;

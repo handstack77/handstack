@@ -1389,18 +1389,51 @@ namespace checkup.Areas.checkup.Controllers
 
                 Directory.Delete(appTempBasePath, true);
 
-                // dbclient, repository, transact, function 계약 파일 업데이트
-                string contractUrl = string.Empty;
-                contractUrl = $"{baseUrl}/checkup/api/tenant-app/refresh-referer-app?userWorkID={userWorkID}&applicationID={applicationID}&appSecret={appSecret}";
-                ContractUpdate(contractUrl);
-
-                contractUrl = $"{baseUrl}/checkup/api/tenant-app/refresh-origin-app?userWorkID={userWorkID}&applicationID={applicationID}&appSecret={appSecret}";
-                ContractUpdate(contractUrl);
+                TenentAppContractUpdate(userWorkID, applicationID);
 
                 result = Ok(applicationNo);
             }
 
             return result;
+        }
+
+        private void TenentAppContractUpdate(string userWorkID, string applicationID)
+        {
+            string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+            DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
+            if (directoryInfo.Exists == true)
+            {
+                string tenantID = $"{userWorkID}|{applicationID}";
+                string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                if (System.IO.File.Exists(settingFilePath) == true || GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == true)
+                {
+                    string appSettingText = System.IO.File.ReadAllText(settingFilePath);
+                    var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
+                    if (appSetting != null)
+                    {
+                        string baseUrl = Request.GetBaseUrl();
+
+                        // dbclient, repository, transact, function 계약 파일 업데이트
+                        string contractUrl = $"{baseUrl}/checkup/api/tenant-app/refresh-referer-app?userWorkID={userWorkID}&applicationID={applicationID}&appSecret={appSetting.AppSecret}";
+                        ContractUpdate(contractUrl);
+
+                        contractUrl = $"{baseUrl}/checkup/api/tenant-app/refresh-origin-app?userWorkID={userWorkID}&applicationID={applicationID}&appSecret={appSetting.AppSecret}";
+                        ContractUpdate(contractUrl);
+
+                        contractUrl = $"{baseUrl}/dbclient/api/managed/reset-app-contract?userWorkID={userWorkID}&applicationID={applicationID}";
+                        ContractUpdate(contractUrl);
+
+                        contractUrl = $"{baseUrl}/repository/api/managed/reset-app-contract?userWorkID={userWorkID}&applicationID={applicationID}";
+                        ContractUpdate(contractUrl);
+
+                        contractUrl = $"{baseUrl}/transact/api/managed/reset-app-contract?userWorkID={userWorkID}&applicationID={applicationID}";
+                        ContractUpdate(contractUrl);
+
+                        contractUrl = $"{baseUrl}/function/api/managed/reset-app-contract?userWorkID={userWorkID}&applicationID={applicationID}";
+                        ContractUpdate(contractUrl);
+                    }
+                }
+            }
         }
 
         // http://localhost:8000/checkup/api/tenant-app/delete-app?applicationID=9ysztou4&userWorkID=9ysztou4&memberNo=08db77a3cba70039ca91a82878021905&accessKey=6eac215f2f5e495cad4f2abfdcad7644
@@ -1485,25 +1518,7 @@ namespace checkup.Areas.checkup.Controllers
                                 Log.Warning(exception, "[{LogCategory}] " + $"DeleteDirectoryExceptManaged 확인 필요: {tenantID}, {appBasePath}", "TenantAppController/DeleteApp");
                             }
 
-                            string baseUrl = Request.GetBaseUrl();
-
-                            string contractUrl = $"{baseUrl}/checkup/api/tenant-app/refresh-referer-app?userWorkID={userWorkID}&applicationID={applicationID}&appSecret={appSetting.AppSecret}";
-                            ContractUpdate(contractUrl);
-
-                            contractUrl = $"{baseUrl}/checkup/api/tenant-app/refresh-origin-app?userWorkID={userWorkID}&applicationID={applicationID}&appSecret={appSetting.AppSecret}";
-                            ContractUpdate(contractUrl);
-
-                            contractUrl = $"{baseUrl}/dbclient/api/managed/reset-app-contract?userWorkID={userWorkID}&applicationID={applicationID}";
-                            ContractUpdate(contractUrl);
-
-                            contractUrl = $"{baseUrl}/repository/api/managed/reset-app-contract?userWorkID={userWorkID}&applicationID={applicationID}";
-                            ContractUpdate(contractUrl);
-
-                            contractUrl = $"{baseUrl}/transact/api/managed/reset-app-contract?userWorkID={userWorkID}&applicationID={applicationID}";
-                            ContractUpdate(contractUrl);
-
-                            contractUrl = $"{baseUrl}/function/api/managed/reset-app-contract?userWorkID={userWorkID}&applicationID={applicationID}";
-                            ContractUpdate(contractUrl);
+                            TenentAppContractUpdate(userWorkID, applicationID);
 
                             result = Ok();
                         }
@@ -2129,7 +2144,7 @@ namespace checkup.Areas.checkup.Controllers
                 }
             }
 
-        TransactionException:
+TransactionException:
             result = Content(outputBuilder.ToString(), "text/plain");
             outputBuilder = null;
             return result;
@@ -2281,7 +2296,7 @@ namespace checkup.Areas.checkup.Controllers
                 logger.Error("[{LogCategory}] " + $"{exception.Message}", "TenantAppController/ArchivesBackup");
             }
 
-        TransactionException:
+TransactionException:
             result = Content(outputBuilder.ToString(), "text/plain");
             outputBuilder = null;
             return result;
@@ -2506,7 +2521,7 @@ namespace checkup.Areas.checkup.Controllers
                 logger.Error("[{LogCategory}] " + $"{exception.Message}", "TenantAppController/Progress");
             }
 
-        TransactionException:
+TransactionException:
             result = Content(outputBuilder.ToString(), "text/plain");
             outputBuilder = null;
             return result;

@@ -4,28 +4,21 @@ using System.Data;
 using System.IO;
 using System.Linq;
 
+using checkup.Entity;
+
 using HandStack.Core.ExtensionMethod;
 using HandStack.Core.Extensions;
 using HandStack.Core.Helpers;
-using HandStack.Data;
-using HandStack.Data.Client;
-using HandStack.Data.Enumeration;
-using HandStack.Data.ExtensionMethod;
 using HandStack.Web;
 using HandStack.Web.Entity;
-using HandStack.Web.Modules;
 using HandStack.Web.MessageContract.DataObject;
+using HandStack.Web.Modules;
 
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-
-using Serilog;
-
-using checkup.Entity;
 
 namespace HDS.Function.SYS
 {
@@ -528,57 +521,6 @@ TransactionException:
             return result;
         }
 
-        public static dynamic? ExecuteModuleSQL(DataContext dataContext, ReturnType returnType, string featureID, object? parameters = null)
-        {
-            dynamic? result = null;
-            try
-            {
-                if (string.IsNullOrEmpty(dataContext.featureSQLPath) == true || string.IsNullOrEmpty(dataContext.connectionString) == true)
-                {
-                    Log.Error("[{LogCategory}] " + $"globalID: {dataContext.globalID}, featureID: {featureID}, DataSource 또는 featureSQL 확인 필요", "ModuleExtensions/ExecuteModuleSQL");
-                }
-                else
-                {
-                    string? parseParameters = parameters == null ? null : JsonConvert.SerializeObject(parameters);
-                    var sqlMeta = DatabaseExtensions.GetSqlClientTuple(dataContext.featureSQLPath, featureID, parseParameters);
-                    if (sqlMeta != null)
-                    {
-                        JObject? adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
-                        string commandText = sqlMeta.Item1;
-                        commandText = DatabaseExtensions.RecursiveParameters(commandText, adHocParameters, "", false);
-
-                        using (SqlServerClient sqlServerClient = new SqlServerClient(dataContext.connectionString))
-                        {
-                            switch (returnType)
-                            {
-                                case ReturnType.NonQuery:
-                                    result = sqlServerClient.ExecuteNonQuery(commandText, sqlMeta.Item2);
-                                    break;
-                                case ReturnType.Scalar:
-                                    result = sqlServerClient.ExecuteScalar(commandText, sqlMeta.Item2);
-                                    break;
-                                case ReturnType.DataSet:
-                                    result = sqlServerClient.ExecuteDataSet(commandText, sqlMeta.Item2);
-                                    break;
-                                case ReturnType.DataReader:
-                                    result = sqlServerClient.ExecuteReader(commandText, sqlMeta.Item2);
-                                    break;
-                                case ReturnType.Dynamic:
-                                    result = sqlServerClient.ExecuteDynamic(commandText, sqlMeta.Item2);
-                                    break;
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception exception)
-            {
-                Log.Error(exception, "[{LogCategory}] " + $"returnType: {returnType}, featureID: {featureID}, parameters: {parameters}", "ModuleExtensions/ExecuteMetaSQL");
-            }
-
-            return result;
-        }
-
         public DataSet? MF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
             string typeMember = "SYS.SYS010.MF01";
@@ -607,41 +549,25 @@ TransactionException:
                 var logger = dataContext.logger;
                 logger?.Information($"Function: {typeMember} 작업 시작");
 
-                FileInfo fileInfo = new FileInfo(itemPath);
-                var isLockYN = ExecuteModuleSQL(dataContext, ReturnType.Scalar, "GD01", new
+                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                if (Directory.Exists(appBasePath) == true)
                 {
-                    ApplicationNo = applicationNo,
-                    ProjectType = GetItemPathToProjectType(itemPath),
-                    ProjectItemName = GetItemPathToProjectType(itemPath) == "F" ? fileInfo.Directory?.Name : fileInfo.Name.Replace(fileInfo.Extension, ""),
-                });
+                    string? sourceItemPath = GetHostItemPath(appBasePath, projectType, itemPath);
 
-                if (isLockYN != null && isLockYN == "N")
-                {
-                    string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-                    if (Directory.Exists(appBasePath) == true)
+                    if (string.IsNullOrEmpty(sourceItemPath) == false && System.IO.File.Exists(sourceItemPath) == true)
                     {
-                        string? sourceItemPath = GetHostItemPath(appBasePath, projectType, itemPath);
-
-                        if (string.IsNullOrEmpty(sourceItemPath) == false && System.IO.File.Exists(sourceItemPath) == true)
-                        {
-                            string? sourceText = LZStringHelper.DecompressFromBase64(compressBase64);
-                            System.IO.File.WriteAllText(sourceItemPath, sourceText);
-                        }
-                        else
-                        {
-                            result.BuildExceptionData("Y", "Warning", "파일 정보 확인 필요", typeMember);
-                            goto TransactionException;
-                        }
+                        string? sourceText = LZStringHelper.DecompressFromBase64(compressBase64);
+                        System.IO.File.WriteAllText(sourceItemPath, sourceText);
                     }
                     else
                     {
-                        result.BuildExceptionData("Y", "Warning", "앱 정보 확인 필요", typeMember);
+                        result.BuildExceptionData("Y", "Warning", "파일 정보 확인 필요", typeMember);
                         goto TransactionException;
                     }
                 }
                 else
                 {
-                    result.BuildExceptionData("Y", "Warning", "앱 프로젝트/항목 잠금 확인 필요", typeMember);
+                    result.BuildExceptionData("Y", "Warning", "앱 정보 확인 필요", typeMember);
                     goto TransactionException;
                 }
             }
@@ -688,39 +614,24 @@ TransactionException:
                     goto TransactionException;
                 }
 
-                var isLockYN = ExecuteModuleSQL(dataContext, ReturnType.Scalar, "GD01", new
+                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                if (Directory.Exists(appBasePath) == true)
                 {
-                    ApplicationNo = applicationNo,
-                    ProjectType = pathProjectType,
-                    ProjectItemName = itemPath,
-                });
+                    string? sourceItemPath = GetHostItemPath(appBasePath, "", itemPath);
 
-                if (isLockYN != null && isLockYN == "N")
-                {
-                    string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-                    if (Directory.Exists(appBasePath) == true)
+                    if (string.IsNullOrEmpty(sourceItemPath) == false && Directory.Exists(sourceItemPath) == false)
                     {
-                        string? sourceItemPath = GetHostItemPath(appBasePath, "", itemPath);
-
-                        if (string.IsNullOrEmpty(sourceItemPath) == false && Directory.Exists(sourceItemPath) == false)
-                        {
-                            Directory.CreateDirectory(sourceItemPath);
-                        }
-                        else
-                        {
-                            result.BuildExceptionData("Y", "Warning", "디렉토리 정보 또는 중복 확인 필요", typeMember);
-                            goto TransactionException;
-                        }
+                        Directory.CreateDirectory(sourceItemPath);
                     }
                     else
                     {
-                        result.BuildExceptionData("Y", "Warning", "앱 정보 확인 필요", typeMember);
+                        result.BuildExceptionData("Y", "Warning", "디렉토리 정보 또는 중복 확인 필요", typeMember);
                         goto TransactionException;
                     }
                 }
                 else
                 {
-                    result.BuildExceptionData("Y", "Warning", "앱 프로젝트/항목 잠금 확인 필요", typeMember);
+                    result.BuildExceptionData("Y", "Warning", "앱 정보 확인 필요", typeMember);
                     goto TransactionException;
                 }
             }
@@ -762,46 +673,30 @@ TransactionException:
                 var logger = dataContext.logger;
                 logger?.Information($"Function: {typeMember} 작업 시작");
 
-                FileInfo fileInfo = new FileInfo(itemPath);
-                var isLockYN = ExecuteModuleSQL(dataContext, ReturnType.Scalar, "GD01", new
+                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                if (Directory.Exists(appBasePath) == true)
                 {
-                    ApplicationNo = applicationNo,
-                    ProjectType = GetItemPathToProjectType(itemPath),
-                    ProjectItemName = GetItemPathToProjectType(itemPath) == "F" ? fileInfo.Directory?.Name : fileInfo.Name.Replace(fileInfo.Extension, ""),
-                });
+                    string? sourceItemPath = GetHostItemPath(appBasePath, projectType, itemPath);
 
-                if (isLockYN != null && isLockYN == "N")
-                {
-                    string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-                    if (Directory.Exists(appBasePath) == true)
+                    if (string.IsNullOrEmpty(sourceItemPath) == false && System.IO.File.Exists(sourceItemPath) == false)
                     {
-                        string? sourceItemPath = GetHostItemPath(appBasePath, projectType, itemPath);
-
-                        if (string.IsNullOrEmpty(sourceItemPath) == false && System.IO.File.Exists(sourceItemPath) == false)
+                        string? sourceText = LZStringHelper.DecompressFromBase64(compressBase64);
+                        FileInfo file = new FileInfo(sourceItemPath);
+                        if (file.Directory?.Exists == false)
                         {
-                            string? sourceText = LZStringHelper.DecompressFromBase64(compressBase64);
-                            FileInfo file = new FileInfo(sourceItemPath);
-                            if (file.Directory?.Exists == false)
-                            {
-                                file.Directory.Create();
-                            }
-                            System.IO.File.WriteAllText(sourceItemPath, sourceText);
+                            file.Directory.Create();
                         }
-                        else
-                        {
-                            result.BuildExceptionData("Y", "Warning", "기존 파일 정보 확인 필요", typeMember);
-                            goto TransactionException;
-                        }
+                        System.IO.File.WriteAllText(sourceItemPath, sourceText);
                     }
                     else
                     {
-                        result.BuildExceptionData("Y", "Warning", "앱 정보 확인 필요", typeMember);
+                        result.BuildExceptionData("Y", "Warning", "기존 파일 정보 확인 필요", typeMember);
                         goto TransactionException;
                     }
                 }
                 else
                 {
-                    result.BuildExceptionData("Y", "Warning", "앱 프로젝트/항목 잠금 확인 필요", typeMember);
+                    result.BuildExceptionData("Y", "Warning", "앱 정보 확인 필요", typeMember);
                     goto TransactionException;
                 }
             }
@@ -848,39 +743,24 @@ TransactionException:
                     goto TransactionException;
                 }
 
-                var isLockYN = ExecuteModuleSQL(dataContext, ReturnType.Scalar, "GD01", new
+                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                if (Directory.Exists(appBasePath) == true)
                 {
-                    ApplicationNo = applicationNo,
-                    ProjectType = pathProjectType,
-                    ProjectItemName = itemPath,
-                });
+                    string? sourceItemPath = GetHostItemPath(appBasePath, "", itemPath);
 
-                if (isLockYN != null && isLockYN == "N")
-                {
-                    string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-                    if (Directory.Exists(appBasePath) == true)
+                    if (string.IsNullOrEmpty(sourceItemPath) == false && Directory.Exists(sourceItemPath) == true)
                     {
-                        string? sourceItemPath = GetHostItemPath(appBasePath, "", itemPath);
-
-                        if (string.IsNullOrEmpty(sourceItemPath) == false && Directory.Exists(sourceItemPath) == true)
-                        {
-                            Directory.Delete(sourceItemPath, true);
-                        }
-                        else
-                        {
-                            result.BuildExceptionData("Y", "Warning", "디렉토리 정보 확인 필요", typeMember);
-                            goto TransactionException;
-                        }
+                        Directory.Delete(sourceItemPath, true);
                     }
                     else
                     {
-                        result.BuildExceptionData("Y", "Warning", "앱 정보 확인 필요", typeMember);
+                        result.BuildExceptionData("Y", "Warning", "디렉토리 정보 확인 필요", typeMember);
                         goto TransactionException;
                     }
                 }
                 else
                 {
-                    result.BuildExceptionData("Y", "Warning", "앱 프로젝트/항목 잠금 확인 필요", typeMember);
+                    result.BuildExceptionData("Y", "Warning", "앱 정보 확인 필요", typeMember);
                     goto TransactionException;
                 }
             }
@@ -920,40 +800,24 @@ TransactionException:
                 var logger = dataContext.logger;
                 logger?.Information($"Function: {typeMember} 작업 시작");
 
-                FileInfo fileInfo = new FileInfo(itemPath);
-                var isLockYN = ExecuteModuleSQL(dataContext, ReturnType.Scalar, "GD01", new
+                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                if (Directory.Exists(appBasePath) == true)
                 {
-                    ApplicationNo = applicationNo,
-                    ProjectType = GetItemPathToProjectType(itemPath),
-                    ProjectItemName = GetItemPathToProjectType(itemPath) == "F" ? fileInfo.Directory?.Name : fileInfo.Name.Replace(fileInfo.Extension, ""),
-                });
+                    string? sourceItemPath = GetHostItemPath(appBasePath, projectType, itemPath);
 
-                if (isLockYN != null && isLockYN == "N")
-                {
-                    string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-                    if (Directory.Exists(appBasePath) == true)
+                    if (string.IsNullOrEmpty(sourceItemPath) == false && System.IO.File.Exists(sourceItemPath) == true)
                     {
-                        string? sourceItemPath = GetHostItemPath(appBasePath, projectType, itemPath);
-
-                        if (string.IsNullOrEmpty(sourceItemPath) == false && System.IO.File.Exists(sourceItemPath) == true)
-                        {
-                            System.IO.File.Delete(sourceItemPath);
-                        }
-                        else
-                        {
-                            result.BuildExceptionData("Y", "Warning", "파일 정보 확인 필요", typeMember);
-                            goto TransactionException;
-                        }
+                        System.IO.File.Delete(sourceItemPath);
                     }
                     else
                     {
-                        result.BuildExceptionData("Y", "Warning", "앱 정보 확인 필요", typeMember);
+                        result.BuildExceptionData("Y", "Warning", "파일 정보 확인 필요", typeMember);
                         goto TransactionException;
                     }
                 }
                 else
                 {
-                    result.BuildExceptionData("Y", "Warning", "앱 프로젝트/항목 잠금 확인 필요", typeMember);
+                    result.BuildExceptionData("Y", "Warning", "앱 정보 확인 필요", typeMember);
                     goto TransactionException;
                 }
             }

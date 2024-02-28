@@ -203,14 +203,12 @@ namespace repository
 
                                             if (ModuleConfiguration.FileRepositorys.Contains(repository) == false)
                                             {
-                                                if (repository.PhysicalPath.IndexOf("{appBasePath}") == -1)
+                                                repository.PhysicalPath = repository.PhysicalPath.Replace("{appBasePath}", appBasePath);
+                                                repository.PhysicalPath = GlobalConfiguration.GetBasePath(repository.PhysicalPath);
+                                                DirectoryInfo repositoryDirectoryInfo = new DirectoryInfo(repository.PhysicalPath);
+                                                if (repositoryDirectoryInfo.Exists == false)
                                                 {
-                                                    repository.PhysicalPath = GlobalConfiguration.GetBasePath(repository.PhysicalPath);
-                                                    DirectoryInfo repositoryDirectoryInfo = new DirectoryInfo(repository.PhysicalPath);
-                                                    if (repositoryDirectoryInfo.Exists == false)
-                                                    {
-                                                        repositoryDirectoryInfo.Create();
-                                                    }
+                                                    repositoryDirectoryInfo.Create();
                                                 }
 
                                                 repository.UserWorkID = userWorkID;

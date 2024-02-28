@@ -1,13 +1,18 @@
-﻿using HandStack.Core.ExtensionMethod;
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Net;
+
+using checkup.Entity;
+using checkup.Extensions;
+using checkup.Services;
+
+using HandStack.Core.ExtensionMethod;
 using HandStack.Core.Extensions;
 using HandStack.Web;
 using HandStack.Web.Entity;
 using HandStack.Web.Extensions;
 using HandStack.Web.Modules;
-
-using checkup.Entity;
-using checkup.Extensions;
-using checkup.Services;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
@@ -19,11 +24,6 @@ using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
 
 using Serilog;
-
-using System;
-using System.IO;
-using System.Linq;
-using System.Net;
 
 namespace checkup
 {
@@ -371,7 +371,7 @@ namespace checkup
                                                     for (int i = 0; i < withRefererUris.Count; i++)
                                                     {
                                                         string withRefererUri = withRefererUris[i];
-                                                        if (withRefererUri.IndexOf(requestRefererUrl) > -1)
+                                                        if (requestRefererUrl.IndexOf(withRefererUri) > -1)
                                                         {
                                                             isWithReferer = true;
                                                             break;
