@@ -17,8 +17,8 @@
         "IsContractFileUpdateToCaching": true,
         "LogServerUrl": "http://localhost:8000/api/log",
         "ModuleLogFilePath": "../log/checkup/module.log",
-        "ModuleBasePath": "C:/projects/handstack77/handstack/2.Modules/checkup",
-        "WWWRootBasePath": "C:/projects/handstack77/handstack/2.Modules/checkup/wwwroot/checkup",
+        "ModuleBasePath": "../modules/checkup",
+        "WWWRootBasePath": "../modules/checkup/wwwroot/checkup",
         "EventAction": [ "repository.Events.RepositoryRequest" ],
         "SubscribeAction": [],
         "ConnectionString": "URI=file:../sqlite/HDS/dbclient/checkup.db;Journal Mode=MEMORY;Cache Size=4000;Synchronous=Normal;Page Size=4096;Pooling=True;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;"
