@@ -28,6 +28,7 @@ using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
 
 using transact.Entity;
+using transact.Events;
 using transact.Extensions;
 
 namespace transact
@@ -117,8 +118,6 @@ namespace transact
                     throw new FileNotFoundException(message);
                 }
 
-                services.AddSingleton(new TransactLoggerClient(Log.Logger));
-
                 if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(Path.Combine(GlobalConfiguration.TenantAppBasePath)) == true)
                 {
                     foreach (var userWorkPath in Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath))
@@ -162,6 +161,10 @@ namespace transact
                 }
 
                 TransactionMapper.LoadContract(environment.EnvironmentName, Log.Logger, configuration);
+
+                services.AddSingleton(new TransactLoggerClient(Log.Logger));
+                services.AddSingleton<TransactClient>();
+                services.AddTransient<IRequestHandler<TransactRequest, object?>, TransactRequestHandler>();
             }
         }
 

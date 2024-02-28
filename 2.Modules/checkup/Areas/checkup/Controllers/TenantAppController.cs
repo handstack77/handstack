@@ -22,10 +22,12 @@ using HandStack.Core.Helpers;
 using HandStack.Data.Client;
 using HandStack.Data.Enumeration;
 using HandStack.Web;
+using HandStack.Web.ApiClient;
 using HandStack.Web.Entity;
 using HandStack.Web.Extensions;
 using HandStack.Web.Helper;
 using HandStack.Web.MessageContract.DataObject;
+using HandStack.Web.MessageContract.Message;
 using HandStack.Web.Modules;
 
 using Microsoft.AspNetCore.Authentication;
@@ -75,10 +77,13 @@ namespace checkup.Areas.checkup.Controllers
 
         private readonly IJwtManager jwtManager;
 
+        private readonly MediatorClient mediatorClient;
+
         private string appDbConnectionString = "";
 
-        public TenantAppController(ILogger logger, IMemoryCache memoryCache, IWebHostEnvironment environment, ISequentialIdGenerator sequentialIdGenerator, SqidsEncoder<int> sqids, IOptions<CorsOptions> corsOptions, ModuleApiClient moduleApiClient, IJwtManager jwtManager, IUserAccountService userTokenService)
+        public TenantAppController(MediatorClient mediatorClient, ILogger logger, IMemoryCache memoryCache, IWebHostEnvironment environment, ISequentialIdGenerator sequentialIdGenerator, SqidsEncoder<int> sqids, IOptions<CorsOptions> corsOptions, ModuleApiClient moduleApiClient, IJwtManager jwtManager, IUserAccountService userTokenService)
         {
+            this.mediatorClient = mediatorClient;
             this.logger = logger;
             this.memoryCache = memoryCache;
             this.environment = environment;
@@ -1027,7 +1032,7 @@ namespace checkup.Areas.checkup.Controllers
         // http://localhost:8000/checkup/api/tenant-app/create-app?applicationName=나의 첫번째 앱&memberNo=08db77a3cba70039ca91a82878021905&accessKey=6eac215f2f5e495cad4f2abfdcad7644
         [HttpGet("[action]")]
         [HttpPost("[action]")]
-        public ActionResult CreateApp(string accessKey
+        public async Task<ActionResult> CreateApp(string accessKey
             , string memberNo
             , string? userWorkID = ""
             , string? applicationName = ""
@@ -1168,20 +1173,46 @@ namespace checkup.Areas.checkup.Controllers
                 string logoPath = "";
                 if (string.IsNullOrEmpty(logoItemID) == false)
                 {
-                    var logoResults = ModuleExtensions.ExecuteMetaSQL(ReturnType.Dynamic, "SYS.SYS010.MD01", new
+                    MediatorRequest mediatorRequest = new MediatorRequest()
                     {
-                        ApplicationNo = applicationNo,
-                        ItemID = logoItemID
-                    });
+                        ActionModuleID = ModuleConfiguration.ModuleID,
+                        SubscribeEventID = "repository.Events.RepositoryRequest",
+                    };
 
-                    if (logoResults != null)
+                    Dictionary<string, object> templateParameters = new Dictionary<string, object>();
+
+                    templateParameters.Add("applicationID", GlobalConfiguration.ApplicationID);
+                    templateParameters.Add("repositoryID", "CHECKUPLP01");
+                    templateParameters.Add("applicationNo", applicationNo);
+                    templateParameters.Add("logoItemID", logoItemID);
+
+                    mediatorRequest.Parameters = new Dictionary<string, object?>();
+                    mediatorRequest.Parameters.Add("Method", "UpdateTenantAppDependencyID");
+                    mediatorRequest.Parameters.Add("Arguments", templateParameters);
+
+                    var sendResponse = await mediatorClient.SendAsync(mediatorRequest);
+                    if (sendResponse != null)
                     {
-                        if (logoResults.Count > 0)
+                        var data = sendResponse.Result as string;
+                        if (data != null)
                         {
-                            var item = logoResults[0];
-                            logoPath = item.AbsolutePath;
+                            logoPath = data;
                         }
                     }
+                    // var logoResults = ModuleExtensions.ExecuteMetaSQL(ReturnType.Dynamic, "SYS.SYS010.MD01", new
+                    // {
+                    //     ApplicationNo = applicationNo,
+                    //     ItemID = logoItemID
+                    // });
+                    // 
+                    // if (logoResults != null)
+                    // {
+                    //     if (logoResults.Count > 0)
+                    //     {
+                    //         var item = logoResults[0];
+                    //         logoPath = item.AbsolutePath;
+                    //     }
+                    // }
                 }
 
                 // 태넌트 앱에 정보 생성

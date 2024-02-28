@@ -20,7 +20,7 @@
         "DatabaseContractPath": "../contracts/dbclient",
         "ModuleBasePath": "../modules/repository",
         "EventAction": [],
-        "SubscribeAction": [],
+        "SubscribeAction": [ "repository.Events.RepositoryRequest" ],
         "AllowMaxFileUploadLength": 120000000, // 114 MB
         "PurgeTokenTimeout": 1200,
         "TokenGenerateIPCheck": false,

@@ -18,8 +18,6 @@ using Polly.CircuitBreaker;
 
 using RestSharp;
 
-using static System.Net.Mime.MediaTypeNames;
-
 namespace transact.Extensions
 {
     public class TransactLoggerClient

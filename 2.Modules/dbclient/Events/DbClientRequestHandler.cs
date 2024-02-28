@@ -17,6 +17,37 @@ using Newtonsoft.Json;
 
 namespace dbclient.Events
 {
+    /*
+    DynamicRequest dynamicRequest = new DynamicRequest();
+    Type? type = Assembly.Load("dbclient")?.GetType("dbclient.Events.DbClientRequest");
+    if (type != null)
+    {
+        object? instance = Activator.CreateInstance(type, dynamicRequest);
+        if (instance != null)
+        {
+            object? eventResponse = await mediator.Send(instance);
+            if (eventResponse != null)
+            {
+                response = JsonConvert.DeserializeObject<DynamicResponse>(JsonConvert.SerializeObject(eventResponse));
+            }
+            else
+            {
+                response = new DynamicResponse();
+                response.ExceptionText = $"moduleEventName: dbclient.Events.DbClientRequest 확인 필요";
+            }
+        }
+    }
+    */
+    public class DbClientRequest : IRequest<object?>
+    {
+        public object? Request { get; set; }
+
+        public DbClientRequest(object? request)
+        {
+            Request = request;
+        }
+    }
+
     public class DbClientRequestHandler : IRequestHandler<DbClientRequest, object?>
     {
         private DbClientLoggerClient loggerClient { get; }

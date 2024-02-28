@@ -53,7 +53,16 @@ namespace HandStack.Web.ApiClient
                             object? eventResponse = await mediator.Send(instance);
                             if (eventResponse != null)
                             {
-                                result = (MediatorResponse)eventResponse;
+                                if (eventResponse is MediatorResponse)
+                                {
+                                    result = (MediatorResponse)eventResponse;
+                                }
+                                else
+                                {
+                                    MediatorResponse mediatorResponse = new MediatorResponse();
+                                    mediatorResponse.Result = eventResponse;
+                                    result = mediatorResponse;
+                                }
                             }
                             else
                             {

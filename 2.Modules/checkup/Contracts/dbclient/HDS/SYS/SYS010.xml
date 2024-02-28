@@ -856,6 +856,66 @@ CREATE TABLE IF NOT EXISTS "MetaRelation" (
 );
 
 
+CREATE TABLE IF NOT EXISTS "RepositoryFile" (
+    -- 파일항목ID
+    "ItemID" TEXT NOT NULL UNIQUE,
+
+    -- 저장소ID
+    "RepositoryID" TEXT NOT NULL,
+
+    -- 참조ID
+    "DependencyID" TEXT,
+
+    -- 파일명
+    "FileName" TEXT,
+
+    -- 파일전체경로
+    "PhysicalPath" TEXT,
+
+    -- 서버절대경로
+    "AbsolutePath" TEXT,
+
+    -- 서버상대경로
+    "RelativePath" TEXT,
+
+    -- 확장자
+    "Extension" TEXT,
+
+    -- 파일크기
+    "Size" INTEGER,
+
+    -- MD5
+    "MD5" TEXT,
+
+    -- 사용자경로1
+    "CustomPath1" TEXT,
+
+    -- 사용자경로2
+    "CustomPath2" TEXT,
+
+    -- 사용자경로3
+    "CustomPath3" TEXT,
+
+    -- 정책경로
+    "PolicyPath" TEXT,
+
+    -- 정렬순서
+    "SortingNo" INTEGER,
+
+    -- 설명
+    "Comment" TEXT,
+
+    -- 생성회원NO
+    "CreatedMemberNo" TEXT,
+
+    -- 생성일시
+    "CreatedAt" TEXT,
+ PRIMARY KEY("ItemID", "RepositoryID")
+);
+
+CREATE INDEX IF NOT EXISTS "IX_RepositoryFile" ON "RepositoryFile" ("RepositoryID" DESC, "DependencyID" ASC);
+
+
 CREATE INDEX IF NOT EXISTS "IX_MetaEntity_ApplicationNo" ON "MetaEntity" ("ApplicationNo");
 
 
@@ -1005,7 +1065,7 @@ WHERE A.ApplicationID = @ApplicationID
 
         <statement id="MD01" seq="0" use="Y" timeout="0" desc="어플리케이션 로고 정보 변경 및 경로 조회">
             <![CDATA[
-UPDATE RepositoryFile SET DependencyID = @ApplicationNo FROM RepositoryFile WHERE ItemID = @ItemID;
+UPDATE RepositoryFile SET DependencyID = @ApplicationNo WHERE ItemID = @ItemID;
 SELECT AbsolutePath FROM RepositoryFile WHERE ItemID = @ItemID;
 			]]>
             <param id="@ApplicationNo" type="String" length="36" value="NULL" />

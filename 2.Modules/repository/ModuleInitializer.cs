@@ -14,6 +14,8 @@ using HandStack.Web.Helper;
 using HandStack.Web.MessageContract.DataObject;
 using HandStack.Web.Modules;
 
+using MediatR;
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
@@ -25,6 +27,7 @@ using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
 
 using repository.Entity;
+using repository.Events;
 using repository.Extensions;
 
 using Serilog;
@@ -95,6 +98,7 @@ namespace repository
                 }
 
                 services.AddScoped<ModuleApiClient>();
+                services.AddTransient<IRequestHandler<RepositoryRequest, object?>, RepositoryRequestHandler>();
             }
         }
 
@@ -139,7 +143,6 @@ namespace repository
                     });
                 }
 
-                ModuleApiClient moduleApiClient = new ModuleApiClient(Log.Logger, new TransactionClient(Log.Logger));
                 if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(Path.Combine(GlobalConfiguration.TenantAppBasePath)) == true)
                 {
                     foreach (var userWorkPath in Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath))
@@ -228,7 +231,7 @@ namespace repository
                     }
                 }
 
-                LoadContract(moduleApiClient);
+                LoadContract();
 
                 foreach (Repository item in ModuleConfiguration.FileRepositorys)
                 {
@@ -371,7 +374,7 @@ namespace repository
             }
         }
 
-        public void LoadContract(ModuleApiClient moduleApiClient)
+        public void LoadContract()
         {
             try
             {

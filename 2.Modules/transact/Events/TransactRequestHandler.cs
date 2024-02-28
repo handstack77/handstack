@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 using ChoETL;
@@ -15,7 +13,6 @@ using HandStack.Core.Extensions;
 using HandStack.Core.Helpers;
 using HandStack.Web;
 using HandStack.Web.Entity;
-using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.Contract;
 using HandStack.Web.MessageContract.DataObject;
 using HandStack.Web.MessageContract.Enumeration;
@@ -23,534 +20,85 @@ using HandStack.Web.MessageContract.Message;
 
 using MediatR;
 
-using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-using RestSharp;
-
 using transact.Entity;
 using transact.Extensions;
 
-namespace transact.Areas.transact.Controllers
+namespace transact.Events
 {
-    [Area("transact")]
-    [Route("[area]/api/[controller]")]
-    [ApiController]
-    [EnableCors]
-    public class TransactionController : ControllerBase
+    /*
+    DynamicRequest dynamicRequest = new DynamicRequest();
+    Type? type = Assembly.Load("transact")?.GetType("transact.Events.TransactRequest");
+    if (type != null)
     {
-        private TransactLoggerClient loggerClient { get; }
+        object? instance = Activator.CreateInstance(type, dynamicRequest);
+        if (instance != null)
+        {
+            object? eventResponse = await mediator.Send(instance);
+            if (eventResponse != null)
+            {
+                response = JsonConvert.DeserializeObject<DynamicResponse>(JsonConvert.SerializeObject(eventResponse));
+            }
+            else
+            {
+                response = new DynamicResponse();
+                response.ExceptionText = $"moduleEventName: transact.Events.TransactRequest 확인 필요";
+            }
+        }
+    }
+    */
+    public class TransactRequest : IRequest<object?>
+    {
+        public object? Request { get; set; }
 
+        public TransactRequest(object? request)
+        {
+            Request = request;
+        }
+    }
+
+    public class TransactRequestHandler : IRequestHandler<TransactRequest, object?>
+    {
         private TransactClient transactClient { get; }
+
+        private TransactLoggerClient loggerClient { get; }
+        
+        private Serilog.ILogger logger { get; }
 
         private readonly IMemoryCache memoryCache;
 
         private readonly IDistributedCache distributedCache;
 
-        private Serilog.ILogger logger { get; }
-
-        public TransactionController(IDistributedCache distributedCache, IMemoryCache memoryCache, Serilog.ILogger logger, TransactLoggerClient loggerClient, TransactClient transactClient)
+        public TransactRequestHandler(IDistributedCache distributedCache, IMemoryCache memoryCache, Serilog.ILogger logger, TransactLoggerClient loggerClient, TransactClient transactClient)
         {
+            this.logger = logger;
             this.distributedCache = distributedCache;
             this.memoryCache = memoryCache;
-            this.logger = logger;
             this.loggerClient = loggerClient;
             this.transactClient = transactClient;
         }
 
-        // http://localhost:8000/transact/api/transaction/test
-        [HttpGet("[action]")]
-        public ActionResult Test()
+        public async Task<object?> Handle(TransactRequest requestTransact, CancellationToken cancellationToken)
         {
-            ActionResult result = Ok();
-            return result;
-        }
+            TransactionRequest? request = requestTransact.Request as TransactionRequest;
+            TransactionResponse? response = new TransactionResponse();
 
-        // http://localhost:8000/transact/api/transaction/has?projectID=HDS&businessID=SYS&transactionID=SYS010
-        [HttpGet("[action]")]
-        public ActionResult Has(string projectID, string businessID, string transactionID)
-        {
-            ActionResult result = BadRequest();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
-            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
-            {
-                result = BadRequest();
-            }
-            else
-            {
-                try
-                {
-                    var value = TransactionMapper.HasCount(projectID, businessID, transactionID);
-                    result = Content(JsonConvert.SerializeObject(value), "application/json");
-                }
-                catch (Exception exception)
-                {
-                    string exceptionText = exception.ToMessage();
-                    logger.Warning("[{LogCategory}] " + exceptionText, "Transaction/Has");
-                    result = StatusCode(500, exceptionText);
-                }
-            }
-
-            return result;
-        }
-
-        // http://localhost:8000/transact/api/transaction/add?contractFilePath=HDS/ZZW/TST010.json
-        [HttpGet("[action]")]
-        public ActionResult Add(string contractFilePath)
-        {
-            ActionResult result = BadRequest();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
-            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
-            {
-                result = BadRequest();
-            }
-            else
-            {
-                try
-                {
-                    var value = TransactionMapper.Add(contractFilePath);
-                    result = Content(JsonConvert.SerializeObject(value), "application/json");
-                }
-                catch (Exception exception)
-                {
-                    string exceptionText = exception.ToMessage();
-                    logger.Warning("[{LogCategory}] " + exceptionText, "Transaction/Add");
-                    result = StatusCode(500, exceptionText);
-                }
-            }
-
-            return result;
-        }
-
-        // http://localhost:8000/transact/api/transaction/remove?contractFilePath=HDS/ZZW/TST010.json
-        [HttpGet("[action]")]
-        public ActionResult Remove(string contractFilePath)
-        {
-            ActionResult result = BadRequest();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
-            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
-            {
-                result = BadRequest();
-            }
-            else
-            {
-                try
-                {
-                    var value = TransactionMapper.Remove(contractFilePath);
-                    result = Content(JsonConvert.SerializeObject(value), "application/json");
-                }
-                catch (Exception exception)
-                {
-                    string exceptionText = exception.ToMessage();
-                    logger.Warning("[{LogCategory}] " + exceptionText, "Transaction/Remove");
-                    result = StatusCode(500, exceptionText);
-                }
-            }
-
-            return result;
-        }
-
-        // http://localhost:8000/transact/api/transaction/refresh?changeType=Created&filePath=HDS/ZZW/TST010.json
-        [HttpGet("[action]")]
-        public ActionResult Refresh(string changeType, string filePath)
-        {
-            ActionResult result = NotFound();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
-            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
-            {
-                result = BadRequest();
-            }
-            else
-            {
-                try
-                {
-                    if (filePath.StartsWith(Path.DirectorySeparatorChar) == true)
-                    {
-                        filePath = filePath.Substring(1);
-                    }
-
-                    logger.Information("[{LogCategory}] " + $"WatcherChangeTypes: {changeType}, FilePath: {filePath}", "Transaction/Refresh");
-
-                    FileInfo fileInfo = new FileInfo(filePath);
-
-                    var businessContracts = TransactionMapper.GetBusinessContracts();
-                    lock (businessContracts)
-                    {
-                        var existContracts = businessContracts.Select(p => p.Value).Where(p =>
-                            p.ApplicationID == fileInfo.Directory?.Parent?.Name &&
-                            p.ProjectID == fileInfo.Directory?.Name &&
-                            p.TransactionID == fileInfo.Name.Replace(fileInfo.Extension, ""))
-                            .ToList();
-
-                        if (existContracts != null && existContracts.Count() > 0)
-                        {
-                            foreach (var item in existContracts)
-                            {
-                                logger.Information("[{LogCategory}] " + $"Delete Contract ApplicationID: {item.ApplicationID}, ProjectID: {item.ProjectID}, TransactionID: {item.TransactionID}", "Transaction/Refresh");
-                            }
-
-                            TransactionMapper.Remove(filePath);
-                        }
-                    }
-
-                    WatcherChangeTypes watcherChangeTypes = (WatcherChangeTypes)Enum.Parse(typeof(WatcherChangeTypes), changeType);
-                    bool actionResult = false;
-                    switch (watcherChangeTypes)
-                    {
-                        case WatcherChangeTypes.Created:
-                        case WatcherChangeTypes.Changed:
-                            if (TransactionMapper.HasContractFile(filePath) == true && fileInfo.Name != "publicTransactions.json")
-                            {
-                                logger.Information("[{LogCategory}] " + $"Add Contract FilePath: {filePath}", "Transaction/Refresh");
-                                actionResult = TransactionMapper.Upsert(filePath);
-                            }
-                            break;
-                        case WatcherChangeTypes.Deleted:
-                            if (TransactionMapper.HasContractFile(filePath) == true && fileInfo.Name != "publicTransactions.json")
-                            {
-                                logger.Information("[{LogCategory}] " + $"Delete Contract FilePath: {filePath}", "Transaction/Refresh");
-                                actionResult = TransactionMapper.Remove(filePath);
-                            }
-                            break;
-                    }
-
-                    result = Content(JsonConvert.SerializeObject(actionResult), "application/json");
-                }
-                catch (Exception exception)
-                {
-                    string exceptionText = exception.ToMessage();
-                    logger.Error("[{LogCategory}] " + exceptionText, "Transaction/Refresh");
-
-                    result = StatusCode(500, exception.ToMessage());
-                }
-            }
-
-            return result;
-        }
-
-        // http://localhost:8000/transact/api/transaction/cache-clear?cacheKey=
-        [HttpGet("[action]")]
-        public ActionResult CacheClear(string cacheKey)
-        {
-            ActionResult result = BadRequest();
-            try
-            {
-                result = Content(JsonConvert.SerializeObject(true), "application/json");
-                if (string.IsNullOrEmpty(cacheKey) == true)
-                {
-                    List<string> items = GetMemoryCacheKeys();
-                    foreach (string item in items)
-                    {
-                        memoryCache.Remove(item);
-                    }
-                }
-                else if (memoryCache.Get(cacheKey) != null)
-                {
-                    memoryCache.Remove(cacheKey);
-                }
-                else
-                {
-                    result = Content(JsonConvert.SerializeObject(false), "application/json");
-                }
-            }
-            catch (Exception exception)
-            {
-                string exceptionText = exception.ToMessage();
-                logger.Warning("[{LogCategory}] " + exceptionText, "Transaction/CacheClear");
-                result = StatusCode(500, exceptionText);
-            }
-
-            return result;
-        }
-
-        // http://localhost:8000/transact/api/transaction/cache-keys
-        [HttpGet("[action]")]
-        public ActionResult CacheKeys()
-        {
-            ActionResult result = BadRequest();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
-            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
-            {
-                result = BadRequest();
-            }
-            else
-            {
-                try
-                {
-                    List<string> items = GetMemoryCacheKeys();
-                    result = Content(JsonConvert.SerializeObject(items), "application/json");
-                }
-                catch (Exception exception)
-                {
-                    string exceptionText = exception.ToMessage();
-                    logger.Warning("[{LogCategory}] " + exceptionText, "Transaction/CacheKeys");
-                    result = StatusCode(500, exceptionText);
-                }
-            }
-
-            return result;
-        }
-
-        private List<string> GetMemoryCacheKeys()
-        {
-            List<string> result = new List<string>();
-            var field = typeof(MemoryCache).GetProperty("EntriesCollection", BindingFlags.NonPublic | BindingFlags.Instance);
-            if (field == null)
-            {
-                return result;
-            }
-            var collection = field.GetValue(memoryCache) as ICollection;
-            if (collection != null)
-            {
-                foreach (var item in collection)
-                {
-                    var methodInfo = item.GetType().GetProperty("Key");
-                    if (methodInfo != null)
-                    {
-                        var value = methodInfo.GetValue(item);
-                        if (value != null)
-                        {
-                            result.Add(value.ToStringSafe());
-                        }
-                    }
-                }
-            }
-
-            return result;
-        }
-
-        // http://localhost:8000/transact/api/base64/encode?value={"ApplicationID":"SYN","ProjectID":"ZZD","TransactionID":"TST010"}
-        // http://localhost:8000/transact/api/transaction/get?base64Json=eyJQcm9qZWN0SUQiOiJRQUYiLCJCdXNpbmVzc0lEIjoiRFNPIiwiVHJhbnNhY3Rpb25JRCI6IjAwMDEiLCJGdW5jdGlvbklEIjoiUjAxMDAifQ==
-        [HttpGet("[action]")]
-        public ActionResult Get(string base64Json)
-        {
-            var definition = new
-            {
-                ApplicationID = "",
-                ProjectID = "",
-                TransactionID = ""
-            };
-
-            ActionResult result = BadRequest();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
-            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
-            {
-                result = BadRequest();
-            }
-            else
-            {
-                try
-                {
-                    string json = base64Json.DecodeBase64();
-                    var model = JsonConvert.DeserializeAnonymousType(json, definition);
-                    if (model != null)
-                    {
-                        BusinessContract? businessContract = TransactionMapper.GetBusinessContracts().Select(p => p.Value).Where(p =>
-                            p.ApplicationID == model.ApplicationID &&
-                            p.ProjectID == model.ProjectID &&
-                            p.TransactionID == model.TransactionID).FirstOrDefault();
-
-                        if (businessContract != null)
-                        {
-                            var value = JsonConvert.SerializeObject(businessContract);
-                            result = Content(JsonConvert.SerializeObject(value), "application/json");
-                        }
-                    }
-                }
-                catch (Exception exception)
-                {
-                    string exceptionText = exception.ToMessage();
-                    logger.Warning("[{LogCategory}] " + exceptionText, "Transaction/Get");
-                    result = StatusCode(500, exceptionText);
-                }
-            }
-
-            return result;
-        }
-
-        // http://localhost:8000/transact/api/base64/encode?value={"ApplicationID":"SYN","ProjectID":"ZZD","TransactionID":"TST010"}
-        // http://localhost:8000/transact/api/transaction/retrieve?base64Json=eyJQcm9qZWN0SUQiOiJRQUYiLCJCdXNpbmVzc0lEIjoiIiwiVHJhbnNhY3Rpb25JRCI6IiIsIkZ1bmN0aW9uSUQiOiIifQ==
-        [HttpGet("[action]")]
-        public ActionResult Retrieve(string base64Json)
-        {
-            var definition = new
-            {
-                ApplicationID = "",
-                ProjectID = "",
-                TransactionID = ""
-            };
-
-            ActionResult result = BadRequest();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
-            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
-            {
-                result = BadRequest();
-            }
-            else
-            {
-                try
-                {
-                    string json = base64Json.DecodeBase64();
-                    var model = JsonConvert.DeserializeAnonymousType(json, definition);
-                    if (model == null || string.IsNullOrEmpty(model.ApplicationID) == true || string.IsNullOrEmpty(model.ProjectID) == true)
-                    {
-                        return Content("필수 항목 확인", "text/html");
-                    }
-
-                    var queryResults = TransactionMapper.GetBusinessContracts().Select(p => p.Value).Where(p =>
-                            p.ApplicationID == model.ApplicationID);
-
-                    if (string.IsNullOrEmpty(model.ProjectID) == false)
-                    {
-                        queryResults = queryResults.Where(p =>
-                            p.ProjectID == model.ProjectID);
-                    }
-
-                    if (string.IsNullOrEmpty(model.TransactionID) == false)
-                    {
-                        queryResults = queryResults.Where(p =>
-                            p.TransactionID == model.TransactionID);
-                    }
-
-                    List<BusinessContract> businessContracts = queryResults.ToList();
-                    var value = JsonConvert.SerializeObject(businessContracts);
-                    result = Content(JsonConvert.SerializeObject(value), "application/json");
-                }
-                catch (Exception exception)
-                {
-                    string exceptionText = exception.ToMessage();
-                    logger.Error("[{LogCategory}] " + exceptionText, "Transaction/Retrieve");
-                    result = StatusCode(500, exceptionText);
-                }
-            }
-
-            return result;
-        }
-
-        // http://localhost:8000/transact/api/base64/encode?value={"ApplicationID":"SYN","ProjectID":"ZZD","TransactionID":"TST010","ServiceID":"G01","TransactionLog":true}
-        // http://localhost:8000/transact/api/transaction/Log?base64Json=eyJQcm9qZWN0SUQiOiJTVlUiLCJCdXNpbmVzc0lEIjoiWlpEIiwiVHJhbnNhY3Rpb25JRCI6IlRTVDAxMCIsIkZ1bmN0aW9uSUQiOiJHMDEwMCIsIlRyYW5zYWN0aW9uTG9nIjp0cnVlfQ==
-        [HttpGet("[action]")]
-        public ActionResult Log(string base64Json)
-        {
-            var definition = new
-            {
-                ApplicationID = "",
-                ProjectID = "",
-                TransactionID = "",
-                ServiceID = "",
-                TransactionLog = false
-            };
-
-            ActionResult result = BadRequest();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
-            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
-            {
-                result = BadRequest();
-            }
-            else
-            {
-                try
-                {
-                    string json = base64Json.DecodeBase64();
-                    var model = JsonConvert.DeserializeAnonymousType(json, definition);
-                    if (model != null)
-                    {
-                        BusinessContract? businessContract = TransactionMapper.GetBusinessContracts().Select(p => p.Value).Where(p =>
-                            p.ApplicationID == model.ApplicationID &&
-                            p.ProjectID == model.ProjectID &&
-                            p.TransactionID == model.TransactionID).FirstOrDefault();
-
-                        if (businessContract != null)
-                        {
-                            TransactionInfo? transactionInfo = businessContract.Services.Select(p => p).Where(p =>
-                                p.ServiceID == model.ServiceID).FirstOrDefault();
-
-                            if (transactionInfo != null)
-                            {
-                                transactionInfo.TransactionLog = model.TransactionLog;
-                                var value = model.TransactionLog;
-                                result = Content(JsonConvert.SerializeObject(value), "application/json");
-                            }
-                            else
-                            {
-                                result = Content(JsonConvert.SerializeObject(false), "application/json");
-                            }
-                        }
-                        else
-                        {
-                            result = Content(JsonConvert.SerializeObject(false), "application/json");
-                        }
-                    }
-                }
-                catch (Exception exception)
-                {
-                    string exceptionText = exception.ToMessage();
-                    logger.Error("[{LogCategory}] " + exceptionText, "Transaction/Log");
-                    result = StatusCode(500, exceptionText);
-                }
-            }
-
-            return result;
-        }
-
-        // http://localhost:8000/transact/api/transaction/meta
-        [HttpGet("[action]")]
-        public ActionResult Meta()
-        {
-            ActionResult result = BadRequest();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
-            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
-            {
-                result = BadRequest();
-            }
-            else
-            {
-                try
-                {
-                    var businessContracts = TransactionMapper.GetBusinessContracts();
-
-                    if (businessContracts != null)
-                    {
-                        result = Content(JsonConvert.SerializeObject(businessContracts), "application/json");
-                    }
-                }
-                catch (Exception exception)
-                {
-                    string exceptionText = exception.ToMessage();
-                    logger.Error("[{LogCategory}] " + exceptionText, "Transaction/Meta");
-                    result = StatusCode(500, exceptionText);
-                }
-            }
-
-            return result;
-        }
-
-        // http://localhost:8000/transact/api/transaction/execute
-        [HttpPost("[action]")]
-        public async Task<ActionResult> Execute(TransactionRequest request)
-        {
-            // 주요 구간 거래 명령 입력 횟수 및 명령 시간 기록
-            TransactionResponse response = new TransactionResponse();
             response.Acknowledge = AcknowledgeType.Failure;
 
             if (request == null)
             {
                 response.ExceptionText = "요청 정보 확인 필요";
-                return Content(JsonConvert.SerializeObject(response), "application/json");
+                return response;
             }
 
             string transactionWorkID = "mainapp";
             try
             {
-                string baseUrl = HttpContext.Request.GetBaseUrl();
-                string refererPath = HttpContext.Request.Headers.Referer.ToString();
-                string tenantAppRequestPath = $"{baseUrl}/{GlobalConfiguration.TenantAppRequestPath}/";
                 var transactionUserWorkID = request.LoadOptions?.Get<string>("work-id").ToStringSafe();
                 var transactionApplicationID = request.LoadOptions?.Get<string>("app-id").ToStringSafe();
                 request.System.ProgramID = string.IsNullOrEmpty(transactionApplicationID) == false ? transactionApplicationID : request.System.ProgramID;
@@ -565,7 +113,7 @@ namespace transact.Areas.transact.Controllers
                     if (distributedCache.Get(request.Transaction.GlobalID) == null)
                     {
                         response.ExceptionText = "잘못된 요청";
-                        return Content(JsonConvert.SerializeObject(response), "application/json");
+                        return response;
                     }
                     else
                     {
@@ -586,19 +134,15 @@ namespace transact.Areas.transact.Controllers
                         isAllowRequestTransactions = true;
                     }
                 }
-                else if (refererPath.StartsWith(tenantAppRequestPath) && string.IsNullOrEmpty(transactionUserWorkID) == false && string.IsNullOrEmpty(transactionApplicationID) == false)
-                {
-                    isAllowRequestTransactions = true;
-                }
 
                 if (isAllowRequestTransactions == false)
                 {
                     response.ExceptionText = $"애플리케이션 ID: '{request.System.ProgramID}', 프로젝트 ID: {request.Transaction.BusinessID} 요청 가능 거래 매핑 정보 확인 필요";
-                    return Content(JsonConvert.SerializeObject(response), "application/json");
+                    return response;
                 }
 
                 transactClient.DefaultResponseHeaderConfiguration(request, response);
-                response.System.PathName = Request.Path;
+                response.System.PathName = "event";
 
                 if (ModuleConfiguration.IsTransactionLogging == true)
                 {
@@ -727,7 +271,7 @@ namespace transact.Areas.transact.Controllers
 
                             transactionResponse.ResponseID = string.Concat(ModuleConfiguration.SystemID, GlobalConfiguration.HostName, request.Environment, DateTime.Now.ToString("yyyyMMddHHmmss"));
                             transactClient.DefaultResponseHeaderConfiguration(request, transactionResponse);
-                            transactionResponse.System.PathName = Request.Path;
+                            transactionResponse.System.PathName = "event";;
                             return LoggingAndReturn(transactionResponse, transactionWorkID, "Y", null);
                         }
                     }
@@ -932,75 +476,7 @@ namespace transact.Areas.transact.Controllers
                         requestSystemID = route.SystemID;
                     }
 
-                    // Referer 실행 경로가 태넌트 앱이고 요청 헤더에 Authorization가 있으면 인증 검증
-                    UserAccount? userAccount = null;
-                    if (refererPath.StartsWith(tenantAppRequestPath) == true)
-                    {
-                        var splits = refererPath.Split('/');
-                        string userWorkID = splits.Length > 3 ? splits[2] : "";
-                        string applicationID = splits.Length > 3 ? splits[3] : "";
-                        if (string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false)
-                        {
-                            string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-                            DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
-                            if (directoryInfo.Exists == true)
-                            {
-                                userAccount = HttpContext.Items["JwtAccount"] as UserAccount;
-                            }
-                        }
-                    }
-
-                    if (string.IsNullOrEmpty(token) == true && userAccount != null)
-                    {
-                        if (ModuleConfiguration.SystemID == requestSystemID && isBypassAuthorizeIP == true)
-                        {
-                        }
-                        else if (transactionInfo.Authorize == true)
-                        {
-                            if (transactionInfo.Roles != null && transactionInfo.Roles.Count > 0)
-                            {
-                                bool isRoleYN = false;
-                                foreach (var role in userAccount.Roles)
-                                {
-                                    if (transactionInfo.Roles.IndexOf(role.ToString()) > -1)
-                                    {
-                                        isRoleYN = true;
-                                        break;
-                                    }
-                                }
-
-                                if (isRoleYN == false)
-                                {
-                                    response.ExceptionText = "JwtToken 역할 권한 확인 필요";
-                                    return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
-                                }
-                            }
-
-                            if (transactionInfo.Policys != null && transactionInfo.Policys.Count > 0)
-                            {
-                                bool isClaimYN = false;
-                                foreach (var claim in userAccount.Claims)
-                                {
-                                    if (transactionInfo.Policys.ContainsKey(claim.Key) == true)
-                                    {
-                                        var allowClaims = transactionInfo.Policys[claim.Key];
-                                        if (allowClaims == null || allowClaims.IndexOf(claim.Value) > -1)
-                                        {
-                                            isClaimYN = true;
-                                            break;
-                                        }
-                                    }
-                                }
-
-                                if (isClaimYN == false)
-                                {
-                                    response.ExceptionText = "JwtToken 정책 권한 확인 필요";
-                                    return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
-                                }
-                            }
-                        }
-                    }
-                    else if (ModuleConfiguration.SystemID == requestSystemID && isBypassAuthorizeIP == true)
+                    if (ModuleConfiguration.SystemID == requestSystemID && isBypassAuthorizeIP == true)
                     {
                         if (string.IsNullOrEmpty(token) == false && token.IndexOf(".") > -1 && string.IsNullOrEmpty(request.Transaction.OperatorID) == false)
                         {
@@ -1103,39 +579,6 @@ namespace transact.Areas.transact.Controllers
                 {
                     response.ExceptionText = $"인증 또는 권한 확인 오류 - {exception.ToMessage()}";
                     return LoggingAndReturn(response, transactionWorkID, "N", transactionInfo);
-                }
-
-                if (bearerToken != null)
-                {
-                    string clientIP = HttpContext.GetRemoteIpAddress().ToStringSafe();
-                    string verifyTokenID = bearerToken.Policy.VerifyTokenID;
-                    if (string.IsNullOrEmpty(verifyTokenID) == true)
-                    {
-                        if (bearerToken.ClientIP != clientIP)
-                        {
-                            response.ExceptionText = $"거래 액세스 토큰 IP 유효성 오류";
-                            return LoggingAndReturn(response, transactionWorkID, "N", transactionInfo);
-                        }
-                    }
-                    else
-                    {
-                        bearerToken.Policy.VerifyTokenID = "";
-                        if (verifyTokenID == JsonConvert.SerializeObject(bearerToken).ToSHA256() && bearerToken.ClientIP == clientIP)
-                        {
-                            bearerToken.Policy.VerifyTokenID = verifyTokenID;
-                        }
-                        else
-                        {
-                            response.ExceptionText = $"거래 액세스 토큰 유효성 오류";
-                            return LoggingAndReturn(response, transactionWorkID, "N", transactionInfo);
-                        }
-                    }
-
-                    if (bearerToken.ExpiredAt != null && bearerToken.ExpiredAt < DateTime.UtcNow)
-                    {
-                        response.ExceptionText = $"거래 액세스 토큰 유효기간 만료";
-                        return LoggingAndReturn(response, transactionWorkID, "N", transactionInfo);
-                    }
                 }
 
                 // 거래 Inputs/Outpus 정보 확인
@@ -1488,18 +931,6 @@ namespace transact.Areas.transact.Controllers
                 response.Transaction.CommandType = transactionInfo.CommandType;
                 ApplicationResponse applicationResponse = new ApplicationResponse();
 
-                if (refererPath.StartsWith(tenantAppRequestPath) && string.IsNullOrEmpty(transactionUserWorkID) == false && string.IsNullOrEmpty(transactionApplicationID) == false)
-                {
-                    if (ModuleConfiguration.AllowTenantTransactionCommands.IndexOf(transactionInfo.CommandType) > -1)
-                    {
-                    }
-                    else
-                    {
-                        response.ExceptionText = "제한된 거래 요청입니다.";
-                        return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
-                    }
-                }
-
                 if (request.Action == "PSH")
                 {
                     _ = Task.Run(async () =>
@@ -1537,7 +968,7 @@ namespace transact.Areas.transact.Controllers
                             });
                         }
 
-                        return Content(responseData, "text/html");
+                        return responseData;
                     case "NonQuery":
                         responseData = applicationResponse.ResultInteger.ToString();
 
@@ -1549,7 +980,7 @@ namespace transact.Areas.transact.Controllers
                             });
                         }
 
-                        return Content(responseData, "text/html");
+                        return responseData;
                     case "Xml":
                         responseData = applicationResponse.ResultObject == null ? "" : applicationResponse.ResultObject.ToStringSafe();
 
@@ -1561,7 +992,7 @@ namespace transact.Areas.transact.Controllers
                             });
                         }
 
-                        return Content(responseData, "application/xml");
+                        return responseData;
                     case "DynamicJson":
                         responseData = applicationResponse.ResultJson == null ? "" : applicationResponse.ResultJson.ToString();
 
@@ -1573,7 +1004,7 @@ namespace transact.Areas.transact.Controllers
                             });
                         }
 
-                        return Content(responseData, "application/json");
+                        return responseData;
                     case "CodeHelp":
                     case "Json":
                         response.Message.ResponseStatus = "N"; // N: Normal, W: Warning, E: Error
@@ -1727,7 +1158,7 @@ namespace transact.Areas.transact.Controllers
             return LoggingAndReturn(response, transactionWorkID, "N", null);
         }
 
-        private ActionResult LoggingAndReturn(TransactionResponse response, string transactionWorkID, string acknowledge, TransactionInfo? transactionInfo)
+        private TransactionResponse LoggingAndReturn(TransactionResponse response, string transactionWorkID, string acknowledge, TransactionInfo? transactionInfo)
         {
             if (ModuleConfiguration.IsTransactionLogging == true || (transactionInfo != null && transactionInfo.TransactionLog == true))
             {
@@ -1743,7 +1174,7 @@ namespace transact.Areas.transact.Controllers
                 route.ResponseTick = DateTime.UtcNow.GetJavascriptTime();
             }
 
-            return Content(JsonConvert.SerializeObject(response), "application/json");
+            return response;
         }
     }
 }

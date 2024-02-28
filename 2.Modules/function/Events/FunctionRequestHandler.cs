@@ -17,6 +17,37 @@ using Newtonsoft.Json;
 
 namespace function.Events
 {
+    /*
+    DynamicRequest dynamicRequest = new DynamicRequest();
+    Type? type = Assembly.Load("function")?.GetType("function.Events.FunctionRequest");
+    if (type != null)
+    {
+        object? instance = Activator.CreateInstance(type, dynamicRequest);
+        if (instance != null)
+        {
+            object? eventResponse = await mediator.Send(instance);
+            if (eventResponse != null)
+            {
+                response = JsonConvert.DeserializeObject<DynamicResponse>(JsonConvert.SerializeObject(eventResponse));
+            }
+            else
+            {
+                response = new DynamicResponse();
+                response.ExceptionText = $"moduleEventName: function.Events.FunctionRequest 확인 필요";
+            }
+        }
+    }
+    */
+    public class FunctionRequest : IRequest<object?>
+    {
+        public object? Request { get; set; }
+
+        public FunctionRequest(object? request)
+        {
+            Request = request;
+        }
+    }
+
     public class FunctionRequestHandler : IRequestHandler<FunctionRequest, object?>
     {
         private FunctionLoggerClient loggerClient { get; }
@@ -26,7 +57,6 @@ namespace function.Events
 
         public FunctionRequestHandler(Serilog.ILogger logger, IFunctionClient nodeFunctionClient, FunctionLoggerClient loggerClient)
         {
-            
             this.logger = logger;
             this.loggerClient = loggerClient;
             this.functionClient = nodeFunctionClient;

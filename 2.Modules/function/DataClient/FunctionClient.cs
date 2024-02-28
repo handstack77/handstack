@@ -208,7 +208,7 @@ namespace function.DataClient
                         var transactionCommands = moduleScriptMap.BeforeTransactionCommand.Split("|");
                         List<ServiceParameter> serviceParameters = new List<ServiceParameter>();
                         serviceParameters.Add(new ServiceParameter() { prop = "ProgramPath", val = programPath });
-                        string? beforeCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, queryObject.QueryID, dynamicParameters, serviceParameters);
+                        string? beforeCommandResult = await businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, queryObject.QueryID, dynamicParameters, serviceParameters);
                         if (string.IsNullOrEmpty(beforeCommandResult) == false)
                         {
                             response.ExceptionText = $"ExecuteScriptMap.BeforeTransactionCommand Error: {beforeCommandResult}";
