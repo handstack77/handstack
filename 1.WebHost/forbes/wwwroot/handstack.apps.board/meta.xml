@@ -7,6 +7,7 @@
         <EntityName>게시판</EntityName>
         <Acronyms>B</Acronyms>
         <SeedData>[]</SeedData>
+        <CreatedAt />
         <Comment>설명</Comment>
     </Table>
     <Table1>

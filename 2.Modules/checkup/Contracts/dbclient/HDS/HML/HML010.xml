@@ -92,7 +92,7 @@ SELECT @ApplicationNo
     , CASE WHEN @ExpiredAt = '' THEN NULL ELSE @ExpiredAt || ' 23:59:59' END
     , @Options
     , @CreatedMemberNo
-    , CURRENT_TIMESTAMP
+    , datetime('now', 'localtime')
 WHERE NOT EXISTS (SELECT 1 FROM ApplicationMember WHERE ApplicationNo = @ApplicationNo AND EmailID = @EmailID);
 			]]>
             </if>
@@ -109,7 +109,7 @@ SET MemberNo = @MemberNo
     , ExpiredAt = CASE WHEN @ExpiredAt = '' THEN NULL ELSE @ExpiredAt || ' 23:59:59' END
     , Options = @Options
     , ModifiedMemberNo = @ModifiedMemberNo
-    , ModifiedAt = CURRENT_TIMESTAMP
+    , ModifiedAt = datetime('now', 'localtime')
 WHERE ApplicationNo = @ApplicationNo
     AND EmailID = @EmailID
     AND CreatedMemberNo != MemberNo;

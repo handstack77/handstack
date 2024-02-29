@@ -32,6 +32,7 @@ let $HDM011 = {
                         syn.$m.removeClass('divFooter', 'hidden');
                     }
 
+                    syn.$l.get('txtTenantID').value = `${syn.$w.ManagedApp.UserWorkID}|${syn.$w.ManagedApp.ApplicationID}`;
                     syn.$l.get('txtEntityNo').value = params.entityNo;
                     syn.$l.get('lblTitle').textContent = `${params.entityName} (${params.entityID}) 엔티티`;
                     var gridID = 'grdMetaData';

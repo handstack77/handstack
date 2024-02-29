@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 let $HDM010 = {
     config: {
         dataSource: {
@@ -216,6 +216,7 @@ let $HDM010 = {
         pageLoad() {
             syn.$l.get('txtApplicationNo').value = syn.$w.ManagedApp.ApplicationNo;
             syn.$l.get('txtUserNo').value = syn.$w.User.UserNo;
+            syn.$l.get('txtTenantID').value = `${syn.$w.ManagedApp.UserWorkID}|${syn.$w.ManagedApp.ApplicationID}`;
 
             $this.method.search();
         },
@@ -295,7 +296,8 @@ let $HDM010 = {
                         EntityNo: $this.prop.focusMetaEntityNo,
                         FieldType: 'String',
                         FieldTypeName: 'String',
-                        MaxLength: '50'
+                        MaxLength: '50',
+                        '#TenantID': `${syn.$w.ManagedApp.UserWorkID}|${syn.$w.ManagedApp.ApplicationID}`
                     },
                     focusColumnID: 'FieldID'
                 });

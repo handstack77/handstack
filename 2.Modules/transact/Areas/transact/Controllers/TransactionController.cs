@@ -1097,6 +1097,23 @@ namespace transact.Areas.transact.Controllers
                                 }
                             }
                         }
+                        else
+                        {
+                            if (string.IsNullOrEmpty(token) == false)
+                            {
+                                if (token.IndexOf(".") > -1)
+                                {
+                                    string[] tokenArray = token.Split(".");
+                                    string userID = tokenArray[0].DecodeBase64();
+
+                                    if (userID == request.Transaction.OperatorID)
+                                    {
+                                        token = tokenArray[1];
+                                        bearerToken = JsonConvert.DeserializeObject<BearerToken>(token.DecryptAES(request.Transaction.OperatorID.PadRight(32, ' ')));
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
                 catch (Exception exception)
@@ -1409,6 +1426,12 @@ namespace transact.Areas.transact.Controllers
                             foreach (var item in bearerFields)
                             {
                                 string REQ_FIELD_ID = "$" + item.Key;
+
+                                if (transactInput.Where(p => p.FieldID == REQ_FIELD_ID).Count() > 0)
+                                {
+                                    transactInput.RemoveAll(p => p.FieldID == REQ_FIELD_ID);
+                                }
+
                                 JToken? jToken = item.Value;
                                 if (jToken == null)
                                 {

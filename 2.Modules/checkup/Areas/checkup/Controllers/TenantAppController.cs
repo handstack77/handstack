@@ -1129,6 +1129,13 @@ namespace checkup.Areas.checkup.Controllers
                 DirectoryInfo forbesAppDirectoryInfo = new DirectoryInfo(forbesAppBasePath);
                 forbesAppDirectoryInfo.CopyTo(appTempBasePath, true);
 
+                Directory.CreateDirectory(Path.Combine(appTempBasePath, "dbclient"));
+                Directory.CreateDirectory(Path.Combine(appTempBasePath, "transact"));
+                Directory.CreateDirectory(Path.Combine(appTempBasePath, "function"));
+                Directory.CreateDirectory(Path.Combine(appTempBasePath, "function", "csharp"));
+                Directory.CreateDirectory(Path.Combine(appTempBasePath, "function", "javascript"));
+                Directory.CreateDirectory(Path.Combine(appTempBasePath, "wwwroot"));
+
                 string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
@@ -1162,6 +1169,8 @@ namespace checkup.Areas.checkup.Controllers
                 replaceKeyValues.Add("#{ApplicationName}", applicationName);
                 replaceKeyValues.Add("#{ApplicationBaseUrl}", baseUrl);
                 replaceKeyValues.Add("#{RandomID}", appSecret);
+                replaceKeyValues.Add("#{UserWorkID}", userWorkID);
+                replaceKeyValues.Add("#{TenantID}", tenantID);
                 replaceKeyValues.Add("#{MemberNo}", memberNo);
                 replaceKeyValues.Add("#{Comment}", comment.ToStringSafe().Replace(Environment.NewLine, " "));
                 replaceKeyValues.Add("#{CreatedAt}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
@@ -1199,20 +1208,6 @@ namespace checkup.Areas.checkup.Controllers
                             logoPath = data;
                         }
                     }
-                    // var logoResults = ModuleExtensions.ExecuteMetaSQL(ReturnType.Dynamic, "SYS.SYS010.MD01", new
-                    // {
-                    //     ApplicationNo = applicationNo,
-                    //     ItemID = logoItemID
-                    // });
-                    // 
-                    // if (logoResults != null)
-                    // {
-                    //     if (logoResults.Count > 0)
-                    //     {
-                    //         var item = logoResults[0];
-                    //         logoPath = item.AbsolutePath;
-                    //     }
-                    // }
                 }
 
                 // 태넌트 앱에 정보 생성
@@ -1255,7 +1250,6 @@ namespace checkup.Areas.checkup.Controllers
 
                 if (fileInfo.Exists == false)
                 {
-                    SQLiteConnection.CreateFile(logDbFilePath);
                     ModuleExtensions.TenantAppExecuteMetaSQL(connectionString, ReturnType.NonQuery, "SYS.SYS010.ZD03");
                 }
 
@@ -1280,6 +1274,7 @@ namespace checkup.Areas.checkup.Controllers
 
                             rowEntity["ApplicationNo"] = applicationNo;
                             rowEntity["EntityNo"] = newEntityNo;
+                            rowEntity["CreatedAt"] = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
                             var filteredFieldRows = from DataRow row in metaField.AsEnumerable()
                                                     where row.Field<string>("EntityNo") == oldEntityNo
@@ -1379,6 +1374,29 @@ namespace checkup.Areas.checkup.Controllers
 
                 DirectoryInfo tempAppDirectoryInfo = new DirectoryInfo(appTempBasePath);
                 tempAppDirectoryInfo.CopyTo(appBasePath, true);
+
+                settingFilePath = Path.Combine(appBasePath, "settings.json");
+                if (System.IO.File.Exists(settingFilePath) == true)
+                {
+                    string appSettingText = System.IO.File.ReadAllText(settingFilePath);
+                    var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
+                    if (appSetting != null)
+                    {
+                        DataSource tenantDataSource = new DataSource();
+                        tenantDataSource.ApplicationID = GlobalConfiguration.ApplicationID;
+                        tenantDataSource.ProjectID = "*";
+                        tenantDataSource.DataSourceID = "CHECKUPDB";
+                        tenantDataSource.DataProvider = "SQLite";
+                        tenantDataSource.TanantPattern = "${ApplicationNo}|${ApplicationID}|#{TenantID}";
+                        tenantDataSource.TanantValue = $"handstack-checkup|{GlobalConfiguration.ApplicationID}|{tenantID}";
+                        tenantDataSource.ConnectionString = "URI=file:{appBasePath}/.managed/sqlite/app.db;Journal Mode=MEMORY;Cache Size=4000;Synchronous=Normal;Page Size=4096;Pooling=True;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;";
+                        tenantDataSource.IsEncryption = "N";
+                        tenantDataSource.Comment = "checkup 도메인 엔티티 모델 관리";
+                        appSetting.DataSource?.Add(tenantDataSource);
+
+                        System.IO.File.WriteAllText(settingFilePath, JsonConvert.SerializeObject(appSetting, Formatting.Indented));
+                    }
+                }
 
                 // forbes 앱 meta.xml 엔티티 정보 파일 삭제
                 string metaFilePath = Path.Combine(appBasePath, "meta.xml");

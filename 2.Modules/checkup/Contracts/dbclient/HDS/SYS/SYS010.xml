@@ -58,7 +58,6 @@ CREATE TABLE IF NOT EXISTS "Application" (
     "ModifiedAt" TEXT NULL
 );
 
-
 CREATE TABLE IF NOT EXISTS "ApplicationMember" (
     -- 태넌트 앱 NO
     "ApplicationNo" TEXT NOT NULL,
@@ -106,7 +105,6 @@ CREATE TABLE IF NOT EXISTS "ApplicationMember" (
     "ModifiedAt" TEXT NULL,
     CONSTRAINT "PK_ApplicationMember" PRIMARY KEY ("ApplicationNo", "EmailID")
 );
-
 
 CREATE TABLE IF NOT EXISTS "BaseCode" (
     -- 코드NO
@@ -167,7 +165,6 @@ CREATE TABLE IF NOT EXISTS "BaseCode" (
     "CreatedAt" TEXT NULL
 );
 
-
 CREATE TABLE IF NOT EXISTS "CodeHelp" (
     -- 코드헬프ID
     "CodeHelpID" TEXT NOT NULL CONSTRAINT "PK_CodeHelp" PRIMARY KEY,
@@ -203,6 +200,23 @@ CREATE TABLE IF NOT EXISTS "CodeHelp" (
     "CreatedAt" TEXT NULL
 );
 
+CREATE TABLE "CodeHelpSchme" (
+    -- 코드도움ID
+    "CodeHelpID" TEXT NOT NULL,
+
+    -- 컬럼ID
+    "ColumnID" TEXT NOT NULL,
+
+    -- 컬럼명
+    "ColumnText" TEXT NULL,
+
+    -- 숨김여부
+    "HiddenYN" TEXT NULL,
+
+    -- 정렬순서
+    "DisplayOrder" INTEGER NULL,
+    CONSTRAINT "PK_CodeHelpSchme" PRIMARY KEY ("CodeHelpID", "ColumnID")
+);
 
 CREATE TABLE IF NOT EXISTS "IdentityNo" (
     -- 고유NO
@@ -220,7 +234,6 @@ CREATE TABLE IF NOT EXISTS "IdentityNo" (
     -- 입력일시
     "CreatedAt" TEXT NULL
 );
-
 
 CREATE TABLE IF NOT EXISTS "Member" (
     -- 회원NO
@@ -296,146 +309,6 @@ CREATE TABLE IF NOT EXISTS "Member" (
     "ModifiedAt" TEXT NULL
 );
 
-
-CREATE TABLE IF NOT EXISTS "MetaEntity" (
-    -- 엔티티NO
-    "EntityNo" TEXT NOT NULL CONSTRAINT "PK_MetaEntity" PRIMARY KEY,
-
-    -- 어플리케이션NO
-    "ApplicationNo" TEXT NOT NULL DEFAULT '',
-
-    -- 엔티티ID
-    "EntityID" TEXT NOT NULL DEFAULT '',
-
-    -- 엔티티명
-    "EntityName" TEXT NOT NULL DEFAULT '',
-
-    -- 약어
-    "Acronyms" TEXT NULL,
-
-    -- 초기데이터
-    "SeedData" TEXT NULL,
-
-    -- 설명
-    "Comment" TEXT NULL,
-
-    -- 삭제일시
-    "DeletedAt" TEXT NULL,
-
-    -- 생성회원NO
-    "CreatedMemberNo" TEXT NULL,
-
-    -- 생성일시
-    "CreatedAt" TEXT NULL,
-
-    -- 수정회원NO
-    "ModifiedMemberNo" TEXT NULL,
-
-    -- 수정일시
-    "ModifiedAt" TEXT NULL
-);
-
-
-CREATE TABLE IF NOT EXISTS "MetaField" (
-    -- 엔티티NO
-    "EntityNo" TEXT NOT NULL,
-
-    -- 필드ID
-    "FieldID" TEXT NOT NULL,
-
-    -- 필드명
-    "FieldName" TEXT NULL,
-
-    -- 필드타입
-    "FieldType" TEXT NULL,
-
-    -- 기본키
-    "PK" TEXT NULL,
-
-    -- 인덱스
-    "IX" TEXT NULL,
-
-    -- 고유인덱스
-    "UI" TEXT NULL,
-
-    -- NULL허용안함
-    "NN" TEXT NULL,
-
-    -- 자동증가
-    "AI" TEXT NULL,
-
-    -- 크기
-    "MaxLength" INTEGER NULL,
-
-    -- 기본값
-    "DefaultValue" TEXT NULL,
-
-    -- 설명
-    "Comment" TEXT NULL,
-
-    -- 정렬순서
-    "SortingNo" INTEGER NULL,
-    CONSTRAINT "PK_MetaField" PRIMARY KEY ("EntityNo", "FieldID")
-);
-
-
-CREATE TABLE IF NOT EXISTS "MetaRelation" (
-    -- 관계NO
-    "RelationNo" TEXT NOT NULL CONSTRAINT "PK_MetaRelation" PRIMARY KEY,
-
-    -- 어플리케이션NO
-    "ApplicationNo" TEXT NULL,
-
-    -- 출발엔티티NO
-    "DepartureEntityNo" TEXT NULL,
-
-    -- 출발엔티티명
-    "DepartureEntityName" TEXT NULL,
-
-    -- 출발설명
-    "DepartureNote" TEXT NULL,
-
-    -- 출발흐름표시ID
-    "DepartureFlowSymbol" TEXT NULL,
-
-    -- 출발흐름표시명
-    "DepartureFlowSymbolName" TEXT NULL,
-
-    -- 흐름라인구분
-    "FlowLineType" TEXT NULL,
-
-    -- 흐름라인구분명
-    "FlowLineTypeName" TEXT NULL,
-
-    -- 도착흐름표시ID
-    "ArrivalFlowSymbol" TEXT NULL,
-
-    -- 도착흐름표시명
-    "ArrivalFlowSymbolName" TEXT NULL,
-
-    -- 도착엔티티NO
-    "ArrivalEntityNo" TEXT NULL,
-
-    -- 도착엔티티명
-    "ArrivalEntityName" TEXT NULL,
-
-    -- 도착설명
-    "ArrivalNote" TEXT NULL,
-
-    -- 정렬순서
-    "SortingNo" INTEGER NULL,
-
-    -- 생성회원NO
-    "CreatedMemberNo" TEXT NULL,
-
-    -- 생성일시
-    "CreatedAt" TEXT NULL,
-
-    -- 수정일시
-    "ModifiedAt" TEXT NULL
-);
-
-
 CREATE TABLE IF NOT EXISTS "Person" (
     -- 사용자NO
     "PersonNo" TEXT NOT NULL CONSTRAINT "PK_Person" PRIMARY KEY,
@@ -468,7 +341,6 @@ CREATE TABLE IF NOT EXISTS "Person" (
     "CreatedAt" TEXT NULL
 );
 
-
 CREATE TABLE IF NOT EXISTS "RefreshToken" (
     -- 갱신토큰NO
     "RefreshTokenNo" INTEGER NOT NULL CONSTRAINT "PK_RefreshToken" PRIMARY KEY AUTOINCREMENT,
@@ -497,7 +369,6 @@ CREATE TABLE IF NOT EXISTS "RefreshToken" (
     -- 생성일시
     "CreatedAt" TEXT NOT NULL
 );
-
 
 CREATE TABLE IF NOT EXISTS "UserAccount" (
     -- 사용자계정ID
@@ -561,7 +432,6 @@ CREATE TABLE IF NOT EXISTS "UserAccount" (
     "ModifiedAt" TEXT NULL
 );
 
-
 CREATE TABLE IF NOT EXISTS "RepositoryFile" (
     -- 파일항목ID
     "ItemID" TEXT NOT NULL UNIQUE,
@@ -620,32 +490,11 @@ CREATE TABLE IF NOT EXISTS "RepositoryFile" (
 );
 
 CREATE INDEX IF NOT EXISTS "IX_RepositoryFile" ON "RepositoryFile" ("RepositoryID" DESC, "DependencyID" ASC);
-
-
 CREATE INDEX IF NOT EXISTS "IX_ApplicationMember_ApplicationNo_EmailID_MemberNo" ON "ApplicationMember" ("ApplicationNo", "EmailID", "MemberNo");
-
-
 CREATE INDEX IF NOT EXISTS "IX_BaseCode_CodeID_GroupID" ON "BaseCode" ("CodeID", "GroupID");
-
-
 CREATE INDEX IF NOT EXISTS "IX_IdentityNo_Sequence_GroupID" ON "IdentityNo" ("Sequence", "GroupID");
-
-
 CREATE INDEX IF NOT EXISTS "IX_Member_EmailID" ON "Member" ("EmailID");
-
-
-CREATE INDEX IF NOT EXISTS "IX_MetaEntity_ApplicationNo" ON "MetaEntity" ("ApplicationNo");
-
-
-CREATE INDEX IF NOT EXISTS "IX_MetaField_EntityNo_FieldID" ON "MetaField" ("EntityNo", "FieldID");
-
-
-CREATE INDEX IF NOT EXISTS "IX_MetaRelation_ApplicationNo_CreatedMemberNo" ON "MetaRelation" ("ApplicationNo", "CreatedMemberNo");
-
-
 CREATE INDEX IF NOT EXISTS "IX_RefreshToken_UserAccountID" ON "RefreshToken" ("UserAccountID");
-
-
 CREATE INDEX IF NOT EXISTS "IX_UserAccount_ApplicationID" ON "UserAccount" ("ApplicationID");
 			]]>
             <param id="@CodeHelpID" type="String" length="-1" value="NULL" />
@@ -677,7 +526,7 @@ VALUES
     , 0
     , 'N'
     , NULL
-    , CURRENT_TIMESTAMP
+    , datetime('now', 'localtime')
 );
 
 INSERT OR REPLACE INTO Member
@@ -755,7 +604,6 @@ CREATE TABLE IF NOT EXISTS "MetaEntity" (
     "ModifiedAt" TEXT NULL
 );
 
-
 CREATE TABLE IF NOT EXISTS "MetaField" (
     -- 엔티티NO
     "EntityNo" TEXT NOT NULL,
@@ -797,7 +645,6 @@ CREATE TABLE IF NOT EXISTS "MetaField" (
     "SortingNo" INTEGER NULL,
     CONSTRAINT "PK_MetaField" PRIMARY KEY ("EntityNo", "FieldID")
 );
-
 
 CREATE TABLE IF NOT EXISTS "MetaRelation" (
     -- 관계NO
@@ -855,73 +702,121 @@ CREATE TABLE IF NOT EXISTS "MetaRelation" (
     "ModifiedAt" TEXT NULL
 );
 
+CREATE TABLE IF NOT EXISTS "BaseCode" (
+    -- 코드NO
+    "CodeNo" TEXT NOT NULL CONSTRAINT "PK_BaseCode" PRIMARY KEY,
 
-CREATE TABLE IF NOT EXISTS "RepositoryFile" (
-    -- 파일항목ID
-    "ItemID" TEXT NOT NULL UNIQUE,
+    -- 코드ID
+    "CodeID" TEXT NOT NULL DEFAULT '',
 
-    -- 저장소ID
-    "RepositoryID" TEXT NOT NULL,
+    -- 코드데이터
+    "CodeValue" TEXT NULL,
 
-    -- 참조ID
-    "DependencyID" TEXT,
+    -- 부모코드NO
+    "ParentCodeNo" TEXT NULL,
 
-    -- 파일명
-    "FileName" TEXT,
+    -- 그룹ID
+    "GroupID" TEXT NULL,
 
-    -- 파일전체경로
-    "PhysicalPath" TEXT,
+    -- 옵션1
+    "Option1" TEXT NULL,
 
-    -- 서버절대경로
-    "AbsolutePath" TEXT,
+    -- 옵션2
+    "Option2" TEXT NULL,
 
-    -- 서버상대경로
-    "RelativePath" TEXT,
+    -- 옵션3
+    "Option3" TEXT NULL,
 
-    -- 확장자
-    "Extension" TEXT,
+    -- 옵션4
+    "Option4" TEXT NULL,
 
-    -- 파일크기
-    "Size" INTEGER,
+    -- 옵션5
+    "Option5" TEXT NULL,
 
-    -- MD5
-    "MD5" TEXT,
+    -- 데이터1
+    "Value1" TEXT NULL,
 
-    -- 사용자경로1
-    "CustomPath1" TEXT,
+    -- 데이터2
+    "Value2" TEXT NULL,
 
-    -- 사용자경로2
-    "CustomPath2" TEXT,
+    -- 데이터3
+    "Value3" TEXT NULL,
 
-    -- 사용자경로3
-    "CustomPath3" TEXT,
+    -- 데이터4
+    "Value4" TEXT NULL,
 
-    -- 정책경로
-    "PolicyPath" TEXT,
-
-    -- 정렬순서
-    "SortingNo" INTEGER,
+    -- 데이터5
+    "Value5" TEXT NULL,
 
     -- 설명
-    "Comment" TEXT,
+    "Comment" TEXT NULL,
+
+    -- 정렬순서
+    "SortingNo" INTEGER NULL,
 
     -- 생성회원NO
-    "CreatedMemberNo" TEXT,
+    "CreatedMemberNo" TEXT NULL,
 
     -- 생성일시
-    "CreatedAt" TEXT,
- PRIMARY KEY("ItemID", "RepositoryID")
+    "CreatedAt" TEXT NULL
 );
 
-CREATE INDEX IF NOT EXISTS "IX_RepositoryFile" ON "RepositoryFile" ("RepositoryID" DESC, "DependencyID" ASC);
+CREATE TABLE IF NOT EXISTS "CodeHelp" (
+    -- 코드헬프ID
+    "CodeHelpID" TEXT NOT NULL CONSTRAINT "PK_CodeHelp" PRIMARY KEY,
 
+    -- 데이터소스ID
+    "DataSourceID" TEXT NOT NULL DEFAULT '',
 
+    -- 코드헬프명
+    "CodeHelpName" TEXT NULL,
+
+    -- 명령구분
+    "CommandType" TEXT NULL,
+
+    -- SQL명령
+    "CommandText" TEXT NULL,
+
+    -- 코드컬럼ID
+    "CodeColumnID" TEXT NULL,
+
+    -- 데이터컬럼ID
+    "ValueColumnID" TEXT NULL,
+
+    -- 사용여부
+    "UseYN" TEXT NULL,
+
+    -- 설명
+    "Comment" TEXT NULL,
+
+    -- 생성회원NO
+    "CreatedMemberNo" TEXT NULL,
+
+    -- 생성일시
+    "CreatedAt" TEXT NULL
+);
+
+CREATE TABLE "CodeHelpSchme" (
+    -- 코드도움ID
+    "CodeHelpID" TEXT NOT NULL,
+
+    -- 컬럼ID
+    "ColumnID" TEXT NOT NULL,
+
+    -- 컬럼명
+    "ColumnText" TEXT NULL,
+
+    -- 숨김여부
+    "HiddenYN" TEXT NULL,
+
+    -- 정렬순서
+    "DisplayOrder" INTEGER NULL,
+    CONSTRAINT "PK_CodeHelpSchme" PRIMARY KEY ("CodeHelpID", "ColumnID")
+);
+
+CREATE INDEX IF NOT EXISTS "IX_BaseCode_CodeID_GroupID" ON "BaseCode" ("CodeID", "GroupID");
 CREATE INDEX IF NOT EXISTS "IX_MetaEntity_ApplicationNo" ON "MetaEntity" ("ApplicationNo");
-
-
 CREATE INDEX IF NOT EXISTS "IX_MetaField_EntityNo_FieldID" ON "MetaField" ("EntityNo", "FieldID");
-
-
 CREATE INDEX IF NOT EXISTS "IX_MetaRelation_ApplicationNo_CreatedMemberNo" ON "MetaRelation" ("ApplicationNo", "CreatedMemberNo");
 			]]>
             <param id="@CodeHelpID" type="String" length="-1" value="NULL" />
@@ -1118,7 +1013,7 @@ VALUES (@ApplicationNo
     , 'N'
     , @Comment
     , @MemberNo
-    , CURRENT_TIMESTAMP
+    , datetime('now', 'localtime')
 );
 
 INSERT INTO ApplicationMember (ApplicationNo
@@ -1143,11 +1038,11 @@ VALUES (@ApplicationNo
     , 'Y'
     , 'Y'
     , 'Y'
-    , CURRENT_TIMESTAMP
+    , datetime('now', 'localtime')
     , '9999-12-31 23:59:59'
     , ''
     , @MemberNo
-    , CURRENT_TIMESTAMP
+    , datetime('now', 'localtime')
 );
 
 SELECT strftime('%Y-%m-%d %H:%M:%S', A.CreatedAt) AS CreatedAt FROM [Application] A WHERE A.ApplicationNo = @ApplicationNo;

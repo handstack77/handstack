@@ -2,7 +2,7 @@
     "Application": {
         "LoaderPath": "/js/syn.domain.js",
         "IsDebugMode": true,
-        "CodeHelpID": "CHP|CHP010|LD01"
+        "CodeHelpID": "SYS|SYS010|LD01"
     },
     "Cookie": {
         "CustomCookie1": "ValueCookie1"

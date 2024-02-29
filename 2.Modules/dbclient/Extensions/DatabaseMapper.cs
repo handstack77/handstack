@@ -65,6 +65,10 @@ namespace dbclient.Extensions
                         {
                             tanantPattern = Regex.Replace(tanantPattern, "\\${" + parameter.ParameterName.Substring(1) + "}", parameter.Value.ToStringSafe());
                         }
+                        else if (parameter.ParameterName.StartsWith("#") == true && parameter.Value != null)
+                        {
+                            tanantPattern = Regex.Replace(tanantPattern, "\\#{" + parameter.ParameterName.Substring(1) + "}", parameter.Value.ToStringSafe());
+                        }
                     }
 
                     if (tanantPattern == tanantValue)
@@ -92,7 +96,7 @@ namespace dbclient.Extensions
                         foreach (string directory in directories)
                         {
                             DirectoryInfo directoryInfo = new DirectoryInfo(directory);
-                            if (baseDirectoryInfo.Name ==  directoryInfo.Parent?.Parent?.Name)
+                            if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
                             {
                                 appBasePath = directoryInfo.FullName;
                                 userWorkID = (directoryInfo.Parent?.Name).ToStringSafe();
@@ -792,7 +796,7 @@ namespace dbclient.Extensions
 
             // bool evalResult = Eval.Execute<bool>(evalText, parameters);
             string line = JsonUtils.GenerateDynamicLinqStatement(parameters);
-            var queryable = new[] { parameters }.AsQueryable().Select(line);
+            var queryable = new[] { parameters }.AsQueryable().Select(line.Replace("#", "$"));
             bool evalResult = queryable.Any(evalText);
 
             string convertString = "";
@@ -817,7 +821,7 @@ namespace dbclient.Extensions
             // string evalResult = Eval.Execute<string>(evalText, parameters);
             string evalResult = evalText;
             string line = JsonUtils.GenerateDynamicLinqStatement(parameters);
-            var queryable = new[] { parameters }.AsQueryable().Select(line);
+            var queryable = new[] { parameters }.AsQueryable().Select(line.Replace("#", "$"));
             var queryResult = queryable.Select<string>(evalText);
             if (queryResult.Any() == true)
             {
@@ -1079,7 +1083,7 @@ namespace dbclient.Extensions
                         p.Value.ApplicationID == item.ApplicationID
                         && p.Value.ProjectListID.SequenceEqual(item.ProjectID.Split(",").Where(s => string.IsNullOrWhiteSpace(s) == false).Distinct().ToList())
                         && p.Key.DataSourceID == item.DataSourceID
-                        && string.IsNullOrEmpty(p.Key.TanantPattern) == false
+                        && (string.IsNullOrEmpty(p.Key.TanantPattern) == false && p.Key.TanantPattern == item.TanantPattern && p.Key.TanantValue == item.TanantValue)
                     ).ToList();
 
                     if (dataSourceMaps.Count == 0)

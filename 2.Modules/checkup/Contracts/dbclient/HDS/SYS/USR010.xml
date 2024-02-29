@@ -142,7 +142,7 @@ VALUES
     , 0
     , 'N'
     , NULL
-    , CURRENT_TIMESTAMP
+    , datetime('now', 'localtime')
 );
 			]]>
 			<param id="@PersonNo" type="String" length="36" value="" />

@@ -8,6 +8,7 @@
     <form autocomplete="off" id="form1" syn-datafield="MainForm">
         <input type="hidden" id="txtApplicationNo" syn-datafield="ApplicationNo" syn-options="{belongID: ['LD01', 'ID01', 'MD01']}">
         <input type="hidden" id="txtUserNo" syn-datafield="UserNo" syn-options="{belongID: ['LD01']}">
+        <input type="hidden" id="txtTenantID" syn-datafield="#TenantID" syn-options="{belongID: ['LD01', 'LD02', 'ID01', 'DD01', 'GD01', 'MD01']}">
         <input type="hidden" id="txtSeedData" syn-datafield="SeedData">
         <div class="page">
             <div class="page-wrapper">
@@ -62,6 +63,7 @@
                                                     , ['ModifiedMemberNo', '변경자 NO', 100, true, 'text', true, 'left', ['MD01', 'DD01']]
                                                     , ['ModifiedMemberName', '변경자명', 100, true, 'text', true, 'left', 'MD01']
                                                     , ['ModifiedAt', '변경일자', 100, true, 'text', true, 'center', 'MD01']
+                                                    , ['#TenantID', 'TenantID', 100, true, 'text', true, 'center', ['LD02', 'ID01', 'DD01', 'GD01', 'MD01']]
 				                                ]
 			                                }" syn-events="['afterSelectionEnd', 'afterChange']"></syn_grid>
                                         </div>
@@ -91,26 +93,27 @@
                                                 height: 584
                                                 , isContainFilterHeader: true
 				                                , columns: [
-                                                ['EntityNo', '엔티티NO', 100, true, 'text', true, 'left', ['LD02', 'MD01']]
-                                                , ['FieldID', '필드 ID', 120, false, 'text', false, 'left', 'MD01']
-                                                , ['FieldName', '필드명', 130, false, 'text', false, 'left', 'MD01']
-                                                , ['FieldTypeName', '필드 타입', 100, false, {
-                                                    columnType: 'dropdown',
-                                                    dataSourceID: 'FieldType',
-                                                    required: true,
-                                                    local: true,
-                                                    codeBelongID: 'MD01',
-                                                    codeColumnID: 'FieldType'
-                                                }, false, 'left', 'MD01']
-                                                , ['PK', 'PK', 40, false, 'checkbox2', false, 'center', 'MD01']
-                                                , ['IX', 'IX', 40, false, 'checkbox2', false, 'center', 'MD01']
-                                                , ['UI', 'UI', 40, false, 'checkbox2', false, 'center', 'MD01']
-                                                , ['NN', 'NN', 40, false, 'checkbox2', false, 'center', 'MD01']
-                                                , ['AI', 'AI', 40, false, 'checkbox2', false, 'center', 'MD01']
-                                                , ['MaxLength', '길이', 60, false, 'numeric', false, 'right', 'MD01']
-                                                , ['DefaultValue', '기본값', 100, true, 'text', false, 'left', 'MD01']
-                                                , ['Comment', '설명', 150, false, 'text', false, 'left', 'MD01']
-                                                , ['SortingNo', '정렬', 60, false, 'numeric', false, 'right', 'MD01']
+                                                    ['EntityNo', '엔티티NO', 100, true, 'text', true, 'left', ['LD02', 'MD01']]
+                                                    , ['FieldID', '필드 ID', 120, false, 'text', false, 'left', 'MD01']
+                                                    , ['FieldName', '필드명', 130, false, 'text', false, 'left', 'MD01']
+                                                    , ['FieldTypeName', '필드 타입', 100, false, {
+                                                        columnType: 'dropdown',
+                                                        dataSourceID: 'FieldType',
+                                                        required: true,
+                                                        local: true,
+                                                        codeBelongID: 'MD01',
+                                                        codeColumnID: 'FieldType'
+                                                    }, false, 'left', 'MD01']
+                                                    , ['PK', 'PK', 40, false, 'checkbox2', false, 'center', 'MD01']
+                                                    , ['IX', 'IX', 40, false, 'checkbox2', false, 'center', 'MD01']
+                                                    , ['UI', 'UI', 40, false, 'checkbox2', false, 'center', 'MD01']
+                                                    , ['NN', 'NN', 40, false, 'checkbox2', false, 'center', 'MD01']
+                                                    , ['AI', 'AI', 40, false, 'checkbox2', false, 'center', 'MD01']
+                                                    , ['MaxLength', '길이', 60, false, 'numeric', false, 'right', 'MD01']
+                                                    , ['DefaultValue', '기본값', 100, true, 'text', false, 'left', 'MD01']
+                                                    , ['Comment', '설명', 150, false, 'text', false, 'left', 'MD01']
+                                                    , ['SortingNo', '정렬', 60, false, 'numeric', false, 'right', 'MD01']
+                                                    , ['#TenantID', 'TenantID', 100, true, 'text', true, 'center', ['LD02', 'ID01', 'DD01', 'GD01', 'MD01']]
 				                                ]
 			                                }" syn-events="['afterSelectionEnd']"></syn_grid>
                                         </div>

@@ -240,7 +240,7 @@ VALUES
     , @Claims
     , @ExtendOption
     , @CreatedMemberNo
-    , CURRENT_TIMESTAMP
+    , datetime('now', 'localtime')
 );
 			]]>
             <param id="@UserAccountID" type="String" length="36" value="" />
