@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+    <header>
+        <application>HDS</application>
+        <project>CHP</project>
+        <transaction>CHP010</transaction>
+        <datasource>CHECKUPDB</datasource>
+        <use>Y</use>
+        <desc>기초코드 관리</desc>
+    </header>
+    <commands>
+        <statement id="LD01" seq="0" use="Y" timeout="0" desc="기초코드 목록 조회">
+            <![CDATA[
+SELECT CM.GroupCode
+    , CM.CodeID AS GroupID
+    , CM.CodeValue AS GroupName
+    , CM.Comment
+    , CM.SortingNo
+    , CM.CreatedMemberNo
+    , strftime('%Y-%m-%d', CM.CreatedAt) AS CreatedAt
+    , '${#TenantID}' AS [#TenantID]
+FROM 
+    BaseCode CM
+WHERE CM.GroupCode = 'SYS000'
+ORDER BY CM.SortingNo
+    , CM.CodeID;
+			]]>
+        </statement>
+
+        <statement id="LD02" seq="0" use="Y" timeout="0" desc="기초코드 필드 목록 조회">
+            <![CDATA[
+SELECT CD.GroupCode
+    , CD.CodeID AS BaseCodeID
+    , CD.CodeID
+    , CD.CodeValue
+    , CD.CategoryID
+    , CD.Value1
+    , CD.Value2
+    , CD.Value3
+    , CD.Value4
+    , CD.Value5
+    , CD.Comment
+    , CD.SortingNo
+    , CD.CreatedMemberNo
+    , strftime('%Y-%m-%d', CD.CreatedAt) AS CreatedAt
+    , '${#TenantID}' AS [#TenantID]
+FROM 
+    BaseCode CD
+WHERE GroupCode = @GroupID
+ORDER BY CD.SortingNo
+    , CD.CodeID;
+			]]>
+            <param id="@GroupID" type="String" length="10" value="" />
+        </statement>
+
+        <statement id="ID01" seq="0" use="Y" timeout="0" desc="기초코드 정보 입력">
+            <![CDATA[
+INSERT INTO BaseCode
+(
+    GroupCode
+    , CodeID
+    , CodeValue
+    , Comment
+    , SortingNo
+    , CreatedMemberNo
+    , CreatedAt
+) 
+VALUES
+(
+    @GroupCode
+    , @CodeID
+    , @CodeValue
+    , @Comment
+    , @SortingNo
+    , @CreatedMemberNo
+    , DATETIME('now', 'localtime')
+);
+			]]>
+            <param id="@GroupCode" type="String" length="10" value="" />
+            <param id="@CodeID" type="String" length="10" value="" />
+            <param id="@CodeValue" type="String" length="50" value="" />
+            <param id="@Comment" type="String" length="1000" value="" />
+            <param id="@SortingNo" type="Int32" length="-1" value="NULL" />
+            <param id="@CreatedMemberNo" type="String" length="36" value="" />
+        </statement>
+
+        <statement id="DD01" seq="0" use="Y" timeout="0" desc="기초코드 정보 삭제">
+            <![CDATA[
+DELETE FROM BaseCode WHERE GroupCode = (SELECT CodeID FROM BaseCode WHERE GroupCode = @GroupCode
+    AND CodeID = @GroupID);
+    
+DELETE FROM BaseCode WHERE GroupCode = @GroupCode
+    AND CodeID = @GroupID;
+			]]>
+            <param id="@GroupCode" type="String" length="10" value="" />
+            <param id="@GroupID" type="String" length="10" value="" />
+        </statement>
+
+        <statement id="MD01" seq="0" use="Y" timeout="0" desc="기초코드 정보 변경">
+            <if test="(Flag == 'U')">
+                <![CDATA[
+UPDATE BaseCode SET CodeValue = @GroupName
+    , CategoryID = @CategoryID
+    , Comment = @Comment
+    , SortingNo = @SortingNo
+    , CreatedMemberNo = @CreatedMemberNo
+    , CreatedAt = DATETIME('now', 'localtime')
+WHERE GroupCode = 'SYS000'
+    AND CodeID = @CodeID;
+			    ]]>
+            </if>
+            <param id="@GroupCode" type="String" length="10" value="" />
+            <param id="@CodeID" type="String" length="10" value="" />
+            <param id="@GroupName" type="String" length="50" value="" />
+            <param id="@CategoryID" type="String" length="30" value="" />
+            <param id="@Comment" type="String" length="1000" value="" />
+            <param id="@SortingNo" type="Int32" length="-1" value="NULL" />
+            <param id="@CreatedMemberNo" type="String" length="36" value="" />
+        </statement>
+
+        <statement id="MD01" seq="1" use="Y" timeout="0" desc="기초코드 필드 정보 입력 또는 변경, 삭제">
+            <if test="(Flag == 'C')">
+                <![CDATA[
+INSERT INTO BaseCode
+(
+    GroupCode
+    , CodeID
+    , CodeValue
+    , CategoryID
+    , Value1
+    , Value2
+    , Value3
+    , Value4
+    , Value5
+    , Comment
+    , SortingNo
+    , CreatedMemberNo
+    , CreatedAt
+) 
+SELECT @GroupCode
+    , @CodeID
+    , @CodeValue
+    , @CategoryID
+    , @Value1
+    , @Value2
+    , @Value3
+    , @Value4
+    , @Value5
+    , @Comment
+    , @SortingNo
+    , @CreatedMemberNo
+    , DATETIME('now', 'localtime')
+WHERE NOT EXISTS (SELECT 1 FROM BaseCode WHERE GroupCode = @GroupCode AND CodeID = @BaseCodeID);
+			    ]]>
+            </if>
+
+            <if test="(Flag == 'U')">
+                <![CDATA[
+UPDATE BaseCode SET GroupCode = @GroupCode
+    , CodeID = @CodeID
+    , CodeValue = @CodeValue
+    , CategoryID = @CategoryID
+    , Value1 = @Value1
+    , Value2 = @Value2
+    , Value3 = @Value3
+    , Value4 = @Value4
+    , Value5 = @Value5
+    , Comment = @Comment
+    , SortingNo = @SortingNo
+    , CreatedMemberNo = @CreatedMemberNo
+    , CreatedAt = DATETIME('now', 'localtime')
+WHERE GroupCode = @GroupCode
+    AND CodeID = @BaseCodeID;
+				]]>
+            </if>
+
+            <if test="(Flag == 'D')">
+                <![CDATA[
+DELETE FROM BaseCode WHERE GroupCode = @GroupCode
+    AND CodeID = @BaseCodeID;
+				]]>
+            </if>
+            <param id="@GroupCode" type="String" length="10" value="" />
+            <param id="@BaseCodeID" type="String" length="10" value="" />
+            <param id="@CodeID" type="String" length="10" value="" />
+            <param id="@CodeValue" type="String" length="50" value="" />
+            <param id="@CategoryID" type="String" length="30" value="" />
+            <param id="@Value1" type="String" length="100" value="" />
+            <param id="@Value2" type="String" length="100" value="" />
+            <param id="@Value3" type="String" length="100" value="" />
+            <param id="@Value4" type="String" length="100" value="" />
+            <param id="@Value5" type="String" length="100" value="" />
+            <param id="@Comment" type="String" length="1000" value="" />
+            <param id="@SortingNo" type="Int32" length="-1" value="NULL" />
+            <param id="@CreatedMemberNo" type="String" length="36" value="" />
+        </statement>
+    </commands>
+</mapper>

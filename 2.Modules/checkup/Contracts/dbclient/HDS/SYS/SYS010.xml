@@ -107,35 +107,17 @@ CREATE TABLE IF NOT EXISTS "ApplicationMember" (
 );
 
 CREATE TABLE IF NOT EXISTS "BaseCode" (
-    -- 코드NO
-    "CodeNo" TEXT NOT NULL CONSTRAINT "PK_BaseCode" PRIMARY KEY,
+    -- 그룹코드
+    "GroupCode" TEXT NOT NULL,
 
     -- 코드ID
-    "CodeID" TEXT NOT NULL DEFAULT '',
+    "CodeID" TEXT NOT NULL,
 
     -- 코드데이터
     "CodeValue" TEXT NULL,
 
-    -- 부모코드NO
-    "ParentCodeNo" TEXT NULL,
-
-    -- 그룹ID
-    "GroupID" TEXT NULL,
-
-    -- 옵션1
-    "Option1" TEXT NULL,
-
-    -- 옵션2
-    "Option2" TEXT NULL,
-
-    -- 옵션3
-    "Option3" TEXT NULL,
-
-    -- 옵션4
-    "Option4" TEXT NULL,
-
-    -- 옵션5
-    "Option5" TEXT NULL,
+    -- 카테고리ID
+    "CategoryID" TEXT NULL,
 
     -- 데이터1
     "Value1" TEXT NULL,
@@ -162,7 +144,8 @@ CREATE TABLE IF NOT EXISTS "BaseCode" (
     "CreatedMemberNo" TEXT NULL,
 
     -- 생성일시
-    "CreatedAt" TEXT NULL
+    "CreatedAt" TEXT NULL,
+    CONSTRAINT "PK_BaseCode" PRIMARY KEY ("GroupCode", "CodeID")
 );
 
 CREATE TABLE IF NOT EXISTS "CodeHelp" (
@@ -174,9 +157,6 @@ CREATE TABLE IF NOT EXISTS "CodeHelp" (
 
     -- 코드헬프명
     "CodeHelpName" TEXT NULL,
-
-    -- 명령구분
-    "CommandType" TEXT NULL,
 
     -- SQL명령
     "CommandText" TEXT NULL,
@@ -200,7 +180,7 @@ CREATE TABLE IF NOT EXISTS "CodeHelp" (
     "CreatedAt" TEXT NULL
 );
 
-CREATE TABLE "CodeHelpSchme" (
+CREATE TABLE IF NOT EXISTS "CodeHelpScheme" (
     -- 코드도움ID
     "CodeHelpID" TEXT NOT NULL,
 
@@ -214,8 +194,8 @@ CREATE TABLE "CodeHelpSchme" (
     "HiddenYN" TEXT NULL,
 
     -- 정렬순서
-    "DisplayOrder" INTEGER NULL,
-    CONSTRAINT "PK_CodeHelpSchme" PRIMARY KEY ("CodeHelpID", "ColumnID")
+    "SortingNo" INTEGER NULL,
+    CONSTRAINT "PK_CodeHelpScheme" PRIMARY KEY ("CodeHelpID", "ColumnID")
 );
 
 CREATE TABLE IF NOT EXISTS "IdentityNo" (
@@ -491,7 +471,7 @@ CREATE TABLE IF NOT EXISTS "RepositoryFile" (
 
 CREATE INDEX IF NOT EXISTS "IX_RepositoryFile" ON "RepositoryFile" ("RepositoryID" DESC, "DependencyID" ASC);
 CREATE INDEX IF NOT EXISTS "IX_ApplicationMember_ApplicationNo_EmailID_MemberNo" ON "ApplicationMember" ("ApplicationNo", "EmailID", "MemberNo");
-CREATE INDEX IF NOT EXISTS "IX_BaseCode_CodeID_GroupID" ON "BaseCode" ("CodeID", "GroupID");
+CREATE INDEX IF NOT EXISTS "IX_BaseCode_CategoryID" ON "BaseCode" ("CategoryID");
 CREATE INDEX IF NOT EXISTS "IX_IdentityNo_Sequence_GroupID" ON "IdentityNo" ("Sequence", "GroupID");
 CREATE INDEX IF NOT EXISTS "IX_Member_EmailID" ON "Member" ("EmailID");
 CREATE INDEX IF NOT EXISTS "IX_RefreshToken_UserAccountID" ON "RefreshToken" ("UserAccountID");
@@ -526,7 +506,7 @@ VALUES
     , 0
     , 'N'
     , NULL
-    , datetime('now', 'localtime')
+    , DATETIME('now', 'localtime')
 );
 
 INSERT OR REPLACE INTO Member
@@ -703,35 +683,17 @@ CREATE TABLE IF NOT EXISTS "MetaRelation" (
 );
 
 CREATE TABLE IF NOT EXISTS "BaseCode" (
-    -- 코드NO
-    "CodeNo" TEXT NOT NULL CONSTRAINT "PK_BaseCode" PRIMARY KEY,
+    -- 그룹코드
+    "GroupCode" TEXT NOT NULL,
 
     -- 코드ID
-    "CodeID" TEXT NOT NULL DEFAULT '',
+    "CodeID" TEXT NOT NULL,
 
     -- 코드데이터
     "CodeValue" TEXT NULL,
 
-    -- 부모코드NO
-    "ParentCodeNo" TEXT NULL,
-
-    -- 그룹ID
-    "GroupID" TEXT NULL,
-
-    -- 옵션1
-    "Option1" TEXT NULL,
-
-    -- 옵션2
-    "Option2" TEXT NULL,
-
-    -- 옵션3
-    "Option3" TEXT NULL,
-
-    -- 옵션4
-    "Option4" TEXT NULL,
-
-    -- 옵션5
-    "Option5" TEXT NULL,
+    -- 카테고리ID
+    "CategoryID" TEXT NULL,
 
     -- 데이터1
     "Value1" TEXT NULL,
@@ -758,8 +720,56 @@ CREATE TABLE IF NOT EXISTS "BaseCode" (
     "CreatedMemberNo" TEXT NULL,
 
     -- 생성일시
-    "CreatedAt" TEXT NULL
+    "CreatedAt" TEXT NULL,
+    CONSTRAINT "PK_BaseCode" PRIMARY KEY ("GroupCode", "CodeID")
 );
+
+/*
+INSERT INTO BaseCode (GroupCode,CodeID,CodeValue,CategoryID,Value1,Value2,Value3,Value4,Value5,Comment,SortingNo,CreatedMemberNo,CreatedAt) VALUES
+	 ('SYS000','SYS006','프로젝트 구분','system',NULL,NULL,NULL,NULL,NULL,'개발관점에서 화면, 업무, 데이터베이스로 프로젝트를 구분',NULL,'system',DATETIME('NOW', 'localtime')),
+	 ('SYS000','SYS014','데이터베이스 제공자','system',NULL,NULL,NULL,NULL,NULL,'데이터베이스 제공자',NULL,'system',DATETIME('NOW', 'localtime')),
+	 ('SYS000','SYS016','기초코드 구분','system',NULL,NULL,NULL,NULL,NULL,'기초코드 구분',NULL,'system',DATETIME('NOW', 'localtime')),
+	 ('SYS000','SYS018','통신 프로토콜','system',NULL,NULL,NULL,NULL,NULL,'통신 프로토콜',NULL,'system',DATETIME('NOW', 'localtime')),
+	 ('SYS000','SYS023','운영체제환경','system',NULL,NULL,NULL,NULL,NULL,'운영체제환경',NULL,'system',DATETIME('NOW', 'localtime')),
+	 ('SYS000','SYS033','프로젝트 담당 역할','system',NULL,NULL,NULL,NULL,NULL,'프로젝트 담당 역할',NULL,'system',DATETIME('NOW', 'localtime'));
+
+INSERT INTO BaseCode (GroupCode,CodeID,CodeValue,CategoryID,Value1,Value2,Value3,Value4,Value5,Comment,SortingNo,CreatedMemberNo,CreatedAt) VALUES
+	 ('SYS006','1','화면','system',NULL,NULL,NULL,NULL,NULL,NULL,1,'system',DATETIME('NOW', 'localtime')),
+	 ('SYS006','2','업무','system',NULL,NULL,NULL,NULL,NULL,NULL,2,'system',DATETIME('NOW', 'localtime')),
+	 ('SYS006','3','데이터베이스','system',NULL,NULL,NULL,NULL,NULL,NULL,3,'system',DATETIME('NOW', 'localtime')),
+	 ('SYS006','4','배치 프로그램','system',NULL,NULL,NULL,NULL,NULL,NULL,4,'system',DATETIME('NOW', 'localtime')),
+	 ('SYS006','5','파일','system',NULL,NULL,NULL,NULL,NULL,NULL,5,'system',DATETIME('NOW', 'localtime'));
+
+INSERT INTO BaseCode (GroupCode,CodeID,CodeValue,CategoryID,Value1,Value2,Value3,Value4,Value5,Comment,SortingNo,CreatedMemberNo,CreatedAt) VALUES
+	 ('SYS014','1','MSSQL','system',NULL,NULL,NULL,NULL,NULL,NULL,1,'system',DATETIME('NOW', 'localtime')),
+	 ('SYS014','2','ORACLE','system',NULL,NULL,NULL,NULL,NULL,NULL,2,'system',DATETIME('NOW', 'localtime')),
+	 ('SYS014','3','MYSQL','system',NULL,NULL,NULL,NULL,NULL,NULL,3,'system',DATETIME('NOW', 'localtime')),
+	 ('SYS014','4','SQLite','system',NULL,NULL,NULL,NULL,NULL,NULL,4,'system',DATETIME('NOW', 'localtime')),
+	 ('SYS014','5','PostgreSQL','system',NULL,NULL,NULL,NULL,NULL,NULL,5,'system',DATETIME('NOW', 'localtime'));
+
+INSERT INTO BaseCode (GroupCode,CodeID,CodeValue,CategoryID,Value1,Value2,Value3,Value4,Value5,Comment,SortingNo,CreatedMemberNo,CreatedAt) VALUES
+	 ('SYS016','0','시스템','system',NULL,NULL,NULL,NULL,NULL,NULL,1,'system',DATETIME('NOW', 'localtime')),
+	 ('SYS016','1','공통','system',NULL,NULL,NULL,NULL,NULL,NULL,2,'system',DATETIME('NOW', 'localtime')),
+	 ('SYS016','2','프로그램','system',NULL,NULL,NULL,NULL,NULL,NULL,3,'system',DATETIME('NOW', 'localtime'));
+
+INSERT INTO BaseCode (GroupCode,CodeID,CodeValue,CategoryID,Value1,Value2,Value3,Value4,Value5,Comment,SortingNo,CreatedMemberNo,CreatedAt) VALUES
+	 ('SYS018','1','HTTP','system',NULL,NULL,NULL,NULL,NULL,NULL,1,'system',DATETIME('NOW', 'localtime')),
+	 ('SYS018','2','TCP','system',NULL,NULL,NULL,NULL,NULL,NULL,1,'system',DATETIME('NOW', 'localtime')),
+	 ('SYS018','3','UDP','system',NULL,NULL,NULL,NULL,NULL,NULL,1,'system',DATETIME('NOW', 'localtime'));
+
+INSERT INTO BaseCode (GroupCode,CodeID,CodeValue,CategoryID,Value1,Value2,Value3,Value4,Value5,Comment,SortingNo,CreatedMemberNo,CreatedAt) VALUES
+	 ('SYS023','1','Windows','system',NULL,NULL,NULL,NULL,NULL,NULL,1,'system',DATETIME('NOW', 'localtime')),
+	 ('SYS023','2','Linux','system',NULL,NULL,NULL,NULL,NULL,NULL,2,'system',DATETIME('NOW', 'localtime')),
+	 ('SYS023','3','Mac','system',NULL,NULL,NULL,NULL,NULL,NULL,3,'system',DATETIME('NOW', 'localtime')),
+	 ('SYS023','4','Multi Platform','system',NULL,NULL,NULL,NULL,NULL,NULL,4,'system',DATETIME('NOW', 'localtime')),
+	 ('SYS023','5','Unknown','system',NULL,NULL,NULL,NULL,NULL,NULL,5,'system',DATETIME('NOW', 'localtime'));
+
+INSERT INTO BaseCode (GroupCode,CodeID,CodeValue,CategoryID,Value1,Value2,Value3,Value4,Value5,Comment,SortingNo,CreatedMemberNo,CreatedAt) VALUES
+	 ('SYS033','B','업무','system',NULL,NULL,NULL,NULL,NULL,NULL,1,'system',DATETIME('NOW', 'localtime')),
+	 ('SYS033','D','개발','system',NULL,NULL,NULL,NULL,NULL,NULL,1,'system',DATETIME('NOW', 'localtime')),
+	 ('SYS033','M','관리','system',NULL,NULL,NULL,NULL,NULL,NULL,1,'system',DATETIME('NOW', 'localtime')),
+	 ('SYS033','O','운영','system',NULL,NULL,NULL,NULL,NULL,NULL,1,'system',DATETIME('NOW', 'localtime'));
+*/
 
 CREATE TABLE IF NOT EXISTS "CodeHelp" (
     -- 코드헬프ID
@@ -770,9 +780,6 @@ CREATE TABLE IF NOT EXISTS "CodeHelp" (
 
     -- 코드헬프명
     "CodeHelpName" TEXT NULL,
-
-    -- 명령구분
-    "CommandType" TEXT NULL,
 
     -- SQL명령
     "CommandText" TEXT NULL,
@@ -796,7 +803,36 @@ CREATE TABLE IF NOT EXISTS "CodeHelp" (
     "CreatedAt" TEXT NULL
 );
 
-CREATE TABLE "CodeHelpSchme" (
+/*
+INSERT INTO CodeHelp (CodeHelpID,DataSourceID,CodeHelpName,CommandText,CodeColumnID,ValueColumnID,UseYN,Comment,CreatedMemberNo,CreatedAt) VALUES
+     ('CHP001','CHECKUPDB','기초코드','SELECT BC.CodeID
+       , BC.CodeValue
+FROM   BaseCode BC
+WHERE  BC.GroupCode = @GroupCode
+ORDER  BY BC.SortingNo;','CodeID','CodeValue','Y','기초코드 데이터','system',DATETIME('NOW', 'localtime'));
+
+INSERT INTO CodeHelp (CodeHelpID,DataSourceID,CodeHelpName,CommandText,CodeColumnID,ValueColumnID,UseYN,Comment,CreatedMemberNo,CreatedAt) VALUES
+	 ('CHP014','CHECKUPDB','태넌트 엔티티 정보','SELECT ME.EntityNo
+    , ME.EntityID || ' [' || ME.EntityName || ']' AS EntityName
+	, ME.Acronyms
+	, (SELECT json_group_array(
+		json_object(
+			''FieldID'', FieldID,
+			''FieldType'', FieldType,
+			''MaxLength'', MaxLength,
+			''SortingNo'', SortingNo,
+			''FieldIndex'', FieldIndex
+		)
+	) AS EntityField
+FROM (SELECT MF.FieldID, MF.FieldType, MF.MaxLength, MF.SortingNo, CASE WHEN MF.PK = ''Y'' OR MF.IX = ''Y'' OR MF.UI = ''Y'' THEN ''Y'' ELSE ''N'' END AS FieldIndex FROM MetaField MF WHERE MF.EntityNo = ME.EntityNo)
+MF) AS EntityField
+FROM MetaEntity ME
+WHERE  ME.DeletedAt IS NULL
+	AND ME.ApplicationNo = @ApplicationNo
+ORDER  BY ME.EntityID;','EntityNo','EntityName','Y','사용자 엔티티 정보','system',DATETIME('NOW', 'localtime'));
+*/
+
+CREATE TABLE IF NOT EXISTS "CodeHelpScheme" (
     -- 코드도움ID
     "CodeHelpID" TEXT NOT NULL,
 
@@ -810,11 +846,19 @@ CREATE TABLE "CodeHelpSchme" (
     "HiddenYN" TEXT NULL,
 
     -- 정렬순서
-    "DisplayOrder" INTEGER NULL,
-    CONSTRAINT "PK_CodeHelpSchme" PRIMARY KEY ("CodeHelpID", "ColumnID")
+    "SortingNo" INTEGER NULL,
+    CONSTRAINT "PK_CodeHelpScheme" PRIMARY KEY ("CodeHelpID", "ColumnID")
 );
 
-CREATE INDEX IF NOT EXISTS "IX_BaseCode_CodeID_GroupID" ON "BaseCode" ("CodeID", "GroupID");
+/*
+INSERT INTO CodeHelpScheme (CodeHelpID,ColumnID,ColumnText,HiddenYN,SortingNo) VALUES
+     ('CHP001','CodeID','코드ID',0,3),
+     ('CHP001','CodeValue','코드값',0,4),
+     ('CHP001','LocaleID','언어권ID',1,2),
+     ('CHP001','SelectY','기본선택여부',1,1);
+*/
+
+CREATE INDEX IF NOT EXISTS "IX_BaseCode_CategoryID" ON "BaseCode" ("CategoryID");
 CREATE INDEX IF NOT EXISTS "IX_MetaEntity_ApplicationNo" ON "MetaEntity" ("ApplicationNo");
 CREATE INDEX IF NOT EXISTS "IX_MetaField_EntityNo_FieldID" ON "MetaField" ("EntityNo", "FieldID");
 CREATE INDEX IF NOT EXISTS "IX_MetaRelation_ApplicationNo_CreatedMemberNo" ON "MetaRelation" ("ApplicationNo", "CreatedMemberNo");
@@ -824,18 +868,18 @@ CREATE INDEX IF NOT EXISTS "IX_MetaRelation_ApplicationNo_CreatedMemberNo" ON "M
 
         <statement id="LD01" seq="0" use="Y" timeout="0" desc="코드헬프 데이터 정보 조회">
             <![CDATA[
-SELECT A.CodeHelpID
-       , A.DataSourceID
-       , A.CodeHelpName
-       , A.CommandType
-       , A.CommandText
-       , A.CodeColumnID
-       , A.ValueColumnID
-       , A.Comment
-       , A.CreatedAt
-FROM   CodeHelp A
-WHERE  A.UseYN = 'Y'
-    AND A.CodeHelpID = @CodeHelpID; 
+SELECT CH.CodeHelpID
+       , CH.DataSourceID
+       , CH.CodeHelpName
+       , CH.CommandType
+       , CH.CommandText
+       , CH.CodeColumnID
+       , CH.ValueColumnID
+       , CH.Comment
+       , CH.CreatedAt
+FROM   CodeHelp CH
+WHERE  CH.UseYN = 'Y'
+    AND CH.CodeHelpID = @CodeHelpID; 
 
 SELECT CHS.ColumnID
        , CHS.ColumnText
@@ -844,7 +888,7 @@ FROM   CodeHelp CH
        INNER JOIN CodeHelpScheme CHS ON CH.UseYN = 'Y' 
            AND CH.CodeHelpID = CHS.CodeHelpID
 WHERE  CH.CodeHelpID = @CodeHelpID
-ORDER  BY CHS.DisplayOrder; 
+ORDER  BY CHS.SortingNo; 
 			]]>
             <param id="@CodeHelpID" type="String" length="-1" value="NULL" />
         </statement>
@@ -1013,7 +1057,7 @@ VALUES (@ApplicationNo
     , 'N'
     , @Comment
     , @MemberNo
-    , datetime('now', 'localtime')
+    , DATETIME('now', 'localtime')
 );
 
 INSERT INTO ApplicationMember (ApplicationNo
@@ -1038,11 +1082,11 @@ VALUES (@ApplicationNo
     , 'Y'
     , 'Y'
     , 'Y'
-    , datetime('now', 'localtime')
+    , DATETIME('now', 'localtime')
     , '9999-12-31 23:59:59'
     , ''
     , @MemberNo
-    , datetime('now', 'localtime')
+    , DATETIME('now', 'localtime')
 );
 
 SELECT strftime('%Y-%m-%d %H:%M:%S', A.CreatedAt) AS CreatedAt FROM [Application] A WHERE A.ApplicationNo = @ApplicationNo;

@@ -748,8 +748,8 @@ let $main = {
                             syn.$l.get('txtProjectType').value = item.projectType;
                             syn.$l.get('txtDirectoryName').value = '';
                             syn.$w.showDialog(syn.$l.get('tplCreateDirectory'), {
-                                minWidth: 480,
-                                minHeight: 224,
+                                minWidth: 540,
+                                minHeight: 260
                             });
                             syn.$l.get('txtDirectoryName').focus();
                         }
@@ -761,8 +761,8 @@ let $main = {
                             $this.prop.functionType = item.menuName;
                             syn.$l.get('txtDirectoryName').value = '';
                             syn.$w.showDialog(syn.$l.get('tplCreateDirectory'), {
-                                minWidth: 480,
-                                minHeight: 224,
+                                minWidth: 540,
+                                minHeight: 260
                             });
                             syn.$l.get('txtDirectoryName').focus();
                         }
@@ -883,7 +883,7 @@ let $main = {
                                     syn.uicontrols.$grid.dataRefresh('grdFeatureDbClientItem', {
                                         columnName: 'EntityName',
                                         dataSourceID: 'CHP014',
-                                        parameters: `@ApplicationNo:${syn.$w.ManagedApp.ApplicationNo};@UserNo:${syn.$w.User.UserNo};`,
+                                        parameters: `@ApplicationNo:${syn.$w.ManagedApp.ApplicationNo};@UserNo:${syn.$w.User.UserNo};#TenantID:${syn.$w.ManagedApp.UserWorkID}|${syn.$w.ManagedApp.ApplicationID};`,
                                         local: false,
                                         required: false
                                     }, function () {
@@ -961,8 +961,8 @@ let $main = {
                                             syn.$l.get('txtDbClientComment').value = '';
 
                                             syn.$w.showDialog(syn.$l.get('tplCreateDbClientItem'), {
-                                                minWidth: 1024,
-                                                minHeight: 413,
+                                                minWidth: 1080,
+                                                minHeight: 428
                                             });
 
                                             syn.uicontrols.$grid.getGridControl('grdFeatureDbClientItem').render();
@@ -1065,8 +1065,8 @@ let $main = {
                                     syn.$l.get('txtTransactionProjectID').value = item.menuName;
 
                                     syn.$w.showDialog(syn.$l.get('tplCreateTransactItem'), {
-                                        minWidth: 1024,
-                                        minHeight: 413,
+                                        minWidth: 1080,
+                                        minHeight: 428
                                     });
 
                                     syn.uicontrols.$grid.getGridControl('grdFeatureTransactItem').render();
@@ -1077,8 +1077,8 @@ let $main = {
                                     syn.$l.get('txtViewItemName').value = '';
 
                                     syn.$w.showDialog(syn.$l.get('tplCreateViewItem'), {
-                                        minWidth: 480,
-                                        minHeight: 224,
+                                        minWidth: 540,
+                                        minHeight: 260
                                     });
 
                                     syn.$l.get('txtViewItemName').focus();
@@ -1129,8 +1129,8 @@ let $main = {
                                     syn.$l.get('txtFunctionLanguage').value = item.parentMenuName;
 
                                     syn.$w.showDialog(syn.$l.get('tplCreateFunctionItem'), {
-                                        minWidth: 1024,
-                                        minHeight: 574,
+                                        minWidth: 1080,
+                                        minHeight: 600
                                     });
 
                                     syn.uicontrols.$grid.getGridControl('grdFeatureFunctionItem').render();
@@ -1281,8 +1281,8 @@ let $main = {
             }
 
             syn.$w.showDialog(syn.$l.get('tplDevelopmentSetting'), {
-                minWidth: 560,
-                minHeight: 568,
+                minWidth: 620,
+                minHeight: 580
             });
             syn.$l.get('txtFontFamily').focus();
         },

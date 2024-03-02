@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+    <header>
+        <application>HDS</application>
+        <project>CHP</project>
+        <transaction>CHP020</transaction>
+        <datasource>CHECKUPDB</datasource>
+        <use>Y</use>
+        <desc>코드도움 관리</desc>
+    </header>
+    <commands>
+        <statement id="LD01" seq="0" use="Y" timeout="0" desc="코드도움 목록 조회">
+            <![CDATA[
+SELECT CH.CodeHelpID
+    , CH.CodeHelpName
+    , CH.DataSourceID
+    , CH.CommandText
+    , CH.CodeColumnID
+    , CH.ValueColumnID
+    , CH.UseYN
+    , CH.Comment
+    , CH.CreatedMemberNo
+    , strftime('%Y-%m-%d', CH.CreatedAt) AS CreatedAt
+    , '${#TenantID}' AS [#TenantID]
+FROM 
+    CodeHelp CH;
+			]]>
+        </statement>
+
+        <statement id="LD02" seq="0" use="Y" timeout="0" desc="코드도움 스키마 목록 조회">
+            <![CDATA[
+SELECT CHS.CodeHelpID
+    , CHS.ColumnID AS BaseColumnID
+    , CHS.ColumnID
+    , CHS.ColumnText
+    , CHS.HiddenYN
+    , CHS.SortingNo
+    , '${#TenantID}' AS [#TenantID]
+FROM 
+    CodeHelpScheme CHS
+WHERE CHS.CodeHelpID = @CodeHelpID
+ORDER BY CHS.SortingNo
+    , CHS.CodeHelpID;
+			]]>
+            <param id="@CodeHelpID" type="String" length="10" value="" />
+        </statement>
+
+        <statement id="ID01" seq="0" use="Y" timeout="0" desc="코드도움 정보 입력">
+            <![CDATA[
+INSERT INTO CodeHelp
+(
+    CodeHelpID
+    , CodeHelpName
+    , DataSourceID
+    , CommandText
+    , CodeColumnID
+    , ValueColumnID
+    , UseYN
+    , Comment
+    , CreatedMemberNo
+    , CreatedAt
+) 
+VALUES
+(
+    @CodeHelpID
+    , @CodeHelpName
+    , @DataSourceID
+    , @CommandText
+    , @CodeColumnID
+    , @ValueColumnID
+    , 'Y'
+    , @Comment
+    , @CreatedMemberNo
+    , DATETIME('now', 'localtime')
+);
+			]]>
+            <param id="@CodeHelpID" type="String" length="10" value="" />
+            <param id="@CodeHelpName" type="String" length="50" value="" />
+            <param id="@DataSourceID" type="String" length="30" value="" />
+            <param id="@CommandText" type="String" length="-1" value="" />
+            <param id="@CodeColumnID" type="String" length="20" value="" />
+            <param id="@ValueColumnID" type="String" length="20" value="" />
+            <param id="@UseYN" type="String" length="1" value="" />
+            <param id="@Comment" type="String" length="1000" value="" />
+            <param id="@CreatedMemberNo" type="String" length="36" value="" />
+        </statement>
+
+        <statement id="DD01" seq="0" use="Y" timeout="0" desc="코드도움 정보 삭제">
+            <![CDATA[
+DELETE FROM CodeHelpScheme WHERE CodeHelpID = @CodeHelpID;
+    
+DELETE FROM CodeHelp WHERE CodeHelpID = @CodeHelpID;
+			]]>
+            <param id="@CodeHelpID" type="String" length="10" value="" />
+        </statement>
+
+        <statement id="MD01" seq="0" use="Y" timeout="0" desc="코드도움 정보 변경">
+            <if test="(Flag == 'U')">
+                <![CDATA[
+UPDATE CodeHelp SET DataSourceID = @DataSourceID
+    , CodeHelpName = @CodeHelpName
+    , CommandText = @CommandText
+    , CodeColumnID = @CodeColumnID
+    , ValueColumnID = @ValueColumnID
+    , UseYN = @UseYN
+    , Comment = @Comment
+    , CreatedAt = DATETIME('now', 'localtime')
+WHERE CodeHelpID = @CodeHelpID;
+			    ]]>
+            </if>
+            <param id="@CodeHelpID" type="String" length="10" value="" />
+            <param id="@DataSourceID" type="String" length="30" value="" />
+            <param id="@CodeHelpName" type="String" length="50" value="" />
+            <param id="@CommandText" type="String" length="-1" value="" />
+            <param id="@CodeColumnID" type="String" length="20" value="" />
+            <param id="@ValueColumnID" type="String" length="20" value="" />
+            <param id="@UseYN" type="String" length="1" value="" />
+            <param id="@Comment" type="String" length="1000" value="" />
+            <param id="@CreatedMemberNo" type="String" length="36" value="" />
+        </statement>
+
+        <statement id="MD01" seq="1" use="Y" timeout="0" desc="코드도움 스키마 정보 입력 또는 변경, 삭제">
+            <if test="(Flag == 'C')">
+                <![CDATA[
+INSERT INTO CodeHelpScheme
+(
+    CodeHelpID
+    , ColumnID
+    , ColumnText
+    , HiddenYN
+    , SortingNo
+) 
+SELECT
+    @CodeHelpID
+    , @ColumnID
+    , @ColumnText
+    , @HiddenYN
+    , @SortingNo
+WHERE NOT EXISTS (SELECT 1 FROM CodeHelpScheme WHERE CodeHelpID = @CodeHelpID AND ColumnID = @ColumnID);
+			    ]]>
+            </if>
+
+            <if test="(Flag == 'U')">
+                <![CDATA[
+UPDATE CodeHelpScheme SET CodeHelpID = @CodeHelpID
+    , ColumnID = @ColumnID
+    , ColumnText = @ColumnText
+    , HiddenYN = @HiddenYN
+    , SortingNo = @SortingNo
+WHERE CodeHelpID = @CodeHelpID
+    AND ColumnID = @BaseColumnID;
+				]]>
+            </if>
+
+            <if test="(Flag == 'D')">
+                <![CDATA[
+DELETE FROM CodeHelpScheme WHERE GroupCode = @GroupCode
+    AND CodeID = @BaseColumnID;
+				]]>
+            </if>
+            <param id="@CodeHelpID" type="String" length="10" value="" />
+            <param id="@BaseColumnID" type="String" length="10" value="" />
+            <param id="@ColumnID" type="String" length="50" value="" />
+            <param id="@ColumnText" type="String" length="200" value="" />
+            <param id="@HiddenYN" type="String" length="1" value="" />
+            <param id="@SortingNo" type="Int32" length="-1" value="NULL" />
+        </statement>
+    </commands>
+</mapper>

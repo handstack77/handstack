@@ -1412,9 +1412,19 @@ namespace transact.Areas.transact.Controllers
                                     else
                                     {
                                         transactField.Value = item.Value;
+                                        if (transactField.Value.ToString() == "")
+                                        {
+                                            string dataType = transactField.DataType.ToLower();
+                                            if (dataType.Contains("string") == true || dataType.Contains("char") == true)
+                                            {
+                                            }
+                                            else
+                                            {
+                                                transactField.Value = null;
+                                            }
+                                        }
                                     }
                                 }
-                                transactField.Value = item.Value == null ? (column.Require == true ? column.Default : null) : item.Value;
 
                                 transactInput.Add(transactField);
                             }
@@ -1487,9 +1497,19 @@ namespace transact.Areas.transact.Controllers
                                     else
                                     {
                                         transactField.Value = REQ_FIELD_DAT;
+                                        if (transactField.Value.ToString() == "")
+                                        {
+                                            string dataType = transactField.DataType.ToLower();
+                                            if (dataType.Contains("string") == true || dataType.Contains("char") == true)
+                                            {
+                                            }
+                                            else
+                                            {
+                                                transactField.Value = null;
+                                            }
+                                        }
                                     }
                                 }
-                                transactField.Value = REQ_FIELD_DAT == null ? (column.Require == true ? column.Default : null) : REQ_FIELD_DAT;
 
                                 transactInput.Add(transactField);
                             }

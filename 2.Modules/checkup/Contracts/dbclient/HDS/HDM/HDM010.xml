@@ -77,7 +77,7 @@ VALUES
     , @Acronyms
     , @Comment
     , @CreatedMemberNo
-    , datetime('now', 'localtime')
+    , DATETIME('now', 'localtime')
 );
 			]]>
             <param id="@ApplicationNo" type="String" length="36" value="" />
@@ -91,7 +91,7 @@ VALUES
 
         <statement id="DD01" seq="0" use="Y" timeout="0" desc="데이터 모델 정보 삭제">
             <![CDATA[
-UPDATE MetaEntity SET DeletedAt = datetime('now', 'localtime')
+UPDATE MetaEntity SET DeletedAt = DATETIME('now', 'localtime')
     , ModifiedMemberNo = @ModifiedMemberNo
 WHERE DeletedAt IS NULL
     AND EntityNo = @EntityNo;
@@ -118,7 +118,7 @@ UPDATE MetaEntity SET EntityID = @EntityID
     , Acronyms = @Acronyms
     , Comment = @Comment
     , ModifiedMemberNo = @ModifiedMemberNo
-    , ModifiedAt = datetime('now', 'localtime')
+    , ModifiedAt = DATETIME('now', 'localtime')
 WHERE DeletedAt IS NULL
     AND EntityNo = @EntityNo;
 			    ]]>

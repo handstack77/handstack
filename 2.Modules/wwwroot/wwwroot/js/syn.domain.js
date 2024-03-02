@@ -1984,6 +1984,10 @@
                         inputObjects.push({ prop: 'CompanyNo', val: syn.$w.User.WorkCompanyNo });
                     }
 
+                    if (parameters.indexOf('#TenantID') > -1 && parameters.indexOf(`${syn.$w.ManagedApp.UserWorkID}|${syn.$w.ManagedApp.ApplicationID}`) > -1) {
+                        inputObjects.push({ prop: '#TenantID', val: `${syn.$w.ManagedApp.UserWorkID}|${syn.$w.ManagedApp.ApplicationID}` });
+                    }
+
                     transactionObject.inputs.push(inputObjects);
                     transactionObject.inputsItemCount.push(1);
 

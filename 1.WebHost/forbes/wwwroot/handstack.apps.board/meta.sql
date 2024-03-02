@@ -110,3 +110,63 @@ INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('정보
     , ('정보', '정보 게시물 제목30', '정보 게시물 내용30', '개발자', datetime('now', 'localtime', '-30 day'))
     , ('강좌', '강좌 게시물 제목30', '강좌 게시물 내용30', '개발자', datetime('now', 'localtime', '-30 day'))
     , ('소식', '소식 게시물 제목30', '소식 게시물 내용30', '개발자', datetime('now', 'localtime', '-30 day'));
+
+-- 기초코드
+INSERT INTO BaseCode (GroupCode,CodeID,CodeValue,CategoryID,Value1,Value2,Value3,Value4,Value5,Comment,SortingNo,CreatedMemberNo,CreatedAt) VALUES
+	 ('SYS000','SYS006','프로젝트 구분','system',NULL,NULL,NULL,NULL,NULL,'개발관점에서 화면, 업무, 데이터베이스로 프로젝트를 구분',NULL,'system',DATETIME('NOW', 'localtime')),
+	 ('SYS000','SYS014','데이터베이스 제공자','system',NULL,NULL,NULL,NULL,NULL,'데이터베이스 제공자',NULL,'system',DATETIME('NOW', 'localtime')),
+	 ('SYS000','SYS016','기초코드 구분','system',NULL,NULL,NULL,NULL,NULL,'기초코드 구분',NULL,'system',DATETIME('NOW', 'localtime'));
+
+INSERT INTO BaseCode (GroupCode,CodeID,CodeValue,CategoryID,Value1,Value2,Value3,Value4,Value5,Comment,SortingNo,CreatedMemberNo,CreatedAt) VALUES
+	 ('SYS006','1','화면','system',NULL,NULL,NULL,NULL,NULL,NULL,1,'system',DATETIME('NOW', 'localtime')),
+	 ('SYS006','2','업무','system',NULL,NULL,NULL,NULL,NULL,NULL,2,'system',DATETIME('NOW', 'localtime')),
+	 ('SYS006','3','데이터베이스','system',NULL,NULL,NULL,NULL,NULL,NULL,3,'system',DATETIME('NOW', 'localtime')),
+	 ('SYS006','4','배치 프로그램','system',NULL,NULL,NULL,NULL,NULL,NULL,4,'system',DATETIME('NOW', 'localtime')),
+	 ('SYS006','5','파일','system',NULL,NULL,NULL,NULL,NULL,NULL,5,'system',DATETIME('NOW', 'localtime'));
+
+INSERT INTO BaseCode (GroupCode,CodeID,CodeValue,CategoryID,Value1,Value2,Value3,Value4,Value5,Comment,SortingNo,CreatedMemberNo,CreatedAt) VALUES
+	 ('SYS014','1','MSSQL','system',NULL,NULL,NULL,NULL,NULL,NULL,1,'system',DATETIME('NOW', 'localtime')),
+	 ('SYS014','2','ORACLE','system',NULL,NULL,NULL,NULL,NULL,NULL,2,'system',DATETIME('NOW', 'localtime')),
+	 ('SYS014','3','MYSQL','system',NULL,NULL,NULL,NULL,NULL,NULL,3,'system',DATETIME('NOW', 'localtime')),
+	 ('SYS014','4','SQLite','system',NULL,NULL,NULL,NULL,NULL,NULL,4,'system',DATETIME('NOW', 'localtime')),
+	 ('SYS014','5','PostgreSQL','system',NULL,NULL,NULL,NULL,NULL,NULL,5,'system',DATETIME('NOW', 'localtime'));
+
+INSERT INTO BaseCode (GroupCode,CodeID,CodeValue,CategoryID,Value1,Value2,Value3,Value4,Value5,Comment,SortingNo,CreatedMemberNo,CreatedAt) VALUES
+	 ('SYS016','0','시스템','system',NULL,NULL,NULL,NULL,NULL,NULL,1,'system',DATETIME('NOW', 'localtime')),
+	 ('SYS016','1','공통','system',NULL,NULL,NULL,NULL,NULL,NULL,2,'system',DATETIME('NOW', 'localtime')),
+	 ('SYS016','2','프로그램','system',NULL,NULL,NULL,NULL,NULL,NULL,3,'system',DATETIME('NOW', 'localtime'));
+
+-- 코드도움
+INSERT INTO CodeHelp (CodeHelpID,DataSourceID,CodeHelpName,CommandText,CodeColumnID,ValueColumnID,UseYN,Comment,CreatedMemberNo,CreatedAt) VALUES
+     ('CHP001','CHECKUPDB','기초코드','SELECT BC.CodeID
+       , BC.CodeValue
+FROM   BaseCode BC
+WHERE  BC.GroupCode = @GroupCode
+ORDER  BY BC.SortingNo;','CodeID','CodeValue','Y','기초코드 데이터','system',DATETIME('NOW', 'localtime'));
+
+INSERT INTO CodeHelp (CodeHelpID,DataSourceID,CodeHelpName,CommandText,CodeColumnID,ValueColumnID,UseYN,Comment,CreatedMemberNo,CreatedAt) VALUES
+	 ('CHP014','CHECKUPDB','태넌트 엔티티 정보','SELECT ME.EntityNo
+    , ME.EntityID || '' ['' || ME.EntityName || '']'' AS EntityName
+	, ME.Acronyms
+	, (SELECT json_group_array(
+		json_object(
+			''FieldID'', FieldID,
+			''FieldType'', FieldType,
+			''MaxLength'', MaxLength,
+			''SortingNo'', SortingNo,
+			''FieldIndex'', FieldIndex
+		)
+	) AS EntityField
+FROM (SELECT MF.FieldID, MF.FieldType, MF.MaxLength, MF.SortingNo, CASE WHEN MF.PK = ''Y'' OR MF.IX = ''Y'' OR MF.UI = ''Y'' THEN ''Y'' ELSE ''N'' END AS FieldIndex FROM MetaField MF WHERE MF.EntityNo = ME.EntityNo)
+MF) AS EntityField
+FROM MetaEntity ME
+WHERE  ME.DeletedAt IS NULL
+	AND ME.ApplicationNo = @ApplicationNo
+ORDER  BY ME.EntityID;','EntityNo','EntityName','Y','사용자 엔티티 정보','system',DATETIME('NOW', 'localtime'));
+
+-- 코드도움 스키마
+INSERT INTO CodeHelpScheme (CodeHelpID,ColumnID,ColumnText,HiddenYN,SortingNo) VALUES
+	 ('CHP001','CodeID','코드ID',0,3),
+	 ('CHP001','CodeValue','코드값',0,4),
+	 ('CHP001','LocaleID','언어권ID',1,2),
+	 ('CHP001','SelectY','기본선택여부',1,1);

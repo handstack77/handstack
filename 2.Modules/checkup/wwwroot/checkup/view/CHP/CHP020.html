@@ -1,0 +1,191 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <input type="hidden" id="txtApplicationNo" syn-datafield="ApplicationNo" syn-options="{belongID: ['LD01', 'ID01', 'MD01']}">
+        <input type="hidden" id="txtUserNo" syn-datafield="UserNo" syn-options="{belongID: ['ID01']}">
+        <input type="hidden" id="txtTenantID" syn-datafield="#TenantID" syn-options="{belongID: ['LD01', 'LD02', 'ID01', 'DD01', 'MD01']}">
+        <div class="page">
+            <div class="page-wrapper">
+                <div class="page-header mt-2 d-print-none">
+                    <div class="container-fluid max-width:1600!">
+                        <div class="row g-2 align-items-center">
+                            <div class="col">
+                                <div class="page-pretitle font:12!">
+                                    GNB 메뉴 / LNB 메뉴
+                                </div>
+                                <h2 class="page-title">
+                                    코드도움 관리
+                                </h2>
+                            </div>
+                            <div class="col-auto ms-auto d-print-none">
+                                <div class="btn-list">
+                                    <button type="button" id="btnNewCodeHelp" syn-events="['click']" class="btn btn-primary">
+                                        <i class="font:20 mr:4 ti ti-news"></i>
+                                        신규 코드도움
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-body mt-2">
+                    <div class="container-fluid max-width:1600!">
+                        <div class="card">
+                            <div class="row g-0">
+                                <div class="col-9 d-none d-md-block border-end">
+                                    <div class="card-header">
+                                        <h3 class="card-title">코드도움 그룹</h3>
+                                    </div>
+                                    <div class="card-body p-2">
+                                        <div class="form-fieldset p-0">
+                                            <syn_grid id="grdCodeHelp" syn-datafield="CodeHelp" syn-options="{
+                                                height: 584
+                                                , outsideClickDeselects: false
+				                                , columns: [
+                                                    ['CodeHelpID', '코드도움 ID', 90, false, 'text', true, 'left', ['LD02', 'DD01', 'MD01']]
+                                                    , ['CodeHelpName', '코드도움명', 120, false, 'text', false, 'left', 'MD01']
+                                                    , ['DataSourceID', '데이터소스 ID', 90, false, 'text', false, 'left', 'MD01']
+                                                    , ['CommandText', 'SQL', 280, false, 'text', false, 'left', 'MD01']
+                                                    , ['CodeColumnID', '코드 컬럼 ID', 100, false, 'text', false, 'left', 'MD01']
+                                                    , ['ValueColumnID', '데이터 컬럼 ID', 100, false, 'text', false, 'left', 'MD01']
+                                                    , ['UseYN', '사용', 50, false, 'checkbox2', false, 'center', 'MD01']
+                                                    , ['Comment', '설명', 160, false, 'text', false, 'left', 'MD01']
+                                                    , ['CreatedMemberNo', '입력회원NO', 100, true, 'text', true, 'center', 'MD01']
+                                                    , ['CreatedAt', '입력일자', 90, false, 'text', true, 'center']
+                                                    , ['#TenantID', 'TenantID', 100, true, 'text', true, 'center', ['LD02', 'DD01', 'MD01']]
+				                                ]
+			                                }" syn-events="['afterSelectionEnd']"></syn_grid>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col d-flex flex-column">
+                                    <div class="card-header">
+                                        <h3 class="card-title">데이터 상세</h3>
+                                        <div class="card-actions">
+                                            <div class="input-group">
+                                                <select id="ddlAddCount" class="form-select mx-2">
+                                                    <option value="1" selected="selected">1</option>
+                                                    <option value="3">3</option>
+                                                    <option value="6">6</option>
+                                                    <option value="9">9</option>
+                                                </select>
+                                                <div class="btn-group">
+                                                    <button type="button" id="btnAddCodeHelpScheme" syn-events="['click']" class="btn btn-icon bg-muted-lt"><i class="f:18 ti ti-plus"></i></button>
+                                                    <button type="button" id="btnRemoveCodeHelpScheme" syn-events="['click']" class="btn btn-icon bg-muted-lt"><i class="f:18 ti ti-minus"></i></button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-body p-2">
+                                        <div class="form-fieldset p-0">
+                                            <syn_grid id="grdCodeHelpScheme" syn-datafield="CodeHelpScheme" syn-options="{
+                                                height: 584
+                                                , isContainFilterHeader: true
+				                                , columns: [
+                                                    ['CodeHelpID', '그룹코드', 100, true, 'text', true, 'left', ['LD02', 'MD01']]
+                                                    , ['BaseColumnID', '기준코드 ID', 100, true, 'text', true, 'left', 'MD01']
+                                                    , ['ColumnID', '코드 컬럼 ID', 100, false, 'text', false, 'left', 'MD01']
+                                                    , ['ColumnText', '코드 컬럼명', 100, false, 'text', false, 'left', 'MD01']
+                                                    , ['HiddenYN', '숨김', 50, false, 'checkbox2', false, 'center', 'MD01']
+                                                    , ['SortingNo', '순서', 50, false, 'numeric', false, 'center', 'MD01']
+                                                    , ['#TenantID', 'TenantID', 100, true, 'text', true, 'center', ['LD02', 'MD01']]
+				                                ]
+			                                }" syn-events="['afterSelectionEnd']"></syn_grid>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="tplCodeHelp" class="hidden h:100%">
+            <h3 class="mt-0 mb-0">신규 코드도움</h3>
+            <div class="card mt:-1" style="height: calc(100% - 37px) !important;">
+                <div class="card-body pb-0">
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="mb-3 row">
+                                <label class="col-3 col-form-label required">코드도움 ID</label>
+                                <div class="col">
+                                    <input type="hidden" id="txtCreatedMemberNo" syn-datafield="CreatedMemberNo" syn-options="{belongID: 'ID01'}" />
+                                    <input id="txtCodeHelpID" syn-datafield="CodeHelpID" syn-options="{editType: 'english', belongID: 'ID01'}" type="text" class="form-control" placeholder="고유한 식별자를 입력하세요">
+                                    <small class="form-hint">의미가 분명한 영문자를 입력합니다 공백, 특수문자, 숫자를 포함할 수 없습니다</small>
+                                </div>
+                            </div>
+                            <div class="mb-3 row">
+                                <label class="col-3 col-form-label required">코드도움 명</label>
+                                <div class="col">
+                                    <input id="txtCodeHelpName" syn-datafield="CodeHelpName" syn-options="{belongID: 'ID01'}" type="text" class="form-control" placeholder="예) 회사, 부서, 직원...">
+                                    <small class="form-hint">
+                                        코드도움 ID를 식별을 위한 정보성 명칭을 입력합니다
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="mb-3 row">
+                                <label class="col-3 col-form-label required">데이터 소스 ID</label>
+                                <div class="col">
+                                    <input id="txtDataSourceID" syn-datafield="DataSourceID" syn-options="{belongID: 'ID01'}" type="text" class="form-control">
+                                    <small class="form-hint">
+                                        코드 데이터를 조회하는 데이터 소스 ID를 입력합니다
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="mb-3 row">
+                                <label class="col-3 col-form-label required">코드 컬럼 ID</label>
+                                <div class="col">
+                                    <input id="txtCodeColumnID" syn-datafield="CodeColumnID" syn-options="{belongID: 'ID01'}" type="text" class="form-control">
+                                    <small class="form-hint">
+                                        코드 데이터를 표현하는 컬럼 ID를 입력합니다
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="mb-3 row">
+                                <label class="col-3 col-form-label required">데이터 컬럼 ID</label>
+                                <div class="col">
+                                    <input id="txtValueColumnID" syn-datafield="ValueColumnID" syn-options="{belongID: 'ID01'}" type="text" class="form-control">
+                                    <small class="form-hint">
+                                        값 데이터를 표현하는 컬럼 ID를 입력합니다
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="mb-3 row">
+                                <label class="col-3 col-form-label">설명</label>
+                                <div class="col">
+                                    <textarea id="txtComment" syn-datafield="Comment" syn-options="{toSynControl: false, belongID: 'ID01', height: '56px'}" rows="3" class="form-control resize:none"></textarea>
+                                    <small class="form-hint">
+                                        앱 내에서 사용할 코드도움에 대한 설명을 자유롭게 입력합니다
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="mb-2 row">
+                                <div class="card-header p-0 border-b-0">
+                                    <h3 class="card-title w:98% required">SQL</h3>
+                                </div>
+                            </div>
+                            <div class="form-fieldset p-0">
+                                <textarea id="txtCommandText" syn-datafield="CommandText" syn-options="{toSynControl: false, belongID: 'ID01', height: '460px'}" rows="22" class="form-control resize:none"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer text-end p:10!">
+                    <button type="button" id="btnSaveCodeHelp" syn-events="['click']" class="btn btn-primary">
+                        <i class="font:20 mr:4 ti ti-check"></i>
+                        확인
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

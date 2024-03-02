@@ -77,6 +77,12 @@
 
 	<ItemGroup>
 		<Content Remove="Contracts\repository\HDS\checkup.json" />
+		<Content Remove="Contracts\transact\HDS\CHP\CHP010.json" />
+		<Content Remove="Contracts\transact\HDS\CHP\CHP020.json" />
+		<Content Remove="wwwroot\checkup\view\CHP\CHP010.html" />
+		<Content Remove="wwwroot\checkup\view\CHP\CHP010.js" />
+		<Content Remove="wwwroot\checkup\view\CHP\CHP020.html" />
+		<Content Remove="wwwroot\checkup\view\CHP\CHP020.js" />
 	</ItemGroup>
 
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">

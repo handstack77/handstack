@@ -35,7 +35,7 @@ SELECT AM.ApplicationNo
 FROM
     Member M
     INNER JOIN ApplicationMember AM ON AM.MemberNo = M.MemberNo
-    INNER JOIN BaseCode BC ON BC.GroupID = 'SYS034' AND BC.CodeID = AM.MemberStatus
+    INNER JOIN BaseCode BC ON BC.GroupCode = 'SYS034' AND BC.CodeID = AM.MemberStatus
 WHERE 
     AM.ApplicationNo = @ApplicationNo
     AND AM.CreatedMemberNo != AM.MemberNo
@@ -92,7 +92,7 @@ SELECT @ApplicationNo
     , CASE WHEN @ExpiredAt = '' THEN NULL ELSE @ExpiredAt || ' 23:59:59' END
     , @Options
     , @CreatedMemberNo
-    , datetime('now', 'localtime')
+    , DATETIME('now', 'localtime')
 WHERE NOT EXISTS (SELECT 1 FROM ApplicationMember WHERE ApplicationNo = @ApplicationNo AND EmailID = @EmailID);
 			]]>
             </if>
@@ -109,7 +109,7 @@ SET MemberNo = @MemberNo
     , ExpiredAt = CASE WHEN @ExpiredAt = '' THEN NULL ELSE @ExpiredAt || ' 23:59:59' END
     , Options = @Options
     , ModifiedMemberNo = @ModifiedMemberNo
-    , ModifiedAt = datetime('now', 'localtime')
+    , ModifiedAt = DATETIME('now', 'localtime')
 WHERE ApplicationNo = @ApplicationNo
     AND EmailID = @EmailID
     AND CreatedMemberNo != MemberNo;

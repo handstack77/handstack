@@ -11223,10 +11223,15 @@
         checkEmptyValueCol(elID, column, checkValue) {
             var result = false;
             if ($object.isNullOrUndefined(checkValue) == true) {
-                result = $grid.getDataAtCol(elID, column).filter((item) => { return $string.isNullOrEmpty(item) == true }).length > 0;
+                if ($grid.countRows(elID) == 0) {
+                    result = false;
+                }
+                else {
+                    result = $grid.getDataAtCol(elID, column).filter((item) => { return $string.isNullOrEmpty(item) == true }).length > 0;
+                }
             }
             else {
-                result = $grid.getDataAtCol(elID, column).filter((item) => { return $string.isNullOrEmpty(item) == true || item === checkValue }).length > 0;
+                result = $grid.getDataAtCol(elID, column).filter((item) => { return item === checkValue }).length > 0;
             }
             return result;
         },
