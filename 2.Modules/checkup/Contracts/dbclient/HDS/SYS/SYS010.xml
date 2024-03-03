@@ -871,7 +871,6 @@ CREATE INDEX IF NOT EXISTS "IX_MetaRelation_ApplicationNo_CreatedMemberNo" ON "M
 SELECT CH.CodeHelpID
        , CH.DataSourceID
        , CH.CodeHelpName
-       , CH.CommandType
        , CH.CommandText
        , CH.CodeColumnID
        , CH.ValueColumnID
