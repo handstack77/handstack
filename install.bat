@@ -34,11 +34,6 @@ if %errorlevel% neq 0 (
    )
 )
 
-set current_path=%cd%
-cd %current_path%/app
-dotnet tool install -g Microsoft.Web.LibraryManager.Cli
-libman restore
-
 where pm2 >nul 2>nul
 if %errorlevel% neq 0 (
     echo Node.js 기반 pm2 설치를 시작합니다...
@@ -57,6 +52,7 @@ if %errorlevel% neq 0 (
     npm install -g uglify-js
 )
 
+set current_path=%cd%
 echo current_path: %current_path% package.json 설치 확인 중...
 
 if exist %current_path%/app/ack.dll (
@@ -73,9 +69,12 @@ if exist %current_path%/app/ack.dll (
    )
 
    if not exist %current_path%/modules/wwwroot/node_modules (
-      echo syn.bundle.js 모듈 %current_path%/modules/wwwroot/package.json 설치를 시작합니다...
-      cd %current_path%/modules/wwwroot
-      call npm install
+        echo syn.bundle.js 모듈 %current_path%/modules/wwwroot/package.json 설치를 시작합니다...
+        cd %current_path%/modules/wwwroot
+        call npm install
+        echo 클라이언트 라이브러리 설치를 시작합니다...
+        dotnet tool install -g Microsoft.Web.LibraryManager.Cli
+        libman restore
    )
 
    echo HandStack 설치가 완료되었습니다. 터미널에서 다음 경로의 프로그램을 실행하세요. %current_path%/app/ack.exe
