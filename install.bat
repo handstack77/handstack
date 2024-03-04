@@ -34,6 +34,11 @@ if %errorlevel% neq 0 (
    )
 )
 
+set current_path=%cd%
+cd %current_path%/app
+dotnet tool install -g Microsoft.Web.LibraryManager.Cli
+libman restore
+
 where pm2 >nul 2>nul
 if %errorlevel% neq 0 (
     echo Node.js 기반 pm2 설치를 시작합니다...
@@ -52,7 +57,6 @@ if %errorlevel% neq 0 (
     npm install -g uglify-js
 )
 
-set current_path=%cd%
 echo current_path: %current_path% package.json 설치 확인 중...
 
 if exist %current_path%/app/ack.dll (

@@ -12,7 +12,7 @@
     },
     "Definition": {
         "Styles": [
-            "/css/tabler-icons.css",
+            "/lib/tabler-icons-webfont/tabler-icons.css",
             "/app/#{ApplicationNo}/assets/app.bundle.min.css"
         ],
         "Scripts": [

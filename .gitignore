@@ -367,3 +367,4 @@ FodyWeavers.xsd
 # handstack
 .managed/
 .nupkg/
+2.Modules/wwwroot/wwwroot/lib/

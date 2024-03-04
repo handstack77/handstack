@@ -4641,7 +4641,7 @@ ul.fancytree-container li.fancytree-lastsib {
   background-color: silver;
 }
 ul.fancytree-connectors.fancytree-container li {
-  background-image: url("/lib/fancytree-2.38.0/skin-win8/vline.gif");
+  background-image: url("/lib/fancytree/skin-win8/vline.gif");
   background-position: 0 0;
 }
 ul.fancytree-container li.fancytree-lastsib,
@@ -4666,7 +4666,7 @@ span.fancytree-drag-helper-img,
   display: inline-block;
   vertical-align: top;
   background-repeat: no-repeat;
-  background-image: url("/lib/fancytree-2.38.0/skin-win8/icons.gif");
+  background-image: url("/lib/fancytree/skin-win8/icons.gif");
   background-position: 0px 0px;
 }
 span.fancytree-icon,
@@ -4713,7 +4713,7 @@ span.fancytree-expander {
 }
 .fancytree-connectors .fancytree-exp-n span.fancytree-expander,
 .fancytree-connectors .fancytree-exp-nl span.fancytree-expander {
-  background-image: url("/lib/fancytree-2.38.0/skin-win8/icons.gif");
+  background-image: url("/lib/fancytree/skin-win8/icons.gif");
   margin-top: 0;
 }
 .fancytree-connectors .fancytree-exp-n span.fancytree-expander,
@@ -4901,7 +4901,7 @@ span.fancytree-icon {
 .fancytree-statusnode-loading span.fancytree-icon,
 .fancytree-statusnode-loading span.fancytree-icon:hover,
 span.fancytree-icon.fancytree-icon-loading {
-  background-image: url("/lib/fancytree-2.38.0/skin-win8/loading.gif");
+  background-image: url("/lib/fancytree/skin-win8/loading.gif");
   background-position: 0px 0px;
 }
 /* Status node icons */
@@ -5015,7 +5015,7 @@ span.fancytree-drag-source.fancytree-drag-remove {
 .fancytree-container.fancytree-rtl span.fancytree-expander,
 .fancytree-container.fancytree-rtl span.fancytree-icon,
 .fancytree-container.fancytree-rtl span.fancytree-drag-helper-img {
-  background-image: url("/lib/fancytree-2.38.0/skin-win8/icons-rtl.gif");
+  background-image: url("/lib/fancytree/skin-win8/icons-rtl.gif");
 }
 .fancytree-container.fancytree-rtl .fancytree-exp-n span.fancytree-expander,
 .fancytree-container.fancytree-rtl .fancytree-exp-nl span.fancytree-expander {
@@ -5023,21 +5023,21 @@ span.fancytree-drag-source.fancytree-drag-remove {
 }
 .fancytree-container.fancytree-rtl.fancytree-connectors .fancytree-exp-n span.fancytree-expander,
 .fancytree-container.fancytree-rtl.fancytree-connectors .fancytree-exp-nl span.fancytree-expander {
-  background-image: url("/lib/fancytree-2.38.0/skin-win8/icons-rtl.gif");
+  background-image: url("/lib/fancytree/skin-win8/icons-rtl.gif");
 }
 ul.fancytree-container.fancytree-rtl ul {
   padding: 0 16px 0 0;
 }
 ul.fancytree-container.fancytree-rtl.fancytree-connectors li {
   background-position: right 0;
-  background-image: url("/lib/fancytree-2.38.0/skin-win8/vline-rtl.gif");
+  background-image: url("/lib/fancytree/skin-win8/vline-rtl.gif");
 }
 ul.fancytree-container.fancytree-rtl li.fancytree-lastsib,
 ul.fancytree-container.fancytree-rtl.fancytree-no-connector > li {
   background-image: none;
 }
 #fancytree-drop-marker.fancytree-rtl {
-  background-image: url("/lib/fancytree-2.38.0/skin-win8/icons-rtl.gif");
+  background-image: url("/lib/fancytree/skin-win8/icons-rtl.gif");
 }
 /*------------------------------------------------------------------------------
  * 'table' extension
@@ -5640,31 +5640,31 @@ a.ui-button:active,
 }
 .ui-icon,
 .ui-widget-content .ui-icon {
-	background-image: url("/lib/jquery-ui-contextmenu-1.18.1/images/ui-icons_444444_256x240.png");
+	background-image: url("/js/jquery-ui-contextmenu/images/ui-icons_444444_256x240.png");
 }
 .ui-widget-header .ui-icon {
-	background-image: url("/lib/jquery-ui-contextmenu-1.18.1/images/ui-icons_444444_256x240.png");
+	background-image: url("/js/jquery-ui-contextmenu/images/ui-icons_444444_256x240.png");
 }
 .ui-state-hover .ui-icon,
 .ui-state-focus .ui-icon,
 .ui-button:hover .ui-icon,
 .ui-button:focus .ui-icon {
-	background-image: url("/lib/jquery-ui-contextmenu-1.18.1/images/ui-icons_555555_256x240.png");
+	background-image: url("/js/jquery-ui-contextmenu/images/ui-icons_555555_256x240.png");
 }
 .ui-state-active .ui-icon,
 .ui-button:active .ui-icon {
-	background-image: url("/lib/jquery-ui-contextmenu-1.18.1/images/ui-icons_ffffff_256x240.png");
+	background-image: url("/js/jquery-ui-contextmenu/images/ui-icons_ffffff_256x240.png");
 }
 .ui-state-highlight .ui-icon,
 .ui-button .ui-state-highlight.ui-icon {
-	background-image: url("/lib/jquery-ui-contextmenu-1.18.1/images/ui-icons_777620_256x240.png");
+	background-image: url("/js/jquery-ui-contextmenu/images/ui-icons_777620_256x240.png");
 }
 .ui-state-error .ui-icon,
 .ui-state-error-text .ui-icon {
-	background-image: url("/lib/jquery-ui-contextmenu-1.18.1/images/ui-icons_cc0000_256x240.png");
+	background-image: url("/js/jquery-ui-contextmenu/images/ui-icons_cc0000_256x240.png");
 }
 .ui-button .ui-icon {
-	background-image: url("/lib/jquery-ui-contextmenu-1.18.1/images/ui-icons_777777_256x240.png");
+	background-image: url("/js/jquery-ui-contextmenu/images/ui-icons_777777_256x240.png");
 }
 
 /* positioning */

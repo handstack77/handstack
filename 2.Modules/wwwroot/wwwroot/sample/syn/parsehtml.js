@@ -25,7 +25,7 @@ let $parsehtml = {
                 }
             }
             else {
-                syn.$l.eventLog('extendLoad', '<script src="/lib/showdownjs@2.1.0/showdown.min.js"></script> 확인 필요', 'Warning');
+                syn.$l.eventLog('extendLoad', '<script src="/lib/showdown/showdown.min.js"></script> 확인 필요', 'Warning');
             }
 
             if (window.hljs) {
@@ -37,7 +37,7 @@ let $parsehtml = {
                 }
             }
             else {
-                syn.$l.eventLog('extendLoad', '<script src="/lib/highlight.js@11.6.0/highlight.min.js"></script> 확인 필요', 'Warning');
+                syn.$l.eventLog('extendLoad', '<script src="/lib/highlight.js/highlight.min.js"></script> 확인 필요', 'Warning');
             }
         }
     }

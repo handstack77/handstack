@@ -1,0 +1,281 @@
+{
+    "version": "1.0",
+    "defaultProvider": "cdnjs",
+    "libraries": [
+        {
+            "provider": "cdnjs",
+            "library": "JavaScript-autoComplete@1.0.4",
+            "destination": "wwwroot/lib/autocomplete/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "clipboard.js@2.0.11",
+            "destination": "wwwroot/lib/clipboard.js/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "bootstrap@5.3.3",
+            "destination": "wwwroot/lib/bootstrap/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "Chart.js@4.3.0",
+            "destination": "wwwroot/lib/chart.js/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "codemirror@6.65.7",
+            "destination": "wwwroot/lib/codemirror/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "jquery-contextmenu@2.9.2",
+            "destination": "wwwroot/lib/contextmenu/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "darkreader@4.9.79",
+            "destination": "wwwroot/lib/darkreader/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "datatable@2.0.2",
+            "destination": "wwwroot/lib/datatable/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "downloadjs@1.4.8",
+            "destination": "wwwroot/lib/downloadjs/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "draggabilly@3.0.0",
+            "destination": "wwwroot/lib/draggabilly/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "jquery.fancytree@2.38.3",
+            "destination": "wwwroot/lib/fancytree/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "flatpickr@4.6.13",
+            "destination": "wwwroot/lib/flatpickr/"
+        },
+        {
+            "provider": "jsdelivr",
+            "library": "fullcalendar@5.11.5",
+            "destination": "wwwroot/lib/fullcalendar/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "fuse.js@7.0.0",
+            "destination": "wwwroot/lib/fuse.js/"
+        },
+        {
+            "provider": "jsdelivr",
+            "library": "filedrop@2.1.0",
+            "destination": "wwwroot/lib/filedrop/"
+        },
+        {
+            "provider": "unpkg",
+            "library": "handsontable@14.1.0",
+            "destination": "wwwroot/lib/handsontable/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "highlight.js@11.9.0",
+            "destination": "wwwroot/lib/highlight.js/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "html2canvas@1.4.1",
+            "destination": "wwwroot/lib/html2canvas/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "iframe-resizer@4.3.9",
+            "destination": "wwwroot/lib/iframe-resizer/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "intro.js@7.2.0",
+            "destination": "wwwroot/lib/intro.js/"
+        },
+        {
+            "provider": "jsdelivr",
+            "library": "ispin@2.0.1",
+            "destination": "wwwroot/lib/ispin/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "jquery@3.7.1",
+            "destination": "wwwroot/lib/jquery/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "jsoneditor@10.0.1",
+            "destination": "wwwroot/lib/jsoneditor/"
+        },
+        {
+            "provider": "jsdelivr",
+            "library": "@master/css@1.37.8",
+            "destination": "wwwroot/lib/master-css/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "moment.js@2.30.1",
+            "destination": "wwwroot/lib/moment.js/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "monaco-editor@0.46.0",
+            "destination": "wwwroot/lib/monaco-editor/"
+        },
+        {
+            "provider": "jsdelivr",
+            "library": "mustache@4.2.0",
+            "destination": "wwwroot/lib/mustache/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "nanobar@0.4.2",
+            "destination": "wwwroot/lib/nanobar/"
+        },
+        {
+            "provider": "jsdelivr",
+            "library": "numbro@2.4.0",
+            "destination": "wwwroot/lib/numbro/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "orgchart@4.0.1",
+            "destination": "wwwroot/lib/orgchart/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "PapaParse@5.4.1",
+            "destination": "wwwroot/lib/papaparse/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "pdfobject@2.3.0",
+            "destination": "wwwroot/lib/pdfobject/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "pikaday@1.8.2",
+            "destination": "wwwroot/lib/pikaday/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "popper.js@2.11.8",
+            "destination": "wwwroot/lib/popper.js/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "print-js@1.6.0",
+            "destination": "wwwroot/lib/print-js/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "require.js@2.3.6",
+            "destination": "wwwroot/lib/require.js/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "js-sha256@0.11.0",
+            "destination": "wwwroot/lib/js-sha256/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "xlsx@0.18.5",
+            "destination": "wwwroot/lib/xlsx/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "showdown@2.1.0",
+            "destination": "wwwroot/lib/showdown/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "microsoft-signalr@8.0.0",
+            "destination": "wwwroot/lib/microsoft-signalr/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "sql-formatter@15.2.0",
+            "destination": "wwwroot/lib/sql-formatter/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "squel@5.13.0",
+            "destination": "wwwroot/lib/squel/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "superplaceholder@1.0.0",
+            "destination": "wwwroot/lib/superplaceholder/"
+        },
+        {
+            "provider": "jsdelivr",
+            "library": "@tabler/core@1.0.0-beta20",
+            "destination": "wwwroot/lib/tabler-core/"
+        },
+        {
+            "provider": "jsdelivr",
+            "library": "@tabler/icons-webfont@2.47.0",
+            "destination": "wwwroot/lib/tabler-icons-webfont/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "tail.select.js@0.5.23",
+            "destination": "wwwroot/lib/tail.select.js/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "tingle@0.16.0",
+            "destination": "wwwroot/lib/tingle/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "tinymce@5.10.9",
+            "destination": "wwwroot/lib/tinymce/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "tippy.js@6.3.7",
+            "destination": "wwwroot/lib/tippy.js/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "vanilla-masker@1.2.0",
+            "destination": "wwwroot/lib/vanilla-masker/"
+        },
+        {
+            "provider": "jsdelivr",
+            "library": "winbox@0.2.82",
+            "destination": "wwwroot/lib/winbox/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "x2js@1.2.0",
+            "destination": "wwwroot/lib/x2js/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "jquery.maskedinput@1.4.1",
+            "destination": "wwwroot/lib/jquery.maskedinput/"
+        },
+        {
+            "provider": "jsdelivr",
+            "library": "jquery-simplemodal@1.0.0",
+            "destination": "wwwroot/lib/jquery-simplemodal/"
+        },
+        {
+            "provider": "jsdelivr",
+            "library": "@csr/coloris@0.21.2",
+            "destination": "wwwroot/lib/coloris/"
+        }
+    ]
+}

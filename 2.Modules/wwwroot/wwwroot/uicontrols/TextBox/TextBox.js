@@ -1,5 +1,5 @@
 ﻿/// <reference path="/js/syn.js" />
-/// <reference path="/lib/superplaceholder-1.0.0/superplaceholder.js" />
+/// <reference path="/lib/superplaceholder/superplaceholder.js" />
 
 (function (window) {
     'use strict';

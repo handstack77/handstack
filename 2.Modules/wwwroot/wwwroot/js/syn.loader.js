@@ -408,18 +408,18 @@
             if (synConfig.Environment == 'Development') {
                 styleFiles = [
                     // syn.scripts.js
-                    '/lib/tabler@1.0.0-beta20/css/tabler.css',
-                    '/lib/handsontable-13.1.0/dist/handsontable.full.css',
-                    '/lib/tail.select-0.5.15/css/default/tail.select-light.css',
-                    '/lib/ispin-2.0.1/ispin.css',
-                    '/lib/css-checkbox-1.0.0/checkboxes.css',
-                    '/lib/color-picker-1.0.0/color-picker.css',
-                    '/lib/codemirror-5.50.2/codemirror.css',
-                    "/lib/fancytree-2.38.0/skin-win8/ui.fancytree.css",
-                    "/lib/jquery-ui-contextmenu-1.18.1/jquery-ui.css",
-                    "/lib/orgchart-3.1.1/jquery.orgchart.css",
-                    "/lib/printjs-1.6.0/print.min.css",
-                    '/lib/notifier-1.0.0/notifier.css',
+                    '/lib/tabler-core/dist/css/tabler.css',
+                    '/lib/handsontable/dist/handsontable.full.css',
+                    '/lib/tail.select.js/css/tail.select.css',
+                    '/lib/ispin/dist/ispin.css',
+                    '/js/css-checkbox/checkboxes.css',
+                    '/js/color-picker/color-picker.css',
+                    '/lib/codemirror/codemirror.css',
+                    "/lib/fancytree/skin-win8/ui.fancytree.css",
+                    "/js/jquery-ui-contextmenu/jquery-ui.css",
+                    "/lib/orgchart/css/jquery.orgchart.css",
+                    "/lib/print-js/print.min.css",
+                    '/js/notifier/notifier.css',
 
                     // syn.domain.js
                     '/css/layouts/Dialogs.css',
@@ -451,7 +451,7 @@
 
                     // 프로젝트 화면 디자인
                     '/css/base.css',
-                    '/css/tabler-icons.css',
+                    '/lib/tabler-icons-webfont/tabler-icons.css',
                 ];
 
                 jsFiles = [
@@ -507,7 +507,7 @@
         <script type="text/javascript">
             function pageLoadFiles(styleFiles, jsFiles, templateFiles) {
                 styleFiles.push('/js/uicontrols/GridList/GridList.css');
-                jsFiles.push('/assets/lib/datatable-1.10.21/datatables.js');
+                jsFiles.push('/assets/js/datatable/datatables.js');
             }
         </script>
          */

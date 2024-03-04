@@ -24,7 +24,7 @@
             isNumberTempDependency: true,
             height: 300,
             imageFileSizeLimit: 300000,
-            viewerHtml: '<html><head><base href="/"><style type="text/css">body { font-family: \'맑은 고딕\', 돋움체; font-size: 12px; }</style><link type="text/css" rel="stylesheet" href="/lib/tinymce-5.6.0/skins/ui/oxide/content.min.css"><link type="text/css" rel="stylesheet" href="/lib/tinymce-5.6.0/skins/content/default/content.min.css"></head><body id="tinymce" class="mce-content-body">{0}<script>document.onselectstart = function () { return false; }; document.oncontextmenu = function () { return false; }; document.addEventListener && document.addEventListener("click", function(e) {for (var elm = e.target; elm; elm = elm.parentNode) {if (elm.nodeName === "A" && !(e.ctrlKey && !e.altKey)) {e.preventDefault();}}}, false);</script></body></html>',
+            viewerHtml: '<html><head><base href="/"><style type="text/css">body { font-family: \'맑은 고딕\', 돋움체; font-size: 12px; }</style><link type="text/css" rel="stylesheet" href="/lib/tinymce/skins/ui/oxide/content.min.css"><link type="text/css" rel="stylesheet" href="/lib/tinymce/skins/content/default/content.min.css"></head><body id="tinymce" class="mce-content-body">{0}<script>document.onselectstart = function () { return false; }; document.oncontextmenu = function () { return false; }; document.addEventListener && document.addEventListener("click", function(e) {for (var elm = e.target; elm; elm = elm.parentNode) {if (elm.nodeName === "A" && !(e.ctrlKey && !e.altKey)) {e.preventDefault();}}}, false);</script></body></html>',
             language: 'ko_KR',
             // plugins: [
             //     'autolink link image lists print preview hr anchor pagebreak',
@@ -80,7 +80,7 @@
             if (window.tinymce) {
             }
             else {
-                syn.$w.loadScript('/lib/tinymce-5.6.0/tinymce.min.js');
+                syn.$w.loadScript('/lib/tinymce/tinymce.min.js');
             }
         },
 

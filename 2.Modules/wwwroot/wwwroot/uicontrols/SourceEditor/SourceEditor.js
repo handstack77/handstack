@@ -22,7 +22,7 @@
             lineNumbers: 'on',
             theme: 'vs-dark',
             dataType: 'string',
-            basePath: '/lib/monaco-editor-0.45.0/vs',
+            basePath: '/lib/monaco-editor/min/vs',
             belongID: null,
             controlText: null,
             validators: null,

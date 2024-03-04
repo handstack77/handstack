@@ -100,7 +100,7 @@
             $chart.chartControls.push({
                 id: elID,
                 chart: Highcharts.chart(elID, setting),
-                setting: $objectlection.clone(setting)
+                setting: $object.clone(setting)
             });
 
             if (setting.bindingID && syn.uicontrols.$data) {
