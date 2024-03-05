@@ -75,6 +75,10 @@ if exist %current_path%/app/ack.dll (
         echo 클라이언트 라이브러리 설치를 시작합니다...
         dotnet tool install -g Microsoft.Web.LibraryManager.Cli
         libman restore
+        echo syn.controls, syn.scripts, syn.bundle 번들링을 시작합니다...
+        gulp
+        gulp base
+        gulp bundle
    )
 
    echo HandStack 설치가 완료되었습니다. 터미널에서 다음 경로의 프로그램을 실행하세요. %current_path%/app/ack.exe

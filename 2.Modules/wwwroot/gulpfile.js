@@ -37,7 +37,7 @@ gulp.task('scripts', async function () {
         "wwwroot/lib/print-js/print.min.js",
         'wwwroot/js/notifier/notifier.js',
         'wwwroot/lib/master-css/index.js'
-    ])
+    ], { allowEmpty: true })
         .pipe(concat('syn.scripts.js'))
         .pipe(gulp.dest('wwwroot/js'))
         .pipe(uglify({
@@ -138,7 +138,7 @@ gulp.task('bundle', async function () {
         'wwwroot/js/syn.scripts.js',
         'wwwroot/js/syn.js',
         'wwwroot/js/syn.controls.js',
-    ])
+    ], { allowEmpty: true })
         .pipe(concat('syn.bundle.js'))
         .pipe(gulp.dest('wwwroot/js'))
         .pipe(uglify({
@@ -272,6 +272,6 @@ gulp.task('watch', async function () {
     gulp.watch(files, gulp.series(['controls']));
 });
 
-gulp.task('default', gulp.series(['controls', 'scripts', 'bundle', 'styles']));
+gulp.task('default', gulp.series(['controls', 'scripts', 'styles']));
 
-gulp.task('base', gulp.series(['controls', 'basescripts', 'bundle', 'basestyles']));
+gulp.task('base', gulp.series(['controls', 'basescripts', 'basestyles']));
