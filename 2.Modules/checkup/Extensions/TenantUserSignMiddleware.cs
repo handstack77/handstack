@@ -76,6 +76,7 @@ namespace checkup.Extensions
                                                 if (appSetting.AllowAnonymousPath?.Contains(parent + "*") == true)
                                                 {
                                                     isAllowAnonymous = true;
+                                                    break;
                                                 }
                                             }
 
