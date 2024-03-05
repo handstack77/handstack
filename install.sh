@@ -101,6 +101,7 @@ if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
         gulp bundle
     fi
     
+    cd $current_path
     dotnet build handstack.sln
 
     build_path=$current_path/1.WebHost/build/handstack

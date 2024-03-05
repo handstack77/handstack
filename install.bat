@@ -85,7 +85,8 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
         gulp base
         gulp bundle
     )
-
+    
+    cd %current_path%
     dotnet build handstack.sln
 
     set build_path=%current_path%\1.WebHost\build\handstack
