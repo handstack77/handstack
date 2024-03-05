@@ -25,8 +25,8 @@
  * INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES OF ANY CHARACTER ARISING FROM
  * USE OR INABILITY TO USE THIS SOFTWARE.
  *
- * Version: 13.1.0
- * Release date: 31/08/2023 (built at 31/08/2023 08:23:39)
+ * Version: 14.1.0
+ * Release date: 16/01/2024 (built at 16/01/2024 10:27:31)
  */
 /**
  * Fix for bootstrap styles
@@ -179,6 +179,7 @@
   background-color: #fff;
   vertical-align: top;
   overflow: hidden;
+  outline: none;
   outline-width: 0;
   white-space: pre-wrap;
 }
@@ -356,9 +357,9 @@ innerBorderBottom - Property controlled by bottom overlay
   overflow: auto;
 }
 
-.handsontable .ht_master thead,
-.handsontable .ht_master tr th,
-.handsontable .ht_clone_inline_start thead {
+.handsontable .ht_master table.htCore > thead,
+.handsontable .ht_master table.htCore > tbody > tr > th,
+.handsontable .ht_clone_inline_start table.htCore > thead {
   visibility: hidden;
 }
 
@@ -389,11 +390,21 @@ innerBorderBottom - Property controlled by bottom overlay
 
 .handsontable td.htInvalid {
   /*gives priority over td.area selection background*/
-  background-color: #ff4c42 !important;
+  background-color: #ffbeba !important;
 }
 
 .handsontable td.htNoWrap {
   white-space: nowrap;
+}
+
+.handsontable td.invisibleSelection,
+.handsontable th.invisibleSelection {
+  outline: none;
+}
+
+.handsontable td.invisibleSelection::selection,
+.handsontable th.invisibleSelection::selection {
+  background: rgba(255, 255, 255, 0);
 }
 
 .hot-display-license-info {
@@ -408,6 +419,17 @@ innerBorderBottom - Property controlled by bottom overlay
 .hot-display-license-info a {
   color: #104acc;
   font-size: 10px;
+}
+
+.handsontable .htFocusCatcher {
+  position: absolute;
+  z-index: -1;
+  opacity: 0;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  width: 0;
+  height: 0;
 }
 
 /* plugins */
@@ -523,7 +545,7 @@ innerBorderBottom - Property controlled by bottom overlay
   background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAoCAMAAADJ7yrpAAAAKlBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKE86IAAAADXRSTlMABBEmRGprlJW72e77tTkTKwAAAFJJREFUeAHtzjkSgCAQRNFmQYUZ7n9dKUvru0TmvPAn3br0QfgdZ5xx6x+rQn23GqTYnq1FDcnuzZIO2WmedVqIRVxgGKEyjNgYRjKGkZ1hFIZ3I70LyM0VtU8AAAAASUVORK5CYII=);
 }
 
-.htGhostTable .htCore span.colHeader.columnSorting:not(.indicatorDisabled)::after {
+.htGhostTable .htCore span.colHeader.columnSorting:not(.indicatorDisabled)::before {
   content: "*";
   display: inline-block;
   position: relative;
@@ -605,6 +627,11 @@ innerBorderBottom - Property controlled by bottom overlay
 
 .handsontable td.area-7:before {
   opacity: 0.58;
+}
+
+.handsontable tbody th.current,
+.handsontable thead th.current {
+  box-shadow: inset 0 0 0 2px #4b89ff;
 }
 
 .handsontable tbody th.ht__highlight,
@@ -799,7 +826,7 @@ TextRenderer placeholder value
   cursor: pointer;
   -webkit-box-shadow: 0 0 0 6px rgb(238, 238, 238);
   -moz-box-shadow: 0 0 0 6px rgb(238, 238, 238);
-  box-shadow: 0 0 0 6px rgb(238, 238, 238);
+  box-shadow: 0 0 0 3px rgb(238, 238, 238);
   background: #eee;
   text-align: center;
 }
@@ -1016,7 +1043,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
   color: #666;
   font-size: 12px;
   line-height: 15px;
-  text-align: right;
+  text-align: center;
   background: #f5f5f5;
   height: initial;
 }
@@ -1100,7 +1127,7 @@ AutocompleteRenderer down arrow
 .handsontable .htAutocompleteArrow {
   float: right;
   font-size: 10px;
-  color: #EEE;
+  color: #bbbbbb;
   cursor: default;
   width: 16px;
   text-align: center;
@@ -1108,6 +1135,14 @@ AutocompleteRenderer down arrow
 
 [dir=rtl].handsontable .htAutocompleteArrow {
   float: left;
+}
+
+.handsontable td.htInvalid .htAutocompleteArrow {
+  color: #555555;
+}
+
+.handsontable td.htInvalid .htAutocompleteArrow:hover {
+  color: #1a1a1a;
 }
 
 .handsontable td .htAutocompleteArrow:hover {
@@ -1230,6 +1265,10 @@ CheckboxRenderer
   border-left-width: 2px;
 }
 
+.htContextMenu.handsontable:focus {
+  outline: none;
+}
+
 .htContextMenu .wtBorder {
   visibility: hidden;
 }
@@ -1261,8 +1300,7 @@ CheckboxRenderer
   color: #323232;
 }
 
-.htContextMenu table tbody tr td.current,
-.htContextMenu table tbody tr td.zeroclipboard-is-hover {
+.htContextMenu table tbody tr td.current {
   background: #f3f3f3;
 }
 
@@ -1380,6 +1418,10 @@ textarea.HandsontableCopyPaste {
   border-left-width: 2px;
 }
 
+.htDropdownMenu.handsontable:focus {
+  outline: none;
+}
+
 .htDropdownMenu .wtBorder {
   visibility: hidden;
 }
@@ -1411,8 +1453,7 @@ textarea.HandsontableCopyPaste {
   color: #323232;
 }
 
-.htDropdownMenu table tbody tr td.current,
-.htDropdownMenu table tbody tr td.zeroclipboard-is-hover {
+.htDropdownMenu table tbody tr td.current {
   background: #e9e9e9;
 }
 
@@ -1518,8 +1559,7 @@ textarea.HandsontableCopyPaste {
   color: #323232;
 }
 
-.htFiltersConditionsMenu table tbody tr td.current,
-.htFiltersConditionsMenu table tbody tr td.zeroclipboard-is-hover {
+.htFiltersConditionsMenu table tbody tr td.current {
   background: #e9e9e9;
 }
 
@@ -1667,10 +1707,6 @@ textarea.HandsontableCopyPaste {
   border: 1px solid #d2d1d1;
 }
 
-.handsontable .htUIInput input:focus {
-  outline: 0;
-}
-
 .handsontable .htUIInputIcon {
   position: absolute;
 }
@@ -1710,6 +1746,12 @@ textarea.HandsontableCopyPaste {
   background-color: #0f9d58;
   border-color: #18804e;
   color: #fff;
+}
+
+.handsontable .htUIInput.htUIButtonOK input:focus-visible {
+  background-color: #92dd8d;
+  border-color: #7cb878;
+  color: #000;
 }
 
 .handsontable .htUIInput.htUIButtonOK input:hover {
@@ -2191,33 +2233,13 @@ textarea.HandsontableCopyPaste {
   right: unset;
 }
 
-@charset "UTF-8";
-/*
- |  tail.select - The vanilla solution to make your HTML select fields AWESOME!
- |  @file       ./css/default/tail.select-light.css
- |  @author     SamBrishes <sam@pytes.net>
- |  @version    0.5.16 - Beta
- |
- |  @website    https://github.com/pytesNET/tail.select
- |  @license    X11 / MIT License
- |  @copyright  Copyright © 2014 - 2019 SamBrishes, pytesNET <info@pytes.net>
- */
-
-/* @start GENERAL */
-.tail-select, .tail-select *, .tail-select *:before, .tail-select *:after{
+.tail-select,
+.tail-select *,
+.tail-select *:before,
+.tail-select *:after {
     box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
 }
-.tail-select, .tail-select *{
-    outline: none;
-    user-select: none;
-    -o-user-select: none;
-    -ms-user-select: none;
-    -moz-user-select: none;
-    -webkit-user-select: none;
-}
-.tail-select{
+.tail-select {
     width: 250px;
     margin: 1px;
     padding: 0;
@@ -2250,9 +2272,7 @@ textarea.HandsontableCopyPaste {
     border-color: transparent;
     border-radius: 3px;
     box-shadow: none;
-    -webkit-box-shadow: none;
     transition: color 142ms linear, border 142ms linear, background 142ms linear;
-    -webkit-transition: color 142ms linear, border 142ms linear, background 142ms linear;
 }
 .tail-select button.tail-all{
     color: rgba(48, 52, 56, 0.5);
@@ -2301,7 +2321,6 @@ textarea.HandsontableCopyPaste {
     border-color: transparent;
     border-radius: 0;
     box-shadow: none;
-    -webkit-box-shadow: none;
 }
 .tail-select input[type="text"]:hover{
     color: #303438;
@@ -2344,7 +2363,6 @@ textarea.HandsontableCopyPaste {
     border-color: transparent;
     border-radius: 3px;
     transition: background 142ms linear;
-    -webkit-transition: background 142ms linear;
 }
 .tail-select-container .select-handle:hover{
     color: #303438;
@@ -2372,9 +2390,7 @@ textarea.HandsontableCopyPaste {
     border-color: #d9d9d9;
     border-radius: 3px;
     box-shadow: 0 1px 1px 1px rgba(0, 0, 0, 0.1), 0 0 1px 1px rgba(0, 0, 0, 0.25);
-    -webkit-box-shadow: 0 1px 1px 1px rgba(0, 0, 0, 0.1), 0 0 1px 1px rgba(0, 0, 0, 0.25);
     transition: background 142ms linear, box-shadow 142ms linear;
-    -webkit-transition: background 142ms linear, box-shadow 142ms linear;
 }
 .tail-select .select-label:after{
     top: 15px;
@@ -2394,7 +2410,6 @@ textarea.HandsontableCopyPaste {
     border-left: 5px solid transparent;
     text-shadow: none;
     transition: opacity 142ms linear, transform 142ms linear;
-    -webkit-transition: opacity 142ms linear, transform 142ms linear;
 }
 .tail-select .select-label .label-count, .tail-select .select-label .label-inner{
     width: auto;
@@ -2428,7 +2443,6 @@ textarea.HandsontableCopyPaste {
 .tail-select.active .select-label{
     z-index: 25;
     box-shadow: 0 1px 1px 1px rgba(0, 0, 0, 0.1), 0 0 1px 1px #3C82E6;
-    -webkit-box-shadow: 0 1px 1px 1px rgba(0, 0, 0, 0.1), 0 0 1px 1px #3C82E6;
 }
 .tail-select:hover .select-label:after, .tail-select.idle .select-label:after,
 .tail-select.active .select-label:after{
@@ -2445,13 +2459,10 @@ textarea.HandsontableCopyPaste {
 .tail-select.active .select-label:after{
     opacity: 0.85;
     transform: rotate(180deg);
-    -moz-transform: rotate(180deg);
-    -webkit-transform: rotate(180deg);
 }
 .tail-select.disabled .select-label{
     cursor: not-allowed;
     box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.35);
-    -webkit-box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.35);
 }
 /* @end LABEL */
 
@@ -2474,7 +2485,6 @@ textarea.HandsontableCopyPaste {
     border-color: #d9d9d9;
     border-radius: 0 0 3px 3px;
     box-shadow: 0 1px 1px 1px rgba(0, 0, 0, 0.1), 0 0 1px 1px rgba(0, 0, 0, 0.25);
-    -webkit-box-shadow: 0 1px 1px 1px rgba(0, 0, 0, 0.1), 0 0 1px 1px rgba(0, 0, 0, 0.25);
 }
 .tail-select .select-dropdown .dropdown-search{
     width: 100%;
@@ -2486,7 +2496,6 @@ textarea.HandsontableCopyPaste {
     border-style: solid;
     border-color: #d9d9d9;
     box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.1);
-    -webkit-box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.1);
 }
 .tail-select .select-dropdown .dropdown-inner{
     width: 100%;
@@ -2576,7 +2585,6 @@ textarea.HandsontableCopyPaste {
     background-repeat: no-repeat;
     background-position: center center;
     transition: opacity 50ms linear;
-    -webkit-transition: opacity 50ms linear;
 }
 .tail-select .select-dropdown ul li.dropdown-option .option-description{
     color: rgba(48, 52, 56, 0.85);
@@ -2676,7 +2684,6 @@ textarea.HandsontableCopyPaste {
 }
 /* @end DROPDOWN */
 
-
 .ispin-wrapper {
   position: relative;
   display: inline-block;
@@ -2724,6 +2731,7 @@ textarea.HandsontableCopyPaste {
 .ispin-wrapper .ispin-button.ispin-button-dec:disabled:before {
         border-top-color: grey;
       }
+
 /*!
    css-checkbox-library v1.3.0: Pure CSS Checkboxes.
    (c) 2017 
@@ -4255,20 +4263,13 @@ div[class^="ckbx-style-"] input[type=checkbox] {
 .cm-fat-cursor div.CodeMirror-cursors {
   z-index: 1;
 }
-.cm-fat-cursor-mark {
-  background-color: rgba(20, 255, 20, 0.5);
-  -webkit-animation: blink 1.06s steps(1) infinite;
-  -moz-animation: blink 1.06s steps(1) infinite;
-  animation: blink 1.06s steps(1) infinite;
-}
-.cm-animate-fat-cursor {
-  width: auto;
-  border: 0;
-  -webkit-animation: blink 1.06s steps(1) infinite;
-  -moz-animation: blink 1.06s steps(1) infinite;
-  animation: blink 1.06s steps(1) infinite;
-  background-color: #7e7;
-}
+.cm-fat-cursor .CodeMirror-line::selection,
+.cm-fat-cursor .CodeMirror-line > span::selection, 
+.cm-fat-cursor .CodeMirror-line > span > span::selection { background: transparent; }
+.cm-fat-cursor .CodeMirror-line::-moz-selection,
+.cm-fat-cursor .CodeMirror-line > span::-moz-selection,
+.cm-fat-cursor .CodeMirror-line > span > span::-moz-selection { background: transparent; }
+.cm-fat-cursor { caret-color: transparent; }
 @-moz-keyframes blink {
   0% {}
   50% { background-color: transparent; }
@@ -4359,17 +4360,18 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
 
 .CodeMirror-scroll {
   overflow: scroll !important; /* Things will break if this is overridden */
-  /* 30px is the magic margin used to hide the element's real scrollbars */
+  /* 50px is the magic margin used to hide the element's real scrollbars */
   /* See overflow: hidden in .CodeMirror */
-  margin-bottom: -30px; margin-right: -30px;
-  padding-bottom: 30px;
+  margin-bottom: -50px; margin-right: -50px;
+  padding-bottom: 50px;
   height: 100%;
   outline: none; /* Prevent dragging from highlighting the element */
   position: relative;
+  z-index: 0;
 }
 .CodeMirror-sizer {
   position: relative;
-  border-right: 30px solid transparent;
+  border-right: 50px solid transparent;
 }
 
 /* The fake, visible scrollbars. Used to force redraw during scrolling
@@ -4379,6 +4381,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
   position: absolute;
   z-index: 6;
   display: none;
+  outline: none;
 }
 .CodeMirror-vscrollbar {
   right: 0; top: 0;
@@ -4407,7 +4410,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
   height: 100%;
   display: inline-block;
   vertical-align: top;
-  margin-bottom: -30px;
+  margin-bottom: -50px;
 }
 .CodeMirror-gutter-wrapper {
   position: absolute;
@@ -4554,12 +4557,12 @@ span.CodeMirror-selectedtext { background: none; }
  *
  * This section is automatically generated from the `skin-common.less` template.
  *
- * Copyright (c) 2008-2021, Martin Wendt (https://wwWendt.de)
+ * Copyright (c) 2008-2023, Martin Wendt (https://wwWendt.de)
  * Released under the MIT license
  * https://github.com/mar10/fancytree/wiki/LicenseInfo
  *
- * @version 2.38.0
- * @date 2021-02-09T20:03:49Z
+ * @version 2.38.3
+ * @date 2023-02-01T20:52:50Z
 ******************************************************************************/
 /*------------------------------------------------------------------------------
  * Helpers
@@ -4641,7 +4644,7 @@ ul.fancytree-container li.fancytree-lastsib {
   background-color: silver;
 }
 ul.fancytree-connectors.fancytree-container li {
-  background-image: url("/lib/fancytree/skin-win8/vline.gif");
+  background-image: url("../skin-win8/vline.gif");
   background-position: 0 0;
 }
 ul.fancytree-container li.fancytree-lastsib,
@@ -4666,7 +4669,7 @@ span.fancytree-drag-helper-img,
   display: inline-block;
   vertical-align: top;
   background-repeat: no-repeat;
-  background-image: url("/lib/fancytree/skin-win8/icons.gif");
+  background-image: url("../skin-win8/icons.gif");
   background-position: 0px 0px;
 }
 span.fancytree-icon,
@@ -4713,7 +4716,7 @@ span.fancytree-expander {
 }
 .fancytree-connectors .fancytree-exp-n span.fancytree-expander,
 .fancytree-connectors .fancytree-exp-nl span.fancytree-expander {
-  background-image: url("/lib/fancytree/skin-win8/icons.gif");
+  background-image: url("../skin-win8/icons.gif");
   margin-top: 0;
 }
 .fancytree-connectors .fancytree-exp-n span.fancytree-expander,
@@ -4901,7 +4904,7 @@ span.fancytree-icon {
 .fancytree-statusnode-loading span.fancytree-icon,
 .fancytree-statusnode-loading span.fancytree-icon:hover,
 span.fancytree-icon.fancytree-icon-loading {
-  background-image: url("/lib/fancytree/skin-win8/loading.gif");
+  background-image: url("../skin-win8/loading.gif");
   background-position: 0px 0px;
 }
 /* Status node icons */
@@ -5015,7 +5018,7 @@ span.fancytree-drag-source.fancytree-drag-remove {
 .fancytree-container.fancytree-rtl span.fancytree-expander,
 .fancytree-container.fancytree-rtl span.fancytree-icon,
 .fancytree-container.fancytree-rtl span.fancytree-drag-helper-img {
-  background-image: url("/lib/fancytree/skin-win8/icons-rtl.gif");
+  background-image: url("../skin-win8/icons-rtl.gif");
 }
 .fancytree-container.fancytree-rtl .fancytree-exp-n span.fancytree-expander,
 .fancytree-container.fancytree-rtl .fancytree-exp-nl span.fancytree-expander {
@@ -5023,21 +5026,21 @@ span.fancytree-drag-source.fancytree-drag-remove {
 }
 .fancytree-container.fancytree-rtl.fancytree-connectors .fancytree-exp-n span.fancytree-expander,
 .fancytree-container.fancytree-rtl.fancytree-connectors .fancytree-exp-nl span.fancytree-expander {
-  background-image: url("/lib/fancytree/skin-win8/icons-rtl.gif");
+  background-image: url("../skin-win8/icons-rtl.gif");
 }
 ul.fancytree-container.fancytree-rtl ul {
   padding: 0 16px 0 0;
 }
 ul.fancytree-container.fancytree-rtl.fancytree-connectors li {
   background-position: right 0;
-  background-image: url("/lib/fancytree/skin-win8/vline-rtl.gif");
+  background-image: url("../skin-win8/vline-rtl.gif");
 }
 ul.fancytree-container.fancytree-rtl li.fancytree-lastsib,
 ul.fancytree-container.fancytree-rtl.fancytree-no-connector > li {
   background-image: none;
 }
 #fancytree-drop-marker.fancytree-rtl {
-  background-image: url("/lib/fancytree/skin-win8/icons-rtl.gif");
+  background-image: url("../skin-win8/icons-rtl.gif");
 }
 /*------------------------------------------------------------------------------
  * 'table' extension
@@ -5907,10 +5910,13 @@ a.ui-button:active,
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  background-image: linear-gradient(90deg, rgba(200, 0, 0, 0.15) 10%, rgba(0, 0, 0, 0) 10%), linear-gradient(rgba(200, 0, 0, 0.15) 10%, rgba(0, 0, 0, 0) 10%);
-  background-size: 10px 10px;
-  border: 1px dashed rgba(0,0,0,0);
+  background-image: linear-gradient(to top, rgba(200, 0, 0, 0.15) 5%, rgba(0, 0, 0, 0) 5%),
+  linear-gradient(to right, rgba(200, 0, 0, 0.15) 5%, rgba(0, 0, 0, 0) 5%),
+  linear-gradient(to bottom, rgba(200, 0, 0, 0.15) 5%, rgba(0, 0, 0, 0) 5%),
+  linear-gradient(to left, rgba(200, 0, 0, 0.15) 5%, rgba(0, 0, 0, 0) 5%);
+  background-size: 10px 10px; /* background square size */
   padding: 20px 20px 0 20px;
+  /* border: 0.5px solid rgba(200, 0, 0, 0.15); */
 }
 
 .orgchart .hidden, .orgchart~.hidden {
@@ -5978,7 +5984,7 @@ a.ui-button:active,
 .orgchart .hierarchy::before {
   content: "";
   position: absolute;
-  top: -11px;
+  top: -11px; /* -(background square size + half width of line) */
   left: 0;
   width: 100%;
   border-top: 2px solid rgba(217, 83, 79, 0.8);
@@ -6020,10 +6026,10 @@ a.ui-button:active,
 .orgchart .node:not(:only-child)::after {
   content: "";
   position: absolute;
-  bottom: -11px;
+  bottom: -12px; /* -(background square size + node's border width) */
   left: calc(50% - 1px);
   width: 2px;
-  height: 9px;
+  height: 10px; /* background square size */
   background-color: rgba(217, 83, 79, 0.8);
 }
 
@@ -6043,16 +6049,16 @@ a.ui-button:active,
 .orgchart > ul > li > ul li > .node::before {
   content: "";
   position: absolute;
-  top: -11px;
+  top: var(--top, -12px); /* -(fallback value = background square size + border width of node) */ 
   left: calc(50% - 1px);
   width: 2px;
-  height: 9px;
+  height: var(--height, 10px); /* fallback value = background square size */
   background-color: rgba(217, 83, 79, 0.8);
 }
 
 .orgchart > ul > li > ul li.isSiblingsCollapsed > .node::before {
-  top: -13px;
-  height: 11px;
+  top: var(--top-cross-point, -12px);
+  height: var(--height-cross-point, 10px);
 }
 
 /* node styling */
@@ -6115,12 +6121,12 @@ a.ui-button:active,
 
 .orgchart .node .title {
   box-sizing: border-box;
-  padding: 2px;
   width: 130px;
   text-align: center;
-  font-size: 0.75rem;
+  font-size: 12px;
   font-weight: bold;
   height: 20px;
+  line-height: 20px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -6144,28 +6150,27 @@ a.ui-button:active,
   transform-origin: bottom center;
 }
 
-.orgchart .node .title .symbol {
+.orgchart .node .title .parentNodeSymbol {
   float: left;
-  margin-top: 12px;
-  margin-left: 2px;
 }
 
-.orgchart .node .title .symbol::before {
-  background-color: #fff;
-  border-color: rgba(217, 83, 79, 0.8);
+.orgchart .node .title .parentNodeSymbol::before {
+  color: #fff;
 }
 
-.orgchart .node .title .symbol::after {
+.orgchart .node .title .parentNodeSymbol::after {
   background-color: #fff;
 }
 
 .orgchart .node .content {
   box-sizing: border-box;
-  padding: 2px;
+  width: 130px;
   height: 20px;
-  font-size: 0.625rem;
+  line-height: 20px;
+  font-size: 10px;
   border: 1px solid rgba(217, 83, 79, 0.8);
-  border-radius: 0 0 4px 4px;
+  border-width: 0 1px 1px 1px;
+  border-radius: 0 0 0.25rem 0.25rem;
   text-align: center;
   background-color: #fff;
   color: #333;
@@ -6213,16 +6218,14 @@ a.ui-button:active,
 }
 
 .orgchart .node .verticalEdge {
-  width: calc(100% - 6px);
-  width: -webkit-calc(100% - 6px);
-  width: -moz-calc(100% - 6px);
-  height: 10px;
-  left: 3px;
+  width: calc(100% - 6px); /* node top half's width */
+  height: 10px; /* background square's size */
+  left: 3px; /* node's padding value */
 }
 
 .orgchart .node .verticalEdge::before {
   position: absolute;
-  left: calc(50% - 0.3125rem);
+  left: calc(50% - 5px); /* 50% width of node - half width of up arrow icon) */
 }
 
 .orgchart .node .topEdge {
@@ -6238,7 +6241,7 @@ a.ui-button:active,
 }
 
 .orgchart .node .bottomEdge {
-  bottom: -2px;
+  bottom: -2px; /* -(node's border-width) */
 }
 
 .orgchart .node .bottomEdge.oci-chevron-up::before {
@@ -6252,9 +6255,7 @@ a.ui-button:active,
 .orgchart .node .horizontalEdge {
   width: 10px;
   height: calc(100% - 6px);
-  height: -webkit-calc(100% - 6px);
-  height: -moz-calc(100% - 6px);
-  top: 3px;
+  top: 3px; /* node's padding */
 }
 
 .orgchart .node .rightEdge {
@@ -6267,15 +6268,7 @@ a.ui-button:active,
 
 .orgchart .node .horizontalEdge::before {
   position: absolute;
-  top: calc(50% - 0.3125rem);
-}
-
-.orgchart .node .rightEdge.oci-chevron-left::before {
-  right: -3px;
-}
-
-.orgchart .node .rightEdge.oci-chevron-right::before {
-  right: 1px;
+  top: calc(50% - 5px);
 }
 
 .orgchart .node .leftEdge.oci-chevron-right::before {
@@ -6286,14 +6279,27 @@ a.ui-button:active,
   left: 1px;
 }
 
+.orgchart .node .rightEdge.oci-chevron-left::before {
+  right: -3px;
+}
+
+.orgchart .node .rightEdge.oci-chevron-right::before {
+  right: 1px;
+}
+
 .orgchart .node .toggleBtn {
   position: absolute;
-  left: 5px;
+  left: -2px; /* -(border width of node) */
   bottom: -2px;
+  width: 16px;
+  height: 16px;
 }
 
 .orgchart .node .toggleBtn::before {
   background-color: rgba(68, 157, 68, 0.6);
+  position: absolute;
+  left: 0;
+  bottom: 0;
 }
 
 .orgchart .node .toggleBtn:hover::before {
@@ -6346,25 +6352,17 @@ a.ui-button:active,
 }
 
 /* styles for vertical nodes */
-.orgchart .hierarchy.hybrid > .node {
-  margin-bottom: 0;
-}
-
-.orgchart .hierarchy.hybrid > .node::after {
-  content: none;
-}
 
 .orgchart .nodes.vertical {
   display: block;
-  margin: 0;
-  padding-left: 18px;
+  padding-left: 10px; /* width of background square*/
 }
 
 .orgchart .nodes.vertical .nodes {
   list-style: none;
   display: block;
   margin: 0;
-  padding-left: 18px;
+  padding-left: 10px; /* width of background square*/
   text-align: left;
 }
 
@@ -6377,54 +6375,205 @@ a.ui-button:active,
   content: none;
 }
 
-.orgchart .nodes.vertical::before {
-  content: '';
-  display: inline-block;
-  position: relative;
-  height: 14px;
-  width: 2px;
-  left: -9px;
-  background-color: rgba(217, 83, 79, 0.8);
-}
-.orgchart .nodes.vertical > .hierarchy:first-child::before {
-  box-sizing: border-box;
-  top: -4px;
-  height: 30px;
-  width: calc(50% - 2px);
-  border-width: 2px 0 0 2px;
-}
-.orgchart .nodes.vertical .hierarchy{
+.orgchart .nodes.vertical .hierarchy {
   position: relative;
   text-align: left;
 }
+
 .orgchart .nodes.vertical .hierarchy::before,
 .orgchart .nodes.vertical .hierarchy::after {
   box-sizing: border-box;
   content: '';
   position: absolute;
-  left: -6px;
+  left: -6px; /* -(background square size + half width of line */
   border-color: rgba(217, 83, 79, 0.8);
   border-style: solid;
   border-width: 0 0 2px 2px;
 }
+
 .orgchart .nodes.vertical .hierarchy::before {
-  top: -4px;
-  height: 30px;
-  width: 11px;
+  top: 0px;
+  height: 26px; /* node top half's height(25px) + half width of line */
+  width: 11px; /* background square size + half width of line */
 }
+
 .orgchart .nodes.vertical .hierarchy::after {
-  top: 1px;
-  height: 100%;
+  bottom: 0;
+  height: calc(100% - 24px); /* height of hierarchy - (node top half's height(25px) - half width of line) */
 }
-.orgchart .nodes.vertical .hierarchy:first-child::after {
+
+.orgchart .nodes.vertical .hierarchy:last-child::after {
+  border-width: 2px 0 0 0;
+}
+
+.orgchart .nodes.vertical > .hierarchy:first-child::before {
   box-sizing: border-box;
-  top: 24px;
-  width: 11px;
+  top: -11px; /* -(background square size + half width of line) */
+  height: 35px; /* node top half's height + node padding + node border width + background square size */
+  width: calc(50% + 2px);
   border-width: 2px 0 0 2px;
 }
-.orgchart .nodes.vertical .hierarchy:last-child::after {
+
+.orgchart .nodes.vertical > .hierarchy:first-child::after {
   box-sizing: border-box;
-  border-width: 2px 0 0;
+  top: 24px; /* node bottom half's height(25px) - half border width of line */
+  width: 11px; /* backgroud square size + half border width of line */
+  border-width: 2px 0 0 2px;
+}
+
+.orgchart .nodes.vertical > .hierarchy:first-child:last-child::after {
+  border-width: 2px 0 0 0;
+}
+
+/* styles for compact nodes */
+.orgchart .node.compact {
+  position: static;
+  display: grid;
+  width: 140px;
+  height: 50px;
+  background-color: #eee;
+}
+
+.orgchart .node.compact.looseMode {
+  display: grid;
+  width: unset;
+  height: unset;
+}
+
+.orgchart .node.compact > .node {
+  display: none;
+}
+
+.orgchart .node.compact.looseMode > .node {
+  display: inline-block;
+}
+
+.orgchart .node.compact > .node.compact {
+  position: relative;
+}
+
+.orgchart .node.compact > .node.compact.looseMode {
+  display: grid;
+}
+
+.orgchart .node.compact.even,
+.orgchart .node.compact.even:hover {
+  background-color: #eee;
+}
+
+.orgchart .node.compact.odd,
+.orgchart .node.compact.odd:hover {
+  background-color: #fff;
+}
+
+.orgchart .node.compact.even > .node:hover,
+.orgchart .node.compact.even > .node.focused,
+.orgchart .node.compact.even > .node.selected {
+  background-color: #fff;
+}
+
+.orgchart .node.compact.odd > .node:hover,
+.orgchart .node.compact.odd > .node.focused,
+.orgchart .node.compact.odd > .node.selected {
+  background-color: #eee;
+}
+
+.orgchart .node.compact::before {
+  top: var(--top-cross-point, -10px);
+}
+
+.orgchart .node.compact > .content {
+  position: absolute;
+  top: 25px;
+  left: 5px;
+}
+
+.orgchart .node.compact.looseMode > .title {
+  margin-top: 5px;
+  margin-left: 5px;
+}
+
+.orgchart .node.compact.looseMode > .content {
+  top: 30px;
+  left: 10px;
+}
+
+.orgchart .node.compact > .node.compact.looseMode > .title {
+  margin-top: 5px;
+  margin-left: 5px;
+}
+
+.orgchart .node.compact > .node.compact > .content {
+  position: absolute;
+  top: 23px;
+  left: 3px;
+}
+
+.orgchart .node.compact > .node.compact.looseMode > .content {
+  top: 28px;
+  left: 8px;
+}
+
+.orgchart .node.compact .node {
+  margin-bottom: 0;
+}
+
+.orgchart .node.compact .node:not(:only-child)::after {
+  content: unset;
+}
+
+.orgchart .backToCompactSymbol, .orgchart .backToLooseSymbol {
+  cursor: pointer;
+}
+
+.orgchart .node.compact > .backToCompactSymbol {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+}
+
+.orgchart .node.compact.looseMode > .backToCompactSymbol {
+  top: 10px;
+  left: 10px;
+}
+
+.orgchart .node.compact > .node.compact.looseMode > .backToCompactSymbol {
+  top: 8px;
+  left: 8px;
+}
+
+.orgchart .node.compact > .node.compact > .backToCompactSymbol {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+}
+
+.orgchart .node.compact > .backToLooseSymbol {
+  position: absolute;
+  top: 25px;
+  right: 5px;
+}
+
+.orgchart .node.compact > .node.compact > .backToLooseSymbol {
+  position: absolute;
+  top: 23px;
+  right: 3px;
+}
+
+.orgchart .node.compact .backToCompactSymbol::before {
+  border-top-color: rgba(68, 157, 68, 0.6);
+}
+
+.orgchart .node.compact .backToLooseSymbol::before {
+  border-bottom-color: rgba(68, 157, 68, 0.6);
+}
+
+.orgchart .node.compact .backToCompactSymbol:hover::before {
+  border-top-color: #449d44;
+}
+
+.orgchart .node.compact .backToLooseSymbol:hover::before {
+  border-bottom-color: #449d44;
 }
 
 /* custom icons for orgchart */
@@ -6435,159 +6584,153 @@ a.ui-button:active,
   font-family: Arial;
 }
 
-.oci-chevron-up::before {
-  content: "";
+.oci-menu::before {
+  content: "≡";
   display: inline-block;
-  box-sizing: border-box;
-  vertical-align: text-bottom;
-  width: 0.625rem;
-  height: 0.625rem;
-  border-width: 0 0.2rem 0.2rem 0;
-  border-style: solid;
-  border-color: #000;
-  background: transparent;
-  transform: rotate(-135deg);
+  width: 1rem;
+  height: 1rem;
+  text-align: center;
+  line-height: 1rem;
+  color: #000;
+  font-size: 1rem;
 }
 
-.oci-chevron-right::before {
+.oci-chevron-up::before {
   content: "";
-  display: inline-block;
   box-sizing: border-box;
-  width: 0.625rem;
-  height: 0.625rem;
-  border-width: 0 0.2rem 0.2rem 0;
-  border-style: solid;
-  border-color: #000;
-  background: transparent;
-  transform: rotate(-45deg);
+  width: 10px;
+  height: 10px;
+  display: inline-block;
+  border: 3px solid #000;
+  transform: rotate(45deg);
+  border-right: unset;
+  border-bottom: unset;
 }
 
 .oci-chevron-down::before {
   content: "";
-  display: inline-block;
   box-sizing: border-box;
-  width: 0.625rem;
-  height: 0.625rem;
-  border-width: 0 0.2rem 0.2rem 0;
-  border-style: solid;
-  border-color: #000;
-  background: transparent;
+  width: 10px;
+  height: 10px;
+  display: inline-block;
+  border: 3px solid #000;
   transform: rotate(45deg);
+  border-top: unset;
+  border-left: unset;
 }
 
 .oci-chevron-left::before {
   content: "";
+  box-sizing: border-box;
+  width: 10px;
+  height: 10px;
+  display: inline-block;
+  border: 3px solid #000;
+  transform: rotate(45deg);
+  border-top: unset;
+  border-right: unset;
+}
+
+.oci-chevron-right::before {
+  content: "";
+  box-sizing: border-box;
+  width: 10px;
+  height: 10px;
+  display: inline-block;
+  border: 3px solid #000;
+  transform: rotate(45deg);
+  border-left: unset;
+  border-bottom: unset;
+}
+
+.oci-corner-top-left::before {
+  content: "";
+  display: inline-block;
+  border-top: 20px solid #000;
+  border-right: 20px solid transparent;
+}
+
+.oci-corner-top-right::before {
+  content: "";
   display: inline-block;
   box-sizing: border-box;
-  width: 0.625rem;
-  height: 0.625rem;
-  border-width: 0 0.2rem 0.2rem 0;
-  border-style: solid;
-  border-color: #000;
-  background: transparent;
-  transform: rotate(135deg);
+  width: 0;
+  height: 0;
+  border-top: 20px solid #000;
+  border-left: 20px solid transparent;
 }
 
-.oci-leader::before {
-  position: absolute;
+.oci-corner-bottom-right::before {
   content: "";
   display: inline-block;
-  width: 0.4rem;
-  height: 0.4rem;
-  border-radius: 0.2rem;
-  background: #000;
-  top: -0.75rem;
-  left: 0.1rem;
+  box-sizing: border-box;
+  width: 0;
+  height: 0;
+  border-bottom: 20px solid #000;
+  border-left: 20px solid transparent;
 }
 
-.oci-leader::after {
-  position: absolute;
+.oci-corner-bottom-left::before {
   content: "";
   display: inline-block;
-  width: 0.875rem;
-  height: 0.375rem;
-  border-radius: 0.25rem 0.25rem 0 0;
-  background: #000;
-  top: -0.3rem;
-  left: -0.125rem;
+  box-sizing: border-box;
+  width: 0;
+  height: 0;
+  border-bottom: 20px solid #000;
+  border-right: 20px solid transparent;
 }
 
 .oci-plus-square::before {
-  content: "+";
+  content: "﹢";
   display: inline-block;
-  vertical-align: text-bottom;
+  width: 16px;
+  height: 16px;
   text-align: center;
-  width: 1rem;
-  height: 1rem;
+  line-height: 16px;
   background-color: #000;
   color: #fff;
-}
-
-.oci-plus-circle::before {
-  content: "+";
-  display: inline-block;
-  vertical-align: text-bottom;
-  text-align: center;
-  width: 1rem;
-  height: 1rem;
-  border-radius: 0.5rem;
-  background-color: #000;
-  color: #fff;
+  font-weight: bold;
 }
 
 .oci-minus-square::before {
-  content: "−";
+  content: "﹣";
   display: inline-block;
-  vertical-align: text-bottom;
+  width: 16px;
+  height: 16px;
   text-align: center;
-  width: 1rem;
-  height: 1rem;
+  line-height: 16px;
   background-color: #000;
   color: #fff;
+  font-weight: bold;
 }
 
-.oci-minus-circle::before {
-  content: "−";
+.oci-arrow-square-up::before {
+  content: "⬆";
   display: inline-block;
-  vertical-align: text-bottom;
-  text-align: center;
   width: 1rem;
   height: 1rem;
-  border-radius: 0.5rem;
+  text-align: center;
+  line-height: 1rem;
   background-color: #000;
   color: #fff;
+  font-weight: bold;
 }
 
-.oci-arrow-circle-up::before {
-  content: "▲";
+.oci-arrow-square-down::before {
+  content: "⬇";
   display: inline-block;
-  text-align: center;
-  vertical-align: text-bottom;
   width: 1rem;
   height: 1rem;
-  border-radius: 0.5rem;
-  background-color: #000;
-  color: #fff;
-  font-size: 0.875rem;
-}
-
-.oci-arrow-circle-down::before {
-  content: "▼";
   text-align: center;
-  display: inline-block;
-  vertical-align: text-bottom;
-  width: 1rem;
-  height: 1rem;
-  border-radius: 0.5rem;
+  line-height: 1rem;
   background-color: #000;
   color: #fff;
-  font-size: 0.875rem;
+  font-weight: bold;
 }
 
 .oci-info-circle::before {
-  content: "...";
+  content: "i";
   display: inline-block;
-  vertical-align: text-bottom;
   width: 1rem;
   height: 1rem;
   border-radius: 0.5rem;

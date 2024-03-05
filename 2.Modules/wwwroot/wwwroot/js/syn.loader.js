@@ -410,7 +410,7 @@
                     // syn.scripts.js
                     '/lib/tabler-core/dist/css/tabler.css',
                     '/lib/handsontable/dist/handsontable.full.css',
-                    '/lib/tail.select.js/css/tail.select.css',
+                    '/lib/tail.select.js/css/default/tail.select-light.css',
                     '/lib/ispin/dist/ispin.css',
                     '/js/css-checkbox/checkboxes.css',
                     '/js/color-picker/color-picker.css',

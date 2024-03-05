@@ -368,3 +368,7 @@ FodyWeavers.xsd
 .managed/
 .nupkg/
 2.Modules/wwwroot/wwwroot/lib/
+2.Modules/wwwroot/wwwroot/css/syn.bundle.**
+2.Modules/wwwroot/wwwroot/js/syn.bundle.**
+2.Modules/wwwroot/wwwroot/js/syn.controls.**
+2.Modules/wwwroot/wwwroot/js/syn.scripts.**

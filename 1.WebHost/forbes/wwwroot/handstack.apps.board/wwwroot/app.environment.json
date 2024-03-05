@@ -14,7 +14,7 @@
         "Styles": [
             "/lib/tabler-core/dist/css/tabler.css",
             "/lib/handsontable/dist/handsontable.full.css",
-            "/lib/tail.select.js/css/tail.select.css",
+            "/lib/tail.select.js/css/default/tail.select-light.css",
             "/lib/ispin/dist/ispin.css",
             "/lib/filedrop/filedrop.css",
             "/js/css-checkbox/checkboxes.css",
@@ -51,7 +51,7 @@
         "Scripts": [
             "/lib/tabler-core/dist/js/tabler.min.js",
             "/lib/jquery/jquery.js",
-            "/js/domain/jquery.alertmodal.js",
+            "/js/jquery.alertmodal/jquery.alertmodal.js",
             "/lib/jquery-simplemodal/src/jquery.simplemodal.js",
             "/lib/jquery.maskedinput/jquery.maskedinput.js",
             "/js/jquery-wm/jquery.WM.js",

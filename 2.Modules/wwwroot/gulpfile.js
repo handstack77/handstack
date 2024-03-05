@@ -8,7 +8,7 @@ gulp.task('scripts', async function () {
     return gulp.src([
         'wwwroot/lib/tabler-core/dist/js/tabler.min.js',
         'wwwroot/lib/jquery/jquery.js',
-        'wwwroot/js/domain/jquery.alertmodal.js',
+        'wwwroot/js/jquery.alertmodal/jquery.alertmodal.js',
         'wwwroot/lib/jquery-simplemodal/src/jquery.simplemodal.js',
         'wwwroot/lib/jquery.maskedinput/jquery.maskedinput.js',
         'wwwroot/js/jquery-wm/jquery.WM.js',
@@ -54,7 +54,7 @@ gulp.task('scripts', async function () {
 gulp.task('basescripts', async function () {
     return gulp.src([
         'wwwroot/lib/jquery/jquery.js',
-        'wwwroot/js/domain/jquery.alertmodal.js',
+        'wwwroot/js/jquery.alertmodal/jquery.alertmodal.js',
         'wwwroot/lib/jquery-simplemodal/src/jquery.simplemodal.js',
         'wwwroot/lib/jquery.maskedinput/jquery.maskedinput.js',
         'wwwroot/js/jquery-wm/jquery.WM.js',
@@ -157,7 +157,7 @@ gulp.task('styles', async function () {
         // syn.scripts.js
         'wwwroot/lib/tabler-core/dist/css/tabler.css',
         'wwwroot/lib/handsontable/dist/handsontable.full.css',
-        'wwwroot/lib/tail.select.js/css/tail.select.css',
+        'wwwroot/lib/tail.select.js/css/default/tail.select-light.css',
         'wwwroot/lib/ispin/dist/ispin.css',
         'wwwroot/js/css-checkbox/checkboxes.css',
         'wwwroot/js/color-picker/color-picker.css',
@@ -217,7 +217,7 @@ gulp.task('basestyles', async function () {
     return gulp.src([
         // syn.scripts.js
         'wwwroot/lib/handsontable/dist/handsontable.full.css',
-        'wwwroot/lib/tail.select.js/css/tail.select.css',
+        'wwwroot/lib/tail.select.js/css/default/tail.select-light.css',
         'wwwroot/lib/ispin/dist/ispin.css',
         'wwwroot/js/css-checkbox/checkboxes.css',
         'wwwroot/js/color-picker/color-picker.css',
