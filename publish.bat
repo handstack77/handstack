@@ -39,4 +39,17 @@ dotnet build 2.Modules/checkup/checkup.csproj --configuration %configuration_mod
 robocopy 1.WebHost/build/handstack/contracts ../publish/%os_mode%-%arch_mode%/handstack/contracts /s /e /copy:dat
 robocopy . ../publish/%os_mode%-%arch_mode%/handstack install.* /copy:dat
 robocopy 2.Modules/function ../publish/%os_mode%-%arch_mode%/handstack package*.* /copy:dat
+
+set wwwroot_js_path=../publish/%os_mode%-%arch_mode%/handstack/modules/wwwroot/wwwroot
+
+rd /S /Q "%wwwroot_js_path%\lib"
+del /F /Q "%wwwroot_js_path%\js\syn.bundle.js"
+del /F /Q "%wwwroot_js_path%\js\syn.bundle.min.js"
+del /F /Q "%wwwroot_js_path%\js\syn.controls.js"
+del /F /Q "%wwwroot_js_path%\js\syn.controls.min.js"
+del /F /Q "%wwwroot_js_path%\js\syn.scripts.base.js"
+del /F /Q "%wwwroot_js_path%\js\syn.scripts.base.min.js"
+del /F /Q "%wwwroot_js_path%\js\syn.scripts.js"
+del /F /Q "%wwwroot_js_path%\js\syn.scripts.min.js"
+
 REM git archive --format zip --output ../publish/handstack-src.zip master

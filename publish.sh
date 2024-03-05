@@ -34,4 +34,17 @@ dotnet build 2.Modules/checkup/checkup.csproj --configuration $configuration_mod
 rsync -avq 1.WebHost/build/handstack/contracts/ ../publish/$os_mode-$arch_mode/handstack/contracts
 rsync -av --progress --exclude='*' --include='install.*' ./ ../publish/$os_mode-$arch_mode/handstack
 rsync -av --progress --exclude='*' --include='package*.*' 2.Modules/function ../publish/$os_mode-$arch_mode/handstack
+
+wwwroot_js_path="../publish/${os_mode}-${arch_mode}/handstack/modules/wwwroot/wwwroot"
+
+rm -rf "${wwwroot_js_path}/lib"
+rm -f "${wwwroot_js_path}/js/syn.bundle.js"
+rm -f "${wwwroot_js_path}/js/syn.bundle.min.js"
+rm -f "${wwwroot_js_path}/js/syn.controls.js"
+rm -f "${wwwroot_js_path}/js/syn.controls.min.js"
+rm -f "${wwwroot_js_path}/js/syn.scripts.base.js"
+rm -f "${wwwroot_js_path}/js/syn.scripts.base.min.js"
+rm -f "${wwwroot_js_path}/js/syn.scripts.js"
+rm -f "${wwwroot_js_path}/js/syn.scripts.min.js"
+
 # git archive --format zip --output ../publish/handstack-src.zip master
