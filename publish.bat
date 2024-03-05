@@ -28,6 +28,10 @@ rmdir /s /q ..\publish\%os_mode%-%arch_mode%\handstack
 dotnet %action_mode% 1.WebHost/ack/ack.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/app
 dotnet %action_mode% 1.WebHost/forbes/forbes.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/forbes
 
+set forbes_path=../publish/%os_mode%-%arch_mode%/handstack/forbes
+robocopy %forbes_path%/wwwroot %forbes_path% /E /MOVE
+del /F /Q "%forbes_path%\*"
+
 dotnet build 2.Modules/dbclient/dbclient.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/dbclient
 dotnet build 2.Modules/function/function.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/function
 dotnet build 2.Modules/logger/logger.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/logger

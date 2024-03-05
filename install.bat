@@ -82,4 +82,5 @@ if exist %current_path%/app/ack.dll (
    )
 
    echo HandStack 설치가 완료되었습니다. 터미널에서 다음 경로의 프로그램을 실행하세요. %current_path%/app/ack.exe
+   cd %current_path%/app
 )

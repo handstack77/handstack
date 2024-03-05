@@ -23,6 +23,10 @@ rm -rf ../publish/$os_mode-$arch_mode/handstack
 dotnet $action_mode 1.WebHost/ack/ack.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/app
 dotnet $action_mode 1.WebHost/forbes/forbes.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/forbes
 
+set forbes_path=../publish/%os_mode%-%arch_mode%/handstack/forbes
+mv $forbes_path/wwwroot $forbes_path
+rm -f $forbes_path/*
+
 dotnet build 2.Modules/dbclient/dbclient.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/modules/dbclient
 dotnet build 2.Modules/function/function.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/modules/function
 dotnet build 2.Modules/logger/logger.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/modules/logger
@@ -37,14 +41,14 @@ rsync -av --progress --exclude='*' --include='package*.*' 2.Modules/function ../
 
 wwwroot_js_path="../publish/${os_mode}-${arch_mode}/handstack/modules/wwwroot/wwwroot"
 
-rm -rf "${wwwroot_js_path}/lib"
-rm -f "${wwwroot_js_path}/js/syn.bundle.js"
-rm -f "${wwwroot_js_path}/js/syn.bundle.min.js"
-rm -f "${wwwroot_js_path}/js/syn.controls.js"
-rm -f "${wwwroot_js_path}/js/syn.controls.min.js"
-rm -f "${wwwroot_js_path}/js/syn.scripts.base.js"
-rm -f "${wwwroot_js_path}/js/syn.scripts.base.min.js"
-rm -f "${wwwroot_js_path}/js/syn.scripts.js"
-rm -f "${wwwroot_js_path}/js/syn.scripts.min.js"
+rm -rf $wwwroot_js_path/lib
+rm -f $wwwroot_js_path/js/syn.bundle.js
+rm -f $wwwroot_js_path/js/syn.bundle.min.js
+rm -f $wwwroot_js_path/js/syn.controls.js
+rm -f $wwwroot_js_path/js/syn.controls.min.js
+rm -f $wwwroot_js_path/js/syn.scripts.base.js
+rm -f $wwwroot_js_path/js/syn.scripts.base.min.js
+rm -f $wwwroot_js_path/js/syn.scripts.js
+rm -f $wwwroot_js_path/js/syn.scripts.min.js
 
 # git archive --format zip --output ../publish/handstack-src.zip master
