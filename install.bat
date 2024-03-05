@@ -67,8 +67,8 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
     )
 
     cd %current_path%
+    robocopy %current_path%\2.Modules\function %current_path%\1.WebHost\build\handstack package*.* /copy:dat
     if not exist %current_path%\1.WebHost\build\handstack\node_modules (
-        robocopy %current_path%\2.Modules\function %current_path%\1.WebHost\build\handstack package*.* /copy:dat
         echo node.js Function 모듈 %current_path%\1.WebHost\build\handstack\package.json 설치를 시작합니다...
         cd %current_path%\1.WebHost\build\handstack
         call npm install
