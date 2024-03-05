@@ -15,7 +15,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 		.gitattributes = .gitattributes
 		.gitignore = .gitignore
-		install.bat = install.bat
 		install.sh = install.sh
 		LICENSE.txt = LICENSE.txt
 		publish.bat = publish.bat
@@ -146,7 +145,7 @@ Global
 		{D546C016-49CF-4693-A7F9-CFC93107EBA1} = {43B577AB-74FA-4B53-A2BE-E369622F970F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		VisualSVNWorkingCopyRoot = .
 		SolutionGuid = {0075CE72-935C-4F87-A6BA-989C82F06F8F}
+		VisualSVNWorkingCopyRoot = .
 	EndGlobalSection
 EndGlobal
