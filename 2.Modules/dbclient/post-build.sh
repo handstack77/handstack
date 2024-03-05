@@ -14,5 +14,5 @@ if [ ! -d ../../1.WebHost/build/handstack/modules/dbclient ]; then
 fi
 
 rsync -avq "$target_dir"Contracts/ ../../1.WebHost/build/handstack/contracts
-rm -f $TargetDir/HandStack.*
+rm -f $target_dir/HandStack.*
 rsync -avq $target_dir ../../1.WebHost/build/handstack/modules/dbclient
