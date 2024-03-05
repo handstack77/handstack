@@ -96,7 +96,7 @@ if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
         npm install
         echo "클라이언트 라이브러리 설치를 시작합니다..."
         libman restore
-        rsync -av $current_path/2.Modules/wwwroot/wwwroot/lib $current_path/1.WebHost/build/handstack/modules/wwwroot/wwwroot/lib
+        rsync -av --delete wwwroot/lib/ ../../1.WebHost/build/handstack/modules/wwwroot/wwwroot/lib/
         echo "syn.controls, syn.scripts, syn.bundle 번들링을 시작합니다... 호스트 사양에 따라 2~3분 정도 소요됩니다."
         gulp
         gulp base

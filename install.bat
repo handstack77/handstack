@@ -80,7 +80,7 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
         cd %current_path%\2.Modules\wwwroot
         call npm install
         libman restore
-        robocopy %current_path%\2.Modules\wwwroot\wwwroot\lib %current_path%\1.WebHost\build\handstack\modules\wwwroot\wwwroot\lib *.* /copy:dat
+        robocopy wwwroot\lib ..\..\1.WebHost\build\handstack\modules\wwwroot\wwwroot\lib /MIR
         echo syn.controls, syn.scripts, syn.bundle 번들링을 시작합니다...
         gulp
         gulp base
