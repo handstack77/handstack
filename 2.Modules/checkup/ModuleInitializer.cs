@@ -242,6 +242,11 @@ namespace checkup
                     });
                 }
 
+                if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(Path.Combine(GlobalConfiguration.TenantAppBasePath)) == false)
+                {
+                    Directory.CreateDirectory(GlobalConfiguration.TenantAppBasePath);
+                }
+
                 if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(Path.Combine(GlobalConfiguration.TenantAppBasePath)) == true)
                 {
                     var hostApps = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath);
