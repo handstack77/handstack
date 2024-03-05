@@ -1,6 +1,6 @@
 @echo off
 chcp 65001
-
+ 
 echo winget 설치 확인 중...
 where winget.exe >nul 2>nul
 if %errorlevel% neq 0 (
