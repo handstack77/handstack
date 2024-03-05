@@ -23,11 +23,8 @@ else
     fi
 fi
 
-libman=$(dotnet tool list -g | grep -E "libman")
-if [ ! -n "$libman" ]; then
-    echo "dotnet tool libman 설치를 시작합니다..."
-    dotnet tool install -g Microsoft.Web.LibraryManager.Cli
-fi
+echo "dotnet tool libman 설치를 시작합니다..."
+dotnet tool install -g Microsoft.Web.LibraryManager.Cli
 
 node_path=$(which node)
 if [ ! -n "$node_path" ]; then
@@ -73,6 +70,47 @@ fi
 
 current_path=$(pwd)
 
+if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
+    mkdir -p $current_path/1.WebHost/build/handstack
+    cd $current_path/1.WebHost/ack
+    echo "current_path: $current_path a개발 환경 설치 확인 중..."
+    if [ ! -d "$current_path/node_modules" ]; then
+        echo "syn.js 번들링 $current_path/package.json 설치를 시작합니다..."
+        npm install
+        gulp
+        rsync -av --progress --exclude='*' --include='index.js' $current_path/1.WebHost/ack/wwwroot/assets/js $current_path/1.WebHost/build/handstack/node_modules/syn
+    fi
+
+    cd $current_path
+    if [ ! -d "$current_path/1.WebHost/build/handstack/node_modules" ]; then
+        echo "node.js Function 모듈 $current_path/1.WebHost/build/handstack/package.json 설치를 시작합니다..."
+        cd $current_path/1.WebHost/build/handstack
+        npm install
+    fi
+    
+    cd $current_path
+    if [ ! -d "$current_path/2.Modules/wwwroot/node_modules" ]; then
+        echo "syn.bundle.js 모듈 $current_path/2.Modules/wwwroot/package.json 설치를 시작합니다..."
+        cd $current_path/2.Modules/wwwroot
+        npm install
+        echo "클라이언트 라이브러리 설치를 시작합니다..."
+        libman restore
+        echo "syn.controls, syn.scripts, syn.bundle 번들링을 시작합니다... 호스트 사양에 따라 2~3분 정도 소요됩니다."
+        gulp
+        gulp base
+        gulp bundle
+    fi
+    
+    dotnet build handstack.sln
+
+    build_path=$current_path/1.WebHost/build/handstack
+    cd $build_path
+    echo "function 모듈 $build_path/package.json 설치를 시작합니다..."
+    call npm install
+    rsync -av --progress --exclude='*' --include='index.js' $current_path/1.WebHost/ack/wwwroot/assets/js/ $build_path/node_modules/syn/
+    echo "HandStack 개발 환경 설치가 완료되었습니다. Visual Studio 개발 도구로 handstack.sln 를 실행하세요. 자세한 정보는 https://handstack.kr 를 참고하세요."
+fi
+
 if [ -f "$current_path/app/ack.dll" ]; then
     echo "current_path: $current_path ack 실행 환경 설치 확인 중..."
     if [ ! -d "$current_path/node_modules" ]; then
@@ -101,39 +139,4 @@ if [ -f "$current_path/app/ack.dll" ]; then
 
     echo "ack 실행 환경 설치가 완료되었습니다. 터미널에서 다음 경로의 프로그램을 실행하세요. $current_path/app/ack"
     cd $current_path/app
-fi
-
-if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
-    mkdir -p $current_path/1.WebHost/build/handstack
-    cd $current_path/1.WebHost/ack
-    echo "current_path: $current_path a개발 환경 설치 확인 중..."
-    if [ ! -d "$current_path/node_modules" ]; then
-        echo "syn.js 번들링 $current_path/package.json 설치를 시작합니다..."
-        npm install
-        gulp
-        rsync -av --progress --exclude='*' --include='index.js' $current_path/1.WebHost/ack/wwwroot/assets/js $current_path/1.WebHost/build/handstack/node_modules/syn
-    fi
-
-    cd $current_path
-    if [ ! -d "$current_path/1.WebHost/build/handstack/node_modules" ]; then
-        echo "node.js Function 모듈 $current_path/1.WebHost/build/handstack/package.json 설치를 시작합니다..."
-        cd $current_path/1.WebHost/build/handstack
-        npm install
-    fi
-    
-    cd $current_path
-    if [ ! -d "$current_path/2.Modules/wwwroot/node_modules" ]; then
-        echo "syn.bundle.js 모듈 $current_path/2.Modules/wwwroot/package.json 설치를 시작합니다..."
-        cd $current_path/2.Modules/wwwroot
-        npm install
-        echo "클라이언트 라이브러리 설치를 시작합니다..."
-        libman restore
-        echo "syn.controls, syn.scripts, syn.bundle 번들링을 시작합니다..."
-        gulp
-        gulp base
-        gulp bundle
-    fi
-
-    echo "HandStack 개발 환경 설치가 완료되었습니다. 자세한 정보는 https://handstack.kr 를 참고하세요."
-    cd $current_path
 fi
