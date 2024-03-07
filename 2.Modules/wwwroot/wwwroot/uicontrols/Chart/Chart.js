@@ -81,7 +81,6 @@
 
             syn.$l.addEvent(syn.$l.get(elID), 'click', function (evt) {
                 var el = evt.target || evt.srcElement;
-                debugger;
                 // var control = $chart.getChartControl(el.id);
                 // if (control) {
                 //     var chart = control.chart;
@@ -109,7 +108,6 @@
         },
 
         getValue: function (elID, meta) {
-            debugger;
             var result = null;
             var chart = $chart.getChartControl(elID);
             if (chart) {
@@ -127,7 +125,6 @@
         },
 
         setValue: function (elID, value, meta) {
-            debugger;
             var chart = $chart.getChartControl(elID);
             if (chart) {
                 var seriesLength = chart.series.length;

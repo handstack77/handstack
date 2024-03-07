@@ -54,6 +54,8 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Include="Contracts/**" />
+        <Content Remove="wwwroot\uicontrols\Chart\ChartJS.css" />
+        <Content Remove="wwwroot\uicontrols\Chart\ChartJS.js" />
         <None Update="Contracts/**">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
