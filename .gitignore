@@ -367,6 +367,7 @@ FodyWeavers.xsd
 # handstack
 .managed/
 .nupkg/
+3.Infrastructure/Assemblies/**
 2.Modules/wwwroot/wwwroot/lib/
 2.Modules/wwwroot/wwwroot/css/syn.bundle.*
 2.Modules/wwwroot/wwwroot/js/syn.bundle.*

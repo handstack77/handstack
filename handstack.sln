@@ -43,19 +43,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "transact", "2.Modules\trans
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HandStack.Data", "3.Infrastructure\HandStack.Data\HandStack.Data.csproj", "{6AE92154-8ADD-41C2-8C0F-CF1997EC9D2A}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Assemblies", "Assemblies", "{A251FD52-5564-4685-B5B2-730CC8176543}"
-	ProjectSection(SolutionItems) = preProject
-		3.Infrastructure\Assemblies\HandStack.Core.deps.json = 3.Infrastructure\Assemblies\HandStack.Core.deps.json
-		3.Infrastructure\Assemblies\HandStack.Core.dll = 3.Infrastructure\Assemblies\HandStack.Core.dll
-		3.Infrastructure\Assemblies\HandStack.Core.pdb = 3.Infrastructure\Assemblies\HandStack.Core.pdb
-		3.Infrastructure\Assemblies\HandStack.Data.deps.json = 3.Infrastructure\Assemblies\HandStack.Data.deps.json
-		3.Infrastructure\Assemblies\HandStack.Data.dll = 3.Infrastructure\Assemblies\HandStack.Data.dll
-		3.Infrastructure\Assemblies\HandStack.Data.pdb = 3.Infrastructure\Assemblies\HandStack.Data.pdb
-		3.Infrastructure\Assemblies\HandStack.Web.deps.json = 3.Infrastructure\Assemblies\HandStack.Web.deps.json
-		3.Infrastructure\Assemblies\HandStack.Web.dll = 3.Infrastructure\Assemblies\HandStack.Web.dll
-		3.Infrastructure\Assemblies\HandStack.Web.pdb = 3.Infrastructure\Assemblies\HandStack.Web.pdb
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "forbes", "1.WebHost\forbes\forbes.csproj", "{26A81090-4BDA-4A0C-B017-0AF6A787D786}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4.Tool", "4.Tool", "{AED6D86D-3CC1-4D7B-80FD-1E7EBF83566F}"
@@ -139,14 +126,13 @@ Global
 		{CF63E5EB-7D3B-49AD-A1C5-2A7855283567} = {43B577AB-74FA-4B53-A2BE-E369622F970F}
 		{A2907FF2-9AA7-4128-9965-A9FE6D7EFA1B} = {43B577AB-74FA-4B53-A2BE-E369622F970F}
 		{6AE92154-8ADD-41C2-8C0F-CF1997EC9D2A} = {62D4FF65-F118-4D0E-8518-C6F4679EA63E}
-		{A251FD52-5564-4685-B5B2-730CC8176543} = {62D4FF65-F118-4D0E-8518-C6F4679EA63E}
 		{26A81090-4BDA-4A0C-B017-0AF6A787D786} = {8AAA6308-ECA2-43A5-8D46-1C7C1BC9088D}
 		{FA291842-9FD5-4508-A423-7421803FDA88} = {AED6D86D-3CC1-4D7B-80FD-1E7EBF83566F}
 		{3314A371-F013-4C45-B52E-B31C77360F29} = {FA291842-9FD5-4508-A423-7421803FDA88}
 		{D546C016-49CF-4693-A7F9-CFC93107EBA1} = {43B577AB-74FA-4B53-A2BE-E369622F970F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {0075CE72-935C-4F87-A6BA-989C82F06F8F}
 		VisualSVNWorkingCopyRoot = .
+		SolutionGuid = {0075CE72-935C-4F87-A6BA-989C82F06F8F}
 	EndGlobalSection
 EndGlobal
