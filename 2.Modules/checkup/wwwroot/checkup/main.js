@@ -112,6 +112,15 @@ let $main = {
 
     hook: {
         pageInit() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/js/syn.worker.js?r=' + syn.$l.random()).then(function (registration) {
+                    syn.$l.eventLog('서비스 작업자 scriptURL:', registration.active.scriptURL);
+                })
+                .catch(function (error) {
+                    syn.$l.eventLog('서비스 작업자:', error);
+                });
+            }
+
             document.onselectstart = function () { return true; };
             document.oncontextmenu = function () { return true; };
 
@@ -140,7 +149,7 @@ let $main = {
             var member = syn.$r.getCookie(syn.Config.CookiePrefixName + '.Member');
             var variable = syn.$r.getCookie(syn.Config.CookiePrefixName + '.Variable');
             var bearerToken = syn.$r.getCookie(syn.Config.CookiePrefixName + '.BearerToken');
-            
+
             if (syn.$w.ManagedApp.ExpiredAt.getTime() < (new Date()).getTime()) {
                 syn.$r.httpRequest('GET', '/checkup/api/tenant-app/logout');
                 syn.$w.removeStorage('handstack_managedapp', true);
@@ -1591,7 +1600,7 @@ let $main = {
                         }
                     }
                 ];
-                
+
                 if (menuNode.projectType == 'U' && menuNode.directoryYN == 'N' && menuNode.extension == '.html') {
                     tabEl.actionButtons.push({
                         command: 'preview',
