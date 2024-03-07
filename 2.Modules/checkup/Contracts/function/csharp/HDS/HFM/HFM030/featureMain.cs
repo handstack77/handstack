@@ -95,7 +95,7 @@ namespace HDS.Function.HFM
                             int rowIndex = -1;
                             foreach (var referencedPackage in referencedPackages)
                             {
-                                if (excludePackages.IndexOf($"{referencedPackage.Key}") == -1)
+                                if (string.IsNullOrEmpty(referencedPackage.Key) == false && excludePackages.IndexOf($"{referencedPackage.Key}") == -1)
                                 {
                                     rowIndex = rowIndex + 1;
                                     dataTableBuilder.NewRow();

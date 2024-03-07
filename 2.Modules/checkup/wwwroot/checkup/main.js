@@ -112,14 +112,14 @@ let $main = {
 
     hook: {
         pageInit() {
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('/js/syn.worker.js?r=' + syn.$l.random()).then(function (registration) {
-                    syn.$l.eventLog('서비스 작업자 scriptURL:', registration.active.scriptURL);
-                })
-                .catch(function (error) {
-                    syn.$l.eventLog('서비스 작업자:', error);
-                });
-            }
+            // if ('serviceWorker' in navigator) {
+            //     navigator.serviceWorker.register('/js/syn.worker.js?r=' + syn.$l.random()).then(function (registration) {
+            //         syn.$l.eventLog('서비스 작업자 scriptURL:', registration.active.scriptURL);
+            //     })
+            //     .catch(function (error) {
+            //         syn.$l.eventLog('서비스 작업자:', error);
+            //     });
+            // }
 
             document.onselectstart = function () { return true; };
             document.oncontextmenu = function () { return true; };
