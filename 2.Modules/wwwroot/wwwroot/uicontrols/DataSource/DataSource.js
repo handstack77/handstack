@@ -155,7 +155,7 @@
                 var controlModule = null;
                 var controlType = null;
 
-                if (tagName.indexOf('QAF_') > -1) {
+                if (tagName.indexOf('SYN_') > -1) {
                     var moduleName = tagName.substring(4).toLowerCase();
                     controlModule = syn.uicontrols['$' + moduleName];
                     controlType = moduleName;

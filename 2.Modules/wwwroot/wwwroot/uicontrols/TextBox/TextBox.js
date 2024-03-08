@@ -705,7 +705,7 @@
                     case 'corporateno':
                         var mod = window[syn.$w.pageScript];
                         if (setting.getter === true && mod.hook.frameEvent) {
-                            result = mod.hook.frameEvent('controlGetValue', {
+                            result = mod.hook.frameEvent('controlGetter', {
                                 elID: elID,
                                 value: el.value
                             });
@@ -753,7 +753,7 @@
                         case 'corporateno':
                             var mod = window[syn.$w.pageScript];
                             if (setting && setting.setter === true && mod.hook.frameEvent) {
-                                result = mod.hook.frameEvent('controlSetValue', {
+                                result = mod.hook.frameEvent('controlSetter', {
                                     elID: elID,
                                     value: value
                                 });

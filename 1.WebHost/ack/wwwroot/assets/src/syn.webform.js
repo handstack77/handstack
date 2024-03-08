@@ -30,8 +30,14 @@
 
         defaultControlOptions: {
             value: '',
-            text: '',
-            dataType: 'string',
+            dataType: 'string', // string, bool, number, int, date
+            belongID: null,
+            controlText: null,
+            validators: ['require', 'unique', 'numeric', 'ipaddress', 'email', 'date', 'url'],
+            transactConfig: null,
+            triggerConfig: null,
+            getter: false,
+            setter: false,
             bindingID: '',
             resourceKey: '',
             localeID: 'ko-KR',
