@@ -58,7 +58,7 @@
             "/lib/xlsx/xlsx.core.min.js",
             "/lib/handsontable/dist/handsontable.full.js",
             "/lib/handsontable/languages/ko-KR.js",
-            "/lib/clipboard/clipboard.js",
+            "/lib/clipboard.js/clipboard.js",
             "/js/color-picker/color-picker.js",
             "/lib/ispin/dist/ispin.js",
             "/lib/pikaday/pikaday.js",
