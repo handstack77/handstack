@@ -245,8 +245,6 @@ namespace function
                                 "Path": "/transact/api/transaction/execute",
                                 "ClientIP": "localhost"
                             },
-                            "IntranetServerIP": "localhost",
-                            "IntranetServerPort": "8000",
                             "Program": {
                                 "ProgramName": "ack",
                                 "ProgramVersion": "1.0.0",
