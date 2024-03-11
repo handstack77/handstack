@@ -1,4 +1,5 @@
 ﻿(async function () {
+    var systemVersion = '1.0.0';
     var getCookie = function (id) {
         var start = document.cookie.indexOf(id + '=');
         var len = start + id.length + 1;
@@ -330,7 +331,11 @@
     var cacheSynConfig = sessionStorage.getItem('synConfig');
     if (window.synConfigName == 'syn.config.json' && cacheSynConfig && cacheSynConfig.Environment == 'Production') {
         window.synConfig = JSON.parse(cacheSynConfig);
-        if (window.synConfig.CreatedAt) {
+        if (systemVersion != window.synConfig.SystemVersion) {
+            window.synConfig = null;
+            sessionStorage.removeItem('synConfig');
+        }
+        else if (window.synConfig.CreatedAt) {
             var diffHours = Math.abs(new Date() - new Date(window.synConfig.CreatedAt)) / 3600000;
             if (diffHours >= 1) {
                 window.synConfig = null;

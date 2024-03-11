@@ -5,7 +5,7 @@ let $main = {
 
     hook: {
         async pageLoad() {
-            $this.prop.clientIP = await syn.$w.apiHttp('/wwwroot/api/index/client-ip').send();
+            $this.prop.clientIP = await syn.$w.apiHttp('/checkip').send();
         },
     },
 

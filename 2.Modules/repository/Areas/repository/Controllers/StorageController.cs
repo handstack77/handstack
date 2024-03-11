@@ -74,13 +74,6 @@ namespace repository.Controllers
             return result;
         }
 
-        // http://localhost:8000/repository/api/storage/get-client-ip
-        [HttpGet("[action]")]
-        public string? GetClientIP()
-        {
-            return HttpContext.GetRemoteIpAddress();
-        }
-
         // http://localhost:8000/repository/api/storage/action-handler
         [HttpGet("[action]")]
         public async Task<ActionResult> ActionHandler()

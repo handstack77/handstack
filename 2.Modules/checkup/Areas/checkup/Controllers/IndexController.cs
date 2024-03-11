@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
@@ -202,13 +202,6 @@ namespace checkup.Areas.checkup.Controllers
             // -- 36바이트 = 설치구분 1자리(L: Local, C: Cloud, O: Onpremise) + 환경 ID 1자리 + 어플리케이션 ID 8자리 + 프로젝트 ID 3자리 + 거래 ID 6자리 + 기능 ID 4자리 + 시스템 구분 1자리 (W: WEB, P: Program, S: SVR, E: EXT) + ClientTokenID 6자리 + Timestamp (HHmmss) 6자리
             requestID = $"{installType}{environment}{programID}{businessID}{transactionID}{functionID}{machineTypeID}{tokenID}{requestTime}";
             return requestID;
-        }
-
-        // http://localhost:8000/checkup/api/index/client-ip
-        [HttpGet("[action]")]
-        public Task<string> ClientIP()
-        {
-            return Task.FromResult(HttpContext.GetRemoteIpAddress().ToStringSafe());
         }
 
         // http://localhost:8000/checkup/api/index/sha256hash?text=handstack12345

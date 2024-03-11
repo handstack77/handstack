@@ -161,15 +161,6 @@ namespace wwwroot.Areas.wwwroot.Controllers
             return requestID;
         }
 
-        // http://localhost:8000/wwwroot/api/index/client-ip
-        [HttpGet("[action]")]
-        public Task<string> ClientIP()
-        {
-            return Task.FromResult(HttpContext.GetRemoteIpAddress().ToStringSafe());
-        }
-
-
-
         // http://localhost:8000/wwwroot/api/index/sha256hash?text=handstack12345
         [HttpGet("[action]")]
         public string SHA256Hash(string text)
