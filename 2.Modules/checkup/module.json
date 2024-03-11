@@ -14,7 +14,6 @@
         "DefaultCommandTimeout": 180,
         "IsExceptionDetailText": true,
         "IsLogServer": true,
-        "IsContractFileUpdateToCaching": true,
         "LogServerUrl": "http://localhost:8000/api/log",
         "ModuleLogFilePath": "../log/checkup/module.log",
         "ModuleBasePath": "../modules/checkup",

@@ -34,8 +34,6 @@ namespace checkup.Entity
 
         public bool IsLogServer { get; set; }
 
-        public bool IsContractFileUpdateToCaching { get; set; }
-
         public string LocalStoragePath { get; set; }
 
         public string LogServerUrl { get; set; }
@@ -74,7 +72,6 @@ namespace checkup.Entity
             DefaultCommandTimeout = 30;
             IsExceptionDetailText = false;
             IsLogServer = false;
-            IsContractFileUpdateToCaching = false;
             LocalStoragePath = "";
             LogServerUrl = "";
             ModuleBasePath = "";

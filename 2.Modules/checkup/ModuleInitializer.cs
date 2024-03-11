@@ -56,7 +56,7 @@ namespace checkup
                         ModuleConfiguration.ManagedAccessKey = moduleConfig.ManagedAccessKey;
                         ModuleConfiguration.EncryptionAES256Key = string.IsNullOrEmpty(moduleConfig.EncryptionAES256Key) == false
                             && (moduleConfig.EncryptionAES256Key.Length == 16 || moduleConfig.EncryptionAES256Key.Length == 32) ? moduleConfig.EncryptionAES256Key : "1234567890123456";
-                        ModuleConfiguration.AuthorizationKey = GlobalConfiguration.SystemID + GlobalConfiguration.RunningEnvironment + GlobalConfiguration.HostName;
+                        ModuleConfiguration.AuthorizationKey = string.IsNullOrEmpty(moduleConfig.AuthorizationKey) == false ? moduleConfig.AuthorizationKey : GlobalConfiguration.SystemID + GlobalConfiguration.RunningEnvironment + GlobalConfiguration.HostName;
                         ModuleConfiguration.IsBundledWithHost = moduleConfigJson.IsBundledWithHost;
                         ModuleConfiguration.AdministratorEmailID = moduleConfig.AdministratorEmailID;
                         ModuleConfiguration.ModuleConfigurationUrl = moduleConfig.ModuleConfigurationUrl;

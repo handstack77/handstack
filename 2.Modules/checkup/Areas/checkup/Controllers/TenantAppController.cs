@@ -964,14 +964,6 @@ namespace checkup.Areas.checkup.Controllers
             return result;
         }
 
-        // http://localhost:8000/checkup/api/tenant-app/toggle-use-memory-cache
-        [HttpGet("[action]")]
-        public ActionResult ToggleUseMemoryCache()
-        {
-            ModuleConfiguration.IsMenuMemoryCache = !ModuleConfiguration.IsMenuMemoryCache;
-            return Ok(ModuleConfiguration.IsMenuMemoryCache);
-        }
-
         // http://localhost:8000/checkup/api/tenant-app/sign-in?applicationNo=08dbcde8520ce00cca91a85e00064bf7&memberNo=08db77a3cba70039ca91a82878021905
         [HttpGet("[action]")]
         public ActionResult SignIn(string applicationNo, string memberNo)
