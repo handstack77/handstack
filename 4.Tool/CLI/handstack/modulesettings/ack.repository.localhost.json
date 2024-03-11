@@ -5,7 +5,6 @@
     "Version": "1.0.0",
     "ModuleConfig": {
         "SystemID": "HANDSTACK",
-        "EncryptionAES256Key": "1234567890123456",
         "FileServerUrl": "http://localhost:8000",
         "BusinessServerUrl": "http://localhost:8000/transact/api/transaction/execute",
         "CircuitBreakResetSecond": 60,
