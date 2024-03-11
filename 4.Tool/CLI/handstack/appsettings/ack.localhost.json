@@ -61,13 +61,6 @@
         "CookiePrefixName": "HandStack",
         "UserSignExpire": -1
     },
-    "Logging": {
-        "LogLevel": {
-            "Default": "Information",
-            "Microsoft": "Warning",
-            "Microsoft.Hosting.Lifetime": "Information"
-        }
-    },
     "Serilog": {
         "Enrich": [ "FromLogContext", "WithMachineName" ],
         "MinimumLevel": {
