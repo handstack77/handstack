@@ -59,17 +59,15 @@ namespace logger.Areas.logger.Controllers
             {
                 if (string.IsNullOrEmpty(logMessage.ApplicationID) == true || ModuleConfiguration.ApplicationIDCircuitBreakers.ContainsKey(logMessage.ApplicationID) == false)
                 {
-                    if (ModuleConfiguration.IsSQLiteCreateOnNotSettingRequest == true)
+                    logger.Warning("필수 요청 항목 확인 필요: " + JsonConvert.SerializeObject(logMessage));
+                    return result;
+                }
+
+                if (ModuleConfiguration.IsSQLiteCreateOnNotSettingRequest == true)
+                {
+                    if (ModuleConfiguration.CheckSQLiteCreate(logMessage.ApplicationID) == null)
                     {
-                        if (ModuleConfiguration.CheckSQLiteCreate(logMessage.ApplicationID) == null)
-                        {
-                            logger.Warning("데이터 소스 생성 기능 확인 필요: " + JsonConvert.SerializeObject(logMessage));
-                            return result;
-                        }
-                    }
-                    else
-                    {
-                        logger.Warning("필수 요청 항목 확인 필요: " + JsonConvert.SerializeObject(logMessage));
+                        logger.Warning("데이터 소스 생성 기능 확인 필요: " + JsonConvert.SerializeObject(logMessage));
                         return result;
                     }
                 }
@@ -99,28 +97,26 @@ namespace logger.Areas.logger.Controllers
             {
                 if (string.IsNullOrEmpty(applicationID) == true || ModuleConfiguration.ApplicationIDCircuitBreakers.ContainsKey(applicationID) == false)
                 {
-                    if (ModuleConfiguration.IsSQLiteCreateOnNotSettingRequest == true)
+                    logger.Warning("필수 요청 항목 확인 필요: " + JsonConvert.SerializeObject(new
                     {
-                        if (ModuleConfiguration.CheckSQLiteCreate(applicationID) == null)
-                        {
-                            logger.Warning("데이터 소스 생성 기능 확인 필요: " + JsonConvert.SerializeObject(new
-                            {
-                                ApplicationID = applicationID,
-                                ServerID = serverID,
-                                GlobalID = globalID,
-                                Environment = environment,
-                                ProjectID = projectID,
-                                ServiceID = serviceID,
-                                TransactionID = transactionID,
-                                StartedAt = startedAt,
-                                EndedAt = endedAt
-                            }));
-                            return result;
-                        }
-                    }
-                    else
+                        ApplicationID = applicationID,
+                        ServerID = serverID,
+                        GlobalID = globalID,
+                        Environment = environment,
+                        ProjectID = projectID,
+                        ServiceID = serviceID,
+                        TransactionID = transactionID,
+                        StartedAt = startedAt,
+                        EndedAt = endedAt
+                    }));
+                    return result;
+                }
+
+                if (ModuleConfiguration.IsSQLiteCreateOnNotSettingRequest == true)
+                {
+                    if (ModuleConfiguration.CheckSQLiteCreate(applicationID) == null)
                     {
-                        logger.Warning("필수 요청 항목 확인 필요: " + JsonConvert.SerializeObject(new
+                        logger.Warning("데이터 소스 생성 기능 확인 필요: " + JsonConvert.SerializeObject(new
                         {
                             ApplicationID = applicationID,
                             ServerID = serverID,
@@ -157,20 +153,19 @@ namespace logger.Areas.logger.Controllers
             {
                 if (string.IsNullOrEmpty(applicationID) == true || string.IsNullOrEmpty(logNo) == true || ModuleConfiguration.ApplicationIDCircuitBreakers.ContainsKey(applicationID) == false)
                 {
-                    if (ModuleConfiguration.IsSQLiteCreateOnNotSettingRequest == true)
+                    logger.Warning("필수 요청 항목 확인 필요: " + JsonConvert.SerializeObject(new
                     {
-                        if (ModuleConfiguration.CheckSQLiteCreate(applicationID) == null)
-                        {
-                            logger.Warning("데이터 소스 생성 기능 확인 필요: " + JsonConvert.SerializeObject(new {
-                                ApplicationID = applicationID,
-                                LogNo = logNo
-                            }));
-                            return result;
-                        }
-                    }
-                    else
+                        ApplicationID = applicationID,
+                        LogNo = logNo
+                    }));
+                    return result;
+                }
+
+                if (ModuleConfiguration.IsSQLiteCreateOnNotSettingRequest == true)
+                {
+                    if (ModuleConfiguration.CheckSQLiteCreate(applicationID) == null)
                     {
-                        logger.Warning("필수 요청 항목 확인 필요: " + JsonConvert.SerializeObject(new
+                        logger.Warning("데이터 소스 생성 기능 확인 필요: " + JsonConvert.SerializeObject(new
                         {
                             ApplicationID = applicationID,
                             LogNo = logNo
