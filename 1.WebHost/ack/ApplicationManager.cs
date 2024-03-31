@@ -158,7 +158,7 @@ namespace ack
                         var response = await client.ExecuteAsync(request);
                         if (response.StatusCode != HttpStatusCode.OK)
                         {
-                            Log.Error($"ModuleConfigurationUrl: {item} 응답 확인 필요");
+                            Log.Error($"ModuleConfigurationUrl: {item}, StatusCode: {response.StatusCode}, ErrorMessage: {response.ErrorMessage} 응답 확인 필요");
                         }
                     }
                     else
