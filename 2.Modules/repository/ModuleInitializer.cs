@@ -365,7 +365,6 @@ namespace repository
                         catch (Exception exception)
                         {
                             Log.Logger.Error(exception, "[{LogCategory}] " + $"physicalPath: {physicalPath}, RequestPath: /{ModuleID}/{item.RepositoryID}", $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
-                            throw;
                         }
                     }
                 }

@@ -63,13 +63,13 @@ namespace HandStack.Core.ExpandObjects.DataObject
                     exception is OverflowException ||
                     exception is ArgumentNullException)
                 {
-                    output = null;
                     result = false;
                 }
                 else
                 {
-                    throw;
+                    Console.Error.WriteLine(exception.ToString());
                 }
+                output = null;
             }
 
             return result;

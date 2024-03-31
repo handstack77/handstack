@@ -30,10 +30,12 @@ namespace HandStack.Core.ExtensionMethod
                 {
                     return await taskFactory().ConfigureAwait(false);
                 }
-                catch
+                catch (Exception exception)
                 {
                     if (i == maxRetries - 1)
-                        throw;
+                    {
+                        Console.Error.WriteLine(exception.ToString());
+                    }
                     await Task.Delay(delay).ConfigureAwait(false);
                 }
             }

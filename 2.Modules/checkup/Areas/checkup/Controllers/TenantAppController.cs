@@ -27,6 +27,7 @@ using HandStack.Web.Entity;
 using HandStack.Web.Extensions;
 using HandStack.Web.Helper;
 using HandStack.Web.MessageContract.DataObject;
+using HandStack.Web.MessageContract.Enumeration;
 using HandStack.Web.MessageContract.Message;
 using HandStack.Web.Modules;
 
@@ -1192,7 +1193,7 @@ namespace checkup.Areas.checkup.Controllers
                     mediatorRequest.Parameters.Add("Arguments", templateParameters);
 
                     var sendResponse = await mediatorClient.SendAsync(mediatorRequest);
-                    if (sendResponse != null)
+                    if (sendResponse.Acknowledge == AcknowledgeType.Success)
                     {
                         var data = sendResponse.Result as string;
                         if (data != null)

@@ -37,15 +37,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Reference Include="HandStack.Core">
-            <HintPath>../../3.Infrastructure/Assemblies/HandStack.Core.dll</HintPath>
-        </Reference>
-        <Reference Include="HandStack.Web">
-            <HintPath>../../3.Infrastructure/Assemblies/HandStack.Web.dll</HintPath>
-        </Reference>
-        <Reference Include="HandStack.Data">
-            <HintPath>../../3.Infrastructure/Assemblies/HandStack.Data.dll</HintPath>
-        </Reference>
+        <ProjectReference Include="..\..\3.Infrastructure\HandStack.Core\HandStack.Core.csproj" />
+        <ProjectReference Include="..\..\3.Infrastructure\HandStack.Data\HandStack.Data.csproj" />
+        <ProjectReference Include="..\..\3.Infrastructure\HandStack.Web\HandStack.Web.csproj" />
     </ItemGroup>
 
     <ItemGroup>
@@ -54,8 +48,6 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Include="Contracts/**" />
-        <Content Remove="wwwroot\uicontrols\Chart\ChartJS.css" />
-        <Content Remove="wwwroot\uicontrols\Chart\ChartJS.js" />
         <None Update="Contracts/**">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>

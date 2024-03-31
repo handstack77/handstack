@@ -2414,6 +2414,10 @@
     window.$validation = syn.$v || window.$validation || $validation;
 })(window);
 function domainLibraryLoad() {
+    syn.$l.addEvent(window, 'error', (message, source, line, col, error) => {
+        console.log(`error: ${error}, message: ${message}, source: ${source}, line: ${line}, col: ${col}`);
+    });
+
     if ($object.isBoolean(syn.Config.IsClientCaching) == true) {
         syn.$r.setCookie('syn.iscache', syn.Config.IsClientCaching, null, '/');
     }

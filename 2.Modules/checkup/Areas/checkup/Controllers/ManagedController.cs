@@ -31,9 +31,9 @@ namespace checkup.Areas.checkup.Controllers
             this.sequentialIdGenerator = sequentialIdGenerator;
         }
 
-        // http://localhost:8000/checkup/api/managed/initailize-settings
+        // http://localhost:8000/checkup/api/managed/initialize-settings
         [HttpGet("[action]")]
-        public ActionResult InitailizeSettings()
+        public ActionResult InitializeSettings()
         {
             ActionResult result = BadRequest();
             string? authorizationKey = Request.Headers["AuthorizationKey"];
@@ -72,7 +72,7 @@ namespace checkup.Areas.checkup.Controllers
 
                         if (nonResults == null)
                         {
-                            logger.Error("[{LogCategory}] " + $"{ModuleConfiguration.DatabaseContractPath}: SYS.USR010.ID01 확인 필요", "ManagedController/InitailizeSettings");
+                            logger.Error("[{LogCategory}] " + $"{ModuleConfiguration.DatabaseContractPath}: SYS.USR010.ID01 확인 필요", "ManagedController/InitializeSettings");
                             return Ok();
                         }
 

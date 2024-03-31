@@ -147,7 +147,7 @@ namespace dbclient.Areas.dbclient.Controllers
                                                 statementMap.StatementID = item.Attributes["id"].Value + item.Attributes["seq"].Value.PadLeft(2, '0');
                                                 statementMap.Seq = int.Parse(item.Attributes["seq"].Value);
                                                 statementMap.Comment = item.Attributes["desc"].Value;
-                                                statementMap.NativeDataClient = item.Attributes["native"] == null ? false : item.Attributes["native"].Value == "Y";
+                                                statementMap.NativeDataClient = item.Attributes["native"] == null ? false : item.Attributes["native"].Value.ParseBool();
                                                 statementMap.Timeout = int.Parse(item.Attributes["timeout"].Value);
                                                 statementMap.SQL = item.InnerHtml;
 

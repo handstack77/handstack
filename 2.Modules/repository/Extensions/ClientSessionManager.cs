@@ -1,4 +1,4 @@
-﻿using repository.Entities;
+﻿using repository.Entity;
 
 using System;
 using System.Collections.Generic;

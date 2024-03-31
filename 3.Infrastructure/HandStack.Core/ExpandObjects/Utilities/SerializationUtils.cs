@@ -33,7 +33,7 @@ namespace HandStack.Core.ExpendObjects
 
                 if (throwExceptions == true)
                 {
-                    throw;
+                    Console.Error.WriteLine(exception.ToString());
                 }
                 result = false;
             }
@@ -60,7 +60,7 @@ namespace HandStack.Core.ExpendObjects
 
                 if (throwExceptions == true)
                 {
-                    throw;
+                    Console.Error.WriteLine(exception.ToString());
                 }
 
                 result = false;
@@ -120,7 +120,7 @@ namespace HandStack.Core.ExpendObjects
 
                 if (throwExceptions == true)
                 {
-                    throw;
+                    Console.Error.WriteLine(exception.ToString());
                 }
 
                 return null;

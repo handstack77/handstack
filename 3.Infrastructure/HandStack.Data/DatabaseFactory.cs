@@ -287,7 +287,6 @@ namespace HandStack.Data
                 catch (Exception exception)
                 {
                     Log.Logger.Error(exception, "[{LogCategory}] 데이터베이스 거래 오류", "DatabaseFactory/ExecuteNonQuery");
-                    throw;
                 }
                 finally
                 {
@@ -337,7 +336,6 @@ namespace HandStack.Data
                 catch (Exception exception)
                 {
                     Log.Logger.Error(exception, "[{LogCategory}] 데이터베이스 거래 오류", "DatabaseFactory/ExecuteScalar");
-                    throw;
                 }
                 finally
                 {
@@ -382,7 +380,6 @@ namespace HandStack.Data
                 catch (Exception exception)
                 {
                     Log.Logger.Error(exception, "[{LogCategory}] 데이터베이스 거래 오류", "DatabaseFactory/ExecuteReader");
-                    throw;
                 }
                 finally
                 {
@@ -425,7 +422,6 @@ namespace HandStack.Data
                 catch (Exception exception)
                 {
                     Log.Logger.Error(exception, "[{LogCategory}] 데이터베이스 거래 오류", "DatabaseFactory/ExecuteReader");
-                    throw;
 
                 }
                 finally
@@ -482,7 +478,6 @@ namespace HandStack.Data
                     catch (Exception exception)
                     {
                         Log.Logger.Error(exception, "[{LogCategory}] 데이터베이스 거래 오류", "DatabaseFactory/ExecuteDataSet");
-                        throw;
                     }
                     finally
                     {
@@ -551,7 +546,6 @@ namespace HandStack.Data
                     catch (Exception exception)
                     {
                         Log.Logger.Error(exception, "[{LogCategory}] 데이터베이스 거래 오류", "DatabaseFactory/ExecuteDataTable");
-                        throw;
                     }
                     finally
                     {

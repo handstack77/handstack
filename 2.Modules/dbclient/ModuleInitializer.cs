@@ -171,6 +171,7 @@ namespace dbclient
                 services.AddTransient<IQueryDataClient, QueryDataClient>();
 
                 services.AddTransient<IRequestHandler<DbClientRequest, object?>, DbClientRequestHandler>();
+                services.AddTransient<IRequestHandler<ManagedRequest, object?>, ManagedRequestHandler>();
             }
         }
 

@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+    <header>
+        <application>HDS</application>
+        <project>HOA</project>
+        <transaction>PGS010</transaction>
+        <datasource>OPENAPIDB</datasource>
+        <use>Y</use>
+        <desc>PostgreSQL OpenAPI 관리 기본 거래</desc>
+    </header>
+    <commands>
+        <statement id="ZD01" seq="0" use="Y" timeout="0" desc="OpenAPI 서비스 테이블 DDL 및 초기 데이터 입력 적용">
+            <![CDATA[
+CREATE TABLE "AccessMemberAPI" (
+    "AccessID" character varying(36) NOT NULL,
+    "APIServiceID" character varying(36),
+    "MemberNo" character varying(36),
+    "SecretKey" character varying(36),
+    "IPAddress" character varying(1000),
+    "LimitPeriod" character varying(10),
+    "LimitCallCount" bigint,
+    "CumulativeCallCount" bigint,
+    "UseYN" character varying(1),
+    "DeleteYN" character varying(1),
+    "CreatedAt" timestamp(0) with time zone,
+    CONSTRAINT "PK_AccessMemberAPI" PRIMARY KEY ("AccessID")
+);
+COMMENT ON COLUMN "AccessMemberAPI"."AccessID" IS 'API 접근 ID';
+COMMENT ON COLUMN "AccessMemberAPI"."APIServiceID" IS 'API 서비스 ID';
+COMMENT ON COLUMN "AccessMemberAPI"."MemberNo" IS '회원 ID';
+COMMENT ON COLUMN "AccessMemberAPI"."SecretKey" IS '접근 비밀키';
+COMMENT ON COLUMN "AccessMemberAPI"."IPAddress" IS 'LimitIPAddressYN == Y 인 경우 적용';
+COMMENT ON COLUMN "AccessMemberAPI"."LimitPeriod" IS 'Day, Month, Infinite';
+COMMENT ON COLUMN "AccessMemberAPI"."LimitCallCount" IS '제한 횟수';
+COMMENT ON COLUMN "AccessMemberAPI"."CumulativeCallCount" IS '전체 요청 횟수';
+COMMENT ON COLUMN "AccessMemberAPI"."UseYN" IS '사용 유무';
+COMMENT ON COLUMN "AccessMemberAPI"."DeleteYN" IS '삭제 유무';
+COMMENT ON COLUMN "AccessMemberAPI"."CreatedAt" IS '입력 일시';
+
+
+CREATE TABLE "APIParameter" (
+    "APIServiceID" character varying(36) NOT NULL,
+    "ParameterID" character varying(50) NOT NULL,
+    "ParameterType" character varying(30),
+    "Length" integer,
+    "DefaultValue" character varying(1000),
+    "RequiredYN" character varying(1),
+    "SortingNo" integer,
+    "Comment" character varying(2000),
+    CONSTRAINT "PK_APIParameter" PRIMARY KEY ("APIServiceID", "ParameterID")
+);
+COMMENT ON COLUMN "APIParameter"."APIServiceID" IS 'API 서비스 ID';
+COMMENT ON COLUMN "APIParameter"."ParameterID" IS '매개변수 ID';
+COMMENT ON COLUMN "APIParameter"."ParameterType" IS '매개변수 데이터 타입';
+COMMENT ON COLUMN "APIParameter"."Length" IS '길이';
+COMMENT ON COLUMN "APIParameter"."DefaultValue" IS '기본값';
+COMMENT ON COLUMN "APIParameter"."RequiredYN" IS '필수 유무';
+COMMENT ON COLUMN "APIParameter"."SortingNo" IS '정렬순서';
+COMMENT ON COLUMN "APIParameter"."Comment" IS '매개변수 설명';
+
+
+CREATE TABLE "APIResponseScheme" (
+    "APIServiceID" character varying(36) NOT NULL,
+    "ColumnID" character varying(50) NOT NULL,
+    "ColumnType" character varying(30),
+    "ColumnText" character varying(50),
+    "Comment" character varying(1000),
+    CONSTRAINT "PK_APIResponseScheme" PRIMARY KEY ("APIServiceID", "ColumnID")
+);
+COMMENT ON COLUMN "APIResponseScheme"."APIServiceID" IS 'API 서비스 ID';
+COMMENT ON COLUMN "APIResponseScheme"."ColumnID" IS '컬럼 ID';
+COMMENT ON COLUMN "APIResponseScheme"."ColumnType" IS '컬럼 데이터 타입';
+COMMENT ON COLUMN "APIResponseScheme"."ColumnText" IS '컬럼명';
+COMMENT ON COLUMN "APIResponseScheme"."Comment" IS '설명';
+
+
+CREATE TABLE "APIService" (
+    "APIServiceID" character varying(36) NOT NULL,
+    "InterfaceID" character varying(50) NOT NULL,
+    "InterfaceName" character varying(100),
+    "DataSourceID" character varying(10),
+    "CommandText" character varying(65536),
+    "Descriptions" character varying(2000),
+    "FormatJsonYN" character varying(1),
+    "FormatXmlYN" character varying(1),
+    "FormatSoapYN" character varying(1),
+    "FormatRssYN" character varying(1),
+    "FormatAtomYN" character varying(1),
+    "LimitPeriod" character varying(10),
+    "LimitCallCount" bigint,
+    "LimitIPAddressYN" character varying(1),
+    "AccessControl" character varying(10),
+    "CumulativeCallCount" bigint,
+    "UseYN" character varying(1),
+    "DeleteYN" character varying(1),
+    "CreatedAt" timestamp(0) with time zone,
+    CONSTRAINT "PK_APIService" PRIMARY KEY ("APIServiceID"),
+    CONSTRAINT "AK_APIService_InterfaceID" UNIQUE ("InterfaceID")
+);
+COMMENT ON COLUMN "APIService"."APIServiceID" IS 'GUID';
+COMMENT ON COLUMN "APIService"."InterfaceID" IS '인터페이스 ID';
+COMMENT ON COLUMN "APIService"."InterfaceName" IS '인터페이스명';
+COMMENT ON COLUMN "APIService"."DataSourceID" IS '데이터 소스 ID';
+COMMENT ON COLUMN "APIService"."CommandText" IS '명령 구문';
+COMMENT ON COLUMN "APIService"."Descriptions" IS 'HTML 내용으로 API 서비스 설명';
+COMMENT ON COLUMN "APIService"."FormatJsonYN" IS 'Format을 지정하지 않으면 기본값 (Y)으로 적용';
+COMMENT ON COLUMN "APIService"."FormatXmlYN" IS 'Xml 지원 유무';
+COMMENT ON COLUMN "APIService"."FormatSoapYN" IS 'Soap 지원 유무';
+COMMENT ON COLUMN "APIService"."FormatRssYN" IS 'Rss 지원 유무';
+COMMENT ON COLUMN "APIService"."FormatAtomYN" IS 'Atom 지원 유무';
+COMMENT ON COLUMN "APIService"."LimitPeriod" IS 'Day, Month, Infinite';
+COMMENT ON COLUMN "APIService"."LimitCallCount" IS '제한 요청 횟수';
+COMMENT ON COLUMN "APIService"."LimitIPAddressYN" IS '제한 IP 주소 유무';
+COMMENT ON COLUMN "APIService"."AccessControl" IS 'Public, SecretKey';
+COMMENT ON COLUMN "APIService"."CumulativeCallCount" IS '요청 횟수 합계';
+COMMENT ON COLUMN "APIService"."UseYN" IS '사용 유무';
+COMMENT ON COLUMN "APIService"."DeleteYN" IS '삭제 유무';
+COMMENT ON COLUMN "APIService"."CreatedAt" IS '입력 일시';
+
+
+CREATE TABLE "DataSource" (
+    "DataSourceID" character varying(10) NOT NULL,
+    "DataProvider" character varying(10),
+    "ConnectionString" character varying(2000),
+    "IsEncryption" character varying(1),
+    "Comment" character varying(1000),
+    "CreatedAt" timestamp(0) with time zone,
+    CONSTRAINT "PK_DataSource" PRIMARY KEY ("DataSourceID")
+);
+COMMENT ON COLUMN "DataSource"."DataSourceID" IS '데이터소스ID';
+COMMENT ON COLUMN "DataSource"."DataProvider" IS '데이터제공자';
+COMMENT ON COLUMN "DataSource"."ConnectionString" IS '연결문자열';
+COMMENT ON COLUMN "DataSource"."IsEncryption" IS '연결문자열 암호화 여부';
+COMMENT ON COLUMN "DataSource"."Comment" IS '설명';
+COMMENT ON COLUMN "DataSource"."CreatedAt" IS '입력일시';
+
+
+CREATE TABLE "EventLog" (
+    "LogNo" bigint GENERATED BY DEFAULT AS IDENTITY,
+    "Category" character varying(30),
+    "Code" character varying(10),
+    "Message" character varying(2000),
+    "Options" character varying(4000),
+    "CreatedAt" timestamp(0) with time zone,
+    CONSTRAINT "PK_EventLog" PRIMARY KEY ("LogNo")
+);
+COMMENT ON COLUMN "EventLog"."LogNo" IS '로그 NO';
+COMMENT ON COLUMN "EventLog"."Category" IS '분류';
+COMMENT ON COLUMN "EventLog"."Code" IS '코드';
+COMMENT ON COLUMN "EventLog"."Message" IS '메시지';
+COMMENT ON COLUMN "EventLog"."Options" IS '옵션';
+COMMENT ON COLUMN "EventLog"."CreatedAt" IS '입력일시';
+
+
+CREATE TABLE "Member" (
+    "MemberNo" character varying(36) NOT NULL,
+    "EmailID" character varying(256) NOT NULL DEFAULT '',
+    "EmailVerifyAt" timestamp(0) with time zone,
+    "Celluar" character varying(20),
+    "CelluarVerifyAt" timestamp(0) with time zone,
+    "MemberName" character varying(100),
+    "PositionName" character varying(100),
+    "DepartmentName" character varying(100),
+    "CompanyName" character varying(100),
+    "Roles" character varying(200),
+    "BirthDate" character varying(10),
+    "JoinAt" timestamp(0) with time zone,
+    "RetireAt" timestamp(0) with time zone,
+    "Address" character varying(510),
+    "AddressDetail" character varying(100),
+    "Gender" character varying(1),
+    "DeleteYN" character varying(1),
+    "Comment" character varying(2000),
+    "TermsOfServiceConsentYN" character varying(1),
+    "PersonalInformationUseConsentYN" character varying(1),
+    "ThirdPartyProvisionConsentYN" character varying(1),
+    "CreatedUserNo" character varying(36),
+    "CreatedAt" timestamp(0) with time zone,
+    "ModifiedMemberNo" character varying(36),
+    "ModifiedAt" timestamp(0) with time zone,
+    CONSTRAINT "PK_Member" PRIMARY KEY ("MemberNo")
+);
+COMMENT ON COLUMN "Member"."MemberNo" IS '회원NO';
+COMMENT ON COLUMN "Member"."EmailID" IS '이메일ID';
+COMMENT ON COLUMN "Member"."EmailVerifyAt" IS '이메일확인일시';
+COMMENT ON COLUMN "Member"."Celluar" IS '핸드폰번호';
+COMMENT ON COLUMN "Member"."CelluarVerifyAt" IS '핸드폰확인일시';
+COMMENT ON COLUMN "Member"."MemberName" IS '회원명';
+COMMENT ON COLUMN "Member"."PositionName" IS '직위명';
+COMMENT ON COLUMN "Member"."DepartmentName" IS '부서명';
+COMMENT ON COLUMN "Member"."CompanyName" IS '회사명';
+COMMENT ON COLUMN "Member"."Roles" IS '역할';
+COMMENT ON COLUMN "Member"."BirthDate" IS '생년월일';
+COMMENT ON COLUMN "Member"."JoinAt" IS '가입일시';
+COMMENT ON COLUMN "Member"."RetireAt" IS '탈퇴일시';
+COMMENT ON COLUMN "Member"."Address" IS '주소';
+COMMENT ON COLUMN "Member"."AddressDetail" IS '상세주소';
+COMMENT ON COLUMN "Member"."Gender" IS '성별';
+COMMENT ON COLUMN "Member"."DeleteYN" IS '삭제여부';
+COMMENT ON COLUMN "Member"."Comment" IS '설명';
+COMMENT ON COLUMN "Member"."TermsOfServiceConsentYN" IS '서비스 이용약관';
+COMMENT ON COLUMN "Member"."PersonalInformationUseConsentYN" IS '개인정보 이용동의';
+COMMENT ON COLUMN "Member"."ThirdPartyProvisionConsentYN" IS '제3자 제공동의';
+COMMENT ON COLUMN "Member"."CreatedUserNo" IS '생성사용자NO';
+COMMENT ON COLUMN "Member"."CreatedAt" IS '생성일시';
+COMMENT ON COLUMN "Member"."ModifiedMemberNo" IS '수정회원NO';
+COMMENT ON COLUMN "Member"."ModifiedAt" IS '수정일시';
+
+
+CREATE TABLE "UsageAPIStatistics" (
+    "RequestYear" character varying(50) NOT NULL,
+    "RequestMonth" character varying(50) NOT NULL,
+    "RequestDay" character varying(50) NOT NULL,
+    "RequestHour" character varying(50) NOT NULL,
+    "AccessID" character varying(50) NOT NULL,
+    "Format" character varying(50),
+    "CumulativeCallCount" character varying(50),
+    "ModifiedAt" character varying(50),
+    CONSTRAINT "PK_UsageAPIStatistics" PRIMARY KEY ("RequestYear", "RequestMonth", "RequestDay", "RequestHour", "AccessID")
+);
+COMMENT ON COLUMN "UsageAPIStatistics"."RequestYear" IS '요청 년도';
+COMMENT ON COLUMN "UsageAPIStatistics"."RequestMonth" IS '요청 월';
+COMMENT ON COLUMN "UsageAPIStatistics"."RequestDay" IS '요청 일';
+COMMENT ON COLUMN "UsageAPIStatistics"."RequestHour" IS '요청 시간';
+COMMENT ON COLUMN "UsageAPIStatistics"."AccessID" IS 'API 접근 ID';
+COMMENT ON COLUMN "UsageAPIStatistics"."Format" IS 'APIService Format중 Json, Xml, Soap, Rss, Atom 하나';
+COMMENT ON COLUMN "UsageAPIStatistics"."CumulativeCallCount" IS '전체 요청 횟수';
+COMMENT ON COLUMN "UsageAPIStatistics"."ModifiedAt" IS '최근 요청 일시';
+
+
+CREATE INDEX "IX_AccessMemberAPI_APIServiceID_MemberNo" ON "AccessMemberAPI" ("APIServiceID", "MemberNo");
+
+
+CREATE INDEX "IX_Member_EmailID" ON "Member" ("EmailID");
+
+
+
+			]]>
+        </statement>
+
+        <statement id="GD01" seq="0" use="Y" timeout="0" desc="데이터베이스 현재 시간 및 서버명 조회">
+            <![CDATA[
+SELECT CURRENT_DATE AS "ServerDate", current_database() AS "ServerName";
+			]]>
+        </statement>
+
+        <statement id="GD02" seq="0" use="Y" timeout="0" desc="데이터베이스 내 테이블 유무 확인">
+            <![CDATA[
+SELECT COUNT(*) AS IsExists FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = :TableName;
+			]]>
+            <param id=":TableName" type="String" length="36" value="" />
+        </statement>
+    </commands>
+</mapper>

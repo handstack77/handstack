@@ -44,19 +44,13 @@
 		<PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
 		<PackageReference Include="Serilog.Sinks.Console" Version="5.0.1" />
 		<PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
-		<PackageReference Include="MediatR" Version="12.1.1" />
+		<PackageReference Include="MediatR" Version="12.2.0" />
 	</ItemGroup>
 
     <ItemGroup>
-        <Reference Include="HandStack.Core">
-            <HintPath>../../3.Infrastructure/Assemblies/HandStack.Core.dll</HintPath>
-        </Reference>
-        <Reference Include="HandStack.Data">
-            <HintPath>../../3.Infrastructure/Assemblies/HandStack.Data.dll</HintPath>
-        </Reference>
-        <Reference Include="HandStack.Web">
-            <HintPath>../../3.Infrastructure/Assemblies/HandStack.Web.dll</HintPath>
-        </Reference>
+        <ProjectReference Include="..\..\3.Infrastructure\HandStack.Core\HandStack.Core.csproj" />
+        <ProjectReference Include="..\..\3.Infrastructure\HandStack.Data\HandStack.Data.csproj" />
+        <ProjectReference Include="..\..\3.Infrastructure\HandStack.Web\HandStack.Web.csproj" />
     </ItemGroup>
 
 	<ItemGroup>
@@ -73,16 +67,6 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 		<Compile Remove="Contracts/function/csharp\**" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Content Remove="Contracts\repository\HDS\checkup.json" />
-		<Content Remove="Contracts\transact\HDS\CHP\CHP010.json" />
-		<Content Remove="Contracts\transact\HDS\CHP\CHP020.json" />
-		<Content Remove="wwwroot\checkup\view\CHP\CHP010.html" />
-		<Content Remove="wwwroot\checkup\view\CHP\CHP010.js" />
-		<Content Remove="wwwroot\checkup\view\CHP\CHP020.html" />
-		<Content Remove="wwwroot\checkup\view\CHP\CHP020.js" />
 	</ItemGroup>
 
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">

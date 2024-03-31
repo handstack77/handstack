@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace repository.Entities
+namespace repository.Entity
 {
 	public class ClientToken
     {

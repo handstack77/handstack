@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+    <header>
+        <application>HDS</application>
+        <project>HOA</project>
+        <transaction>SLT010</transaction>
+        <datasource>OPENAPIDB</datasource>
+        <use>Y</use>
+        <desc>SQLite OpenAPI 관리 기본 거래</desc>
+    </header>
+    <commands>
+        <statement id="ZD01" seq="0" use="Y" timeout="0" desc="OpenAPI 서비스 테이블 DDL 및 초기 데이터 입력 적용">
+            <![CDATA[
+CREATE TABLE "AccessMemberAPI" (
+    -- API 접근 ID
+    "AccessID" TEXT NOT NULL CONSTRAINT "PK_AccessMemberAPI" PRIMARY KEY,
+
+    -- API 서비스 ID
+    "APIServiceID" TEXT NULL,
+
+    -- 회원 ID
+    "MemberNo" TEXT NULL,
+
+    -- 접근 비밀키
+    "SecretKey" TEXT NULL,
+
+    -- LimitIPAddressYN == Y 인 경우 적용
+    "IPAddress" TEXT NULL,
+
+    -- Day, Month, Infinite
+    "LimitPeriod" TEXT NULL,
+
+    -- 제한 횟수
+    "LimitCallCount" INTEGER NULL,
+
+    -- 전체 요청 횟수
+    "CumulativeCallCount" INTEGER NULL,
+
+    -- 사용 유무
+    "UseYN" TEXT NULL,
+
+    -- 삭제 유무
+    "DeleteYN" TEXT NULL,
+
+    -- 입력 일시
+    "CreatedAt" TEXT NULL
+);
+
+
+CREATE TABLE "APIParameter" (
+    -- API 서비스 ID
+    "APIServiceID" TEXT NOT NULL,
+
+    -- 매개변수 ID
+    "ParameterID" TEXT NOT NULL,
+
+    -- 매개변수 데이터 타입
+    "ParameterType" TEXT NULL,
+
+    -- 길이
+    "Length" INTEGER NULL,
+
+    -- 기본값
+    "DefaultValue" TEXT NULL,
+
+    -- 필수 유무
+    "RequiredYN" TEXT NULL,
+
+    -- 정렬순서
+    "SortingNo" INTEGER NULL,
+
+    -- 매개변수 설명
+    "Comment" TEXT NULL,
+    CONSTRAINT "PK_APIParameter" PRIMARY KEY ("APIServiceID", "ParameterID")
+);
+
+
+CREATE TABLE "APIResponseScheme" (
+    -- API 서비스 ID
+    "APIServiceID" TEXT NOT NULL,
+
+    -- 컬럼 ID
+    "ColumnID" TEXT NOT NULL,
+
+    -- 컬럼 데이터 타입
+    "ColumnType" TEXT NULL,
+
+    -- 컬럼명
+    "ColumnText" TEXT NULL,
+
+    -- 설명
+    "Comment" TEXT NULL,
+    CONSTRAINT "PK_APIResponseScheme" PRIMARY KEY ("APIServiceID", "ColumnID")
+);
+
+
+CREATE TABLE "APIService" (
+    -- GUID
+    "APIServiceID" TEXT NOT NULL CONSTRAINT "PK_APIService" PRIMARY KEY,
+
+    -- 인터페이스 ID
+    "InterfaceID" TEXT NOT NULL,
+
+    -- 인터페이스명
+    "InterfaceName" TEXT NULL,
+
+    -- 데이터 소스 ID
+    "DataSourceID" TEXT NULL,
+
+    -- 명령 구문
+    "CommandText" TEXT NULL,
+
+    -- HTML 내용으로 API 서비스 설명
+    "Descriptions" TEXT NULL,
+
+    -- Format을 지정하지 않으면 기본값 (Y)으로 적용
+    "FormatJsonYN" TEXT NULL,
+
+    -- Xml 지원 유무
+    "FormatXmlYN" TEXT NULL,
+
+    -- Soap 지원 유무
+    "FormatSoapYN" TEXT NULL,
+
+    -- Rss 지원 유무
+    "FormatRssYN" TEXT NULL,
+
+    -- Atom 지원 유무
+    "FormatAtomYN" TEXT NULL,
+
+    -- Day, Month, Infinite
+    "LimitPeriod" TEXT NULL,
+
+    -- 제한 요청 횟수
+    "LimitCallCount" INTEGER NULL,
+
+    -- 제한 IP 주소 유무
+    "LimitIPAddressYN" TEXT NULL,
+
+    -- Public, SecretKey
+    "AccessControl" TEXT NULL,
+
+    -- 요청 횟수 합계
+    "CumulativeCallCount" INTEGER NULL,
+
+    -- 사용 유무
+    "UseYN" TEXT NULL,
+
+    -- 삭제 유무
+    "DeleteYN" TEXT NULL,
+
+    -- 입력 일시
+    "CreatedAt" TEXT NULL,
+    CONSTRAINT "AK_APIService_InterfaceID" UNIQUE ("InterfaceID")
+);
+
+
+CREATE TABLE "DataSource" (
+    -- 데이터소스ID
+    "DataSourceID" TEXT NOT NULL CONSTRAINT "PK_DataSource" PRIMARY KEY,
+
+    -- 데이터제공자
+    "DataProvider" TEXT NULL,
+
+    -- 연결문자열
+    "ConnectionString" TEXT NULL,
+
+    -- 연결문자열 암호화 여부
+    "IsEncryption" TEXT NULL,
+
+    -- 설명
+    "Comment" TEXT NULL,
+
+    -- 입력일시
+    "CreatedAt" TEXT NULL
+);
+
+
+CREATE TABLE "EventLog" (
+    -- 로그 NO
+    "LogNo" INTEGER NOT NULL CONSTRAINT "PK_EventLog" PRIMARY KEY AUTOINCREMENT,
+
+    -- 분류
+    "Category" TEXT NULL,
+
+    -- 코드
+    "Code" TEXT NULL,
+
+    -- 메시지
+    "Message" TEXT NULL,
+
+    -- 옵션
+    "Options" TEXT NULL,
+
+    -- 입력일시
+    "CreatedAt" TEXT NULL
+);
+
+
+CREATE TABLE "Member" (
+    -- 회원NO
+    "MemberNo" TEXT NOT NULL CONSTRAINT "PK_Member" PRIMARY KEY,
+
+    -- 이메일ID
+    "EmailID" TEXT NOT NULL DEFAULT '',
+
+    -- 이메일확인일시
+    "EmailVerifyAt" TEXT NULL,
+
+    -- 핸드폰번호
+    "Celluar" TEXT NULL,
+
+    -- 핸드폰확인일시
+    "CelluarVerifyAt" TEXT NULL,
+
+    -- 회원명
+    "MemberName" TEXT NULL,
+
+    -- 직위명
+    "PositionName" TEXT NULL,
+
+    -- 부서명
+    "DepartmentName" TEXT NULL,
+
+    -- 회사명
+    "CompanyName" TEXT NULL,
+
+    -- 역할
+    "Roles" TEXT NULL,
+
+    -- 생년월일
+    "BirthDate" TEXT NULL,
+
+    -- 가입일시
+    "JoinAt" TEXT NULL,
+
+    -- 탈퇴일시
+    "RetireAt" TEXT NULL,
+
+    -- 주소
+    "Address" TEXT NULL,
+
+    -- 상세주소
+    "AddressDetail" TEXT NULL,
+
+    -- 성별
+    "Gender" TEXT NULL,
+
+    -- 삭제여부
+    "DeleteYN" TEXT NULL,
+
+    -- 설명
+    "Comment" TEXT NULL,
+
+    -- 서비스 이용약관
+    "TermsOfServiceConsentYN" TEXT NULL,
+
+    -- 개인정보 이용동의
+    "PersonalInformationUseConsentYN" TEXT NULL,
+
+    -- 제3자 제공동의
+    "ThirdPartyProvisionConsentYN" TEXT NULL,
+
+    -- 생성사용자NO
+    "CreatedUserNo" TEXT NULL,
+
+    -- 생성일시
+    "CreatedAt" TEXT NULL,
+
+    -- 수정회원NO
+    "ModifiedMemberNo" TEXT NULL,
+
+    -- 수정일시
+    "ModifiedAt" TEXT NULL
+);
+
+
+CREATE TABLE "UsageAPIStatistics" (
+    -- 요청 년도
+    "RequestYear" TEXT NOT NULL,
+
+    -- 요청 월
+    "RequestMonth" TEXT NOT NULL,
+
+    -- 요청 일
+    "RequestDay" TEXT NOT NULL,
+
+    -- 요청 시간
+    "RequestHour" TEXT NOT NULL,
+
+    -- API 접근 ID
+    "AccessID" TEXT NOT NULL,
+
+    -- APIService Format중 Json, Xml, Soap, Rss, Atom 하나
+    "Format" TEXT NULL,
+
+    -- 전체 요청 횟수
+    "CumulativeCallCount" TEXT NULL,
+
+    -- 최근 요청 일시
+    "ModifiedAt" TEXT NULL,
+    CONSTRAINT "PK_UsageAPIStatistics" PRIMARY KEY ("RequestYear", "RequestMonth", "RequestDay", "RequestHour", "AccessID")
+);
+
+
+CREATE INDEX "IX_AccessMemberAPI_APIServiceID_MemberNo" ON "AccessMemberAPI" ("APIServiceID", "MemberNo");
+
+
+CREATE INDEX "IX_Member_EmailID" ON "Member" ("EmailID");
+
+
+
+			]]>
+        </statement>
+
+        <statement id="GD01" seq="0" use="Y" timeout="0" desc="데이터베이스 현재 시간 및 서버명 조회">
+            <![CDATA[
+SELECT DATETIME('now', 'localtime') AS ServerDate, 'localhost' AS ServerName;
+			]]>
+        </statement>
+
+        <statement id="GD02" seq="0" use="Y" timeout="0" desc="데이터베이스 내 테이블 유무 확인">
+            <![CDATA[
+SELECT COUNT(*) AS IsExists FROM sqlite_master WHERE type='table' AND name = @TableName;
+			]]>
+            <param id="@TableName" type="String" length="36" value="" />
+        </statement>
+    </commands>
+</mapper>

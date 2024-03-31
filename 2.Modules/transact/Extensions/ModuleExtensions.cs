@@ -124,7 +124,6 @@ namespace transact.Extensions
                     catch (Exception exception)
                     {
                         Log.Error(exception, "[{LogCategory}] " + $"returnType: {returnType}, queryID: {queryID}, parameters: {parameters}", "ModuleExtensions/ExecuteMetaSQL");
-                        throw;
                     }
                 }
             }
@@ -160,7 +159,6 @@ namespace transact.Extensions
                     catch (Exception exception)
                     {
                         Log.Error(exception, "[{LogCategory}] " + $"queryID: {queryID}, parameters: {parameters}", "ModuleExtensions/ExecuteMetaSQL");
-                        throw;
                     }
                 }
             }

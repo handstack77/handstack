@@ -393,6 +393,8 @@
         defaultHotSettings: {
             licenseKey: 'non-commercial-and-evaluation',
             language: 'ko-KR',
+            locale: 'ko-KR',
+            imeFastEdit: true,
             data: [],
             colWidths: 120,
             rowHeights: 31,

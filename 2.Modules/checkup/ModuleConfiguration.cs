@@ -21,7 +21,6 @@ namespace checkup
         public static string WWWRootBasePath = "";
         public static string ModuleFilePath = "";
         public static string AdministratorEmailID = "";
-        public static string ModuleConfigurationUrl = "";
         public static string BusinessServerUrl = "";
         public static bool IsModuleLogging = false;
         public static string ModuleLogFilePath = "";

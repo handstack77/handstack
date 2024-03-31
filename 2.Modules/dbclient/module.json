@@ -19,7 +19,10 @@
         "IsProfileLogging": false,
         "ProfileLogFilePath": "../log/dbclient/profile.log",
         "EventAction": [],
-        "SubscribeAction": [],
+        "SubscribeAction": [
+            "dbclient.Events.DbClientRequest",
+            "dbclient.Events.ManagedRequest"
+        ],
         "DataSource": [
             {
                 "ApplicationID": "HDS",

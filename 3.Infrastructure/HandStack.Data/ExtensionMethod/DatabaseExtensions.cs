@@ -818,7 +818,14 @@ namespace HandStack.Data.ExtensionMethod
                                 var parameterValue = jValue.Value;
                                 sqlParameter.Value = parameterValue == null ? DBNull.Value : parameterValue.ToString();
                                 string parameterType = paramNode.Attributes["type"].Value.ToString();
-                                sqlParameter.SqlDbType = (SqlDbType)Enum.Parse(typeof(SqlDbType), string.IsNullOrEmpty(parameterType) == true ? "NVarChar" : parameterType);
+                                if (statement.Attributes["native"]?.Value.ParseBool() == true)
+                                {
+                                    sqlParameter.SqlDbType = (SqlDbType)Enum.Parse(typeof(SqlDbType), string.IsNullOrEmpty(parameterType) == true ? "NVarChar" : parameterType);
+                                }
+                                else
+                                {
+                                    sqlParameter.DbType = (DbType)Enum.Parse(typeof(DbType), string.IsNullOrEmpty(parameterType) == true ? "String" : parameterType);
+                                }
                                 sqlParameters.Add(sqlParameter);
                             }
                         }
@@ -999,7 +1006,14 @@ namespace HandStack.Data.ExtensionMethod
                                 var parameterValue = jValue.Value;
                                 sqlParameter.Value = parameterValue == null ? DBNull.Value : parameterValue.ToString();
                                 string parameterType = paramNode.Attributes["type"].Value.ToString();
-                                sqlParameter.MySqlDbType = (MySqlDbType)Enum.Parse(typeof(MySqlDbType), string.IsNullOrEmpty(parameterType) == true ? "VarChar" : parameterType);
+                                if (statement.Attributes["native"]?.Value.ParseBool() == true)
+                                {
+                                    sqlParameter.MySqlDbType = (MySqlDbType)Enum.Parse(typeof(MySqlDbType), string.IsNullOrEmpty(parameterType) == true ? "VarChar" : parameterType);
+                                }
+                                else
+                                {
+                                    sqlParameter.DbType = (DbType)Enum.Parse(typeof(DbType), string.IsNullOrEmpty(parameterType) == true ? "String" : parameterType);
+                                }
                                 sqlParameters.Add(sqlParameter);
                             }
                         }
@@ -1110,7 +1124,14 @@ namespace HandStack.Data.ExtensionMethod
                                 var parameterValue = jValue.Value;
                                 sqlParameter.Value = parameterValue == null ? DBNull.Value : parameterValue.ToString();
                                 string parameterType = paramNode.Attributes["type"].Value.ToString();
-                                sqlParameter.OracleDbType = (OracleDbType)Enum.Parse(typeof(OracleDbType), string.IsNullOrEmpty(parameterType) == true ? "NVarchar2" : parameterType);
+                                if (statement.Attributes["native"]?.Value.ParseBool() == true)
+                                {
+                                    sqlParameter.OracleDbType = (OracleDbType)Enum.Parse(typeof(OracleDbType), string.IsNullOrEmpty(parameterType) == true ? "NVarchar2" : parameterType);
+                                }
+                                else
+                                {
+                                    sqlParameter.DbType = (DbType)Enum.Parse(typeof(DbType), string.IsNullOrEmpty(parameterType) == true ? "String" : parameterType);
+                                }
                                 sqlParameters.Add(sqlParameter);
                             }
                         }
@@ -1221,7 +1242,14 @@ namespace HandStack.Data.ExtensionMethod
                                 var parameterValue = jValue.Value;
                                 sqlParameter.Value = parameterValue == null ? DBNull.Value : parameterValue.ToString();
                                 string parameterType = paramNode.Attributes["type"].Value.ToString();
-                                sqlParameter.NpgsqlDbType = (NpgsqlDbType)Enum.Parse(typeof(NpgsqlDbType), string.IsNullOrEmpty(parameterType) == true ? "Char" : parameterType);
+                                if (statement.Attributes["native"]?.Value.ParseBool() == true)
+                                {
+                                    sqlParameter.NpgsqlDbType = (NpgsqlDbType)Enum.Parse(typeof(NpgsqlDbType), string.IsNullOrEmpty(parameterType) == true ? "Char" : parameterType);
+                                }
+                                else
+                                {
+                                    sqlParameter.DbType = (DbType)Enum.Parse(typeof(DbType), string.IsNullOrEmpty(parameterType) == true ? "String" : parameterType);
+                                }
                                 sqlParameters.Add(sqlParameter);
                             }
                         }
@@ -1364,7 +1392,7 @@ namespace HandStack.Data.ExtensionMethod
             {
                 Log.Error(exception, "[{LogCategory}] " + $"filePath: {filePath}, queryID: {queryID} 데이터 확인 필요", "DatabaseExtensions/GetJObject");
             }
-            
+
             return result;
         }
     }

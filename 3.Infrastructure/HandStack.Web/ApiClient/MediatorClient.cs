@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Security.AccessControl;
 using System.Threading.Tasks;
 
+using HandStack.Web.MessageContract.Enumeration;
 using HandStack.Web.MessageContract.Message;
 
 using MediatR;
@@ -30,6 +30,10 @@ namespace HandStack.Web.ApiClient
         public async Task<MediatorResponse> SendAsync(MediatorRequest mediatorRequest)
         {
             MediatorResponse result = new MediatorResponse();
+            result.Acknowledge = AcknowledgeType.Failure;
+            result.ResponseID = string.Concat(GlobalConfiguration.SystemID, GlobalConfiguration.HostName, mediatorRequest.ReturnType, DateTime.Now.ToString("yyyyMMddHHmmss"));
+            result.CorrelationID = mediatorRequest.GlobalID;
+            result.Environment = GlobalConfiguration.EnvironmentName;
 
             string actionModuleID = mediatorRequest.ActionModuleID;
             string subscribeEventID = mediatorRequest.SubscribeEventID;
@@ -51,23 +55,14 @@ namespace HandStack.Web.ApiClient
                         if (instance != null)
                         {
                             object? eventResponse = await mediator.Send(instance);
-                            if (eventResponse != null)
+                            if (eventResponse is MediatorResponse)
                             {
-                                if (eventResponse is MediatorResponse)
-                                {
-                                    result = (MediatorResponse)eventResponse;
-                                }
-                                else
-                                {
-                                    MediatorResponse mediatorResponse = new MediatorResponse();
-                                    mediatorResponse.Result = eventResponse;
-                                    result = mediatorResponse;
-                                }
+                                result = (MediatorResponse)eventResponse;
                             }
                             else
                             {
-                                logger.Error("[{LogCategory}] " + $"subscribeEventID: {subscribeEventID} MediatorResponse 확인 필요", "MediatorClient/SendAsync");
-                                result.ExceptionText = $"subscribeEventID: {subscribeEventID} MediatorResponse 확인 필요";
+                                result.Acknowledge = AcknowledgeType.Success;
+                                result.Result = eventResponse;
                             }
                         }
                     }

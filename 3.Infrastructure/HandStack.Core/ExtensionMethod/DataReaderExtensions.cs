@@ -301,28 +301,56 @@ namespace HandStack.Core.ExtensionMethod
 
                 if (propertyInfo != null)
                 {
-                    object? value = @this.GetValue(i);
-                    if (value == DBNull.Value)
-                    {
-                        value = null;
-                    }
-
-                    if (value is string && propertyInfo.PropertyType == typeof(DateTime?))
-                    {
-                        if (value == null || string.IsNullOrEmpty(value.ToStringSafe()) == true)
-                        {
-                            propertyInfo.SetValue(instance, value, null);
-                        }
-                        else
-                        {
-                            propertyInfo.SetValue(instance, DateTime.Parse(value.ToStringSafe()), null);
-                        }
-                    }
-                    else
-                    {
-                        propertyInfo.SetValue(instance, value, null);
-                    }
+                    SetObjectValue(@this, instance, propertyInfo);
                 }
+            }
+        }
+
+        public static void ToObject(this IDataReader @this, object instance, params string[] fieldsToSkip)
+        {
+            PropertyInfo[] propertyInfos = instance.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public);
+            foreach (PropertyInfo propertyInfo in propertyInfos)
+            {
+                if (!propertyInfo.CanRead || !propertyInfo.CanWrite)
+                {
+                    continue;
+                }
+
+                if (fieldsToSkip.Contains(propertyInfo.Name))
+                {
+                    continue;
+                }
+
+                SetObjectValue(@this, instance, propertyInfo);
+            }
+        }
+
+        private static void SetObjectValue(IDataReader @this, object instance, PropertyInfo propertyInfo)
+        {
+            object? value = @this[propertyInfo.Name];
+            if (value == DBNull.Value)
+            {
+                value = null;
+            }
+
+            if (value is string && propertyInfo.PropertyType == typeof(DateTime?))
+            {
+                if (value == null || string.IsNullOrEmpty(value.ToStringSafe()) == true)
+                {
+                    propertyInfo.SetValue(instance, value, null);
+                }
+                else
+                {
+                    propertyInfo.SetValue(instance, DateTime.Parse(value.ToStringSafe()), null);
+                }
+            }
+            else if (value is string && (propertyInfo.PropertyType == typeof(bool) || propertyInfo.PropertyType == typeof(bool?)))
+            {
+                propertyInfo.SetValue(instance, value.ToStringSafe().ToBoolean(), null);
+            }
+            else
+            {
+                propertyInfo.SetValue(instance, value, null);
             }
         }
 
@@ -337,31 +365,6 @@ namespace HandStack.Core.ExtensionMethod
             }
 
             return false;
-        }
-
-        public static void ToObject(this IDataReader @this, object instance, params string[] fieldsToSkip)
-        {
-            PropertyInfo[] properties = instance.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public);
-            foreach (PropertyInfo property in properties)
-            {
-                if (!property.CanRead || !property.CanWrite)
-                {
-                    continue;
-                }
-
-                if (fieldsToSkip.Contains(property.Name))
-                {
-                    continue;
-                }
-
-                object? value = @this[property.Name];
-                if (value is DBNull)
-                {
-                    value = null;
-                }
-
-                property.SetValue(instance, value, null);
-            }
         }
 
         public static List<T> ToObjectList<T>(this IDataReader @this)

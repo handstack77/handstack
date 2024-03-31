@@ -214,15 +214,21 @@ namespace HandStack.Web.Extensions
         public static T? GetHeaderValueAs<T>(this HttpRequest request, string headerName)
         {
             StringValues values = "";
-
-            if (request?.Headers?.TryGetValue(headerName, out values) ?? false)
+            try
             {
-                string rawValues = values.ToString();
-
-                if (rawValues.IsNullOrWhitespace() == false)
+                if (request?.Headers?.TryGetValue(headerName, out values) ?? false)
                 {
-                    return (T)Convert.ChangeType(values.ToString(), typeof(T));
+                    string rawValues = values.ToString();
+
+                    if (rawValues.IsNullOrWhitespace() == false)
+                    {
+                        return (T)Convert.ChangeType(values.ToString(), typeof(T));
+                    }
                 }
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine("[HttpRequestExtensions/GetHeaderValueAs] " + $"오류: {exception.Message}");
             }
             return default(T);
         }

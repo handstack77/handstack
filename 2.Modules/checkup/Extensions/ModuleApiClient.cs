@@ -1,20 +1,15 @@
-﻿using HandStack.Core.ExtensionMethod;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+using HandStack.Core.ExtensionMethod;
 using HandStack.Core.Extensions;
-using HandStack.Web;
 using HandStack.Web.ApiClient;
 using HandStack.Web.Entity;
-
-using Microsoft.Extensions.Configuration;
 
 using Newtonsoft.Json.Linq;
 
 using Serilog;
-
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Diagnostics;
-using System.Threading.Tasks;
 
 namespace checkup.Extensions
 {
@@ -49,7 +44,6 @@ namespace checkup.Extensions
                     transactionObject.FunctionID = transactionInfo[3];
                     transactionObject.ScreenID = transactionObject.TransactionID;
                     transactionObject.StartTraceID = string.IsNullOrEmpty(startTraceID) == true ? nameof(ModuleApiClient) : startTraceID;
-                    StackTrace stackTrace = new StackTrace();
 
                     if (serviceParameters != null)
                     {

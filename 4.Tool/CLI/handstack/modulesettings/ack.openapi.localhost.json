@@ -1,0 +1,24 @@
+{
+    "ModuleID": "openapi",
+    "Name": "openapi",
+    "IsBundledWithHost": false,
+    "Version": "1.0.0",
+    "ModuleConfig": {
+        "SystemID": "HANDSTACK",
+        "ModuleBasePath": "../modules/openapi",
+        "ManagerEmailID": "manager@handstack.kr",
+        "ManagerSHA256Password": "48c691ca3e9d0e01bdaab5923534a1ebc01dcb52f87bddccbae6e185f3f481d9", // handstack12345
+        "ModuleConfigurationUrl": "http://localhost:8000/openapi/api/managed/initialize-settings",
+        "BusinessServerUrl": "http://localhost:8000/transact/api/transaction/execute",
+        "IsTransactionLogging": false,
+        "IsLogServer": true,
+        "LogServerUrl": "http://localhost:8000/logger/api/log/insert",
+        "DataProvider": "SQLite",
+        "ConnectionString": "URI=file:../sqlite/HDS/openapi/managed.db;Journal Mode=MEMORY;Cache Size=4000;Synchronous=Normal;Page Size=4096;Pooling=True;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;",
+        "IsEncryption": "N",
+        "EventAction": [
+            "dbclient.Events.ManagedRequest"
+        ],
+        "SubscribeAction": []
+    }
+}

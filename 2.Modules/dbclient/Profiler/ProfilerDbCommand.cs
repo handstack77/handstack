@@ -5,6 +5,8 @@ using System.Data.Common;
 using System.Linq.Expressions;
 using System.Reflection;
 
+using MySqlX.XDevAPI.Common;
+
 namespace dbclient.Profiler
 {
     public class ProfilerDbCommand : DbCommand
@@ -147,8 +149,11 @@ namespace dbclient.Profiler
             catch (Exception exception)
             {
                 profiler.OnCommandError(this, exception);
-                throw;
             }
+
+#pragma warning disable CS8603 // 가능한 null 참조 반환입니다.
+            return null;
+#pragma warning restore CS8603 // 가능한 null 참조 반환입니다.
         }
 
         public override int ExecuteNonQuery()
@@ -171,12 +176,13 @@ namespace dbclient.Profiler
             catch (Exception exception)
             {
                 profiler.OnCommandError(this, exception);
-                throw;
             }
             finally
             {
                 profiler.OnExecuteNonQueryFinish(this, result ?? 0);
             }
+
+            return 0;
         }
 
         public override object? ExecuteScalar()
@@ -199,12 +205,13 @@ namespace dbclient.Profiler
             catch (Exception exception)
             {
                 profiler.OnCommandError(this, exception);
-                throw;
             }
             finally
             {
                 profiler.OnExecuteScalarFinish(this, result);
             }
+
+            return result;
         }
 
         public override void Cancel()

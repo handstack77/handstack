@@ -16,6 +16,6 @@
 
         public string DbType { get; set; }
 
-        public int Length { get; set; }
+        public long Length { get; set; }
     }
 }

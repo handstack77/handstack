@@ -305,7 +305,7 @@ let $HDM010 = {
         },
 
         btnRemoveMetaField_click() {
-            syn.uicontrols.$grid.removeRow('grdMetaField', 2);
+            syn.uicontrols.$grid.removeRow('grdMetaField', 3);
         },
 
         btnSaveMetaEntity_click() {

@@ -12,8 +12,8 @@ namespace dbclient.Extensions
         private static readonly ConcurrentDictionary<IDictionary<string, Type>, Type> Types = new();
 
         private static readonly ModuleBuilder ModuleBuilder = AssemblyBuilder
-                .DefineDynamicAssembly(new AssemblyName("HandShake.Dynamic.Reflection"), AssemblyBuilderAccess.Run)
-                .DefineDynamicModule("HandShake.Dynamic.Reflection.Module");
+                .DefineDynamicAssembly(new AssemblyName("HandStack.Dynamic.Reflection"), AssemblyBuilderAccess.Run)
+                .DefineDynamicModule("HandStack.Dynamic.Reflection.Module");
 
         public static Type BuildType(IDictionary<string, Type> properties, string? name = null)
         {

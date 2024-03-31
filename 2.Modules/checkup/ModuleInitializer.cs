@@ -59,7 +59,6 @@ namespace checkup
                         ModuleConfiguration.AuthorizationKey = string.IsNullOrEmpty(moduleConfig.AuthorizationKey) == false ? moduleConfig.AuthorizationKey : GlobalConfiguration.SystemID + GlobalConfiguration.RunningEnvironment + GlobalConfiguration.HostName;
                         ModuleConfiguration.IsBundledWithHost = moduleConfigJson.IsBundledWithHost;
                         ModuleConfiguration.AdministratorEmailID = moduleConfig.AdministratorEmailID;
-                        ModuleConfiguration.ModuleConfigurationUrl = moduleConfig.ModuleConfigurationUrl;
                         ModuleConfiguration.BusinessServerUrl = moduleConfig.BusinessServerUrl;
                         ModuleConfiguration.CircuitBreakResetSecond = moduleConfig.CircuitBreakResetSecond;
                         ModuleConfiguration.DefaultCommandTimeout = moduleConfig.DefaultCommandTimeout;
@@ -92,7 +91,10 @@ namespace checkup
                             ModuleConfiguration.ConnectionString = moduleConfig.ConnectionString;
                         }
 
-                        GlobalConfiguration.ModuleConfigurationUrl.Add(moduleConfig.ModuleConfigurationUrl);
+                        if (string.IsNullOrEmpty(moduleConfig.ModuleConfigurationUrl) == false)
+                        {
+                            GlobalConfiguration.ModuleConfigurationUrl.Add(moduleConfig.ModuleConfigurationUrl);
+                        }
 
                         ModuleConfiguration.IsConfigure = true;
                     }

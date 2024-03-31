@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+    <header>
+        <application>HDS</application>
+        <project>HOA</project>
+        <transaction>MYS010</transaction>
+        <datasource>OPENAPIDB</datasource>
+        <use>Y</use>
+        <desc>MySQL OpenAPI 관리 기본 거래</desc>
+    </header>
+    <commands>
+        <statement id="ZD01" seq="0" use="Y" timeout="0" desc="OpenAPI 서비스 테이블 DDL 및 초기 데이터 입력 적용">
+            <![CDATA[
+ALTER DATABASE CHARACTER SET utf8mb4;
+
+
+CREATE TABLE `AccessMemberAPI` (
+    `AccessID` varchar(36) CHARACTER SET utf8mb4 NOT NULL COMMENT 'API 접근 ID',
+    `APIServiceID` varchar(36) CHARACTER SET utf8mb4 NULL COMMENT 'API 서비스 ID',
+    `MemberNo` varchar(36) CHARACTER SET utf8mb4 NULL COMMENT '회원 ID',
+    `SecretKey` varchar(36) CHARACTER SET utf8mb4 NULL COMMENT '접근 비밀키',
+    `IPAddress` varchar(1000) CHARACTER SET utf8mb4 NULL COMMENT 'LimitIPAddressYN == Y 인 경우 적용',
+    `LimitPeriod` varchar(10) CHARACTER SET utf8mb4 NULL COMMENT 'Day, Month, Infinite',
+    `LimitCallCount` bigint NULL COMMENT '제한 횟수',
+    `CumulativeCallCount` bigint NULL COMMENT '전체 요청 횟수',
+    `UseYN` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '사용 유무',
+    `DeleteYN` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '삭제 유무',
+    `CreatedAt` datetime(0) NULL COMMENT '입력 일시',
+    CONSTRAINT `PK_AccessMemberAPI` PRIMARY KEY (`AccessID`)
+) CHARACTER SET=utf8mb4;
+
+
+CREATE TABLE `APIParameter` (
+    `APIServiceID` varchar(36) CHARACTER SET utf8mb4 NOT NULL COMMENT 'API 서비스 ID',
+    `ParameterID` varchar(50) CHARACTER SET utf8mb4 NOT NULL COMMENT '매개변수 ID',
+    `ParameterType` varchar(30) CHARACTER SET utf8mb4 NULL COMMENT '매개변수 데이터 타입',
+    `Length` int NULL COMMENT '길이',
+    `DefaultValue` varchar(1000) CHARACTER SET utf8mb4 NULL COMMENT '기본값',
+    `RequiredYN` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '필수 유무',
+    `SortingNo` int NULL COMMENT '정렬순서',
+    `Comment` varchar(2000) CHARACTER SET utf8mb4 NULL COMMENT '매개변수 설명',
+    CONSTRAINT `PK_APIParameter` PRIMARY KEY (`APIServiceID`, `ParameterID`)
+) CHARACTER SET=utf8mb4;
+
+
+CREATE TABLE `APIResponseScheme` (
+    `APIServiceID` varchar(36) CHARACTER SET utf8mb4 NOT NULL COMMENT 'API 서비스 ID',
+    `ColumnID` varchar(50) CHARACTER SET utf8mb4 NOT NULL COMMENT '컬럼 ID',
+    `ColumnType` varchar(30) CHARACTER SET utf8mb4 NULL COMMENT '컬럼 데이터 타입',
+    `ColumnText` varchar(50) CHARACTER SET utf8mb4 NULL COMMENT '컬럼명',
+    `Comment` varchar(1000) CHARACTER SET utf8mb4 NULL COMMENT '설명',
+    CONSTRAINT `PK_APIResponseScheme` PRIMARY KEY (`APIServiceID`, `ColumnID`)
+) CHARACTER SET=utf8mb4;
+
+
+CREATE TABLE `APIService` (
+    `APIServiceID` varchar(36) CHARACTER SET utf8mb4 NOT NULL COMMENT 'GUID',
+    `InterfaceID` varchar(50) CHARACTER SET utf8mb4 NOT NULL COMMENT '인터페이스 ID',
+    `InterfaceName` varchar(100) CHARACTER SET utf8mb4 NULL COMMENT '인터페이스명',
+    `DataSourceID` varchar(10) CHARACTER SET utf8mb4 NULL COMMENT '데이터 소스 ID',
+    `CommandText` longtext CHARACTER SET utf8mb4 NULL COMMENT '명령 구문',
+    `Descriptions` varchar(2000) CHARACTER SET utf8mb4 NULL COMMENT 'HTML 내용으로 API 서비스 설명',
+    `FormatJsonYN` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT 'Format을 지정하지 않으면 기본값 (Y)으로 적용',
+    `FormatXmlYN` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT 'Xml 지원 유무',
+    `FormatSoapYN` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT 'Soap 지원 유무',
+    `FormatRssYN` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT 'Rss 지원 유무',
+    `FormatAtomYN` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT 'Atom 지원 유무',
+    `LimitPeriod` varchar(10) CHARACTER SET utf8mb4 NULL COMMENT 'Day, Month, Infinite',
+    `LimitCallCount` bigint NULL COMMENT '제한 요청 횟수',
+    `LimitIPAddressYN` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '제한 IP 주소 유무',
+    `AccessControl` varchar(10) CHARACTER SET utf8mb4 NULL COMMENT 'Public, SecretKey',
+    `CumulativeCallCount` bigint NULL COMMENT '요청 횟수 합계',
+    `UseYN` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '사용 유무',
+    `DeleteYN` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '삭제 유무',
+    `CreatedAt` datetime(0) NULL COMMENT '입력 일시',
+    CONSTRAINT `PK_APIService` PRIMARY KEY (`APIServiceID`),
+    CONSTRAINT `AK_APIService_InterfaceID` UNIQUE (`InterfaceID`)
+) CHARACTER SET=utf8mb4;
+
+
+CREATE TABLE `DataSource` (
+    `DataSourceID` varchar(10) CHARACTER SET utf8mb4 NOT NULL COMMENT '데이터소스ID',
+    `DataProvider` varchar(10) CHARACTER SET utf8mb4 NULL COMMENT '데이터제공자',
+    `ConnectionString` varchar(2000) CHARACTER SET utf8mb4 NULL COMMENT '연결문자열',
+    `IsEncryption` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '연결문자열 암호화 여부',
+    `Comment` varchar(1000) CHARACTER SET utf8mb4 NULL COMMENT '설명',
+    `CreatedAt` datetime(0) NULL COMMENT '입력일시',
+    CONSTRAINT `PK_DataSource` PRIMARY KEY (`DataSourceID`)
+) CHARACTER SET=utf8mb4;
+
+
+CREATE TABLE `EventLog` (
+    `LogNo` bigint NOT NULL AUTO_INCREMENT COMMENT '로그 NO',
+    `Category` varchar(30) CHARACTER SET utf8mb4 NULL COMMENT '분류',
+    `Code` varchar(10) CHARACTER SET utf8mb4 NULL COMMENT '코드',
+    `Message` varchar(2000) CHARACTER SET utf8mb4 NULL COMMENT '메시지',
+    `Options` varchar(4000) CHARACTER SET utf8mb4 NULL COMMENT '옵션',
+    `CreatedAt` datetime(0) NULL COMMENT '입력일시',
+    CONSTRAINT `PK_EventLog` PRIMARY KEY (`LogNo`)
+) CHARACTER SET=utf8mb4;
+
+
+CREATE TABLE `Member` (
+    `MemberNo` varchar(36) CHARACTER SET utf8mb4 NOT NULL COMMENT '회원NO',
+    `EmailID` varchar(256) CHARACTER SET utf8mb4 NOT NULL DEFAULT '' COMMENT '이메일ID',
+    `EmailVerifyAt` datetime(0) NULL COMMENT '이메일확인일시',
+    `Celluar` varchar(20) CHARACTER SET utf8mb4 NULL COMMENT '핸드폰번호',
+    `CelluarVerifyAt` datetime(0) NULL COMMENT '핸드폰확인일시',
+    `MemberName` varchar(100) CHARACTER SET utf8mb4 NULL COMMENT '회원명',
+    `PositionName` varchar(100) CHARACTER SET utf8mb4 NULL COMMENT '직위명',
+    `DepartmentName` varchar(100) CHARACTER SET utf8mb4 NULL COMMENT '부서명',
+    `CompanyName` varchar(100) CHARACTER SET utf8mb4 NULL COMMENT '회사명',
+    `Roles` varchar(200) CHARACTER SET utf8mb4 NULL COMMENT '역할',
+    `BirthDate` varchar(10) CHARACTER SET utf8mb4 NULL COMMENT '생년월일',
+    `JoinAt` datetime(0) NULL COMMENT '가입일시',
+    `RetireAt` datetime(0) NULL COMMENT '탈퇴일시',
+    `Address` varchar(510) CHARACTER SET utf8mb4 NULL COMMENT '주소',
+    `AddressDetail` varchar(100) CHARACTER SET utf8mb4 NULL COMMENT '상세주소',
+    `Gender` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '성별',
+    `DeleteYN` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '삭제여부',
+    `Comment` varchar(2000) CHARACTER SET utf8mb4 NULL COMMENT '설명',
+    `TermsOfServiceConsentYN` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '서비스 이용약관',
+    `PersonalInformationUseConsentYN` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '개인정보 이용동의',
+    `ThirdPartyProvisionConsentYN` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '제3자 제공동의',
+    `CreatedUserNo` varchar(36) CHARACTER SET utf8mb4 NULL COMMENT '생성사용자NO',
+    `CreatedAt` datetime(0) NULL COMMENT '생성일시',
+    `ModifiedMemberNo` varchar(36) CHARACTER SET utf8mb4 NULL COMMENT '수정회원NO',
+    `ModifiedAt` datetime(0) NULL COMMENT '수정일시',
+    CONSTRAINT `PK_Member` PRIMARY KEY (`MemberNo`)
+) CHARACTER SET=utf8mb4;
+
+
+CREATE TABLE `UsageAPIStatistics` (
+    `RequestYear` varchar(50) CHARACTER SET utf8mb4 NOT NULL COMMENT '요청 년도',
+    `RequestMonth` varchar(50) CHARACTER SET utf8mb4 NOT NULL COMMENT '요청 월',
+    `RequestDay` varchar(50) CHARACTER SET utf8mb4 NOT NULL COMMENT '요청 일',
+    `RequestHour` varchar(50) CHARACTER SET utf8mb4 NOT NULL COMMENT '요청 시간',
+    `AccessID` varchar(50) CHARACTER SET utf8mb4 NOT NULL COMMENT 'API 접근 ID',
+    `Format` varchar(50) CHARACTER SET utf8mb4 NULL COMMENT 'APIService Format중 Json, Xml, Soap, Rss, Atom 하나',
+    `CumulativeCallCount` varchar(50) CHARACTER SET utf8mb4 NULL COMMENT '전체 요청 횟수',
+    `ModifiedAt` varchar(50) CHARACTER SET utf8mb4 NULL COMMENT '최근 요청 일시',
+    CONSTRAINT `PK_UsageAPIStatistics` PRIMARY KEY (`RequestYear`, `RequestMonth`, `RequestDay`, `RequestHour`, `AccessID`)
+) CHARACTER SET=utf8mb4;
+
+
+CREATE INDEX `IX_AccessMemberAPI_APIServiceID_MemberNo` ON `AccessMemberAPI` (`APIServiceID`, `MemberNo`);
+
+
+CREATE INDEX `IX_Member_EmailID` ON `Member` (`EmailID`);
+
+
+
+			]]>
+        </statement>
+        
+        <statement id="GD01" seq="0" use="Y" timeout="0" desc="데이터베이스 현재 시간 및 서버명 조회">
+            <![CDATA[
+SELECT NOW() AS ServerDate, @@hostname AS ServerName;
+			]]>
+        </statement>
+
+        <statement id="GD02" seq="0" use="Y" timeout="0" desc="데이터베이스 내 테이블 유무 확인">
+            <![CDATA[
+SELECT COUNT(*) AS IsExists FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = @TableName;
+			]]>
+            <param id="@TableName" type="String" length="36" value="" />
+        </statement>
+    </commands>
+</mapper>
