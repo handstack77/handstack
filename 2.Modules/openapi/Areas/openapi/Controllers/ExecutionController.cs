@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.SqlTypes;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Soap;
 using System.ServiceModel.Syndication;
 using System.Text;
 using System.Threading.Tasks;
@@ -134,6 +135,7 @@ namespace openapi.Areas.openapi.Controllers
                 {
                     case "json":
                     case "xml":
+                    case "soap":
                     case "rss":
                     case "atom":
                         break;
@@ -319,6 +321,14 @@ namespace openapi.Areas.openapi.Controllers
                                 }
                                 result = Content(sb.ToString(), "text/xml");
                                 break;
+                            case "soap":
+                                using (var stream = new MemoryStream())
+                                {
+                                    SoapFormatter formatter = new SoapFormatter();
+                                    formatter.Serialize(stream, dataSet);
+                                    result = File(stream.ToArray(), "text/xml");
+                                }
+                                break;
                             case "rss":
                                 if (dataSet.Tables.Count != 2 || dataSet.Tables[0].Rows.Count == 0)
                                 {
@@ -331,14 +341,12 @@ namespace openapi.Areas.openapi.Controllers
                                 using (XmlWriter xmlWriter = XmlWriter.Create(stream, new XmlWriterSettings
                                 {
                                     Encoding = Encoding.UTF8,
-                                    NewLineHandling = NewLineHandling.Entitize,
-                                    NewLineOnAttributes = true,
-                                    Indent = true
+                                    Indent = false
                                 }))
                                 {
                                     rssFeed.SaveAsRss20(xmlWriter);
                                     xmlWriter.Flush();
-                                    result = File(stream.ToArray(), "application/rss+xml; charset=utf-8");
+                                    result = File(stream.ToArray(), "application/rss+xml");
                                 }
                                 break;
                             case "atom":
@@ -353,14 +361,12 @@ namespace openapi.Areas.openapi.Controllers
                                 using (XmlWriter xmlWriter = XmlWriter.Create(stream, new XmlWriterSettings
                                 {
                                     Encoding = Encoding.UTF8,
-                                    NewLineHandling = NewLineHandling.Entitize,
-                                    NewLineOnAttributes = true,
-                                    Indent = true
+                                    Indent = false
                                 }))
                                 {
                                     atomFeed.SaveAsAtom10(xmlWriter);
                                     xmlWriter.Flush();
-                                    result = File(stream.ToArray(), "application/atom+xml; charset=utf-8");
+                                    result = File(stream.ToArray(), "application/atom+xml");
                                 }
                                 break;
                         }
