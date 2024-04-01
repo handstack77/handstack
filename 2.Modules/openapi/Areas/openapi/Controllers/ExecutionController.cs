@@ -52,7 +52,7 @@ namespace openapi.Areas.openapi.Controllers
         {
             ActionResult result = StatusCode(400, ResponseApi.I20.ToEnumString());
 
-            Dictionary<string, object?>? parameters = new Dictionary<string, object?>();
+            Dictionary<string, object?> parameters = new Dictionary<string, object?>();
             try
             {
                 foreach (var item in Request.Query)
@@ -221,6 +221,7 @@ namespace openapi.Areas.openapi.Controllers
 
                 foreach (var apiParameter in apiParameters)
                 {
+                    string parameterID = apiParameter.ParameterID.Replace("@", "").Replace("#", "").Replace(":", "");
                     var parameterValue = parameters[apiParameter.ParameterID];
                     if (parameterValue == null && apiParameter.RequiredYN == true)
                     {
@@ -237,8 +238,16 @@ namespace openapi.Areas.openapi.Controllers
                     parameters[apiParameter.ParameterID] = parameterValue;
                 }
 
-                using var dataSet = await openapiClient.ExecuteSQL(apiService, dataSource, parameters);
-                result = Content(dataSet == null ? "[]" : JsonConvert.SerializeObject(dataSet.Tables[0]), "application/json");
+                var executeResult = await openapiClient.ExecuteSQL(apiService, dataSource, accessMemberApi, apiParameters, parameters);
+                if (string.IsNullOrEmpty(executeResult.Item1) == false)
+                {
+                    result = StatusCode(400, executeResult.Item1);
+                }
+                else
+                {
+                    using var dataSet = executeResult.Item2;
+                    result = Content(dataSet == null ? "[]" : JsonConvert.SerializeObject(dataSet.Tables[0]), "application/json");
+                }
             }
             catch (Exception exception)
             {

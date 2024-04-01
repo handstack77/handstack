@@ -64,33 +64,13 @@ namespace openapi.Extensions
             return result;
         }
 
-        private static DynamicParameter? GetDbParameterMap(string parameterName, List<DynamicParameter> dynamicParameters)
-        {
-            DynamicParameter? result = null;
-
-            var maps = from p in dynamicParameters
-                       where p.ParameterName == parameterName.Replace("@", "").Replace(":", "")
-                       select p;
-
-            if (maps.Count() > 0)
-            {
-                foreach (var item in maps)
-                {
-                    result = item;
-                    break;
-                }
-            }
-
-            return result;
-        }
-
-        public static string Find(string SQL, QueryObject? queryObject)
+        public static string Find(string SQL, Dictionary<string, object?> queryParameters)
         {
             string result = string.Empty;
             var children = new HtmlDocument();
             children.OptionDefaultStreamEncoding = Encoding.UTF8;
             children.LoadHtml(SQL);
-            JObject parameters = extractParameters(queryObject);
+            JObject parameters = JObject.FromObject(queryParameters);
 
             var childNodes = children.DocumentNode.ChildNodes;
             foreach (var childNode in childNodes)
@@ -108,85 +88,6 @@ namespace openapi.Extensions
             }
 
             return result;
-        }
-
-
-        private static JObject extractParameters(QueryObject? queryObject)
-        {
-            JObject parameters = new JObject();
-            if (queryObject != null)
-            {
-                foreach (DynamicParameter item in queryObject.Parameters)
-                {
-                    object? value = null;
-                    if (item.DbType == "String")
-                    {
-                        value = item.Value == null ? "" : item.Value.ToString();
-                    }
-                    else if (item.DbType == "Number")
-                    {
-                        string numberValue = item.Value.ToStringSafe();
-                        bool isParse = int.TryParse(numberValue, out int intValue);
-                        if (isParse == true)
-                        {
-                            value = intValue;
-                        }
-                        else
-                        {
-                            isParse = long.TryParse(numberValue, out long longValue);
-                            if (isParse == true)
-                            {
-                                value = longValue;
-                            }
-                            else
-                            {
-                                isParse = decimal.TryParse(numberValue, out decimal decimalValue);
-                                if (isParse == true)
-                                {
-                                    value = decimalValue;
-                                }
-                                else
-                                {
-                                    isParse = float.TryParse(numberValue, out float floatValue);
-                                    if (isParse == true)
-                                    {
-                                        value = floatValue;
-                                    }
-                                    else
-                                    {
-                                        value = null;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    else if (item.DbType == "Boolean")
-                    {
-                        value = item.Value?.ToStringSafe().ParseBool();
-                    }
-                    else if (item.DbType == "DateTime")
-                    {
-                        value = item.Value as DateTime?;
-                        if (value == null && item.Value != null)
-                        {
-                            DateTime dateTime;
-                            bool isParse = DateTime.TryParse(item.Value.ToString(), out dateTime);
-                            if (isParse == true)
-                            {
-                                value = dateTime;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        value = item.Value?.ToString();
-                    }
-
-                    parameters.Add(item.ParameterName, value == null ? null : JToken.FromObject(value));
-                }
-            }
-
-            return parameters;
         }
 
         public static string ConvertChildren(HtmlNode htmlNode, JObject parameters)
