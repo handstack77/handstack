@@ -3,8 +3,6 @@ using System.Data;
 
 using Dapper;
 
-using openapi.Profiler;
-
 using Npgsql;
 
 using NpgsqlTypes;
@@ -50,11 +48,6 @@ namespace openapi.NativeParameters
             ((SqlMapper.IDynamicParameters)dynamicParameters).AddParameters(command, identity);
 
             dynamic? dynamicCommand = command as NpgsqlCommand;
-            if (dynamicCommand == null)
-            {
-                dynamicCommand = command as ProfilerDbCommand;
-            }
-
             if (dynamicCommand != null)
             {
                 dynamicCommand.Parameters.AddRange(npgsqlParameters.ToArray());

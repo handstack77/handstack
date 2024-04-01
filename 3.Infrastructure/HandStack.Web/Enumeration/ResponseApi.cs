@@ -26,7 +26,7 @@ namespace HandStack.Web.Enumeration
         {
             { ResponseApi.E10, "E10: APPLICATION_ERROR, 어플리케이션 오류" },
             { ResponseApi.E11, "E11: CONFIGURATION_ERROR, 설정 오류" },
-            { ResponseApi.E11, "E12: SERVICE_EXECUTE_ERROR, 서비스 실행 오류" },
+            { ResponseApi.E12, "E12: SERVICE_EXECUTE_ERROR, 서비스 실행 오류" },
             { ResponseApi.E99, "E99: UNKNOWN_ERROR, 기타 오류" },
             { ResponseApi.I20, "I20: NO_OPENAPI_SERVICE_ERROR, 해당 오픈 API 서비스가 없거나 폐기됨" },
             { ResponseApi.I21, "I21: SERVICE_ACCESS_DENIED_ERROR, 서비스 접근 거부" },

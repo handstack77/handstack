@@ -3,8 +3,6 @@ using System.Data;
 
 using Dapper;
 
-using openapi.Profiler;
-
 using MySql.Data.MySqlClient;
 
 namespace openapi.NativeParameters
@@ -48,11 +46,6 @@ namespace openapi.NativeParameters
             ((SqlMapper.IDynamicParameters)dynamicParameters).AddParameters(command, identity);
 
             dynamic? dynamicCommand = command as MySqlCommand;
-            if (dynamicCommand == null)
-            {
-                dynamicCommand = command as ProfilerDbCommand;
-            }
-
             if (dynamicCommand != null)
             {
                 dynamicCommand.Parameters.AddRange(mysqlParameters.ToArray());

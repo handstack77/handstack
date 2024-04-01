@@ -4,8 +4,6 @@ using System.Data.SQLite;
 
 using Dapper;
 
-using openapi.Profiler;
-
 namespace openapi.NativeParameters
 {
     public class SQLiteDynamicParameters : SqlMapper.IDynamicParameters
@@ -47,11 +45,6 @@ namespace openapi.NativeParameters
             ((SqlMapper.IDynamicParameters)dynamicParameters).AddParameters(command, identity);
 
             dynamic? dynamicCommand = command as SQLiteCommand;
-            if (dynamicCommand == null)
-            {
-                dynamicCommand = command as ProfilerDbCommand;
-            }
-
             if (dynamicCommand != null)
             {
                 dynamicCommand.Parameters.AddRange(sqlliteParameters.ToArray());

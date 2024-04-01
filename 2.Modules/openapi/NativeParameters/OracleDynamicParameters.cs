@@ -4,8 +4,6 @@ using System.Text;
 
 using Dapper;
 
-using openapi.Profiler;
-
 using Oracle.ManagedDataAccess.Client;
 using Oracle.ManagedDataAccess.Types;
 
@@ -49,11 +47,6 @@ namespace openapi.NativeParameters
             ((SqlMapper.IDynamicParameters)dynamicParameters).AddParameters(command, identity);
 
             dynamic? dynamicCommand = command as OracleCommand;
-            if (dynamicCommand == null)
-            {
-                dynamicCommand = command as ProfilerDbCommand;
-            }
-
             if (dynamicCommand != null)
             {
                 dynamicCommand.Parameters.AddRange(oracleParameters.ToArray());

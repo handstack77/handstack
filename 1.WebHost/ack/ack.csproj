@@ -74,6 +74,7 @@
         <PackageReference Include="ChoETL.JSON.NETStandard" Version="1.2.1.64" />
         <PackageReference Include="Azure.Storage.Blobs" Version="12.19.1" />
         <PackageReference Include="CacheManager.Core" Version="1.2.0" />
+        <PackageReference Include="System.ServiceModel.Syndication" Version="8.0.0" />
     </ItemGroup>
 
     <ItemGroup>

@@ -8,20 +8,16 @@ using System.Threading.Tasks;
 using Dapper;
 
 using HandStack.Core.ExtensionMethod;
-using HandStack.Core.Extensions;
 using HandStack.Core.Helpers;
 using HandStack.Data;
-using HandStack.Web;
 using HandStack.Web.ApiClient;
 using HandStack.Web.Enumeration;
-using HandStack.Web.MessageContract.DataObject;
 
 using Newtonsoft.Json.Linq;
 
 using openapi.Encapsulation;
 using openapi.Entity;
 using openapi.Extensions;
-using openapi.Profiler;
 
 using Serilog;
 
@@ -62,28 +58,31 @@ if (dsApiService != null && dsApiService.Tables.Count > 0 && dsApiService.Tables
                 var dynamicParameters = new DynamicParameters();
                 connectionFactory = new DatabaseFactory(apiDataSource.ConnectionString.ToStringSafe(), databaseProvider);
                 SetDbParameterMapping(apiParameters, parameters, dynamicParameters);
-                var connection = new ProfilerDbConnection(connectionFactory.Connection);
-                using (IDataReader dataReader = await connection.ExecuteReaderAsync(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters))
+
+                if (connectionFactory.Connection != null)
                 {
-
-                    if (ModuleConfiguration.IsTransactionLogging == true)
+                    using (IDataReader dataReader = await connectionFactory.Connection.ExecuteReaderAsync(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters))
                     {
-                        // string logData = $"SQLID: {SQLID}, ExecuteSQL: \n\n{profiler.ExecuteSQL}";
-                        // loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteCodeHelpSQLMap", (string error) =>
-                        // {
-                        //     logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteCodeHelpSQLMap");
-                        // });
-                    }
 
-                    using DataSet? ds = DataTableHelper.DataReaderToDataSet(dataReader);
-                    {
-                        if (ds == null || ds.Tables.Count == 0)
+                        if (ModuleConfiguration.IsTransactionLogging == true)
                         {
-                            result = new Tuple<string, DataSet?>(ResponseApi.I25.ToEnumString(), null);
-                            goto TransactionException;
+                            // string logData = $"SQLID: {SQLID}, ExecuteSQL: \n\n{profiler.ExecuteSQL}";
+                            // loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteCodeHelpSQLMap", (string error) =>
+                            // {
+                            //     logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteCodeHelpSQLMap");
+                            // });
                         }
 
-                        result = new Tuple<string, DataSet?>(string.Empty, ds);
+                        using DataSet? ds = DataTableHelper.DataReaderToDataSet(dataReader);
+                        {
+                            if (ds == null || ds.Tables.Count == 0)
+                            {
+                                result = new Tuple<string, DataSet?>(ResponseApi.I25.ToEnumString(), null);
+                                goto TransactionException;
+                            }
+
+                            result = new Tuple<string, DataSet?>(string.Empty, ds);
+                        }
                     }
                 }
             }
@@ -394,7 +393,7 @@ TransactionException:
                 {
                     foreach (var item in maps)
                     {
-                        result = item;
+                        result = item.Value;
                         break;
                     }
                 }

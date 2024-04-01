@@ -1,22 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Dynamic;
+using System.Data.SqlTypes;
+using System.IO;
 using System.Linq;
+using System.ServiceModel.Syndication;
+using System.Text;
 using System.Threading.Tasks;
-
-using Dapper;
+using System.Xml;
 
 using HandStack.Core.ExtensionMethod;
-using HandStack.Core.Extensions;
 using HandStack.Data;
-using HandStack.Data.Enumeration;
 using HandStack.Web;
+using HandStack.Web.Entity;
 using HandStack.Web.Enumeration;
-using HandStack.Web.MessageContract.DataObject;
+using HandStack.Web.Extensions;
 
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+
+using MySqlX.XDevAPI.Common;
 
 using Newtonsoft.Json;
 
@@ -24,7 +27,6 @@ using openapi.Encapsulation;
 using openapi.Entity;
 using openapi.Extensions;
 
-using Org.BouncyCastle.Asn1.Ocsp;
 
 using Serilog;
 
@@ -119,8 +121,29 @@ namespace openapi.Areas.openapi.Controllers
                     }
                     else
                     {
+                        if (apiService.FormatJsonYN == false && apiService.FormatXmlYN == false && apiService.FormatSoapYN == false && apiService.FormatRssYN == false && apiService.FormatAtomYN == false)
+                        {
+                            apiService.FormatJsonYN = true;
+                        }
                         ModuleConfiguration.ApiServices.Add(apiService);
                     }
+                }
+
+                var format = parameters.ContainsKey("Format") == true ? parameters["Format"].ToStringSafe().ToLower() : "json";
+                switch (format)
+                {
+                    case "json":
+                    case "xml":
+                    case "rss":
+                    case "atom":
+                        break;
+                    default:
+                        logger.Warning("필수 요청 항목 확인 필요: " + JsonConvert.SerializeObject(new
+                        {
+                            InterfaceID = interfaceID,
+                            AccessID = accessID
+                        }));
+                        return result;
                 }
 
                 AccessMemberApi? accessMemberApi = null;
@@ -178,7 +201,8 @@ namespace openapi.Areas.openapi.Controllers
 
                 if (dataSource == null)
                 {
-                    dataSource = ModuleExtensions.ExecuteMetaSQLPoco<ApiDataSource>(dataProvider, GlobalConfiguration.ApplicationID, $"HOA.{transactionID}.GD04", new { 
+                    dataSource = ModuleExtensions.ExecuteMetaSQLPoco<ApiDataSource>(dataProvider, GlobalConfiguration.ApplicationID, $"HOA.{transactionID}.GD04", new
+                    {
                         DataSourceID = apiService.DataSourceID
                     });
 
@@ -222,20 +246,27 @@ namespace openapi.Areas.openapi.Controllers
                 foreach (var apiParameter in apiParameters)
                 {
                     string parameterID = apiParameter.ParameterID.Replace("@", "").Replace("#", "").Replace(":", "");
-                    var parameterValue = parameters[apiParameter.ParameterID];
-                    if (parameterValue == null && apiParameter.RequiredYN == true)
+                    var parameterValue = parameters.ContainsKey(parameterID) == true ? parameters[parameterID].ToStringSafe() : "";
+                    if (string.IsNullOrEmpty(parameterValue) == true && apiParameter.RequiredYN == true)
                     {
                         logger.Warning($"{ResponseApi.I23.ToEnumString()}: " + JsonConvert.SerializeObject(parameters));
                         result = StatusCode(400, ResponseApi.I23.ToEnumString());
                         return result;
                     }
 
-                    if (string.IsNullOrEmpty(parameterValue.ToStringSafe()) == true)
+                    if (string.IsNullOrEmpty(parameterValue) == true)
                     {
-                        parameterValue = parameterValue == null && apiParameter.DefaultValue != "NULL" ? apiParameter.DefaultValue : null;
+                        parameterValue = apiParameter.DefaultValue != "NULL" ? apiParameter.DefaultValue : null;
                     }
 
-                    parameters[apiParameter.ParameterID] = parameterValue;
+                    if (parameters.ContainsKey(parameterID) == true)
+                    {
+                        parameters[parameterID] = parameterValue;
+                    }
+                    else
+                    {
+                        parameters.Add(parameterID, parameterValue);
+                    }
                 }
 
                 var executeResult = await openapiClient.ExecuteSQL(apiService, dataSource, accessMemberApi, apiParameters, parameters);
@@ -246,7 +277,94 @@ namespace openapi.Areas.openapi.Controllers
                 else
                 {
                     using var dataSet = executeResult.Item2;
-                    result = Content(dataSet == null ? "[]" : JsonConvert.SerializeObject(dataSet.Tables[0]), "application/json");
+                    if (dataSet == null)
+                    {
+                    }
+                    else
+                    {
+                        dataSet.DataSetName = "dataSet";
+                        StringBuilder sb = new StringBuilder(256);
+                        switch (format)
+                        {
+                            case "json":
+                                List<int> mergeDataCounts = new List<int>();
+                                List<string> mergeMetaDatas = new List<string>();
+                                List<object> mergeDatas = new List<object>();
+                                for (int i = 0; i < dataSet.Tables.Count; i++)
+                                {
+                                    sb.Clear();
+                                    DataTable table = dataSet.Tables[i];
+                                    for (int k = 0; k < table.Columns.Count; k++)
+                                    {
+                                        var column = table.Columns[k];
+                                        sb.Append($"{column.ColumnName}:{JsonExtensions.toMetaDataType(column.DataType.Name)};");
+                                    }
+
+                                    mergeDataCounts.Add(table.Rows.Count);
+                                    mergeMetaDatas.Add(sb.ToString());
+                                    mergeDatas.Add(DataTableJson.ToJsonObject(table.TableName, table));
+                                }
+
+                                result = Content(JsonConvert.SerializeObject(new
+                                {
+                                    Count = mergeDataCounts,
+                                    Meta = mergeMetaDatas,
+                                    Result = mergeDatas
+                                }), "application/json");
+                                break;
+                            case "xml":
+                                using (StringWriter sw = new StringWriter(sb))
+                                {
+                                    dataSet.WriteXml(sw, XmlWriteMode.WriteSchema);
+                                }
+                                result = Content(sb.ToString(), "text/xml");
+                                break;
+                            case "rss":
+                                if (dataSet.Tables.Count != 2 || dataSet.Tables[0].Rows.Count == 0)
+                                {
+                                    result = StatusCode(400, ResponseApi.I25.ToEnumString());
+                                    return result;
+                                }
+
+                                var rssFeed = CreateFeed("rss", dataSet.Tables[0].Rows[0], dataSet.Tables[1].Rows);
+                                using (var stream = new MemoryStream())
+                                using (XmlWriter xmlWriter = XmlWriter.Create(stream, new XmlWriterSettings
+                                {
+                                    Encoding = Encoding.UTF8,
+                                    NewLineHandling = NewLineHandling.Entitize,
+                                    NewLineOnAttributes = true,
+                                    Indent = true
+                                }))
+                                {
+                                    rssFeed.SaveAsRss20(xmlWriter);
+                                    xmlWriter.Flush();
+                                    result = File(stream.ToArray(), "application/rss+xml; charset=utf-8");
+                                }
+                                break;
+                            case "atom":
+                                if (dataSet.Tables.Count != 2 || dataSet.Tables[0].Rows.Count == 0)
+                                {
+                                    result = StatusCode(400, ResponseApi.I25.ToEnumString());
+                                    return result;
+                                }
+
+                                var atomFeed = CreateFeed("rss", dataSet.Tables[0].Rows[0], dataSet.Tables[1].Rows);
+                                using (var stream = new MemoryStream())
+                                using (XmlWriter xmlWriter = XmlWriter.Create(stream, new XmlWriterSettings
+                                {
+                                    Encoding = Encoding.UTF8,
+                                    NewLineHandling = NewLineHandling.Entitize,
+                                    NewLineOnAttributes = true,
+                                    Indent = true
+                                }))
+                                {
+                                    atomFeed.SaveAsAtom10(xmlWriter);
+                                    xmlWriter.Flush();
+                                    result = File(stream.ToArray(), "application/atom+xml; charset=utf-8");
+                                }
+                                break;
+                        }
+                    }
                 }
             }
             catch (Exception exception)
@@ -256,6 +374,111 @@ namespace openapi.Areas.openapi.Controllers
             }
 
             return result;
+        }
+
+        private SyndicationFeed CreateFeed(string format, DataRow rowHeader, DataRowCollection rows)
+        {
+            string baseUrl = Request.GetBaseUrl();
+            var feed = new SyndicationFeed();
+            string title = rowHeader.GetString("Title").ToStringSafe();
+            if (string.IsNullOrEmpty(title) == false)
+            {
+                feed.Title = new TextSyndicationContent(title);
+            }
+
+            string description = rowHeader.GetString("Description").ToStringSafe();
+            if (string.IsNullOrEmpty(description) == false)
+            {
+                feed.Description = new TextSyndicationContent(description);
+            }
+
+            string copyright = rowHeader.GetString("CopyRight").ToStringSafe();
+            if (string.IsNullOrEmpty(copyright) == false)
+            {
+                feed.Copyright = new TextSyndicationContent(copyright);
+            }
+
+            string generator = rowHeader.GetString("Generator").ToStringSafe();
+            if (string.IsNullOrEmpty(generator) == false)
+            {
+                feed.Generator = generator;
+            }
+
+            string imageUrl = rowHeader.GetString("ImageUrl").ToStringSafe();
+            if (string.IsNullOrEmpty(imageUrl) == false)
+            {
+                Uri? parseUri;
+                if (Uri.TryCreate(imageUrl, UriKind.Absolute, out parseUri) == true)
+                {
+                    feed.ImageUrl = parseUri;
+                }
+            }
+
+            string lastUpdatedTime = rowHeader.GetString("LastUpdatedTime").ToStringSafe();
+            if (string.IsNullOrEmpty(lastUpdatedTime) == false)
+            {
+                DateTime parseDateTime;
+                if (DateTime.TryParse(lastUpdatedTime, out parseDateTime) == true)
+                {
+                    feed.LastUpdatedTime = new DateTimeOffset(parseDateTime);
+                }
+            }
+
+            var items = new List<SyndicationItem>();
+            for (int i = 0; i < rows.Count; i++)
+            {
+                DataRow row = rows[i];
+                var item = new SyndicationItem();
+
+                string itemTitle = row.GetString("Title").ToStringSafe();
+                if (string.IsNullOrEmpty(itemTitle) == false)
+                {
+                    item.Title = new TextSyndicationContent(itemTitle);
+                }
+
+                string itemLinks = row.GetString("Links").ToStringSafe();
+                if (string.IsNullOrEmpty(itemLinks) == false)
+                {
+                    var links = itemLinks.SplitComma();
+                    foreach (var link in links)
+                    {
+                        item.Links.Add(SyndicationLink.CreateAlternateLink(new Uri(link)));
+                    }
+                }
+
+                string itemSummary = row.GetString("Summary").ToStringSafe();
+                if (string.IsNullOrEmpty(itemSummary) == false)
+                {
+                    item.Summary = SyndicationContent.CreateHtmlContent(itemSummary);
+                }
+
+                string publishDate = row.GetString("PublishDate").ToStringSafe();
+                if (string.IsNullOrEmpty(publishDate) == false)
+                {
+                    DateTime parseDateTime;
+                    if (DateTime.TryParse(publishDate, out parseDateTime) == true)
+                    {
+                        item.PublishDate = new DateTimeOffset(parseDateTime);
+                    }
+                }
+
+                string itemAuthorEmail = row.GetString("AuthorEmail").ToStringSafe();
+                string itemAuthorName = row.GetString("AuthorName").ToStringSafe();
+                string itemAuthorUrl = row.GetString("AuthorUrl").ToStringSafe();
+                if (string.IsNullOrEmpty(itemAuthorEmail) == false && string.IsNullOrEmpty(itemAuthorName) == false)
+                {
+                    item.Authors.Add(new SyndicationPerson(itemAuthorEmail, itemAuthorName, itemAuthorUrl));
+                }
+                else if (string.IsNullOrEmpty(itemAuthorEmail) == false)
+                {
+                    item.Authors.Add(new SyndicationPerson(itemAuthorEmail));
+                }
+
+                items.Add(item);
+            }
+
+            feed.Items = items;
+            return feed;
         }
     }
 }
