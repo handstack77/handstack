@@ -12,6 +12,7 @@ using HandStack.Core.Extensions;
 using HandStack.Data;
 using HandStack.Web;
 using HandStack.Web.Entity;
+using HandStack.Web.Extensions;
 
 using HtmlAgilityPack;
 

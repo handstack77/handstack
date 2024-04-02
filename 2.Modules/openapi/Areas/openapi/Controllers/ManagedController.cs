@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
 using HandStack.Core.ExtensionMethod;
 using HandStack.Core.Extensions;
+using HandStack.Web;
 using HandStack.Web.ApiClient;
 using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.Enumeration;
@@ -87,6 +90,92 @@ namespace openapi.Areas.openapi.Controllers
                 catch (Exception exception)
                 {
                     result = StatusCode(500, exception.ToMessage());
+                }
+            }
+
+            return result;
+        }
+
+        // http://localhost:8000/openapi/api/managed/delete-api-service
+        [HttpGet("[action]")]
+        public ActionResult DeleteApiService(string apiServiceID)
+        {
+            ActionResult result = BadRequest();
+            string? authorizationKey = Request.GetParamData("AuthorizationKey");
+            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
+            {
+                result = BadRequest();
+            }
+            else
+            {
+                try
+                {
+                    var apiService = ModuleConfiguration.ApiServices.FirstOrDefault(item =>
+                        item.APIServiceID == apiServiceID
+                    );
+
+                    if (apiService != null)
+                    {
+                        ModuleConfiguration.ApiServices.Remove(apiService);
+                    }
+
+                    var accessMemberApis = ModuleConfiguration.AccessMemberApis.GetValueOrDefault(apiServiceID);
+                    if (accessMemberApis != null)
+                    {
+                        ModuleConfiguration.AccessMemberApis.Remove(apiServiceID);
+                    }
+
+                    var apiParameters = ModuleConfiguration.ApiParameters.GetValueOrDefault(apiServiceID);
+                    if (apiParameters == null)
+                    {
+                        ModuleConfiguration.ApiParameters.Remove(apiServiceID);
+                    }
+
+                    result = Ok();
+                }
+                catch (Exception exception)
+                {
+                    string exceptionText = exception.ToMessage();
+                    logger.Error("[{LogCategory}] " + exceptionText, "Managed/ResetContract");
+
+                    result = StatusCode(500, exceptionText);
+                }
+            }
+
+            return result;
+        }
+
+        // http://localhost:8000/openapi/api/managed/delete-api-data-source
+        [HttpGet("[action]")]
+        public ActionResult DeleteApiDataSource(string dataSourceID)
+        {
+            ActionResult result = BadRequest();
+            string? authorizationKey = Request.GetParamData("AuthorizationKey");
+            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
+            {
+                result = BadRequest();
+            }
+            else
+            {
+                try
+                {
+                    var dataSource = ModuleConfiguration.ApiDataSource.FirstOrDefault(item =>
+                        item.DataSourceID == dataSourceID
+                    );
+
+                    if (dataSource != null)
+                    {
+                        ModuleConfiguration.ApiDataSource.Remove(dataSource);
+                    }
+
+                    result = Ok();
+                }
+                catch (Exception exception)
+                {
+                    string exceptionText = exception.ToMessage();
+                    logger.Error("[{LogCategory}] " + exceptionText, "Managed/ResetContract");
+
+                    result = StatusCode(500, exceptionText);
                 }
             }
 
