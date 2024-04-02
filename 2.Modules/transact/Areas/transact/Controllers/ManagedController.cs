@@ -43,7 +43,7 @@ namespace transact.Areas.transact.Controllers
         public ActionResult ResetContract()
         {
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
+            string? authorizationKey = Request.GetParamData("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();
@@ -73,7 +73,7 @@ namespace transact.Areas.transact.Controllers
         public ActionResult ResetAppContract(string userWorkID, string applicationID)
         {
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
+            string? authorizationKey = Request.GetParamData("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();
@@ -163,7 +163,7 @@ namespace transact.Areas.transact.Controllers
         public ActionResult StringEncrypt(string value)
         {
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
+            string? authorizationKey = Request.GetParamData("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();
@@ -191,7 +191,7 @@ namespace transact.Areas.transact.Controllers
         public ActionResult StringDecrypt(string value)
         {
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
+            string? authorizationKey = Request.GetParamData("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();

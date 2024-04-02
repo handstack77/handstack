@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Data;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.Serialization.Formatters.Soap;
 using System.ServiceModel.Syndication;
 using System.Text;
@@ -15,17 +12,14 @@ using System.Xml;
 using HandStack.Core.ExtensionMethod;
 using HandStack.Core.Extensions;
 using HandStack.Data;
-using HandStack.Web;
 using HandStack.Web.Entity;
 using HandStack.Web.Enumeration;
 using HandStack.Web.Extensions;
-using HandStack.Web.MessageContract.Message;
 
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Hosting;
 
 using Newtonsoft.Json;
 
@@ -33,8 +27,6 @@ using openapi.Encapsulation;
 using openapi.Entity;
 using openapi.Enumeration;
 using openapi.Extensions;
-
-using Org.BouncyCastle.Asn1.Ocsp;
 
 using Serilog;
 

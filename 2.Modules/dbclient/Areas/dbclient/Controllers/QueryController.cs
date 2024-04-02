@@ -56,7 +56,7 @@ namespace dbclient.Areas.dbclient.Controllers
             };
 
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
+            string? authorizationKey = Request.GetParamData("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();
@@ -97,7 +97,7 @@ namespace dbclient.Areas.dbclient.Controllers
             };
 
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
+            string? authorizationKey = Request.GetParamData("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();
@@ -131,7 +131,7 @@ namespace dbclient.Areas.dbclient.Controllers
         public ActionResult Refresh(string changeType, string filePath)
         {
             ActionResult result = NotFound();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
+            string? authorizationKey = Request.GetParamData("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();
@@ -231,7 +231,7 @@ namespace dbclient.Areas.dbclient.Controllers
             };
 
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
+            string? authorizationKey = Request.GetParamData("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();
@@ -266,7 +266,7 @@ namespace dbclient.Areas.dbclient.Controllers
         public ActionResult Get(string base64Json)
         {
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
+            string? authorizationKey = Request.GetParamData("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();
@@ -318,7 +318,7 @@ namespace dbclient.Areas.dbclient.Controllers
         public ActionResult Retrieve(string base64Json)
         {
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
+            string? authorizationKey = Request.GetParamData("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();
@@ -392,7 +392,7 @@ namespace dbclient.Areas.dbclient.Controllers
             };
 
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
+            string? authorizationKey = Request.GetParamData("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();
@@ -440,7 +440,7 @@ namespace dbclient.Areas.dbclient.Controllers
         public ActionResult Meta()
         {
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
+            string? authorizationKey = Request.GetParamData("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();
@@ -473,7 +473,7 @@ namespace dbclient.Areas.dbclient.Controllers
         public ActionResult Reports()
         {
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
+            string? authorizationKey = Request.GetParamData("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();

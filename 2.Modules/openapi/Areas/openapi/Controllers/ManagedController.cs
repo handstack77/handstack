@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using HandStack.Core.ExtensionMethod;
 using HandStack.Core.Extensions;
 using HandStack.Web.ApiClient;
+using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.Enumeration;
 using HandStack.Web.MessageContract.Message;
 
@@ -44,7 +45,7 @@ namespace openapi.Areas.openapi.Controllers
         public async Task<ActionResult> InitializeSettings()
         {
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
+            string? authorizationKey = Request.GetParamData("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();
@@ -97,7 +98,7 @@ namespace openapi.Areas.openapi.Controllers
         public ActionResult CacheClear()
         {
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
+            string? authorizationKey = Request.GetParamData("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();

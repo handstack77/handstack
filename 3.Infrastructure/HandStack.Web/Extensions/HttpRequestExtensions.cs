@@ -115,7 +115,11 @@ namespace HandStack.Web.Extensions
         public static string GetParamData(this HttpRequest request, string requestKey, string defaultValue = "")
         {
             string result = "";
-            if (request.HasFormContentType == true && request.Form.ContainsKey(requestKey) == true)
+            if (request.Query.ContainsKey(requestKey) == true)
+            {
+                result = request.Query[requestKey].ToString();
+            }
+            else if (request.HasFormContentType == true && request.Form.ContainsKey(requestKey) == true)
             {
                 result = request.Form[requestKey].ToString();
             }
@@ -123,9 +127,9 @@ namespace HandStack.Web.Extensions
             {
                 result = (request.RouteValues[requestKey]?.ToString()).ToStringSafe();
             }
-            else if (request.Query.ContainsKey(requestKey) == true)
+            else if (request.Headers.ContainsKey(requestKey) == true)
             {
-                result = request.Query[requestKey].ToString();
+                result = request.Headers[requestKey].ToString();
             }
 
             if (string.IsNullOrEmpty(result) == true && string.IsNullOrEmpty(defaultValue) == false)

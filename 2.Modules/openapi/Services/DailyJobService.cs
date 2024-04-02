@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
-using HandStack.Core.ExtensionMethod;
 using HandStack.Data;
 using HandStack.Data.Enumeration;
 using HandStack.Web;
@@ -13,9 +10,9 @@ using HandStack.Web;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
 
-using openapi.Entity;
 using openapi.Enumeration;
-using openapi.Extensions;
+
+using Serilog;
 
 namespace openapi.Services
 {
@@ -25,9 +22,9 @@ namespace openapi.Services
 
         private readonly IMemoryCache memoryCache;
 
-        private Serilog.ILogger logger { get; }
+        private ILogger logger { get; }
 
-        public DailyJobService(IMemoryCache memoryCache, Serilog.ILogger logger)
+        public DailyJobService(IMemoryCache memoryCache, ILogger logger)
         {
             this.memoryCache = memoryCache;
             this.logger = logger;
@@ -39,18 +36,19 @@ namespace openapi.Services
             DateTime midnight = DateTime.Today.AddDays(1);
             TimeSpan dueTime = midnight - now;
 
-            timer = new Timer(DoWork, null, dueTime, TimeSpan.FromDays(1));
+            timer = new Timer(Execute, null, dueTime, TimeSpan.FromDays(1));
 
             return Task.CompletedTask;
         }
 
-        private void DoWork(object? state)
+        private void Execute(object? state)
         {
-            // DailyJobService 서비스로 LimitPeriod에 따라 매일 또는 매월 1일에 APIService.LimitCallCount 값으로 초기화
             try
             {
                 var dataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), ModuleConfiguration.ModuleDataSource.DataProvider);
                 var transactionID = dataProvider.ToEnumString();
+
+                logger.Information("[{LogCategory}] Day 기간 내 호출 수 제한 조건 자동 갱신", "DailyJobService/Execute");
                 Extensions.ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, dataProvider, GlobalConfiguration.ApplicationID, $"HOA.{transactionID}.UD01", new
                 {
                     LimitPeriod = "Day"
@@ -58,6 +56,7 @@ namespace openapi.Services
 
                 if (DateTime.Now.ToString("MMdd") == "0101")
                 {
+                    logger.Information("[{LogCategory}] Month 기간 내 호출 수 제한 조건 자동 갱신", "DailyJobService/Execute");
                     Extensions.ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, dataProvider, GlobalConfiguration.ApplicationID, $"HOA.{transactionID}.UD01", new
                     {
                         LimitPeriod = "Month"

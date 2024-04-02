@@ -56,7 +56,7 @@ namespace function.Areas.function.Controllers
             };
 
             ActionResult result = NotFound();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
+            string? authorizationKey = Request.GetParamData("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();
@@ -99,7 +99,7 @@ namespace function.Areas.function.Controllers
             };
 
             ActionResult result = NotFound();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
+            string? authorizationKey = Request.GetParamData("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();
@@ -146,7 +146,7 @@ namespace function.Areas.function.Controllers
         public ActionResult Refresh(string changeType, string filePath)
         {
             ActionResult result = NotFound();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
+            string? authorizationKey = Request.GetParamData("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();
@@ -252,7 +252,7 @@ namespace function.Areas.function.Controllers
             };
 
             ActionResult result = NotFound();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
+            string? authorizationKey = Request.GetParamData("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();
@@ -297,7 +297,7 @@ namespace function.Areas.function.Controllers
             };
 
             ActionResult result = NotFound();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
+            string? authorizationKey = Request.GetParamData("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();
@@ -350,7 +350,7 @@ namespace function.Areas.function.Controllers
             };
 
             ActionResult result = NotFound();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
+            string? authorizationKey = Request.GetParamData("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();
@@ -417,7 +417,7 @@ namespace function.Areas.function.Controllers
         public ActionResult Meta()
         {
             ActionResult result = NotFound();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
+            string? authorizationKey = Request.GetParamData("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();

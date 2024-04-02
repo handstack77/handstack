@@ -32,7 +32,7 @@ namespace function.Areas.function.Controllers
         public ActionResult Encode(string value)
         {
             ActionResult result;
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
+            string? authorizationKey = Request.GetParamData("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();
@@ -61,7 +61,7 @@ namespace function.Areas.function.Controllers
         public ActionResult Decode(string value)
         {
             ActionResult result;
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
+            string? authorizationKey = Request.GetParamData("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();

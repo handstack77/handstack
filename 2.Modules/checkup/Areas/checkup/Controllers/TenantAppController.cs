@@ -113,7 +113,7 @@ namespace checkup.Areas.checkup.Controllers
         public async Task<ActionResult> Direct(string commandID, [FromQuery] QueryParams? queryParams)
         {
             string? remoteClientIP = HttpContext.GetRemoteIpAddress();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
+            string? authorizationKey = Request.GetParamData("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey && User.Identity != null && User.Identity.IsAuthenticated == true)
             {
                 List<ServiceParameter>? serviceParameters = null;
