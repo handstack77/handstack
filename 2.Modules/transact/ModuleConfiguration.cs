@@ -45,5 +45,6 @@ namespace transact
         public static Dictionary<string, List<string>> AllowRequestTransactions = new Dictionary<string, List<string>>();
         public static Dictionary<string, string> RoutingCommandUri = new Dictionary<string, string>();
         public static List<PublicTransaction>? PublicTransactions = new List<PublicTransaction>();
+        public static List<string> CacheKeys = new List<string>();
     }
 }

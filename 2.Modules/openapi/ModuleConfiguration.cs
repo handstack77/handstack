@@ -45,6 +45,7 @@ namespace openapi
         public static Dictionary<string, List<ApiParameter>> ApiParameters = new Dictionary<string, List<ApiParameter>>();
         public static Dictionary<string, List<AccessMemberApi>> AccessMemberApis = new Dictionary<string, List<AccessMemberApi>>();
         public static Dictionary<string, ApiServiceCircuitBreakerPolicy> apiServiceCircuitBreakers = new Dictionary<string, ApiServiceCircuitBreakerPolicy>();
+        public static List<string> CacheKeys = new List<string>();
         public static ILogger? ModuleLogger = null;
 
         public static ApiDataSource? CheckSQLiteCreate(string dataSourceID)

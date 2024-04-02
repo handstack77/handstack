@@ -26,5 +26,11 @@ namespace openapi.Entity
 
         [JsonProperty("LimitCallCount")]
         public long LimitCallCount { get; set; } = 0;
+
+        [JsonProperty("RequestCallCount")]
+        public long RequestCallCount { get; set; } = 0;
+
+        [JsonProperty("CumulativeCallCount")]
+        public long CumulativeCallCount { get; set; } = 0;
     }
 }

@@ -21,13 +21,14 @@ using HandStack.Web.MessageContract.DataObject;
 using HandStack.Web.MessageContract.Enumeration;
 using HandStack.Web.MessageContract.Message;
 
-using MediatR;
-
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
+
+using MySqlX.XDevAPI.Common;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -241,7 +242,6 @@ namespace transact.Areas.transact.Controllers
             ActionResult result = BadRequest();
             try
             {
-                result = Content(JsonConvert.SerializeObject(true), "application/json");
                 if (string.IsNullOrEmpty(cacheKey) == true)
                 {
                     List<string> items = GetMemoryCacheKeys();
@@ -256,7 +256,7 @@ namespace transact.Areas.transact.Controllers
                 }
                 else
                 {
-                    result = Content(JsonConvert.SerializeObject(false), "application/json");
+                    result = Ok();
                 }
             }
             catch (Exception exception)
@@ -300,25 +300,11 @@ namespace transact.Areas.transact.Controllers
         private List<string> GetMemoryCacheKeys()
         {
             List<string> result = new List<string>();
-            var field = typeof(MemoryCache).GetProperty("EntriesCollection", BindingFlags.NonPublic | BindingFlags.Instance);
-            if (field == null)
+            foreach (var cacheKey in ModuleConfiguration.CacheKeys)
             {
-                return result;
-            }
-            var collection = field.GetValue(memoryCache) as ICollection;
-            if (collection != null)
-            {
-                foreach (var item in collection)
+                if (cacheKey.StartsWith($"{ModuleConfiguration.ModuleID}|") == true)
                 {
-                    var methodInfo = item.GetType().GetProperty("Key");
-                    if (methodInfo != null)
-                    {
-                        var value = methodInfo.GetValue(item);
-                        if (value != null)
-                        {
-                            result.Add(value.ToStringSafe());
-                        }
-                    }
+                    result.Add(cacheKey);
                 }
             }
 
@@ -479,12 +465,12 @@ namespace transact.Areas.transact.Controllers
                             }
                             else
                             {
-                                result = Content(JsonConvert.SerializeObject(false), "application/json");
+                                result = Ok();
                             }
                         }
                         else
                         {
-                            result = Content(JsonConvert.SerializeObject(false), "application/json");
+                            result = Ok();
                         }
                     }
                 }
@@ -715,7 +701,7 @@ namespace transact.Areas.transact.Controllers
                             cacheKeys.Add(input.FieldID + ":" + (input.Value == null ? "null" : input.Value.ToString()));
                         }
 
-                        cacheKey = cacheKeys.ToJoin(";");
+                        cacheKey = $"{ModuleConfiguration.ModuleID}|{cacheKeys.ToJoin(";")}";
 
                         TransactionResponse? transactionResponse = null;
                         if (memoryCache.TryGetValue(cacheKey, out transactionResponse) == true)
@@ -1749,7 +1735,20 @@ namespace transact.Areas.transact.Controllers
                         {
                             if (memoryCache.Get(cacheKey) == null)
                             {
-                                memoryCache.Set(cacheKey, response, TimeSpan.FromMinutes(ModuleConfiguration.CodeDataCacheTimeout));
+                                ModuleConfiguration.CacheKeys.Add(cacheKey);
+
+                                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                                    .SetAbsoluteExpiration(TimeSpan.FromMinutes(ModuleConfiguration.CodeDataCacheTimeout))
+                                    .RegisterPostEvictionCallback((key, value, reason, state) =>
+                                    {
+                                        ModuleConfiguration.CacheKeys.Remove(key.ToStringSafe());
+                                    });
+
+                                memoryCache.Set(cacheKey, response, cacheEntryOptions);
+                            }
+                            else
+                            {
+                                ModuleConfiguration.CacheKeys.Remove(cacheKey);
                             }
                         }
 

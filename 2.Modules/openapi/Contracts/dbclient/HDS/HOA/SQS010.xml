@@ -106,6 +106,7 @@ CREATE TABLE [APIService] (
     [LimitIPAddressYN] nvarchar(1) NULL,
     [AccessControl] nvarchar(10) NULL,
     [CumulativeCallCount] bigint NULL,
+    [CacheDuration] int NULL,
     [UseYN] nvarchar(1) NULL,
     [DeleteYN] nvarchar(1) NULL,
     [CreatedAt] datetime2(0) NULL,
@@ -149,6 +150,8 @@ SET @description = N'Public, SecretKey';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'APIService', 'COLUMN', N'AccessControl';
 SET @description = N'요청 횟수 합계';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'APIService', 'COLUMN', N'CumulativeCallCount';
+SET @description = N'캐시 지속 간격 (분)';
+EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'APIService', 'COLUMN', N'CacheDuration';
 SET @description = N'사용 유무';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'APIService', 'COLUMN', N'UseYN';
 SET @description = N'삭제 유무';
@@ -343,6 +346,7 @@ SELECT A.APIServiceID
     , A.LimitCallCount
     , A.LimitIPAddressYN
     , A.AccessControl
+    , A.CacheDuration
 FROM 
     APIService A
 WHERE A.UseYN = 'Y'
@@ -373,6 +377,8 @@ SELECT AMA.AccessID
     , AMA.IPAddress
     , AMA.LimitPeriod
     , AMA.LimitCallCount
+    , AMA.RequestCallCount
+    , AMA.CumulativeCallCount
 FROM 
     APIService A
 	INNER JOIN AccessMemberAPI AMA ON A.APIServiceID = AMA.APIServiceID
@@ -457,14 +463,29 @@ WHEN MATCHED
     UPDATE SET CumulativeCallCount = (CumulativeCallCount + 1)
 		, ModifiedAt = GETDATE();
         
-UPDATE APIService SET CumulativeCallCount = (CumulativeCallCount + 1) WHERE APIServiceID = @APIServiceID;
+UPDATE APIService SET CumulativeCallCount = (CumulativeCallCount + 1)
+WHERE APIServiceID = @APIServiceID;
 
-UPDATE AccessMemberAPI SET CumulativeCallCount = (CumulativeCallCount + 1) WHERE APIServiceID = @APIServiceID
+UPDATE AccessMemberAPI SET CumulativeCallCount = (CumulativeCallCount + 1)
+    , RequestCallCount = (RequestCallCount + 1)
+WHERE APIServiceID = @APIServiceID
 	AND AccessID = @AccessID;
 			]]>
             <param id="@APIServiceID" type="String" length="36" value="" />
             <param id="@AccessID" type="String" length="36" value="" />
             <param id="@Format" type="String" length="10" value="" />
+        </statement>
+
+        <statement id="UD01" seq="0" use="Y" timeout="0" desc="기간 내 호출 수 제한 조건 일일 자동 갱신">
+            <![CDATA[
+UPDATE AccessMemberAPI SET RequestCallCount = AMA.RequestCallCount
+FROM APIService A
+	INNER JOIN AccessMemberAPI AMA ON A.UseYN = 'Y'
+		AND A.DeleteYN = 'N'
+		AND A.APIServiceID = AMA.APIServiceID
+		AND A.LimitPeriod = @LimitPeriod;
+			]]>
+            <param id="@LimitPeriod" type="String" length="10" value="" />
         </statement>
     </commands>
 </mapper>

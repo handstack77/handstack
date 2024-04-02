@@ -419,7 +419,7 @@ namespace dbclient.Areas.dbclient.Controllers
                         }
                         else
                         {
-                            result = Content(JsonConvert.SerializeObject(false), "application/json");
+                            result = Ok();
                         }
                     }
                 }

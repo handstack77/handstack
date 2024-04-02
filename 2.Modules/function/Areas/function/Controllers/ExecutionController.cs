@@ -122,7 +122,7 @@ namespace function.Areas.function.Controllers
                             }
                             else
                             {
-                                result = Content(JsonConvert.SerializeObject(false), "application/json");
+                                result = Ok();
                             }
                         }
                     }

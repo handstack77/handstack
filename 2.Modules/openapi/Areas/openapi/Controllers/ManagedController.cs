@@ -1,20 +1,22 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
-
-using openapi.Extensions;
 
 using HandStack.Core.ExtensionMethod;
 using HandStack.Core.Extensions;
-using HandStack.Data.Enumeration;
+using HandStack.Web.ApiClient;
+using HandStack.Web.MessageContract.Enumeration;
+using HandStack.Web.MessageContract.Message;
 
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
+
+using openapi.Entity;
 
 using Serilog;
-using HandStack.Web.MessageContract.Message;
-using System.Collections.Generic;
-using HandStack.Web.ApiClient;
-using HandStack.Web.MessageContract.Enumeration;
 
 namespace openapi.Areas.openapi.Controllers
 {
@@ -26,11 +28,14 @@ namespace openapi.Areas.openapi.Controllers
     {
         private ILogger logger { get; }
 
+        private readonly IMemoryCache memoryCache;
+
         private readonly MediatorClient mediatorClient;
 
-        public ManagedController(ILogger logger, MediatorClient mediatorClient)
+        public ManagedController(ILogger logger, IMemoryCache memoryCache, MediatorClient mediatorClient)
         {
             this.logger = logger;
+            this.memoryCache = memoryCache;
             this.mediatorClient = mediatorClient;
         }
 
@@ -81,6 +86,53 @@ namespace openapi.Areas.openapi.Controllers
                 catch (Exception exception)
                 {
                     result = StatusCode(500, exception.ToMessage());
+                }
+            }
+
+            return result;
+        }
+
+        // http://localhost:8000/openapi/api/managed/cache-clear
+        [HttpGet("[action]")]
+        public ActionResult CacheClear()
+        {
+            ActionResult result = BadRequest();
+            string? authorizationKey = Request.Headers["AuthorizationKey"];
+            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
+            {
+                result = BadRequest();
+            }
+            else
+            {
+                try
+                {
+                    List<string> items = GetMemoryCacheKeys();
+                    foreach (string item in items)
+                    {
+                        memoryCache.Remove(item);
+                    }
+
+                    result = Ok();
+                }
+                catch (Exception exception)
+                {
+                    string exceptionText = exception.ToMessage();
+                    logger.Warning("[{LogCategory}] " + exceptionText, "Transaction/CacheClear");
+                    result = StatusCode(500, exceptionText);
+                }
+            }
+
+            return result;
+        }
+
+        private List<string> GetMemoryCacheKeys()
+        {
+            List<string> result = new List<string>();
+            foreach (var cacheKey in ModuleConfiguration.CacheKeys)
+            {
+                if (cacheKey.StartsWith($"{ModuleConfiguration.ModuleID}|") == true)
+                {
+                    result.Add(cacheKey);
                 }
             }
 

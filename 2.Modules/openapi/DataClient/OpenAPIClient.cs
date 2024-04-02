@@ -36,15 +36,18 @@ namespace openapi.DataClient
 
         private DataProviders dataProvider { get; }
 
+        private string transactionID { get; }
+
         public OpenAPIClient(ILogger logger, TransactionClient businessApiClient, OpenApiLoggerClient loggerClient)
         {
             this.logger = logger;
             this.businessApiClient = businessApiClient;
             this.loggerClient = loggerClient;
             this.dataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), ModuleConfiguration.ModuleDataSource.DataProvider);
+            this.transactionID = dataProvider.ToEnumString();
         }
 
-        public async Task<Tuple<string, DataSet?>> ExecuteSQL(ApiService apiService, ApiDataSource apiDataSource, AccessMemberApi accessMemberApi, List<ApiParameter> apiParameters, Dictionary<string, object?> parameters)
+        public async Task<Tuple<string, DataSet?>> ExecuteSQL(string commandText, ApiDataSource apiDataSource, List<ApiParameter> apiParameters, Dictionary<string, object?> parameters)
         {
             Tuple<string, DataSet?> result = new Tuple<string, DataSet?>(ResponseApi.I25.ToEnumString(), null);
             DatabaseFactory? connectionFactory = null;
@@ -60,7 +63,7 @@ namespace openapi.DataClient
                 }
                 */
                 var databaseProvider = (DataProviders)Enum.Parse(typeof(DataProviders), apiDataSource.DataProvider);
-                string parseSQL = DatabaseMapper.Find(apiService.CommandText, parameters);
+                string parseSQL = DatabaseMapper.Find(commandText, parameters);
                 var dynamicParameters = new DynamicParameters();
                 connectionFactory = new DatabaseFactory(apiDataSource.ConnectionString.ToStringSafe(), databaseProvider);
                 SetDbParameterMapping(apiParameters, parameters, dynamicParameters);
@@ -108,11 +111,10 @@ TransactionException:
             return result;
         }
 
-        public void UpdateUsageAPIAggregate(string apiServiceID, string accessID, string format)
+        public void UsageAPIAggregate(string apiServiceID, string accessID, string format)
         {
             try
             {
-                string transactionID = dataProvider.ToEnumString();
                 ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, dataProvider, GlobalConfiguration.ApplicationID, $"HOA.{transactionID}.MD01", new
                 {
                     APIServiceID = apiServiceID,
@@ -122,8 +124,81 @@ TransactionException:
             }
             catch (Exception exception)
             {
-                logger.Error("[{LogCategory}] " + exception.Message, "OpenAPIClient/UpdateUsageAPIAggregate");
+                logger.Error("[{LogCategory}] " + exception.Message, "OpenAPIClient/UsageAPIAggregate");
             }
+        }
+
+        public ApiService? GetApiService(string interfaceID)
+        {
+            ApiService? result = null;
+            try
+            {
+                result = ModuleExtensions.ExecuteMetaSQLPoco<ApiService>(dataProvider, GlobalConfiguration.ApplicationID, $"HOA.{transactionID}.GD03", new
+                {
+                    InterfaceID = interfaceID
+                });
+            }
+            catch (Exception exception)
+            {
+                logger.Error("[{LogCategory}] " + exception.Message, "OpenAPIClient/GetApiService");
+            }
+
+            return result;
+        }
+
+        public AccessMemberApi? GetAccessMemberApi(string apiServiceID, string accessID)
+        {
+            AccessMemberApi? result = null;
+            try
+            {
+                result = ModuleExtensions.ExecuteMetaSQLPoco<AccessMemberApi>(dataProvider, GlobalConfiguration.ApplicationID, $"HOA.{transactionID}.GD05", new
+                {
+                    APIServiceID = apiServiceID,
+                    AccessID = accessID
+                });
+            }
+            catch (Exception exception)
+            {
+                logger.Error("[{LogCategory}] " + exception.Message, "OpenAPIClient/GetAccessMemberApi");
+            }
+
+            return result;
+        }
+
+        public ApiDataSource? GetApiDataSource(string dataSourceID)
+        {
+            ApiDataSource? result = null;
+            try
+            {
+                result = ModuleExtensions.ExecuteMetaSQLPoco<ApiDataSource>(dataProvider, GlobalConfiguration.ApplicationID, $"HOA.{transactionID}.GD04", new
+                {
+                    DataSourceID = dataSourceID
+                });
+            }
+            catch (Exception exception)
+            {
+                logger.Error("[{LogCategory}] " + exception.Message, "OpenAPIClient/GetApiDataSource");
+            }
+
+            return result;
+        }
+
+        public List<ApiParameter>? GetApiParameters(string apiServiceID)
+        {
+            List<ApiParameter>? result = null;
+            try
+            {
+                result = ModuleExtensions.ExecuteMetaSQLPocos<ApiParameter>(dataProvider, GlobalConfiguration.ApplicationID, $"HOA.{transactionID}.LD01", new
+                {
+                    APIServiceID = apiServiceID
+                });
+            }
+            catch (Exception exception)
+            {
+                logger.Error("[{LogCategory}] " + exception.Message, "OpenAPIClient/GetApiDataSource");
+            }
+
+            return result;
         }
 
         private string GetProviderDbType(DataColumn column, DataProviders? databaseProvider = null)

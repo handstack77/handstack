@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization.Formatters.Soap;
 using System.ServiceModel.Syndication;
 using System.Text;
@@ -10,14 +13,19 @@ using System.Threading.Tasks;
 using System.Xml;
 
 using HandStack.Core.ExtensionMethod;
+using HandStack.Core.Extensions;
 using HandStack.Data;
 using HandStack.Web;
 using HandStack.Web.Entity;
 using HandStack.Web.Enumeration;
 using HandStack.Web.Extensions;
+using HandStack.Web.MessageContract.Message;
 
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Hosting;
 
 using Newtonsoft.Json;
 
@@ -26,6 +34,7 @@ using openapi.Entity;
 using openapi.Enumeration;
 using openapi.Extensions;
 
+using Org.BouncyCastle.Asn1.Ocsp;
 
 using Serilog;
 
@@ -37,17 +46,48 @@ namespace openapi.Areas.openapi.Controllers
     [EnableCors]
     public class TransactionController : ControllerBase
     {
-        private ILogger logger { get; }
+        private readonly ILogger logger;
 
-        private IOpenAPIClient openapiClient { get; }
+        private readonly IOpenAPIClient openapiClient;
 
-        private DataProviders dataProvider { get; }
+        private readonly IMemoryCache memoryCache;
 
-        public TransactionController(ILogger logger, IOpenAPIClient openapiClient)
+        private readonly DataProviders dataProvider;
+
+        public TransactionController(ILogger logger, IMemoryCache memoryCache, IOpenAPIClient openapiClient)
         {
             this.logger = logger;
             this.openapiClient = openapiClient;
+            this.memoryCache = memoryCache;
             this.dataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), ModuleConfiguration.ModuleDataSource.DataProvider);
+        }
+
+        // http://localhost:8000/openapi/api/transaction/remove-cache?apiServiceID=
+        [HttpGet("api/transaction/[action]")]
+        public ActionResult RemoveCache(string apiServiceID)
+        {
+            ActionResult result = BadRequest();
+            try
+            {
+                if (string.IsNullOrEmpty(apiServiceID) == false)
+                {
+                    List<string> items = GetMemoryCacheKeys(apiServiceID);
+                    foreach (string item in items)
+                    {
+                        memoryCache.Remove(item);
+                    }
+                }
+
+                result = Ok();
+            }
+            catch (Exception exception)
+            {
+                string exceptionText = exception.ToMessage();
+                logger.Warning("[{LogCategory}] " + exceptionText, "Transaction/CacheClear");
+                result = StatusCode(500, exceptionText);
+            }
+
+            return result;
         }
 
         // http://localhost:8000/openapi/handsup-codes?AccessID=c48972d403cf4c3485d2625a892d135d&GroupCode=SYS000&CategoryID=
@@ -59,6 +99,7 @@ namespace openapi.Areas.openapi.Controllers
             Dictionary<string, object?> parameters = new Dictionary<string, object?>();
             try
             {
+                string requestUrl = Request.GetAbsoluteUrl();
                 foreach (var item in Request.Query)
                 {
                     parameters.Add(item.Key, item.Value);
@@ -68,6 +109,12 @@ namespace openapi.Areas.openapi.Controllers
                 if (parameters.ContainsKey("AccessID") == true)
                 {
                     accessID = parameters["AccessID"].ToStringSafe();
+                }
+
+                string? secretKey = Request.Headers["SecretKey"].ToStringSafe();
+                if (parameters.ContainsKey("SecretKey") == true)
+                {
+                    secretKey = parameters["SecretKey"].ToStringSafe();
                 }
 
                 if (string.IsNullOrEmpty(interfaceID) == true || string.IsNullOrEmpty(accessID) == true)
@@ -82,34 +129,13 @@ namespace openapi.Areas.openapi.Controllers
 
                 string transactionID = dataProvider.ToEnumString();
                 var format = parameters.ContainsKey("Format") == true ? parameters["Format"].ToStringSafe().ToLower() : "json";
-                switch (format)
-                {
-                    case "json":
-                    case "xml":
-                    case "soap":
-                    case "rss":
-                    case "atom":
-                        break;
-                    default:
-                        logger.Warning("필수 요청 항목 확인 필요: " + JsonConvert.SerializeObject(new
-                        {
-                            InterfaceID = interfaceID,
-                            AccessID = accessID
-                        }));
-                        return result;
-                }
-
                 var apiService = ModuleConfiguration.ApiServices.FirstOrDefault(item =>
                     item.InterfaceID == interfaceID
                 );
 
                 if (apiService == null)
                 {
-                    apiService = ModuleExtensions.ExecuteMetaSQLPoco<ApiService>(dataProvider, GlobalConfiguration.ApplicationID, $"HOA.{transactionID}.GD03", new
-                    {
-                        InterfaceID = interfaceID
-                    });
-
+                    apiService = openapiClient.GetApiService(interfaceID);
                     if (apiService == null)
                     {
                         logger.Warning("필수 요청 항목 확인 필요: " + JsonConvert.SerializeObject(new
@@ -146,16 +172,24 @@ namespace openapi.Areas.openapi.Controllers
                     }
                 }
 
+                switch (format)
+                {
+                    case "json":
+                    case "xml":
+                    case "soap":
+                    case "rss":
+                    case "atom":
+                        break;
+                    default:
+                        format = apiService.DefaultFormat;
+                        break;
+                }
+
                 AccessMemberApi? accessMemberApi = null;
                 var accessMemberApis = ModuleConfiguration.AccessMemberApis.GetValueOrDefault(apiService.APIServiceID);
                 if (accessMemberApis == null)
                 {
-                    accessMemberApi = ModuleExtensions.ExecuteMetaSQLPoco<AccessMemberApi>(dataProvider, GlobalConfiguration.ApplicationID, $"HOA.{transactionID}.GD05", new
-                    {
-                        APIServiceID = apiService.APIServiceID,
-                        AccessID = accessID
-                    });
-
+                    accessMemberApi = openapiClient.GetAccessMemberApi(apiService.APIServiceID, accessID);
                     if (accessMemberApi == null)
                     {
                         logger.Warning($"{ResponseApi.I20.ToEnumString()}: " + JsonConvert.SerializeObject(parameters));
@@ -176,12 +210,7 @@ namespace openapi.Areas.openapi.Controllers
 
                     if (accessMemberApi == null)
                     {
-                        accessMemberApi = ModuleExtensions.ExecuteMetaSQLPoco<AccessMemberApi>(dataProvider, GlobalConfiguration.ApplicationID, $"HOA.{transactionID}.GD05", new
-                        {
-                            APIServiceID = apiService.APIServiceID,
-                            AccessID = accessID
-                        });
-
+                        accessMemberApi = openapiClient.GetAccessMemberApi(apiService.APIServiceID, accessID);
                         if (accessMemberApi == null)
                         {
                             logger.Warning($"{ResponseApi.I20.ToEnumString()}: " + JsonConvert.SerializeObject(parameters));
@@ -195,17 +224,49 @@ namespace openapi.Areas.openapi.Controllers
                     }
                 }
 
+                string remoteClientIP = HttpContext.GetRemoteIpAddress().ToStringSafe();
+                if (apiService.IsLimitIPAddress == true && accessMemberApi.AllowIPAddress.Contains(remoteClientIP) == false)
+                {
+                    logger.Warning($"{ResponseApi.I42.ToEnumString()}: " + JsonConvert.SerializeObject(parameters));
+                    result = StatusCode(400, ResponseApi.I42.ToEnumString());
+                    return result;
+                }
+
+                if (apiService.AccessControl == "SecretKey" && accessMemberApi.SecretKey == secretKey)
+                {
+                    logger.Warning($"{ResponseApi.I41.ToEnumString()}: " + JsonConvert.SerializeObject(parameters));
+                    result = StatusCode(400, ResponseApi.I41.ToEnumString());
+                    return result;
+                }
+
+                if (accessMemberApi.LimitCallCount < accessMemberApi.RequestCallCount)
+                {
+                    logger.Warning($"{ResponseApi.I22.ToEnumString()}: " + JsonConvert.SerializeObject(parameters));
+                    result = StatusCode(400, ResponseApi.I22.ToEnumString());
+                    return result;
+                }
+
+                string cacheKey = $"{ModuleConfiguration.ModuleID}|{apiService.APIServiceID}|{requestUrl}";
+                if (apiService.CacheDuration > 0)
+                {
+                    ActionResult? actionResult = null;
+                    if (memoryCache.TryGetValue(cacheKey, out actionResult) == true)
+                    {
+                        if (actionResult != null)
+                        {
+                            UpdateUsageAPI(format, apiService, accessMemberApi);
+                            return actionResult;
+                        }
+                    }
+                }
+
                 var dataSource = ModuleConfiguration.ApiDataSource.FirstOrDefault(item =>
                     item.DataSourceID == apiService.DataSourceID
                 );
 
                 if (dataSource == null)
                 {
-                    dataSource = ModuleExtensions.ExecuteMetaSQLPoco<ApiDataSource>(dataProvider, GlobalConfiguration.ApplicationID, $"HOA.{transactionID}.GD04", new
-                    {
-                        DataSourceID = apiService.DataSourceID
-                    });
-
+                    dataSource = openapiClient.GetApiDataSource(apiService.DataSourceID);
                     if (dataSource == null)
                     {
                         logger.Warning($"{ResponseApi.I24.ToEnumString()}: " + JsonConvert.SerializeObject(parameters));
@@ -226,11 +287,7 @@ namespace openapi.Areas.openapi.Controllers
                 var apiParameters = ModuleConfiguration.ApiParameters.GetValueOrDefault(apiService.APIServiceID);
                 if (apiParameters == null)
                 {
-                    apiParameters = ModuleExtensions.ExecuteMetaSQLPocos<ApiParameter>(dataProvider, GlobalConfiguration.ApplicationID, $"HOA.{transactionID}.LD01", new
-                    {
-                        APIServiceID = apiService.APIServiceID
-                    });
-
+                    apiParameters = openapiClient.GetApiParameters(apiService.APIServiceID);
                     if (apiParameters == null)
                     {
                         logger.Warning($"{ResponseApi.E99.ToEnumString()}: " + JsonConvert.SerializeObject(parameters) + $", HOA.{transactionID}.LD01");
@@ -269,14 +326,14 @@ namespace openapi.Areas.openapi.Controllers
                     }
                 }
 
-                var executeResult = await openapiClient.ExecuteSQL(apiService, dataSource, accessMemberApi, apiParameters, parameters);
+                var executeResult = await openapiClient.ExecuteSQL(apiService.CommandText, dataSource, apiParameters, parameters);
                 if (string.IsNullOrEmpty(executeResult.Item1) == false)
                 {
                     result = StatusCode(400, executeResult.Item1);
                 }
                 else
                 {
-                    openapiClient.UpdateUsageAPIAggregate(apiService.APIServiceID, accessMemberApi.AccessID, format);
+                    UpdateUsageAPI(format, apiService, accessMemberApi);
 
                     using var dataSet = executeResult.Item2;
                     if (dataSet != null)
@@ -367,6 +424,27 @@ namespace openapi.Areas.openapi.Controllers
                                 }
                                 break;
                         }
+
+                        if (apiService.CacheDuration > 0)
+                        {
+                            if (memoryCache.Get(cacheKey) == null)
+                            {
+                                ModuleConfiguration.CacheKeys.Add(cacheKey);
+
+                                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                                    .SetAbsoluteExpiration(TimeSpan.FromSeconds(apiService.CacheDuration))
+                                    .RegisterPostEvictionCallback((key, value, reason, state) =>
+                                    {
+                                        ModuleConfiguration.CacheKeys.Remove(key.ToStringSafe());
+                                    });
+
+                                memoryCache.Set(cacheKey, result, cacheEntryOptions);
+                            }
+                            else
+                            {
+                                ModuleConfiguration.CacheKeys.Remove(cacheKey);
+                            }
+                        }
                     }
                 }
             }
@@ -374,6 +452,27 @@ namespace openapi.Areas.openapi.Controllers
             {
                 result = StatusCode(500, "99: UNKNOWN_ERROR, 기타 에러");
                 logger.Error(exception, "[{LogCategory}] " + $"parameters: {JsonConvert.SerializeObject(parameters)}", "ExecutionController/Main");
+            }
+
+            return result;
+        }
+
+        private void UpdateUsageAPI(string format, ApiService apiService, AccessMemberApi accessMemberApi)
+        {
+            accessMemberApi.RequestCallCount = accessMemberApi.RequestCallCount + 1;
+            accessMemberApi.CumulativeCallCount = accessMemberApi.CumulativeCallCount + 1;
+            openapiClient.UsageAPIAggregate(apiService.APIServiceID, accessMemberApi.AccessID, format);
+        }
+
+        private List<string> GetMemoryCacheKeys(string apiServiceID)
+        {
+            List<string> result = new List<string>();
+            foreach (var cacheKey in ModuleConfiguration.CacheKeys)
+            {
+                if (cacheKey.StartsWith($"{ModuleConfiguration.ModuleID}|{apiServiceID}|") == true)
+                {
+                    result.Add(cacheKey);
+                }
             }
 
             return result;
