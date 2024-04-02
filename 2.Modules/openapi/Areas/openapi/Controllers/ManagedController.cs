@@ -126,7 +126,7 @@ namespace openapi.Areas.openapi.Controllers
                     }
 
                     var apiParameters = ModuleConfiguration.ApiParameters.GetValueOrDefault(apiServiceID);
-                    if (apiParameters == null)
+                    if (apiParameters != null)
                     {
                         ModuleConfiguration.ApiParameters.Remove(apiServiceID);
                     }

@@ -282,14 +282,10 @@ namespace openapi.Areas.openapi.Controllers
                     apiParameters = openapiClient.GetApiParameters(apiService.APIServiceID);
                     if (apiParameters == null)
                     {
-                        logger.Warning($"{ResponseApi.E99.ToEnumString()}: " + JsonConvert.SerializeObject(parameters) + $", HOA.{transactionID}.LD01");
-                        result = StatusCode(500, ResponseApi.E99.ToEnumString() + $", HOA.{transactionID}.LD01");
-                        return result;
+                        apiParameters = new List<ApiParameter>();
                     }
-                    else
-                    {
-                        ModuleConfiguration.ApiParameters.Add(apiService.APIServiceID, apiParameters);
-                    }
+
+                    ModuleConfiguration.ApiParameters.Add(apiService.APIServiceID, apiParameters);
                 }
 
                 foreach (var apiParameter in apiParameters)

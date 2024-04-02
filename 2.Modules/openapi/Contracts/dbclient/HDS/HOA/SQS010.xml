@@ -395,22 +395,14 @@ WHERE A.UseYN = 'Y'
 
         <statement id="LD01" seq="0" use="Y" timeout="0" desc="API Service Parameter 목록 조회">
             <![CDATA[
-SELECT * FROM (
-    SELECT AP.ParameterID
-        , AP.ParameterType
-        , AP.Length
-        , AP.DefaultValue
-        , AP.RequiredYN
-    FROM 
-        APIParameter AP
-    WHERE AP.APIServiceID = @APIServiceID
-    UNION
-    SELECT 'DefaultParameter' AS ParameterID
-        , 'String' AS ParameterType
-        , '50' AS Length
-        , '' AS DefaultValue
-        , 'N' AS RequiredYN
-) A;
+SELECT AP.ParameterID
+    , AP.ParameterType
+    , AP.Length
+    , AP.DefaultValue
+    , AP.RequiredYN
+FROM 
+    APIParameter AP
+WHERE AP.APIServiceID = @APIServiceID;
 			]]>
             <param id="@APIServiceID" type="String" length="36" value="" />
         </statement>
@@ -478,7 +470,9 @@ WHERE APIServiceID = @APIServiceID
 
         <statement id="UD01" seq="0" use="Y" timeout="0" desc="기간 내 호출 수 제한 조건 일일 자동 갱신">
             <![CDATA[
-UPDATE AccessMemberAPI SET RequestCallCount = AMA.RequestCallCount
+UPDATE AccessMemberAPI SET LimitCallCount = A.LimitCallCount
+	, LimitPeriod = A.LimitPeriod
+	, RequestCallCount = 0
 FROM APIService A
 	INNER JOIN AccessMemberAPI AMA ON A.UseYN = 'Y'
 		AND A.DeleteYN = 'N'
