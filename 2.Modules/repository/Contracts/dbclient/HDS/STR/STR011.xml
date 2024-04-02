@@ -118,7 +118,7 @@ DELETE FROM RepositoryFile WHERE RepositoryID = @RepositoryID AND ItemID = @Item
 
         <statement id="MD01" seq="0" use="Y" timeout="0" desc="파일 정보 입력 또는 변경" native="Y">
             <![CDATA[
-MERGE RepositoryFile AS T
+MERGE INTO RepositoryFile AS T
 USING (
     SELECT @ItemID, @RepositoryID
     ) AS S(ItemID, RepositoryID)

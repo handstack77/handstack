@@ -53,6 +53,10 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
 GO
 
 
+CREATE INDEX [IX_AccessMemberAPI_APIServiceID_MemberNo] ON [AccessMemberAPI] ([APIServiceID], [MemberNo]);
+GO
+
+
 CREATE TABLE [APIParameter] (
     [APIServiceID] nvarchar(36) NOT NULL,
     [ParameterID] nvarchar(50) NOT NULL,
@@ -84,30 +88,6 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
 GO
 
 
-CREATE TABLE [APIResponseScheme] (
-    [APIServiceID] nvarchar(36) NOT NULL,
-    [ColumnID] nvarchar(50) NOT NULL,
-    [ColumnType] nvarchar(30) NULL,
-    [ColumnText] nvarchar(50) NULL,
-    [Comment] nvarchar(1000) NULL,
-    CONSTRAINT [PK_APIResponseScheme] PRIMARY KEY ([APIServiceID], [ColumnID])
-);
-DECLARE @defaultSchema AS sysname;
-SET @defaultSchema = SCHEMA_NAME();
-DECLARE @description AS sql_variant;
-SET @description = N'API 서비스 ID';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'APIResponseScheme', 'COLUMN', N'APIServiceID';
-SET @description = N'컬럼 ID';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'APIResponseScheme', 'COLUMN', N'ColumnID';
-SET @description = N'컬럼 데이터 타입';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'APIResponseScheme', 'COLUMN', N'ColumnType';
-SET @description = N'컬럼명';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'APIResponseScheme', 'COLUMN', N'ColumnText';
-SET @description = N'설명';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'APIResponseScheme', 'COLUMN', N'Comment';
-GO
-
-
 CREATE TABLE [APIService] (
     [APIServiceID] nvarchar(36) NOT NULL,
     [InterfaceID] nvarchar(50) NOT NULL,
@@ -115,6 +95,7 @@ CREATE TABLE [APIService] (
     [DataSourceID] nvarchar(10) NULL,
     [CommandText] nvarchar(max) NULL,
     [Descriptions] nvarchar(2000) NULL,
+    [DefaultFormat] nvarchar(10) NULL,
     [FormatJsonYN] nvarchar(1) NULL,
     [FormatXmlYN] nvarchar(1) NULL,
     [FormatSoapYN] nvarchar(1) NULL,
@@ -146,6 +127,8 @@ SET @description = N'명령 구문';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'APIService', 'COLUMN', N'CommandText';
 SET @description = N'HTML 내용으로 API 서비스 설명';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'APIService', 'COLUMN', N'Descriptions';
+SET @description = N'기본 데이터 포맷';
+EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'APIService', 'COLUMN', N'DefaultFormat';
 SET @description = N'Format을 지정하지 않으면 기본값 (Y)으로 적용';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'APIService', 'COLUMN', N'FormatJsonYN';
 SET @description = N'Xml 지원 유무';
@@ -199,33 +182,6 @@ SET @description = N'설명';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'DataSource', 'COLUMN', N'Comment';
 SET @description = N'입력일시';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'DataSource', 'COLUMN', N'CreatedAt';
-GO
-
-
-CREATE TABLE [EventLog] (
-    [LogNo] bigint NOT NULL IDENTITY,
-    [Category] nvarchar(30) NULL,
-    [Code] nvarchar(10) NULL,
-    [Message] nvarchar(2000) NULL,
-    [Options] nvarchar(4000) NULL,
-    [CreatedAt] datetime2(0) NULL,
-    CONSTRAINT [PK_EventLog] PRIMARY KEY ([LogNo])
-);
-DECLARE @defaultSchema AS sysname;
-SET @defaultSchema = SCHEMA_NAME();
-DECLARE @description AS sql_variant;
-SET @description = N'로그 NO';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'EventLog', 'COLUMN', N'LogNo';
-SET @description = N'분류';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'EventLog', 'COLUMN', N'Category';
-SET @description = N'코드';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'EventLog', 'COLUMN', N'Code';
-SET @description = N'메시지';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'EventLog', 'COLUMN', N'Message';
-SET @description = N'옵션';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'EventLog', 'COLUMN', N'Options';
-SET @description = N'입력일시';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'EventLog', 'COLUMN', N'CreatedAt';
 GO
 
 
@@ -313,46 +269,44 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
 GO
 
 
-CREATE TABLE [UsageAPIStatistics] (
-    [RequestYear] nvarchar(50) NOT NULL,
-    [RequestMonth] nvarchar(50) NOT NULL,
-    [RequestDay] nvarchar(50) NOT NULL,
-    [RequestHour] nvarchar(50) NOT NULL,
-    [AccessID] nvarchar(50) NOT NULL,
-    [Format] nvarchar(50) NULL,
-    [CumulativeCallCount] nvarchar(50) NULL,
-    [ModifiedAt] nvarchar(50) NULL,
-    CONSTRAINT [PK_UsageAPIStatistics] PRIMARY KEY ([RequestYear], [RequestMonth], [RequestDay], [RequestHour], [AccessID])
+CREATE INDEX [IX_Member_EmailID] ON [Member] ([EmailID]);
+GO
+
+
+CREATE TABLE [UsageAPIAggregate] (
+    [RequestYear] int NOT NULL,
+    [RequestMonth] int NOT NULL,
+    [RequestDay] int NOT NULL,
+    [RequestHour] int NOT NULL,
+    [APIServiceID] nvarchar(36) NOT NULL,
+    [AccessID] nvarchar(36) NOT NULL,
+    [Format] nvarchar(10) NULL,
+    [CumulativeCallCount] bigint NULL,
+    [ModifiedAt] datetime2(0) NULL,
+    CONSTRAINT [PK_UsageAPIAggregate] PRIMARY KEY ([RequestYear], [RequestMonth], [RequestDay], [RequestHour], [APIServiceID], [AccessID])
 );
 DECLARE @defaultSchema AS sysname;
 SET @defaultSchema = SCHEMA_NAME();
 DECLARE @description AS sql_variant;
 SET @description = N'요청 년도';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'UsageAPIStatistics', 'COLUMN', N'RequestYear';
+EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'UsageAPIAggregate', 'COLUMN', N'RequestYear';
 SET @description = N'요청 월';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'UsageAPIStatistics', 'COLUMN', N'RequestMonth';
+EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'UsageAPIAggregate', 'COLUMN', N'RequestMonth';
 SET @description = N'요청 일';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'UsageAPIStatistics', 'COLUMN', N'RequestDay';
+EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'UsageAPIAggregate', 'COLUMN', N'RequestDay';
 SET @description = N'요청 시간';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'UsageAPIStatistics', 'COLUMN', N'RequestHour';
+EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'UsageAPIAggregate', 'COLUMN', N'RequestHour';
+SET @description = N'API 서비스 ID';
+EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'UsageAPIAggregate', 'COLUMN', N'APIServiceID';
 SET @description = N'API 접근 ID';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'UsageAPIStatistics', 'COLUMN', N'AccessID';
+EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'UsageAPIAggregate', 'COLUMN', N'AccessID';
 SET @description = N'APIService Format중 Json, Xml, Soap, Rss, Atom 하나';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'UsageAPIStatistics', 'COLUMN', N'Format';
+EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'UsageAPIAggregate', 'COLUMN', N'Format';
 SET @description = N'전체 요청 횟수';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'UsageAPIStatistics', 'COLUMN', N'CumulativeCallCount';
+EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'UsageAPIAggregate', 'COLUMN', N'CumulativeCallCount';
 SET @description = N'최근 요청 일시';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'UsageAPIStatistics', 'COLUMN', N'ModifiedAt';
+EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'UsageAPIAggregate', 'COLUMN', N'ModifiedAt';
 GO
-
-
-CREATE INDEX [IX_AccessMemberAPI_APIServiceID_MemberNo] ON [AccessMemberAPI] ([APIServiceID], [MemberNo]);
-GO
-
-
-CREATE INDEX [IX_Member_EmailID] ON [Member] ([EmailID]);
-GO
-
 
 
 			]]>
@@ -379,6 +333,7 @@ SELECT A.APIServiceID
     , A.DataSourceID
     , A.CommandText
     , A.Descriptions
+    , A.DefaultFormat
     , A.FormatJsonYN
     , A.FormatXmlYN
     , A.FormatSoapYN
@@ -452,6 +407,64 @@ SELECT * FROM (
 ) A;
 			]]>
             <param id="@APIServiceID" type="String" length="36" value="" />
+        </statement>
+
+        <statement id="MD01" seq="0" use="Y" timeout="0" desc="API 사용 통계 갱신">
+            <![CDATA[
+DECLARE @CurrentDate DATETIME;
+SET @CurrentDate = GETDATE();
+
+DECLARE @RequestYear INT, @RequestMonth INT, @RequestDay INT, @RequestHour INT;
+
+SET @RequestYear = YEAR(@CurrentDate);
+SET @RequestMonth = MONTH(@CurrentDate);
+SET @RequestDay = DAY(@CurrentDate);
+SET @RequestHour = DATEPART(HOUR, @CurrentDate);
+
+MERGE INTO UsageAPIAggregate AS T
+USING (
+    SELECT @RequestYear, @RequestMonth, @RequestDay, @RequestHour, @APIServiceID, @AccessID, @Format
+    ) AS S(RequestYear, RequestMonth, RequestDay, RequestHour, APIServiceID, AccessID, [Format])
+    ON S.RequestYear = T.RequestYear
+        AND S.RequestMonth = T.RequestMonth
+        AND S.RequestDay = T.RequestDay
+        AND S.RequestHour = T.RequestHour
+        AND S.AccessID = T.AccessID
+WHEN NOT MATCHED
+    THEN
+    INSERT (RequestYear
+		, RequestMonth
+		, RequestDay
+		, RequestHour
+		, APIServiceID
+		, AccessID
+		, [Format]
+		, CumulativeCallCount
+		, ModifiedAt
+	) 
+	VALUES (@RequestYear
+		, @RequestMonth
+		, @RequestDay
+		, @RequestHour
+		, @APIServiceID
+		, @AccessID
+		, @Format
+		, 1
+		, GETDATE()
+	)
+WHEN MATCHED
+    THEN
+    UPDATE SET CumulativeCallCount = (CumulativeCallCount + 1)
+		, ModifiedAt = GETDATE();
+        
+UPDATE APIService SET CumulativeCallCount = (CumulativeCallCount + 1) WHERE APIServiceID = @APIServiceID;
+
+UPDATE AccessMemberAPI SET CumulativeCallCount = (CumulativeCallCount + 1) WHERE APIServiceID = @APIServiceID
+	AND AccessID = @AccessID;
+			]]>
+            <param id="@APIServiceID" type="String" length="36" value="" />
+            <param id="@AccessID" type="String" length="36" value="" />
+            <param id="@Format" type="String" length="10" value="" />
         </statement>
     </commands>
 </mapper>

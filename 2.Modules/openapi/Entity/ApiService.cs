@@ -19,6 +19,9 @@ namespace openapi.Entity
         [JsonProperty("CommandText")]
         public string CommandText { get; set; } = string.Empty;
 
+        [JsonProperty("DefaultFormat")]
+        public string DefaultFormat { get; set; } = string.Empty;
+
         [JsonProperty("FormatJsonYN")]
         public bool FormatJsonYN { get; set; } = false;
 

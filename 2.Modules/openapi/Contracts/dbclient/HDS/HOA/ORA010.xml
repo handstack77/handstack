@@ -390,7 +390,7 @@ COMMENT ON COLUMN "Member"."ModifiedAt" is N'수정일시'/
 
 BEGIN 
 EXECUTE IMMEDIATE 'CREATE TABLE 
-"UsageAPIStatistics" (
+"UsageAPIAggregate" (
     "RequestYear" NVARCHAR2(50) NOT NULL,
     "RequestMonth" NVARCHAR2(50) NOT NULL,
     "RequestDay" NVARCHAR2(50) NOT NULL,
@@ -399,33 +399,33 @@ EXECUTE IMMEDIATE 'CREATE TABLE
     "Format" NVARCHAR2(50),
     "CumulativeCallCount" NVARCHAR2(50),
     "ModifiedAt" NVARCHAR2(50),
-    CONSTRAINT "PK_UsageAPIStatistics" PRIMARY KEY ("RequestYear", "RequestMonth", "RequestDay", "RequestHour", "AccessID")
+    CONSTRAINT "PK_UsageAPIAggregate" PRIMARY KEY ("RequestYear", "RequestMonth", "RequestDay", "RequestHour", "AccessID")
 )';
 END;/
 
 
-COMMENT ON COLUMN "UsageAPIStatistics"."RequestYear" is N'요청 년도'/
+COMMENT ON COLUMN "UsageAPIAggregate"."RequestYear" is N'요청 년도'/
 
 
-COMMENT ON COLUMN "UsageAPIStatistics"."RequestMonth" is N'요청 월'/
+COMMENT ON COLUMN "UsageAPIAggregate"."RequestMonth" is N'요청 월'/
 
 
-COMMENT ON COLUMN "UsageAPIStatistics"."RequestDay" is N'요청 일'/
+COMMENT ON COLUMN "UsageAPIAggregate"."RequestDay" is N'요청 일'/
 
 
-COMMENT ON COLUMN "UsageAPIStatistics"."RequestHour" is N'요청 시간'/
+COMMENT ON COLUMN "UsageAPIAggregate"."RequestHour" is N'요청 시간'/
 
 
-COMMENT ON COLUMN "UsageAPIStatistics"."AccessID" is N'API 접근 ID'/
+COMMENT ON COLUMN "UsageAPIAggregate"."AccessID" is N'API 접근 ID'/
 
 
-COMMENT ON COLUMN "UsageAPIStatistics"."Format" is N'APIService Format중 Json, Xml, Soap, Rss, Atom 하나'/
+COMMENT ON COLUMN "UsageAPIAggregate"."Format" is N'APIService Format중 Json, Xml, Soap, Rss, Atom 하나'/
 
 
-COMMENT ON COLUMN "UsageAPIStatistics"."CumulativeCallCount" is N'전체 요청 횟수'/
+COMMENT ON COLUMN "UsageAPIAggregate"."CumulativeCallCount" is N'전체 요청 횟수'/
 
 
-COMMENT ON COLUMN "UsageAPIStatistics"."ModifiedAt" is N'최근 요청 일시'/
+COMMENT ON COLUMN "UsageAPIAggregate"."ModifiedAt" is N'최근 요청 일시'/
 
 
 CREATE INDEX "IX_AccessMemberAPI_APIServiceID_MemberNo" ON "AccessMemberAPI" ("APIServiceID", "MemberNo")/

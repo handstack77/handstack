@@ -10,5 +10,7 @@ namespace openapi.Encapsulation
     public interface IOpenAPIClient
     {
         Task<Tuple<string, DataSet?>> ExecuteSQL(ApiService apiService, ApiDataSource apiDataSource, AccessMemberApi accessMemberApi, List<ApiParameter> apiParameters, Dictionary<string, object?> parameters);
+
+        void UpdateUsageAPIAggregate(string apiServiceID, string accessID, string format);
     }
 }

@@ -275,7 +275,7 @@ CREATE TABLE "Member" (
 );
 
 
-CREATE TABLE "UsageAPIStatistics" (
+CREATE TABLE "UsageAPIAggregate" (
     -- 요청 년도
     "RequestYear" TEXT NOT NULL,
 
@@ -299,7 +299,7 @@ CREATE TABLE "UsageAPIStatistics" (
 
     -- 최근 요청 일시
     "ModifiedAt" TEXT NULL,
-    CONSTRAINT "PK_UsageAPIStatistics" PRIMARY KEY ("RequestYear", "RequestMonth", "RequestDay", "RequestHour", "AccessID")
+    CONSTRAINT "PK_UsageAPIAggregate" PRIMARY KEY ("RequestYear", "RequestMonth", "RequestDay", "RequestHour", "AccessID")
 );
 
 

@@ -10,6 +10,8 @@ using Dapper;
 using HandStack.Core.ExtensionMethod;
 using HandStack.Core.Helpers;
 using HandStack.Data;
+using HandStack.Data.Enumeration;
+using HandStack.Web;
 using HandStack.Web.ApiClient;
 using HandStack.Web.Enumeration;
 
@@ -17,6 +19,7 @@ using Newtonsoft.Json.Linq;
 
 using openapi.Encapsulation;
 using openapi.Entity;
+using openapi.Enumeration;
 using openapi.Extensions;
 
 using Serilog;
@@ -31,11 +34,14 @@ namespace openapi.DataClient
 
         private TransactionClient businessApiClient { get; }
 
+        private DataProviders dataProvider { get; }
+
         public OpenAPIClient(ILogger logger, TransactionClient businessApiClient, OpenApiLoggerClient loggerClient)
         {
             this.logger = logger;
             this.businessApiClient = businessApiClient;
             this.loggerClient = loggerClient;
+            this.dataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), ModuleConfiguration.ModuleDataSource.DataProvider);
         }
 
         public async Task<Tuple<string, DataSet?>> ExecuteSQL(ApiService apiService, ApiDataSource apiDataSource, AccessMemberApi accessMemberApi, List<ApiParameter> apiParameters, Dictionary<string, object?> parameters)
@@ -46,13 +52,13 @@ namespace openapi.DataClient
             try
             {
                 /*
-// openapiClient 내 ExecuteMetaSQL 코드 사용
-using var dsApiService = ModuleExtensions.ExecuteMetaSQL(ReturnType.DataSet, dataProvider, GlobalConfiguration.ApplicationID, $"HOA.{transactionID}.GD03", parameters) as DataSet;
-if (dsApiService != null && dsApiService.Tables.Count > 0 && dsApiService.Tables[0].Rows.Count > 0)
-{
+                // openapiClient 내 ExecuteMetaSQL 코드 사용
+                using var dsApiService = ModuleExtensions.ExecuteMetaSQL(ReturnType.DataSet, dataProvider, GlobalConfiguration.ApplicationID, $"HOA.{transactionID}.GD03", parameters) as DataSet;
+                if (dsApiService != null && dsApiService.Tables.Count > 0 && dsApiService.Tables[0].Rows.Count > 0)
+                {
 
-}
-*/
+                }
+                */
                 var databaseProvider = (DataProviders)Enum.Parse(typeof(DataProviders), apiDataSource.DataProvider);
                 string parseSQL = DatabaseMapper.Find(apiService.CommandText, parameters);
                 var dynamicParameters = new DynamicParameters();
@@ -63,16 +69,6 @@ if (dsApiService != null && dsApiService.Tables.Count > 0 && dsApiService.Tables
                 {
                     using (IDataReader dataReader = await connectionFactory.Connection.ExecuteReaderAsync(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters))
                     {
-
-                        if (ModuleConfiguration.IsTransactionLogging == true)
-                        {
-                            // string logData = $"SQLID: {SQLID}, ExecuteSQL: \n\n{profiler.ExecuteSQL}";
-                            // loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteCodeHelpSQLMap", (string error) =>
-                            // {
-                            //     logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteCodeHelpSQLMap");
-                            // });
-                        }
-
                         using DataSet? ds = DataTableHelper.DataReaderToDataSet(dataReader);
                         {
                             if (ds == null || ds.Tables.Count == 0)
@@ -88,12 +84,8 @@ if (dsApiService != null && dsApiService.Tables.Count > 0 && dsApiService.Tables
             }
             catch (Exception exception)
             {
+                logger.Error("[{LogCategory}] " + exception.Message, "OpenAPIClient/ExecuteSQL");
                 result = new Tuple<string, DataSet?>($"{ResponseApi.E12.ToEnumString()}, {exception.Message}", null);
-                // string logData = $"SQLID: {SQLID}, ExceptionText: {response.ExceptionText}, ExecuteSQL: \n\n{profiler.ExecuteSQL}";
-                // loggerClient.TransactionMessageLogging(request.GlobalID, "N", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteCodeHelpSQLMap", (string error) =>
-                // {
-                //     logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteCodeHelpSQLMap");
-                // });
             }
             finally
             {
@@ -110,20 +102,28 @@ if (dsApiService != null && dsApiService.Tables.Count > 0 && dsApiService.Tables
 TransactionException:
             if (string.IsNullOrEmpty(result.Item1) == false)
             {
-                if (ModuleConfiguration.IsLogServer == true)
-                {
-                    // loggerClient.ProgramMessageLogging(request.GlobalID, "N", GlobalConfiguration.ApplicationID, response.ExceptionText, "QueryDataClient/ExecuteCodeHelpSQLMap", (string error) =>
-                    // {
-                    //     logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + response.ExceptionText, "QueryDataClient/ExecuteCodeHelpSQLMap");
-                    // });
-                }
-                else
-                {
-                    // logger.Error("[{LogCategory}] [{GlobalID}] " + response.ExceptionText, "QueryDataClient/ExecuteCodeHelpSQLMap", request.GlobalID);
-                }
+                logger.Error("[{LogCategory}] " + result.Item1, "OpenAPIClient/ExecuteSQL");
             }
 
             return result;
+        }
+
+        public void UpdateUsageAPIAggregate(string apiServiceID, string accessID, string format)
+        {
+            try
+            {
+                string transactionID = dataProvider.ToEnumString();
+                ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, dataProvider, GlobalConfiguration.ApplicationID, $"HOA.{transactionID}.MD01", new
+                {
+                    APIServiceID = apiServiceID,
+                    AccessID = accessID,
+                    Format = format
+                });
+            }
+            catch (Exception exception)
+            {
+                logger.Error("[{LogCategory}] " + exception.Message, "OpenAPIClient/UpdateUsageAPIAggregate");
+            }
         }
 
         private string GetProviderDbType(DataColumn column, DataProviders? databaseProvider = null)
@@ -461,6 +461,31 @@ TransactionException:
                     apiParameter.Length <= 0 ? -1 : apiParameter.Length
                 );
             }
+        }
+
+        private string GetModuleTransactionID()
+        {
+            string result = string.Empty;
+            switch (dataProvider)
+            {
+                case DataProviders.SqlServer:
+                    result = "SQS010";
+                    break;
+                case DataProviders.Oracle:
+                    result = "ORA010";
+                    break;
+                case DataProviders.MySQL:
+                    result = "MYS010";
+                    break;
+                case DataProviders.PostgreSQL:
+                    result = "PGS010";
+                    break;
+                case DataProviders.SQLite:
+                    result = "SLT010";
+                    break;
+            }
+
+            return result;
         }
 
         private void CloseDatabaseFactory(DatabaseFactory? databaseFactory, bool isTransaction)

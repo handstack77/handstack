@@ -207,7 +207,7 @@ COMMENT ON COLUMN "Member"."ModifiedMemberNo" IS '수정회원NO';
 COMMENT ON COLUMN "Member"."ModifiedAt" IS '수정일시';
 
 
-CREATE TABLE "UsageAPIStatistics" (
+CREATE TABLE "UsageAPIAggregate" (
     "RequestYear" character varying(50) NOT NULL,
     "RequestMonth" character varying(50) NOT NULL,
     "RequestDay" character varying(50) NOT NULL,
@@ -216,16 +216,16 @@ CREATE TABLE "UsageAPIStatistics" (
     "Format" character varying(50),
     "CumulativeCallCount" character varying(50),
     "ModifiedAt" character varying(50),
-    CONSTRAINT "PK_UsageAPIStatistics" PRIMARY KEY ("RequestYear", "RequestMonth", "RequestDay", "RequestHour", "AccessID")
+    CONSTRAINT "PK_UsageAPIAggregate" PRIMARY KEY ("RequestYear", "RequestMonth", "RequestDay", "RequestHour", "AccessID")
 );
-COMMENT ON COLUMN "UsageAPIStatistics"."RequestYear" IS '요청 년도';
-COMMENT ON COLUMN "UsageAPIStatistics"."RequestMonth" IS '요청 월';
-COMMENT ON COLUMN "UsageAPIStatistics"."RequestDay" IS '요청 일';
-COMMENT ON COLUMN "UsageAPIStatistics"."RequestHour" IS '요청 시간';
-COMMENT ON COLUMN "UsageAPIStatistics"."AccessID" IS 'API 접근 ID';
-COMMENT ON COLUMN "UsageAPIStatistics"."Format" IS 'APIService Format중 Json, Xml, Soap, Rss, Atom 하나';
-COMMENT ON COLUMN "UsageAPIStatistics"."CumulativeCallCount" IS '전체 요청 횟수';
-COMMENT ON COLUMN "UsageAPIStatistics"."ModifiedAt" IS '최근 요청 일시';
+COMMENT ON COLUMN "UsageAPIAggregate"."RequestYear" IS '요청 년도';
+COMMENT ON COLUMN "UsageAPIAggregate"."RequestMonth" IS '요청 월';
+COMMENT ON COLUMN "UsageAPIAggregate"."RequestDay" IS '요청 일';
+COMMENT ON COLUMN "UsageAPIAggregate"."RequestHour" IS '요청 시간';
+COMMENT ON COLUMN "UsageAPIAggregate"."AccessID" IS 'API 접근 ID';
+COMMENT ON COLUMN "UsageAPIAggregate"."Format" IS 'APIService Format중 Json, Xml, Soap, Rss, Atom 하나';
+COMMENT ON COLUMN "UsageAPIAggregate"."CumulativeCallCount" IS '전체 요청 횟수';
+COMMENT ON COLUMN "UsageAPIAggregate"."ModifiedAt" IS '최근 요청 일시';
 
 
 CREATE INDEX "IX_AccessMemberAPI_APIServiceID_MemberNo" ON "AccessMemberAPI" ("APIServiceID", "MemberNo");

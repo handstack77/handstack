@@ -130,7 +130,7 @@ CREATE TABLE `Member` (
 ) CHARACTER SET=utf8mb4;
 
 
-CREATE TABLE `UsageAPIStatistics` (
+CREATE TABLE `UsageAPIAggregate` (
     `RequestYear` varchar(50) CHARACTER SET utf8mb4 NOT NULL COMMENT '요청 년도',
     `RequestMonth` varchar(50) CHARACTER SET utf8mb4 NOT NULL COMMENT '요청 월',
     `RequestDay` varchar(50) CHARACTER SET utf8mb4 NOT NULL COMMENT '요청 일',
@@ -139,7 +139,7 @@ CREATE TABLE `UsageAPIStatistics` (
     `Format` varchar(50) CHARACTER SET utf8mb4 NULL COMMENT 'APIService Format중 Json, Xml, Soap, Rss, Atom 하나',
     `CumulativeCallCount` varchar(50) CHARACTER SET utf8mb4 NULL COMMENT '전체 요청 횟수',
     `ModifiedAt` varchar(50) CHARACTER SET utf8mb4 NULL COMMENT '최근 요청 일시',
-    CONSTRAINT `PK_UsageAPIStatistics` PRIMARY KEY (`RequestYear`, `RequestMonth`, `RequestDay`, `RequestHour`, `AccessID`)
+    CONSTRAINT `PK_UsageAPIAggregate` PRIMARY KEY (`RequestYear`, `RequestMonth`, `RequestDay`, `RequestHour`, `AccessID`)
 ) CHARACTER SET=utf8mb4;
 
 

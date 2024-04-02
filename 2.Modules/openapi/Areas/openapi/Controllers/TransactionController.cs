@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlTypes;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Soap;
@@ -20,12 +19,11 @@ using HandStack.Web.Extensions;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
-using MySqlX.XDevAPI.Common;
-
 using Newtonsoft.Json;
 
 using openapi.Encapsulation;
 using openapi.Entity;
+using openapi.Enumeration;
 using openapi.Extensions;
 
 
@@ -34,24 +32,27 @@ using Serilog;
 namespace openapi.Areas.openapi.Controllers
 {
     [Area("openapi")]
-    [Route("[area]/api/[controller]")]
+    [Route("[area]")]
     [ApiController]
     [EnableCors]
-    public class ExecutionController : ControllerBase
+    public class TransactionController : ControllerBase
     {
         private ILogger logger { get; }
 
         private IOpenAPIClient openapiClient { get; }
 
-        public ExecutionController(ILogger logger, IOpenAPIClient openapiClient)
+        private DataProviders dataProvider { get; }
+
+        public TransactionController(ILogger logger, IOpenAPIClient openapiClient)
         {
             this.logger = logger;
             this.openapiClient = openapiClient;
+            this.dataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), ModuleConfiguration.ModuleDataSource.DataProvider);
         }
 
-        // http://localhost:8000/openapi/api/execution/handsup-codes?AccessID=c48972d403cf4c3485d2625a892d135d&GroupCode=SYS000&CategoryID=
+        // http://localhost:8000/openapi/handsup-codes?AccessID=c48972d403cf4c3485d2625a892d135d&GroupCode=SYS000&CategoryID=
         [HttpGet("{interfaceID}")]
-        public async Task<ActionResult> Main(string interfaceID)
+        public async Task<ActionResult> Execute(string interfaceID)
         {
             ActionResult result = StatusCode(400, ResponseApi.I20.ToEnumString());
 
@@ -79,25 +80,23 @@ namespace openapi.Areas.openapi.Controllers
                     return result;
                 }
 
-                var dataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), ModuleConfiguration.ModuleDataSource.DataProvider);
-                string transactionID = string.Empty;
-                switch (dataProvider)
+                string transactionID = dataProvider.ToEnumString();
+                var format = parameters.ContainsKey("Format") == true ? parameters["Format"].ToStringSafe().ToLower() : "json";
+                switch (format)
                 {
-                    case DataProviders.SqlServer:
-                        transactionID = "SQS010";
+                    case "json":
+                    case "xml":
+                    case "soap":
+                    case "rss":
+                    case "atom":
                         break;
-                    case DataProviders.Oracle:
-                        transactionID = "ORA010";
-                        break;
-                    case DataProviders.MySQL:
-                        transactionID = "MYS010";
-                        break;
-                    case DataProviders.PostgreSQL:
-                        transactionID = "PGS010";
-                        break;
-                    case DataProviders.SQLite:
-                        transactionID = "SLT010";
-                        break;
+                    default:
+                        logger.Warning("필수 요청 항목 확인 필요: " + JsonConvert.SerializeObject(new
+                        {
+                            InterfaceID = interfaceID,
+                            AccessID = accessID
+                        }));
+                        return result;
                 }
 
                 var apiService = ModuleConfiguration.ApiServices.FirstOrDefault(item =>
@@ -124,28 +123,27 @@ namespace openapi.Areas.openapi.Controllers
                     {
                         if (apiService.FormatJsonYN == false && apiService.FormatXmlYN == false && apiService.FormatSoapYN == false && apiService.FormatRssYN == false && apiService.FormatAtomYN == false)
                         {
-                            apiService.FormatJsonYN = true;
+                            switch (format)
+                            {
+                                case "json":
+                                    apiService.FormatJsonYN = true;
+                                    break;
+                                case "xml":
+                                    apiService.FormatXmlYN = true;
+                                    break;
+                                case "soap":
+                                    apiService.FormatSoapYN = true;
+                                    break;
+                                case "rss":
+                                    apiService.FormatRssYN = true;
+                                    break;
+                                case "atom":
+                                    apiService.FormatAtomYN = true;
+                                    break;
+                            }
                         }
                         ModuleConfiguration.ApiServices.Add(apiService);
                     }
-                }
-
-                var format = parameters.ContainsKey("Format") == true ? parameters["Format"].ToStringSafe().ToLower() : "json";
-                switch (format)
-                {
-                    case "json":
-                    case "xml":
-                    case "soap":
-                    case "rss":
-                    case "atom":
-                        break;
-                    default:
-                        logger.Warning("필수 요청 항목 확인 필요: " + JsonConvert.SerializeObject(new
-                        {
-                            InterfaceID = interfaceID,
-                            AccessID = accessID
-                        }));
-                        return result;
                 }
 
                 AccessMemberApi? accessMemberApi = null;
@@ -278,11 +276,10 @@ namespace openapi.Areas.openapi.Controllers
                 }
                 else
                 {
+                    openapiClient.UpdateUsageAPIAggregate(apiService.APIServiceID, accessMemberApi.AccessID, format);
+
                     using var dataSet = executeResult.Item2;
-                    if (dataSet == null)
-                    {
-                    }
-                    else
+                    if (dataSet != null)
                     {
                         dataSet.DataSetName = "dataSet";
                         StringBuilder sb = new StringBuilder(256);
@@ -346,7 +343,7 @@ namespace openapi.Areas.openapi.Controllers
                                 {
                                     rssFeed.SaveAsRss20(xmlWriter);
                                     xmlWriter.Flush();
-                                    result = File(stream.ToArray(), "application/rss+xml");
+                                    result = File(stream.ToArray(), "text/xml");
                                 }
                                 break;
                             case "atom":
@@ -366,7 +363,7 @@ namespace openapi.Areas.openapi.Controllers
                                 {
                                     atomFeed.SaveAsAtom10(xmlWriter);
                                     xmlWriter.Flush();
-                                    result = File(stream.ToArray(), "application/atom+xml");
+                                    result = File(stream.ToArray(), "text/xml");
                                 }
                                 break;
                         }
@@ -386,6 +383,7 @@ namespace openapi.Areas.openapi.Controllers
         {
             string baseUrl = Request.GetBaseUrl();
             var feed = new SyndicationFeed();
+            feed.Id = baseUrl;
             string title = rowHeader.GetString("Title").ToStringSafe();
             if (string.IsNullOrEmpty(title) == false)
             {
@@ -436,6 +434,16 @@ namespace openapi.Areas.openapi.Controllers
                 DataRow row = rows[i];
                 var item = new SyndicationItem();
 
+                string itemUrl = row.GetString("ItemUrl").ToStringSafe();
+                if (string.IsNullOrEmpty(itemUrl) == false)
+                {
+                    Uri? parseUri;
+                    if (Uri.TryCreate(itemUrl, UriKind.Absolute, out parseUri) == true)
+                    {
+                        item.Id = parseUri.ToString();
+                    }
+                }
+
                 string itemTitle = row.GetString("Title").ToStringSafe();
                 if (string.IsNullOrEmpty(itemTitle) == false)
                 {
@@ -456,6 +464,12 @@ namespace openapi.Areas.openapi.Controllers
                 if (string.IsNullOrEmpty(itemSummary) == false)
                 {
                     item.Summary = SyndicationContent.CreateHtmlContent(itemSummary);
+                }
+
+                string itemContent = row.GetString("Content").ToStringSafe();
+                if (string.IsNullOrEmpty(itemContent) == false)
+                {
+                    item.Content = SyndicationContent.CreateHtmlContent(itemContent);
                 }
 
                 string publishDate = row.GetString("PublishDate").ToStringSafe();
