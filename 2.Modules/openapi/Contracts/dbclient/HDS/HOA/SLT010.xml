@@ -19,7 +19,7 @@ CREATE TABLE "AccessMemberAPI" (
     "APIServiceID" TEXT NULL,
 
     -- 회원 ID
-    "MemberNo" TEXT NULL,
+    "MemberID" TEXT NULL,
 
     -- 접근 비밀키
     "SecretKey" TEXT NULL,
@@ -32,6 +32,9 @@ CREATE TABLE "AccessMemberAPI" (
 
     -- 제한 횟수
     "LimitCallCount" INTEGER NULL,
+
+    -- 요청 횟수
+    "RequestCallCount" INTEGER NULL,
 
     -- 전체 요청 횟수
     "CumulativeCallCount" INTEGER NULL,
@@ -113,6 +116,9 @@ CREATE TABLE "APIService" (
     -- HTML 내용으로 API 서비스 설명
     "Descriptions" TEXT NULL,
 
+    -- 기본 데이터 포맷
+    "DefaultFormat" TEXT NULL,
+
     -- Format을 지정하지 않으면 기본값 (Y)으로 적용
     "FormatJsonYN" TEXT NULL,
 
@@ -142,6 +148,9 @@ CREATE TABLE "APIService" (
 
     -- 요청 횟수 합계
     "CumulativeCallCount" INTEGER NULL,
+
+    -- 캐시 지속 간격 (분)
+    "CacheDuration" INTEGER NULL,
 
     -- 사용 유무
     "UseYN" TEXT NULL,
@@ -176,117 +185,21 @@ CREATE TABLE "DataSource" (
 );
 
 
-CREATE TABLE "EventLog" (
-    -- 로그 NO
-    "LogNo" INTEGER NOT NULL CONSTRAINT "PK_EventLog" PRIMARY KEY AUTOINCREMENT,
-
-    -- 분류
-    "Category" TEXT NULL,
-
-    -- 코드
-    "Code" TEXT NULL,
-
-    -- 메시지
-    "Message" TEXT NULL,
-
-    -- 옵션
-    "Options" TEXT NULL,
-
-    -- 입력일시
-    "CreatedAt" TEXT NULL
-);
-
-
-CREATE TABLE "Member" (
-    -- 회원NO
-    "MemberNo" TEXT NOT NULL CONSTRAINT "PK_Member" PRIMARY KEY,
-
-    -- 이메일ID
-    "EmailID" TEXT NOT NULL DEFAULT '',
-
-    -- 이메일확인일시
-    "EmailVerifyAt" TEXT NULL,
-
-    -- 핸드폰번호
-    "Celluar" TEXT NULL,
-
-    -- 핸드폰확인일시
-    "CelluarVerifyAt" TEXT NULL,
-
-    -- 회원명
-    "MemberName" TEXT NULL,
-
-    -- 직위명
-    "PositionName" TEXT NULL,
-
-    -- 부서명
-    "DepartmentName" TEXT NULL,
-
-    -- 회사명
-    "CompanyName" TEXT NULL,
-
-    -- 역할
-    "Roles" TEXT NULL,
-
-    -- 생년월일
-    "BirthDate" TEXT NULL,
-
-    -- 가입일시
-    "JoinAt" TEXT NULL,
-
-    -- 탈퇴일시
-    "RetireAt" TEXT NULL,
-
-    -- 주소
-    "Address" TEXT NULL,
-
-    -- 상세주소
-    "AddressDetail" TEXT NULL,
-
-    -- 성별
-    "Gender" TEXT NULL,
-
-    -- 삭제여부
-    "DeleteYN" TEXT NULL,
-
-    -- 설명
-    "Comment" TEXT NULL,
-
-    -- 서비스 이용약관
-    "TermsOfServiceConsentYN" TEXT NULL,
-
-    -- 개인정보 이용동의
-    "PersonalInformationUseConsentYN" TEXT NULL,
-
-    -- 제3자 제공동의
-    "ThirdPartyProvisionConsentYN" TEXT NULL,
-
-    -- 생성사용자NO
-    "CreatedUserNo" TEXT NULL,
-
-    -- 생성일시
-    "CreatedAt" TEXT NULL,
-
-    -- 수정회원NO
-    "ModifiedMemberNo" TEXT NULL,
-
-    -- 수정일시
-    "ModifiedAt" TEXT NULL
-);
-
-
 CREATE TABLE "UsageAPIAggregate" (
     -- 요청 년도
-    "RequestYear" TEXT NOT NULL,
+    "RequestYear" INTEGER NOT NULL,
 
     -- 요청 월
-    "RequestMonth" TEXT NOT NULL,
+    "RequestMonth" INTEGER NOT NULL,
 
     -- 요청 일
-    "RequestDay" TEXT NOT NULL,
+    "RequestDay" INTEGER NOT NULL,
 
     -- 요청 시간
-    "RequestHour" TEXT NOT NULL,
+    "RequestHour" INTEGER NOT NULL,
+
+    -- API 서비스 ID
+    "APIServiceID" TEXT NOT NULL,
 
     -- API 접근 ID
     "AccessID" TEXT NOT NULL,
@@ -295,21 +208,15 @@ CREATE TABLE "UsageAPIAggregate" (
     "Format" TEXT NULL,
 
     -- 전체 요청 횟수
-    "CumulativeCallCount" TEXT NULL,
+    "CumulativeCallCount" INTEGER NULL,
 
     -- 최근 요청 일시
     "ModifiedAt" TEXT NULL,
-    CONSTRAINT "PK_UsageAPIAggregate" PRIMARY KEY ("RequestYear", "RequestMonth", "RequestDay", "RequestHour", "AccessID")
+    CONSTRAINT "PK_UsageAPIAggregate" PRIMARY KEY ("RequestYear", "RequestMonth", "RequestDay", "RequestHour", "APIServiceID", "AccessID")
 );
 
 
-CREATE INDEX "IX_AccessMemberAPI_APIServiceID_MemberNo" ON "AccessMemberAPI" ("APIServiceID", "MemberNo");
-
-
-CREATE INDEX "IX_Member_EmailID" ON "Member" ("EmailID");
-
-
-
+CREATE INDEX "IX_AccessMemberAPI_APIServiceID_MemberID" ON "AccessMemberAPI" ("APIServiceID", "MemberID");
 			]]>
         </statement>
 
@@ -324,6 +231,178 @@ SELECT DATETIME('now', 'localtime') AS ServerDate, 'localhost' AS ServerName;
 SELECT COUNT(*) AS IsExists FROM sqlite_master WHERE type='table' AND name = @TableName;
 			]]>
             <param id="@TableName" type="String" length="36" value="" />
+        </statement>
+
+        <statement id="GD03" seq="0" use="Y" timeout="0" desc="API Service 조회">
+            <![CDATA[
+SELECT A.APIServiceID
+    , A.InterfaceID
+    , A.InterfaceName
+    , A.DataSourceID
+    , A.CommandText
+    , A.Descriptions
+    , A.DefaultFormat
+    , A.FormatJsonYN
+    , A.FormatXmlYN
+    , A.FormatSoapYN
+    , A.FormatRssYN
+    , A.FormatAtomYN
+    , A.LimitPeriod
+    , A.LimitCallCount
+    , A.LimitIPAddressYN
+    , A.AccessControl
+    , A.CacheDuration
+FROM 
+    APIService A
+WHERE A.UseYN = 'Y'
+    AND A.DeleteYN = 'N'
+    AND A.InterfaceID = @InterfaceID;
+			]]>
+            <param id="@InterfaceID" type="String" length="50" value="" />
+        </statement>
+
+        <statement id="GD04" seq="0" use="Y" timeout="0" desc="DataSourceID 조회">
+            <![CDATA[
+SELECT DS.DataSourceID
+    , DS.DataProvider
+    , DS.ConnectionString
+    , DS.IsEncryption
+FROM 
+    DataSource DS
+WHERE DS.DataSourceID = @DataSourceID;
+			]]>
+            <param id="@DataSourceID" type="String" length="10" value="" />
+        </statement>
+
+        <statement id="GD05" seq="0" use="Y" timeout="0" desc="사용자 접근키 정보 조회">
+            <![CDATA[
+SELECT AMA.AccessID
+    , AMA.MemberNo
+    , AMA.SecretKey
+    , AMA.IPAddress
+    , AMA.LimitPeriod
+    , AMA.LimitCallCount
+    , AMA.RequestCallCount
+    , AMA.CumulativeCallCount
+FROM 
+    APIService A
+	INNER JOIN AccessMemberAPI AMA ON A.APIServiceID = AMA.APIServiceID
+WHERE A.UseYN = 'Y'
+    AND A.DeleteYN = 'N'
+    AND AMA.UseYN = 'Y'
+    AND AMA.DeleteYN = 'N'
+    AND A.APIServiceID = @APIServiceID
+	AND AMA.AccessID = @AccessID;
+			]]>
+            <param id="@APIServiceID" type="String" length="36" value="" />
+            <param id="@AccessID" type="String" length="36" value="" />
+        </statement>
+
+        <statement id="LD01" seq="0" use="Y" timeout="0" desc="API Service Parameter 목록 조회">
+            <![CDATA[
+SELECT AP.ParameterID
+    , AP.ParameterType
+    , AP.Length
+    , AP.DefaultValue
+    , AP.RequiredYN
+FROM 
+    APIParameter AP
+WHERE AP.APIServiceID = @APIServiceID;
+			]]>
+            <param id="@APIServiceID" type="String" length="36" value="" />
+        </statement>
+
+        <statement id="MD01" seq="0" use="Y" timeout="0" desc="API 사용 통계 갱신">
+            <![CDATA[
+DECLARE @CurrentDate DATETIME;
+SET @CurrentDate = GETDATE();
+
+DECLARE @RequestYear INT, @RequestMonth INT, @RequestDay INT, @RequestHour INT;
+
+SET @RequestYear = YEAR(@CurrentDate);
+SET @RequestMonth = MONTH(@CurrentDate);
+SET @RequestDay = DAY(@CurrentDate);
+SET @RequestHour = DATEPART(HOUR, @CurrentDate);
+
+MERGE INTO UsageAPIAggregate AS T
+USING (
+    SELECT @RequestYear, @RequestMonth, @RequestDay, @RequestHour, @APIServiceID, @AccessID, @Format
+    ) AS S(RequestYear, RequestMonth, RequestDay, RequestHour, APIServiceID, AccessID, [Format])
+    ON S.RequestYear = T.RequestYear
+        AND S.RequestMonth = T.RequestMonth
+        AND S.RequestDay = T.RequestDay
+        AND S.RequestHour = T.RequestHour
+        AND S.AccessID = T.AccessID
+WHEN NOT MATCHED
+    THEN
+    INSERT (RequestYear
+		, RequestMonth
+		, RequestDay
+		, RequestHour
+		, APIServiceID
+		, AccessID
+		, [Format]
+		, CumulativeCallCount
+		, ModifiedAt
+	) 
+	VALUES (@RequestYear
+		, @RequestMonth
+		, @RequestDay
+		, @RequestHour
+		, @APIServiceID
+		, @AccessID
+		, @Format
+		, 1
+		, GETDATE()
+	)
+WHEN MATCHED
+    THEN
+    UPDATE SET CumulativeCallCount = (CumulativeCallCount + 1)
+		, ModifiedAt = GETDATE();
+        
+UPDATE APIService SET CumulativeCallCount = (CumulativeCallCount + 1)
+WHERE APIServiceID = @APIServiceID;
+
+UPDATE AccessMemberAPI SET CumulativeCallCount = (CumulativeCallCount + 1)
+    , RequestCallCount = (RequestCallCount + 1)
+WHERE APIServiceID = @APIServiceID
+	AND AccessID = @AccessID;
+			]]>
+            <param id="@APIServiceID" type="String" length="36" value="" />
+            <param id="@AccessID" type="String" length="36" value="" />
+            <param id="@Format" type="String" length="10" value="" />
+        </statement>
+
+        <statement id="UD01" seq="0" use="Y" timeout="0" desc="기간 내 호출 수 제한 조건 일일 자동 갱신">
+            <![CDATA[
+UPDATE AccessMemberAPI 
+SET LimitCallCount = (
+    SELECT A.LimitCallCount
+    FROM APIService A
+    WHERE A.UseYN = 'Y'
+        AND A.DeleteYN = 'N'
+        AND A.APIServiceID = AccessMemberAPI.APIServiceID
+        AND A.LimitPeriod = :LimitPeriod
+),
+LimitPeriod = (
+    SELECT A.LimitPeriod
+    FROM APIService A
+    WHERE A.UseYN = 'Y'
+        AND A.DeleteYN = 'N'
+        AND A.APIServiceID = AccessMemberAPI.APIServiceID
+        AND A.LimitPeriod = :LimitPeriod
+),
+RequestCallCount = 0
+WHERE EXISTS (
+    SELECT 1
+    FROM APIService A
+    WHERE A.UseYN = 'Y'
+        AND A.DeleteYN = 'N'
+        AND A.APIServiceID = AccessMemberAPI.APIServiceID
+        AND A.LimitPeriod = :LimitPeriod
+);
+			]]>
+            <param id="@LimitPeriod" type="String" length="10" value="" />
         </statement>
     </commands>
 </mapper>

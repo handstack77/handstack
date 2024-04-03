@@ -17,11 +17,12 @@ ALTER DATABASE CHARACTER SET utf8mb4;
 CREATE TABLE `AccessMemberAPI` (
     `AccessID` varchar(36) CHARACTER SET utf8mb4 NOT NULL COMMENT 'API 접근 ID',
     `APIServiceID` varchar(36) CHARACTER SET utf8mb4 NULL COMMENT 'API 서비스 ID',
-    `MemberNo` varchar(36) CHARACTER SET utf8mb4 NULL COMMENT '회원 ID',
+    `MemberID` varchar(36) CHARACTER SET utf8mb4 NULL COMMENT '회원 ID',
     `SecretKey` varchar(36) CHARACTER SET utf8mb4 NULL COMMENT '접근 비밀키',
     `IPAddress` varchar(1000) CHARACTER SET utf8mb4 NULL COMMENT 'LimitIPAddressYN == Y 인 경우 적용',
     `LimitPeriod` varchar(10) CHARACTER SET utf8mb4 NULL COMMENT 'Day, Month, Infinite',
     `LimitCallCount` bigint NULL COMMENT '제한 횟수',
+    `RequestCallCount` bigint NULL COMMENT '요청 횟수',
     `CumulativeCallCount` bigint NULL COMMENT '전체 요청 횟수',
     `UseYN` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '사용 유무',
     `DeleteYN` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '삭제 유무',
@@ -60,6 +61,7 @@ CREATE TABLE `APIService` (
     `DataSourceID` varchar(10) CHARACTER SET utf8mb4 NULL COMMENT '데이터 소스 ID',
     `CommandText` longtext CHARACTER SET utf8mb4 NULL COMMENT '명령 구문',
     `Descriptions` varchar(2000) CHARACTER SET utf8mb4 NULL COMMENT 'HTML 내용으로 API 서비스 설명',
+    `DefaultFormat` varchar(10) CHARACTER SET utf8mb4 NULL COMMENT '기본 데이터 포맷',
     `FormatJsonYN` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT 'Format을 지정하지 않으면 기본값 (Y)으로 적용',
     `FormatXmlYN` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT 'Xml 지원 유무',
     `FormatSoapYN` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT 'Soap 지원 유무',
@@ -70,6 +72,7 @@ CREATE TABLE `APIService` (
     `LimitIPAddressYN` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '제한 IP 주소 유무',
     `AccessControl` varchar(10) CHARACTER SET utf8mb4 NULL COMMENT 'Public, SecretKey',
     `CumulativeCallCount` bigint NULL COMMENT '요청 횟수 합계',
+    `CacheDuration` int NULL COMMENT '캐시 지속 간격 (분)',
     `UseYN` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '사용 유무',
     `DeleteYN` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '삭제 유무',
     `CreatedAt` datetime(0) NULL COMMENT '입력 일시',
@@ -89,67 +92,21 @@ CREATE TABLE `DataSource` (
 ) CHARACTER SET=utf8mb4;
 
 
-CREATE TABLE `EventLog` (
-    `LogNo` bigint NOT NULL AUTO_INCREMENT COMMENT '로그 NO',
-    `Category` varchar(30) CHARACTER SET utf8mb4 NULL COMMENT '분류',
-    `Code` varchar(10) CHARACTER SET utf8mb4 NULL COMMENT '코드',
-    `Message` varchar(2000) CHARACTER SET utf8mb4 NULL COMMENT '메시지',
-    `Options` varchar(4000) CHARACTER SET utf8mb4 NULL COMMENT '옵션',
-    `CreatedAt` datetime(0) NULL COMMENT '입력일시',
-    CONSTRAINT `PK_EventLog` PRIMARY KEY (`LogNo`)
-) CHARACTER SET=utf8mb4;
-
-
-CREATE TABLE `Member` (
-    `MemberNo` varchar(36) CHARACTER SET utf8mb4 NOT NULL COMMENT '회원NO',
-    `EmailID` varchar(256) CHARACTER SET utf8mb4 NOT NULL DEFAULT '' COMMENT '이메일ID',
-    `EmailVerifyAt` datetime(0) NULL COMMENT '이메일확인일시',
-    `Celluar` varchar(20) CHARACTER SET utf8mb4 NULL COMMENT '핸드폰번호',
-    `CelluarVerifyAt` datetime(0) NULL COMMENT '핸드폰확인일시',
-    `MemberName` varchar(100) CHARACTER SET utf8mb4 NULL COMMENT '회원명',
-    `PositionName` varchar(100) CHARACTER SET utf8mb4 NULL COMMENT '직위명',
-    `DepartmentName` varchar(100) CHARACTER SET utf8mb4 NULL COMMENT '부서명',
-    `CompanyName` varchar(100) CHARACTER SET utf8mb4 NULL COMMENT '회사명',
-    `Roles` varchar(200) CHARACTER SET utf8mb4 NULL COMMENT '역할',
-    `BirthDate` varchar(10) CHARACTER SET utf8mb4 NULL COMMENT '생년월일',
-    `JoinAt` datetime(0) NULL COMMENT '가입일시',
-    `RetireAt` datetime(0) NULL COMMENT '탈퇴일시',
-    `Address` varchar(510) CHARACTER SET utf8mb4 NULL COMMENT '주소',
-    `AddressDetail` varchar(100) CHARACTER SET utf8mb4 NULL COMMENT '상세주소',
-    `Gender` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '성별',
-    `DeleteYN` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '삭제여부',
-    `Comment` varchar(2000) CHARACTER SET utf8mb4 NULL COMMENT '설명',
-    `TermsOfServiceConsentYN` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '서비스 이용약관',
-    `PersonalInformationUseConsentYN` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '개인정보 이용동의',
-    `ThirdPartyProvisionConsentYN` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '제3자 제공동의',
-    `CreatedUserNo` varchar(36) CHARACTER SET utf8mb4 NULL COMMENT '생성사용자NO',
-    `CreatedAt` datetime(0) NULL COMMENT '생성일시',
-    `ModifiedMemberNo` varchar(36) CHARACTER SET utf8mb4 NULL COMMENT '수정회원NO',
-    `ModifiedAt` datetime(0) NULL COMMENT '수정일시',
-    CONSTRAINT `PK_Member` PRIMARY KEY (`MemberNo`)
-) CHARACTER SET=utf8mb4;
-
-
 CREATE TABLE `UsageAPIAggregate` (
-    `RequestYear` varchar(50) CHARACTER SET utf8mb4 NOT NULL COMMENT '요청 년도',
-    `RequestMonth` varchar(50) CHARACTER SET utf8mb4 NOT NULL COMMENT '요청 월',
-    `RequestDay` varchar(50) CHARACTER SET utf8mb4 NOT NULL COMMENT '요청 일',
-    `RequestHour` varchar(50) CHARACTER SET utf8mb4 NOT NULL COMMENT '요청 시간',
-    `AccessID` varchar(50) CHARACTER SET utf8mb4 NOT NULL COMMENT 'API 접근 ID',
-    `Format` varchar(50) CHARACTER SET utf8mb4 NULL COMMENT 'APIService Format중 Json, Xml, Soap, Rss, Atom 하나',
-    `CumulativeCallCount` varchar(50) CHARACTER SET utf8mb4 NULL COMMENT '전체 요청 횟수',
-    `ModifiedAt` varchar(50) CHARACTER SET utf8mb4 NULL COMMENT '최근 요청 일시',
-    CONSTRAINT `PK_UsageAPIAggregate` PRIMARY KEY (`RequestYear`, `RequestMonth`, `RequestDay`, `RequestHour`, `AccessID`)
+    `RequestYear` int NOT NULL COMMENT '요청 년도',
+    `RequestMonth` int NOT NULL COMMENT '요청 월',
+    `RequestDay` int NOT NULL COMMENT '요청 일',
+    `RequestHour` int NOT NULL COMMENT '요청 시간',
+    `APIServiceID` varchar(36) CHARACTER SET utf8mb4 NOT NULL COMMENT 'API 서비스 ID',
+    `AccessID` varchar(36) CHARACTER SET utf8mb4 NOT NULL COMMENT 'API 접근 ID',
+    `Format` varchar(10) CHARACTER SET utf8mb4 NULL COMMENT 'APIService Format중 Json, Xml, Soap, Rss, Atom 하나',
+    `CumulativeCallCount` bigint NULL COMMENT '전체 요청 횟수',
+    `ModifiedAt` datetime(0) NULL COMMENT '최근 요청 일시',
+    CONSTRAINT `PK_UsageAPIAggregate` PRIMARY KEY (`RequestYear`, `RequestMonth`, `RequestDay`, `RequestHour`, `APIServiceID`, `AccessID`)
 ) CHARACTER SET=utf8mb4;
 
 
-CREATE INDEX `IX_AccessMemberAPI_APIServiceID_MemberNo` ON `AccessMemberAPI` (`APIServiceID`, `MemberNo`);
-
-
-CREATE INDEX `IX_Member_EmailID` ON `Member` (`EmailID`);
-
-
-
+CREATE INDEX `IX_AccessMemberAPI_APIServiceID_MemberID` ON `AccessMemberAPI` (`APIServiceID`, `MemberID`);
 			]]>
         </statement>
         
@@ -164,6 +121,142 @@ SELECT NOW() AS ServerDate, @@hostname AS ServerName;
 SELECT COUNT(*) AS IsExists FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = @TableName;
 			]]>
             <param id="@TableName" type="String" length="36" value="" />
+        </statement>
+
+        <statement id="GD03" seq="0" use="Y" timeout="0" desc="API Service 조회">
+            <![CDATA[
+SELECT A.APIServiceID
+    , A.InterfaceID
+    , A.InterfaceName
+    , A.DataSourceID
+    , A.CommandText
+    , A.Descriptions
+    , A.DefaultFormat
+    , A.FormatJsonYN
+    , A.FormatXmlYN
+    , A.FormatSoapYN
+    , A.FormatRssYN
+    , A.FormatAtomYN
+    , A.LimitPeriod
+    , A.LimitCallCount
+    , A.LimitIPAddressYN
+    , A.AccessControl
+    , A.CacheDuration
+FROM 
+    APIService A
+WHERE A.UseYN = 'Y'
+    AND A.DeleteYN = 'N'
+    AND A.InterfaceID = @InterfaceID;
+			]]>
+            <param id="@InterfaceID" type="String" length="50" value="" />
+        </statement>
+
+        <statement id="GD04" seq="0" use="Y" timeout="0" desc="DataSourceID 조회">
+            <![CDATA[
+SELECT DS.DataSourceID
+    , DS.DataProvider
+    , DS.ConnectionString
+    , DS.IsEncryption
+FROM 
+    DataSource DS
+WHERE DS.DataSourceID = @DataSourceID;
+			]]>
+            <param id="@DataSourceID" type="String" length="10" value="" />
+        </statement>
+
+        <statement id="GD05" seq="0" use="Y" timeout="0" desc="사용자 접근키 정보 조회">
+            <![CDATA[
+SELECT AMA.AccessID
+    , AMA.MemberNo
+    , AMA.SecretKey
+    , AMA.IPAddress
+    , AMA.LimitPeriod
+    , AMA.LimitCallCount
+    , AMA.RequestCallCount
+    , AMA.CumulativeCallCount
+FROM 
+    APIService A
+	INNER JOIN AccessMemberAPI AMA ON A.APIServiceID = AMA.APIServiceID
+WHERE A.UseYN = 'Y'
+    AND A.DeleteYN = 'N'
+    AND AMA.UseYN = 'Y'
+    AND AMA.DeleteYN = 'N'
+    AND A.APIServiceID = @APIServiceID
+	AND AMA.AccessID = @AccessID;
+			]]>
+            <param id="@APIServiceID" type="String" length="36" value="" />
+            <param id="@AccessID" type="String" length="36" value="" />
+        </statement>
+
+        <statement id="LD01" seq="0" use="Y" timeout="0" desc="API Service Parameter 목록 조회">
+            <![CDATA[
+SELECT AP.ParameterID
+    , AP.ParameterType
+    , AP.Length
+    , AP.DefaultValue
+    , AP.RequiredYN
+FROM 
+    APIParameter AP
+WHERE AP.APIServiceID = @APIServiceID;
+			]]>
+            <param id="@APIServiceID" type="String" length="36" value="" />
+        </statement>
+
+        <statement id="MD01" seq="0" use="Y" timeout="0" desc="API 사용 통계 갱신">
+            <![CDATA[
+SET @CurrentDate = NOW();
+
+SET @RequestYear = YEAR(@CurrentDate);
+SET @RequestMonth = MONTH(@CurrentDate);
+SET @RequestDay = DAY(@CurrentDate);
+SET @RequestHour = HOUR(@CurrentDate);
+
+INSERT INTO UsageAPIAggregate (RequestYear
+    , RequestMonth
+    , RequestDay
+    , RequestHour
+    , APIServiceID
+    , AccessID
+    , Format
+    , CumulativeCallCount
+    , ModifiedAt)
+VALUES (@RequestYear
+    , @RequestMonth
+    , @RequestDay
+    , @RequestHour
+    , @APIServiceID
+    , @AccessID
+    , @Format
+    , 1
+    , NOW())
+ON DUPLICATE KEY UPDATE CumulativeCallCount = CumulativeCallCount + 1
+    , ModifiedAt = NOW();
+        
+UPDATE APIService SET CumulativeCallCount = (CumulativeCallCount + 1)
+WHERE APIServiceID = @APIServiceID;
+
+UPDATE AccessMemberAPI SET CumulativeCallCount = (CumulativeCallCount + 1)
+    , RequestCallCount = (RequestCallCount + 1)
+WHERE APIServiceID = @APIServiceID
+	AND AccessID = @AccessID;
+			]]>
+            <param id="@APIServiceID" type="String" length="36" value="" />
+            <param id="@AccessID" type="String" length="36" value="" />
+            <param id="@Format" type="String" length="10" value="" />
+        </statement>
+
+        <statement id="UD01" seq="0" use="Y" timeout="0" desc="기간 내 호출 수 제한 조건 일일 자동 갱신">
+            <![CDATA[
+UPDATE AccessMemberAPI AMA
+INNER JOIN APIService A ON A.UseYN = 'Y'
+    AND A.DeleteYN = 'N'
+    AND A.APIServiceID = AMA.APIServiceID
+    AND A.LimitPeriod = @LimitPeriod
+SET AMA.LimitCallCount = A.LimitCallCount,
+    AMA.LimitPeriod = A.LimitPeriod,
+    AMA.RequestCallCount = 0;
+			]]>
+            <param id="@LimitPeriod" type="String" length="10" value="" />
         </statement>
     </commands>
 </mapper>

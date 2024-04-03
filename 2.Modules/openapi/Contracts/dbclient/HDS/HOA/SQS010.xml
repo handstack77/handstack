@@ -11,29 +11,32 @@
     <commands>
         <statement id="ZD01" seq="0" use="Y" timeout="0" desc="OpenAPI 서비스 테이블 DDL 및 초기 데이터 입력 적용">
             <![CDATA[
+DECLARE @defaultSchema AS sysname;
+SET @defaultSchema = SCHEMA_NAME();
+DECLARE @description AS sql_variant;
+
 CREATE TABLE [AccessMemberAPI] (
     [AccessID] nvarchar(36) NOT NULL,
     [APIServiceID] nvarchar(36) NULL,
-    [MemberNo] nvarchar(36) NULL,
+    [MemberID] nvarchar(36) NULL,
     [SecretKey] nvarchar(36) NULL,
     [IPAddress] nvarchar(1000) NULL,
     [LimitPeriod] nvarchar(10) NULL,
     [LimitCallCount] bigint NULL,
+    [RequestCallCount] bigint NULL,
     [CumulativeCallCount] bigint NULL,
     [UseYN] nvarchar(1) NULL,
     [DeleteYN] nvarchar(1) NULL,
     [CreatedAt] datetime2(0) NULL,
     CONSTRAINT [PK_AccessMemberAPI] PRIMARY KEY ([AccessID])
 );
-DECLARE @defaultSchema AS sysname;
-SET @defaultSchema = SCHEMA_NAME();
-DECLARE @description AS sql_variant;
+
 SET @description = N'API 접근 ID';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'AccessMemberAPI', 'COLUMN', N'AccessID';
 SET @description = N'API 서비스 ID';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'AccessMemberAPI', 'COLUMN', N'APIServiceID';
 SET @description = N'회원 ID';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'AccessMemberAPI', 'COLUMN', N'MemberNo';
+EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'AccessMemberAPI', 'COLUMN', N'MemberID';
 SET @description = N'접근 비밀키';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'AccessMemberAPI', 'COLUMN', N'SecretKey';
 SET @description = N'LimitIPAddressYN == Y 인 경우 적용';
@@ -42,6 +45,8 @@ SET @description = N'Day, Month, Infinite';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'AccessMemberAPI', 'COLUMN', N'LimitPeriod';
 SET @description = N'제한 횟수';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'AccessMemberAPI', 'COLUMN', N'LimitCallCount';
+SET @description = N'요청 횟수';
+EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'AccessMemberAPI', 'COLUMN', N'RequestCallCount';
 SET @description = N'전체 요청 횟수';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'AccessMemberAPI', 'COLUMN', N'CumulativeCallCount';
 SET @description = N'사용 유무';
@@ -50,11 +55,7 @@ SET @description = N'삭제 유무';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'AccessMemberAPI', 'COLUMN', N'DeleteYN';
 SET @description = N'입력 일시';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'AccessMemberAPI', 'COLUMN', N'CreatedAt';
-GO
 
-
-CREATE INDEX [IX_AccessMemberAPI_APIServiceID_MemberNo] ON [AccessMemberAPI] ([APIServiceID], [MemberNo]);
-GO
 
 
 CREATE TABLE [APIParameter] (
@@ -68,9 +69,7 @@ CREATE TABLE [APIParameter] (
     [Comment] nvarchar(2000) NULL,
     CONSTRAINT [PK_APIParameter] PRIMARY KEY ([APIServiceID], [ParameterID])
 );
-DECLARE @defaultSchema AS sysname;
-SET @defaultSchema = SCHEMA_NAME();
-DECLARE @description AS sql_variant;
+
 SET @description = N'API 서비스 ID';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'APIParameter', 'COLUMN', N'APIServiceID';
 SET @description = N'매개변수 ID';
@@ -83,9 +82,33 @@ SET @description = N'기본값';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'APIParameter', 'COLUMN', N'DefaultValue';
 SET @description = N'필수 유무';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'APIParameter', 'COLUMN', N'RequiredYN';
+SET @description = N'정렬순서';
+EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'APIParameter', 'COLUMN', N'SortingNo';
 SET @description = N'매개변수 설명';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'APIParameter', 'COLUMN', N'Comment';
-GO
+
+
+
+CREATE TABLE [APIResponseScheme] (
+    [APIServiceID] nvarchar(36) NOT NULL,
+    [ColumnID] nvarchar(50) NOT NULL,
+    [ColumnType] nvarchar(30) NULL,
+    [ColumnText] nvarchar(50) NULL,
+    [Comment] nvarchar(1000) NULL,
+    CONSTRAINT [PK_APIResponseScheme] PRIMARY KEY ([APIServiceID], [ColumnID])
+);
+
+SET @description = N'API 서비스 ID';
+EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'APIResponseScheme', 'COLUMN', N'APIServiceID';
+SET @description = N'컬럼 ID';
+EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'APIResponseScheme', 'COLUMN', N'ColumnID';
+SET @description = N'컬럼 데이터 타입';
+EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'APIResponseScheme', 'COLUMN', N'ColumnType';
+SET @description = N'컬럼명';
+EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'APIResponseScheme', 'COLUMN', N'ColumnText';
+SET @description = N'설명';
+EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'APIResponseScheme', 'COLUMN', N'Comment';
+
 
 
 CREATE TABLE [APIService] (
@@ -113,9 +136,7 @@ CREATE TABLE [APIService] (
     CONSTRAINT [PK_APIService] PRIMARY KEY ([APIServiceID]),
     CONSTRAINT [AK_APIService_InterfaceID] UNIQUE ([InterfaceID])
 );
-DECLARE @defaultSchema AS sysname;
-SET @defaultSchema = SCHEMA_NAME();
-DECLARE @description AS sql_variant;
+
 SET @description = N'GUID';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'APIService', 'COLUMN', N'APIServiceID';
 SET @description = N'인터페이스 ID';
@@ -158,7 +179,7 @@ SET @description = N'삭제 유무';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'APIService', 'COLUMN', N'DeleteYN';
 SET @description = N'입력 일시';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'APIService', 'COLUMN', N'CreatedAt';
-GO
+
 
 
 CREATE TABLE [DataSource] (
@@ -170,9 +191,7 @@ CREATE TABLE [DataSource] (
     [CreatedAt] datetime2(0) NULL,
     CONSTRAINT [PK_DataSource] PRIMARY KEY ([DataSourceID])
 );
-DECLARE @defaultSchema AS sysname;
-SET @defaultSchema = SCHEMA_NAME();
-DECLARE @description AS sql_variant;
+
 SET @description = N'데이터소스ID';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'DataSource', 'COLUMN', N'DataSourceID';
 SET @description = N'데이터제공자';
@@ -185,95 +204,7 @@ SET @description = N'설명';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'DataSource', 'COLUMN', N'Comment';
 SET @description = N'입력일시';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'DataSource', 'COLUMN', N'CreatedAt';
-GO
 
-
-CREATE TABLE [Member] (
-    [MemberNo] nvarchar(36) NOT NULL,
-    [EmailID] nvarchar(256) NOT NULL DEFAULT N'',
-    [EmailVerifyAt] datetime2(0) NULL,
-    [Celluar] nvarchar(20) NULL,
-    [CelluarVerifyAt] datetime2(0) NULL,
-    [MemberName] nvarchar(100) NULL,
-    [PositionName] nvarchar(100) NULL,
-    [DepartmentName] nvarchar(100) NULL,
-    [CompanyName] nvarchar(100) NULL,
-    [Roles] nvarchar(200) NULL,
-    [BirthDate] nvarchar(10) NULL,
-    [JoinAt] datetime2(0) NULL,
-    [RetireAt] datetime2(0) NULL,
-    [Address] nvarchar(510) NULL,
-    [AddressDetail] nvarchar(100) NULL,
-    [Gender] nvarchar(1) NULL,
-    [DeleteYN] nvarchar(1) NULL,
-    [Comment] nvarchar(2000) NULL,
-    [TermsOfServiceConsentYN] nvarchar(1) NULL,
-    [PersonalInformationUseConsentYN] nvarchar(1) NULL,
-    [ThirdPartyProvisionConsentYN] nvarchar(1) NULL,
-    [CreatedUserNo] nvarchar(36) NULL,
-    [CreatedAt] datetime2(0) NULL,
-    [ModifiedMemberNo] nvarchar(36) NULL,
-    [ModifiedAt] datetime2(0) NULL,
-    CONSTRAINT [PK_Member] PRIMARY KEY ([MemberNo])
-);
-DECLARE @defaultSchema AS sysname;
-SET @defaultSchema = SCHEMA_NAME();
-DECLARE @description AS sql_variant;
-SET @description = N'회원NO';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'Member', 'COLUMN', N'MemberNo';
-SET @description = N'이메일ID';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'Member', 'COLUMN', N'EmailID';
-SET @description = N'이메일확인일시';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'Member', 'COLUMN', N'EmailVerifyAt';
-SET @description = N'핸드폰번호';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'Member', 'COLUMN', N'Celluar';
-SET @description = N'핸드폰확인일시';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'Member', 'COLUMN', N'CelluarVerifyAt';
-SET @description = N'회원명';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'Member', 'COLUMN', N'MemberName';
-SET @description = N'직위명';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'Member', 'COLUMN', N'PositionName';
-SET @description = N'부서명';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'Member', 'COLUMN', N'DepartmentName';
-SET @description = N'회사명';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'Member', 'COLUMN', N'CompanyName';
-SET @description = N'역할';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'Member', 'COLUMN', N'Roles';
-SET @description = N'생년월일';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'Member', 'COLUMN', N'BirthDate';
-SET @description = N'가입일시';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'Member', 'COLUMN', N'JoinAt';
-SET @description = N'탈퇴일시';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'Member', 'COLUMN', N'RetireAt';
-SET @description = N'주소';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'Member', 'COLUMN', N'Address';
-SET @description = N'상세주소';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'Member', 'COLUMN', N'AddressDetail';
-SET @description = N'성별';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'Member', 'COLUMN', N'Gender';
-SET @description = N'삭제여부';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'Member', 'COLUMN', N'DeleteYN';
-SET @description = N'설명';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'Member', 'COLUMN', N'Comment';
-SET @description = N'서비스 이용약관';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'Member', 'COLUMN', N'TermsOfServiceConsentYN';
-SET @description = N'개인정보 이용동의';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'Member', 'COLUMN', N'PersonalInformationUseConsentYN';
-SET @description = N'제3자 제공동의';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'Member', 'COLUMN', N'ThirdPartyProvisionConsentYN';
-SET @description = N'생성사용자NO';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'Member', 'COLUMN', N'CreatedUserNo';
-SET @description = N'생성일시';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'Member', 'COLUMN', N'CreatedAt';
-SET @description = N'수정회원NO';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'Member', 'COLUMN', N'ModifiedMemberNo';
-SET @description = N'수정일시';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'Member', 'COLUMN', N'ModifiedAt';
-GO
-
-
-CREATE INDEX [IX_Member_EmailID] ON [Member] ([EmailID]);
-GO
 
 
 CREATE TABLE [UsageAPIAggregate] (
@@ -288,9 +219,7 @@ CREATE TABLE [UsageAPIAggregate] (
     [ModifiedAt] datetime2(0) NULL,
     CONSTRAINT [PK_UsageAPIAggregate] PRIMARY KEY ([RequestYear], [RequestMonth], [RequestDay], [RequestHour], [APIServiceID], [AccessID])
 );
-DECLARE @defaultSchema AS sysname;
-SET @defaultSchema = SCHEMA_NAME();
-DECLARE @description AS sql_variant;
+
 SET @description = N'요청 년도';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'UsageAPIAggregate', 'COLUMN', N'RequestYear';
 SET @description = N'요청 월';
@@ -309,9 +238,10 @@ SET @description = N'전체 요청 횟수';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'UsageAPIAggregate', 'COLUMN', N'CumulativeCallCount';
 SET @description = N'최근 요청 일시';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'UsageAPIAggregate', 'COLUMN', N'ModifiedAt';
-GO
 
 
+
+CREATE INDEX [IX_AccessMemberAPI_APIServiceID_MemberID] ON [AccessMemberAPI] ([APIServiceID], [MemberID]);
 			]]>
         </statement>
 
