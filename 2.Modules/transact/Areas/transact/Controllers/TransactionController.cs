@@ -78,7 +78,7 @@ namespace transact.Areas.transact.Controllers
         public ActionResult Has(string projectID, string businessID, string transactionID)
         {
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.GetParamData("AuthorizationKey");
+            string? authorizationKey = Request.GetContainValue("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();
@@ -106,7 +106,7 @@ namespace transact.Areas.transact.Controllers
         public ActionResult Add(string contractFilePath)
         {
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.GetParamData("AuthorizationKey");
+            string? authorizationKey = Request.GetContainValue("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();
@@ -134,7 +134,7 @@ namespace transact.Areas.transact.Controllers
         public ActionResult Remove(string contractFilePath)
         {
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.GetParamData("AuthorizationKey");
+            string? authorizationKey = Request.GetContainValue("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();
@@ -162,7 +162,7 @@ namespace transact.Areas.transact.Controllers
         public ActionResult Refresh(string changeType, string filePath)
         {
             ActionResult result = NotFound();
-            string? authorizationKey = Request.GetParamData("AuthorizationKey");
+            string? authorizationKey = Request.GetContainValue("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();
@@ -274,7 +274,7 @@ namespace transact.Areas.transact.Controllers
         public ActionResult CacheKeys()
         {
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.GetParamData("AuthorizationKey");
+            string? authorizationKey = Request.GetContainValue("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();
@@ -324,7 +324,7 @@ namespace transact.Areas.transact.Controllers
             };
 
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.GetParamData("AuthorizationKey");
+            string? authorizationKey = Request.GetContainValue("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();
@@ -373,7 +373,7 @@ namespace transact.Areas.transact.Controllers
             };
 
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.GetParamData("AuthorizationKey");
+            string? authorizationKey = Request.GetContainValue("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();
@@ -434,7 +434,7 @@ namespace transact.Areas.transact.Controllers
             };
 
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.GetParamData("AuthorizationKey");
+            string? authorizationKey = Request.GetContainValue("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();
@@ -490,7 +490,7 @@ namespace transact.Areas.transact.Controllers
         public ActionResult Meta()
         {
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.GetParamData("AuthorizationKey");
+            string? authorizationKey = Request.GetContainValue("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();

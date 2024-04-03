@@ -44,7 +44,7 @@ namespace repository.Areas.repository.Controllers
         public ActionResult ResetAppContract(string userWorkID, string applicationID)
         {
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.GetParamData("AuthorizationKey");
+            string? authorizationKey = Request.GetContainValue("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();

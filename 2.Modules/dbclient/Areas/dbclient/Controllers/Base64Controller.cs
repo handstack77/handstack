@@ -34,7 +34,7 @@ namespace dbclient.Areas.dbclient.Controllers
         public ActionResult Encode(string value)
         {
             ActionResult result;
-            string? authorizationKey = Request.GetParamData("AuthorizationKey");
+            string? authorizationKey = Request.GetContainValue("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();
@@ -63,7 +63,7 @@ namespace dbclient.Areas.dbclient.Controllers
         public ActionResult Decode(string value)
         {
             ActionResult result;
-            string? authorizationKey = Request.GetParamData("AuthorizationKey");
+            string? authorizationKey = Request.GetContainValue("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();

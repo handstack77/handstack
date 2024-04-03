@@ -48,7 +48,7 @@ namespace openapi.Areas.openapi.Controllers
         public async Task<ActionResult> InitializeSettings()
         {
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.GetParamData("AuthorizationKey");
+            string? authorizationKey = Request.GetContainValue("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();
@@ -101,7 +101,7 @@ namespace openapi.Areas.openapi.Controllers
         public ActionResult DeleteApiService(string apiServiceID)
         {
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.GetParamData("AuthorizationKey");
+            string? authorizationKey = Request.GetContainValue("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();
@@ -150,7 +150,7 @@ namespace openapi.Areas.openapi.Controllers
         public ActionResult DeleteApiDataSource(string dataSourceID)
         {
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.GetParamData("AuthorizationKey");
+            string? authorizationKey = Request.GetContainValue("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();
@@ -187,7 +187,7 @@ namespace openapi.Areas.openapi.Controllers
         public ActionResult CacheClear()
         {
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.GetParamData("AuthorizationKey");
+            string? authorizationKey = Request.GetContainValue("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();

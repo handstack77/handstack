@@ -47,7 +47,7 @@ namespace dbclient.Areas.dbclient.Controllers
         public ActionResult ResetContract()
         {
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.GetParamData("AuthorizationKey");
+            string? authorizationKey = Request.GetContainValue("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();
@@ -79,7 +79,7 @@ namespace dbclient.Areas.dbclient.Controllers
         public ActionResult ResetAppContract(string userWorkID, string applicationID)
         {
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.GetParamData("AuthorizationKey");
+            string? authorizationKey = Request.GetContainValue("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();

@@ -113,7 +113,7 @@ namespace checkup.Areas.checkup.Controllers
         public async Task<ActionResult> Direct(string commandID, [FromQuery] QueryParams? queryParams)
         {
             string? remoteClientIP = HttpContext.GetRemoteIpAddress();
-            string? authorizationKey = Request.GetParamData("AuthorizationKey");
+            string? authorizationKey = Request.GetContainValue("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey && User.Identity != null && User.Identity.IsAuthenticated == true)
             {
                 List<ServiceParameter>? serviceParameters = null;
@@ -1043,16 +1043,16 @@ namespace checkup.Areas.checkup.Controllers
 
             if (Request.HasFormContentType == true)
             {
-                memberNo = Request.GetParamData("memberNo").ToStringSafe();
-                userWorkID = Request.GetParamData("userWorkID").ToStringSafe();
-                applicationName = Request.GetParamData("applicationName");
-                acronyms = Request.GetParamData("acronyms");
-                logoItemID = Request.GetParamData("logoItemID");
-                companyName = Request.GetParamData("companyName");
-                ownerName = Request.GetParamData("ownerName");
-                publicYN = Request.GetParamData("publicYN").ToStringSafe().ToBoolean() == true ? "Y" : "N";
-                comment = Request.GetParamData("comment");
-                forbesID = Request.GetParamData("forbesID");
+                memberNo = Request.GetContainValue("memberNo").ToStringSafe();
+                userWorkID = Request.GetContainValue("userWorkID").ToStringSafe();
+                applicationName = Request.GetContainValue("applicationName");
+                acronyms = Request.GetContainValue("acronyms");
+                logoItemID = Request.GetContainValue("logoItemID");
+                companyName = Request.GetContainValue("companyName");
+                ownerName = Request.GetContainValue("ownerName");
+                publicYN = Request.GetContainValue("publicYN").ToStringSafe().ToBoolean() == true ? "Y" : "N";
+                comment = Request.GetContainValue("comment");
+                forbesID = Request.GetContainValue("forbesID");
             }
 
             if (ModuleConfiguration.ManagedAccessKey == accessKey
@@ -2023,10 +2023,10 @@ namespace checkup.Areas.checkup.Controllers
 
             if (Request.HasFormContentType == true)
             {
-                accessKey = Request.GetParamData("accessKey").ToStringSafe(accessKey);
-                userWorkID = Request.GetParamData("userWorkID").ToStringSafe(userWorkID);
-                applicationID = Request.GetParamData("applicationID").ToStringSafe(applicationID);
-                compressBase64 = Request.GetParamData("compressBase64");
+                accessKey = Request.GetContainValue("accessKey").ToStringSafe(accessKey);
+                userWorkID = Request.GetContainValue("userWorkID").ToStringSafe(userWorkID);
+                applicationID = Request.GetContainValue("applicationID").ToStringSafe(applicationID);
+                compressBase64 = Request.GetContainValue("compressBase64");
             }
 
             if (ModuleConfiguration.ManagedAccessKey == accessKey && string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false && string.IsNullOrEmpty(compressBase64) == false)
@@ -2971,7 +2971,7 @@ TransactionException:
 
             if (Request.HasFormContentType == true)
             {
-                compressBase64 = Request.GetParamData("compressBase64");
+                compressBase64 = Request.GetContainValue("compressBase64");
             }
 
             if (ModuleConfiguration.ManagedAccessKey == accessKey && string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false && string.IsNullOrEmpty(compressBase64) == false && string.IsNullOrEmpty(filePath) == false)

@@ -814,7 +814,7 @@ namespace ack
                 {
                     try
                     {
-                        var hostAccessID = context.Request.GetParamData("k");
+                        var hostAccessID = context.Request.GetContainValue("k");
                         if (string.IsNullOrEmpty(hostAccessID) == false && GlobalConfiguration.HostAccessID == hostAccessID)
                         {
                             var applicationManager = ApplicationManager.Load();

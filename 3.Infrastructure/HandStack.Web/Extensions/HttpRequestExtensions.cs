@@ -112,7 +112,7 @@ namespace HandStack.Web.Extensions
             }
         }
 
-        public static string GetParamData(this HttpRequest request, string requestKey, string defaultValue = "")
+        public static string GetContainValue(this HttpRequest request, string requestKey, string defaultValue = "")
         {
             string result = "";
             if (request.Query.ContainsKey(requestKey) == true)

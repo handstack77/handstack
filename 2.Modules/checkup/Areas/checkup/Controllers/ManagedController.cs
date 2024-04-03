@@ -36,7 +36,7 @@ namespace checkup.Areas.checkup.Controllers
         public ActionResult InitializeSettings()
         {
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.GetParamData("AuthorizationKey");
+            string? authorizationKey = Request.GetContainValue("AuthorizationKey");
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();
