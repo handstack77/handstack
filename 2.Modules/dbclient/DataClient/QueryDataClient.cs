@@ -743,12 +743,28 @@ namespace dbclient.DataClient
                                                                 row[baseColumnID] = dtChildren;
                                                             }
                                                         }
-
-                                                        if (baseFieldRelation.DisposeResult == true)
-                                                        {
-                                                            ds.Tables.Remove(table);
-                                                        }
                                                     }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    for (int j = 0; j < ds.Tables.Count; j++)
+                                    {
+                                        DataTable table = ds.Tables[j];
+                                        if (table.Columns.Count == 0)
+                                        {
+                                            continue;
+                                        }
+
+                                        if (dynamicObject.BaseFieldRelations != null && dynamicObject.BaseFieldRelations.Count() > 0)
+                                        {
+                                            var baseFieldRelation = dynamicObject.BaseFieldRelations[j];
+                                            if (baseFieldRelation != null)
+                                            {
+                                                if (baseFieldRelation.DisposeResult == true)
+                                                {
+                                                    ds.Tables.Remove(table);
                                                 }
                                             }
                                         }
@@ -2772,12 +2788,28 @@ TransactionException:
                                                                 row[baseColumnID] = dtChildren;
                                                             }
                                                         }
-
-                                                        if (baseFieldRelation.DisposeResult == true)
-                                                        {
-                                                            ds.Tables.Remove(table);
-                                                        }
                                                     }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    for (int j = 0; j < ds.Tables.Count; j++)
+                                    {
+                                        DataTable table = ds.Tables[j];
+                                        if (table.Columns.Count == 0)
+                                        {
+                                            continue;
+                                        }
+
+                                        if (dynamicObject.BaseFieldRelations != null && dynamicObject.BaseFieldRelations.Count() > 0)
+                                        {
+                                            var baseFieldRelation = dynamicObject.BaseFieldRelations[j];
+                                            if (baseFieldRelation != null)
+                                            {
+                                                if (baseFieldRelation.DisposeResult == true)
+                                                {
+                                                    ds.Tables.Remove(table);
                                                 }
                                             }
                                         }
