@@ -18,10 +18,8 @@
             "ApplicationID": "HDS",
             "ProjectID": "HOA",
             "DataSourceID": "OPENAPIDB",
-            "DataProvider": "SqlServer",
-            "ConnectionString": "Data Source=1.1.1.133;Initial Catalog=OpenAPI;User ID=qcn;Password=roqkfwk~!@34;Pooling=true;Min Pool Size=60;Max Pool Size=180;",
-            // "DataProvider": "SQLite",
-            // "ConnectionString": "URI=file:../sqlite/HDS/openapi/managed.db;Journal Mode=MEMORY;Cache Size=4000;Synchronous=Normal;Page Size=4096;Pooling=True;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;",
+            "DataProvider": "SQLite",
+            "ConnectionString": "URI=file:../sqlite/HDS/openapi/managed.db;Journal Mode=MEMORY;Cache Size=4000;Synchronous=Normal;Page Size=4096;Pooling=True;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;",
             "IsEncryption": "N"
         },
         "EventAction": [
