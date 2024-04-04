@@ -106,9 +106,10 @@ namespace transact.Extensions
                 else
                 {
                     int additionCount = outputContracts.Where(p => p.Type == "Addition").Count();
-                    if ((outputContracts.Count - additionCount + (additionCount > 0 ? 1 : 0)) != outputs.Count)
+                    int disposeCount = outputContracts.Where(p => p.BaseFieldRelation?.DisposeResult == true).Count();
+                    if ((outputContracts.Count - disposeCount - additionCount + (additionCount > 0 ? 1 : 0)) != outputs.Count)
                     {
-                        applicationResponse.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 출력 모델 개수 확인 필요, 계약 건수 - '{outputContracts.Count}', 응답 건수 - '{outputs.Count}'";
+                        applicationResponse.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 출력 모델 개수 및 SequentialResultContractValidation 확인 필요, 계약 건수 - '{outputContracts.Count}', 응답 건수 - '{outputs.Count}'";
                         return applicationResponse;
                     }
 
@@ -303,9 +304,10 @@ namespace transact.Extensions
                                 else
                                 {
                                     int additionCount = sequentialOutputContracts.Where(p => p.Type == "Addition").Count();
-                                    if ((sequentialOutputContracts.Count - additionCount + (additionCount > 0 ? 1 : 0)) != outputs.Count)
+                                    int disposeCount = sequentialOutputContracts.Where(p => p.BaseFieldRelation?.DisposeResult == true).Count();
+                                    if ((sequentialOutputContracts.Count - disposeCount - additionCount + (additionCount > 0 ? 1 : 0)) != outputs.Count)
                                     {
-                                        applicationResponse.ExceptionText = $"'{transactionID}|{serviceID}' 거래 입력에 출력 모델 개수 확인 필요, 계약 건수 - '{sequentialOutputContracts.Count}', 응답 건수 - '{outputs.Count}'";
+                                        applicationResponse.ExceptionText = $"'{transactionID}|{serviceID}' 거래 입력에 출력 모델 개수 및 SequentialDataTransactionAsync 확인 필요, 계약 건수 - '{sequentialOutputContracts.Count}', 응답 건수 - '{outputs.Count}'";
                                         return applicationResponse;
                                     }
 
@@ -598,9 +600,10 @@ namespace transact.Extensions
                         else
                         {
                             int additionCount = outputContracts.Where(p => p.Type == "Addition").Count();
-                            if ((outputContracts.Count - additionCount + (additionCount > 0 ? 1 : 0)) != outputs.Count)
+                            int disposeCount = outputContracts.Where(p => p.BaseFieldRelation?.DisposeResult == true).Count();
+                            if ((outputContracts.Count - disposeCount - additionCount + (additionCount > 0 ? 1 : 0)) != outputs.Count)
                             {
-                                applicationResponse.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 출력 모델 개수 확인 필요, 계약 건수 - '{outputContracts.Count}', 응답 건수 - '{outputs.Count}'";
+                                applicationResponse.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 출력 모델 개수 및 DataTransactionAsync 확인 필요, 계약 건수 - '{outputContracts.Count}', 응답 건수 - '{outputs.Count}'";
                                 return applicationResponse;
                             }
 
@@ -999,6 +1002,7 @@ namespace transact.Extensions
                             QueryObject queryObject = new QueryObject();
                             queryObject.QueryID = string.Concat(transactionApplicationID, "|", transactionProjectID, "|", transactionID, "|", serviceID, i.ToString().PadLeft(2, '0'));
 
+                            var baseFieldRelations = new List<BaseFieldRelation?>();
                             List<JsonObjectType> jsonObjectTypes = new List<JsonObjectType>();
                             foreach (ModelOutputContract item in outputContracts)
                             {
@@ -1009,6 +1013,8 @@ namespace transact.Extensions
                                 {
                                     queryObject.JsonObject = jsonObjectType;
                                 }
+
+                                baseFieldRelations.Add(item.BaseFieldRelation);
                             }
                             queryObject.JsonObjects = jsonObjectTypes;
 
@@ -1020,6 +1026,7 @@ namespace transact.Extensions
 
                             queryObject.Parameters = parameters;
                             queryObject.BaseFieldMappings = inputContract.BaseFieldMappings;
+                            queryObject.BaseFieldRelations = baseFieldRelations;
                             queryObject.IgnoreResult = inputContract.IgnoreResult;
                             dynamicObjects.Add(queryObject);
                         }
@@ -1029,6 +1036,7 @@ namespace transact.Extensions
                         QueryObject queryObject = new QueryObject();
                         queryObject.QueryID = string.Concat(transactionApplicationID, "|", transactionProjectID, "|", transactionID, "|", serviceID, i.ToString().PadLeft(2, '0'));
 
+                        List<BaseFieldRelation> baseFieldRelations = new List<BaseFieldRelation>();
                         List<JsonObjectType> jsonObjectTypes = new List<JsonObjectType>();
                         foreach (ModelOutputContract item in outputContracts)
                         {
@@ -1039,10 +1047,16 @@ namespace transact.Extensions
                             {
                                 queryObject.JsonObject = jsonObjectType;
                             }
+
+                            if (item.BaseFieldRelation != null)
+                            {
+                                baseFieldRelations.Add(item.BaseFieldRelation);
+                            }
                         }
                         queryObject.JsonObjects = jsonObjectTypes;
                         queryObject.Parameters = new List<DynamicParameter>();
                         queryObject.BaseFieldMappings = new List<BaseFieldMapping>();
+                        queryObject.BaseFieldRelations = baseFieldRelations;
                         queryObject.IgnoreResult = false;
                         dynamicObjects.Add(queryObject);
                     }
@@ -1206,6 +1220,7 @@ namespace transact.Extensions
                             QueryObject queryObject = new QueryObject();
                             queryObject.QueryID = string.Concat(transactionObject.TransactionID, "|", transactionObject.ServiceID, i.ToString().PadLeft(2, '0'));
 
+                            var baseFieldRelations = new List<BaseFieldRelation?>();
                             List<JsonObjectType> jsonObjectTypes = new List<JsonObjectType>();
                             foreach (ModelOutputContract item in outputContracts)
                             {
@@ -1216,6 +1231,8 @@ namespace transact.Extensions
                                 {
                                     queryObject.JsonObject = jsonObjectType;
                                 }
+
+                                baseFieldRelations.Add(item.BaseFieldRelation);
                             }
                             queryObject.JsonObjects = jsonObjectTypes;
 
@@ -1227,6 +1244,7 @@ namespace transact.Extensions
 
                             queryObject.Parameters = parameters;
                             queryObject.BaseFieldMappings = inputContract.BaseFieldMappings;
+                            queryObject.BaseFieldRelations = baseFieldRelations;
                             queryObject.IgnoreResult = inputContract.IgnoreResult;
                             dynamicObjects.Add(queryObject);
                         }
@@ -1235,7 +1253,8 @@ namespace transact.Extensions
                     {
                         QueryObject queryObject = new QueryObject();
                         queryObject.QueryID = string.Concat(transactionObject.TransactionID, "|", transactionObject.ServiceID, i.ToString().PadLeft(2, '0'));
-
+                        
+                        List<BaseFieldRelation> baseFieldRelations = new List<BaseFieldRelation>();
                         List<JsonObjectType> jsonObjectTypes = new List<JsonObjectType>();
                         foreach (ModelOutputContract item in outputContracts)
                         {
@@ -1246,10 +1265,16 @@ namespace transact.Extensions
                             {
                                 queryObject.JsonObject = jsonObjectType;
                             }
+
+                            if (item.BaseFieldRelation != null)
+                            {
+                                baseFieldRelations.Add(item.BaseFieldRelation);
+                            }
                         }
                         queryObject.JsonObjects = jsonObjectTypes;
                         queryObject.Parameters = new List<DynamicParameter>();
                         queryObject.BaseFieldMappings = new List<BaseFieldMapping>();
+                        queryObject.BaseFieldRelations = baseFieldRelations;
                         queryObject.IgnoreResult = false;
                         dynamicObjects.Add(queryObject);
                     }

@@ -14,6 +14,7 @@ namespace HandStack.Web.MessageContract.DataObject
             Parameters = new List<DynamicParameter>();
             DecryptParameters = new List<DecryptParameter>();
             BaseFieldMappings = new List<BaseFieldMapping>();
+            BaseFieldRelations = new List<BaseFieldRelation?>();
             IgnoreResult = false;
         }
 
@@ -28,6 +29,8 @@ namespace HandStack.Web.MessageContract.DataObject
         public List<DecryptParameter> DecryptParameters { get; set; }
 
         public List<BaseFieldMapping> BaseFieldMappings { get; set; }
+
+        public List<BaseFieldRelation?> BaseFieldRelations { get; set; }
 
         public bool IgnoreResult { get; set; }
     }

@@ -285,6 +285,48 @@ namespace HandStack.Web.MessageContract.DataObject
         }
     }
 
+    public partial class BaseFieldRelation
+    {
+        [JsonProperty("RelationFieldID")]
+        public string RelationFieldID { get; set; }
+
+        [JsonProperty("BaseSequence")]
+        public int BaseSequence { get; set; }
+
+        [JsonProperty("RelationMappings")]
+        public List<RelationMapping> RelationMappings { get; set; }
+
+        [JsonProperty("ColumnNames", NullValueHandling = NullValueHandling.Ignore)]
+        public List<string> ColumnNames { get; set; }
+
+        [JsonProperty("DisposeResult", NullValueHandling = NullValueHandling.Ignore)]
+        public bool DisposeResult { get; set; }
+
+        public BaseFieldRelation()
+        {
+            RelationFieldID = "";
+            BaseSequence = 0;
+            RelationMappings = new List<RelationMapping>();
+            ColumnNames = new List<string>();
+            DisposeResult = false;
+        }
+    }
+
+    public partial class RelationMapping
+    {
+        [JsonProperty("BaseFieldID")]
+        public string BaseFieldID { get; set; }
+
+        [JsonProperty("ChildrenFieldID")]
+        public string ChildrenFieldID { get; set; }
+
+        public RelationMapping()
+        {
+            BaseFieldID = "";
+            ChildrenFieldID = "";
+        }
+    }
+
     public class ModelOutputContract
     {
         [JsonProperty("ModelID")]
@@ -299,12 +341,16 @@ namespace HandStack.Web.MessageContract.DataObject
         [JsonProperty("Maskings")]
         public List<Masking> Maskings { get; set; }
 
+        [JsonProperty("BaseFieldRelation", NullValueHandling = NullValueHandling.Ignore)]
+        public BaseFieldRelation? BaseFieldRelation { get; set; }
+
         public ModelOutputContract()
         {
             ModelID = "";
             Fields = new List<string>();
             Type = "";
             Maskings = new List<Masking>();
+            BaseFieldRelation = null;
         }
     }
 

@@ -697,6 +697,71 @@ namespace dbclient.DataClient
                                             continue;
                                         }
 
+                                        if (dynamicObject.BaseFieldRelations != null && dynamicObject.BaseFieldRelations.Count() > 0)
+                                        {
+                                            var baseFieldRelation = dynamicObject.BaseFieldRelations[j];
+                                            if (baseFieldRelation != null && baseFieldRelation.BaseSequence >= 0 && ((ds.Tables.Count - 1) >= baseFieldRelation.BaseSequence))
+                                            {
+                                                var baseTable = ds.Tables[baseFieldRelation.BaseSequence];
+                                                if (baseTable != null)
+                                                {
+                                                    string baseColumnID = string.IsNullOrEmpty(baseFieldRelation.RelationFieldID) == true ? "_Children" : baseFieldRelation.RelationFieldID;
+                                                    if (baseTable.Columns.Contains(baseColumnID) == false && baseFieldRelation.RelationMappings.Count > 0)
+                                                    {
+                                                        baseTable.Columns.Add(baseColumnID, typeof(object));
+
+                                                        var dvChildren = table.AsDataView();
+                                                        foreach (DataRow row in baseTable.Rows)
+                                                        {
+                                                            List<string> rowFilters = new List<string>() { "1<2" };
+                                                            foreach (var item in baseFieldRelation.RelationMappings)
+                                                            {
+                                                                if (baseTable.Columns.Contains(item.BaseFieldID) == true && table.Columns.Contains(item.ChildrenFieldID) == true)
+                                                                {
+                                                                    rowFilters.Add($" AND {item.BaseFieldID} = '{row[item.ChildrenFieldID]}'");
+                                                                }
+                                                            }
+
+                                                            if (rowFilters.Count > 1)
+                                                            {
+                                                                dvChildren.RowFilter = string.Join("", rowFilters);
+
+                                                                DataTable? dtChildren = null;
+                                                                if (baseFieldRelation.ColumnNames.Count > 0)
+                                                                {
+                                                                    dtChildren = dvChildren.ToTable(false, baseFieldRelation.ColumnNames.ToArray());
+                                                                }
+                                                                else
+                                                                {
+                                                                    dtChildren = dvChildren.ToTable();
+                                                                    foreach (var item in baseFieldRelation.RelationMappings)
+                                                                    {
+                                                                        dtChildren.Columns.Remove(item.ChildrenFieldID);
+                                                                    }
+                                                                }
+
+                                                                row[baseColumnID] = dtChildren;
+                                                            }
+                                                        }
+
+                                                        if (baseFieldRelation.DisposeResult == true)
+                                                        {
+                                                            ds.Tables.Remove(table);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    for (int j = 0; j < ds.Tables.Count; j++)
+                                    {
+                                        DataTable table = ds.Tables[j];
+                                        if (table.Columns.Count == 0)
+                                        {
+                                            continue;
+                                        }
+
                                         if (dynamicObject.JsonObjects == null || dynamicObject.JsonObjects.Count == 0)
                                         {
                                             jsonObjectType = dynamicObject.JsonObject;
@@ -2653,6 +2718,71 @@ TransactionException:
                             {
                                 if (ds != null)
                                 {
+                                    for (int j = 0; j < ds.Tables.Count; j++)
+                                    {
+                                        DataTable table = ds.Tables[j];
+                                        if (table.Columns.Count == 0)
+                                        {
+                                            continue;
+                                        }
+
+                                        if (dynamicObject.BaseFieldRelations != null && dynamicObject.BaseFieldRelations.Count() > 0)
+                                        {
+                                            var baseFieldRelation = dynamicObject.BaseFieldRelations[j];
+                                            if (baseFieldRelation != null && baseFieldRelation.BaseSequence >= 0 && ((ds.Tables.Count - 1) >= baseFieldRelation.BaseSequence))
+                                            {
+                                                var baseTable = ds.Tables[baseFieldRelation.BaseSequence];
+                                                if (baseTable != null)
+                                                {
+                                                    string baseColumnID = string.IsNullOrEmpty(baseFieldRelation.RelationFieldID) == true ? "_Children" : baseFieldRelation.RelationFieldID;
+                                                    if (baseTable.Columns.Contains(baseColumnID) == false && baseFieldRelation.RelationMappings.Count > 0)
+                                                    {
+                                                        baseTable.Columns.Add(baseColumnID, typeof(object));
+
+                                                        var dvChildren = table.AsDataView();
+                                                        foreach (DataRow row in baseTable.Rows)
+                                                        {
+                                                            List<string> rowFilters = new List<string>() { "1<2" };
+                                                            foreach (var item in baseFieldRelation.RelationMappings)
+                                                            {
+                                                                if (baseTable.Columns.Contains(item.BaseFieldID) == true && table.Columns.Contains(item.ChildrenFieldID) == true)
+                                                                {
+                                                                    rowFilters.Add($" AND {item.BaseFieldID} = '{row[item.ChildrenFieldID]}'");
+                                                                }
+                                                            }
+
+                                                            if (rowFilters.Count > 1)
+                                                            {
+                                                                dvChildren.RowFilter = string.Join("", rowFilters);
+
+                                                                DataTable? dtChildren = null;
+                                                                if (baseFieldRelation.ColumnNames.Count > 0)
+                                                                {
+                                                                    dtChildren = dvChildren.ToTable(false, baseFieldRelation.ColumnNames.ToArray());
+                                                                }
+                                                                else
+                                                                {
+                                                                    dtChildren = dvChildren.ToTable();
+                                                                    foreach (var item in baseFieldRelation.RelationMappings)
+                                                                    {
+                                                                        dtChildren.Columns.Remove(item.ChildrenFieldID);
+                                                                    }
+                                                                }
+
+                                                                row[baseColumnID] = dtChildren;
+                                                            }
+                                                        }
+
+                                                        if (baseFieldRelation.DisposeResult == true)
+                                                        {
+                                                            ds.Tables.Remove(table);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
                                     for (int j = 0; j < ds.Tables.Count; j++)
                                     {
                                         DataTable table = ds.Tables[j];

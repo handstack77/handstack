@@ -89,7 +89,7 @@ namespace dbclient.Extensions
                     result = "int";
                     break;
                 default:
-                    result = "string";
+                    result = dataType.ToLower();
                     break;
             }
 
