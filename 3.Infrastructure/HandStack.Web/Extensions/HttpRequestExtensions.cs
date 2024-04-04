@@ -180,6 +180,11 @@ namespace HandStack.Web.Extensions
                 ip = httpContext.Request.GetHeaderValueAs<string>("X-Forwarded-For")?.SplitCsv()?.FirstOrDefault();
             }
 
+            if (string.IsNullOrEmpty(ip) == true && httpContext?.GetServerVariable("HTTP_X_FORWARDED_FOR") != null)
+            {
+                ip = httpContext?.GetServerVariable("HTTP_X_FORWARDED_FOR")?.ToString();
+            }
+
             if (string.IsNullOrEmpty(ip) == true && httpContext?.Connection?.RemoteIpAddress != null)
             {
                 ip = httpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();

@@ -217,7 +217,7 @@ namespace openapi.Areas.openapi.Controllers
                 }
 
                 string remoteClientIP = HttpContext.GetRemoteIpAddress().ToStringSafe();
-                if (apiService.IsLimitIPAddress == true && accessMemberApi.AllowIPAddress.Contains(remoteClientIP) == false)
+                if (apiService.LimitIPAddressYN == true && accessMemberApi.AllowIPAddress.Contains(remoteClientIP) == false)
                 {
                     logger.Warning($"{ResponseApi.I42.ToEnumString()}: " + JsonConvert.SerializeObject(parameters));
                     result = StatusCode(400, ResponseApi.I42.ToEnumString());

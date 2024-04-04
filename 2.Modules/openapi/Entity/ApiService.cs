@@ -43,8 +43,8 @@ namespace openapi.Entity
         [JsonProperty("LimitCallCount")]
         public long LimitCallCount { get; set; } = 0;
 
-        [JsonProperty("IsLimitIPAddress")]
-        public bool IsLimitIPAddress { get; set; } = false;
+        [JsonProperty("LimitIPAddressYN")]
+        public bool LimitIPAddressYN { get; set; } = false;
 
         [JsonProperty("AccessControl")]
         public string AccessControl { get; set; } = string.Empty;
