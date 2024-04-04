@@ -1036,7 +1036,7 @@ namespace transact.Extensions
                         QueryObject queryObject = new QueryObject();
                         queryObject.QueryID = string.Concat(transactionApplicationID, "|", transactionProjectID, "|", transactionID, "|", serviceID, i.ToString().PadLeft(2, '0'));
 
-                        List<BaseFieldRelation> baseFieldRelations = new List<BaseFieldRelation>();
+                        var baseFieldRelations = new List<BaseFieldRelation?>();
                         List<JsonObjectType> jsonObjectTypes = new List<JsonObjectType>();
                         foreach (ModelOutputContract item in outputContracts)
                         {
@@ -1254,7 +1254,7 @@ namespace transact.Extensions
                         QueryObject queryObject = new QueryObject();
                         queryObject.QueryID = string.Concat(transactionObject.TransactionID, "|", transactionObject.ServiceID, i.ToString().PadLeft(2, '0'));
                         
-                        List<BaseFieldRelation> baseFieldRelations = new List<BaseFieldRelation>();
+                        var baseFieldRelations = new List<BaseFieldRelation?>();
                         List<JsonObjectType> jsonObjectTypes = new List<JsonObjectType>();
                         foreach (ModelOutputContract item in outputContracts)
                         {
