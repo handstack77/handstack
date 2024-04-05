@@ -31,7 +31,7 @@ namespace HandStack.Core.ExtensionMethod
         {
             if (@this == null)
             {
-                throw new ArgumentNullException("@this", "@this는 null일 수 없습니다");
+                return DateTime.MinValue;
             }
 
             const int peHeaderOffset = 60;
@@ -39,6 +39,11 @@ namespace HandStack.Core.ExtensionMethod
 
             byte[] buffer = new byte[2048];
             string path = @this.Location;
+            if (string.IsNullOrEmpty(path) == true)
+            {
+                return DateTime.MinValue;
+            }
+
             using (Stream stream = new FileStream(path, FileMode.Open, FileAccess.Read))
             {
                 stream.Read(buffer, 0, buffer.Length);

@@ -2,12 +2,13 @@
 chcp 65001
  
 echo winget 설치 확인 중...
-where winget.exe >nul 2>nul
+where winget >nul 2>nul
 if %errorlevel% neq 0 (
     echo start.bat 파일은 Windows 10 버전 1809 이상에서만 사용할 수 있습니다.
     exit /b
 )
 
+echo dotnet 설치 확인 중...
 where dotnet >nul 2>nul
 if %errorlevel% neq 0 (
     echo .NET Core 8 설치를 시작합니다...
@@ -20,9 +21,14 @@ if %errorlevel% neq 0 (
    )
 )
 
-echo dotnet tool libman 설치를 시작합니다...
-dotnet tool install -g Microsoft.Web.LibraryManager.Cli
+echo libman 설치 확인 중...
+dotnet tool list -g | findstr microsoft.web.librarymanager.cli >nul
+if %errorlevel% neq 0 (
+    echo dotnet tool libman 설치를 시작합니다...
+    call dotnet tool install -g Microsoft.Web.LibraryManager.Cli
+)
 
+echo node 설치 확인 중...
 where node >nul 2>nul
 if %errorlevel% neq 0 (
     echo Node.js 20 설치를 시작합니다...
@@ -35,18 +41,21 @@ if %errorlevel% neq 0 (
    )
 )
 
+echo pm2 설치 확인 중...
 where pm2 >nul 2>nul
 if %errorlevel% neq 0 (
     echo Node.js 기반 pm2 설치를 시작합니다...
     call npm install -g pm2
 )
 
+echo gulp 설치 확인 중...
 where gulp >nul 2>nul
 if %errorlevel% neq 0 (
     echo Node.js 기반 gulp 설치를 시작합니다...
     call npm install -g gulp
 )
 
+echo uglifyjs 설치 확인 중...
 where uglifyjs >nul 2>nul
 if %errorlevel% neq 0 (
     echo Node.js 기반 uglifyjs 설치를 시작합니다...
@@ -54,7 +63,7 @@ if %errorlevel% neq 0 (
 )
 
 set current_path=%cd%
-
+echo %current_path%
 if exist %current_path%\1.WebHost\ack\ack.csproj (
     mkdir %current_path%\1.WebHost\build\handstack
     cd %current_path%\1.WebHost\ack
@@ -99,8 +108,7 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
     echo HandStack 개발 환경 설치가 완료되었습니다. Visual Studio 개발 도구로 handstack.sln 를 실행하세요. 자세한 정보는 https://handstack.kr 를 참고하세요.
 )
 
-echo %current_path%
-if exist %current_path%\app\ack.dll (
+if exist %current_path%\app\ack.exe (
     echo current_path: %current_path% ack 실행 환경 설치 확인 중...
     if not exist %current_path%\node_modules (
         echo function 모듈 %current_path%\package.json 설치를 시작합니다...

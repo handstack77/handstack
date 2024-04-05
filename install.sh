@@ -1,6 +1,7 @@
 #!/bin/bash
 # chmod +x /home/handstack/install.sh
 
+echo "dotnet 설치 확인 중..."
 dotnet_path=$(which dotnet)
 if [ ! -n "$dotnet_path" ]; then
     echo ".NET Core 8 설치를 시작합니다..."
@@ -23,9 +24,13 @@ else
     fi
 fi
 
-echo "dotnet tool libman 설치를 시작합니다..."
-dotnet tool install -g Microsoft.Web.LibraryManager.Cli
+echo "libman 설치 확인 중..."
+if ! dotnet tool list -g | grep -q microsoft.web.librarymanager.cli; then
+    echo "dotnet tool libman 설치를 시작합니다..."
+    dotnet tool install -g Microsoft.Web.LibraryManager.Cli
+fi
 
+echo "node 설치 확인 중..."
 node_path=$(which node)
 if [ ! -n "$node_path" ]; then
     echo "Node.js 20 설치를 시작합니다..."
@@ -50,18 +55,21 @@ else
     fi
 fi
 
+echo "pm2 설치 확인 중..."
 pm2_path=$(which pm2)
 if [ ! -n "pm2_path" ]; then
     echo "Node.js 기반 pm2 설치를 시작합니다..."
     npm install -g pm2
 fi
 
+echo "gulp 설치 확인 중..."
 gulp_path=$(which gulp)
 if [ ! -n "gulp_path" ]; then
     echo "Node.js 기반 gulp 설치를 시작합니다..."
     npm install -g gulp
 fi
 
+echo "uglifyjs 설치 확인 중..."
 uglifyjs_path=$(which uglifyjs)
 if [ ! -n "uglifyjs_path" ]; then
     echo "Node.js 기반 uglifyjs 설치를 시작합니다..."
@@ -69,11 +77,11 @@ if [ ! -n "uglifyjs_path" ]; then
 fi
 
 current_path=$(pwd)
-
+echo "current_path: $current_path"
 if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
     mkdir -p $current_path/1.WebHost/build/handstack
     cd $current_path/1.WebHost/ack
-    echo "current_path: $current_path a개발 환경 설치 확인 중..."
+    echo "current_path: $current_path 개발 환경 설치 확인 중..."
     if [ ! -d "$current_path/node_modules" ]; then
         echo "syn.js 번들링 $current_path/package.json 설치를 시작합니다..."
         npm install

@@ -73,7 +73,8 @@ namespace HandStack.Core
 
         public static string? GetAssemblyDirectory(Assembly targetAssembly)
         {
-            return Path.GetDirectoryName(targetAssembly.Location);
+            string location = string.IsNullOrEmpty(targetAssembly.Location) == true ? AppContext.BaseDirectory : targetAssembly.Location;
+            return Path.GetDirectoryName(location);
         }
 
         public static Type? FindType(string typeName)
