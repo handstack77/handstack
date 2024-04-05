@@ -165,6 +165,68 @@ COMMENT ON COLUMN "UsageAPIAggregate"."ModifiedAt" IS '최근 요청 일시';
 
 
 CREATE INDEX "IX_AccessMemberAPI_APIServiceID_MemberID" ON "AccessMemberAPI" ("APIServiceID", "MemberID");
+
+
+CREATE TABLE "Member" (
+    "MemberNo" character varying(36) NOT NULL,
+    "EmailID" character varying(256) NOT NULL DEFAULT '',
+    "EmailVerifyAt" timestamp(0) with time zone,
+    "Celluar" character varying(20),
+    "CelluarVerifyAt" timestamp(0) with time zone,
+    "MemberName" character varying(100),
+    "PositionName" character varying(100),
+    "DepartmentName" character varying(100),
+    "CompanyName" character varying(100),
+    "Roles" character varying(200),
+    "BirthDate" character varying(10),
+    "JoinAt" timestamp(0) with time zone,
+    "RetireAt" timestamp(0) with time zone,
+    "Address" character varying(510),
+    "AddressDetail" character varying(100),
+    "Gender" character varying(1),
+    "DeleteYN" character varying(1),
+    "Comment" character varying(2000),
+    "UserWorkID" character varying(36),
+    "TenantAppRequestPath" character varying(10),
+    "TermsOfServiceConsentYN" character varying(1),
+    "PersonalInformationUseConsentYN" character varying(1),
+    "ThirdPartyProvisionConsentYN" character varying(1),
+    "CreatedUserNo" character varying(36),
+    "CreatedAt" timestamp(0) with time zone,
+    "ModifiedMemberNo" character varying(36),
+    "ModifiedAt" timestamp(0) with time zone,
+    CONSTRAINT "PK_Member" PRIMARY KEY ("MemberNo")
+);
+COMMENT ON COLUMN "Member"."MemberNo" IS '회원NO';
+COMMENT ON COLUMN "Member"."EmailID" IS '이메일ID';
+COMMENT ON COLUMN "Member"."EmailVerifyAt" IS '이메일확인일시';
+COMMENT ON COLUMN "Member"."Celluar" IS '핸드폰번호';
+COMMENT ON COLUMN "Member"."CelluarVerifyAt" IS '핸드폰확인일시';
+COMMENT ON COLUMN "Member"."MemberName" IS '회원명';
+COMMENT ON COLUMN "Member"."PositionName" IS '직위명';
+COMMENT ON COLUMN "Member"."DepartmentName" IS '부서명';
+COMMENT ON COLUMN "Member"."CompanyName" IS '회사명';
+COMMENT ON COLUMN "Member"."Roles" IS '역할';
+COMMENT ON COLUMN "Member"."BirthDate" IS '생년월일';
+COMMENT ON COLUMN "Member"."JoinAt" IS '가입일시';
+COMMENT ON COLUMN "Member"."RetireAt" IS '탈퇴일시';
+COMMENT ON COLUMN "Member"."Address" IS '주소';
+COMMENT ON COLUMN "Member"."AddressDetail" IS '상세주소';
+COMMENT ON COLUMN "Member"."Gender" IS '성별';
+COMMENT ON COLUMN "Member"."DeleteYN" IS '삭제여부';
+COMMENT ON COLUMN "Member"."Comment" IS '설명';
+COMMENT ON COLUMN "Member"."UserWorkID" IS '사용자업무ID';
+COMMENT ON COLUMN "Member"."TenantAppRequestPath" IS '태넌트요청경로';
+COMMENT ON COLUMN "Member"."TermsOfServiceConsentYN" IS '서비스 이용약관';
+COMMENT ON COLUMN "Member"."PersonalInformationUseConsentYN" IS '개인정보 이용동의';
+COMMENT ON COLUMN "Member"."ThirdPartyProvisionConsentYN" IS '제3자 제공동의';
+COMMENT ON COLUMN "Member"."CreatedUserNo" IS '생성사용자NO';
+COMMENT ON COLUMN "Member"."CreatedAt" IS '생성일시';
+COMMENT ON COLUMN "Member"."ModifiedMemberNo" IS '수정회원NO';
+COMMENT ON COLUMN "Member"."ModifiedAt" IS '수정일시';
+
+
+CREATE INDEX "IX_Member_EmailID" ON "Member" ("EmailID");
 			]]>
         </statement>
 

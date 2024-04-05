@@ -107,6 +107,41 @@ CREATE TABLE `UsageAPIAggregate` (
 
 
 CREATE INDEX `IX_AccessMemberAPI_APIServiceID_MemberID` ON `AccessMemberAPI` (`APIServiceID`, `MemberID`);
+
+
+CREATE TABLE `Member` (
+    `MemberNo` varchar(36) CHARACTER SET utf8mb4 NOT NULL COMMENT '회원NO',
+    `EmailID` varchar(256) CHARACTER SET utf8mb4 NOT NULL DEFAULT '' COMMENT '이메일ID',
+    `EmailVerifyAt` datetime(0) NULL COMMENT '이메일확인일시',
+    `Celluar` varchar(20) CHARACTER SET utf8mb4 NULL COMMENT '핸드폰번호',
+    `CelluarVerifyAt` datetime(0) NULL COMMENT '핸드폰확인일시',
+    `MemberName` varchar(100) CHARACTER SET utf8mb4 NULL COMMENT '회원명',
+    `PositionName` varchar(100) CHARACTER SET utf8mb4 NULL COMMENT '직위명',
+    `DepartmentName` varchar(100) CHARACTER SET utf8mb4 NULL COMMENT '부서명',
+    `CompanyName` varchar(100) CHARACTER SET utf8mb4 NULL COMMENT '회사명',
+    `Roles` varchar(200) CHARACTER SET utf8mb4 NULL COMMENT '역할',
+    `BirthDate` varchar(10) CHARACTER SET utf8mb4 NULL COMMENT '생년월일',
+    `JoinAt` datetime(0) NULL COMMENT '가입일시',
+    `RetireAt` datetime(0) NULL COMMENT '탈퇴일시',
+    `Address` varchar(510) CHARACTER SET utf8mb4 NULL COMMENT '주소',
+    `AddressDetail` varchar(100) CHARACTER SET utf8mb4 NULL COMMENT '상세주소',
+    `Gender` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '성별',
+    `DeleteYN` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '삭제여부',
+    `Comment` varchar(2000) CHARACTER SET utf8mb4 NULL COMMENT '설명',
+    `UserWorkID` varchar(36) CHARACTER SET utf8mb4 NULL COMMENT '사용자업무ID',
+    `TenantAppRequestPath` varchar(10) CHARACTER SET utf8mb4 NULL COMMENT '태넌트요청경로',
+    `TermsOfServiceConsentYN` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '서비스 이용약관',
+    `PersonalInformationUseConsentYN` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '개인정보 이용동의',
+    `ThirdPartyProvisionConsentYN` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '제3자 제공동의',
+    `CreatedUserNo` varchar(36) CHARACTER SET utf8mb4 NULL COMMENT '생성사용자NO',
+    `CreatedAt` datetime(0) NULL COMMENT '생성일시',
+    `ModifiedMemberNo` varchar(36) CHARACTER SET utf8mb4 NULL COMMENT '수정회원NO',
+    `ModifiedAt` datetime(0) NULL COMMENT '수정일시',
+    CONSTRAINT `PK_Member` PRIMARY KEY (`MemberNo`)
+) CHARACTER SET=utf8mb4;
+
+
+CREATE INDEX `IX_Member_EmailID` ON `Member` (`EmailID`);
 			]]>
         </statement>
         
