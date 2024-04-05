@@ -18,7 +18,7 @@ DECLARE @description AS sql_variant;
 CREATE TABLE [AccessMemberAPI] (
     [AccessID] nvarchar(36) NOT NULL,
     [APIServiceID] nvarchar(36) NULL,
-    [MemberID] nvarchar(36) NULL,
+    [MemberNo] nvarchar(36) NULL,
     [SecretKey] nvarchar(36) NULL,
     [IPAddress] nvarchar(1000) NULL,
     [LimitPeriod] nvarchar(10) NULL,
@@ -36,7 +36,7 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
 SET @description = N'API 서비스 ID';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'AccessMemberAPI', 'COLUMN', N'APIServiceID';
 SET @description = N'회원 ID';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'AccessMemberAPI', 'COLUMN', N'MemberID';
+EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'AccessMemberAPI', 'COLUMN', N'MemberNo';
 SET @description = N'접근 비밀키';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'AccessMemberAPI', 'COLUMN', N'SecretKey';
 SET @description = N'LimitIPAddressYN == Y 인 경우 적용';
@@ -86,28 +86,6 @@ SET @description = N'정렬순서';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'APIParameter', 'COLUMN', N'SortingNo';
 SET @description = N'매개변수 설명';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'APIParameter', 'COLUMN', N'Comment';
-
-
-
-CREATE TABLE [APIResponseScheme] (
-    [APIServiceID] nvarchar(36) NOT NULL,
-    [ColumnID] nvarchar(50) NOT NULL,
-    [ColumnType] nvarchar(30) NULL,
-    [ColumnText] nvarchar(50) NULL,
-    [Comment] nvarchar(1000) NULL,
-    CONSTRAINT [PK_APIResponseScheme] PRIMARY KEY ([APIServiceID], [ColumnID])
-);
-
-SET @description = N'API 서비스 ID';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'APIResponseScheme', 'COLUMN', N'APIServiceID';
-SET @description = N'컬럼 ID';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'APIResponseScheme', 'COLUMN', N'ColumnID';
-SET @description = N'컬럼 데이터 타입';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'APIResponseScheme', 'COLUMN', N'ColumnType';
-SET @description = N'컬럼명';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'APIResponseScheme', 'COLUMN', N'ColumnText';
-SET @description = N'설명';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'APIResponseScheme', 'COLUMN', N'Comment';
 
 
 
@@ -241,7 +219,7 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
 
 
 
-CREATE INDEX [IX_AccessMemberAPI_APIServiceID_MemberID] ON [AccessMemberAPI] ([APIServiceID], [MemberID]);
+CREATE INDEX [IX_AccessMemberAPI_APIServiceID_MemberNo] ON [AccessMemberAPI] ([APIServiceID], [MemberNo]);
 
 
 CREATE TABLE [Member] (

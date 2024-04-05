@@ -528,12 +528,13 @@ TransactionException:
                     }
                 }
 
+                int.TryParse(apiParameter.Length.ToString(), out int parameterLength);
                 dynamicParameters.Add(
                     apiParameter.ParameterID,
                     parameterValue,
                     dbType,
                     (ParameterDirection)Enum.Parse(typeof(ParameterDirection), "Input"),
-                    apiParameter.Length <= 0 ? -1 : apiParameter.Length
+                    apiParameter.Length <= 0 ? -1 : parameterLength
                 );
             }
         }

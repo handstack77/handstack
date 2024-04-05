@@ -16,7 +16,7 @@ EXECUTE IMMEDIATE 'CREATE TABLE
 "AccessMemberAPI" (
     "AccessID" NVARCHAR2(36) NOT NULL,
     "APIServiceID" NVARCHAR2(36),
-    "MemberID" NVARCHAR2(36),
+    "MemberNo" NVARCHAR2(36),
     "SecretKey" NVARCHAR2(36),
     "IPAddress" NVARCHAR2(1000),
     "LimitPeriod" NVARCHAR2(10),
@@ -37,7 +37,7 @@ COMMENT ON COLUMN "AccessMemberAPI"."AccessID" is N'API 접근 ID'/
 COMMENT ON COLUMN "AccessMemberAPI"."APIServiceID" is N'API 서비스 ID'/
 
 
-COMMENT ON COLUMN "AccessMemberAPI"."MemberID" is N'회원 ID'/
+COMMENT ON COLUMN "AccessMemberAPI"."MemberNo" is N'회원 ID'/
 
 
 COMMENT ON COLUMN "AccessMemberAPI"."SecretKey" is N'접근 비밀키'/
@@ -105,34 +105,6 @@ COMMENT ON COLUMN "APIParameter"."SortingNo" is N'정렬순서'/
 
 
 COMMENT ON COLUMN "APIParameter"."Comment" is N'매개변수 설명'/
-
-
-BEGIN 
-EXECUTE IMMEDIATE 'CREATE TABLE 
-"APIResponseScheme" (
-    "APIServiceID" NVARCHAR2(36) NOT NULL,
-    "ColumnID" NVARCHAR2(50) NOT NULL,
-    "ColumnType" NVARCHAR2(30),
-    "ColumnText" NVARCHAR2(50),
-    "Comment" NVARCHAR2(1000),
-    CONSTRAINT "PK_APIResponseScheme" PRIMARY KEY ("APIServiceID", "ColumnID")
-)';
-END;/
-
-
-COMMENT ON COLUMN "APIResponseScheme"."APIServiceID" is N'API 서비스 ID'/
-
-
-COMMENT ON COLUMN "APIResponseScheme"."ColumnID" is N'컬럼 ID'/
-
-
-COMMENT ON COLUMN "APIResponseScheme"."ColumnType" is N'컬럼 데이터 타입'/
-
-
-COMMENT ON COLUMN "APIResponseScheme"."ColumnText" is N'컬럼명'/
-
-
-COMMENT ON COLUMN "APIResponseScheme"."Comment" is N'설명'/
 
 
 BEGIN 
@@ -304,7 +276,7 @@ COMMENT ON COLUMN "UsageAPIAggregate"."CumulativeCallCount" is N'전체 요청 �
 COMMENT ON COLUMN "UsageAPIAggregate"."ModifiedAt" is N'최근 요청 일시'/
 
 
-CREATE INDEX "IX_AccessMemberAPI_APIServiceID_MemberID" ON "AccessMemberAPI" ("APIServiceID", "MemberID")/
+CREATE INDEX "IX_AccessMemberAPI_APIServiceID_MemberNo" ON "AccessMemberAPI" ("APIServiceID", "MemberNo")/
 
 
 BEGIN 

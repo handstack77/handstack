@@ -14,7 +14,7 @@ namespace openapi.Entity
         public string DefaultValue { get; set; } = string.Empty;
 
         [JsonProperty("Length")]
-        public int Length { get; set; } = 0;
+        public long Length { get; set; } = 0;
 
         [JsonProperty("RequiredYN")]
         public bool RequiredYN { get; set; } = false;

@@ -19,7 +19,7 @@ CREATE TABLE "AccessMemberAPI" (
     "APIServiceID" TEXT NULL,
 
     -- 회원 ID
-    "MemberID" TEXT NULL,
+    "MemberNo" TEXT NULL,
 
     -- 접근 비밀키
     "SecretKey" TEXT NULL,
@@ -75,25 +75,6 @@ CREATE TABLE "APIParameter" (
     -- 매개변수 설명
     "Comment" TEXT NULL,
     CONSTRAINT "PK_APIParameter" PRIMARY KEY ("APIServiceID", "ParameterID")
-);
-
-
-CREATE TABLE "APIResponseScheme" (
-    -- API 서비스 ID
-    "APIServiceID" TEXT NOT NULL,
-
-    -- 컬럼 ID
-    "ColumnID" TEXT NOT NULL,
-
-    -- 컬럼 데이터 타입
-    "ColumnType" TEXT NULL,
-
-    -- 컬럼명
-    "ColumnText" TEXT NULL,
-
-    -- 설명
-    "Comment" TEXT NULL,
-    CONSTRAINT "PK_APIResponseScheme" PRIMARY KEY ("APIServiceID", "ColumnID")
 );
 
 
@@ -216,7 +197,7 @@ CREATE TABLE "UsageAPIAggregate" (
 );
 
 
-CREATE INDEX "IX_AccessMemberAPI_APIServiceID_MemberID" ON "AccessMemberAPI" ("APIServiceID", "MemberID");
+CREATE INDEX "IX_AccessMemberAPI_APIServiceID_MemberNo" ON "AccessMemberAPI" ("APIServiceID", "MemberNo");
 
 
 CREATE TABLE "Member" (
@@ -401,51 +382,24 @@ WHERE AP.APIServiceID = @APIServiceID;
 
         <statement id="MD01" seq="0" use="Y" timeout="0" desc="API 사용 통계 갱신">
             <![CDATA[
-DECLARE @CurrentDate DATETIME;
-SET @CurrentDate = GETDATE();
-
-DECLARE @RequestYear INT, @RequestMonth INT, @RequestDay INT, @RequestHour INT;
-
-SET @RequestYear = YEAR(@CurrentDate);
-SET @RequestMonth = MONTH(@CurrentDate);
-SET @RequestDay = DAY(@CurrentDate);
-SET @RequestHour = DATEPART(HOUR, @CurrentDate);
-
-MERGE INTO UsageAPIAggregate AS T
-USING (
-    SELECT @RequestYear, @RequestMonth, @RequestDay, @RequestHour, @APIServiceID, @AccessID, @Format
-    ) AS S(RequestYear, RequestMonth, RequestDay, RequestHour, APIServiceID, AccessID, [Format])
-    ON S.RequestYear = T.RequestYear
-        AND S.RequestMonth = T.RequestMonth
-        AND S.RequestDay = T.RequestDay
-        AND S.RequestHour = T.RequestHour
-        AND S.AccessID = T.AccessID
-WHEN NOT MATCHED
-    THEN
-    INSERT (RequestYear
-		, RequestMonth
-		, RequestDay
-		, RequestHour
-		, APIServiceID
-		, AccessID
-		, [Format]
-		, CumulativeCallCount
-		, ModifiedAt
-	) 
-	VALUES (@RequestYear
-		, @RequestMonth
-		, @RequestDay
-		, @RequestHour
-		, @APIServiceID
-		, @AccessID
-		, @Format
-		, 1
-		, GETDATE()
-	)
-WHEN MATCHED
-    THEN
-    UPDATE SET CumulativeCallCount = (CumulativeCallCount + 1)
-		, ModifiedAt = GETDATE();
+INSERT OR REPLACE INTO UsageAPIAggregate (RequestYear
+    , RequestMonth
+    , RequestDay
+    , RequestHour
+    , APIServiceID
+    , AccessID
+    , Format
+    , CumulativeCallCount
+    , ModifiedAt)
+SELECT CAST(strftime('%Y', 'now') AS INTEGER)
+    , CAST(strftime('%m', 'now') AS INTEGER)
+    , CAST(strftime('%d', 'now') AS INTEGER)
+    , CAST(strftime('%H', 'now') AS INTEGER)
+    , @APIServiceID
+    , @AccessID
+    , @Format
+    , IFNULL((SELECT CumulativeCallCount FROM UsageAPIAggregate WHERE APIServiceID = @APIServiceID AND AccessID = @AccessID), 0) + 1,
+     strftime('%Y-%m-%d %H:%M:%S', 'now');
         
 UPDATE APIService SET CumulativeCallCount = (CumulativeCallCount + 1)
 WHERE APIServiceID = @APIServiceID;

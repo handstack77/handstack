@@ -14,7 +14,7 @@
 CREATE TABLE "AccessMemberAPI" (
     "AccessID" character varying(36) NOT NULL,
     "APIServiceID" character varying(36),
-    "MemberID" character varying(36),
+    "MemberNo" character varying(36),
     "SecretKey" character varying(36),
     "IPAddress" character varying(1000),
     "LimitPeriod" character varying(10),
@@ -28,7 +28,7 @@ CREATE TABLE "AccessMemberAPI" (
 );
 COMMENT ON COLUMN "AccessMemberAPI"."AccessID" IS 'API 접근 ID';
 COMMENT ON COLUMN "AccessMemberAPI"."APIServiceID" IS 'API 서비스 ID';
-COMMENT ON COLUMN "AccessMemberAPI"."MemberID" IS '회원 ID';
+COMMENT ON COLUMN "AccessMemberAPI"."MemberNo" IS '회원 ID';
 COMMENT ON COLUMN "AccessMemberAPI"."SecretKey" IS '접근 비밀키';
 COMMENT ON COLUMN "AccessMemberAPI"."IPAddress" IS 'LimitIPAddressYN == Y 인 경우 적용';
 COMMENT ON COLUMN "AccessMemberAPI"."LimitPeriod" IS 'Day, Month, Infinite';
@@ -59,21 +59,6 @@ COMMENT ON COLUMN "APIParameter"."DefaultValue" IS '기본값';
 COMMENT ON COLUMN "APIParameter"."RequiredYN" IS '필수 유무';
 COMMENT ON COLUMN "APIParameter"."SortingNo" IS '정렬순서';
 COMMENT ON COLUMN "APIParameter"."Comment" IS '매개변수 설명';
-
-
-CREATE TABLE "APIResponseScheme" (
-    "APIServiceID" character varying(36) NOT NULL,
-    "ColumnID" character varying(50) NOT NULL,
-    "ColumnType" character varying(30),
-    "ColumnText" character varying(50),
-    "Comment" character varying(1000),
-    CONSTRAINT "PK_APIResponseScheme" PRIMARY KEY ("APIServiceID", "ColumnID")
-);
-COMMENT ON COLUMN "APIResponseScheme"."APIServiceID" IS 'API 서비스 ID';
-COMMENT ON COLUMN "APIResponseScheme"."ColumnID" IS '컬럼 ID';
-COMMENT ON COLUMN "APIResponseScheme"."ColumnType" IS '컬럼 데이터 타입';
-COMMENT ON COLUMN "APIResponseScheme"."ColumnText" IS '컬럼명';
-COMMENT ON COLUMN "APIResponseScheme"."Comment" IS '설명';
 
 
 CREATE TABLE "APIService" (
@@ -164,7 +149,7 @@ COMMENT ON COLUMN "UsageAPIAggregate"."CumulativeCallCount" IS '전체 요청 �
 COMMENT ON COLUMN "UsageAPIAggregate"."ModifiedAt" IS '최근 요청 일시';
 
 
-CREATE INDEX "IX_AccessMemberAPI_APIServiceID_MemberID" ON "AccessMemberAPI" ("APIServiceID", "MemberID");
+CREATE INDEX "IX_AccessMemberAPI_APIServiceID_MemberNo" ON "AccessMemberAPI" ("APIServiceID", "MemberNo");
 
 
 CREATE TABLE "Member" (

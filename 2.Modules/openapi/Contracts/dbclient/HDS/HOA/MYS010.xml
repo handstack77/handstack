@@ -17,7 +17,7 @@ ALTER DATABASE CHARACTER SET utf8mb4;
 CREATE TABLE `AccessMemberAPI` (
     `AccessID` varchar(36) CHARACTER SET utf8mb4 NOT NULL COMMENT 'API 접근 ID',
     `APIServiceID` varchar(36) CHARACTER SET utf8mb4 NULL COMMENT 'API 서비스 ID',
-    `MemberID` varchar(36) CHARACTER SET utf8mb4 NULL COMMENT '회원 ID',
+    `MemberNo` varchar(36) CHARACTER SET utf8mb4 NULL COMMENT '회원 ID',
     `SecretKey` varchar(36) CHARACTER SET utf8mb4 NULL COMMENT '접근 비밀키',
     `IPAddress` varchar(1000) CHARACTER SET utf8mb4 NULL COMMENT 'LimitIPAddressYN == Y 인 경우 적용',
     `LimitPeriod` varchar(10) CHARACTER SET utf8mb4 NULL COMMENT 'Day, Month, Infinite',
@@ -41,16 +41,6 @@ CREATE TABLE `APIParameter` (
     `SortingNo` int NULL COMMENT '정렬순서',
     `Comment` varchar(2000) CHARACTER SET utf8mb4 NULL COMMENT '매개변수 설명',
     CONSTRAINT `PK_APIParameter` PRIMARY KEY (`APIServiceID`, `ParameterID`)
-) CHARACTER SET=utf8mb4;
-
-
-CREATE TABLE `APIResponseScheme` (
-    `APIServiceID` varchar(36) CHARACTER SET utf8mb4 NOT NULL COMMENT 'API 서비스 ID',
-    `ColumnID` varchar(50) CHARACTER SET utf8mb4 NOT NULL COMMENT '컬럼 ID',
-    `ColumnType` varchar(30) CHARACTER SET utf8mb4 NULL COMMENT '컬럼 데이터 타입',
-    `ColumnText` varchar(50) CHARACTER SET utf8mb4 NULL COMMENT '컬럼명',
-    `Comment` varchar(1000) CHARACTER SET utf8mb4 NULL COMMENT '설명',
-    CONSTRAINT `PK_APIResponseScheme` PRIMARY KEY (`APIServiceID`, `ColumnID`)
 ) CHARACTER SET=utf8mb4;
 
 
@@ -106,7 +96,7 @@ CREATE TABLE `UsageAPIAggregate` (
 ) CHARACTER SET=utf8mb4;
 
 
-CREATE INDEX `IX_AccessMemberAPI_APIServiceID_MemberID` ON `AccessMemberAPI` (`APIServiceID`, `MemberID`);
+CREATE INDEX `IX_AccessMemberAPI_APIServiceID_MemberNo` ON `AccessMemberAPI` (`APIServiceID`, `MemberNo`);
 
 
 CREATE TABLE `Member` (
