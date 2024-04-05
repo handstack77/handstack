@@ -57,7 +57,7 @@ namespace logger.Areas.logger.Controllers
 
             try
             {
-                if (string.IsNullOrEmpty(logMessage.ApplicationID) == true || ModuleConfiguration.ApplicationIDCircuitBreakers.ContainsKey(logMessage.ApplicationID) == false)
+                if (string.IsNullOrEmpty(logMessage.ApplicationID) == true)
                 {
                     logger.Warning("필수 요청 항목 확인 필요: " + JsonConvert.SerializeObject(logMessage));
                     return result;
@@ -70,6 +70,12 @@ namespace logger.Areas.logger.Controllers
                         logger.Warning("데이터 소스 생성 기능 확인 필요: " + JsonConvert.SerializeObject(logMessage));
                         return result;
                     }
+                }
+
+                if (ModuleConfiguration.ApplicationIDCircuitBreakers.ContainsKey(logMessage.ApplicationID) == false)
+                {
+                    logger.Warning($"ApplicationID: {logMessage.ApplicationID} 데이터 소스 확인 필요: " + JsonConvert.SerializeObject(logMessage));
+                    return result;
                 }
 
                 Task.Run(() =>
@@ -95,7 +101,7 @@ namespace logger.Areas.logger.Controllers
 
             try
             {
-                if (string.IsNullOrEmpty(applicationID) == true || ModuleConfiguration.ApplicationIDCircuitBreakers.ContainsKey(applicationID) == false)
+                if (string.IsNullOrEmpty(applicationID) == true)
                 {
                     logger.Warning("필수 요청 항목 확인 필요: " + JsonConvert.SerializeObject(new
                     {
@@ -132,6 +138,12 @@ namespace logger.Areas.logger.Controllers
                     }
                 }
 
+                if (ModuleConfiguration.ApplicationIDCircuitBreakers.ContainsKey(applicationID) == false)
+                {
+                    logger.Warning($"ApplicationID: {applicationID} 데이터 소스 확인 필요");
+                    return result;
+                }
+
                 using var dataSet = await loggerClient.LogList(applicationID, serverID, globalID, environment, projectID, serviceID, transactionID, startedAt, endedAt);
                 result = Content(dataSet == null ? "[]" : JsonConvert.SerializeObject(dataSet.Tables[0]), "application/json");
             }
@@ -151,7 +163,7 @@ namespace logger.Areas.logger.Controllers
 
             try
             {
-                if (string.IsNullOrEmpty(applicationID) == true || string.IsNullOrEmpty(logNo) == true || ModuleConfiguration.ApplicationIDCircuitBreakers.ContainsKey(applicationID) == false)
+                if (string.IsNullOrEmpty(applicationID) == true || string.IsNullOrEmpty(logNo) == true)
                 {
                     logger.Warning("필수 요청 항목 확인 필요: " + JsonConvert.SerializeObject(new
                     {
@@ -172,6 +184,12 @@ namespace logger.Areas.logger.Controllers
                         }));
                         return result;
                     }
+                }
+
+                if (ModuleConfiguration.ApplicationIDCircuitBreakers.ContainsKey(applicationID) == false)
+                {
+                    logger.Warning($"ApplicationID: {applicationID} 데이터 소스 확인 필요");
+                    return result;
                 }
 
                 using var dataSet = await loggerClient.LogDetail(applicationID, logNo);

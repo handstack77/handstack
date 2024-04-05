@@ -116,9 +116,25 @@ namespace logger.Events
         {
             try
             {
-                if (string.IsNullOrEmpty(loggerRequest.ApplicationID) == true || ModuleConfiguration.ApplicationIDCircuitBreakers.ContainsKey(loggerRequest.ApplicationID) == false)
+                if (string.IsNullOrEmpty(loggerRequest.ApplicationID) == true)
                 {
                     logger.Warning("필수 요청 항목 확인 필요: " + JsonConvert.SerializeObject(loggerRequest));
+                    return;
+                }
+
+                if (ModuleConfiguration.IsSQLiteCreateOnNotSettingRequest == true)
+                {
+                    if (ModuleConfiguration.CheckSQLiteCreate(loggerRequest.ApplicationID) == null)
+                    {
+                        logger.Warning("데이터 소스 생성 기능 확인 필요: " + JsonConvert.SerializeObject(loggerRequest));
+                        return;
+                    }
+                }
+
+                if (ModuleConfiguration.ApplicationIDCircuitBreakers.ContainsKey(loggerRequest.ApplicationID) == false)
+                {
+                    logger.Warning($"ApplicationID: {loggerRequest.ApplicationID} 데이터 소스 확인 필요: " + JsonConvert.SerializeObject(loggerRequest));
+                    return;
                 }
 
                 await Task.Run(() =>
