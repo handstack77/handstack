@@ -25,7 +25,7 @@ if "%arch_mode%" == "" set arch_mode=x64
 echo os_mode: %os_mode%, action_mode: %action_mode%, configuration_mode: %configuration_mode%, arch_mode: %arch_mode%
 
 rmdir /s /q ..\publish\%os_mode%-%arch_mode%\handstack
-dotnet %action_mode% 1.WebHost/ack/ack.csproj -p:PublishSingleFile=true --self-contained false --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/app
+dotnet %action_mode% 1.WebHost/ack/ack.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/app
 dotnet %action_mode% 1.WebHost/forbes/forbes.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/forbes
 
 set forbes_path=../publish/%os_mode%-%arch_mode%/handstack/forbes
