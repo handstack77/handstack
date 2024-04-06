@@ -14,6 +14,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
+using Polly;
+
 using RestSharp;
 
 using Serilog;
@@ -113,7 +115,8 @@ namespace ack
                 })
                 .ConfigureServices((context, services) =>
                 {
-                    services.Configure<KestrelServerOptions>(context.Configuration.GetSection("Kestrel"));
+                    var kestrelSection = context.Configuration.GetSection("Kestrel");
+                    services.Configure<KestrelServerOptions>(kestrelSection);
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
