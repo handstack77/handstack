@@ -171,8 +171,6 @@ CREATE TABLE "Member" (
     "Gender" character varying(1),
     "DeleteYN" character varying(1),
     "Comment" character varying(2000),
-    "UserWorkID" character varying(36),
-    "TenantAppRequestPath" character varying(10),
     "TermsOfServiceConsentYN" character varying(1),
     "PersonalInformationUseConsentYN" character varying(1),
     "ThirdPartyProvisionConsentYN" character varying(1),
@@ -200,8 +198,6 @@ COMMENT ON COLUMN "Member"."AddressDetail" IS '상세주소';
 COMMENT ON COLUMN "Member"."Gender" IS '성별';
 COMMENT ON COLUMN "Member"."DeleteYN" IS '삭제여부';
 COMMENT ON COLUMN "Member"."Comment" IS '설명';
-COMMENT ON COLUMN "Member"."UserWorkID" IS '사용자업무ID';
-COMMENT ON COLUMN "Member"."TenantAppRequestPath" IS '태넌트요청경로';
 COMMENT ON COLUMN "Member"."TermsOfServiceConsentYN" IS '서비스 이용약관';
 COMMENT ON COLUMN "Member"."PersonalInformationUseConsentYN" IS '개인정보 이용동의';
 COMMENT ON COLUMN "Member"."ThirdPartyProvisionConsentYN" IS '제3자 제공동의';

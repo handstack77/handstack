@@ -241,8 +241,6 @@ CREATE TABLE [Member] (
     [Gender] nvarchar(1) NULL,
     [DeleteYN] nvarchar(1) NULL,
     [Comment] nvarchar(2000) NULL,
-    [UserWorkID] nvarchar(36) NULL,
-    [TenantAppRequestPath] nvarchar(10) NULL,
     [TermsOfServiceConsentYN] nvarchar(1) NULL,
     [PersonalInformationUseConsentYN] nvarchar(1) NULL,
     [ThirdPartyProvisionConsentYN] nvarchar(1) NULL,
@@ -289,10 +287,6 @@ SET @description = N'삭제여부';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'Member', 'COLUMN', N'DeleteYN';
 SET @description = N'설명';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'Member', 'COLUMN', N'Comment';
-SET @description = N'사용자업무ID';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'Member', 'COLUMN', N'UserWorkID';
-SET @description = N'태넌트요청경로';
-EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'Member', 'COLUMN', N'TenantAppRequestPath';
 SET @description = N'서비스 이용약관';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'Member', 'COLUMN', N'TermsOfServiceConsentYN';
 SET @description = N'개인정보 이용동의';

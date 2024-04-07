@@ -255,12 +255,6 @@ CREATE TABLE "Member" (
     -- 설명
     "Comment" TEXT NULL,
 
-    -- 사용자업무ID
-    "UserWorkID" TEXT NULL,
-
-    -- 태넌트요청경로
-    "TenantAppRequestPath" TEXT NULL,
-
     -- 서비스 이용약관
     "TermsOfServiceConsentYN" TEXT NULL,
 

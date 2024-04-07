@@ -118,8 +118,6 @@ CREATE TABLE `Member` (
     `Gender` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '성별',
     `DeleteYN` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '삭제여부',
     `Comment` varchar(2000) CHARACTER SET utf8mb4 NULL COMMENT '설명',
-    `UserWorkID` varchar(36) CHARACTER SET utf8mb4 NULL COMMENT '사용자업무ID',
-    `TenantAppRequestPath` varchar(10) CHARACTER SET utf8mb4 NULL COMMENT '태넌트요청경로',
     `TermsOfServiceConsentYN` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '서비스 이용약관',
     `PersonalInformationUseConsentYN` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '개인정보 이용동의',
     `ThirdPartyProvisionConsentYN` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '제3자 제공동의',

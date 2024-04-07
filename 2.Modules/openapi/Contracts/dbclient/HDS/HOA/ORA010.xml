@@ -300,8 +300,6 @@ EXECUTE IMMEDIATE 'CREATE TABLE
     "Gender" NVARCHAR2(1),
     "DeleteYN" NVARCHAR2(1),
     "Comment" NVARCHAR2(2000),
-    "UserWorkID" NVARCHAR2(36),
-    "TenantAppRequestPath" NVARCHAR2(10),
     "TermsOfServiceConsentYN" NVARCHAR2(1),
     "PersonalInformationUseConsentYN" NVARCHAR2(1),
     "ThirdPartyProvisionConsentYN" NVARCHAR2(1),
@@ -366,12 +364,6 @@ COMMENT ON COLUMN "Member"."DeleteYN" is N'삭제여부'/
 
 
 COMMENT ON COLUMN "Member"."Comment" is N'설명'/
-
-
-COMMENT ON COLUMN "Member"."UserWorkID" is N'사용자업무ID'/
-
-
-COMMENT ON COLUMN "Member"."TenantAppRequestPath" is N'태넌트요청경로'/
 
 
 COMMENT ON COLUMN "Member"."TermsOfServiceConsentYN" is N'서비스 이용약관'/
