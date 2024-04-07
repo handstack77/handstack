@@ -97,18 +97,7 @@ namespace openapi.Areas.openapi.Controllers
                     parameters.Add(item.Key, item.Value);
                 }
 
-                string? accessID = Request.Headers["AccessID"].ToStringSafe();
-                if (parameters.ContainsKey("AccessID") == true)
-                {
-                    accessID = parameters["AccessID"].ToStringSafe();
-                }
-
-                string? secretKey = Request.Headers["SecretKey"].ToStringSafe();
-                if (parameters.ContainsKey("SecretKey") == true)
-                {
-                    secretKey = parameters["SecretKey"].ToStringSafe();
-                }
-
+                string accessID = Request.GetContainValue("AccessID");
                 if (string.IsNullOrEmpty(interfaceID) == true || string.IsNullOrEmpty(accessID) == true)
                 {
                     logger.Warning("필수 요청 항목 확인 필요: " + JsonConvert.SerializeObject(new
@@ -224,11 +213,15 @@ namespace openapi.Areas.openapi.Controllers
                     return result;
                 }
 
-                if (apiService.AccessControl == "SecretKey" && accessMemberApi.SecretKey == secretKey)
+                if (apiService.AccessControl == "SecretKey")
                 {
-                    logger.Warning($"{ResponseApi.I41.ToEnumString()}: " + JsonConvert.SerializeObject(parameters));
-                    result = StatusCode(400, ResponseApi.I41.ToEnumString());
-                    return result;
+                    string secretKey = Request.GetContainValue("SecretKey");
+                    if (accessMemberApi.SecretKey != secretKey)
+                    {
+                        logger.Warning($"{ResponseApi.I41.ToEnumString()}: " + JsonConvert.SerializeObject(parameters));
+                        result = StatusCode(400, ResponseApi.I41.ToEnumString());
+                        return result;
+                    }
                 }
 
                 if (accessMemberApi.LimitCallCount < accessMemberApi.RequestCallCount)
