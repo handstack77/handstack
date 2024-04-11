@@ -207,7 +207,7 @@ namespace checkup
             {
                 app.Use(async (context, next) =>
                 {
-                    // 라이센스 및 요청경로 확인
+                    // 라이선스 및 요청경로 확인
                     await next.Invoke();
                 });
 
