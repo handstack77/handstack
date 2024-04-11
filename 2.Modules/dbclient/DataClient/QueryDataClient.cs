@@ -557,7 +557,7 @@ namespace dbclient.DataClient
                         }
 
                         var transactionCommands = statementMap.BeforeTransactionCommand.Split("|");
-                        string beforeCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
+                        var beforeCommandResult = await businessApiClient.OnewayTransactionCommandAsync(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
                         if (string.IsNullOrEmpty(beforeCommandResult) == false)
                         {
                             response.ExceptionText = $"ExecuteDynamicSQLMap.BeforeTransactionCommand Error: {beforeCommandResult}";
@@ -869,7 +869,7 @@ namespace dbclient.DataClient
                             }
 
                             var transactionCommands = statementMap.FallbackTransactionCommand.Split("|");
-                            string fallbackCommandResult = businessApiClient.OnewayTransactionCommandAsync(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
+                            var fallbackCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
                             if (string.IsNullOrEmpty(fallbackCommandResult) == false)
                             {
                                 response.ExceptionText = response.ExceptionText + $", ExecuteDynamicSQLMap.FallbackTransactionCommand Error: {fallbackCommandResult}";
@@ -894,7 +894,7 @@ namespace dbclient.DataClient
                         if (string.IsNullOrEmpty(statementMap.AfterTransactionCommand) == false)
                         {
                             var transactionCommands = statementMap.AfterTransactionCommand.Split("|");
-                            string afterCommandResult = businessApiClient.OnewayTransactionCommandAsync(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
+                            var afterCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
                             if (string.IsNullOrEmpty(afterCommandResult) == false)
                             {
                                 response.ExceptionText = $"ExecuteDynamicSQLMap.AfterTransactionCommand Error: GlobalID={request.GlobalID}, QueryID={dynamicObject.QueryID}, CommandID={statementMap.AfterTransactionCommand}, CommandResult={afterCommandResult}";
@@ -1342,7 +1342,7 @@ TransactionException:
                         }
 
                         var transactionCommands = statementMap.BeforeTransactionCommand.Split("|");
-                        string beforeCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
+                        var beforeCommandResult = await businessApiClient.OnewayTransactionCommandAsync(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
                         if (string.IsNullOrEmpty(beforeCommandResult) == false)
                         {
                             response.ExceptionText = $"ExecuteDynamicSQLMapToScalar.BeforeTransactionCommand Error: {beforeCommandResult}";
@@ -1518,7 +1518,7 @@ TransactionException:
                             }
 
                             var transactionCommands = statementMap.FallbackTransactionCommand.Split("|");
-                            string fallbackCommandResult = businessApiClient.OnewayTransactionCommandAsync(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
+                            var fallbackCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
                             if (string.IsNullOrEmpty(fallbackCommandResult) == false)
                             {
                                 response.ExceptionText = response.ExceptionText + $", ExecuteDynamicSQLMapToScalar.FallbackTransactionCommand Error: {fallbackCommandResult}";
@@ -1543,7 +1543,7 @@ TransactionException:
                         if (string.IsNullOrEmpty(statementMap.AfterTransactionCommand) == false)
                         {
                             var transactionCommands = statementMap.AfterTransactionCommand.Split("|");
-                            string afterCommandResult = businessApiClient.OnewayTransactionCommandAsync(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
+                            var afterCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
                             if (string.IsNullOrEmpty(afterCommandResult) == false)
                             {
                                 response.ExceptionText = $"ExecuteDynamicSQLMapToScalar.AfterTransactionCommand Error: GlobalID={request.GlobalID}, QueryID={dynamicObject.QueryID}, CommandID={statementMap.AfterTransactionCommand}, CommandResult={afterCommandResult}";
@@ -1979,7 +1979,7 @@ TransactionException:
                         }
 
                         var transactionCommands = statementMap.BeforeTransactionCommand.Split("|");
-                        string beforeCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
+                        var beforeCommandResult = await businessApiClient.OnewayTransactionCommandAsync(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
                         if (string.IsNullOrEmpty(beforeCommandResult) == false)
                         {
                             response.ExceptionText = $"ExecuteDynamicSQLMapToNonQuery.BeforeTransactionCommand Error: {beforeCommandResult}";
@@ -2158,7 +2158,7 @@ TransactionException:
                             }
 
                             var transactionCommands = statementMap.FallbackTransactionCommand.Split("|");
-                            string fallbackCommandResult = businessApiClient.OnewayTransactionCommandAsync(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
+                            var fallbackCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
                             if (string.IsNullOrEmpty(fallbackCommandResult) == false)
                             {
                                 response.ExceptionText = response.ExceptionText + $", ExecuteDynamicSQLMapToNonQuery.FallbackTransactionCommand Error: {fallbackCommandResult}";
@@ -2183,7 +2183,7 @@ TransactionException:
                         if (string.IsNullOrEmpty(statementMap.AfterTransactionCommand) == false)
                         {
                             var transactionCommands = statementMap.AfterTransactionCommand.Split("|");
-                            string afterCommandResult = businessApiClient.OnewayTransactionCommandAsync(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
+                            var afterCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
                             if (string.IsNullOrEmpty(afterCommandResult) == false)
                             {
                                 response.ExceptionText = $"ExecuteDynamicSQLMapToNonQuery.AfterTransactionCommand Error: GlobalID={request.GlobalID}, QueryID={dynamicObject.QueryID}, CommandID={statementMap.AfterTransactionCommand}, CommandResult={afterCommandResult}";
@@ -2614,7 +2614,7 @@ TransactionException:
                         }
 
                         var transactionCommands = statementMap.BeforeTransactionCommand.Split("|");
-                        string beforeCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
+                        var beforeCommandResult = await businessApiClient.OnewayTransactionCommandAsync(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
                         if (string.IsNullOrEmpty(beforeCommandResult) == false)
                         {
                             response.ExceptionText = $"ExecuteDynamicSQLMapToXml.BeforeTransactionCommand Error: {beforeCommandResult}";
@@ -2874,7 +2874,7 @@ TransactionException:
                             }
 
                             var transactionCommands = statementMap.FallbackTransactionCommand.Split("|");
-                            string fallbackCommandResult = businessApiClient.OnewayTransactionCommandAsync(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
+                            var fallbackCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
                             if (string.IsNullOrEmpty(fallbackCommandResult) == false)
                             {
                                 response.ExceptionText = response.ExceptionText + $", ExecuteDynamicSQLMapToXml.FallbackTransactionCommand Error: {fallbackCommandResult}";
@@ -2899,7 +2899,7 @@ TransactionException:
                         if (string.IsNullOrEmpty(statementMap.AfterTransactionCommand) == false)
                         {
                             var transactionCommands = statementMap.AfterTransactionCommand.Split("|");
-                            string afterCommandResult = businessApiClient.OnewayTransactionCommandAsync(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
+                            var afterCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, dynamicObject.QueryID, dynamicParameters);
                             if (string.IsNullOrEmpty(afterCommandResult) == false)
                             {
                                 response.ExceptionText = $"ExecuteDynamicSQLMapToXml.AfterTransactionCommand Error: GlobalID={request.GlobalID}, QueryID={dynamicObject.QueryID}, CommandID={statementMap.AfterTransactionCommand}, CommandResult={afterCommandResult}";
@@ -4654,8 +4654,13 @@ TransactionException:
             return dynamicParameters;
         }
 
-        private void SetDbParameterMapping(DatabaseFactory databaseFactory, DataProviders databaseProvider, QueryObject queryObject, StatementMap statementMap, dynamic dynamicParameters)
+        private void SetDbParameterMapping(DatabaseFactory databaseFactory, DataProviders databaseProvider, QueryObject queryObject, StatementMap statementMap, dynamic? dynamicParameters)
         {
+            if (dynamicParameters == null)
+            {
+                return;
+            }
+
             List<DbParameterMap> dbParameterMaps = statementMap.DbParameters;
             foreach (DbParameterMap dbParameterMap in dbParameterMaps)
             {
@@ -4810,8 +4815,13 @@ TransactionException:
             }
         }
 
-        private void PretreatmentAddParameter(DataProviders databaseProvider, StatementMap statementMap, dynamic dynamicParameters, DataRow rowItem, DataColumn item)
+        private void PretreatmentAddParameter(DataProviders databaseProvider, StatementMap statementMap, dynamic? dynamicParameters, DataRow rowItem, DataColumn item)
         {
+            if (dynamicParameters == null)
+            {
+                return;
+            }
+
             if (statementMap.NativeDataClient == true)
             {
                 dynamic? dynamicDbType = null;

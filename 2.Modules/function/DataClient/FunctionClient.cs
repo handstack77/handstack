@@ -208,7 +208,7 @@ namespace function.DataClient
                         var transactionCommands = moduleScriptMap.BeforeTransactionCommand.Split("|");
                         List<ServiceParameter> serviceParameters = new List<ServiceParameter>();
                         serviceParameters.Add(new ServiceParameter() { prop = "ProgramPath", val = programPath });
-                        string? beforeCommandResult = await businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, queryObject.QueryID, dynamicParameters, serviceParameters);
+                        string? beforeCommandResult = await businessApiClient.OnewayTransactionCommandAsync(transactionCommands, request.GlobalID, queryObject.QueryID, dynamicParameters, serviceParameters);
                         if (string.IsNullOrEmpty(beforeCommandResult) == false)
                         {
                             response.ExceptionText = $"ExecuteScriptMap.BeforeTransactionCommand Error: {beforeCommandResult}";
@@ -428,7 +428,7 @@ namespace function.DataClient
                             }
 
                             var transactionCommands = moduleScriptMap.FallbackTransactionCommand.Split("|");
-                            string? fallbackCommandResult = businessApiClient.OnewayTransactionCommandAsync(transactionCommands, request.GlobalID, queryObject.QueryID, dynamicParameters);
+                            string? fallbackCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, queryObject.QueryID, dynamicParameters);
                             if (string.IsNullOrEmpty(fallbackCommandResult) == false)
                             {
                                 response.ExceptionText = response.ExceptionText + $", ExecuteScriptMap.FallbackTransactionCommand Error: GlobalID={request.GlobalID}, QueryID={queryObject.QueryID}, CommandID={moduleScriptMap.FallbackTransactionCommand}, CommandResult={fallbackCommandResult}";
@@ -468,7 +468,7 @@ namespace function.DataClient
                         var transactionCommands = moduleScriptMap.AfterTransactionCommand.Split("|");
                         List<ServiceParameter> serviceParameters = new List<ServiceParameter>();
                         serviceParameters.Add(new ServiceParameter() { prop = "CommandResult", val = executeResult });
-                        string? afterCommandResult = businessApiClient.OnewayTransactionCommandAsync(transactionCommands, request.GlobalID, queryObject.QueryID, dynamicParameters, serviceParameters);
+                        string? afterCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, queryObject.QueryID, dynamicParameters, serviceParameters);
                         if (string.IsNullOrEmpty(afterCommandResult) == false)
                         {
                             response.ExceptionText = $"ExecuteScriptMap.AfterTransactionCommand Error: {afterCommandResult}";

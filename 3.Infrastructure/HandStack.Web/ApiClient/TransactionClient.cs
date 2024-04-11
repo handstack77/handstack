@@ -48,7 +48,7 @@ namespace HandStack.Web.ApiClient
                 {
                     Uri uri = new Uri(TransactionConfig.DiscoveryApiServerUrl + $"?systemID={systemID}&serverType={serverType}");
                     RestClient client = new RestClient();
-                    
+
                     RestRequest apiRequest = new RestRequest(uri, Method.Get);
                     apiRequest.AddHeader("Content-Type", "application/json");
                     apiRequest.AddHeader("cache-control", "no-cache");
@@ -141,10 +141,11 @@ namespace HandStack.Web.ApiClient
 
                 RestClient client = new RestClient();
 
-                if (string.IsNullOrEmpty(GlobalConfiguration.FindGlobalIDServer) ==  false)
+                if (string.IsNullOrEmpty(GlobalConfiguration.FindGlobalIDServer) == false)
                 {
                     var idRequest = new RestRequest(GlobalConfiguration.FindGlobalIDServer, Method.Post);
-                    idRequest.AddStringBody(JsonConvert.SerializeObject(new {
+                    idRequest.AddStringBody(JsonConvert.SerializeObject(new
+                    {
                         applicationID = transactionObject.ProgramID,
                         projectID = transactionObject.BusinessID,
                         transactionID = transactionObject.TransactionID,
@@ -394,46 +395,49 @@ namespace HandStack.Web.ApiClient
             return transactionRequest;
         }
 
-        public async Task<string?> OnewayTransactionCommand(string[] transactionCommands, string globalID, string queryID, List<DynamicParameter> dynamicParameters, List<ServiceParameter>? serviceParameters = null)
+        public async Task<string?> OnewayTransactionCommandAsync(string[] transactionCommands, string globalID, string queryID, dynamic? dynamicParameters, List<ServiceParameter>? serviceParameters = null)
         {
             string? result = null;
             try
             {
-                string applicationID = transactionCommands[0];
-                string projectID = transactionCommands[1];
-                string transactionID = transactionCommands[2];
-                string serviceID = transactionCommands[3];
-
-                TransactionClientObject transactionObject = new TransactionClientObject();
-                transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
-                transactionObject.ProgramID = applicationID;
-                transactionObject.BusinessID = projectID;
-                transactionObject.TransactionID = transactionID;
-                transactionObject.FunctionID = serviceID;
-                transactionObject.ScreenID = "MessageServer";
-
-                List<ServiceParameter> inputs = new List<ServiceParameter>();
-                inputs.Add("GlobalID", globalID);
-                inputs.Add("QueryID", queryID);
-
-                if (serviceParameters != null)
+                if (dynamicParameters is List<DynamicParameter>)
                 {
-                    foreach (var item in serviceParameters)
+                    string applicationID = transactionCommands[0];
+                    string projectID = transactionCommands[1];
+                    string transactionID = transactionCommands[2];
+                    string serviceID = transactionCommands[3];
+
+                    TransactionClientObject transactionObject = new TransactionClientObject();
+                    transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
+                    transactionObject.ProgramID = applicationID;
+                    transactionObject.BusinessID = projectID;
+                    transactionObject.TransactionID = transactionID;
+                    transactionObject.FunctionID = serviceID;
+                    transactionObject.ScreenID = "MessageServer";
+
+                    List<ServiceParameter> inputs = new List<ServiceParameter>();
+                    inputs.Add("GlobalID", globalID);
+                    inputs.Add("QueryID", queryID);
+
+                    if (serviceParameters != null)
                     {
-                        inputs.Add(item.prop, item.val);
+                        foreach (var item in serviceParameters)
+                        {
+                            inputs.Add(item.prop, item.val);
+                        }
                     }
+
+                    foreach (var item in dynamicParameters)
+                    {
+                        inputs.Add(item.ParameterName, item.Value);
+                    }
+
+                    transactionObject.Inputs.Add(inputs);
+
+                    string requestID = "OnewayTransactionCommand" + DateTime.Now.ToString("yyyyMMddHHmmss");
+                    var transactionResult = await TransactionDirect(GlobalConfiguration.BusinessServerUrl, transactionObject);
+                    result = (transactionResult?["HasException"]?["ErrorMessage"]).ToStringSafe();
                 }
-
-                foreach (var item in dynamicParameters)
-                {
-                    inputs.Add(item.ParameterName, item.Value);
-                }
-
-                transactionObject.Inputs.Add(inputs);
-
-                string requestID = "OnewayTransactionCommand" + DateTime.Now.ToString("yyyyMMddHHmmss");
-                var transactionResult = await TransactionDirect(GlobalConfiguration.BusinessServerUrl, transactionObject);
-                result = (transactionResult?["HasException"]?["ErrorMessage"]).ToStringSafe();
             }
             catch (Exception exception)
             {
@@ -444,56 +448,59 @@ namespace HandStack.Web.ApiClient
             return result;
         }
 
-        public string? OnewayTransactionCommandAsync(string[] transactionCommands, string globalID, string queryID, List<DynamicParameter> dynamicParameters, List<ServiceParameter>? serviceParameters = null)
+        public string? OnewayTransactionCommand(string[] transactionCommands, string globalID, string queryID, dynamic? dynamicParameters, List<ServiceParameter>? serviceParameters = null)
         {
             string? result = null;
             try
             {
-                string applicationID = transactionCommands[0];
-                string projectID = transactionCommands[1];
-                string transactionID = transactionCommands[2];
-                string serviceID = transactionCommands[3];
-
-                TransactionClientObject transactionObject = new TransactionClientObject();
-                transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
-                transactionObject.ProgramID = applicationID;
-                transactionObject.BusinessID = projectID;
-                transactionObject.TransactionID = transactionID;
-                transactionObject.FunctionID = serviceID;
-                transactionObject.ScreenID = "MessageServer";
-
-                List<ServiceParameter> inputs = new List<ServiceParameter>();
-                inputs.Add("GlobalID", globalID);
-                inputs.Add("QueryID", queryID);
-
-                if (serviceParameters != null)
+                if (dynamicParameters is List<DynamicParameter>)
                 {
-                    foreach (var item in serviceParameters)
+                    string applicationID = transactionCommands[0];
+                    string projectID = transactionCommands[1];
+                    string transactionID = transactionCommands[2];
+                    string serviceID = transactionCommands[3];
+
+                    TransactionClientObject transactionObject = new TransactionClientObject();
+                    transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
+                    transactionObject.ProgramID = applicationID;
+                    transactionObject.BusinessID = projectID;
+                    transactionObject.TransactionID = transactionID;
+                    transactionObject.FunctionID = serviceID;
+                    transactionObject.ScreenID = "MessageServer";
+
+                    List<ServiceParameter> inputs = new List<ServiceParameter>();
+                    inputs.Add("GlobalID", globalID);
+                    inputs.Add("QueryID", queryID);
+
+                    if (serviceParameters != null)
                     {
-                        inputs.Add(item.prop, item.val);
+                        foreach (var item in serviceParameters)
+                        {
+                            inputs.Add(item.prop, item.val);
+                        }
                     }
+
+                    foreach (var item in dynamicParameters)
+                    {
+                        inputs.Add(item.ParameterName, item.Value);
+                    }
+
+                    transactionObject.Inputs.Add(inputs);
+
+                    string requestID = "OnewayTransactionCommandAsync" + DateTime.Now.ToString("yyyyMMddHHmmss");
+                    Task.Run(async () =>
+                    {
+                        try
+                        {
+                            var transactionResult = await TransactionDirect(GlobalConfiguration.BusinessServerUrl, transactionObject);
+                            result = (transactionResult?["HasException"]?["ErrorMessage"]).ToStringSafe();
+                        }
+                        catch (Exception exception)
+                        {
+                            logger.Error("[{LogCategory}] " + $"GlobalID: {globalID}, {exception.ToMessage()}, None", "TransactionClient/OnewayTransactionCommandAsync");
+                        }
+                    });
                 }
-
-                foreach (var item in dynamicParameters)
-                {
-                    inputs.Add(item.ParameterName, item.Value);
-                }
-
-                transactionObject.Inputs.Add(inputs);
-
-                string requestID = "OnewayTransactionCommandAsync" + DateTime.Now.ToString("yyyyMMddHHmmss");
-                Task.Run(async () =>
-                {
-                    try
-                    {
-                        var transactionResult = await TransactionDirect(GlobalConfiguration.BusinessServerUrl, transactionObject);
-                        result = (transactionResult?["HasException"]?["ErrorMessage"]).ToStringSafe();
-                    }
-                    catch (Exception exception)
-                    {
-                        logger.Error("[{LogCategory}] " + $"GlobalID: {globalID}, {exception.ToMessage()}, None", "TransactionClient/OnewayTransactionCommandAsync");
-                    }
-                });
             }
             catch (Exception exception)
             {
@@ -504,48 +511,51 @@ namespace HandStack.Web.ApiClient
             return result;
         }
 
-        public string? FallbackTransactionCommand(string[] transactionCommands, string globalID, string queryID, List<DynamicParameter> dynamicParameters)
+        public string? FallbackTransactionCommand(string[] transactionCommands, string globalID, string queryID, dynamic? dynamicParameters)
         {
             string? result = null;
             try
             {
-                string applicationID = transactionCommands[0];
-                string projectID = transactionCommands[1];
-                string transactionID = transactionCommands[2];
-                string serviceID = transactionCommands[3];
-
-                TransactionClientObject transactionObject = new TransactionClientObject();
-                transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
-                transactionObject.ProgramID = applicationID;
-                transactionObject.BusinessID = projectID;
-                transactionObject.TransactionID = transactionID;
-                transactionObject.FunctionID = serviceID;
-                transactionObject.ScreenID = "MessageServer";
-
-                List<ServiceParameter> inputs = new List<ServiceParameter>();
-                inputs.Add("GlobalID", globalID);
-                inputs.Add("QueryID", queryID);
-
-                foreach (var item in dynamicParameters)
+                if (dynamicParameters is List<DynamicParameter>)
                 {
-                    inputs.Add(item.ParameterName, item.Value);
+                    string applicationID = transactionCommands[0];
+                    string projectID = transactionCommands[1];
+                    string transactionID = transactionCommands[2];
+                    string serviceID = transactionCommands[3];
+
+                    TransactionClientObject transactionObject = new TransactionClientObject();
+                    transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
+                    transactionObject.ProgramID = applicationID;
+                    transactionObject.BusinessID = projectID;
+                    transactionObject.TransactionID = transactionID;
+                    transactionObject.FunctionID = serviceID;
+                    transactionObject.ScreenID = "MessageServer";
+
+                    List<ServiceParameter> inputs = new List<ServiceParameter>();
+                    inputs.Add("GlobalID", globalID);
+                    inputs.Add("QueryID", queryID);
+
+                    foreach (var item in dynamicParameters)
+                    {
+                        inputs.Add(item.ParameterName, item.Value);
+                    }
+
+                    transactionObject.Inputs.Add(inputs);
+
+                    string requestID = "FallbackTransactionCommand" + DateTime.Now.ToString("yyyyMMddHHmmss");
+                    Task.Run(async () =>
+                    {
+                        try
+                        {
+                            var transactionResult = await TransactionDirect(GlobalConfiguration.BusinessServerUrl, transactionObject);
+                            result = (transactionResult?["HasException"]?["ErrorMessage"]).ToStringSafe();
+                        }
+                        catch (Exception exception)
+                        {
+                            logger.Error("[{LogCategory}] " + $"GlobalID: {globalID}, {exception.ToMessage()}", "TransactionClient/FallbackTransactionNone");
+                        }
+                    });
                 }
-
-                transactionObject.Inputs.Add(inputs);
-
-                string requestID = "FallbackTransactionCommand" + DateTime.Now.ToString("yyyyMMddHHmmss");
-                Task.Run(async () =>
-                {
-                    try
-                    {
-                        var transactionResult = await TransactionDirect(GlobalConfiguration.BusinessServerUrl, transactionObject);
-                        result = (transactionResult?["HasException"]?["ErrorMessage"]).ToStringSafe();
-                    }
-                    catch (Exception exception)
-                    {
-                        logger.Error("[{LogCategory}] " + $"GlobalID: {globalID}, {exception.ToMessage()}", "TransactionClient/FallbackTransactionNone");
-                    }
-                });
             }
             catch (Exception exception)
             {
