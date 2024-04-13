@@ -2,7 +2,10 @@
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>net8.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
+        <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+        <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+        <Deterministic>false</Deterministic>
+        <IsPublishable>True</IsPublishable>
         <Nullable>enable</Nullable>
         <PackageProjectUrl>https://handstack.kr</PackageProjectUrl>
         <PackAsTool>True</PackAsTool>
@@ -14,7 +17,7 @@
         <RepositoryUrl>https://github.com/Junworks77/handstack</RepositoryUrl>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageIcon>handstack.jpg</PackageIcon>
-        <Copyright>Apache License 2.0</Copyright>
+        <Copyright>HandStack License 1.0</Copyright>
         <Authors>handstack77</Authors>
         <Company>handstack</Company>
         <Title>HandStack은 기업 경쟁력 유지를 위한 도구입니다</Title>
@@ -53,11 +56,7 @@
         <None Update="appsettings/**">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-    </ItemGroup>
-
-    <ItemGroup>
-        <None Include="modulesettings/**" />
-        <None Update="modulesettings/**">
+        <None Update="appsettings.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>

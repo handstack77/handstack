@@ -276,6 +276,11 @@
             "provider": "jsdelivr",
             "library": "@csr/coloris@0.21.2",
             "destination": "wwwroot/lib/coloris/"
+        },
+        {
+            "provider": "cdnjs",
+            "library": "qrcode-generator@1.4.4",
+            "destination": "wwwroot/lib/qrcode-generator/"
         }
     ]
 }
