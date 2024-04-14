@@ -428,7 +428,13 @@ namespace HandStack.Web.ApiClient
 
                     foreach (var item in dynamicParameters)
                     {
-                        inputs.Add(item.ParameterName, item.Value);
+                        if (item != null)
+                        {
+                            if (item.ParameterName is string && item.Value is string)
+                            {
+                                inputs.Add((string)item.ParameterName, (string)item.Value);
+                            }
+                        }
                     }
 
                     transactionObject.Inputs.Add(inputs);
@@ -481,7 +487,13 @@ namespace HandStack.Web.ApiClient
 
                     foreach (var item in dynamicParameters)
                     {
-                        inputs.Add(item.ParameterName, item.Value);
+                        if (item != null)
+                        {
+                            if (item.ParameterName is string && item.Value is string)
+                            {
+                                inputs.Add((string)item.ParameterName, (string)item.Value);
+                            }
+                        }
                     }
 
                     transactionObject.Inputs.Add(inputs);
@@ -536,7 +548,13 @@ namespace HandStack.Web.ApiClient
 
                     foreach (var item in dynamicParameters)
                     {
-                        inputs.Add(item.ParameterName, item.Value);
+                        if (item != null)
+                        {
+                            if (item.ParameterName is string && item.Value is string)
+                            {
+                                inputs.Add((string)item.ParameterName, (string)item.Value);
+                            }
+                        }
                     }
 
                     transactionObject.Inputs.Add(inputs);
