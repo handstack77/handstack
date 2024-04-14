@@ -375,25 +375,55 @@ namespace handstack
             {
                 await DebuggerAttach(args, debug, delay);
 
-                Process? targetProcess = null;
                 var processList = Process.GetProcessesByName("ack");
-                for (int i = 0; i < processList.Length; i++)
+
+                if (pid == 0)
                 {
-                    var process = processList[i];
-                    if (process.Id == pid)
+                    for (int i = 0; i < processList.Length; i++)
                     {
-                        targetProcess = process;
-                        break;
+                        var process = processList[i];
+                        try
+                        {
+                            if (process != null)
+                            {
+                                process.Kill(true);
+                            }
+                            else
+                            {
+                                Log.Information($"ProcessID:{pid} 프로세스 확인이 필요합니다");
+                            }
+                        }
+                        catch (Exception exception)
+                        {
+                            Log.Error(exception, $"ProcessID:{pid} 프로세스 Kill 오류");
+                        }
                     }
                 }
-
-                if (targetProcess != null)
+                else if (pid > 0)
                 {
-                    targetProcess.Kill(true);
-                }
-                else
-                {
-                    Log.Information($"ProcessID:{pid} 프로세스 확인이 필요합니다");
+                    for (int i = 0; i < processList.Length; i++)
+                    {
+                        var process = processList[i];
+                        if (process.Id == pid)
+                        {
+                            try
+                            {
+                                if (process != null)
+                                {
+                                    process.Kill(true);
+                                }
+                                else
+                                {
+                                    Log.Information($"ProcessID:{pid} 프로세스 확인이 필요합니다");
+                                }
+                            }
+                            catch (Exception exception)
+                            {
+                                Log.Error(exception, $"ProcessID:{pid} 프로세스 Kill 오류");
+                            }
+                            break;
+                        }
+                    }
                 }
             }, optionDebug, optionDelay, optionProcessID);
 
@@ -416,6 +446,33 @@ namespace handstack
                 switch (format)
                 {
                     case "base64":
+                        Console.WriteLine($"{value?.EncodeBase64()}");
+                        break;
+                    case "suid":
+                        switch (value)
+                        {
+                            case "N":
+                                Console.WriteLine($"{Guid.NewGuid().ToString("N")}");
+                                break;
+                            case "D":
+                                Console.WriteLine($"{Guid.NewGuid().ToString("D")}");
+                                break;
+                            case "B":
+                                Console.WriteLine($"{Guid.NewGuid().ToString("B")}");
+                                break;
+                            case "P":
+                                Console.WriteLine($"{Guid.NewGuid().ToString("P")}");
+                                break;
+                            case "X":
+                                Console.WriteLine($"{Guid.NewGuid().ToString("X")}");
+                                break;
+                            default:
+                                Console.WriteLine($"{Guid.NewGuid().ToString()}");
+                                break;
+                        }
+                        Console.WriteLine($"{value?.EncodeBase64()}");
+                        break;
+                    case "sqids":
                         Console.WriteLine($"{value?.EncodeBase64()}");
                         break;
                     case "aes256":
@@ -469,6 +526,12 @@ namespace handstack
                 {
                     case "base64":
                         Console.WriteLine($"{value?.DecodeBase64()}");
+                        break;
+                    case "suid":
+                        Console.WriteLine($"{value?.EncodeBase64()}");
+                        break;
+                    case "sqids":
+                        Console.WriteLine($"{value?.EncodeBase64()}");
                         break;
                     case "aes256":
                         if (string.IsNullOrEmpty(key) == true)
