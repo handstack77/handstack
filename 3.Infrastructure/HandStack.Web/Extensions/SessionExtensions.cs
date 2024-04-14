@@ -2,7 +2,7 @@
 
 using Newtonsoft.Json;
 
-namespace HandStack.Core.Extensions
+namespace HandStack.Web.Extensions
 {
     /// <code>
     /// if (HttpContext.Session.Get<DateTime>(SessionKeyTime) == default)

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Net.Http;
 
 using HandStack.Core.ExtensionMethod;
-using HandStack.Core.Extensions;
+using HandStack.Web.Extensions;
 using HandStack.Data.Enumeration;
 using HandStack.Web;
 using HandStack.Web.ApiClient;

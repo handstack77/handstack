@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using HandStack.Core.ExtensionMethod;
-using HandStack.Core.Extensions;
+using HandStack.Web.Extensions;
 using HandStack.Core.Helpers;
 using HandStack.Web;
 using HandStack.Web.MessageContract.Contract;

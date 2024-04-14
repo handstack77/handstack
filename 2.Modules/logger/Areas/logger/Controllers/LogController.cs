@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-using HandStack.Core.Extensions;
+using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.Message;
 
 using logger.Encapsulation;

@@ -1,6 +1,6 @@
 ﻿using System.Security.Cryptography;
 
-namespace HandStack.Core.Extensions
+namespace HandStack.Web.Extensions
 {
     /// <code>
     /// string id = "";

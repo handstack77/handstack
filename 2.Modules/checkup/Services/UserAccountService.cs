@@ -4,7 +4,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 
 using HandStack.Core.ExtensionMethod;
-using HandStack.Core.Extensions;
+using HandStack.Web.Extensions;
 using HandStack.Web.Entity;
 
 using checkup.Extensions;

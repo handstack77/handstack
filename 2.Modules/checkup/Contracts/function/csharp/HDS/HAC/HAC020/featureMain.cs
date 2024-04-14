@@ -7,7 +7,7 @@ using System.Net;
 using System.Threading.Tasks;
 
 using HandStack.Core.ExtensionMethod;
-using HandStack.Core.Extensions;
+using HandStack.Web.Extensions;
 using HandStack.Data;
 using HandStack.Web;
 using HandStack.Web.Entity;

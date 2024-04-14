@@ -4,7 +4,7 @@ using System.Data;
 using System.Net;
 
 using HandStack.Core.ExtensionMethod;
-using HandStack.Core.Extensions;
+using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.DataObject;
 
 using checkup;

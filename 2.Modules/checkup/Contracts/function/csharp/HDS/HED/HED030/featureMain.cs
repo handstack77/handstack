@@ -6,7 +6,7 @@ using System.Linq;
 using System.Net;
 
 using HandStack.Core.ExtensionMethod;
-using HandStack.Core.Extensions;
+using HandStack.Web.Extensions;
 using HandStack.Core.Helpers;
 using HandStack.Data;
 using HandStack.Data.Client;

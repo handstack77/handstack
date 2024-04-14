@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using HandStack.Core.ExtensionMethod;
-using HandStack.Core.Extensions;
+using HandStack.Web.Extensions;
 using HandStack.Data.Enumeration;
 using HandStack.Web.MessageContract.Message;
 

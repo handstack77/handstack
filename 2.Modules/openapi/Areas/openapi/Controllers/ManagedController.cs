@@ -1,14 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 
-using HandStack.Core.ExtensionMethod;
-using HandStack.Core.Extensions;
-using HandStack.Web;
 using HandStack.Web.ApiClient;
 using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.Enumeration;
@@ -17,8 +11,6 @@ using HandStack.Web.MessageContract.Message;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
-
-using openapi.Entity;
 
 using Serilog;
 

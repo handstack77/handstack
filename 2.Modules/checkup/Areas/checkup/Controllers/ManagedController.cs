@@ -3,7 +3,6 @@
 using checkup.Extensions;
 
 using HandStack.Core.ExtensionMethod;
-using HandStack.Core.Extensions;
 using HandStack.Data.Enumeration;
 using HandStack.Web.Extensions;
 

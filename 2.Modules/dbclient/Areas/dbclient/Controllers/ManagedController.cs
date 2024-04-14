@@ -8,7 +8,6 @@ using System.Text.RegularExpressions;
 using dbclient.Extensions;
 
 using HandStack.Core.ExtensionMethod;
-using HandStack.Core.Extensions;
 using HandStack.Data;
 using HandStack.Web;
 using HandStack.Web.Entity;

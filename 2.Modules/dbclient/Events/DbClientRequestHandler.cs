@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using dbclient.Encapsulation;
 using dbclient.Extensions;
 
-using HandStack.Core.Extensions;
+using HandStack.Web.Extensions;
 using HandStack.Web;
 using HandStack.Web.MessageContract.Enumeration;
 using HandStack.Web.MessageContract.Message;

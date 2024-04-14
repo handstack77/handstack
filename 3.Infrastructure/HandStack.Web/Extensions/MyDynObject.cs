@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Dynamic;
 
-namespace HandStack.Core.Extensions
+namespace HandStack.Web.Extensions
 {
     /// <code>
     /// var dyn = GetDynamicObject(new Dictionary<string, object>()

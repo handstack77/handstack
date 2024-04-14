@@ -8,7 +8,7 @@ using function.Builder;
 using function.Entity;
 
 using HandStack.Core.ExtensionMethod;
-using HandStack.Core.Extensions;
+using HandStack.Web.Extensions;
 using HandStack.Data;
 using HandStack.Web;
 using HandStack.Web.Entity;

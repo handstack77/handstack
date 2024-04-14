@@ -13,7 +13,7 @@ using Newtonsoft.Json;
 
 using Serilog;
 
-namespace HandStack.Core.Extensions
+namespace HandStack.Web.Extensions
 {
     public class UserSessionMiddleware
     {

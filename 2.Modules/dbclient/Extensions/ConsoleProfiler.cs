@@ -5,8 +5,8 @@ using System.IO;
 
 using dbclient.Profiler;
 
-using HandStack.Core.Extensions;
 using HandStack.Data.ExtensionMethod;
+using HandStack.Web.Extensions;
 
 namespace dbclient.Extensions
 {

@@ -4,7 +4,6 @@ using System.Text;
 using System.Threading.Tasks;
 
 using HandStack.Core.ExtensionMethod;
-using HandStack.Core.Extensions;
 using HandStack.Web;
 using HandStack.Web.ApiClient;
 using HandStack.Web.Entity;
@@ -12,7 +11,6 @@ using HandStack.Web.Extensions;
 
 using MediatR;
 
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 

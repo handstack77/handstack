@@ -6,7 +6,7 @@ using HandStack.Web;
 using HandStack.Web.MessageContract.DataObject;
 using HandStack.Web.Model;
 
-namespace HandStack.Core.Extensions
+namespace HandStack.Web.Extensions
 {
     public static class CommonExtensions
     {

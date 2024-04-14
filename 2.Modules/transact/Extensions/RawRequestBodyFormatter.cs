@@ -3,7 +3,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 
-using HandStack.Core.Extensions;
+using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.Message;
 
 using Microsoft.AspNetCore.Mvc.Formatters;

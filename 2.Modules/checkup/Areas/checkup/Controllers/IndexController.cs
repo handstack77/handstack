@@ -6,13 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 using HandStack.Core.ExtensionMethod;
-using HandStack.Core.Extensions;
 using HandStack.Web;
 using HandStack.Web.ApiClient;
 using HandStack.Web.Entity;
 using HandStack.Web.Extensions;
-
-using checkup.Entity;
 
 using MediatR;
 
@@ -24,8 +21,6 @@ using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 
 using Newtonsoft.Json;
-
-using RestSharp;
 
 using Serilog;
 

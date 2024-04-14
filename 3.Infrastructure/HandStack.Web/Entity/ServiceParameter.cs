@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-using HandStack.Core.Extensions;
+using HandStack.Web.Extensions;
 
 namespace HandStack.Web.Entity
 {

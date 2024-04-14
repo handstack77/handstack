@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using HandStack.Core.ExtensionMethod;
-using HandStack.Core.Extensions;
+using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.Message;
 
 using logger.Encapsulation;

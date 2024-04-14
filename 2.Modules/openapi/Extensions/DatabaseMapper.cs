@@ -10,7 +10,7 @@ using System.Text.RegularExpressions;
 using Dapper;
 
 using HandStack.Core.ExtensionMethod;
-using HandStack.Core.Extensions;
+using HandStack.Web.Extensions;
 
 using HtmlAgilityPack;
 

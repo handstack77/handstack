@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 
 using HandStack.Core.ExtensionMethod;
-using HandStack.Core.Extensions;
+using HandStack.Web.Extensions;
 using HandStack.Web;
 using HandStack.Web.Entity;
 using HandStack.Web.MessageContract.DataObject;

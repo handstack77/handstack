@@ -1,14 +1,20 @@
-﻿using HandStack.Core.ExtensionMethod;
-using HandStack.Core.Extensions;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Security.Claims;
+using System.Text;
+using System.Threading.Tasks;
+
+using checkup.Extensions;
+
+using HandStack.Core.ExtensionMethod;
 using HandStack.Data.Enumeration;
 using HandStack.Web;
 using HandStack.Web.ApiClient;
 using HandStack.Web.Entity;
 using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.DataObject;
-using HandStack.Web.MessageContract.Message;
-
-using checkup.Extensions;
 
 using MediatR;
 
@@ -26,15 +32,6 @@ using Newtonsoft.Json.Linq;
 using Serilog;
 
 using Sqids;
-
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.IO;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace checkup.Areas.checkup.Controllers
 {

@@ -9,7 +9,7 @@ using checkup;
 using checkup.Entity;
 
 using HandStack.Core.ExtensionMethod;
-using HandStack.Core.Extensions;
+using HandStack.Web.Extensions;
 using HandStack.Core.Helpers;
 using HandStack.Web;
 using HandStack.Web.Entity;

@@ -4,7 +4,6 @@ using System.Net;
 using function.Extensions;
 
 using HandStack.Core.ExtensionMethod;
-using HandStack.Core.Extensions;
 using HandStack.Web.Extensions;
 
 using Microsoft.AspNetCore.Cors;

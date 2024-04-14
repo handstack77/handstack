@@ -3,7 +3,7 @@ using System.Linq;
 
 using Microsoft.AspNetCore.Mvc.Localization;
 
-namespace HandStack.Core.Extensions
+namespace HandStack.Web.Extensions
 {
     public static class LocalizedStringExtensions
     {

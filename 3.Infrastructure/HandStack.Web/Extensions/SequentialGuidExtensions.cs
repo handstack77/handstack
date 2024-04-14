@@ -8,7 +8,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 
-namespace HandStack.Core.Extensions
+namespace HandStack.Web.Extensions
 {
     public static class SequentialGuidExtensions
     {

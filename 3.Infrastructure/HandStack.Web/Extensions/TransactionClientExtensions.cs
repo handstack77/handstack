@@ -2,7 +2,7 @@
 
 using HandStack.Web.Entity;
 
-namespace HandStack.Core.Extensions
+namespace HandStack.Web.Extensions
 {
     public static class TransactionClientExtensions
     {

@@ -17,7 +17,6 @@ using checkup.Extensions;
 using checkup.Services;
 
 using HandStack.Core.ExtensionMethod;
-using HandStack.Core.Extensions;
 using HandStack.Core.Helpers;
 using HandStack.Data.Client;
 using HandStack.Data.Enumeration;
