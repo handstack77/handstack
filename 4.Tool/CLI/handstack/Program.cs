@@ -8,6 +8,8 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
+using handstack.Extensions;
+
 using HandStack.Core.ExtensionMethod;
 using HandStack.Core.Helpers;
 
@@ -16,6 +18,8 @@ using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 
 using Serilog;
+
+using Sqids;
 
 namespace handstack
 {
@@ -449,31 +453,48 @@ namespace handstack
                         Console.WriteLine($"{value?.EncodeBase64()}");
                         break;
                     case "suid":
+                        ISequentialIdGenerator sequentialIdGenerator = new SequentialIdGenerator();
                         switch (value)
                         {
                             case "N":
-                                Console.WriteLine($"{Guid.NewGuid().ToString("N")}");
+                                Console.WriteLine($"{sequentialIdGenerator.NewId().ToString("N")}");
                                 break;
                             case "D":
-                                Console.WriteLine($"{Guid.NewGuid().ToString("D")}");
+                                Console.WriteLine($"{sequentialIdGenerator.NewId().ToString("D")}");
                                 break;
                             case "B":
-                                Console.WriteLine($"{Guid.NewGuid().ToString("B")}");
+                                Console.WriteLine($"{sequentialIdGenerator.NewId().ToString("B")}");
                                 break;
                             case "P":
-                                Console.WriteLine($"{Guid.NewGuid().ToString("P")}");
+                                Console.WriteLine($"{sequentialIdGenerator.NewId().ToString("P")}");
                                 break;
                             case "X":
-                                Console.WriteLine($"{Guid.NewGuid().ToString("X")}");
+                                Console.WriteLine($"{sequentialIdGenerator.NewId().ToString("X")}");
                                 break;
                             default:
-                                Console.WriteLine($"{Guid.NewGuid().ToString()}");
+                                Console.WriteLine($"{sequentialIdGenerator.NewId().ToString()}");
                                 break;
                         }
-                        Console.WriteLine($"{value?.EncodeBase64()}");
                         break;
                     case "sqids":
-                        Console.WriteLine($"{value?.EncodeBase64()}");
+                        key = string.IsNullOrEmpty(key) == true ? "abcdefghijklmnopqrstuvwxyz1234567890" : key;
+                        var sqids = new SqidsEncoder<int>(new()
+                        {
+                            Alphabet = key,
+                            MinLength = 8,
+                        });
+
+                        try
+                        {
+                            string[] splitNumbers = value.ToStringSafe().Split(',');
+                            int[] numbers = Array.ConvertAll(splitNumbers, int.Parse);
+
+                            Console.WriteLine($"{sqids.Encode(numbers)}");
+                        }
+                        catch
+                        {
+                            Console.WriteLine($"{sqids.Encode(0)}");
+                        }
                         break;
                     case "aes256":
                         if (string.IsNullOrEmpty(key) == true)
@@ -528,10 +549,32 @@ namespace handstack
                         Console.WriteLine($"{value?.DecodeBase64()}");
                         break;
                     case "suid":
-                        Console.WriteLine($"{value?.EncodeBase64()}");
+                        try
+                        {
+                            var guid = Guid.Parse(value.ToStringSafe());
+                            Console.WriteLine($"{guid.ToDateTime()}");
+                        }
+                        catch
+                        {
+                            Console.WriteLine("");
+                        }
                         break;
                     case "sqids":
-                        Console.WriteLine($"{value?.EncodeBase64()}");
+                        key = string.IsNullOrEmpty(key) == true ? "abcdefghijklmnopqrstuvwxyz1234567890" : key;
+                        var sqids = new SqidsEncoder<int>(new()
+                        {
+                            Alphabet = key,
+                            MinLength = 8,
+                        });
+
+                        try
+                        {
+                            Console.WriteLine($"{string.Join(",", sqids.Decode(value))}");
+                        }
+                        catch
+                        {
+                            Console.WriteLine("");
+                        }
                         break;
                     case "aes256":
                         if (string.IsNullOrEmpty(key) == true)
