@@ -281,7 +281,7 @@ namespace handstack
 
             #region startlog
 
-            // startlog --file=C:/projects/handstack77/handstack/1.WebHost/build/handstack/app/ack.exe --arguments="--debug --delay=1000000" --appsettings=qrame.localhost.json
+            // startlog --file=C:/projects/handstack77/handstack/1.WebHost/build/handstack/app/ack.exe --arguments="--debug --delay=1000000" --appsettings=ack.localhost.json
             var subCommandStartLog = new Command("startlog", "ack 프로세스를 시작하기 위한 명령어 로그를 출력합니다") {
                 optionDebug, optionDelay, optionAckFile, optionArguments, optionAppSettingFile
             };
@@ -322,7 +322,7 @@ namespace handstack
 
             #region start
 
-            // start --file=C:/projects/handstack77/handstack/1.WebHost/build/handstack/app/ack.exe --arguments="--debug --delay=1000000" --appsettings=qrame.localhost.json
+            // start --file=C:/projects/handstack77/handstack/1.WebHost/build/handstack/app/ack.exe --arguments="--debug --delay=1000000" --appsettings=ack.localhost.json
             var subCommandStart = new Command("start", "ack 프로세스를 시작합니다") {
                 optionDebug, optionDelay, optionAckFile, optionArguments, optionAppSettingFile
             };
@@ -441,8 +441,8 @@ namespace handstack
                 optionDebug, optionDelay, optionFormat, optionKey, optionValue
             };
 
-            // qrame encrypt --format=base64 --value="helloworld"
-            // qrame encrypt --format=connectionstring --value="[connection string]"
+            // handstack encrypt --format=base64 --value="helloworld"
+            // handstack encrypt --format=connectionstring --value="[connection string]"
             subCommandEncrypt.SetHandler(async (debug, delay, format, key, value) =>
             {
                 await DebuggerAttach(args, debug, delay);
@@ -538,7 +538,7 @@ namespace handstack
                 optionDebug, optionDelay, optionFormat, optionKey, optionValue
             };
 
-            // qrame decrypt --format=base64 --value="YmxhYmxhIGhlbGxvIHdvcmxk"
+            // handstack decrypt --format=base64 --value="YmxhYmxhIGhlbGxvIHdvcmxk"
             subCommandDecrypt.SetHandler(async (debug, delay, format, key, value) =>
             {
                 await DebuggerAttach(args, debug, delay);
