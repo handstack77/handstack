@@ -220,6 +220,7 @@ namespace function
                             "UIEventLogLevel": "Verbose",
                             "IsLocaleTranslations": true,
                             "LocaleAssetUrl": "/assets/shared/language/",
+                            "AssetsCachingID": "",
                             "IsClientCaching": true,
                             "IsDebugMode": false,
                             "BaseDirectory": "/",

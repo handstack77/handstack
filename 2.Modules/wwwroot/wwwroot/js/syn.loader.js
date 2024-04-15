@@ -22,7 +22,7 @@
             end = document.cookie.length;
         }
 
-        return unescape(document.cookie.substring(len, end));
+        return decodeURIComponent(document.cookie.substring(len, end));
     }
 
     var backgroundColor = '#ed1c23';
@@ -95,7 +95,8 @@
         start: (new Date()).getTime(),
         logTimer: null,
         logCount: 0,
-        argArgs: '',
+        assetsCachingID: '',
+        noCache: '',
         currentLoadedCount: 0,
         styleLoadedCount: 0,
         remainLoadedCount: 0,
@@ -132,19 +133,23 @@
             }
 
             for (var i = 0; i < synLoader.styleFiles.length; i++) {
-                var styleFile = synLoader.styleFiles[i];
-                synLoader.eventLog('request', 'loading style ' + styleFile);
+                synLoader.eventLog('request', 'loading style ' + url);
+                
+                var url = synLoader.styleFiles[i];
+                if (synLoader.assetsCachingID != '' && url.indexOf('/view/') == -1) {
+                    url = url + (url.indexOf('?') > -1 ? '&' : '?') + synLoader.assetsCachingID;
+                }
+                else if (synLoader.noCache != '') {
+                    url = url + (url.indexOf('?') > -1 ? '&' : '?') + synLoader.noCache;
+                }
 
                 var style = document.createElement('link');
                 style.rel = 'stylesheet';
                 style.type = 'text/css';
-                style.href = styleFile;
+                style.href = url;
+                style.async = 'async';
 
-                if (synLoader.argArgs != '') {
-                    style.href = style.href + (styleFile.indexOf('?') > -1 ? '&' : '?') + synLoader.argArgs;
-                }
-
-                if (styleFile.indexOf('dark_mode') > -1) {
+                if (url.indexOf('dark_mode') > -1) {
                     style.id = 'dark_mode';
                 }
 
@@ -186,14 +191,17 @@
                 }
             };
 
-            var src = synLoader.scriptFiles[i];
-            if (synLoader.argArgs != '') {
-                src = src + (src.indexOf('?') > -1 ? '&' : '?') + synLoader.argArgs;
+            var url = synLoader.scriptFiles[i];
+            if (synLoader.assetsCachingID != '' && url.indexOf('/view/') == -1) {
+                url = url + (url.indexOf('?') > -1 ? '&' : '?') + synLoader.assetsCachingID;
+            }
+            else if (synLoader.noCache != '') {
+                url = url + (url.indexOf('?') > -1 ? '&' : '?') + synLoader.noCache;
             }
 
             var script = document.createElement('script');
             script.type = 'text/javascript';
-            script.src = src;
+            script.src = url;
             script.async = 'async';
             script.onload = function (evt) {
                 synLoader.eventLog('loaded', 'Loaded script: ' + evt.target.src);
@@ -212,7 +220,13 @@
         },
 
         loadText: async function (id, url) {
-            url = url + (url.indexOf('?') > -1 ? '&' : '?') + synLoader.argArgs;
+            if (synLoader.assetsCachingID != '' && url.indexOf('/view/') == -1) {
+                url = url + (url.indexOf('?') > -1 ? '&' : '?') + synLoader.assetsCachingID;
+            }
+            else if (synLoader.noCache != '') {
+                url = url + (url.indexOf('?') > -1 ? '&' : '?') + synLoader.noCache;
+            }
+            
             var response = await fetch(url);
             if (response.status !== 200) {
                 if (response.status == 0) {
@@ -536,7 +550,12 @@
             }
         }
 
-        synLoader.argArgs = getCookie('syn.iscache') == 'true' ? '' : 'tick=' + new Date().getTime();
+        var toBoolean = (val) => {
+            return (val === 'true' || val === 'True' || val === 'TRUE' || val === 'Y' || val == '1');
+        }
+
+        synLoader.assetsCachingID = toBoolean(synConfig.AssetsCachingID) === true ? '' : 'tick=' + synConfig.AssetsCachingID;
+        synLoader.noCache = toBoolean(synConfig.IsClientCaching) === true ? '' : 'tick=' + new Date().getTime();
         await synLoader.request(loadFiles);
     }
 
