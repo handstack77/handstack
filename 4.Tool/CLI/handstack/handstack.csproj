@@ -4,14 +4,14 @@
         <TargetFramework>net8.0</TargetFramework>
         <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
         <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
-        <Deterministic>false</Deterministic>
+        <Deterministic>False</Deterministic>
         <IsPublishable>True</IsPublishable>
         <Nullable>enable</Nullable>
         <PackageProjectUrl>https://handstack.kr</PackageProjectUrl>
         <PackAsTool>True</PackAsTool>
         <PackageId>handstack</PackageId>
         <PackageOutputPath>./.nupkg</PackageOutputPath>
-        <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+        <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
         <ToolCommandName>ack</ToolCommandName>
         <PackageTags>비즈니스 앱;로우코드;솔루션;개발도구;business app;lowcode;solution;development tool;handstack;handshake;</PackageTags>
         <RepositoryUrl>https://github.com/Junworks77/handstack</RepositoryUrl>
@@ -22,9 +22,12 @@
         <Company>handstack</Company>
         <Title>HandStack은 기업 경쟁력 유지를 위한 도구입니다</Title>
         <Version>1.0.0-alpha4</Version>
-        <IsPackable>true</IsPackable>
+        <IsPackable>True</IsPackable>
         <IncludeSymbols>True</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <SelfContained>False</SelfContained>
+        <PublishSingleFile>True</PublishSingleFile>
+        <PublishReadyToRun>False</PublishReadyToRun>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
