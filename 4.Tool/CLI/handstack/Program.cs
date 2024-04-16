@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using System.IO.Compression;
 
 using handstack.Extensions;
 
@@ -20,11 +21,17 @@ using Newtonsoft.Json.Linq;
 using Serilog;
 
 using Sqids;
+using Org.BouncyCastle.Asn1.X509;
+using System.Text.RegularExpressions;
 
 namespace handstack
 {
     public class Program
     {
+        private static string[] ignoredDirectoryNames = { ".vs", ".git", ".svn" };
+        private static int replaceInFilesCount;
+        private static int replaceInFileNamesCount;
+        private static int replaceInDirectoryNamesCount;
         private static System.Timers.Timer? startupAwaitTimer;
         private static CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
@@ -64,9 +71,12 @@ namespace handstack
             var optionProcessID = new Option<int>("--pid", description: "OS에서 부여한 프로세스 ID 입니다");
             var optionFormat = new Option<string?>(name: "--format", description: "실행 명령에 따라 적용하는 포맷입니다. 예) encrypt --format=base64|aes256|syn|sha256");
             var optionKey = new Option<string?>(name: "--key", description: "ack 프로그램 실행 검증 키입니다");
-            var optionValue = new Option<string?>(name: "--value", description: "ack 프로그램 실행 검증 값입니다");
+            var optionValue = new Option<string?>(name: "--value", description: "실행 명령에 따라 적용하는 검증 값입니다");
             var optionAppSettingFile = new Option<FileInfo?>(name: "--appsettings", description: "ack 프로그램 appsettings 파일명입니다");
             var optionDirectory = new Option<DirectoryInfo?>(name: "--directory", description: "실행 명령에 따라 적용하는 기준 디렉토리 경로입니다");
+            var optionFile = new Option<FileInfo?>(name: "--file", description: "실행 명령에 따라 적용하는 파일 경로입니다");
+            var optionFind = new Option<string?>(name: "--find", description: "실행 명령에 따라 적용하는 검색 값입니다");
+            var optionReplace = new Option<string?>(name: "--replace", description: "실행 명령에 따라 적용하는 변경 값입니다");
 
             var rootOptionModules = new Option<string?>("--modules", description: "프로그램 시작시 포함할 모듈을 설정합니다. 예) --modules=wwwroot,transact,dbclient,function");
 
@@ -620,6 +630,151 @@ namespace handstack
 
             #endregion
 
+            #region compress
+
+            var subCommandCompress = new Command("compress", "지정된 디렉터리에서 파일 및 디렉터리를 포함하는 Zip 파일을 만듭니다") {
+                optionDebug, optionDelay, optionDirectory, optionFile
+            };
+
+            // handstack compress --directory=C:/projects/handstack77/handstack/4.Tool/CLI/handstack/bin/Debug/net8.0/win-x64 --file=C:/tmp/handstack.zip
+            subCommandCompress.SetHandler(async (debug, delay, directory, file) =>
+            {
+                await DebuggerAttach(args, debug, delay);
+
+                try
+                {
+                    if (directory != null && directory.Parent != null && directory.Exists == true)
+                    {
+                        if (file != null && file.Exists == true)
+                        {
+                            file.Delete();
+                        }
+
+                        string zipFileName = (file?.FullName).ToStringSafe();
+                        if (file != null && file.Extension != ".zip")
+                        {
+                            zipFileName = $"{zipFileName}.zip";
+                        }
+
+                        if (string.IsNullOrEmpty(zipFileName) == true)
+                        {
+                            zipFileName = Path.Combine(directory.Parent.FullName, $"{directory.Name}.zip");
+                        }
+
+                        if (File.Exists(zipFileName) == true) {
+                            File.Delete(zipFileName);
+                        }
+
+                        ZipFile.CreateFromDirectory(directory.FullName, zipFileName);
+                    }
+                    else
+                    {
+                        Log.Information($"directory:{directory?.FullName}, file:{file?.FullName} 확인이 필요합니다");
+                    }
+                }
+                catch (Exception exception)
+                {
+                    Log.Error(exception, $"compress 오류");
+                }
+            }, optionDebug, optionDelay, optionDirectory, optionFile);
+
+            rootCommand.Add(subCommandCompress);
+
+            #endregion
+
+            #region extract
+
+            var subCommandExtract = new Command("extract", "지정된 ZIP 파일의 모든 파일을 파일 시스템의 디렉터리에 추출합니다") {
+                optionDebug, optionDelay, optionFile, optionDirectory
+            };
+
+            // handstack extract --file=C:/tmp/handstack.zip --directory=C:/tmp/handstack
+            subCommandExtract.SetHandler(async (debug, delay, file, directory) =>
+            {
+                await DebuggerAttach(args, debug, delay);
+
+                try
+                {
+                    if (file != null && file.Exists == true && directory != null)
+                    {
+                        if (directory.Exists == true)
+                        {
+                            directory.Delete(true);
+                        }
+
+                        ZipFile.ExtractToDirectory(file.FullName, directory.FullName);
+                    }
+                    else
+                    {
+                        Log.Information($"directory:{directory?.FullName}, file:{file?.FullName} 확인이 필요합니다");
+                    }
+                }
+                catch (Exception exception)
+                {
+                    Log.Error(exception, $"extract 오류");
+                }
+            }, optionDebug, optionDelay, optionFile, optionDirectory);
+
+            rootCommand.Add(subCommandExtract);
+
+            #endregion
+
+            #region create
+
+            var subCommandCreate = new Command("create", "modules, webapp 템플릿 ZIP 파일을 기반으로 프로젝트를 생성합니다") {
+                optionDebug, optionDelay, optionFile, optionDirectory, optionFind, optionReplace, optionValue
+            };
+
+            // handstack create --file=C:/tmp/handstack.zip --directory=C:/tmp/handstack --find=handsup --replace=myprojectname
+            subCommandCreate.SetHandler(async (debug, delay, file, directory, find, replace, ignored) =>
+            {
+                await DebuggerAttach(args, debug, delay);
+
+                if (file != null && file.Exists == true && directory != null)
+                {
+                    if (directory.Exists == true)
+                    {
+                        directory.Delete(true);
+                    }
+
+                    string targetDirectoryPath = directory.FullName;
+                    ZipFile.ExtractToDirectory(file.FullName, targetDirectoryPath);
+
+                    if (string.IsNullOrEmpty(ignored) == false)
+                    {
+                        ignoredDirectoryNames = ignored.SplitComma().ToArray();
+                    }
+
+                    if (string.IsNullOrEmpty(find) == false && string.IsNullOrEmpty(replace) == false)
+                    {
+                        try
+                        {
+                            string findText = find;
+                            string replaceText = replace;
+
+                            ReplaceInFiles(targetDirectoryPath, findText, replaceText, deleteVsUserSettingsDirectory: true);
+
+                            ReplaceInFileNames(targetDirectoryPath, findText, replaceText, deleteVsUserSettingsDirectory: true);
+
+                            ReplaceInDirectoryNames(targetDirectoryPath, findText, replaceText, deleteVsUserSettingsDirectory: true);
+                        }
+                        catch (Exception exception)
+                        {
+                            Console.WriteLine(exception.Message);
+                            Environment.Exit(-1);
+                        }
+                    }
+                }
+                else
+                {
+                    Log.Information($"directory:{directory?.FullName}, file:{file?.FullName} 확인이 필요합니다");
+                }
+            }, optionDebug, optionDelay, optionFile, optionDirectory, optionFind, optionReplace, optionValue);
+
+            rootCommand.Add(subCommandCreate);
+
+            #endregion
+
             rootCommand.SetHandler(async (debug, delay, port, modules) =>
             {
                 await DebuggerAttach(args, debug, delay);
@@ -642,6 +797,138 @@ namespace handstack
 
             exitCode = await rootCommand.InvokeAsync(args);
             return exitCode;
+        }
+
+        public static void ReplaceInFiles(string directoryPath, string findText, string replaceText, bool deleteVsUserSettingsDirectory)
+        {
+            var directoryInfo = new DirectoryInfo(directoryPath);
+
+            if (deleteVsUserSettingsDirectory && ignoredDirectoryNames.Contains(directoryInfo.Name))
+            {
+                return;
+            }
+
+            foreach (string file in Directory.GetFiles(directoryPath))
+            {
+                var fileInfo = new FileInfo(file);
+                if (fileInfo.IsBinary() == false)
+                {
+                    string fileText = File.ReadAllText(file);
+
+                    int count = Regex.Matches(fileText, findText, RegexOptions.None).Count;
+
+                    if (count > 0)
+                    {
+                        string contents = fileText.Replace(findText, replaceText);
+
+                        File.WriteAllText(file, contents);
+
+                        replaceInFilesCount += count;
+                    }
+                }
+            }
+
+            foreach (string directory in Directory.GetDirectories(directoryPath))
+            {
+                ReplaceInFiles(directory, findText, replaceText, deleteVsUserSettingsDirectory);
+            }
+        }
+
+        public static void ReplaceInFileNames(string directoryPath, string findText, string replaceText, bool deleteVsUserSettingsDirectory)
+        {
+            var directoryInfo = new DirectoryInfo(directoryPath);
+
+            if (deleteVsUserSettingsDirectory && ignoredDirectoryNames.Contains(directoryInfo.Name))
+            {
+                return;
+            }
+
+            foreach (string file in Directory.GetFiles(directoryPath))
+            {
+                var fileInfo = new FileInfo(file);
+
+                int count = Regex.Matches(fileInfo.Name, findText, RegexOptions.None).Count;
+
+                if (count > 0)
+                {
+                    string newFileName = fileInfo.Name.Replace(findText, replaceText);
+
+                    string originalFileName = fileInfo.Name;
+
+                    if (newFileName.Equals(originalFileName, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        string tempFileName = $"temp_{originalFileName}_{Guid.NewGuid()}";
+
+                        string tempFullFileName = fileInfo.FullName.ReplaceLastOccurrence(fileInfo.Name, tempFileName);
+
+                        File.Move(fileInfo.FullName, tempFullFileName);
+
+                        string newFullFileName = fileInfo.FullName.ReplaceLastOccurrence(fileInfo.Name, newFileName);
+
+                        File.Move(tempFullFileName, newFullFileName);
+                    }
+                    else
+                    {
+                        string newFullFileName = fileInfo.FullName.ReplaceLastOccurrence(fileInfo.Name, newFileName);
+
+                        File.Move(fileInfo.FullName, newFullFileName);
+                    }
+
+                    replaceInFileNamesCount += count;
+                }
+            }
+
+            foreach (string directory in Directory.GetDirectories(directoryPath))
+            {
+                ReplaceInFileNames(directory, findText, replaceText, deleteVsUserSettingsDirectory);
+            }
+        }
+
+        public static void ReplaceInDirectoryNames(string directoryPath, string findText, string replaceText, bool deleteVsUserSettingsDirectory)
+        {
+            var directoryInfo = new DirectoryInfo(directoryPath);
+
+            if (deleteVsUserSettingsDirectory && ignoredDirectoryNames.Contains(directoryInfo.Name))
+            {
+                return;
+            }
+
+            int count = Regex.Matches(directoryInfo.Name, findText, RegexOptions.None).Count;
+
+            string directoryInfoFullName = directoryInfo.FullName;
+
+            if (count > 0)
+            {
+                string newDirectoryName = directoryInfo.Name.Replace(findText, replaceText);
+
+                string orginalDirectoryName = directoryInfo.Name;
+
+                if (newDirectoryName.Equals(orginalDirectoryName, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    string tempDirectoryName = $"temp_{orginalDirectoryName}_{Guid.NewGuid()}";
+
+                    string tempFullDirectoryName = directoryInfo.FullName.ReplaceLastOccurrence(directoryInfo.Name, tempDirectoryName);
+
+                    Directory.Move(directoryInfo.FullName, tempFullDirectoryName);
+
+                    string newFullDirectoryName = directoryInfo.FullName.ReplaceLastOccurrence(directoryInfo.Name, newDirectoryName);
+
+                    Directory.Move(tempFullDirectoryName, newFullDirectoryName);
+                }
+                else
+                {
+                    directoryInfoFullName = directoryInfo.FullName.ReplaceLastOccurrence(directoryInfo.Name, newDirectoryName);
+
+                    Directory.Move(directoryInfo.FullName, directoryInfoFullName);
+                }
+
+                replaceInDirectoryNamesCount += count;
+            }
+
+            foreach (string directory in Directory.GetDirectories(directoryInfoFullName))
+            {
+                ReplaceInDirectoryNames(directory, findText, replaceText, deleteVsUserSettingsDirectory);
+            }
         }
 
         private static async Task DebuggerAttach(string[] args, bool? debug, int? delay)
