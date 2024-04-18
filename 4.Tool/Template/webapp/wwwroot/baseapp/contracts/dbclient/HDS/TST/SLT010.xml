@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+    <header>
+        <application>HDS</application>
+        <project>TST</project>
+        <transaction>SLT010</transaction>
+        <datasource>DB01</datasource>
+        <use>Y</use>
+        <desc>SQLite 거래 테스트</desc>
+    </header>
+    <commands>
+        <statement id="GD01" seq="0" use="Y" timeout="0" desc="데이터베이스 현재 시간 및 서버명 조회" modified="2023-09-25 00:00:00">
+            <![CDATA[
+			SELECT DATETIME('now', 'localtime') AS ServerDate, 'localhost' AS ServerName;
+			]]>
+        </statement>
+    </commands>
+</mapper>

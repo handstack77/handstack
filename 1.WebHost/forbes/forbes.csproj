@@ -7,18 +7,6 @@
     <ItemGroup>
         <Compile Remove="build/**" />
         <None Include="wwwroot/**" />
-        <Content Remove="wwwroot\handstack.apps.board\dbclient\BOD\BOD010.xml" />
-        <Content Remove="wwwroot\handstack.apps.board\dbclient\BOD\BOD011.xml" />
-        <Content Remove="wwwroot\handstack.apps.board\dbclient\BOD\BOD012.xml" />
-        <Content Remove="wwwroot\handstack.apps.board\transact\BOD\BOD010.json" />
-        <Content Remove="wwwroot\handstack.apps.board\transact\BOD\BOD011.json" />
-        <Content Remove="wwwroot\handstack.apps.board\transact\BOD\BOD012.json" />
-        <Content Remove="wwwroot\handstack.apps.board\wwwroot\view\BOD\BOD010.html" />
-        <Content Remove="wwwroot\handstack.apps.board\wwwroot\view\BOD\BOD010.js" />
-        <Content Remove="wwwroot\handstack.apps.board\wwwroot\view\BOD\BOD011.html" />
-        <Content Remove="wwwroot\handstack.apps.board\wwwroot\view\BOD\BOD011.js" />
-        <Content Remove="wwwroot\handstack.apps.board\wwwroot\view\BOD\BOD012.html" />
-        <Content Remove="wwwroot\handstack.apps.board\wwwroot\view\BOD\BOD012.js" />
         <None Update="wwwroot/**">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>

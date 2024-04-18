@@ -63,7 +63,7 @@ namespace handstack
                 .ReadFrom.Configuration(configuration)
                 .CreateLogger();
 
-            var optionAckFile = new Option<FileInfo?>(name: "--file", description: "ack 프로그램 전체 파일 경로입니다");
+            var optionAckFile = new Option<FileInfo?>(name: "--ack", description: "ack 프로그램 전체 파일 경로입니다");
             var optionArguments = new Option<string?>("--arguments", description: "ack 프로그램 실행시 전달할 매개변수 입니다. 예) \"--modules=wwwroot,transact,dbclient,function\"");
             var optionPort = new Option<int?>("--port", description: "프로그램 수신 포트를 설정합니다. (기본값: 8080)");
             var optionDebug = new Option<bool?>("--debug", description: "프로그램 시작시 디버거에 프로세스가 연결 될 수 있도록 지연 후 시작됩니다.(기본값: 10초)");
@@ -112,18 +112,18 @@ namespace handstack
 
             #region configuration
 
-            // configuration --file=C:/projects/handstack77/handstack/1.WebHost/build/handstack/app/ack.exe --appsettings=ack.localhost.json
+            // configuration --ack=C:/projects/handstack77/handstack/1.WebHost/build/handstack/app/ack.exe --appsettings=ack.localhost.json
             var subCommandConfiguration = new Command("configuration", "의도된 ack 프로그램 및 모듈 환경설정을 적용합니다") {
                 optionDebug, optionDelay, optionAckFile, optionAppSettingFile
             };
 
-            subCommandConfiguration.SetHandler(async (debug, delay, file, settings) =>
+            subCommandConfiguration.SetHandler(async (debug, delay, ackFile, settings) =>
             {
                 await DebuggerAttach(args, debug, delay);
 
-                if (file != null && file.Exists == true && settings != null && settings.Exists == true)
+                if (ackFile != null && ackFile.Exists == true && settings != null && settings.Exists == true)
                 {
-                    string targetBasePath = file.DirectoryName.ToStringSafe();
+                    string targetBasePath = ackFile.DirectoryName.ToStringSafe();
                     string settingDirectoryPath = settings.DirectoryName.ToStringSafe();
                     string settingFilePath = settings.FullName;
                     string settingFileName = settings.Name;
@@ -196,7 +196,7 @@ namespace handstack
                                 }
                             }
 
-                            string appBasePath = file.DirectoryName.ToStringSafe();
+                            string appBasePath = ackFile.DirectoryName.ToStringSafe();
                             FileInfo appSettingFileInfo = new FileInfo(Path.Combine(appBasePath, "appsettings.json"));
                             var appSettingFilePath = appSettingFileInfo.FullName;
                             File.WriteAllText(appSettingFilePath, setting.ToString());
@@ -227,7 +227,7 @@ namespace handstack
                 }
                 else
                 {
-                    Log.Information($"file:{file?.FullName} 파일 확인 또는 settings:{settings?.FullName} 파일 확인이 필요합니다");
+                    Log.Information($"ackFile:{ackFile?.FullName} 파일 확인 또는 settings:{settings?.FullName} 파일 확인이 필요합니다");
                 }
             }, optionDebug, optionDelay, optionAckFile, optionAppSettingFile);
 
@@ -237,20 +237,20 @@ namespace handstack
 
             #region purgecontracts
 
-            // purgecontracts --file=C:/projects/handstack77/handstack/1.WebHost/build/handstack/app/ack.exe --directory=ack.localhost.json
+            // purgecontracts --ack=C:/projects/handstack77/handstack/1.WebHost/build/handstack/app/ack.exe --directory=ack.localhost.json
             var subCommandPurgeContracts = new Command("purgecontracts", "모듈의 Contracts를 사용하도록 ack 프로그램의 contracts 내 중복 파일을 삭제합니다") {
                 optionDebug, optionDelay, optionAckFile, optionDirectory
             };
 
-            subCommandPurgeContracts.SetHandler(async (debug, delay, file, directory) =>
+            subCommandPurgeContracts.SetHandler(async (debug, delay, ackFile, directory) =>
             {
                 await DebuggerAttach(args, debug, delay);
 
-                if (file != null && file.Exists == true && directory != null && directory.Exists == true)
+                if (ackFile != null && ackFile.Exists == true && directory != null && directory.Exists == true)
                 {
-                    string appBasePath = file.DirectoryName.ToStringSafe();
-                    string parentPath = (file.Directory?.Parent?.FullName).ToStringSafe();
-                    string targetContractDir = Path.Combine(parentPath, "contracts");
+                    string appBasePath = ackFile.DirectoryName.ToStringSafe();
+                    string ackHomePath = (ackFile.Directory?.Parent?.FullName).ToStringSafe();
+                    string targetContractDir = Path.Combine(ackHomePath, "contracts");
                     string baseDir = directory.FullName;
 
                     try
@@ -281,7 +281,7 @@ namespace handstack
                 }
                 else
                 {
-                    Log.Information($"file:{file?.FullName} 파일 확인 또는 settings:{directory?.FullName} 파일 확인이 필요합니다");
+                    Log.Information($"ackFile:{ackFile?.FullName} 파일 확인 또는 settings:{directory?.FullName} 파일 확인이 필요합니다");
                 }
             }, optionDebug, optionDelay, optionAckFile, optionDirectory);
 
@@ -291,18 +291,18 @@ namespace handstack
 
             #region startlog
 
-            // startlog --file=C:/projects/handstack77/handstack/1.WebHost/build/handstack/app/ack.exe --arguments="--debug --delay=1000000" --appsettings=ack.localhost.json
+            // startlog --ack=C:/projects/handstack77/handstack/1.WebHost/build/handstack/app/ack.exe --arguments="--debug --delay=1000000" --appsettings=ack.localhost.json
             var subCommandStartLog = new Command("startlog", "ack 프로세스를 시작하기 위한 명령어 로그를 출력합니다") {
                 optionDebug, optionDelay, optionAckFile, optionArguments, optionAppSettingFile
             };
 
-            subCommandStartLog.SetHandler(async (debug, delay, file, arguments, settings) =>
+            subCommandStartLog.SetHandler(async (debug, delay, ackFile, arguments, settings) =>
             {
                 await DebuggerAttach(args, debug, delay);
 
-                if (file != null && file.Exists == true)
+                if (ackFile != null && ackFile.Exists == true)
                 {
-                    string targetBasePath = file.DirectoryName.ToStringSafe();
+                    string targetBasePath = ackFile.DirectoryName.ToStringSafe();
                     if (settings != null && settings.Exists == true)
                     {
                         string settingFilePath = settings.FullName;
@@ -318,11 +318,11 @@ namespace handstack
                         }
                     }
 
-                    Console.WriteLine($"{file.FullName} {arguments.ToStringSafe()}");
+                    Console.WriteLine($"{ackFile.FullName} {arguments.ToStringSafe()}");
                 }
                 else
                 {
-                    Log.Information($"file:{file?.FullName} 파일 확인이 필요합니다");
+                    Log.Information($"ackFile:{ackFile?.FullName} 파일 확인이 필요합니다");
                 }
             }, optionDebug, optionDelay, optionAckFile, optionArguments, optionAppSettingFile);
 
@@ -332,18 +332,18 @@ namespace handstack
 
             #region start
 
-            // start --file=C:/projects/handstack77/handstack/1.WebHost/build/handstack/app/ack.exe --arguments="--debug --delay=1000000" --appsettings=ack.localhost.json
+            // start --ack=C:/projects/handstack77/handstack/1.WebHost/build/handstack/app/ack.exe --arguments="--debug --delay=1000000" --appsettings=ack.localhost.json
             var subCommandStart = new Command("start", "ack 프로세스를 시작합니다") {
                 optionDebug, optionDelay, optionAckFile, optionArguments, optionAppSettingFile
             };
 
-            subCommandStart.SetHandler(async (debug, delay, file, arguments, settings) =>
+            subCommandStart.SetHandler(async (debug, delay, ackFile, arguments, settings) =>
             {
                 await DebuggerAttach(args, debug, delay);
 
-                if (file != null && file.Exists == true)
+                if (ackFile != null && ackFile.Exists == true)
                 {
-                    string targetBasePath = file.DirectoryName.ToStringSafe();
+                    string targetBasePath = ackFile.DirectoryName.ToStringSafe();
                     if (settings != null && settings.Exists == true)
                     {
                         string settingFilePath = settings.FullName;
@@ -359,7 +359,7 @@ namespace handstack
                         }
                     }
 
-                    string ackFilePath = file.FullName;
+                    string ackFilePath = ackFile.FullName;
                     Process process = new Process();
                     process.StartInfo = new ProcessStartInfo(ackFilePath);
                     process.StartInfo.Arguments = arguments.ToStringSafe();
@@ -371,7 +371,7 @@ namespace handstack
                 }
                 else
                 {
-                    Log.Information($"file:{file?.FullName} 파일 확인이 필요합니다");
+                    Log.Information($"ackFile:{ackFile?.FullName} 파일 확인이 필요합니다");
                 }
             }, optionDebug, optionDelay, optionAckFile, optionArguments, optionAppSettingFile);
 
@@ -722,16 +722,17 @@ namespace handstack
             #region create
 
             var subCommandCreate = new Command("create", "modules, webapp 템플릿 ZIP 파일을 기반으로 프로젝트를 생성합니다") {
-                optionDebug, optionDelay, optionFile, optionDirectory, optionFind, optionReplace, optionValue
+                optionDebug, optionDelay, optionAckFile, optionFile, optionDirectory, optionFind, optionReplace, optionValue
             };
 
-            // handstack create --file=C:/tmp/handstack.zip --directory=C:/tmp/handstack --find=handsup --replace=myprojectname
-            subCommandCreate.SetHandler(async (debug, delay, file, directory, find, replace, ignored) =>
+            // handstack create --ack=C:/projects/handstack77/handstack/1.WebHost/build/handstack/app/ack.exe --file=C:/tmp/handstack.zip --directory=C:/tmp/handstack --find=handsup --replace=myprojectname
+            subCommandCreate.SetHandler(async (debug, delay, ackFile, file, directory, find, replace, ignored) =>
             {
                 await DebuggerAttach(args, debug, delay);
 
-                if (file != null && file.Exists == true && directory != null)
+                if (ackFile != null && ackFile.Exists == true && file != null && file.Exists == true && directory != null)
                 {
+                    string ackHomePath = (ackFile.Directory?.Parent?.FullName).ToStringSafe();
                     if (directory.Exists == true)
                     {
                         directory.Delete(true);
@@ -752,7 +753,7 @@ namespace handstack
                             string findText = find;
                             string replaceText = replace;
 
-                            ReplaceInFiles(targetDirectoryPath, findText, replaceText, deleteVsUserSettingsDirectory: true);
+                            ReplaceInFiles(ackHomePath, targetDirectoryPath, findText, replaceText, deleteVsUserSettingsDirectory: true);
 
                             ReplaceInFileNames(targetDirectoryPath, findText, replaceText, deleteVsUserSettingsDirectory: true);
 
@@ -767,9 +768,9 @@ namespace handstack
                 }
                 else
                 {
-                    Log.Information($"directory:{directory?.FullName}, file:{file?.FullName} 확인이 필요합니다");
+                    Log.Information($"ackFile:{ackFile?.FullName}, directory:{directory?.FullName}, file:{file?.FullName} 확인이 필요합니다");
                 }
-            }, optionDebug, optionDelay, optionFile, optionDirectory, optionFind, optionReplace, optionValue);
+            }, optionDebug, optionDelay, optionAckFile, optionFile, optionDirectory, optionFind, optionReplace, optionValue);
 
             rootCommand.Add(subCommandCreate);
 
@@ -799,7 +800,7 @@ namespace handstack
             return exitCode;
         }
 
-        public static void ReplaceInFiles(string directoryPath, string findText, string replaceText, bool deleteVsUserSettingsDirectory)
+        public static void ReplaceInFiles(string ackHomePath, string directoryPath, string findText, string replaceText, bool deleteVsUserSettingsDirectory)
         {
             var directoryInfo = new DirectoryInfo(directoryPath);
 
@@ -814,15 +815,18 @@ namespace handstack
                 if (fileInfo.IsBinary() == false)
                 {
                     string fileText = File.ReadAllText(file);
-
                     int count = Regex.Matches(fileText, findText, RegexOptions.None).Count;
-
                     if (count > 0)
                     {
-                        string contents = fileText.Replace(findText, replaceText);
+                        File.WriteAllText(file, fileText.Replace(findText, replaceText));
+                        replaceInFilesCount += count;
+                    }
 
-                        File.WriteAllText(file, contents);
-
+                    findText = "#{ackHomePath}";
+                    count = Regex.Matches(fileText, findText, RegexOptions.None).Count;
+                    if (count > 0)
+                    {
+                        File.WriteAllText(file, fileText.Replace(findText, ackHomePath));
                         replaceInFilesCount += count;
                     }
                 }
@@ -830,14 +834,13 @@ namespace handstack
 
             foreach (string directory in Directory.GetDirectories(directoryPath))
             {
-                ReplaceInFiles(directory, findText, replaceText, deleteVsUserSettingsDirectory);
+                ReplaceInFiles(ackHomePath, directory, findText, replaceText, deleteVsUserSettingsDirectory);
             }
         }
 
         public static void ReplaceInFileNames(string directoryPath, string findText, string replaceText, bool deleteVsUserSettingsDirectory)
         {
             var directoryInfo = new DirectoryInfo(directoryPath);
-
             if (deleteVsUserSettingsDirectory && ignoredDirectoryNames.Contains(directoryInfo.Name))
             {
                 return;
@@ -846,31 +849,23 @@ namespace handstack
             foreach (string file in Directory.GetFiles(directoryPath))
             {
                 var fileInfo = new FileInfo(file);
-
                 int count = Regex.Matches(fileInfo.Name, findText, RegexOptions.None).Count;
-
                 if (count > 0)
                 {
                     string newFileName = fileInfo.Name.Replace(findText, replaceText);
-
                     string originalFileName = fileInfo.Name;
 
                     if (newFileName.Equals(originalFileName, StringComparison.InvariantCultureIgnoreCase))
                     {
                         string tempFileName = $"temp_{originalFileName}_{Guid.NewGuid()}";
-
                         string tempFullFileName = fileInfo.FullName.ReplaceLastOccurrence(fileInfo.Name, tempFileName);
-
                         File.Move(fileInfo.FullName, tempFullFileName);
-
                         string newFullFileName = fileInfo.FullName.ReplaceLastOccurrence(fileInfo.Name, newFileName);
-
                         File.Move(tempFullFileName, newFullFileName);
                     }
                     else
                     {
                         string newFullFileName = fileInfo.FullName.ReplaceLastOccurrence(fileInfo.Name, newFileName);
-
                         File.Move(fileInfo.FullName, newFullFileName);
                     }
 
@@ -887,38 +882,29 @@ namespace handstack
         public static void ReplaceInDirectoryNames(string directoryPath, string findText, string replaceText, bool deleteVsUserSettingsDirectory)
         {
             var directoryInfo = new DirectoryInfo(directoryPath);
-
             if (deleteVsUserSettingsDirectory && ignoredDirectoryNames.Contains(directoryInfo.Name))
             {
                 return;
             }
 
             int count = Regex.Matches(directoryInfo.Name, findText, RegexOptions.None).Count;
-
             string directoryInfoFullName = directoryInfo.FullName;
 
             if (count > 0)
             {
                 string newDirectoryName = directoryInfo.Name.Replace(findText, replaceText);
-
                 string orginalDirectoryName = directoryInfo.Name;
-
                 if (newDirectoryName.Equals(orginalDirectoryName, StringComparison.InvariantCultureIgnoreCase))
                 {
                     string tempDirectoryName = $"temp_{orginalDirectoryName}_{Guid.NewGuid()}";
-
                     string tempFullDirectoryName = directoryInfo.FullName.ReplaceLastOccurrence(directoryInfo.Name, tempDirectoryName);
-
                     Directory.Move(directoryInfo.FullName, tempFullDirectoryName);
-
                     string newFullDirectoryName = directoryInfo.FullName.ReplaceLastOccurrence(directoryInfo.Name, newDirectoryName);
-
                     Directory.Move(tempFullDirectoryName, newFullDirectoryName);
                 }
                 else
                 {
                     directoryInfoFullName = directoryInfo.FullName.ReplaceLastOccurrence(directoryInfo.Name, newDirectoryName);
-
                     Directory.Move(directoryInfo.FullName, directoryInfoFullName);
                 }
 
