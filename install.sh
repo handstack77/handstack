@@ -79,7 +79,7 @@ if [ -f "$current_path/app/ack.dll" ]; then
             curl -L -O https://github.com/handstack77/handstack/raw/master/lib.zip
         fi
         echo "lib.zip 파일을 해제합니다..."
-        unzip lib.zip -d lib
+        unzip -q -o lib.zip -d lib
     fi
 
     if [ ! -d "$current_path/modules/wwwroot/node_modules" ]; then
