@@ -86,7 +86,7 @@ namespace ack
 
             Log.Information($"ack {port} Start...");
 
-            Task.Run(async () =>
+            _ = Task.Run(async () =>
             {
                 await Task.Delay(1000);
                 BackgroundTaskAsync();
