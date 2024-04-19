@@ -41,8 +41,8 @@ dotnet build 2.Modules/checkup/checkup.csproj --configuration $configuration_mod
 dotnet build 2.Modules/openapi/openapi.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/modules/openapi
 
 rsync -avq 1.WebHost/build/handstack/contracts/ ../publish/$os_mode-$arch_mode/contracts
-rsync -av --progress --exclude='*' --include='install.*' ./ ../publish/$os_mode-$arch_mode/handstack
-rsync -av --progress --exclude='*' --include='package*.*' 2.Modules/function ../publish/$os_mode-$arch_mode/handstack
+rsync -av --progress --exclude='*' --include='install.*' ./ ../publish/$os_mode-$arch_mode
+rsync -av --progress --exclude='*' --include='package*.*' 2.Modules/function ../publish/$os_mode-$arch_mode
 
 wwwroot_js_path="../publish/${os_mode}-${arch_mode}/handstack/modules/wwwroot/wwwroot"
 
