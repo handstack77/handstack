@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.CommandLine;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using System.IO.Compression;
 
 using handstack.Extensions;
 
@@ -21,8 +22,6 @@ using Newtonsoft.Json.Linq;
 using Serilog;
 
 using Sqids;
-using Org.BouncyCastle.Asn1.X509;
-using System.Text.RegularExpressions;
 
 namespace handstack
 {
