@@ -92,6 +92,7 @@ then
             echo "lib.zip 파일을 다운로드 합니다..."
             curl -L -O https://github.com/handstack77/handstack/raw/master/lib.zip
         fi
+        echo "lib.zip 파일을 해제합니다..."
         unzip lib.zip -d lib
     fi
 

@@ -72,6 +72,7 @@ if exist %current_path%\app\ack.exe (
             echo lib.zip 파일을 다운로드 합니다...
             call curl -L -O https://github.com/handstack77/handstack/raw/master/lib.zip
         )
+        echo lib.zip 파일을 해제합니다...
         %current_path%\app\cli\handstack extract --file=%current_path%\modules\wwwroot\wwwroot\lib.zip --directory=%current_path%\modules\wwwroot\wwwroot\lib
     )
 
