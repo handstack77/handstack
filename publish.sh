@@ -28,6 +28,9 @@ set forbes_path=../publish/%os_mode%-%arch_mode%/handstack/forbes
 mv $forbes_path/wwwroot $forbes_path
 rm -f $forbes_path/*
 
+set contracts_path=../publish/%os_mode%-%arch_mode%/handstack/contracts
+rm -f $contracts_path/*
+
 dotnet build 2.Modules/dbclient/dbclient.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/modules/dbclient
 dotnet build 2.Modules/function/function.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/modules/function
 dotnet build 2.Modules/logger/logger.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/modules/logger

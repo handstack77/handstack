@@ -15,6 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 		.gitattributes = .gitattributes
 		.gitignore = .gitignore
+		global.json = global.json
 		install.bat = install.bat
 		install.sh = install.sh
 		lib.zip = lib.zip
@@ -58,7 +59,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "openapi", "2.Modules\openap
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Template", "Template", "{35AD67DF-F394-4393-B43A-D9778EEA53B8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "webapp", "4.Tool\Template\webapp\webapp.csproj", "{806D09CA-C131-4326-AE1D-A2E76ED62268}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "webapp", "4.Tool\Template\webapp\webapp.csproj", "{806D09CA-C131-4326-AE1D-A2E76ED62268}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -150,7 +151,7 @@ Global
 		{806D09CA-C131-4326-AE1D-A2E76ED62268} = {35AD67DF-F394-4393-B43A-D9778EEA53B8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {0075CE72-935C-4F87-A6BA-989C82F06F8F}
 		VisualSVNWorkingCopyRoot = .
+		SolutionGuid = {0075CE72-935C-4F87-A6BA-989C82F06F8F}
 	EndGlobalSection
 EndGlobal

@@ -33,6 +33,9 @@ set forbes_path=../publish/%os_mode%-%arch_mode%/handstack/forbes
 robocopy %forbes_path%/wwwroot %forbes_path% /E /MOVE
 del /F /Q "%forbes_path%\*"
 
+set contracts_path=../publish/%os_mode%-%arch_mode%/handstack/contracts
+del /F /Q "%contracts_path%\*"
+
 dotnet build 2.Modules/dbclient/dbclient.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/dbclient
 dotnet build 2.Modules/function/function.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/function
 dotnet build 2.Modules/logger/logger.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/logger

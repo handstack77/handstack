@@ -1,113 +1,49 @@
 @echo off
 chcp 65001
- 
-echo winget 설치 확인 중...
+
 where winget >nul 2>nul
 if %errorlevel% neq 0 (
-    echo start.bat 파일은 Windows 10 버전 1809 이상에서만 사용할 수 있습니다.
+    echo winget 패키지 관리자를 설치 해야합니다.
+    start "" "https://handstack.kr/docs/startup/install/패키지-관리자-설치하기"
     exit /b
 )
 
-echo dotnet 설치 확인 중...
 where dotnet >nul 2>nul
 if %errorlevel% neq 0 (
-    echo .NET Core 8 설치를 시작합니다...
-   winget install Microsoft.DotNet.SDK.8 -e --silent
-) else (
-   dotnet --version | findstr /R "^8\.0\." >nul 2>nul
-   if %errorlevel% neq 0 (
-      echo .NET Core 8 설치를 시작합니다...
-      winget install Microsoft.DotNet.SDK.8 -e --silent
-   )
+    echo .NET Core 8.0를 설치 해야합니다.
+    start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기"
+    exit /b
 )
 
-echo libman 설치 확인 중...
-dotnet tool list -g | findstr microsoft.web.librarymanager.cli >nul
+dotnet --version | findstr /R "^8\." >nul 2>nul
 if %errorlevel% neq 0 (
-    echo dotnet tool libman 설치를 시작합니다...
-    call dotnet tool install -g Microsoft.Web.LibraryManager.Cli
+    echo .NET Core 8.0를 설치 해야합니다.
+    start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기"
+    exit /b
 )
 
-echo node 설치 확인 중...
 where node >nul 2>nul
 if %errorlevel% neq 0 (
-    echo Node.js 20 설치를 시작합니다...
-    winget install OpenJS.NodeJS.LTS -e --silent
-) else (
-   node --version | findstr /R "^v20\." >nul 2>nul
-   if %errorlevel% neq 0 (
-      echo Node.js 20 설치를 시작합니다...
-      winget install OpenJS.NodeJS.LTS -e --silent
-   )
+    echo Node.js v20.12.2 LTS 를 설치 해야합니다.
+    start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기"
+    exit /b
 )
 
-echo pm2 설치 확인 중...
-where pm2 >nul 2>nul
+node --version | findstr /R "^v20\." >nul 2>nul
 if %errorlevel% neq 0 (
-    echo Node.js 기반 pm2 설치를 시작합니다...
-    call npm install -g pm2
+    echo Node.js v20.12.2 LTS 를 설치 해야합니다.
+    start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기"
+    exit /b
 )
 
-echo gulp 설치 확인 중...
-where gulp >nul 2>nul
+where node >nul 2>nul
 if %errorlevel% neq 0 (
-    echo Node.js 기반 gulp 설치를 시작합니다...
-    call npm install -g gulp
-)
-
-echo uglifyjs 설치 확인 중...
-where uglifyjs >nul 2>nul
-if %errorlevel% neq 0 (
-    echo Node.js 기반 uglifyjs 설치를 시작합니다...
-    npm install -g uglify-js
+    echo curl CLI 를 설치 해야합니다.
+    start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기"
+    exit /b
 )
 
 set current_path=%cd%
-echo %current_path%
-if exist %current_path%\1.WebHost\ack\ack.csproj (
-    mkdir %current_path%\1.WebHost\build\handstack
-    cd %current_path%\1.WebHost\ack
-    echo current_path: %current_path% HandStack 개발 환경 설치 확인 중...
-    if not exist %current_path%\node_modules (
-        echo syn.js 번들링 %current_path%\package.json 설치를 시작합니다...
-        call npm install
-        gulp
-        robocopy %current_path%\1.WebHost\ack\wwwroot\assets\js %current_path%\1.WebHost\build\handstack\node_modules\syn index.js /copy:dat
-    )
-
-    cd %current_path%
-    robocopy %current_path%\2.Modules\function %current_path%\1.WebHost\build\handstack package*.* /copy:dat
-    if not exist %current_path%\1.WebHost\build\handstack\node_modules (
-        echo node.js Function 모듈 %current_path%\1.WebHost\build\handstack\package.json 설치를 시작합니다...
-        cd %current_path%\1.WebHost\build\handstack
-        call npm install
-    )
-    
-    cd %current_path%
-    if not exist %current_path%\2.Modules\wwwroot\node_modules (
-        echo syn.bundle.js 모듈 %current_path%\2.Modules\wwwroot\package.json 설치를 시작합니다...
-        cd %current_path%\2.Modules\wwwroot
-        call npm install
-        libman restore
-        robocopy wwwroot\lib ..\..\1.WebHost\build\handstack\modules\wwwroot\wwwroot\lib /MIR
-        echo syn.controls, syn.scripts, syn.bundle 번들링을 시작합니다...
-        gulp
-        gulp base
-        gulp bundle
-    )
-    
-    cd %current_path%
-    dotnet build handstack.sln
-
-	echo current_path: %current_path%
-    set build_path=%current_path%\1.WebHost\build\handstack
-    cd %build_path%
-    echo function 모듈 %build_path%\package.json 설치를 시작합니다...
-    call npm install
-    robocopy %current_path%\1.WebHost\ack\wwwroot\assets\js %build_path%\node_modules\syn index.js /copy:dat
-    echo HandStack 개발 환경 설치가 완료되었습니다. Visual Studio 개발 도구로 handstack.sln 를 실행하세요. 자세한 정보는 https://handstack.kr 를 참고하세요.
-)
-
 if exist %current_path%\app\ack.exe (
     echo current_path: %current_path% ack 실행 환경 설치 확인 중...
     if not exist %current_path%\node_modules (
@@ -122,17 +58,26 @@ if exist %current_path%\app\ack.exe (
         call npm install
     )
 
+    if not exist %current_path%\modules\wwwroot\wwwroot\lib (
+        echo 클라이언트 라이브러리 %current_path%\modules\wwwroot\wwwroot\lib 설치를 시작합니다...
+        cd %current_path%\modules\wwwroot\wwwroot
+        if not exist %current_path%\modules\wwwroot\wwwroot\lib.zip (
+            echo lib.zip 파일을 다운로드 합니다...
+            call curl -L -O https://github.com/handstack77/handstack/raw/master/lib.zip
+        )
+        %current_path%\app\cli\handstack extract --file=%current_path%\modules\wwwroot\wwwroot\lib.zip --directory=%current_path%\modules\wwwroot\wwwroot\lib
+    )
+
     if not exist %current_path%\modules\wwwroot\node_modules (
         echo syn.bundle.js 모듈 %current_path%\modules\wwwroot\package.json 설치를 시작합니다...
         cd %current_path%\modules\wwwroot
         call npm install
-        libman restore
-        echo syn.controls, syn.scripts, syn.bundle 번들링을 시작합니다... 호스트 사양에 따라 2~3분 정도 소요됩니다.
         gulp
-        gulp base
-        gulp bundle
     )
 
     echo ack 실행 환경 설치가 완료되었습니다. 터미널에서 다음 경로의 프로그램을 실행하세요. %current_path%\app\ack.exe
-    cd %current_path%\app
+    cd %current_path%
+) else (
+    echo ack 실행 환경 설치 경로 확인이 필요합니다. current_path: %current_path%
+    start "" "https://handstack.kr/docs/startup/빠른-시작"
 )
