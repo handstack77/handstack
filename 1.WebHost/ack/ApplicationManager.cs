@@ -86,7 +86,12 @@ namespace ack
 
             Log.Information($"ack {port} Start...");
 
-            ThreadPool.QueueUserWorkItem(BackgroundTaskAsync);
+            Task.Run(async () =>
+            {
+                await Task.Delay(1000);
+                BackgroundTaskAsync();
+            });
+
             await host.RunAsync(cancellationTokenSource.Token);
             host.Dispose();
         }
@@ -136,7 +141,7 @@ namespace ack
                 .UseSystemd();
         }
 
-        private static async void BackgroundTaskAsync(object? state)
+        private static async void BackgroundTaskAsync()
         {
             string moduleConfigurationUrl = "";
             try
