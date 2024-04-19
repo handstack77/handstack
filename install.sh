@@ -6,35 +6,62 @@
 if ! command -v dotnet &> /dev/null
 then
     echo ".NET Core 8.0를 설치 해야합니다."
-    echo "참고: https://handstack.kr/docs/startup/install/필수-프로그램-설치하기"
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        echo "참고: https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#homebrew-를-이용한-net-core-설치"
+    else
+        echo "참고: https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#apt-를-이용한-net-core-설치"
+    fi
     exit
 fi
 
 if [[ $(dotnet --version) != 8.* ]]
 then
     echo ".NET Core 8.0를 설치 해야합니다."
-    echo "참고: https://handstack.kr/docs/startup/install/필수-프로그램-설치하기"
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        echo "참고: https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#homebrew-를-이용한-net-core-설치"
+    else
+        echo "참고: https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#apt-를-이용한-net-core-설치"
+    fi
     exit
 fi
 
 if ! command -v node &> /dev/null
 then
     echo "Node.js v20.12.2 LTS 를 설치 해야합니다."
-    echo "참고: https://handstack.kr/docs/startup/install/필수-프로그램-설치하기"
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        echo "참고: https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#homebrew-를-이용한-net-core-설치"
+    else
+        echo "참고: https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#homebrew-를-이용한-nodejs-설치"
+    fi
     exit
 fi
 
 if [[ $(node --version) != v20.* ]]
 then
     echo "Node.js v20.12.2 LTS 를 설치 해야합니다."
-    echo "참고: https://handstack.kr/docs/startup/install/필수-프로그램-설치하기"
+    echo "참고: https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#gulp-설치하기"
+    exit
+fi
+
+if ! command -v gulp &> /dev/null
+then
+    echo "Node.js 기반 gulp CLI 도구를 설치 해야합니다."
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        echo "참고: https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#homebrew-를-이용한-curl-설치"
+    else
+        echo "참고: https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#apt-를-이용한-curl-설치"
+    fi
     exit
 fi
 
 if ! command -v curl &> /dev/null
 then
     echo "curl CLI 를 설치 해야합니다."
-    echo "참고: https://handstack.kr/docs/startup/install/필수-프로그램-설치하기"
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        echo "참고: https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#homebrew-를-이용한-curl-설치"
+    else
+        echo "참고: https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#apt-를-이용한-curl-설치"
+    fi
     exit
 fi
 

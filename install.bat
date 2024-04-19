@@ -4,42 +4,49 @@ chcp 65001
 where winget >nul 2>nul
 if %errorlevel% neq 0 (
     echo winget 패키지 관리자를 설치 해야합니다.
-    start "" "https://handstack.kr/docs/startup/install/패키지-관리자-설치하기"
+    start "" "https://handstack.kr/docs/startup/install/패키지-관리자-설치하기#windows-에-winget-설치하기"
     exit /b
 )
 
 where dotnet >nul 2>nul
 if %errorlevel% neq 0 (
     echo .NET Core 8.0를 설치 해야합니다.
-    start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기"
+    start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#winget-을-이용한-net-core-설치"
     exit /b
 )
 
 dotnet --version | findstr /R "^8\." >nul 2>nul
 if %errorlevel% neq 0 (
     echo .NET Core 8.0를 설치 해야합니다.
-    start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기"
+    start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#winget-을-이용한-net-core-설치"
     exit /b
 )
 
 where node >nul 2>nul
 if %errorlevel% neq 0 (
     echo Node.js v20.12.2 LTS 를 설치 해야합니다.
-    start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기"
+    start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#winget-을-이용한-nodejs-설치"
     exit /b
 )
 
 node --version | findstr /R "^v20\." >nul 2>nul
 if %errorlevel% neq 0 (
     echo Node.js v20.12.2 LTS 를 설치 해야합니다.
-    start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기"
+    start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#winget-을-이용한-nodejs-설치"
     exit /b
 )
 
-where node >nul 2>nul
+where gulp >nul 2>nul
+if %errorlevel% neq 0 (
+    echo Node.js 기반 gulp CLI 도구를 설치 해야합니다.
+    start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#gulp-설치하기"
+    exit /b
+)
+
+where curl >nul 2>nul
 if %errorlevel% neq 0 (
     echo curl CLI 를 설치 해야합니다.
-    start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기"
+    start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#winget-을-이용한-curl-설치"
     exit /b
 )
 
