@@ -236,7 +236,7 @@ namespace handstack
 
             #region purgecontracts
 
-            // purgecontracts --ack=C:/projects/handstack77/handstack/1.WebHost/build/handstack/app/ack.exe --directory=ack.localhost.json
+            // purgecontracts --ack=C:/projects/handstack77/handstack/1.WebHost/build/handstack/app/ack.exe --directory=C:/projects/myapp/contracts
             var subCommandPurgeContracts = new Command("purgecontracts", "모듈의 Contracts를 사용하도록 ack 프로그램의 contracts 내 중복 파일을 삭제합니다") {
                 optionDebug, optionDelay, optionAckFile, optionDirectory
             };
