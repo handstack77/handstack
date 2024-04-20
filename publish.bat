@@ -31,7 +31,7 @@ dotnet publish 4.Tool/CLI/handstack/handstack.csproj --configuration %configurat
 
 set forbes_path=..\publish\%os_mode%-%arch_mode%\forbes
 robocopy %forbes_path%/wwwroot %forbes_path% /E /MOVE
-del /F /Q /S "%forbes_path%\*"
+del /F /Q "%forbes_path%\*"
 
 set contracts_path=1.WebHost\build\handstack\contracts
 rd /S /Q "%contracts_path%"
