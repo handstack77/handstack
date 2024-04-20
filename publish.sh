@@ -26,10 +26,10 @@ dotnet publish 4.Tool/CLI/handstack/handstack.csproj --configuration $configurat
 
 set forbes_path=../publish/$os_mode-$arch_mode/handstack/forbes
 mv $forbes_path/wwwroot $forbes_path
-rm -f $forbes_path/*
+rm -rf $forbes_path/*
 
-set contracts_path=../publish/$os_mode-$arch_mode/handstack/contracts
-rm -f $contracts_path/*
+set contracts_path=1.WebHost/build/handstack/contracts
+rm -rf $contracts_path/*
 
 dotnet build 2.Modules/dbclient/dbclient.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/modules/dbclient
 dotnet build 2.Modules/function/function.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/modules/function

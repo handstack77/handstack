@@ -29,12 +29,12 @@ dotnet %action_mode% 1.WebHost/ack/ack.csproj --configuration %configuration_mod
 dotnet %action_mode% 1.WebHost/forbes/forbes.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/forbes
 dotnet publish 4.Tool/CLI/handstack/handstack.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/app/cli
 
-set forbes_path=../publish/%os_mode%-%arch_mode%/forbes
+set forbes_path=..\publish\%os_mode%-%arch_mode%\forbes
 robocopy %forbes_path%/wwwroot %forbes_path% /E /MOVE
-del /F /Q "%forbes_path%\*"
+del /F /Q /S "%forbes_path%\*"
 
-set contracts_path=../publish/%os_mode%-%arch_mode%/contracts
-del /F /Q "%contracts_path%\*"
+set contracts_path=1.WebHost\build\handstack\contracts
+rd /S /Q "%contracts_path%"
 
 dotnet build 2.Modules/dbclient/dbclient.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/modules/dbclient
 dotnet build 2.Modules/function/function.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/modules/function
