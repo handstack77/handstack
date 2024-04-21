@@ -6,26 +6,26 @@ namespace HandStack.Core.ExtensionMethod
 {
     public static class ProcessExtensions
     {
-        public static void Run(this Process process, bool isStartUpLog, string echoPrefix)
+        public static void Run(this Process process, bool isShowCommand, string echoPrefix)
         {
-            process.EchoAndStart(isStartUpLog, echoPrefix);
+            process.EchoAndStart(isShowCommand, echoPrefix);
         }
 
-        public static Task RunAsync(this Process process, bool isStartUpLog, string echoPrefix)
+        public static Task RunAsync(this Process process, bool isShowCommand, string echoPrefix)
         {
             var tcs = new TaskCompletionSource<object>();
             process.Exited += (s, e) => tcs.SetResult(new());
             process.EnableRaisingEvents = true;
-            process.EchoAndStart(isStartUpLog, echoPrefix);
+            process.EchoAndStart(isShowCommand, echoPrefix);
             return tcs.Task;
         }
 
-        private static void EchoAndStart(this Process process, bool isStartUpLog, string echoPrefix)
+        private static void EchoAndStart(this Process process, bool isShowCommand, string echoPrefix)
         {
-            if (isStartUpLog == false)
+            if (isShowCommand == true)
             {
-                var message = $"{(string.IsNullOrEmpty(process.StartInfo.WorkingDirectory) ? "" : $"{echoPrefix}: Working Directory: {process.StartInfo.WorkingDirectory}{Environment.NewLine}")}{echoPrefix}: {process.StartInfo.FileName} {process.StartInfo.Arguments}";
-                Console.Error.WriteLine(message);
+                var message = $"{echoPrefix}: {process.StartInfo.FileName} {process.StartInfo.Arguments}, WorkingDirectory: {process.StartInfo.WorkingDirectory}";
+                Console.WriteLine(message);
             }
 
             process.Start();

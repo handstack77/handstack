@@ -16,6 +16,8 @@ namespace HandStack.Core.Helpers
     /// </code>
     public static class CommandHelper
     {
+        public static bool isShowCommand { get; set; } = false;
+
         public static List<Tuple<int, string?, string?>> RunScript(string script, bool useShellExecute = false, bool redirectStandardError = false, bool redirectStandardOutput = false, bool createNoWindow = true, string? workingDirectory = null, bool? ignoreExitCode = false, string? echoPrefix = null)
         {
             List<Tuple<int, string?, string?>> result = new List<Tuple<int, string?, string?>>();
@@ -59,7 +61,7 @@ namespace HandStack.Core.Helpers
                                 CreateNoWindow = createNoWindow
                             };
 
-                        process.Run(false, echoPrefix ?? DefaultPrefix.Value);
+                        process.Run(isShowCommand, echoPrefix ?? DefaultPrefix.Value);
 
                         int exitCode = 0;
                         string? output = redirectStandardOutput == true ? process.StandardOutput.ReadToEnd() : null;

@@ -23,6 +23,7 @@ using Ionic.Zip;
 
 using Sqids;
 using System.Runtime.InteropServices;
+using Microsoft.Extensions.FileSystemGlobbing;
 
 namespace handstack
 {
@@ -94,21 +95,64 @@ namespace handstack
                 var processList = Process.GetProcessesByName("ack");
                 if (processList != null)
                 {
+                    var processPorts = new Dictionary<int, List<int>>();
                     string netstatCommand = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true ? $"netstat -ano | findstr /R /C:\"LISTENING\"" : $"lsof -iTCP -n -P | grep -E '(LISTEN)'";
                     var executeResult = CommandHelper.RunScript($"{netstatCommand}", false, true, true);
-                    if (executeResult.Count > 0 && executeResult[0].Item1 != 0)
+                    if (executeResult.Count > 0 && executeResult[0].Item1 == 0)
                     {
-                        
+                        string output = executeResult[0].Item2.ToStringSafe();
+
+                        MatchCollection? matches = null;
+                        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true)
+                        {
+                            var regex = new Regex(@"TCP\s+(?<ip>\d+\.\d+\.\d+\.\d+|\[\:\:1\]):(?<port>\d+)\s+.*LISTENING\s+(?<pid>\d+)");
+                            matches = regex.Matches(output);
+                        }
+                        else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) == true)
+                        {
+                            var regex = new Regex(@"TCP\s+(?<ip>\d+\.\d+\.\d+\.\d+|\[\:\:1\]):(?<port>\d+)\s+.*LISTENING\s+(?<pid>\d+)");
+                            matches = regex.Matches(output);
+                        }
+                        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) == true)
+                        {
+                            var regex = new Regex(@"TCP\s+(?<ip>\d+\.\d+\.\d+\.\d+|\[\:\:1\]):(?<port>\d+)\s+.*LISTENING\s+(?<pid>\d+)");
+                            matches = regex.Matches(output);
+                        }
+
+                        if (matches != null)
+                        {
+                            foreach (Match match in matches)
+                            {
+                                if (int.TryParse(match.Groups["pid"].Value, out int processID) == true && int.TryParse(match.Groups["port"].Value, out int portNumber) == true)
+                                {
+                                    if (processPorts.ContainsKey(processID) == true)
+                                    {
+                                        var ports = processPorts[processID];
+                                        if (ports.Contains(portNumber) == false)
+                                        {
+                                            ports.Add(portNumber);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        processPorts.Add(processID, new List<int> { portNumber });
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Log.Error($"error: {executeResult[0].Item3}");
                     }
 
                     List<string> strings = new List<string>();
-                    strings.Add($"pid|starttime|ram|path");
+                    strings.Add($"pid|port|startat|ram|path");
                     foreach (var process in processList)
                     {
-                        if (currentId != process.Id)
-                        {
-                            strings.Add($"{process.Id}|{process.StartTime}|{process.WorkingSet64.ToByteSize()}|{process.MainModule?.FileName}");
-                        }
+                        var ports = processPorts[process.Id];
+                        string port = ports == null ? "" : string.Join(",", ports);
+                        strings.Add($"{process.Id}|{port}|{process.StartTime}|{process.WorkingSet64.ToByteSize()}|{process.MainModule?.FileName}");
                     }
 
                     Log.Information(string.Join(Environment.NewLine, strings));
@@ -320,7 +364,7 @@ namespace handstack
                         }
                     }
 
-                    Console.WriteLine($"{ackFile.FullName} {arguments.ToStringSafe()}");
+                    Log.Information($"{ackFile.FullName} {arguments.ToStringSafe()}");
                 }
                 else
                 {
@@ -456,29 +500,29 @@ namespace handstack
                 switch (format)
                 {
                     case "base64":
-                        Console.WriteLine($"{value?.EncodeBase64()}");
+                        Log.Information($"{value?.EncodeBase64()}");
                         break;
                     case "suid":
                         ISequentialIdGenerator sequentialIdGenerator = new SequentialIdGenerator();
                         switch (value)
                         {
                             case "N":
-                                Console.WriteLine($"{sequentialIdGenerator.NewId().ToString("N")}");
+                                Log.Information($"{sequentialIdGenerator.NewId().ToString("N")}");
                                 break;
                             case "D":
-                                Console.WriteLine($"{sequentialIdGenerator.NewId().ToString("D")}");
+                                Log.Information($"{sequentialIdGenerator.NewId().ToString("D")}");
                                 break;
                             case "B":
-                                Console.WriteLine($"{sequentialIdGenerator.NewId().ToString("B")}");
+                                Log.Information($"{sequentialIdGenerator.NewId().ToString("B")}");
                                 break;
                             case "P":
-                                Console.WriteLine($"{sequentialIdGenerator.NewId().ToString("P")}");
+                                Log.Information($"{sequentialIdGenerator.NewId().ToString("P")}");
                                 break;
                             case "X":
-                                Console.WriteLine($"{sequentialIdGenerator.NewId().ToString("X")}");
+                                Log.Information($"{sequentialIdGenerator.NewId().ToString("X")}");
                                 break;
                             default:
-                                Console.WriteLine($"{sequentialIdGenerator.NewId().ToString()}");
+                                Log.Information($"{sequentialIdGenerator.NewId().ToString()}");
                                 break;
                         }
                         break;
@@ -495,11 +539,11 @@ namespace handstack
                             string[] splitNumbers = value.ToStringSafe().Split(',');
                             int[] numbers = Array.ConvertAll(splitNumbers, int.Parse);
 
-                            Console.WriteLine($"{sqids.Encode(numbers)}");
+                            Log.Information($"{sqids.Encode(numbers)}");
                         }
                         catch
                         {
-                            Console.WriteLine($"{sqids.Encode(0)}");
+                            Log.Information($"{sqids.Encode(0)}");
                         }
                         break;
                     case "aes256":
@@ -508,7 +552,7 @@ namespace handstack
                             key = value.ToStringSafe().ToSHA256().Substring(0, 32);
                         }
                         key = key.ToStringSafe().PadRight(32, '0').Substring(0, 32);
-                        Console.WriteLine($"key={key}, value={value.ToStringSafe().EncryptAES(key)}");
+                        Log.Information($"key={key}, value={value.ToStringSafe().EncryptAES(key)}");
                         break;
                     case "syn":
                         if (string.IsNullOrEmpty(key) == true)
@@ -516,10 +560,10 @@ namespace handstack
                             key = value.ToStringSafe().ToSHA256().Substring(6);
                         }
 
-                        Console.WriteLine($"key={key}, value={SynCryptoHelper.Encrypt(value.ToStringSafe(), key)}");
+                        Log.Information($"key={key}, value={SynCryptoHelper.Encrypt(value.ToStringSafe(), key)}");
                         break;
                     case "sha256":
-                        Console.WriteLine($"{value.ToStringSafe().ToSHA256()}");
+                        Log.Information($"{value.ToStringSafe().ToSHA256()}");
                         break;
                     case "connectionstring":
                         if (string.IsNullOrEmpty(key) == true)
@@ -529,7 +573,7 @@ namespace handstack
                         key = key.ToStringSafe().PadRight(32, '0').Substring(0, 32);
 
                         string encrypt = $"{value.ToStringSafe().EncryptAES(key)}.{key.EncodeBase64()}.{Dns.GetHostName().EncodeBase64()}";
-                        Console.WriteLine($"{encrypt}.{encrypt.ToSHA256()}");
+                        Log.Information($"{encrypt}.{encrypt.ToSHA256()}");
                         break;
                 }
             }, optionFormat, optionKey, optionValue);
@@ -550,17 +594,17 @@ namespace handstack
                 switch (format)
                 {
                     case "base64":
-                        Console.WriteLine($"{value?.DecodeBase64()}");
+                        Log.Information($"{value?.DecodeBase64()}");
                         break;
                     case "suid":
                         try
                         {
                             var guid = Guid.Parse(value.ToStringSafe());
-                            Console.WriteLine($"{guid.ToDateTime()}");
+                            Log.Information($"{guid.ToDateTime()}");
                         }
                         catch
                         {
-                            Console.WriteLine("");
+                            Log.Information("");
                         }
                         break;
                     case "sqids":
@@ -573,11 +617,11 @@ namespace handstack
 
                         try
                         {
-                            Console.WriteLine($"{string.Join(",", sqids.Decode(value))}");
+                            Log.Information($"{string.Join(",", sqids.Decode(value))}");
                         }
                         catch
                         {
-                            Console.WriteLine("");
+                            Log.Information("");
                         }
                         break;
                     case "aes256":
@@ -586,7 +630,7 @@ namespace handstack
                             key = value.ToStringSafe().ToSHA256().Substring(0, 32);
                         }
                         key = key.ToStringSafe().PadRight(32, '0').Substring(0, 32);
-                        Console.WriteLine($"{value.ToStringSafe().DecryptAES(key)}");
+                        Log.Information($"{value.ToStringSafe().DecryptAES(key)}");
                         break;
                     case "syn":
                         if (string.IsNullOrEmpty(key) == true)
@@ -594,10 +638,10 @@ namespace handstack
                             key = value.ToStringSafe().ToSHA256().Substring(6);
                         }
 
-                        Console.WriteLine($"{SynCryptoHelper.Decrypt(value.ToStringSafe(), key)}");
+                        Log.Information($"{SynCryptoHelper.Decrypt(value.ToStringSafe(), key)}");
                         break;
                     case "sha256":
-                        Console.WriteLine($"{key == value.ToStringSafe().ToSHA256()}");
+                        Log.Information($"{key == value.ToStringSafe().ToSHA256()}");
                         break;
                     case "connectionstring":
                         var values = value.ToStringSafe().SplitAndTrim('.');
@@ -610,11 +654,11 @@ namespace handstack
                         if (hostName == Dns.GetHostName() && $"{encrypt}.{decryptKey}.{values[2]}".ToSHA256() == hash)
                         {
                             decryptKey = decryptKey.DecodeBase64().PadRight(32, '0').Substring(0, 32);
-                            Console.WriteLine($"{encrypt.DecryptAES(decryptKey)}");
+                            Log.Information($"{encrypt.DecryptAES(decryptKey)}");
                         }
                         else
                         {
-                            Console.WriteLine($"인코딩 값 확인 필요");
+                            Log.Information($"인코딩 값 확인 필요");
                         }
                         break;
                 }
@@ -771,7 +815,7 @@ namespace handstack
                         }
                         catch (Exception exception)
                         {
-                            Console.WriteLine(exception.Message);
+                            Log.Information(exception.Message);
                             Environment.Exit(-1);
                         }
                     }
