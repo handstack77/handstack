@@ -779,7 +779,7 @@ namespace checkup.Areas.checkup.Controllers
 
         // http://localhost:8000/checkup/api/tenant-app/definition-bundling?applicationID=16f0edaab65f4cd2b4c9d77c07fc64e5&accessKey=6eac215f2f5e495cad4f2abfdcad7644
         [HttpGet("[action]")]
-        public async Task<ActionResult> DefinitionBundling(string accessKey, string userWorkID, string applicationID)
+        public ActionResult DefinitionBundling(string accessKey, string userWorkID, string applicationID)
         {
             ActionResult result = BadRequest();
 
@@ -830,7 +830,7 @@ namespace checkup.Areas.checkup.Controllers
                                 }
 
                                 fileType = "js";
-                                bool bundleResult = await BundleFileProcessAsync(webRootPath, fileType, phisycalSourceFilePaths, phisycalTargetFilePath);
+                                bool bundleResult = BundleFileProcess(webRootPath, fileType, phisycalSourceFilePaths, phisycalTargetFilePath);
                                 if (bundleResult == false)
                                 {
                                     var bundleFile = new
@@ -869,7 +869,7 @@ namespace checkup.Areas.checkup.Controllers
                                 }
 
                                 fileType = "css";
-                                bundleResult = await BundleFileProcessAsync(webRootPath, fileType, phisycalSourceFilePaths, phisycalTargetFilePath);
+                                bundleResult = BundleFileProcess(webRootPath, fileType, phisycalSourceFilePaths, phisycalTargetFilePath);
                                 if (bundleResult == false)
                                 {
                                     var bundleFile = new
@@ -904,7 +904,7 @@ namespace checkup.Areas.checkup.Controllers
             return result;
         }
 
-        private async Task<bool> BundleFileProcessAsync(string webRootPath, string fileType, List<string> inputFileNames, string outputFileName)
+        private bool BundleFileProcess(string webRootPath, string fileType, List<string> inputFileNames, string outputFileName)
         {
             bool result = false;
             try
@@ -923,17 +923,17 @@ namespace checkup.Areas.checkup.Controllers
                 };
 
                 string base64BundleFile = JsonConvert.SerializeObject(bundleFile).EncodeBase64();
-                var executeResult = await CommandHelper.RunScriptAsync($"{bundlerFilePath} {base64BundleFile}");
+                var executeResult = CommandHelper.RunScript($"{bundlerFilePath} {base64BundleFile}");
 
                 string minifyFilePath = outputFileName.Replace("." + fileType, ".min." + fileType);
                 FileInfo targetFileInfo = new FileInfo(outputFileName);
 
                 if (fileType == "js")
                 {
-                    _ = Task.Run(async () =>
+                    _ = Task.Run(() =>
                     {
                         // https://github.com/mishoo/UglifyJS
-                        var executeResult = await CommandHelper.RunScriptAsync($"uglifyjs --compress --mangle --output {minifyFilePath} -- {outputFileName}");
+                        var executeResult = CommandHelper.RunScript($"uglifyjs --compress --mangle --output {minifyFilePath} -- {outputFileName}");
                         if (executeResult.Count > 0 && executeResult[0].Item1 != 0)
                         {
                             System.IO.File.Copy(outputFileName, minifyFilePath);
@@ -942,11 +942,11 @@ namespace checkup.Areas.checkup.Controllers
                 }
                 else
                 {
-                    _ = Task.Run(async () =>
+                    _ = Task.Run(() =>
                     {
                         // https://github.com/fmarcia/uglifycss
                         string cssRootPath = Path.Combine(webRootPath, "css");
-                        var executeResult = await CommandHelper.RunScriptAsync($"uglifycss --convert-urls {cssRootPath} {outputFileName} --output {minifyFilePath}");
+                        var executeResult = CommandHelper.RunScript($"uglifycss --convert-urls {cssRootPath} {outputFileName} --output {minifyFilePath}");
                         if (executeResult.Count > 0 && executeResult[0].Item1 != 0)
                         {
                             System.IO.File.Copy(outputFileName, minifyFilePath);

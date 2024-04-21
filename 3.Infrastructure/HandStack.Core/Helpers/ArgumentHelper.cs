@@ -20,7 +20,7 @@ namespace HandStack.Core.Helpers
     /// </example>
     public class ArgumentHelper
     {
-        private StringDictionary parameters = new StringDictionary();
+        public StringDictionary parameters = new StringDictionary();
 
         public ArgumentHelper(string[] args)
         {

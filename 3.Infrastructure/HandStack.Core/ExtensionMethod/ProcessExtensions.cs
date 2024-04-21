@@ -9,7 +9,6 @@ namespace HandStack.Core.ExtensionMethod
         public static void Run(this Process process, bool isStartUpLog, string echoPrefix)
         {
             process.EchoAndStart(isStartUpLog, echoPrefix);
-            process.WaitForExit();
         }
 
         public static Task RunAsync(this Process process, bool isStartUpLog, string echoPrefix)

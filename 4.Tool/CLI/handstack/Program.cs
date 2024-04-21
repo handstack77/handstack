@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.CommandLine;
 using System.Diagnostics;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
@@ -20,8 +19,10 @@ using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 
 using Serilog;
+using Ionic.Zip;
 
 using Sqids;
+using System.Runtime.InteropServices;
 
 namespace handstack
 {
@@ -33,6 +34,7 @@ namespace handstack
         private static int replaceInDirectoryNamesCount;
         private static System.Timers.Timer? startupAwaitTimer;
         private static CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        private static ArgumentHelper? commandOptions = null;
 
         public static async Task<int> Main(string[] args)
         {
@@ -62,11 +64,10 @@ namespace handstack
                 .ReadFrom.Configuration(configuration)
                 .CreateLogger();
 
+            var optionDebug = new Option<bool?>("--debug", description: "프로그램 시작시 디버거에 프로세스가 연결 될 수 있도록 지연 후 시작됩니다.(기본값: 10초)");
             var optionAckFile = new Option<FileInfo?>(name: "--ack", description: "ack 프로그램 전체 파일 경로입니다");
             var optionArguments = new Option<string?>("--arguments", description: "ack 프로그램 실행시 전달할 매개변수 입니다. 예) \"--modules=wwwroot,transact,dbclient,function\"");
             var optionPort = new Option<int?>("--port", description: "프로그램 수신 포트를 설정합니다. (기본값: 8080)");
-            var optionDebug = new Option<bool?>("--debug", description: "프로그램 시작시 디버거에 프로세스가 연결 될 수 있도록 지연 후 시작됩니다.(기본값: 10초)");
-            var optionDelay = new Option<int?>("--delay", description: "프로그램 시작시 지연 시간(밀리초)을 설정합니다. (기본값: 10000)");
             var optionProcessID = new Option<int>("--pid", description: "OS에서 부여한 프로세스 ID 입니다");
             var optionFormat = new Option<string?>(name: "--format", description: "실행 명령에 따라 적용하는 포맷입니다. 예) encrypt --format=base64|aes256|syn|sha256");
             var optionKey = new Option<string?>(name: "--key", description: "ack 프로그램 실행 검증 키입니다");
@@ -76,11 +77,12 @@ namespace handstack
             var optionFile = new Option<FileInfo?>(name: "--file", description: "실행 명령에 따라 적용하는 파일 경로입니다");
             var optionFind = new Option<string?>(name: "--find", description: "실행 명령에 따라 적용하는 검색 값입니다");
             var optionReplace = new Option<string?>(name: "--replace", description: "실행 명령에 따라 적용하는 변경 값입니다");
+            var optionOptions = new Option<string?>(name: "--options", description: "실행 명령에 따라 적용하는 옵션 값입니다");
 
             var rootOptionModules = new Option<string?>("--modules", description: "프로그램 시작시 포함할 모듈을 설정합니다. 예) --modules=wwwroot,transact,dbclient,function");
 
             var rootCommand = new RootCommand("IT 혁신은 고객과 업무에 들여야 하는 시간과 노력을 줄이는 데 있습니다. HandStack은 기업 경쟁력 유지를 위한 도구입니다") {
-                optionDebug, optionDelay, optionPort, rootOptionModules
+                optionDebug, optionPort, rootOptionModules, optionOptions
             };
 
             #region list
@@ -92,6 +94,13 @@ namespace handstack
                 var processList = Process.GetProcessesByName("ack");
                 if (processList != null)
                 {
+                    string netstatCommand = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true ? $"netstat -ano | findstr /R /C:\"LISTENING\"" : $"lsof -iTCP -n -P | grep -E '(LISTEN)'";
+                    var executeResult = CommandHelper.RunScript($"{netstatCommand}", false, true, true);
+                    if (executeResult.Count > 0 && executeResult[0].Item1 != 0)
+                    {
+                        
+                    }
+
                     List<string> strings = new List<string>();
                     strings.Add($"pid|starttime|ram|path");
                     foreach (var process in processList)
@@ -113,13 +122,11 @@ namespace handstack
 
             // configuration --ack=C:/projects/handstack77/handstack/1.WebHost/build/handstack/app/ack.exe --appsettings=ack.localhost.json
             var subCommandConfiguration = new Command("configuration", "의도된 ack 프로그램 및 모듈 환경설정을 적용합니다") {
-                optionDebug, optionDelay, optionAckFile, optionAppSettingFile
+                optionAckFile, optionAppSettingFile
             };
 
-            subCommandConfiguration.SetHandler(async (debug, delay, ackFile, settings) =>
+            subCommandConfiguration.SetHandler((ackFile, settings) =>
             {
-                await DebuggerAttach(args, debug, delay);
-
                 if (ackFile != null && ackFile.Exists == true && settings != null && settings.Exists == true)
                 {
                     string targetBasePath = ackFile.DirectoryName.ToStringSafe();
@@ -228,7 +235,7 @@ namespace handstack
                 {
                     Log.Information($"ackFile:{ackFile?.FullName} 파일 확인 또는 settings:{settings?.FullName} 파일 확인이 필요합니다");
                 }
-            }, optionDebug, optionDelay, optionAckFile, optionAppSettingFile);
+            }, optionAckFile, optionAppSettingFile);
 
             rootCommand.Add(subCommandConfiguration);
 
@@ -238,13 +245,11 @@ namespace handstack
 
             // purgecontracts --ack=C:/projects/handstack77/handstack/1.WebHost/build/handstack/app/ack.exe --directory=C:/projects/myapp/contracts
             var subCommandPurgeContracts = new Command("purgecontracts", "모듈의 Contracts를 사용하도록 ack 프로그램의 contracts 내 중복 파일을 삭제합니다") {
-                optionDebug, optionDelay, optionAckFile, optionDirectory
+                optionAckFile, optionDirectory
             };
 
-            subCommandPurgeContracts.SetHandler(async (debug, delay, ackFile, directory) =>
+            subCommandPurgeContracts.SetHandler((ackFile, directory) =>
             {
-                await DebuggerAttach(args, debug, delay);
-
                 if (ackFile != null && ackFile.Exists == true && directory != null && directory.Exists == true)
                 {
                     string appBasePath = ackFile.DirectoryName.ToStringSafe();
@@ -282,7 +287,7 @@ namespace handstack
                 {
                     Log.Information($"ackFile:{ackFile?.FullName} 파일 확인 또는 settings:{directory?.FullName} 파일 확인이 필요합니다");
                 }
-            }, optionDebug, optionDelay, optionAckFile, optionDirectory);
+            }, optionAckFile, optionDirectory);
 
             rootCommand.Add(subCommandPurgeContracts);
 
@@ -292,13 +297,11 @@ namespace handstack
 
             // startlog --ack=C:/projects/handstack77/handstack/1.WebHost/build/handstack/app/ack.exe --arguments="--debug --delay=1000000" --appsettings=ack.localhost.json
             var subCommandStartLog = new Command("startlog", "ack 프로세스를 시작하기 위한 명령어 로그를 출력합니다") {
-                optionDebug, optionDelay, optionAckFile, optionArguments, optionAppSettingFile
+                optionAckFile, optionArguments, optionAppSettingFile
             };
 
-            subCommandStartLog.SetHandler(async (debug, delay, ackFile, arguments, settings) =>
+            subCommandStartLog.SetHandler((ackFile, arguments, settings) =>
             {
-                await DebuggerAttach(args, debug, delay);
-
                 if (ackFile != null && ackFile.Exists == true)
                 {
                     string targetBasePath = ackFile.DirectoryName.ToStringSafe();
@@ -323,7 +326,7 @@ namespace handstack
                 {
                     Log.Information($"ackFile:{ackFile?.FullName} 파일 확인이 필요합니다");
                 }
-            }, optionDebug, optionDelay, optionAckFile, optionArguments, optionAppSettingFile);
+            }, optionAckFile, optionArguments, optionAppSettingFile);
 
             rootCommand.Add(subCommandStartLog);
 
@@ -333,13 +336,11 @@ namespace handstack
 
             // start --ack=C:/projects/handstack77/handstack/1.WebHost/build/handstack/app/ack.exe --arguments="--debug --delay=1000000" --appsettings=ack.localhost.json
             var subCommandStart = new Command("start", "ack 프로세스를 시작합니다") {
-                optionDebug, optionDelay, optionAckFile, optionArguments, optionAppSettingFile
+                optionAckFile, optionArguments, optionAppSettingFile
             };
 
-            subCommandStart.SetHandler(async (debug, delay, ackFile, arguments, settings) =>
+            subCommandStart.SetHandler((ackFile, arguments, settings) =>
             {
-                await DebuggerAttach(args, debug, delay);
-
                 if (ackFile != null && ackFile.Exists == true)
                 {
                     string targetBasePath = ackFile.DirectoryName.ToStringSafe();
@@ -372,7 +373,7 @@ namespace handstack
                 {
                     Log.Information($"ackFile:{ackFile?.FullName} 파일 확인이 필요합니다");
                 }
-            }, optionDebug, optionDelay, optionAckFile, optionArguments, optionAppSettingFile);
+            }, optionAckFile, optionArguments, optionAppSettingFile);
 
             rootCommand.Add(subCommandStart);
 
@@ -381,13 +382,11 @@ namespace handstack
             #region stop
 
             var subCommandStop = new Command("stop", "ack 프로세스를 강제 종료합니다") {
-                optionDebug, optionDelay, optionProcessID
+                optionProcessID
             };
 
-            subCommandStop.SetHandler(async (debug, delay, pid) =>
+            subCommandStop.SetHandler((pid) =>
             {
-                await DebuggerAttach(args, debug, delay);
-
                 var processList = Process.GetProcessesByName("ack");
 
                 if (pid == 0)
@@ -438,7 +437,7 @@ namespace handstack
                         }
                     }
                 }
-            }, optionDebug, optionDelay, optionProcessID);
+            }, optionProcessID);
 
             rootCommand.Add(subCommandStop);
 
@@ -447,15 +446,13 @@ namespace handstack
             #region encrypt
 
             var subCommandEncrypt = new Command("encrypt", "지정된 매개변수로 값 인코딩을 수행합니다") {
-                optionDebug, optionDelay, optionFormat, optionKey, optionValue
+                optionFormat, optionKey, optionValue
             };
 
             // handstack encrypt --format=base64 --value="helloworld"
             // handstack encrypt --format=connectionstring --value="[connection string]"
-            subCommandEncrypt.SetHandler(async (debug, delay, format, key, value) =>
+            subCommandEncrypt.SetHandler((format, key, value) =>
             {
-                await DebuggerAttach(args, debug, delay);
-
                 switch (format)
                 {
                     case "base64":
@@ -535,7 +532,7 @@ namespace handstack
                         Console.WriteLine($"{encrypt}.{encrypt.ToSHA256()}");
                         break;
                 }
-            }, optionDebug, optionDelay, optionFormat, optionKey, optionValue);
+            }, optionFormat, optionKey, optionValue);
 
             rootCommand.Add(subCommandEncrypt);
 
@@ -544,14 +541,12 @@ namespace handstack
             #region decrypt
 
             var subCommandDecrypt = new Command("decrypt", "지정된 매개변수로 값 디코딩을 수행합니다") {
-                optionDebug, optionDelay, optionFormat, optionKey, optionValue
+                optionFormat, optionKey, optionValue
             };
 
             // handstack decrypt --format=base64 --value="YmxhYmxhIGhlbGxvIHdvcmxk"
-            subCommandDecrypt.SetHandler(async (debug, delay, format, key, value) =>
+            subCommandDecrypt.SetHandler((format, key, value) =>
             {
-                await DebuggerAttach(args, debug, delay);
-
                 switch (format)
                 {
                     case "base64":
@@ -623,7 +618,7 @@ namespace handstack
                         }
                         break;
                 }
-            }, optionDebug, optionDelay, optionFormat, optionKey, optionValue);
+            }, optionFormat, optionKey, optionValue);
 
             rootCommand.Add(subCommandDecrypt);
 
@@ -632,14 +627,12 @@ namespace handstack
             #region compress
 
             var subCommandCompress = new Command("compress", "지정된 디렉터리에서 파일 및 디렉터리를 포함하는 Zip 파일을 만듭니다") {
-                optionDebug, optionDelay, optionDirectory, optionFile
+                optionDirectory, optionFile, optionKey
             };
 
             // handstack compress --directory=C:/projects/handstack77/handstack/4.Tool/CLI/handstack/bin/Debug/net8.0/win-x64 --file=C:/tmp/handstack.zip
-            subCommandCompress.SetHandler(async (debug, delay, directory, file) =>
+            subCommandCompress.SetHandler((directory, file, key) =>
             {
-                await DebuggerAttach(args, debug, delay);
-
                 try
                 {
                     if (directory != null && directory.Parent != null && directory.Exists == true)
@@ -664,7 +657,15 @@ namespace handstack
                             File.Delete(zipFileName);
                         }
 
-                        ZipFile.CreateFromDirectory(directory.FullName, zipFileName);
+                        using (ZipFile zip = new ZipFile())
+                        {
+                            if (string.IsNullOrEmpty(key) == false)
+                            {
+                                zip.Password = key;
+                            }
+                            zip.AddDirectory(directory.FullName);
+                            zip.Save(zipFileName);
+                        }
                     }
                     else
                     {
@@ -675,7 +676,7 @@ namespace handstack
                 {
                     Log.Error(exception, $"compress 오류");
                 }
-            }, optionDebug, optionDelay, optionDirectory, optionFile);
+            }, optionDirectory, optionFile, optionKey);
 
             rootCommand.Add(subCommandCompress);
 
@@ -684,14 +685,12 @@ namespace handstack
             #region extract
 
             var subCommandExtract = new Command("extract", "지정된 ZIP 파일의 모든 파일을 파일 시스템의 디렉터리에 추출합니다") {
-                optionDebug, optionDelay, optionFile, optionDirectory
+                optionFile, optionDirectory, optionKey
             };
 
             // handstack extract --file=C:/tmp/handstack.zip --directory=C:/tmp/handstack
-            subCommandExtract.SetHandler(async (debug, delay, file, directory) =>
+            subCommandExtract.SetHandler((file, directory, key) =>
             {
-                await DebuggerAttach(args, debug, delay);
-
                 try
                 {
                     if (file != null && file.Exists == true && directory != null)
@@ -701,7 +700,14 @@ namespace handstack
                             directory.Delete(true);
                         }
 
-                        ZipFile.ExtractToDirectory(file.FullName, directory.FullName);
+                        using (ZipFile zip = ZipFile.Read(file.FullName))
+                        {
+                            if (string.IsNullOrEmpty(key) == false)
+                            {
+                                zip.Password = key;
+                            }
+                            zip.ExtractAll(directory.FullName, ExtractExistingFileAction.OverwriteSilently);
+                        }
                     }
                     else
                     {
@@ -712,7 +718,7 @@ namespace handstack
                 {
                     Log.Error(exception, $"extract 오류");
                 }
-            }, optionDebug, optionDelay, optionFile, optionDirectory);
+            }, optionFile, optionDirectory, optionKey);
 
             rootCommand.Add(subCommandExtract);
 
@@ -721,14 +727,12 @@ namespace handstack
             #region create
 
             var subCommandCreate = new Command("create", "modules, webapp 템플릿 ZIP 파일을 기반으로 프로젝트를 생성합니다") {
-                optionDebug, optionDelay, optionAckFile, optionFile, optionDirectory, optionFind, optionReplace, optionValue
+                optionAckFile, optionFile, optionKey, optionDirectory, optionFind, optionReplace, optionValue
             };
 
             // handstack create --ack=C:/projects/handstack77/handstack/1.WebHost/build/handstack/app/ack.exe --file=C:/tmp/handstack.zip --directory=C:/tmp/handstack --find=handsup --replace=myprojectname
-            subCommandCreate.SetHandler(async (debug, delay, ackFile, file, directory, find, replace, ignored) =>
+            subCommandCreate.SetHandler((ackFile, file, key, directory, find, replace, ignored) =>
             {
-                await DebuggerAttach(args, debug, delay);
-
                 if (ackFile != null && ackFile.Exists == true && file != null && file.Exists == true && directory != null)
                 {
                     string ackHomePath = (ackFile.Directory?.Parent?.FullName).ToStringSafe();
@@ -738,7 +742,14 @@ namespace handstack
                     }
 
                     string targetDirectoryPath = directory.FullName;
-                    ZipFile.ExtractToDirectory(file.FullName, targetDirectoryPath);
+                    using (ZipFile zip = ZipFile.Read(file.FullName))
+                    {
+                        if (string.IsNullOrEmpty(key) == false)
+                        {
+                            zip.Password = key;
+                        }
+                        zip.ExtractAll(targetDirectoryPath, ExtractExistingFileAction.OverwriteSilently);
+                    }
 
                     if (string.IsNullOrEmpty(ignored) == false)
                     {
@@ -769,16 +780,14 @@ namespace handstack
                 {
                     Log.Information($"ackFile:{ackFile?.FullName}, directory:{directory?.FullName}, file:{file?.FullName} 확인이 필요합니다");
                 }
-            }, optionDebug, optionDelay, optionAckFile, optionFile, optionDirectory, optionFind, optionReplace, optionValue);
+            }, optionAckFile, optionFile, optionKey, optionDirectory, optionFind, optionReplace, optionValue);
 
             rootCommand.Add(subCommandCreate);
 
             #endregion
 
-            rootCommand.SetHandler(async (debug, delay, port, modules) =>
+            rootCommand.SetHandler((debug, port, modules, options) =>
             {
-                await DebuggerAttach(args, debug, delay);
-
                 try
                 {
                     Log.Information($"Current Directory from {Directory.GetCurrentDirectory()}");
@@ -793,7 +802,22 @@ namespace handstack
                     Log.Fatal(exception, "프로그램 실행 중 오류가 발생했습니다");
                     exitCode = -1;
                 }
-            }, optionDebug, optionDelay, optionPort, rootOptionModules);
+            }, optionDebug, optionPort, rootOptionModules, optionOptions);
+
+            ArgumentHelper arguments = new ArgumentHelper(args);
+            var argumentOptions = arguments["options"];
+            if (argumentOptions != null)
+            {
+                commandOptions = new ArgumentHelper(argumentOptions.Split(" "));
+            }
+
+            bool debug = false;
+            if (arguments["debug"] != null)
+            {
+                debug = true;
+            } 
+
+            await DebuggerAttach(debug);
 
             exitCode = await rootCommand.InvokeAsync(args);
             return exitCode;
@@ -916,17 +940,11 @@ namespace handstack
             }
         }
 
-        private static async Task DebuggerAttach(string[] args, bool? debug, int? delay)
+        private static async Task DebuggerAttach(bool debug)
         {
-            ArgumentHelper arguments = new ArgumentHelper(args);
-            if (debug != null && debug == true)
+            if (debug == true)
             {
                 int startupAwaitDelay = 10000;
-                if (delay != null)
-                {
-                    startupAwaitDelay = (int)delay;
-                }
-
                 startupAwaitTimer = new System.Timers.Timer(1000);
                 startupAwaitTimer.Elapsed += (object? sender, System.Timers.ElapsedEventArgs e) =>
                 {
