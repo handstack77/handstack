@@ -26,7 +26,7 @@
         <IncludeSymbols>True</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <SelfContained>False</SelfContained>
-        <PublishSingleFile>False</PublishSingleFile>
+        <PublishSingleFile>True</PublishSingleFile>
         <PublishReadyToRun>False</PublishReadyToRun>
     </PropertyGroup>
 
