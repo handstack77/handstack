@@ -813,7 +813,7 @@ namespace ack
                 {
                     try
                     {
-                        var hostAccessID = context.Request.GetContainValue("k");
+                        var hostAccessID = context.Request.GetContainValue("hostAccessID");
                         if (string.IsNullOrEmpty(hostAccessID) == false && GlobalConfiguration.HostAccessID == hostAccessID)
                         {
                             var applicationManager = ApplicationManager.Load();
@@ -822,48 +822,65 @@ namespace ack
                         }
                         else
                         {
-                            Log.Warning("[{LogCategory}] HostAccessID 확인 필요: " + hostAccessID.ToStringSafe(), "Startup/MapGet");
+                            Log.Warning("[{LogCategory}] HostAccessID 확인 필요: " + hostAccessID.ToStringSafe(), "Startup/stop");
                         }
                     }
                     catch (Exception exception)
                     {
-                        Log.Error(exception, "[{LogCategory}] 프로그램 종료 실패", "Startup/MapGet");
-                        await context.Response.WriteAsync("failure");
+                        Log.Error(exception, "[{LogCategory}] 프로그램 종료 실패", "Startup/stop");
+                        context.Response.StatusCode = 404;
                     }
                 });
 
                 endpoints.MapGet("/diagnostics", async context =>
                 {
-                    var result = new
+                    try
                     {
-                        Environment = new
+                        var hostAccessID = context.Request.GetContainValue("hostAccessID");
+                        if (string.IsNullOrEmpty(hostAccessID) == false && GlobalConfiguration.HostAccessID == hostAccessID)
                         {
-                            ProcessID = GlobalConfiguration.ProcessID,
-                            StartTime = startTime,
-                            SystemID = GlobalConfiguration.SystemID,
-                            ApplicationName = GlobalConfiguration.ApplicationName,
-                            Is64Bit = Environment.Is64BitOperatingSystem,
-                            MachineName = Environment.MachineName,
-                            HostName = GlobalConfiguration.HostName,
-                            RunningEnvironment = GlobalConfiguration.RunningEnvironment
-                        },
-                        Modules = GlobalConfiguration.Modules.Select(p => new
+                            var result = new
+                            {
+                                Environment = new
+                                {
+                                    ProcessID = GlobalConfiguration.ProcessID,
+                                    StartTime = startTime,
+                                    SystemID = GlobalConfiguration.SystemID,
+                                    ApplicationName = GlobalConfiguration.ApplicationName,
+                                    Is64Bit = Environment.Is64BitOperatingSystem,
+                                    MachineName = Environment.MachineName,
+                                    HostName = GlobalConfiguration.HostName,
+                                    RunningEnvironment = GlobalConfiguration.RunningEnvironment,
+                                    CommandLine = Environment.CommandLine
+                                },
+                                Modules = GlobalConfiguration.Modules.Select(p => new
+                                {
+                                    ModuleID = p.ModuleID,
+                                    Name = p.Name,
+                                    BasePath = p.BasePath,
+                                    IsBundledWithHost = p.IsBundledWithHost,
+                                    EventAction = p.EventAction,
+                                    SubscribeAction = p.SubscribeAction,
+                                    Version = p.Version.ToString(),
+                                }),
+                                System = serverEventListener.SystemRuntime,
+                                Hosting = serverEventListener.AspNetCoreHosting,
+                                Kestrel = serverEventListener.AspNetCoreServerKestrel,
+                                NetSocket = serverEventListener.SystemNetSocket
+                            };
+                            context.Response.Headers["Content-Type"] = "application/json";
+                            await context.Response.WriteAsync(JsonConvert.SerializeObject(result, Formatting.Indented));
+                        }
+                        else
                         {
-                            ModuleID = p.ModuleID,
-                            Name = p.Name,
-                            BasePath = p.BasePath,
-                            IsBundledWithHost = p.IsBundledWithHost,
-                            EventAction = p.EventAction,
-                            SubscribeAction = p.SubscribeAction,
-                            Version = p.Version.ToString(),
-                        }),
-                        System = serverEventListener.SystemRuntime,
-                        Hosting = serverEventListener.AspNetCoreHosting,
-                        Kestrel = serverEventListener.AspNetCoreServerKestrel,
-                        NetSocket = serverEventListener.SystemNetSocket
-                    };
-                    context.Response.Headers["Content-Type"] = "application/json";
-                    await context.Response.WriteAsync(JsonConvert.SerializeObject(result, Formatting.Indented));
+                            Log.Warning("[{LogCategory}] HostAccessID 확인 필요: " + hostAccessID.ToStringSafe(), "Startup/diagnostics");
+                        }
+                    }
+                    catch (Exception exception)
+                    {
+                        Log.Error(exception, "[{LogCategory}] diagnostics 조회 실패", "Startup/diagnostics");
+                        context.Response.StatusCode = 404;
+                    }
                 });
 
                 endpoints.MapGet("/checkip", async context =>

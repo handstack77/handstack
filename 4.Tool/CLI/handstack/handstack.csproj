@@ -31,12 +31,12 @@
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-        <DebugType>full</DebugType>
+        <DebugType>portable</DebugType>
         <Optimize>True</Optimize>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-        <DebugType>full</DebugType>
+        <DebugType>portable</DebugType>
         <Optimize>False</Optimize>
     </PropertyGroup>
 

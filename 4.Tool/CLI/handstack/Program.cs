@@ -92,31 +92,28 @@ namespace handstack
             subCommandList.SetHandler(() =>
             {
                 var currentId = Process.GetCurrentProcess().Id;
-                var processList = Process.GetProcessesByName("ack");
-                if (processList != null)
+                List<Process> processes = new List<Process>();
+                processes.AddRange(Process.GetProcessesByName("ack"));
+                processes.AddRange(Process.GetProcessesByName("dotnet"));
+                if (processes.Count > 0)
                 {
                     var processPorts = new Dictionary<int, List<int>>();
-                    string netstatCommand = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true ? $"netstat -ano | findstr /R /C:\"LISTENING\"" : $"lsof -iTCP -n -P | grep -E '(LISTEN)'";
-                    var executeResult = CommandHelper.RunScript($"{netstatCommand}", false, true, true);
-                    if (executeResult.Count > 0 && executeResult[0].Item1 == 0)
+                    string netstatScript = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true ? $"netstat -ano | findstr /R /C:\"LISTENING\"" : $"lsof -iTCP -n -P | grep -E '(LISTEN)'";
+                    var netstatResult = CommandHelper.RunScript($"{netstatScript}", false, true, true);
+                    if (netstatResult.Count > 0 && netstatResult[0].Item1 == 0)
                     {
-                        string output = executeResult[0].Item2.ToStringSafe();
+                        string netstatOutput = netstatResult[0].Item2.ToStringSafe();
 
                         MatchCollection? matches = null;
                         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true)
                         {
                             var regex = new Regex(@"TCP\s+(?<ip>\d+\.\d+\.\d+\.\d+|\[\:\:1\]):(?<port>\d+)\s+.*LISTENING\s+(?<pid>\d+)");
-                            matches = regex.Matches(output);
+                            matches = regex.Matches(netstatOutput);
                         }
-                        else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) == true)
+                        else
                         {
-                            var regex = new Regex(@"TCP\s+(?<ip>\d+\.\d+\.\d+\.\d+|\[\:\:1\]):(?<port>\d+)\s+.*LISTENING\s+(?<pid>\d+)");
-                            matches = regex.Matches(output);
-                        }
-                        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) == true)
-                        {
-                            var regex = new Regex(@"TCP\s+(?<ip>\d+\.\d+\.\d+\.\d+|\[\:\:1\]):(?<port>\d+)\s+.*LISTENING\s+(?<pid>\d+)");
-                            matches = regex.Matches(output);
+                            var regex = new Regex(@"(\w+)\s+(?<pid>\d+)\s+\w+\s+\d+u\s+\w+\s+\w+\s+\d+t\d+\s+TCP\s+(?<ip>\d+\.\d+\.\d+\.\d+|\[\:\:1\]|\*):(?<port>\d+)\s+\(LISTEN\)");
+                            matches = regex.Matches(netstatOutput);
                         }
 
                         if (matches != null)
@@ -143,16 +140,34 @@ namespace handstack
                     }
                     else
                     {
-                        Log.Error($"error: {executeResult[0].Item3}");
+                        Log.Error($"error: {netstatResult[0].Item3}");
                     }
 
                     List<string> strings = new List<string>();
-                    strings.Add($"pid|port|startat|ram|path");
-                    foreach (var process in processList)
+                    strings.Add($"pname|pid|port|startat|ram|cmd|path");
+                    foreach (var process in processes)
                     {
-                        var ports = processPorts[process.Id];
-                        string port = ports == null ? "" : string.Join(",", ports);
-                        strings.Add($"{process.Id}|{port}|{process.StartTime}|{process.WorkingSet64.ToByteSize()}|{process.MainModule?.FileName}");
+                        string commandLine = "";
+                        string commandLineScript = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true ? $"wmic process where processid={process.Id} get CommandLine" : $"ps -fp {process.Id} | awk '{{print $NF}}'";
+                        var commandLineResult = CommandHelper.RunScript($"{commandLineScript}", false, true, true);
+                        if (commandLineResult.Count > 0 && commandLineResult[0].Item1 == 0)
+                        {
+                            string commandLineOutput = commandLineResult[0].Item2.ToStringSafe();
+                            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true)
+                            {
+                                commandLine = commandLineOutput.Replace("CommandLine", "").Replace("\n", "").Replace("\r", "").Trim();
+                            }
+                            else
+                            {
+                                commandLine = commandLineOutput.Replace("CMD", "").Replace("\n", "").Replace("\r", "").Trim();
+                            }
+                        }
+
+                        if (processPorts.TryGetValue(process.Id, out List<int>? ports) == true)
+                        {
+                            string port = ports == null ? "" : string.Join(",", ports);
+                            strings.Add($"{process.ProcessName}|{process.Id}|{port}|{process.StartTime.ToString("yyyy-MM-dd HH:mm:dd")}|{process.WorkingSet64.ToByteSize()}|{commandLine}|{process.MainModule?.FileName}");
+                        }
                     }
 
                     Log.Information(string.Join(Environment.NewLine, strings));
@@ -697,7 +712,8 @@ namespace handstack
                             zipFileName = Path.Combine(directory.Parent.FullName, $"{directory.Name}.zip");
                         }
 
-                        if (File.Exists(zipFileName) == true) {
+                        if (File.Exists(zipFileName) == true)
+                        {
                             File.Delete(zipFileName);
                         }
 
@@ -859,7 +875,7 @@ namespace handstack
             if (arguments["debug"] != null)
             {
                 debug = true;
-            } 
+            }
 
             await DebuggerAttach(debug);
 
