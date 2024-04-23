@@ -14,7 +14,7 @@
         <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
         <ToolCommandName>ack</ToolCommandName>
         <PackageTags>비즈니스 앱;로우코드;솔루션;개발도구;business app;lowcode;solution;development tool;handstack;handshake;</PackageTags>
-        <RepositoryUrl>https://github.com/Junworks77/handstack</RepositoryUrl>
+        <RepositoryUrl>https://github.com/handstack77/handstack</RepositoryUrl>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageIcon>handstack.jpg</PackageIcon>
         <Copyright>HandStack License 1.0</Copyright>

@@ -28,13 +28,14 @@
     </PropertyGroup>
 
     <ItemGroup Label="ack">
+        <PackageReference Include="Microsoft.SemanticKernel" Version="1.8.0" />
         <PackageReference Include="IronSoftware.System.Drawing" Version="2024.1.1" />
         <PackageReference Include="MediatR" Version="12.2.0" />
         <PackageReference Include="AspNetCoreRateLimit" Version="5.0.0" />
         <PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="8.0.1" />
         <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="8.0.0" />
         <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="8.0.0" />
-        <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="7.0.0" />
+        <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.0" />
         <PackageReference Include="Pomelo.Extensions.Caching.MySql" Version="2.1.4" />
     </ItemGroup>
 
