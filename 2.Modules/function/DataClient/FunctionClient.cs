@@ -388,7 +388,30 @@ namespace function.DataClient
                                     result = runner.ExecuteDynamicFile(null, programPath, queryObject.QueryID, moduleScriptMap, arguments);
                                 }
 
-                                executeResult = JsonConvert.SerializeObject(result);
+                                if (result is Task<DataSet?>)
+                                {
+                                    var task = result as Task<DataSet?>;
+                                    if (task != null)
+                                    {
+                                        if (task.IsCompleted == false)
+                                        {
+                                            task.Wait();
+                                        }
+                                        executeResult = JsonConvert.SerializeObject(task.Result);
+                                    }
+                                    else
+                                    {
+                                        executeResult = JsonConvert.SerializeObject(null);
+                                    }
+                                }
+                                else if (result is DataSet)
+                                {
+                                    executeResult = JsonConvert.SerializeObject(result);
+                                }
+                                else
+                                {
+                                    response.ExceptionText = $"GlobalID: {request.GlobalID}, QueryID: {queryObject.QueryID}, Exception: EntryType, EntryMethod 반환 결과 확인 필요";
+                                }
                             }
                         }
                         catch (Exception exception)

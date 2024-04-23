@@ -150,6 +150,17 @@ namespace function.Builder
                     AddReferenceAssemblyFilePath(assemblyPaths, Assembly.Load(assemblyName).Location);
                 });
 
+            if (assembly != null)
+            {
+                assembly.GetReferencedAssemblies().ToList()
+                    .ForEach((AssemblyName assemblyName) =>
+                    {
+                        AddReferenceAssemblyFilePath(assemblyPaths, Assembly.Load(assemblyName).Location);
+                    });
+
+                AddReferenceAssemblyFilePath(assemblyPaths, assembly.Location);
+            }
+
             var baseAssemblyPath = Path.GetDirectoryName(typeof(object).Assembly.Location) + Path.DirectorySeparatorChar;
             AddReferenceAssemblyFilePath(assemblyPaths, baseAssemblyPath + "netstandard.dll");
             AddReferenceAssemblyFilePath(assemblyPaths, baseAssemblyPath + "Microsoft.CSharp.dll");
@@ -177,11 +188,6 @@ namespace function.Builder
             AddReferenceAssemblyFilePath(assemblyPaths, baseAssemblyPath + "System.ComponentModel.Primitives.dll");
             AddReferenceAssemblyFilePath(assemblyPaths, baseAssemblyPath + "System.Xml.ReaderWriter.dll");
             AddReferenceAssemblyFilePath(assemblyPaths, baseAssemblyPath + "System.Private.Xml.dll");
-
-            if (assembly != null)
-            {
-                AddReferenceAssemblyFilePath(assemblyPaths, assembly.Location);
-            }
 
             assemblyPaths.Add(functionAssembly.Location);
             assemblyPaths = assemblyPaths.Distinct().ToList();

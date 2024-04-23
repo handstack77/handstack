@@ -36,6 +36,7 @@ using HandStack.Web.Modules;
 using Jering.Javascript.NodeJS;
 
 using MediatR;
+using Microsoft.SemanticKernel;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
@@ -543,6 +544,7 @@ namespace function
 
         static void Main(string[] args)
         {
+            Kernel kernel = new Kernel(null, null);
             Console.WriteLine("function");
         }
     }
