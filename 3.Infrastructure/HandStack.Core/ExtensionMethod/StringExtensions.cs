@@ -734,21 +734,40 @@ namespace HandStack.Core.ExtensionMethod
                 || @this.Contains("\\b");
         }
 
-        public static List<string> SplitComma(this string raw)
+        public static List<string> SplitComma(this string @this)
         {
-            if (string.IsNullOrWhiteSpace(raw))
+            if (string.IsNullOrWhiteSpace(@this))
             {
                 return new List<string>();
             }
 
-            return raw.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+            return @this.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                       .Select(s => s.Trim())
                       .ToList();
         }
 
-        public static List<string> SplitAndTrim(this string value, params char[] separators)
+        public static List<string> SplitAndTrim(this string @this, params char[] separators)
         {
-            return value.Trim().Split(separators, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList();
+            return @this.Trim().Split(separators, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList();
+        }
+
+        public static string WordWrap(this string @this, int maxLineLength)
+        {
+            var result = new StringBuilder(256);
+            int i;
+            var last = 0;
+            var space = new[] { ' ', '\r', '\n', '\t' };
+            do
+            {
+                i = last + maxLineLength > @this.Length
+                    ? @this.Length
+                    : (@this.LastIndexOfAny(new[] { ' ', ',', '.', '?', '!', ':', ';', '-', '\n', '\r', '\t' }, Math.Min(@this.Length - 1, last + maxLineLength)) + 1);
+                if (i <= last) i = Math.Min(last + maxLineLength, @this.Length);
+                result.AppendLine(@this.Substring(last, i - last).Trim(space));
+                last = i;
+            } while (i < @this.Length);
+
+            return result.ToString();
         }
     }
 }
