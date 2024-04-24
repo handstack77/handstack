@@ -113,7 +113,7 @@ if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
     echo "function 모듈 $build_path/package.json 설치를 시작합니다..."
     npm install
     rsync -av --progress --exclude='*' --include='index.js' $current_path/1.WebHost/ack/wwwroot/assets/js/ $build_path/node_modules/syn/
-    echo "HandStack 개발 환경 설치가 완료되었습니다. Visual Studio 개발 도구로 handstack.sln 를 실행하세요. 자세한 정보는 https://handstack.kr 를 참고하세요."
+    echo "HandStack 개발 환경 설치가 완료되었습니다. Visual Studio 개발 도구로 handstack.sln 를 실행 후 컴파일 하거나 터미널에서 `dotnet build handstack.sln` 명령으로 솔루션을 컴파일 하세요."
 fi
 
 if [ -f "$current_path/app/ack.dll" ]; then
