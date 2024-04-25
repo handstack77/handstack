@@ -19,16 +19,16 @@ arch_mode=${4:-x64}
 
 echo "os_mode: $os_mode, action_mode: $action_mode, configuration_mode: $configuration_mode, arch_mode: $arch_mode"
 
-rm -rf ../publish/$os_mode-$arch_mode/handstack
-dotnet %action_mode% 1.WebHost/ack/ack.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/app
+rm -rf ../publish/$os_mode-$arch_mode
+dotnet $action_mode 1.WebHost/ack/ack.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/app
 dotnet $action_mode 1.WebHost/forbes/forbes.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/forbes
 dotnet publish 4.Tool/CLI/handstack/handstack.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/app/cli
 
-set forbes_path=../publish/$os_mode-$arch_mode/handstack/forbes
+forbes_path=../publish/$os_mode-$arch_mode/handstack/forbes
 mv $forbes_path/wwwroot $forbes_path
 rm -f $forbes_path/*
 
-set contracts_path=1.WebHost/build/handstack/contracts
+contracts_path=1.WebHost/build/handstack/contracts
 rm -rf $contracts_path/*
 
 dotnet build 2.Modules/dbclient/dbclient.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/modules/dbclient
@@ -41,8 +41,8 @@ dotnet build 2.Modules/checkup/checkup.csproj --configuration $configuration_mod
 dotnet build 2.Modules/openapi/openapi.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/modules/openapi
 
 rsync -avq 1.WebHost/build/handstack/contracts/ ../publish/$os_mode-$arch_mode/contracts
-rsync -av --progress --exclude='*' --include='install.*' ./ ../publish/$os_mode-$arch_mode
-rsync -av --progress --exclude='*' --include='package*.*' 2.Modules/function ../publish/$os_mode-$arch_mode
+rsync -av --progress ./install.* ../publish/$os_mode-$arch_mode
+rsync -av --progress 2.Modules/function/package*.* ../publish/$os_mode-$arch_mode
 
 wwwroot_js_path="../publish/${os_mode}-${arch_mode}/handstack/modules/wwwroot/wwwroot"
 
