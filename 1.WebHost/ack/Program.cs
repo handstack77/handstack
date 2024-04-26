@@ -108,6 +108,8 @@ namespace ack
                         }
                     }
 
+                    GlobalConfiguration.ConfigurationRoot = configuration;
+
                     var loggerConfiguration = new LoggerConfiguration()
                         .ReadFrom.Configuration(configuration);
 

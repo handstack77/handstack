@@ -1,11 +1,24 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace HandStack.Core.ExtensionMethod
 {
     public static class AssemblyExtensions
     {
+        public static Dictionary<string, ManifestResourceInfo?>? GetManifestResources(this Assembly @this)
+        {
+            var result = new Dictionary<string, ManifestResourceInfo?>();
+            foreach (string resourceName in @this.GetManifestResourceNames())
+            {
+                result.Add(resourceName, @this.GetManifestResourceInfo(resourceName));
+            }
+
+            return result;
+        }
+
         public static string? GetStringEmbeddedResource(this Assembly @this, string resourceName)
         {
             string? result = null;
@@ -13,10 +26,8 @@ namespace HandStack.Core.ExtensionMethod
             {
                 if (stream != null)
                 {
-                    using (StreamReader Reader = new StreamReader(stream))
-                    {
-                        result = Reader.ReadToEnd();
-                    }
+                    using var reader = new StreamReader(stream);
+                    result = reader.ReadToEnd();
                 }
             }
             return result;
@@ -25,6 +36,14 @@ namespace HandStack.Core.ExtensionMethod
         public static Stream? GetStreamEmbeddedResource(this Assembly @this, string resourceName)
         {
             return @this.GetManifestResourceStream(resourceName);
+        }
+
+        public async static Task<ReadOnlyMemory<byte>>? GetByteEmbeddedResource(this Assembly @this, string resourceName)
+        {
+            await using Stream? resourceStream = GetStreamEmbeddedResource(@this, resourceName);
+            using var memoryStream = new MemoryStream();
+            await resourceStream!.CopyToAsync(memoryStream);
+            return new ReadOnlyMemory<byte>(memoryStream.ToArray());
         }
 
         public static DateTime GetLinkerTimestamp(this Assembly @this)

@@ -49,6 +49,7 @@ namespace HandStack.Web
 
     public static class GlobalConfiguration
     {
+        public static IConfigurationRoot? ConfigurationRoot = null;
         public static string InstallType = "L";
         public static string RunningEnvironment = "D";
         public static string OSPlatform = "";
