@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 
 using Microsoft.Extensions.Configuration;
 
@@ -12,7 +13,7 @@ namespace HandStack.Web
             if (GlobalConfiguration.ConfigurationRoot == null)
             {
                 configuration = new ConfigurationBuilder()
-                    .AddUserSecrets<Env>()
+                    .AddUserSecrets(Assembly.GetEntryAssembly() ?? Assembly.GetCallingAssembly())
                     .Build();
             }
             else
