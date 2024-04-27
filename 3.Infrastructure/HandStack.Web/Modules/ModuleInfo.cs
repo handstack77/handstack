@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Reflection;
 
+using Microsoft.Extensions.Configuration;
+
 namespace HandStack.Web.Modules
 {
     public class ModuleInfo
@@ -13,6 +15,8 @@ namespace HandStack.Web.Modules
         public string BasePath { get; set; }
 
         public string ModuleSettingFilePath { get; set; }
+
+        public IConfiguration? Configuration { get; set; }
 
         public bool IsBundledWithHost { get; set; }
 
@@ -30,6 +34,7 @@ namespace HandStack.Web.Modules
             Name = "";
             BasePath = "";
             ModuleSettingFilePath = "";
+            Configuration = null;
             IsBundledWithHost = false;
             Version = Version.Parse("0.0.0");
             Assembly = null;

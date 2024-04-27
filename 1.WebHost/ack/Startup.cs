@@ -569,8 +569,16 @@ namespace ack
                             var moduleInitializer = instance as IModuleInitializer;
                             if (moduleInitializer != null)
                             {
-                                services.AddSingleton(typeof(IModuleInitializer), moduleInitializer);
-                                moduleInitializer.ConfigureServices(services, environment, configuration);
+                                try
+                                {
+                                    services.AddSingleton(typeof(IModuleInitializer), moduleInitializer);
+                                    moduleInitializer.ConfigureServices(services, environment, configuration);
+                                }
+                                catch
+                                {
+                                    Log.Error("[{LogCategory}] " + $"module: {module.ModuleID} ConfigureServices 확인 필요", "ack Startup/ConfigureServices");
+                                    throw;
+                                }
                             }
                         }
                     }
