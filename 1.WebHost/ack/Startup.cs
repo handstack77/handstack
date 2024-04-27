@@ -836,7 +836,7 @@ namespace ack
                     catch (Exception exception)
                     {
                         Log.Error(exception, "[{LogCategory}] 프로그램 종료 실패", "Startup/stop");
-                        context.Response.StatusCode = 404;
+                        context.Response.StatusCode = StatusCodes.Status404NotFound;
                     }
                 });
 
@@ -887,7 +887,7 @@ namespace ack
                     catch (Exception exception)
                     {
                         Log.Error(exception, "[{LogCategory}] diagnostics 조회 실패", "Startup/diagnostics");
-                        context.Response.StatusCode = 404;
+                        context.Response.StatusCode = StatusCodes.Status404NotFound;
                     }
                 });
 

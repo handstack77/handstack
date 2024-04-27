@@ -77,7 +77,7 @@ namespace checkup.Areas.checkup.Controllers
             {
                 string exceptionText = exception.ToMessage();
                 logger.Warning("[{LogCategory}] " + exceptionText, "Index/HasKey");
-                result = StatusCode(500, exceptionText);
+                result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
             }
 
             return result;
@@ -173,7 +173,7 @@ namespace checkup.Areas.checkup.Controllers
                     {
                         string exceptionText = exception.ToMessage();
                         logger.Warning("[{LogCategory}] " + exceptionText, "Index/CreateID");
-                        result = StatusCode(500, exceptionText);
+                        result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
                     }
                 }
             }

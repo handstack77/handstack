@@ -115,7 +115,7 @@ namespace HandStack.Web.Extensions
 
                                 if (authorizeRoles.Any() == true && authorizeRoles.Any(accountRoles.Contains) == false)
                                 {
-                                    httpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                                    httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
                                     await httpContext.Response.WriteAsync("401 Unauthorized");
                                     return;
                                 }
@@ -126,7 +126,7 @@ namespace HandStack.Web.Extensions
                             var member = httpContext.Request.Cookies[$"{GlobalConfiguration.CookiePrefixName}.Member"];
                             if (string.IsNullOrEmpty(member) == true)
                             {
-                                httpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                                httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
                                 await httpContext.Response.WriteAsync("401 Unauthorized");
                                 return;
                             }
@@ -151,7 +151,7 @@ namespace HandStack.Web.Extensions
 
                                         if (authorizeRoles.Any() == true && authorizeRoles.Any(accountRoles.Contains) == false)
                                         {
-                                            httpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                                            httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
                                             await httpContext.Response.WriteAsync("401 Unauthorized");
                                             return;
                                         }
@@ -172,7 +172,7 @@ namespace HandStack.Web.Extensions
                                                 }
                                             }
 
-                                            httpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                                            httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
                                             await httpContext.Response.WriteAsync("401 Unauthorized");
                                             return;
                                         }
@@ -257,14 +257,14 @@ namespace HandStack.Web.Extensions
                                     {
                                         Log.Warning("[{LogCategory}] " + $"{GlobalConfiguration.CookiePrefixName}.Member 복구 또는 로그아웃 처리 실패 " + exception.ToMessage(), "UserSignMiddleware/InvokeAsync");
 
-                                        httpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                                        httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
                                         await httpContext.Response.WriteAsync("401 Unauthorized");
                                         return;
                                     }
                                 }
                                 else
                                 {
-                                    httpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                                    httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
                                     await httpContext.Response.WriteAsync("401 Unauthorized");
                                     return;
                                 }

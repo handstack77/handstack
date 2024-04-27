@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using HandStack.Web;
 using HandStack.Web.MessageContract.Message;
 
+using Microsoft.AspNetCore.Http;
+
 using Newtonsoft.Json;
 
 using Polly;

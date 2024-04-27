@@ -7,6 +7,7 @@ using HandStack.Data.Enumeration;
 using HandStack.Web.Extensions;
 
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 using Serilog;
@@ -83,7 +84,7 @@ namespace checkup.Areas.checkup.Controllers
                 }
                 catch (Exception exception)
                 {
-                    result = StatusCode(500, exception.ToMessage());
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
                 }
             }
 

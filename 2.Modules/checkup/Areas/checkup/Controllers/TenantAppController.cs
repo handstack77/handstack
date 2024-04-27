@@ -658,7 +658,7 @@ namespace checkup.Areas.checkup.Controllers
                     string exceptionText = exception.ToMessage();
                     logger.Warning("[{LogCategory}] " + exceptionText, "TenantAppController/RefreshCorsOriginApp");
 
-                    result = StatusCode(500, exceptionText);
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
                 }
             }
 
@@ -714,7 +714,7 @@ namespace checkup.Areas.checkup.Controllers
                     string exceptionText = exception.ToMessage();
                     logger.Warning("[{LogCategory}] " + exceptionText, "TenantAppController/RefreshOriginApp");
 
-                    result = StatusCode(500, exceptionText);
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
                 }
             }
 
@@ -770,7 +770,7 @@ namespace checkup.Areas.checkup.Controllers
                     string exceptionText = exception.ToMessage();
                     logger.Warning("[{LogCategory}] " + exceptionText, "TenantAppController/RefreshRefererApp");
 
-                    result = StatusCode(500, exceptionText);
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
                 }
             }
 

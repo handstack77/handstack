@@ -9,6 +9,7 @@ using HandStack.Web.Entity;
 using HandStack.Web.Extensions;
 
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 
@@ -223,7 +224,7 @@ namespace repository.Areas.repository.Controllers
                 }
                 catch (Exception exception)
                 {
-                    result = StatusCode(500, exception.ToMessage());
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
                 }
             }
 

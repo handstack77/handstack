@@ -1815,7 +1815,7 @@ namespace repository.Controllers
             if (string.IsNullOrEmpty(applicationID) == true || string.IsNullOrEmpty(repositoryID) == true || string.IsNullOrEmpty(itemID) == true)
             {
                 downloadResult.Message = "DownloadFile RepositoryID 또는 ItemID 필수 요청 정보 필요";
-                result = StatusCode(400, downloadResult.Message);
+                result = StatusCode(StatusCodes.Status400BadRequest, downloadResult.Message);
                 return result;
             }
 
@@ -1823,7 +1823,7 @@ namespace repository.Controllers
             if (repository == null)
             {
                 downloadResult.Message = "DownloadFile RepositoryID 요청 정보 확인 필요";
-                result = StatusCode(400, downloadResult.Message);
+                result = StatusCode(StatusCodes.Status400BadRequest, downloadResult.Message);
                 return result;
             }
 
@@ -1867,7 +1867,7 @@ namespace repository.Controllers
             if (string.IsNullOrEmpty(applicationID) == true || string.IsNullOrEmpty(repositoryID) == true || string.IsNullOrEmpty(itemID) == true)
             {
                 downloadResult.Message = "HttpDownloadFile RepositoryID 또는 ItemID 필수 요청 정보 필요";
-                result = StatusCode(400, downloadResult.Message);
+                result = StatusCode(StatusCodes.Status400BadRequest, downloadResult.Message);
                 return result;
             }
 
@@ -1875,7 +1875,7 @@ namespace repository.Controllers
             if (repository == null)
             {
                 downloadResult.Message = "HttpDownloadFile RepositoryID 요청 정보 확인 필요";
-                result = StatusCode(400, downloadResult.Message);
+                result = StatusCode(StatusCodes.Status400BadRequest, downloadResult.Message);
                 return result;
             }
 
@@ -1989,7 +1989,7 @@ namespace repository.Controllers
             if (string.IsNullOrEmpty(repositoryID) == true || string.IsNullOrEmpty(fileName) == true)
             {
                 downloadResult.Message = "VirtualDownloadFile RepositoryID 또는 fileName 필수 요청 정보 필요";
-                result = StatusCode(400, downloadResult.Message);
+                result = StatusCode(StatusCodes.Status400BadRequest, downloadResult.Message);
                 return result;
             }
 
@@ -1997,7 +1997,7 @@ namespace repository.Controllers
             if (repository == null)
             {
                 downloadResult.Message = "VirtualDownloadFile RepositoryID 요청 정보 확인 필요";
-                result = StatusCode(400, downloadResult.Message);
+                result = StatusCode(StatusCodes.Status400BadRequest, downloadResult.Message);
                 return result;
             }
 
@@ -2099,7 +2099,7 @@ namespace repository.Controllers
             if (string.IsNullOrEmpty(repositoryID) == true || string.IsNullOrEmpty(fileName) == true)
             {
                 deleteResult.Message = "VirtualDeleteFile RepositoryID 또는 fileName 필수 요청 정보 필요";
-                result = StatusCode(400, deleteResult.Message);
+                result = StatusCode(StatusCodes.Status400BadRequest, deleteResult.Message);
                 return result;
             }
 
@@ -2107,21 +2107,21 @@ namespace repository.Controllers
             if (repository == null)
             {
                 deleteResult.Message = "VirtualDeleteFile RepositoryID 요청 정보 확인 필요";
-                result = StatusCode(400, deleteResult.Message);
+                result = StatusCode(StatusCodes.Status400BadRequest, deleteResult.Message);
                 return result;
             }
 
             if (string.IsNullOrEmpty(repositoryID) == true || string.IsNullOrEmpty(fileName) == true)
             {
                 deleteResult.Message = "VirtualDeleteFile RepositoryID 또는 fileName 필수 요청 정보 필요";
-                result = StatusCode(400, deleteResult.Message);
+                result = StatusCode(StatusCodes.Status400BadRequest, deleteResult.Message);
                 return result;
             }
 
             if (repository.IsVirtualPath == false)
             {
                 deleteResult.Message = "Virtual 작업 지원 안함";
-                result = StatusCode(400, deleteResult.Message);
+                result = StatusCode(StatusCodes.Status400BadRequest, deleteResult.Message);
                 return result;
             }
 
@@ -2178,7 +2178,7 @@ namespace repository.Controllers
                 }
                 catch (Exception exception)
                 {
-                    result = StatusCode(500, exception.ToMessage());
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
                     deleteResult.Message = $"파일을 삭제 중 오류가 발생했습니다. fileName - '{fileName}', subDirectory - '{subDirectory}', message - '{exception.Message}'";
                     logger.Error("[{LogCategory}] " + $"{deleteResult.Message} - {exception.ToMessage()}", "StorageController/VirtualFileDownload");
                 }
@@ -2455,7 +2455,7 @@ namespace repository.Controllers
             if (string.IsNullOrEmpty(repositoryID) == true || string.IsNullOrEmpty(fileName) == true)
             {
                 downloadResult.Message = "RepositoryID 또는 fileName 필수 요청 정보 필요";
-                result = StatusCode(400, downloadResult.Message);
+                result = StatusCode(StatusCodes.Status400BadRequest, downloadResult.Message);
                 return result;
             }
 
@@ -2464,14 +2464,14 @@ namespace repository.Controllers
             if (repository == null)
             {
                 downloadResult.Message = "RepositoryID 정보 확인 필요";
-                result = StatusCode(400, downloadResult.Message);
+                result = StatusCode(StatusCodes.Status400BadRequest, downloadResult.Message);
                 return result;
             }
 
             if (repository.IsVirtualPath == false)
             {
                 downloadResult.Message = "Virtual 다운로드 지원 안함";
-                result = StatusCode(400, downloadResult.Message);
+                result = StatusCode(StatusCodes.Status400BadRequest, downloadResult.Message);
                 return result;
             }
 
@@ -2546,7 +2546,7 @@ namespace repository.Controllers
                 }
                 catch (Exception exception)
                 {
-                    result = StatusCode(500, exception.ToMessage());
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
                     downloadResult.Message = $"파일을 다운로드 중 오류가 발생했습니다. fileName - '{fileName}', subDirectory - '{subDirectory}', message - '{exception.Message}'";
                     logger.Error("[{LogCategory}] " + $"{downloadResult.Message} - {exception.ToMessage()}", "StorageController/VirtualFileDownload");
                 }
@@ -2562,7 +2562,7 @@ namespace repository.Controllers
             if (string.IsNullOrEmpty(applicationID) == true || string.IsNullOrEmpty(repositoryID) == true || string.IsNullOrEmpty(itemID) == true)
             {
                 downloadResult.Message = "RepositoryID 또는 itemID 필수 요청 정보 필요";
-                result = StatusCode(400, downloadResult.Message);
+                result = StatusCode(StatusCodes.Status400BadRequest, downloadResult.Message);
                 return result;
             }
 
@@ -2570,7 +2570,7 @@ namespace repository.Controllers
             if (repository == null)
             {
                 downloadResult.Message = "RepositoryID 정보 확인 필요";
-                result = StatusCode(400, downloadResult.Message);
+                result = StatusCode(StatusCodes.Status400BadRequest, downloadResult.Message);
                 return result;
             }
 
@@ -2598,7 +2598,7 @@ namespace repository.Controllers
             if (repositoryItem == null)
             {
                 downloadResult.Message = "파일 정보 없음";
-                result = StatusCode(400, downloadResult.Message);
+                result = StatusCode(StatusCodes.Status400BadRequest, downloadResult.Message);
                 return result;
             }
 
@@ -2663,7 +2663,7 @@ namespace repository.Controllers
             if (string.IsNullOrEmpty(applicationID) == true || string.IsNullOrEmpty(repositoryID) == true || string.IsNullOrEmpty(itemID) == true)
             {
                 downloadResult.Message = "RepositoryID 또는 itemID 필수 요청 정보 필요";
-                result = StatusCode(400, downloadResult.Message);
+                result = StatusCode(StatusCodes.Status400BadRequest, downloadResult.Message);
                 return result;
             }
 
@@ -2671,7 +2671,7 @@ namespace repository.Controllers
             if (repository == null)
             {
                 downloadResult.Message = "RepositoryID 정보 확인 필요";
-                result = StatusCode(400, downloadResult.Message);
+                result = StatusCode(StatusCodes.Status400BadRequest, downloadResult.Message);
                 return result;
             }
 
@@ -2742,7 +2742,7 @@ namespace repository.Controllers
             }
             catch (Exception exception)
             {
-                result = StatusCode(500, exception.ToMessage());
+                result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
                 downloadResult.Message = $"파일을 다운로드 중 오류가 발생했습니다. FileID - '{itemID}', '{exception.Message}'";
                 logger.Error("[{LogCategory}] " + $"{downloadResult.Message} - {exception.ToMessage()}", "StorageController/ExecuteFileDownload");
             }

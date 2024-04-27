@@ -7,6 +7,7 @@ using HandStack.Core.ExtensionMethod;
 using HandStack.Web.Extensions;
 
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace dbclient.Areas.dbclient.Controllers
@@ -50,7 +51,7 @@ namespace dbclient.Areas.dbclient.Controllers
                     string exceptionText = exception.ToMessage();
                     logger.Error("[{LogCategory}] " + exceptionText, "Base64/Encode");
 
-                    result = StatusCode(500, exceptionText);
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
                 }
             }
 
@@ -78,7 +79,7 @@ namespace dbclient.Areas.dbclient.Controllers
                     string exceptionText = exception.ToMessage();
                     logger.Error("[{LogCategory}] " + exceptionText, "Base64/Decode");
 
-                    result = StatusCode(500, exceptionText);
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
                 }
             }
 

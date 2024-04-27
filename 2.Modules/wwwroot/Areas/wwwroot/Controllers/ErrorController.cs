@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 
@@ -84,13 +85,13 @@ namespace wwwroot.Areas.wwwroot.Controllers
         }
 
         [HttpGet("test-throw-404")]
-        public IActionResult Throw404() => StatusCode(404);
+        public IActionResult Throw404() => StatusCode(StatusCodes.Status404NotFound);
 
         [HttpGet("test-throw-422")]
-        public IActionResult Throw422() => StatusCode(422);
+        public IActionResult Throw422() => StatusCode(StatusCodes.Status422UnprocessableEntity);
 
         [HttpGet("test-throw-500")]
-        public IActionResult Throw500() => StatusCode(500);
+        public IActionResult Throw500() => StatusCode(StatusCodes.Status500InternalServerError);
 
         [HttpGet("test-throw-exception")]
         public IActionResult ThrowException()

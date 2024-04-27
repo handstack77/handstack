@@ -577,7 +577,7 @@ namespace checkup.Areas.checkup.Controllers
             // }
             // catch (Exception exception)
             // {
-            //     result = StatusCode(500, exception.ToMessage());
+            //     result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
             //     logger.Error("[{LogCategory}] " + $"{exception.ToMessage()}", "AccountController/SignalEvent");
             // }
             // 

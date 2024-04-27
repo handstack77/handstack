@@ -16,6 +16,7 @@ using HandStack.Web.Enumeration;
 using HandStack.Web.Extensions;
 
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
@@ -75,7 +76,7 @@ namespace openapi.Areas.openapi.Controllers
             {
                 string exceptionText = exception.ToMessage();
                 logger.Warning("[{LogCategory}] " + exceptionText, "Transaction/CacheClear");
-                result = StatusCode(500, exceptionText);
+                result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
             }
 
             return result;
@@ -85,7 +86,7 @@ namespace openapi.Areas.openapi.Controllers
         [HttpGet("{interfaceID}")]
         public async Task<ActionResult> Execute(string interfaceID)
         {
-            ActionResult result = StatusCode(400, ResponseApi.I20.ToEnumString());
+            ActionResult result = StatusCode(StatusCodes.Status400BadRequest, ResponseApi.I20.ToEnumString());
 
             Dictionary<string, object?> parameters = new Dictionary<string, object?>();
             try
@@ -173,7 +174,7 @@ namespace openapi.Areas.openapi.Controllers
                     if (accessMemberApi == null)
                     {
                         logger.Warning($"{ResponseApi.I20.ToEnumString()}: " + JsonConvert.SerializeObject(parameters));
-                        result = StatusCode(400, ResponseApi.I20.ToEnumString());
+                        result = StatusCode(StatusCodes.Status400BadRequest, ResponseApi.I20.ToEnumString());
                         return result;
                     }
                     else
@@ -194,7 +195,7 @@ namespace openapi.Areas.openapi.Controllers
                         if (accessMemberApi == null)
                         {
                             logger.Warning($"{ResponseApi.I20.ToEnumString()}: " + JsonConvert.SerializeObject(parameters));
-                            result = StatusCode(400, ResponseApi.I20.ToEnumString());
+                            result = StatusCode(StatusCodes.Status400BadRequest, ResponseApi.I20.ToEnumString());
                             return result;
                         }
                         else
@@ -208,7 +209,7 @@ namespace openapi.Areas.openapi.Controllers
                 if (apiService.LimitIPAddressYN == true && accessMemberApi.AllowIPAddress.Contains(remoteClientIP) == false)
                 {
                     logger.Warning($"{ResponseApi.I42.ToEnumString()}: " + JsonConvert.SerializeObject(parameters));
-                    result = StatusCode(400, ResponseApi.I42.ToEnumString());
+                    result = StatusCode(StatusCodes.Status400BadRequest, ResponseApi.I42.ToEnumString());
                     return result;
                 }
 
@@ -218,7 +219,7 @@ namespace openapi.Areas.openapi.Controllers
                     if (accessMemberApi.SecretKey != secretKey)
                     {
                         logger.Warning($"{ResponseApi.I41.ToEnumString()}: " + JsonConvert.SerializeObject(parameters));
-                        result = StatusCode(400, ResponseApi.I41.ToEnumString());
+                        result = StatusCode(StatusCodes.Status400BadRequest, ResponseApi.I41.ToEnumString());
                         return result;
                     }
                 }
@@ -226,7 +227,7 @@ namespace openapi.Areas.openapi.Controllers
                 if (accessMemberApi.LimitCallCount < accessMemberApi.RequestCallCount)
                 {
                     logger.Warning($"{ResponseApi.I22.ToEnumString()}: " + JsonConvert.SerializeObject(parameters));
-                    result = StatusCode(400, ResponseApi.I22.ToEnumString());
+                    result = StatusCode(StatusCodes.Status400BadRequest, ResponseApi.I22.ToEnumString());
                     return result;
                 }
 
@@ -254,7 +255,7 @@ namespace openapi.Areas.openapi.Controllers
                     if (dataSource == null)
                     {
                         logger.Warning($"{ResponseApi.I24.ToEnumString()}: " + JsonConvert.SerializeObject(parameters));
-                        result = StatusCode(400, ResponseApi.I24.ToEnumString());
+                        result = StatusCode(StatusCodes.Status400BadRequest, ResponseApi.I24.ToEnumString());
                         return result;
                     }
                     else
@@ -287,7 +288,7 @@ namespace openapi.Areas.openapi.Controllers
                     if (string.IsNullOrEmpty(parameterValue) == true && apiParameter.RequiredYN == true)
                     {
                         logger.Warning($"{ResponseApi.I23.ToEnumString()}: " + JsonConvert.SerializeObject(parameters));
-                        result = StatusCode(400, ResponseApi.I23.ToEnumString());
+                        result = StatusCode(StatusCodes.Status400BadRequest, ResponseApi.I23.ToEnumString());
                         return result;
                     }
 
@@ -309,7 +310,7 @@ namespace openapi.Areas.openapi.Controllers
                 var executeResult = await openapiClient.ExecuteSQL(apiService.CommandText, dataSource, apiParameters, parameters);
                 if (string.IsNullOrEmpty(executeResult.Item1) == false)
                 {
-                    result = StatusCode(400, executeResult.Item1);
+                    result = StatusCode(StatusCodes.Status400BadRequest, executeResult.Item1);
                 }
                 else
                 {
@@ -366,7 +367,7 @@ namespace openapi.Areas.openapi.Controllers
                             case "rss":
                                 if (dataSet.Tables.Count != 2 || dataSet.Tables[0].Rows.Count == 0)
                                 {
-                                    result = StatusCode(400, ResponseApi.I25.ToEnumString());
+                                    result = StatusCode(StatusCodes.Status400BadRequest, ResponseApi.I25.ToEnumString());
                                     return result;
                                 }
 
@@ -386,7 +387,7 @@ namespace openapi.Areas.openapi.Controllers
                             case "atom":
                                 if (dataSet.Tables.Count != 2 || dataSet.Tables[0].Rows.Count == 0)
                                 {
-                                    result = StatusCode(400, ResponseApi.I25.ToEnumString());
+                                    result = StatusCode(StatusCodes.Status400BadRequest, ResponseApi.I25.ToEnumString());
                                     return result;
                                 }
 
@@ -430,7 +431,7 @@ namespace openapi.Areas.openapi.Controllers
             }
             catch (Exception exception)
             {
-                result = StatusCode(500, "99: UNKNOWN_ERROR, 기타 에러");
+                result = StatusCode(StatusCodes.Status500InternalServerError, "99: UNKNOWN_ERROR, 기타 에러");
                 logger.Error(exception, "[{LogCategory}] " + $"parameters: {JsonConvert.SerializeObject(parameters)}", "ExecutionController/Main");
             }
 

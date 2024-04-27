@@ -12,6 +12,7 @@ using HandStack.Web.MessageContract.DataObject;
 
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 
@@ -59,7 +60,7 @@ namespace function.Areas.function.Controllers
                 }
                 catch (Exception exception)
                 {
-                    result = StatusCode(500, exception.ToMessage());
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
                 }
             }
 
@@ -256,7 +257,7 @@ namespace function.Areas.function.Controllers
                 }
                 catch (Exception exception)
                 {
-                    result = StatusCode(500, exception.ToMessage());
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
                 }
             }
 

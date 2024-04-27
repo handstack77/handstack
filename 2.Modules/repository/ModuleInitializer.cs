@@ -344,7 +344,7 @@ namespace repository
                                     if (isResponse == false)
                                     {
                                         httpContext.Context.Response.Clear();
-                                        httpContext.Context.Response.StatusCode = 404;
+                                        httpContext.Context.Response.StatusCode = StatusCodes.Status404NotFound;
                                     }
 
                                     if (policy != null)

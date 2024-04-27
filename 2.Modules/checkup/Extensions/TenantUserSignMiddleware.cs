@@ -40,7 +40,7 @@ namespace checkup.Extensions
                     DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
                     if (directoryInfo.Exists == false)
                     {
-                        httpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                        httpContext.Response.StatusCode = StatusCodes.Status404NotFound;
                         return;
                     }
                     else
@@ -87,7 +87,7 @@ namespace checkup.Extensions
                                                 var requestRefererUrl = httpContext.Request.Headers.Referer.ToString();
                                                 if (string.IsNullOrEmpty(requestRefererUrl) == true)
                                                 {
-                                                    httpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                                                    httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
                                                     return;
                                                 }
                                                 else
@@ -95,7 +95,7 @@ namespace checkup.Extensions
                                                     string requestAbsoluteUrl = httpContext.Request.GetBaseUrl() + tenantAppBasePath;
                                                     if (requestRefererUrl.Contains("/view/") == false && appSetting.AllowAnonymousPath?.Contains(requestRefererUrl.Replace(requestAbsoluteUrl, "")) == false)
                                                     {
-                                                        httpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                                                        httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
                                                         return;
                                                     }
                                                 }
@@ -127,7 +127,7 @@ namespace checkup.Extensions
                                                         }
                                                         else
                                                         {
-                                                            httpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                                                            httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
                                                         }
 
                                                         return;
@@ -148,7 +148,7 @@ namespace checkup.Extensions
                             }
                             else
                             {
-                                httpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                                httpContext.Response.StatusCode = StatusCodes.Status404NotFound;
                                 return;
                             }
                         }

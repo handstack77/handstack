@@ -11,6 +11,7 @@ using HandStack.Web.Extensions;
 
 using MediatR;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 
@@ -133,7 +134,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
                     {
                         string exceptionText = exception.ToMessage();
                         logger.Warning("[{LogCategory}] " + exceptionText, "Index/CreateID");
-                        result = StatusCode(500, exceptionText);
+                        result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
                     }
                 }
             }

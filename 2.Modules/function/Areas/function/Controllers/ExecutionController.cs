@@ -15,6 +15,7 @@ using HandStack.Web.MessageContract.Enumeration;
 using HandStack.Web.MessageContract.Message;
 
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 using Newtonsoft.Json;
@@ -78,7 +79,7 @@ namespace function.Areas.function.Controllers
                     string exceptionText = exception.ToMessage();
                     logger.Error("[{LogCategory}] " + exceptionText, "Execution/has");
 
-                    result = StatusCode(500, exceptionText);
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
                 }
             }
 
@@ -132,7 +133,7 @@ namespace function.Areas.function.Controllers
                     string exceptionText = exception.ToMessage();
                     logger.Error("[{LogCategory}] " + exceptionText, "Execution/Upsert");
 
-                    result = StatusCode(500, exceptionText);
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
                 }
             }
 
@@ -229,7 +230,7 @@ namespace function.Areas.function.Controllers
                     string exceptionText = exception.ToMessage();
                     logger.Error("[{LogCategory}] " + exceptionText, "Execution/Refresh");
 
-                    result = StatusCode(500, exception.ToMessage());
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
                 }
             }
 
@@ -274,7 +275,7 @@ namespace function.Areas.function.Controllers
                     string exceptionText = exception.ToMessage();
                     logger.Error("[{LogCategory}] " + exceptionText, "Execution/Delete");
 
-                    result = StatusCode(500, exceptionText);
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
                 }
             }
 
@@ -327,7 +328,7 @@ namespace function.Areas.function.Controllers
                     string exceptionText = exception.ToMessage();
                     logger.Error("[{LogCategory}] " + exceptionText, "Execution/Get");
 
-                    result = StatusCode(500, exceptionText);
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
                 }
             }
 
@@ -403,7 +404,7 @@ namespace function.Areas.function.Controllers
                     string exceptionText = exception.ToMessage();
                     logger.Error("[{LogCategory}] " + exceptionText, "Execution/Retrieve");
 
-                    result = StatusCode(500, exceptionText);
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
                 }
             }
 
@@ -440,7 +441,7 @@ namespace function.Areas.function.Controllers
                     string exceptionText = exception.ToMessage();
                     logger.Error("[{LogCategory}] " + exceptionText, "Execution/Meta");
 
-                    result = StatusCode(500, exceptionText);
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
                 }
             }
 

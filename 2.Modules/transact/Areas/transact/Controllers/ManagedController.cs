@@ -10,6 +10,7 @@ using HandStack.Web.MessageContract.DataObject;
 
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 
@@ -61,7 +62,7 @@ namespace transact.Areas.transact.Controllers
                     string exceptionText = exception.ToMessage();
                     logger.Error("[{LogCategory}] " + exceptionText, "Managed/ResetContract");
 
-                    result = StatusCode(500, exceptionText);
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
                 }
             }
 
@@ -151,7 +152,7 @@ namespace transact.Areas.transact.Controllers
                 }
                 catch (Exception exception)
                 {
-                    result = StatusCode(500, exception.ToMessage());
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
                 }
             }
 
@@ -179,7 +180,7 @@ namespace transact.Areas.transact.Controllers
                     string exceptionText = exception.ToMessage();
                     logger.Error("[{LogCategory}] " + exceptionText, "Managed/StringEncrypt");
 
-                    result = StatusCode(500, exceptionText);
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
                 }
             }
 
@@ -207,7 +208,7 @@ namespace transact.Areas.transact.Controllers
                     string exceptionText = exception.ToMessage();
                     logger.Error("[{LogCategory}] " + exceptionText, "Managed/StringDecrypt");
 
-                    result = StatusCode(500, exceptionText);
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
                 }
             }
 

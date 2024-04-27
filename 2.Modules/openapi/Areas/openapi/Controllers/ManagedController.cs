@@ -9,6 +9,7 @@ using HandStack.Web.MessageContract.Enumeration;
 using HandStack.Web.MessageContract.Message;
 
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -76,12 +77,12 @@ namespace openapi.Areas.openapi.Controllers
                     }
                     else
                     {
-                        result = StatusCode(500, sendResponse.ExceptionText);
+                        result = StatusCode(StatusCodes.Status500InternalServerError, sendResponse.ExceptionText);
                     }
                 }
                 catch (Exception exception)
                 {
-                    result = StatusCode(500, exception.ToMessage());
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
                 }
             }
 
@@ -130,7 +131,7 @@ namespace openapi.Areas.openapi.Controllers
                     string exceptionText = exception.ToMessage();
                     logger.Error("[{LogCategory}] " + exceptionText, "Managed/ResetContract");
 
-                    result = StatusCode(500, exceptionText);
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
                 }
             }
 
@@ -167,7 +168,7 @@ namespace openapi.Areas.openapi.Controllers
                     string exceptionText = exception.ToMessage();
                     logger.Error("[{LogCategory}] " + exceptionText, "Managed/ResetContract");
 
-                    result = StatusCode(500, exceptionText);
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
                 }
             }
 
@@ -200,7 +201,7 @@ namespace openapi.Areas.openapi.Controllers
                 {
                     string exceptionText = exception.ToMessage();
                     logger.Warning("[{LogCategory}] " + exceptionText, "Transaction/CacheClear");
-                    result = StatusCode(500, exceptionText);
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
                 }
             }
 

@@ -16,6 +16,7 @@ using HandStack.Web.Modules;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
@@ -390,18 +391,18 @@ namespace checkup
 
                                     if (isWithReferer == false)
                                     {
-                                        httpContext.Context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                                        httpContext.Context.Response.StatusCode = StatusCodes.Status403Forbidden;
                                         return;
                                     }
                                 }
                                 else
                                 {
-                                    httpContext.Context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                                    httpContext.Context.Response.StatusCode = StatusCodes.Status403Forbidden;
                                 }
                             }
                             else
                             {
-                                httpContext.Context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                                httpContext.Context.Response.StatusCode = StatusCodes.Status400BadRequest;
                             }
                         }
                     });

@@ -88,7 +88,7 @@ namespace transact.Areas.transact.Controllers
                 {
                     string exceptionText = exception.ToMessage();
                     logger.Warning("[{LogCategory}] " + exceptionText, "Transaction/Has");
-                    result = StatusCode(500, exceptionText);
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
                 }
             }
 
@@ -116,7 +116,7 @@ namespace transact.Areas.transact.Controllers
                 {
                     string exceptionText = exception.ToMessage();
                     logger.Warning("[{LogCategory}] " + exceptionText, "Transaction/Add");
-                    result = StatusCode(500, exceptionText);
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
                 }
             }
 
@@ -144,7 +144,7 @@ namespace transact.Areas.transact.Controllers
                 {
                     string exceptionText = exception.ToMessage();
                     logger.Warning("[{LogCategory}] " + exceptionText, "Transaction/Remove");
-                    result = StatusCode(500, exceptionText);
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
                 }
             }
 
@@ -222,7 +222,7 @@ namespace transact.Areas.transact.Controllers
                     string exceptionText = exception.ToMessage();
                     logger.Error("[{LogCategory}] " + exceptionText, "Transaction/Refresh");
 
-                    result = StatusCode(500, exception.ToMessage());
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
                 }
             }
 
@@ -257,7 +257,7 @@ namespace transact.Areas.transact.Controllers
             {
                 string exceptionText = exception.ToMessage();
                 logger.Warning("[{LogCategory}] " + exceptionText, "Transaction/CacheClear");
-                result = StatusCode(500, exceptionText);
+                result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
             }
 
             return result;
@@ -284,7 +284,7 @@ namespace transact.Areas.transact.Controllers
                 {
                     string exceptionText = exception.ToMessage();
                     logger.Warning("[{LogCategory}] " + exceptionText, "Transaction/CacheKeys");
-                    result = StatusCode(500, exceptionText);
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
                 }
             }
 
@@ -347,7 +347,7 @@ namespace transact.Areas.transact.Controllers
                 {
                     string exceptionText = exception.ToMessage();
                     logger.Warning("[{LogCategory}] " + exceptionText, "Transaction/Get");
-                    result = StatusCode(500, exceptionText);
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
                 }
             }
 
@@ -406,7 +406,7 @@ namespace transact.Areas.transact.Controllers
                 {
                     string exceptionText = exception.ToMessage();
                     logger.Error("[{LogCategory}] " + exceptionText, "Transaction/Retrieve");
-                    result = StatusCode(500, exceptionText);
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
                 }
             }
 
@@ -472,7 +472,7 @@ namespace transact.Areas.transact.Controllers
                 {
                     string exceptionText = exception.ToMessage();
                     logger.Error("[{LogCategory}] " + exceptionText, "Transaction/Log");
-                    result = StatusCode(500, exceptionText);
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
                 }
             }
 
@@ -504,7 +504,7 @@ namespace transact.Areas.transact.Controllers
                 {
                     string exceptionText = exception.ToMessage();
                     logger.Error("[{LogCategory}] " + exceptionText, "Transaction/Meta");
-                    result = StatusCode(500, exceptionText);
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
                 }
             }
 

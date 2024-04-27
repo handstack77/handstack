@@ -36,7 +36,7 @@ namespace checkup.Extensions
                     DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
                     if (directoryInfo.Exists == false)
                     {
-                        httpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                        httpContext.Response.StatusCode = StatusCodes.Status404NotFound;
                         return;
                     }
                     else

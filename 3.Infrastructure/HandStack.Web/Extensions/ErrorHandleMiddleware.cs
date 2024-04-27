@@ -51,7 +51,7 @@ namespace HandStack.Web.Extensions
                     switch (exception)
                     {
                         case KeyNotFoundException e:
-                            httpResponse.StatusCode = (int)HttpStatusCode.BadRequest;
+                            httpResponse.StatusCode = StatusCodes.Status400BadRequest;
                             break;
                         default:
                             httpResponse.StatusCode = (int)HttpStatusCode.InternalServerError;
