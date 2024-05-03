@@ -23,7 +23,6 @@ using Ionic.Zip;
 
 using Sqids;
 using System.Runtime.InteropServices;
-using Microsoft.Extensions.FileSystemGlobbing;
 
 namespace handstack
 {
@@ -253,10 +252,6 @@ namespace handstack
                                         {
                                             Log.Warning($"moduleBasePath: {moduleBasePath}, moduleID: {moduleID} 확인 필요");
                                         }
-                                    }
-                                    else
-                                    {
-                                        Log.Warning($"moduleSettingFilePath: {sourceModuleSettingFilePath}, moduleID: {moduleID} 확인 필요");
                                     }
                                 }
                             }
@@ -846,6 +841,79 @@ namespace handstack
 
             #endregion
 
+            #region task
+
+            var subCommandTask = new Command("task", "운영체제에 따라 사전에 정의된 배치 스크립트 업무를 수행합니다") {
+                optionFile, optionValue
+            };
+
+            // handstack task --file=C:/tmp/task.json --value=checkman:build
+            subCommandTask.SetHandler((file, value) =>
+            {
+                if (file != null && file.Exists == true && file.Name == "task.json")
+                {
+                    string command = value.ToStringSafe().ToLower();
+                    if (command.StartsWith("*:") == true)
+                    {
+                        var tasks = BindTasks(file.FullName, value.ToStringSafe());
+                        if (tasks != null)
+                        {
+                            foreach (var task in tasks)
+                            {
+                                RunningTask(file, task);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        var task = BindTask(file.FullName, value.ToStringSafe());
+                        if (task != null)
+                        {
+                            RunningTask(file, task);
+                        }
+                    }
+                }
+                else
+                {
+                    Log.Information($"file:{file?.FullName} 확인이 필요합니다");
+                }
+
+                static void RunningTask(FileInfo? file, Entity.Tasks task)
+                {
+                    foreach (var item in task.environments)
+                    {
+                        if (item.Key == "$DATE_STRING")
+                        {
+                            string dateString = DateTime.Now.ToString(string.IsNullOrEmpty(item.Value) == true ? "yyyy-MM-dd" : item.Value);
+                            Environment.SetEnvironmentVariable(item.Key.ToUpper(), dateString);
+                        }
+                        else
+                        {
+                            Environment.SetEnvironmentVariable(item.Key.ToUpper(), item.Value);
+                        }
+                    }
+
+                    var scripts = string.Join(Environment.NewLine, task.commands);
+                    var workingDirectory = string.IsNullOrEmpty(task.basepath) == true ? (file?.DirectoryName).ToStringSafe() : task.basepath;
+                    var scriptsResult = CommandHelper.RunScript(scripts, false, true, false, true, workingDirectory);
+
+                    int commandIndex = 1;
+                    foreach (var item in scriptsResult)
+                    {
+                        if (item.Item1 != 0)
+                        {
+                            Log.Error($"command: {commandIndex}, error: {item.Item3}");
+                        }
+
+                        commandIndex = commandIndex + 1;
+                    }
+                }
+            }, optionFile, optionValue);
+
+            rootCommand.Add(subCommandTask);
+
+            #endregion
+
             rootCommand.SetHandler((debug, port, modules, options) =>
             {
                 try
@@ -881,6 +949,84 @@ namespace handstack
 
             exitCode = await rootCommand.InvokeAsync(args);
             return exitCode;
+        }
+
+        public static List<Entity.Tasks>? BindTasks(string taskFilePath, string key)
+        {
+            List<Entity.Tasks> result = new List<Entity.Tasks>();
+            try
+            {
+                string? taskJson = File.ReadAllText(taskFilePath);
+                var taskMetas = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, List<Entity.Tasks>>>(taskJson);
+
+                string os = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true ? "windows" : RuntimeInformation.IsOSPlatform(OSPlatform.OSX) == true ? "osx" : "linux";
+                string moduleID = key.Split(":")[0];
+                string taskID = key.Split(":")[1];
+
+                if (taskMetas == null)
+                {
+                    Log.Error("[{LogCategory}] " + $"task.json 파일 확인 필요", "BindTask");
+                    return null;
+                }
+
+                foreach (var item in taskMetas)
+                {
+                    result.AddRange(item.Value);
+                }
+
+                result = result.Where(x => x.key == taskID && x.os == os).ToList();
+                if (result.Count == 0)
+                {
+                    Log.Error("[{LogCategory}] " + $"taskID: {taskID}, os: {os}  항목 확인 필요", "BindTask");
+                    return null;
+                }
+            }
+            catch (Exception exception)
+            {
+                Log.Error(exception, "[{LogCategory}] " + $"key: {key} 항목 및 인스턴스 확인 필요", "BindTask");
+            }
+
+            return result;
+        }
+
+        public static Entity.Tasks? BindTask(string taskFilePath, string key)
+        {
+            Entity.Tasks? result = null;
+            try
+            {
+                string? taskJson = File.ReadAllText(taskFilePath);
+                var taskMetas = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, List<Entity.Tasks>>>(taskJson);
+
+                string os = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true ? "windows" : RuntimeInformation.IsOSPlatform(OSPlatform.OSX) == true ? "osx" : "linux";
+                string moduleID = key.Split(":")[0];
+                string taskID = key.Split(":")[1];
+
+                if (taskMetas == null)
+                {
+                    Log.Error("[{LogCategory}] " + $"task.json 파일 확인 필요", "BindTask");
+                    return null;
+                }
+
+                var tasks = taskMetas.FirstOrDefault(x => x.Key == moduleID).Value;
+                if (tasks == null || tasks.Count == 0)
+                {
+                    Log.Error("[{LogCategory}] " + $"moduleID: {moduleID} 항목 확인 필요", "BindTask");
+                    return null;
+                }
+
+                result = tasks.FirstOrDefault(x => x.key == taskID && x.os == os);
+                if (result == null)
+                {
+                    Log.Error("[{LogCategory}] " + $"taskID: {taskID}, os: {os}  항목 확인 필요", "BindTask");
+                    return null;
+                }
+            }
+            catch (Exception exception)
+            {
+                Log.Error(exception, "[{LogCategory}] " + $"key: {key} 항목 및 인스턴스 확인 필요", "BindTask");
+            }
+
+            return result;
         }
 
         public static void ReplaceInFiles(string ackHomePath, string directoryPath, string findText, string replaceText, bool deleteVsUserSettingsDirectory)
@@ -1000,7 +1146,7 @@ namespace handstack
             }
         }
 
-        private static async Task DebuggerAttach(bool debug)
+        private static async System.Threading.Tasks.Task DebuggerAttach(bool debug)
         {
             if (debug == true)
             {
@@ -1018,7 +1164,7 @@ namespace handstack
 
                 try
                 {
-                    await Task.Delay(startupAwaitDelay, cancellationTokenSource.Token);
+                    await System.Threading.Tasks.Task.Delay(startupAwaitDelay, cancellationTokenSource.Token);
                 }
                 catch
                 {

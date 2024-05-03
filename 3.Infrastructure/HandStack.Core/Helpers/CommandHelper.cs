@@ -16,7 +16,9 @@ namespace HandStack.Core.Helpers
     /// </code>
     public static class CommandHelper
     {
-        public static bool isShowCommand { get; set; } = false;
+        public static Dictionary<string, string> EnvironmentVariables { get; set; } = new Dictionary<string, string>();
+
+        public static bool IsShowCommand { get; set; } = false;
 
         public static List<Tuple<int, string?, string?>> RunScript(string script, bool useShellExecute = false, bool redirectStandardError = false, bool redirectStandardOutput = false, bool createNoWindow = true, string? workingDirectory = null, bool? ignoreExitCode = false, string? echoPrefix = null)
         {
@@ -39,7 +41,7 @@ namespace HandStack.Core.Helpers
                     using (var process = new Process())
                     {
                         process.StartInfo = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                            ? new System.Diagnostics.ProcessStartInfo
+                            ? new ProcessStartInfo
                             {
                                 FileName = "cmd",
                                 Arguments = $"/c \"{item}\"",
@@ -50,7 +52,7 @@ namespace HandStack.Core.Helpers
                                 CreateNoWindow = createNoWindow
 
                             }
-                            : new System.Diagnostics.ProcessStartInfo
+                            : new ProcessStartInfo
                             {
                                 FileName = "/bin/bash",
                                 Arguments = $"-c \"{item}\"",
@@ -61,7 +63,12 @@ namespace HandStack.Core.Helpers
                                 CreateNoWindow = createNoWindow
                             };
 
-                        process.Run(isShowCommand, echoPrefix ?? DefaultPrefix.Value);
+                        foreach (var variable in EnvironmentVariables)
+                        {
+                            process.StartInfo.EnvironmentVariables[variable.Key] = variable.Value;
+                        }
+
+                        process.Run(IsShowCommand, echoPrefix ?? DefaultPrefix.Value);
 
                         int exitCode = 0;
                         string? output = redirectStandardOutput == true ? process.StandardOutput.ReadToEnd() : null;

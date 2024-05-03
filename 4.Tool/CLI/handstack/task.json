@@ -1,0 +1,210 @@
+{
+    "checkup": [
+        {
+            "key": "build",
+            "os": "windows",
+            "basepath": "C:/projects/handstack77/handstack/2.Modules/checkup",
+            "commands": [
+                "C:/projects/handstack77/handstack/2.Modules/checkup/build.bat"
+            ],
+            "environments": {
+                "RUN_SETTING": "development",
+                "$DATE_STRING": "yyyy-MM-dd"
+            }
+        },
+        {
+            "key": "run",
+            "os": "windows",
+            "basepath": "C:/projects/handstack77/handstack/2.Modules/checkup",
+            "commands": [
+                "C:/projects/handstack77/handstack/2.Modules/checkup/run.bat"
+            ],
+            "environments": {
+                "RUN_SETTING": "development",
+                "$DATE_STRING": "yyyy-MM-dd"
+            }
+        }
+    ],
+    "dbclient": [
+        {
+            "key": "build",
+            "os": "windows",
+            "basepath": "C:/projects/handstack77/handstack/2.Modules/dbclient",
+            "commands": [
+                "C:/projects/handstack77/handstack/2.Modules/dbclient/build.bat"
+            ],
+            "environments": {
+                "RUN_SETTING": "development",
+                "$DATE_STRING": "yyyy-MM-dd"
+            }
+        },
+        {
+            "key": "run",
+            "os": "windows",
+            "basepath": "C:/projects/handstack77/handstack/2.Modules/dbclient",
+            "commands": [
+                "C:/projects/handstack77/handstack/2.Modules/dbclient/run.bat"
+            ],
+            "environments": {
+                "RUN_SETTING": "development",
+                "$DATE_STRING": "yyyy-MM-dd"
+            }
+        }
+    ],
+    "function": [
+        {
+            "key": "build",
+            "os": "windows",
+            "basepath": "C:/projects/handstack77/handstack/2.Modules/function",
+            "commands": [
+                "C:/projects/handstack77/handstack/2.Modules/function/build.bat"
+            ],
+            "environments": {
+                "RUN_SETTING": "development",
+                "$DATE_STRING": "yyyy-MM-dd"
+            }
+        },
+        {
+            "key": "run",
+            "os": "windows",
+            "basepath": "C:/projects/handstack77/handstack/2.Modules/function",
+            "commands": [
+                "C:/projects/handstack77/handstack/2.Modules/function/run.bat"
+            ],
+            "environments": {
+                "RUN_SETTING": "development",
+                "$DATE_STRING": "yyyy-MM-dd"
+            }
+        }
+    ],
+    "logger": [
+        {
+            "key": "build",
+            "os": "windows",
+            "basepath": "C:/projects/handstack77/handstack/2.Modules/logger",
+            "commands": [
+                "C:/projects/handstack77/handstack/2.Modules/logger/build.bat"
+            ],
+            "environments": {
+                "RUN_SETTING": "development",
+                "$DATE_STRING": "yyyy-MM-dd"
+            }
+        },
+        {
+            "key": "run",
+            "os": "windows",
+            "basepath": "C:/projects/handstack77/handstack/2.Modules/logger",
+            "commands": [
+                "C:/projects/handstack77/handstack/2.Modules/logger/run.bat"
+            ],
+            "environments": {
+                "RUN_SETTING": "development",
+                "$DATE_STRING": "yyyy-MM-dd"
+            }
+        }
+    ],
+    "openapi": [
+        {
+            "key": "build",
+            "os": "windows",
+            "basepath": "C:/projects/handstack77/handstack/2.Modules/openapi",
+            "commands": [
+                "C:/projects/handstack77/handstack/2.Modules/openapi/build.bat"
+            ],
+            "environments": {
+                "RUN_SETTING": "development",
+                "$DATE_STRING": "yyyy-MM-dd"
+            }
+        },
+        {
+            "key": "run",
+            "os": "windows",
+            "basepath": "C:/projects/handstack77/handstack/2.Modules/openapi",
+            "commands": [
+                "C:/projects/handstack77/handstack/2.Modules/openapi/run.bat"
+            ],
+            "environments": {
+                "RUN_SETTING": "development",
+                "$DATE_STRING": "yyyy-MM-dd"
+            }
+        }
+    ],
+    "repository": [
+        {
+            "key": "build",
+            "os": "windows",
+            "basepath": "C:/projects/handstack77/handstack/2.Modules/repository",
+            "commands": [
+                "C:/projects/handstack77/handstack/2.Modules/repository/build.bat"
+            ],
+            "environments": {
+                "RUN_SETTING": "development",
+                "$DATE_STRING": "yyyy-MM-dd"
+            }
+        },
+        {
+            "key": "run",
+            "os": "windows",
+            "basepath": "C:/projects/handstack77/handstack/2.Modules/repository",
+            "commands": [
+                "C:/projects/handstack77/handstack/2.Modules/repository/run.bat"
+            ],
+            "environments": {
+                "RUN_SETTING": "development",
+                "$DATE_STRING": "yyyy-MM-dd"
+            }
+        }
+    ],
+    "transact": [
+        {
+            "key": "build",
+            "os": "windows",
+            "basepath": "C:/projects/handstack77/handstack/2.Modules/transact",
+            "commands": [
+                "C:/projects/handstack77/handstack/2.Modules/transact/build.bat"
+            ],
+            "environments": {
+                "RUN_SETTING": "development",
+                "$DATE_STRING": "yyyy-MM-dd"
+            }
+        },
+        {
+            "key": "run",
+            "os": "windows",
+            "basepath": "C:/projects/handstack77/handstack/2.Modules/transact",
+            "commands": [
+                "C:/projects/handstack77/handstack/2.Modules/transact/run.bat"
+            ],
+            "environments": {
+                "RUN_SETTING": "development",
+                "$DATE_STRING": "yyyy-MM-dd"
+            }
+        }
+    ],
+    "wwwroot": [
+        {
+            "key": "build",
+            "os": "windows",
+            "basepath": "C:/projects/handstack77/handstack/2.Modules/wwwroot",
+            "commands": [
+                "C:/projects/handstack77/handstack/2.Modules/wwwroot/build.bat"
+            ],
+            "environments": {
+                "RUN_SETTING": "development",
+                "$DATE_STRING": "yyyy-MM-dd"
+            }
+        },
+        {
+            "key": "run",
+            "os": "windows",
+            "basepath": "C:/projects/handstack77/handstack/2.Modules/wwwroot",
+            "commands": [
+                "C:/projects/handstack77/handstack/2.Modules/wwwroot/run.bat"
+            ],
+            "environments": {
+                "RUN_SETTING": "development",
+                "$DATE_STRING": "yyyy-MM-dd"
+            }
+        }
+    ]
+}

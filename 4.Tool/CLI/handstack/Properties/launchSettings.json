@@ -1,8 +1,8 @@
 {
-  "profiles": {
-    "handstack": {
-      "commandName": "Project",
-      "commandLineArgs": ""
+    "profiles": {
+        "handstack": {
+            "commandName": "Project",
+            "commandLineArgs": ""
+        }
     }
-  }
 }
