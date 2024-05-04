@@ -847,15 +847,15 @@ namespace handstack
                 optionFile, optionValue
             };
 
-            // handstack task --file=C:/tmp/task.json --value=checkman:build
+            // handstack task --file=C:/tmp/task.json --value=checkman:build;dbclient:build
             subCommandTask.SetHandler((file, value) =>
             {
-                if (file != null && file.Exists == true && file.Name == "task.json")
+                if (file != null && file.Exists == true && file.Name == "task.json" && string.IsNullOrEmpty(value) == false)
                 {
-                    string command = value.ToStringSafe().ToLower();
+                    string command = value.ToStringSafe();
                     if (command.StartsWith("*:") == true)
                     {
-                        var tasks = BindTasks(file.FullName, value.ToStringSafe());
+                        var tasks = BindTasks(file.FullName, command);
                         if (tasks != null)
                         {
                             foreach (var task in tasks)
@@ -866,16 +866,20 @@ namespace handstack
                     }
                     else
                     {
-                        var task = BindTask(file.FullName, value.ToStringSafe());
-                        if (task != null)
+                        var commands = command.SplitAndTrim(';');
+                        foreach (var item in commands)
                         {
-                            RunningTask(file, task);
+                            var task = BindTask(file.FullName, item);
+                            if (task != null)
+                            {
+                                RunningTask(file, task);
+                            }
                         }
                     }
                 }
                 else
                 {
-                    Log.Information($"file:{file?.FullName} 확인이 필요합니다");
+                    Log.Information($"file:{file?.FullName}, value:{value} 확인이 필요합니다");
                 }
 
                 static void RunningTask(FileInfo? file, Entity.Tasks task)
@@ -885,17 +889,17 @@ namespace handstack
                         if (item.Key == "$DATE_STRING")
                         {
                             string dateString = DateTime.Now.ToString(string.IsNullOrEmpty(item.Value) == true ? "yyyy-MM-dd" : item.Value);
-                            Environment.SetEnvironmentVariable(item.Key.ToUpper(), dateString);
+                            CommandHelper.EnvironmentVariables.Add(item.Key.Substring(1).ToUpper(), dateString);
                         }
                         else
                         {
-                            Environment.SetEnvironmentVariable(item.Key.ToUpper(), item.Value);
+                            CommandHelper.EnvironmentVariables.Add(item.Key.ToUpper(), item.Value);
                         }
                     }
 
                     var scripts = string.Join(Environment.NewLine, task.commands);
                     var workingDirectory = string.IsNullOrEmpty(task.basepath) == true ? (file?.DirectoryName).ToStringSafe() : task.basepath;
-                    var scriptsResult = CommandHelper.RunScript(scripts, false, true, false, true, workingDirectory);
+                    var scriptsResult = CommandHelper.RunScript(scripts, false, true, true, true, workingDirectory);
 
                     int commandIndex = 1;
                     foreach (var item in scriptsResult)
