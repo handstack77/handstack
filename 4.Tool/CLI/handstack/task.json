@@ -1,14 +1,15 @@
 {
     "checkup": [
         {
-            "key": "build",
+            "key": "copy",
             "os": "windows",
             "basepath": "C:/projects/handstack77/handstack/2.Modules/checkup",
             "commands": [
-                "C:/projects/handstack77/handstack/2.Modules/checkup/build.bat"
+                "C:/projects/handstack77/handstack/2.Modules/checkup/task.bat copy"
             ],
+            "ignoreExit": false,
             "environments": {
-                "RUN_SETTING": "development",
+                "TASK_SETTING": "development",
                 "$DATE_STRING": "yyyy-MM-dd"
             }
         },
@@ -17,24 +18,24 @@
             "os": "windows",
             "basepath": "C:/projects/handstack77/handstack/2.Modules/checkup",
             "commands": [
-                "C:/projects/handstack77/handstack/2.Modules/checkup/run.bat"
+                "C:/projects/handstack77/handstack/2.Modules/checkup/task.bat run"
             ],
             "environments": {
-                "RUN_SETTING": "development",
+                "TASK_SETTING": "development",
                 "$DATE_STRING": "yyyy-MM-dd"
             }
         }
     ],
     "dbclient": [
         {
-            "key": "build",
+            "key": "copy",
             "os": "windows",
             "basepath": "C:/projects/handstack77/handstack/2.Modules/dbclient",
             "commands": [
-                "C:/projects/handstack77/handstack/2.Modules/dbclient/build.bat"
+                "C:/projects/handstack77/handstack/2.Modules/dbclient/task.bat copy"
             ],
             "environments": {
-                "RUN_SETTING": "development",
+                "TASK_SETTING": "development",
                 "$DATE_STRING": "yyyy-MM-dd"
             }
         },
@@ -43,24 +44,24 @@
             "os": "windows",
             "basepath": "C:/projects/handstack77/handstack/2.Modules/dbclient",
             "commands": [
-                "C:/projects/handstack77/handstack/2.Modules/dbclient/run.bat"
+                "C:/projects/handstack77/handstack/2.Modules/dbclient/task.bat run"
             ],
             "environments": {
-                "RUN_SETTING": "development",
+                "TASK_SETTING": "development",
                 "$DATE_STRING": "yyyy-MM-dd"
             }
         }
     ],
     "function": [
         {
-            "key": "build",
+            "key": "copy",
             "os": "windows",
             "basepath": "C:/projects/handstack77/handstack/2.Modules/function",
             "commands": [
-                "C:/projects/handstack77/handstack/2.Modules/function/build.bat"
+                "C:/projects/handstack77/handstack/2.Modules/function/task.bat copy"
             ],
             "environments": {
-                "RUN_SETTING": "development",
+                "TASK_SETTING": "development",
                 "$DATE_STRING": "yyyy-MM-dd"
             }
         },
@@ -69,24 +70,24 @@
             "os": "windows",
             "basepath": "C:/projects/handstack77/handstack/2.Modules/function",
             "commands": [
-                "C:/projects/handstack77/handstack/2.Modules/function/run.bat"
+                "C:/projects/handstack77/handstack/2.Modules/function/task.bat run"
             ],
             "environments": {
-                "RUN_SETTING": "development",
+                "TASK_SETTING": "development",
                 "$DATE_STRING": "yyyy-MM-dd"
             }
         }
     ],
     "logger": [
         {
-            "key": "build",
+            "key": "copy",
             "os": "windows",
             "basepath": "C:/projects/handstack77/handstack/2.Modules/logger",
             "commands": [
-                "C:/projects/handstack77/handstack/2.Modules/logger/build.bat"
+                "C:/projects/handstack77/handstack/2.Modules/logger/task.bat copy"
             ],
             "environments": {
-                "RUN_SETTING": "development",
+                "TASK_SETTING": "development",
                 "$DATE_STRING": "yyyy-MM-dd"
             }
         },
@@ -95,24 +96,24 @@
             "os": "windows",
             "basepath": "C:/projects/handstack77/handstack/2.Modules/logger",
             "commands": [
-                "C:/projects/handstack77/handstack/2.Modules/logger/run.bat"
+                "C:/projects/handstack77/handstack/2.Modules/logger/task.bat run"
             ],
             "environments": {
-                "RUN_SETTING": "development",
+                "TASK_SETTING": "development",
                 "$DATE_STRING": "yyyy-MM-dd"
             }
         }
     ],
     "openapi": [
         {
-            "key": "build",
+            "key": "copy",
             "os": "windows",
             "basepath": "C:/projects/handstack77/handstack/2.Modules/openapi",
             "commands": [
-                "C:/projects/handstack77/handstack/2.Modules/openapi/build.bat"
+                "C:/projects/handstack77/handstack/2.Modules/openapi/task.bat copy"
             ],
             "environments": {
-                "RUN_SETTING": "development",
+                "TASK_SETTING": "development",
                 "$DATE_STRING": "yyyy-MM-dd"
             }
         },
@@ -121,24 +122,24 @@
             "os": "windows",
             "basepath": "C:/projects/handstack77/handstack/2.Modules/openapi",
             "commands": [
-                "C:/projects/handstack77/handstack/2.Modules/openapi/run.bat"
+                "C:/projects/handstack77/handstack/2.Modules/openapi/task.bat run"
             ],
             "environments": {
-                "RUN_SETTING": "development",
+                "TASK_SETTING": "development",
                 "$DATE_STRING": "yyyy-MM-dd"
             }
         }
     ],
     "repository": [
         {
-            "key": "build",
+            "key": "copy",
             "os": "windows",
             "basepath": "C:/projects/handstack77/handstack/2.Modules/repository",
             "commands": [
-                "C:/projects/handstack77/handstack/2.Modules/repository/build.bat"
+                "C:/projects/handstack77/handstack/2.Modules/repository/task.bat copy"
             ],
             "environments": {
-                "RUN_SETTING": "development",
+                "TASK_SETTING": "development",
                 "$DATE_STRING": "yyyy-MM-dd"
             }
         },
@@ -147,24 +148,24 @@
             "os": "windows",
             "basepath": "C:/projects/handstack77/handstack/2.Modules/repository",
             "commands": [
-                "C:/projects/handstack77/handstack/2.Modules/repository/run.bat"
+                "C:/projects/handstack77/handstack/2.Modules/repository/task.bat run"
             ],
             "environments": {
-                "RUN_SETTING": "development",
+                "TASK_SETTING": "development",
                 "$DATE_STRING": "yyyy-MM-dd"
             }
         }
     ],
     "transact": [
         {
-            "key": "build",
+            "key": "copy",
             "os": "windows",
             "basepath": "C:/projects/handstack77/handstack/2.Modules/transact",
             "commands": [
-                "C:/projects/handstack77/handstack/2.Modules/transact/build.bat"
+                "C:/projects/handstack77/handstack/2.Modules/transact/task.bat copy"
             ],
             "environments": {
-                "RUN_SETTING": "development",
+                "TASK_SETTING": "development",
                 "$DATE_STRING": "yyyy-MM-dd"
             }
         },
@@ -173,24 +174,24 @@
             "os": "windows",
             "basepath": "C:/projects/handstack77/handstack/2.Modules/transact",
             "commands": [
-                "C:/projects/handstack77/handstack/2.Modules/transact/run.bat"
+                "C:/projects/handstack77/handstack/2.Modules/transact/task.bat run"
             ],
             "environments": {
-                "RUN_SETTING": "development",
+                "TASK_SETTING": "development",
                 "$DATE_STRING": "yyyy-MM-dd"
             }
         }
     ],
     "wwwroot": [
         {
-            "key": "build",
+            "key": "copy",
             "os": "windows",
             "basepath": "C:/projects/handstack77/handstack/2.Modules/wwwroot",
             "commands": [
-                "C:/projects/handstack77/handstack/2.Modules/wwwroot/build.bat"
+                "C:/projects/handstack77/handstack/2.Modules/wwwroot/task.bat copy"
             ],
             "environments": {
-                "RUN_SETTING": "development",
+                "TASK_SETTING": "development",
                 "$DATE_STRING": "yyyy-MM-dd"
             }
         },
@@ -199,10 +200,10 @@
             "os": "windows",
             "basepath": "C:/projects/handstack77/handstack/2.Modules/wwwroot",
             "commands": [
-                "C:/projects/handstack77/handstack/2.Modules/wwwroot/run.bat"
+                "C:/projects/handstack77/handstack/2.Modules/wwwroot/task.bat run"
             ],
             "environments": {
-                "RUN_SETTING": "development",
+                "TASK_SETTING": "development",
                 "$DATE_STRING": "yyyy-MM-dd"
             }
         }

@@ -68,7 +68,7 @@ namespace handstack
             var optionAckFile = new Option<FileInfo?>(name: "--ack", description: "ack 프로그램 전체 파일 경로입니다");
             var optionArguments = new Option<string?>("--arguments", description: "ack 프로그램 실행시 전달할 매개변수 입니다. 예) \"--modules=wwwroot,transact,dbclient,function\"");
             var optionPort = new Option<int?>("--port", description: "프로그램 수신 포트를 설정합니다. (기본값: 8080)");
-            var optionProcessID = new Option<int>("--pid", description: "OS에서 부여한 프로세스 ID 입니다");
+            var optionProcessID = new Option<int?>("--pid", description: "OS에서 부여한 프로세스 ID 입니다");
             var optionFormat = new Option<string?>(name: "--format", description: "실행 명령에 따라 적용하는 포맷입니다. 예) encrypt --format=base64|aes256|syn|sha256");
             var optionKey = new Option<string?>(name: "--key", description: "ack 프로그램 실행 검증 키입니다");
             var optionValue = new Option<string?>(name: "--value", description: "실행 명령에 따라 적용하는 검증 값입니다");
@@ -146,6 +146,11 @@ namespace handstack
                     strings.Add($"pname|pid|port|startat|ram|cmd|path");
                     foreach (var process in processes)
                     {
+                        if (process.Id == currentId)
+                        {
+                            continue;
+                        }
+
                         string commandLine = "";
                         string commandLineScript = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true ? $"wmic process where processid={process.Id} get CommandLine" : $"ps -fp {process.Id} | awk '{{print $NF}}'";
                         var commandLineResult = CommandHelper.RunScript($"{commandLineScript}", false, true, true);
@@ -162,10 +167,25 @@ namespace handstack
                             }
                         }
 
-                        if (processPorts.TryGetValue(process.Id, out List<int>? ports) == true)
+                        bool isProcessCollect = false;
+                        if (commandLine.StartsWith("dotnet") == true)
                         {
-                            string port = ports == null ? "" : string.Join(",", ports);
-                            strings.Add($"{process.ProcessName}|{process.Id}|{port}|{process.StartTime.ToString("yyyy-MM-dd HH:mm:dd")}|{process.WorkingSet64.ToByteSize()}|{commandLine}|{process.MainModule?.FileName}");
+                            isProcessCollect = commandLine.IndexOf("ack.dll") > -1 ? true : false;
+                        }
+                        else
+                        {
+                            isProcessCollect = commandLine.IndexOf("ack.exe") > -1
+                                || commandLine.IndexOf($"{Path.DirectorySeparatorChar}ack") > -1
+                                ? true : false;
+                        }
+
+                        if (isProcessCollect == true)
+                        {
+                            if (processPorts.TryGetValue(process.Id, out List<int>? ports) == true)
+                            {
+                                string port = ports == null ? "" : string.Join(",", ports);
+                                strings.Add($"{process.ProcessName}|{process.Id}|{port}|{process.StartTime.ToString("yyyy-MM-dd HH:mm:dd")}|{process.WorkingSet64.ToByteSize()}|{commandLine}|{process.MainModule?.FileName}");
+                            }
                         }
                     }
 
@@ -436,18 +456,20 @@ namespace handstack
             #region stop
 
             var subCommandStop = new Command("stop", "ack 프로세스를 강제 종료합니다") {
-                optionProcessID
+                optionProcessID, optionPort
             };
 
-            subCommandStop.SetHandler((pid) =>
+            subCommandStop.SetHandler((pid, port) =>
             {
-                var processList = Process.GetProcessesByName("ack");
+                List<Process> processes = new List<Process>();
+                processes.AddRange(Process.GetProcessesByName("ack"));
+                processes.AddRange(Process.GetProcessesByName("dotnet"));
 
-                if (pid == 0)
+                if (pid == 0 && port == null)
                 {
-                    for (int i = 0; i < processList.Length; i++)
+                    for (int i = 0; i < processes.Count; i++)
                     {
-                        var process = processList[i];
+                        var process = processes[i];
                         try
                         {
                             if (process != null)
@@ -467,9 +489,9 @@ namespace handstack
                 }
                 else if (pid > 0)
                 {
-                    for (int i = 0; i < processList.Length; i++)
+                    for (int i = 0; i < processes.Count; i++)
                     {
-                        var process = processList[i];
+                        var process = processes[i];
                         if (process.Id == pid)
                         {
                             try
@@ -491,7 +513,81 @@ namespace handstack
                         }
                     }
                 }
-            }, optionProcessID);
+                else if (port != null && port > 0)
+                {
+                    var processPorts = new Dictionary<int, List<int>>();
+                    string netstatScript = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true ? $"netstat -ano | findstr /R /C:\"LISTENING\"" : $"lsof -iTCP -n -P | grep -E '(LISTEN)'";
+                    var netstatResult = CommandHelper.RunScript($"{netstatScript}", false, true, true);
+                    if (netstatResult.Count > 0 && netstatResult[0].Item1 == 0)
+                    {
+                        string netstatOutput = netstatResult[0].Item2.ToStringSafe();
+
+                        MatchCollection? matches = null;
+                        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true)
+                        {
+                            var regex = new Regex(@"TCP\s+(?<ip>\d+\.\d+\.\d+\.\d+|\[\:\:1\]):(?<port>\d+)\s+.*LISTENING\s+(?<pid>\d+)");
+                            matches = regex.Matches(netstatOutput);
+                        }
+                        else
+                        {
+                            var regex = new Regex(@"(\w+)\s+(?<pid>\d+)\s+\w+\s+\d+u\s+\w+\s+\w+\s+\d+t\d+\s+TCP\s+(?<ip>\d+\.\d+\.\d+\.\d+|\[\:\:1\]|\*):(?<port>\d+)\s+\(LISTEN\)");
+                            matches = regex.Matches(netstatOutput);
+                        }
+
+                        if (matches != null)
+                        {
+                            foreach (Match match in matches)
+                            {
+                                if (int.TryParse(match.Groups["pid"].Value, out int processID) == true && int.TryParse(match.Groups["port"].Value, out int portNumber) == true)
+                                {
+                                    if (processPorts.ContainsKey(processID) == true)
+                                    {
+                                        var ports = processPorts[processID];
+                                        if (ports.Contains(portNumber) == false)
+                                        {
+                                            ports.Add(portNumber);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        processPorts.Add(processID, new List<int> { portNumber });
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Log.Error($"error: {netstatResult[0].Item3}");
+                    }
+
+                    foreach (int processID in processPorts.Keys)
+                    {
+                        if (processPorts.TryGetValue(processID, out List<int>? usagePorts) == true)
+                        {
+                            if (usagePorts.Contains((int)port) == true)
+                            {
+                                var process = Process.GetProcessById(processID);
+                                if (process != null)
+                                {
+                                    try
+                                    {
+                                        process.Kill(true);
+                                    }
+                                    catch (Exception exception)
+                                    {
+                                        Log.Error(exception, $"ProcessID:{processID} 프로세스 Kill 오류");
+                                    }
+                                }
+                                else
+                                {
+                                    Log.Information($"ProcessID:{processID} 프로세스 확인이 필요합니다");
+                                }
+                            }
+                        }
+                    }
+                }
+            }, optionProcessID, optionPort);
 
             rootCommand.Add(subCommandStop);
 
@@ -891,15 +987,29 @@ namespace handstack
                             string dateString = DateTime.Now.ToString(string.IsNullOrEmpty(item.Value) == true ? "yyyy-MM-dd" : item.Value);
                             CommandHelper.EnvironmentVariables.Add(item.Key.Substring(1).ToUpper(), dateString);
                         }
+                        else if (item.Key.StartsWith("$") == true)
+                        {
+                            CommandHelper.EnvironmentVariables.Add(item.Key.Substring(1).ToUpper(), item.Value);
+                        }
                         else
                         {
                             CommandHelper.EnvironmentVariables.Add(item.Key.ToUpper(), item.Value);
                         }
                     }
 
+                    for (int i = 0; i < task.commands.Count; i++)
+                    {
+                        string command = task.commands[i];
+                        foreach (var item in task.environments.Where(p => p.Key.StartsWith("$") == true))
+                        {
+                            task.commands[i] = command.Replace(item.Key, item.Value);
+                            task.basepath = string.IsNullOrEmpty(task.basepath) == true ? "" : task.basepath.Replace(item.Key, item.Value);
+                        }
+                    }
+
                     var scripts = string.Join(Environment.NewLine, task.commands);
                     var workingDirectory = string.IsNullOrEmpty(task.basepath) == true ? (file?.DirectoryName).ToStringSafe() : task.basepath;
-                    var scriptsResult = CommandHelper.RunScript(scripts, false, true, true, true, workingDirectory);
+                    var scriptsResult = CommandHelper.RunScript(scripts, false, true, true, true, workingDirectory, task.ignoreExit);
 
                     int commandIndex = 1;
                     foreach (var item in scriptsResult)

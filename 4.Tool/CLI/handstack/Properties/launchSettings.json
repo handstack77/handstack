@@ -2,7 +2,7 @@
     "profiles": {
         "handstack": {
             "commandName": "Project",
-            "commandLineArgs": "task --file=C:/Projects/handstack77/handstack/4.Tool/CLI/handstack/task.json --value=checkup:build;dbclient:build"
+            "commandLineArgs": ""
         }
     }
 }

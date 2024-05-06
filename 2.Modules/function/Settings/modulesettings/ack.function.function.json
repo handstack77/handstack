@@ -1,0 +1,91 @@
+{
+    "ModuleID": "function",
+    "Name": "function",
+    "IsBundledWithHost": false,
+    "Version": "1.0.0",
+    "ModuleConfig": {
+        "SystemID": "HANDSTACK",
+        "BusinessServerUrl": "http://localhost:8000/transact/api/transaction/execute",
+        "CircuitBreakResetSecond": 60,
+        "DefaultCommandTimeout": 180,
+        "IsExceptionDetailText": true,
+        "IsLogServer": true,
+        "LogServerUrl": "http://localhost:8000/logger/api/log/insert",
+        "ContractBasePath": [
+            "../contracts/function"
+        ],
+        "ModuleLogFilePath": "../log/function/module.log",
+        "NodeFunctionConfig": {
+            "LocalStoragePath": "../cache/function",
+            "NodeScriptMapBasePath": "",
+            "LogMinimumLevel": "trace",
+            "FileLogBasePath": "../log/function/javascript",
+            "TimeoutMS": -1,
+            "IsSingleThread": true,
+            "WatchGracefulShutdown": true,
+            "EnableFileWatching": true,
+            "WatchFileNamePatterns": [ "featureMain.js", "featureMeta.json", "featureSQL.xml", "syn.config.json" ],
+            "NodeAndV8Options": "",
+            "EnvironmentVariables": ""
+        },
+        "CSharpFunctionConfig": {
+            "EnableFileWatching": true,
+            "FileLogBasePath": "../log/function/csharp",
+            "WatchFileNamePatterns": [ "featureMain.cs", "featureMeta.json", "featureSQL.xml" ]
+        },
+        "EventAction": [],
+        "SubscribeAction": [],
+        "FunctionSource": [
+            {
+                "ApplicationID": "HDS",
+                "ProjectID": "*",
+                "DataSourceID": "FN01",
+                "DataProvider": "SQLite",
+                "ConnectionString": "URI=file:../sqlite/HDS/dbclient/HDS.db;Journal Mode=MEMORY;Cache Size=4000;Synchronous=Normal;Page Size=4096;Pooling=True;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;",
+                "IsEncryption": "N",
+                "WorkingDirectoryPath": "../tmp/HDS/function/HDS_FN01",
+                "Comment": "SQLite 기본 거래"
+            },
+            {
+                "ApplicationID": "HDS",
+                "ProjectID": "*",
+                "DataSourceID": "FN02",
+                "DataProvider": "SqlServer",
+                "ConnectionString": "Data Source=localhost;Initial Catalog=master;User ID=sa;Password=Strong@Passw0rd;",
+                "IsEncryption": "N",
+                "WorkingDirectoryPath": "../tmp/HDS/function/HDS_FN02",
+                "Comment": "SqlServer 기본 거래"
+            },
+            {
+                "ApplicationID": "HDS",
+                "ProjectID": "*",
+                "DataSourceID": "FN03",
+                "DataProvider": "Oracle",
+                "ConnectionString": "Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521))(CONNECT_DATA=(SID=ORCL)));User Id=system;Password=Strong@Passw0rd;",
+                "IsEncryption": "N",
+                "WorkingDirectoryPath": "../tmp/HDS/function/HDS_FN03",
+                "Comment": "Oracle 기본 거래"
+            },
+            {
+                "ApplicationID": "HDS",
+                "ProjectID": "*",
+                "DataSourceID": "FN04",
+                "DataProvider": "MySQL",
+                "ConnectionString": "Server=localhost;Port=3306;Uid=root;Pwd=Strong@Passw0rd;PersistSecurityInfo=True;SslMode=none;Charset=utf8;Allow User Variables=True;",
+                "IsEncryption": "N",
+                "WorkingDirectoryPath": "../tmp/HDS/function/HDS_FN04",
+                "Comment": "MySQL 기본 거래"
+            },
+            {
+                "ApplicationID": "HDS",
+                "ProjectID": "*",
+                "DataSourceID": "FN05",
+                "DataProvider": "PostgreSQL",
+                "ConnectionString": "Host=localhost;Port=5432;Database=postgres;User ID=postgres;Password=Strong@Passw0rd;",
+                "IsEncryption": "N",
+                "WorkingDirectoryPath": "../tmp/HDS/function/HDS_FN05",
+                "Comment": "PostgreSQL 기본 거래"
+            }
+        ]
+    }
+}
