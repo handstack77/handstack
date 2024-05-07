@@ -884,6 +884,7 @@ namespace transact.Areas.transact.Controllers
 
                 #region 거래 입력 정보 생성
 
+                Dictionary<string, string> privillegeTypes = new Dictionary<string, string>();
                 string requestSystemID = "";
                 BearerToken? bearerToken = null;
                 string token = request.AccessToken;
@@ -1095,6 +1096,34 @@ namespace transact.Areas.transact.Controllers
                             }
                         }
                     }
+
+                    // PrivillegeDatabaseDDL, PrivillegeDatabaseDML, PrivillegeDatabaseDCL, PrivillegePermissionEXE, PrivillegeFeatureRUN
+                    List<string> privillegeKeys = new List<string>();
+                    Dictionary<string, string> claims = new Dictionary<string, string>();
+                    if (bearerToken != null)
+                    {
+                        if (bearerToken.Policy.Claims.ContainsKey("PrivillegeKeys") == true)
+                        {
+                            privillegeKeys = bearerToken.Policy.Claims["PrivillegeKeys"].SplitAndTrim(',');
+                            claims = bearerToken.Policy.Claims;
+                        }
+                    }
+                    else if (userAccount != null)
+                    {
+                        if (userAccount.Claims.ContainsKey("PrivillegeKeys") == true)
+                        {
+                            privillegeKeys = userAccount.Claims["PrivillegeKeys"].SplitAndTrim(',');
+                            claims = userAccount.Claims;
+                        }
+                    }
+
+                    foreach (string privillegeKey in privillegeKeys)
+                    {
+                        if (claims.ContainsKey(privillegeKey))
+                        {
+                            privillegeTypes.Add(privillegeKey, claims[privillegeKey]);
+                        }
+                    }
                 }
                 catch (Exception exception)
                 {
@@ -1181,8 +1210,15 @@ namespace transact.Areas.transact.Controllers
 
                 TransactionObject transactionObject = new TransactionObject();
                 transactionObject.LoadOptions = request.LoadOptions;
-                if (transactionObject.LoadOptions != null && transactionObject.LoadOptions.Count > 0)
+
+                if (transactionObject.LoadOptions == null)
                 {
+                    transactionObject.LoadOptions = new Dictionary<string, string>();
+                }
+
+                foreach (var item in privillegeTypes)
+                {
+                    transactionObject.LoadOptions.Add(item.Key, item.Value);
                 }
 
                 transactionObject.RequestID = string.Concat(ModuleConfiguration.SystemID, GlobalConfiguration.HostName, request.Environment, request.Transaction.ScreenID, DateTime.Now.ToString("yyyyMMddHHmmddsss"));
