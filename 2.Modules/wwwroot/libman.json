@@ -281,6 +281,11 @@
             "provider": "cdnjs",
             "library": "qrcode-generator@1.4.4",
             "destination": "wwwroot/lib/qrcode-generator/"
+        },
+        {
+            "provider": "jsdelivr",
+            "library": "jsonata@2.0.4",
+            "destination": "wwwroot/lib/jsonata/"
         }
     ]
 }
