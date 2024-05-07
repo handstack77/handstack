@@ -4079,9 +4079,15 @@
         if (process.env.SYN_CONFIG) {
             syn.Config = JSON.parse(process.env.SYN_CONFIG);
         }
-
-        if (syn.Config && $string.isNullOrEmpty(syn.Config.DataSourceFilePath) == true) {
-            syn.Config.DataSourceFilePath = path.join(process.cwd(), 'BusinessContract/Database/DataSource.xml');
+        else {
+            var filePath = path.join(process.cwd(), 'node.config.json');
+            if (fs.existsSync(filePath) == true) {
+                var data = fs.readFileSync(filePath, 'utf8');
+                syn.Config = JSON.parse(data);
+            }
+            else {
+                console.error('Node.js 환경설정 파일이 존재하지 않습니다. 파일경로: {0}'.format(filePath));
+            }
         }
 
         delete syn.$w.isPageLoad;

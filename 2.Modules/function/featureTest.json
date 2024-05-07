@@ -1,0 +1,34 @@
+{
+    "Header": {
+        "ApplicationID": "HDS",
+        "ProjectID": "TST",
+        "TransactionID": "JSF010",
+        "DataSourceID": "FN01",
+        "LanguageType": "javascript",
+        "Use": true,
+        "Comment": "Javascript 거래 함수 테스트"
+    },
+	"Commands": [
+        {
+            "ID": "GF01",
+            "Seq": 0,
+            "Use": true,
+            "Timeout": 0,
+            "Comment": "Form 반환 거래 로직",
+            "Params": [
+                {
+                    "id": "ServerDate",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                },
+                {
+                    "id": "ServerName",
+                    "type": "String",
+                    "length": 0,
+                    "value": null
+                }
+            ]
+        }
+	]
+}

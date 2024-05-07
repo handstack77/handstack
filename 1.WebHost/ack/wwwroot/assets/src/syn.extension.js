@@ -938,7 +938,7 @@
                     parseParameter = items.find(function (item) { return item[parameterProperty] == parameterName; });
                 }
                 else {
-                    parseParameter = items.find(function (item) { return item.parameterName == parameterName; });
+                    parseParameter = items.find(function (item) { return item.ParameterName == parameterName || item.parameterName == parameterName; });
                 }
 
                 if (parseParameter) {
@@ -946,7 +946,7 @@
                         result = parseParameter[valueProperty];
                     }
                     else {
-                        result = parseParameter.value;
+                        result = parseParameter.Value || parseParameter.value;
                     }
                 }
                 else {

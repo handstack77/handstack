@@ -8,10 +8,10 @@ if (globalRoot.devicePlatform === 'node') {
 
     if (typeof localStorage === 'undefined' || localStorage === null) {
         var LocalStorage = require('node-localstorage').LocalStorage;
-        globalRoot.localStorage = new LocalStorage(process.env.SYN_LocalStoragePath);
+        globalRoot.localStorage = new LocalStorage(process.env.SYN_LocalStoragePath || '../cache/function');
     }
 
-    var moduleLogDirectory = path.join(process.env.SYN_FileLogBasePath, syn.Config.ApplicationID, syn.Config.ProjectID);
+    var moduleLogDirectory = path.join((process.env.SYN_FileLogBasePath || '../log/function/javascript'), syn.Config.ApplicationID, syn.Config.ProjectID);
     if (fs.existsSync(moduleLogDirectory) == false) {
         fs.mkdirSync(moduleLogDirectory, {
             recursive: true
@@ -26,7 +26,7 @@ if (globalRoot.devicePlatform === 'node') {
         };
 
         var logger = require('simple-node-logger').createRollingFileLogger(options);
-        logger.setLevel(process.env.SYN_LogMinimumLevel);
+        logger.setLevel((process.env.SYN_LogMinimumLevel || 'trace'));
         globalRoot.$logger = logger;
     }
 
@@ -59,7 +59,7 @@ if (globalRoot.devicePlatform === 'node') {
                             functionModule.featureSQLPath = featureSQLPath;
                         }
 
-                        var moduleLogDirectory = path.join(process.env.SYN_FileLogBasePath, functionModule.config.ApplicationID, functionModule.config.ProjectID, fileDirectoryName);
+                        var moduleLogDirectory = path.join((process.env.SYN_FileLogBasePath || '../log/function/javascript'), functionModule.config.ApplicationID, functionModule.config.ProjectID, fileDirectoryName);
                         if (fs.existsSync(moduleLogDirectory) == false) {
                             fs.mkdirSync(moduleLogDirectory, {
                                 recursive: true
@@ -73,7 +73,7 @@ if (globalRoot.devicePlatform === 'node') {
                         };
 
                         var logger = require('simple-node-logger').createRollingFileLogger(options);
-                        logger.setLevel(process.env.SYN_LogMinimumLevel);
+                        logger.setLevel((process.env.SYN_LogMinimumLevel || 'trace'));
                         functionModule.logger = logger;
                         syn.functionModules[moduleID] = functionModule;
 

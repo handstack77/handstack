@@ -7,6 +7,7 @@
     "target": "/home/ack/package.json",
     "dependencies": {
         "axios": "^0.21.1",
+        "express": "^4.19.2",
         "mssql": "^6.3.1",
         "mybatis-mapper": "^0.6.5",
         "mysql": "^2.18.1",

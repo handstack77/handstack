@@ -1861,7 +1861,7 @@ globalRoot.syn = syn;
                     parseParameter = items.find(function (item) { return item[parameterProperty] == parameterName; });
                 }
                 else {
-                    parseParameter = items.find(function (item) { return item.parameterName == parameterName; });
+                    parseParameter = items.find(function (item) { return item.ParameterName == parameterName || item.parameterName == parameterName; });
                 }
 
                 if (parseParameter) {
@@ -1869,7 +1869,7 @@ globalRoot.syn = syn;
                         result = parseParameter[valueProperty];
                     }
                     else {
-                        result = parseParameter.value;
+                        result = parseParameter.Value || parseParameter.value;
                     }
                 }
                 else {
@@ -7803,9 +7803,15 @@ globalRoot.syn = syn;
         if (process.env.SYN_CONFIG) {
             syn.Config = JSON.parse(process.env.SYN_CONFIG);
         }
-
-        if (syn.Config && $string.isNullOrEmpty(syn.Config.DataSourceFilePath) == true) {
-            syn.Config.DataSourceFilePath = path.join(process.cwd(), 'BusinessContract/Database/DataSource.xml');
+        else {
+            var filePath = path.join(process.cwd(), 'node.config.json');
+            if (fs.existsSync(filePath) == true) {
+                var data = fs.readFileSync(filePath, 'utf8');
+                syn.Config = JSON.parse(data);
+            }
+            else {
+                console.error('Node.js 환경설정 파일이 존재하지 않습니다. 파일경로: {0}'.format(filePath));
+            }
         }
 
         delete syn.$w.isPageLoad;
@@ -8283,10 +8289,10 @@ if (globalRoot.devicePlatform === 'node') {
 
     if (typeof localStorage === 'undefined' || localStorage === null) {
         var LocalStorage = require('node-localstorage').LocalStorage;
-        globalRoot.localStorage = new LocalStorage(process.env.SYN_LocalStoragePath);
+        globalRoot.localStorage = new LocalStorage(process.env.SYN_LocalStoragePath || '../cache/function');
     }
 
-    var moduleLogDirectory = path.join(process.env.SYN_FileLogBasePath, syn.Config.ApplicationID, syn.Config.ProjectID);
+    var moduleLogDirectory = path.join((process.env.SYN_FileLogBasePath || '../log/function/javascript'), syn.Config.ApplicationID, syn.Config.ProjectID);
     if (fs.existsSync(moduleLogDirectory) == false) {
         fs.mkdirSync(moduleLogDirectory, {
             recursive: true
@@ -8301,7 +8307,7 @@ if (globalRoot.devicePlatform === 'node') {
         };
 
         var logger = require('simple-node-logger').createRollingFileLogger(options);
-        logger.setLevel(process.env.SYN_LogMinimumLevel);
+        logger.setLevel((process.env.SYN_LogMinimumLevel || 'trace'));
         globalRoot.$logger = logger;
     }
 
@@ -8334,7 +8340,7 @@ if (globalRoot.devicePlatform === 'node') {
                             functionModule.featureSQLPath = featureSQLPath;
                         }
 
-                        var moduleLogDirectory = path.join(process.env.SYN_FileLogBasePath, functionModule.config.ApplicationID, functionModule.config.ProjectID, fileDirectoryName);
+                        var moduleLogDirectory = path.join((process.env.SYN_FileLogBasePath || '../log/function/javascript'), functionModule.config.ApplicationID, functionModule.config.ProjectID, fileDirectoryName);
                         if (fs.existsSync(moduleLogDirectory) == false) {
                             fs.mkdirSync(moduleLogDirectory, {
                                 recursive: true
@@ -8348,7 +8354,7 @@ if (globalRoot.devicePlatform === 'node') {
                         };
 
                         var logger = require('simple-node-logger').createRollingFileLogger(options);
-                        logger.setLevel(process.env.SYN_LogMinimumLevel);
+                        logger.setLevel((process.env.SYN_LogMinimumLevel || 'trace'));
                         functionModule.logger = logger;
                         syn.functionModules[moduleID] = functionModule;
 

@@ -3466,7 +3466,7 @@ globalRoot.syn = syn;
                     parseParameter = items.find(function (item) { return item[parameterProperty] == parameterName; });
                 }
                 else {
-                    parseParameter = items.find(function (item) { return item.parameterName == parameterName; });
+                    parseParameter = items.find(function (item) { return item.ParameterName == parameterName || item.parameterName == parameterName; });
                 }
 
                 if (parseParameter) {
@@ -3474,7 +3474,7 @@ globalRoot.syn = syn;
                         result = parseParameter[valueProperty];
                     }
                     else {
-                        result = parseParameter.value;
+                        result = parseParameter.Value || parseParameter.value;
                     }
                 }
                 else {
@@ -10128,9 +10128,15 @@ globalRoot.syn = syn;
         if (process.env.SYN_CONFIG) {
             syn.Config = JSON.parse(process.env.SYN_CONFIG);
         }
-
-        if (syn.Config && $string.isNullOrEmpty(syn.Config.DataSourceFilePath) == true) {
-            syn.Config.DataSourceFilePath = path.join(process.cwd(), 'BusinessContract/Database/DataSource.xml');
+        else {
+            var filePath = path.join(process.cwd(), 'node.config.json');
+            if (fs.existsSync(filePath) == true) {
+                var data = fs.readFileSync(filePath, 'utf8');
+                syn.Config = JSON.parse(data);
+            }
+            else {
+                console.error('Node.js 환경설정 파일이 존재하지 않습니다. 파일경로: {0}'.format(filePath));
+            }
         }
 
         delete syn.$w.isPageLoad;
