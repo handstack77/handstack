@@ -1218,7 +1218,7 @@ namespace transact.Areas.transact.Controllers
 
                 foreach (var item in privillegeTypes)
                 {
-                    transactionObject.LoadOptions.Add(item.Key, item.Value);
+                    transactionObject.LoadOptions.Add("$" + item.Key, item.Value);
                 }
 
                 transactionObject.RequestID = string.Concat(ModuleConfiguration.SystemID, GlobalConfiguration.HostName, request.Environment, request.Transaction.ScreenID, DateTime.Now.ToString("yyyyMMddHHmmddsss"));
