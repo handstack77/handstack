@@ -171,64 +171,62 @@
                             </div>
                         </div>
                         <div class="card">
-                            <div class="card">
-                                <div class="row g-0">
-                                    <div class="col-6 d-none d-md-block border-end">
-                                        <div class="row g-0">
-                                            <div class="card-header">
-                                                <h3 class="card-title">거래 이력 <span id="lblRowText"></span></h3>
-                                            </div>
-                                            <div class="card-body p-2">
-                                                <div class="form-fieldset p-0">
-                                                    <syn_grid id="grdTraceLog" syn-datafield="TraceLog" syn-options="{
+                            <div class="row g-0">
+                                <div class="col-6 d-none d-md-block border-end">
+                                    <div class="row g-0">
+                                        <div class="card-header">
+                                            <h3 class="card-title">거래 이력 <span id="lblRowText"></span></h3>
+                                        </div>
+                                        <div class="card-body p-2">
+                                            <div class="form-fieldset p-0">
+                                                <syn_grid id="grdTraceLog" syn-datafield="TraceLog" syn-options="{
                                                     height: 510
                                                     , isContainFilterHeader: true
                                                     , outsideClickDeselects: false
-				                                    , columns: [
-	                                                    ['LogNo', '로그ID', 80, true, 'text', true, 'left']
-	                                                    , ['ServerID', '서버ID', 120, false, 'text', true, 'left']
-	                                                    , ['RunningEnvironment', '환경', 30, false, 'text', true, 'center']
-	                                                    , ['GlobalID', 'GlobalID', 315, false, 'text', true, 'left']
-	                                                    , ['ApplicationID', 'AppID', 50, true, 'text', true, 'center']
-	                                                    , ['ProjectID', '프로젝트ID', 70, true, 'text', true, 'center']
-	                                                    , ['TransactionID', '거래ID', 70, true, 'text', true, 'center']
-	                                                    , ['ServiceID', '서비스ID', 70, true, 'text', true, 'center']
-	                                                    , ['Acknowledge', '성공', 30, false, 'text', true, 'center']
-	                                                    , ['Type', '구분', 30, true, 'text', true, 'center']
-	                                                    , ['Flow', '흐름', 30, false, 'text', true, 'center']
-	                                                    , ['Level', '레벨', 30, true, 'text', true, 'center']
-	                                                    , ['Format', '포맷', 30, false, 'text', true, 'center']
-	                                                    , ['UserID', '사용자ID', 160, true, 'text', true, 'left']
-	                                                    , ['CreatedAt', '입력시간', 140, false, 'text', true, 'center']
-				                                    ]
-			                                    }" syn-events="['afterSelectionEnd']"></syn_grid>
-                                                </div>
+                                                    , columns: [
+                                                        ['LogNo', '로그ID', 80, true, 'text', true, 'left']
+                                                        , ['ServerID', '서버ID', 120, false, 'text', true, 'left']
+                                                        , ['RunningEnvironment', '환경', 30, false, 'text', true, 'center']
+                                                        , ['GlobalID', 'GlobalID', 315, false, 'text', true, 'left']
+                                                        , ['ApplicationID', 'AppID', 50, true, 'text', true, 'center']
+                                                        , ['ProjectID', '프로젝트ID', 70, true, 'text', true, 'center']
+                                                        , ['TransactionID', '거래ID', 70, true, 'text', true, 'center']
+                                                        , ['ServiceID', '서비스ID', 70, true, 'text', true, 'center']
+                                                        , ['Acknowledge', '성공', 30, false, 'text', true, 'center']
+                                                        , ['Type', '구분', 30, true, 'text', true, 'center']
+                                                        , ['Flow', '흐름', 30, false, 'text', true, 'center']
+                                                        , ['Level', '레벨', 30, true, 'text', true, 'center']
+                                                        , ['Format', '포맷', 30, false, 'text', true, 'center']
+                                                        , ['UserID', '사용자ID', 160, true, 'text', true, 'left']
+                                                        , ['CreatedAt', '입력시간', 140, false, 'text', true, 'center']
+                                                    ]
+                                                }" syn-events="['afterSelectionEnd']"></syn_grid>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-6 d-flex flex-column">
-                                        <div class="row g-0">
-                                            <div class="card-header">
-                                                <h3 class="card-title">로그 속성 및 메시지</h3>
-                                                <div class="card-actions">
-                                                    <div class="btn-group">
-                                                        <button type="button" id="btnJsonToTable" syn-events="['click']" class="btn btn-primary">
-                                                            <i class="f:18 ti ti-table mr:4"></i>
-                                                            거래 메시지 표 보기
-                                                        </button>
-                                                    </div>
+                                </div>
+                                <div class="col-6 d-flex flex-column">
+                                    <div class="row g-0">
+                                        <div class="card-header">
+                                            <h3 class="card-title">로그 속성 및 메시지</h3>
+                                            <div class="card-actions">
+                                                <div class="btn-group">
+                                                    <button type="button" id="btnJsonToTable" syn-events="['click']" class="btn btn-primary">
+                                                        <i class="f:18 ti ti-table mr:4"></i>
+                                                        거래 메시지 표 보기
+                                                    </button>
                                                 </div>
                                             </div>
-                                            <div class="card-body p-2">
-                                                <div class="row mb-2">
-                                                    <div class="col-12">
-                                                        <textarea id="txtProperties" syn-datafield="Properties" class="form-control resize:none" spellcheck="false" style="height: 60px;" placeholder="로그 속성" syn-options="{toSynControl: false}"></textarea>
-                                                    </div>
+                                        </div>
+                                        <div class="card-body p-2">
+                                            <div class="row mb-2">
+                                                <div class="col-12">
+                                                    <textarea id="txtProperties" syn-datafield="Properties" class="form-control resize:none" spellcheck="false" style="height: 60px;" placeholder="로그 속성" syn-options="{toSynControl: false}"></textarea>
                                                 </div>
-                                                <div class="row">
-                                                    <div class="col-12">
-                                                        <textarea id="txtMessage" syn-datafield="Message" class="form-control resize:none" spellcheck="false" style="height: 444px;" placeholder="로그 메시지" syn-options="{toSynControl: false}"></textarea>
-                                                    </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    <textarea id="txtMessage" syn-datafield="Message" class="form-control resize:none" spellcheck="false" style="height: 444px;" placeholder="로그 메시지" syn-options="{toSynControl: false}"></textarea>
                                                 </div>
                                             </div>
                                         </div>
