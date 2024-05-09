@@ -55,7 +55,7 @@ fi
 
 if [ "$TASK_COMMAND" == "copy" ]; then
     rsync -av $WORKING_PATH/Contracts/ $HANDSTACK_PATH/1.WebHost/build/handstack/contracts/
-    rsync -av $WORKING_PATH/wwwroot/ $HANDSTACK_PATH/1.WebHost/build/handstack/modules/handsup/wwwroot/
+    rsync -av $WORKING_PATH/wwwroot/ $HANDSTACK_PATH/1.WebHost/build/handstack/modules/transact/wwwroot/
 fi
 
 if [ "$TASK_COMMAND" == "start" ]; then
