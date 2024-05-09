@@ -41,6 +41,10 @@ if "%TASK_COMMAND%"=="copy" (
     robocopy %WORKING_PATH%/wwwroot %HANDSTACK_PATH%/1.WebHost/build/handstack/modules/wwwroot/wwwroot /e /copy:dat
 )
 
+if "%TASK_COMMAND%"=="www" (
+    robocopy %WORKING_PATH%/wwwroot %HANDSTACK_PATH%/1.WebHost/build/handstack/modules/wwwroot/wwwroot /e /copy:dat /xd %WORKING_PATH%\wwwroot\lib
+)
+
 if "%TASK_COMMAND%"=="start" (
     pm2 start %HANDSTACK_ACK% --name ack --no-autorestart
 )

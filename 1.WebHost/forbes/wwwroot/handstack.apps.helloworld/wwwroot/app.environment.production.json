@@ -11,6 +11,7 @@
         "CustomHeader1": "ValueHeader1"
     },
     "Definition": {
+        "BindingAction": "Replace",
         "Styles": [
             "/lib/tabler-icons-webfont/tabler-icons.css",
             "/app/#{ApplicationNo}/assets/app.bundle.min.css"

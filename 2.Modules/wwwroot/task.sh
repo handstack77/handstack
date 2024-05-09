@@ -58,6 +58,10 @@ if [ "$TASK_COMMAND" == "copy" ]; then
     rsync -av $WORKING_PATH/wwwroot/ $HANDSTACK_PATH/1.WebHost/build/handstack/modules/wwwroot/wwwroot/
 fi
 
+if [ "$TASK_COMMAND" == "www" ]; then
+    rsync -av --exclude=$WORKING_PATH/wwwroot/lib $WORKING_PATH/wwwroot/ $HANDSTACK_PATH/1.WebHost/build/handstack/modules/wwwroot/wwwroot/
+fi
+
 if [ "$TASK_COMMAND" == "start" ]; then
     pm2 start $HANDSTACK_ACK --name ack
 fi

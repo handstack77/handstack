@@ -391,7 +391,7 @@
                     window.Configuration.CreatedAt = new Date();
                 }
                 else {
-                    window.Configuration = { Application: {}, Cookie: {}, Header: {}, Definition: { Scripts: [], Styles: [], Controls: [] } };
+                    window.Configuration = { Application: {}, Cookie: {}, Header: {}, Definition: { BindingAction: 'Replace', Scripts: [], Styles: [], Controls: [] } };
                 }
 
                 sessionStorage.setItem(`${tenantID}Config`, JSON.stringify(window.Configuration));
@@ -418,12 +418,17 @@
             }
         }
 
+        var bindingAction;
         if (window.Configuration && window.Configuration.Definition) {
-            jsFiles = window.Configuration.Definition.Scripts || [];
-            jsFiles = jsFiles.concat(window.Configuration.Definition.Controls || []);
-            styleFiles = window.Configuration.Definition.Styles || [];
+            bindingAction = window.Configuration.Definition.BindingAction || 'Replace';
+            if (bindingAction != 'None') {
+                jsFiles = window.Configuration.Definition.Scripts || [];
+                jsFiles = jsFiles.concat(window.Configuration.Definition.Controls || []);
+                styleFiles = window.Configuration.Definition.Styles || [];
+            }
         }
-        else {
+
+        if (bindingAction != 'Replace') {
             if (synConfig.Environment == 'Development') {
                 styleFiles = [
                     // syn.scripts.js

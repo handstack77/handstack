@@ -11,6 +11,7 @@
         "CustomHeader1": "ValueHeader1"
     },
     "Definition": {
+        "BindingAction": "Replace",
         "Styles": [
             "/lib/tabler-core/dist/css/tabler.css",
             "/lib/handsontable/dist/handsontable.full.css",
