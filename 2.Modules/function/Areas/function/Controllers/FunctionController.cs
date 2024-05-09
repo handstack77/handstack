@@ -16,13 +16,13 @@ using Newtonsoft.Json.Linq;
 
 namespace function.Areas.function.Controllers
 {
-    [Area("handsup")]
+    [Area("function")]
     [Route("[area]/api/[controller]")]
     [ApiExplorerSettings(IgnoreApi = true)]
     [ApiController]
     public class FunctionController : ControllerBase
     {
-        // http://localhost:8000/handsup/api/function/execute?accessToken=test&loadOptions[option1]=value1&featureMeta.Timeout=0
+        // http://localhost:8000/function/api/function/execute?accessToken=test&loadOptions[option1]=value1&featureMeta.Timeout=0
         [Route("[action]")]
         // public async Task<DataSet?> Execute([FromBody] List<DynamicParameter> dynamicParameters, [FromQuery] DataContext dataContext)
         public DataSet? Execute([FromBody] List<DynamicParameter>? dynamicParameters, [FromQuery] DataContext? dataContext)
@@ -109,7 +109,7 @@ namespace function.Areas.function.Controllers
         [HttpGet]
         public string Get()
         {
-            return "handsup FunctionController";
+            return "function FunctionController";
         }
     }
 }

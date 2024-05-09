@@ -881,7 +881,7 @@ namespace handstack
                 optionAckFile, optionFile, optionKey, optionDirectory, optionFind, optionReplace, optionValue
             };
 
-            // handstack create --ack=C:/projects/handstack77/handstack/1.WebHost/build/handstack/app/ack.exe --file=C:/tmp/handstack.zip --directory=C:/tmp/handstack --find=handsup --replace=myprojectname
+            // handstack create --ack=C:/projects/handstack77/handstack/1.WebHost/build/handstack/app/ack.exe --file=C:/tmp/handstack.zip --directory=C:/tmp/handstack --find=handstack --replace=myprojectname
             subCommandCreate.SetHandler((ackFile, file, key, directory, find, replace, ignored) =>
             {
                 if (ackFile != null && ackFile.Exists == true && file != null && file.Exists == true && directory != null)
