@@ -15,6 +15,7 @@ namespace function
         public static string Version = "";
         public static string AuthorizationKey = "";
         public static bool IsBundledWithHost = false;
+        public static string ModuleBasePath = "";
         public static List<FileSyncManager?> NodeFileSyncManager = new List<FileSyncManager?>();
         public static List<FileSyncManager?> CSharpFileSyncManager = new List<FileSyncManager?>();
         public static List<string> ContractBasePath = new List<string>();

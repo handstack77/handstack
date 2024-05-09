@@ -125,6 +125,8 @@ namespace function.Entity
 
         public string ModuleLogFilePath { get; set; }
 
+        public string ModuleBasePath { get; set; }
+
         public int TransactionLogFileSizeLimitBytes { get; set; }
 
         public int TransactionLogMaxRollingFiles { get; set; }
@@ -148,6 +150,7 @@ namespace function.Entity
             ContractBasePath = new List<string>();
             IsTransactionLogging = false;
             ModuleLogFilePath = "";
+            ModuleBasePath = "";
             TransactionLogFileSizeLimitBytes = 104857600;
             TransactionLogMaxRollingFiles = 30;
             CSharpFunctionConfig = new CSharpScriptConfig();
