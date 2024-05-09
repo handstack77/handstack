@@ -430,7 +430,7 @@
 
         if (bindingAction != 'Replace') {
             if (synConfig.Environment == 'Development') {
-                styleFiles = [
+                styleFiles = styleFiles.concat([
                     // syn.scripts.js
                     '/lib/tabler-core/dist/css/tabler.css',
                     '/lib/handsontable/dist/handsontable.full.css',
@@ -476,33 +476,33 @@
                     // 프로젝트 화면 디자인
                     '/css/base.css',
                     '/lib/tabler-icons-webfont/tabler-icons.css',
-                ];
+                ]);
 
-                jsFiles = [
+                jsFiles = jsFiles.concat([
                     '/js/syn.scripts.js',
-                ];
+                ]);
 
                 jsFiles.push('/js/syn.js');
                 jsFiles.push('/js/syn.controls.js');
             }
             else {
                 if (synConfig.IsDebugMode == true) {
-                    styleFiles = [
+                    styleFiles = styleFiles.concat([
                         '/css/syn.bundle.css'
-                    ];
+                    ]);
 
-                    jsFiles = [
+                    jsFiles = jsFiles.concat([
                         '/js/syn.bundle.js'
-                    ];
+                    ]);
                 }
                 else {
-                    styleFiles = [
+                    styleFiles = styleFiles.concat([
                         '/css/syn.bundle.min.css'
-                    ];
+                    ]);
 
-                    jsFiles = [
+                    jsFiles = jsFiles.concat([
                         '/js/syn.bundle.min.js'
-                    ];
+                    ]);
                 }
             }
         }
