@@ -282,9 +282,19 @@ namespace function
                         options.EnableFileWatching = false;
                     }
 
-                    options.WatchPath = ModuleConfiguration.ContractBasePath.Count > 0 ? ModuleConfiguration.ContractBasePath[0] : "";
-                    options.GracefulProcessShutdown = ModuleConfiguration.WatchGracefulShutdown;
-                    options.WatchFileNamePatterns = ModuleConfiguration.WatchFileNamePatterns;
+                    string watchPath = ModuleConfiguration.ContractBasePath.Count > 0 ? ModuleConfiguration.ContractBasePath[0] : "";
+                    if (string.IsNullOrEmpty(watchPath) == true)
+                    {
+                        options.EnableFileWatching = false;
+                    }
+                    else
+                    {
+                        options.WatchPath = Path.Combine(watchPath, "javascript");
+                        Log.Information("[{LogCategory}] Node File WatchPath: " + watchPath, $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
+
+                        options.GracefulProcessShutdown = ModuleConfiguration.WatchGracefulShutdown;
+                        options.WatchFileNamePatterns = ModuleConfiguration.WatchFileNamePatterns;
+                    }
                 });
 
                 services.AddSingleton(new FunctionLoggerClient(Log.Logger, ModuleConfiguration.ModuleLogger));

@@ -21,7 +21,7 @@ var executeFunction = (req, res) => {
     var dataContext = {
         accessToken: null,
         loadOptions: null,
-        globalID: `OD00000HDSTST${moduleID}AF01F${syn.$l.random() + $date.toString(new Date(), 's').substring(0, 6)}`,
+        globalID: `OD00000HDSTST${moduleID}AF01F${syn.$l.random(6) + $date.toString(new Date(), 's').substring(0, 6)}`,
         environment: 'D',
         platform: 'Windows', // Windows, Linux, MacOS
         dataProvider: null, // SQLite, SqlServer, MySql, Oracle, PostgreSql, MariaDB
@@ -51,7 +51,7 @@ var executeFunction = (req, res) => {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.post('/function/api/execute', executeFunction);
+app.all('/function/api/execute', executeFunction);
 
 var port = process.argv[2] || 8080;
 app.listen(port, () => {
