@@ -1,5 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
     <PropertyGroup>
+        <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
+        <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
         <OutputType>Exe</OutputType>
         <TargetFramework>net8.0</TargetFramework>
         <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
