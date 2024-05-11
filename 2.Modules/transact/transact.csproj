@@ -26,7 +26,7 @@
         <PackageReference Include="MediatR" Version="12.2.0" />
         <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.2" />
         <PackageReference Include="RestSharp" Version="110.2.0" />
-        <PackageReference Include="Polly" Version="8.3.1" />
+        <PackageReference Include="Polly" Version="8.4.0" />
         <PackageReference Include="ChoETL.JSON.NETStandard" Version="1.2.1.66" />
         <PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
         <PackageReference Include="Serilog.Extensions.Hosting" Version="8.0.0" />
