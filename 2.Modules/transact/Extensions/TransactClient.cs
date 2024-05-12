@@ -23,6 +23,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 using RestSharp;
+using System.IO;
 
 namespace transact.Extensions
 {
@@ -63,7 +64,63 @@ namespace transact.Extensions
                         break;
                     case "R":
                         applicationResponse = new ApplicationResponse();
-                        applicationResponse.ExceptionText = "CommandType 확인 필요";
+                        if (transactionInfo != null)
+                        {
+                            string applicationID = request.System.ProgramID;
+                            string projectID = request.Transaction.BusinessID;
+                            string transactionID = request.Transaction.TransactionID;
+
+                            string dummyFileDirectory = Path.Combine(GlobalConfiguration.EntryBasePath, "..", "tmp", GlobalConfiguration.ApplicationID, "dummyfile");
+                            if (Directory.Exists(dummyFileDirectory) == false)
+                            {
+                                Directory.CreateDirectory(dummyFileDirectory);
+                            }
+
+                            string dummyFile = Path.Combine(applicationID, projectID, transactionID, transactionInfo.ServiceID + ".dat");
+                            string dummyFilePath = Path.Combine(dummyFileDirectory, dummyFile);
+                            if (File.Exists(dummyFilePath) == false)
+                            {
+                                applicationResponse.ExceptionText = $"DummyFile: {dummyFile} 확인 필요";
+                            }
+                            else
+                            {
+                                string dummyData = File.ReadAllText(dummyFilePath);
+                                switch ((ExecuteDynamicTypeObject)Enum.Parse(typeof(ExecuteDynamicTypeObject), transactionObject.ReturnType))
+                                {
+                                    case ExecuteDynamicTypeObject.Json:
+                                        applicationResponse.ResultMeta = new List<string>();
+                                        applicationResponse.ResultJson = dummyData;
+                                        break;
+                                    case ExecuteDynamicTypeObject.Scalar:
+                                        applicationResponse.ResultObject = dummyData;
+                                        break;
+                                    case ExecuteDynamicTypeObject.NonQuery:
+                                        applicationResponse.ResultInteger = dummyData.IsInteger() == true ? int.Parse(dummyData) : 0;
+                                        break;
+                                    case ExecuteDynamicTypeObject.SQLText:
+                                        applicationResponse.ResultJson = dummyData;
+                                        break;
+                                    case ExecuteDynamicTypeObject.SchemeOnly:
+                                        applicationResponse.ResultJson = dummyData;
+                                        break;
+                                    case ExecuteDynamicTypeObject.CodeHelp:
+                                        applicationResponse.ResultJson = dummyData;
+                                        break;
+                                    case ExecuteDynamicTypeObject.Xml:
+                                        applicationResponse.ResultObject = dummyData;
+                                        break;
+                                    case ExecuteDynamicTypeObject.DynamicJson:
+                                        applicationResponse.ResultJson = dummyData;
+                                        break;
+                                }
+
+                                applicationResponse = DummyDataTransaction(request, response, transactionInfo, transactionObject, businessModels, inputContracts, outputContracts, applicationResponse);
+                            }
+                        }
+                        else
+                        {
+                            applicationResponse.ExceptionText = "transactionInfo 확인 필요";
+                        }
                         break;
                     default:
                         applicationResponse = new ApplicationResponse();
@@ -523,6 +580,268 @@ namespace transact.Extensions
                     applicationResponse.ExceptionText = $"'{transactionID}|{serviceID}' 순차 처리 되는 거래 응답은 Json만 지원";
                     return applicationResponse;
                 }
+            }
+
+            return applicationResponse;
+        }
+
+        public ApplicationResponse DummyDataTransaction(TransactionRequest request, TransactionResponse response, TransactionInfo transactionInfo, TransactionObject transactionObject, List<Model> businessModels, List<ModelInputContract> inputContracts, List<ModelOutputContract> outputContracts, ApplicationResponse applicationResponse)
+        {
+            if (string.IsNullOrEmpty(applicationResponse.ExceptionText) == false)
+            {
+                return applicationResponse;
+            }
+
+            response.Result = new ResultType();
+            response.Result.DataSet = new List<DataMapItem>();
+
+            switch (transactionInfo.ReturnType)
+            {
+                case "Native":
+                    response.Result.DataSet.Add(new DataMapItem()
+                    {
+                        FieldID = "Native",
+                        Value = JsonConvert.DeserializeObject<dynamic>(applicationResponse.ResultJson)
+                    });
+
+                    break;
+                case "CodeHelp":
+                    ResponseCodeObject? responseCodeObject = JsonConvert.DeserializeObject<ResponseCodeObject>(applicationResponse.ResultJson);
+                    DataMapItem? input = request.PayLoad?.DataMapSet?[0].Where(p => p.FieldID == "CodeHelpID").FirstOrDefault();
+
+                    response.Result.DataSet.Add(new DataMapItem()
+                    {
+                        FieldID = input == null ? "CodeHelp" : input.Value.ToStringSafe(),
+                        Value = responseCodeObject
+                    });
+
+                    break;
+                case "SchemeOnly":
+                    JObject resultJson = JObject.Parse(applicationResponse.ResultJson);
+                    foreach (JProperty property in resultJson.Properties())
+                    {
+                        response.Result.DataSet.Add(new DataMapItem()
+                        {
+                            FieldID = property.Name,
+                            Value = property.Value.ToString(Formatting.None)
+                        });
+                    }
+
+                    break;
+                case "SQLText":
+                    JObject sqlJson = JObject.Parse(applicationResponse.ResultJson);
+                    DataMapItem sqlData = new DataMapItem();
+                    sqlData.FieldID = "SQLText";
+                    sqlData.Value = sqlJson;
+                    response.Result.DataSet.Add(sqlData);
+
+                    break;
+                case "Json":
+                    List<DataMapItem>? outputs = JsonConvert.DeserializeObject<List<DataMapItem>>(applicationResponse.ResultJson);
+                    if (outputs != null && outputContracts.Count > 0)
+                    {
+                        if (outputContracts.Where(p => p.Type == "Dynamic").Count() > 0)
+                        {
+                            for (int i = 0; i < outputs.Count; i++)
+                            {
+                                DataMapItem output = outputs[i];
+                                dynamic outputJson = JToken.Parse(output.Value.ToStringSafe());
+                                DataMapItem responseData = new DataMapItem();
+                                responseData.FieldID = output.FieldID;
+                                responseData.Value = outputJson;
+                                response.Result.DataSet.Add(responseData);
+                            }
+                        }
+                        else
+                        {
+                            int additionCount = outputContracts.Where(p => p.Type == "Addition").Count();
+                            int disposeCount = outputContracts.Where(p => p.BaseFieldRelation?.DisposeResult == true).Count();
+                            if ((outputContracts.Count - disposeCount - additionCount + (additionCount > 0 ? 1 : 0)) != outputs.Count)
+                            {
+                                applicationResponse.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 출력 모델 개수 및 DataTransactionAsync 확인 필요, 계약 건수 - '{outputContracts.Count}', 응답 건수 - '{outputs.Count}'";
+                                return applicationResponse;
+                            }
+
+                            var lastIndex = outputs.Count - 1;
+                            for (int i = 0; i < outputs.Count; i++)
+                            {
+                                DataMapItem output = outputs[i];
+                                ModelOutputContract outputContract = outputContracts[i];
+                                Model? model = businessModels.GetBusinessModel(outputContract.ModelID);
+                                if (model == null && outputContract.ModelID != "Unknown" && outputContract.ModelID != "Dynamic")
+                                {
+                                    applicationResponse.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 '{outputContract.ModelID}' 출력 모델 ID가 계약에 있는지 확인";
+                                    return applicationResponse;
+                                }
+
+                                dynamic? outputJson = null;
+                                DataMapItem responseData = new DataMapItem();
+                                responseData.FieldID = output.FieldID;
+
+                                if (additionCount > 0 && i == lastIndex)
+                                {
+                                    try
+                                    {
+                                        JArray messagesJson = JArray.Parse(output.Value.ToStringSafe());
+                                        for (int j = 0; j < messagesJson.Count; j++)
+                                        {
+                                            Addition adiMessage = new Addition();
+                                            adiMessage.Code = messagesJson[j]["MessageCode"].ToStringSafe();
+                                            adiMessage.Text = messagesJson[j]["MessageText"].ToStringSafe();
+                                            response.Message.Additions.Add(adiMessage);
+                                        }
+                                    }
+                                    catch (Exception exception)
+                                    {
+                                        Addition adiMessage = new Addition();
+                                        adiMessage.Code = "E001";
+                                        adiMessage.Text = exception.ToMessage();
+                                        logger.Warning("[{LogCategory}] [{GlobalID}] " + adiMessage.Text, "Transaction/ADI_MSG", request.Transaction.GlobalID);
+                                        response.Message.Additions.Add(adiMessage);
+                                    }
+                                    continue;
+                                }
+
+                                if (ModuleConfiguration.IsDataMasking == true && (ModuleConfiguration.MaskingMethod == "Syn" || ModuleConfiguration.MaskingMethod == "Aes"))
+                                {
+                                    string correlationID = response.CorrelationID;
+                                    foreach (var masking in outputContract.Maskings)
+                                    {
+                                        if (outputContract.Type == "Form")
+                                        {
+                                            outputJson = JObject.Parse(output.Value.ToStringSafe());
+                                            JObject jObject = (JObject)outputJson;
+                                            SetDataMasking(correlationID, masking, jObject);
+                                            output.Value = outputJson;
+                                        }
+                                        else if (outputContract.Type == "Grid" || outputContract.Type == "DataSet")
+                                        {
+                                            outputJson = JArray.Parse(output.Value.ToStringSafe());
+                                            if (outputJson.Count > 0)
+                                            {
+                                                foreach (JObject jObject in outputJson)
+                                                {
+                                                    SetDataMasking(correlationID, masking, jObject);
+                                                    output.Value = outputJson;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if (model == null)
+                                {
+                                    if (outputContract.ModelID == "Unknown")
+                                    {
+                                        if (outputContract.Type == "Form")
+                                        {
+                                            outputJson = JObject.Parse(output.Value.ToStringSafe());
+                                            JObject jObject = (JObject)outputJson;
+                                            foreach (JProperty property in jObject.Properties())
+                                            {
+                                                if (outputContract.Fields.Contains(property.Name) == false)
+                                                {
+                                                    applicationResponse.ExceptionText = $"{outputContract.Type} 출력 모델에 '{property.Name}' 항목 확인 필요";
+                                                    return applicationResponse;
+                                                }
+                                            }
+                                        }
+                                        else if (outputContract.Type == "Grid" || outputContract.Type == "DataSet")
+                                        {
+                                            outputJson = JArray.Parse(output.Value.ToStringSafe());
+                                            if (outputJson.Count > 0)
+                                            {
+                                                JObject jObject = (JObject)outputJson.First;
+                                                foreach (JProperty property in jObject.Properties())
+                                                {
+                                                    if (outputContract.Fields.Contains(property.Name) == false)
+                                                    {
+                                                        applicationResponse.ExceptionText = $"{outputContract.Type} 출력 모델에 '{property.Name}' 항목 확인 필요";
+                                                        return applicationResponse;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        else if (outputContract.Type == "Chart")
+                                        {
+                                            outputJson = JToken.Parse(output.Value.ToStringSafe());
+                                        }
+                                        else if (outputContract.Type == "Dynamic")
+                                        {
+                                            outputJson = JToken.Parse(output.Value.ToStringSafe());
+                                        }
+                                    }
+                                    else if (outputContract.ModelID == "Dynamic")
+                                    {
+                                        if (outputContract.Type == "Form")
+                                        {
+                                            outputJson = JObject.Parse(output.Value.ToStringSafe());
+                                        }
+                                        else if (outputContract.Type == "Grid")
+                                        {
+                                            outputJson = JArray.Parse(output.Value.ToStringSafe());
+                                        }
+                                        else if (outputContract.Type == "Chart")
+                                        {
+                                            outputJson = JToken.Parse(output.Value.ToStringSafe());
+                                        }
+                                        else if (outputContract.Type == "DataSet")
+                                        {
+                                            outputJson = JToken.Parse(output.Value.ToStringSafe());
+                                        }
+                                        else if (outputContract.Type == "Dynamic")
+                                        {
+                                            outputJson = JToken.Parse(output.Value.ToStringSafe());
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if (outputContract.Type == "Form")
+                                    {
+                                        outputJson = JObject.Parse(output.Value.ToStringSafe());
+                                        JObject jObject = (JObject)outputJson;
+                                        foreach (JProperty property in jObject.Properties())
+                                        {
+                                            if (model.Columns.IsContain(property.Name) == false)
+                                            {
+                                                applicationResponse.ExceptionText = $"'{model.Name}' {outputContract.Type} 출력 모델에 '{property.Name}' 항목 확인 필요";
+                                                return applicationResponse;
+                                            }
+                                        }
+                                    }
+                                    else if (outputContract.Type == "Grid" || outputContract.Type == "DataSet")
+                                    {
+                                        outputJson = JArray.Parse(output.Value.ToStringSafe());
+                                        if (outputJson.Count > 0)
+                                        {
+                                            JObject jObject = (JObject)outputJson.First;
+                                            foreach (JProperty property in jObject.Properties())
+                                            {
+                                                if (model.Columns.IsContain(property.Name) == false)
+                                                {
+                                                    applicationResponse.ExceptionText = $"'{model.Name}' {outputContract.Type} 출력 모델에 '{property.Name}' 항목 확인 필요";
+                                                    return applicationResponse;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else if (outputContract.Type == "Chart")
+                                    {
+                                        outputJson = JToken.Parse(output.Value.ToStringSafe());
+                                    }
+                                    else if (outputContract.Type == "Dynamic")
+                                    {
+                                        outputJson = JToken.Parse(output.Value.ToStringSafe());
+                                    }
+                                }
+
+                                responseData.Value = outputJson;
+                                response.Result.DataSet.Add(responseData);
+                            }
+                        }
+                    }
+                    break;
             }
 
             return applicationResponse;
