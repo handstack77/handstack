@@ -7,7 +7,7 @@ var path = require('path');
 var fs = require('fs');
 
 var executeFunction = (req, res) => {
-    var moduleID = req.query.moduleID || 'JSK000';
+    var functionID = req.query.functionID || 'TST.JSF010.GF01';
 
     var parameters = req.body || [
         {
@@ -21,7 +21,7 @@ var executeFunction = (req, res) => {
     var dataContext = {
         accessToken: null,
         loadOptions: null,
-        globalID: `OD00000HDSTST${moduleID}AF01F${syn.$l.random(6) + $date.toString(new Date(), 's').substring(0, 6)}`,
+        globalID: `OD00000HDS${functionID.replaceAll('.', '')}F${syn.$l.random(6) + $date.toString(new Date(), 's').substring(0, 6)}`,
         environment: 'D',
         platform: 'Windows', // Windows, Linux, MacOS
         dataProvider: null, // SQLite, SqlServer, MySql, Oracle, PostgreSql, MariaDB
@@ -33,10 +33,64 @@ var executeFunction = (req, res) => {
     var headerFilePath = path.join(process.cwd(), 'featureTest.json');
     if (fs.existsSync(headerFilePath) == true) {
         var data = fs.readFileSync(headerFilePath, 'utf8');
-        dataContext.featureMeta = JSON.parse(data);
+        var functionScriptContract = JSON.parse(data);
+        var header = functionScriptContract.Header;
+        dataContext.functionHeader = header;
+
+        var item = functionScriptContract.Commands[0];
+        var moduleScriptMap = {};
+        moduleScriptMap.ApplicationID = header.ApplicationID;
+        moduleScriptMap.ProjectID = header.ProjectID;
+        moduleScriptMap.TransactionID = header.TransactionID;
+        moduleScriptMap.ScriptID = item.ID + item.Seq.toString().padStart(2, '0');
+        moduleScriptMap.ExportName = item.ID;
+        moduleScriptMap.Seq = item.Seq;
+        moduleScriptMap.IsHttpContext = header.IsHttpContext;
+        moduleScriptMap.ReferenceModuleID = header.ReferenceModuleID;
+
+        if (!item.EntryType) {
+            moduleScriptMap.EntryType = `${header.ApplicationID}.Function.${header.ProjectID}.${header.TransactionID}`;
+        }
+        else {
+            moduleScriptMap.EntryType = item.EntryType;
+        }
+
+        if (!item.EntryType) {
+            moduleScriptMap.EntryMethod = item.ID;
+        }
+        else {
+            moduleScriptMap.EntryMethod = item.EntryMethod;
+        }
+
+        moduleScriptMap.DataSourceID = header.DataSourceID;
+        moduleScriptMap.LanguageType = header.LanguageType;
+        moduleScriptMap.ProgramPath = functionScriptFile;
+        moduleScriptMap.Timeout = item.Timeout;
+        moduleScriptMap.BeforeTransactionCommand = item.BeforeTransaction;
+        moduleScriptMap.AfterTransactionCommand = item.AfterTransaction;
+        moduleScriptMap.FallbackTransactionCommand = item.FallbackTransaction;
+        moduleScriptMap.Comment = item.Comment;
+
+        moduleScriptMap.ModuleParameters = [];
+        let functionParams = item.Params;
+        if (functionParams && functionParams.length > 0) {
+            for (let functionParam of functionParams) {
+                moduleScriptMap.ModuleParameters.push({
+                    Name: functionParam.ID,
+                    DbType: functionParam.Type,
+                    Length: functionParam.Length,
+                    DefaultValue: functionParam.Value,
+                });
+            }
+        }
+        dataContext.featureMeta = moduleScriptMap;
     }
     else {
         throw `Function 헤더 파일이 존재하지 않습니다. 파일경로: ${headerFilePath}`;
+    }
+
+    if (dataContext.featureMeta.ApplicationID == '') {
+        throw `Function 정보 확인 필요: ${functionID}`;
     }
 
     module.exports.GF01((error, result) => {
@@ -45,7 +99,7 @@ var executeFunction = (req, res) => {
         }
 
         res.json(result);
-    }, moduleID, parameters, dataContext);
+    }, functionID, parameters, dataContext);
 };
 
 app.use(express.json());
@@ -62,7 +116,7 @@ app.listen(port, () => {
 
 module.exports = {
     GF01: (callback, moduleID, parameters, dataContext) => {
-        var typeMember = "TST.JSF010.GF01";
+        var typeMember = 'TST.JSF010.GF01';
         var applicationID = $array.getValue(parameters, 'ApplicationID');
 
         var result = {
