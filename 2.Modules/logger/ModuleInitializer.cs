@@ -64,6 +64,8 @@ namespace logger
                         ModuleConfiguration.AuthorizationKey = string.IsNullOrEmpty(moduleConfig.AuthorizationKey) == false ? moduleConfig.AuthorizationKey : GlobalConfiguration.SystemID + GlobalConfiguration.RunningEnvironment + GlobalConfiguration.HostName;
                         ModuleConfiguration.IsBundledWithHost = moduleConfigJson.IsBundledWithHost;
                         ModuleConfiguration.BusinessServerUrl = moduleConfig.BusinessServerUrl;
+                        ModuleConfiguration.LogDeleteRepeatSecond = moduleConfig.LogDeleteRepeatSecond;
+                        ModuleConfiguration.CircuitBreakResetSecond = moduleConfig.CircuitBreakResetSecond;
 
                         ModuleConfiguration.DataSource.Clear();
                         if (moduleConfig.DataSource != null && moduleConfig.DataSource.Count > 0)

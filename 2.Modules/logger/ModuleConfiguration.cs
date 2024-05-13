@@ -30,6 +30,7 @@ namespace logger
         public static bool IsSQLiteCreateOnNotSettingRequest = false;
         public static string BusinessServerUrl = "";
         public static string ModuleBasePath = "";
+        public static int LogDeleteRepeatSecond = 43200;
         public static int CircuitBreakResetSecond = 30;
         public static bool IsApiFindServer = false;
         public static List<DataSource> DataSource = new List<DataSource>();

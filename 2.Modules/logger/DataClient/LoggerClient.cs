@@ -281,7 +281,7 @@ namespace logger.DataClient
                                         .Replace("{TableName}", tableName)
                                         .Replace("{RemovePeriod}", dataSource.RemovePeriod.ToString());
 
-                                cancellationTokenSource.CancelAfter(3000);
+                                cancellationTokenSource.CancelAfter(60000);
                                 if (databaseFactory.Connection.IsConnectionOpen() == false)
                                 {
                                     await databaseFactory.Connection.OpenAsync(cancellationTokenSource.Token);

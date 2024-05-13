@@ -24,6 +24,8 @@ namespace logger.Entity
 
         public string BusinessServerUrl { get; set; }
 
+        public int LogDeleteRepeatSecond { get; set; }
+
         public int CircuitBreakResetSecond { get; set; }
 
         public List<DataSource> DataSource { get; set; }
@@ -34,6 +36,7 @@ namespace logger.Entity
             ModuleBasePath = "";
             IsSQLiteCreateOnNotSettingRequest = false;
             BusinessServerUrl = "";
+            LogDeleteRepeatSecond = 43200;
             CircuitBreakResetSecond = 30;
             DataSource = new List<DataSource>();
         }

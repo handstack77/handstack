@@ -26,10 +26,10 @@ namespace logger.Services
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                logger.Information("[{LogCategory}] 거래 로그 삭제 시작", "LogDeleteService/ExecuteAsync");
+                logger.Verbose("[{LogCategory}] 거래 로그 삭제 시작", "LogDeleteService/ExecuteAsync");
 
                 await loggerClient.Delete();
-                await Task.Delay(TimeSpan.FromHours(1));
+                await Task.Delay(TimeSpan.FromSeconds(ModuleConfiguration.LogDeleteRepeatSecond));
             }
         }
     }
