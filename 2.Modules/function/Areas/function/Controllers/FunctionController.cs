@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 using HandStack.Core.ExtensionMethod;
@@ -108,7 +109,14 @@ namespace function.Areas.function.Controllers
                 FunctionHeader header = functionScriptContract.Header;
                 dataContext.functionHeader = header;
 
-                var item = functionScriptContract.Commands[0];
+                var item = functionScriptContract.Commands.First(p => p.ID == functionID.Split('.')[2]);
+                if (item == null)
+                {
+                    using DataSet? result = new DataSet();
+                    result.BuildExceptionData("Y", "Warning", $"{functionID} Commands 확인 필요");
+                    result.Tables.Add(new DataTable());
+                    return result;
+                }
 
                 ModuleScriptMap moduleScriptMap = new ModuleScriptMap();
                 moduleScriptMap.ApplicationID = header.ApplicationID;

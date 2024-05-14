@@ -37,7 +37,11 @@ var executeFunction = (req, res) => {
         var header = functionScriptContract.Header;
         dataContext.functionHeader = header;
 
-        var item = functionScriptContract.Commands[0];
+        var item = functionScriptContract.Commands.find((p) => { return p.ID == functionID.Split('.')[2] });
+        if (item == null) {
+            throw `${functionID} Commands 확인 필요`;
+        }
+
         var moduleScriptMap = {};
         moduleScriptMap.ApplicationID = header.ApplicationID;
         moduleScriptMap.ProjectID = header.ProjectID;
