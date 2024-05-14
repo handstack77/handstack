@@ -143,7 +143,7 @@ namespace HandStack.Web.MessageContract.DataObject
         public string Comment { get; set; }
 
         [JsonProperty("Configuration")]
-        public Dictionary<string, string>? Configuration { get; set; }
+        public Dictionary<string, object>? Configuration { get; set; }
 
         public FunctionHeader()
         {
