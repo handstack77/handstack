@@ -291,7 +291,7 @@ namespace function
                     else
                     {
                         options.WatchPath = Path.Combine(watchPath, "javascript");
-                        Log.Information("[{LogCategory}] Node File WatchPath: " + watchPath, $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
+                        Log.Information("[{LogCategory}] Node File WatchPath: " + options.WatchPath, $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
 
                         options.GracefulProcessShutdown = ModuleConfiguration.WatchGracefulShutdown;
                         options.WatchFileNamePatterns = ModuleConfiguration.WatchFileNamePatterns;
