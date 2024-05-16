@@ -16,8 +16,6 @@ using HtmlAgilityPack;
 
 using Newtonsoft.Json.Linq;
 
-using openapi.NativeParameters;
-
 using Serilog;
 
 namespace openapi.Extensions
@@ -334,61 +332,6 @@ namespace openapi.Extensions
                         props.ForEach(p => result.Add(p.Key, p.Value));
                     }
                 }
-            }
-            return result;
-        }
-
-        public static Dictionary<string, object?> ToParametersDictionary(this SqlServerDynamicParameters dynamicParams)
-        {
-            var result = new Dictionary<string, object?>();
-            var parameters = dynamicParams.sqlParameters;
-            foreach (var item in parameters)
-            {
-                result.Add(item.ParameterName, item.Value);
-            }
-            return result;
-        }
-
-        public static Dictionary<string, object?> ToParametersDictionary(this OracleDynamicParameters dynamicParams)
-        {
-            var result = new Dictionary<string, object?>();
-            var parameters = dynamicParams.oracleParameters;
-            foreach (var item in parameters)
-            {
-                result.Add(item.ParameterName, item.Value);
-            }
-            return result;
-        }
-
-        public static Dictionary<string, object?> ToParametersDictionary(this MySqlDynamicParameters dynamicParams)
-        {
-            var result = new Dictionary<string, object?>();
-            var parameters = dynamicParams.mysqlParameters;
-            foreach (var item in parameters)
-            {
-                result.Add(item.ParameterName, item.Value);
-            }
-            return result;
-        }
-
-        public static Dictionary<string, object?> ToParametersDictionary(this NpgsqlDynamicParameters dynamicParams)
-        {
-            var result = new Dictionary<string, object?>();
-            var parameters = dynamicParams.npgsqlParameters;
-            foreach (var item in parameters)
-            {
-                result.Add(item.ParameterName, item.Value);
-            }
-            return result;
-        }
-
-        public static Dictionary<string, object?> ToParametersDictionary(this SQLiteDynamicParameters dynamicParams)
-        {
-            var result = new Dictionary<string, object?>();
-            var parameters = dynamicParams.sqlliteParameters;
-            foreach (var item in parameters)
-            {
-                result.Add(item.ParameterName, item.Value);
             }
             return result;
         }
