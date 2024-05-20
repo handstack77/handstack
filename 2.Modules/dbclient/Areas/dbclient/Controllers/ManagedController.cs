@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
+using dbclient.Entity;
 using dbclient.Extensions;
 
 using HandStack.Core.ExtensionMethod;
@@ -138,7 +139,7 @@ namespace dbclient.Areas.dbclient.Controllers
                                     {
                                         foreach (var item in items)
                                         {
-                                            if (header.Element("use").InnerText == "Y")
+                                            if ($"{header.Element("use")?.InnerText}".ToBoolean() == true)
                                             {
                                                 StatementMap statementMap = new StatementMap();
                                                 statementMap.ApplicationID = applicationID;

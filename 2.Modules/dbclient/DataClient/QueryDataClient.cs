@@ -302,13 +302,6 @@ namespace dbclient.DataClient
                     QueryObject dynamicObject = transactionDynamicObject.Value.DynamicTransaction;
                     StatementMap statementMap = transactionDynamicObject.Value.Statement;
 
-                    if (string.IsNullOrEmpty(transactionDynamicObject.Value.ConnectionString) == true)
-                    {
-                        response.ExceptionText = $"RequestID: {request.RequestID}에 대한 DataSourceID: {statementMap.DataSourceID} 데이터 원본 정보 필요";
-                        isCommandError = true;
-                        goto TransactionException;
-                    }
-
                     var databaseProvider = transactionDynamicObject.Value.DataProvider;
                     transactionDynamicObject.Value.ConnectionFactory = new DatabaseFactory(transactionDynamicObject.Value.ConnectionString.ToStringSafe(), databaseProvider);
                     if (request.IsTransaction == true)
@@ -618,7 +611,7 @@ namespace dbclient.DataClient
                         }
 
                         var connection = new ProfilerDbConnection(transactionDynamicObject.Value.ConnectionFactory.Connection, profiler);
-                        transactionDynamicObject.Value.MainReader = await connection.ExecuteReaderAsync(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters, transactionDynamicObject.Value.DatabaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
+                        transactionDynamicObject.Value.MainReader = connection.ExecuteReader(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters, transactionDynamicObject.Value.DatabaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
 
                         if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                         {
@@ -1086,13 +1079,6 @@ TransactionException:
                     QueryObject dynamicObject = transactionDynamicObject.Value.DynamicTransaction;
                     StatementMap statementMap = transactionDynamicObject.Value.Statement;
 
-                    if (string.IsNullOrEmpty(transactionDynamicObject.Value.ConnectionString) == true)
-                    {
-                        response.ExceptionText = $"RequestID: {request.RequestID}에 대한 DataSourceID: {statementMap.DataSourceID} 데이터 원본 정보 필요";
-                        isCommandError = true;
-                        goto TransactionException;
-                    }
-
                     var databaseProvider = transactionDynamicObject.Value.DataProvider;
                     transactionDynamicObject.Value.ConnectionFactory = new DatabaseFactory(transactionDynamicObject.Value.ConnectionString.ToStringSafe(), databaseProvider);
                     if (request.IsTransaction == true)
@@ -1403,7 +1389,7 @@ TransactionException:
                         }
 
                         var connection = new ProfilerDbConnection(transactionDynamicObject.Value.ConnectionFactory.Connection, profiler);
-                        transactionDynamicObject.Value.MainReader = await connection.ExecuteReaderAsync(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters, transactionDynamicObject.Value.DatabaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
+                        transactionDynamicObject.Value.MainReader = connection.ExecuteReader(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters, transactionDynamicObject.Value.DatabaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
 
                         if (dynamicObject.IgnoreResult == true)
                         {
@@ -1731,13 +1717,6 @@ TransactionException:
                     QueryObject dynamicObject = transactionDynamicObject.Value.DynamicTransaction;
                     StatementMap statementMap = transactionDynamicObject.Value.Statement;
 
-                    if (string.IsNullOrEmpty(transactionDynamicObject.Value.ConnectionString) == true)
-                    {
-                        response.ExceptionText = $"RequestID: {request.RequestID}에 대한 DataSourceID: {statementMap.DataSourceID} 데이터 원본 정보 필요";
-                        isCommandError = true;
-                        goto TransactionException;
-                    }
-
                     var databaseProvider = transactionDynamicObject.Value.DataProvider;
                     transactionDynamicObject.Value.ConnectionFactory = new DatabaseFactory(transactionDynamicObject.Value.ConnectionString.ToStringSafe(), databaseProvider);
                     if (request.IsTransaction == true)
@@ -2040,7 +2019,7 @@ TransactionException:
                         }
 
                         var connection = new ProfilerDbConnection(transactionDynamicObject.Value.ConnectionFactory.Connection, profiler);
-                        transactionDynamicObject.Value.MainReader = await connection.ExecuteReaderAsync(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters, transactionDynamicObject.Value.DatabaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
+                        transactionDynamicObject.Value.MainReader = connection.ExecuteReader(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters, transactionDynamicObject.Value.DatabaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
 
                         if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                         {
@@ -2367,13 +2346,6 @@ TransactionException:
                     QueryObject dynamicObject = transactionDynamicObject.Value.DynamicTransaction;
                     StatementMap statementMap = transactionDynamicObject.Value.Statement;
 
-                    if (string.IsNullOrEmpty(transactionDynamicObject.Value.ConnectionString) == true)
-                    {
-                        response.ExceptionText = $"RequestID: {request.RequestID}에 대한 DataSourceID: {statementMap.DataSourceID} 데이터 원본 정보 필요";
-                        isCommandError = true;
-                        goto TransactionException;
-                    }
-
                     var databaseProvider = transactionDynamicObject.Value.DataProvider;
                     transactionDynamicObject.Value.ConnectionFactory = new DatabaseFactory(transactionDynamicObject.Value.ConnectionString.ToStringSafe(), databaseProvider);
                     if (request.IsTransaction == true)
@@ -2675,7 +2647,7 @@ TransactionException:
                         }
 
                         var connection = new ProfilerDbConnection(transactionDynamicObject.Value.ConnectionFactory.Connection, profiler);
-                        transactionDynamicObject.Value.MainReader = await connection.ExecuteReaderAsync(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters, transactionDynamicObject.Value.DatabaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
+                        transactionDynamicObject.Value.MainReader = connection.ExecuteReader(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters, transactionDynamicObject.Value.DatabaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
 
                         if (dynamicObject.IgnoreResult == true)
                         {
@@ -3092,13 +3064,6 @@ TransactionException:
                     QueryObject queryObject = transactionDynamicObject.Value.DynamicTransaction;
                     StatementMap statementMap = transactionDynamicObject.Value.Statement;
 
-                    if (string.IsNullOrEmpty(transactionDynamicObject.Value.ConnectionString) == true)
-                    {
-                        response.ExceptionText = $"RequestID: {request.RequestID}에 대한 DataSourceID: {statementMap.DataSourceID} 데이터 원본 정보 필요";
-                        isCommandError = true;
-                        goto TransactionException;
-                    }
-
                     var databaseProvider = transactionDynamicObject.Value.DataProvider;
                     transactionDynamicObject.Value.ConnectionFactory = new DatabaseFactory(transactionDynamicObject.Value.ConnectionString.ToStringSafe(), databaseProvider);
                     if (request.IsTransaction == true)
@@ -3203,7 +3168,7 @@ TransactionException:
                                         {
                                             ColumnID = row.GetStringSafe("ColumnID"),
                                             ColumnText = row.GetStringSafe("ColumnText"),
-                                            HiddenYN = (val == "true" || val == "True" || val == "TRUE" || val == "Y" || val == "1")
+                                            HiddenYN = (val.ToLower() == "true" || val.ToLower() == "on" || val == "1" || val == "Y")
                                         });
                                     }
 
@@ -3383,13 +3348,6 @@ TransactionException:
                 {
                     QueryObject dynamicObject = transactionDynamicObject.Value.DynamicTransaction;
                     StatementMap statementMap = transactionDynamicObject.Value.Statement;
-
-                    if (string.IsNullOrEmpty(transactionDynamicObject.Value.ConnectionString) == true)
-                    {
-                        response.ExceptionText = $"RequestID: {request.RequestID}에 대한 DataSourceID: {statementMap.DataSourceID} 데이터 원본 정보 필요";
-                        isCommandError = true;
-                        goto TransactionException;
-                    }
 
                     var databaseProvider = transactionDynamicObject.Value.DataProvider;
                     transactionDynamicObject.Value.ConnectionFactory = new DatabaseFactory(transactionDynamicObject.Value.ConnectionString.ToStringSafe(), databaseProvider);
@@ -3617,7 +3575,7 @@ TransactionException:
 
                     string parseSQL = DatabaseMapper.Find(statementMap, dynamicObject);
                     var connection = new ProfilerDbConnection(transactionDynamicObject.Value.ConnectionFactory.Connection, profiler);
-                    transactionDynamicObject.Value.MainReader = await connection.ExecuteReaderAsync(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters, transactionDynamicObject.Value.DatabaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
+                    transactionDynamicObject.Value.MainReader = connection.ExecuteReader(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters, transactionDynamicObject.Value.DatabaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
 
                     if (dynamicObject.IgnoreResult == true)
                     {
@@ -3915,13 +3873,6 @@ TransactionException:
                     QueryObject dynamicObject = transactionDynamicObject.Value.DynamicTransaction;
                     StatementMap statementMap = transactionDynamicObject.Value.Statement;
 
-                    if (string.IsNullOrEmpty(transactionDynamicObject.Value.ConnectionString) == true)
-                    {
-                        response.ExceptionText = $"RequestID: {request.RequestID}에 대한 DataSourceID: {statementMap.DataSourceID} 데이터 원본 정보 필요";
-                        isCommandError = true;
-                        goto TransactionException;
-                    }
-
                     var databaseProvider = transactionDynamicObject.Value.DataProvider;
                     transactionDynamicObject.Value.ConnectionFactory = new DatabaseFactory(transactionDynamicObject.Value.ConnectionString.ToStringSafe(), databaseProvider);
                     if (request.IsTransaction == true)
@@ -4207,7 +4158,7 @@ TransactionException:
                         result.Parameters.Add(SQLID, parametersDictionary);
 
                         var connection = new ProfilerDbConnection(transactionDynamicObject.Value.ConnectionFactory.Connection, profiler);
-                        transactionDynamicObject.Value.MainReader = await connection.ExecuteReaderAsync(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters, transactionDynamicObject.Value.DatabaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
+                        transactionDynamicObject.Value.MainReader = connection.ExecuteReader(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters, transactionDynamicObject.Value.DatabaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
 
                         if (dynamicObject.IgnoreResult == true)
                         {

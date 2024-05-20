@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
+using dbclient.Entity;
 using dbclient.Extensions;
 
 using HandStack.Core.ExtensionMethod;

@@ -1,8 +1,6 @@
 ﻿using System.Data;
 using System.Data.Common;
 
-using dbclient.Extensions;
-
 using HandStack.Data;
 using HandStack.Web.MessageContract.DataObject;
 

@@ -10,13 +10,14 @@ using System.Text.RegularExpressions;
 
 using Dapper;
 
+using dbclient.Entity;
 using dbclient.NativeParameters;
 
 using HandStack.Core.ExtensionMethod;
-using HandStack.Web.Extensions;
 using HandStack.Data;
 using HandStack.Web;
 using HandStack.Web.Entity;
+using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.DataObject;
 
 using HtmlAgilityPack;
@@ -222,7 +223,7 @@ namespace dbclient.Extensions
                                 {
                                     foreach (var item in items)
                                     {
-                                        if (header.Element("use").InnerText == "Y")
+                                        if ($"{header.Element("use")?.InnerText}".ToBoolean() == true)
                                         {
                                             StatementMap statementMap = new StatementMap();
                                             statementMap.ApplicationID = applicationID;
@@ -426,7 +427,7 @@ namespace dbclient.Extensions
                             {
                                 foreach (var item in items)
                                 {
-                                    if (header.Element("use").InnerText == "Y")
+                                    if ($"{header.Element("use")?.InnerText}".ToBoolean() == true)
                                     {
                                         StatementMap statementMap = new StatementMap();
                                         statementMap.ApplicationID = applicationID;
@@ -523,32 +524,6 @@ namespace dbclient.Extensions
             }
 
             return result;
-        }
-
-        public static DynamicParameters GetSqlParameters(StatementMap statementMap, QueryObject queryObject)
-        {
-            DynamicParameters dynamicParameters = new DynamicParameters();
-            if (queryObject.Parameters.Count() > 0)
-            {
-                List<DbParameterMap> dbParameterMaps = statementMap.DbParameters;
-                foreach (DbParameterMap dbParameterMap in dbParameterMaps)
-                {
-                    DynamicParameter? dynamicParameter = GetDbParameterMap(dbParameterMap.Name, queryObject.Parameters);
-
-                    if (dynamicParameter != null)
-                    {
-                        dynamicParameters.Add(
-                            dynamicParameter.ParameterName,
-                            dynamicParameter.Value,
-                            (DbType)Enum.Parse(typeof(DbType), string.IsNullOrEmpty(dbParameterMap.DbType) == true ? dynamicParameter.DbType : dbParameterMap.DbType),
-                            (ParameterDirection)Enum.Parse(typeof(ParameterDirection), dbParameterMap.Direction),
-                            dbParameterMap.Length <= 0 ? -1 : dbParameterMap.Length
-                        );
-                    }
-                }
-            }
-
-            return dynamicParameters;
         }
 
         private static DynamicParameter? GetDbParameterMap(string parameterName, List<DynamicParameter> dynamicParameters)
@@ -987,7 +962,7 @@ namespace dbclient.Extensions
                             {
                                 foreach (var item in items)
                                 {
-                                    if (header.Element("use").InnerText == "Y")
+                                    if ($"{header.Element("use")?.InnerText}".ToBoolean() == true)
                                     {
                                         StatementMap statementMap = new StatementMap();
                                         statementMap.ApplicationID = applicationID;
@@ -1191,141 +1166,6 @@ namespace dbclient.Extensions
                 result.Add(item.ParameterName, item.Value);
             }
             return result;
-        }
-    }
-
-    [JsonObject(MemberSerialization.OptIn)]
-    public class StatementMap
-    {
-        [JsonProperty]
-        public string ApplicationID { get; set; }
-
-        [JsonProperty]
-        public string ProjectID { get; set; }
-
-        [JsonProperty]
-        public string TransactionID { get; set; }
-
-        [JsonProperty]
-        public string DataSourceID { get; set; }
-
-        [JsonProperty]
-        public string StatementID { get; set; }
-
-        [JsonProperty]
-        public int Seq { get; set; }
-
-        [JsonProperty]
-        public string Comment { get; set; }
-
-        [JsonProperty]
-        public bool NativeDataClient { get; set; }
-
-        [JsonProperty]
-        public string SQL { get; set; }
-
-        [JsonProperty]
-        public bool TransactionLog { get; set; }
-
-        [JsonProperty]
-        public int Timeout { get; set; }
-
-        [JsonProperty]
-        public string BeforeTransactionCommand { get; set; }
-
-        [JsonProperty]
-        public string AfterTransactionCommand { get; set; }
-
-        [JsonProperty]
-        public string FallbackTransactionCommand { get; set; }
-
-        [JsonProperty]
-        public List<DbParameterMap> DbParameters { get; set; }
-
-        public HtmlDocument Chidren { get; set; }
-
-        [JsonProperty]
-        public DateTime ModifiedAt { get; set; }
-
-        public StatementMap()
-        {
-            ApplicationID = "";
-            ProjectID = "";
-            TransactionID = "";
-            DataSourceID = "";
-            StatementID = "";
-            Seq = 0;
-            Comment = "";
-            NativeDataClient = false;
-            SQL = "";
-            TransactionLog = false;
-            Timeout = 0;
-            BeforeTransactionCommand = "";
-            AfterTransactionCommand = "";
-            FallbackTransactionCommand = "";
-            DbParameters = new List<DbParameterMap>();
-            Chidren = new HtmlDocument();
-            ModifiedAt = DateTime.MinValue;
-        }
-    }
-
-    public class DataSourceMap
-    {
-        public string ApplicationID { get; set; }
-
-        public List<string> ProjectListID { get; set; }
-
-        public DataProviders DataProvider { get; set; }
-
-        public string ConnectionString { get; set; }
-
-        public DataSourceMap()
-        {
-            ApplicationID = "";
-            ProjectListID = new List<string>();
-            DataProvider = DataProviders.SqlServer;
-            ConnectionString = "";
-        }
-    }
-
-    public class DataSourceTanantKey
-    {
-        public string DataSourceID { get; set; }
-
-        public string TanantPattern { get; set; }
-
-        public string TanantValue { get; set; }
-
-        public DataSourceTanantKey()
-        {
-            DataSourceID = "";
-            TanantPattern = "";
-            TanantValue = "";
-        }
-    }
-
-    public class DbParameterMap
-    {
-        public string Name { get; set; }
-
-        public string DefaultValue { get; set; }
-
-        public string TestValue { get; set; }
-
-        public string DbType { get; set; }
-
-        public int Length { get; set; }
-
-        public string Direction { get; set; }
-
-        public DbParameterMap()
-        {
-            Name = "";
-            DefaultValue = "";
-            TestValue = "";
-            DbType = "";
-            Length = 0;
-            Direction = "";
         }
     }
 }
