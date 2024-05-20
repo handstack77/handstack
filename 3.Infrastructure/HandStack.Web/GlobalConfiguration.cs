@@ -5,7 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 
-using HandStack.Web.Helpers;
+using HandStack.Core.ExtensionMethod;
 using HandStack.Web.Model;
 using HandStack.Web.Modules;
 
@@ -83,6 +83,7 @@ namespace HandStack.Web
         public static List<string> DisposeTenantApps = new List<string>();
         public static List<string> WithOrigins = new List<string>();
         public static string FindGlobalIDServer = "";
+        public static List<Exception?> UnhandledExceptions = new List<Exception?>();
         public static JObject? DomainAPIServer = null;
         public static List<string> ByPassBootstrappingLoggingKey = new List<string>();
         public static FileExtensionContentTypeProvider ContentTypeProvider = new FileExtensionContentTypeProvider();
@@ -131,7 +132,7 @@ namespace HandStack.Web
                                 Value = item.Value<string>("Value"),
                                 DataType = item.Value<string>("DataType"),
                                 Area = item.Value<string>("Area"),
-                                CommonYN = (item.Value<string>("CommonYN") == "Y")
+                                CommonYN = (item.Value<string>("CommonYN").ToBoolean() == true)
                             });
                         }
                     }
