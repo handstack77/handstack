@@ -57,10 +57,8 @@ namespace checkup.Extensions
                         string message = (transactionResult?["HasException"]?["ErrorMessage"]).ToStringSafe();
                         logger.Error("[{LogCategory}] " + $"ErrorMessage: {message}", "ModuleApiClient/TransactionDirect");
                     }
-                    else
-                    {
-                        result = transactionResult;
-                    }
+
+                    result = transactionResult;
                 }
                 catch (Exception exception)
                 {
