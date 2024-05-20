@@ -254,7 +254,7 @@ namespace HandStack.Core.ExtensionMethod
             }
             else
             {
-                result = (@this == "true" || @this == "True" || @this == "TRUE" || @this == "Y" || @this == "1");
+                result = (@this.ToLower() == "true" || @this.ToLower() == "on" || @this == "1" || @this == "Y");
             }
 
             return result;
@@ -380,8 +380,13 @@ namespace HandStack.Core.ExtensionMethod
             return count;
         }
 
-        public static bool ToBoolean(this string @this)
+        public static bool ToBoolean(this string? @this)
         {
+            if (string.IsNullOrEmpty(@this) == true)
+            {
+                return false;
+            }
+
             return Reflector.StringToTypedValue<bool>(@this);
         }
 

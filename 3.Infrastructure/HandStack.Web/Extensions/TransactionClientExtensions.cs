@@ -15,7 +15,7 @@ namespace HandStack.Web.Extensions
             parameters.Add(new ServiceParameter() { prop = parameterName, val = value });
         }
 
-        public static DataSet? ToDataSet(this Dictionary<string, JToken> transactionResult)
+        public static DataSet? ToDataSet(this Dictionary<string, JToken>? transactionResult)
         {
             DataSet? result = null;
             if (transactionResult != null && transactionResult.Count > 0)
