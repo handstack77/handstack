@@ -61,6 +61,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Template", "Template", "{35
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "webapp", "4.Tool\Template\webapp\webapp.csproj", "{806D09CA-C131-4326-AE1D-A2E76ED62268}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "prompter", "2.Modules\prompter\prompter.csproj", "{A5EAE6C9-3724-4FD2-9FEF-8682E1269529}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -127,6 +129,10 @@ Global
 		{806D09CA-C131-4326-AE1D-A2E76ED62268}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{806D09CA-C131-4326-AE1D-A2E76ED62268}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{806D09CA-C131-4326-AE1D-A2E76ED62268}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A5EAE6C9-3724-4FD2-9FEF-8682E1269529}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5EAE6C9-3724-4FD2-9FEF-8682E1269529}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A5EAE6C9-3724-4FD2-9FEF-8682E1269529}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A5EAE6C9-3724-4FD2-9FEF-8682E1269529}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -149,9 +155,10 @@ Global
 		{57D246F6-FA45-49C1-A3F0-E0597B75EE98} = {43B577AB-74FA-4B53-A2BE-E369622F970F}
 		{35AD67DF-F394-4393-B43A-D9778EEA53B8} = {AED6D86D-3CC1-4D7B-80FD-1E7EBF83566F}
 		{806D09CA-C131-4326-AE1D-A2E76ED62268} = {35AD67DF-F394-4393-B43A-D9778EEA53B8}
+		{A5EAE6C9-3724-4FD2-9FEF-8682E1269529} = {43B577AB-74FA-4B53-A2BE-E369622F970F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		VisualSVNWorkingCopyRoot = .
 		SolutionGuid = {0075CE72-935C-4F87-A6BA-989C82F06F8F}
+		VisualSVNWorkingCopyRoot = .
 	EndGlobalSection
 EndGlobal

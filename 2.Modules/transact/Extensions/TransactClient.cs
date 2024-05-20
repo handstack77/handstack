@@ -53,6 +53,7 @@ namespace transact.Extensions
                     case "D":
                     case "A":
                     case "F":
+                    case "P":
                         applicationResponse = await DataTransactionAsync(request, response, transactionInfo, transactionObject, businessModels, inputContracts, outputContracts);
                         break;
                     case "S":
@@ -1333,7 +1334,10 @@ namespace transact.Extensions
                                     queryObject.JsonObject = jsonObjectType;
                                 }
 
-                                baseFieldRelations.Add(item.BaseFieldRelation);
+                                if (item.BaseFieldRelation != null)
+                                {
+                                    baseFieldRelations.Add(item.BaseFieldRelation);
+                                }
                             }
                             queryObject.JsonObjects = jsonObjectTypes;
 
@@ -1551,7 +1555,10 @@ namespace transact.Extensions
                                     queryObject.JsonObject = jsonObjectType;
                                 }
 
-                                baseFieldRelations.Add(item.BaseFieldRelation);
+                                if (item.BaseFieldRelation != null)
+                                {
+                                    baseFieldRelations.Add(item.BaseFieldRelation);
+                                }
                             }
                             queryObject.JsonObjects = jsonObjectTypes;
 
