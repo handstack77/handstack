@@ -203,6 +203,8 @@ namespace ack
                         applicationManager.Stop();
                     };
 
+                    AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(HandleException);
+
                     await applicationManager.StartAsync(listenPort, args, configuration);
                 }
                 catch (Exception exception)
@@ -214,6 +216,15 @@ namespace ack
 
             await rootCommand.InvokeAsync(args);
             return exitCode;
+        }
+
+        static void HandleException(object sender, UnhandledExceptionEventArgs e)
+        {
+            Exception exception = (Exception)e.ExceptionObject;
+
+            GlobalConfiguration.UnhandledExceptions.Add(exception);
+
+            Console.WriteLine("처리 되지 않은 오류가 발생했습니다: " + exception.Message);
         }
 
         private static async Task DebuggerAttach(string[] args, bool? debug, int? delay)
