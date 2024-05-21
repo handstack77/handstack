@@ -4237,3 +4237,15 @@ span.fancytree-node {
 .btn:disabled, .btn.disabled, fieldset:disabled .btn {
     border-color: var(--tblr-btn-border-color);
 }
+
+.list-group-item.active {
+  background-color: rgba(var(--tblr-secondary-rgb),.08)
+}
+
+.list-group-item:active, .list-group-item:focus, .list-group-item:hover {
+  background-color: rgba(var(--tblr-secondary-rgb),.08)
+}
+
+.list-group-item.disabled, .list-group-item:disabled {
+  background-color: rgba(var(--tblr-secondary-rgb),.08)
+}

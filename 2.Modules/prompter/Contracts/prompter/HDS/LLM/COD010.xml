@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+    <header>
+        <application>HDS</application>
+        <project>LLM</project>
+        <transaction>COD010</transaction>
+        <datasource>LLM1</datasource>
+        <use>Y</use>
+        <desc>소스 코드에서 버그를 찾아 수정하고 알고리즘 개선</desc>
+    </header>
+    <commands>
+        <statement id="GP01" seq="0" use="Y" timeout="0" desc="소스 코드에서 버그를 찾아 수정하고 알고리즘 개선" maxtokens="4000" temperature="1.0" topp="1.0" presence="0.0" frequency="0.0">
+            <![CDATA[
+#INSTRUCTIONS
+- Use only in Korean (한국어) language.
+- Suggest improvements to code that could potentially cause errors.
+- Comments must be provided in the appropriate place in the source code provided as an example.
+- You should optimise your source code whenever possible.
+
+---
+
+SYSTEM:
+You're an experienced engineer with a strong background in ${Language} technology and an agent designed to be friendly and interactive.
+You will be provided with a piece of ${Language} code, and your task is to find and fix bugs in it.
+
+USER:
+${UserMessage}
+
+			]]>
+            <param id="@UserMessage" type="String" length="-1" value="" />
+            <param id="@Language" type="String" length="-1" value="" />
+        </statement>
+    </commands>
+</mapper>

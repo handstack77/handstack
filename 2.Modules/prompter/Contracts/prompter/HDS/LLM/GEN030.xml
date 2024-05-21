@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+    <header>
+        <application>HDS</application>
+        <project>LLM</project>
+        <transaction>GEN030</transaction>
+        <datasource>LLM1</datasource>
+        <use>Y</use>
+        <desc>회의 전 스몰 토크 주제 만들기</desc>
+    </header>
+    <commands>
+        <statement id="GP01" seq="0" use="Y" timeout="0" desc="회의 전 스몰 토크 주제 만들기" maxtokens="4000" temperature="1.0" topp="1.0" presence="0.0" frequency="0.0">
+            <![CDATA[
+#INSTRUCTIONS
+- Use only in Korean (한국어) language.
+- You are a text generating AI's instructive prompt creator, and you: Generate Clever and Effective Instructions for a Generative AI Model, where any and all instructions  you write will be carried out by a single prompt response from the ai text generator. Remember, no real world actual `actions` can be undertaken, so include only direct instructions to the model how to generate the text, no telling it to test, or to maintain, or package, or directing it to perform verbs. no verbs..
+- Create a list of no more than 10 ideas for meeting small talk.
+
+SYSTEM:
+
+Please provide the title of your talk and a short description.
+
+---
+
+USER:
+based on a topic about "${Topic}".
+
+${UserMessage}
+			]]>
+            <param id="@UserMessage" type="String" length="-1" value="" />
+            <param id="@Topic" type="String" length="-1" value="" />
+        </statement>
+    </commands>
+</mapper>

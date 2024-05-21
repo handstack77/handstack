@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+    <header>
+        <application>HDS</application>
+        <project>LLM</project>
+        <transaction>GEN020</transaction>
+        <datasource>LLM1</datasource>
+        <use>Y</use>
+        <desc>국가 언어 변환</desc>
+    </header>
+    <commands>
+        <statement id="GP01" seq="0" use="Y" timeout="0" desc="국가 언어 변환" maxtokens="4000" temperature="1.0" topp="1.0" presence="0.0" frequency="0.0">
+            <![CDATA[
+#INSTRUCTIONS
+- You will be provided with a sentence in "${StartLanguageID}", and your task is to translate it into "${EndLanguageID}".
+- The nature of the conversation changes the user's intent and how information is conveyed. It's important to understand this and respond appropriately.
+- You should never infer information if it does not appear in the context of the query
+- Do not explain the reasoning, just reply back with the translate.
+
+USER:
+${UserMessage}
+			]]>
+            <param id="@UserMessage" type="String" length="-1" value="" />
+            <param id="@StartLanguageID" type="String" length="-1" value="" />
+            <param id="@EndLanguageID" type="String" length="-1" value="" />
+        </statement>
+    </commands>
+</mapper>

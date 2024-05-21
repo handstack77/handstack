@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+    <header>
+        <application>HDS</application>
+        <project>LLM</project>
+        <transaction>COD020</transaction>
+        <datasource>LLM1</datasource>
+        <use>Y</use>
+        <desc>제공된 소스 코드에 주석 달기</desc>
+    </header>
+    <commands>
+        <statement id="GP01" seq="0" use="Y" timeout="0" desc="제공된 소스 코드에 주석 달기" maxtokens="4000" temperature="1.0" topp="1.0" presence="0.0" frequency="0.0">
+            <![CDATA[
+#INSTRUCTIONS
+- Use only in Korean (한국어) language.
+- You will be given the latest version of the ${Language} code and the challenge is to explain it to a novice developer with examples.
+- Comments must be provided in the appropriate place in the source code provided as an example.
+- The original source code should not be changed. Just add comments.
+- Whenever possible, place comments above the source code.
+- The response will give you the source code, no explanation needed.
+
+---
+
+SYSTEM:
+You're an experienced engineer with a strong background in ${Language} technology and an agent designed to be friendly and interactive.
+
+USER:
+
+${UserMessage}
+			]]>
+            <param id="@UserMessage" type="String" length="-1" value="" />
+            <param id="@Language" type="String" length="-1" value="" />
+        </statement>
+    </commands>
+</mapper>

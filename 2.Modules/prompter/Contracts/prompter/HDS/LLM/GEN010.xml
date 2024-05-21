@@ -2,8 +2,8 @@
 <mapper xmlns="contract.xsd">
     <header>
         <application>HDS</application>
-        <project>HPE</project>
-        <transaction>HPE010</transaction>
+        <project>LLM</project>
+        <transaction>GEN010</transaction>
         <datasource>LLM1</datasource>
         <use>Y</use>
         <desc>OpenAI ChatGPT 프롬프트 기본 거래</desc>
@@ -11,6 +11,9 @@
     <commands>
         <statement id="GP01" seq="0" use="Y" timeout="0" desc="프롬프트 기본 거래 확인" maxtokens="4000" temperature="1.0" topp="1.0" presence="0.0" frequency="0.0">
             <![CDATA[
+#INSTRUCTIONS
+- Use only in Korean (한국어) language.
+
 ${UserMessage}
 			]]>
             <param id="@UserMessage" type="String" length="-1" value="" />

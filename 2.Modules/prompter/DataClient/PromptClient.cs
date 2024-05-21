@@ -20,6 +20,7 @@ using HandStack.Web.MessageContract.Message;
 
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
+using Microsoft.SemanticKernel.Connectors.OpenAI;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -423,7 +424,15 @@ namespace prompter.DataClient
                         var promptConfig = new PromptTemplateConfig(parsePrompt);
                         promptConfig.InputVariables = new List<InputVariable>();
 
-                        var kernelArguments = new KernelArguments();
+                        var promptExecutionSettings = new OpenAIPromptExecutionSettings();
+                        promptExecutionSettings.MaxTokens = promptMap.MaxTokens;
+                        promptExecutionSettings.Temperature = promptMap.Temperature;
+                        promptExecutionSettings.TopP = promptMap.TopP;
+                        promptExecutionSettings.PresencePenalty = promptMap.PresencePenalty;
+                        promptExecutionSettings.FrequencyPenalty = promptMap.FrequencyPenalty;
+
+                        var kernelArguments = new KernelArguments(promptExecutionSettings);
+
                         SetInputVariableMapping(dynamicObject, promptMap, kernelArguments);
 
                         string userMessage = string.Empty;
@@ -435,7 +444,7 @@ namespace prompter.DataClient
                             }
                         }
 
-                        kernelArguments.Add("chatHistory", string.Join("\n", chatHistory.Select(x => x.Role + ": " + x.Content)));
+                        kernelArguments.Add("ChatHistory", string.Join("\n", chatHistory.Select(x => x.Role + ": " + x.Content)));
 
                         var kernelFunction = KernelFunctionFactory.CreateFromPrompt(promptConfig);
                         var promptResult = await transactionDynamicObject.Value.PromptExecution.InvokeAsync(

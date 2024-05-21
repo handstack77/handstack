@@ -1,8 +1,8 @@
 {
     "ApplicationID": "HDS",
-    "ProjectID": "HPE",
-    "TransactionID": "HPE010",
-    "Comment": "프롬프트 기본 거래 확인",
+    "ProjectID": "LLM",
+    "TransactionID": "WTR010",
+    "Comment": "오늘의 운세 기반의 추천 명언 또는 인용구",
     "Services": [
         {
             "ServiceID": "GP01",

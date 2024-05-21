@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+    <header>
+        <application>HDS</application>
+        <project>LLM</project>
+        <transaction>COD030</transaction>
+        <datasource>LLM1</datasource>
+        <use>Y</use>
+        <desc>주어진 테이블에 대한 SQL 쿼리를 생성</desc>
+    </header>
+    <commands>
+        <statement id="GP01" seq="0" use="Y" timeout="0" desc="주어진 테이블에 대한 SQL 쿼리를 생성" maxtokens="4000" temperature="1.0" topp="1.0" presence="0.0" frequency="0.0">
+            <![CDATA[
+#INSTRUCTIONS
+- Unless the user specifies a specific number of examples they wish to obtain, always limit your query to at most 10 results.
+- You can order the results by a relevant column to return the most interesting examples in the database. Never query for all the columns from a specific table, only ask for the relevant columns given the question.
+- You MUST double check your query before executing it. If you get an error while executing a query, rewrite the query and try again.
+- No explanation of the result is required, and no Markdown syntax is required.
+
+---
+
+#VARIABLES:
+[SqlServer]=SQL Server 2017 and later versions
+[Oracle]=Oracle 12c and later versions
+[MySQL]=MySQL 5.8 and later versions
+[MariaDB]=MariaDB 10.3 and later versions
+[PostgreSQL]=PostgreSQL 9.8 and later versions
+[SQLite]=SQLite 3 and later versions
+
+SYSTEM:
+Given the following SQL tables, your job is to write queries given a user’s request.
+The information in the table is "FieldID,DataType,PK,Length", where each represents a field name, data type, PK status, and length.
+
+${TableSchemes}
+
+USER:
+- Use only in [${Database}] Database.
+
+${UserMessage}
+
+ASSISTANT:
+			]]>
+            <param id="@UserMessage" type="String" length="-1" value="" />
+            <param id="@Database" type="String" length="-1" value="" />
+            <param id="@TableSchemes" type="String" length="-1" value="" />
+        </statement>
+    </commands>
+</mapper>

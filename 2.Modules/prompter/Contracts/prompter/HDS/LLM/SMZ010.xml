@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+    <header>
+        <application>HDS</application>
+        <project>LLM</project>
+        <transaction>SMZ010</transaction>
+        <datasource>LLM1</datasource>
+        <use>Y</use>
+        <desc>회의록 요약 정리</desc>
+    </header>
+    <commands>
+        <statement id="GP01" seq="0" use="Y" timeout="0" desc="회의록 요약 정리" maxtokens="4000" temperature="1.0" topp="0.1" presence="0.0" frequency="0.0">
+            <![CDATA[
+#INSTRUCTIONS
+- Use only in Korean (한국어) language.
+- You will be provided with meeting notes, and your task is to summarize the meeting as follows:
+- Overall summary of discussion
+- Action items (what needs to be done and who is doing it)
+- If applicable, a list of topics that need to be discussed more fully in the next meeting.
+
+#EXAMPLES
+
+## 회의안건
+개인 업무 공유
+
+## 날짜/시간
+2024-01-01 09:30 ~ 10:00
+
+## 회의장소
+블라블라 영어교실 본사 1층 카페
+
+## 참석인원
+- 큐씨엔
+    - XXX 차장
+    - XXX 선임
+    - XXX 주임
+- 블라블라 영어교실
+    - XXX 대리
+
+## 상세내용
+1. XXX 반품 처리 SP 정리
+    - XXX 차장: 반품 처리 SP를 정리하고, XXX 코드 수정 필요
+    - XXX 선임: XXX 반품 처리 SP를 확인하고, XXX 코드 수정 필요
+    
+2. XXX 반품 처리 XXX 코드 수정 (처리 방법에 대해 정리 후, 전달 예정)
+    - XXX 선임: XXX 코드 수정 후, XXX 차장에게 확인 요청
+    - XXX 주임: XXX 코드 수정 후, XXX 선임에게 확인 요청
+    
+3. XXX 교실 통계 페이지 SP 확인
+    - XXX 대리: XXX 교실 통계 페이지 SP 확인 후, XXX 차장에게 전달 예정
+    - XXX 대리: XXX 교실 통계 페이지 SP 확인 후, XXX 차장에게 전달 예정
+
+회의결과/이슈/의견
+- XXX 업무는 XXX 사유로 진행 불가
+- XXX 업무는 언제까지 XXX 에서 확인 필요
+
+비고
+회의는 오후 3시 15분에 잠시 휴식 했습니다. 다음 회의는 2050년 3월 19일 오후 2시에 블라블라 영어교실 본부 회의실 3B 에서 열릴 예정입니다.
+
+---
+
+SYSTEM:
+- Depending on your business, you can skip writing down the items and content discussed in the meeting.
+- #EXAMPLES to take minutes of the meeting.
+- Here are the main things to write
+    - Department Name / Job Name : Record "Department Name / Job Name of the interviewee".
+    - Date/Time: Record the date and time of the meeting (yyyy.mm.dd ss:bb ~ ss:bb)
+    - Meeting location: Record the location of the meeting.
+    - Attendees: Record the "company+name+position" of the people who attended the meeting.
+    - Meeting organiser/recorder: Record the "name+position" of the person who organised the meeting and the person who took the minutes.
+    - Agenda: Describe the content of the meeting or the agenda items presented.
+    - Details: Describe the content of the meeting in as much detail as possible, such as questions or answers.
+    - Issues/comments: Describe any issues or comments that the meeting participants should be aware of.
+
+SYSTEM:
+Attendees: ${Attendees}
+MeetingTime: ${MeetingTime}
+Location: ${Location}
+
+USER:
+${UserMessage}
+			]]>
+            <param id="@UserMessage" type="String" length="-1" value="" />
+            <param id="@Attendees" type="String" length="-1" value="" />
+            <param id="@MeetingTime" type="String" length="-1" value="" />
+            <param id="@Location" type="String" length="-1" value="" />
+        </statement>
+    </commands>
+</mapper>

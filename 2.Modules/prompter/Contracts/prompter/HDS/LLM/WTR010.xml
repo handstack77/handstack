@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+    <header>
+        <application>HDS</application>
+        <project>LLM</project>
+        <transaction>WTR010</transaction>
+        <datasource>LLM1</datasource>
+        <use>Y</use>
+        <desc>오늘의 운세 기반의 추천 명언 또는 인용구</desc>
+    </header>
+    <commands>
+        <statement id="GP01" seq="0" use="Y" timeout="0" desc="오늘의 운세 기반의 추천 명언 또는 인용구" maxtokens="4000" temperature="1.0" topp="1.0" presence="0.0" frequency="0.0">
+            <![CDATA[
+#INSTRUCTIONS
+- ${UserMessage} Get today's horoscope for a person with the date of birth.
+- Based on today's horoscope, suggest one quote with a source based on content from https://www.brainyquote.com, a site that collects quotes and sayings from celebrities and allows you to search for quotes by various topics and people.
+- The nature of the conversation changes the user's intent and how information is conveyed. It's important to understand this and respond appropriately.
+- You should never infer information if it does not appear in the context of the query
+- Just quotes, no explanation needed.
+
+---
+
+Once a day, I try to give my employees a quote about Dreams, Courage, Best, Attitude, Chance, Future, Good, Hope, Imagination, Leadership, Knowledge, Positive, Wisdom, Respect, Life, Work, Love based on the day's horoscope.
+${UserMessage} Please succinctly describe the quote, reflecting today's horoscope, that you would recommend to the birthday employee.
+
+#EXAMPLE
+USER:
+1977-01-01
+
+ASSISTANT:
+Optimism is the faith that leads to achievement. Nothing can be done without hope and confidence. - Helen Keller
+
+USER:
+1987-01-01
+
+ASSISTANT:
+Ever tried. Ever failed. No matter. Try Again. Fail again. Fail better. - Samuel Beckett
+
+USER:
+1997-01-01
+
+ASSISTANT:
+It always seems impossible until it's done. - Nelson Mandela
+
+---
+
+Use only in Korean (한국어) language.
+
+USER:
+${UserMessage}
+
+ASSISTANT:
+			]]>
+            <param id="@UserMessage" type="String" length="-1" value="" />
+        </statement>
+    </commands>
+</mapper>
