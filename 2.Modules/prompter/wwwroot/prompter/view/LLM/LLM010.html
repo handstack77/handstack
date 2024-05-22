@@ -7,8 +7,6 @@
 </head>
 <body style="visibility: hidden;">
     <form autocomplete="off" id="form1" syn-datafield="MainForm">
-        <input type="hidden" id="txtUserWorkID" syn-datafield="UserWorkID" syn-options="{belongID: ['GF01']}" value="12345">
-        <input type="hidden" id="txtApplicationID" syn-datafield="ApplicationID" syn-options="{belongID: ['GF01']}" value="helloworld">
         <div class="page">
             <div class="page-wrapper">
                 <div class="page-header mt-2 d-print-none">
@@ -137,17 +135,6 @@
                 </div>
             </div>
         </div>
-        <syn_data id="srcException" syn-options="{
-            dataSourceID: 'Exception',
-            storeType: 'Form',
-			columns: [
-                { data: 'Error', dataType: 'string' },
-                { data: 'Level', dataType: 'string' },
-                { data: 'Message', dataType: 'string' },
-                { data: 'StackTrace', dataType: 'string' },
-                { data: 'TypeMember', dataType: 'string' }
-			]
-		}"></syn_data>
     </form>
     <script id="tplFeatureItem" type="text/x-mustache">
         {{#items}}

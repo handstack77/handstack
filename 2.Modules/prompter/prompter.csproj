@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+<Project Sdk="Microsoft.NET.Sdk.Razor">
     <PropertyGroup>
         <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
         <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
@@ -56,16 +56,6 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Include="Contracts/**" />
-        <Content Remove="Contracts\transact\HDS\LLM\CLS010.json" />
-        <Content Remove="Contracts\transact\HDS\LLM\CLS020.json" />
-        <Content Remove="Contracts\transact\HDS\LLM\COD010.json" />
-        <Content Remove="Contracts\transact\HDS\LLM\COD020.json" />
-        <Content Remove="Contracts\transact\HDS\LLM\COD030.json" />
-        <Content Remove="Contracts\transact\HDS\LLM\GEN030.json" />
-        <Content Remove="Contracts\transact\HDS\LLM\GRD010.json" />
-        <Content Remove="Contracts\transact\HDS\LLM\SMZ010.json" />
-        <Content Remove="Contracts\transact\HDS\LLM\WTR010.json" />
-        <Content Remove="Contracts\transact\HDS\LLM\WTR020.json" />
         <None Update="Contracts/**">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
