@@ -39,6 +39,7 @@ dotnet build 2.Modules/transact/transact.csproj --configuration $configuration_m
 dotnet build 2.Modules/wwwroot/wwwroot.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/modules/wwwroot
 dotnet build 2.Modules/checkup/checkup.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/modules/checkup
 dotnet build 2.Modules/openapi/openapi.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/modules/openapi
+dotnet build 2.Modules/prompter/prompter.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/modules/prompter
 
 rsync -avq 1.WebHost/build/handstack/contracts/ ../publish/$os_mode-$arch_mode/contracts
 rsync -av --progress ./install.* ../publish/$os_mode-$arch_mode
