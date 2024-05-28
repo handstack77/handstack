@@ -6735,7 +6735,7 @@ globalRoot.syn = syn;
                     if (options && options.transactConfig && options.transactConfig.triggerEvent) {
                         if ($object.isString(options.transactConfig.triggerEvent) == true) {
                             syn.$l.addEvent(elID, options.transactConfig.triggerEvent, function (evt) {
-                                var el = $webform.activeControl(evt);
+                                var el = syn.$w.activeControl(evt);
                                 var synOptions = el.getAttribute('syn-options') || null;
                                 if (synOptions != null) {
                                     options = eval('(' + synOptions + ')');
@@ -6753,7 +6753,7 @@ globalRoot.syn = syn;
                         }
                         else if ($object.isArray(options.transactConfig.triggerEvent) == true) {
                             var triggerFunction = function (evt) {
-                                var el = $webform.activeControl(evt);
+                                var el = syn.$w.activeControl(evt);
                                 var synOptions = el.getAttribute('syn-options') || null;
                                 if (synOptions != null) {
                                     options = eval('(' + synOptions + ')');
@@ -6780,7 +6780,7 @@ globalRoot.syn = syn;
                         if ($object.isString(options.triggerConfig.triggerEvent) == true) {
                             syn.$l.addEvent(elID, options.triggerConfig.triggerEvent, function (evt) {
                                 var triggerConfig = null;
-                                var el = $webform.activeControl(evt);
+                                var el = syn.$w.activeControl(evt);
                                 var synOptions = el.getAttribute('syn-options') || null;
                                 if (synOptions != null) {
                                     options = eval('(' + synOptions + ')');
@@ -6798,7 +6798,7 @@ globalRoot.syn = syn;
                         else if ($object.isArray(options.triggerConfig.triggerEvent) == true) {
                             var triggerFunction = function (evt) {
                                 var triggerConfig = null;
-                                var el = $webform.activeControl(evt);
+                                var el = syn.$w.activeControl(evt);
                                 var synOptions = el.getAttribute('syn-options') || null;
                                 if (synOptions != null) {
                                     options = eval('(' + synOptions + ')');

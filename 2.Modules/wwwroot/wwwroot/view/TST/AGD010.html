@@ -1,0 +1,106 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div class="page">
+            <div class="page-wrapper">
+                <div class="page-body">
+                    <div class="container-xl">
+                        <div class="row g-2 align-items-center">
+                            <div class="col">
+                                <h2 class="page-title">
+                                    게시판
+                                </h2>
+                            </div>
+                            <div class="col-auto ms-auto d-print-none">
+                                <div class="btn-list">
+                                    <button type="button" id="btnAddRow" syn-options="{triggerConfig: {
+							    	    triggerEvent:'click',
+                                        triggerID: 'grdDataList',
+                                        action: 'syn.uicontrols.$auigrid.insertRow',
+                                        params: {
+                                            options:{
+                                                sourceValueID: ['MainForm@txtCompanyCodeYN', 'MainForm@txtUserID'],
+                                                targetColumnID: ['COMPANY_CODE_YN', 'REGIST_USER'],
+                                                focusColumnID: 'GROUP_CODE'
+                                            }
+                                        }
+							        }}" class="btn btn-icon bg-muted-lt"><i class="f:18 ti ti-plus"></i></button>
+                                    <button type="button" id="btnRemoveRow" syn-events="['click']" class="btn btn-icon bg-muted-lt"><i class="f:18 ti ti-x"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row row-cards mt-3">
+                            <div class="container-xl">
+                                <div class="col">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <syn_auigrid id="grdDataList" syn-datafield="DataList" style="width: 100%; height: 480px; margin: 0 auto;" syn-options="{
+												columns: [
+													['idx', 'idx', 100, false, 'text', false, 'center'],
+													['ProdID', 'ProdID', 100, false, 'text', false, 'left'],
+													['DensityNum,WidthNum,YarnCount', '스파크 라인', 100, false, 'sparkline', false, 'left'],
+													['DensityNum,WidthNum,YarnCount', '스파크 컬럼', 100, false, 'sparkcolumn', false, 'left'],
+													['ProName', 'ProName', 100, false, 'text', false, 'left'],
+                                                    ['CatePurpose', 'CatePurpose', 100, false, 'button', false, 'left'],
+                                                    ['CatePattern', 'CatePattern', 100, false, 'image', false, 'left', null, {
+                                                         srcFunction: '$this.method.srcFunction'
+                                                    }],
+													['product', '제품', 140, false, 'dropdown', false, 'left', null, {
+                                                       columnType: 'dropdown',
+                                                       dataSourceID: 'CMM002',
+                                                       storeSourceID: 'CMM002',
+                                                       parameters: '@GROUPCODE:EZW019;',
+                                                       local: true,
+                                                       codeColumnID: 'product'
+                                                    }],
+													['price', '가격', 180, false, 'numeric', false, 'right', null, { dataType: 'string' }],
+													['writedate', '작성일자', 200, false, 'date', false, 'center'],
+                                                    ['editdate', '편집시간', 200, false, 'time', false, 'center'],
+													['ViewYN', 'ViewYN', 100, false, 'checkbox', false, 'center'],
+													['MixContent', 'MixContent', 100, false, 'korean', false, 'left'],
+                                                    ['CateFeature', 'CateFeature', 100, false, 'english', false, 'left'],
+                                                    ['WidthNum', 'WidthNum', 100, false, 'number', false, 'left', null, {
+                                                         barRender: true,
+                                                         barMax: 1000
+                                                    }],
+													['YarnCount', 'YarnCount', 100, false, 'number', false, 'left', null, {
+                                                         stepRender: true,
+                                                         stepMax: 1000
+                                                    }],
+                                                    ['DensityNum', 'DensityNum', 100, false, 'numeric', false, 'left'],
+                                                    ['CateFabric', 'CateFabric', 100, false, 'password', false, 'left'],
+                                                    ['Packing', 'Packing', 100, false, 'safehtml', false, 'left', null, {
+                                                         wordWrap: true
+                                                    }],
+                                                    ['ModelNo', 'ModelNo', 100, false, 'link', false, 'left'],
+												]
+											}" syn-events="['cellEditEndBefore']"></syn_auigrid>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <script type="text/javascript">
+        function pageLoadFiles(styleFiles, jsFiles, templateFiles) {
+            styleFiles.push('/uicontrols/WebGrid/AUIGrid.css');
+
+            window.afterLoadFiles = [];
+            afterLoadFiles.push('/uicontrols/WebGrid/AUIGrid.js');
+        }
+    </script>
+    <script type="text/javascript" src="https://www.auisoft.net/demo/auigrid/js_20240524/AUIGridLicense.js"></script>
+    <script type="text/javascript" src="https://www.auisoft.net/demo/auigrid/js_20240524/AUIGrid.js"></script>
+    <script type="text/javascript" src="https://www.auisoft.net/demo/auigrid/js_20240524/FileSaver.min.js"></script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

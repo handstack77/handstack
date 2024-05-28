@@ -1479,27 +1479,38 @@
             for (var i = 0; i < length; i++) {
                 var column = columns[i];
 
+                var columnID = column[0];
+                var columnName = column[1];
+                var width = column[2];
+                var isHidden = column[3];
+                var columnType = column[4];
+                var readOnly = column[5];
+                var alignConstants = column[6];
+                var belongID = column[7];
+                var validators = column[8];
+                var options = column[9];
+
                 var columnInfo = {
-                    data: column[0],
+                    data: columnID,
                     type: 'text',
                     filter: true,
-                    isHidden: column[3],
-                    readOnly: $string.toBoolean(settings.readOnly) == true ? true : column[5],
-                    className: $object.isNullOrUndefined(column[6]) == true ? '' : 'ht' + $string.capitalize(column[6]),
-                    belongID: $object.isNullOrUndefined(column[7]) == true ? '' : column[7],
+                    isHidden: isHidden,
+                    readOnly: $string.toBoolean(settings.readOnly) == true ? true : $string.toBoolean(readOnly),
+                    className: $object.isNullOrUndefined(alignConstants) == true ? '' : 'ht' + $string.capitalize(alignConstants),
+                    belongID: $object.isNullOrUndefined(belongID) == true ? '' : belongID,
                     validators: null
                 }
 
-                if (column.length > 8 && column[8]) {
-                    columnInfo.validators = column[8];
+                if (column.length > 8 && validators) {
+                    columnInfo.validators = validators;
 
                     if (columnInfo.validators.indexOf('require') > -1) {
                         columnInfo.className = columnInfo.className + ' required';
                     }
                 }
 
-                if (column.length > 9 && column[9]) {
-                    var columnOptions = column[9];
+                if (column.length > 9 && options) {
+                    var columnOptions = options;
 
                     if ($string.isNullOrEmpty(columnOptions.placeholder) == false) {
                         columnInfo.placeholder = columnOptions.placeholder;
@@ -1539,7 +1550,7 @@
                 }
 
                 var dataSource = null;
-                var type = column[4];
+                var type = columnType;
                 if ($object.isString(type) == true) {
                     columnInfo.type = type;
                     if ((columnInfo.type == 'dropdown' || columnInfo.type == 'codehelp')) {
@@ -1634,7 +1645,7 @@
                     }
                     else {
                         if (elID) {
-                            type.columnName = column[0];
+                            type.columnName = columnID;
                             if (type.local === true) {
                                 $grid.dataRefresh(elID, type);
                             }
@@ -1668,8 +1679,8 @@
                     columnInfo.storeSourceID = type.storeSourceID || type.dataSourceID;
                     columnInfo.local = type.local;
                     columnInfo.controlText = type.controlText;
-                    columnInfo.codeColumnID = type.codeColumnID ? type.codeColumnID : column[0];
-                    columnInfo.textColumnID = type.textColumnID ? type.textColumnID : column[0];
+                    columnInfo.codeColumnID = type.codeColumnID ? type.codeColumnID : columnID;
+                    columnInfo.textColumnID = type.textColumnID ? type.textColumnID : columnID;
                     columnInfo.parameters = type.parameters ? type.parameters : '';
                 } else if (columnInfo.type == 'date') {
                     columnInfo.dateFormat = type.dateFormat ? type.dateFormat : 'YYYY-MM-DD';
@@ -1699,25 +1710,25 @@
                         filter: true,
                         readOnly: true,
                         className: 'htLeft',
-                        belongID: columnInfo.codeBelongID ? columnInfo.codeBelongID : $object.clone(column[7])
+                        belongID: columnInfo.codeBelongID ? columnInfo.codeBelongID : $object.clone(belongID)
                     }
 
                     if (columnInfo.codeColumnHidden == true) {
-                        gridSetting.colHeaders.push(column[1] + '_$HIDDEN');
-                        columnInfo.columnText = column[1] + '_$HIDDEN';
+                        gridSetting.colHeaders.push(columnName + '_$HIDDEN');
+                        columnInfo.columnText = columnName + '_$HIDDEN';
                     }
                     else {
-                        gridSetting.colHeaders.push(column[1] + '_코드');
-                        columnInfo.columnText = column[1] + '_코드';
+                        gridSetting.colHeaders.push(columnName + '_코드');
+                        columnInfo.columnText = columnName + '_코드';
                     }
                     gridSetting.columns.push(hiddenColumnInfo);
-                    gridSetting.colWidths.push(column[2]);
+                    gridSetting.colWidths.push(width);
                 }
 
-                gridSetting.colHeaders.push(column[1]);
-                columnInfo.columnText = column[1];
+                gridSetting.colHeaders.push(columnName);
+                columnInfo.columnText = columnName;
                 gridSetting.columns.push(columnInfo);
-                gridSetting.colWidths.push(column[2]);
+                gridSetting.colWidths.push(width);
             }
 
             var headerLength = gridSetting.colHeaders.length;
@@ -3204,7 +3215,7 @@
 
                             var colIndex = gridSettings.colHeaders.indexOf(value);
                             if (colIndex == -1) {
-                                syn.$w.alert('올바른 형식의 파일이 아닙니다.\n파일을 확인해주세요.'.format(gridSettings.controlText));
+                                syn.$w.alert('올바른 형식의 파일이 아닙니다.\n파일을 확인해주세요.');
                                 return false;
                             }
 
@@ -3305,7 +3316,7 @@
                         var columnText = cell.v;
                         var colIndex = gridSettings.colHeaders.indexOf(columnText);
                         if (colIndex == -1) {
-                            syn.$w.alert('올바른 형식의 파일이 아닙니다.\n파일을 확인해주세요.'.format(gridSettings.controlText));
+                            syn.$w.alert('올바른 형식의 파일이 아닙니다.\n파일을 확인해주세요.');
                             return false;
                         }
 
