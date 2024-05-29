@@ -1,4 +1,4 @@
-﻿/*!
+/*!
 HandStack Javascript Library v1.0.0
 https://syn.handshake.kr
 
@@ -6788,6 +6788,12 @@ globalRoot.syn = syn;
                                 if (synOptions != null) {
                                     options = eval('(' + synOptions + ')');
                                 }
+                                else {
+                                    synOptions = el.parentElement.getAttribute('syn-options') || null;
+                                    if (synOptions != null) {
+                                        options = eval('(' + synOptions + ')');
+                                    }
+                                }
 
                                 if (options && options.triggerConfig) {
                                     triggerConfig = options.triggerConfig;
@@ -6805,6 +6811,12 @@ globalRoot.syn = syn;
                                 var synOptions = el.getAttribute('syn-options') || null;
                                 if (synOptions != null) {
                                     options = eval('(' + synOptions + ')');
+                                }
+                                else {
+                                    synOptions = el.parentElement.getAttribute('syn-options') || null;
+                                    if (synOptions != null) {
+                                        options = eval('(' + synOptions + ')');
+                                    }
                                 }
 
                                 if (options && options.triggerConfig) {

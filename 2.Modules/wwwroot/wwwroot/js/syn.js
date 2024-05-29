@@ -1,4 +1,4 @@
-﻿/*!
+/*!
 HandStack Javascript Library v1.0.0
 https://syn.handshake.kr
 
@@ -6784,7 +6784,6 @@ globalRoot.syn = syn;
                             syn.$l.addEvent(elID, options.triggerConfig.triggerEvent, function (evt) {
                                 var triggerConfig = null;
                                 var el = syn.$w.activeControl(evt);
-
                                 var synOptions = el.getAttribute('syn-options') || null;
                                 if (synOptions != null) {
                                     options = eval('(' + synOptions + ')');
@@ -7060,7 +7059,7 @@ globalRoot.syn = syn;
                 if ($this.hook.beforeTrigger) {
                     isContinue = $this.hook.beforeTrigger(triggerConfig.triggerID, triggerConfig.action, triggerConfig.params);
                 }
-                
+
                 if ($object.isNullOrUndefined(isContinue) == true || isContinue == true) {
                     var el = syn.$l.get(triggerConfig.triggerID);
                     var triggerResult = null;
@@ -7091,7 +7090,7 @@ globalRoot.syn = syn;
                     if (trigger) {
                         el.setAttribute('triggerOptions', JSON.stringify(triggerConfig.params.options));
 
-                        if (triggerConfig.action.startsWith('syn.uicontrols.$') == true) {
+                        if (triggerConfig.action.indexOf('$') > -1) {
                             $array.addAt(triggerConfig.params.arguments, 0, triggerConfig.triggerID);
                         }
 

@@ -767,7 +767,7 @@
             if (evt.target == 'header') {
                 $auigrid.nowHeaderMenuVisible = true;
                 $auigrid.currentDataField = evt.dataField.replaceAll(',', '_');
-                
+
                 $("#auigridHeaderContextMenu").attr('context', JSON.stringify(evt));
                 $('#auigridHeaderContextMenu').menu({
                     select: $auigrid.headerMenuSelectHandler
@@ -811,11 +811,14 @@
             $auigrid.hideContextMenu();
         },
 
-        propToCol(elID, columnName) {
+        propToCol(elID, dataField) {
             var result = -1;
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
-                result = AUIGrid.getColumnIndexByDataField(gridID, columnName);
+                if ($object.isNumber(dataField) == true) {
+                    dataField = AUIGrid.getDataFieldByColumnIndex(gridID, dataField);
+                }
+                result = AUIGrid.getColumnIndexByDataField(gridID, dataField);
             }
 
             return result;
@@ -832,14 +835,14 @@
         },
 
         // value = { headerText: '헤더 그룹', headerStyle: 'my-strong-header' }
-        setColumnProperty(elID, col, value) {
+        setColumnProperty(elID, dataField, value) {
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
-                if ($object.isString(col) == true) {
-                    AUIGrid.setColumnPropByDataField(gridID, col, value);
+                if ($object.isString(dataField) == true) {
+                    AUIGrid.setColumnPropByDataField(gridID, dataField, value);
                 }
                 else {
-                    AUIGrid.setColumnProp(gridID, col, value);
+                    AUIGrid.setColumnProp(gridID, dataField, value);
                 }
             }
         },
@@ -867,7 +870,26 @@
             }
         },
 
-        search(elID, term, options) {
+        search(elID, dataField, term, options) {
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                var defaultOptions = {
+                    direction: true,
+                    caseSensitive: false,
+                    wholeWord: false,
+                    wrapSearch: true
+                };
+
+                options = syn.$w.argumentsExtend(defaultOptions, options);
+
+                if ($object.isNumber(dataField) == true) {
+                    dataField = AUIGrid.getDataFieldByColumnIndex(gridID, dataField);
+                }
+                AUIGrid.search(gridID, dataField, term, options);
+            }
+        },
+
+        searchAll(elID, term, options) {
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
                 var defaultOptions = {
@@ -905,13 +927,16 @@
             }
         },
 
-        getColumnWidth(elID) {
+        getColumnWidth(elID, dataField) {
             var result = null;
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
-                var dataField = AUIGrid.getColumnItemByDataField(gridID, columnName);
-                if ($object.isNullOrUndefined(dataField) == false) {
-                    result = dataField.width;
+                if ($object.isNumber(dataField) == true) {
+                    dataField = AUIGrid.getDataFieldByColumnIndex(gridID, dataField);
+                }
+                var columnItem = AUIGrid.getColumnItemByDataField(gridID, dataField);
+                if ($object.isNullOrUndefined(columnItem) == false) {
+                    result = columnItem.width;
                 }
             }
 
@@ -941,18 +966,18 @@
             return result;
         },
 
-        setColumnWidth(elID, col, width) {
+        setColumnWidth(elID, dataField, width) {
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
                 var columnWidths = $auigrid.getColumnWidths(elID);
 
-                if ($object.isString(col) == true) {
-                    col = AUIGrid.getColumnIndexByDataField(gridID, col);
+                if ($object.isString(dataField) == true) {
+                    dataField = AUIGrid.getColumnIndexByDataField(gridID, dataField);
                 }
 
-                var colIndex = columnWidths[col];
+                var colIndex = columnWidths[dataField];
                 if ($object.isNullOrUndefined(colIndex) == false) {
-                    columnWidths[col] = width;
+                    columnWidths[dataField] = width;
                     AUIGrid.setColumnSizeList(gridID, columnWidths);
                 }
             }
@@ -1008,6 +1033,33 @@
                 var fixedCount = $string.toNumber(fixedCount);
                 AUIGrid.setFixedRowCount(gridID, (fixedCount < 0 ? 0 : fixedCount));
             }
+        },
+
+        getSelectedIndex(elID) {
+            var result = [-1, -1];
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                result = AUIGrid.getSelectedIndex(gridID);
+            }
+            return result;
+        },
+
+        getActiveRowIndex(elID) {
+            var result = -1;
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                result = AUIGrid.getSelectedIndex(gridID)[0];
+            }
+            return result;
+        },
+
+        getActiveColIndex(elID) {
+            var result = -1;
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                result = AUIGrid.getSelectedIndex(gridID)[1];
+            }
+            return result;
         },
 
         selectCell(elID, rowIndex, colIndex) {
@@ -1068,15 +1120,6 @@
             if (gridID) {
                 result = AUIGrid.clearFilterAll(gridID);
             }
-        },
-
-        countRows(elID) {
-            var result = 0;
-            var gridID = $auigrid.getGridID(elID);
-            if (gridID) {
-                result = AUIGrid.getRowCount(gridID);
-            }
-            return result;
         },
 
         render(elID) {
@@ -1176,7 +1219,6 @@
                                                     defaultValue[triggerOptions.targetColumnID] = sourceValue;
                                                 }
                                                 else {
-                                                    var col = hot.propToCol(triggerOptions.targetColumnID);
                                                     var el = syn.$l.querySelector('[syn-datafield="{0}"] #{1}'.format(dataFieldID, dataColumnID));
                                                     if ($object.isNullOrUndefined(el) == false) {
                                                         defaultValue[triggerOptions.targetColumnID] = el.value;
@@ -1222,7 +1264,7 @@
             }
         },
 
-        removeRow(elID, col, rowIndex, callback) {
+        removeRow(elID, dataField, rowIndex, callback) {
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
                 rowIndex = rowIndex || 'selectedIndex';
@@ -1246,7 +1288,7 @@
 
                 if ($object.isString(rowIndex) == true) {
                     rowIndex = AUIGrid.getSelectedIndex(gridID)[0];
-                    col = col || AUIGrid.getSelectedIndex(gridID)[1];
+                    dataField = dataField || AUIGrid.getSelectedIndex(gridID)[1];
                     var lastRowIndex = rowCount - 1;
                     if (rowIndex > lastRowIndex || (rowIndex == -1 && lastRowIndex > 0)) {
                         rowIndex = lastRowIndex;
@@ -1256,11 +1298,11 @@
                     rowIndex = rowCount - 1;
                 }
 
-                if ($object.isString(col) == true) {
-                    colIndex = AUIGrid.getColumnIndexByDataField(gridID, col);
+                if ($object.isString(dataField) == true) {
+                    colIndex = AUIGrid.getColumnIndexByDataField(gridID, dataField);
                 }
                 else {
-                    colIndex = col;
+                    colIndex = dataField;
                 }
 
                 if (callback) {
@@ -1278,11 +1320,57 @@
             }
         },
 
+        countRows(elID) {
+            var result = 0;
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                result = AUIGrid.getRowCount(gridID);
+            }
+            return result;
+        },
+
         countCols(elID) {
             var result = 0;
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
                 result = AUIGrid.getColumnCount(gridID);
+            }
+            return result;
+        },
+
+
+        getFirstShowColIndex(elID) {
+            var result = -1;
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                var source = AUIGrid.getColumnInfoList(gridID).map((item) => { return item.columnIndex });
+                var target = AUIGrid.getHiddenColumnIndexes(gridID);
+
+                var arr = source.filter(function (item) {
+                    return !target.includes(item);
+                });
+
+                if (arr.length > 0) {
+                    result = arr[0];
+                }
+            }
+            return result;
+        },
+
+        getLastShowColIndex(elID) {
+            var result = -1;
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                var source = AUIGrid.getColumnInfoList(gridID).map((item) => { return item.columnIndex });
+                var target = AUIGrid.getHiddenColumnIndexes(gridID);
+
+                var arr = source.filter(function (item) {
+                    return !target.includes(item);
+                });
+
+                if (arr.length > 0) {
+                    result = arr[arr.length - 1];
+                }
             }
             return result;
         },
@@ -1294,6 +1382,32 @@
                 result = AUIGrid.getSelectedItems(gridID);
             }
             return result;
+        },
+
+        getRowPosition(elID) {
+            var result = null;
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                result = AUIGrid.getRowPosition(gridID);
+            }
+            return result;
+        },
+
+        setRowPosition(elID, rowIndex) {
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                AUIGrid.setRowPosition(gridID, rowIndex);
+            }
+        },
+
+        setColumnPosition(elID, dataField) {
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                if ($object.isString(dataField) == true) {
+                    dataField = AUIGrid.getColumnIndexByDataField(gridID, dataField);
+                }
+                AUIGrid.setHScrollPosition(gridID, dataField);
+            }
         },
 
         isCreated(elID) {
@@ -1317,16 +1431,16 @@
             }
         },
 
-        isColumnHidden(elID, col) {
+        isColumnHidden(elID, dataField) {
             var result = false;
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
                 var colIndexs = AUIGrid.getHiddenColumnIndexes(gridID);
 
-                if ($object.isString(col) == true) {
-                    col = AUIGrid.getColumnIndexByDataField(gridID, col);
+                if ($object.isString(dataField) == true) {
+                    dataField = AUIGrid.getColumnIndexByDataField(gridID, dataField);
                 }
-                result = colIndexs.indexOf($string.toNumber(col)) >= 0;
+                result = colIndexs.indexOf($string.toNumber(dataField)) >= 0;
             }
 
             return result;
@@ -1368,6 +1482,48 @@
                     }
                 }
             }
+        },
+
+        isUpdateData(elID) {
+            var result = '';
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                result = !$object.isEmpty(AUIGrid.getStateCache(gridID).cache);
+            }
+
+            return result;
+        },
+
+        getFlag(elID, row) {
+            var result = '';
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                var isAdded = false;
+                var isEdited = false;
+                var isRemoved = false;
+                if ($object.isNumber(row) == true) {
+                    isAdded = AUIGrid.isAddedByRowIndex(gridID, row);
+                    isEdited = AUIGrid.isEditedByRowIndex(gridID, row);
+                    isRemoved = AUIGrid.isRemovedByRowIndex(gridID, row);
+                }
+                else {
+                    isAdded = AUIGrid.isAddedById(gridID, row);
+                    isEdited = AUIGrid.isEditedById(gridID, row);
+                    isRemoved = AUIGrid.isRemovedById(gridID, row);
+                }
+
+                if (isRemoved == true) {
+                    result = 'D';
+                }
+                else if (isEdited == true && isAdded == false) {
+                    result = 'U';
+                }
+                else if (isAdded == true) {
+                    result = 'C';
+                }
+            }
+
+            return result;
         },
 
         exportToObject(elID, keyValueMode) {
@@ -1666,6 +1822,32 @@
             return result;
         },
 
+        getColumnInfoList(elID) {
+            var result = null;
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                result = AUIGrid.getColumnInfoList(gridID);
+            }
+
+            return result;
+        },
+
+        getColumnValues(elID, dataField, total) {
+            var result = null;
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                AUIGrid.forceEditingComplete(gridID, null, false);
+
+                if ($object.isNumber(dataField) == true) {
+                    dataField = $auigrid.colToProp(elID, dataField);
+                }
+
+                result = AUIGrid.getColumnValues(gridID, dataField, $string.toBoolean(total));
+            }
+
+            return result;
+        },
+
         getGridSetting(elID) {
             var result = null;
 
@@ -1681,34 +1863,473 @@
             return result;
         },
 
-        getValue(elID, meta) {
-            var result = [];
+        getSelectedItem(elID) {
+            var result = null;
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
-                var el = syn.$l.get(elID);
-                if ($object.isNullOrUndefined(el) == false) {
-                    var options = null;
-                    var synOptions = el.getAttribute('syn-options');
-                    if (synOptions) {
-                        options = JSON.parse(synOptions);
+                var selectedItems = AUIGrid.getSelectedItems(gridID);
+                if (result.length > 0) {
+                    result = selectedItems[0];
+                }
+            }
+
+            return result;
+        },
+
+        getSelectedItems(elID) {
+            var result = null;
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                AUIGrid.forceEditingComplete(gridID, null, false);
+
+                result = AUIGrid.getSelectedItems(gridID);
+            }
+
+            return result;
+        },
+
+        getSelectedText(elID) {
+            var result = null;
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                AUIGrid.forceEditingComplete(gridID, null, false);
+
+                result = AUIGrid.getSelectedText(gridID);
+            }
+
+            return result;
+        },
+
+        forceEditingComplete(elID, value, cancel) {
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                AUIGrid.forceEditingComplete(gridID, value, cancel);
+            }
+        },
+
+        getCellFormatValue(elID, rowIndex, dataField) {
+            var result = null;
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                AUIGrid.forceEditingComplete(gridID, null, false);
+
+                if ($object.isNumber(dataField) == true) {
+                    dataField = AUIGrid.getDataFieldByColumnIndex(gridID, dataField);
+                }
+
+                result = AUIGrid.getCellFormatValue(gridID, rowIndex, dataField);
+            }
+            return result;
+        },
+
+        getCellValue(elID, rowIndex, dataField) {
+            var result = null;
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                AUIGrid.forceEditingComplete(gridID, null, false);
+
+                if ($object.isNumber(dataField) == true) {
+                    dataField = AUIGrid.getDataFieldByColumnIndex(gridID, dataField);
+                }
+
+                result = AUIGrid.getCellValue(gridID, rowIndex, dataField);
+            }
+            return result;
+        },
+
+        getColumnDistinctValues(elID, rowIndex, dataField) {
+            var result = null;
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                AUIGrid.forceEditingComplete(gridID, null, false);
+
+                result = AUIGrid.getColumnDistinctValues(gridID, rowIndex, dataField);
+            }
+            return result;
+        },
+
+        validateGridData(elID, dataField) {
+            var result = null;
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                AUIGrid.forceEditingComplete(gridID, null, false);
+
+                result = AUIGrid.validateGridData(gridID, dataField);
+            }
+            return result;
+        },
+
+        setCellValue(elID, dataField, value) {
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                AUIGrid.forceEditingComplete(gridID, null, false);
+
+                AUIGrid.setCellValue(gridID, dataField, value);
+            }
+        },
+
+        setRowPosition(elID, rowIndex) {
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                AUIGrid.setRowPosition(gridID, rowIndex);
+            }
+        },
+
+        updateRow(elID, value, rowIndex) {
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                AUIGrid.forceEditingComplete(gridID, null, false);
+
+                AUIGrid.updateRow(gridID, value, rowIndex);
+            }
+        },
+
+        updateRows(elID, values, rowIndexs) {
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                AUIGrid.forceEditingComplete(gridID, null, false);
+
+                AUIGrid.updateRows(gridID, values, rowIndexs);
+            }
+        },
+
+        updateRowBlockToValue(elID, startRowIndex, endRowIndex, dataFields, values) {
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                AUIGrid.forceEditingComplete(gridID, null, false);
+
+                AUIGrid.updateRowBlockToValue(gridID, startRowIndex, endRowIndex, dataFields, values);
+            }
+        },
+
+        updateRowsById(elID, values) {
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                AUIGrid.forceEditingComplete(gridID, null, false);
+
+                AUIGrid.updateRowsById(gridID, values);
+            }
+        },
+
+        updateAllToValue(elID, dataField, value) {
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                AUIGrid.forceEditingComplete(gridID, null, false);
+
+                if ($object.isNumber(dataField) == true) {
+                    dataField = AUIGrid.getDataFieldByColumnIndex(gridID, dataField);
+                }
+                AUIGrid.updateAllToValue(gridID, dataField, value);
+            }
+        },
+
+        indexToRowID(elID, rowIndex) {
+            var result = null;
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                result = AUIGrid.indexToRowId(gridID, rowIndex);
+            }
+
+            return result;
+        },
+
+        isUniqueValue(elID, dataField, value) {
+            var result = null;
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                AUIGrid.forceEditingComplete(gridID, null, false);
+
+                if ($object.isNumber(dataField) == true) {
+                    dataField = AUIGrid.getDataFieldByColumnIndex(gridID, dataField);
+                }
+                result = AUIGrid.isUniqueValue(gridID, dataField, value);
+            }
+
+            return result;
+        },
+
+        getRowIndexesByValue(elID, dataField, value) {
+            var result = null;
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                AUIGrid.forceEditingComplete(gridID, null, false);
+
+                if ($object.isNumber(dataField) == true) {
+                    dataField = AUIGrid.getDataFieldByColumnIndex(gridID, dataField);
+                }
+                result = AUIGrid.getRowIndexesByValue(gridID, dataField, value);
+            }
+
+            return result;
+        },
+
+        getRowsByValue(elID, dataField, value) {
+            var result = null;
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                AUIGrid.forceEditingComplete(gridID, null, false);
+
+                if ($object.isNumber(dataField) == true) {
+                    dataField = AUIGrid.getDataFieldByColumnIndex(gridID, dataField);
+                }
+                result = AUIGrid.getRowsByValue(gridID, dataField, value);
+            }
+
+            return result;
+        },
+
+        getInitValueItem(elID, RowID) {
+            var result = null;
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                AUIGrid.forceEditingComplete(gridID, null, false);
+
+                result = AUIGrid.getInitValueItem(gridID, RowID);
+            }
+
+            return result;
+        },
+
+        getItemByRowIndex(elID, rowIndex) {
+            var result = null;
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                AUIGrid.forceEditingComplete(gridID, null, false);
+
+                result = AUIGrid.getItemByRowIndex(gridID, rowIndex);
+            }
+
+            return result;
+        },
+
+        getItemByRowID(elID, rowID) {
+            var result = null;
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                AUIGrid.forceEditingComplete(gridID, null, false);
+
+                result = AUIGrid.getItemByRowId(gridID, rowID);
+            }
+
+            return result;
+        },
+
+        getItemsByValue(elID, dataField, value) {
+            var result = null;
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                AUIGrid.forceEditingComplete(gridID, null, false);
+
+                if ($object.isNumber(dataField) == true) {
+                    dataField = AUIGrid.getDataFieldByColumnIndex(gridID, dataField);
+                }
+                result = AUIGrid.getItemsByValue(gridID, dataField, value);
+            }
+
+            return result;
+        },
+
+        checkUniqueValueCol(elID, dataField, total) {
+            var result = true;
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                AUIGrid.forceEditingComplete(gridID, null, false);
+
+                if ($object.isNumber(dataField) == true) {
+                    dataField = $auigrid.colToProp(elID, dataField);
+                }
+
+                var columnValues = AUIGrid.getColumnValues(gridID, dataField, $string.toBoolean(total));
+                result = !columnValues.filter(function (row, index) { return (columnValues.indexOf(row) !== index) }).length > 0
+            }
+
+            return result;
+        },
+
+        checkValueCountCol(elID, dataField, checkValue, total) {
+            var result = 0;
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                AUIGrid.forceEditingComplete(gridID, null, false);
+
+                if ($object.isNumber(dataField) == true) {
+                    dataField = $auigrid.colToProp(elID, dataField);
+                }
+
+                var columnValues = AUIGrid.getColumnValues(gridID, dataField, $string.toBoolean(total));
+                result = columnValues.filter((item) => { return item === checkValue }).length;
+            }
+
+            return result;
+        },
+
+        checkEmptyValueCol(elID, dataField, checkValue, total) {
+            var result = false;
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                AUIGrid.forceEditingComplete(gridID, null, false);
+
+                if ($object.isNumber(dataField) == true) {
+                    dataField = $auigrid.colToProp(elID, dataField);
+                }
+
+                var columnValues = AUIGrid.getColumnValues(gridID, dataField, $string.toBoolean(total));
+                if ($object.isNullOrUndefined(checkValue) == true) {
+                    if ($auigrid.countRows(elID) == 0) {
+                        result = false;
+                    }
+                    else {
+                        result = columnValues.filter((item) => { return $string.isNullOrEmpty(item) == true }).length > 0;
+                    }
+                }
+                else {
+                    result = columnValues.filter((item) => { return item === checkValue }).length > 0;
+                }
+            }
+
+            return result;
+        },
+
+        checkEmptyValueCols(elID, columns, checkValue) {
+            var result = false;
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                AUIGrid.forceEditingComplete(gridID, null, false);
+
+                var items = AUIGrid.getOrgGridData(elID);
+                for (var i = 0, length = items.length; i < length; i++) {
+                    var item = items[i];
+
+                    var checkResult = false;
+                    for (var j = 0; j < columns.length; j++) {
+                        var column = columns[j];
+
+                        if ($object.isNullOrUndefined(checkValue) == true) {
+                            if ($string.isNullOrEmpty(item[column]) == true) {
+                                checkResult = true;
+                            }
+                            else {
+                                checkResult = false;
+                                break;
+                            }
+                        }
+                        else {
+                            if ($string.isNullOrEmpty(item[column]) == true || item[column] === checkValue) {
+                                checkResult = true;
+                            }
+                            else {
+                                checkResult = false;
+                                break;
+                            }
+                        }
                     }
 
-                    var removedRowItems = AUIGrid.getRemovedItems(gridID);
-                    for (var i = 0, length = removedRowItems.length; i < length; i++) {
-                        removedRowItems[i].Flag = 'D';
+                    if (checkResult == true) {
+                        return checkResult;
+                    }
+                }
+                return false;
+            }
+
+            return result;
+        },
+
+        getValue(elID, requestType, metaColumns) {
+            var result = [];
+            var items = [];
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                AUIGrid.forceEditingComplete(gridID, null, false);
+
+                if (metaColumns) {
+                    if (requestType == 'Row') {
+                        var rowIndex = AUIGrid.getSelectedIndex(gridID)[0];
+
+                        if (rowIndex != null && rowIndex > -1) {
+                            var rowData = AUIGrid.getItemByRowIndex(rowIndex);
+                            var rowFlag = $auigrid.getFlag(gridID, rowIndex) || 'C';
+                            if (rowFlag && rowFlag != 'S') {
+                                rowData = $object.clone(rowData);
+
+                                var data = {};
+                                data.Flag = rowFlag;
+
+                                for (var key in metaColumns) {
+                                    var column = metaColumns[key];
+                                    var rowValue = rowData[key];
+
+                                    data[column.fieldID] = rowValue;
+                                    if (rowValue === undefined) {
+                                        data[column.fieldID] = column.dataType == 'number' ? null : $object.defaultValue(column.dataType);
+                                    } else {
+                                        data[column.fieldID] = rowValue;
+                                    }
+                                }
+
+                                items.push(data);
+                            }
+                        }
+                    }
+                    else if (requestType == 'List') {
+                        var removedRowItems = AUIGrid.getRemovedItems(gridID);
+                        for (var i = 0, length = removedRowItems.length; i < length; i++) {
+                            removedRowItems[i].Flag = 'D';
+                        }
+
+                        var editedRowItems = AUIGrid.getEditedRowItems(gridID);
+                        for (var i = 0, length = editedRowItems.length; i < length; i++) {
+                            editedRowItems[i].Flag = 'U';
+                        }
+
+                        var addedRowItems = AUIGrid.getAddedRowItems(gridID);
+                        for (var i = 0, length = addedRowItems.length; i < length; i++) {
+                            addedRowItems[i].Flag = 'C';
+                        }
+
+                        var rowDatas = items.concat(removedRowItems, editedRowItems, addedRowItems)
+                        var length = rowDatas.length;
+
+                        for (var rowIndex = 0; rowIndex < length; rowIndex++) {
+                            var rowData = rowDatas[rowIndex];
+                            var rowFlag = rowData.Flag || 'C';
+                            if (rowFlag && rowFlag != 'S') {
+                                if (rowFlag != 'R') {
+                                    rowData = $object.clone(rowData);
+
+                                    var data = {};
+                                    data.Flag = rowFlag;
+
+                                    for (var key in metaColumns) {
+                                        var column = metaColumns[key];
+                                        var rowValue = rowData[key];
+
+                                        data[column.fieldID] = rowValue;
+                                        if (rowValue === undefined) {
+                                            data[column.fieldID] = column.dataType == 'number' ? null : $object.defaultValue(column.dataType);
+                                        } else {
+                                            data[column.fieldID] = rowValue;
+                                        }
+                                    }
+
+                                    items.push(data);
+                                }
+                            }
+                        }
                     }
 
-                    var editedRowItems = AUIGrid.getEditedRowItems(gridID);
-                    for (var i = 0, length = removedRowItems.length; i < length; i++) {
-                        removedRowItems[i].Flag = 'U';
-                    }
+                    var length = items.length;
+                    for (var i = 0; i < length; i++) {
+                        var item = items[i];
 
-                    var addedRowItems = AUIGrid.getAddedRowItems(gridID);
-                    for (var i = 0, length = removedRowItems.length; i < length; i++) {
-                        removedRowItems[i].Flag = 'C';
+                        var row = [];
+                        for (var key in item) {
+                            var serviceObject = { prop: key, val: item[key] };
+                            row.push(serviceObject);
+                        }
+                        result.push(row);
                     }
-
-                    result = result.concat(removedRowItems, editedRowItems, addedRowItems)
+                } else {
+                    syn.$l.eventLog('getUpdateData', 'Input Mapping 설정 없음', 'Debug');
                 }
             }
 
