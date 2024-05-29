@@ -3394,6 +3394,9 @@ globalRoot.syn = syn;
             if (index <= arr.length - 1) {
                 arr.splice(index, 0, val);
             }
+            else {
+                arr.push(val);
+            }
             return arr;
         },
 
@@ -6781,9 +6784,16 @@ globalRoot.syn = syn;
                             syn.$l.addEvent(elID, options.triggerConfig.triggerEvent, function (evt) {
                                 var triggerConfig = null;
                                 var el = syn.$w.activeControl(evt);
+
                                 var synOptions = el.getAttribute('syn-options') || null;
                                 if (synOptions != null) {
                                     options = eval('(' + synOptions + ')');
+                                }
+                                else {
+                                    synOptions = el.parentElement.getAttribute('syn-options') || null;
+                                    if (synOptions != null) {
+                                        options = eval('(' + synOptions + ')');
+                                    }
                                 }
 
                                 if (options && options.triggerConfig) {
@@ -6802,6 +6812,12 @@ globalRoot.syn = syn;
                                 var synOptions = el.getAttribute('syn-options') || null;
                                 if (synOptions != null) {
                                     options = eval('(' + synOptions + ')');
+                                }
+                                else {
+                                    synOptions = el.parentElement.getAttribute('syn-options') || null;
+                                    if (synOptions != null) {
+                                        options = eval('(' + synOptions + ')');
+                                    }
                                 }
 
                                 if (options && options.triggerConfig) {
@@ -7035,7 +7051,7 @@ globalRoot.syn = syn;
                 var isContinue = true;
 
                 var defaultParams = {
-                    args: [],
+                    arguments: [],
                     options: {}
                 };
 
@@ -7075,11 +7091,11 @@ globalRoot.syn = syn;
                     if (trigger) {
                         el.setAttribute('triggerOptions', JSON.stringify(triggerConfig.params.options));
 
-                        if (triggerConfig.action.indexOf('$') > -1) {
-                            $array.addAt(triggerConfig.params.args, 0, triggerConfig.triggerID);
+                        if (triggerConfig.action.startsWith('syn.uicontrols.$') == true) {
+                            $array.addAt(triggerConfig.params.arguments, 0, triggerConfig.triggerID);
                         }
 
-                        triggerResult = trigger.apply(el, triggerConfig.params.args);
+                        triggerResult = trigger.apply(el, triggerConfig.params.arguments);
                         if ($this.hook.afterTrigger) {
                             $this.hook.afterTrigger(null, triggerConfig.action, {
                                 elID: triggerConfig.triggerID,

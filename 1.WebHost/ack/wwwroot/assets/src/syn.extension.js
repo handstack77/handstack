@@ -866,6 +866,9 @@
             if (index <= arr.length - 1) {
                 arr.splice(index, 0, val);
             }
+            else {
+                arr.push(val);
+            }
             return arr;
         },
 

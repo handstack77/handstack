@@ -3494,40 +3494,40 @@
             if (hot) {
                 var gridSettings = hot.getSettings();
                 if (gridSettings && value && value.length > 0) {
-                    var item = value[0];
-                    for (var column in item) {
-                        var isTypeCheck = false;
-                        var metaColumn = metaColumns[column];
-                        if (metaColumn) {
-                            switch (metaColumn.dataType.toLowerCase()) {
-                                case 'string':
-                                    isTypeCheck = item[column] == null || $object.isString(item[column]) || $string.isNumber(item[column]);
-                                    break;
-                                case 'bool':
-                                    isTypeCheck = $string.isNullOrEmpty(item[column]) == true || $object.isBoolean(item[column]);
-                                    break;
-                                case 'number':
-                                case 'int':
-                                    isTypeCheck = $string.isNullOrEmpty(item[column]) == true || $string.isNumber(item[column]) || $object.isNumber(item[column]);
-                                    break;
-                                case 'date':
-                                    isTypeCheck = $string.isNullOrEmpty(item[column]) == true || $object.isDate(item[column]);
-                                    break;
-                                default:
-                                    isTypeCheck = false;
-                                    break;
-                            }
+                    if ($object.isNullOrUndefined(metaColumns) == false) {
+                        var item = value[0];
+                        for (var column in item) {
+                            var isTypeCheck = false;
+                            var metaColumn = metaColumns[column];
+                            if (metaColumn) {
+                                switch (metaColumn.dataType.toLowerCase()) {
+                                    case 'string':
+                                        isTypeCheck = item[column] == null || $object.isString(item[column]) || $string.isNumber(item[column]);
+                                        break;
+                                    case 'bool':
+                                        isTypeCheck = $string.isNullOrEmpty(item[column]) == true || $object.isBoolean(item[column]);
+                                        break;
+                                    case 'number':
+                                    case 'int':
+                                        isTypeCheck = $string.isNullOrEmpty(item[column]) == true || $string.isNumber(item[column]) || $object.isNumber(item[column]);
+                                        break;
+                                    case 'date':
+                                        isTypeCheck = $string.isNullOrEmpty(item[column]) == true || $object.isDate(item[column]);
+                                        break;
+                                    default:
+                                        isTypeCheck = false;
+                                        break;
+                                }
 
-                            if (isTypeCheck == false) {
-                                error = '바인딩 데이터 타입과 매핑 정의가 다름, 바인딩 ID - "{0}", 타입 - "{1}"'.format(column, metaColumn.dataType);
-                                break;
+                                if (isTypeCheck == false) {
+                                    syn.$l.eventLog('syn.uicontrols.$grid', '바인딩 데이터 타입과 매핑 정의가 다름, 바인딩 ID - "{0}", 타입 - "{1}"'.format(column, metaColumn.dataType), 'Warning');
+                                    return;
+                                }
+                            } else {
+                                continue;
                             }
-                        } else {
-                            continue;
                         }
-                    }
 
-                    if (error == '') {
                         var columnInfos = gridSettings.columns;
                         var dropdownColumns = [];
 
@@ -3552,17 +3552,14 @@
                                                 break;
                                             }
                                         }
-
                                     }
                                 }
                             }
                         }
-
-                        $grid.loadData(elID, value);
-                        $grid.renderSummary(hot);
-                    } else {
-                        syn.$l.eventLog('syn.uicontrols.$grid', error, 'Debug');
                     }
+
+                    $grid.loadData(elID, value);
+                    $grid.renderSummary(hot);
                 } else {
                     $grid.loadData(elID, []);
                     $grid.renderSummary(hot);

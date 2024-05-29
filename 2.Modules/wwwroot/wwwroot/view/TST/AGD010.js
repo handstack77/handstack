@@ -83,19 +83,15 @@ let $AGD010 = {
         },
 
         grdDataList_cellClick(evt) {
-            debugger;
         },
 
         grdDataList_cellLinkClick(dataField, rowIndex, columnIndex, value, item) {
-            debugger;
         },
 
         grdDataList_cellButtonClick(dataField, rowIndex, columnIndex, value, item) {
-            debugger;
         },
 
         grdDataList_cellEditEndBefore(evt) {
-            debugger;
             if (evt.dataField == "원하는 필드명" && evt.isClipboard == true) {
                 
             }
@@ -119,6 +115,19 @@ let $AGD010 = {
 
         btnRemoveRow_click() {
             syn.uicontrols.$auigrid.removeRow('grdDataList');
+        },
+
+        btnExcelExport_click() {
+            syn.uicontrols.$auigrid.exportFile('grdDataList', {
+                type: 'xlsx',
+                fileName: 'export.xlsx'
+            });
+        },
+
+        btnExcelImport_click() {
+            syn.uicontrols.$auigrid.importFile('grdDataList', (result, fileName) => {
+                debugger;
+            });
         }
     },
 

@@ -74,25 +74,25 @@
                 this.$super.injectValue(value);
             },
 
-            __textareaKeyUpHandler: function (event) {
-                if (event.keyCode == 13 && event.ctrlKey) {
-                    event.preventDefault();
+            __textareaKeyUpHandler: function (evt) {
+                if (evt.keyCode == 13 && evt.ctrlKey) {
+                    evt.preventDefault();
                     this.triggerEditEndEvent(this.__textarea.value);
                     return;
-                } else if (event.keyCode == 27) {
-                    event.preventDefault();
+                } else if (evt.keyCode == 27) {
+                    evt.preventDefault();
                     this.triggerEditCancelEvent();
                     return;
                 }
 
-                if (event.keyCode != 13) this.injectValue(this.__textarea.value);
+                if (evt.keyCode != 13) this.injectValue(this.__textarea.value);
             },
 
-            __confirmBtnClickHandler: function (evet) {
+            __confirmBtnClickHandler: function (evt) {
                 this.triggerEditEndEvent(this.__textarea.value);
             },
 
-            __cancelBtnClickHandler: function (event) {
+            __cancelBtnClickHandler: function (evt) {
                 this.triggerEditCancelEvent();
             }
         }).extend(window.AUIGrid.EditRendererBase);
@@ -107,6 +107,8 @@
 
         gridControls: [],
         gridCodeDatas: [],
+        nowHeaderMenuVisible: false,
+        currentDataField: null,
         gridOptions: {
             headerHeight: 40,
             rowHeight: 40,
@@ -227,10 +229,61 @@
                         }
 
                         if (gridHookEvents.indexOf('pasteBegin') == -1) {
-                            AUIGrid.bind(gridID, 'pasteBegin', function (event) {
+                            AUIGrid.bind(gridID, 'pasteBegin', function (evt) {
                                 if ($string.toBoolean(setting.isClipboardPaste) == false) {
                                     return false;
                                 }
+                            });
+                        }
+
+                        if (gridHookEvents.indexOf('contextMenu') == -1) {
+                            var contextEL = document.createElement('ul');
+                            contextEL.id = 'auigridHeaderContextMenu';
+                            contextEL.className = 'aui-grid-context-ui-menu';
+                            contextEL.style.cssText = 'position: absolute; display: none; z-index: 100; padding: 16px;';
+
+                            var li1 = document.createElement('li');
+                            li1.id = 'headerItem1';
+                            li1.textContent = '오름 차순 정렬';
+                            contextEL.appendChild(li1);
+
+                            var li2 = document.createElement('li');
+                            li2.id = 'headerItem2';
+                            li2.textContent = '내림 차순 정렬';
+                            contextEL.appendChild(li2);
+
+                            var li3 = document.createElement('li');
+                            li3.id = 'headerItem3';
+                            li3.textContent = '정렬 초기화';
+                            contextEL.appendChild(li3);
+
+                            contextEL.appendChild(document.createElement('li'));
+
+                            var li4 = document.createElement('li');
+                            li4.id = 'headerItem4';
+                            li4.textContent = '현재 칼럼 숨기기';
+                            contextEL.appendChild(li4);
+
+                            var li5 = document.createElement('li');
+                            li5.id = 'headerItem5';
+                            li5.textContent = '모든 칼럼 보이기';
+                            contextEL.appendChild(li5);
+
+                            var li6 = document.createElement('li');
+                            li6.id = 'headerItem6';
+                            li6.textContent = '메뉴 닫기';
+                            contextEL.appendChild(li6);
+
+                            document.body.appendChild(contextEL);
+
+                            AUIGrid.bind(gridID, 'contextMenu', $auigrid.contextEventHandler);
+
+                            AUIGrid.bind(gridID, 'vScrollChange', function (evt) {
+                                $auigrid.hideContextMenu();
+                            });
+
+                            AUIGrid.bind(gridID, 'hScrollChange', function (evt) {
+                                $auigrid.hideContextMenu();
                             });
                         }
                     }
@@ -414,12 +467,12 @@
                             }
 
                             columnInfo.editRenderer = {
-                                type: "CustomEditRenderer",
+                                type: 'CustomEditRenderer',
                                 jsClass: AUIGrid.TextareaEditor,
                                 vPosition: 'top',
                                 extraProps: {
-                                    confirm: "확 인(Ctrl+Enter)",
-                                    cancel: "취 소(Esc)"
+                                    confirm: '확인 (Ctrl + Enter)',
+                                    cancel: '취소 (Esc)'
                                 }
                             }
 
@@ -696,6 +749,66 @@
                     }
                 }
             }
+        },
+
+        hideContextMenu() {
+            if ($auigrid.nowHeaderMenuVisible) {
+                $('#auigridHeaderContextMenu').menu('destroy');
+                $('#auigridHeaderContextMenu').hide();
+                $auigrid.nowHeaderMenuVisible = false;
+            }
+        },
+
+        contextEventHandler(evt) {
+            if ($auigrid.nowHeaderMenuVisible) {
+                $auigrid.hideContextMenu();
+            }
+
+            if (evt.target == 'header') {
+                $auigrid.nowHeaderMenuVisible = true;
+                $auigrid.currentDataField = evt.dataField.replaceAll(',', '_');
+                
+                $("#auigridHeaderContextMenu").attr('context', JSON.stringify(evt));
+                $('#auigridHeaderContextMenu').menu({
+                    select: $auigrid.headerMenuSelectHandler
+                });
+
+                $('#auigridHeaderContextMenu').css({
+                    left: evt.pageX,
+                    top: evt.pageY
+                }).show();
+
+            } else if (evt.target == 'body') {
+                return true;
+            }
+        },
+
+        headerMenuSelectHandler(evt, ui) {
+            var context = JSON.parse($('#auigridHeaderContextMenu').attr('context'));
+            var gridID = context.pid;
+            var selectedId = ui.item.prop('id');
+
+            switch (selectedId) {
+                case 'headerItem1':
+                    AUIGrid.setSorting(gridID, [{ dataField: $auigrid.currentDataField, sortType: 1 }]);
+                    break;
+                case 'headerItem2':
+                    AUIGrid.setSorting(gridID, [{ dataField: $auigrid.currentDataField, sortType: -1 }]);
+                    break;
+                case 'headerItem3':
+                    AUIGrid.clearSortingAll(gridID);
+                    break;
+                case 'headerItem4':
+                    AUIGrid.hideColumnByDataField(gridID, $auigrid.currentDataField);
+                    break;
+                case 'headerItem5':
+                    AUIGrid.showAllColumns(gridID);
+                    $('#headerItemUL span.ui-icon[data]').addClass('ui-icon-check')
+                        .removeClass('ui-icon-blank');
+                    break;
+            }
+
+            $auigrid.hideContextMenu();
         },
 
         propToCol(elID, columnName) {
@@ -976,6 +1089,10 @@
         insertRow(elID, setting, callback) {
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
+                if ($object.isObject(setting) == false || $object.isArray(setting) == true) {
+                    setting = {};
+                }
+
                 setting = syn.$w.argumentsExtend({
                     values: {},
                     index: 'last',
@@ -1020,7 +1137,6 @@
 
                 var triggerOptions = syn.$w.getTriggerOptions(elID);
                 if (triggerOptions) {
-                    debugger;
                     if (triggerOptions.sourceValueID && triggerOptions.targetColumnID) {
                         var mod = window[syn.$w.pageScript];
                         if (mod) {
@@ -1075,11 +1191,6 @@
                                 }
                             }
                         }
-                    }
-
-                    if (triggerOptions.focusColumnID) {
-                        var col = hot.propToCol(triggerOptions.focusColumnID);
-                        hot.selectCell(row + (amount - 1), col);
                     }
                 }
 
@@ -1385,6 +1496,7 @@
                             var headers = lines[0].split(columnDelimiter);
                             var bindColumns = [];
                             var columnFields = columns.map(function (item) { return item.dataField; });
+                            var columnTexts = columns.map(function (item) { return item.headerText; })
                             var columnTypes = columns.map(function (item) { return item.dataType; });
                             for (var i = 0; i < headers.length; i++) {
                                 var value = headers[i];
@@ -1392,8 +1504,8 @@
                                 value = value.replace(/["]$/, '');
                                 headers[i] = value;
 
-                                var colIndex = gridSettings.colHeaders.indexOf(value);
-                                if (colIndex == -1) {
+                                var colIndex = columnTexts.indexOf(columnText);
+                                if (columnText !== 'No.' && colIndex == -1) {
                                     syn.$w.alert('올바른 형식의 파일이 아닙니다.\n파일을 확인해주세요.');
                                     return false;
                                 }
@@ -1482,6 +1594,7 @@
                     }
                     else {
                         var columnFields = columns.map(function (item) { return item.dataField; });
+                        var columnTexts = columns.map(function (item) { return item.headerText; })
                         var workbook = XLSX.read(data, { type: 'binary' });
                         var sheet = workbook.Sheets[workbook.SheetNames[0]];
                         var range = XLSX.utils.decode_range(sheet['!ref']);
@@ -1493,13 +1606,13 @@
                             }
 
                             var columnText = cell.v;
-                            var colIndex = gridSettings.colHeaders.indexOf(columnText);
-                            if (colIndex == -1) {
+                            var colIndex = columnTexts.indexOf(columnText);
+                            if (columnText !== 'No.' && colIndex == -1) {
                                 syn.$w.alert('올바른 형식의 파일이 아닙니다.\n파일을 확인해주세요.');
                                 return false;
                             }
 
-                            var columnID = columnFields[colIndex];
+                            var columnID = columnFields[colIndex] || 'No.';
                             cell.v = columnID;
                             cell.h = columnID;
                             cell.w = columnID;
@@ -1517,6 +1630,10 @@
                             dataType: column.dataType
                         };
                     }
+
+                    result = result.filter(function (item) {
+                        return typeof item['No.'] === 'number';
+                    });
 
                     AUIGrid.clearGridData(gridID);
                     $auigrid.setValue(elID, result, metaColumns);
@@ -1598,9 +1715,44 @@
             return result;
         },
 
-        setValue(elID, value, meta) {
+        setValue(elID, value, metaColumns) {
             var gridID = $auigrid.getGridID(elID);
-            if (gridID && value) {
+            if (gridID && value && value.length > 0) {
+                if ($object.isNullOrUndefined(metaColumns) == false) {
+                    var item = value[0];
+                    for (var column in item) {
+                        var isTypeCheck = false;
+                        var metaColumn = metaColumns[column];
+                        if (metaColumn) {
+                            switch (metaColumn.dataType.toLowerCase()) {
+                                case 'string':
+                                    isTypeCheck = item[column] == null || $object.isString(item[column]) || $string.isNumber(item[column]);
+                                    break;
+                                case 'bool':
+                                    isTypeCheck = $string.isNullOrEmpty(item[column]) == true || $object.isBoolean(item[column]);
+                                    break;
+                                case 'number':
+                                case 'int':
+                                    isTypeCheck = $string.isNullOrEmpty(item[column]) == true || $string.isNumber(item[column]) || $object.isNumber(item[column]);
+                                    break;
+                                case 'date':
+                                    isTypeCheck = $string.isNullOrEmpty(item[column]) == true || $object.isDate(item[column]);
+                                    break;
+                                default:
+                                    isTypeCheck = false;
+                                    break;
+                            }
+
+                            if (isTypeCheck == false) {
+                                syn.$l.eventLog('syn.uicontrols.$grid', '바인딩 데이터 타입과 매핑 정의가 다름, 바인딩 ID - "{0}", 타입 - "{1}"'.format(column, metaColumn.dataType), 'Warning');
+                                return;
+                            }
+                        } else {
+                            continue;
+                        }
+                    }
+                }
+
                 AUIGrid.setGridData(gridID, value);
             }
         },

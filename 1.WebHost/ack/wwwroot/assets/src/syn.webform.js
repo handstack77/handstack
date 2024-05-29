@@ -736,6 +736,12 @@
                                 if (synOptions != null) {
                                     options = eval('(' + synOptions + ')');
                                 }
+                                else {
+                                    synOptions = el.parentElement.getAttribute('syn-options') || null;
+                                    if (synOptions != null) {
+                                        options = eval('(' + synOptions + ')');
+                                    }
+                                }
 
                                 if (options && options.triggerConfig) {
                                     triggerConfig = options.triggerConfig;
@@ -753,6 +759,12 @@
                                 var synOptions = el.getAttribute('syn-options') || null;
                                 if (synOptions != null) {
                                     options = eval('(' + synOptions + ')');
+                                }
+                                else {
+                                    synOptions = el.parentElement.getAttribute('syn-options') || null;
+                                    if (synOptions != null) {
+                                        options = eval('(' + synOptions + ')');
+                                    }
                                 }
 
                                 if (options && options.triggerConfig) {
@@ -986,7 +998,7 @@
                 var isContinue = true;
 
                 var defaultParams = {
-                    args: [],
+                    arguments: [],
                     options: {}
                 };
 
@@ -1027,10 +1039,10 @@
                         el.setAttribute('triggerOptions', JSON.stringify(triggerConfig.params.options));
 
                         if (triggerConfig.action.indexOf('$') > -1) {
-                            $array.addAt(triggerConfig.params.args, 0, triggerConfig.triggerID);
+                            $array.addAt(triggerConfig.params.arguments, 0, triggerConfig.triggerID);
                         }
 
-                        triggerResult = trigger.apply(el, triggerConfig.params.args);
+                        triggerResult = trigger.apply(el, triggerConfig.params.arguments);
                         if ($this.hook.afterTrigger) {
                             $this.hook.afterTrigger(null, triggerConfig.action, {
                                 elID: triggerConfig.triggerID,

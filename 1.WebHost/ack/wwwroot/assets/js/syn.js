@@ -1,4 +1,4 @@
-/*!
+﻿/*!
 HandStack Javascript Library v1.0.0
 https://syn.handshake.kr
 
@@ -3393,6 +3393,9 @@ globalRoot.syn = syn;
         addAt(arr, index, val) {
             if (index <= arr.length - 1) {
                 arr.splice(index, 0, val);
+            }
+            else {
+                arr.push(val);
             }
             return arr;
         },
@@ -7035,7 +7038,7 @@ globalRoot.syn = syn;
                 var isContinue = true;
 
                 var defaultParams = {
-                    args: [],
+                    arguments: [],
                     options: {}
                 };
 
@@ -7076,10 +7079,10 @@ globalRoot.syn = syn;
                         el.setAttribute('triggerOptions', JSON.stringify(triggerConfig.params.options));
 
                         if (triggerConfig.action.indexOf('$') > -1) {
-                            $array.addAt(triggerConfig.params.args, 0, triggerConfig.triggerID);
+                            $array.addAt(triggerConfig.params.arguments, 0, triggerConfig.triggerID);
                         }
 
-                        triggerResult = trigger.apply(el, triggerConfig.params.args);
+                        triggerResult = trigger.apply(el, triggerConfig.params.arguments);
                         if ($this.hook.afterTrigger) {
                             $this.hook.afterTrigger(null, triggerConfig.action, {
                                 elID: triggerConfig.triggerID,
