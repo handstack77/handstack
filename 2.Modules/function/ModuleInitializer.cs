@@ -400,12 +400,12 @@ namespace function
                                 RestResponse response = await client.ExecuteAsync(request);
                                 if (response.StatusCode != HttpStatusCode.OK)
                                 {
-                                    Log.Error($"{filePath} 파일 갱신 확인 필요. {response.Content.ToStringSafe()}");
+                                    Log.Error("[{LogCategory}] " + $"{filePath} 파일 갱신 확인 필요. {response.Content.ToStringSafe()}", $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
                                 }
                             }
                             catch (Exception exception)
                             {
-                                Log.Error(exception, $"{filePath} 파일 서버 확인 필요");
+                                Log.Error(exception, "[{LogCategory}] " + $"{filePath} 파일 서버 확인 필요.", $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
                             }
                         }
                     };
@@ -434,12 +434,12 @@ namespace function
                                 RestResponse response = await client.ExecuteAsync(request);
                                 if (response.StatusCode != HttpStatusCode.OK)
                                 {
-                                    Log.Error($"{filePath} 파일 갱신 확인 필요. {response.Content.ToStringSafe()}");
+                                    Log.Error("[{LogCategory}] " + $"{filePath} 파일 갱신 확인 필요. {response.Content.ToStringSafe()}", $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
                                 }
                             }
                             catch (Exception exception)
                             {
-                                Log.Error(exception, $"{filePath} 파일 서버 확인 필요");
+                                Log.Error(exception, "[{LogCategory}] " + $"{filePath} 파일 서버 확인 필요.", $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
                             }
                         }
                     };

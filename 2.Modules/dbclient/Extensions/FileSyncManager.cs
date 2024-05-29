@@ -91,6 +91,7 @@ namespace dbclient.Extensions
                         {
                             MonitoringFile?.Invoke(watcherChangeTypes, new FileInfo(filePath));
                         }
+                        Thread.Sleep(100);
                     }
                 }
                 else

@@ -80,19 +80,6 @@ namespace prompter
                         ModuleConfiguration.IsLogServer = moduleConfig.IsLogServer;
                         ModuleConfiguration.LogServerUrl = moduleConfig.LogServerUrl;
 
-                        foreach (var basePath in moduleConfig.ContractBasePath)
-                        {
-                            ModuleConfiguration.ContractBasePath.Add(GlobalConfiguration.GetBasePath(basePath));
-                        }
-
-                        ModuleConfiguration.IsTransactionLogging = moduleConfig.IsTransactionLogging;
-                        ModuleConfiguration.ModuleLogFilePath = string.IsNullOrEmpty(moduleConfig.ModuleLogFilePath) == true ? "transaction.log" : new FileInfo(moduleConfig.ModuleLogFilePath).FullName;
-                        if (ModuleConfiguration.IsTransactionLogging == true)
-                        {
-                            var loggerConfiguration = CreateLoggerConfiguration(ModuleConfiguration.ModuleLogFilePath);
-                            ModuleConfiguration.ModuleLogger = loggerConfiguration.CreateLogger();
-                        }
-
                         ModuleConfiguration.LLMSource.Clear();
                         if (moduleConfig.LLMSource != null && moduleConfig.LLMSource.Count > 0)
                         {
@@ -235,12 +222,12 @@ namespace prompter
                                 RestResponse response = await client.ExecuteAsync(request);
                                 if (response.StatusCode != HttpStatusCode.OK)
                                 {
-                                    Log.Error($"{filePath} 파일 갱신 확인 필요. {response.Content.ToStringSafe()}");
+                                    Log.Error("[{LogCategory}] " + $"{filePath} 파일 갱신 확인 필요. {response.Content.ToStringSafe()}", $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
                                 }
                             }
                             catch (Exception exception)
                             {
-                                Log.Error(exception, $"{filePath} 파일 서버 확인 필요");
+                                Log.Error(exception, "[{LogCategory}] " + $"{filePath} 파일 서버 확인 필요.", $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
                             }
                         }
                     };
