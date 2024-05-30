@@ -42,7 +42,7 @@ let $AGD010 = {
     },
 
     transaction: {
-        GD01: {
+        LD01: {
             inputs: [{ type: 'Row', dataFieldID: 'MainForm' }],
             outputs: [{ type: 'Grid', dataFieldID: 'DataList' }]
         }
@@ -68,18 +68,17 @@ let $AGD010 = {
 
             syn.uicontrols.$auigrid.setFooter('grdDataList', footerLayout);
 
-            // /js/auigrid/samples/data/normal_100.json
-            syn.$w.loadJson('data.json', null, function (setting, json) {
-                if (json) {
-                    syn.uicontrols.$auigrid.setValue('grdDataList', json);
-                }
-            });
+            // syn.$w.loadJson('data.json', null, function (setting, json) {
+            //     if (json) {
+            //         syn.uicontrols.$auigrid.setValue('grdDataList', json);
+            //     }
+            // });
         }
     },
 
     event: {
         btnSearch_click() {
-            syn.$w.transactionAction('GD01');
+            syn.$w.transactionAction('LD01');
         },
 
         grdDataList_cellClick(evt) {

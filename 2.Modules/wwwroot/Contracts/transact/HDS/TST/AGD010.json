@@ -1,0 +1,35 @@
+{
+    "ApplicationID": "HDS",
+    "ProjectID": "TST",
+    "TransactionID": "AGD010",
+    "Comment": "AUIGrid 확인용 거래",
+    "Services": [
+        {
+            "ServiceID": "LD01",
+            "Authorize": false,
+            "ReturnType": "Json",
+            "CommandType": "R",
+            "TransactionScope": false,
+            "Inputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [],
+                    "TestValues": [],
+                    "DefaultValues": [],
+                    "Type": "Row",
+                    "BaseFieldMappings": [],
+                    "ParameterHandling": "Rejected"
+                }
+            ],
+            "Outputs": [
+                {
+                    "ModelID": "Dynamic",
+                    "Fields": [
+                    ],
+                    "Type": "Grid"
+                }
+            ]
+        }
+    ],
+    "Models": []
+}

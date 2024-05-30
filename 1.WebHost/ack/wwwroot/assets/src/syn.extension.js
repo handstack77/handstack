@@ -695,7 +695,7 @@
                         result = $string.toBoolean(val);
                         break;
                     case 'number':
-                    case 'int':
+                    case 'numeric':
                         result = $object.isNullOrUndefined(val) == true ? null : $string.isNumber(val) == true ? $string.toNumber(val) : null;
                         break;
                     case 'date':
@@ -1175,7 +1175,7 @@
                     return false;
                 case 'function': return function () { };
                 case 'null': return null;
-                case 'int':
+                case 'numeric':
                 case 'number':
                     return 0;
                 case 'object': return {};

@@ -3340,7 +3340,7 @@
                             dataType = 'bool';
                             break;
                         case 'numeric':
-                            dataType = 'int';
+                            dataType = 'numeric';
                             break;
                         case 'date':
                             dataType = 'string';
@@ -3508,7 +3508,7 @@
                                         isTypeCheck = $string.isNullOrEmpty(item[column]) == true || $object.isBoolean(item[column]);
                                         break;
                                     case 'number':
-                                    case 'int':
+                                    case 'numeric':
                                         isTypeCheck = $string.isNullOrEmpty(item[column]) == true || $string.isNumber(item[column]) || $object.isNumber(item[column]);
                                         break;
                                     case 'date':
@@ -3674,6 +3674,62 @@
 
         clear(elID, isControlLoad) {
             $grid.loadData(elID, []);
+        },
+
+        setTransactionBelongID(elID, belongFlow, transactConfig) {
+            var el = syn.$l.get(elID + '_hidden') || syn.$l.get(elID);
+            var synOptions = JSON.parse(el.getAttribute('syn-options'));
+
+            if (synOptions == null) {
+                return;
+            }
+
+            for (var k = 0; k < synOptions.columns.length; k++) {
+                var column = synOptions.columns[k];
+                var dataType = 'string'
+                switch (column.columnType) {
+                    case 'checkbox':
+                        dataType = 'bool';
+                        break;
+                    case 'numeric':
+                        dataType = 'numeric';
+                        break;
+                    case 'number':
+                        dataType = 'number';
+                        break;
+                    case 'date':
+                        dataType = 'date';
+                        break;
+                }
+
+                if ($object.isNullOrUndefined(transactConfig) == true) {
+                    belongFlow.items[column.data] = {
+                        fieldID: column.data,
+                        dataType: dataType
+                    };
+                }
+                else {
+                    var isBelong = false;
+                    if (column.data == 'Flag') {
+                        isBelong = true;
+                    }
+                    else if (column.belongID) {
+                        if ($object.isString(column.belongID) == true) {
+                            isBelong = transactConfig.functionID == column.belongID;
+                        }
+                        else if ($object.isArray(column.belongID) == true) {
+                            isBelong = column.belongID.indexOf(transactConfig.functionID) > -1;
+                        }
+                    }
+
+                    if (isBelong == true) {
+                        belongFlow.items[column.data] = {
+                            fieldID: column.data,
+                            dataType: dataType
+                        };
+                    }
+                }
+            }
         },
 
         checkEditValue(elID) {

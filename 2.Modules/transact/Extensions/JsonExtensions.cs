@@ -86,7 +86,7 @@ namespace transact.Extensions
                 case "Decimal":
                 case "Double":
                 case "Single":
-                    result = "number";
+                    result = "numeric";
                     break;
                 case "Int16":
                 case "Int32":
@@ -94,7 +94,7 @@ namespace transact.Extensions
                 case "UInt16":
                 case "UInt32":
                 case "UInt64":
-                    result = "int";
+                    result = "number";
                     break;
                 default:
                     result = "string";
