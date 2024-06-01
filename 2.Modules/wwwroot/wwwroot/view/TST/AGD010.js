@@ -92,7 +92,7 @@ let $AGD010 = {
 
         grdDataList_cellEditEndBefore(evt) {
             if (evt.dataField == "원하는 필드명" && evt.isClipboard == true) {
-                
+
             }
             return evt.value;
         },
