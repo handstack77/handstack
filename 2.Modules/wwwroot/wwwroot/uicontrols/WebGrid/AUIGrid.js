@@ -142,6 +142,17 @@
             displayTreeOpen: false,
             simplifySelectionEvent: true,
             softRemoveRowMode: false,
+            allowClipboardPaste: false,
+            applyRestPercentWidth: true,
+            copyDisplayFunction: (rowIndex, columnIndex, value, item, columnItem) => {
+                if (columnItem.editRenderer && (columnItem.editRenderer.type == 'DropDownListRenderer'
+                    || columnItem.columnType == 'password'
+                )) {
+                    return true;
+                }
+                return false;
+            },
+            rowNumHeaderText: '',
             noDataMessage: '',
             groupingMessage: '여기에 컬럼을 드래그하면 그룹핑이 됩니다.',
             rowStyleFunction: (rowIndex, item) => {
@@ -183,14 +194,21 @@
             }
 
             setting.width = setting.width || '100%';
-            setting.height = setting.height || '100%';
+            if ($object.isNumber(setting.width) == true) {
+                setting.width = setting.width + 'px';
+            }
+
+            setting.height = setting.height || '480px';
+            if ($object.isNumber(setting.height) == true) {
+                setting.height = setting.height + 'px';
+            }
 
             el.setAttribute('id', el.id + '_hidden');
             el.setAttribute('syn-options', JSON.stringify(setting));
             el.style.display = 'none';
 
             var dataField = el.getAttribute('syn-datafield');
-            var html = '<div id="{0}" syn-datafield="{1}"></div>'.format(elID, dataField);
+            var html = `<div id="{0}" syn-datafield="{1}" class="syn-auigrid" style="width:${setting.width};height:${setting.height};"></div>`.format(elID, dataField);
 
             var parent = el.parentNode;
             var wrapper = document.createElement('div');
@@ -215,7 +233,7 @@
 
             if (mod) {
                 // https://www.auisoft.net/documentation/auigrid/DataGrid/Events.html
-                var gridHookEvents = el.getAttribute('syn-events');
+                var gridHookEvents = el.getAttribute('syn-events') || [];
                 try {
                     if (gridHookEvents) {
                         gridHookEvents = eval(gridHookEvents);
@@ -230,8 +248,35 @@
 
                         if (gridHookEvents.indexOf('pasteBegin') == -1) {
                             AUIGrid.bind(gridID, 'pasteBegin', function (evt) {
-                                if ($string.toBoolean(setting.isClipboardPaste) == false) {
+                                if ($string.toBoolean(setting.allowClipboardPaste) == false) {
                                     return false;
+                                }
+                            });
+                        }
+
+                        if (gridHookEvents.indexOf('cellEditEnd') == -1) {
+                            AUIGrid.bind(gridID, 'cellEditEnd', function (evt) {
+                                var gridID = evt.pid;
+                                var dataField = evt.dataField;
+                                var value = evt.value;
+
+                                var columns = AUIGrid.getColumnInfoList(gridID);
+                                var columnInfo = columns.find((item) => { return item.dataField == dataField });
+                                if (columnInfo && columnInfo.columnType == 'dropdown' && $string.isNullOrEmpty(columnInfo.codeColumnID) == false) {
+                                    var rowIndex = AUIGrid.getSelectedIndex(gridID)[0];
+                                    if (rowIndex != null && rowIndex > -1) {
+                                        var storeSourceID = columnInfo.storeSourceID || columnInfo.dataSourceID;
+                                        if (storeSourceID) {
+                                            var mod = window[syn.$w.pageScript];
+                                            if (mod.config && mod.config.dataSource) {
+                                                var keyValueList = mod.config.dataSource[storeSourceID] ? mod.config.dataSource[storeSourceID].DataSource : [];
+                                                var keyValue = keyValueList.find((item) => { return item.CodeID == value });
+                                                if (keyValue) {
+                                                    AUIGrid.setCellValue(gridID, rowIndex, columnInfo.codeColumnID, keyValue.CodeID);
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             });
                         }
@@ -309,7 +354,7 @@
 
         // columns = [{
         //    0 columnID: '',
-        //    1 columnName: '',
+        //    1 columnText: '',
         //    2 width: '',
         //    3 isHidden: '',
         //    4 columnType: '',
@@ -328,7 +373,7 @@
                 var column = columns[i];
 
                 var columnID = column[0];
-                var columnName = column[1];
+                var columnText = column[1];
                 var width = column[2];
                 var isHidden = column[3];
                 var columnType = column[4];
@@ -340,7 +385,7 @@
                 var columnInfo = {
                     elID: elID,
                     dataField: columnID,
-                    headerText: columnName,
+                    headerText: columnText,
                     columnType: columnType,
                     width: width,
                     filter: {
@@ -445,12 +490,19 @@
                             }
                             break;
                         case 'password':
-                            columnInfo.editRenderer = {
+                            var editRenderer = {
                                 type: 'InputEditRenderer',
                                 showEditorBtn: false,
                                 showEditorBtnOver: true,
-                                passwordMode: true,
+                                passwordMode: false,
                                 regExp: '^[a-zA-Z0-9\\s,.~!@#$%^&*()[\\]{}<>`\'":;|+\\-\\/\\\\]+$'
+                            }
+
+                            columnInfo.editRenderer = {
+                                type: 'ConditionRenderer',
+                                conditionFunction: function (rowIndex, columnIndex, value, item, dataField) {
+                                    return editRenderer;
+                                }
                             }
 
                             columnInfo.labelFunction = (rowIndex, columnIndex, value, headerText, item) => {
@@ -516,7 +568,7 @@
                                     var mod = window[syn.$w.pageScript];
                                     var eventHandler = mod.event['{0}_cellButtonClick'.format(columnInfo.elID)];
                                     if (eventHandler) {
-                                        eventHandler(evt.dataField, evt.rowIndex, evt.columnIndex, evt.text, evt.item);
+                                        eventHandler(columnInfo.elID, evt.rowIndex, evt.columnIndex, evt.dataField, evt.item);
                                     }
                                 }
                             }
@@ -562,8 +614,9 @@
                                 if (storeSourceID) {
                                     var keyValueList = $this.config.dataSource[storeSourceID] ? $this.config.dataSource[storeSourceID].DataSource : [];
                                     for (var i = 0, len = keyValueList.length; i < len; i++) {
-                                        if (keyValueList[i]['CodeID'] == value) {
-                                            result = keyValueList[i]['CodeValue'];
+                                        var keyValue = keyValueList[i];
+                                        if (keyValue['CodeID'] == value) {
+                                            result = keyValue['CodeValue'];
                                             break;
                                         }
                                     }
@@ -573,7 +626,6 @@
 
                             columnInfo.editRenderer = {
                                 type: 'DropDownListRenderer',
-                                autoCompleteMode: true,
                                 easyMode: true,
                                 showEditorBtn: false,
                                 showEditorBtnOver: true,
@@ -583,9 +635,10 @@
                                 valueField: 'CodeValue',
                                 validator: function (oldValue, newValue, item, dataField, fromClipboard, which) {
                                     var isValid = false;
+                                    debugger;
                                     var storeSourceID = this.storeSourceID || this.dataSourceID;
                                     if (storeSourceID) {
-                                        var keyValueList = $this.config.dataSource[codeColumnID] ? $this.config.dataSource[codeColumnID].DataSource : [];
+                                        var keyValueList = $this.config.dataSource[dataField] ? $this.config.dataSource[dataField].DataSource : [];
                                         for (var i = 0, len = keyValueList.length; i < len; i++) {
                                             if (keyValueList[i]['CodeValue'] == newValue) {
                                                 isValid = true;
@@ -688,8 +741,7 @@
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
                 var defaultSetting = {
-                    columnName: null,
-                    codeColumnID: null,
+                    dataField: null,
                     required: true,
                     local: true,
                     dataSourceID: null,
@@ -703,7 +755,7 @@
                 setting.elID = elID;
                 setting.storeSourceID = setting.storeSourceID || setting.dataSourceID;
 
-                if (setting.columnName && setting.storeSourceID) {
+                if (setting.dataField && setting.storeSourceID) {
                     var mod = window[syn.$w.pageScript];
                     if (mod.config && mod.config.dataSource && mod.config.dataSource[setting.storeSourceID]) {
                         delete mod.config.dataSource[setting.storeSourceID];
@@ -720,7 +772,7 @@
                     }
 
                     var columnInfos = AUIGrid.getColumnInfoList(gridID);
-                    var colIndex = $auigrid.propToCol(elID, setting.columnName);
+                    var colIndex = $auigrid.propToCol(elID, setting.dataField);
                     var columnInfo = columnInfos[colIndex];
                     if (columnInfo.columnType == 'dropdown') {
                         if (setting.local == true) {
@@ -992,11 +1044,11 @@
             }
         },
 
-        getColumnSize(elID, columnName) {
+        getColumnSize(elID, dataField) {
             var result = -1;
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
-                result = AUIGrid.getColumnIndexByDataField(gridID, columnName);
+                result = AUIGrid.getColumnIndexByDataField(gridID, dataField);
             }
 
             return result;
@@ -1066,6 +1118,13 @@
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
                 AUIGrid.setSelectionByIndex(gridID, $string.toNumber(rowIndex), $string.toNumber(colIndex));
+            }
+        },
+
+        clearSelection(elID) {
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                AUIGrid.clearSelection(gridID);
             }
         },
 
@@ -1832,6 +1891,35 @@
             return result;
         },
 
+        getColumnInfo(elID, dataField) {
+            var result = null;
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                if ($object.isNumber(dataField) == true) {
+                    dataField = AUIGrid.getDataFieldByColumnIndex(gridID, dataField);
+                }
+
+                var columns = AUIGrid.getColumnInfoList(gridID);
+                result = columns.find((item) => { return item.dataField == dataField });
+            }
+
+            return result;
+        },
+
+        getColumnLayout(elID) {
+            var result = null;
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                result = AUIGrid.getColumnLayout(gridID);
+            }
+
+            return result;
+        },
+
+        getDataAtCol(elID, dataField, total) {
+            return $auigrid.getColumnValues(elID, dataField, total);
+        },
+
         getColumnValues(elID, dataField, total) {
             var result = null;
             var gridID = $auigrid.getGridID(elID);
@@ -1922,6 +2010,10 @@
             return result;
         },
 
+        getDataAtCell(elID, rowIndex, dataField) {
+            return $auigrid.getCellValue(elID, rowIndex, dataField);
+        },
+
         getCellValue(elID, rowIndex, dataField) {
             var result = null;
             var gridID = $auigrid.getGridID(elID);
@@ -1959,12 +2051,16 @@
             return result;
         },
 
-        setCellValue(elID, dataField, value) {
+        setDataAtCell(elID, rowIndex, dataField, value) {
+            $auigrid.setCellValue(elID, rowIndex, dataField, value);
+        },
+
+        setCellValue(elID, rowIndex, dataField, value) {
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
                 AUIGrid.forceEditingComplete(gridID, null, false);
 
-                AUIGrid.setCellValue(gridID, dataField, value);
+                AUIGrid.setCellValue(gridID, rowIndex, dataField, value);
             }
         },
 
@@ -2129,6 +2225,44 @@
             return result;
         },
 
+        getGridData(elID, options) {
+            var result = null;
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                var defaultOptions = {
+                    stateField: null,
+                    added: 'C',
+                    removed: 'D',
+                    edited: 'U',
+                }
+
+                options = syn.$w.argumentsExtend(defaultOptions, options);
+
+                if ($string.isNullOrEmpty(options.stateField) == true) {
+                    options.stateField = 'Flag';
+                }
+
+                result = AUIGrid.getGridDataWithState(gridID, options.stateField, options);
+
+                var removedRowItems = AUIGrid.getRemovedItems(gridID);
+                for (var i = 0, length = removedRowItems.length; i < length; i++) {
+                    removedRowItems[i].Flag = 'D';
+                }
+                
+                var result = result.concat(removedRowItems);
+
+                for (var i = 0, length = result.length; i < length; i++) {
+                    var item = result[i];
+                    var flagField = item[options.stateField];
+                    if ($object.isNullOrUndefined(flagField) == true) {
+                        item[options.stateField] = '';
+                    }
+                }
+            }
+
+            return result;
+        },
+
         checkUniqueValueCol(elID, dataField, total) {
             var result = true;
             var gridID = $auigrid.getGridID(elID);
@@ -2138,7 +2272,7 @@
                 if ($object.isNumber(dataField) == true) {
                     dataField = $auigrid.colToProp(elID, dataField);
                 }
-
+                total = total || true;
                 var columnValues = AUIGrid.getColumnValues(gridID, dataField, $string.toBoolean(total));
                 result = !columnValues.filter(function (row, index) { return (columnValues.indexOf(row) !== index) }).length > 0
             }
@@ -2342,7 +2476,7 @@
                             addedRowItems[i].Flag = 'C';
                         }
 
-                        var rowDatas = items.concat(removedRowItems, editedRowItems, addedRowItems)
+                        var rowDatas = items.concat(removedRowItems, editedRowItems, addedRowItems);
                         var length = rowDatas.length;
 
                         for (var rowIndex = 0; rowIndex < length; rowIndex++) {

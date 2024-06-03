@@ -2102,6 +2102,15 @@
     font-size: 14px;
 }
 
+.aui-grid-body-panel .aui-grid-table tr td {
+    border-bottom: 1px solid #cccccc;
+}
+
+.aui-grid {
+    background: #f6f8fb;
+    border: 0;
+}
+
 /* jQuery UI Menu 스타일 재정의 */
 .ui-menu {
     width: 160px;
@@ -2115,5 +2124,6 @@
 }
 
 .syn-auigrid {
-    color: #000;
+    margin: 0;
+    padding: 0;
 }
