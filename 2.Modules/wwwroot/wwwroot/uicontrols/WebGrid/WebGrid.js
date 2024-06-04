@@ -3684,8 +3684,8 @@
                 return;
             }
 
-            for (var k = 0; k < synOptions.columns.length; k++) {
-                var column = synOptions.columns[k];
+            for (var i = 0; i < synOptions.columns.length; i++) {
+                var column = synOptions.columns[i];
                 var dataType = 'string'
                 switch (column.columnType) {
                     case 'checkbox':

@@ -2123,6 +2123,14 @@
     padding: 0.2em;
 }
 
+.column-readonly {
+    background-color: rgba(var(--tblr-muted-rgb), 0.1) !important;
+}
+
+.column-important {
+    background-color: rgba(var(--tblr-yellow-rgb), 0.1) !important;
+}
+
 .syn-auigrid {
     margin: 0;
     padding: 0;

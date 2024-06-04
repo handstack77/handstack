@@ -198,7 +198,7 @@
                 setting.width = setting.width + 'px';
             }
 
-            setting.height = setting.height || '480px';
+            setting.height = setting.height || '240px';
             if ($object.isNumber(setting.height) == true) {
                 setting.height = setting.height + 'px';
             }
@@ -254,29 +254,50 @@
                             });
                         }
 
-                        if (gridHookEvents.indexOf('cellEditEnd') == -1) {
-                            AUIGrid.bind(gridID, 'cellEditEnd', function (evt) {
+                        if (gridHookEvents.indexOf('cellEditEndBefore') == -1) {
+                            AUIGrid.bind(gridID, 'cellEditEndBefore', function (evt) {
                                 var gridID = evt.pid;
+                                var rowIndex = evt.rowIndex;
+                                var columnIndex = evt.columnIndex;
                                 var dataField = evt.dataField;
-                                var value = evt.value;
+                                var item = evt.item;
+                                var oldValue = evt.oldValue;
+                                var newValue = evt.value;
 
                                 var columns = AUIGrid.getColumnInfoList(gridID);
                                 var columnInfo = columns.find((item) => { return item.dataField == dataField });
-                                if (columnInfo && columnInfo.columnType == 'dropdown' && $string.isNullOrEmpty(columnInfo.codeColumnID) == false) {
-                                    var rowIndex = AUIGrid.getSelectedIndex(gridID)[0];
-                                    if (rowIndex != null && rowIndex > -1) {
+                                if (columnInfo && columnInfo.columnType == 'dropdown' && $string.isNullOrEmpty(columnInfo.nameColumnID) == false) {
+                                    if (rowIndex > -1) {
                                         var storeSourceID = columnInfo.storeSourceID || columnInfo.dataSourceID;
                                         if (storeSourceID) {
-                                            var mod = window[syn.$w.pageScript];
                                             if (mod.config && mod.config.dataSource) {
                                                 var keyValueList = mod.config.dataSource[storeSourceID] ? mod.config.dataSource[storeSourceID].DataSource : [];
-                                                var keyValue = keyValueList.find((item) => { return item.CodeID == value });
+                                                var keyValue = keyValueList.find((item) => { return item.CodeID == newValue });
                                                 if (keyValue) {
-                                                    AUIGrid.setCellValue(gridID, rowIndex, columnInfo.codeColumnID, keyValue.CodeID);
+                                                    AUIGrid.setCellValue(gridID, rowIndex, columnInfo.nameColumnID, keyValue.CodeValue);
                                                 }
                                             }
                                         }
                                     }
+                                }
+
+                                return newValue;
+                            });
+                        }
+
+                        if (gridHookEvents.indexOf('cellEditEnd') == -1) {
+                            AUIGrid.bind(gridID, 'cellEditEnd', function (evt) {
+                                var eventHandler = mod.event ? mod.event['{0}_{1}'.format(elID, 'afterChange')] : null;
+                                if (eventHandler) {
+                                    var gridID = evt.pid;
+                                    var rowIndex = evt.rowIndex;
+                                    var columnIndex = evt.columnIndex;
+                                    var dataField = evt.dataField;
+                                    var oldValue = evt.oldValue;
+                                    var newValue = evt.value;
+                                    var item = evt.item;
+
+                                    eventHandler(elID, rowIndex, columnIndex, dataField, oldValue, newValue, item);
                                 }
                             });
                         }
@@ -368,6 +389,11 @@
             var columns = settings.columns;
             var result = [];
 
+            var flagColumn = columns.find(function (item) { return item.dataField == 'Flag'; });
+            if (flagColumn == null) {
+                columns.unshift(['Flag', 'Flag', 60, true, 'text', true, 'left']);
+            }
+
             var length = columns.length;
             for (var i = 0; i < length; i++) {
                 var column = columns[i];
@@ -401,7 +427,10 @@
 
                 if (options) {
                     for (var option in options) {
-                        if (option == 'validators' || option == '') {
+                        if (columnInfo[option] || option == 'validators' || option == '') {
+                            if (option == 'style') {
+                                columnInfo[option] = columnInfo[option] + ' ' + options[option];
+                            }
                             continue;
                         }
 
@@ -556,7 +585,7 @@
                                     if (eventHandler) {
                                         var gridID = $auigrid.getGridID(columnInfo.elID);
                                         var dataField = AUIGrid.getDataFieldByColumnIndex(gridID, columnIndex);
-                                        eventHandler(dataField, rowIndex, columnIndex, value, item);
+                                        eventHandler(columnInfo.elID, rowIndex, columnIndex, dataField, value, item);
                                     }
                                 }
                             }
@@ -635,7 +664,6 @@
                                 valueField: 'CodeValue',
                                 validator: function (oldValue, newValue, item, dataField, fromClipboard, which) {
                                     var isValid = false;
-                                    debugger;
                                     var storeSourceID = this.storeSourceID || this.dataSourceID;
                                     if (storeSourceID) {
                                         var keyValueList = $this.config.dataSource[dataField] ? $this.config.dataSource[dataField].DataSource : [];
@@ -655,8 +683,8 @@
                                 type: 'CheckBoxEditRenderer',
                                 showLabel: false,
                                 editable: true,
-                                checkValue: $string.isNullOrEmpty(columnInfo.checkValue) == true ? 'Y' : columnInfo.checkValue,
-                                unCheckValue: $string.isNullOrEmpty(columnInfo.unCheckValue) == true ? 'N' : columnInfo.unCheckValue,
+                                checkValue: $string.isNullOrEmpty(columnInfo.checkValue) == true ? '1' : columnInfo.checkValue,
+                                unCheckValue: $string.isNullOrEmpty(columnInfo.unCheckValue) == true ? '0' : columnInfo.unCheckValue,
                             }
 
                             if ($string.isNullOrEmpty(columnInfo.checkableFunction) == false && eval('typeof ' + columnInfo.checkableFunction) == 'function') {
@@ -957,10 +985,35 @@
             }
         },
 
-        setControlSize(elID, width, height) {
+        setControlSize(elID, size) {
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
-                AUIGrid.resize(gridID, width, height);
+                var el = syn.$l.get(elID);
+                if (el) {
+                    if (size) {
+                        if ($object.isNumber(size.width) == true) {
+                            size.width = size.width + 'px';
+                        }
+
+                        if ($object.isNumber(size.height) == true) {
+                            size.height = size.height + 'px';
+                        }
+
+                        if (size.width) {
+                            el.style.width = size.width;
+                        }
+
+                        if (size.height) {
+                            el.style.height = size.height;
+                        }
+
+                        AUIGrid.resize(gridID, size.width, size.height);
+                    }
+                    else {
+                        AUIGrid.resize(gridID);
+                    }
+                    syn.$w.setTabContentHeight();
+                }
             }
         },
 
@@ -1236,6 +1289,8 @@
 
                     defaultValue[dataField] = value;
                 }
+
+                defaultValue['Flag'] = 'C';
 
                 var triggerOptions = syn.$w.getTriggerOptions(elID);
                 if (triggerOptions) {
@@ -1583,6 +1638,19 @@
             }
 
             return result;
+        },
+
+        setFlag(elID, rowIndex, flagValue) {
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                var colIndex = $auigrid.propToCol(gridID, 'Flag');
+                if (rowIndex > -1 && colIndex > -1) {
+                    var flag = $auigrid.getDataAtCell(rowIndex, colIndex);
+                    if (flag != 'S') {
+                        $auigrid.setDataAtCell(rowIndex, colIndex, flagValue);
+                    }
+                }
+            }
         },
 
         exportToObject(elID, keyValueMode) {
@@ -2248,7 +2316,7 @@
                 for (var i = 0, length = removedRowItems.length; i < length; i++) {
                     removedRowItems[i].Flag = 'D';
                 }
-                
+
                 var result = result.concat(removedRowItems);
 
                 for (var i = 0, length = result.length; i < length; i++) {
@@ -2258,6 +2326,21 @@
                         item[options.stateField] = '';
                     }
                 }
+            }
+
+            return result;
+        },
+
+        checkEditValue(elID) {
+            var result = false;
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                AUIGrid.forceEditingComplete(gridID, null, false);
+
+                var removedRowItems = AUIGrid.getRemovedItems(gridID);
+                var editedRowItems = AUIGrid.getEditedRowItems(gridID);
+                var addedRowItems = AUIGrid.getAddedRowItems(gridID);
+                result = (removedRowItems.length + editedRowItems.length + addedRowItems.length) > 0;
             }
 
             return result;
@@ -2330,7 +2413,7 @@
             if (gridID) {
                 AUIGrid.forceEditingComplete(gridID, null, false);
 
-                var items = AUIGrid.getOrgGridData(elID);
+                var items = AUIGrid.getOrgGridData(gridID);
                 for (var i = 0, length = items.length; i < length; i++) {
                     var item = items[i];
 
@@ -2369,56 +2452,53 @@
         },
 
         setTransactionBelongID(elID, belongFlow, transactConfig) {
-            var el = syn.$l.get(elID + '_hidden') || syn.$l.get(elID);
-            var synOptions = JSON.parse(el.getAttribute('syn-options'));
-
-            if (synOptions == null) {
-                return;
-            }
-
-            for (var k = 0; k < synOptions.columns.length; k++) {
-                var column = synOptions.columns[k];
-                var dataType = 'string'
-                switch (column.columnType) {
-                    case 'checkbox':
-                        dataType = 'bool';
-                        break;
-                    case 'numeric':
-                        dataType = 'numeric';
-                        break;
-                    case 'number':
-                        dataType = 'number';
-                        break;
-                    case 'date':
-                        dataType = 'date';
-                        break;
-                }
-
-                if ($object.isNullOrUndefined(transactConfig) == true) {
-                    belongFlow.items[column.data] = {
-                        fieldID: column.data,
-                        dataType: dataType
-                    };
-                }
-                else {
-                    var isBelong = false;
-                    if (column.data == 'Flag') {
-                        isBelong = true;
-                    }
-                    else if (column.belongID) {
-                        if ($object.isString(column.belongID) == true) {
-                            isBelong = transactConfig.functionID == column.belongID;
-                        }
-                        else if ($object.isArray(column.belongID) == true) {
-                            isBelong = column.belongID.indexOf(transactConfig.functionID) > -1;
-                        }
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                var columns = AUIGrid.getColumnInfoList(gridID);
+                for (var i = 0; i < columns.length; i++) {
+                    var column = columns[i];
+                    var dataType = 'string'
+                    switch (column.columnType) {
+                        case 'checkbox':
+                            dataType = 'bool';
+                            break;
+                        case 'numeric':
+                            dataType = 'numeric';
+                            break;
+                        case 'number':
+                            dataType = 'number';
+                            break;
+                        case 'date':
+                            dataType = 'date';
+                            break;
                     }
 
-                    if (isBelong == true) {
-                        belongFlow.items[column.data] = {
-                            fieldID: column.data,
+                    if ($object.isNullOrUndefined(transactConfig) == true) {
+                        belongFlow.items[column.dataField] = {
+                            fieldID: column.dataField,
                             dataType: dataType
                         };
+                    }
+                    else {
+                        var isBelong = false;
+                        if (column.dataField == 'Flag') {
+                            isBelong = true;
+                        }
+                        else if (column.belongID) {
+                            if ($object.isString(column.belongID) == true) {
+                                isBelong = transactConfig.functionID == column.belongID;
+                            }
+                            else if ($object.isArray(column.belongID) == true) {
+                                isBelong = column.belongID.indexOf(transactConfig.functionID) > -1;
+                            }
+                        }
+
+                        if (isBelong == true) {
+                            belongFlow.items[column.dataField] = {
+                                fieldID: column.dataField,
+                                dataType: dataType
+                            };
+                        }
                     }
                 }
             }

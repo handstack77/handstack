@@ -898,6 +898,10 @@ namespace dbclient.DataClient
                     }
                     else
                     {
+                        if (response.ExceptionText.Length > 600)
+                        {
+                            response.ExceptionText = response.ExceptionText.Substring(0, 600) + "...";
+                        }
                         isCommandError = true;
                         goto TransactionException;
                     }
@@ -1540,6 +1544,10 @@ TransactionException:
                     }
                     else
                     {
+                        if (response.ExceptionText.Length > 600)
+                        {
+                            response.ExceptionText = response.ExceptionText.Substring(0, 600) + "...";
+                        }
                         isCommandError = true;
                         goto TransactionException;
                     }
@@ -2173,6 +2181,10 @@ TransactionException:
                     }
                     else
                     {
+                        if (response.ExceptionText.Length > 600)
+                        {
+                            response.ExceptionText = response.ExceptionText.Substring(0, 600) + "...";
+                        }
                         isCommandError = true;
                         goto TransactionException;
                     }
@@ -2882,6 +2894,10 @@ TransactionException:
                     }
                     else
                     {
+                        if (response.ExceptionText.Length > 600)
+                        {
+                            response.ExceptionText = response.ExceptionText.Substring(0, 600) + "...";
+                        }
                         isCommandError = true;
                         goto TransactionException;
                     }
@@ -3211,6 +3227,10 @@ TransactionException:
                     }
                     else
                     {
+                        if (response.ExceptionText.Length > 600)
+                        {
+                            response.ExceptionText = response.ExceptionText.Substring(0, 600) + "...";
+                        }
                         isCommandError = true;
                         goto TransactionException;
                     }
