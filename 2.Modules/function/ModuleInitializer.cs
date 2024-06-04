@@ -200,9 +200,9 @@ namespace function
                         Directory.CreateDirectory(ModuleConfiguration.NodeFunctionLogBasePath);
                     }
 
-                    nodeEnvironmentVariables.Add("SYN_FileLogBasePath", ModuleConfiguration.NodeFunctionLogBasePath);
+                    nodeEnvironmentVariables.Add("SYN_FileLogBasePath", GlobalConfiguration.GetBasePath(ModuleConfiguration.NodeFunctionLogBasePath));
                     nodeEnvironmentVariables.Add("SYN_LogMinimumLevel", ModuleConfiguration.LogMinimumLevel);
-                    nodeEnvironmentVariables.Add("SYN_LocalStoragePath", ModuleConfiguration.LocalStoragePath);
+                    nodeEnvironmentVariables.Add("SYN_LocalStoragePath", GlobalConfiguration.GetBasePath(ModuleConfiguration.LocalStoragePath));
 
                     string nodeConfigFilePath = Path.Combine(module.BasePath, "node.config.json");
                     if (File.Exists(nodeConfigFilePath) == true)
