@@ -1,4 +1,4 @@
-/*jquery.WM.js - Window Manager for jQuery.
+﻿/*jquery.WM.js - Window Manager for jQuery.
  * Copyright (c) 2009 Philip Collins
  * Licensed under the MIT License:
  * http://www.opensource.org/licenses/mit-license.php
@@ -294,7 +294,7 @@
             var m = lnk.match(/^(https?\:\/\/)([^\/]+)/);
             if (m && m[2] != document.location.hostname)
                 w.find('.titlebaricon').attr('src', m[1] + m[2] + "/favicon.ico");
-            $('<iframe src="' + lnk + '" target="' + target + '"></iframe>' +
+            $('<iframe src="' + lnk + '" target="' + target + '" scrolling="no"></iframe>' +
                 '<div class=iframecover></div>')
                 .appendTo(w.find('.windowcontent'));
         }

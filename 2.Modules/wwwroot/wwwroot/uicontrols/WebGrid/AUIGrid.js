@@ -180,7 +180,11 @@
 
             var columnLayout = null;
             if (setting.columns) {
-                columnLayout = $auigrid.getInitializeColumns(setting, elID);
+                var flagColumn = setting.columns.find(function (item) { return item.dataField == 'Flag'; });
+                if ($object.isNullOrUndefined(flagColumn) == true) {
+                    setting.columns.unshift(['Flag', 'Flag', 60, true, 'text', true, 'left']);
+                }
+                columnLayout = $auigrid.getInitializeColumns(setting.editable, setting.columns, elID);
             }
 
             var mod = window[syn.$w.pageScript];
@@ -208,7 +212,7 @@
             el.style.display = 'none';
 
             var dataField = el.getAttribute('syn-datafield');
-            var html = `<div id="{0}" syn-datafield="{1}" class="syn-auigrid" style="width:${setting.width};height:${setting.height};"></div>`.format(elID, dataField);
+            var html = `<div id="{0}" syn-datafield="{1}" class="syn-auigrid" style="width:${setting.width};height:${setting.height};overflow:hidden;"></div>`.format(elID, dataField);
 
             var parent = el.parentNode;
             var wrapper = document.createElement('div');
@@ -282,6 +286,23 @@
                                 }
 
                                 return newValue;
+                            });
+                        }
+
+                        if (gridHookEvents.indexOf('selectionChange') == -1) {
+                            AUIGrid.bind(gridID, 'selectionChange', function (evt) {
+                                var eventHandler = mod.event ? mod.event['{0}_{1}'.format(elID, 'afterSelectionEnd')] : null;
+                                if (eventHandler) {
+                                    var primeCell = evt.primeCell;
+                                    var rowIndex = primeCell.rowIndex;
+                                    var columnIndex = primeCell.columnIndex;
+                                    var dataField = primeCell.dataField;
+                                    var value = primeCell.value;
+                                    var editable = primeCell.editable;
+                                    var selectedItems = evt.selectedItems;
+
+                                    eventHandler(elID, rowIndex, columnIndex, dataField, value, editable, selectedItems);
+                                }
                             });
                         }
 
@@ -382,18 +403,11 @@
         //    5 readOnly: '',
         //    6 alignConstants: '',
         //    7 belongID: '',
-        //    8 validators: ['require', 'unique', 'number', 'ipaddress', 'email', 'date', 'dateformat']
-        //    9 options: { sorting: true, placeholder: 'Empty Cell' }
+        //    8 options: { sorting: true, placeholder: 'Empty Cell' }
+        //    9 children: [columns]
         // }]
-        getInitializeColumns(settings, elID) {
-            var columns = settings.columns;
+        getInitializeColumns(editable, columns, elID) {
             var result = [];
-
-            var flagColumn = columns.find(function (item) { return item.dataField == 'Flag'; });
-            if (flagColumn == null) {
-                columns.unshift(['Flag', 'Flag', 60, true, 'text', true, 'left']);
-            }
-
             var length = columns.length;
             for (var i = 0; i < length; i++) {
                 var column = columns[i];
@@ -407,27 +421,33 @@
                 var alignConstants = column[6];
                 var belongID = column[7];
                 var options = column[8];
+                var children = column[9];
 
                 var columnInfo = {
                     elID: elID,
-                    dataField: columnID,
                     headerText: columnText,
                     columnType: columnType,
-                    width: width,
                     filter: {
                         enable: true,
                         showIcon: true
                     },
                     visible: !isHidden,
-                    editable: $string.toBoolean(settings.editable) == false ? false : !$string.toBoolean(readOnly),
+                    editable: $string.toBoolean(editable) == false ? false : !$string.toBoolean(readOnly),
                     style: $object.isNullOrUndefined(alignConstants) == true ? '' : `text:${alignConstants}!`,
-                    belongID: $object.isNullOrUndefined(belongID) == true ? '' : belongID,
-                    validators: null
+                    belongID: $object.isNullOrUndefined(belongID) == true ? '' : ($object.isArray(belongID) == true ? belongID.join(',') : belongID),
+                };
+
+                if ($object.isNullOrUndefined(columnID) == false) {
+                    columnInfo.dataField = columnID;
+                }
+
+                if ($object.isNullOrUndefined(width) == false) {
+                    columnInfo.width = width;
                 }
 
                 if (options) {
                     for (var option in options) {
-                        if (columnInfo[option] || option == 'validators' || option == '') {
+                        if (columnInfo[option] || option == '') {
                             if (option == 'style') {
                                 columnInfo[option] = columnInfo[option] + ' ' + options[option];
                             }
@@ -634,18 +654,27 @@
                             }
 
                             if ($object.isNullOrUndefined(dataSource) == true) {
+                                mod.config.dataSource[storeSourceID] = {
+                                    CodeColumnID: 'CodeID',
+                                    ValueColumnID: 'CodeValue',
+                                    DataSource: []
+                                };
+                                dataSource = mod.config.dataSource[storeSourceID];
+                                syn.$w.addReadyCount();
                                 $auigrid.dataRefresh(elID, columnInfo);
                             }
 
                             columnInfo.labelFunction = function (rowIndex, columnIndex, value, headerText, item) {
                                 var result = '';
                                 var storeSourceID = this.storeSourceID || this.dataSourceID;
+                                var keyField = this.keyField || 'CodeID';
+                                var valueField = this.valueField || 'CodeValue';
                                 if (storeSourceID) {
-                                    var keyValueList = $this.config.dataSource[storeSourceID] ? $this.config.dataSource[storeSourceID].DataSource : [];
-                                    for (var i = 0, len = keyValueList.length; i < len; i++) {
-                                        var keyValue = keyValueList[i];
-                                        if (keyValue['CodeID'] == value) {
-                                            result = keyValue['CodeValue'];
+                                    var dataSource = $this.config.dataSource[storeSourceID] ? $this.config.dataSource[storeSourceID].DataSource : [];
+                                    for (var i = 0, len = dataSource.length; i < len; i++) {
+                                        var item = dataSource[i];
+                                        if (item[keyField] == value) {
+                                            result = item[valueField];
                                             break;
                                         }
                                     }
@@ -660,21 +689,16 @@
                                 showEditorBtnOver: true,
                                 listAlign: 'left',
                                 list: $this.config.dataSource[storeSourceID] ? $this.config.dataSource[storeSourceID].DataSource : [],
-                                keyField: 'CodeID',
-                                valueField: 'CodeValue',
-                                validator: function (oldValue, newValue, item, dataField, fromClipboard, which) {
-                                    var isValid = false;
-                                    var storeSourceID = this.storeSourceID || this.dataSourceID;
+                                keyField: columnInfo.keyField || 'CodeID',
+                                valueField: columnInfo.valueField || 'CodeValue',
+                                listFunction: function (rowIndex, columnIndex, item, dataField) {
+                                    var result = [];
+                                    var info = syn.uicontrols.$auigrid.getColumnInfo(elID, dataField);
+                                    var storeSourceID = info.storeSourceID || info.dataSourceID;
                                     if (storeSourceID) {
-                                        var keyValueList = $this.config.dataSource[dataField] ? $this.config.dataSource[dataField].DataSource : [];
-                                        for (var i = 0, len = keyValueList.length; i < len; i++) {
-                                            if (keyValueList[i]['CodeValue'] == newValue) {
-                                                isValid = true;
-                                                break;
-                                            }
-                                        }
+                                        result = $this.config.dataSource[storeSourceID] ? $this.config.dataSource[storeSourceID].DataSource : [];
                                     }
-                                    return isValid;
+                                    return result;
                                 }
                             }
                             break;
@@ -759,6 +783,10 @@
                     }
                 }
 
+                if ($object.isNullOrUndefined(children) == false) {
+                    columnInfo.children = $auigrid.getInitializeColumns(editable, children, elID);
+                }
+
                 result.push(columnInfo);
             }
 
@@ -767,65 +795,67 @@
 
         dataRefresh(elID, setting, callback) {
             var gridID = $auigrid.getGridID(elID);
-            if (gridID) {
-                var defaultSetting = {
-                    dataField: null,
-                    required: true,
-                    local: true,
-                    dataSourceID: null,
-                    storeSourceID: null,
-                    dataSource: null,
-                    parameters: null,
-                    selectedValue: null
+            if ($object.isNullOrUndefined(gridID) == true) {
+                gridID = elID.replace('#', '');
+            }
+
+            var defaultSetting = {
+                dataField: null,
+                required: true,
+                local: true,
+                dataSourceID: null,
+                storeSourceID: null,
+                dataSource: null,
+                parameters: null,
+                selectedValue: null
+            }
+
+            setting = syn.$w.argumentsExtend(defaultSetting, setting);
+            setting.elID = elID;
+            setting.storeSourceID = setting.storeSourceID || setting.dataSourceID;
+
+            if (setting.dataField && setting.storeSourceID) {
+                var mod = window[syn.$w.pageScript];
+                if (mod.config && mod.config.dataSource && mod.config.dataSource[setting.storeSourceID]) {
+                    delete mod.config.dataSource[setting.storeSourceID];
                 }
 
-                setting = syn.$w.argumentsExtend(defaultSetting, setting);
-                setting.elID = elID;
-                setting.storeSourceID = setting.storeSourceID || setting.dataSourceID;
+                if (mod && mod.hook.controlInit) {
+                    var moduleSettings = mod.hook.controlInit(elID, setting);
+                    setting = syn.$w.argumentsExtend(setting, moduleSettings);
+                }
 
-                if (setting.dataField && setting.storeSourceID) {
-                    var mod = window[syn.$w.pageScript];
-                    if (mod.config && mod.config.dataSource && mod.config.dataSource[setting.storeSourceID]) {
-                        delete mod.config.dataSource[setting.storeSourceID];
+                var dataSource = null;
+                if (mod.config && mod.config.dataSource && mod.config.dataSource[setting.dataSourceID]) {
+                    dataSource = mod.config.dataSource[setting.dataSourceID];
+                }
+                
+                if (dataSource) {
+                    if (callback) {
+                        callback();
                     }
-
-                    if (mod && mod.hook.controlInit) {
-                        var moduleSettings = mod.hook.controlInit(elID, setting);
-                        setting = syn.$w.argumentsExtend(setting, moduleSettings);
-                    }
-
-                    var dataSource = null;
-                    if (mod.config && mod.config.dataSource && mod.config.dataSource[setting.dataSourceID]) {
-                        dataSource = mod.config.dataSource[setting.storeSourceID];
-                    }
-
-                    var columnInfos = AUIGrid.getColumnInfoList(gridID);
-                    var colIndex = $auigrid.propToCol(elID, setting.dataField);
-                    var columnInfo = columnInfos[colIndex];
-                    if (columnInfo.columnType == 'dropdown') {
-                        if (setting.local == true) {
-                            syn.$w.loadJson(syn.Config.SharedAssetUrl + 'code/{0}.json'.format(setting.storeSourceID), setting, function (setting, json) {
-                                if (json) {
-                                    mod.config.dataSource[setting.storeSourceID] = json;
-                                    loadData(columnInfo, json, setting);
-                                    if (callback) {
-                                        callback();
-                                    }
+                    syn.$w.removeReadyCount();
+                } else {
+                    if (setting.local == true) {
+                        syn.$w.loadJson(syn.Config.SharedAssetUrl + 'code/{0}.json'.format(setting.storeSourceID), setting, function (setting, json) {
+                            if (json) {
+                                mod.config.dataSource[setting.storeSourceID] = json;
+                                if (callback) {
+                                    callback();
                                 }
-                                syn.$w.removeReadyCount();
-                            }, false);
-                        } else {
-                            syn.$w.getDataSource(setting.dataSourceID, setting.parameters, function (json) {
-                                if (json) {
-                                    mod.config.dataSource[setting.storeSourceID] = json;
-                                    loadData(columnInfo, json, setting);
-                                    if (callback) {
-                                        callback();
-                                    }
+                            }
+                            syn.$w.removeReadyCount();
+                        }, false);
+                    } else {
+                        syn.$w.getDataSource(setting.dataSourceID, setting.parameters, function (json) {
+                            if (json) {
+                                mod.config.dataSource[setting.storeSourceID] = json;
+                                if (callback) {
+                                    callback();
                                 }
-                                syn.$w.removeReadyCount();
-                            });
-                        }
+                            }
+                            syn.$w.removeReadyCount();
+                        });
                     }
                 }
             }
@@ -2139,6 +2169,13 @@
             }
         },
 
+        resetUpdatedItems(elID, rowIndex) {
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                AUIGrid.resetUpdatedItems(gridID);
+            }
+        },
+
         updateRow(elID, value, rowIndex) {
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
@@ -2254,6 +2291,10 @@
             return result;
         },
 
+        getSourceDataAtRow(elID, rowIndex) {
+            return getItemByRowIndex(elID, rowIndex);
+        },
+
         getItemByRowIndex(elID, rowIndex) {
             var result = null;
             var gridID = $auigrid.getGridID(elID);
@@ -2329,6 +2370,13 @@
             }
 
             return result;
+        },
+
+        changeColumnLayout(elID, columnLayout) {
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                AUIGrid.changeColumnLayout(gridID, columnLayout);
+            }
         },
 
         checkEditValue(elID) {
@@ -2484,12 +2532,13 @@
                         if (column.dataField == 'Flag') {
                             isBelong = true;
                         }
-                        else if (column.belongID) {
-                            if ($object.isString(column.belongID) == true) {
-                                isBelong = transactConfig.functionID == column.belongID;
+                        else if ($object.isNullOrUndefined(column.belongID) == false) {
+                            if (column.belongID.indexOf(',') > -1) {
+                                var columnBelongIDs = column.belongID.split(',');
+                                isBelong = columnBelongIDs.indexOf(transactConfig.functionID) > -1;
                             }
-                            else if ($object.isArray(column.belongID) == true) {
-                                isBelong = column.belongID.indexOf(transactConfig.functionID) > -1;
+                            else if ($object.isString(column.belongID) == true) {
+                                isBelong = transactConfig.functionID == column.belongID;
                             }
                         }
 
@@ -2516,7 +2565,7 @@
                         var rowIndex = AUIGrid.getSelectedIndex(gridID)[0];
 
                         if (rowIndex != null && rowIndex > -1) {
-                            var rowData = AUIGrid.getItemByRowIndex(rowIndex);
+                            var rowData = AUIGrid.getItemByRowIndex(gridID, rowIndex);
                             var rowFlag = $auigrid.getFlag(gridID, rowIndex) || 'C';
                             if (rowFlag && rowFlag != 'S') {
                                 rowData = $object.clone(rowData);

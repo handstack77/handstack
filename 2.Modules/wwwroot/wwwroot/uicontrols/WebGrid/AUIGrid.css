@@ -2102,13 +2102,35 @@
     font-size: 14px;
 }
 
+/* 오버라이드 */
+.aui-grid {
+    background: #f6f8fb;
+    border: 0;
+}
+
 .aui-grid-body-panel .aui-grid-table tr td {
     border-bottom: 1px solid #cccccc;
 }
 
-.aui-grid {
-    background: #f6f8fb;
-    border: 0;
+.aui-grid-header-panel .aui-grid-table tr td {
+    border-right: 1px solid #cccccc;
+    border-bottom: 1px solid #cccccc;
+}
+
+.aui-grid-group-branch-header {
+    border-bottom: 1px solid #cccccc !important;
+}
+
+.aui-grid-footer-panel .aui-grid-table tr td {
+    border-top: 1px solid #cccccc;
+    border-right: 1px solid #cccccc;
+    border-bottom: none;
+    border-left: none;
+}
+
+.aui-grid-row-drag-knob-column {
+    background-color: #f0f0f0 !important;
+    border-right: 1px solid #cccccc !important;
 }
 
 /* jQuery UI Menu 스타일 재정의 */

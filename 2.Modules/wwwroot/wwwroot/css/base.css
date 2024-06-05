@@ -4249,3 +4249,9 @@ span.fancytree-node {
 .list-group-item.disabled, .list-group-item:disabled {
   background-color: rgba(var(--tblr-secondary-rgb),.08)
 }
+
+.center-centent {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

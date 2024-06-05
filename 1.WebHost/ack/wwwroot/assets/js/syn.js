@@ -1,4 +1,4 @@
-/*!
+﻿/*!
 HandStack Javascript Library v1.0.0
 https://syn.handshake.kr
 
@@ -5693,42 +5693,19 @@ globalRoot.syn = syn;
                                     if (!transaction.delayReturn() && !transaction.completed()) {
                                         transaction.complete(resp);
                                     }
-                                } catch (e) {
-                                    var error = 'runtime_error';
+                                }
+                                catch (error) {
+                                    var name = 'runtime_error';
                                     var message = null;
-                                    if (typeof e === 'string') {
-                                        message = e;
-                                    } else if (typeof e === 'object') {
-                                        if (e && isArray(e) && e.length == 2) {
-                                            error = e[0];
-                                            message = e[1];
-                                        }
-                                        else if (typeof e.error === 'string') {
-                                            error = e.error;
-                                            if (!e.message) {
-                                                message = '';
-                                            }
-                                            else if (typeof e.message === 'string') {
-                                                message = e.message;
-                                            }
-                                            else {
-                                                e = e.message;
-                                            }
-                                        }
+                                    if (typeof error === 'string') {
+                                        message = error;
+                                    } else if (typeof error === 'object') {
+                                        name = error.name;
+                                        message = error.stack || error.message;
                                     }
 
-                                    if (message === null) {
-                                        try {
-                                            message = JSON.stringify(e);
-                                            if (typeof (message) == 'undefined') {
-                                                message = e.toString();
-                                            }
-                                        } catch (e2) {
-                                            message = e.toString();
-                                        }
-                                    }
-
-                                    transaction.error(error, message);
+                                    syn.$l.eventLog('$network.onMessage', `name: ${name}, message: ${message}`, 'Error');
+                                    transaction.error(name, message);
                                 }
                             }
                         } else if (data.id && data.callback) {

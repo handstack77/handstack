@@ -1358,7 +1358,7 @@
 
                 var dataSource = null;
                 if (mod.config && mod.config.dataSource && mod.config.dataSource[setting.dataSourceID]) {
-                    dataSource = mod.config.dataSource[setting.storeSourceID];
+                    dataSource = mod.config.dataSource[setting.dataSourceID];
                 }
 
                 var hot = $grid.getGridControl(elID);
