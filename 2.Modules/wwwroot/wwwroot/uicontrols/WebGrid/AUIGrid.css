@@ -2108,6 +2108,10 @@
     border: 0;
 }
 
+.aui-grid-filter-inline-row {
+    background: #f0f0f0;
+}
+
 .aui-grid-body-panel .aui-grid-table tr td {
     border-bottom: 1px solid #cccccc;
 }

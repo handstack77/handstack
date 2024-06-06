@@ -137,6 +137,7 @@
             hoverMode: 'singleRow',
             useContextMenu: true,
             enableFilter: true,
+            showInlineFilter: false,
             useGroupingPanel: false,
             showStateColumn: false,
             displayTreeOpen: false,
@@ -184,7 +185,7 @@
                 if ($object.isNullOrUndefined(flagColumn) == true) {
                     setting.columns.unshift(['Flag', 'Flag', 60, true, 'text', true, 'left']);
                 }
-                columnLayout = $auigrid.getInitializeColumns(setting.editable, setting.columns, elID);
+                columnLayout = $auigrid.getInitializeColumns(elID, setting.columns, setting.editable);
             }
 
             var mod = window[syn.$w.pageScript];
@@ -406,7 +407,7 @@
         //    8 options: { sorting: true, placeholder: 'Empty Cell' }
         //    9 children: [columns]
         // }]
-        getInitializeColumns(editable, columns, elID) {
+        getInitializeColumns(elID, columns, editable) {
             var result = [];
             var length = columns.length;
             for (var i = 0; i < length; i++) {
@@ -784,7 +785,7 @@
                 }
 
                 if ($object.isNullOrUndefined(children) == false) {
-                    columnInfo.children = $auigrid.getInitializeColumns(editable, children, elID);
+                    columnInfo.children = $auigrid.getInitializeColumns(elID, children, editable);
                 }
 
                 result.push(columnInfo);
@@ -1137,13 +1138,18 @@
             return result;
         },
 
-        setFitColumnSize(elID, fitToGrid) {
+        setFitColumnSize(elID, maxWidth, fitToGrid) {
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
-                setTimeout(() => {
-                    var colSizeList = AUIGrid.getFitColumnSizeList(gridID, $string.toBoolean(fitToGrid));
-                    AUIGrid.setColumnSizeList(gridID, colSizeList);
-                }, 200);
+                maxWidth = maxWidth || 300;
+                var colSizeList = AUIGrid.getFitColumnSizeList(gridID, $string.toBoolean(fitToGrid));
+                for (var i = 0, length = colSizeList.length; i < length; i++) {
+                    colSizeList[i] = colSizeList[i] + 14;
+                    if (colSizeList[i] > maxWidth) {
+                        colSizeList[i] = maxWidth;
+                    }
+                }
+                AUIGrid.setColumnSizeList(gridID, colSizeList);
             }
         },
 
@@ -1260,7 +1266,7 @@
         clearConditions(elID) {
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
-                result = AUIGrid.clearFilterAll(gridID);
+                AUIGrid.clearFilterAll(gridID);
             }
         },
 
@@ -2249,6 +2255,16 @@
             return result;
         },
 
+        getCheckedRowItems(elID) {
+            var result = null;
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                result = AUIGrid.getCheckedRowItems(gridID);
+            }
+
+            return result;
+        },
+
         getRowIndexesByValue(elID, dataField, value) {
             var result = null;
             var gridID = $auigrid.getGridID(elID);
@@ -2292,7 +2308,7 @@
         },
 
         getSourceDataAtRow(elID, rowIndex) {
-            return getItemByRowIndex(elID, rowIndex);
+            return $auigrid.getItemByRowIndex(elID, rowIndex);
         },
 
         getItemByRowIndex(elID, rowIndex) {
