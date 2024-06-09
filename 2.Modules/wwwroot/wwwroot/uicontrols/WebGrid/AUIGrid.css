@@ -2137,6 +2137,14 @@
     border-right: 1px solid #cccccc !important;
 }
 
+.aui-grid-context-list-ul {
+    overflow: hidden;
+}
+
+.aui-grid-context-popup-layer {
+    max-width: 600px;
+}
+
 /* jQuery UI Menu 스타일 재정의 */
 .ui-menu {
     width: 160px;

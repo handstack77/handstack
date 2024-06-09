@@ -329,15 +329,15 @@
                             contextEL.id = 'auigridHeaderContextMenu';
                             contextEL.className = 'aui-grid-context-ui-menu';
                             contextEL.style.cssText = 'position: absolute; display: none; z-index: 100; padding: 16px;';
-
+                            
                             var li1 = document.createElement('li');
                             li1.id = 'headerItem1';
-                            li1.textContent = '오름 차순 정렬';
+                            li1.textContent = '오름차순 정렬';
                             contextEL.appendChild(li1);
 
                             var li2 = document.createElement('li');
                             li2.id = 'headerItem2';
-                            li2.textContent = '내림 차순 정렬';
+                            li2.textContent = '내림차순 정렬';
                             contextEL.appendChild(li2);
 
                             var li3 = document.createElement('li');
@@ -365,6 +365,10 @@
                             document.body.appendChild(contextEL);
 
                             AUIGrid.bind(gridID, 'contextMenu', $auigrid.contextEventHandler);
+
+                            syn.$l.addEvent(document, 'click', function (evt) {
+                                $auigrid.hideContextMenu();
+                            });
 
                             AUIGrid.bind(gridID, 'vScrollChange', function (evt) {
                                 $auigrid.hideContextMenu();
@@ -876,9 +880,22 @@
             }
 
             if (evt.target == 'header') {
-                $auigrid.nowHeaderMenuVisible = true;
-                $auigrid.currentDataField = evt.dataField.replaceAll(',', '_');
+                syn.$m.removeClass('headerItem1', 'hidden');
+                syn.$m.removeClass('headerItem2', 'hidden');
+                syn.$m.removeClass('headerItem3', 'hidden');
+                syn.$m.removeClass('headerItem4', 'hidden');
+                syn.$m.removeClass('headerItem5', 'hidden');
+                if ($string.isNullOrEmpty(evt.dataField) == true) {
+                    syn.$m.addClass('headerItem1', 'hidden');
+                    syn.$m.addClass('headerItem2', 'hidden');
+                }
+                else {
+                    syn.$m.addClass('headerItem4', 'hidden');
+                    syn.$m.addClass('headerItem5', 'hidden');
+                    $auigrid.currentDataField = evt.dataField.replaceAll(',', '_');
+                }
 
+                $auigrid.nowHeaderMenuVisible = true;
                 $("#auigridHeaderContextMenu").attr('context', JSON.stringify(evt));
                 $('#auigridHeaderContextMenu').menu({
                     select: $auigrid.headerMenuSelectHandler
@@ -910,12 +927,13 @@
                     AUIGrid.clearSortingAll(gridID);
                     break;
                 case 'headerItem4':
+                    var colIndex = AUIGrid.getSelectedIndex(gridID)[1];
+                    $auigrid.currentDataField = AUIGrid.getDataFieldByColumnIndex(gridID, colIndex);
                     AUIGrid.hideColumnByDataField(gridID, $auigrid.currentDataField);
                     break;
                 case 'headerItem5':
                     AUIGrid.showAllColumns(gridID);
-                    $('#headerItemUL span.ui-icon[data]').addClass('ui-icon-check')
-                        .removeClass('ui-icon-blank');
+                    $('#headerItemUL span.ui-icon[data]').addClass('ui-icon-check').removeClass('ui-icon-blank');
                     break;
             }
 
@@ -1203,9 +1221,17 @@
             return result;
         },
 
-        selectCell(elID, rowIndex, colIndex) {
+        selectCell(elID, rowIndex, dataField) {
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
+                var colIndex = 0;
+                if ($object.isString(dataField) == true) {
+                    colIndex = AUIGrid.getColumnIndexByDataField(gridID, dataField);
+                }
+                else {
+                    colIndex = dataField;
+                }
+
                 AUIGrid.setSelectionByIndex(gridID, $string.toNumber(rowIndex), $string.toNumber(colIndex));
             }
         },
@@ -1237,7 +1263,7 @@
         },
 
         // func = (dataField, value, item) => {}
-        addCondition(elID, dataField, func) {
+        setFilter(elID, dataField, func) {
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
                 if ($object.isNumber(dataField) == true) {
@@ -1246,6 +1272,113 @@
 
                 if ($string.isNullOrEmpty(dataField) == false) {
                     AUIGrid.setFilter(gridID, dataField, func);
+                }
+            }
+        },
+
+        /*
+        name에 들어갈수 있는 조건
+        begins_with: 로 시작
+        between: 사이
+        by_value: 값
+        contains: 포함
+        empty: 비우기
+        ends_with: 로 끝나다
+        eq: 같음
+        gt:  보다 큰
+        gte: 크거나 같음
+        lt: 이하
+        lte: 이하거나 같음
+        not_between: 사이가 아님
+        not_contains: 포함하지 않음
+        not_empty: 비우지 않음
+        neq: 같지 않다
+         */
+        addFilter(elID, dataField, name, args, args2) {
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                if ($object.isNumber(dataField) == true) {
+                    dataField = AUIGrid.getDataFieldByColumnIndex(gridID, dataField);
+                }
+
+                if ($string.isNullOrEmpty(dataField) == false) {
+                    AUIGrid.setFilter(gridID, dataField, (dataField, value, item) => {
+                        var result = false;
+                        if (value) {
+                            switch (name) {
+                                case 'begins_with':
+                                    result = value.startsWith(args);
+                                    break;
+                                case 'between':
+                                    result = (args <= value && value <= args2);
+                                    break;
+                                case 'contains':
+                                    result = args && args.length && args.findIndex((p) => {
+                                        return p.indexOf(value) > -1
+                                    }) > -1;
+                                    break;
+                                case 'by_value':
+                                    result = args && args.length && args.indexOf(value) > -1;
+                                    break;
+                                case 'ends_with':
+                                    result = value.endsWith(args);
+                                    break;
+                                case 'eq':
+                                    result = value == args;
+                                    break;
+                                case 'neq':
+                                    result = value != args;
+                                    break;
+                                case 'gt':
+                                    result = value > args;
+                                    break;
+                                case 'gte':
+                                    result = value >= args;
+                                    break;
+                                case 'lt':
+                                    result = value < args;
+                                    break;
+                                case 'lte':
+                                    result = value <= args;
+                                    break;
+                                case 'not_between':
+                                    result = !(args <= value && value <= args2);
+                                    break;
+                                case 'not_contains':
+                                    result = !((args && args.length && args.findIndex((p) => {
+                                        return p.indexOf(value) > -1
+                                    })) > -1);
+                                    break;
+                                case 'not_empty':
+                                    result = $string.isNullOrEmpty(value) == false;
+                                    break;
+                                default:
+                                    result = value == args;
+                                    break;
+                            }
+                        }
+                        else {
+                            if (name == 'empty') {
+                                result = true;
+                            }
+                        }
+                        return result;
+                    });
+                }
+            }
+        },
+
+        addCondition(elID, dataField, value) {
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                if ($object.isNumber(dataField) == true) {
+                    dataField = AUIGrid.getDataFieldByColumnIndex(gridID, dataField);
+                }
+
+                if ($string.isNullOrEmpty(dataField) == false) {
+                    var filterCache = AUIGrid.getFilterCache(gridID);
+                    filterCache[dataField] = value;
+                    AUIGrid.setFilterCache(gridID, filterCache);
                 }
             }
         },
@@ -1266,7 +1399,9 @@
         clearConditions(elID) {
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
-                AUIGrid.clearFilterAll(gridID);
+                if (AUIGrid.isFilteredGrid(gridID) == true) {
+                    AUIGrid.clearFilterAll(gridID);
+                }
             }
         },
 
@@ -1392,11 +1527,24 @@
                     values.push(item);
                 }
 
+                var filterCache = AUIGrid.getFilterCache(gridID);
                 // rowIndex = Number or first, last, selectionUp, selectionDown
                 AUIGrid.addRow(gridID, values, setting.rowIndex);
 
+                var isUserFilter = false;
+                for (var item in filterCache) {
+                    if (filterCache[item] == 'userFilter') {
+                        isUserFilter = true;
+                        break;
+                    }
+                }
+
+                if (isUserFilter == false) {
+                    AUIGrid.setFilterCache(gridID, filterCache);
+                }
+
                 if (callback) {
-                    callback(row, amount);
+                    callback(rowIndex, setting);
                 }
 
                 AUIGrid.setFocus(gridID);
