@@ -698,7 +698,7 @@
                                 valueField: columnInfo.valueField || 'CodeValue',
                                 listFunction: function (rowIndex, columnIndex, item, dataField) {
                                     var result = [];
-                                    var info = syn.uicontrols.$auigrid.getColumnInfo(elID, dataField);
+                                    var info = $auigrid.getColumnInfo(elID, dataField);
                                     var storeSourceID = info.storeSourceID || info.dataSourceID;
                                     if (storeSourceID) {
                                         result = $this.config.dataSource[storeSourceID] ? $this.config.dataSource[storeSourceID].DataSource : [];
@@ -718,6 +718,16 @@
 
                             if ($string.isNullOrEmpty(columnInfo.checkableFunction) == false && eval('typeof ' + columnInfo.checkableFunction) == 'function') {
                                 columnInfo.renderer.checkableFunction = eval(columnInfo.checkableFunction);
+                            }
+                            else {
+                                columnInfo.renderer.checkableFunction = (rowIndex, columnIndex, value, isChecked, item, dataField) => {
+                                    var result = true;
+                                    var info = $auigrid.getColumnInfo(elID, dataField);
+                                    if (info) {
+                                        result = info.editable;
+                                    }
+                                    return result;
+                                }
                             }
                             break;
                         case 'codehelp':
@@ -1167,6 +1177,7 @@
                         colSizeList[i] = maxWidth;
                     }
                 }
+                debugger;
                 AUIGrid.setColumnSizeList(gridID, colSizeList);
             }
         },
@@ -1543,10 +1554,6 @@
                     AUIGrid.setFilterCache(gridID, filterCache);
                 }
 
-                if (callback) {
-                    callback(rowIndex, setting);
-                }
-
                 AUIGrid.setFocus(gridID);
 
                 var rowIndex = AUIGrid.getSelectedIndex(gridID)[0] + (setting.amount - 1);
@@ -1558,6 +1565,10 @@
                 }
                 else {
                     AUIGrid.setSelectionByIndex(gridID, rowIndex, 0);
+                }
+
+                if (callback) {
+                    callback(rowIndex, setting);
                 }
             }
         },
@@ -2323,10 +2334,11 @@
             }
         },
 
-        resetUpdatedItems(elID, rowIndex) {
+        resetUpdatedItems(elID, option) {
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
-                AUIGrid.resetUpdatedItems(gridID);
+                option = option || 'a';
+                AUIGrid.resetUpdatedItems(gridID, option);
             }
         },
 
