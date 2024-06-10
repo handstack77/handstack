@@ -650,9 +650,9 @@
                             }
                             break;
                         case 'dropdown':
+                            var mod = window[syn.$w.pageScript];
                             var storeSourceID = columnInfo.storeSourceID || columnInfo.dataSourceID;
                             if (storeSourceID) {
-                                var mod = window[syn.$w.pageScript];
                                 if (mod.config && mod.config.dataSource && mod.config.dataSource[storeSourceID]) {
                                     dataSource = mod.config.dataSource[storeSourceID];
                                 }
@@ -828,7 +828,6 @@
             setting = syn.$w.argumentsExtend(defaultSetting, setting);
             setting.elID = elID;
             setting.storeSourceID = setting.storeSourceID || setting.dataSourceID;
-
             if (setting.dataField && setting.storeSourceID) {
                 var mod = window[syn.$w.pageScript];
                 if (mod.config && mod.config.dataSource && mod.config.dataSource[setting.storeSourceID]) {
@@ -1177,7 +1176,7 @@
                         colSizeList[i] = maxWidth;
                     }
                 }
-                debugger;
+
                 AUIGrid.setColumnSizeList(gridID, colSizeList);
             }
         },
