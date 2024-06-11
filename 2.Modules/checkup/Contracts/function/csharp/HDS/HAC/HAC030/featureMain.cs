@@ -160,7 +160,7 @@ TransactionException:
                     {
                         var restClient = new RestClient();
                         var restRequest = new RestRequest(messageServerUrl, Method.Post);
-                        restRequest.Timeout = 3000;
+                        restRequest.Timeout = TimeSpan.FromMilliseconds(10000);
 
                         restRequest.AddHeader("Content-Type", "application/json");
                         string json = JsonConvert.SerializeObject(dynamicRequest);
