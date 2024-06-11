@@ -1375,7 +1375,7 @@ namespace checkup.Areas.checkup.Controllers
                     if (appSetting != null)
                     {
                         DataSource tenantDataSource = new DataSource();
-                        tenantDataSource.ApplicationID = GlobalConfiguration.ApplicationID;
+                        tenantDataSource.ApplicationID = applicationID;
                         tenantDataSource.ProjectID = "*";
                         tenantDataSource.DataSourceID = "CHECKUPDB";
                         tenantDataSource.DataProvider = "SQLite";
