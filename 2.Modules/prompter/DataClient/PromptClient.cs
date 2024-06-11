@@ -979,7 +979,7 @@ TransactionException:
                 DataSourceMap? dataSourceMap = PromptMapper.GetDataSourceMap(queryObject, applicationID, projectID, dataSourceID);
                 if (dataSourceMap != null)
                 {
-                    result = new Tuple<string, string, string, string, LLMProviders>(dataSourceMap.ApiKey, dataSourceMap.ModelID, dataSourceMap.Endpoint, dataSourceMap.ServiceID, dataSourceMap.LLMProvider);
+                    result = new Tuple<string, string, string, string, LLMProviders>(dataSourceMap.ApiKey, dataSourceMap.ModelID, dataSourceMap.Endpoint.ToStringSafe(), dataSourceMap.ServiceID.ToStringSafe(), dataSourceMap.LLMProvider);
                 }
             }
 
