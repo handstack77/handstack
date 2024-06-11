@@ -2774,10 +2774,7 @@ TransactionException:
 
             if (string.IsNullOrEmpty(packageName) == false)
             {
-                var options = new RestClientOptions("https://www.npmjs.com")
-                {
-                    MaxTimeout = -1,
-                };
+                var options = new RestClientOptions("https://www.npmjs.com");
                 var client = new RestClient(options);
                 var request = new RestRequest($"/package/{packageName}/{(string.IsNullOrEmpty(version) == true ? "" : "v/" + version)}", Method.Get);
                 RestResponse response = await client.ExecuteAsync(request);
@@ -2805,10 +2802,7 @@ TransactionException:
 
             if (string.IsNullOrEmpty(packageName) == false)
             {
-                var options = new RestClientOptions("https://www.nuget.org")
-                {
-                    MaxTimeout = -1,
-                };
+                var options = new RestClientOptions("https://www.nuget.org");
                 var client = new RestClient(options);
                 var request = new RestRequest($"/packages/{packageName}/{version}", Method.Get);
                 RestResponse response = await client.ExecuteAsync(request);

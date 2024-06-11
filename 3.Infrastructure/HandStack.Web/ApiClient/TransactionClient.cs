@@ -52,7 +52,7 @@ namespace HandStack.Web.ApiClient
                     apiRequest.AddHeader("Content-Type", "application/json");
                     apiRequest.AddHeader("cache-control", "no-cache");
 
-                    apiRequest.Timeout = TransactionConfig.TransactionTimeout;
+                    apiRequest.Timeout = TimeSpan.FromMilliseconds(TransactionConfig.TransactionTimeout);
                     var apiResponse = client.Execute<TransactionResponse>(apiRequest, Method.Get);
 
                     if (apiResponse.ResponseStatus == ResponseStatus.Completed)
