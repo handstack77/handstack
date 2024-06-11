@@ -349,8 +349,14 @@
             var el = evt.target || evt.srcElement || evt;
             var synOptions = JSON.parse(el.getAttribute('syn-options'));
             var allowChars = synOptions.allowChars || [];
-            if (allowChars.length > 0 && allowChars.indexOf(el.value) == -1) {
+            if (allowChars.length > 0 && allowChars.indexOf(el.value) > -1) {
+            }
+            else {
                 el.value = el.value.replace(/[^a-z0-9]/gi, '');
+            }
+
+            if (oldValue != el.value) {
+                el.focus();
             }
         },
 

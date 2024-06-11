@@ -176,25 +176,25 @@ namespace prompter.Extensions
         public void TransactionMessageLogging(string globalID, string acknowledge, string applicationID, string projectID, string transactionID, string serviceID, string message, string properties, Action<string> fallbackFunction)
         {
             LogMessage logMessage = new LogMessage();
+            logMessage.ServerID = GlobalConfiguration.HostName;
+            logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
+            logMessage.ProgramName = ModuleConfiguration.ModuleID;
+            logMessage.GlobalID = globalID;
+            logMessage.Acknowledge = string.IsNullOrEmpty(acknowledge) == true ? "N" : acknowledge;
+            logMessage.ApplicationID = applicationID;
+            logMessage.ProjectID = projectID;
+            logMessage.TransactionID = transactionID;
+            logMessage.ServiceID = serviceID;
+            logMessage.Type = "A";
+            logMessage.Flow = "N";
+            logMessage.Level = "V";
+            logMessage.Format = "P";
+            logMessage.Message = message;
+            logMessage.Properties = properties;
+            logMessage.UserID = "";
+
             if (ModuleConfiguration.IsLogServer == true)
             {
-                logMessage.ServerID = GlobalConfiguration.HostName;
-                logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
-                logMessage.ProgramName = ModuleConfiguration.ModuleID;
-                logMessage.GlobalID = globalID;
-                logMessage.Acknowledge = string.IsNullOrEmpty(acknowledge) == true ? "N" : acknowledge;
-                logMessage.ApplicationID = applicationID;
-                logMessage.ProjectID = projectID;
-                logMessage.TransactionID = transactionID;
-                logMessage.ServiceID = serviceID;
-                logMessage.Type = "A";
-                logMessage.Flow = "N";
-                logMessage.Level = "V";
-                logMessage.Format = "P";
-                logMessage.Message = message;
-                logMessage.Properties = properties;
-                logMessage.UserID = "";
-
                 LogRequest logRequest = new LogRequest();
                 logRequest.LogMessage = logMessage;
                 logRequest.FallbackFunction = fallbackFunction;
@@ -210,25 +210,25 @@ namespace prompter.Extensions
         public void DynamicResponseLogging(string globalID, string acknowledge, string applicationID, string message, string properties, Action<string> fallbackFunction)
         {
             LogMessage logMessage = new LogMessage();
+            logMessage.ServerID = GlobalConfiguration.HostName;
+            logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
+            logMessage.ProgramName = ModuleConfiguration.ModuleID;
+            logMessage.GlobalID = globalID;
+            logMessage.Acknowledge = string.IsNullOrEmpty(acknowledge) == true ? "N" : acknowledge;
+            logMessage.ApplicationID = applicationID;
+            logMessage.ProjectID = "";
+            logMessage.TransactionID = "";
+            logMessage.ServiceID = "";
+            logMessage.Type = "T";
+            logMessage.Flow = "O";
+            logMessage.Level = "V";
+            logMessage.Format = "J";
+            logMessage.Message = message;
+            logMessage.Properties = properties;
+            logMessage.UserID = "";
+
             if (ModuleConfiguration.IsLogServer == true)
             {
-                logMessage.ServerID = GlobalConfiguration.HostName;
-                logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
-                logMessage.ProgramName = ModuleConfiguration.ModuleID;
-                logMessage.GlobalID = globalID;
-                logMessage.Acknowledge = string.IsNullOrEmpty(acknowledge) == true ? "N" : acknowledge;
-                logMessage.ApplicationID = applicationID;
-                logMessage.ProjectID = "";
-                logMessage.TransactionID = "";
-                logMessage.ServiceID = "";
-                logMessage.Type = "T";
-                logMessage.Flow = "O";
-                logMessage.Level = "V";
-                logMessage.Format = "J";
-                logMessage.Message = message;
-                logMessage.Properties = properties;
-                logMessage.UserID = "";
-
                 LogRequest logRequest = new LogRequest();
                 logRequest.LogMessage = logMessage;
                 logRequest.FallbackFunction = fallbackFunction;
@@ -243,26 +243,26 @@ namespace prompter.Extensions
 
         public void DynamicRequestLogging(DynamicRequest request, string acknowledge, string applicationID, Action<string> fallbackFunction)
         {
+            LogMessage logMessage = new LogMessage();
+            logMessage.ServerID = GlobalConfiguration.HostName;
+            logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
+            logMessage.ProgramName = ModuleConfiguration.ModuleID;
+            logMessage.GlobalID = request.GlobalID;
+            logMessage.Acknowledge = string.IsNullOrEmpty(acknowledge) == true ? "N" : acknowledge;
+            logMessage.ApplicationID = applicationID;
+            logMessage.ProjectID = "";
+            logMessage.TransactionID = "";
+            logMessage.ServiceID = "";
+            logMessage.Type = "T";
+            logMessage.Flow = "I";
+            logMessage.Level = "V";
+            logMessage.Format = "J";
+            logMessage.Message = JsonConvert.SerializeObject(request);
+            logMessage.Properties = "";
+            logMessage.UserID = "";
+
             if (ModuleConfiguration.IsLogServer == true)
             {
-                LogMessage logMessage = new LogMessage();
-                logMessage.ServerID = GlobalConfiguration.HostName;
-                logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
-                logMessage.ProgramName = ModuleConfiguration.ModuleID;
-                logMessage.GlobalID = request.GlobalID;
-                logMessage.Acknowledge = string.IsNullOrEmpty(acknowledge) == true ? "N" : acknowledge;
-                logMessage.ApplicationID = applicationID;
-                logMessage.ProjectID = "";
-                logMessage.TransactionID = "";
-                logMessage.ServiceID = "";
-                logMessage.Type = "T";
-                logMessage.Flow = "I";
-                logMessage.Level = "V";
-                logMessage.Format = "J";
-                logMessage.Message = JsonConvert.SerializeObject(request);
-                logMessage.Properties = "";
-                logMessage.UserID = "";
-
                 LogRequest logRequest = new LogRequest();
                 logRequest.LogMessage = logMessage;
                 logRequest.FallbackFunction = fallbackFunction;
@@ -271,7 +271,7 @@ namespace prompter.Extensions
             }
             else
             {
-                transactionLogger?.Information($"Request GlobalID: {request.GlobalID}, {JsonConvert.SerializeObject(request)}");
+                transactionLogger?.Information($"Request GlobalID: {request.GlobalID}, {JsonConvert.SerializeObject(logMessage)}");
             }
         }
 

@@ -872,6 +872,8 @@
                         });
                     }
                 }
+
+                AUIGrid.setColumnPropByDataField(gridID, setting.dataField, setting);
             }
         },
 

@@ -174,25 +174,25 @@ namespace transact.Extensions
         public void TransactionMessageLogging(string globalID, string acknowledge, string applicationID, string projectID, string transactionID, string serviceID, string message, string properties, Action<string> fallbackFunction)
         {
             LogMessage logMessage = new LogMessage();
+            logMessage.ServerID = GlobalConfiguration.HostName;
+            logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
+            logMessage.ProgramName = ModuleConfiguration.ModuleID;
+            logMessage.GlobalID = globalID;
+            logMessage.Acknowledge = acknowledge;
+            logMessage.ApplicationID = applicationID;
+            logMessage.ProjectID = projectID;
+            logMessage.TransactionID = transactionID;
+            logMessage.ServiceID = serviceID;
+            logMessage.Type = "A";
+            logMessage.Flow = "N";
+            logMessage.Level = "V";
+            logMessage.Format = "P";
+            logMessage.Message = message;
+            logMessage.Properties = properties;
+            logMessage.UserID = "";
+
             if (ModuleConfiguration.IsLogServer == true)
             {
-                logMessage.ServerID = GlobalConfiguration.HostName;
-                logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
-                logMessage.ProgramName = ModuleConfiguration.ModuleID;
-                logMessage.GlobalID = globalID;
-                logMessage.Acknowledge = acknowledge;
-                logMessage.ApplicationID = applicationID;
-                logMessage.ProjectID = projectID;
-                logMessage.TransactionID = transactionID;
-                logMessage.ServiceID = serviceID;
-                logMessage.Type = "A";
-                logMessage.Flow = "N";
-                logMessage.Level = "V";
-                logMessage.Format = "P";
-                logMessage.Message = message;
-                logMessage.Properties = properties;
-                logMessage.UserID = "";
-
                 LogRequest logRequest = new LogRequest();
                 logRequest.LogMessage = logMessage;
                 logRequest.FallbackFunction = fallbackFunction;
@@ -207,26 +207,26 @@ namespace transact.Extensions
 
         public void TransactionRequestLogging(TransactionRequest request, string userWorkID, string acknowledge, Action<string> fallbackFunction)
         {
+            LogMessage logMessage = new LogMessage();
+            logMessage.ServerID = GlobalConfiguration.HostName;
+            logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
+            logMessage.ProgramName = ModuleConfiguration.ModuleID;
+            logMessage.GlobalID = request.Transaction.GlobalID;
+            logMessage.Acknowledge = string.IsNullOrEmpty(acknowledge) == true ? "N" : acknowledge;
+            logMessage.ApplicationID = request.System.ProgramID;
+            logMessage.ProjectID = request.Transaction.BusinessID;
+            logMessage.TransactionID = request.Transaction.TransactionID;
+            logMessage.ServiceID = request.Transaction.FunctionID;
+            logMessage.Type = "T";
+            logMessage.Flow = "I";
+            logMessage.Level = "V";
+            logMessage.Format = request.Transaction.DataFormat;
+            logMessage.Message = JsonConvert.SerializeObject(request);
+            logMessage.Properties = JsonConvert.SerializeObject(request.PayLoad.Property);
+            logMessage.UserID = request.Transaction.OperatorID;
+
             if (ModuleConfiguration.IsLogServer == true)
             {
-                LogMessage logMessage = new LogMessage();
-                logMessage.ServerID = GlobalConfiguration.HostName;
-                logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
-                logMessage.ProgramName = ModuleConfiguration.ModuleID;
-                logMessage.GlobalID = request.Transaction.GlobalID;
-                logMessage.Acknowledge = string.IsNullOrEmpty(acknowledge) == true ? "N" : acknowledge;
-                logMessage.ApplicationID = request.System.ProgramID;
-                logMessage.ProjectID = request.Transaction.BusinessID;
-                logMessage.TransactionID = request.Transaction.TransactionID;
-                logMessage.ServiceID = request.Transaction.FunctionID;
-                logMessage.Type = "T";
-                logMessage.Flow = "I";
-                logMessage.Level = "V";
-                logMessage.Format = request.Transaction.DataFormat;
-                logMessage.Message = JsonConvert.SerializeObject(request);
-                logMessage.Properties = JsonConvert.SerializeObject(request.PayLoad.Property);
-                logMessage.UserID = request.Transaction.OperatorID;
-
                 LogRequest logRequest = new LogRequest();
                 logRequest.LogMessage = logMessage;
                 logRequest.FallbackFunction = fallbackFunction;
@@ -235,7 +235,7 @@ namespace transact.Extensions
             }
             else
             {
-                transactionLogger?.Warning($"Request GlobalID: {request.Transaction.GlobalID}, JSON: {JsonConvert.SerializeObject(request)}");
+                transactionLogger?.Warning($"Request GlobalID: {request.Transaction.GlobalID}, JSON: {JsonConvert.SerializeObject(logMessage)}");
             }
 
             if (ModuleConfiguration.IsTransactAggregate == true && request.AcceptDateTime != null)
@@ -273,26 +273,26 @@ namespace transact.Extensions
 
         public void TransactionResponseLogging(TransactionResponse response, string userWorkID, string acknowledge, Action<string> fallbackFunction)
         {
+            LogMessage logMessage = new LogMessage();
+            logMessage.ServerID = GlobalConfiguration.HostName;
+            logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
+            logMessage.ProgramName = ModuleConfiguration.ModuleID;
+            logMessage.GlobalID = response.Transaction.GlobalID;
+            logMessage.Acknowledge = string.IsNullOrEmpty(acknowledge) == true ? "N" : acknowledge;
+            logMessage.ApplicationID = response.System.ProgramID;
+            logMessage.ProjectID = response.Transaction.BusinessID;
+            logMessage.TransactionID = response.Transaction.TransactionID;
+            logMessage.ServiceID = response.Transaction.FunctionID;
+            logMessage.Type = "T";
+            logMessage.Flow = "O";
+            logMessage.Level = "V";
+            logMessage.Format = "J";
+            logMessage.Message = JsonConvert.SerializeObject(response);
+            logMessage.Properties = JsonConvert.SerializeObject(response.Result.Property);
+            logMessage.UserID = response.Transaction.OperatorID;
+
             if (ModuleConfiguration.IsLogServer == true)
             {
-                LogMessage logMessage = new LogMessage();
-                logMessage.ServerID = GlobalConfiguration.HostName;
-                logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
-                logMessage.ProgramName = ModuleConfiguration.ModuleID;
-                logMessage.GlobalID = response.Transaction.GlobalID;
-                logMessage.Acknowledge = string.IsNullOrEmpty(acknowledge) == true ? "N" : acknowledge;
-                logMessage.ApplicationID = response.System.ProgramID;
-                logMessage.ProjectID = response.Transaction.BusinessID;
-                logMessage.TransactionID = response.Transaction.TransactionID;
-                logMessage.ServiceID = response.Transaction.FunctionID;
-                logMessage.Type = "T";
-                logMessage.Flow = "O";
-                logMessage.Level = "V";
-                logMessage.Format = "J";
-                logMessage.Message = JsonConvert.SerializeObject(response);
-                logMessage.Properties = JsonConvert.SerializeObject(response.Result.Property);
-                logMessage.UserID = response.Transaction.OperatorID;
-
                 LogRequest logRequest = new LogRequest();
                 logRequest.LogMessage = logMessage;
                 logRequest.FallbackFunction = fallbackFunction;
@@ -301,7 +301,7 @@ namespace transact.Extensions
             }
             else
             {
-                transactionLogger?.Warning($"Response GlobalID: {response.Transaction.GlobalID}, JSON: {JsonConvert.SerializeObject(response)}");
+                transactionLogger?.Warning($"Response GlobalID: {response.Transaction.GlobalID}, JSON: {JsonConvert.SerializeObject(logMessage)}");
             }
 
             if (ModuleConfiguration.IsTransactAggregate == true && response.AcceptDateTime != null)
