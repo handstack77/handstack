@@ -4,6 +4,7 @@ using checkup.Extensions;
 
 using HandStack.Core.ExtensionMethod;
 using HandStack.Data.Enumeration;
+using HandStack.Web;
 using HandStack.Web.Extensions;
 
 using Microsoft.AspNetCore.Cors;
@@ -78,6 +79,7 @@ namespace checkup.Areas.checkup.Controllers
 
                         Console.WriteLine($"Administrator Email ID: {ModuleConfiguration.AdministratorEmailID}");
                         Console.WriteLine($"Administrator Key: {administratorKey}");
+                        Console.WriteLine($"http://localhost:{GlobalConfiguration.ServerPort}/checkup//account/signin.html");
                     }
 
                     result = Ok();
