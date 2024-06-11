@@ -34,7 +34,7 @@ namespace function.Extensions
         public static ModuleSourceMap? GetDataSourceMap(string applicationID, string projectID, string transactionID, string dataSourceID)
         {
             ModuleSourceMap? result = null;
-            if (FunctionSourceMappings != null)
+            lock (FunctionSourceMappings)
             {
                 string functionSourceMappingsKey = $"{applicationID}|{dataSourceID}";
                 result = FunctionSourceMappings.FirstOrDefault(item => item.Key == functionSourceMappingsKey
@@ -126,7 +126,7 @@ namespace function.Extensions
         public static ModuleScriptMap? GetScriptMap(string queryID)
         {
             ModuleScriptMap? result = null;
-            if (ScriptMappings != null)
+            lock (ScriptMappings)
             {
                 result = ScriptMappings.FirstOrDefault(item => item.Key == queryID).Value;
 
@@ -330,16 +330,13 @@ namespace function.Extensions
                                     moduleScriptMap.ScriptID
                                 );
 
-                                lock (ScriptMappings)
+                                if (ScriptMappings.ContainsKey(mappingQueryID) == false)
                                 {
-                                    if (ScriptMappings.ContainsKey(mappingQueryID) == false)
-                                    {
-                                        ScriptMappings.Add(mappingQueryID, moduleScriptMap);
-                                    }
-                                    else
-                                    {
-                                        Log.Logger.Warning("[{LogCategory}] " + $"ScriptMap 정보 중복 확인 필요 - {scriptMapFile}, ApplicationID - {moduleScriptMap.ApplicationID}, ProjectID - {moduleScriptMap.ProjectID}, TransactionID - {moduleScriptMap.TransactionID}, ScriptID - {moduleScriptMap.ScriptID}", "FunctionMapper/MergeContractFile");
-                                    }
+                                    ScriptMappings.Add(mappingQueryID, moduleScriptMap);
+                                }
+                                else
+                                {
+                                    Log.Logger.Warning("[{LogCategory}] " + $"ScriptMap 정보 중복 확인 필요 - {scriptMapFile}, ApplicationID - {moduleScriptMap.ApplicationID}, ProjectID - {moduleScriptMap.ProjectID}, TransactionID - {moduleScriptMap.TransactionID}, ScriptID - {moduleScriptMap.ScriptID}", "FunctionMapper/MergeContractFile");
                                 }
                             }
                         }

@@ -40,7 +40,7 @@ namespace prompter.Extensions
         public static DataSourceMap? GetDataSourceMap(QueryObject queryObject, string applicationID, string projectID, string dataSourceID)
         {
             DataSourceMap? result = null;
-            if (DataSourceMappings != null)
+            lock (DataSourceMappings)
             {
                 var dataSourceMaps = DataSourceMappings.Where(item =>
                     item.Value.ApplicationID == applicationID
@@ -166,7 +166,7 @@ namespace prompter.Extensions
         public static PromptMap? GetPromptMap(string queryID)
         {
             PromptMap? result = null;
-            if (PromptMappings != null)
+            lock (PromptMappings)
             {
                 result = PromptMappings.FirstOrDefault(item => item.Key == queryID).Value;
 
@@ -268,15 +268,12 @@ namespace prompter.Extensions
                                                 promptMap.StatementID
                                             );
 
-                                            lock (PromptMappings)
+                                            if (PromptMappings.ContainsKey(mappingQueryID) == true)
                                             {
-                                                if (PromptMappings.ContainsKey(mappingQueryID) == true)
-                                                {
-                                                    PromptMappings.Remove(mappingQueryID);
-                                                }
-
-                                                PromptMappings.Add(mappingQueryID, promptMap);
+                                                PromptMappings.Remove(mappingQueryID);
                                             }
+
+                                            PromptMappings.Add(mappingQueryID, promptMap);
 
                                             result = promptMap;
                                         }

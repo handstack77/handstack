@@ -168,7 +168,7 @@ namespace dbclient.Extensions
         public static StatementMap? GetStatementMap(string queryID)
         {
             StatementMap? result = null;
-            if (StatementMappings != null)
+            lock (StatementMappings)
             {
                 result = StatementMappings.FirstOrDefault(item => item.Key == queryID).Value;
 
@@ -285,15 +285,12 @@ namespace dbclient.Extensions
                                                 statementMap.StatementID
                                             );
 
-                                            lock (StatementMappings)
+                                            if (StatementMappings.ContainsKey(mappingQueryID) == true)
                                             {
-                                                if (StatementMappings.ContainsKey(mappingQueryID) == true)
-                                                {
-                                                    StatementMappings.Remove(mappingQueryID);
-                                                }
-
-                                                StatementMappings.Add(mappingQueryID, statementMap);
+                                                StatementMappings.Remove(mappingQueryID);
                                             }
+
+                                            StatementMappings.Add(mappingQueryID, statementMap);
 
                                             result = statementMap;
                                         }
