@@ -38,6 +38,7 @@ if "%TASK_COMMAND%"=="run" (
 
 if "%TASK_COMMAND%"=="copy" (
     robocopy %WORKING_PATH%/Contracts %HANDSTACK_PATH%/1.WebHost/build/handstack/contracts /e /copy:dat
+    robocopy %WORKING_PATH%/Contracts %HANDSTACK_PATH%/1.WebHost/build/handstack/modules/prompter/Contracts /e /copy:dat
     robocopy %WORKING_PATH%/wwwroot %HANDSTACK_PATH%/1.WebHost/build/handstack/modules/prompter/wwwroot /e /copy:dat
 )
 
