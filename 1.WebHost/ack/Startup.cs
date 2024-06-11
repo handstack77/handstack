@@ -157,12 +157,14 @@ namespace ack
                     {
                         if (line.Contains("|") == true)
                         {
-                            string tenantID = line.Split('|')[0];
-                            string path = line.Split('|')[1];
+                            string userWorkID = line.Split('|')[0];
+                            string tenantID = line.Split('|')[1];
+                            string path = line.Split('|')[2];
                             try
                             {
-                                if (Directory.Exists(path) == true && path.StartsWith(GlobalConfiguration.TenantAppRequestPath) == true)
+                                if (Directory.Exists(path) == true && path.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                                 {
+                                    Log.Information("[{LogCategory}] " + $"DisposeTenantApps userWorkID: {userWorkID}, tenantID: {tenantID}", "Startup/ConfigureServices");
                                     Directory.Delete(path, true);
                                 }
                                 else
@@ -170,9 +172,9 @@ namespace ack
                                     Log.Warning("[{LogCategory}] " + $"DisposeTenantApps 디렉토리 확인 필요: {path}", "Startup/ConfigureServices");
                                 }
                             }
-                            catch
+                            catch (Exception exception)
                             {
-                                Log.Error("[{LogCategory}] " + $"DisposeTenantApps 디렉토리 확인 필요: {path}", "Startup/ConfigureServices");
+                                Log.Error(exception, "[{LogCategory}] " + $"DisposeTenantApps 디렉토리 삭제 오류: {path}", "Startup/ConfigureServices");
                             }
                         }
                     }
