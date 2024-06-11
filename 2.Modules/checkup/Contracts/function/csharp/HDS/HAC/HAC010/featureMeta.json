@@ -7,7 +7,7 @@
         "LanguageType": "csharp",
         "ReferenceModuleID": "checkup",
         "Use": true,
-        "Description": "태넌트 앱 dbclient 데이터 원본 관리"
+        "Description": "Forbes 앱 dbclient 데이터 원본 관리"
     },
     "Commands": [
         {

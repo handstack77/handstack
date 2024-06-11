@@ -2,7 +2,7 @@
     "ApplicationID": "HDS",
     "ProjectID": "HBM",
     "TransactionID": "HBM020",
-    "Description": "태넌트 앱 공개 거래 설정 관리",
+    "Description": "Forbes 앱 공개 거래 설정 관리",
     "ModifiedDate": "2023-08-10 00:00:00",
     "Services": [
         {

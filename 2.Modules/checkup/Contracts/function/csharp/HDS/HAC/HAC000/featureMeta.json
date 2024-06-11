@@ -10,7 +10,7 @@
             "TransactServerUrl": "http://localhost:8000/transact/api/aggregate"
         },
         "Use": true,
-        "Description": "태넌트 앱 대시보드 정보"
+        "Description": "Forbes 앱 대시보드 정보"
     },
     "Commands": [
         {

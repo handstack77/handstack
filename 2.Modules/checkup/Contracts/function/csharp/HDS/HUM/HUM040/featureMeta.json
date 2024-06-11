@@ -8,7 +8,7 @@
         "ReferenceModuleID": "checkup",
         "IsHttpContext": true,
         "Use": true,
-        "Description": "태넌트 앱 루트 디렉토리내 파일 관리"
+        "Description": "Forbes 앱 루트 디렉토리내 파일 관리"
     },
     "Commands": [
         {
@@ -16,7 +16,7 @@
             "Seq": 0,
             "Use": true,
             "Timeout": 0,
-            "Description": "태넌트 앱 루트 디렉토리내 파일 목록 조회",
+            "Description": "Forbes 앱 루트 디렉토리내 파일 목록 조회",
             "ModifiedAt": "2023-07-10 00:00:00",
             "Params": [
                 {
@@ -50,7 +50,7 @@
             "Seq": 0,
             "Use": true,
             "Timeout": 0,
-            "Description": "태넌트 앱 루트 디렉토리내 파일 소스코드 조회",
+            "Description": "Forbes 앱 루트 디렉토리내 파일 소스코드 조회",
             "ModifiedAt": "2023-07-10 00:00:00",
             "Params": [
                 {
@@ -84,7 +84,7 @@
             "Seq": 0,
             "Use": true,
             "Timeout": 0,
-            "Description": "태넌트 앱 루트 디렉토리내 파일 수정",
+            "Description": "Forbes 앱 루트 디렉토리내 파일 수정",
             "ModifiedAt": "2023-07-10 00:00:00",
             "Params": [
                 {

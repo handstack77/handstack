@@ -2,7 +2,7 @@
     "ApplicationID": "HDS",
     "ProjectID": "HAC",
     "TransactionID": "HAC030",
-    "Description": "태넌트 앱 transact 거래 라우팅 관리",
+    "Description": "Forbes 앱 transact 거래 라우팅 관리",
     "ModifiedDate": "2023-08-10 00:00:00",
     "Services": [
         {

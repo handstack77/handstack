@@ -2,7 +2,7 @@
     "ApplicationID": "HDS",
     "ProjectID": "HAC",
     "TransactionID": "HAC040",
-    "Description": "태넌트 앱 환경설정",
+    "Description": "Forbes 앱 환경설정",
     "ModifiedDate": "2023-08-10 00:00:00",
     "Services": [
         {

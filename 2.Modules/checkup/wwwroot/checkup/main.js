@@ -978,7 +978,7 @@ let $main = {
                                             syn.$l.get('txtDbClientItemName').focus();
                                         }
                                         else {
-                                            syn.$w.alert(`$태넌트 앱 데이터 소스 정보를 조회하지 못했습니다`);
+                                            syn.$w.alert(`$Forbes 앱 데이터 소스 정보를 조회하지 못했습니다`);
                                         }
                                     });
                                     break;
@@ -1147,7 +1147,7 @@ let $main = {
                                     syn.$l.get('txtFunctionItemName').focus();
                                 }
                                 else {
-                                    syn.$w.alert(`$태넌트 앱 데이터 소스 정보를 조회하지 못했습니다`);
+                                    syn.$w.alert(`$Forbes 앱 데이터 소스 정보를 조회하지 못했습니다`);
                                 }
                             });
                         }
@@ -2108,7 +2108,7 @@ let $main = {
                     var alertOptions = $object.clone(syn.$w.alertOptions);
                     alertOptions.icon = 'warning';
                     alertOptions.buttonType = '1';
-                    syn.$w.alert('태넌트 앱 파일을 조회하지 못했습니다', '프로젝트 닫기', alertOptions, function (result) {
+                    syn.$w.alert('Forbes 앱 파일을 조회하지 못했습니다', '프로젝트 닫기', alertOptions, function (result) {
                         location.href = 'checkin.html';
                     });
                 }

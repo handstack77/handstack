@@ -2,7 +2,7 @@
     "ApplicationID": "HDS",
     "ProjectID": "HAC",
     "TransactionID": "HAC010",
-    "Description": "태넌트 앱 dbclient 데이터 원본 관리",
+    "Description": "Forbes 앱 dbclient 데이터 원본 관리",
     "ModifiedDate": "2023-08-10 00:00:00",
     "Services": [
         {

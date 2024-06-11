@@ -12,13 +12,13 @@
         <statement id="ZD01" seq="0" use="Y" timeout="0" desc="checkup 테이블 및 인덱스 생성">
             <![CDATA[
 CREATE TABLE IF NOT EXISTS "Application" (
-    -- 태넌트 앱 NO
+    -- Forbes 앱 NO
     "ApplicationNo" TEXT NOT NULL CONSTRAINT "PK_Application" PRIMARY KEY,
 
-    -- 태넌트 앱 ID
+    -- Forbes 앱 ID
     "ApplicationID" TEXT NULL DEFAULT '',
 
-    -- 태넌트 앱 명
+    -- Forbes 앱 명
     "ApplicationName" TEXT NOT NULL DEFAULT '',
 
     -- 약어
@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS "Application" (
 );
 
 CREATE TABLE IF NOT EXISTS "ApplicationMember" (
-    -- 태넌트 앱 NO
+    -- Forbes 앱 NO
     "ApplicationNo" TEXT NOT NULL,
 
     -- 이메일ID
@@ -354,7 +354,7 @@ CREATE TABLE IF NOT EXISTS "UserAccount" (
     -- 사용자계정ID
     "UserAccountID" TEXT NOT NULL CONSTRAINT "PK_UserAccount" PRIMARY KEY,
 
-    -- 태넌트 앱 ID
+    -- Forbes 앱 ID
     "ApplicationID" TEXT NULL,
 
     -- 사용자ID
@@ -544,7 +544,7 @@ SELECT
             <param id="@Password" type="String" length="256" value="" />
         </statement>
 
-        <statement id="ZD03" seq="0" use="Y" timeout="0" desc="태넌트 앱 기본 테이블 및 인덱스 생성">
+        <statement id="ZD03" seq="0" use="Y" timeout="0" desc="Forbes 앱 기본 테이블 및 인덱스 생성">
             <![CDATA[
 CREATE TABLE IF NOT EXISTS "MetaEntity" (
     -- 엔티티NO

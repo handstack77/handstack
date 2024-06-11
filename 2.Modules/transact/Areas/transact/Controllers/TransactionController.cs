@@ -913,7 +913,7 @@ namespace transact.Areas.transact.Controllers
                         requestSystemID = route.SystemID;
                     }
 
-                    // Referer 실행 경로가 태넌트 앱이고 요청 헤더에 Authorization가 있으면 인증 검증
+                    // Referer 실행 경로가 Forbes 앱이고 요청 헤더에 Authorization가 있으면 인증 검증
                     UserAccount? userAccount = null;
                     if (refererPath.StartsWith(tenantAppRequestPath) == true)
                     {

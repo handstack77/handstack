@@ -6,7 +6,7 @@
         "DataSourceID": "DB01",
         "LanguageType": "csharp",
         "Use": true,
-        "Description": "태넌트 앱 공개 거래 설정 관리"
+        "Description": "Forbes 앱 공개 거래 설정 관리"
     },
     "Commands": [
         {

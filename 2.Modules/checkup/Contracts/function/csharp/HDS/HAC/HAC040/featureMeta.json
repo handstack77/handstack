@@ -11,7 +11,7 @@
             "WindowsBaseUrl": "http://localhost:8000",
             "LinuxBaseUrl": "https://qrame.qcnservice.co.kr"
         },
-        "Description": "태넌트 앱 환경설정"
+        "Description": "Forbes 앱 환경설정"
     },
     "Commands": [
         {

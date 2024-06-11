@@ -9,7 +9,7 @@
 		<desc>JWT(Json Web Token) 정보 발급갱신폐기 관리</desc>
 	</header>
 	<commands>
-        <statement id="ZD01" seq="0" use="Y" timeout="0" desc="기본 태넌트 앱 User 테이블 DDL">
+        <statement id="ZD01" seq="0" use="Y" timeout="0" desc="기본 Forbes 앱 User 테이블 DDL">
             <![CDATA[
 CREATE TABLE "User" (
     -- 사용자 NO

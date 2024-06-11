@@ -7,7 +7,7 @@
         "LanguageType": "csharp",
         "IsHttpContext": true,
         "Use": true,
-        "Description": "태넌트 앱 transact 거래 라우팅 관리"
+        "Description": "Forbes 앱 transact 거래 라우팅 관리"
     },
     "Commands": [
         {

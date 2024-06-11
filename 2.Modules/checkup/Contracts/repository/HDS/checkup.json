@@ -74,7 +74,7 @@
     {
         "ApplicationID": "HDS",
         "RepositoryID": "CHECKUPLP01",
-        "RepositoryName": "태넌트 앱 프로필",
+        "RepositoryName": "Forbes 앱 프로필",
         "AccessID": "CHECKUP",
         "StorageType": "FileSystem",
         "PhysicalPath": "../storage/HDS/CHECKUPLP01",

@@ -165,7 +165,7 @@ namespace checkup.Areas.checkup.Controllers
                             {
                                 string message = (transactionAccount?["HasException"]?["ErrorMessage"]).ToStringSafe();
                                 logger.Error("[{LogCategory}] " + $"ErrorMessage: {message}", "UserAccountService/Authenticate");
-                                result.ErrorMessage = $"태넌트 앱 SignInID: {appSetting.SignInID} 확인 필요 {message}";
+                                result.ErrorMessage = $"Forbes 앱 SignInID: {appSetting.SignInID} 확인 필요 {message}";
                                 return Ok(result);
                             }
                             else
@@ -173,7 +173,7 @@ namespace checkup.Areas.checkup.Controllers
                                 var member = transactionAccount["FormData0"];
                                 if (member == null || (member["IsAccount"]?.ToStringSafe() == "0") == true)
                                 {
-                                    result.ErrorMessage = $"태넌트 앱 '{accountSignNo}' 사용자 계정 인증 코드 만료";
+                                    result.ErrorMessage = $"Forbes 앱 '{accountSignNo}' 사용자 계정 인증 코드 만료";
                                     return Ok(result);
                                 }
                                 else
@@ -181,7 +181,7 @@ namespace checkup.Areas.checkup.Controllers
                                     var tokenResult = userTokenService.CreateUserInformation(transactionAccount?["FormData0"]);
                                     if (tokenResult == null || tokenResult.Item1 == null)
                                     {
-                                        result.ErrorMessage = $"태넌트 앱 사용자 정보 확인 필요";
+                                        result.ErrorMessage = $"Forbes 앱 사용자 정보 확인 필요";
                                         return Ok(result);
                                     }
 
@@ -240,7 +240,7 @@ namespace checkup.Areas.checkup.Controllers
                                     if (transactionResult?.ContainsKey("HasException") == true)
                                     {
                                         string message = (transactionResult?["HasException"]?["ErrorMessage"]).ToStringSafe();
-                                        result.ErrorMessage = $"태넌트 앱 사용자 계정 추가 실패 {message}";
+                                        result.ErrorMessage = $"Forbes 앱 사용자 계정 추가 실패 {message}";
                                         logger.Error("[{LogCategory}] " + $"ServiceParameters: {JsonConvert.SerializeObject(serviceParameters)}, ErrorMessage: {result.ErrorMessage}", "UserAccountService/Authenticate");
                                         return Ok(result);
                                     }
@@ -255,7 +255,7 @@ namespace checkup.Areas.checkup.Controllers
                                     if (transactionResult?.ContainsKey("HasException") == true)
                                     {
                                         string message = (transactionResult?["HasException"]?["ErrorMessage"]).ToStringSafe();
-                                        result.ErrorMessage = $"태넌트 앱 사용자 RefreshToken 추가 실패 {message}";
+                                        result.ErrorMessage = $"Forbes 앱 사용자 RefreshToken 추가 실패 {message}";
                                         logger.Error("[{LogCategory}] " + $"ServiceParameters: {JsonConvert.SerializeObject(serviceParameters)}, ErrorMessage: {result.ErrorMessage}", "UserAccountService/Authenticate");
                                         return Ok(result);
                                     }
@@ -277,17 +277,17 @@ namespace checkup.Areas.checkup.Controllers
                         }
                         else
                         {
-                            result.ErrorMessage = $"태넌트 앱 SignInID 실행 확인 필요";
+                            result.ErrorMessage = $"Forbes 앱 SignInID 실행 확인 필요";
                         }
                     }
                     else
                     {
-                        result.ErrorMessage = $"태넌트 앱 SignInID 확인 필요";
+                        result.ErrorMessage = $"Forbes 앱 SignInID 확인 필요";
                     }
                 }
                 else
                 {
-                    result.ErrorMessage = $"태넌트 앱 설정 확인 필요";
+                    result.ErrorMessage = $"Forbes 앱 설정 확인 필요";
                 }
             }
             else
@@ -362,7 +362,7 @@ namespace checkup.Areas.checkup.Controllers
                                 if (transactionResult?.ContainsKey("HasException") == true)
                                 {
                                     string message = (transactionResult?["HasException"]?["ErrorMessage"]).ToStringSafe();
-                                    result.ErrorMessage = $"태넌트 앱 사용자 기존 RefreshToken 정보 교체 추가 실패 {message}";
+                                    result.ErrorMessage = $"Forbes 앱 사용자 기존 RefreshToken 정보 교체 추가 실패 {message}";
                                     logger.Error("[{LogCategory}] " + $"ServiceParameters: {JsonConvert.SerializeObject(serviceParameters)}, ErrorMessage: {result.ErrorMessage}", "UserAccountService/RefreshToken");
                                     return Ok(result);
                                 }
@@ -1082,7 +1082,7 @@ namespace checkup.Areas.checkup.Controllers
                     return BadRequest("사용자 정보 또는 요청 정보 확인이 필요합니다");
                 }
 
-                // 태넌트 앱 정보 생성
+                // Forbes 앱 정보 생성
                 var scalarResults = ModuleExtensions.ExecuteMetaSQL(ReturnType.Scalar, "SYS.SYS010.GD03", new
                 {
                     GroupID = "A",
@@ -1098,7 +1098,7 @@ namespace checkup.Areas.checkup.Controllers
                 }
                 else
                 {
-                    return BadRequest("태넌트 앱 정보 생성 확인이 필요합니다");
+                    return BadRequest("Forbes 앱 정보 생성 확인이 필요합니다");
                 }
 
                 // Application 임시 디렉토리 확인 및 삭제
@@ -1137,7 +1137,7 @@ namespace checkup.Areas.checkup.Controllers
                         GroupID = "A",
                         MemberNo = memberNo,
                     });
-                    return BadRequest($"태넌트 앱 정보 생성이 제한 되었습니다");
+                    return BadRequest($"Forbes 앱 정보 생성이 제한 되었습니다");
                 }
 
                 string tenantID = $"{userWorkID}|{applicationID}";
@@ -1202,7 +1202,7 @@ namespace checkup.Areas.checkup.Controllers
                     }
                 }
 
-                // 태넌트 앱에 정보 생성
+                // Forbes 앱에 정보 생성
                 var applicationResults = ModuleExtensions.ExecuteMetaSQL(ReturnType.Scalar, "SYS.SYS010.ID01", new
                 {
                     ApplicationNo = applicationNo,
@@ -1245,7 +1245,7 @@ namespace checkup.Areas.checkup.Controllers
                     ModuleExtensions.TenantAppExecuteMetaSQL(connectionString, ReturnType.NonQuery, "SYS.SYS010.ZD03");
                 }
 
-                // checkup Forbes 앱 데이터 모델 정보를 태넌트 앱에 복사
+                // checkup Forbes 앱 데이터 모델 정보를 Forbes 앱에 복사
                 string forbesMetaFilePath = Path.Combine(forbesAppBasePath, "meta.xml");
                 if (System.IO.File.Exists(forbesMetaFilePath) == true)
                 {
@@ -1335,7 +1335,7 @@ namespace checkup.Areas.checkup.Controllers
                     }
                 }
 
-                // checkup Forbes 앱 데이터 정보를 태넌트 앱에 복사
+                // checkup Forbes 앱 데이터 정보를 Forbes 앱에 복사
                 string forbesMetaDataFilePath = Path.Combine(forbesAppBasePath, "meta.sql");
                 if (System.IO.File.Exists(forbesMetaDataFilePath) == true)
                 {

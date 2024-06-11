@@ -193,7 +193,7 @@ namespace checkup.Services
             var transactionResult = await moduleApiClient.TransactionDirect($"HDS|JWT|JWT010|DD01", serviceParameters);
             if (transactionResult?.ContainsKey("HasException") == true)
             {
-                string message = $"태넌트 앱 오래된 사용자 RefreshToken 삭제 실패 {(transactionResult?["HasException"]?["ErrorMessage"]).ToStringSafe()}";
+                string message = $"Forbes 앱 오래된 사용자 RefreshToken 삭제 실패 {(transactionResult?["HasException"]?["ErrorMessage"]).ToStringSafe()}";
                 logger.Error("[{LogCategory}] " + $"ServiceParameters: {JsonConvert.SerializeObject(serviceParameters)}, ErrorMessage: {message}", "UserAccountService/RemoveOldRefreshTokens");
             }
         }

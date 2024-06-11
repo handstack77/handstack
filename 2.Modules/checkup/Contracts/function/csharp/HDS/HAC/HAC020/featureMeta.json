@@ -7,7 +7,7 @@
         "LanguageType": "csharp",
         "ReferenceModuleID": "checkup",
         "Use": true,
-        "Description": "태넌트 앱 repository 저장소 관리"
+        "Description": "Forbes 앱 repository 저장소 관리"
     },
     "Commands": [
         {
