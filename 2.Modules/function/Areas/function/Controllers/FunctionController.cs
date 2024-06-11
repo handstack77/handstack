@@ -196,7 +196,6 @@ namespace function.Areas.function.Controllers
         public async Task<DataSet?> GF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
             string typeMember = "TST.CSF010.GF01";
-
             string serverDate = dynamicParameters.Value("ServerDate").ToStringSafe();
             string serverName = dynamicParameters.Value("ServerName").ToStringSafe();
 
@@ -212,6 +211,7 @@ namespace function.Areas.function.Controllers
                 result.Tables.Add(table);
             }
 
+            await Task.Delay(1);
             return result;
         }
 
