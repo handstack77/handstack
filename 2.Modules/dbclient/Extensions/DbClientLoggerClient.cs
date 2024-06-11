@@ -178,7 +178,9 @@ namespace dbclient.Extensions
             }
             else
             {
-                transactionLogger?.Information($"Transaction GlobalID: {globalID}, {JsonConvert.SerializeObject(logMessage)}");
+                logMessage.Message = "";
+                transactionLogger?.Information($"Program GlobalID: {globalID}, {JsonConvert.SerializeObject(logMessage)}");
+                transactionLogger?.Information("[{LogCategory}] " + message, properties);
             }
         }
 
@@ -212,7 +214,9 @@ namespace dbclient.Extensions
             }
             else
             {
+                logMessage.Message = "";
                 transactionLogger?.Information($"Transaction GlobalID: {globalID}, {JsonConvert.SerializeObject(logMessage)}");
+                transactionLogger?.Information("[{LogCategory}] " + message, properties);
             }
         }
 

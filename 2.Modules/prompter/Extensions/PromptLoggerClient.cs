@@ -166,11 +166,20 @@ namespace prompter.Extensions
             logMessage.Properties = properties;
             logMessage.UserID = "";
 
-            LogRequest logRequest = new LogRequest();
-            logRequest.LogMessage = logMessage;
-            logRequest.FallbackFunction = fallbackFunction;
+            if (ModuleConfiguration.IsLogServer == true)
+            {
+                LogRequest logRequest = new LogRequest();
+                logRequest.LogMessage = logMessage;
+                logRequest.FallbackFunction = fallbackFunction;
 
-            Task.Run(() => { BackgroundTask(logRequest); });
+                Task.Run(() => { BackgroundTask(logRequest); });
+            }
+            else
+            {
+                logMessage.Message = "";
+                transactionLogger?.Information($"Program GlobalID: {globalID}, {JsonConvert.SerializeObject(logMessage)}");
+                transactionLogger?.Information("[{LogCategory}] " + message, properties);
+            }
         }
 
         public void TransactionMessageLogging(string globalID, string acknowledge, string applicationID, string projectID, string transactionID, string serviceID, string message, string properties, Action<string> fallbackFunction)
@@ -203,7 +212,9 @@ namespace prompter.Extensions
             }
             else
             {
+                logMessage.Message = "";
                 transactionLogger?.Information($"Transaction GlobalID: {globalID}, {JsonConvert.SerializeObject(logMessage)}");
+                transactionLogger?.Information("[{LogCategory}] " + message, properties);
             }
         }
 
