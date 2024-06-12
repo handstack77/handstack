@@ -9,7 +9,7 @@
         "Use": true,
         "Configuration": {
             "WindowsBaseUrl": "http://localhost:8000",
-            "LinuxBaseUrl": "https://qrame.qcnservice.co.kr"
+            "LinuxBaseUrl": "http://localhost:8000"
         },
         "Description": "Forbes 앱 환경설정"
     },
