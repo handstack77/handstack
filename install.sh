@@ -97,14 +97,17 @@ if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
     
     cd $current_path
 
-    echo post-build.sh 스크립트에 실행 권한을 부여합니다...
-    module_paths=("$current_path/1.WebHost/ack" "$current_path/1.WebHost/forbes" "$current_path/2.Modules/checkup" "$current_path/2.Modules/dbclient" "$current_path/2.Modules/function" "$current_path/2.Modules/logger" "$current_path/2.Modules/openapi" "$current_path/2.Modules/repository" "$current_path/2.Modules/transact" "$current_path/2.Modules/wwwroot")
+    echo build.sh, post-build.sh 스크립트에 실행 권한을 부여합니다...
+    module_paths=("$current_path/1.WebHost/ack" "$current_path/1.WebHost/forbes" "$current_path/2.Modules/checkup" "$current_path/2.Modules/dbclient" "$current_path/2.Modules/function" "$current_path/2.Modules/logger" "$current_path/2.Modules/openapi" "$current_path/2.Modules/repository" "$current_path/2.Modules/transact" "$current_path/2.Modules/wwwroot" "$current_path/4.Tool/CLI/handstack")
 
     for module_path in "${module_paths[@]}"
     do
         tr -d '\r' < $module_path/post-build.sh > $module_path/post-build_fixed.sh && mv $module_path/post-build_fixed.sh $module_path/post-build.sh
         chmod +x $module_path/post-build.sh
     done
+    
+    tr -d '\r' < $current_path/4.Tool/CLI/handstack/build.sh > $current_path/4.Tool/CLI/handstack/build_fixed.sh && mv $current_path/4.Tool/CLI/handstack/build_fixed.sh $current_path/4.Tool/CLI/handstack/build.sh
+    chmod +x $current_path/4.Tool/CLI/handstack/build.sh
 
     dotnet build handstack.sln
 
