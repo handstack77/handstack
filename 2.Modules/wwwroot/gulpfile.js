@@ -156,13 +156,14 @@ gulp.task('styles', async function () {
     return gulp.src([
         // syn.scripts.js
         'wwwroot/lib/tabler-core/dist/css/tabler.css',
+        'wwwroot/css/ui.fancytree.css',
+        'wwwroot/css/tabler-icons.css',
         'wwwroot/lib/handsontable/dist/handsontable.full.css',
         'wwwroot/lib/tail.select.js/css/default/tail.select-light.css',
         'wwwroot/lib/ispin/dist/ispin.css',
         'wwwroot/js/css-checkbox/checkboxes.css',
         'wwwroot/js/color-picker/color-picker.css',
         'wwwroot/lib/codemirror/codemirror.css',
-        "wwwroot/lib/fancytree/skin-win8/ui.fancytree.css",
         "wwwroot/js/jquery-ui-contextmenu/jquery-ui.css",
         "wwwroot/lib/orgchart/css/jquery.orgchart.css",
         "wwwroot/lib/print-js/print.min.css",
@@ -198,7 +199,6 @@ gulp.task('styles', async function () {
 
         // 프로젝트 화면 디자인
         'wwwroot/css/base.css',
-        'wwwroot/lib/tabler-icons-webfont/tabler-icons.css',
     ])
         .pipe(concat('syn.bundle.css'))
         .pipe(gulp.dest('wwwroot/css'))

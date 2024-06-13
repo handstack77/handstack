@@ -6,8 +6,8 @@
   font-family: "tabler-icons";
   font-style: normal;
   font-weight: 400;
-  src: url("../font/tabler-icons.eot?v2.23.0");
-  src: url("../font/tabler-icons.eot?#iefix-v2.23.0") format("embedded-opentype"), url("../font/tabler-icons.woff2?v2.23.0") format("woff2"), url("../font/tabler-icons.woff?") format("woff"), url("../font/tabler-icons.ttf?v2.23.0") format("truetype");
+  src: url("/font/tabler-icons.eot?v2.23.0");
+  src: url("/font/tabler-icons.eot?#iefix-v2.23.0") format("embedded-opentype"), url("/font/tabler-icons.woff2?v2.23.0") format("woff2"), url("/font/tabler-icons.woff?") format("woff"), url("/font/tabler-icons.ttf?v2.23.0") format("truetype");
 }
 .ti {
   font-family: "tabler-icons" !important;
