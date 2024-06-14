@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# tr -d '\r' < install.sh > install_fixed.sh && mv install_fixed.sh install.sh && chmod +x install.sh
 # publish.sh win build Debug x64
 # publish.sh linux build Debug x64
 # publish.sh osx build Debug x64
