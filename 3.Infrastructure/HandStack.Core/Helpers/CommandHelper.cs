@@ -7,8 +7,6 @@ using System.Runtime.InteropServices;
 
 using HandStack.Core.ExtensionMethod;
 
-using static System.Runtime.InteropServices.JavaScript.JSType;
-
 namespace HandStack.Core.Helpers
 {
     /// <summary>
@@ -20,6 +18,8 @@ namespace HandStack.Core.Helpers
     public static class CommandHelper
     {
         public static Dictionary<string, string> EnvironmentVariables { get; set; } = new Dictionary<string, string>();
+
+        public static int SuccessExitCode { get; set; } = 0;
 
         public static bool IsShowCommand { get; set; } = false;
 
@@ -86,7 +86,7 @@ namespace HandStack.Core.Helpers
                             , error
                         ));
 
-                        if (ignoreExitCode == false && exitCode != 0)
+                        if (ignoreExitCode == false && exitCode != SuccessExitCode)
                         {
                             break;
                         }
