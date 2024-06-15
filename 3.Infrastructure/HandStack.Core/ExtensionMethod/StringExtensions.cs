@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Runtime.Serialization.Json;
 using System.Security.Cryptography;
 using System.Text;
@@ -243,6 +244,28 @@ namespace HandStack.Core.ExtensionMethod
         {
             encoding = (encoding ?? Encoding.UTF8);
             return encoding.GetString(Convert.FromBase64String(@this));
+        }
+
+        public static string EncodeBase64Url(this string @this)
+        {
+            return WebUtility.UrlEncode(Convert.ToBase64String(@this.ToBytes(Encoding.UTF8)));
+        }
+
+        public static string EncodeBase64Url(this string @this, Encoding encoding)
+        {
+            encoding = (encoding ?? Encoding.UTF8);
+            return WebUtility.UrlEncode(Convert.ToBase64String(@this.ToBytes(encoding)));
+        }
+
+        public static string DecodeBase64Url(this string @this)
+        {
+            return Encoding.UTF8.GetString(Convert.FromBase64String(WebUtility.UrlDecode(@this)));
+        }
+
+        public static string DecodeBase64Url(this string @this, Encoding encoding)
+        {
+            encoding = (encoding ?? Encoding.UTF8);
+            return encoding.GetString(Convert.FromBase64String(WebUtility.UrlDecode(@this)));
         }
 
         public static bool ParseBool(this string @this, bool defaultValue = false)
