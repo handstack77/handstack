@@ -405,7 +405,7 @@ globalRoot.syn = syn;
             var result = '';
 
             try {
-                var value = await syn.$w.apiHttp('/checkip').send(null, { timeout: 3000 });
+                var value = await syn.$w.apiHttp(syn.Config.FindClientIPServer || '/checkip').send(null, { timeout: 3000 });
                 result = ($string.isNullOrEmpty(value) == true || syn.$v.regexs.ipAddress.test(value) == false) ? '127.0.0.1' : value;
             } catch (error) {
                 syn.$l.eventLog('$b.getIpAddress', error, 'Error');
