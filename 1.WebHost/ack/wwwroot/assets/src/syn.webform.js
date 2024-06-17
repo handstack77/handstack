@@ -3195,7 +3195,7 @@
 
                 var ipAddress = syn.$w.getStorage('ipAddress', false);
                 if ($object.isNullOrUndefined(ipAddress) == true && $string.isNullOrEmpty(syn.Config.FindClientIPServer) == false) {
-                    ipAddress = await syn.$w.apiHttp(syn.Config.FindClientIPServer).send(null, {
+                    ipAddress = await syn.$w.apiHttp(syn.Config.FindClientIPServer || '/checkip').send(null, {
                         method: 'GET',
                         redirect: 'follow',
                         timeout: 1000
