@@ -917,7 +917,7 @@ namespace transact.Areas.transact.Controllers
                     UserAccount? userAccount = null;
                     if (refererPath.StartsWith(tenantAppRequestPath) == true)
                     {
-                        var splits = refererPath.Split('/');
+                        var splits = refererPath.Replace(baseUrl, "").Split('/');
                         string userWorkID = splits.Length > 3 ? splits[2] : "";
                         string applicationID = splits.Length > 3 ? splits[3] : "";
                         if (string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false)
@@ -1007,7 +1007,7 @@ namespace transact.Areas.transact.Controllers
                                 return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                             }
                         }
-                        else if (ModuleConfiguration.UseApiAuthorize == true)
+                        else if (refererPath.StartsWith(tenantAppRequestPath) == false && ModuleConfiguration.UseApiAuthorize == true)
                         {
                             if (token.IndexOf(".") == -1)
                             {
@@ -1092,6 +1092,11 @@ namespace transact.Areas.transact.Controllers
                                         token = tokenArray[1];
                                         bearerToken = JsonConvert.DeserializeObject<BearerToken>(token.DecryptAES(request.Transaction.OperatorID.PadRight(32, ' ')));
                                     }
+                                    else
+                                    {
+                                        token = tokenArray[1];
+                                        bearerToken = JsonConvert.DeserializeObject<BearerToken>(token.DecryptAES(userID.PadRight(32, ' ')));
+                                    }
                                 }
                             }
                         }
@@ -1100,20 +1105,20 @@ namespace transact.Areas.transact.Controllers
                     // PrivillegeDatabaseDDL, PrivillegeDatabaseDML, PrivillegeDatabaseDCL, PrivillegePermissionEXE, PrivillegeFeatureRUN
                     List<string> privillegeKeys = new List<string>();
                     Dictionary<string, string> claims = new Dictionary<string, string>();
-                    if (bearerToken != null)
-                    {
-                        if (bearerToken.Policy.Claims.ContainsKey("PrivillegeKeys") == true)
-                        {
-                            privillegeKeys = bearerToken.Policy.Claims["PrivillegeKeys"].SplitAndTrim(',');
-                            claims = bearerToken.Policy.Claims;
-                        }
-                    }
-                    else if (userAccount != null)
+                    if (userAccount != null)
                     {
                         if (userAccount.Claims.ContainsKey("PrivillegeKeys") == true)
                         {
                             privillegeKeys = userAccount.Claims["PrivillegeKeys"].SplitAndTrim(',');
                             claims = userAccount.Claims;
+                        }
+                    }
+                    else if (bearerToken != null)
+                    {
+                        if (bearerToken.Policy.Claims.ContainsKey("PrivillegeKeys") == true)
+                        {
+                            privillegeKeys = bearerToken.Policy.Claims["PrivillegeKeys"].SplitAndTrim(',');
+                            claims = bearerToken.Policy.Claims;
                         }
                     }
 
