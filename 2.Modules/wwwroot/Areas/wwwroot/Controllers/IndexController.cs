@@ -19,6 +19,8 @@ using Newtonsoft.Json;
 
 using Serilog;
 
+using Sqids;
+
 namespace wwwroot.Areas.wwwroot.Controllers
 {
     [Area("wwwroot")]
@@ -30,13 +32,15 @@ namespace wwwroot.Areas.wwwroot.Controllers
         private readonly ILogger logger;
         private readonly IDistributedCache distributedCache;
         private readonly ISequentialIdGenerator sequentialIdGenerator;
+        private readonly SqidsEncoder<int> sqids;
 
-        public IndexController(IMediator mediator, ILogger logger, IDistributedCache distributedCache, ISequentialIdGenerator sequentialIdGenerator)
+        public IndexController(IMediator mediator, ILogger logger, IDistributedCache distributedCache, ISequentialIdGenerator sequentialIdGenerator, SqidsEncoder<int> sqids)
         {
             this.mediator = mediator;
             this.logger = logger;
             this.distributedCache = distributedCache;
             this.sequentialIdGenerator = sequentialIdGenerator;
+            this.sqids = sqids;
         }
 
         // http://localhost:8000/wwwroot/api/index
@@ -226,6 +230,20 @@ namespace wwwroot.Areas.wwwroot.Controllers
             {
                 return Content(Guid.NewGuid().ToString("N"));
             }
+        }
+
+        // http://localhost:8000/wwwroot/api/index/encode-no?numbers=12345678
+        [HttpGet("[action]")]
+        public ActionResult EncodeNo([FromQuery] int[] numbers, string? key)
+        {
+            return Content(sqids.Encode(numbers), "text/html");
+        }
+
+        // http://localhost:8000/wwwroot/api/index/decode-no?hash=1rQ2go
+        [HttpGet("[action]")]
+        public ActionResult DecodeNo(string hash, string? key)
+        {
+            return Content(string.Join(",", sqids.Decode(hash)), "text/html");
         }
     }
 }

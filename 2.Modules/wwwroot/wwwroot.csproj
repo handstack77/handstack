@@ -36,6 +36,7 @@
         <PackageReference Include="System.Runtime.Caching" Version="8.0.0" />
         <PackageReference Include="System.Data.SQLite.Core" Version="1.0.118" />
         <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
+		<PackageReference Include="Sqids" Version="3.1.0" />
     </ItemGroup>
 
     <ItemGroup>
