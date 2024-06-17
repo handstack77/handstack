@@ -10,6 +10,9 @@ app.use(requestIp.mw())
 
 app.get('/checkip', (req, res) => {
     var ip = req.clientIp;
+    if (ip.substring(0, 7) == "::ffff:") {
+        ip = ip.substring(7);
+    }
     res.send(ip);
 });
 
