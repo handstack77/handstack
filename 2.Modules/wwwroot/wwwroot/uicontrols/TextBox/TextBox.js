@@ -354,10 +354,6 @@
             else {
                 el.value = el.value.replace(/[^a-z0-9]/gi, '');
             }
-
-            if (oldValue != el.value) {
-                el.focus();
-            }
         },
 
         event_number_blur(evt) {
