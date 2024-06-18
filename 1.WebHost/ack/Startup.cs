@@ -31,6 +31,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
@@ -40,6 +41,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 
 using Newtonsoft.Json;
@@ -57,6 +59,7 @@ namespace ack
     public class Startup
     {
         private string? startTime = null;
+        bool useHttpLogging = false;
         bool useProxyForward = false;
         bool useResponseComression = false;
         private readonly IConfiguration configuration;
@@ -82,6 +85,7 @@ namespace ack
                 throw new Exception("AppSettings 환경변수 확인 필요");
             }
 
+            this.useHttpLogging = bool.Parse(appSettings["UseHttpLogging"].ToStringSafe("false"));
             this.useProxyForward = bool.Parse(appSettings["UseForwardProxy"].ToStringSafe("false"));
             this.useResponseComression = bool.Parse(appSettings["UseResponseComression"].ToStringSafe("false"));
 
@@ -244,34 +248,6 @@ namespace ack
                     }
 
                     options.MimeTypes = mimeTypes;
-                });
-            }
-
-            if (useProxyForward == true)
-            {
-                services.Configure<ForwardedHeadersOptions>(options =>
-                {
-                    var forwards = appSettings.GetSection("ForwardProxyIP").AsEnumerable();
-                    foreach (var item in forwards)
-                    {
-                        if (string.IsNullOrEmpty(item.Value) == false)
-                        {
-                            options.KnownProxies.Add(IPAddress.Parse(item.Value));
-                        }
-                    }
-
-                    bool useSameIPProxy = bool.Parse(appSettings["UseSameIPProxy"].ToStringSafe("false"));
-                    if (useSameIPProxy == true)
-                    {
-                        IPHostEntry host = Dns.GetHostEntry(Dns.GetHostName());
-                        foreach (IPAddress ipAddress in host.AddressList)
-                        {
-                            if (ipAddress.AddressFamily == AddressFamily.InterNetwork)
-                            {
-                                options.KnownProxies.Add(ipAddress);
-                            }
-                        }
-                    }
                 });
             }
 
@@ -523,6 +499,43 @@ namespace ack
                 options.Conventions.ConfigureFilter(new IgnoreAntiforgeryTokenAttribute());
             });
 
+            if (useProxyForward == true)
+            {
+                if (useHttpLogging == true)
+                {
+                    services.AddHttpLogging(options =>
+                    {
+                        options.LoggingFields = HttpLoggingFields.RequestPropertiesAndHeaders;
+                    });
+                }
+
+                services.Configure<ForwardedHeadersOptions>(options =>
+                {
+                    options.ForwardedHeaders = ForwardedHeaders.All;
+                    var forwards = appSettings.GetSection("ForwardProxyIP").AsEnumerable();
+                    foreach (var item in forwards)
+                    {
+                        if (string.IsNullOrEmpty(item.Value) == false)
+                        {
+                            options.KnownProxies.Add(IPAddress.Parse(item.Value));
+                        }
+                    }
+
+                    bool useSameIPProxy = bool.Parse(appSettings["UseSameIPProxy"].ToStringSafe("false"));
+                    if (useSameIPProxy == true)
+                    {
+                        IPHostEntry host = Dns.GetHostEntry(Dns.GetHostName());
+                        foreach (IPAddress ipAddress in host.AddressList)
+                        {
+                            if (ipAddress.AddressFamily == AddressFamily.InterNetwork)
+                            {
+                                options.KnownProxies.Add(ipAddress);
+                            }
+                        }
+                    }
+                });
+            }
+
             if (appSettings.GetSection("LicenseKey").Value != null && appSettings.GetSection("LicenseSignature").Value == null)
             {
                 var ackLicenseKey = appSettings["LicenseKey"].ToStringSafe();
@@ -611,6 +624,17 @@ namespace ack
                 {
                     ForwardedHeaders = ForwardedHeaders.All
                 });
+
+                if (useHttpLogging == true)
+                {
+                    app.UseHttpLogging();
+
+                    app.Use(async (context, next) =>
+                    {
+                        var connectionInfo = context.Connection;
+                        await next(context);
+                    });
+                }
             }
 
             GlobalConfiguration.ContentTypeProvider = new FileExtensionContentTypeProvider();
