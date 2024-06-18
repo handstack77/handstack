@@ -654,7 +654,7 @@
             }
         },
 
-        setTabContentHeight: async function (projectID, fileID) {
+        setTabContentHeight: function (projectID, fileID) {
             var tabID = null;
             if (parent.$main) {
                 if (projectID && fileID) {
@@ -670,34 +670,36 @@
                         tabFrame.height = '100%';
                         var scrollHeight = 0;
 
-                        var checkDocumentHeight = function () {
-                            var result = 0;
-                            var pageWrapper = document.querySelector('.page-wrapper');
-                            if (pageWrapper) {
-                                result = pageWrapper.scrollHeight;
+                        setTimeout(async () => {
+                            var checkDocumentHeight = function () {
+                                var result = 0;
+                                var pageWrapper = document.querySelector('.page-wrapper');
+                                if (pageWrapper) {
+                                    result = pageWrapper.scrollHeight;
+                                }
+                                else {
+                                    result = document.body.scrollHeight;
+                                }
+
+                                return result;
+                            };
+
+                            while (scrollHeight == 0) {
+                                scrollHeight = checkDocumentHeight();
+                                await syn.$w.sleep(25);
                             }
-                            else {
-                                result = document.body.scrollHeight;
+
+                            if (tabFrame.height != scrollHeight) {
+                                tabFrame.height = scrollHeight;
+                                tabFrame.style.height = `${scrollHeight}px`;
                             }
 
-                            return result;
-                        };
-
-                        while (scrollHeight == 0) {
-                            scrollHeight = checkDocumentHeight();
-                            await syn.$w.sleep(25);
-                        }
-
-                        if (tabFrame.height != scrollHeight) {
-                            tabFrame.height = scrollHeight;
-                            tabFrame.style.height = `${scrollHeight}px`;
-                        }
-
-                        var frameHeight = syn.$d.getSize(parent.document.body).height - (56 + 57 + 24);
-                        var uiHeight = syn.$d.getSize(tabFrame).height;
-                        if (frameHeight > uiHeight) {
-                            tabFrame.style.height = `${frameHeight}px`;
-                        }
+                            var frameHeight = syn.$d.getSize(parent.document.body).height - (56 + 57 + 24);
+                            var uiHeight = syn.$d.getSize(tabFrame).height;
+                            if (frameHeight > uiHeight) {
+                                tabFrame.style.height = `${frameHeight}px`;
+                            }
+                        }, 100);
                     }
                 }
             }
@@ -1208,25 +1210,28 @@
             if (options.icon) {
                 switch (options.icon) {
                     case 'debug':
-                        syn.$m.addClass(elIcon, 'ti ti-bug');
+                        syn.$m.addClass(elIcon, `ti ti-bug ${options.style}`);
                         break;
                     case 'information':
-                        syn.$m.addClass(elIcon, 'ti ti-info-circle');
+                        syn.$m.addClass(elIcon, `ti ti-info-circle ${options.style}`);
                         break;
                     case 'success':
-                        syn.$m.addClass(elIcon, 'ti ti-circle-check');
+                        syn.$m.addClass(elIcon, `ti ti-circle-check ${options.style}`);
                         break;
                     case 'question':
-                        syn.$m.addClass(elIcon, 'ti ti-help-circle');
+                        syn.$m.addClass(elIcon, `ti ti-help-circle ${options.style}`);
+                        break;
+                    case 'warning':
+                        syn.$m.addClass(elIcon, `ti ti-alert-triangle ${options.style}`);
                         break;
                     case 'error':
-                        syn.$m.addClass(elIcon, 'ti ti-bell-x');
+                        syn.$m.addClass(elIcon, `ti ti-bell-x ${options.style}`);
                         break;
                     case 'fatal':
-                        syn.$m.addClass(elIcon, 'ti ti-urgent');
+                        syn.$m.addClass(elIcon, `ti ti-urgent ${options.style}`);
                         break;
                     default:
-                        syn.$m.addClass(elIcon, 'ti ti-clipboard-text');
+                        syn.$m.addClass(elIcon, `ti ti-clipboard-text ${options.style}`);
                         break;
                 }
             }
@@ -2414,8 +2419,9 @@
     window.$validation = syn.$v || window.$validation || $validation;
 })(window);
 function domainLibraryLoad() {
-    syn.$l.addEvent(window, 'error', (message, source, line, col, error) => {
-        console.log(`error: ${error}, message: ${message}, source: ${source}, line: ${line}, col: ${col}`);
+    syn.$l.addEvent(window, 'error', (evt) => {
+        var stack = evt.error ? evt.error.stack : '';
+        console.log(`unhandle error - source(${evt.lineno}, ${evt.colno}): ${evt.filename}, message: ${evt.message}, stack: ${stack}`);
     });
 
     if ($object.isBoolean(syn.Config.IsClientCaching) == true) {
@@ -2632,6 +2638,10 @@ function domainPageLoad() {
 
 function domainPageComplete() {
     syn.$w.setTabContentHeight();
+
+    if (parent && parent.$this && parent.$this.method && parent.$this.method.tabUIResizing) {
+        parent.$this.method.tabUIResizing($this);
+    }
 }
 
 function domainPageMediaQuery(classInfix) {
