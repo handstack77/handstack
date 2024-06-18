@@ -390,7 +390,8 @@
                 type: 'before-default',
                 css: [
                     '/lib/tabler-core/dist/css/tabler.css',
-                    '/lib/tabler-icons-webfont/tabler-icons.css'
+                    '/lib/tabler-icons-webfont/tabler-icons.css',
+                    '/js/notifier/notifier.css'
                 ],
                 js: [
                     '/lib/jquery/jquery.js',
