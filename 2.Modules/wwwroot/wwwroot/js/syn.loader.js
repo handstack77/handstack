@@ -398,7 +398,7 @@
                     '/lib/jquery-simplemodal/src/jquery.simplemodal.js',
                     '/js/jquery-wm/jquery.WM.js',
                     '/lib/nanobar/nanobar.js',
-                    '/js/notifier/notify.js',
+                    '/js/notifier/notifier.js',
                     '/lib/clipboard.js/clipboard.js',
                     '/lib/mustache/mustache.js',
                     '/js/syn.js',
