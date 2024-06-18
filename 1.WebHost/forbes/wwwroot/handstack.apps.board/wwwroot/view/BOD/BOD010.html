@@ -42,13 +42,13 @@
                                 <div class="row mt--2">
                                     <div class="col-sm-12 col-md-6 col-lg-3 mt-2 pl-0">
                                         <div class="input-group">
-                                            <label class="w:86 col-form-label px-3">제목</label>
+                                            <label class="w:86 col-form-label px-2">제목</label>
                                             <input id="txtTitle" syn-datafield="Title" syn-options="{editType: 'text', belongID: ['LD01']}" type="text" class="form-control" maxlengthB="256">
                                         </div>
                                     </div>
                                     <div class="col-sm-12 col-md-6 col-lg-3 mt-2 pl-0">
                                         <div class="input-group">
-                                            <label class="w:86 col-form-label px-3">분류</label>
+                                            <label class="w:86 col-form-label px-2">분류</label>
                                             <select class="form-select" id="ddlCategory" syn-datafield="Category" syn-options="{toSynControl: false, belongID: ['LD01']}">
                                                 <option value="" selected="">전체</option>
                                                 <option value="정보">정보</option>
@@ -59,7 +59,7 @@
                                     </div>
                                     <div class="col-sm-12 col-md-6 col-lg-3 mt-2 pl-0">
                                         <div class="input-group">
-                                            <label class="w:86 col-form-label px-3">입력기간</label>
+                                            <label class="w:86 col-form-label px-2">입력기간</label>
                                             <syn_datepicker id="dtpStartDate" syn-datafield="StartDate" syn-options="{value: 'month:-1', useRangeSelect: true, rangeEndControlID: 'dtpEndDate', belongID: ['LD01']}"></syn_datepicker>
                                             <label class="bg-white col-form-label border-left:0! ml:1! mr:2!">~</label>
                                             <syn_datepicker id="dtpEndDate" syn-datafield="EndDate" syn-options="{value: 'now', useRangeSelect: true, rangeStartControlID: 'dtpStartDate', belongID: ['LD01']}"></syn_datepicker>
@@ -67,7 +67,7 @@
                                     </div>
                                     <div class="col-sm-12 col-md-6 col-lg-3 mt-2 pl-0">
                                         <div class="input-group">
-                                            <label class="w:86 col-form-label px-3">정렬순서</label>
+                                            <label class="w:86 col-form-label px-2">정렬순서</label>
                                             <select class="form-select" id="ddlOrderBy" syn-datafield="OrderBy" syn-options="{toSynControl: false, belongID: ['LD01']}">
                                                 <option value="ID" selected="">게시글 ID</option>
                                                 <option value="Category">분류</option>
