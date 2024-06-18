@@ -29,7 +29,7 @@
     var style = document.createElement('style');
     style.innerHTML = '.pl-container{position:absolute;top:0;left:0;background-color:#fff;width:100vw;height:100vh;z-index:999}.pl-cube-grid{position:absolute;left:50%;top:50%;margin:-20px 0 0 -20px;width:40px;height:40px}.pl-cube-grid .pl-cube{width:33%;height:33%;background-color:' + backgroundColor + ';float:left;-webkit-animation:pl-cubeGridScaleDelay 1.3s infinite ease-in-out;animation:pl-cubeGridScaleDelay 1.3s infinite ease-in-out}.pl-cube-grid .pl-cube1{-webkit-animation-delay:.2s;animation-delay:.2s}.pl-cube-grid .pl-cube2{-webkit-animation-delay:.3s;animation-delay:.3s}.pl-cube-grid .pl-cube3{-webkit-animation-delay:.4s;animation-delay:.4s}.pl-cube-grid .pl-cube4{-webkit-animation-delay:.1s;animation-delay:.1s}.pl-cube-grid .pl-cube5{-webkit-animation-delay:.2s;animation-delay:.2s}.pl-cube-grid .pl-cube6{-webkit-animation-delay:.3s;animation-delay:.3s}.pl-cube-grid .pl-cube7{-webkit-animation-delay:0s;animation-delay:0s}.pl-cube-grid .pl-cube8{-webkit-animation-delay:.1s;animation-delay:.1s}.pl-cube-grid .pl-cube9{-webkit-animation-delay:.2s;animation-delay:.2s}@-webkit-keyframes pl-cubeGridScaleDelay{0%,100%,70%{-webkit-transform:scale3D(1,1,1);transform:scale3D(1,1,1)}35%{-webkit-transform:scale3D(0,0,1);transform:scale3D(0,0,1)}}@keyframes pl-cubeGridScaleDelay{0%,100%,70%{-webkit-transform:scale3D(1,1,1);transform:scale3D(1,1,1)}35%{-webkit-transform:scale3D(0,0,1);transform:scale3D(0,0,1)}}.wtBorder{background-color:' + backgroundColor + ' !important;}';
     document.head.appendChild(style);
-    
+
     var agent = navigator.userAgent.toLowerCase();
     var isIE = (agent.indexOf('trident') != -1) || (agent.indexOf("msie") != -1);
     if (isIE == true) {
@@ -394,6 +394,7 @@
                     '/js/notifier/notifier.css'
                 ],
                 js: [
+                    '/lib/tabler-core/dist/js/tabler.min.js',
                     '/lib/jquery/jquery.js',
                     '/js/jquery.alertmodal/jquery.alertmodal.js',
                     '/lib/jquery-simplemodal/src/jquery.simplemodal.js',
@@ -402,8 +403,7 @@
                     '/js/notifier/notifier.js',
                     '/lib/clipboard.js/clipboard.js',
                     '/lib/mustache/mustache.js',
-                    '/js/syn.js',
-                    '/js/syn.domain.js'
+                    '/js/syn.js'
                 ]
             });
 
@@ -604,7 +604,6 @@
                 module: 'after-default',
                 type: 'after-default',
                 css: [
-                    // syn.domain.js
                     '/css/layouts/Dialogs.css',
                     '/css/layouts/LoadingPage.css',
                     '/css/layouts/ProgressBar.css',
@@ -612,7 +611,6 @@
                     '/css/layouts/WindowManager.css',
                     '/css/uicontrols/Control.css',
 
-                    // 프로젝트 화면 디자인
                     '/css/base.css',
                 ],
                 js: [
@@ -724,7 +722,7 @@
             }
 
             if (window.Configuration == null || window.Configuration == undefined) {
-                var appConfigName = `/app/${userWorkID}/${applicationID}//app.environment.json`;
+                var appConfigName = `/app/${userWorkID}/${applicationID}/wwwroot/app.environment.json`;
                 var response = await fetch(appConfigName, { cache: 'no-cache' });
                 if (response.status === 200) {
                     window.Configuration = await response.json();
