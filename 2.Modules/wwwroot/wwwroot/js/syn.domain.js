@@ -1204,6 +1204,7 @@
                 options = $object.clone(syn.$w.alertOptions);
                 // options.icon = 'default'; // debug, information, success, question, error, fatal
                 // options.buttonType = '1'; // 1:OK, 2:OKCancel, 3:YesNo, 4:YesNoCancel (default:1)
+                // options.style = 'font:red!';
                 options.close = false;
             }
 

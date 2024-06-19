@@ -989,7 +989,15 @@ namespace transact.Areas.transact.Controllers
                             string userID = tokenArray[0].DecodeBase64();
 
                             token = tokenArray[1];
-                            bearerToken = JsonConvert.DeserializeObject<BearerToken>(token.DecryptAES(request.Transaction.OperatorID.PadRight(32, ' ')));
+                            try
+                            {
+                                bearerToken = JsonConvert.DeserializeObject<BearerToken>(token.DecryptAES(request.Transaction.OperatorID.PadRight(32, ' ')));
+                            }
+                            catch
+                            {
+                                response.ExceptionText = $"{request.Transaction.OperatorID}: BearerToken 정보가 훼손되거나 확인 할 수 없습니다. 다시 로그인 해야합니다.";
+                                return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
+                            }
                         }
                     }
                     else
@@ -1025,7 +1033,15 @@ namespace transact.Areas.transact.Controllers
                             }
 
                             token = tokenArray[1];
-                            bearerToken = JsonConvert.DeserializeObject<BearerToken>(token.DecryptAES(request.Transaction.OperatorID.PadRight(32, ' ')));
+                            try
+                            {
+                                bearerToken = JsonConvert.DeserializeObject<BearerToken>(token.DecryptAES(request.Transaction.OperatorID.PadRight(32, ' ')));
+                            }
+                            catch
+                            {
+                                response.ExceptionText = $"{request.Transaction.OperatorID}: BearerToken 정보가 훼손되거나 확인 할 수 없습니다. 다시 로그인 해야합니다.";
+                                return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
+                            }
 
                             if (bearerToken == null)
                             {
@@ -1090,12 +1106,28 @@ namespace transact.Areas.transact.Controllers
                                     if (userID == request.Transaction.OperatorID)
                                     {
                                         token = tokenArray[1];
-                                        bearerToken = JsonConvert.DeserializeObject<BearerToken>(token.DecryptAES(request.Transaction.OperatorID.PadRight(32, ' ')));
+                                        try
+                                        {
+                                            bearerToken = JsonConvert.DeserializeObject<BearerToken>(token.DecryptAES(request.Transaction.OperatorID.PadRight(32, ' ')));
+                                        }
+                                        catch
+                                        {
+                                            response.ExceptionText = $"{request.Transaction.OperatorID}: BearerToken 정보가 훼손되거나 확인 할 수 없습니다. 다시 로그인 해야합니다.";
+                                            return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
+                                        }
                                     }
                                     else
                                     {
                                         token = tokenArray[1];
-                                        bearerToken = JsonConvert.DeserializeObject<BearerToken>(token.DecryptAES(userID.PadRight(32, ' ')));
+                                        try
+                                        {
+                                            bearerToken = JsonConvert.DeserializeObject<BearerToken>(token.DecryptAES(userID.PadRight(32, ' ')));
+                                        }
+                                        catch
+                                        {
+                                            response.ExceptionText = $"{userID}: BearerToken 정보가 훼손되거나 확인 할 수 없습니다. 다시 로그인 해야합니다.";
+                                            return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
+                                        }
                                     }
                                 }
                             }
