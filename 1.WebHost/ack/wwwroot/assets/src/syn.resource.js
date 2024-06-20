@@ -68,7 +68,7 @@
                                 controlType = 'button';
                                 break;
                             case 'INPUT':
-                                controlType = el.getAttribute('type').toLowerCase();
+                                controlType = (el.getAttribute('type') || 'text').toLowerCase();
                                 switch (controlType) {
                                     case 'hidden':
                                     case 'text':

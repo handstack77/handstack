@@ -4287,7 +4287,7 @@ globalRoot.syn = syn;
                                         controlType = 'button';
                                         break;
                                     case 'INPUT':
-                                        controlType = synControl.getAttribute('type') == null ? 'text' : synControl.getAttribute('type').toLowerCase();
+                                        controlType = (synControl.getAttribute('type') || 'text').toLowerCase();
                                         switch (controlType) {
                                             case 'hidden':
                                             case 'text':
