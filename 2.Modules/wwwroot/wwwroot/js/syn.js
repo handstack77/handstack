@@ -2116,8 +2116,9 @@ globalRoot.syn = syn;
 
         setElement(el) {
             el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == false && $string.isNullOrEmpty(el.id) == false) {
-                var keyObject = $keyboard.elements[el.id];
+            if ($object.isNullOrUndefined(el) == false) {
+                el.eventID = el.id || el.nodeName || typeof el;
+                var keyObject = $keyboard.elements[el.eventID];
                 if ($object.isNullOrUndefined(keyObject) == true) {
                     keyObject = {};
                     keyObject['keydown'] = {};
@@ -2126,6 +2127,8 @@ globalRoot.syn = syn;
                     function handler(evt) {
                         var eventType = evt.type;
                         var keyCode = evt.keyCode;
+                        window.keyboardEvent = arguments[0];
+                        window.documentEvent = evt;
 
                         if (keyObject[eventType][keyCode] != null) {
                             var val = keyObject[eventType][keyCode](evt);
@@ -2147,7 +2150,7 @@ globalRoot.syn = syn;
                     syn.$l.addEvent(el, 'keydown', handler);
                     syn.$l.addEvent(el, 'keyup', handler);
 
-                    $keyboard.elements[el.id] = keyObject;
+                    $keyboard.elements[el.eventID] = keyObject;
                 }
 
                 $keyboard.targetEL = el;
@@ -2158,7 +2161,7 @@ globalRoot.syn = syn;
 
         addKeyCode(keyType, keyCode, func) {
             if ($keyboard.targetEL) {
-                var keyObject = $keyboard.elements[$keyboard.targetEL.id];
+                var keyObject = $keyboard.elements[$keyboard.targetEL.eventID];
                 if ($object.isNullOrUndefined(keyObject) == false) {
                     keyObject[keyType][keyCode] = func;
                 }
@@ -2168,7 +2171,7 @@ globalRoot.syn = syn;
 
         removeKeyCode(keyType, keyCode) {
             if ($keyboard.targetEL) {
-                var keyObject = $keyboard.elements[$keyboard.targetEL.id];
+                var keyObject = $keyboard.elements[$keyboard.targetEL.eventID];
                 if ($object.isNullOrUndefined(keyObject) == false) {
                     keyObject[keyType][keyCode] = null;
                     delete keyObject[keyType][keyCode];
@@ -2508,7 +2511,7 @@ globalRoot.syn = syn;
         },
 
         regexs: new function () {
-            this.alphabet = /^[a-zA-Z]*$/;
+            this.alphabet = /^[a-zA-Z0-9]*$/;
             this.juminNo = /^(?:[0-9]{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[1,2][0-9]|3[0,1]))-?[1-4][0-9]{6}$/;
             this.numeric = /^-?[0-9]*(\.[0-9]+)?$/;
             this.email = /^([a-z0-9_\.\-\+]+)@([\da-z\.\-]+)\.([a-z\.]{2,6})$/i;

@@ -122,8 +122,9 @@
 
         setElement(el) {
             el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == false && $string.isNullOrEmpty(el.id) == false) {
-                var keyObject = $keyboard.elements[el.id];
+            if ($object.isNullOrUndefined(el) == false) {
+                el.eventID = el.id || el.nodeName || typeof el;
+                var keyObject = $keyboard.elements[el.eventID];
                 if ($object.isNullOrUndefined(keyObject) == true) {
                     keyObject = {};
                     keyObject['keydown'] = {};
@@ -132,6 +133,8 @@
                     function handler(evt) {
                         var eventType = evt.type;
                         var keyCode = evt.keyCode;
+                        window.keyboardEvent = arguments[0];
+                        window.documentEvent = evt;
 
                         if (keyObject[eventType][keyCode] != null) {
                             var val = keyObject[eventType][keyCode](evt);
@@ -153,7 +156,7 @@
                     syn.$l.addEvent(el, 'keydown', handler);
                     syn.$l.addEvent(el, 'keyup', handler);
 
-                    $keyboard.elements[el.id] = keyObject;
+                    $keyboard.elements[el.eventID] = keyObject;
                 }
 
                 $keyboard.targetEL = el;
@@ -164,7 +167,7 @@
 
         addKeyCode(keyType, keyCode, func) {
             if ($keyboard.targetEL) {
-                var keyObject = $keyboard.elements[$keyboard.targetEL.id];
+                var keyObject = $keyboard.elements[$keyboard.targetEL.eventID];
                 if ($object.isNullOrUndefined(keyObject) == false) {
                     keyObject[keyType][keyCode] = func;
                 }
@@ -174,7 +177,7 @@
 
         removeKeyCode(keyType, keyCode) {
             if ($keyboard.targetEL) {
-                var keyObject = $keyboard.elements[$keyboard.targetEL.id];
+                var keyObject = $keyboard.elements[$keyboard.targetEL.eventID];
                 if ($object.isNullOrUndefined(keyObject) == false) {
                     keyObject[keyType][keyCode] = null;
                     delete keyObject[keyType][keyCode];
