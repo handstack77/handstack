@@ -391,7 +391,8 @@
                 css: [
                     '/lib/tabler-core/dist/css/tabler.css',
                     '/lib/tabler-icons-webfont/tabler-icons.css',
-                    '/js/notifier/notifier.css'
+                    '/js/notifier/notifier.css',
+                    '/js/jquery-ui-contextmenu/jquery-ui.css'
                 ],
                 js: [
                     '/lib/tabler-core/dist/js/tabler.min.js',
@@ -399,6 +400,8 @@
                     '/js/jquery.alertmodal/jquery.alertmodal.js',
                     '/lib/jquery-simplemodal/src/jquery.simplemodal.js',
                     '/js/jquery-wm/jquery.WM.js',
+                    '/js/jquery-ui-contextmenu/jquery-ui.js',
+                    '/js/jquery-ui-contextmenu/jquery.ui-contextmenu.js',
                     '/lib/nanobar/nanobar.js',
                     '/js/notifier/notifier.js',
                     '/lib/clipboard.js/clipboard.js',
@@ -614,6 +617,7 @@
                     '/css/base.css',
                 ],
                 js: [
+                    '/lib/darkreader/darkreader.min.js',
                     '/lib/master-css/index.js'
                 ]
             });
