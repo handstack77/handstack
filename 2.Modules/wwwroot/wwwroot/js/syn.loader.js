@@ -959,12 +959,14 @@
         }
     }
 
-    var moduleName = synConfig.LoadModuleConfig.find((item) => { return location.pathname.startsWith('/' + item) == true; });
-    if (moduleName) {
-        var modConfigName = '/' + moduleName + '/mod.config.json';
-        var response = await fetch(modConfigName, { cache: 'no-cache' });
-        if (response.status === 200) {
-            window.modConfig = await response.json();
+    if (synConfig.LoadModuleConfig && synConfig.LoadModuleConfig.length > 0) {
+        var moduleName = synConfig.LoadModuleConfig.find((item) => { return location.pathname.startsWith('/' + item) == true; });
+        if (moduleName) {
+            var modConfigName = '/' + moduleName + '/mod.config.json';
+            var response = await fetch(modConfigName, { cache: 'no-cache' });
+            if (response.status === 200) {
+                window.modConfig = await response.json();
+            }
         }
     }
 }());
