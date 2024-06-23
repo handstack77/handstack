@@ -68,6 +68,11 @@
             "destination": "wwwroot/lib/fullcalendar/"
         },
         {
+            "provider": "jsdelivr",
+            "library": "signature_pad@5.0.2",
+            "destination": "wwwroot/lib/signature_pad/"
+        },
+        {
             "provider": "cdnjs",
             "library": "fuse.js@7.0.0",
             "destination": "wwwroot/lib/fuse.js/"
