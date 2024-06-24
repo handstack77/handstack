@@ -817,6 +817,7 @@
             var defaultSetting = {
                 dataField: null,
                 required: true,
+                emptyText: '전체',
                 local: true,
                 dataSourceID: null,
                 storeSourceID: null,
@@ -853,6 +854,13 @@
                     if (setting.local == true) {
                         syn.$w.loadJson(syn.Config.SharedAssetUrl + 'code/{0}.json'.format(setting.storeSourceID), setting, function (setting, json) {
                             if (json) {
+                                if (setting.required == false) {
+                                    var empty = {};
+                                    empty[json.CodeColumnID] = '';
+                                    empty[json.ValueColumnID] = setting.emptyText || '';
+                                    json.DataSource.unshift(empty);
+                                }
+
                                 mod.config.dataSource[setting.storeSourceID] = json;
                                 if (callback) {
                                     callback();
@@ -863,6 +871,13 @@
                     } else {
                         syn.$w.getDataSource(setting.dataSourceID, setting.parameters, function (json) {
                             if (json) {
+                                if (setting.required == false) {
+                                    var empty = {};
+                                    empty[json.CodeColumnID] = '';
+                                    empty[json.ValueColumnID] = setting.emptyText || '';
+                                    json.DataSource.unshift(empty);
+                                }
+
                                 mod.config.dataSource[setting.storeSourceID] = json;
                                 if (callback) {
                                     callback();
