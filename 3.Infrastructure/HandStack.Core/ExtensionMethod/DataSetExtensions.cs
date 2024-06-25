@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
 using System.IO;
 
 using HandStack.Core.Helpers;
@@ -26,7 +27,7 @@ namespace HandStack.Core.ExtensionMethod
                 fileInfo.Directory?.Create();
             }
 
-            @this.WriteXml(filePath);
+            @this.WriteXml(filePath, XmlWriteMode.WriteSchema);
         }
 
         public static void LoadSchema(this DataSet @this, string schemaPath)

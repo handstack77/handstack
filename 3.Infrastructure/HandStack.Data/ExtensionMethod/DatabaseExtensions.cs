@@ -842,6 +842,7 @@ namespace HandStack.Data.ExtensionMethod
             catch (Exception exception)
             {
                 Log.Error(exception, "[{LogCategory}] " + $"filePath: {filePath}, queryID: {queryID} 확인 필요", "DatabaseExtensions/GetDsqlClientTuple");
+                throw;
             }
 
             return result;
@@ -912,6 +913,7 @@ namespace HandStack.Data.ExtensionMethod
             catch (Exception exception)
             {
                 Log.Error(exception, "[{LogCategory}] " + $"filePath: {filePath}, queryID: {queryID} 확인 필요", "DatabaseExtensions/GetDsqlClientTuple");
+                throw;
             }
 
             return result;
@@ -1030,6 +1032,7 @@ namespace HandStack.Data.ExtensionMethod
             catch (Exception exception)
             {
                 Log.Error(exception, "[{LogCategory}] " + $"fileID: {fileID}, queryID: {queryID} 데이터 확인 필요", "DatabaseExtensions/GetJObject");
+                throw;
             }
 
             return result;
@@ -1148,6 +1151,7 @@ namespace HandStack.Data.ExtensionMethod
             catch (Exception exception)
             {
                 Log.Error(exception, "[{LogCategory}] " + $"fileID: {fileID}, queryID: {queryID} 데이터 확인 필요", "DatabaseExtensions/GetJObject");
+                throw;
             }
 
             return result;
@@ -1266,6 +1270,7 @@ namespace HandStack.Data.ExtensionMethod
             catch (Exception exception)
             {
                 Log.Error(exception, "[{LogCategory}] " + $"fileID: {fileID}, queryID: {queryID} 데이터 확인 필요", "DatabaseExtensions/GetJObject");
+                throw;
             }
 
             return result;
@@ -1391,6 +1396,7 @@ namespace HandStack.Data.ExtensionMethod
             catch (Exception exception)
             {
                 Log.Error(exception, "[{LogCategory}] " + $"filePath: {filePath}, queryID: {queryID} 데이터 확인 필요", "DatabaseExtensions/GetJObject");
+                throw;
             }
 
             return result;

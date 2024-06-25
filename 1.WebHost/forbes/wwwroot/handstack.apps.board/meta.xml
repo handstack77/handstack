@@ -1,5 +1,71 @@
 <?xml version="1.0" standalone="yes"?>
 <NewDataSet>
+    <xs:schema id="NewDataSet" xmlns="" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+        <xs:element name="NewDataSet" msdata:IsDataSet="true" msdata:UseCurrentLocale="true">
+            <xs:complexType>
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                    <xs:element name="Table">
+                        <xs:complexType>
+                            <xs:sequence>
+                                <xs:element name="EntityNo" type="xs:string" minOccurs="0" />
+                                <xs:element name="ApplicationNo" type="xs:string" minOccurs="0" />
+                                <xs:element name="EntityID" type="xs:string" minOccurs="0" />
+                                <xs:element name="EntityName" type="xs:string" minOccurs="0" />
+                                <xs:element name="Acronyms" type="xs:string" minOccurs="0" />
+                                <xs:element name="SeedData" type="xs:string" minOccurs="0" />
+                                <xs:element name="Comment" type="xs:string" minOccurs="0" />
+                                <xs:element name="DeletedAt" type="xs:dateTime" minOccurs="0" />
+                                <xs:element name="CreatedMemberNo" type="xs:string" minOccurs="0" />
+                                <xs:element name="CreatedAt" type="xs:dateTime" minOccurs="0" />
+                            </xs:sequence>
+                        </xs:complexType>
+                    </xs:element>
+                    <xs:element name="Table1">
+                        <xs:complexType>
+                            <xs:sequence>
+                                <xs:element name="EntityNo" type="xs:string" minOccurs="0" />
+                                <xs:element name="FieldID" type="xs:string" minOccurs="0" />
+                                <xs:element name="FieldName" type="xs:string" minOccurs="0" />
+                                <xs:element name="FieldType" type="xs:string" minOccurs="0" />
+                                <xs:element name="PK" type="xs:string" minOccurs="0" />
+                                <xs:element name="IX" type="xs:string" minOccurs="0" />
+                                <xs:element name="UI" type="xs:string" minOccurs="0" />
+                                <xs:element name="NN" type="xs:string" minOccurs="0" />
+                                <xs:element name="AI" type="xs:string" minOccurs="0" />
+                                <xs:element name="MaxLength" type="xs:int" minOccurs="0" />
+                                <xs:element name="DefaultValue" type="xs:string" minOccurs="0" />
+                                <xs:element name="Comment" type="xs:string" minOccurs="0" />
+                                <xs:element name="SortingNo" type="xs:int" minOccurs="0" />
+                            </xs:sequence>
+                        </xs:complexType>
+                    </xs:element>
+                    <xs:element name="Table2">
+                        <xs:complexType>
+                            <xs:sequence>
+                                <xs:element name="RelationNo" type="xs:string" minOccurs="0" />
+                                <xs:element name="ApplicationNo" type="xs:string" minOccurs="0" />
+                                <xs:element name="DepartureEntityNo" type="xs:string" minOccurs="0" />
+                                <xs:element name="DepartureEntityName" type="xs:string" minOccurs="0" />
+                                <xs:element name="DepartureNote" type="xs:string" minOccurs="0" />
+                                <xs:element name="DepartureFlowSymbol" type="xs:string" minOccurs="0" />
+                                <xs:element name="DepartureFlowSymbolName" type="xs:string" minOccurs="0" />
+                                <xs:element name="FlowLineType" type="xs:string" minOccurs="0" />
+                                <xs:element name="FlowLineTypeName" type="xs:string" minOccurs="0" />
+                                <xs:element name="ArrivalFlowSymbol" type="xs:string" minOccurs="0" />
+                                <xs:element name="ArrivalFlowSymbolName" type="xs:string" minOccurs="0" />
+                                <xs:element name="ArrivalEntityNo" type="xs:string" minOccurs="0" />
+                                <xs:element name="ArrivalEntityName" type="xs:string" minOccurs="0" />
+                                <xs:element name="ArrivalNote" type="xs:string" minOccurs="0" />
+                                <xs:element name="SortingNo" type="xs:int" minOccurs="0" />
+                                <xs:element name="CreatedMemberNo" type="xs:string" minOccurs="0" />
+                                <xs:element name="CreatedAt" type="xs:dateTime" minOccurs="0" />
+                            </xs:sequence>
+                        </xs:complexType>
+                    </xs:element>
+                </xs:choice>
+            </xs:complexType>
+        </xs:element>
+    </xs:schema>
     <Table>
         <EntityNo>08dc35b0160042ff1e2f7c976d045af9</EntityNo>
         <ApplicationNo />
@@ -7,8 +73,9 @@
         <EntityName>게시판</EntityName>
         <Acronyms>B</Acronyms>
         <SeedData>[]</SeedData>
-        <CreatedAt />
         <Comment>설명</Comment>
+        <CreatedMemberNo />
+        <CreatedAt>2024-06-25T09:19:32.663+09:00</CreatedAt>
     </Table>
     <Table1>
         <EntityNo>08dc35b0160042ff1e2f7c976d045af9</EntityNo>
