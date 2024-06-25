@@ -2187,12 +2187,17 @@
                     }
                     else {
                         if ($string.isNullOrEmpty(focusColumnIndex) == true) {
-                            focusColumnIndex = 1;
+                            var firstCol = $grid.getFirstShowColIndex(elID);
+                            if (firstCol > 0) {
+                                focusColumnIndex = firstCol;
+                            }
                         }
 
-                        var focusRowIndex = rowIndex - 1;
-                        if (focusRowIndex >= 0) {
-                            $grid.selectCell(elID, rowIndex - 1, focusColumnIndex);
+                        if (focusColumnIndex > 0) {
+                            var focusRowIndex = rowIndex - 1;
+                            if (focusRowIndex >= 0) {
+                                $grid.selectCell(elID, rowIndex - 1, focusColumnIndex);
+                            }
                         }
                     }
 
