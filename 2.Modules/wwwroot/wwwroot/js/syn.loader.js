@@ -600,6 +600,19 @@
                             '/uicontrols/WebGrid/AUIGrid.js'
                         ];
                         break;
+                    case 'guide':
+                        item.css = [
+                            '/lib/intro.js/introjs.min.css',
+                            '/uicontrols/Guide/Guide.css'
+                        ];
+                        item.js = [
+                            '/lib/popper.js/umd/popper.js',
+                            '/lib/tippy.js/tippy-bundle.umd.js',
+                            '/lib/intro.js/intro.js',
+                            '/lib/superplaceholder/superplaceholder.js',
+                            '/uicontrols/Guide/Guide.js'
+                        ];
+                        break;
                 }
             }
 
