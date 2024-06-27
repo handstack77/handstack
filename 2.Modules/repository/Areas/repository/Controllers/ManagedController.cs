@@ -39,7 +39,7 @@ namespace repository.Areas.repository.Controllers
             this.moduleApiClient = moduleApiClient;
         }
 
-        // http://localhost:8000/repository/api/managed/reset-app-contract?applicationID=helloworld
+        // http://localhost:8000/repository/api/managed/reset-app-contract?userWorkID=userWorkID&applicationID=helloworld
         [HttpGet("[action]")]
         public ActionResult ResetAppContract(string userWorkID, string applicationID)
         {
@@ -55,7 +55,7 @@ namespace repository.Areas.repository.Controllers
                 {
                     lock (ModuleConfiguration.FileRepositorys)
                     {
-                        var appRepositorys = ModuleConfiguration.FileRepositorys.Where(x => x.ApplicationID == applicationID).ToList();
+                        var appRepositorys = ModuleConfiguration.FileRepositorys.Where(x => x.UserWorkID == userWorkID && x.ApplicationID == applicationID).ToList();
                         for (int i = appRepositorys.Count(); i > 0; i--)
                         {
                             var item = appRepositorys[i - 1];
@@ -217,6 +217,41 @@ namespace repository.Areas.repository.Controllers
                             {
                                 Log.Logger.Error("[{LogCategory}] " + $"{repositoryFile} 저장소 계약 파일 오류 - " + exception.ToMessage(), "ManagedController/ResetAppContract");
                             }
+                        }
+                    }
+
+                    result = Ok();
+                }
+                catch (Exception exception)
+                {
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
+                }
+            }
+
+            return result;
+        }
+
+        // http://localhost:8000/repository/api/managed/delete-app-contract?userWorkID=userWorkID&applicationID=helloworld
+        [HttpGet("[action]")]
+        public ActionResult DeleteAppContract(string userWorkID, string applicationID)
+        {
+            ActionResult result = BadRequest();
+            string? authorizationKey = Request.GetContainValue("AuthorizationKey");
+            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
+            {
+                result = BadRequest();
+            }
+            else
+            {
+                try
+                {
+                    lock (ModuleConfiguration.FileRepositorys)
+                    {
+                        var appRepositorys = ModuleConfiguration.FileRepositorys.Where(x => x.UserWorkID == userWorkID && x.ApplicationID == applicationID).ToList();
+                        for (int i = appRepositorys.Count(); i > 0; i--)
+                        {
+                            var item = appRepositorys[i - 1];
+                            ModuleConfiguration.FileRepositorys.Remove(item);
                         }
                     }
 

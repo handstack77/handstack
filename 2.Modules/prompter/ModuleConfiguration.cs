@@ -17,7 +17,7 @@ namespace prompter
         public static string AuthorizationKey = "";
         public static bool IsBundledWithHost = false;
         public static List<string> ContractBasePath = new List<string>();
-        public static List<FileSyncManager> SQLFileSyncManager = new List<FileSyncManager>();
+        public static Dictionary<string, FileSyncManager> PromptFileSyncManager = new Dictionary<string, FileSyncManager>();
         public static string BusinessServerUrl = "";
         public static string ModuleBasePath = "";
         public static string DatabaseContractPath = "";

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -27,11 +28,11 @@ namespace transact.Areas.transact.Controllers
     public class ManagedController : ControllerBase
     {
         private TransactLoggerClient loggerClient { get; }
-        private Serilog.ILogger logger { get; }
+        private ILogger logger { get; }
         private IConfiguration configuration { get; }
         private IWebHostEnvironment environment { get; }
 
-        public ManagedController(IWebHostEnvironment environment, IConfiguration configuration, Serilog.ILogger logger, TransactLoggerClient loggerClient)
+        public ManagedController(IWebHostEnvironment environment, IConfiguration configuration, ILogger logger, TransactLoggerClient loggerClient)
         {
             this.configuration = configuration;
             this.environment = environment;
@@ -69,7 +70,7 @@ namespace transact.Areas.transact.Controllers
             return result;
         }
 
-        // http://localhost:8000/transact/api/managed/reset-app-contract?applicationID=helloworld
+        // http://localhost:8000/transact/api/managed/reset-app-contract?userWorkID=userWorkID&applicationID=helloworld
         [HttpGet("[action]")]
         public ActionResult ResetAppContract(string userWorkID, string applicationID)
         {
@@ -102,7 +103,7 @@ namespace transact.Areas.transact.Controllers
                                 return Ok();
                             }
 
-                            logger.Information("[{LogCategory}] ContractBasePath: " + basePath, "TransactionMapper/LoadContract");
+                            logger.Information("[{LogCategory}] ContractBasePath: " + basePath, "ManagedController/ResetAppContract");
 
                             string[] configFiles = Directory.GetFiles(basePath, "*.json", SearchOption.AllDirectories);
                             foreach (string configFile in configFiles)
@@ -148,6 +149,51 @@ namespace transact.Areas.transact.Controllers
                         }
                     }
 
+                    result = Ok();
+                }
+                catch (Exception exception)
+                {
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
+                }
+            }
+
+            return result;
+        }
+
+        // http://localhost:8000/transact/api/managed/delete-app-contract?userWorkID=userWorkID&applicationID=helloworld
+        [HttpGet("[action]")]
+        public ActionResult DeleteAppContract(string userWorkID, string applicationID)
+        {
+            ActionResult result = BadRequest();
+            string? authorizationKey = Request.GetContainValue("AuthorizationKey");
+            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
+            {
+                result = BadRequest();
+            }
+            else
+            {
+                try
+                {
+                    lock (ModuleConfiguration.BusinessFileSyncManager)
+                    {
+                        var tenants = ModuleConfiguration.BusinessFileSyncManager.Where(pair => pair.Key.Contains($"{userWorkID}{Path.DirectorySeparatorChar}{applicationID}"));
+                        if (tenants.Any() == true)
+                        {
+                            List<string> tenantsPath = new List<string>();
+                            foreach (var tenant in tenants)
+                            {
+                                tenantsPath.Add(tenant.Key);
+                                tenant.Value?.Stop();
+                            }
+
+                            for (int i = 0; i < tenantsPath.Count; i++)
+                            {
+                                ModuleConfiguration.BusinessFileSyncManager.Remove(tenantsPath[i]);
+                            }
+
+                            logger.Information("[{LogCategory}] " + string.Join(",", tenantsPath), "Managed/DeleteAppContract");
+                        }
+                    }
                     result = Ok();
                 }
                 catch (Exception exception)

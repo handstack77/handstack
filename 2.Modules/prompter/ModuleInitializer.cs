@@ -201,7 +201,7 @@ namespace prompter
                 }
             }
 
-
+            int tenantsCount = 0;
             foreach (var basePath in ModuleConfiguration.ContractBasePath)
             {
                 if (Directory.Exists(basePath) == true)
@@ -232,12 +232,21 @@ namespace prompter
                         }
                     };
 
-                    Log.Information("[{LogCategory}] SQL File Sync ContractBasePath: " + basePath, $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
-                    fileSyncManager.Start();
+                    string tenantsDirectoryPath = $"{Path.DirectorySeparatorChar}tenants{Path.DirectorySeparatorChar}";
+                    if (basePath.Contains(tenantsDirectoryPath) == true)
+                    {
+                        tenantsCount = tenantsCount + 1;
+                    }
+                    else
+                    {
+                        Log.Information("[{LogCategory}] Prompt File Sync ContractBasePath: " + basePath, $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
+                    }
 
-                    ModuleConfiguration.SQLFileSyncManager.Add(fileSyncManager);
+                    fileSyncManager.Start();
+                    ModuleConfiguration.PromptFileSyncManager.Add(basePath, fileSyncManager);
                 }
             }
+            Log.Information("[{LogCategory}] Tenants Prompt File Sync: " + tenantsCount, $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
         }
     }
 

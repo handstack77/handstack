@@ -35,13 +35,15 @@ namespace prompter.Areas.prompter.Controllers
     [EnableCors]
     public class ManagedController : ControllerBase
     {
+        private ILogger logger { get; }
         private IConfiguration configuration { get; }
         private IWebHostEnvironment environment { get; }
 
-        public ManagedController(IWebHostEnvironment environment, IConfiguration configuration)
+        public ManagedController(IWebHostEnvironment environment, ILogger logger, IConfiguration configuration)
         {
             this.configuration = configuration;
             this.environment = environment;
+            this.logger = logger;
         }
 
         // http://localhost:8000/prompter/api/managed/reset-contract
@@ -76,7 +78,7 @@ namespace prompter.Areas.prompter.Controllers
             return result;
         }
 
-        // http://localhost:8000/prompter/api/managed/reset-app-contract?applicationID=helloworld
+        // http://localhost:8000/prompter/api/managed/reset-app-contract?userWorkID=userWorkID&applicationID=helloworld
         [HttpGet("[action]")]
         public ActionResult ResetAppContract(string userWorkID, string applicationID)
         {
@@ -264,6 +266,51 @@ namespace prompter.Areas.prompter.Controllers
                         }
                     }
 
+                    result = Ok();
+                }
+                catch (Exception exception)
+                {
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
+                }
+            }
+
+            return result;
+        }
+
+        // http://localhost:8000/prompter/api/managed/delete-app-contract?userWorkID=userWorkID&applicationID=helloworld
+        [HttpGet("[action]")]
+        public ActionResult DeleteAppContract(string userWorkID, string applicationID)
+        {
+            ActionResult result = BadRequest();
+            string? authorizationKey = Request.GetContainValue("AuthorizationKey");
+            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
+            {
+                result = BadRequest();
+            }
+            else
+            {
+                try
+                {
+                    lock (ModuleConfiguration.PromptFileSyncManager)
+                    {
+                        var tenants = ModuleConfiguration.PromptFileSyncManager.Where(pair => pair.Key.Contains($"{userWorkID}{Path.DirectorySeparatorChar}{applicationID}"));
+                        if (tenants.Any() == true)
+                        {
+                            List<string> tenantsPath = new List<string>();
+                            foreach (var tenant in tenants)
+                            {
+                                tenantsPath.Add(tenant.Key);
+                                tenant.Value?.Stop();
+                            }
+
+                            for (int i = 0; i < tenantsPath.Count; i++)
+                            {
+                                ModuleConfiguration.PromptFileSyncManager.Remove(tenantsPath[i]);
+                            }
+
+                            logger.Information("[{LogCategory}] " + string.Join(",", tenantsPath), "Managed/DeleteAppContract");
+                        }
+                    }
                     result = Ok();
                 }
                 catch (Exception exception)

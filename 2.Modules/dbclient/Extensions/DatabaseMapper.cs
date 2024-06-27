@@ -931,8 +931,6 @@ namespace dbclient.Extensions
                         continue;
                     }
 
-                    logger.Information("[{LogCategory}] ContractBasePath: " + basePath, "DatabaseMapper/LoadContract");
-
                     string[] sqlMapFiles = Directory.GetFiles(basePath, "*.xml", SearchOption.AllDirectories);
                     foreach (string sqlMapFile in sqlMapFiles)
                     {

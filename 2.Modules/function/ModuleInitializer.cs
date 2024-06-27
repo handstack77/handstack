@@ -379,6 +379,8 @@ namespace function
                 }
             }
 
+            int tenantsNodeCount = 0;
+            int tenantsCSharpCount = 0;
             foreach (var basePath in ModuleConfiguration.ContractBasePath)
             {
                 string nodeContractBasePath = Path.Combine(basePath, "javascript");
@@ -410,9 +412,18 @@ namespace function
                         }
                     };
 
-                    Log.Information("[{LogCategory}] Node File Sync ContractBasePath: " + basePath, $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
+                    string tenantsDirectoryPath = $"{Path.DirectorySeparatorChar}tenants{Path.DirectorySeparatorChar}";
+                    if (basePath.Contains(tenantsDirectoryPath) == true)
+                    {
+                        tenantsNodeCount = tenantsNodeCount + 1;
+                    }
+                    else
+                    {
+                        Log.Information("[{LogCategory}] Node File Sync ContractBasePath: " + basePath, $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
+                    }
+
                     nodeFileSyncManager.Start();
-                    ModuleConfiguration.NodeFileSyncManager.Add(nodeFileSyncManager);
+                    ModuleConfiguration.NodeFileSyncManager.Add(nodeContractBasePath, nodeFileSyncManager);
                 }
 
                 string csharpContractBasePath = Path.Combine(basePath, "csharp");
@@ -444,11 +455,23 @@ namespace function
                         }
                     };
 
-                    Log.Information("[{LogCategory}] CSharp File Sync ContractBasePath: " + basePath, $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
+                    string tenantsDirectoryPath = $"{Path.DirectorySeparatorChar}tenants{Path.DirectorySeparatorChar}";
+                    if (basePath.Contains(tenantsDirectoryPath) == true)
+                    {
+                        tenantsCSharpCount = tenantsCSharpCount + 1;
+                    }
+                    else
+                    {
+                        Log.Information("[{LogCategory}] CSharp File Sync ContractBasePath: " + basePath, $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
+                    }
+
                     csharpFileSyncManager.Start();
-                    ModuleConfiguration.NodeFileSyncManager.Add(csharpFileSyncManager);
+                    ModuleConfiguration.NodeFileSyncManager.Add(csharpContractBasePath, csharpFileSyncManager);
                 }
             }
+
+            Log.Information("[{LogCategory}] Tenants Node File Sync: " + tenantsNodeCount, $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
+            Log.Information("[{LogCategory}] Tenants CSharp File Sync: " + tenantsCSharpCount, $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
         }
     }
 

@@ -16,8 +16,8 @@ namespace function
         public static string AuthorizationKey = "";
         public static bool IsBundledWithHost = false;
         public static string ModuleBasePath = "";
-        public static List<FileSyncManager?> NodeFileSyncManager = new List<FileSyncManager?>();
-        public static List<FileSyncManager?> CSharpFileSyncManager = new List<FileSyncManager?>();
+        public static Dictionary<string, FileSyncManager> NodeFileSyncManager = new Dictionary<string, FileSyncManager>();
+        public static Dictionary<string, FileSyncManager> CSharpFileSyncManager = new Dictionary<string, FileSyncManager>();
         public static List<string> ContractBasePath = new List<string>();
         public static Dictionary<string, string> ContractModulePath = new Dictionary<string, string>();
         public static string LogMinimumLevel = "";

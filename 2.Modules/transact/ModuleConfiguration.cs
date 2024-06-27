@@ -14,7 +14,7 @@ namespace transact
         public static string AuthorizationKey = "";
         public static bool IsBundledWithHost = false;
         public static List<string> ContractBasePath = new List<string>();
-        public static List<FileSyncManager?> BusinessFileSyncManager = new List<FileSyncManager?>();
+        public static Dictionary<string, FileSyncManager> BusinessFileSyncManager = new Dictionary<string, FileSyncManager>();
         public static string BusinessServerUrl = "";
         public static bool IsTransactionLogging = false;
         public static string TransactionLogBasePath = "";

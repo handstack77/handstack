@@ -501,8 +501,6 @@ namespace transact.Extensions
                         continue;
                     }
 
-                    logger.Information("[{LogCategory}] ContractBasePath: " + basePath, "TransactionMapper/LoadContract");
-
                     string[] configFiles = Directory.GetFiles(basePath, "*.json", SearchOption.AllDirectories);
                     lock (businessContracts)
                     {
