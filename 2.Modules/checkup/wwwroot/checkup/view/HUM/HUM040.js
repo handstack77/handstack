@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 let $HUM040 = {
     config: {
@@ -106,9 +106,10 @@ let $HUM040 = {
                         }
                     }
                 };
-                syn.$w.loadScript(syn.uicontrols.$sourceeditor.defaultSetting.basePath + '/loader.js');
-                syn.$w.loadScript(syn.uicontrols.$sourceeditor.defaultSetting.basePath + '/editor/editor.main.nls.ko.js');
-                syn.$w.loadScript(syn.uicontrols.$sourceeditor.defaultSetting.basePath + '/editor/editor.main.js');
+                syn.$w.loadScript(syn.uicontrols.$sourceeditor.defaultSetting.basePath + '/loader.js', null, () => {
+                    syn.$w.loadScript(syn.uicontrols.$sourceeditor.defaultSetting.basePath + '/editor/editor.main.nls.ko.js');
+                    syn.$w.loadScript(syn.uicontrols.$sourceeditor.defaultSetting.basePath + '/editor/editor.main.js');
+                });
             }
         },
 

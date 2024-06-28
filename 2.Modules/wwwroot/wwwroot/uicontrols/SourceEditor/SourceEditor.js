@@ -43,9 +43,10 @@
                         }
                     }
                 };
-                syn.$w.loadScript($sourceeditor.defaultSetting.basePath + '/loader.js');
-                syn.$w.loadScript($sourceeditor.defaultSetting.basePath + '/editor/editor.main.nls.ko.js');
-                syn.$w.loadScript($sourceeditor.defaultSetting.basePath + '/editor/editor.main.js');
+                syn.$w.loadScript($sourceeditor.defaultSetting.basePath + '/loader.js', null, () => {
+                    syn.$w.loadScript($sourceeditor.defaultSetting.basePath + '/editor/editor.main.nls.ko.js');
+                    syn.$w.loadScript($sourceeditor.defaultSetting.basePath + '/editor/editor.main.js');
+                });
 
                 var editorIntervalID = setInterval(function () {
                     if (window.monaco) {
