@@ -2579,18 +2579,16 @@ globalRoot.syn = syn;
             for (var i = 0, len = events.items.length; i < len; i++) {
                 item = events.items[i];
 
-                if (item[0] instanceof context.constructor || item[0] instanceof document.constructor) {
-                    if (item[1] == type) {
+                if (el instanceof HTMLElement) {
+                    if (item[0].id == el.id && item[1] == type) {
                         action = item[2];
                         break;
                     }
                 }
-                else {
-                    if (item[0].id) {
-                        if (item[0].id == el.id && item[1] == type) {
-                            action = item[2];
-                            break;
-                        }
+                else if (item[0] instanceof context.constructor || item[0] instanceof document.constructor) {
+                    if (item[1] == type) {
+                        action = item[2];
+                        break;
                     }
                 }
             }

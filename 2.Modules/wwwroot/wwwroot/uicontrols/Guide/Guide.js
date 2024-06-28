@@ -205,8 +205,9 @@
                     var tooltipOptions = setting.tooltipOptions;
                     for (var i = 0; i < helpTooltips.length; i++) {
                         var helpTooltip = helpTooltips[i];
-                        tooltipOptions.el = syn.$l.querySelector(helpTooltip.selector);
-                        if (tooltipOptions.el == null) {
+                        var applyDelay = $string.toNumber(helpTooltip.applyDelay);
+                        var el = syn.$l.querySelector(helpTooltip.selector);
+                        if (el == null && applyDelay == 0) {
                             continue;
                         }
 
@@ -215,7 +216,6 @@
                         }
 
                         tooltipOptions.content = ($string.isNullOrEmpty(helpTooltip.subject) == true ? '' : '<strong>{0}</strong> '.format(helpTooltip.subject)) + helpTooltip.sentence;
-                        var applyDelay = $string.toNumber(helpTooltip.applyDelay);
                         if (applyDelay > 0) {
                             setTimeout((selector, options) => {
                                 tooltips.push(tippy(selector, options)[0]);
