@@ -2871,7 +2871,7 @@
             return new globalRoot.XMLHttpRequest();
         },
 
-        loadScript(url, scriptID) {
+        loadScript(url, scriptID, callback) {
             var head;
             var resourceID;
             if (document.getElementsByTagName('head')) {
@@ -2892,6 +2892,12 @@
             }
             else {
                 el.setAttribute('src', url + (url.indexOf('?') > -1 ? '&' : '?') + 'noCache=' + (new Date()).getTime());
+            }
+
+            if (callback && typeof callback === 'function') {
+                el.onload = function () {
+                    callback();
+                };
             }
 
             head.insertBefore(el, head.firstChild);

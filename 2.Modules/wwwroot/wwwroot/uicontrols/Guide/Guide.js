@@ -8,7 +8,6 @@
     $guide.extend({
         name: 'syn.uicontrols.$guide',
         version: '1.0.0',
-        hasSynControl: false,
         guideControls: [],
         itemTemplate: {
             helpType: '', // I: introJs, T: tippy, P: superplaceholder, U: UI Help & Link
@@ -75,12 +74,7 @@
 
             el.setAttribute('syn-options', JSON.stringify(setting));
             el.style.display = 'none';
-
-            if ($guide.hasSynControl == true) {
-                syn.$l.eventLog('Guide_controlLoad', 'syn_guide 중복 확인 필요', 'Error');
-                return;
-            }
-
+            
             var tooltips = [];
             var intros = null;
             var placeholders = [];
@@ -150,13 +144,18 @@
                     helpIntros = $array.objectSort(helpIntros, 'sortingNo', true);
                     for (var i = 0; i < helpIntros.length; i++) {
                         var helpIntro = helpIntros[i];
+                        introOptions.el = syn.$l.querySelector(helpIntro.selector);
+                        if (introOptions.el == null) {
+                            continue;
+                        }
+
                         if ($string.isNullOrEmpty(helpIntro.options) == false) {
                             introOptions = syn.$w.argumentsExtend(introOptions, eval('(' + helpIntro.options + ')'));
                         }
 
                         steps.push({
                             title: helpIntro.subject,
-                            element: syn.$l.querySelector(helpIntro.selector),
+                            element: introOptions.el,
                             intro: helpIntro.sentence
                         });
                     }
@@ -164,6 +163,40 @@
                     if (steps.length > 0) {
                         introOptions = syn.$w.argumentsExtend(introOptions, { steps: steps });
                         intros = introJs().setOptions(introOptions);
+
+                        if (mod) {
+                            var hookEvents = el.getAttribute('syn-events') || [];
+                            if (hookEvents) {
+                                hookEvents = eval(hookEvents);
+
+                                for (var i = 0, length = hookEvents.length; i < length; i++) {
+                                    var hook = hookEvents[i];
+                                    var eventHandler = mod.event ? mod.event['{0}_{1}'.format(elID, hook)] : null;
+                                    if (eventHandler) {
+                                        switch (hook) {
+                                            case 'complete':
+                                                intros.oncomplete(eventHandler);
+                                                break;
+                                            case 'exit':
+                                                intros.onexit(eventHandler);
+                                                break;
+                                            case 'beforeexit':
+                                                intros.onbeforeexit(eventHandler);
+                                                break;
+                                            case 'change':
+                                                intros.onchange(eventHandler);
+                                                break;
+                                            case 'beforechange':
+                                                intros.onbeforechange(eventHandler);
+                                                break;
+                                            case 'afterchange':
+                                                intros.onafterchange(eventHandler);
+                                                break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -172,6 +205,11 @@
                     var tooltipOptions = setting.tooltipOptions;
                     for (var i = 0; i < helpTooltips.length; i++) {
                         var helpTooltip = helpTooltips[i];
+                        tooltipOptions.el = syn.$l.querySelector(helpTooltip.selector);
+                        if (tooltipOptions.el == null) {
+                            continue;
+                        }
+
                         if ($string.isNullOrEmpty(helpTooltip.options) == false) {
                             tooltipOptions = syn.$w.argumentsExtend(tooltipOptions, eval('(' + helpTooltip.options + ')'));
                         }
@@ -192,14 +230,18 @@
                 var helpPlaceHolders = setting.items.filter(function (item) { return item.helpType == 'P' });
                 if (window.superplaceholder && helpPlaceHolders.length > 0) {
                     for (var i = 0; i < helpPlaceHolders.length; i++) {
-                        var placeholderOptions = {};
-                        placeholderOptions.options = setting.placeholderOptions;
                         var helpPlaceHolder = helpPlaceHolders[i];
+                        var placeholderOptions = {};
+                        placeholderOptions.el = syn.$l.querySelector(helpPlaceHolder.selector);
+                        if (placeholderOptions.el == null) {
+                            continue;
+                        }
+
+                        placeholderOptions.options = setting.placeholderOptions;
                         if ($string.isNullOrEmpty(helpPlaceHolder.options) == false) {
                             placeholderOptions.options = syn.$w.argumentsExtend(placeholderOptions.options, eval('(' + helpPlaceHolder.options + ')'));
                         }
 
-                        placeholderOptions.el = syn.$l.querySelector(helpPlaceHolder.selector);
                         if ($object.isString(helpPlaceHolder.sentence) == true) {
                             placeholderOptions.sentences = [($string.isNullOrEmpty(helpPlaceHolder.subject) == true ? '' : '[{0}] '.format(helpPlaceHolder.subject)) + helpPlaceHolder.sentence];
                         }
@@ -229,8 +271,6 @@
                 intro: intros,
                 placeholder: placeholders
             });
-
-            $guide.hasSynControl = true;
         },
 
         getGuideControl(elID) {
