@@ -1,4 +1,4 @@
-/// <reference path="/js/syn.js" />
+﻿/// <reference path="/js/syn.js" />
 
 (function (window) {
     'use strict';
@@ -114,13 +114,27 @@
             return $array.distinct(value);
         },
 
-        getGroupValue(group) {
+        getSelectedByValue(group) {
             var result = null;
             var els = syn.$l.querySelectorAll('input[type="radio"][name="{0}"]'.format(group));
             for (var i = 0; i < els.length; i++) {
                 var el = els[i];
                 if (el.id.indexOf('_hidden') == -1 && el.checked == true) {
                     result = el.value;
+                    break;
+                }
+            }
+
+            return result;
+        },
+
+        getSelectedByID(group) {
+            var result = null;
+            var els = syn.$l.querySelectorAll('input[type="radio"][name="{0}"]'.format(group));
+            for (var i = 0; i < els.length; i++) {
+                var el = els[i];
+                if (el.id.indexOf('_hidden') == -1 && el.checked == true) {
+                    result = el.id;
                     break;
                 }
             }

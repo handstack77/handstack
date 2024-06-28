@@ -28,6 +28,7 @@
                 exitOnEsc: true,
                 showStepNumbers: true,
                 showBullets: false,
+                tooltipPosition: 'auto',
                 overlayOpacity: 0.2,
                 steps: []
             },
@@ -144,8 +145,8 @@
                     helpIntros = $array.objectSort(helpIntros, 'sortingNo', true);
                     for (var i = 0; i < helpIntros.length; i++) {
                         var helpIntro = helpIntros[i];
-                        introOptions.el = syn.$l.querySelector(helpIntro.selector);
-                        if (introOptions.el == null) {
+                        var introEL = syn.$l.querySelector(helpIntro.selector);
+                        if (introEL == null) {
                             continue;
                         }
 
@@ -155,8 +156,9 @@
 
                         steps.push({
                             title: helpIntro.subject,
-                            element: introOptions.el,
-                            intro: helpIntro.sentence
+                            element: introEL,
+                            intro: helpIntro.sentence,
+                            position: helpIntro.position || 'auto'
                         });
                     }
 
@@ -206,8 +208,8 @@
                     for (var i = 0; i < helpTooltips.length; i++) {
                         var helpTooltip = helpTooltips[i];
                         var applyDelay = $string.toNumber(helpTooltip.applyDelay);
-                        var el = syn.$l.querySelector(helpTooltip.selector);
-                        if (el == null && applyDelay == 0) {
+                        var tooltipEL = syn.$l.querySelector(helpTooltip.selector);
+                        if (tooltipEL == null && applyDelay == 0) {
                             continue;
                         }
 
@@ -291,7 +293,7 @@
         introStart(elID) {
             var guide = $guide.getGuideControl(elID);
             if (guide) {
-                var intro = syn.uicontrols.$guide.getGuideControl(elID).intro;
+                var intro = guide.intro;
                 if (intro) {
                     // https://introjs.com/docs/intro/api
                     intro.start();
