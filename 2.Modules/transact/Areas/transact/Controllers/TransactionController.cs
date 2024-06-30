@@ -952,7 +952,7 @@ namespace transact.Areas.transact.Controllers
 
                                 if (isRoleYN == false)
                                 {
-                                    response.ExceptionText = "JwtToken 역할 권한 확인 필요";
+                                    response.ExceptionText = "앱 사용자 역할 권한 확인 필요";
                                     return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                                 }
                             }
@@ -975,7 +975,7 @@ namespace transact.Areas.transact.Controllers
 
                                 if (isClaimYN == false)
                                 {
-                                    response.ExceptionText = "JwtToken 정책 권한 확인 필요";
+                                    response.ExceptionText = "앱 사용자 정책 권한 확인 필요";
                                     return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                                 }
                             }

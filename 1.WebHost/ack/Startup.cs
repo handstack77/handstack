@@ -187,12 +187,15 @@ namespace ack
                 File.Delete(disposeTenantAppsFilePath);
             }
 
-            var withOrigins = appSettings.GetSection("WithOrigins").AsEnumerable();
-            foreach (var item in withOrigins)
+            var withOrigins = appSettings.GetSection("WithOrigins")?.AsEnumerable();
+            if (withOrigins != null && withOrigins.Any() == true)
             {
-                if (string.IsNullOrEmpty(item.Value) == false)
+                foreach (var item in withOrigins)
                 {
-                    GlobalConfiguration.WithOrigins.Add(item.Value);
+                    if (string.IsNullOrEmpty(item.Value) == false)
+                    {
+                        GlobalConfiguration.WithOrigins.Add(item.Value);
+                    }
                 }
             }
 
