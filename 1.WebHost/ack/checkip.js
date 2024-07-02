@@ -16,5 +16,5 @@ app.get('/checkip', (req, res) => {
     res.send(ip);
 });
 
-const PORT = process.env.PORT || 8080;
+const PORT = process.argv[2] || process.env.PORT || 8080;
 app.listen(PORT, () => console.log(`checkip Server running on port ${PORT}`));

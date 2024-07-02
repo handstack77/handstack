@@ -97,6 +97,12 @@
         </None>
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="checkip.js">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
         <Exec Condition="'$(OS)'=='Windows_NT'" Command="rmdir /s /q $(TargetDir)" />
 		<Exec Condition="'$(OS)'!='Windows_NT'" Command="rm -rf $(TargetDir)" />
