@@ -75,6 +75,17 @@
             custom3: undefined,
             minHeight: 360,
             fileManagerServer: '',
+            fileManagerPath: '/repository/api/storage',
+            pageGetRepository: 'get-repository',
+            pageUploadFile: 'upload-file',
+            pageUploadFiles: 'upload-files',
+            pageActionHandler: 'action-handler',
+            pageRemoveItem: 'remove-item',
+            pageRemoveItems: 'remove-items',
+            pageDownloadFile: 'download-file',
+            pageHttpDownloadFile: 'http-download-file',
+            pageVirtualDownloadFile: 'virtual-download-file',
+            pageVirtualDeleteFile: 'virtual-delete-file',
             dataType: 'string',
             belongID: null,
             getter: false,
@@ -113,7 +124,7 @@
             setting.uploadType = null;
             setting.uploadUrl = null;
 
-            if (syn.Config && syn.Config.FileManagerServer) {
+            if ($string.isNullOrEmpty(setting.fileManagerServer) == true && syn.Config && syn.Config.FileManagerServer) {
                 setting.fileManagerServer = syn.Config.FileManagerServer;
             }
 
@@ -155,7 +166,7 @@
                 $fileclient.businessID = '0';
             }
 
-            syn.$w.loadJson(setting.fileManagerServer + '/repository/api/storage/get-repository?applicationID={0}&repositoryID={1}'.format($fileclient.applicationID, setting.repositoryID), setting, function (setting, repositoryData) {
+            syn.$w.loadJson(setting.fileManagerServer + setting.fileManagerPath + '/' + setting.pageGetRepository + '?applicationID={0}&repositoryID={1}'.format($fileclient.applicationID, setting.repositoryID), setting, function (setting, repositoryData) {
                 setting.dialogTitle = repositoryData.RepositoryName;
                 setting.storageType = repositoryData.StorageType;
                 setting.isMultiUpload = repositoryData.IsMultiUpload;
@@ -223,7 +234,8 @@
         moduleInit() {
             syn.$l.addEvent(window, 'message', function (e) {
                 var repositoryData = e.data;
-                if ((syn.Config.FileManagerServer + '/repository/api/storage').indexOf(e.origin) > -1 && repositoryData && repositoryData.action == 'upload-files') {
+                var setting = $fileclient.getFileSetting(repositoryData.elementID);
+                if (setting && ($fileclient.getRepositoryUrl()).indexOf(e.origin) > -1 && repositoryData && repositoryData.action == 'upload-files') {
                     if (window.$progressBar) {
                         $progressBar.close();
                     }
@@ -285,6 +297,37 @@
             return result;
         },
 
+        getFileManagerSetting() {
+            var result = null;
+
+            if ($fileclient.fileControls.length > 0) {
+                result = $fileclient.fileControls[i].setting;
+            }
+
+            return result;
+        },
+
+        setPageSetting(pageSettings) {
+            pageSettings = pageSettings || {
+                pageGetRepository: 'get-repository',
+                pageUploadFile: 'upload-file',
+                pageUploadFiles: 'upload-files',
+                pageActionHandler: 'action-handler',
+                pageRemoveItem: 'remove-item',
+                pageRemoveItems: 'remove-items',
+                pageDownloadFile: 'download-file',
+                pageHttpDownloadFile: 'http-download-file',
+                pageVirtualDownloadFile: 'virtual-download-file',
+                pageVirtualDeleteFile: 'virtual-delete-file',
+            };
+
+            var length = $fileclient.fileControls.length;
+            for (var i = 0; i < length; i++) {
+                var item = $fileclient.fileControls[i];
+                item.setting = syn.$w.argumentsExtend(item.setting, pageSettings);
+            }
+        },
+
         getValue(elID, meta) {
             return syn.$l.get(elID).value;
         },
@@ -301,7 +344,13 @@
 
         init(elID, fileContainer, repositoryData, fileChangeHandler) {
             var dependencyID = $fileclient.getTemporaryDependencyID(elID);
-            $fileclient.fileManagers.push({ 'elID': elID, 'container': fileContainer, 'datas': repositoryData, 'dependencyID': dependencyID, 'filechange': fileChangeHandler });
+            $fileclient.fileManagers.push({
+                elID: elID,
+                container: fileContainer,
+                datas: repositoryData,
+                dependencyID: dependencyID,
+                filechange: fileChangeHandler
+            });
 
             if (window.File && window.FileList) {
                 $fileclient.isFileAPIBrowser = true;
@@ -316,27 +365,19 @@
                         });
                         repositoryTarget.name = 'syn-repository';
                     }
+
                     form.enctype = 'multipart/form-data';
                     form.target = 'syn-repository';
                     form.method = 'post';
-                    form.action = syn.Config.FileManagerServer + '/repository/api/storage';
+                    form.action = $fileclient.getRepositoryUrl();
                 }
             }
         },
 
-        getRepositoryUrl(repositoryID) {
-            var val = null;
-            var container = null;
-            for (var i = 0; i < $fileclient.fileManagers.length; i++) {
-                container = $fileclient.fileManagers[i];
-
-                if (container.datas && container.datas.repositoryID == repositoryID) {
-                    val = container.datas.fileManagerServer + '/repository/api/storage';
-                    break;
-                }
-            }
-
-            return val;
+        getRepositoryUrl() {
+            debugger;
+            var setting = $fileclient.getFileManagerSetting();
+            return setting.fileManagerServer + setting.fileManagerPath;
         },
 
         getFileManager(elID) {
@@ -568,8 +609,8 @@
                     if (syn.$l.get('syn-repository') != null) {
                         syn.$r.params = [];
                         var repositoryID = $fileclient.getRepositoryID(elID);
-
-                        syn.$r.path = $fileclient.getRepositoryUrl(repositoryID) + '/upload-files';
+                        var setting = $fileclient.getFileManagerSetting();
+                        syn.$r.path = $fileclient.getRepositoryUrl() + '/' + setting.pageUploadFiles;
                         syn.$r.params['elementID'] = fileUploadOptions.elementID;
                         syn.$r.params['repositoryID'] = repositoryID;
                         syn.$r.params['dependencyID'] = $fileclient.getDependencyID(elID);
@@ -622,7 +663,8 @@
                 isSingleUpload = true;
             }
 
-            syn.$r.path = syn.Config.FileManagerServer + '/repository/api/storage/' + (isSingleUpload == true ? 'upload-file' : 'upload-files');
+            var setting = $fileclient.getFileManagerSetting();
+            syn.$r.path = $fileclient.getRepositoryUrl() + '/' + (isSingleUpload == true ? setting.pageUploadFile : setting.pageUploadFiles);
             syn.$r.params['repositoryID'] = repositoryID;
             syn.$r.params['dependencyID'] = dependencyID;
             syn.$r.params['responseType'] = 'json';
@@ -637,12 +679,18 @@
         },
 
         getFileAction(options, callback) {
-            if ($object.isNullOrUndefined(options.action) == true) {
-                syn.$l.eventLog('getFileAction', '필수 입력 정보 확인 필요', 'Warning');
+            if ($string.isNullOrEmpty(options.repositoryID) == true || $object.isNullOrUndefined(options.action) == true) {
+                syn.$l.eventLog('getFileAction', '요청 정보 확인 필요', 'Warning');
                 return;
             }
 
-            syn.$r.path = syn.Config.FileManagerServer + '/repository/api/storage/action-handler';
+            var setting = $fileclient.getFileManagerSetting();
+            if ($object.isNullOrUndefined(setting) == true) {
+                syn.$l.eventLog('getFileAction', `${options.repositoryID} 정보 확인 필요`, 'Warning');
+                return;
+            }
+
+            syn.$r.path = $fileclient.getRepositoryUrl() + '/' + setting.pageActionHandler;
             var action = options.action;
             syn.$r.params['action'] = action;
             switch (action) {
@@ -665,12 +713,12 @@
                     syn.$r.params['fileName'] = options.fileName;
                     break;
                 case 'DeleteItem':
-                    syn.$r.path = syn.Config.FileManagerServer + '/repository/api/storage/remove-item';
+                    syn.$r.path = $fileclient.getRepositoryUrl() + '/' + setting.pageRemoveItem;
                     syn.$r.params['repositoryID'] = options.repositoryID;
                     syn.$r.params['itemID'] = options.itemID;
                     break;
                 case 'DeleteItems':
-                    syn.$r.path = syn.Config.FileManagerServer + '/repository/api/storage/remove-items';
+                    syn.$r.path = $fileclient.getRepositoryUrl() + '/' + setting.pageRemoveItems;
                     syn.$r.params['repositoryID'] = options.repositoryID;
                     syn.$r.params['dependencyID'] = options.dependencyID;
                     break;
@@ -696,14 +744,14 @@
             }
 
             if (setting) {
-                syn.$r.path = setting.fileManagerServer + '/repository/api/storage/action-handler';
+                syn.$r.path = $fileclient.getRepositoryUrl() + '/' + setting.pageActionHandler;
                 syn.$r.params['action'] = 'GetItem';
                 syn.$r.params['repositoryID'] = setting.repositoryID;
                 syn.$r.params['itemID'] = itemID;
             }
             else {
                 var repositoryID = $fileclient.getRepositoryID(elID);
-                syn.$r.path = $fileclient.getRepositoryUrl(repositoryID) + '/action-handler';
+                syn.$r.path = $fileclient.getRepositoryUrl() + '/' + setting.pageActionHandler;
                 syn.$r.params['action'] = 'GetItem';
                 syn.$r.params['repositoryID'] = repositoryID;
                 syn.$r.params['itemID'] = itemID;
@@ -725,14 +773,14 @@
             }
 
             if (setting) {
-                syn.$r.path = setting.fileManagerServer + '/repository/api/storage/action-handler';
+                syn.$r.path = $fileclient.getRepositoryUrl() + '/' + setting.pageActionHandler;
                 syn.$r.params['action'] = 'GetItems';
                 syn.$r.params['repositoryID'] = setting.repositoryID;
                 syn.$r.params['dependencyID'] = dependencyID;
             }
             else {
                 var repositoryID = $fileclient.getRepositoryID(elID);
-                syn.$r.path = $fileclient.getRepositoryUrl(repositoryID) + '/action-handler';
+                syn.$r.path = $fileclient.getRepositoryUrl() + '/' + setting.pageActionHandler;
                 syn.$r.params['action'] = 'GetItems';
                 syn.$r.params['repositoryID'] = repositoryID;
                 syn.$r.params['dependencyID'] = dependencyID;
@@ -746,7 +794,7 @@
 
         updateDependencyID(elID, sourceDependencyID, targetDependencyID, callback) {
             var setting = $fileclient.getFileSetting(elID);
-            syn.$r.path = setting.fileManagerServer + '/repository/api/storage/action-handler';
+            syn.$r.path = $fileclient.getRepositoryUrl() + '/' + setting.pageActionHandler;
             syn.$r.params['action'] = 'UpdateDependencyID';
             syn.$r.params['repositoryID'] = setting.repositoryID;
             syn.$r.params['sourceDependencyID'] = sourceDependencyID;
@@ -759,7 +807,7 @@
 
         updateFileName(elID, itemID, fileName, callback) {
             var setting = $fileclient.getFileSetting(elID);
-            syn.$r.path = setting.fileManagerServer + '/repository/api/storage/action-handler';
+            syn.$r.path = $fileclient.getRepositoryUrl() + '/' + setting.pageActionHandler;
             syn.$r.params['action'] = 'UpdateFileName';
             syn.$r.params['repositoryID'] = setting.repositoryID;
             syn.$r.params['itemID'] = itemID;
@@ -826,9 +874,16 @@
          */
         fileUpload(el, repositoryID, dependencyID, callback, uploadUrl) {
             var result = null;
+            el = $object.isString(el) == true ? syn.$l.get(el) : el;
+            var setting = $fileclient.getFileSetting(el.id);
+            if ($object.isNullOrUndefined(el) == true || $object.isNullOrUndefined(setting) == true) {
+                syn.$l.eventLog('fileUpload', `요청 정보 확인 필요`, 'Warning');
+                return;
+            }
+
             var url = '';
             if ($object.isNullOrUndefined(uploadUrl) == true) {
-                url = syn.Config.FileManagerServer + '/repository/api/storage/upload-files?repositoryID={0}&dependencyID={1}&responseType=json&callback=none'.format(repositoryID, dependencyID);
+                url = $fileclient.getRepositoryUrl() + '/' + setting.pageUploadFiles + '?repositoryID={0}&dependencyID={1}&responseType=json&callback=none'.format(repositoryID, dependencyID);
             }
             else {
                 url = uploadUrl;
@@ -841,7 +896,6 @@
                 url = url + `&applicationID=${syn.uicontrols.$fileclient.applicationID}&businessID=${syn.uicontrols.$fileclient.businessID}`;
             }
 
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
             if (el && el.type.toUpperCase() == 'FILE') {
                 var formData = new FormData();
                 for (var i = 0; i < el.files.length; i++) {
@@ -910,7 +964,13 @@
                 }
             }
 
-            syn.$r.path = (options.fileManagerServer || syn.Config.FileManagerServer) + '/repository/api/storage/download-file';
+            var setting = $fileclient.getFileManagerSetting();
+            if ($object.isNullOrUndefined(setting) == true) {
+                syn.$l.eventLog('fileDownload', `FileManagerSetting 정보 확인 필요`, 'Warning');
+                return;
+            }
+
+            syn.$r.path = $fileclient.getRepositoryUrl() + '/' + setting.pageDownloadFile;
 
             var http = syn.$w.xmlHttp();
             http.open('POST', syn.$r.url(), true);
@@ -950,7 +1010,8 @@
                 repositoryDownload.width = '100%';
             }
 
-            syn.$r.path = syn.Config.FileManagerServer + '/repository/api/storage/HttpDownloadFile';
+            var setting = $fileclient.getFileManagerSetting();
+            syn.$r.path = $fileclient.getRepositoryUrl() + '/' + setting.pageHttpDownloadFile;
             syn.$r.params['repositoryID'] = repositoryID;
             syn.$r.params['itemID'] = itemID;
             syn.$r.params['fileMD5'] = fileMD5;
@@ -970,7 +1031,8 @@
                 repositoryDownload.name = 'repositoryDownload';
             }
 
-            syn.$r.path = syn.Config.FileManagerServer + '/repository/api/storage/virtual-download-file';
+            var setting = $fileclient.getFileManagerSetting();
+            syn.$r.path = $fileclient.getRepositoryUrl() + '/' + setting.pageVirtualDownloadFile;
             syn.$r.params['repositoryID'] = repositoryID;
             syn.$r.params['fileName'] = fileName;
             syn.$r.params['subDirectory'] = subDirectory;
@@ -981,7 +1043,8 @@
         },
 
         virtualDeleteFile(repositoryID, fileName, subDirectory) {
-            syn.$r.path = syn.Config.FileManagerServer + '/repository/api/storage/virtual-delete-file';
+            var setting = $fileclient.getFileManagerSetting();
+            syn.$r.path = $fileclient.getRepositoryUrl() + '/' + setting.pageVirtualDeleteFile;
             syn.$r.params['repositoryID'] = repositoryID;
             syn.$r.params['fileName'] = fileName;
             syn.$r.params['subDirectory'] = subDirectory;
@@ -1004,18 +1067,9 @@
                 }
             }
 
-            if (setting) {
-                syn.$r.path = setting.fileManagerServer + '/repository/api/storage/remove-item';
-                syn.$r.params['repositoryID'] = setting.repositoryID;
-                syn.$r.params['itemID'] = itemID;
-            }
-            else {
-                var repositoryID = $fileclient.getRepositoryID(elID);
-                syn.$r.path = $fileclient.getRepositoryUrl(repositoryID) + '/remove-item';
-                syn.$r.params['repositoryID'] = repositoryID;
-                syn.$r.params['itemID'] = itemID;
-            }
-
+            syn.$r.path = $fileclient.getRepositoryUrl() + '/' + setting.pageRemoveItem;
+            syn.$r.params['repositoryID'] = setting.repositoryID;
+            syn.$r.params['itemID'] = itemID;
             syn.$r.params['applicationID'] = $fileclient.applicationID;
             syn.$r.params['businessID'] = $fileclient.businessID;
 
@@ -1061,18 +1115,9 @@
                 }
             }
 
-            if (setting) {
-                syn.$r.path = setting.fileManagerServer + '/repository/api/storage/remove-items';
-                syn.$r.params['repositoryID'] = setting.repositoryID;
-                syn.$r.params['dependencyID'] = dependencyID;
-            }
-            else {
-                var repositoryID = $fileclient.getRepositoryID(elID);
-                syn.$r.path = $fileclient.getRepositoryUrl(repositoryID) + '/remove-items';
-                syn.$r.params['repositoryID'] = repositoryID;
-                syn.$r.params['dependencyID'] = dependencyID;
-            }
-
+            syn.$r.path = $fileclient.getRepositoryUrl() + '/' + setting.pageRemoveItems;
+            syn.$r.params['repositoryID'] = setting.repositoryID;
+            syn.$r.params['dependencyID'] = dependencyID;
             syn.$r.params['applicationID'] = $fileclient.applicationID;
             syn.$r.params['businessID'] = $fileclient.businessID;
 
@@ -1099,8 +1144,9 @@
                 fileName: null
             }, options);
 
+            var setting = $fileclient.getFileManagerSetting();
             if ($string.isNullOrEmpty(options.repositoryID) == false && $string.isNullOrEmpty(options.dependencyID) == false && options.blobInfo) {
-                syn.$r.path = syn.Config.FileManagerServer + '/repository/api/storage/upload-file';
+                syn.$r.path = $fileclient.getRepositoryUrl() + '/' + setting.pageUploadFile;
                 syn.$r.params['repositoryID'] = options.repositoryID;
                 syn.$r.params['dependencyID'] = options.dependencyID;
                 syn.$r.params['applicationID'] = $fileclient.applicationID;

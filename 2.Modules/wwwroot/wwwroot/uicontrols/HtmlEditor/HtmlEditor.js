@@ -16,6 +16,9 @@
             applicationID: '',
             selector: '',
             fileManagerServer: '',
+            fileManagerPath: '/repository/api/storage',
+            pageUploadFile: 'upload-file',
+            pageActionHandler: 'action-handler',
             repositoryID: null,
             dependencyID: null,
             relative_urls: false,
@@ -105,10 +108,26 @@
 
                 $htmleditor.editorPendings.push({
                     elID: elID,
-                    setting: setting,
+                    setting: $object.clone(setting),
                     intervalID: editorIntervalID
                 });
             }
+        },
+
+        // var setting = $htmleditor.getEditorSetting(elID);
+        getEditorSetting(elID) {
+            var result = null;
+
+            var length = $htmleditor.editorPendings.length;
+            for (var i = 0; i < length; i++) {
+                var item = $htmleditor.editorPendings[i];
+                if (item.id == elID) {
+                    result = item.setting;
+                    break;
+                }
+            }
+
+            return result;
         },
 
         lazyControlLoad(elID, setting) {
@@ -155,7 +174,7 @@
                     syn.uicontrols.$fileclient.businessID = '0';
                 }
 
-                if (syn.Config && syn.Config.FileManagerServer) {
+                if ($string.isNullOrEmpty(setting.fileManagerServer) == true && syn.Config && syn.Config.FileManagerServer) {
                     setting.fileManagerServer = syn.Config.FileManagerServer;
                 }
 
@@ -177,7 +196,7 @@
                         var xhr = syn.$w.xmlHttp();
                         xhr.withCredentials = false;
 
-                        var targetUrl = setting.fileManagerServer + '/repository/api/storage/upload-file?RepositoryID={0}&DependencyID={1}'.format(setting.repositoryID, setting.dependencyID);
+                        var targetUrl = setting.fileManagerServer + setting.fileManagerPath + '/' + setting.pageUploadFile + '?RepositoryID={0}&DependencyID={1}'.format(setting.repositoryID, setting.dependencyID);
 
                         if ($string.isNullOrEmpty($htmleditor.applicationID) == false) {
                             targetUrl = targetUrl + '&applicationID=' + $htmleditor.applicationID;
@@ -196,7 +215,7 @@
                                 var response = JSON.parse(xhr.responseText);
 
                                 if (response && response.Result == true) {
-                                    syn.$r.path = setting.fileManagerServer + '/repository/api/storage/action-handler';
+                                    syn.$r.path = setting.fileManagerServer + setting.fileManagerPath + '/' + setting.pageActionHandler;
                                     syn.$r.params['action'] = 'GetItem';
                                     syn.$r.params['repositoryID'] = setting.repositoryID;
                                     syn.$r.params['itemID'] = response.ItemID;
@@ -210,7 +229,7 @@
                                         if (xhrGetItem.readyState === XMLHttpRequest.DONE) {
                                             if (xhrGetItem.status === 200) {
                                                 var result = JSON.parse(xhrGetItem.responseText);
-                                                // response.location = setting.fileManagerServer + '/repository/api/storage/http-download-file?RepositoryID={0}&ItemID={1}'.format(setting.repositoryID, response.ItemID);
+                                                // response.location = setting.fileManagerServer + setting.fileManagerPath + '/http-download-file?RepositoryID={0}&ItemID={1}'.format(setting.repositoryID, response.ItemID);
                                                 response.location = result.AbsolutePath;
                                                 success(response.location);
 
@@ -1056,7 +1075,7 @@
 
         updateDependencyID(elID, targetDependencyID, callback) {
             var setting = $htmleditor.getHtmlSetting(elID);
-            syn.$r.path = setting.fileManagerServer + '/repository/api/storage/action-handler';
+            syn.$r.path = setting.fileManagerServer + setting.fileManagerPath + '/' + setting.pageActionHandler;
             syn.$r.params['action'] = 'UpdateDependencyID';
             syn.$r.params['repositoryID'] = setting.repositoryID;
             syn.$r.params['sourceDependencyID'] = setting.dependencyID;
