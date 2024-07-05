@@ -192,8 +192,7 @@
 
                 var input = document.createElement('input');
                 input.id = 'moduleScript';
-                input.type = 'text';
-                input.style.display = 'none';
+                input.type = 'hidden';
                 input.value = syn.$w.pageScript;
                 document.body.appendChild(input);
 
