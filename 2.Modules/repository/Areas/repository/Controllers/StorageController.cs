@@ -141,7 +141,7 @@ namespace repository.Controllers
             List<RepositoryItems>? items = null;
             if (repository.IsLocalDbFileManaged == true)
             {
-                items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.LD01", new
+                items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.SLT010.LD01", new
                 {
                     ApplicationID = applicationID,
                     BusinessID = businessID,
@@ -163,7 +163,7 @@ namespace repository.Controllers
 
                     if (repository.IsLocalDbFileManaged == true)
                     {
-                        isDataUpsert = ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.STR010.UD01", new
+                        isDataUpsert = ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.SLT010.UD01", new
                         {
                             ApplicationID = applicationID,
                             BusinessID = item.BusinessID,
@@ -226,7 +226,7 @@ namespace repository.Controllers
             RepositoryItems? item = null;
             if (repository.IsLocalDbFileManaged == true)
             {
-                var items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.GD01", new
+                var items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.SLT010.GD01", new
                 {
                     ApplicationID = applicationID,
                     BusinessID = businessID,
@@ -338,7 +338,7 @@ namespace repository.Controllers
 
                 if (repository.IsLocalDbFileManaged == true)
                 {
-                    isDataUpsert = ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.STR010.UD02", new
+                    isDataUpsert = ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.SLT010.UD02", new
                     {
                         ApplicationID = applicationID,
                         BusinessID = item.BusinessID,
@@ -394,7 +394,7 @@ namespace repository.Controllers
             RepositoryItems? item = null;
             if (repository.IsLocalDbFileManaged == true)
             {
-                var items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.GD01", new
+                var items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.SLT010.GD01", new
                 {
                     ApplicationID = applicationID,
                     BusinessID = businessID,
@@ -469,7 +469,7 @@ namespace repository.Controllers
             List<RepositoryItems>? items = null;
             if (repository.IsLocalDbFileManaged == true)
             {
-                items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.LD01", new
+                items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.SLT010.LD01", new
                 {
                     ApplicationID = applicationID,
                     BusinessID = businessID,
@@ -618,7 +618,7 @@ namespace repository.Controllers
                             {
                                 if (repository.IsLocalDbFileManaged == true)
                                 {
-                                    items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.LD01", new
+                                    items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.SLT010.LD01", new
                                     {
                                         ApplicationID = applicationID,
                                         BusinessID = businessID,
@@ -654,7 +654,7 @@ namespace repository.Controllers
                             {
                                 if (repository.IsLocalDbFileManaged == true)
                                 {
-                                    items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.LD01", new
+                                    items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.SLT010.LD01", new
                                     {
                                         ApplicationID = applicationID,
                                         BusinessID = businessID,
@@ -709,7 +709,7 @@ namespace repository.Controllers
 
                                         if (repository.IsLocalDbFileManaged == true)
                                         {
-                                            ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.STR010.DD01", new
+                                            ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.SLT010.DD01", new
                                             {
                                                 ApplicationID = applicationID,
                                                 BusinessID = item.BusinessID,
@@ -882,7 +882,7 @@ namespace repository.Controllers
                         {
                             if (repository.IsLocalDbFileManaged == true)
                             {
-                                isDataUpsert = ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.STR010.MD01", repositoryItem) > 0;
+                                isDataUpsert = ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.SLT010.MD01", repositoryItem) > 0;
                             }
                             else
                             {
@@ -945,7 +945,7 @@ namespace repository.Controllers
                             List<RepositoryItems>? items = null;
                             if (repository.IsLocalDbFileManaged == true)
                             {
-                                items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.LD01", new
+                                items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.SLT010.LD01", new
                                 {
                                     ApplicationID = applicationID,
                                     BusinessID = businessID,
@@ -974,7 +974,7 @@ namespace repository.Controllers
                             List<RepositoryItems>? items = null;
                             if (repository.IsLocalDbFileManaged == true)
                             {
-                                items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.LD01", new
+                                items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.SLT010.LD01", new
                                 {
                                     ApplicationID = applicationID,
                                     BusinessID = businessID,
@@ -1029,7 +1029,7 @@ namespace repository.Controllers
 
                                     if (repository.IsLocalDbFileManaged == true)
                                     {
-                                        ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.STR010.DD01", new
+                                        ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.SLT010.DD01", new
                                         {
                                             ApplicationID = applicationID,
                                             BusinessID = item.BusinessID,
@@ -1198,7 +1198,7 @@ namespace repository.Controllers
                         bool isDataUpsert = false;
                         if (repository.IsLocalDbFileManaged == true)
                         {
-                            isDataUpsert = ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.STR010.MD01", repositoryItem) > 0;
+                            isDataUpsert = ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.SLT010.MD01", repositoryItem) > 0;
                         }
                         else
                         {
@@ -1335,7 +1335,7 @@ namespace repository.Controllers
                         List<RepositoryItems>? items = null;
                         if (repository.IsLocalDbFileManaged == true)
                         {
-                            items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.LD01", new
+                            items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.SLT010.LD01", new
                             {
                                 ApplicationID = applicationID,
                                 BusinessID = businessID,
@@ -1374,7 +1374,7 @@ namespace repository.Controllers
                         List<RepositoryItems>? items = null;
                         if (repository.IsLocalDbFileManaged == true)
                         {
-                            items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.LD01", new
+                            items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.SLT010.LD01", new
                             {
                                 ApplicationID = applicationID,
                                 BusinessID = businessID,
@@ -1429,7 +1429,7 @@ namespace repository.Controllers
 
                                 if (repository.IsLocalDbFileManaged == true)
                                 {
-                                    ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.STR010.DD01", new
+                                    ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.SLT010.DD01", new
                                     {
                                         ApplicationID = applicationID,
                                         BusinessID = item.BusinessID,
@@ -1613,7 +1613,7 @@ namespace repository.Controllers
                             {
                                 if (repository.IsLocalDbFileManaged == true)
                                 {
-                                    isDataUpsert = ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.STR010.MD01", repositoryItem) > 0;
+                                    isDataUpsert = ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.SLT010.MD01", repositoryItem) > 0;
                                 }
                                 else
                                 {
@@ -1688,7 +1688,7 @@ namespace repository.Controllers
                 List<RepositoryItems>? repositoryItems = null;
                 if (repository.IsLocalDbFileManaged == true)
                 {
-                    repositoryItems = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.LD01", new
+                    repositoryItems = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.SLT010.LD01", new
                     {
                         ApplicationID = applicationID,
                         BusinessID = businessID,
@@ -2237,7 +2237,7 @@ namespace repository.Controllers
                 RepositoryItems? repositoryItem = null;
                 if (repository.IsLocalDbFileManaged == true)
                 {
-                    var items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.GD01", new
+                    var items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.SLT010.GD01", new
                     {
                         ApplicationID = applicationID,
                         BusinessID = businessID,
@@ -2301,7 +2301,7 @@ namespace repository.Controllers
 
                     if (repository.IsLocalDbFileManaged == true)
                     {
-                        ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.STR010.DD01", new
+                        ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.SLT010.DD01", new
                         {
                             ApplicationID = applicationID,
                             BusinessID = repositoryItem.BusinessID,
@@ -2356,7 +2356,7 @@ namespace repository.Controllers
                 List<RepositoryItems>? repositoryItems = null;
                 if (repository.IsLocalDbFileManaged == true)
                 {
-                    repositoryItems = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.LD01", new
+                    repositoryItems = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.SLT010.LD01", new
                     {
                         ApplicationID = applicationID,
                         BusinessID = businessID,
@@ -2418,7 +2418,7 @@ namespace repository.Controllers
 
                         if (repository.IsLocalDbFileManaged == true)
                         {
-                            ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.STR010.DD01", new
+                            ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.SLT010.DD01", new
                             {
                                 ApplicationID = applicationID,
                                 BusinessID = repositoryItem.BusinessID,
@@ -2577,7 +2577,7 @@ namespace repository.Controllers
             RepositoryItems? repositoryItem = null;
             if (repository.IsLocalDbFileManaged == true)
             {
-                var items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.GD01", new
+                var items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.SLT010.GD01", new
                 {
                     ApplicationID = applicationID,
                     BusinessID = businessID,
@@ -2678,7 +2678,7 @@ namespace repository.Controllers
             RepositoryItems? repositoryItem = null;
             if (repository.IsLocalDbFileManaged == true)
             {
-                var items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.STR010.GD01", new
+                var items = ModuleExtensions.ExecuteMetaSQL<RepositoryItems>(repository, "STR.SLT010.GD01", new
                 {
                     ApplicationID = applicationID,
                     BusinessID = businessID,

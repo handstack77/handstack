@@ -23,7 +23,7 @@ SELECT ME.EntityNo
     , '${#TenantID}' AS [#TenantID]
 FROM 
     MetaEntity ME
-WHERE ME.DeletedAt IS NULL
+WHERE IFNULL(ME.DeletedAt, '') = ''
     AND ME.ApplicationNo = @ApplicationNo
 ORDER BY ME.CreatedAt;
 			]]>

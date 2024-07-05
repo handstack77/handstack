@@ -14,7 +14,6 @@
                                 <xs:element name="Acronyms" type="xs:string" minOccurs="0" />
                                 <xs:element name="SeedData" type="xs:string" minOccurs="0" />
                                 <xs:element name="Comment" type="xs:string" minOccurs="0" />
-                                <xs:element name="DeletedAt" type="xs:dateTime" minOccurs="0" />
                                 <xs:element name="CreatedMemberNo" type="xs:string" minOccurs="0" />
                                 <xs:element name="CreatedAt" type="xs:dateTime" minOccurs="0" />
                             </xs:sequence>

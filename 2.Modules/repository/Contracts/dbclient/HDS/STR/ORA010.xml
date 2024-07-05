@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+    <header>
+        <application>HDS</application>
+        <project>STR</project>
+        <transaction>ORA010</transaction>
+        <datasource>DB01</datasource>
+        <use>Y</use>
+        <desc>Oracle 저장소 및 파일 관리</desc>
+    </header>
+    <commands>
+        <statement id="ZD01" seq="0" use="Y" timeout="0" desc="RepositoryFile 테이블 DDL" native="Y">
+            <![CDATA[
+DECLARE
+    v_exists NUMBER;
+BEGIN
+    SELECT COUNT(*)
+    INTO v_exists
+    FROM user_tables
+    WHERE table_name = 'REPOSITORYFILE';
+
+    IF v_exists = 0 THEN
+        EXECUTE IMMEDIATE '
+            CREATE TABLE "REPOSITORYFILE" (
+                "ItemID" VARCHAR2(36) NOT NULL,
+                "RepositoryID" VARCHAR2(36) NOT NULL,
+                "DependencyID" VARCHAR2(36),
+                "FileName" NVARCHAR2(256) NOT NULL,
+                "PhysicalPath" NVARCHAR2(1000),
+                "AbsolutePath" NVARCHAR2(1000),
+                "RelativePath" NVARCHAR2(1000),
+                "Extension" VARCHAR2(50),
+                "Size" NUMBER(19,0),
+                "MD5" VARCHAR2(50),
+                "CustomPath1" VARCHAR2(50),
+                "CustomPath2" VARCHAR2(50),
+                "CustomPath3" VARCHAR2(50),
+                "PolicyPath" VARCHAR2(1),
+                "SortingNo" NUMBER(10,0),
+                "Comment" NVARCHAR2(200),
+                "CreatedMemberNo" VARCHAR2(36),
+                "CreatedAt" DATE,
+                CONSTRAINT "PK_REPOSITORYFILE" PRIMARY KEY ("ItemID")
+            )';
+        EXECUTE IMMEDIATE '
+            CREATE INDEX "IX_REPOSITORYFILE" ON "REPOSITORYFILE" (
+                "RepositoryID" ASC,
+                "DependencyID" ASC
+            )';
+    END IF;
+END;
+/
+			]]>
+        </statement>
+
+        <statement id="GD01" seq="0" use="Y" timeout="0" desc="단일 파일 조회" native="Y">
+            <![CDATA[
+SELECT RF."ItemID"
+       , RF."RepositoryID"
+       , RF."DependencyID"
+       , RF."FileName"
+       , RF."PhysicalPath"
+       , RF."AbsolutePath"
+       , RF."RelativePath"
+       , RF."Extension"
+       , RF."Size"
+       , RF."MD5"
+       , RF."CustomPath1"
+       , RF."CustomPath2"
+       , RF."CustomPath3"
+       , RF."PolicyPath"
+       , RF."SortingNo"
+       , RF."Comment"
+       , RF."CreatedMemberNo"
+       , TO_CHAR(RF."CreatedAt", 'YYYY-MM-DD HH24:MI:SS.FF3') AS "CreatedAt"
+FROM   "RepositoryFile" RF
+WHERE  RF."RepositoryID" = :RepositoryID
+    AND RF."ItemID" = :ItemID;
+			]]>
+            <param id=":RepositoryID" type="Varchar2" length="36" value="" />
+            <param id=":ItemID" type="Varchar2" length="36" value="" />
+        </statement>
+
+        <statement id="LD01" seq="0" use="Y" timeout="0" desc="멀티 파일 조회" native="Y">
+            <![CDATA[
+SELECT RF."ItemID"
+       , RF."RepositoryID"
+       , RF."DependencyID"
+       , RF."FileName"
+       , RF."PhysicalPath"
+       , RF."AbsolutePath"
+       , RF."RelativePath"
+       , RF."Extension"
+       , RF."Size"
+       , RF."MD5"
+       , RF."CustomPath1"
+       , RF."CustomPath2"
+       , RF."CustomPath3"
+       , RF."PolicyPath"
+       , RF."SortingNo"
+       , RF."Comment"
+       , RF."CreatedMemberNo"
+       , TO_CHAR(RF."CreatedAt", 'YYYY-MM-DD HH24:MI:SS.FF3') AS "CreatedAt"
+FROM   "RepositoryFile" RF
+WHERE  RF."RepositoryID" = :RepositoryID
+       AND NVL(:DependencyID, RF."DependencyID") = :DependencyID;
+			]]>
+            <param id=":RepositoryID" type="Varchar2" length="36" value="" />
+            <param id=":DependencyID" type="Varchar2" length="36" value="" />
+        </statement>
+
+        <statement id="DD01" seq="0" use="Y" timeout="0" desc="파일 정보 삭제" native="Y">
+            <![CDATA[
+DELETE FROM "RepositoryFile" WHERE "RepositoryID" = :RepositoryID AND "ItemID" = :ItemID;
+			]]>
+            <param id=":RepositoryID" type="Varchar2" length="36" value="" />
+            <param id=":ItemID" type="Varchar2" length="36" value="" />
+        </statement>
+
+        <statement id="MD01" seq="0" use="Y" timeout="0" desc="파일 정보 입력 또는 변경" native="Y">
+            <![CDATA[
+MERGE INTO "RepositoryFile" T
+USING (
+    SELECT :ItemID AS ItemID, :RepositoryID AS RepositoryID FROM dual
+) S
+ON (S.ItemID = T.ItemID AND S.RepositoryID = T.RepositoryID)
+WHEN MATCHED THEN
+    UPDATE SET T."DependencyID" = :DependencyID,
+        T."FileName" = :FileName,
+        T."PhysicalPath" = :PhysicalPath,
+        T."AbsolutePath" = :AbsolutePath,
+        T."RelativePath" = :RelativePath,
+        T."Extension" = :Extension,
+        T."Size" = :Size,
+        T."MD5" = :MD5,
+        T."CustomPath1" = :CustomPath1,
+        T."CustomPath2" = :CustomPath2,
+        T."CustomPath3" = :CustomPath3,
+        T."PolicyPath" = :PolicyPath,
+        T."SortingNo" = :SortingNo,
+        T."Comment" = :Comment,
+        T."CreatedMemberNo" = :CreatedMemberNo
+WHEN NOT MATCHED THEN
+    INSERT (T."ItemID"
+        , T."RepositoryID"
+        , T."DependencyID"
+        , T."FileName"
+        , T."PhysicalPath"
+        , T."AbsolutePath"
+        , T."RelativePath"
+        , T."Extension"
+        , T."Size"
+        , T."MD5"
+        , T."CustomPath1"
+        , T."CustomPath2"
+        , T."CustomPath3"
+        , T."PolicyPath"
+        , T."SortingNo"
+        , T."Comment"
+        , T."CreatedMemberNo"
+        , T."CreatedAt")
+    VALUES (:ItemID
+        , :RepositoryID
+        , :DependencyID
+        , :FileName
+        , :PhysicalPath
+        , :AbsolutePath
+        , :RelativePath
+        , :Extension
+        , :Size
+        , :MD5
+        , :CustomPath1
+        , :CustomPath2
+        , :CustomPath3
+        , :PolicyPath
+        , :SortingNo
+        , :Comment
+        , :CreatedMemberNo
+        , SYSDATE);
+			]]>
+            <param id=":ItemID" type="Varchar2" length="36" value="" />
+            <param id=":RepositoryID" type="Varchar2" length="36" value="" />
+            <param id=":DependencyID" type="Varchar2" length="36" value="" />
+            <param id=":FileName" type="NVarchar2" length="256" value="" />
+            <param id=":PhysicalPath" type="NVarchar2" length="1000" value="" />
+            <param id=":AbsolutePath" type="NVarchar2" length="1000" value="" />
+            <param id=":RelativePath" type="NVarchar2" length="1000" value="" />
+            <param id=":Extension" type="Varchar2" length="50" value="" />
+            <param id=":Size" type="Int64" length="-1" value="" />
+            <param id=":MD5" type="Varchar2" length="50" value="" />
+            <param id=":CustomPath1" type="Varchar2" length="50" value="" />
+            <param id=":CustomPath2" type="Varchar2" length="50" value="" />
+            <param id=":CustomPath3" type="Varchar2" length="50" value="" />
+            <param id=":PolicyPath" type="Varchar2" length="1" value="" />
+            <param id=":SortingNo" type="Int32" length="-1" value="" />
+            <param id=":Comment" type="NVarchar2" length="200" value="" />
+            <param id=":CreatedMemberNo" type="Varchar2" length="36" value="" />
+        </statement>
+
+        <statement id="UD01" seq="0" use="Y" timeout="0" desc="파일 참조 ID 변경" native="Y">
+            <![CDATA[
+UPDATE "RepositoryFile" 
+SET "DependencyID" = :TargetDependencyID
+WHERE "RepositoryID" = :RepositoryID
+    AND "DependencyID" = :SourceDependencyID
+    AND NVL(:ItemID, "ItemID") = :ItemID;
+			]]>
+            <param id=":RepositoryID" type="Varchar2" length="36" value="NULL" />
+            <param id=":ItemID" type="Varchar2" length="36" value="NULL" />
+            <param id=":SourceDependencyID" type="Varchar2" length="36" value="NULL" />
+            <param id=":TargetDependencyID" type="Varchar2" length="36" value="NULL" />
+        </statement>
+
+        <statement id="UD02" seq="0" use="Y" timeout="0" desc="파일명 변경" native="Y">
+            <![CDATA[
+UPDATE "RepositoryFile" 
+SET "FileName" = :FileName,
+    "PhysicalPath" = REPLACE("PhysicalPath", "FileName", :FileName), 
+    "AbsolutePath" = REPLACE("AbsolutePath", "FileName", :FileName), 
+    "RelativePath" = REPLACE("RelativePath", "FileName", :FileName)
+WHERE "RepositoryID" = :RepositoryID
+    AND "ItemID" = :ItemID;
+			]]>
+            <param id=":RepositoryID" type="Varchar2" length="36" value="NULL" />
+            <param id=":ItemID" type="Varchar2" length="36" value="NULL" />
+            <param id=":FileName" type="NVarchar2" length="256" value="NULL" />
+        </statement>
+    </commands>
+</mapper>

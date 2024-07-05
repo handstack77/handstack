@@ -18,7 +18,7 @@ namespace repository.Extensions
     public static class ModuleExtensions
     {
         /*
-        var dynamicFiles = ModuleExtensions.ExecuteMetaSQL(ReturnType.Dynamic, repository, "STR.STR010.LD01", new
+        var dynamicFiles = ModuleExtensions.ExecuteMetaSQL(ReturnType.Dynamic, repository, "STR.SLT010.LD01", new
         {
             ApplicationID = applicationID,
             RepositoryNo = repositoryID,

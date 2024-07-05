@@ -2434,7 +2434,10 @@ function domainLibraryLoad() {
     }
 
     if (location.pathname.startsWith((syn.Config.TenantAppRequestPath ? `/${syn.Config.TenantAppRequestPath}/` : '/app/')) == true) {
-        syn.$w.cookiePrefixName = location.pathname.split('/')[2];
+        var paths = location.pathname.split('/');
+        syn.$w.tenantUserWorkID = paths[2];
+        syn.$w.tenantApplicationID = paths[3];
+        syn.$w.cookiePrefixName = `${syn.$w.tenantUserWorkID}.${syn.$w.tenantApplicationID}`;
     }
 
     if (syn.Config.Environment == 'Production') {

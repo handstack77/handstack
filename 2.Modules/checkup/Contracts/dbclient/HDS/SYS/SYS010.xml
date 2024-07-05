@@ -106,6 +106,142 @@ CREATE TABLE IF NOT EXISTS "ApplicationMember" (
     CONSTRAINT "PK_ApplicationMember" PRIMARY KEY ("ApplicationNo", "EmailID")
 );
 
+CREATE TABLE IF NOT EXISTS "MetaEntity" (
+    -- 엔티티NO
+    "EntityNo" TEXT NOT NULL CONSTRAINT "PK_MetaEntity" PRIMARY KEY,
+
+    -- 어플리케이션NO
+    "ApplicationNo" TEXT NOT NULL DEFAULT '',
+
+    -- 엔티티ID
+    "EntityID" TEXT NOT NULL DEFAULT '',
+
+    -- 엔티티명
+    "EntityName" TEXT NOT NULL DEFAULT '',
+
+    -- 약어
+    "Acronyms" TEXT NULL,
+
+    -- 초기데이터
+    "SeedData" TEXT NULL,
+
+    -- 설명
+    "Comment" TEXT NULL,
+
+    -- 삭제일시
+    "DeletedAt" TEXT NULL,
+
+    -- 생성회원NO
+    "CreatedMemberNo" TEXT NULL,
+
+    -- 생성일시
+    "CreatedAt" TEXT NULL,
+
+    -- 수정회원NO
+    "ModifiedMemberNo" TEXT NULL,
+
+    -- 수정일시
+    "ModifiedAt" TEXT NULL
+);
+
+CREATE TABLE IF NOT EXISTS "MetaField" (
+    -- 엔티티NO
+    "EntityNo" TEXT NOT NULL,
+
+    -- 필드ID
+    "FieldID" TEXT NOT NULL,
+
+    -- 필드명
+    "FieldName" TEXT NULL,
+
+    -- 필드타입
+    "FieldType" TEXT NULL,
+
+    -- 기본키
+    "PK" TEXT NULL,
+
+    -- 인덱스
+    "IX" TEXT NULL,
+
+    -- 고유인덱스
+    "UI" TEXT NULL,
+
+    -- NULL허용안함
+    "NN" TEXT NULL,
+
+    -- 자동증가
+    "AI" TEXT NULL,
+
+    -- 크기
+    "MaxLength" INTEGER NULL,
+
+    -- 기본값
+    "DefaultValue" TEXT NULL,
+
+    -- 설명
+    "Comment" TEXT NULL,
+
+    -- 정렬순서
+    "SortingNo" INTEGER NULL,
+    CONSTRAINT "PK_MetaField" PRIMARY KEY ("EntityNo", "FieldID")
+);
+
+CREATE TABLE IF NOT EXISTS "MetaRelation" (
+    -- 관계NO
+    "RelationNo" TEXT NOT NULL CONSTRAINT "PK_MetaRelation" PRIMARY KEY,
+
+    -- 어플리케이션NO
+    "ApplicationNo" TEXT NULL,
+
+    -- 출발엔티티NO
+    "DepartureEntityNo" TEXT NULL,
+
+    -- 출발엔티티명
+    "DepartureEntityName" TEXT NULL,
+
+    -- 출발설명
+    "DepartureNote" TEXT NULL,
+
+    -- 출발흐름표시ID
+    "DepartureFlowSymbol" TEXT NULL,
+
+    -- 출발흐름표시명
+    "DepartureFlowSymbolName" TEXT NULL,
+
+    -- 흐름라인구분
+    "FlowLineType" TEXT NULL,
+
+    -- 흐름라인구분명
+    "FlowLineTypeName" TEXT NULL,
+
+    -- 도착흐름표시ID
+    "ArrivalFlowSymbol" TEXT NULL,
+
+    -- 도착흐름표시명
+    "ArrivalFlowSymbolName" TEXT NULL,
+
+    -- 도착엔티티NO
+    "ArrivalEntityNo" TEXT NULL,
+
+    -- 도착엔티티명
+    "ArrivalEntityName" TEXT NULL,
+
+    -- 도착설명
+    "ArrivalNote" TEXT NULL,
+
+    -- 정렬순서
+    "SortingNo" INTEGER NULL,
+
+    -- 생성회원NO
+    "CreatedMemberNo" TEXT NULL,
+
+    -- 생성일시
+    "CreatedAt" TEXT NULL,
+
+    -- 수정일시
+    "ModifiedAt" TEXT NULL
+);
+
 CREATE TABLE IF NOT EXISTS "BaseCode" (
     -- 그룹코드
     "GroupCode" TEXT NOT NULL,
@@ -472,6 +608,9 @@ CREATE TABLE IF NOT EXISTS "RepositoryFile" (
 CREATE INDEX IF NOT EXISTS "IX_RepositoryFile" ON "RepositoryFile" ("RepositoryID" DESC, "DependencyID" ASC);
 CREATE INDEX IF NOT EXISTS "IX_ApplicationMember_ApplicationNo_EmailID_MemberNo" ON "ApplicationMember" ("ApplicationNo", "EmailID", "MemberNo");
 CREATE INDEX IF NOT EXISTS "IX_BaseCode_CategoryID" ON "BaseCode" ("CategoryID");
+CREATE INDEX IF NOT EXISTS "IX_MetaEntity_ApplicationNo" ON "MetaEntity" ("ApplicationNo");
+CREATE INDEX IF NOT EXISTS "IX_MetaField_EntityNo_FieldID" ON "MetaField" ("EntityNo", "FieldID");
+CREATE INDEX IF NOT EXISTS "IX_MetaRelation_ApplicationNo_CreatedMemberNo" ON "MetaRelation" ("ApplicationNo", "CreatedMemberNo");
 CREATE INDEX IF NOT EXISTS "IX_IdentityNo_Sequence_GroupID" ON "IdentityNo" ("Sequence", "GroupID");
 CREATE INDEX IF NOT EXISTS "IX_Member_EmailID" ON "Member" ("EmailID");
 CREATE INDEX IF NOT EXISTS "IX_RefreshToken_UserAccountID" ON "RefreshToken" ("UserAccountID");

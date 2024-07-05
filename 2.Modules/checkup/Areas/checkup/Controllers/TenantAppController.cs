@@ -91,7 +91,7 @@ namespace checkup.Areas.checkup.Controllers
             this.sqids = sqids;
             this.tenantSqids = new SqidsEncoder<int>(new()
             {
-                Alphabet = "1234567890abcdefghijklmnopqrstuvwxyz",
+                Alphabet = "abcdefghijklmnopqrstuvwxyz1234567890",
                 MinLength = 8,
             });
             this.corsOptions = corsOptions;
@@ -1301,6 +1301,7 @@ namespace checkup.Areas.checkup.Controllers
                             }
                         }
 
+                        // forbes 앱 메타 입력
                         using (SQLiteConnection connection = new SQLiteConnection(connectionString))
                         {
                             connection.Open();
@@ -1325,6 +1326,35 @@ namespace checkup.Areas.checkup.Controllers
 
                                     logger.Error(exception, "[{LogCategory}] " + $"forbesID: {forbesID}, tenantID: {tenantID}, meta.xml", "TenantAppController/CreateApp");
                                     return Content("Forbes 앱 메타 정보 정합성 확인이 필요합니다");
+                                }
+                            }
+                        }
+
+                        // checkup 앱 메타 입력
+                        using (SQLiteConnection connection = new SQLiteConnection(ModuleConfiguration.ConnectionString))
+                        {
+                            connection.Open();
+
+                            using (var transaction = connection.BeginTransaction())
+                            {
+                                try
+                                {
+                                    BulkInsertData("MetaEntity", metaEntity, connection);
+                                    BulkInsertData("MetaField", metaField, connection);
+
+                                    if (metaRelation != null)
+                                    {
+                                        BulkInsertData("MetaRelation", metaRelation, connection);
+                                    }
+
+                                    transaction.Commit();
+                                }
+                                catch (Exception exception)
+                                {
+                                    transaction.Rollback();
+
+                                    logger.Error(exception, "[{LogCategory}] " + $"forbesID: {forbesID}, tenantID: {tenantID}, meta.xml", "TenantAppController/CreateApp");
+                                    return Content("checkup 모듈 메타 정보 정합성 확인이 필요합니다");
                                 }
                             }
                         }
@@ -1366,29 +1396,6 @@ namespace checkup.Areas.checkup.Controllers
 
                 DirectoryInfo tempAppDirectoryInfo = new DirectoryInfo(appTempBasePath);
                 tempAppDirectoryInfo.CopyTo(appBasePath, true);
-
-                settingFilePath = Path.Combine(appBasePath, "settings.json");
-                if (System.IO.File.Exists(settingFilePath) == true)
-                {
-                    string appSettingText = System.IO.File.ReadAllText(settingFilePath);
-                    var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
-                    if (appSetting != null)
-                    {
-                        DataSource tenantDataSource = new DataSource();
-                        tenantDataSource.ApplicationID = applicationID;
-                        tenantDataSource.ProjectID = "*";
-                        tenantDataSource.DataSourceID = "CHECKUPDB";
-                        tenantDataSource.DataProvider = "SQLite";
-                        tenantDataSource.TanantPattern = "${ApplicationNo}|${ApplicationID}|#{TenantID}";
-                        tenantDataSource.TanantValue = $"handstack-checkup|{GlobalConfiguration.ApplicationID}|{tenantID}";
-                        tenantDataSource.ConnectionString = "URI=file:{appBasePath}/.managed/sqlite/app.db;Journal Mode=MEMORY;Cache Size=4000;Synchronous=Normal;Page Size=4096;Pooling=True;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;";
-                        tenantDataSource.IsEncryption = "N";
-                        tenantDataSource.Comment = "checkup 도메인 엔티티 모델 관리";
-                        appSetting.DataSource?.Add(tenantDataSource);
-
-                        System.IO.File.WriteAllText(settingFilePath, JsonConvert.SerializeObject(appSetting, Formatting.Indented));
-                    }
-                }
 
                 // forbes 앱 meta.xml 엔티티 정보 파일 삭제
                 string metaFilePath = Path.Combine(appBasePath, "meta.xml");
@@ -2923,7 +2930,7 @@ TransactionException:
             return result;
         }
 
-        // http://localhost:8000/checkup/api/tenant-app/plain-text?applicationID=helloworld&projectType=B&filePath=STR/STR010.json
+        // http://localhost:8000/checkup/api/tenant-app/plain-text?applicationID=helloworld&projectType=B&filePath=STR/SLT010.json
         [HttpGet("[action]")]
         public ActionResult PlainText(string accessKey, string userWorkID, string applicationID, string filePath, string? projectType)
         {
@@ -2950,7 +2957,7 @@ TransactionException:
             return result;
         }
 
-        // http://localhost:8000/checkup/api/tenant-app/post-text?applicationID=helloworld&filePath=wwwroot/view/STR/STR010.html&compressBase64=EYGwhqZA
+        // http://localhost:8000/checkup/api/tenant-app/post-text?applicationID=helloworld&filePath=wwwroot/view/STR/SLT010.html&compressBase64=EYGwhqZA
         [HttpGet("[action]")]
         [HttpPost("[action]")]
         public ActionResult PostText(string accessKey, string userWorkID, string applicationID, string filePath, string? projectType, string? compressBase64)

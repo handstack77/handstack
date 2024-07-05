@@ -65,7 +65,7 @@ namespace transact.Extensions
         }
 
         /*
-        var dynamicFiles = ModuleExtensions.ExecuteMetaSQL(ReturnType.Dynamic, connectionString, "STR.STR010.LD02", new
+        var dynamicFiles = ModuleExtensions.ExecuteMetaSQL(ReturnType.Dynamic, connectionString, "STR.SLT010.LD02", new
         {
             ApplicationID = applicationID,
             RepositoryNo = repositoryID,

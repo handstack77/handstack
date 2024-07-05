@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper xmlns="contract.xsd">
+    <header>
+        <application>HDS</application>
+        <project>STR</project>
+        <transaction>SLT010</transaction>
+        <datasource>DB01</datasource>
+        <use>Y</use>
+        <desc>SQLite 저장소 및 파일 관리</desc>
+    </header>
+    <commands>
+        <statement id="ZD01" seq="0" use="Y" timeout="0" desc="RepositoryFile 테이블 DDL" native="Y">
+            <![CDATA[
+CREATE TABLE IF NOT EXISTS "RepositoryFile" (
+    -- 파일항목ID
+    "ItemID" TEXT NOT NULL UNIQUE,
+
+    -- 저장소ID
+    "RepositoryID" TEXT NOT NULL,
+
+    -- 참조ID
+    "DependencyID" TEXT,
+
+    -- 파일명
+    "FileName" TEXT,
+
+    -- 파일전체경로
+    "PhysicalPath" TEXT,
+
+    -- 서버절대경로
+    "AbsolutePath" TEXT,
+
+    -- 서버상대경로
+    "RelativePath" TEXT,
+
+    -- 확장자
+    "Extension" TEXT,
+
+    -- 파일크기
+    "Size" INTEGER,
+
+    -- MD5
+    "MD5" TEXT,
+
+    -- 사용자경로1
+    "CustomPath1" TEXT,
+
+    -- 사용자경로2
+    "CustomPath2" TEXT,
+
+    -- 사용자경로3
+    "CustomPath3" TEXT,
+
+    -- 정책경로
+    "PolicyPath" TEXT,
+
+    -- 정렬순서
+    "SortingNo" INTEGER,
+
+    -- 설명
+    "Comment" TEXT,
+
+    -- 생성회원NO
+    "CreatedMemberNo" TEXT,
+
+    -- 생성일시
+    "CreatedAt" TEXT,
+ PRIMARY KEY("ItemID", "RepositoryID")
+);
+
+CREATE INDEX IF NOT EXISTS "IX_RepositoryFile" ON "RepositoryFile" ("RepositoryID" DESC, "DependencyID" ASC);
+			]]>
+        </statement>
+
+        <statement id="GD01" seq="0" use="Y" timeout="0" desc="단일 파일 조회" native="Y">
+            <![CDATA[
+SELECT RF.ItemID
+       , RF.RepositoryID
+       , RF.DependencyID
+       , RF.FileName
+       , RF.PhysicalPath
+       , RF.AbsolutePath
+       , RF.RelativePath
+       , RF.Extension
+       , RF.Size
+       , RF.MD5
+       , RF.CustomPath1
+       , RF.CustomPath2
+       , RF.CustomPath3
+       , RF.PolicyPath
+       , RF.SortingNo
+       , RF.Comment
+       , RF.CreatedMemberNo
+       , strftime('%Y-%m-%d %H:%M:%S', RF.CreatedAt) AS CreatedAt
+FROM   RepositoryFile RF
+WHERE  RF.RepositoryID = @RepositoryID
+    AND RF.ItemID = @ItemID;
+			]]>
+            <param id="@RepositoryID" type="String" length="36" value="" />
+            <param id="@ItemID" type="String" length="36" value="" />
+        </statement>
+
+        <statement id="LD01" seq="0" use="Y" timeout="0" desc="멀티 파일 조회" native="Y">
+            <![CDATA[
+SELECT RF.ItemID
+       , RF.RepositoryID
+       , RF.DependencyID
+       , RF.FileName
+       , RF.PhysicalPath
+       , RF.AbsolutePath
+       , RF.RelativePath
+       , RF.Extension
+       , RF.Size
+       , RF.MD5
+       , RF.CustomPath1
+       , RF.CustomPath2
+       , RF.CustomPath3
+       , RF.PolicyPath
+       , RF.SortingNo
+       , RF.Comment
+       , RF.CreatedMemberNo
+       , strftime('%Y-%m-%d %H:%M:%S', RF.CreatedAt) AS CreatedAt
+FROM   RepositoryFile RF
+WHERE  RF.RepositoryID = @RepositoryID
+       AND CASE WHEN @DependencyID = '' THEN @DependencyID ELSE RF.DependencyID END = @DependencyID;
+			]]>
+            <param id="@RepositoryID" type="String" length="36" value="" />
+            <param id="@DependencyID" type="String" length="36" value="" />
+        </statement>
+
+        <statement id="DD01" seq="0" use="Y" timeout="0" desc="파일 정보 삭제" native="Y">
+            <![CDATA[
+DELETE FROM RepositoryFile WHERE RepositoryID = @RepositoryID AND ItemID = @ItemID;
+			]]>
+            <param id="@RepositoryID" type="String" length="36" value="" />
+            <param id="@ItemID" type="String" length="36" value="" />
+        </statement>
+
+        <statement id="MD01" seq="0" use="Y" timeout="0" desc="파일 정보 입력 또는 변경" native="Y">
+            <![CDATA[
+INSERT OR REPLACE INTO RepositoryFile
+(
+    ItemID,
+    RepositoryID,
+    DependencyID,
+    FileName,
+    PhysicalPath,
+    AbsolutePath,
+    RelativePath,
+    Extension,
+    Size,
+    MD5,
+    CustomPath1,
+    CustomPath2,
+    CustomPath3,
+    PolicyPath,
+    SortingNo,
+    Comment,
+    CreatedMemberNo,
+    CreatedAt
+) 
+VALUES
+(
+    @ItemID,
+    @RepositoryID,
+    @DependencyID,
+    @FileName,
+    @PhysicalPath,
+    @AbsolutePath,
+    @RelativePath,
+    @Extension,
+    @Size,
+    @MD5,
+    @CustomPath1,
+    @CustomPath2,
+    @CustomPath3,
+    @PolicyPath,
+    @SortingNo,
+    @Comment,
+    @CreatedMemberNo,
+    DATETIME('NOW')
+);
+			]]>
+            <param id="@ItemID" type="String" length="36" value="" />
+            <param id="@RepositoryID" type="String" length="36" value="" />
+            <param id="@DependencyID" type="String" length="36" value="" />
+            <param id="@FileName" type="String" length="256" value="" />
+            <param id="@PhysicalPath" type="String" length="1000" value="" />
+            <param id="@AbsolutePath" type="String" length="1000" value="" />
+            <param id="@RelativePath" type="String" length="1000" value="" />
+            <param id="@Extension" type="String" length="50" value="" />
+            <param id="@Size" type="Int64" length="8" value="" />
+            <param id="@MD5" type="String" length="50" value="" />
+            <param id="@CustomPath1" type="String" length="50" value="" />
+            <param id="@CustomPath2" type="String" length="50" value="" />
+            <param id="@CustomPath3" type="String" length="50" value="" />
+            <param id="@PolicyPath" type="String" length="1" value="" />
+            <param id="@SortingNo" type="Int32" length="-1" value="" />
+            <param id="@Comment" type="String" length="200" value="" />
+            <param id="@CreatedMemberNo" type="String" length="36" value="" />
+        </statement>
+
+        <statement id="UD01" seq="0" use="Y" timeout="0" desc="파일 참조 ID 변경" native="Y">
+            <![CDATA[
+UPDATE RepositoryFile SET DependencyID = @TargetDependencyID
+WHERE RepositoryID = @RepositoryID
+    AND DependencyID = @SourceDependencyID
+    AND CASE WHEN @ItemID = '' THEN @ItemID ELSE ItemID END = @ItemID;
+			]]>
+            <param id="@RepositoryID" type="String" length="36" value="NULL" />
+            <param id="@ItemID" type="String" length="36" value="NULL" />
+            <param id="@SourceDependencyID" type="String" length="36" value="NULL" />
+            <param id="@TargetDependencyID" type="String" length="36" value="NULL" />
+        </statement>
+
+        <statement id="UD02" seq="0" use="Y" timeout="0" desc="파일명 변경" native="Y">
+            <![CDATA[
+UPDATE RepositoryFile SET FileName = @FileName,
+	PhysicalPath = REPLACE(PhysicalPath, FileName, @FileName), 
+	AbsolutePath = REPLACE(AbsolutePath, FileName, @FileName), 
+	RelativePath = REPLACE(RelativePath, FileName, @FileName)
+WHERE RepositoryID = @RepositoryID
+AND ItemID = @ItemID;
+			]]>
+            <param id="@RepositoryID" type="String" length="36" value="NULL" />
+            <param id="@ItemID" type="String" length="36" value="NULL" />
+            <param id="@FileName" type="String" length="256" value="NULL" />
+        </statement>
+    </commands>
+</mapper>

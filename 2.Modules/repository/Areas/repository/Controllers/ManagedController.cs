@@ -128,7 +128,7 @@ namespace repository.Areas.repository.Controllers
 
                                                 if (repository.IsLocalDbFileManaged == true)
                                                 {
-                                                    ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.STR010.ZD01");
+                                                    ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.SLT010.ZD01");
                                                 }
 
                                                 ModuleConfiguration.FileRepositorys.Add(repository);
@@ -165,7 +165,7 @@ namespace repository.Areas.repository.Controllers
 
                                                 if (repository.IsLocalDbFileManaged == true)
                                                 {
-                                                    ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.STR010.ZD01");
+                                                    ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.SLT010.ZD01");
                                                 }
 
                                                 ModuleConfiguration.FileRepositorys.Add(repository);
@@ -199,7 +199,7 @@ namespace repository.Areas.repository.Controllers
 
                                                     if (repository.IsLocalDbFileManaged == true)
                                                     {
-                                                        ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.STR010.ZD01");
+                                                        ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.SLT010.ZD01");
                                                     }
 
                                                     ModuleConfiguration.FileRepositorys.Add(repository);
