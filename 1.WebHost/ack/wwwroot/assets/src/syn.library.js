@@ -227,6 +227,9 @@
 
                 if (found) {
                     fn.call(targetEL, evt);
+
+                    evt.preventDefault();
+                    evt.stopPropagation();
                 }
             });
 
