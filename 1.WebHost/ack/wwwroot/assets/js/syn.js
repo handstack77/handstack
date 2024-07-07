@@ -4118,11 +4118,11 @@ globalRoot.syn = syn;
             return $library;
         },
 
-        addLive(elID, type, fn) {
+        addLive(query, type, fn) {
             $library.addEvent(context || document, type, function (evt) {
                 var found;
                 var targetEL = syn.$w.activeControl(evt);
-                while (targetEL && !(found = targetEL.id == elID)) {
+                while (targetEL && !(found = targetEL.matches(query))) {
                     targetEL = targetEL.parentElement;
                 }
 
