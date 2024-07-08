@@ -738,76 +738,73 @@ namespace ack
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
-
-                app.UseDeveloperExceptionPage();
-                app.UseHsts();
             }
-            else
-            {
-                app.UseExceptionHandler(exceptionHandlerApp =>
-                {
-                    exceptionHandlerApp.Run(async context =>
-                    {
-                        var exceptionHandlerFeature = context.Features.Get<IExceptionHandlerFeature>();
-                        var exceptionType = exceptionHandlerFeature?.Error;
 
-                        string requestMethod = context.Request.Method;
-                        string absoluteUrl = context.Request.GetAbsoluteUrl();
-                        string clientIP = context.GetRemoteIpAddress().ToStringSafe();
-                        string userAgent = context.Request.Headers["User-Agent"].ToString();
-                        string identityName = (context.User.Identity?.Name).ToStringSafe();
-                        int statusCode = context.Response.StatusCode;
-                        string? message = string.Empty;
-                        string? stackTrace = string.Empty;
+            // app.UseDeveloperExceptionPage();
+            // app.UseHsts();
+            // app.UseHttpsRedirection();
+            app.UseExceptionHandler(exceptionHandlerApp =>
+            {
+                exceptionHandlerApp.Run(async context =>
+                {
+                    var exceptionHandlerFeature = context.Features.Get<IExceptionHandlerFeature>();
+                    var exceptionType = exceptionHandlerFeature?.Error;
+
+                    string requestMethod = context.Request.Method;
+                    string absoluteUrl = context.Request.GetAbsoluteUrl();
+                    string clientIP = context.GetRemoteIpAddress().ToStringSafe();
+                    string userAgent = context.Request.Headers["User-Agent"].ToString();
+                    string identityName = (context.User.Identity?.Name).ToStringSafe();
+                    int statusCode = context.Response.StatusCode;
+                    string? message = string.Empty;
+                    string? stackTrace = string.Empty;
+
+                    if (exceptionType != null)
+                    {
+                        message = exceptionType.Message;
+                        stackTrace = exceptionType.StackTrace;
+                    }
+
+                    // 설정에 의해 오류 로그를 파일 또는 API로 전송
+
+                    context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                    context.Response.ContentType = Text.Plain;
+
+                    if (context.RequestServices.GetService<IProblemDetailsService>() is { } problemDetailsService)
+                    {
+                        ProblemDetails problemDetails = new ProblemDetails();
+                        problemDetails.Status = StatusCodes.Status400BadRequest;
+                        problemDetails.Title = "유효하지 않는 요청입니다";
 
                         if (exceptionType != null)
                         {
-                            message = exceptionType.Message;
-                            stackTrace = exceptionType.StackTrace;
-                        }
-
-                        // 설정에 의해 오류 로그를 파일 또는 API로 전송
-
-                        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-                        context.Response.ContentType = Text.Plain;
-
-                        if (context.RequestServices.GetService<IProblemDetailsService>() is { } problemDetailsService)
-                        {
-                            ProblemDetails problemDetails = new ProblemDetails();
-                            problemDetails.Status = StatusCodes.Status400BadRequest;
-                            problemDetails.Title = "유효하지 않는 요청입니다";
-
-                            if (exceptionType != null)
+                            if (exceptionType is UnauthorizedAccessException)
                             {
-                                if (exceptionType is UnauthorizedAccessException)
-                                {
-                                    problemDetails.Status = StatusCodes.Status401Unauthorized;
-                                    problemDetails.Title = "승인되지 않은 접근입니다";
-                                }
-                                else if (exceptionType is FileNotFoundException)
-                                {
-                                    problemDetails.Status = StatusCodes.Status404NotFound;
-                                    problemDetails.Title = "리소스를 찾을 수 없습니다";
-                                }
-                                else
-                                {
-                                    problemDetails.Status = StatusCodes.Status500InternalServerError;
-                                    problemDetails.Title = message;
-                                    problemDetails.Detail = stackTrace;
-                                }
+                                problemDetails.Status = StatusCodes.Status401Unauthorized;
+                                problemDetails.Title = "승인되지 않은 접근입니다";
                             }
-
-                            await problemDetailsService.WriteAsync(new ProblemDetailsContext
+                            else if (exceptionType is FileNotFoundException)
                             {
-                                HttpContext = context,
-                                ProblemDetails = problemDetails
-                            });
+                                problemDetails.Status = StatusCodes.Status404NotFound;
+                                problemDetails.Title = "리소스를 찾을 수 없습니다";
+                            }
+                            else
+                            {
+                                problemDetails.Status = StatusCodes.Status500InternalServerError;
+                                problemDetails.Title = message;
+                                problemDetails.Detail = stackTrace;
+                            }
                         }
-                    });
-                });
-            }
 
-            app.UseHttpsRedirection();
+                        await problemDetailsService.WriteAsync(new ProblemDetailsContext
+                        {
+                            HttpContext = context,
+                            ProblemDetails = problemDetails
+                        });
+                    }
+                });
+            });
+
             app.UseRouting();
 
             if (string.IsNullOrEmpty(GlobalConfiguration.SessionCookieName) == false)
