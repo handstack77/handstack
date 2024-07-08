@@ -593,8 +593,13 @@ namespace checkup.Areas.checkup.Controllers
 
         // http://localhost:8000/checkup/api/account/logout
         [HttpGet("[action]")]
-        public async Task Logout()
+        public async Task Logout(string? cookiePrefixName = "")
         {
+            if (string.IsNullOrEmpty(cookiePrefixName) == true)
+            {
+                cookiePrefixName = GlobalConfiguration.CookiePrefixName;
+            }
+
             try
             {
                 if (User.Identity != null && User.Identity.IsAuthenticated == true)
@@ -613,7 +618,10 @@ namespace checkup.Areas.checkup.Controllers
             for (int i = 0; i < cookieKeys.Count; i++)
             {
                 string cookieKey = cookieKeys[i];
-                Response.Cookies.Delete(cookieKey);
+                if (cookieKey.StartsWith(cookiePrefixName) == true)
+                {
+                    Response.Cookies.Delete(cookieKey);
+                }
             }
         }
     }

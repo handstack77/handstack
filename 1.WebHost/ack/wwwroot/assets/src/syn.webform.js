@@ -3257,7 +3257,7 @@
                 }
 
                 var transactionRequest = {
-                    accessToken: apiServices.BearerToken,
+                    accessToken: token || globalRoot.bearerToken || apiServices.BearerToken,
                     action: 'SYN', // "SYN: Request/Response, PSH: Execute/None, ACK: Subscribe",
                     kind: 'BIZ', // "DBG: Debug, BIZ: Business, URG: Urgent, FIN: Finish",
                     clientTag: syn.Config.SystemID.concat('|', syn.Config.HostName, '|', syn.Config.Program.ProgramName, '|', syn.Config.Environment.substring(0, 1)),
