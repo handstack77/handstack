@@ -211,7 +211,6 @@ namespace checkup.Areas.checkup.Controllers
 
                                     var variable = JObject.FromObject(dictionary);
                                     variable.Add("InstallType", GlobalConfiguration.InstallType);
-                                    BearerToken bearerToken = CreateBearerToken(userAccount, claims, variable);
 
                                     var jwtToken = await jwtManager.GenerateJwtToken(userAccount);
                                     var refreshToken = jwtManager.GenerateRefreshToken(clientIP);
@@ -267,6 +266,8 @@ namespace checkup.Areas.checkup.Controllers
                                     result.RefreshToken = refreshToken.Token;
 
                                     var cookieOptions = GetCookieOptions(userAccount);
+                                    BearerToken bearerToken = CreateBearerToken(userAccount, claims, variable, cookieOptions.Expires);
+
                                     WriteCookie($"{applicationID}.RefreshToken", refreshToken.Token, cookieOptions);
                                     WriteCookie($"{applicationID}.TokenID", bearerToken.TokenID, cookieOptions);
                                     WriteCookie($"{applicationID}.Member", JsonConvert.SerializeObject(userAccount).EncodeBase64(), cookieOptions);
@@ -397,9 +398,10 @@ namespace checkup.Areas.checkup.Controllers
 
                                 var variable = JObject.FromObject(dictionary);
                                 variable.Add("InstallType", GlobalConfiguration.InstallType);
-                                BearerToken bearerToken = CreateBearerToken(userAccount, claims, variable);
 
                                 var cookieOptions = GetCookieOptions(userAccount);
+                                BearerToken bearerToken = CreateBearerToken(userAccount, claims, variable, cookieOptions.Expires);
+
                                 WriteCookie($"{applicationID}.RefreshToken", newRefreshToken.Token, cookieOptions);
                                 WriteCookie($"{applicationID}.TokenID", bearerToken.TokenID, cookieOptions);
                                 WriteCookie($"{applicationID}.Member", JsonConvert.SerializeObject(userAccount).EncodeBase64(), cookieOptions);
@@ -499,7 +501,7 @@ namespace checkup.Areas.checkup.Controllers
             return Ok(result);
         }
 
-        private BearerToken CreateBearerToken(UserAccount userAccount, List<Claim>? claims, JObject? variable)
+        private BearerToken CreateBearerToken(UserAccount userAccount, List<Claim>? claims, JObject? variable, DateTimeOffset? dateTimeOffset)
         {
             BearerToken result = new BearerToken();
 
@@ -510,17 +512,10 @@ namespace checkup.Areas.checkup.Controllers
             result.ClientIP = HttpContext.GetRemoteIpAddress().ToStringSafe();
             result.CreatedAt = utcNow;
 
-            DateTime expiredAt = utcNow;
-            if (GlobalConfiguration.UserSignExpire > 0)
+            if (dateTimeOffset != null)
             {
-                expiredAt = utcNow.AddMinutes(GlobalConfiguration.UserSignExpire);
+                result.ExpiredAt = ((DateTimeOffset)dateTimeOffset).DateTime;
             }
-            else if (GlobalConfiguration.UserSignExpire < 0)
-            {
-                int addDay = DateTime.Now.Day == userAccount.LoginedAt.Day ? 1 : 0;
-                expiredAt = DateTime.Parse(DateTime.Now.AddDays(addDay).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00");
-            }
-            result.ExpiredAt = expiredAt;
 
             result.Policy = new Policy();
             result.Policy.UserID = userAccount.UserID;

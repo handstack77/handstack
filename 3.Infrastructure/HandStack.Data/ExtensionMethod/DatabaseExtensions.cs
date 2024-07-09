@@ -48,7 +48,10 @@ namespace HandStack.Data.ExtensionMethod
                             string value = parameter.Value.ToStringSafe();
 
                             name = name.StartsWith("$") == true ? "\\" + name : name;
-                            value = value.Replace("\"", "\\\"").Replace("'", "''");
+                            if (name.StartsWith("\\$") == false)
+                            {
+                                value = value.Replace("\"", "\\\"").Replace("'", "''");
+                            }
 
                             convertString = Regex.Replace(convertString, "\\#{" + name + "}", "'" + value + "'");
                             convertString = Regex.Replace(convertString, "\\${" + name + "}", value);

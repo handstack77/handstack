@@ -840,7 +840,10 @@ namespace prompter.Extensions
                             string value = parameter.Value.ToStringSafe();
 
                             name = name.StartsWith("$") == true ? "\\" + name : name;
-                            value = value.Replace("\"", "\\\"").Replace("'", "''");
+                            if (name.StartsWith("\\$") == false)
+                            {
+                                value = value.Replace("\"", "\\\"").Replace("'", "''");
+                            }
                             // 문자값 변환
                             convertString = Regex.Replace(convertString, "\\#{" + name + "}", "'" + value + "'");
 

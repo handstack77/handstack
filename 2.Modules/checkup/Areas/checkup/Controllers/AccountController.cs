@@ -486,8 +486,8 @@ namespace checkup.Areas.checkup.Controllers
             }
             else if (GlobalConfiguration.UserSignExpire < 0)
             {
-                int addDay = DateTime.Now.Day == userAccount.LoginedAt.Day ? 1 : 0;
-                expiredAt = DateTime.Parse(DateTime.Now.AddDays(addDay).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00");
+                int addDay = DateTime.UtcNow.Day == userAccount.LoginedAt.Day ? 1 : 0;
+                expiredAt = DateTime.Parse(DateTime.UtcNow.AddDays(addDay).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00");
             }
             result.ExpiredAt = expiredAt;
 
