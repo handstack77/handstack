@@ -172,6 +172,14 @@
 
         toString(date, format) {
             var result = '';
+            if ($object.isString(date) == true && $date.isDate(date) == true) {
+                date = new Date(date);
+            }
+
+            if ($object.isDate(date) == false) {
+                return result;
+            }
+
             var year = date.getFullYear();
             var month = date.getMonth() + 1;
             var day = date.getDate().toString().length == 1 ? '0' + date.getDate().toString() : date.getDate().toString();
@@ -205,6 +213,10 @@
                 case 'n':
                     var dayOfWeek = weekNames[date.getDay()];
                     result = year.toString().concat('년 ', month, '월 ', day, '일 ', '(', dayOfWeek, ')');
+                    break;
+                case 'nt':
+                    var dayOfWeek = weekNames[date.getDay()];
+                    result = year.toString().concat('년 ', month, '월 ', day, '일 ', '(', dayOfWeek, ')') + ', ' + hours.toString().concat(':', minutes, ':', seconds);
                     break;
                 case 'mdn':
                     var dayOfWeek = weekNames[date.getDay()];
