@@ -110,7 +110,11 @@ namespace ack.Extensions
                         }
                         else
                         {
-                            assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(file.FullName);
+                            string filePath = file.FullName.Replace(moduleBasePath, "").Replace(Path.DirectorySeparatorChar, '/');
+                            if (module.LoadPassAssemblyPath.Contains(filePath) == false)
+                            {
+                                assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(file.FullName);
+                            }
                         }
                     }
                     catch (FileLoadException fileLoadException)

@@ -28,6 +28,8 @@ namespace HandStack.Web.Modules
 
         public List<string> SubscribeAction { get; set; }
 
+        public List<string> LoadPassAssemblyPath { get; set; }
+
         public ModuleInfo()
         {
             ModuleID = "";
@@ -40,6 +42,7 @@ namespace HandStack.Web.Modules
             Assembly = null;
             EventAction = new List<string>(); // ToModuleEventID
             SubscribeAction = new List<string>(); // SubscribeEventID
+            LoadPassAssemblyPath = new List<string>(); // SubscribeEventID
         }
     }
 }

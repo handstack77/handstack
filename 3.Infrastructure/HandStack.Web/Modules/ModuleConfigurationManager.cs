@@ -75,6 +75,17 @@ namespace HandStack.Web.Modules
                             moduleInfo.SubscribeAction = keyValues;
                         }
 
+                        if (module.LoadPassAssemblyPath != null)
+                        {
+                            List<string> keyValues = new List<string>();
+                            foreach (var item in module.LoadPassAssemblyPath)
+                            {
+                                keyValues.Add(item.ToString());
+                            }
+
+                            moduleInfo.LoadPassAssemblyPath = keyValues;
+                        }
+
                         modules.Add(moduleInfo);
                     }
                 }
