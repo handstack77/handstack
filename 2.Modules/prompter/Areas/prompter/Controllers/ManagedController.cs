@@ -51,7 +51,7 @@ namespace prompter.Areas.prompter.Controllers
         public ActionResult ResetContract()
         {
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.GetContainValue("AuthorizationKey");
+            string? authorizationKey = Request.Headers["AuthorizationKey"];
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();
@@ -83,7 +83,7 @@ namespace prompter.Areas.prompter.Controllers
         public ActionResult ResetAppContract(string userWorkID, string applicationID)
         {
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.GetContainValue("AuthorizationKey");
+            string? authorizationKey = Request.Headers["AuthorizationKey"];
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();
@@ -282,7 +282,7 @@ namespace prompter.Areas.prompter.Controllers
         public ActionResult DeleteAppContract(string userWorkID, string applicationID)
         {
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.GetContainValue("AuthorizationKey");
+            string? authorizationKey = Request.Headers["AuthorizationKey"];
             if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
             {
                 result = BadRequest();
