@@ -257,6 +257,7 @@ namespace transact
 
                             var client = new RestClient();
                             var request = new RestRequest(hostUrl, Method.Get);
+                            request.Timeout = TimeSpan.FromSeconds(3);
                             request.AddHeader("AuthorizationKey", ModuleConfiguration.AuthorizationKey);
                             try
                             {

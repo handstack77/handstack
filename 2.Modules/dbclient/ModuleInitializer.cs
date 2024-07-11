@@ -25,6 +25,8 @@ using Microsoft.Extensions.FileProviders;
 
 using Newtonsoft.Json;
 
+using Org.BouncyCastle.Asn1.Crmf;
+
 using RestSharp;
 
 using Serilog;
@@ -264,6 +266,7 @@ namespace dbclient
 
                             var client = new RestClient();
                             var request = new RestRequest(hostUrl, Method.Get);
+                            request.Timeout = TimeSpan.FromSeconds(3);
                             request.AddHeader("AuthorizationKey", ModuleConfiguration.AuthorizationKey);
                             try
                             {
