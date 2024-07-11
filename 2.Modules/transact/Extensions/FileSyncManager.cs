@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.IO;
-using System.Threading;
+using System.Threading.Tasks;
 
 using HandStack.Core.ExtensionMethod;
 
@@ -18,7 +18,6 @@ namespace transact.Extensions
         private bool isDesposed;
         private readonly FileSystemWatcher fileSystemWatcher;
         private readonly ConcurrentQueue<string> queue = new ConcurrentQueue<string>();
-        private readonly Thread? workerThread;
 
         public FileSyncManager(string sourceRootDirectory, string filter)
         {
@@ -57,12 +56,11 @@ namespace transact.Extensions
                 };
                 fileSystemWatcher.Error += HandleError;
 
-                workerThread = new Thread(ProcessQueue) { IsBackground = true };
-                workerThread.Start();
+                Task.Run(ProcessQueue);
             }
         }
 
-        private void ProcessQueue()
+        private async Task ProcessQueue()
         {
             while (true)
             {
@@ -81,12 +79,12 @@ namespace transact.Extensions
                         {
                             MonitoringFile?.Invoke(watcherChangeTypes, new FileInfo(filePath));
                         }
-                        Thread.Sleep(100);
+                        await Task.Delay(200);
                     }
                 }
                 else
                 {
-                    Thread.Sleep(1000);
+                    await Task.Delay(1000);
                 }
             }
         }
