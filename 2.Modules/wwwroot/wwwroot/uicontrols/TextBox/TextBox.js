@@ -94,7 +94,7 @@
                     syn.$l.addEvent(el, 'keypress', $textbox.event_numeric_keypress);
                     syn.$m.setStyle(el, 'ime-mode', 'disabled');
                     if (el.offsetWidth) {
-                        el.offsetWidth = el.offsetWidth <= 28 ? 0 : el.offsetWidth - 28;
+                        // el.offsetWidth = el.offsetWidth <= 28 ? 0 : el.offsetWidth - 28;
                     }
 
                     new ISpin(el, {
