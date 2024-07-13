@@ -2848,7 +2848,7 @@
                         if (response.ok == true) {
                             var result = null;
                             var contentType = response.headers.get('Content-Type');
-                            if (contentType.indexOf('application/json') > -1) {
+                            if ($object.isNullOrUndefined(contentType) == false && contentType.indexOf('application/json') > -1) {
                                 result = response.json();
                             }
                             else {
