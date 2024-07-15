@@ -338,12 +338,12 @@
 
         // if content is url, load in iframe
         else if (typeof lnk == 'string') {
-
+            var scrolling = opts.scrolling || 'no';
             // if external link, add external favicon
             var m = lnk.match(/^(https?\:\/\/)([^\/]+)/);
             if (m && m[2] != document.location.hostname)
                 w.find('.titlebaricon').attr('src', m[1] + m[2] + "/favicon.ico");
-            $('<iframe src="' + lnk + '" target="' + target + '" scrolling="no"></iframe>' +
+            $('<iframe src="' + lnk + '" target="' + target + '" scrolling="' + scrolling + '"></iframe>' +
                 '<div class=iframecover></div>')
                 .appendTo(w.find('.windowcontent'));
         }
