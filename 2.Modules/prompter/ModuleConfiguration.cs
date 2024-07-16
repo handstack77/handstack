@@ -12,7 +12,6 @@ namespace prompter
     {
         public static bool IsConfigure = false;
         public static string ModuleID = "prompter";
-        public static string ApplicationID = "HDS";
         public static string Version = "";
         public static string AuthorizationKey = "";
         public static bool IsBundledWithHost = false;

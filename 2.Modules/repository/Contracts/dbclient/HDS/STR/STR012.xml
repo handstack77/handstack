@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS `RepositoryFile` (
 	`CustomPath1` VARCHAR(50),
 	`CustomPath2` VARCHAR(50),
 	`CustomPath3` VARCHAR(50),
-	`PolicyPath` VARCHAR(1),
+	`PolicyPath` VARCHAR(10),
 	`SortingNo` INT,
 	`Comment` VARCHAR(200),
 	`CreatedMemberNo` VARCHAR(36),

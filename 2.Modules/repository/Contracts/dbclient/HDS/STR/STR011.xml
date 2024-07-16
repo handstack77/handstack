@@ -32,7 +32,7 @@ BEGIN
 		[CustomPath1] [varchar](50) NULL,
 		[CustomPath2] [varchar](50) NULL,
 		[CustomPath3] [varchar](50) NULL,
-		[PolicyPath] [varchar](1) NULL,
+		[PolicyPath] [varchar](10) NULL,
 		[SortingNo] [int] NULL,
 		[Comment] [nvarchar](200) NULL,
 		[CreatedMemberNo] [varchar](36) NULL,

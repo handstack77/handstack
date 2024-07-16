@@ -57,7 +57,6 @@ namespace prompter
                     {
                         ModuleConfig moduleConfig = moduleConfigJson.ModuleConfig;
                         ModuleConfiguration.ModuleID = moduleConfigJson.ModuleID;
-                        ModuleConfiguration.ApplicationID = moduleConfigJson.ApplicationID;
                         ModuleConfiguration.Version = moduleConfigJson.Version;
                         ModuleConfiguration.ModuleBasePath = GlobalConfiguration.GetBasePath(moduleConfig.ModuleBasePath, module.BasePath);
                         ModuleConfiguration.DatabaseContractPath = GlobalConfiguration.GetBasePath(moduleConfig.DatabaseContractPath, Path.Combine(ModuleConfiguration.ModuleBasePath, "Contracts", "dbclient"));

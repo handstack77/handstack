@@ -57,7 +57,6 @@ namespace logger
                     {
                         ModuleConfig moduleConfig = moduleConfigJson.ModuleConfig;
                         ModuleConfiguration.ModuleID = moduleConfigJson.ModuleID;
-                        ModuleConfiguration.ApplicationID = moduleConfigJson.ApplicationID;
                         ModuleConfiguration.Version = moduleConfigJson.Version;
                         ModuleConfiguration.IsSQLiteCreateOnNotSettingRequest = moduleConfig.IsSQLiteCreateOnNotSettingRequest;
                         ModuleConfiguration.ModuleBasePath = GlobalConfiguration.GetBasePath(moduleConfig.ModuleBasePath, module.BasePath);

@@ -8,7 +8,6 @@ namespace repository
     {
         public static bool IsConfigure = false;
         public static string ModuleID = "repository";
-        public static string ApplicationID = "HDS";
         public static string Version = "";
         public static string AuthorizationKey = "";
         public static bool IsBundledWithHost = false;
@@ -24,7 +23,6 @@ namespace repository
         public static string LogServerUrl = "";
         public static bool IsExceptionDetailText = false;
         public static int DefaultCommandTimeout = 30;
-
         public static string RunningEnvironment = "D";
         public static string FileServerUrl = "";
         public static string FileRootPath = "";

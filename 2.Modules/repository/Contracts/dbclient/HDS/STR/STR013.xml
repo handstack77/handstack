@@ -35,7 +35,7 @@ BEGIN
                 "CustomPath1" VARCHAR2(50),
                 "CustomPath2" VARCHAR2(50),
                 "CustomPath3" VARCHAR2(50),
-                "PolicyPath" VARCHAR2(1),
+                "PolicyPath" VARCHAR2(10),
                 "SortingNo" NUMBER(10,0),
                 "Comment" NVARCHAR2(200),
                 "CreatedMemberNo" VARCHAR2(36),

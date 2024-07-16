@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-using HandStack.Web.Extensions;
+using HandStack.Web;
 using HandStack.Web.ApiClient;
 using HandStack.Web.Entity;
+using HandStack.Web.Extensions;
 
 using Microsoft.Extensions.Configuration;
 
@@ -82,7 +83,7 @@ namespace repository.Extensions
                 var repository = GetRepository(applicationID, repositoryID);
                 if (repository != null)
                 {
-                    var transactionInfo = string.IsNullOrEmpty(repository.TransactionGetItem) == true ? $"{ModuleConfiguration.ApplicationID}|STR|SLT010|GD01".Split("|") : repository.TransactionGetItem.Split("|");
+                    var transactionInfo = string.IsNullOrEmpty(repository.TransactionGetItem) == true ? $"{GlobalConfiguration.ApplicationID}|STR|SLT010|GD01".Split("|") : repository.TransactionGetItem.Split("|");
                     TransactionClientObject transactionObject = new TransactionClientObject();
                     transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
                     if (transactionInfo.Length == 3)
@@ -145,7 +146,7 @@ namespace repository.Extensions
                 var repository = GetRepository(applicationID, repositoryID);
                 if (repository != null)
                 {
-                    var transactionInfo = string.IsNullOrEmpty(repository.TransactionGetItems) == true ? $"{ModuleConfiguration.ApplicationID}|STR|SLT010|LD01".Split("|") : repository.TransactionGetItems.Split("|");
+                    var transactionInfo = string.IsNullOrEmpty(repository.TransactionGetItems) == true ? $"{GlobalConfiguration.ApplicationID}|STR|SLT010|LD01".Split("|") : repository.TransactionGetItems.Split("|");
                     TransactionClientObject transactionObject = new TransactionClientObject();
                     transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
                     if (transactionInfo.Length == 3)
@@ -205,7 +206,7 @@ namespace repository.Extensions
                 var repository = GetRepository(applicationID, repositoryID);
                 if (repository != null)
                 {
-                    var transactionInfo = string.IsNullOrEmpty(repository.TransactionDeleteItem) == true ? $"{ModuleConfiguration.ApplicationID}|STR|SLT010|DD01".Split("|") : repository.TransactionDeleteItem.Split("|");
+                    var transactionInfo = string.IsNullOrEmpty(repository.TransactionDeleteItem) == true ? $"{GlobalConfiguration.ApplicationID}|STR|SLT010|DD01".Split("|") : repository.TransactionDeleteItem.Split("|");
                     TransactionClientObject transactionObject = new TransactionClientObject();
                     transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
                     if (transactionInfo.Length == 3)
@@ -265,7 +266,7 @@ namespace repository.Extensions
                 var repository = GetRepository(repositoryItem.ApplicationID, repositoryItem.RepositoryID);
                 if (repository != null)
                 {
-                    var transactionInfo = string.IsNullOrEmpty(repository.TransactionUpsertItem) == true ? $"{ModuleConfiguration.ApplicationID}|STR|SLT010|MD01".Split("|") : repository.TransactionUpsertItem.Split("|");
+                    var transactionInfo = string.IsNullOrEmpty(repository.TransactionUpsertItem) == true ? $"{GlobalConfiguration.ApplicationID}|STR|SLT010|MD01".Split("|") : repository.TransactionUpsertItem.Split("|");
                     TransactionClientObject transactionObject = new TransactionClientObject();
                     transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
                     if (transactionInfo.Length == 3)
@@ -344,7 +345,7 @@ namespace repository.Extensions
                 var repository = GetRepository(repositoryItem.ApplicationID, repositoryItem.RepositoryID);
                 if (repository != null)
                 {
-                    var transactionInfo = string.IsNullOrEmpty(repository.TransactionUpdateDependencyID) == true ? $"{ModuleConfiguration.ApplicationID}|STR|SLT010|UD01".Split("|") : repository.TransactionUpdateDependencyID.Split("|");
+                    var transactionInfo = string.IsNullOrEmpty(repository.TransactionUpdateDependencyID) == true ? $"{GlobalConfiguration.ApplicationID}|STR|SLT010|UD01".Split("|") : repository.TransactionUpdateDependencyID.Split("|");
                     TransactionClientObject transactionObject = new TransactionClientObject();
                     transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
                     if (transactionInfo.Length == 3)
@@ -406,7 +407,7 @@ namespace repository.Extensions
                 var repository = GetRepository(repositoryItem.ApplicationID, repositoryItem.RepositoryID);
                 if (repository != null)
                 {
-                    var transactionInfo = string.IsNullOrEmpty(repository.TransactionUpdateFileName) == true ? $"{ModuleConfiguration.ApplicationID}|STR|SLT010|UD02".Split("|") : repository.TransactionUpdateFileName.Split("|");
+                    var transactionInfo = string.IsNullOrEmpty(repository.TransactionUpdateFileName) == true ? $"{GlobalConfiguration.ApplicationID}|STR|SLT010|UD02".Split("|") : repository.TransactionUpdateFileName.Split("|");
                     TransactionClientObject transactionObject = new TransactionClientObject();
                     transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
                     if (transactionInfo.Length == 3)

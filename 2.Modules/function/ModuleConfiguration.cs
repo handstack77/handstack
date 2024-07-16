@@ -11,7 +11,6 @@ namespace function
     {
         public static bool IsConfigure = false;
         public static string ModuleID = "function";
-        public static string ApplicationID = "HDS";
         public static string Version = "";
         public static string AuthorizationKey = "";
         public static bool IsBundledWithHost = false;

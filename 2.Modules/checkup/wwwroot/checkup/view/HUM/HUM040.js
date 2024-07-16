@@ -186,7 +186,7 @@ let $HUM040 = {
                     if ($string.isNullOrEmpty(extension) == false && ['html', 'js', 'json', 'css'].indexOf(extension) > -1) {
                         var myHeaders = new Headers();
                         var formData = new FormData();
-                        formData.append("file", file);
+                        formData.append('file', file);
 
                         var requestOptions = {
                             method: 'POST',

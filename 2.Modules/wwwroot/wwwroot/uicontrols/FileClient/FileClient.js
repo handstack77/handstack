@@ -301,7 +301,7 @@
             var result = null;
 
             if ($fileclient.fileControls.length > 0) {
-                result = $fileclient.fileControls[i].setting;
+                result = $fileclient.fileControls[0].setting;
             }
 
             return result;

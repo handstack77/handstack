@@ -51,7 +51,6 @@ namespace checkup
                     {
                         ModuleConfig moduleConfig = moduleConfigJson.ModuleConfig;
                         ModuleConfiguration.ModuleID = moduleConfigJson.ModuleID;
-                        ModuleConfiguration.ApplicationID = moduleConfigJson.ApplicationID;
                         ModuleConfiguration.Version = moduleConfigJson.Version;
                         ModuleConfiguration.ManagedAccessKey = moduleConfig.ManagedAccessKey;
                         ModuleConfiguration.EncryptionAES256Key = string.IsNullOrEmpty(moduleConfig.EncryptionAES256Key) == false

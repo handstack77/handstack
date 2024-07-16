@@ -8,6 +8,7 @@
     $htmleditor.extend({
         name: 'syn.uicontrols.$htmleditor',
         version: '1.0.0',
+        userWorkID: '',
         applicationID: '',
         editorPendings: [],
         editorControls: [],
@@ -197,6 +198,9 @@
                         xhr.withCredentials = false;
 
                         var targetUrl = setting.fileManagerServer + setting.fileManagerPath + '/' + setting.pageUploadFile + '?RepositoryID={0}&DependencyID={1}'.format(setting.repositoryID, setting.dependencyID);
+                        if ($string.isNullOrEmpty($htmleditor.userWorkID) == false) {
+                            targetUrl = targetUrl + '&userWorkID=' + $htmleditor.userWorkID;
+                        }
 
                         if ($string.isNullOrEmpty($htmleditor.applicationID) == false) {
                             targetUrl = targetUrl + '&applicationID=' + $htmleditor.applicationID;
@@ -219,6 +223,10 @@
                                     syn.$r.params['action'] = 'GetItem';
                                     syn.$r.params['repositoryID'] = setting.repositoryID;
                                     syn.$r.params['itemID'] = response.ItemID;
+
+                                    if ($string.isNullOrEmpty($htmleditor.userWorkID) == false) {
+                                        syn.$r.params['userWorkID'] = $htmleditor.userWorkID;
+                                    }
 
                                     if ($string.isNullOrEmpty($htmleditor.applicationID) == false) {
                                         syn.$r.params['applicationID'] = $htmleditor.applicationID;

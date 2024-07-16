@@ -536,8 +536,14 @@
                         ];
                         break;
                     case 'htmleditor':
-                        item.css = ['/uicontrols/HtmlEditor/HtmlEditor.css'];
-                        item.js = ['/uicontrols/HtmlEditor/HtmlEditor.js'];
+                        item.css = [
+                            '/uicontrols/FileClient/FileClient.css',
+                            '/uicontrols/HtmlEditor/HtmlEditor.css'
+                        ];
+                        item.js = [
+                            '/uicontrols/FileClient/FileClient.js',
+                            '/uicontrols/HtmlEditor/HtmlEditor.js'
+                        ];
                         break;
                     case 'jsoneditor':
                         item.css = ['/uicontrols/JsonEditor/JsonEditor.css'];

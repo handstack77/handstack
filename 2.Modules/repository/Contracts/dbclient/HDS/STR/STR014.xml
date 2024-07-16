@@ -34,7 +34,7 @@ BEGIN
             "CustomPath1" varchar(50),
             "CustomPath2" varchar(50),
             "CustomPath3" varchar(50),
-            "PolicyPath" varchar(1),
+            "PolicyPath" varchar(10),
             "SortingNo" integer,
             "Comment" varchar(200),
             "CreatedMemberNo" varchar(36),
