@@ -9796,7 +9796,7 @@ globalRoot.syn = syn;
                         }
                     }
 
-                    syn.$l.eventLog('$w.executeTransaction', transactionRequest.requestID, 'Verbose');
+                    syn.$l.eventLog('$w.executeTransaction', transactionRequest.transaction.globalID, 'Verbose');
 
                     xhr.setRequestHeader('X-Requested-With', 'HandStack ServiceClient');
                     xhr.setRequestHeader('Content-Type', 'application/json');
