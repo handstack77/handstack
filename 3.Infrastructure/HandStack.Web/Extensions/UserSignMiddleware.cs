@@ -232,16 +232,16 @@ namespace HandStack.Web.Extensions
                                                     cookieOptions.HttpOnly = false;
                                                     cookieOptions.SameSite = SameSiteMode.Lax;
 
-                                                    DateTime expiredAt = DateTime.UtcNow;
+                                                    DateTimeOffset expiredAt = DateTimeOffset.UtcNow;
                                                     if (GlobalConfiguration.UserSignExpire > 0)
                                                     {
-                                                        expiredAt = DateTime.UtcNow.AddMinutes(GlobalConfiguration.UserSignExpire);
+                                                        expiredAt = DateTimeOffset.UtcNow.AddMinutes(GlobalConfiguration.UserSignExpire);
                                                         cookieOptions.Expires = expiredAt;
                                                     }
                                                     else if (GlobalConfiguration.UserSignExpire < 0)
                                                     {
                                                         int addDay = DateTime.Now.Day == userAccount.LoginedAt.Day ? 1 : 0;
-                                                        expiredAt = DateTime.Parse(DateTime.Now.AddDays(addDay).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00");
+                                                        expiredAt = DateTimeOffset.Parse(DateTimeOffset.UtcNow.AddDays(1).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00");
                                                         cookieOptions.Expires = expiredAt;
                                                     }
                                                     httpContext.Response.Cookies.Append($"{GlobalConfiguration.CookiePrefixName}.Member", jsonAcount.EncodeBase64(), cookieOptions);

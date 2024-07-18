@@ -506,11 +506,11 @@ namespace checkup.Areas.checkup.Controllers
             BearerToken result = new BearerToken();
 
             var guid = sequentialIdGenerator.NewId();
-            DateTime utcNow = guid.ToDateTime() ?? DateTime.UtcNow;
+            DateTime now = DateTime.Now;
             result.TokenID = $"{GlobalConfiguration.RunningEnvironment}|{GlobalConfiguration.HostName}|{GlobalConfiguration.SystemID}|{GlobalConfiguration.ApplicationID}|{guid.ToString("N")}";
             result.IssuerName = GlobalConfiguration.SystemID;
             result.ClientIP = HttpContext.GetRemoteIpAddress().ToStringSafe();
-            result.CreatedAt = utcNow;
+            result.CreatedAt = now;
 
             if (dateTimeOffset != null)
             {
@@ -547,18 +547,17 @@ namespace checkup.Areas.checkup.Controllers
             CookieOptions cookieOptions = new CookieOptions();
             cookieOptions.HttpOnly = false;
             cookieOptions.SameSite = SameSiteMode.Lax;
-            DateTime expiredAt = DateTime.UtcNow;
+            DateTimeOffset expiredAt = DateTimeOffset.UtcNow;
             if (GlobalConfiguration.UserSignExpire > 0)
             {
-                expiredAt = DateTime.UtcNow.AddMinutes(GlobalConfiguration.UserSignExpire);
+                cookieOptions.Expires = DateTimeOffset.UtcNow.AddMinutes(GlobalConfiguration.UserSignExpire);
             }
             else if (GlobalConfiguration.UserSignExpire < 0)
             {
                 int addDay = DateTime.Now.Day == userAccount.LoginedAt.Day ? 1 : 0;
-                expiredAt = DateTime.Parse(DateTime.Now.AddDays(addDay).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00");
+                cookieOptions.Expires = DateTimeOffset.Parse(DateTimeOffset.UtcNow.AddDays(1).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00");
             }
 
-            cookieOptions.Expires = expiredAt;
             return cookieOptions;
         }
 
@@ -572,11 +571,11 @@ namespace checkup.Areas.checkup.Controllers
 
                 if (GlobalConfiguration.UserSignExpire > 0)
                 {
-                    cookieOptions.Expires = DateTime.UtcNow.AddMinutes(GlobalConfiguration.UserSignExpire);
+                    cookieOptions.Expires = DateTimeOffset.UtcNow.AddMinutes(GlobalConfiguration.UserSignExpire);
                 }
                 else if (GlobalConfiguration.UserSignExpire < 0)
                 {
-                    cookieOptions.Expires = DateTime.Parse(DateTime.Now.AddDays(1).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00").AddTicks(TimeZoneInfo.Local.GetUtcOffset(DateTime.Now).Ticks);
+                    cookieOptions.Expires = DateTimeOffset.Parse(DateTimeOffset.UtcNow.AddDays(1).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00");
                 }
             }
 
