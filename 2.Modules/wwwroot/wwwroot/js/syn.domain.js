@@ -478,7 +478,7 @@
 
         serviceClient(url, jsonObject, callBack, async, token) {
             if (!jsonObject) {
-                alert('서비스 호출에 필요한 jsonObject가 구성되지 않았습니다.');
+                syn.$w.alert('서비스 호출에 필요한 jsonObject가 구성되지 않았습니다.');
                 return;
             }
 
@@ -522,7 +522,7 @@
                     }
                     else if (xhr.status !== 200) {
                         if (xhr.responseText.length > 0) {
-                            alert(xhr.responseText || xhr.statusText);
+                            syn.$w.alert(xhr.responseText || xhr.statusText);
                         }
                     }
 
@@ -557,7 +557,7 @@
                                 mod.hook['serviceClientException'](url, jsonObject, xhr);
                             }
                             else {
-                                alert('ServiceID : ' + serviceID + '\n' + jsonObject.Result);
+                                syn.$w.alert('ServiceID : ' + serviceID + '\n' + jsonObject.Result);
                             }
                         }
                         else if (contentType.indexOf('text') > -1 || contentType.indexOf('json') > -1) {
@@ -573,11 +573,11 @@
                         else {
                             if (syn.$w.serviceClientException) {
                                 if (syn.$w.serviceClientException(url, jsonObject, xhr) === false) {
-                                    alert('ServiceID : ' + serviceID + '\n' + errorText);
+                                    syn.$w.alert('ServiceID : ' + serviceID + '\n' + errorText);
                                 }
                             }
                             else {
-                                alert('ServiceID : ' + serviceID + '\n' + errorText);
+                                syn.$w.alert('ServiceID : ' + serviceID + '\n' + errorText);
                             }
 
                             var mod = window[syn.$w.pageScript];
@@ -2200,7 +2200,7 @@
                 controlInfo.module == 'syn.uicontrols.$files'
             ) && options.validators && options.validators.length > 0) {
                 var valiationFunc = function (message) {
-                    alert(message);
+                    syn.$w.alert(message);
                     return false;
                 };
 
@@ -2263,7 +2263,7 @@
             }
             else if (controlInfo.module == 'syn.uicontrols.$grid' && requestType == 'Row' && options.validators && options.validators.length > 0) {
                 var valiationFunc = function (message) {
-                    alert(message);
+                    syn.$w.alert(message);
                     return false;
                 };
 
@@ -2335,7 +2335,7 @@
             }
             else if (controlInfo.module == 'syn.uicontrols.$grid' && requestType == 'List' && options.validators && options.validators.length > 0) {
                 var valiationFunc = function (message) {
-                    alert(message);
+                    syn.$w.alert(message);
                     return false;
                 };
 

@@ -3645,6 +3645,8 @@ globalRoot.syn = syn;
             var xhr = syn.$w.xmlHttp();
             xhr.open(method, url, true);
 
+            xhr.setRequestHeader('OffsetMinutes', syn.$w.timezoneOffsetMinutes);
+
             if (syn.$w.setServiceClientHeader) {
                 if (syn.$w.setServiceClientHeader(xhr) == false) {
                     return;
@@ -3795,6 +3797,7 @@ globalRoot.syn = syn;
         version: '1.0.0',
         localeID: 'ko-KR',
         cookiePrefixName: 'HandStack',
+        timezoneOffsetMinutes: -(new Date().getTimezoneOffset()),
         method: 'POST',
         isPageLoad: false,
         transactionLoaderID: null,
@@ -6581,6 +6584,10 @@ globalRoot.syn = syn;
                                 }
                             }
 
+                            if (options.headers.has('OffsetMinutes') == false) {
+                                options.headers.append('OffsetMinutes', syn.$w.timezoneOffsetMinutes);
+                            }
+
                             var data = {
                                 method: options.method,
                                 headers: options.headers,
@@ -6609,6 +6616,10 @@ globalRoot.syn = syn;
                                         }
                                     }
                                 }
+                            }
+
+                            if (options.headers.has('OffsetMinutes') == false) {
+                                options.headers.append('OffsetMinutes', syn.$w.timezoneOffsetMinutes);
                             }
 
                             var data = {

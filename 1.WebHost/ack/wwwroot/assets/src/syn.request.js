@@ -120,6 +120,8 @@
             var xhr = syn.$w.xmlHttp();
             xhr.open(method, url, true);
 
+            xhr.setRequestHeader('OffsetMinutes', syn.$w.timezoneOffsetMinutes);
+
             if (syn.$w.setServiceClientHeader) {
                 if (syn.$w.setServiceClientHeader(xhr) == false) {
                     return;

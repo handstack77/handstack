@@ -17,6 +17,7 @@
         version: '1.0.0',
         localeID: 'ko-KR',
         cookiePrefixName: 'HandStack',
+        timezoneOffsetMinutes: -(new Date().getTimezoneOffset()),
         method: 'POST',
         isPageLoad: false,
         transactionLoaderID: null,
@@ -2802,6 +2803,10 @@
                                 }
                             }
 
+                            if (options.headers.has('OffsetMinutes') == false) {
+                                options.headers.append('OffsetMinutes', syn.$w.timezoneOffsetMinutes);
+                            }
+
                             var data = {
                                 method: options.method,
                                 headers: options.headers,
@@ -2830,6 +2835,10 @@
                                         }
                                     }
                                 }
+                            }
+
+                            if (options.headers.has('OffsetMinutes') == false) {
+                                options.headers.append('OffsetMinutes', syn.$w.timezoneOffsetMinutes);
                             }
 
                             var data = {

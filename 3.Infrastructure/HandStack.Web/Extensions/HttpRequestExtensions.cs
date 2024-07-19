@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
 
+using Org.BouncyCastle.Asn1.Ocsp;
+
 namespace HandStack.Web.Extensions
 {
     public static class HttpRequestExtensions
@@ -108,6 +110,15 @@ namespace HandStack.Web.Extensions
             {
                 return 0;
             }
+        }
+
+        public static int GetOffsetMinutes(this HttpRequest request, string offsetKey = "OffsetMinutes")
+        {
+            int result = DateTimeOffset.Now.TotalOffsetMinutes;
+            var offsetMinutes = GetContainValue(request, "OffsetMinutes");
+            var timezoneOffsetMinutes = string.IsNullOrEmpty(offsetMinutes) == true ? result : offsetMinutes.ParseInt(result);
+
+            return result;
         }
 
         public static string GetContainValue(this HttpRequest request, string requestKey, string defaultValue = "")
