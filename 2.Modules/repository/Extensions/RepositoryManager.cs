@@ -161,10 +161,10 @@ namespace repository.Extensions
 
         private Uri? GetServiceSasUriForContainer(BlobContainerClient blobContainerClient, string? storedPolicyName = null)
         {
-            return GetServiceSasUriForContainer(blobContainerClient, DateTimeOffset.UtcNow.AddHours(1), storedPolicyName);
+            return GetServiceSasUriForContainer(blobContainerClient, DateTime.Now.AddHours(1), storedPolicyName);
         }
 
-        private Uri? GetServiceSasUriForContainer(BlobContainerClient blobContainerClient, DateTimeOffset expiresOn, string? storedPolicyName = null)
+        private Uri? GetServiceSasUriForContainer(BlobContainerClient blobContainerClient, DateTime expiresOn, string? storedPolicyName = null)
         {
             if (blobContainerClient.CanGenerateSasUri)
             {

@@ -232,16 +232,16 @@ namespace HandStack.Web.Extensions
                                                     cookieOptions.HttpOnly = false;
                                                     cookieOptions.SameSite = SameSiteMode.Lax;
 
-                                                    DateTimeOffset expiredAt = DateTimeOffset.UtcNow;
+                                                    DateTime expiredAt = DateTime.Now.AddDays(1);
                                                     if (GlobalConfiguration.UserSignExpire > 0)
                                                     {
-                                                        expiredAt = DateTimeOffset.UtcNow.AddMinutes(GlobalConfiguration.UserSignExpire);
+                                                        expiredAt = DateTime.Now.AddMinutes(GlobalConfiguration.UserSignExpire).AddMinutes(httpContext.Request.GetOffsetMinutes());
                                                         cookieOptions.Expires = expiredAt;
                                                     }
                                                     else if (GlobalConfiguration.UserSignExpire < 0)
                                                     {
                                                         int addDay = DateTime.Now.Day == userAccount.LoginedAt.Day ? 1 : 0;
-                                                        expiredAt = DateTimeOffset.Parse(DateTimeOffset.UtcNow.AddDays(1).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00");
+                                                        expiredAt = DateTime.Parse(DateTime.Now.AddDays(1).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00").AddMinutes(httpContext.Request.GetOffsetMinutes());
                                                         cookieOptions.Expires = expiredAt;
                                                     }
                                                     httpContext.Response.Cookies.Append($"{GlobalConfiguration.CookiePrefixName}.Member", jsonAcount.EncodeBase64(), cookieOptions);

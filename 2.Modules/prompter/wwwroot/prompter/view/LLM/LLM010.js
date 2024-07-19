@@ -106,11 +106,11 @@ let $LLM010 = {
 
     if (GlobalConfiguration.UserSignExpire > 0)
     {
-        cookieOptions.Expires = DateTimeOffset.UtcNow.AddMinutes(GlobalConfiguration.UserSignExpire);
+        cookieOptions.Expires = DateTime.Now.AddMinutes(GlobalConfiguration.UserSignExpire).AddMinutes(Request.GetOffsetMinutes());
     }
     else if (GlobalConfiguration.UserSignExpire < 0)
     {
-        cookieOptions.Expires = DateTimeOffset.Parse(DateTimeOffset.UtcNow.AddDays(1).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00");
+        cookieOptions.Expires = DateTime.Parse(DateTime.Now.AddDays(1).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00").AddMinutes(Request.GetOffsetMinutes());
     }
 
     response.Cookies.Append(key, value, cookieOptions);
@@ -136,11 +136,11 @@ let $LLM010 = {
 
     if (GlobalConfiguration.UserSignExpire > 0)
     {
-        cookieOptions.Expires = DateTimeOffset.UtcNow.AddMinutes(GlobalConfiguration.UserSignExpire);
+        cookieOptions.Expires = DateTime.Now.AddMinutes(GlobalConfiguration.UserSignExpire).AddMinutes(Request.GetOffsetMinutes());
     }
     else if (GlobalConfiguration.UserSignExpire < 0)
     {
-        cookieOptions.Expires = DateTimeOffset.Parse(DateTimeOffset.UtcNow.AddDays(1).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00");
+        cookieOptions.Expires = DateTime.Parse(DateTime.Now.AddDays(1).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00").AddMinutes(Request.GetOffsetMinutes());
     }
 
     response.Cookies.Append(key, value, cookieOptions);
