@@ -293,8 +293,8 @@ VALUES
 DELETE FROM RefreshToken
 WHERE UserAccountID = @UserAccountID
 	AND RevokedAt IS NULL
-	AND datetime('now') >= ExpiredAt
-	AND datetime(CreatedAt, '+3 day') <= datetime('now');
+	AND DATETIME('now', 'localtime') >= ExpiredAt
+	AND datetime(CreatedAt, '+3 day') <= DATETIME('now', 'localtime');
 			]]>
             <param id="@UserAccountID" type="String" length="36" value="" />
         </statement>

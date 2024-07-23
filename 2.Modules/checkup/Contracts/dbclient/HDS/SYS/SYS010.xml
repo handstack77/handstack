@@ -667,7 +667,7 @@ SELECT
 	@MemberNo
 	, 'Admin'
 	, @EmailID
-	, datetime('now')
+	, DATETIME('now', 'localtime')
     , 'Root,Administrator'
     , '관리자'
     , '시스템'
@@ -675,7 +675,7 @@ SELECT
 	, 'app'
 	, 'N'
 	, @PersonNo
-	, datetime('now');
+	, DATETIME('now', 'localtime');
 			]]>
             <param id="@MemberNo" type="String" length="36" value="" />
             <param id="@PersonNo" type="String" length="36" value="" />
@@ -1065,7 +1065,7 @@ FROM
 	INNER JOIN ApplicationMember AM ON A.ApplicationNo = AM.ApplicationNo
 		AND AM.EmailID = (SELECT EmailID FROM [Member] S WHERE S.MemberNo = @MemberNo)
         AND AM.MemberStatus IN ('R', 'J')
-		AND AM.ExpiredAt > datetime('now')
+		AND AM.ExpiredAt > DATETIME('now', 'localtime')
 WHERE A.DeleteYN = 'N'
 	AND AM.CreatedMemberNo <> AM.MemberNo
 ORDER BY A.WorkedAt DESC;
@@ -1090,7 +1090,7 @@ FROM [Application] A
 	INNER JOIN ApplicationMember AM ON A.ApplicationNo = AM.ApplicationNo
 		AND AM.EmailID = (SELECT EmailID FROM [Member] S WHERE S.MemberNo = @MemberNo)
 		AND AM.MemberStatus IN ('R', 'J')
-		AND IFNULL(AM.ExpiredAt, '9999-12-31') > datetime('now')
+		AND IFNULL(AM.ExpiredAt, '9999-12-31') > DATETIME('now', 'localtime')
 WHERE AM.ApplicationNo = @ApplicationNo
 	AND AM.MemberNo = @MemberNo;
 			]]>
@@ -1117,7 +1117,7 @@ WHERE M.DeleteYN = 'N'
 INSERT INTO IdentityNo (Sequence, GroupID, CreatedMemberNo, CreatedAt) VALUES ((SELECT IFNULL(MAX(Sequence), 0) + 1 FROM IdentityNo WHERE GroupID = @GroupID)
     , @GroupID
     , @MemberNo
-    , datetime('now'));
+    , DATETIME('now', 'localtime'));
 
 SELECT MAX(Sequence) AS IdentityNo FROM IdentityNo WHERE GroupID = @GroupID;
 			]]>

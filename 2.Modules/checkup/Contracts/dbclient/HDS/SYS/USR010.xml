@@ -54,7 +54,7 @@ SELECT
 	@MemberNo
 	, @MemberName
 	, @EmailID
-	, datetime('now')
+	, DATETIME('now', 'localtime')
     , 'User'
     , ''
     , ''
@@ -62,7 +62,7 @@ SELECT
 	, 'app'
 	, 'N'
 	, (SELECT PersonNo FROM Person WHERE PersonID = @EmailID)
-	, datetime('now')
+	, DATETIME('now', 'localtime')
 WHERE NOT EXISTS (SELECT 1 FROM Member WHERE EmailID = @EmailID);
 
 UPDATE ApplicationMember SET MemberNo = @MemberNo 

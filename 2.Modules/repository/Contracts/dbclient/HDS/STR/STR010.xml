@@ -178,7 +178,7 @@ VALUES
     @SortingNo,
     @Comment,
     @CreatedMemberNo,
-    DATETIME('NOW')
+    DATETIME('now', 'localtime')
 );
 			]]>
             <param id="@ItemID" type="String" length="36" value="" />
