@@ -5,6 +5,7 @@ using HandStack.Core.ExtensionMethod;
 using HandStack.Web;
 using HandStack.Web.Entity;
 
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Session;
@@ -69,18 +70,20 @@ namespace HandStack.Web.Extensions
                                 cookieOptions.HttpOnly = false;
                                 cookieOptions.SameSite = SameSiteMode.Lax;
 
-                                DateTime expiredAt = DateTime.Now.AddDays(1);
                                 if (GlobalConfiguration.UserSignExpire > 0)
                                 {
-                                    expiredAt = DateTime.Now.AddMinutes(GlobalConfiguration.UserSignExpire).AddMinutes(httpContext.Request.GetOffsetMinutes());
-                                    cookieOptions.Expires = expiredAt;
+                                    cookieOptions.Expires = DateTime.Now.AddMinutes(GlobalConfiguration.UserSignExpire);
                                 }
                                 else if (GlobalConfiguration.UserSignExpire < 0)
                                 {
                                     int addDay = DateTime.Now.Day == userAccount.LoginedAt.Day ? 1 : 0;
-                                    expiredAt = DateTime.Parse(DateTime.Now.AddDays(1).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00").AddMinutes(httpContext.Request.GetOffsetMinutes());
-                                    cookieOptions.Expires = expiredAt;
+                                    cookieOptions.Expires = DateTime.Parse(DateTime.Now.AddDays(1).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00");
                                 }
+                                else
+                                {
+                                    cookieOptions.Expires = DateTime.Now.AddDays(1);
+                                }
+
                                 httpContext.Response.Cookies.Append($"{GlobalConfiguration.CookiePrefixName}.Member", jsonAcount.EncodeBase64(), cookieOptions);
                             }
                         }

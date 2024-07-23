@@ -403,17 +403,18 @@ namespace checkup.Areas.checkup.Controllers
                                 cookieOptions.HttpOnly = false;
                                 cookieOptions.SameSite = SameSiteMode.Lax;
 
-                                DateTime expiredAt = DateTime.Now.AddDays(1);
+                                DateTimeOffset expiredAt = DateTime.Now.AddDays(1);
                                 if (GlobalConfiguration.UserSignExpire > 0)
                                 {
-                                    cookieOptions.Expires = DateTime.Now.AddMinutes(GlobalConfiguration.UserSignExpire).AddMinutes(Request.GetOffsetMinutes());
+                                    expiredAt = DateTime.Now.AddMinutes(GlobalConfiguration.UserSignExpire);
                                 }
                                 else if (GlobalConfiguration.UserSignExpire < 0)
                                 {
                                     int addDay = DateTime.Now.Day == userAccount.LoginedAt.Day ? 1 : 0;
-                                    cookieOptions.Expires = DateTime.Parse(DateTime.Now.AddDays(1).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00").AddMinutes(Request.GetOffsetMinutes());
+                                    expiredAt = DateTime.Parse(DateTime.Now.AddDays(1).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00");
                                 }
 
+                                cookieOptions.Expires = expiredAt;
                                 authenticationProperties.ExpiresUtc = expiredAt;
 
                                 long expireTicks = ((expiredAt.Ticks - (new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).Ticks) / 10000);
@@ -520,11 +521,15 @@ namespace checkup.Areas.checkup.Controllers
 
                 if (GlobalConfiguration.UserSignExpire > 0)
                 {
-                    cookieOptions.Expires = DateTime.Now.AddMinutes(GlobalConfiguration.UserSignExpire).AddMinutes(Request.GetOffsetMinutes());
+                    cookieOptions.Expires = DateTime.Now.AddMinutes(GlobalConfiguration.UserSignExpire);
                 }
                 else if (GlobalConfiguration.UserSignExpire < 0)
                 {
-                    cookieOptions.Expires = DateTime.Parse(DateTime.Now.AddDays(1).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00").AddMinutes(Request.GetOffsetMinutes());
+                    cookieOptions.Expires = DateTime.Parse(DateTime.Now.AddDays(1).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00");
+                }
+                else
+                {
+                    cookieOptions.Expires = DateTime.Now.AddDays(1);
                 }
             }
 
