@@ -3152,8 +3152,8 @@
             }
 
             var apiService = null;
+            var apiServices = syn.$w.getStorage('apiServices', false);
             if (globalRoot.devicePlatform === 'node') {
-                var apiServices = syn.$w.getStorage('apiServices', false);
                 if (apiServices) {
                     apiService = apiServices[syn.Config.SystemID + syn.Config.Environment.substring(0, 1)];
                     if (apiService) {
@@ -3170,10 +3170,9 @@
                         }
                         apiServices[syn.Config.SystemID + syn.Config.Environment.substring(0, 1)] = apiService;
                         syn.$w.setStorage('apiServices', apiServices, false);
-                        syn.$l.eventLog('$w.executeTransaction', 'apiService 확인 필요 systemApi: {0}'.format(JSON.stringify(apiService)), 'Warning');
                     }
                     else {
-                        syn.$l.eventLog('$w.executeTransaction', '서비스 호출에 필요한 BP 정보가 구성되지 확인 필요', 'Error');
+                        syn.$l.eventLog('$w.executeTransaction', '서비스 호출에 필요한 DomainAPIServer 정보가 구성되지 확인 필요', 'Error');
                     }
                 }
                 else {
@@ -3185,10 +3184,46 @@
                         }
                         apiServices[syn.Config.SystemID + syn.Config.Environment.substring(0, 1)] = apiService;
                         syn.$w.setStorage('apiServices', apiServices, false);
-                        syn.$l.eventLog('$w.executeTransaction', 'apiService 확인 필요 systemApi: {0}'.format(JSON.stringify(apiService)), 'Warning');
                     }
                     else {
-                        syn.$l.eventLog('$w.executeTransaction', '서비스 호출에 필요한 BP 정보가 구성되지 확인 필요', 'Error');
+                        syn.$l.eventLog('$w.executeTransaction', '서비스 호출에 필요한 DomainAPIServer 정보가 구성되지 확인 필요', 'Error');
+                    }
+                }
+            }
+            else {
+                if (apiServices) {
+                    apiService = apiServices[syn.Config.SystemID + syn.Config.Environment.substring(0, 1)];
+                    if (apiService) {
+                        if ((apiServices.BearerToken == null || apiServices.BearerToken == undefined) && window.bearerToken) {
+                            apiServices.BearerToken = window.bearerToken;
+                            syn.$w.setStorage('apiServices', apiServices, false);
+                        }
+                    }
+                    else if (syn.Config.DomainAPIServer != null) {
+                        apiService = syn.Config.DomainAPIServer;
+                        apiServices = {};
+                        if (window.bearerToken) {
+                            apiServices.BearerToken = window.bearerToken;
+                        }
+                        apiServices[syn.Config.SystemID + syn.Config.Environment.substring(0, 1)] = apiService;
+                        syn.$w.setStorage('apiServices', apiServices, false);
+                    }
+                    else {
+                        syn.$l.eventLog('$w.executeTransaction', '서비스 호출에 필요한 DomainAPIServer 정보가 구성되지 확인 필요', 'Error');
+                    }
+                }
+                else {
+                    if (syn.Config.DomainAPIServer != null) {
+                        apiService = syn.Config.DomainAPIServer;
+                        apiServices = {};
+                        if (window.bearerToken) {
+                            apiServices.BearerToken = window.bearerToken;
+                        }
+                        apiServices[syn.Config.SystemID + syn.Config.Environment.substring(0, 1)] = apiService;
+                        syn.$w.setStorage('apiServices', apiServices, false);
+                    }
+                    else {
+                        syn.$l.eventLog('$w.executeTransaction', '서비스 호출에 필요한 DomainAPIServer 정보가 구성되지 확인 필요', 'Error');
                     }
                 }
             }

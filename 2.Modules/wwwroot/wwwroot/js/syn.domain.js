@@ -2515,39 +2515,7 @@ function domainLibraryLoad() {
 
     syn.$k.setElement(document);
 
-    var apiService = null;
-    var apiServices = syn.$w.getStorage('apiServices', false);
-    if (apiServices) {
-        apiService = apiServices[syn.Config.SystemID + syn.Config.Environment.substring(0, 1)];
-        if (apiService) {
-            if ((apiServices.BearerToken == null || apiServices.BearerToken == undefined) && window.bearerToken) {
-                apiServices.BearerToken = window.bearerToken;
-                syn.$w.setStorage('apiServices', apiServices, false);
-            }
-        }
-        else if (syn.Config.DomainAPIServer != null) {
-            apiService = syn.Config.DomainAPIServer;
-            apiServices = {};
-            if (window.bearerToken) {
-                apiServices.BearerToken = window.bearerToken;
-            }
-            apiServices[syn.Config.SystemID + syn.Config.Environment.substring(0, 1)] = apiService;
-            syn.$w.setStorage('apiServices', apiServices, false);
-        }
-    }
-    else {
-        if (syn.Config.DomainAPIServer != null) {
-            apiService = syn.Config.DomainAPIServer;
-            apiServices = {};
-            if (window.bearerToken) {
-                apiServices.BearerToken = window.bearerToken;
-            }
-            apiServices[syn.Config.SystemID + syn.Config.Environment.substring(0, 1)] = apiService;
-            syn.$w.setStorage('apiServices', apiServices, false);
-        }
-    }
-
-    if (apiService == null && syn.Config.IsApiFindServer == true) {
+    if (syn.Config && $string.toBoolean(syn.Config.IsApiFindServer) == true) {
         var apiFind = syn.$w.xmlHttp();
         apiFind.open('GET', syn.Config.DiscoveryApiServerUrl + '?systemID={0}&serverType={1}'.format(syn.Config.SystemID, syn.Config.Environment.substring(0, 1)), true);
 
@@ -2572,9 +2540,6 @@ function domainLibraryLoad() {
             }
         };
         apiFind.send();
-    }
-    else {
-        syn.$l.eventLog('apiFind', 'systemApi: {0}'.format(JSON.stringify(apiService)), 'Verbose');
     }
 }
 
