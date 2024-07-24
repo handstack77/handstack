@@ -31,7 +31,7 @@
         isEdge: !!context.chrome && navigator.userAgent.indexOf('Edg') > -1,
         isFF: typeof InstallTrigger !== 'undefined' || navigator.userAgent.indexOf('Firefox') !== -1,
         isSafari: /constructor/i.test(context.HTMLElement) || (function (p) { return p.toString() === '[object SafariRemoteNotification]'; })(!context['safari'] || (typeof safari !== 'undefined' && context['safari'].pushNotification)),
-        isMobile: (navigator.userAgentData && navigator.userAgentData.mobile == true) ? true : /Android|webOS|iPhone|iPad|iPod|BlackBerry|Windows Phone/i.test(navigator.userAgent),
+        isMobile: () => { return (navigator.userAgentData && navigator.userAgentData.mobile == true) ? true : /Android|webOS|iPhone|iPad|iPod|BlackBerry|Windows Phone/i.test(navigator.userAgent) },
 
         getSystemFonts() {
             var fonts = [
