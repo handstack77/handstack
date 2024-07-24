@@ -104,19 +104,6 @@ let $LLM010 = {
     cookieOptions.HttpOnly = false;
     cookieOptions.SameSite = SameSiteMode.Lax
 
-    if (GlobalConfiguration.UserSignExpire > 0)
-    {
-        cookieOptions.Expires = DateTime.Now.AddMinutes(GlobalConfiguration.UserSignExpire);
-    }
-    else if (GlobalConfiguration.UserSignExpire < 0)
-    {
-        cookieOptions.Expires = DateTime.Parse(DateTime.Now.AddDays(1).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00");
-    }
-    else
-    {
-        cookieOptions.Expires = DateTime.Now.AddDays(1);
-    }
-
     response.Cookies.Append(key, value, cookieOptions);
 }
                 `,
@@ -137,19 +124,6 @@ let $LLM010 = {
     CookieOptions cookieOptions = new CookieOptions();
     cookieOptions.HttpOnly = false;
     cookieOptions.SameSite = SameSiteMode.Lax
-
-    if (GlobalConfiguration.UserSignExpire > 0)
-    {
-        cookieOptions.Expires = DateTime.Now.AddMinutes(GlobalConfiguration.UserSignExpire);
-    }
-    else if (GlobalConfiguration.UserSignExpire < 0)
-    {
-        cookieOptions.Expires = DateTime.Parse(DateTime.Now.AddDays(1).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00");
-    }
-    else
-    {
-        cookieOptions.Expires = DateTime.Now.AddDays(1);
-    }
 
     response.Cookies.Append(key, value, cookieOptions);
 }
