@@ -99,7 +99,7 @@ namespace checkup.Areas.checkup.Controllers
             this.jwtManager = jwtManager;
             this.userTokenService = userTokenService;
 
-            appDbConnectionString = "URI=file:{appBasePath}/.managed/sqlite/app.db;Journal Mode=MEMORY;Cache Size=4000;Synchronous=Normal;Page Size=4096;Pooling=True;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;";
+            appDbConnectionString = "URI=file:{appBasePath}/.managed/sqlite/app.db;Journal Mode=Off;Cache Size=4000;Synchronous=Normal;Page Size=4096;Pooling=True;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;";
         }
 
         public class QueryParams

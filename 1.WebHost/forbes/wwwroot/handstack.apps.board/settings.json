@@ -38,7 +38,7 @@
             "DataProvider": "SQLite",
             "TanantPattern": "",
             "TanantValue": "",
-            "ConnectionString": "URI=file:{appBasePath}/.managed/sqlite/app.db;Journal Mode=MEMORY;Cache Size=4000;Synchronous=Normal;Page Size=4096;Pooling=True;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;",
+            "ConnectionString": "URI=file:{appBasePath}/.managed/sqlite/app.db;Journal Mode=Off;Cache Size=4000;Synchronous=Normal;Page Size=4096;Pooling=True;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;",
             "IsEncryption": "N",
             "Comment": "로컬 데이터베이스"
         }
@@ -68,7 +68,7 @@
             "UploadCount": 30,
             "UploadSizeLimit": 20480,
             "IsLocalDbFileManaged": true,
-            "SQLiteConnectionString": "URI=file:{appBasePath}/.managed/sqlite/storage.db;Journal Mode=MEMORY;Cache Size=4000;Synchronous=Normal;Page Size=4096;Pooling=True;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;",
+            "SQLiteConnectionString": "URI=file:{appBasePath}/.managed/sqlite/storage.db;Journal Mode=Off;Cache Size=4000;Synchronous=Normal;Page Size=4096;Pooling=True;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;",
             "TransactionGetItem": "STR|SLT010|LD01",
             "TransactionGetItems": "STR|SLT010|LD02",
             "TransactionDeleteItem": "STR|SLT010|DD01",

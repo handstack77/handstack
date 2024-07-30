@@ -386,7 +386,7 @@ namespace transact.Extensions
                     string logDbFilePath = Path.Combine(appBasePath, ".managed", "sqlite", "transact", $"log-{rollingID}.db");
                     if (Directory.Exists(appBasePath) == true && File.Exists(logDbFilePath) == true)
                     {
-                        string connectionString = $"URI=file:{logDbFilePath};Journal Mode=MEMORY;Cache Size=4000;Synchronous=Normal;Page Size=4096;Pooling=True;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;";
+                        string connectionString = $"URI=file:{logDbFilePath};Journal Mode=Off;Cache Size=4000;Synchronous=Normal;Page Size=4096;Pooling=True;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;";
                         // 주간별 SQLite 데이터베이스 파일 생성: {프로젝트 ID}_{년도}{주2자리}.db
                         using (SQLiteClient dbClient = new SQLiteClient(connectionString))
                         {

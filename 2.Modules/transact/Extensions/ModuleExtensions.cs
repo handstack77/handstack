@@ -48,7 +48,7 @@ namespace transact.Extensions
 
             // 주간별 SQLite 데이터베이스 파일 생성: {년도}{주2자리}-{애플리케이션 ID}.db
             string logDbFilePath = Path.Combine(transactionLogBasePath, $"{rollingID}-{applicationID}.db");
-            result = $"URI=file:{logDbFilePath};Journal Mode=MEMORY;Cache Size=4000;Synchronous=Normal;Page Size=4096;Pooling=True;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;";
+            result = $"URI=file:{logDbFilePath};Journal Mode=Off;Cache Size=4000;Synchronous=Normal;Page Size=4096;Pooling=True;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;";
 
             FileInfo fileInfo = new FileInfo(logDbFilePath);
             if (fileInfo.Directory != null && fileInfo.Directory.Exists == false)
