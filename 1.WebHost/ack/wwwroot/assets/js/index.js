@@ -1,4 +1,4 @@
-﻿/*!
+/*!
 HandStack Javascript Library v1.0.0
 https://syn.handshake.kr
 
@@ -3974,7 +3974,6 @@ globalRoot.syn = syn;
                 var input = document.createElement('input');
                 input.id = 'moduleScript';
                 input.type = 'hidden';
-                
                 input.value = syn.$w.pageScript;
                 document.body.appendChild(input);
 
@@ -6931,7 +6930,7 @@ globalRoot.syn = syn;
                 syn.$l.eventLog('$w.executeTransaction', '서비스 호출에 필요한 거래 정보 확인 필요', 'Error');
                 return;
             }
-            
+
             var apiService = null;
             var apiServices = syn.$w.getStorage('apiServices', false);
             if (globalRoot.devicePlatform === 'node') {

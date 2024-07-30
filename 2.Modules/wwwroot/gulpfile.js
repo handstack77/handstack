@@ -2,7 +2,8 @@
 var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
 var uglifycss = require('gulp-uglifycss');
-var rename = require("gulp-rename");
+var rename = require('gulp-rename');
+var javascriptObfuscator = require('gulp-javascript-obfuscator');
 
 gulp.task('scripts', async function () {
     return gulp.src([
@@ -134,6 +135,42 @@ gulp.task('controls', async function () {
         .pipe(uglify({
             mangle: true,
             compress: true
+        }))
+        .pipe(rename({
+            basename: "syn.controls.min",
+            extname: ".js"
+        }))
+        .pipe(gulp.dest('wwwroot/js'));
+});
+
+gulp.task('obfusecontrols', async function () {
+    return gulp.src([
+        'wwwroot/uicontrols/Chart/Chart.js',
+        'wwwroot/uicontrols/CheckBox/CheckBox.js',
+        'wwwroot/uicontrols/CodePicker/CodePicker.js',
+        'wwwroot/uicontrols/ColorPicker/ColorPicker.js',
+        'wwwroot/uicontrols/ContextMenu/ContextMenu.js',
+        'wwwroot/uicontrols/DataSource/DataSource.js',
+        'wwwroot/uicontrols/DatePicker/DatePicker.js',
+        'wwwroot/uicontrols/DropDownCheckList/DropDownCheckList.js',
+        'wwwroot/uicontrols/DropDownList/DropDownList.js',
+        'wwwroot/uicontrols/FileClient/FileClient.js',
+        'wwwroot/uicontrols/GridList/GridList.js',
+        'wwwroot/uicontrols/Guide/Guide.js',
+        'wwwroot/uicontrols/RadioButton/RadioButton.js',
+        'wwwroot/uicontrols/TextArea/TextArea.js',
+        'wwwroot/uicontrols/TextBox/TextBox.js',
+        'wwwroot/uicontrols/SourceEditor/SourceEditor.js',
+        'wwwroot/uicontrols/HtmlEditor/HtmlEditor.js',
+        'wwwroot/uicontrols/OrganizationView/OrganizationView.js',
+        'wwwroot/uicontrols/TreeView/TreeView.js',
+        'wwwroot/uicontrols/WebGrid/WebGrid.js',
+        'wwwroot/uicontrols/Element/Element.js'
+    ])
+        .pipe(concat('syn.controls.js'))
+        .pipe(gulp.dest('wwwroot/js'))
+        .pipe(javascriptObfuscator({
+            compact: true
         }))
         .pipe(rename({
             basename: "syn.controls.min",

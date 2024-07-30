@@ -1,4 +1,4 @@
-﻿/*!
+/*!
 HandStack Javascript Library v1.0.0
 https://syn.handshake.kr
 
@@ -6279,7 +6279,6 @@ globalRoot.syn = syn;
                 var input = document.createElement('input');
                 input.id = 'moduleScript';
                 input.type = 'hidden';
-                
                 input.value = syn.$w.pageScript;
                 document.body.appendChild(input);
 

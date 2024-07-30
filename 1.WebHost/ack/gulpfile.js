@@ -3,6 +3,7 @@ var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
 var uglifycss = require('gulp-uglifycss');
 var rename = require("gulp-rename");
+var javascriptObfuscator = require('gulp-javascript-obfuscator');
 
 gulp.task('css', async function () {
     gulp.src('wwwroot/assets/css/**/*.css')
@@ -57,6 +58,20 @@ gulp.task('uglifysyn', async function () {
         .pipe(uglify({
             mangle: true,
             compress: true
+        }))
+        .pipe(rename({
+            basename: "syn.min",
+            extname: ".js"
+        }))
+        .pipe(gulp.dest('wwwroot/assets/js'));
+});
+
+gulp.task('obfusesyn', async function () {
+    return gulp.src([
+        'wwwroot/assets/js/syn.js'
+    ])
+        .pipe(javascriptObfuscator({
+            compact: true
         }))
         .pipe(rename({
             basename: "syn.min",
