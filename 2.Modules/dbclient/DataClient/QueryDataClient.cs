@@ -911,7 +911,9 @@ namespace dbclient.DataClient
                 {
                     foreach (var transactionDynamicObject in transactionDynamicObjects)
                     {
+                        transactionDynamicObject.Value.PretreatmentReader?.Close();
                         transactionDynamicObject.Value.PretreatmentConnectionFactory?.CommitTransaction();
+                        transactionDynamicObject.Value.MainReader?.Close();
                         transactionDynamicObject.Value.ConnectionFactory?.CommitTransaction();
                     }
                 }
@@ -932,7 +934,9 @@ TransactionException:
                     {
                         foreach (var transactionDynamicObject in transactionDynamicObjects)
                         {
+                            transactionDynamicObject.Value.PretreatmentReader?.Close();
                             transactionDynamicObject.Value.PretreatmentConnectionFactory?.RollbackTransaction();
+                            transactionDynamicObject.Value.MainReader?.Close();
                             transactionDynamicObject.Value.ConnectionFactory?.RollbackTransaction();
                         }
                     }
@@ -956,7 +960,9 @@ TransactionException:
                 {
                     foreach (var transactionDynamicObject in transactionDynamicObjects)
                     {
+                        transactionDynamicObject.Value.PretreatmentReader?.Close();
                         transactionDynamicObject.Value.PretreatmentConnectionFactory?.RollbackTransaction();
+                        transactionDynamicObject.Value.MainReader?.Close();
                         transactionDynamicObject.Value.ConnectionFactory?.RollbackTransaction();
                     }
                 }
@@ -1551,7 +1557,9 @@ TransactionException:
                 {
                     foreach (var transactionDynamicObject in transactionDynamicObjects)
                     {
+                        transactionDynamicObject.Value.PretreatmentReader?.Close();
                         transactionDynamicObject.Value.PretreatmentConnectionFactory?.CommitTransaction();
+                        transactionDynamicObject.Value.MainReader?.Close();
                         transactionDynamicObject.Value.ConnectionFactory?.CommitTransaction();
                     }
                 }
@@ -1566,7 +1574,9 @@ TransactionException:
                     {
                         foreach (var transactionDynamicObject in transactionDynamicObjects)
                         {
+                            transactionDynamicObject.Value.PretreatmentReader?.Close();
                             transactionDynamicObject.Value.PretreatmentConnectionFactory?.RollbackTransaction();
+                            transactionDynamicObject.Value.MainReader?.Close();
                             transactionDynamicObject.Value.ConnectionFactory?.RollbackTransaction();
                         }
                     }
@@ -1590,7 +1600,9 @@ TransactionException:
                 {
                     foreach (var transactionDynamicObject in transactionDynamicObjects)
                     {
+                        transactionDynamicObject.Value.PretreatmentReader?.Close();
                         transactionDynamicObject.Value.PretreatmentConnectionFactory?.RollbackTransaction();
+                        transactionDynamicObject.Value.MainReader?.Close();
                         transactionDynamicObject.Value.ConnectionFactory?.RollbackTransaction();
                     }
                 }
@@ -2182,7 +2194,9 @@ TransactionException:
                 {
                     foreach (var transactionDynamicObject in transactionDynamicObjects)
                     {
+                        transactionDynamicObject.Value.PretreatmentReader?.Close();
                         transactionDynamicObject.Value.PretreatmentConnectionFactory?.CommitTransaction();
+                        transactionDynamicObject.Value.MainReader?.Close();
                         transactionDynamicObject.Value.ConnectionFactory?.CommitTransaction();
                     }
                 }
@@ -2197,7 +2211,9 @@ TransactionException:
                     {
                         foreach (var transactionDynamicObject in transactionDynamicObjects)
                         {
+                            transactionDynamicObject.Value.PretreatmentReader?.Close();
                             transactionDynamicObject.Value.PretreatmentConnectionFactory?.RollbackTransaction();
+                            transactionDynamicObject.Value.MainReader?.Close();
                             transactionDynamicObject.Value.ConnectionFactory?.RollbackTransaction();
                         }
                     }
@@ -2221,7 +2237,9 @@ TransactionException:
                 {
                     foreach (var transactionDynamicObject in transactionDynamicObjects)
                     {
+                        transactionDynamicObject.Value.PretreatmentReader?.Close();
                         transactionDynamicObject.Value.PretreatmentConnectionFactory?.RollbackTransaction();
+                        transactionDynamicObject.Value.MainReader?.Close();
                         transactionDynamicObject.Value.ConnectionFactory?.RollbackTransaction();
                     }
                 }
@@ -2889,7 +2907,9 @@ TransactionException:
                 {
                     foreach (var transactionDynamicObject in transactionDynamicObjects)
                     {
+                        transactionDynamicObject.Value.PretreatmentReader?.Close();
                         transactionDynamicObject.Value.PretreatmentConnectionFactory?.CommitTransaction();
+                        transactionDynamicObject.Value.MainReader?.Close();
                         transactionDynamicObject.Value.ConnectionFactory?.CommitTransaction();
                     }
                 }
@@ -2913,7 +2933,9 @@ TransactionException:
                     {
                         foreach (var transactionDynamicObject in transactionDynamicObjects)
                         {
+                            transactionDynamicObject.Value.PretreatmentReader?.Close();
                             transactionDynamicObject.Value.PretreatmentConnectionFactory?.RollbackTransaction();
+                            transactionDynamicObject.Value.MainReader?.Close();
                             transactionDynamicObject.Value.ConnectionFactory?.RollbackTransaction();
                         }
                     }
@@ -2937,7 +2959,9 @@ TransactionException:
                 {
                     foreach (var transactionDynamicObject in transactionDynamicObjects)
                     {
+                        transactionDynamicObject.Value.PretreatmentReader?.Close();
                         transactionDynamicObject.Value.PretreatmentConnectionFactory?.RollbackTransaction();
+                        transactionDynamicObject.Value.MainReader?.Close();
                         transactionDynamicObject.Value.ConnectionFactory?.RollbackTransaction();
                     }
                 }
@@ -3700,7 +3724,9 @@ TransactionException:
                 {
                     foreach (var transactionDynamicObject in transactionDynamicObjects)
                     {
+                        transactionDynamicObject.Value.PretreatmentReader?.Close();
                         transactionDynamicObject.Value.PretreatmentConnectionFactory?.CommitTransaction();
+                        transactionDynamicObject.Value.MainReader?.Close();
                         transactionDynamicObject.Value.ConnectionFactory?.CommitTransaction();
                     }
                 }
@@ -3715,7 +3741,9 @@ TransactionException:
                     {
                         foreach (var transactionDynamicObject in transactionDynamicObjects)
                         {
+                            transactionDynamicObject.Value.PretreatmentReader?.Close();
                             transactionDynamicObject.Value.PretreatmentConnectionFactory?.RollbackTransaction();
+                            transactionDynamicObject.Value.MainReader?.Close();
                             transactionDynamicObject.Value.ConnectionFactory?.RollbackTransaction();
                         }
                     }
@@ -3739,7 +3767,9 @@ TransactionException:
                 {
                     foreach (var transactionDynamicObject in transactionDynamicObjects)
                     {
+                        transactionDynamicObject.Value.PretreatmentReader?.Close();
                         transactionDynamicObject.Value.PretreatmentConnectionFactory?.RollbackTransaction();
+                        transactionDynamicObject.Value.MainReader?.Close();
                         transactionDynamicObject.Value.ConnectionFactory?.RollbackTransaction();
                     }
                 }
