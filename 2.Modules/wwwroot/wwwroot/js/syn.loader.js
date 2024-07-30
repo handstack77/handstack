@@ -803,26 +803,6 @@
                 for (var i = 0; i < jsList.length; i++) {
                     jsFiles = jsFiles.concat(jsList[i]);
                 }
-
-                if (window.pageLoadFiles) {
-                    pageLoadFiles(jsFiles, styleFiles, templateFiles);
-                    loadFiles = styleFiles.concat(jsFiles).concat(templateFiles);
-                }
-                else {
-                    loadFiles = styleFiles.concat(jsFiles);
-                }
-
-                if (window.beforeLoadFiles && window.beforeLoadFiles.length > 0) {
-                    for (var i = window.beforeLoadFiles.length - 1; i >= 0; i--) {
-                        loadFiles.unshift(window.beforeLoadFiles[i]);
-                    }
-                }
-
-                if (window.afterLoadFiles && window.afterLoadFiles.length > 0) {
-                    for (var i = window.afterLoadFiles.length - 1; i >= 0; i--) {
-                        loadFiles.push(window.afterLoadFiles[i]);
-                    }
-                }
             }
             else {
                 if (synConfig.Environment == 'Development') {
@@ -950,6 +930,8 @@
                 loadFiles.push(window.afterLoadFiles[i]);
             }
         }
+
+        loadFiles = [...new Set(loadFiles)];
 
         var toBoolean = (val) => {
             return (val === 'true' || val === 'True' || val === 'TRUE' || val === 'Y' || val == '1');
