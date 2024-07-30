@@ -6,7 +6,7 @@ let $redirection = {
             var cookieValue = syn.$r.getCookie('HandStack.LinkData');
             if (cookieValue) {
                 linkData = JSON.parse(cookieValue);
-                syn.$r.deleteCookie('HandStack.LinkData');
+                syn.$r.deleteCookie('HandStack.LinkData', '/');
             }
 
             var message = '페이지를 찾을 수 없습니다';
