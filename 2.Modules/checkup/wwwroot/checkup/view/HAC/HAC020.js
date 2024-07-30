@@ -277,7 +277,7 @@ let $HAC020 = {
             syn.$l.get('txtUploadCount').value = '';
             syn.$l.get('txtUploadSizeLimit').value = '';
             syn.$l.get('ddlIsLocalDBFileManaged').value = 'false';
-            syn.$l.get('txtSQLiteConnectionString').value = 'URI=file:{appBasePath}/.managed/sqlite/storage.db;Pooling=True;Max Pool Size=100;Version=3;';
+            syn.$l.get('txtSQLiteConnectionString').value = 'URI=file:{appBasePath}/.managed/sqlite/storage.db;Max Pool Size=100;Version=3;';
             syn.$l.get('txtTransactionGetItem').value = 'HDS|STR|SLT010|LD01';
             syn.$l.get('txtTransactionGetItems').value = 'HDS|STR|SLT010|LD02';
             syn.$l.get('txtTransactionDeleteItem').value = 'HDS|STR|SLT010|DD01';

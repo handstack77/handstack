@@ -21,6 +21,6 @@
         "WWWRootBasePath": "../modules/checkup/wwwroot/checkup",
         "EventAction": [],
         "SubscribeAction": [],
-        "ConnectionString": "URI=file:../sqlite/HDS/dbclient/checkup.db;Journal Mode=Off;Cache Size=4000;Synchronous=Normal;Page Size=4096;Pooling=True;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;"
+        "ConnectionString": "URI=file:../sqlite/HDS/dbclient/checkup.db;Journal Mode=Off;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;"
     }
 }

@@ -41,7 +41,7 @@
                 "ProjectID": "*",
                 "DataSourceID": "FN01",
                 "DataProvider": "SQLite",
-                "ConnectionString": "URI=file:../sqlite/HDS/dbclient/HDS.db;Journal Mode=Off;Cache Size=4000;Synchronous=Normal;Page Size=4096;Pooling=True;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;",
+                "ConnectionString": "URI=file:../sqlite/HDS/dbclient/HDS.db;Journal Mode=Off;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;",
                 "IsEncryption": "N",
                 "WorkingDirectoryPath": "../tmp/HDS/function/HDS_FN01",
                 "Comment": "SQLite 기본 거래"

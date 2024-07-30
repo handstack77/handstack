@@ -51,7 +51,7 @@ let $HAC010 = {
                             }
                         }
 
-                        syn.$l.get('txtConnectionString').value = `URI=file:{appBasePath}/.managed/sqlite/${fileName};Journal Mode=Off;Cache Size=4000;Synchronous=Normal;Page Size=4096;Pooling=True;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;`;
+                        syn.$l.get('txtConnectionString').value = `URI=file:{appBasePath}/.managed/sqlite/${fileName};Journal Mode=Off;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;`;
                     }
                 }
 

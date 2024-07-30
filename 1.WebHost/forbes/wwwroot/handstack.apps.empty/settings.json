@@ -38,7 +38,7 @@
             "DataProvider": "SQLite",
             "TanantPattern": "",
             "TanantValue": "",
-            "ConnectionString": "URI=file:{appBasePath}/.managed/sqlite/app.db;Journal Mode=Off;Cache Size=4000;Synchronous=Normal;Page Size=4096;Pooling=True;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;",
+            "ConnectionString": "URI=file:{appBasePath}/.managed/sqlite/app.db;Journal Mode=Off;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;",
             "IsEncryption": "N",
             "Comment": "로컬 데이터베이스"
         }

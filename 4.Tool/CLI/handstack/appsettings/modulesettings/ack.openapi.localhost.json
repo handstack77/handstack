@@ -14,7 +14,7 @@
         "IsLogServer": true,
         "LogServerUrl": "http://localhost:8000/logger/api/log/insert",
         "DataProvider": "SQLite",
-        "ConnectionString": "URI=file:../sqlite/HDS/openapi/managed.db;Journal Mode=Off;Cache Size=4000;Synchronous=Normal;Page Size=4096;Pooling=True;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;",
+        "ConnectionString": "URI=file:../sqlite/HDS/openapi/managed.db;Journal Mode=Off;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;",
         "IsEncryption": "N",
         "EventAction": [
             "dbclient.Events.ManagedRequest"

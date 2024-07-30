@@ -70,7 +70,7 @@ namespace logger
                     }
 
                     string logDbFilePath = Path.Combine(transactionLogBasePath, $"transact.db");
-                    string connectionString = $"URI=file:{logDbFilePath};Journal Mode=Off;Cache Size=4000;Synchronous=Normal;Page Size=4096;Pooling=True;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;";
+                    string connectionString = $"URI=file:{logDbFilePath};Journal Mode=Off;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;";
 
                     FileInfo fileInfo = new FileInfo(logDbFilePath);
                     if (fileInfo.Directory != null && fileInfo.Directory.Exists == false)

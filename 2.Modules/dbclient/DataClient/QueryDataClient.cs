@@ -254,7 +254,7 @@ namespace dbclient.DataClient
                     {
                         DynamicTransaction = queryObject,
                         Statement = statementMap,
-                        ConnectionString = connectionInfo == null ? "" : connectionInfo.Item1,
+                        ConnectionString = connectionInfo == null ? "" : (connectionInfo.Item2 == DataProviders.SQLite ? connectionInfo.Item1.Replace("\\", "/") : connectionInfo.Item1),
                         DataProvider = connectionInfo == null ? DataProviders.SQLite : connectionInfo.Item2
                     });
 
@@ -911,9 +911,7 @@ namespace dbclient.DataClient
                 {
                     foreach (var transactionDynamicObject in transactionDynamicObjects)
                     {
-                        transactionDynamicObject.Value.PretreatmentReader?.Close();
                         transactionDynamicObject.Value.PretreatmentConnectionFactory?.CommitTransaction();
-                        transactionDynamicObject.Value.MainReader?.Close();
                         transactionDynamicObject.Value.ConnectionFactory?.CommitTransaction();
                     }
                 }
@@ -934,9 +932,7 @@ TransactionException:
                     {
                         foreach (var transactionDynamicObject in transactionDynamicObjects)
                         {
-                            transactionDynamicObject.Value.PretreatmentReader?.Close();
                             transactionDynamicObject.Value.PretreatmentConnectionFactory?.RollbackTransaction();
-                            transactionDynamicObject.Value.MainReader?.Close();
                             transactionDynamicObject.Value.ConnectionFactory?.RollbackTransaction();
                         }
                     }
@@ -960,9 +956,7 @@ TransactionException:
                 {
                     foreach (var transactionDynamicObject in transactionDynamicObjects)
                     {
-                        transactionDynamicObject.Value.PretreatmentReader?.Close();
                         transactionDynamicObject.Value.PretreatmentConnectionFactory?.RollbackTransaction();
-                        transactionDynamicObject.Value.MainReader?.Close();
                         transactionDynamicObject.Value.ConnectionFactory?.RollbackTransaction();
                     }
                 }
@@ -1038,7 +1032,7 @@ TransactionException:
                     {
                         DynamicTransaction = queryObject,
                         Statement = statementMap,
-                        ConnectionString = connectionInfo == null ? "" : connectionInfo.Item1,
+                        ConnectionString = connectionInfo == null ? "" : (connectionInfo.Item2 == DataProviders.SQLite ? connectionInfo.Item1.Replace("\\", "/") : connectionInfo.Item1),
                         DataProvider = connectionInfo == null ? DataProviders.SQLite : connectionInfo.Item2
                     });
                     i = i + 1;
@@ -1557,9 +1551,7 @@ TransactionException:
                 {
                     foreach (var transactionDynamicObject in transactionDynamicObjects)
                     {
-                        transactionDynamicObject.Value.PretreatmentReader?.Close();
                         transactionDynamicObject.Value.PretreatmentConnectionFactory?.CommitTransaction();
-                        transactionDynamicObject.Value.MainReader?.Close();
                         transactionDynamicObject.Value.ConnectionFactory?.CommitTransaction();
                     }
                 }
@@ -1574,9 +1566,7 @@ TransactionException:
                     {
                         foreach (var transactionDynamicObject in transactionDynamicObjects)
                         {
-                            transactionDynamicObject.Value.PretreatmentReader?.Close();
                             transactionDynamicObject.Value.PretreatmentConnectionFactory?.RollbackTransaction();
-                            transactionDynamicObject.Value.MainReader?.Close();
                             transactionDynamicObject.Value.ConnectionFactory?.RollbackTransaction();
                         }
                     }
@@ -1600,9 +1590,7 @@ TransactionException:
                 {
                     foreach (var transactionDynamicObject in transactionDynamicObjects)
                     {
-                        transactionDynamicObject.Value.PretreatmentReader?.Close();
                         transactionDynamicObject.Value.PretreatmentConnectionFactory?.RollbackTransaction();
-                        transactionDynamicObject.Value.MainReader?.Close();
                         transactionDynamicObject.Value.ConnectionFactory?.RollbackTransaction();
                     }
                 }
@@ -1679,7 +1667,7 @@ TransactionException:
                     {
                         DynamicTransaction = queryObject,
                         Statement = statementMap,
-                        ConnectionString = connectionInfo == null ? "" : connectionInfo.Item1,
+                        ConnectionString = connectionInfo == null ? "" : (connectionInfo.Item2 == DataProviders.SQLite ? connectionInfo.Item1.Replace("\\", "/") : connectionInfo.Item1),
                         DataProvider = connectionInfo == null ? DataProviders.SQLite : connectionInfo.Item2
                     });
 
@@ -2194,9 +2182,7 @@ TransactionException:
                 {
                     foreach (var transactionDynamicObject in transactionDynamicObjects)
                     {
-                        transactionDynamicObject.Value.PretreatmentReader?.Close();
                         transactionDynamicObject.Value.PretreatmentConnectionFactory?.CommitTransaction();
-                        transactionDynamicObject.Value.MainReader?.Close();
                         transactionDynamicObject.Value.ConnectionFactory?.CommitTransaction();
                     }
                 }
@@ -2211,9 +2197,7 @@ TransactionException:
                     {
                         foreach (var transactionDynamicObject in transactionDynamicObjects)
                         {
-                            transactionDynamicObject.Value.PretreatmentReader?.Close();
                             transactionDynamicObject.Value.PretreatmentConnectionFactory?.RollbackTransaction();
-                            transactionDynamicObject.Value.MainReader?.Close();
                             transactionDynamicObject.Value.ConnectionFactory?.RollbackTransaction();
                         }
                     }
@@ -2237,9 +2221,7 @@ TransactionException:
                 {
                     foreach (var transactionDynamicObject in transactionDynamicObjects)
                     {
-                        transactionDynamicObject.Value.PretreatmentReader?.Close();
                         transactionDynamicObject.Value.PretreatmentConnectionFactory?.RollbackTransaction();
-                        transactionDynamicObject.Value.MainReader?.Close();
                         transactionDynamicObject.Value.ConnectionFactory?.RollbackTransaction();
                     }
                 }
@@ -2315,7 +2297,7 @@ TransactionException:
                     {
                         DynamicTransaction = queryObject,
                         Statement = statementMap,
-                        ConnectionString = connectionInfo == null ? "" : connectionInfo.Item1,
+                        ConnectionString = connectionInfo == null ? "" : (connectionInfo.Item2 == DataProviders.SQLite ? connectionInfo.Item1.Replace("\\", "/") : connectionInfo.Item1),
                         DataProvider = connectionInfo == null ? DataProviders.SQLite : connectionInfo.Item2
                     });
 
@@ -2907,9 +2889,7 @@ TransactionException:
                 {
                     foreach (var transactionDynamicObject in transactionDynamicObjects)
                     {
-                        transactionDynamicObject.Value.PretreatmentReader?.Close();
                         transactionDynamicObject.Value.PretreatmentConnectionFactory?.CommitTransaction();
-                        transactionDynamicObject.Value.MainReader?.Close();
                         transactionDynamicObject.Value.ConnectionFactory?.CommitTransaction();
                     }
                 }
@@ -2933,9 +2913,7 @@ TransactionException:
                     {
                         foreach (var transactionDynamicObject in transactionDynamicObjects)
                         {
-                            transactionDynamicObject.Value.PretreatmentReader?.Close();
                             transactionDynamicObject.Value.PretreatmentConnectionFactory?.RollbackTransaction();
-                            transactionDynamicObject.Value.MainReader?.Close();
                             transactionDynamicObject.Value.ConnectionFactory?.RollbackTransaction();
                         }
                     }
@@ -2959,9 +2937,7 @@ TransactionException:
                 {
                     foreach (var transactionDynamicObject in transactionDynamicObjects)
                     {
-                        transactionDynamicObject.Value.PretreatmentReader?.Close();
                         transactionDynamicObject.Value.PretreatmentConnectionFactory?.RollbackTransaction();
-                        transactionDynamicObject.Value.MainReader?.Close();
                         transactionDynamicObject.Value.ConnectionFactory?.RollbackTransaction();
                     }
                 }
@@ -3038,7 +3014,7 @@ TransactionException:
                     {
                         DynamicTransaction = queryObject,
                         Statement = statementMap,
-                        ConnectionString = connectionInfo == null ? "" : connectionInfo.Item1,
+                        ConnectionString = connectionInfo == null ? "" : (connectionInfo.Item2 == DataProviders.SQLite ? connectionInfo.Item1.Replace("\\", "/") : connectionInfo.Item1),
                         DataProvider = connectionInfo == null ? DataProviders.SQLite : connectionInfo.Item2
                     });
 
@@ -3323,7 +3299,7 @@ TransactionException:
                     {
                         DynamicTransaction = queryObject,
                         Statement = statementMap,
-                        ConnectionString = connectionInfo == null ? "" : connectionInfo.Item1,
+                        ConnectionString = connectionInfo == null ? "" : (connectionInfo.Item2 == DataProviders.SQLite ? connectionInfo.Item1.Replace("\\", "/") : connectionInfo.Item1),
                         DataProvider = connectionInfo == null ? DataProviders.SQLite : connectionInfo.Item2
                     });
 
@@ -3724,9 +3700,7 @@ TransactionException:
                 {
                     foreach (var transactionDynamicObject in transactionDynamicObjects)
                     {
-                        transactionDynamicObject.Value.PretreatmentReader?.Close();
                         transactionDynamicObject.Value.PretreatmentConnectionFactory?.CommitTransaction();
-                        transactionDynamicObject.Value.MainReader?.Close();
                         transactionDynamicObject.Value.ConnectionFactory?.CommitTransaction();
                     }
                 }
@@ -3741,9 +3715,7 @@ TransactionException:
                     {
                         foreach (var transactionDynamicObject in transactionDynamicObjects)
                         {
-                            transactionDynamicObject.Value.PretreatmentReader?.Close();
                             transactionDynamicObject.Value.PretreatmentConnectionFactory?.RollbackTransaction();
-                            transactionDynamicObject.Value.MainReader?.Close();
                             transactionDynamicObject.Value.ConnectionFactory?.RollbackTransaction();
                         }
                     }
@@ -3767,9 +3739,7 @@ TransactionException:
                 {
                     foreach (var transactionDynamicObject in transactionDynamicObjects)
                     {
-                        transactionDynamicObject.Value.PretreatmentReader?.Close();
                         transactionDynamicObject.Value.PretreatmentConnectionFactory?.RollbackTransaction();
-                        transactionDynamicObject.Value.MainReader?.Close();
                         transactionDynamicObject.Value.ConnectionFactory?.RollbackTransaction();
                     }
                 }
@@ -3847,7 +3817,7 @@ TransactionException:
                     {
                         DynamicTransaction = queryObject,
                         Statement = statementMap,
-                        ConnectionString = connectionInfo == null ? "" : connectionInfo.Item1,
+                        ConnectionString = connectionInfo == null ? "" : (connectionInfo.Item2 == DataProviders.SQLite ? connectionInfo.Item1.Replace("\\", "/") : connectionInfo.Item1),
                         DataProvider = connectionInfo == null ? DataProviders.SQLite : connectionInfo.Item2
                     });
 
