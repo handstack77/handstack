@@ -7547,14 +7547,6 @@ globalRoot.syn = syn;
             }
 
             if (transactConfig && $this && $this.config) {
-                if ($object.isNullOrUndefined(transactConfig.noProgress) == true) {
-                    transactConfig.noProgress = false;
-                }
-
-                if (syn.$w.progressMessage && transactConfig.noProgress == false) {
-                    syn.$w.progressMessage($resource.translations.progress);
-                }
-
                 try {
                     if ($object.isNullOrUndefined($this.config.transactions) == true) {
                         $this.config.transactions = [];
@@ -7576,11 +7568,12 @@ globalRoot.syn = syn;
                             transactionLog: 'Y'
                         }, options);
 
-                        if (options) {
-
-                            if (syn.$w.progressMessage) {
-                                syn.$w.progressMessage(options.message);
-                            }
+                        if ($object.isNullOrUndefined(transactConfig.noProgress) == true) {
+                            transactConfig.noProgress = false;
+                        }
+                        
+                        if (syn.$w.progressMessage && $string.toBoolean(transactConfig.noProgress) == false) {
+                            syn.$w.progressMessage();
                         }
 
                         syn.$w.tryAddFunction(transactConfig);
@@ -7663,6 +7656,10 @@ globalRoot.syn = syn;
         });
         */
         transactionDirect(directObject, callback, options) {
+            if (syn.$w.progressMessage && directObject && $string.toBoolean(directObject.noProgress) == false) {
+                syn.$w.progressMessage();
+            }
+
             directObject.transactionResult = $object.isNullOrUndefined(directObject.transactionResult) == true ? true : directObject.transactionResult === true;
             directObject.systemID = directObject.systemID || (globalRoot.devicePlatform == 'browser' ? $this.config.systemID : '');
 
@@ -7685,12 +7682,6 @@ globalRoot.syn = syn;
                 transactionLog: 'Y'
             }, options);
 
-            if (options) {
-
-                if (syn.$w.progressMessage) {
-                    syn.$w.progressMessage(options.message);
-                }
-            }
             transactionObject.options = options;
 
             if (globalRoot.devicePlatform === 'node') {
