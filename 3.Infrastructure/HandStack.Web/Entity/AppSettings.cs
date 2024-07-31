@@ -15,8 +15,8 @@ namespace HandStack.Web.Entity
         [JsonProperty("Version")]
         public string Version { get; set; } = string.Empty;
 
-        // [JsonProperty("PackageName")]
-        // public string PackageName { get; set; } = string.Empty;
+        [JsonProperty("UseForumYN")]
+        public string UseForumYN { get; set; } = "N";
 
         [JsonProperty("ApplicationName")]
         public string ApplicationName { get; set; } = string.Empty;
