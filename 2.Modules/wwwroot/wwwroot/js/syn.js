@@ -3152,7 +3152,7 @@ globalRoot.syn = syn;
 
         split(val, char) {
             char = char || ',';
-            return val.split(char).filter(p => p);
+            return $string.isNullOrEmpty(val) == true ? [] : val.split(char).filter(p => p);
         },
 
         isNumber(num) {
