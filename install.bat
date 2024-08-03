@@ -97,6 +97,7 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
     echo function 모듈 %build_path%\package.json 설치를 시작합니다...
     call npm install
     robocopy %current_path%\1.WebHost\ack\wwwroot\assets\js %build_path%\node_modules\syn index.js /copy:dat
+    if "%HANDSTACK_HOME%" == "" setx HANDSTACK_HOME %build_path%
     echo HandStack 개발 환경 설치가 완료되었습니다. Visual Studio 개발 도구로 handstack.sln 를 실행하세요. 자세한 정보는 https://handstack.kr 를 참고하세요.
 )
 
@@ -131,7 +132,8 @@ if exist %current_path%\app\ack.exe (
         call npm install
         gulp
     )
-
+    
+    if "%HANDSTACK_HOME%" == "" setx HANDSTACK_HOME %current_path%
     echo ack 실행 환경 설치가 완료되었습니다. 터미널에서 다음 경로의 프로그램을 실행하세요. %current_path%\app\ack.exe
     cd %current_path%
 ) else (
