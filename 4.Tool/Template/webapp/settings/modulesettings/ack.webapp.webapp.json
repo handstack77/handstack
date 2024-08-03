@@ -1,0 +1,29 @@
+{
+    "ModuleID": "webapp",
+    "Name": "webapp",
+    "IsBundledWithHost": false,
+    "Version": "1.0.0",
+    "ModuleConfig": {
+        "SystemID": "HANDSTACK",
+        "ModuleBasePath": "../modules/webapp",
+        "WWWRootBasePath": "../modules/webapp/wwwroot/webapp",
+        "ManagerEmailID": "manager@handstack.kr",
+        "ManagerSHA256Password": "48c691ca3e9d0e01bdaab5923534a1ebc01dcb52f87bddccbae6e185f3f481d9", // handstack12345
+        "ModuleConfigurationUrl": "http://localhost:8000/webapp/api/managed/initialize-settings",
+        "BusinessServerUrl": "http://localhost:8000/transact/api/transaction/execute",
+        "IsTransactionLogging": false,
+        "ModuleLogFilePath": "../log/webapp/module.log",
+        "IsLogServer": true,
+        "LogServerUrl": "http://localhost:8000/logger/api/log/insert",
+        "DataSource": {
+            "ApplicationID": "HDS",
+            "ProjectID": "TST",
+            "DataSourceID": "TESTDB",
+            "DataProvider": "SqlServer",
+            "ConnectionString": "Data Source=localhost;Initial Catalog=master;User ID=sa;Password=Strong@Passw0rd;",
+            "IsEncryption": "N"
+        },
+        "EventAction": [ "repository.Events.RepositoryRequest" ],
+        "SubscribeAction": []
+    }
+}

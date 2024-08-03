@@ -1164,14 +1164,6 @@ namespace handstack
                         File.WriteAllText(file, fileText.Replace(findText, replaceText));
                         replaceInFilesCount += count;
                     }
-
-                    findText = "#{ackHomePath}";
-                    count = Regex.Matches(fileText, findText, RegexOptions.None).Count;
-                    if (count > 0)
-                    {
-                        File.WriteAllText(file, fileText.Replace(findText, ackHomePath));
-                        replaceInFilesCount += count;
-                    }
                 }
             }
 
