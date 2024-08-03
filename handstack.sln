@@ -52,6 +52,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CLI", "CLI", "{FA291842-9FD5-4508-A423-7421803FDA88}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "handstack", "4.Tool\CLI\handstack\handstack.csproj", "{3314A371-F013-4C45-B52E-B31C77360F29}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EFC7711F-7874-46A9-A8A3-7A93F53B7B63} = {EFC7711F-7874-46A9-A8A3-7A93F53B7B63}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "checkup", "2.Modules\checkup\checkup.csproj", "{D546C016-49CF-4693-A7F9-CFC93107EBA1}"
 EndProject
@@ -158,7 +161,7 @@ Global
 		{A5EAE6C9-3724-4FD2-9FEF-8682E1269529} = {43B577AB-74FA-4B53-A2BE-E369622F970F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {0075CE72-935C-4F87-A6BA-989C82F06F8F}
 		VisualSVNWorkingCopyRoot = .
+		SolutionGuid = {0075CE72-935C-4F87-A6BA-989C82F06F8F}
 	EndGlobalSection
 EndGlobal
