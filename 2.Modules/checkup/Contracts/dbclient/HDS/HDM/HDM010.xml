@@ -14,6 +14,7 @@
 SELECT ME.EntityNo
     , ME.EntityID
     , ME.EntityName
+    , ME.CategoryName
     , ME.Acronyms
     , ME.Comment
     , ME.CreatedMemberNo
@@ -63,6 +64,7 @@ INSERT INTO MetaEntity
     , EntityNo
     , EntityID
     , EntityName
+    , CategoryName
     , Acronyms
     , Comment
     , CreatedMemberNo
@@ -74,6 +76,7 @@ VALUES
     , @EntityNo
     , @EntityID
     , @EntityName
+    , @CategoryName
     , @Acronyms
     , @Comment
     , @CreatedMemberNo
@@ -84,6 +87,7 @@ VALUES
             <param id="@EntityNo" type="String" length="36" value="" />
             <param id="@EntityID" type="String" length="255" value="" />
             <param id="@EntityName" type="String" length="50" value="" />
+            <param id="@CategoryName" type="String" length="50" value="" />
             <param id="@Acronyms" type="String" length="10" value="" />
             <param id="@Comment" type="String" length="1000" value="" />
             <param id="@CreatedMemberNo" type="String" length="36" value="" />
@@ -115,6 +119,7 @@ WHERE ME.DeletedAt IS NULL
                 <![CDATA[
 UPDATE MetaEntity SET EntityID = @EntityID
     , EntityName = @EntityName
+    , CategoryName = @CategoryName
     , Acronyms = @Acronyms
     , Comment = @Comment
     , ModifiedMemberNo = @ModifiedMemberNo
@@ -126,6 +131,7 @@ WHERE DeletedAt IS NULL
             <param id="@EntityNo" type="String" length="36" value="" />
             <param id="@EntityID" type="String" length="255" value="" />
             <param id="@EntityName" type="String" length="50" value="" />
+            <param id="@CategoryName" type="String" length="50" value="" />
             <param id="@Acronyms" type="String" length="10" value="" />
             <param id="@Comment" type="String" length="1000" value="" />
             <param id="@ModifiedMemberNo" type="String" length="36" value="" />

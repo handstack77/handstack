@@ -168,6 +168,7 @@ EntityNo,String,1,36
 ApplicationNo,String,0,36
 EntityID,String,0,255
 EntityName,String,0,50
+CategoryName,String,0,50
 Acronyms,String,0,10
 SeedData,String,0,16
 Comment,String,0,1000

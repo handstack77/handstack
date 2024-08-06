@@ -159,6 +159,7 @@ let $HDM010 = {
                             entityNo: syn.uicontrols.$grid.getDataAtCell(gridID, activeRow, 'EntityNo'),
                             entityID: syn.uicontrols.$grid.getDataAtCell(gridID, activeRow, 'EntityID'),
                             entityName: syn.uicontrols.$grid.getDataAtCell(gridID, activeRow, 'EntityName'),
+                            categoryName: syn.uicontrols.$grid.getDataAtCell(gridID, activeRow, 'CategoryName'),
                             fields: [],
                             seedData: JSON.parse(syn.$l.get('txtSeedData').value.trim() || '[]')
                         };
@@ -272,11 +273,12 @@ let $HDM010 = {
             syn.$l.get('txtEntityID').value = '';
             syn.$l.get('txtAcronyms').value = '';
             syn.$l.get('txtEntityName').value = '';
+            syn.$l.get('txtCategoryName').value = '';
             syn.$l.get('txtComment').value = '';
 
             syn.$w.showDialog(syn.$l.get('tplMetaEntity'), {
                 minWidth: 480,
-                minHeight: 480,
+                minHeight: 540,
             });
         },
 

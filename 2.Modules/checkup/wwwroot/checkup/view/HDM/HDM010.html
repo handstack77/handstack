@@ -55,8 +55,9 @@
                                                     ['EntityNo', '엔티티NO', 100, true, 'text', true, 'left', ['LD02', 'MD01', 'DD01', 'GD01']]
                                                     , ['EntityID', '엔티티 ID', 130, false, 'text', false, 'left', 'MD01']
                                                     , ['EntityName', '엔티티 명', 130, false, 'text', false, 'left', 'MD01']
+                                                    , ['CategoryName', '분류', 100, false, 'text', false, 'left', 'MD01']
                                                     , ['Acronyms', '약어', 50, false, 'text', false, 'left', 'MD01']
-                                                    , ['Comment', '설명', 150, false, 'text', false, 'left', 'MD01']
+                                                    , ['Comment', '설명', 100, false, 'text', false, 'left', 'MD01']
                                                     , ['CreatedMemberNo', '작성자 NO', 100, true, 'text', true, 'left', 'MD01']
                                                     , ['CreatedMemberName', '작성자명', 100, true, 'text', true, 'left', 'MD01']
                                                     , ['CreatedAt', '입력일자', 100, false, 'text', true, 'center', 'MD01']
@@ -129,7 +130,7 @@
             <h3 class="mt-0 mb-0">신규 엔티티</h3>
             <div class="card mt:-1" style="height: calc(100% - 37px) !important;">
                 <div class="card-body">
-                    <div class="mb-3 row">
+                    <div class="row mb-3">
                         <label class="col-3 col-form-label required">엔티티 ID</label>
                         <div class="col">
                             <input id="txtEntityNo" syn-datafield="EntityNo" syn-options="{belongID: 'ID01'}" type="hidden" />
@@ -138,7 +139,7 @@
                             <small class="form-hint">의미가 분명한 영문자를 입력합니다 공백, 특수문자, 숫자를 포함할 수 없습니다</small>
                         </div>
                     </div>
-                    <div class="mb-3 row">
+                    <div class="row mb-3">
                         <label class="col-3 col-form-label required">엔티티 명</label>
                         <div class="col">
                             <input id="txtEntityName" syn-datafield="EntityName" syn-options="{belongID: 'ID01'}" type="text" class="form-control" placeholder="예) 회사, 부서, 직원...">
@@ -147,7 +148,13 @@
                             </small>
                         </div>
                     </div>
-                    <div class="mb-3 row">
+                    <div class="row mb-3">
+                        <label class="col-3 col-form-label">분류</label>
+                        <div class="col">
+                            <input id="txtCategoryName" syn-datafield="CategoryName" syn-options="{belongID: 'ID01'}" type="text" class="form-control">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
                         <label class="col-3 col-form-label">약어</label>
                         <div class="col">
                             <input id="txtAcronyms" syn-datafield="Acronyms" syn-options="{belongID: 'ID01'}" type="text" class="form-control" placeholder="예) User > U, Entity > E">
@@ -156,7 +163,7 @@
                             </small>
                         </div>
                     </div>
-                    <div class="mb-3 row">
+                    <div class="row mb-3">
                         <label class="col-3 col-form-label">설명</label>
                         <div class="col">
                             <textarea id="txtComment" syn-datafield="Comment" syn-options="{toSynControl: false, belongID: 'ID01', height: '56px'}" rows="3" class="form-control resize:none"></textarea>

@@ -119,6 +119,9 @@ CREATE TABLE IF NOT EXISTS "MetaEntity" (
     -- 엔티티명
     "EntityName" TEXT NOT NULL DEFAULT '',
 
+    -- 카테고리명
+    "CategoryName" TEXT NOT NULL DEFAULT '',
+
     -- 약어
     "Acronyms" TEXT NULL,
 
@@ -697,6 +700,9 @@ CREATE TABLE IF NOT EXISTS "MetaEntity" (
 
     -- 엔티티명
     "EntityName" TEXT NOT NULL DEFAULT '',
+
+    -- 카테고리명
+    "CategoryName" TEXT NOT NULL DEFAULT '',
 
     -- 약어
     "Acronyms" TEXT NULL,
