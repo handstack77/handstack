@@ -3157,7 +3157,7 @@
                     newWorksheet['!cols'] = wsCols;
                     XLSX.utils.book_append_sheet(wb, newWorksheet, 'Sheet1');
                     var wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'binary' });
-                    syn.$l.blobToDownload(new Blob([$l.stringToArrayBuffer(wbout)], { type: "application/octet-stream" }), options.filename + '.xlsx');
+                    syn.$l.blobToDownload(new Blob([syn.$l.stringToArrayBuffer(wbout)], { type: "application/octet-stream" }), options.filename + '.xlsx');
                 }
                 else if (options.fileType == 'csv') {
                     var hot = $grid.getGridControl(elID);
