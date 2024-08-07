@@ -198,7 +198,7 @@ namespace handstack
 
             #region configuration
 
-            // configuration --ack=C:/projects/handstack77/handstack/1.WebHost/build/handstack/app/ack.exe --appsettings=ack.localhost.json
+            // configuration --ack=%HANDSTACK_HOME%/app/ack.exe --appsettings=ack.localhost.json
             var subCommandConfiguration = new Command("configuration", "의도된 ack 프로그램 및 모듈 환경설정을 적용합니다") {
                 optionAckFile, optionAppSettingFile
             };
@@ -317,7 +317,7 @@ namespace handstack
 
             #region purgecontracts
 
-            // purgecontracts --ack=C:/projects/handstack77/handstack/1.WebHost/build/handstack/app/ack.exe --directory=C:/projects/myapp/contracts
+            // purgecontracts --ack=%HANDSTACK_HOME%/app/ack.exe --directory=C:/projects/myapp/contracts
             var subCommandPurgeContracts = new Command("purgecontracts", "모듈의 Contracts를 사용하도록 ack 프로그램의 contracts 내 중복 파일을 삭제합니다") {
                 optionAckFile, optionDirectory
             };
@@ -369,7 +369,7 @@ namespace handstack
 
             #region startlog
 
-            // startlog --ack=C:/projects/handstack77/handstack/1.WebHost/build/handstack/app/ack.exe --arguments="--debug --delay=1000000" --appsettings=ack.localhost.json
+            // startlog --ack=%HANDSTACK_HOME%/app/ack.exe --arguments="--debug --delay=1000000" --appsettings=ack.localhost.json
             var subCommandStartLog = new Command("startlog", "ack 프로세스를 시작하기 위한 명령어 로그를 출력합니다") {
                 optionAckFile, optionArguments, optionAppSettingFile
             };
@@ -408,7 +408,7 @@ namespace handstack
 
             #region start
 
-            // start --ack=C:/projects/handstack77/handstack/1.WebHost/build/handstack/app/ack.exe --arguments="--debug --delay=1000000" --appsettings=ack.localhost.json
+            // start --ack=%HANDSTACK_HOME%/app/ack.exe --arguments="--debug --delay=1000000" --appsettings=ack.localhost.json
             var subCommandStart = new Command("start", "ack 프로세스를 시작합니다") {
                 optionAckFile, optionArguments, optionAppSettingFile
             };
@@ -881,7 +881,7 @@ namespace handstack
                 optionAckFile, optionFile, optionKey, optionDirectory, optionFind, optionReplace, optionValue
             };
 
-            // handstack create --ack=C:/projects/handstack77/handstack/1.WebHost/build/handstack/app/ack.exe --file=C:/tmp/handstack.zip --directory=C:/tmp/handstack --find=handstack --replace=myprojectname
+            // handstack create --ack=%HANDSTACK_HOME%/app/ack.exe --file=C:/tmp/handstack.zip --directory=C:/tmp/handstack --find=handstack --replace=myprojectname
             subCommandCreate.SetHandler((ackFile, file, key, directory, find, replace, ignored) =>
             {
                 if (ackFile != null && ackFile.Exists == true && file != null && file.Exists == true && directory != null)
