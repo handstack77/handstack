@@ -250,7 +250,11 @@ namespace handstack
                                     }
                                     else
                                     {
-                                        sourceModuleSettingFilePath = Path.Combine(settingDirectoryPath, "modules", $"{programID}.{moduleID}.{environment}.json");
+                                        sourceModuleSettingFilePath = Path.Combine(settingDirectoryPath, "modulesettings", $"{programID}.{moduleID}.{environment}.json");
+                                        if (File.Exists(sourceModuleSettingFilePath) == false)
+                                        {
+                                            sourceModuleSettingFilePath = Path.Combine(settingDirectoryPath, "modules", $"{programID}.{moduleID}.{environment}.json");
+                                        }
                                     }
 
                                     if (File.Exists(sourceModuleSettingFilePath) == true)
