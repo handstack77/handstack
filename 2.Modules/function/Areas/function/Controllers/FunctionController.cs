@@ -16,6 +16,8 @@ using Microsoft.AspNetCore.Mvc;
 
 using Newtonsoft.Json.Linq;
 
+using Serilog;
+
 namespace function.Areas.function.Controllers
 {
     [Area("function")]
@@ -24,12 +26,22 @@ namespace function.Areas.function.Controllers
     [ApiController]
     public class FunctionController : ControllerBase
     {
+        private ILogger? logger { get; }
+        private readonly IHttpContextAccessor httpContextAccessor;
+        private readonly HttpContext? httpContext;
+
+        public FunctionController(ILogger logger, IHttpContextAccessor httpContextAccessor)
+        {
+            this.logger = logger;
+            this.httpContextAccessor = httpContextAccessor;
+            httpContext = httpContextAccessor.HttpContext;
+        }
+
         // http://localhost:8000/function/api/function/execute?accessToken=test&loadOptions[option1]=value1&featureMeta.Timeout=0
         [Route("[action]")]
         // public async Task<DataSet?> Execute([FromBody] List<DynamicParameter> dynamicParameters, [FromQuery] DataContext dataContext)
         public async Task<DataSet?> Execute([FromBody] List<DynamicParameter>? dynamicParameters, [FromQuery] DataContext? dataContext)
         {
-            // SYS.SKF010.GF01
             string functionID = (httpContext?.Request.Query["functionID"]).ToStringSafe();
             if (string.IsNullOrEmpty(functionID) == true)
             {
@@ -45,7 +57,7 @@ namespace function.Areas.function.Controllers
                 dynamicParameters.Add(new DynamicParameter()
                 {
                     ParameterName = "ApplicationID",
-                    Value = "HDS",
+                    Value = "9ysztou4",
                     DbType = "String",
                     Length = 0,
                 });
@@ -53,7 +65,7 @@ namespace function.Areas.function.Controllers
                 dynamicParameters.Add(new DynamicParameter()
                 {
                     ParameterName = "UserWorkID",
-                    Value = "12345678",
+                    Value = "3qmbxyhc",
                     DbType = "String",
                     Length = 0,
                 });
@@ -61,25 +73,28 @@ namespace function.Areas.function.Controllers
                 dynamicParameters.Add(new DynamicParameter()
                 {
                     ParameterName = "Prompt",
-                    Value = "hello world 의 유래를 알려줘",
+                    Value = "아빠가 방에 들어가셨다.",
                     DbType = "String",
                     Length = 0,
                 });
             }
 
+            #region DataContext
+
+            DateTime now = DateTime.Now;
             if (dataContext == null)
             {
-                DateTime now = DateTime.Now;
                 dataContext = new DataContext();
                 dataContext.accessToken = null;
                 dataContext.loadOptions = null;
-                dataContext.globalID = $"OD00000{GlobalConfiguration.ApplicationID}{functionID.Replace(".", "")}F{now.ToString("HHmmss").ToSHA256().Substring(0, 6) + now.ToString("HHmmss")}";
-                dataContext.environment = "D";
-                dataContext.platform = "Windows"; // Windows, Linux, MacOS
                 dataContext.dataProvider = null; // SQLite, SqlServer, MySql, Oracle, PostgreSql, MariaDB
                 dataContext.connectionString = null;
-                dataContext.workingDirectoryPath = "../tmp/HDS/function/HDS_FN00";
             }
+
+            dataContext.globalID = string.IsNullOrEmpty(dataContext.globalID) == false ? dataContext.globalID : $"OD00000{GlobalConfiguration.ApplicationID}{functionID.Replace(".", "")}F{now.ToString("HHmmss").ToSHA256().Substring(0, 6) + now.ToString("HHmmss")}";
+            dataContext.environment = string.IsNullOrEmpty(dataContext.environment) == false ? dataContext.environment : "D";
+            dataContext.platform = string.IsNullOrEmpty(dataContext.platform) == false ? dataContext.platform : "Windows"; // Windows, Linux, MacOS
+            dataContext.workingDirectoryPath = string.IsNullOrEmpty(dataContext.workingDirectoryPath) == false ? dataContext.workingDirectoryPath : "../tmp/HDS/function/HDS_FN00";
 
             var scriptMapFile = Path.Combine(ModuleConfiguration.ModuleBasePath, "featureTest.json");
             if (System.IO.File.Exists(scriptMapFile) == true)
@@ -189,6 +204,8 @@ namespace function.Areas.function.Controllers
                 return result;
             }
 
+            #endregion
+
             return await GF01(dynamicParameters!, dataContext!);
         }
 
@@ -213,16 +230,6 @@ namespace function.Areas.function.Controllers
 
             await Task.Delay(1);
             return result;
-        }
-
-        private readonly IHttpContextAccessor httpContextAccessor;
-
-        private readonly HttpContext? httpContext;
-
-        public FunctionController(IHttpContextAccessor httpContextAccessor)
-        {
-            this.httpContextAccessor = httpContextAccessor;
-            httpContext = httpContextAccessor.HttpContext;
         }
 
         [HttpGet]

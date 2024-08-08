@@ -250,7 +250,7 @@ namespace handstack
                                     }
                                     else
                                     {
-                                        sourceModuleSettingFilePath = Path.Combine(settingDirectoryPath, "modulesettings", $"{programID}.{moduleID}.{environment}.json");
+                                        sourceModuleSettingFilePath = Path.Combine(settingDirectoryPath, "modules", $"{programID}.{moduleID}.{environment}.json");
                                     }
 
                                     if (File.Exists(sourceModuleSettingFilePath) == true)
@@ -266,7 +266,7 @@ namespace handstack
                                             FileInfo sourceModuleSettingFileInfo = new FileInfo(sourceModuleSettingFilePath);
                                             string targetModuleSettingFilePath = Path.Combine(moduleBasePath, moduleID, moduleSettingFile);
                                             File.Copy(sourceModuleSettingFilePath, targetModuleSettingFilePath, true);
-                                            Log.Information($"modulesettings: {targetModuleSettingFilePath}");
+                                            Log.Information($"modules: {targetModuleSettingFilePath}");
                                         }
                                         else
                                         {
