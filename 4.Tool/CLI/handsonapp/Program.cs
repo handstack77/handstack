@@ -21,7 +21,8 @@ namespace handsonapp
         public static FileSyncManager? BusinessFileSyncManager = null;
 
         public static string handstackHomePath = string.Empty;
-        public static bool useContractSync = false;
+        public static bool useContractFileSync = false;
+        public static bool useContractUrlSync = false;
         public static string handstackUrl = string.Empty;
         public static string hostAccessID = string.Empty;
         public static string workingDirectory = string.Empty;
@@ -56,10 +57,17 @@ namespace handsonapp
                             i++;
                         }
                         break;
-                    case "--contractSync":
-                        if (i + 1 < args.Length && bool.TryParse(args[i + 1], out bool argsUseContractSync))
+                    case "--contractFileSync":
+                        if (i + 1 < args.Length && bool.TryParse(args[i + 1], out bool argsUseContractFileSync))
                         {
-                            useContractSync = argsUseContractSync;
+                            useContractFileSync = argsUseContractFileSync;
+                            i++;
+                        }
+                        break;
+                    case "--contractUrlSync":
+                        if (i + 1 < args.Length && bool.TryParse(args[i + 1], out bool argsUseContractUrlSync))
+                        {
+                            useContractUrlSync = argsUseContractUrlSync;
                             i++;
                         }
                         break;
@@ -124,16 +132,25 @@ namespace handsonapp
                 handstackHomePath = configuration["HandStackBasePath"] ?? "";
             }
 
-            if (useContractSync == false)
+            if (useContractFileSync == false)
             {
-                string isContractSync = configuration["UseContractSync"] ?? "false";
-                if(bool.TryParse(isContractSync, out bool argsUseContractSync))
+                string isContractFileSync = configuration["UseContractFileSync"] ?? "false";
+                if (bool.TryParse(isContractFileSync, out bool argsUseContractFileSync))
                 {
-                    useContractSync = argsUseContractSync;
+                    useContractFileSync = argsUseContractFileSync;
                 }
             }
 
-            if (useContractSync == true)
+            if (useContractUrlSync == false)
+            {
+                string isContractUrlSync = configuration["UseContractUrlSync"] ?? "false";
+                if(bool.TryParse(isContractUrlSync, out bool argsUseContractUrlSync))
+                {
+                    useContractUrlSync = argsUseContractUrlSync;
+                }
+            }
+
+            if (useContractUrlSync == true)
             {
                 if (string.IsNullOrEmpty(handstackUrl) == true)
                 {
@@ -146,16 +163,21 @@ namespace handsonapp
                 }
             }
 
+            if (string.IsNullOrEmpty(handstackHomePath) == true)
+            {
+                handstackHomePath = Environment.GetEnvironmentVariable("HANDSTACK_HOME") ?? "";
+            }
+
+            Console.WriteLine($"UseContractFileSync {useContractFileSync}");
+            Console.WriteLine($"HandStackBasePath {handstackHomePath}");
+            Console.WriteLine($"UseContractUrlSync {useContractUrlSync}");
+            Console.WriteLine($"HandStackUrl {handstackUrl}");
+
             var host = Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.Configure(app =>
                     {
-                        if (string.IsNullOrEmpty(handstackHomePath) == true)
-                        {
-                            handstackHomePath = Environment.GetEnvironmentVariable("HANDSTACK_HOME") ?? "";
-                        }
-
                         app.UseDefaultFiles();
 
                         if (string.IsNullOrEmpty(handstackHomePath) == false && Directory.Exists(handstackHomePath) == true && File.Exists(Path.Combine(handstackHomePath, "app", "ack.dll")) == true)
@@ -193,25 +215,28 @@ namespace handsonapp
                             });
                             
                             var dbclientBasePath = Path.Combine(entryBasePath, "contracts", "dbclient");
-                            string destDbclientBasePath = Path.Combine(handstackHomePath, "modules", "dbclient", "Contracts", "dbclient");
-                            string destContractDbclientBasePath = Path.Combine(handstackHomePath, "contracts", "dbclient");
                             if (Directory.Exists(dbclientBasePath) == true)
                             {
+                                string destDbclientBasePath = Path.Combine(handstackHomePath, "modules", "dbclient", "Contracts", "dbclient");
+                                string destContractDbclientBasePath = Path.Combine(handstackHomePath, "contracts", "dbclient");
                                 SQLFileSyncManager = new FileSyncManager(dbclientBasePath, "*.xml");
                                 SQLFileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
                                 {
                                     if (fileInfo.FullName.IndexOf(dbclientBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))
                                     {
                                         string destFilePath = fileInfo.FullName.Replace(dbclientBasePath, "");
-                                        if (changeTypes == WatcherChangeTypes.Deleted)
+                                        if(useContractFileSync == true)
                                         {
-                                            File.Delete(destDbclientBasePath + destFilePath);
-                                            File.Delete(destContractDbclientBasePath + destFilePath);
-                                        }
-                                        else
-                                        {
-                                            await CopyFileAsync(fileInfo.FullName, destDbclientBasePath + destFilePath);
-                                            await CopyFileAsync(fileInfo.FullName, destContractDbclientBasePath + destFilePath);
+                                            if (changeTypes == WatcherChangeTypes.Deleted)
+                                            {
+                                                File.Delete(destDbclientBasePath + destFilePath);
+                                                File.Delete(destContractDbclientBasePath + destFilePath);
+                                            }
+                                            else
+                                            {
+                                                await CopyFileAsync(fileInfo.FullName, destDbclientBasePath + destFilePath);
+                                                await CopyFileAsync(fileInfo.FullName, destContractDbclientBasePath + destFilePath);
+                                            }
                                         }
 
                                         if (string.IsNullOrEmpty(handstackUrl) == false)
@@ -225,25 +250,28 @@ namespace handsonapp
                             }
 
                             var functionCSharpBasePath = Path.Combine(entryBasePath, "contracts", "function", "csharp");
-                            string destFunctionCSharpBasePath = Path.Combine(handstackHomePath, "modules", "function", "Contracts", "function", "csharp");
-                            string destContractFunctionCSharpBasePath = Path.Combine(handstackHomePath, "contracts", "function", "csharp");
                             if (Directory.Exists(functionCSharpBasePath) == true)
                             {
+                                string destFunctionCSharpBasePath = Path.Combine(handstackHomePath, "modules", "function", "Contracts", "function", "csharp");
+                                string destContractFunctionCSharpBasePath = Path.Combine(handstackHomePath, "contracts", "function", "csharp");
                                 CsharpFileSyncManager = new FileSyncManager(functionCSharpBasePath, "featureMain.cs|featureMeta.json|featureSQL.xml");
                                 CsharpFileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
                                 {
                                     if (fileInfo.FullName.IndexOf(functionCSharpBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))
                                     {
                                         string destFilePath = fileInfo.FullName.Replace(functionCSharpBasePath, "");
-                                        if (changeTypes == WatcherChangeTypes.Deleted)
+                                        if (useContractFileSync == true)
                                         {
-                                            File.Delete(destFunctionCSharpBasePath + destFilePath);
-                                            File.Delete(destContractFunctionCSharpBasePath + destFilePath);
-                                        }
-                                        else
-                                        {
-                                            await CopyFileAsync(fileInfo.FullName, destFunctionCSharpBasePath + destFilePath);
-                                            await CopyFileAsync(fileInfo.FullName, destContractFunctionCSharpBasePath + destFilePath);
+                                            if (changeTypes == WatcherChangeTypes.Deleted)
+                                            {
+                                                File.Delete(destFunctionCSharpBasePath + destFilePath);
+                                                File.Delete(destContractFunctionCSharpBasePath + destFilePath);
+                                            }
+                                            else
+                                            {
+                                                await CopyFileAsync(fileInfo.FullName, destFunctionCSharpBasePath + destFilePath);
+                                                await CopyFileAsync(fileInfo.FullName, destContractFunctionCSharpBasePath + destFilePath);
+                                            }
                                         }
 
                                         if (string.IsNullOrEmpty(handstackUrl) == false)
@@ -257,25 +285,28 @@ namespace handsonapp
                             }
 
                             var functionNodeBasePath = Path.Combine(entryBasePath, "contracts", "function", "javascript");
-                            string destFunctionNodeBasePath = Path.Combine(handstackHomePath, "modules", "function", "Contracts", "function", "javascript");
-                            string destContractFunctionNodeBasePath = Path.Combine(handstackHomePath, "contracts", "function", "javascript");
                             if (Directory.Exists(functionNodeBasePath) == true)
                             {
                                 NodeFileSyncManager = new FileSyncManager(functionNodeBasePath, "featureMain.js|featureMeta.json|featureSQL.xml");
                                 NodeFileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
                                 {
+                                    string destFunctionNodeBasePath = Path.Combine(handstackHomePath, "modules", "function", "Contracts", "function", "javascript");
+                                    string destContractFunctionNodeBasePath = Path.Combine(handstackHomePath, "contracts", "function", "javascript");
                                     if (fileInfo.FullName.IndexOf(functionNodeBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))
                                     {
                                         string destFilePath = fileInfo.FullName.Replace(functionNodeBasePath, "");
-                                        if (changeTypes == WatcherChangeTypes.Deleted)
+                                        if (useContractFileSync == true)
                                         {
-                                            File.Delete(destFunctionNodeBasePath + destFilePath);
-                                            File.Delete(destContractFunctionNodeBasePath + destFilePath);
-                                        }
-                                        else
-                                        {
-                                            await CopyFileAsync(fileInfo.FullName, destFunctionNodeBasePath + destFilePath);
-                                            await CopyFileAsync(fileInfo.FullName, destContractFunctionNodeBasePath + destFilePath);
+                                            if (changeTypes == WatcherChangeTypes.Deleted)
+                                            {
+                                                File.Delete(destFunctionNodeBasePath + destFilePath);
+                                                File.Delete(destContractFunctionNodeBasePath + destFilePath);
+                                            }
+                                            else
+                                            {
+                                                await CopyFileAsync(fileInfo.FullName, destFunctionNodeBasePath + destFilePath);
+                                                await CopyFileAsync(fileInfo.FullName, destContractFunctionNodeBasePath + destFilePath);
+                                            }
                                         }
 
                                         if (string.IsNullOrEmpty(handstackUrl) == false)
@@ -289,25 +320,28 @@ namespace handsonapp
                             }
 
                             var transactBasePath = Path.Combine(entryBasePath, "contracts", "transact");
-                            string destTransactBasePath = Path.Combine(handstackHomePath, "modules", "transact", "Contracts", "transact");
-                            string destContractTransactBasePath = Path.Combine(handstackHomePath, "contracts", "transact");
                             if (Directory.Exists(transactBasePath) == true)
                             {
+                                string destTransactBasePath = Path.Combine(handstackHomePath, "modules", "transact", "Contracts", "transact");
+                                string destContractTransactBasePath = Path.Combine(handstackHomePath, "contracts", "transact");
                                 SQLFileSyncManager = new FileSyncManager(transactBasePath, "*.json");
                                 SQLFileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
                                 {
                                     if (fileInfo.FullName.IndexOf(transactBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))
                                     {
                                         string destFilePath = fileInfo.FullName.Replace(transactBasePath, "");
-                                        if (changeTypes == WatcherChangeTypes.Deleted)
+                                        if (useContractFileSync == true)
                                         {
-                                            File.Delete(destTransactBasePath + destFilePath);
-                                            File.Delete(destContractTransactBasePath + destFilePath);
-                                        }
-                                        else
-                                        {
-                                            await CopyFileAsync(fileInfo.FullName, destTransactBasePath + destFilePath);
-                                            await CopyFileAsync(fileInfo.FullName, destContractTransactBasePath + destFilePath);
+                                            if (changeTypes == WatcherChangeTypes.Deleted)
+                                            {
+                                                File.Delete(destTransactBasePath + destFilePath);
+                                                File.Delete(destContractTransactBasePath + destFilePath);
+                                            }
+                                            else
+                                            {
+                                                await CopyFileAsync(fileInfo.FullName, destTransactBasePath + destFilePath);
+                                                await CopyFileAsync(fileInfo.FullName, destContractTransactBasePath + destFilePath);
+                                            }
                                         }
 
                                         if (string.IsNullOrEmpty(handstackUrl) == false)

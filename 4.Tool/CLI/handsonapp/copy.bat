@@ -9,5 +9,5 @@ if "%HANDSTACK_HOME%"=="" (
 set current_path=%cd%
 
 robocopy contracts %HANDSTACK_HOME%/contracts /e /copy:dat
-robocopy wwwroot %HANDSTACK_HOME%/modules/checkup/wwwroot /e /copy:dat
+robocopy wwwroot/checkup/wwwroot %HANDSTACK_HOME%/modules/checkup/wwwroot/checkup /e /copy:dat
 robocopy wwwroot/checkup/wwwroot/view %HANDSTACK_HOME%/modules/wwwroot/wwwroot/view /e /copy:dat
