@@ -867,6 +867,7 @@ namespace ack
                                 var form = await context.Request.ReadFormAsync();
                                 var file = form.Files["file"];
                                 var moduleName = form["moduleName"].ToString();
+                                var contractType = form["contractType"].ToString();
                                 var destFilePath = form["destFilePath"].ToString();
                                 var changeType = form["changeType"].ToString();
 
@@ -876,23 +877,27 @@ namespace ack
                                     return;
                                 }
 
-                                switch (moduleName)
+                                switch (contractType)
                                 {
                                     case "dbclient":
-                                        destModuleBasePath = Path.Combine(handstackHomePath, "modules", "dbclient", "Contracts", "dbclient");
+                                        destModuleBasePath = Path.Combine(handstackHomePath, "modules", moduleName, "Contracts", "dbclient");
                                         destContractModuleBasePath = Path.Combine(handstackHomePath, "contracts", "dbclient");
                                         break;
                                     case "function_csharp":
-                                        destModuleBasePath = Path.Combine(handstackHomePath, "modules", "function", "Contracts", "function", "csharp");
+                                        destModuleBasePath = Path.Combine(handstackHomePath, "modules", moduleName, "Contracts", "function", "csharp");
                                         destContractModuleBasePath = Path.Combine(handstackHomePath, "contracts", "function", "csharp");
                                         break;
                                     case "function_javascript":
-                                        destModuleBasePath = Path.Combine(handstackHomePath, "modules", "function", "Contracts", "function", "javascript");
+                                        destModuleBasePath = Path.Combine(handstackHomePath, "modules", moduleName, "Contracts", "function", "javascript");
                                         destContractModuleBasePath = Path.Combine(handstackHomePath, "contracts", "function", "javascript");
                                         break;
                                     case "transact":
-                                        destModuleBasePath = Path.Combine(handstackHomePath, "modules", "transact", "Contracts", "transact");
+                                        destModuleBasePath = Path.Combine(handstackHomePath, "modules", moduleName, "Contracts", "transact");
                                         destContractModuleBasePath = Path.Combine(handstackHomePath, "contracts", "transact");
+                                        break;
+                                    case "wwwroot":
+                                        destModuleBasePath = Path.Combine(handstackHomePath, "modules", moduleName, "wwwroot", moduleName);
+                                        destContractModuleBasePath = Path.Combine(handstackHomePath, "modules", moduleName, "wwwroot", moduleName);
                                         break;
                                 }
 
@@ -905,15 +910,27 @@ namespace ack
                                 if (changeType == "Deleted")
                                 {
                                     File.Delete(destModuleBasePath + destFilePath);
-                                    File.Delete(destContractModuleBasePath + destFilePath);
+
+                                    if (contractType != "wwwroot")
+                                    {
+                                        File.Delete(destContractModuleBasePath + destFilePath);
+                                    }
                                 }
                                 else
                                 {
                                     if (file != null)
                                     {
-                                        var fileStream = await file.GetFileStream();
-                                        await CopyFileAsync(fileStream, destModuleBasePath);
-                                        await CopyFileAsync(fileStream, destContractModuleBasePath);
+                                        using (var fileStream = new MemoryStream())
+                                        {
+                                            await file.CopyToAsync(fileStream);
+
+                                            await CopyFileAsync(fileStream, destModuleBasePath + destFilePath);
+
+                                            if (contractType != "wwwroot")
+                                            {
+                                                await CopyFileAsync(fileStream, destContractModuleBasePath + destFilePath);
+                                            }
+                                        }
                                     }
                                 }
 
@@ -1046,12 +1063,19 @@ namespace ack
 
         static async Task CopyFileAsync(MemoryStream sourceStream, string destAbsoluteFilePath)
         {
-            using (FileStream destStream = new FileStream(destAbsoluteFilePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.ReadWrite))
+            var destDirectory = Path.GetDirectoryName(destAbsoluteFilePath);
+            if (string.IsNullOrEmpty(destDirectory) == false && Directory.Exists(destDirectory) == false)
+            {
+                Directory.CreateDirectory(destDirectory);
+            }
+
+            using (FileStream destStream = new FileStream(destAbsoluteFilePath, FileMode.Create, FileAccess.Write, FileShare.None))
             {
                 string destFileName = Path.GetFileName(destAbsoluteFilePath);
 
                 try
                 {
+                    sourceStream.Position = 0;
                     await sourceStream.CopyToAsync(destStream);
                     Log.Information("[{LogCategory}]" + $"{destFileName} 복사 완료", "Startup/contractsync");
                 }
