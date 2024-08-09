@@ -36,6 +36,10 @@ if "%TASK_COMMAND%"=="run" (
     %HANDSTACK_ACK%
 )
 
+if "%TASK_COMMAND%"=="app" (
+    %HANDSTACK_CLI% startlog --ack=%HANDSTACK_ACK% --appsettings=%WORKING_PATH%/Settings/ack.%TASK_SETTING%.json
+)
+
 if "%TASK_COMMAND%"=="copy" (
     robocopy %WORKING_PATH%/Contracts %HANDSTACK_PATH%/1.WebHost/build/handstack/contracts /e /copy:dat
     robocopy %WORKING_PATH%/Contracts %HANDSTACK_PATH%/1.WebHost/build/handstack/modules/function/Contracts /e /copy:dat

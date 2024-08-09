@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
+using System.Threading.Tasks;
 
 using ack.Extensions;
 using ack.Services;
@@ -58,12 +59,13 @@ namespace ack
 {
     public class Startup
     {
-        private string? startTime = null;
+        bool useContractSync = false;
+        string? startTime = null;
         bool useHttpLogging = false;
         bool useProxyForward = false;
         bool useResponseComression = false;
-        private readonly IConfiguration configuration;
-        private readonly IWebHostEnvironment environment;
+        readonly IConfiguration configuration;
+        readonly IWebHostEnvironment environment;
         static readonly ServerEventListener serverEventListener = new ServerEventListener();
 
         public Startup(IWebHostEnvironment environment, IConfiguration configuration)
@@ -85,6 +87,7 @@ namespace ack
                 throw new Exception("AppSettings 환경변수 확인 필요");
             }
 
+            this.useContractSync = bool.Parse(appSettings["UseContractSync"].ToStringSafe("false"));
             this.useHttpLogging = bool.Parse(appSettings["UseHttpLogging"].ToStringSafe("false"));
             this.useProxyForward = bool.Parse(appSettings["UseForwardProxy"].ToStringSafe("false"));
             this.useResponseComression = bool.Parse(appSettings["UseResponseComression"].ToStringSafe("false"));
@@ -843,6 +846,98 @@ namespace ack
             app.UseCookiePolicy();
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapPost("/contractsync", async context =>
+                {
+                    if (useContractSync == false)
+                    {
+                        context.Response.StatusCode = StatusCodes.Status406NotAcceptable;
+                        return;
+                    }
+
+                    try
+                    {
+                        string destModuleBasePath = string.Empty;
+                        string destContractModuleBasePath = string.Empty;
+                        string handstackHomePath = Environment.GetEnvironmentVariable("HANDSTACK_HOME") ?? "";
+                        if (string.IsNullOrEmpty(handstackHomePath) == false)
+                        {
+                            var hostAccessID = context.Request.GetContainValue("hostAccessID");
+                            if (string.IsNullOrEmpty(hostAccessID) == false && GlobalConfiguration.HostAccessID == hostAccessID)
+                            {
+                                var form = await context.Request.ReadFormAsync();
+                                var file = form.Files["file"];
+                                var moduleName = form["moduleName"].ToString();
+                                var destFilePath = form["destFilePath"].ToString();
+                                var changeType = form["changeType"].ToString();
+
+                                if (string.IsNullOrEmpty(moduleName) == true || string.IsNullOrEmpty(destFilePath) == true || string.IsNullOrEmpty(changeType) == true || (changeType != "Deleted" && (file == null || file.Length == 0)))
+                                {
+                                    context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                                    return;
+                                }
+
+                                switch (moduleName)
+                                {
+                                    case "dbclient":
+                                        destModuleBasePath = Path.Combine(handstackHomePath, "modules", "dbclient", "Contracts", "dbclient");
+                                        destContractModuleBasePath = Path.Combine(handstackHomePath, "contracts", "dbclient");
+                                        break;
+                                    case "function_csharp":
+                                        destModuleBasePath = Path.Combine(handstackHomePath, "modules", "function", "Contracts", "function", "csharp");
+                                        destContractModuleBasePath = Path.Combine(handstackHomePath, "contracts", "function", "csharp");
+                                        break;
+                                    case "function_javascript":
+                                        destModuleBasePath = Path.Combine(handstackHomePath, "modules", "function", "Contracts", "function", "javascript");
+                                        destContractModuleBasePath = Path.Combine(handstackHomePath, "contracts", "function", "javascript");
+                                        break;
+                                    case "transact":
+                                        destModuleBasePath = Path.Combine(handstackHomePath, "modules", "transact", "Contracts", "transact");
+                                        destContractModuleBasePath = Path.Combine(handstackHomePath, "contracts", "transact");
+                                        break;
+                                }
+
+                                if (string.IsNullOrEmpty(destModuleBasePath) == true || string.IsNullOrEmpty(destContractModuleBasePath) == true)
+                                {
+                                    context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                                    return;
+                                }
+
+                                if (changeType == "Deleted")
+                                {
+                                    File.Delete(destModuleBasePath + destFilePath);
+                                    File.Delete(destContractModuleBasePath + destFilePath);
+                                }
+                                else
+                                {
+                                    if (file != null)
+                                    {
+                                        var fileStream = await file.GetFileStream();
+                                        await CopyFileAsync(fileStream, destModuleBasePath);
+                                        await CopyFileAsync(fileStream, destContractModuleBasePath);
+                                    }
+                                }
+
+                                context.Response.StatusCode = 200;
+                            }
+                            else
+                            {
+                                Log.Warning("[{LogCategory}] HostAccessID 확인 필요: " + hostAccessID.ToStringSafe(), "Startup/contractsync");
+                                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                            }
+                        }
+                        else
+                        {
+                            Log.Warning("[{LogCategory}] HANDSTACK_HOME 환경변수 확인 필요", "Startup/contractsync");
+                            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                        }
+                    }
+                    catch (Exception exception)
+                    {
+                        Log.Error(exception, "[{LogCategory}] {changeType} 파일 요청 실패", "Startup/contractsync");
+                        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                    }
+                });
+
                 endpoints.MapGet("/stop", async context =>
                 {
                     try
@@ -949,7 +1044,25 @@ namespace ack
             }
         }
 
-        private static void ServerPortDetect(IFeatureCollection features)
+        static async Task CopyFileAsync(MemoryStream sourceStream, string destAbsoluteFilePath)
+        {
+            using (FileStream destStream = new FileStream(destAbsoluteFilePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.ReadWrite))
+            {
+                string destFileName = Path.GetFileName(destAbsoluteFilePath);
+
+                try
+                {
+                    await sourceStream.CopyToAsync(destStream);
+                    Log.Information("[{LogCategory}]" + $"{destFileName} 복사 완료", "Startup/contractsync");
+                }
+                catch (Exception exception)
+                {
+                    Log.Error("[{LogCategory}]" + $"{destFileName} 실패. {exception.Message}", "Startup/contractsync");
+                }
+            }
+        }
+
+        static void ServerPortDetect(IFeatureCollection features)
         {
             int port = 80;
             var addressFeature = features.Get<IServerAddressesFeature>();

@@ -82,6 +82,7 @@
         <PackageReference Include="CacheManager.Core" Version="1.2.0" />
         <PackageReference Include="System.ServiceModel.Syndication" Version="8.0.0" />
         <PackageReference Include="SoapFormatter" Version="1.1.9" />
+        <PackageReference Include="YamlDotNet" Version="15.1.6" />
     </ItemGroup>
 
     <ItemGroup>
