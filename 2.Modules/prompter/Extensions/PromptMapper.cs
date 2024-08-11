@@ -30,8 +30,8 @@ namespace prompter.Extensions
     public static class PromptMapper
     {
         private static Random random = new Random();
-        public static Dictionary<DataSourceTanantKey, DataSourceMap> DataSourceMappings = new Dictionary<DataSourceTanantKey, DataSourceMap>();
-        public static Dictionary<string, PromptMap> PromptMappings = new Dictionary<string, PromptMap>();
+        public static ExpiringDictionary<DataSourceTanantKey, DataSourceMap> DataSourceMappings = new ExpiringDictionary<DataSourceTanantKey, DataSourceMap>();
+        public static ExpiringDictionary<string, PromptMap> PromptMappings = new ExpiringDictionary<string, PromptMap>();
 
         static PromptMapper()
         {
@@ -114,12 +114,6 @@ namespace prompter.Extensions
                                 {
                                     foreach (var item in dataSourceJson)
                                     {
-                                        if (ModuleConfiguration.LLMSource.Contains(item) == false)
-                                        {
-                                            item.ConnectionString = item.ConnectionString.Replace("{appBasePath}", appBasePath);
-                                            ModuleConfiguration.LLMSource.Add(item);
-                                        }
-
                                         DataSourceTanantKey tanantMap = new DataSourceTanantKey();
                                         tanantMap.DataSourceID = item.DataSourceID;
                                         tanantMap.TanantPattern = item.TanantPattern;
@@ -939,11 +933,14 @@ namespace prompter.Extensions
                             htmlDocument.LoadHtml(ReplaceCData(File.ReadAllText(promptMapFile)));
                             HtmlNode header = htmlDocument.DocumentNode.SelectSingleNode("//mapper/header");
 
+                            bool isTenantContract = false;
                             string applicationID = (header.Element("application")?.InnerText).ToStringSafe();
                             string projectID = (header.Element("project")?.InnerText).ToStringSafe();
                             string transactionID = (header.Element("transaction")?.InnerText).ToStringSafe();
+
                             if (promptMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
                             {
+                                isTenantContract = true;
                                 applicationID = string.IsNullOrEmpty(applicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : applicationID;
                                 projectID = string.IsNullOrEmpty(projectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : projectID;
                                 transactionID = string.IsNullOrEmpty(transactionID) == true ? fileInfo.Name.Replace(fileInfo.Extension, "") : transactionID;
@@ -1005,7 +1002,7 @@ namespace prompter.Extensions
                                         {
                                             if (PromptMappings.ContainsKey(queryID) == false)
                                             {
-                                                PromptMappings.Add(queryID, promptMap);
+                                                PromptMappings.Add(queryID, promptMap, isTenantContract == false ? TimeSpan.FromDays(3650) : null);
                                             }
                                             else
                                             {
@@ -1052,7 +1049,7 @@ namespace prompter.Extensions
                             item.ApiKey = PromptMapper.DecryptApiKey(item);
                         }
 
-                        DataSourceMappings.Add(tanantMap, dataSourceMap);
+                        DataSourceMappings.Add(tanantMap, dataSourceMap, TimeSpan.FromDays(3650));
                     }
                     else
                     {
