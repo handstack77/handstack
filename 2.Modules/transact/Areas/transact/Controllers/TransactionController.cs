@@ -174,7 +174,7 @@ namespace transact.Areas.transact.Controllers
 
                     FileInfo fileInfo = new FileInfo(filePath);
 
-                    var businessContracts = TransactionMapper.GetBusinessContracts();
+                    var businessContracts = TransactionMapper.BusinessMappings;
                     lock (businessContracts)
                     {
                         var existContracts = businessContracts.Select(p => p.Value).Where(p =>
@@ -331,7 +331,7 @@ namespace transact.Areas.transact.Controllers
                     var model = JsonConvert.DeserializeAnonymousType(json, definition);
                     if (model != null)
                     {
-                        BusinessContract? businessContract = TransactionMapper.GetBusinessContracts().Select(p => p.Value).Where(p =>
+                        BusinessContract? businessContract = TransactionMapper.BusinessMappings.Select(p => p.Value).Where(p =>
                             p.ApplicationID == model.ApplicationID &&
                             p.ProjectID == model.ProjectID &&
                             p.TransactionID == model.TransactionID).FirstOrDefault();
@@ -383,7 +383,7 @@ namespace transact.Areas.transact.Controllers
                         return Content("필수 항목 확인", "text/html");
                     }
 
-                    var queryResults = TransactionMapper.GetBusinessContracts().Select(p => p.Value).Where(p =>
+                    var queryResults = TransactionMapper.BusinessMappings.Select(p => p.Value).Where(p =>
                             p.ApplicationID == model.ApplicationID);
 
                     if (string.IsNullOrEmpty(model.ProjectID) == false)
@@ -441,7 +441,7 @@ namespace transact.Areas.transact.Controllers
                     var model = JsonConvert.DeserializeAnonymousType(json, definition);
                     if (model != null)
                     {
-                        BusinessContract? businessContract = TransactionMapper.GetBusinessContracts().Select(p => p.Value).Where(p =>
+                        BusinessContract? businessContract = TransactionMapper.BusinessMappings.Select(p => p.Value).Where(p =>
                             p.ApplicationID == model.ApplicationID &&
                             p.ProjectID == model.ProjectID &&
                             p.TransactionID == model.TransactionID).FirstOrDefault();
@@ -493,12 +493,7 @@ namespace transact.Areas.transact.Controllers
             {
                 try
                 {
-                    var businessContracts = TransactionMapper.GetBusinessContracts();
-
-                    if (businessContracts != null)
-                    {
-                        result = Content(JsonConvert.SerializeObject(businessContracts), "application/json");
-                    }
+                    result = Content(JsonConvert.SerializeObject(TransactionMapper.BusinessMappings), "application/json");
                 }
                 catch (Exception exception)
                 {
@@ -766,7 +761,7 @@ namespace transact.Areas.transact.Controllers
                 #region 거래 Transaction 입력 전문 확인
 
                 var dynamicContract = ModuleConfiguration.IsAllowDynamicRequest == true ? request.LoadOptions?.Get<string>("dynamic").ToStringSafe().ParseBool() : false;
-                BusinessContract? businessContract = TransactionMapper.Get(request.System.ProgramID, request.Transaction.BusinessID, request.Transaction.TransactionID);
+                BusinessContract? businessContract = TransactionMapper.GetBusinessContract(request.System.ProgramID, request.Transaction.BusinessID, request.Transaction.TransactionID);
                 if (businessContract == null && dynamicContract == true)
                 {
                     PublicTransaction? publicTransaction = TransactionMapper.GetPublicTransaction(request.System.ProgramID, request.Transaction.BusinessID, request.Transaction.TransactionID);

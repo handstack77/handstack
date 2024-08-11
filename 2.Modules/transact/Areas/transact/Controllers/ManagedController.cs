@@ -84,7 +84,7 @@ namespace transact.Areas.transact.Controllers
             {
                 try
                 {
-                    var businessContracts = TransactionMapper.GetBusinessContracts();
+                    var businessContracts = TransactionMapper.BusinessMappings;
                     lock (businessContracts)
                     {
                         try

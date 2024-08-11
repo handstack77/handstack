@@ -90,15 +90,16 @@ namespace transact
                         ModuleConfiguration.TransactionLogBasePath = GlobalConfiguration.GetBasePath(moduleConfig.TransactionLogBasePath);
 
                         ModuleConfiguration.PublicTransactions = moduleConfig.PublicTransactions;
+                        ModuleConfiguration.PublicTransactions.ExtendExpiryTime(DateTime.Now.AddYears(10));
 
                         foreach (var item in moduleConfig.RoutingCommandUri.AsEnumerable())
                         {
-                            ModuleConfiguration.RoutingCommandUri.Add(item.Key, item.Value);
+                            ModuleConfiguration.RoutingCommandUri.Add(item.Key, item.Value, TimeSpan.FromDays(3650));
                         }
 
                         foreach (var item in moduleConfig.AllowRequestTransactions.AsEnumerable())
                         {
-                            ModuleConfiguration.AllowRequestTransactions.Add(item.Key, item.Value);
+                            ModuleConfiguration.AllowRequestTransactions.Add(item.Key, item.Value, TimeSpan.FromDays(3650));
                         }
 
                         ModuleConfiguration.IsConfigure = true;

@@ -330,7 +330,7 @@ namespace transact.Events
                 #region 거래 Transaction 입력 전문 확인
 
                 var dynamicContract = ModuleConfiguration.IsAllowDynamicRequest == true ? request.LoadOptions?.Get<string>("dynamic").ToStringSafe().ParseBool() : false;
-                BusinessContract? businessContract = TransactionMapper.Get(request.System.ProgramID, request.Transaction.BusinessID, request.Transaction.TransactionID);
+                BusinessContract? businessContract = TransactionMapper.GetBusinessContract(request.System.ProgramID, request.Transaction.BusinessID, request.Transaction.TransactionID);
                 if (businessContract == null && dynamicContract == true)
                 {
                     PublicTransaction? publicTransaction = TransactionMapper.GetPublicTransaction(request.System.ProgramID, request.Transaction.BusinessID, request.Transaction.TransactionID);

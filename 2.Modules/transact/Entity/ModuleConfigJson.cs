@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 
 using HandStack.Web;
+using HandStack.Web.Extensions;
 
 namespace transact.Entity
 {
@@ -72,7 +73,7 @@ namespace transact.Entity
 
         public int TransactionLogMaxRollingFiles { get; set; }
 
-        public List<PublicTransaction> PublicTransactions { get; set; }
+        public ExpiringList<PublicTransaction> PublicTransactions { get; set; }
 
         public Dictionary<string, string> RoutingCommandUri { get; set; }
 
@@ -107,7 +108,7 @@ namespace transact.Entity
             TransactionLogBasePath = "";
             TransactionLogFileSizeLimitBytes = 104857600;
             TransactionLogMaxRollingFiles = 30;
-            PublicTransactions = new List<PublicTransaction>();
+            PublicTransactions = new ExpiringList<PublicTransaction>();
             RoutingCommandUri = new Dictionary<string, string>();
             AllowRequestTransactions = new Dictionary<string, List<string>>();
         }
