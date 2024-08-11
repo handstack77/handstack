@@ -96,6 +96,12 @@ if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
     fi
     
     cd $current_path
+    echo "current_path: $current_path"
+    build_path=$current_path/1.WebHost/build/handstack
+    if [ -z "$HANDSTACK_HOME" ]; then
+      echo 'export HANDSTACK_HOME="build_path"' >> ~/.bashrc
+      source ~/.bashrc
+    fi
 
     echo build.sh, post-build.sh 스크립트에 실행 권한을 부여합니다...
     module_paths=("$current_path/1.WebHost/ack" "$current_path/1.WebHost/forbes" "$current_path/2.Modules/checkup" "$current_path/2.Modules/dbclient" "$current_path/2.Modules/function" "$current_path/2.Modules/logger" "$current_path/2.Modules/openapi" "$current_path/2.Modules/repository" "$current_path/2.Modules/transact" "$current_path/2.Modules/wwwroot" "$current_path/4.Tool/CLI/handstack")
@@ -111,15 +117,12 @@ if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
 
     dotnet build handstack.sln
 
-    build_path=$current_path/1.WebHost/build/handstack
     cd $build_path
+    echo "build_path: $build_path"
     echo "function 모듈 $build_path/package.json 설치를 시작합니다..."
     npm install
     rsync -av --progress --exclude='*' --include='index.js' $current_path/1.WebHost/ack/wwwroot/assets/js/ $build_path/node_modules/syn/
-    if [ -z "$HANDSTACK_HOME" ]; then
-      echo 'export HANDSTACK_HOME="build_path"' >> ~/.bashrc
-      source ~/.bashrc
-    fi
+
     echo "HandStack 개발 환경 설치가 완료되었습니다. Visual Studio 개발 도구로 handstack.sln 를 실행 후 컴파일 하거나 터미널에서 dotnet build handstack.sln 명령으로 솔루션을 컴파일 하세요."
 fi
 
