@@ -380,7 +380,7 @@ namespace function
 
             foreach (var basePath in ModuleConfiguration.ContractBasePath)
             {
-                if (Directory.Exists(basePath) == true && basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == false)
+                if (Directory.Exists(basePath) == true && (basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == false))
                 {
                     string nodeContractBasePath = Path.Combine(basePath, "javascript");
                     if (Directory.Exists(nodeContractBasePath) == true && ModuleConfiguration.EnableFileWatching == true)

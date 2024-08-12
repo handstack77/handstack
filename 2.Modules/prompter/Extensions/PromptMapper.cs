@@ -84,7 +84,7 @@ namespace prompter.Extensions
                         && string.IsNullOrEmpty(item.Key.TanantPattern) == true
                     ).Value;
 
-                    if (result == null && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
+                    if (result == null)
                     {
                         string userWorkID = string.Empty;
                         string appBasePath = string.Empty;
@@ -164,7 +164,7 @@ namespace prompter.Extensions
             {
                 result = PromptMappings.FirstOrDefault(item => item.Key == queryID).Value;
 
-                if (result == null && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
+                if (result == null)
                 {
                     var itemKeys = queryID.Split("|");
                     string applicationID = itemKeys[0];
@@ -187,7 +187,7 @@ namespace prompter.Extensions
                     }
 
                     string tenantID = $"{userWorkID}|{applicationID}";
-                    if (string.IsNullOrEmpty(appBasePath) == false && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(appBasePath) == true)
+                    if (string.IsNullOrEmpty(appBasePath) == false && Directory.Exists(appBasePath) == true)
                     {
                         var promptMapFile = Path.Combine(appBasePath, "prompter", projectID, transactionID + ".xml");
                         try
@@ -203,7 +203,7 @@ namespace prompter.Extensions
                                 applicationID = (header.Element("application")?.InnerText).ToStringSafe();
                                 projectID = (header.Element("project")?.InnerText).ToStringSafe();
                                 transactionID = (header.Element("transaction")?.InnerText).ToStringSafe();
-                                if (promptMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
+                                if (promptMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                                 {
                                     applicationID = string.IsNullOrEmpty(applicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : applicationID;
                                     projectID = string.IsNullOrEmpty(projectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : projectID;
@@ -417,7 +417,7 @@ namespace prompter.Extensions
                             string applicationID = (header.Element("application")?.InnerText).ToStringSafe();
                             string projectID = (header.Element("project")?.InnerText).ToStringSafe();
                             string transactionID = (header.Element("transaction")?.InnerText).ToStringSafe();
-                            if (filePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
+                            if (filePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                             {
                                 FileInfo fileInfo = new FileInfo(filePath);
                                 applicationID = string.IsNullOrEmpty(applicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : applicationID;
@@ -938,7 +938,7 @@ namespace prompter.Extensions
                             string projectID = (header.Element("project")?.InnerText).ToStringSafe();
                             string transactionID = (header.Element("transaction")?.InnerText).ToStringSafe();
 
-                            if (promptMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
+                            if (promptMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                             {
                                 isTenantContract = true;
                                 applicationID = string.IsNullOrEmpty(applicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : applicationID;

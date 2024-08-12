@@ -124,7 +124,7 @@ namespace dbclient
                     throw new FileNotFoundException(message);
                 }
 
-                if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(Path.Combine(GlobalConfiguration.TenantAppBasePath)) == true)
+                if (Directory.Exists(GlobalConfiguration.TenantAppBasePath) == true)
                 {
                     foreach (var userWorkPath in Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath))
                     {
@@ -252,7 +252,7 @@ namespace dbclient
 
             foreach (var basePath in ModuleConfiguration.ContractBasePath)
             {
-                if (Directory.Exists(basePath) == true && basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == false)
+                if (Directory.Exists(basePath) == true && (basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == false))
                 {
                     var fileSyncManager = new FileSyncManager(basePath, "*.xml");
                     fileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>

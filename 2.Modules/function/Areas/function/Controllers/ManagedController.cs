@@ -150,7 +150,7 @@ namespace function.Areas.function.Controllers
                                     if (System.IO.File.Exists(functionScriptFile) == true)
                                     {
                                         FunctionHeader header = functionScriptContract.Header;
-                                        if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && scriptMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
+                                        if (scriptMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                                         {
                                             FileInfo fileInfo = new FileInfo(scriptMapFile);
                                             header.ApplicationID = string.IsNullOrEmpty(header.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Parent?.Parent?.Name).ToStringSafe() : header.ApplicationID;

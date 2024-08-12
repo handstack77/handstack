@@ -119,7 +119,7 @@ namespace transact
                 }
 
                 // 삭제 예정
-                // if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(Path.Combine(GlobalConfiguration.TenantAppBasePath)) == true)
+                // if (Directory.Exists(GlobalConfiguration.TenantAppBasePath) == true)
                 // {
                 //     foreach (var userWorkPath in Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath))
                 //     {
@@ -245,7 +245,7 @@ namespace transact
 
             foreach (var basePath in ModuleConfiguration.ContractBasePath)
             {
-                if (Directory.Exists(basePath) == true && (basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == false && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false))
+                if (Directory.Exists(basePath) == true && (basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == false))
                 {
                     var fileSyncManager = new FileSyncManager(basePath, "*.json");
                     fileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>

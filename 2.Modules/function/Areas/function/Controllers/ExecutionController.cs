@@ -166,7 +166,7 @@ namespace function.Areas.function.Controllers
                                 if (functionScriptContract != null)
                                 {
                                     FunctionHeader header = functionScriptContract.Header;
-                                    if (filePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
+                                    if (filePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                                     {
                                         header.ApplicationID = string.IsNullOrEmpty(header.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Parent?.Parent?.Name).ToStringSafe() : header.ApplicationID;
                                         header.ProjectID = string.IsNullOrEmpty(header.ProjectID) == true ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : header.ProjectID;

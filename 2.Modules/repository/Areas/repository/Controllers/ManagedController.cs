@@ -63,7 +63,7 @@ namespace repository.Areas.repository.Controllers
                         }
 
                         string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-                        if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(appBasePath) == true)
+                        if (Directory.Exists(appBasePath) == true)
                         {
                             string tenantID = $"{userWorkID}|{applicationID}";
                             string settingFilePath = Path.Combine(appBasePath, "settings.json");

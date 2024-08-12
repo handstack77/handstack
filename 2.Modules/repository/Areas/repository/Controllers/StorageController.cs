@@ -1886,7 +1886,7 @@ namespace repository.Controllers
                 if (string.IsNullOrEmpty(requestRefererUrl) == false)
                 {
                     string tenantAppRequestPath = $"/{GlobalConfiguration.TenantAppRequestPath}/";
-                    if (requestRefererUrl.IndexOf(tenantAppRequestPath) > -1 && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
+                    if (requestRefererUrl.IndexOf(tenantAppRequestPath) > -1)
                     {
                         string userWorkID = string.Empty;
                         string appBasePath = string.Empty;
@@ -2008,7 +2008,7 @@ namespace repository.Controllers
                 if (string.IsNullOrEmpty(requestRefererUrl) == false)
                 {
                     string tenantAppRequestPath = $"/{GlobalConfiguration.TenantAppRequestPath}/";
-                    if (requestRefererUrl.IndexOf(tenantAppRequestPath) > -1 && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
+                    if (requestRefererUrl.IndexOf(tenantAppRequestPath) > -1)
                     {
                         string? userWorkID = string.Empty;
                         string appBasePath = string.Empty;

@@ -148,7 +148,7 @@ namespace ack
             GlobalConfiguration.WebRootPath = environment.WebRootPath;
 
             GlobalConfiguration.TenantAppRequestPath = appSettings["TenantAppRequestPath"].ToStringSafe();
-            GlobalConfiguration.TenantAppBasePath = GlobalConfiguration.GetBasePath(appSettings["TenantAppBasePath"]);
+            GlobalConfiguration.TenantAppBasePath = GlobalConfiguration.GetBasePath(appSettings["TenantAppBasePath"], $"{(string.IsNullOrEmpty(Environment.GetEnvironmentVariable("HANDSTACK_HOME")) == true ? ".." : Environment.GetEnvironmentVariable("HANDSTACK_HOME"))}{Path.DirectorySeparatorChar}tenants");
             GlobalConfiguration.BatchProgramBasePath = GlobalConfiguration.GetBasePath(appSettings["BatchProgramBasePath"]);
             GlobalConfiguration.CreateAppTempPath = GlobalConfiguration.GetBasePath(appSettings["CreateAppTempPath"]);
             GlobalConfiguration.ForbesBasePath = GlobalConfiguration.GetBasePath(appSettings["ForbesBasePath"]);
@@ -411,7 +411,7 @@ namespace ack
                 });
             }
 
-            if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(Path.Combine(GlobalConfiguration.TenantAppBasePath)) == true)
+            if (Directory.Exists(GlobalConfiguration.TenantAppBasePath) == true)
             {
                 foreach (var userWorkPath in Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath))
                 {

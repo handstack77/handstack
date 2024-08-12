@@ -142,7 +142,7 @@ namespace repository
                     });
                 }
 
-                if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(Path.Combine(GlobalConfiguration.TenantAppBasePath)) == true)
+                if (Directory.Exists(GlobalConfiguration.TenantAppBasePath) == true)
                 {
                     foreach (var userWorkPath in Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath))
                     {
@@ -234,7 +234,7 @@ namespace repository
                 {
                     if (item.StorageType == "FileSystem" && item.IsVirtualPath == true)
                     {
-                        if (string.IsNullOrEmpty(item.PhysicalPath) == true || (item.SettingFilePath.ToStringSafe().StartsWith(GlobalConfiguration.TenantAppBasePath) == true && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false))
+                        if (string.IsNullOrEmpty(item.PhysicalPath) == true || (item.SettingFilePath.ToStringSafe().StartsWith(GlobalConfiguration.TenantAppBasePath) == true))
                         {
                             continue;
                         }
@@ -393,7 +393,7 @@ namespace repository
                     {
                         try
                         {
-                            if (File.Exists(repositoryFile) == true && (repositoryFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == false || string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == true))
+                            if (File.Exists(repositoryFile) == true && (repositoryFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == false))
                             {
                                 var repositoryText = File.ReadAllText(repositoryFile);
                                 if (repositoryText.StartsWith("{") == true)

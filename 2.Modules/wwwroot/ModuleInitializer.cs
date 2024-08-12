@@ -79,7 +79,7 @@ namespace wwwroot
                     throw new FileNotFoundException(message);
                 }
 
-                if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(Path.Combine(GlobalConfiguration.TenantAppBasePath)) == true)
+                if (Directory.Exists(GlobalConfiguration.TenantAppBasePath) == true)
                 {
                     foreach (var userWorkPath in Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath))
                     {

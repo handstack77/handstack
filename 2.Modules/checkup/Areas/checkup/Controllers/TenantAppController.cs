@@ -612,7 +612,7 @@ namespace checkup.Areas.checkup.Controllers
                 var corsPolicy = corsOptions.Value.GetPolicy(tenantID);
                 try
                 {
-                    if (corsPolicy != null && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID)) == true)
+                    if (corsPolicy != null && Directory.Exists(Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID)) == true)
                     {
                         string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                         DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
@@ -674,7 +674,7 @@ namespace checkup.Areas.checkup.Controllers
                     }
 
                     string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-                    if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(appBasePath) == true)
+                    if (Directory.Exists(appBasePath) == true)
                     {
                         DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
                         if (directoryInfo.Exists == true)
@@ -730,7 +730,7 @@ namespace checkup.Areas.checkup.Controllers
                     }
 
                     string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-                    if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(appBasePath) == true)
+                    if (Directory.Exists(appBasePath) == true)
                     {
                         DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
                         if (directoryInfo.Exists == true)

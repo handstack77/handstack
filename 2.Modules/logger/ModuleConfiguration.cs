@@ -43,7 +43,7 @@ namespace logger
             }
 
             var dataSource = DataSource.FirstOrDefault(p => p.ApplicationID == applicationID);
-            if (dataSource == null && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
+            if (dataSource == null)
             {
                 string userWorkID = string.Empty;
                 string appBasePath = string.Empty;

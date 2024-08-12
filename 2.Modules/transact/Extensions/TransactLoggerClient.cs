@@ -380,7 +380,7 @@ namespace transact.Extensions
             DataSet? result = null;
             try
             {
-                if (ModuleConfiguration.IsTransactAggregate == true && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID)) == true)
+                if (ModuleConfiguration.IsTransactAggregate == true && Directory.Exists(Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID)) == true)
                 {
                     string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                     string logDbFilePath = Path.Combine(appBasePath, ".managed", "sqlite", "transact", $"log-{rollingID}.db");

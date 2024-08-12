@@ -111,7 +111,7 @@ namespace checkup
                     throw new FileNotFoundException(message);
                 }
 
-                if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(Path.Combine(GlobalConfiguration.TenantAppBasePath)) == true)
+                if (Directory.Exists(GlobalConfiguration.TenantAppBasePath) == true)
                 {
                     foreach (var userWorkPath in Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath))
                     {
@@ -243,12 +243,12 @@ namespace checkup
                     });
                 }
 
-                if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(Path.Combine(GlobalConfiguration.TenantAppBasePath)) == false)
+                if (Directory.Exists(GlobalConfiguration.TenantAppBasePath) == false)
                 {
                     Directory.CreateDirectory(GlobalConfiguration.TenantAppBasePath);
                 }
 
-                if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(Path.Combine(GlobalConfiguration.TenantAppBasePath)) == true)
+                if (Directory.Exists(GlobalConfiguration.TenantAppBasePath) == true)
                 {
                     var hostApps = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath);
                     string tenantAppRequestPath = string.IsNullOrEmpty(GlobalConfiguration.TenantAppRequestPath) == true ? "host" : GlobalConfiguration.TenantAppRequestPath;

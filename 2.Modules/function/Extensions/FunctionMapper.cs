@@ -40,7 +40,7 @@ namespace function.Extensions
                 result = FunctionSourceMappings.FirstOrDefault(item => item.Key == functionSourceMappingsKey
                     && (item.Value.ProjectListID.IndexOf(projectID) > -1 || item.Value.ProjectListID.IndexOf("*") > -1)).Value;
 
-                if (result == null && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
+                if (result == null)
                 {
                     string userWorkID = string.Empty;
                     string appBasePath = string.Empty;
@@ -166,7 +166,7 @@ namespace function.Extensions
                         }
                     }
 
-                    if (result == null && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
+                    if (result == null)
                     {
                         string userWorkID = string.Empty;
                         string appBasePath = string.Empty;
@@ -223,7 +223,7 @@ namespace function.Extensions
                         return;
                     }
 
-                    if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && scriptMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && GlobalConfiguration.IsTenantFunction == false)
+                    if (scriptMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && GlobalConfiguration.IsTenantFunction == false)
                     {
                         return;
                     }
@@ -257,7 +257,7 @@ namespace function.Extensions
                     if (File.Exists(functionScriptFile) == true)
                     {
                         FunctionHeader header = functionScriptContract.Header;
-                        if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && scriptMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
+                        if (scriptMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                         {
                             FileInfo fileInfo = new FileInfo(scriptMapFile);
                             header.ApplicationID = string.IsNullOrEmpty(header.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Parent?.Parent?.Name).ToStringSafe() : header.ApplicationID;
@@ -431,7 +431,7 @@ namespace function.Extensions
             {
                 foreach (var basePath in ModuleConfiguration.ContractBasePath)
                 {
-                    if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && scriptMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && GlobalConfiguration.IsTenantFunction == false)
+                    if (scriptMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && GlobalConfiguration.IsTenantFunction == false)
                     {
                         return result;
                     }
@@ -482,7 +482,7 @@ namespace function.Extensions
                         if (File.Exists(functionScriptFile) == true)
                         {
                             FunctionHeader header = functionScriptContract.Header;
-                            if (filePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
+                            if (filePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                             {
                                 FileInfo fileInfo = new FileInfo(filePath);
                                 header.ApplicationID = string.IsNullOrEmpty(header.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Parent?.Parent?.Name).ToStringSafe() : header.ApplicationID;
@@ -608,7 +608,7 @@ namespace function.Extensions
 
                 foreach (var basePath in ModuleConfiguration.ContractBasePath)
                 {
-                    if (Directory.Exists(basePath) == false || (basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && GlobalConfiguration.IsTenantFunction == false))
+                    if (Directory.Exists(basePath) == false || (basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && GlobalConfiguration.IsTenantFunction == false))
                     {
                         continue;
                     }
@@ -657,7 +657,7 @@ namespace function.Extensions
                             if (File.Exists(functionScriptFile) == true)
                             {
                                 FunctionHeader header = functionScriptContract.Header;
-                                if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && scriptMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
+                                if (scriptMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                                 {
                                     FileInfo fileInfo = new FileInfo(scriptMapFile);
                                     header.ApplicationID = string.IsNullOrEmpty(header.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Parent?.Parent?.Name).ToStringSafe() : header.ApplicationID;

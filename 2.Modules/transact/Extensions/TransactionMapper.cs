@@ -34,7 +34,7 @@ namespace transact.Extensions
                     && item.Value.ProjectID == projectID
                     && item.Value.TransactionID == transactionID).Value;
 
-                if (businessContract == null && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
+                if (businessContract == null)
                 {
                     string userWorkID = string.Empty;
                     string appBasePath = string.Empty;
@@ -65,7 +65,7 @@ namespace transact.Extensions
                                     lock (BusinessMappings)
                                     {
                                         businessContract.TransactionProjectID = string.IsNullOrEmpty(businessContract.TransactionProjectID) == true ? businessContract.ProjectID : businessContract.TransactionProjectID;
-                                        if (filePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
+                                        if (filePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                                         {
                                             FileInfo fileInfo = new FileInfo(filePath);
                                             businessContract.ApplicationID = string.IsNullOrEmpty(businessContract.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : businessContract.ApplicationID;
@@ -120,7 +120,7 @@ namespace transact.Extensions
                     result = ModuleConfiguration.RoutingCommandUri[publicRouteSegmentID];
                 }
 
-                if (result == null && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
+                if (result == null)
                 {
                     string appBasePath = string.Empty;
                     DirectoryInfo baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
@@ -195,7 +195,7 @@ namespace transact.Extensions
                 && (p.TransactionID == "*" || p.TransactionID == transactionID)
             );
 
-            if (result == null && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
+            if (result == null)
             {
                 string userWorkID = string.Empty;
                 string appBasePath = string.Empty;
@@ -374,7 +374,7 @@ namespace transact.Extensions
 
                 foreach (var basePath in ModuleConfiguration.ContractBasePath)
                 {
-                    if (Directory.Exists(basePath) == false || (basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false))
+                    if (Directory.Exists(basePath) == false || (basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true))
                     {
                         continue;
                     }
@@ -397,7 +397,7 @@ namespace transact.Extensions
                                     businessContract.TransactionProjectID = string.IsNullOrEmpty(businessContract.TransactionProjectID) == true ? businessContract.ProjectID : businessContract.TransactionProjectID;
 
                                     // 삭제 예정
-                                    // if (businessFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
+                                    // if (businessFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                                     // {
                                     //     FileInfo fileInfo = new FileInfo(businessFile);
                                     //     businessContract.ApplicationID = string.IsNullOrEmpty(businessContract.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : businessContract.ApplicationID;

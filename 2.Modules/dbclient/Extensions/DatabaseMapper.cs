@@ -88,7 +88,7 @@ namespace dbclient.Extensions
                         && string.IsNullOrEmpty(item.Key.TanantPattern) == true
                     ).Value;
 
-                    if (result == null && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
+                    if (result == null)
                     {
                         string userWorkID = string.Empty;
                         string appBasePath = string.Empty;
@@ -172,7 +172,7 @@ namespace dbclient.Extensions
             {
                 result = StatementMappings.FirstOrDefault(item => item.Key == queryID).Value;
 
-                if (result == null && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
+                if (result == null)
                 {
                     var itemKeys = queryID.Split("|");
                     string applicationID = itemKeys[0];
@@ -195,7 +195,7 @@ namespace dbclient.Extensions
                     }
 
                     string tenantID = $"{userWorkID}|{applicationID}";
-                    if (string.IsNullOrEmpty(appBasePath) == false && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(appBasePath) == true)
+                    if (string.IsNullOrEmpty(appBasePath) == false && Directory.Exists(appBasePath) == true)
                     {
                         var sqlMapFile = Path.Combine(appBasePath, "dbclient", projectID, transactionID + ".xml");
                         try
@@ -211,7 +211,7 @@ namespace dbclient.Extensions
                                 applicationID = (header.Element("application")?.InnerText).ToStringSafe();
                                 projectID = (header.Element("project")?.InnerText).ToStringSafe();
                                 transactionID = (header.Element("transaction")?.InnerText).ToStringSafe();
-                                if (sqlMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
+                                if (sqlMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                                 {
                                     applicationID = string.IsNullOrEmpty(applicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : applicationID;
                                     projectID = string.IsNullOrEmpty(projectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : projectID;
@@ -411,7 +411,7 @@ namespace dbclient.Extensions
                             string applicationID = (header.Element("application")?.InnerText).ToStringSafe();
                             string projectID = (header.Element("project")?.InnerText).ToStringSafe();
                             string transactionID = (header.Element("transaction")?.InnerText).ToStringSafe();
-                            if (filePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
+                            if (filePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                             {
                                 FileInfo fileInfo = new FileInfo(filePath);
                                 applicationID = string.IsNullOrEmpty(applicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : applicationID;
@@ -949,7 +949,7 @@ namespace dbclient.Extensions
                             string projectID = (header.Element("project")?.InnerText).ToStringSafe();
                             string transactionID = (header.Element("transaction")?.InnerText).ToStringSafe();
 
-                            if (sqlMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
+                            if (sqlMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                             {
                                 applicationID = string.IsNullOrEmpty(applicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : applicationID;
                                 projectID = string.IsNullOrEmpty(projectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : projectID;

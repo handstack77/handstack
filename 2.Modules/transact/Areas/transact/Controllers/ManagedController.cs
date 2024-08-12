@@ -118,7 +118,7 @@ namespace transact.Areas.transact.Controllers
                                     }
                                     else
                                     {
-                                        if (businessFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
+                                        if (businessFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                                         {
                                             FileInfo fileInfo = new FileInfo(businessFile);
                                             businessContract.ApplicationID = string.IsNullOrEmpty(businessContract.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : businessContract.ApplicationID;
