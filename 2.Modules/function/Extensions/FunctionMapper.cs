@@ -24,8 +24,8 @@ namespace function.Extensions
 {
     public static class FunctionMapper
     {
-        public static Dictionary<string, ModuleSourceMap> FunctionSourceMappings = new Dictionary<string, ModuleSourceMap>();
-        public static Dictionary<string, ModuleScriptMap> ScriptMappings = new Dictionary<string, ModuleScriptMap>();
+        public static ExpiringDictionary<string, ModuleSourceMap> FunctionSourceMappings = new ExpiringDictionary<string, ModuleSourceMap>();
+        public static ExpiringDictionary<string, ModuleScriptMap> ScriptMappings = new ExpiringDictionary<string, ModuleScriptMap>();
 
         static FunctionMapper()
         {
@@ -408,12 +408,12 @@ namespace function.Extensions
             return result;
         }
 
-        public static bool HasScript(string projectID, string businessID, string transactionID, string scriptID)
+        public static bool HasScript(string applicationID, string projectID, string transactionID, string scriptID)
         {
             bool result = false;
             string queryID = string.Concat(
+                applicationID, "|",
                 projectID, "|",
-                businessID, "|",
                 transactionID, "|",
                 scriptID
             );

@@ -43,7 +43,7 @@ namespace transact
         public static string AvailableEnvironment = "";
         public static bool IsCodeDataCache = true;
         public static int CodeDataCacheTimeout = 20;
-        public static ExpiringDictionary<string, List<string>> AllowRequestTransactions = new ExpiringDictionary<string, List<string>>();
+        public static Dictionary<string, List<string>> AllowRequestTransactions = new Dictionary<string, List<string>>();
         public static ExpiringDictionary<string, string> RoutingCommandUri = new ExpiringDictionary<string, string>();
         public static ExpiringList<PublicTransaction>? PublicTransactions = new ExpiringList<PublicTransaction>();
         public static List<string> CacheKeys = new List<string>();

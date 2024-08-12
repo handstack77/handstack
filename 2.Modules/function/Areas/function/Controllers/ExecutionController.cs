@@ -41,19 +41,16 @@ namespace function.Areas.function.Controllers
             this.dataClient = dataClient;
         }
 
-        /// <example>
-        /// http://localhost:8000/api/base64/encode?value={"ProjectID":"QAF","BusinessID":"DSO","TransactionID":"0001","FunctionID":"R0100"}
-        /// http://localhost:8000/api/execution/has?base64Json=eyJQcm9qZWN0SUQiOiJRQUYiLCJCdXNpbmVzc0lEIjoiRFNPIiwiVHJhbnNhY3Rpb25JRCI6IjAwMDEiLCJGdW5jdGlvbklEIjoiUjAxMDAifQ==
-        /// </example>
+        /// http://localhost:8000/api/execution/has
         [HttpGet("[action]")]
-        public ActionResult Has(string base64Json)
+        public ActionResult Has(string applicationID, string projectID, string transactionID, string functionID)
         {
-            var definition = new
+            var model = new
             {
-                ProjectID = "",
-                BusinessID = "",
-                TransactionID = "",
-                FunctionID = ""
+                ApplicationID = applicationID,
+                ProjectID = projectID,
+                TransactionID = transactionID,
+                FunctionID = functionID
             };
 
             ActionResult result = NotFound();
@@ -66,13 +63,8 @@ namespace function.Areas.function.Controllers
             {
                 try
                 {
-                    string json = base64Json.DecodeBase64();
-                    var model = JsonConvert.DeserializeAnonymousType(json, definition);
-                    if (model != null)
-                    {
-                        var value = FunctionMapper.HasScript(model.ProjectID, model.BusinessID, model.TransactionID, model.FunctionID);
-                        result = Content(JsonConvert.SerializeObject(value), "application/json");
-                    }
+                    var value = FunctionMapper.HasScript(model.ApplicationID, model.ProjectID, model.TransactionID, model.FunctionID);
+                    result = Content(JsonConvert.SerializeObject(value), "application/json");
                 }
                 catch (Exception exception)
                 {
@@ -87,64 +79,10 @@ namespace function.Areas.function.Controllers
         }
 
         /// <example>
-        /// http://localhost:8000/api/base64/encode?value={"ScriptFilePath":"QAF\DSO\TST010","ForceUpdate":true}
-        /// http://localhost:8000/api/execution/upsert?base64Json=eyJTcWxGaWxlUGF0aCI6IlFBRlxEU09cUUFGRFNPMDAwMS54bWwiLCJGb3JjZVVwZGF0ZSI6dHJ1ZX0=
-        /// </example>
-        [HttpGet("[action]")]
-        public ActionResult Upsert(string base64Json)
-        {
-            var definition = new
-            {
-                ScriptFilePath = "",
-                ForceUpdate = false
-            };
-
-            ActionResult result = NotFound();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
-            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
-            {
-                result = BadRequest();
-            }
-            else
-            {
-                try
-                {
-                    string json = base64Json.DecodeBase64();
-                    var model = JsonConvert.DeserializeAnonymousType(json, definition);
-                    if (model != null)
-                    {
-                        foreach (var basePath in ModuleConfiguration.ContractBasePath)
-                        {
-                            string filePath = Path.Combine(basePath, model.ScriptFilePath);
-                            if (Directory.Exists(filePath) == true)
-                            {
-                                var value = FunctionMapper.AddScriptMap(Path.Combine(model.ScriptFilePath, "featureMeta.json"), model.ForceUpdate, logger);
-                                result = Content(JsonConvert.SerializeObject(value), "application/json");
-                            }
-                            else
-                            {
-                                result = Ok();
-                            }
-                        }
-                    }
-                }
-                catch (Exception exception)
-                {
-                    string exceptionText = exception.ToMessage();
-                    logger.Error("[{LogCategory}] " + exceptionText, "Execution/Upsert");
-
-                    result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
-                }
-            }
-
-            return result;
-        }
-
-        /// <example>
         // http://localhost:8000/function/api/execution/refresh?changeType=Created&filePath=EWP/ZZD/TST010/featureMain.js
         /// </example>
         [HttpGet("[action]")]
-        public ActionResult Refresh(string changeType, string filePath)
+        public ActionResult Refresh(string changeType, string filePath, string? userWorkID, string? applicationID)
         {
             ActionResult result = NotFound();
             string? authorizationKey = Request.Headers["AuthorizationKey"];
@@ -221,6 +159,29 @@ namespace function.Areas.function.Controllers
                                 actionResult = FunctionMapper.AddScriptMap(filePath, true, logger);
                             }
                             break;
+                        case WatcherChangeTypes.Deleted:
+                            if (FunctionMapper.HasContractFile(filePath) == true && fileInfo.Name != "publicTransactions.json")
+                            {
+                                FunctionScriptContract? functionScriptContract = FunctionScriptContract.FromJson(System.IO.File.ReadAllText(filePath));
+                                if (functionScriptContract != null)
+                                {
+                                    FunctionHeader header = functionScriptContract.Header;
+                                    if (filePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
+                                    {
+                                        header.ApplicationID = string.IsNullOrEmpty(header.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Parent?.Parent?.Name).ToStringSafe() : header.ApplicationID;
+                                        header.ProjectID = string.IsNullOrEmpty(header.ProjectID) == true ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : header.ProjectID;
+                                        header.TransactionID = string.IsNullOrEmpty(header.TransactionID) == true ? (fileInfo.Directory?.Name).ToStringSafe().Replace(fileInfo.Extension, "") : header.TransactionID;
+                                    }
+
+                                    var items = functionScriptContract.Commands;
+                                    foreach (var item in items)
+                                    {
+                                        FunctionMapper.Remove(header.ApplicationID, header.ProjectID, header.TransactionID, (item.ID + item.Seq.ToString().PadLeft(2, '0')));
+                                    }
+                                    logger.Information("[{LogCategory}] " + $"Delete ScriptMap FilePath: {filePath}", "Execution/Refresh");
+                                }
+                            }
+                            break;
                     }
 
                     result = Content(JsonConvert.SerializeObject(actionResult), "application/json");
@@ -237,19 +198,16 @@ namespace function.Areas.function.Controllers
             return result;
         }
 
-        /// <example>
-        /// http://localhost:8000/api/base64/encode?value={"ProjectID":"QAF","BusinessID":"DSO","TransactionID":"0001","FunctionID":"R0100"}
-        /// http://localhost:8000/api/execution/delete?base64Json=eyJQcm9qZWN0SUQiOiJRQUYiLCJCdXNpbmVzc0lEIjoiRFNPIiwiVHJhbnNhY3Rpb25JRCI6IjAwMDEiLCJGdW5jdGlvbklEIjoiUjAxMDAifQ==
-        /// </example>
+        // http://localhost:8000/function/api/execution/retrieve?
         [HttpGet("[action]")]
-        public ActionResult Delete(string base64Json)
+        public ActionResult Retrieve(string applicationID, string? projectID, string? transactionID, string? functionID)
         {
-            var definition = new
+            var model = new
             {
-                ProjectID = "",
-                BusinessID = "",
-                TransactionID = "",
-                FunctionID = ""
+                ApplicationID = applicationID,
+                ProjectID = projectID,
+                TransactionID = transactionID,
+                FunctionID = functionID
             };
 
             ActionResult result = NotFound();
@@ -262,141 +220,36 @@ namespace function.Areas.function.Controllers
             {
                 try
                 {
-                    string json = base64Json.DecodeBase64();
-                    var model = JsonConvert.DeserializeAnonymousType(json, definition);
-                    if (model != null)
+                    if (string.IsNullOrEmpty(model.ApplicationID) == true || string.IsNullOrEmpty(model.ProjectID) == true)
                     {
-                        var value = FunctionMapper.Remove(model.ProjectID, model.BusinessID, model.TransactionID, model.FunctionID);
-                        result = Content(JsonConvert.SerializeObject(value), "application/json");
+                        return Content("필수 항목 확인", "text/html");
                     }
-                }
-                catch (Exception exception)
-                {
-                    string exceptionText = exception.ToMessage();
-                    logger.Error("[{LogCategory}] " + exceptionText, "Execution/Delete");
 
-                    result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
-                }
-            }
+                    var queryResults = FunctionMapper.ScriptMappings.Select(p => p.Value).Where(p =>
+                            p.ProjectID == model.ProjectID);
 
-            return result;
-        }
-
-        /// <example>
-        /// http://localhost:8000/api/base64/encode?value={"ProjectID":"QAF","BusinessID":"DSO","TransactionID":"0001","FunctionID":"R0100"}
-        /// http://localhost:8000/api/execution/get?base64Json=eyJQcm9qZWN0SUQiOiJRQUYiLCJCdXNpbmVzc0lEIjoiRFNPIiwiVHJhbnNhY3Rpb25JRCI6IjAwMDEiLCJGdW5jdGlvbklEIjoiUjAxMDAifQ==
-        /// </example>
-        [HttpGet("[action]")]
-        public ActionResult Get(string base64Json)
-        {
-            var definition = new
-            {
-                ProjectID = "",
-                BusinessID = "",
-                TransactionID = "",
-                FunctionID = ""
-            };
-
-            ActionResult result = NotFound();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
-            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
-            {
-                result = BadRequest();
-            }
-            else
-            {
-                try
-                {
-                    string json = base64Json.DecodeBase64();
-                    var model = JsonConvert.DeserializeAnonymousType(json, definition);
-                    if (model != null)
+                    if (string.IsNullOrEmpty(model.ApplicationID) == false)
                     {
-                        ModuleScriptMap? NodeScriptMap = FunctionMapper.ScriptMappings.Select(p => p.Value).Where(p =>
-                            p.ProjectID == model.ProjectID &&
-                            p.ApplicationID == model.BusinessID &&
-                            p.TransactionID == model.TransactionID &&
-                            p.ScriptID == model.FunctionID).FirstOrDefault();
-
-                        if (NodeScriptMap != null)
-                        {
-                            result = Content(JsonConvert.SerializeObject(NodeScriptMap), "application/json");
-                        }
+                        queryResults = queryResults.Where(p =>
+                            p.ApplicationID == model.ApplicationID);
                     }
-                }
-                catch (Exception exception)
-                {
-                    string exceptionText = exception.ToMessage();
-                    logger.Error("[{LogCategory}] " + exceptionText, "Execution/Get");
 
-                    result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
-                }
-            }
-
-            return result;
-        }
-
-        /// <example>
-        /// http://localhost:8000/api/base64/encode?value={%22ProjectID%22:%22QAF%22,%22BusinessID%22:%22%22,%22TransactionID%22:%22%22,%22FunctionID%22:%22%22}
-        /// http://localhost:8000/api/execution/retrieve?base64Json=eyJQcm9qZWN0SUQiOiJRQUYiLCJCdXNpbmVzc0lEIjoiIiwiVHJhbnNhY3Rpb25JRCI6IiIsIkZ1bmN0aW9uSUQiOiIifQ==
-        /// </example>
-        [HttpGet("[action]")]
-        public ActionResult Retrieve(string base64Json)
-        {
-            var definition = new
-            {
-                ProjectID = "",
-                BusinessID = "",
-                TransactionID = "",
-                FunctionID = ""
-            };
-
-            ActionResult result = NotFound();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
-            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
-            {
-                result = BadRequest();
-            }
-            else
-            {
-                try
-                {
-                    string json = base64Json.DecodeBase64();
-                    var model = JsonConvert.DeserializeAnonymousType(json, definition);
-                    if (model != null)
+                    if (string.IsNullOrEmpty(model.TransactionID) == false)
                     {
-                        if (string.IsNullOrEmpty(model.ProjectID) == true)
-                        {
-                            return Content("ProjectID 항목 필수", "text/html");
-                        }
+                        queryResults = queryResults.Where(p =>
+                            p.TransactionID == model.TransactionID);
+                    }
 
-                        List<ModuleScriptMap>? statementMaps = null;
+                    if (string.IsNullOrEmpty(model.FunctionID) == false)
+                    {
+                        string queryFunctionID = model.FunctionID.Substring(0, model.FunctionID.Length - 2);
+                        queryResults = queryResults.Where(p => p.ScriptID.Substring(0, p.ScriptID.Length - 2) == queryFunctionID);
+                    }
 
-                        var queryResults = FunctionMapper.ScriptMappings.Select(p => p.Value).Where(p =>
-                                p.ProjectID == model.ProjectID);
-
-                        if (string.IsNullOrEmpty(model.BusinessID) == false)
-                        {
-                            queryResults = queryResults.Where(p =>
-                                p.ApplicationID == model.BusinessID);
-                        }
-
-                        if (string.IsNullOrEmpty(model.TransactionID) == false)
-                        {
-                            queryResults = queryResults.Where(p =>
-                                p.TransactionID == model.TransactionID);
-                        }
-
-                        if (string.IsNullOrEmpty(model.FunctionID) == false)
-                        {
-                            string functionID = model.FunctionID.Substring(0, model.FunctionID.Length - 2);
-                            queryResults = queryResults.Where(p => p.ScriptID.Substring(0, p.ScriptID.Length - 2) == functionID);
-                        }
-
-                        statementMaps = queryResults.ToList();
-                        if (statementMaps != null)
-                        {
-                            result = Content(JsonConvert.SerializeObject(statementMaps), "application/json");
-                        }
+                    List<ModuleScriptMap>? scriptMaps = queryResults.ToList();
+                    if (scriptMaps != null)
+                    {
+                        result = Content(JsonConvert.SerializeObject(scriptMaps), "application/json");
                     }
                 }
                 catch (Exception exception)

@@ -105,41 +105,41 @@ namespace transact.Areas.transact.Controllers
 
                             logger.Information("[{LogCategory}] ContractBasePath: " + basePath, "ManagedController/ResetAppContract");
 
-                            string[] configFiles = Directory.GetFiles(basePath, "*.json", SearchOption.AllDirectories);
-                            foreach (string configFile in configFiles)
+                            string[] businessFiles = Directory.GetFiles(basePath, "*.json", SearchOption.AllDirectories);
+                            foreach (string businessFile in businessFiles)
                             {
                                 try
                                 {
-                                    string configData = System.IO.File.ReadAllText(configFile);
+                                    string configData = System.IO.File.ReadAllText(businessFile);
                                     BusinessContract? businessContract = BusinessContract.FromJson(configData);
                                     if (businessContract == null)
                                     {
-                                        logger.Error("[{LogCategory}] " + $"업무 계약 파일 역직렬화 오류 - {configFile}", "LoadContract");
+                                        logger.Error("[{LogCategory}] " + $"업무 계약 파일 역직렬화 오류 - {businessFile}", "LoadContract");
                                     }
                                     else
                                     {
-                                        if (configFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
+                                        if (businessFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
                                         {
-                                            FileInfo fileInfo = new FileInfo(configFile);
+                                            FileInfo fileInfo = new FileInfo(businessFile);
                                             businessContract.ApplicationID = string.IsNullOrEmpty(businessContract.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : businessContract.ApplicationID;
                                             businessContract.ProjectID = string.IsNullOrEmpty(businessContract.ProjectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : businessContract.ProjectID;
                                             businessContract.TransactionID = string.IsNullOrEmpty(businessContract.TransactionID) == true ? fileInfo.Name.Replace(fileInfo.Extension, "") : businessContract.TransactionID;
                                         }
 
                                         businessContract.TransactionProjectID = string.IsNullOrEmpty(businessContract.TransactionProjectID) == true ? businessContract.ProjectID : businessContract.TransactionProjectID;
-                                        if (businessContracts.ContainsKey(configFile) == false && TransactionMapper.HasCount(businessContract.ApplicationID, businessContract.ProjectID, businessContract.TransactionID) == 0)
+                                        if (businessContracts.ContainsKey(businessFile) == false && TransactionMapper.HasCount(businessContract.ApplicationID, businessContract.ProjectID, businessContract.TransactionID) == 0)
                                         {
-                                            businessContracts.Add(configFile, businessContract);
+                                            businessContracts.Add(businessFile, businessContract);
                                         }
                                         else
                                         {
-                                            logger.Warning("[{LogCategory}] " + $"업무 계약 파일 또는 거래 정보 중복 오류 - {configFile}, ProjectID - {businessContract.ApplicationID}, BusinessID - {businessContract.ProjectID}, TransactionID - {businessContract.TransactionID}", "LoadContract");
+                                            logger.Warning("[{LogCategory}] " + $"업무 계약 파일 또는 거래 정보 중복 오류 - {businessFile}, ProjectID - {businessContract.ApplicationID}, BusinessID - {businessContract.ProjectID}, TransactionID - {businessContract.TransactionID}", "LoadContract");
                                         }
                                     }
                                 }
                                 catch (Exception exception)
                                 {
-                                    logger.Error("[{LogCategory}] " + $"업무 계약 파일 역직렬화 오류 - {configFile}, {exception.ToMessage()}", "LoadContract");
+                                    logger.Error("[{LogCategory}] " + $"업무 계약 파일 역직렬화 오류 - {businessFile}, {exception.ToMessage()}", "LoadContract");
                                 }
                             }
                         }

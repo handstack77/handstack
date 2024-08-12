@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using HandStack.Core.ExtensionMethod;
 using HandStack.Web;
 using HandStack.Web.Extensions;
+using HandStack.Web.MessageContract.DataObject;
 using HandStack.Web.MessageContract.Enumeration;
 using HandStack.Web.MessageContract.Message;
 
@@ -42,17 +43,16 @@ namespace prompter.Areas.prompter.Controllers
             this.dataClient = dataClient;
         }
 
-        // http://localhost:8000/prompter/api/base64/encode?value={"ApplicationID":"SYN","ProjectID":"ZZD","TransactionID":"TST010","FunctionID":"G0100"}
-        // http://localhost:8000/prompter/api/query/has?base64Json=eyJQcm9qZWN0SUQiOiJRQUYiLCJCdXNpbmVzc0lEIjoiRFNPIiwiVHJhbnNhY3Rpb25JRCI6IjAwMDEiLCJGdW5jdGlvbklEIjoiUjAxMDAifQ==
+        // http://localhost:8000/prompter/api/query/has
         [HttpGet("[action]")]
-        public ActionResult Has(string base64Json)
+        public ActionResult Has(string applicationID, string projectID, string transactionID, string functionID)
         {
-            var definition = new
+            var model = new
             {
-                ApplicationID = "",
-                ProjectID = "",
-                TransactionID = "",
-                FunctionID = ""
+                ApplicationID = applicationID,
+                ProjectID = projectID,
+                TransactionID = transactionID,
+                FunctionID = functionID
             };
 
             ActionResult result = BadRequest();
@@ -65,13 +65,8 @@ namespace prompter.Areas.prompter.Controllers
             {
                 try
                 {
-                    string json = base64Json.DecodeBase64();
-                    var model = JsonConvert.DeserializeAnonymousType(json, definition);
-                    if (model != null)
-                    {
-                        var value = PromptMapper.HasPrompt(model.ApplicationID, model.ProjectID, model.TransactionID, model.FunctionID);
-                        result = Content(JsonConvert.SerializeObject(value), "application/json");
-                    }
+                    var value = PromptMapper.HasPrompt(model.ApplicationID, model.ProjectID, model.TransactionID, model.FunctionID);
+                    result = Content(JsonConvert.SerializeObject(value), "application/json");
                 }
                 catch (Exception exception)
                 {
@@ -85,50 +80,9 @@ namespace prompter.Areas.prompter.Controllers
             return result;
         }
 
-        // http://localhost:8000/prompter/api/base64/encode?value={"PromptFilePath":"SYN\DSO\SYNDSO0001.xml","ForceUpdate":true}
-        // http://localhost:8000/prompter/api/query/upsert?base64Json=eyJTcWxGaWxlUGF0aCI6IlFBRlxEU09cUUFGRFNPMDAwMS54bWwiLCJGb3JjZVVwZGF0ZSI6dHJ1ZX0=
-        [HttpGet("[action]")]
-        public ActionResult Upsert(string base64Json)
-        {
-            var definition = new
-            {
-                PromptFilePath = "",
-                ForceUpdate = false
-            };
-
-            ActionResult result = BadRequest();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
-            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
-            {
-                result = BadRequest();
-            }
-            else
-            {
-                try
-                {
-                    string json = base64Json.DecodeBase64();
-                    var model = JsonConvert.DeserializeAnonymousType(json, definition);
-                    if (model != null)
-                    {
-                        var value = PromptMapper.AddPromptMap(model.PromptFilePath, model.ForceUpdate, logger);
-                        result = Content(JsonConvert.SerializeObject(value), "application/json");
-                    }
-                }
-                catch (Exception exception)
-                {
-                    string exceptionText = exception.ToMessage();
-                    logger.Error("[{LogCategory}] " + exceptionText, "Query/Upsert");
-
-                    result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
-                }
-            }
-
-            return result;
-        }
-
         // http://localhost:8000/prompter/api/query/refresh?changeType=Created&filePath=HDS/ZZD/TST010.xml
         [HttpGet("[action]")]
-        public ActionResult Refresh(string changeType, string filePath)
+        public ActionResult Refresh(string changeType, string filePath, string? userWorkID, string? applicationID)
         {
             ActionResult result = NotFound();
             string? authorizationKey = Request.Headers["AuthorizationKey"];
@@ -138,6 +92,8 @@ namespace prompter.Areas.prompter.Controllers
             }
             else
             {
+                bool actionResult = false;
+
                 try
                 {
                     if (filePath.StartsWith(Path.DirectorySeparatorChar) == true)
@@ -190,7 +146,6 @@ namespace prompter.Areas.prompter.Controllers
                     }
 
                     WatcherChangeTypes watcherChangeTypes = (WatcherChangeTypes)Enum.Parse(typeof(WatcherChangeTypes), changeType);
-                    bool actionResult = false;
                     switch (watcherChangeTypes)
                     {
                         case WatcherChangeTypes.Created:
@@ -217,53 +172,9 @@ namespace prompter.Areas.prompter.Controllers
             return result;
         }
 
-        // http://localhost:8000/prompter/api/base64/encode?value={"ApplicationID":"SYN","ProjectID":"ZZD","TransactionID":"TST010","FunctionID":"G0100"}
-        // http://localhost:8000/prompter/api/query/delete?base64Json=eyJQcm9qZWN0SUQiOiJRQUYiLCJCdXNpbmVzc0lEIjoiRFNPIiwiVHJhbnNhY3Rpb25JRCI6IjAwMDEiLCJGdW5jdGlvbklEIjoiUjAxMDAifQ==
-        [HttpGet("Delete")]
-        public ActionResult Delete(string base64Json)
-        {
-            var definition = new
-            {
-                ApplicationID = "",
-                ProjectID = "",
-                TransactionID = "",
-                FunctionID = ""
-            };
-
-            ActionResult result = BadRequest();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
-            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
-            {
-                result = BadRequest();
-            }
-            else
-            {
-                try
-                {
-                    string json = base64Json.DecodeBase64();
-                    var model = JsonConvert.DeserializeAnonymousType(json, definition);
-                    if (model != null)
-                    {
-                        var value = PromptMapper.Remove(model.ApplicationID, model.ProjectID, model.TransactionID, model.FunctionID);
-                        result = Content(JsonConvert.SerializeObject(value), "application/json");
-                    }
-                }
-                catch (Exception exception)
-                {
-                    string exceptionText = exception.ToMessage();
-                    logger.Error("[{LogCategory}] " + exceptionText, "Query/Delete");
-
-                    result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
-                }
-            }
-
-            return result;
-        }
-
-        // http://localhost:8000/prompter/api/base64/encode?value={"ApplicationID":"SYN","ProjectID":"ZZD","TransactionID":"TST010","FunctionID":"G0100"}
-        // http://localhost:8000/prompter/api/query/get?base64Json=eyJQcm9qZWN0SUQiOiJRQUYiLCJCdXNpbmVzc0lEIjoiRFNPIiwiVHJhbnNhY3Rpb25JRCI6IjAwMDEiLCJGdW5jdGlvbklEIjoiUjAxMDAifQ==
+        // http://localhost:8000/prompter/api/query/retrieve?
         [HttpGet("[action]")]
-        public ActionResult Get(string base64Json)
+        public ActionResult Retrieve(string applicationID, string? projectID, string? transactionID, string? functionID)
         {
             ActionResult result = BadRequest();
             string? authorizationKey = Request.Headers["AuthorizationKey"];
@@ -275,66 +186,13 @@ namespace prompter.Areas.prompter.Controllers
             {
                 try
                 {
-                    string json = base64Json.DecodeBase64();
-
-                    var model = JsonConvert.DeserializeAnonymousType(json, new
+                    var model = new
                     {
-                        ApplicationID = "",
-                        ProjectID = "",
-                        TransactionID = "",
-                        FunctionID = ""
-                    });
-
-                    if (model != null)
-                    {
-                        PromptMap? promptMap = PromptMapper.PromptMappings.Select(p => p.Value).Where(p =>
-                            p.ApplicationID == model.ApplicationID &&
-                            p.ProjectID == model.ProjectID &&
-                            p.TransactionID == model.TransactionID &&
-                            p.StatementID == model.FunctionID).FirstOrDefault();
-
-                        if (promptMap != null)
-                        {
-                            var value = JsonConvert.SerializeObject(promptMap);
-                            result = Content(JsonConvert.SerializeObject(value), "application/json");
-                        }
-                    }
-                }
-                catch (Exception exception)
-                {
-                    string exceptionText = exception.ToMessage();
-                    logger.Error("[{LogCategory}] " + exceptionText, "Query/Get");
-
-                    result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
-                }
-            }
-
-            return result;
-        }
-
-        // http://localhost:8000/prompter/api/base64/encode?value={"ApplicationID":"SYN","ProjectID":"ZZD","TransactionID":"TST010","FunctionID":"G0100"}
-        // http://localhost:8000/prompter/api/query/retrieve?base64Json=eyJQcm9qZWN0SUQiOiJRQUYiLCJCdXNpbmVzc0lEIjoiIiwiVHJhbnNhY3Rpb25JRCI6IiIsIkZ1bmN0aW9uSUQiOiIifQ==
-        [HttpGet("[action]")]
-        public ActionResult Retrieve(string base64Json)
-        {
-            ActionResult result = BadRequest();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
-            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
-            {
-                result = BadRequest();
-            }
-            else
-            {
-                try
-                {
-                    string json = base64Json.DecodeBase64();
-                    var model = JsonConvert.DeserializeAnonymousType(json, new
-                    {
-                        ApplicationID = "",
-                        ProjectID = "",
-                        TransactionID = "",
-                        FunctionID = ""
-                    });
+                        ApplicationID = applicationID,
+                        ProjectID = projectID,
+                        TransactionID = transactionID,
+                        FunctionID = functionID
+                    };
 
                     if (model == null || string.IsNullOrEmpty(model.ApplicationID) == true || string.IsNullOrEmpty(model.ProjectID) == true)
                     {
@@ -358,8 +216,8 @@ namespace prompter.Areas.prompter.Controllers
 
                     if (string.IsNullOrEmpty(model.FunctionID) == false)
                     {
-                        string functionID = model.FunctionID.Substring(0, model.FunctionID.Length - 2);
-                        queryResults = queryResults.Where(p => p.StatementID.Substring(0, p.StatementID.Length - 2) == functionID);
+                        string queryFunctionID = model.FunctionID.Substring(0, model.FunctionID.Length - 2);
+                        queryResults = queryResults.Where(p => p.StatementID.Substring(0, p.StatementID.Length - 2) == queryFunctionID);
                     }
 
                     List<PromptMap> promptMaps = queryResults.ToList();
@@ -369,64 +227,6 @@ namespace prompter.Areas.prompter.Controllers
                 {
                     string exceptionText = exception.ToMessage();
                     logger.Error("[{LogCategory}] " + exceptionText, "Query/Retrieve");
-
-                    result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
-                }
-            }
-
-            return result;
-        }
-
-        // http://localhost:8000/prompter/api/base64/encode?value={"ApplicationID":"SYN","ProjectID":"ZZD","TransactionID":"TST010","FunctionID":"G0100","TransactionLog":true}
-        // http://localhost:8000/prompter/api/query/log?base64Json=eyJQcm9qZWN0SUQiOiJTVlUiLCJCdXNpbmVzc0lEIjoiWlpEIiwiVHJhbnNhY3Rpb25JRCI6IlRTVDAxMCIsIkZ1bmN0aW9uSUQiOiJHMDEwMCIsIlRyYW5zYWN0aW9uTG9nIjp0cnVlfQ==
-        [HttpGet("[action]")]
-        public ActionResult Log(string base64Json)
-        {
-            var definition = new
-            {
-                ApplicationID = "",
-                ProjectID = "",
-                TransactionID = "",
-                FunctionID = "",
-                TransactionLog = false
-            };
-
-            ActionResult result = BadRequest();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
-            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
-            {
-                result = BadRequest();
-            }
-            else
-            {
-                try
-                {
-                    string json = base64Json.DecodeBase64();
-                    var model = JsonConvert.DeserializeAnonymousType(json, definition);
-
-                    if (model != null)
-                    {
-                        PromptMap? promptMap = PromptMapper.PromptMappings.Select(p => p.Value).Where(p =>
-                            p.ApplicationID == model.ApplicationID &&
-                            p.ProjectID == model.ProjectID &&
-                            p.TransactionID == model.TransactionID &&
-                            p.StatementID == model.FunctionID).FirstOrDefault();
-
-                        if (promptMap != null)
-                        {
-                            promptMap.TransactionLog = model.TransactionLog;
-                            result = Content(JsonConvert.SerializeObject(model.TransactionLog), "application/json");
-                        }
-                        else
-                        {
-                            result = Ok();
-                        }
-                    }
-                }
-                catch (Exception exception)
-                {
-                    string exceptionText = exception.ToMessage();
-                    logger.Error("[{LogCategory}] " + exceptionText, "Query/Log");
 
                     result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
                 }

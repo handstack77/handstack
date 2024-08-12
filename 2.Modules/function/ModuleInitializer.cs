@@ -378,101 +378,83 @@ namespace function
                 }
             }
 
-            int tenantsNodeCount = 0;
-            int tenantsCSharpCount = 0;
             foreach (var basePath in ModuleConfiguration.ContractBasePath)
             {
-                string nodeContractBasePath = Path.Combine(basePath, "javascript");
-                if (Directory.Exists(nodeContractBasePath) == true && ModuleConfiguration.EnableFileWatching == true)
+                if (Directory.Exists(basePath) == true && basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == false)
                 {
-                    var nodeFileSyncManager = new FileSyncManager(nodeContractBasePath, string.Join("|", ModuleConfiguration.WatchFileNamePatterns));
-                    nodeFileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
+                    string nodeContractBasePath = Path.Combine(basePath, "javascript");
+                    if (Directory.Exists(nodeContractBasePath) == true && ModuleConfiguration.EnableFileWatching == true)
                     {
-                        if (fileInfo.FullName.IndexOf(nodeContractBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed) && (fileInfo.Name == "featureMain.js" || fileInfo.Name == "featureMeta.json" || fileInfo.Name == "featureSQL.xml") == true)
+                        var nodeFileSyncManager = new FileSyncManager(nodeContractBasePath, string.Join("|", ModuleConfiguration.WatchFileNamePatterns));
+                        nodeFileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
                         {
-                            string filePath = fileInfo.FullName.Replace(nodeContractBasePath, "");
-                            string hostUrl = $"http://localhost:{GlobalConfiguration.ServerPort}/function/api/execution/refresh?changeType={changeTypes}&filePath={filePath}";
-
-                            var client = new RestClient();
-                            var request = new RestRequest(hostUrl, Method.Get);
-                            request.Timeout = TimeSpan.FromSeconds(3);
-                            request.AddHeader("AuthorizationKey", ModuleConfiguration.AuthorizationKey);
-                            try
+                            if (fileInfo.FullName.IndexOf(nodeContractBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed) && (fileInfo.Name == "featureMain.js" || fileInfo.Name == "featureMeta.json" || fileInfo.Name == "featureSQL.xml") == true)
                             {
-                                RestResponse response = await client.ExecuteAsync(request);
-                                if (response.StatusCode != HttpStatusCode.OK)
+                                string filePath = fileInfo.FullName.Replace(nodeContractBasePath, "");
+                                string hostUrl = $"http://localhost:{GlobalConfiguration.ServerPort}/function/api/execution/refresh?changeType={changeTypes}&filePath={filePath}";
+
+                                var client = new RestClient();
+                                var request = new RestRequest(hostUrl, Method.Get);
+                                request.Timeout = TimeSpan.FromSeconds(3);
+                                request.AddHeader("AuthorizationKey", ModuleConfiguration.AuthorizationKey);
+                                try
                                 {
-                                    Log.Error("[{LogCategory}] " + $"{filePath} 파일 갱신 확인 필요. {response.Content.ToStringSafe()}", $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
+                                    RestResponse response = await client.ExecuteAsync(request);
+                                    if (response.StatusCode != HttpStatusCode.OK)
+                                    {
+                                        Log.Error("[{LogCategory}] " + $"{filePath} 파일 갱신 확인 필요. {response.Content.ToStringSafe()}", $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
+                                    }
+                                }
+                                catch (Exception exception)
+                                {
+                                    Log.Error(exception, "[{LogCategory}] " + $"{filePath} 파일 서버 확인 필요.", $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
                                 }
                             }
-                            catch (Exception exception)
-                            {
-                                Log.Error(exception, "[{LogCategory}] " + $"{filePath} 파일 서버 확인 필요.", $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
-                            }
-                        }
-                    };
+                        };
 
-                    string tenantsDirectoryPath = $"{Path.DirectorySeparatorChar}tenants{Path.DirectorySeparatorChar}";
-                    if (basePath.Contains(tenantsDirectoryPath) == true)
-                    {
-                        tenantsNodeCount = tenantsNodeCount + 1;
-                    }
-                    else
-                    {
                         Log.Information("[{LogCategory}] Node File Sync ContractBasePath: " + basePath, $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
+
+                        nodeFileSyncManager.Start();
+                        ModuleConfiguration.NodeFileSyncManager.Add(nodeContractBasePath, nodeFileSyncManager);
                     }
 
-                    nodeFileSyncManager.Start();
-                    ModuleConfiguration.NodeFileSyncManager.Add(nodeContractBasePath, nodeFileSyncManager);
-                }
-
-                string csharpContractBasePath = Path.Combine(basePath, "csharp");
-                if (Directory.Exists(csharpContractBasePath) == true && ModuleConfiguration.CSharpEnableFileWatching == true)
-                {
-                    var csharpFileSyncManager = new FileSyncManager(csharpContractBasePath, string.Join("|", ModuleConfiguration.CSharpWatchFileNamePatterns));
-                    csharpFileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
+                    string csharpContractBasePath = Path.Combine(basePath, "csharp");
+                    if (Directory.Exists(csharpContractBasePath) == true && ModuleConfiguration.CSharpEnableFileWatching == true)
                     {
-                        if (fileInfo.FullName.IndexOf(csharpContractBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed) && (fileInfo.Name == "featureMain.cs" || fileInfo.Name == "featureMeta.json" || fileInfo.Name == "featureSQL.xml") == true)
+                        var csharpFileSyncManager = new FileSyncManager(csharpContractBasePath, string.Join("|", ModuleConfiguration.CSharpWatchFileNamePatterns));
+                        csharpFileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
                         {
-                            string filePath = fileInfo.FullName.Replace(csharpContractBasePath, "");
-                            string hostUrl = $"http://localhost:{GlobalConfiguration.ServerPort}/function/api/execution/refresh?changeType={changeTypes}&filePath={filePath}";
-
-                            var client = new RestClient();
-                            var request = new RestRequest(hostUrl, Method.Get);
-                            request.Timeout = TimeSpan.FromSeconds(3);
-                            request.AddHeader("AuthorizationKey", ModuleConfiguration.AuthorizationKey);
-                            try
+                            if (fileInfo.FullName.IndexOf(csharpContractBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed) && (fileInfo.Name == "featureMain.cs" || fileInfo.Name == "featureMeta.json" || fileInfo.Name == "featureSQL.xml") == true)
                             {
-                                RestResponse response = await client.ExecuteAsync(request);
-                                if (response.StatusCode != HttpStatusCode.OK)
+                                string filePath = fileInfo.FullName.Replace(csharpContractBasePath, "");
+                                string hostUrl = $"http://localhost:{GlobalConfiguration.ServerPort}/function/api/execution/refresh?changeType={changeTypes}&filePath={filePath}";
+
+                                var client = new RestClient();
+                                var request = new RestRequest(hostUrl, Method.Get);
+                                request.Timeout = TimeSpan.FromSeconds(3);
+                                request.AddHeader("AuthorizationKey", ModuleConfiguration.AuthorizationKey);
+                                try
                                 {
-                                    Log.Error("[{LogCategory}] " + $"{filePath} 파일 갱신 확인 필요. {response.Content.ToStringSafe()}", $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
+                                    RestResponse response = await client.ExecuteAsync(request);
+                                    if (response.StatusCode != HttpStatusCode.OK)
+                                    {
+                                        Log.Error("[{LogCategory}] " + $"{filePath} 파일 갱신 확인 필요. {response.Content.ToStringSafe()}", $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
+                                    }
+                                }
+                                catch (Exception exception)
+                                {
+                                    Log.Error(exception, "[{LogCategory}] " + $"{filePath} 파일 서버 확인 필요.", $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
                                 }
                             }
-                            catch (Exception exception)
-                            {
-                                Log.Error(exception, "[{LogCategory}] " + $"{filePath} 파일 서버 확인 필요.", $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
-                            }
-                        }
-                    };
+                        };
 
-                    string tenantsDirectoryPath = $"{Path.DirectorySeparatorChar}tenants{Path.DirectorySeparatorChar}";
-                    if (basePath.Contains(tenantsDirectoryPath) == true)
-                    {
-                        tenantsCSharpCount = tenantsCSharpCount + 1;
-                    }
-                    else
-                    {
                         Log.Information("[{LogCategory}] CSharp File Sync ContractBasePath: " + basePath, $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
-                    }
 
-                    csharpFileSyncManager.Start();
-                    ModuleConfiguration.NodeFileSyncManager.Add(csharpContractBasePath, csharpFileSyncManager);
+                        csharpFileSyncManager.Start();
+                        ModuleConfiguration.NodeFileSyncManager.Add(csharpContractBasePath, csharpFileSyncManager);
+                    }
                 }
             }
-
-            Log.Information("[{LogCategory}] Tenants Node File Sync: " + tenantsNodeCount, $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
-            Log.Information("[{LogCategory}] Tenants CSharp File Sync: " + tenantsCSharpCount, $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
         }
     }
 

@@ -64,6 +64,7 @@ namespace transact.Extensions
                                 {
                                     lock (BusinessMappings)
                                     {
+                                        businessContract.TransactionProjectID = string.IsNullOrEmpty(businessContract.TransactionProjectID) == true ? businessContract.ProjectID : businessContract.TransactionProjectID;
                                         if (filePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
                                         {
                                             FileInfo fileInfo = new FileInfo(filePath);
@@ -84,7 +85,7 @@ namespace transact.Extensions
                             }
                             catch (Exception exception)
                             {
-                                Log.Logger.Error("[{LogCategory}] " + $"{filePath} 업무 계약 파일 오류 - {exception.ToMessage()}", "TransactionMapper/Get");
+                                Log.Logger.Error("[{LogCategory}] " + $"{filePath} 업무 계약 파일 오류 - {exception.ToMessage()}", "TransactionMapper/GetBusinessContract");
                             }
                         }
                     }
@@ -288,98 +289,7 @@ namespace transact.Extensions
             return result;
         }
 
-        public static bool Upsert(string fileRelativePath)
-        {
-            bool result = false;
-            lock (BusinessMappings)
-            {
-                try
-                {
-                    foreach (var basePath in ModuleConfiguration.ContractBasePath)
-                    {
-                        string filePath = Path.Combine(basePath, fileRelativePath);
-                        if (File.Exists(filePath) == true)
-                        {
-                            BusinessContract? businessContract = BusinessContract.FromJson(File.ReadAllText(filePath));
-                            if (businessContract != null)
-                            {
-                                if (filePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
-                                {
-                                    FileInfo fileInfo = new FileInfo(filePath);
-                                    businessContract.ApplicationID = string.IsNullOrEmpty(businessContract.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : businessContract.ApplicationID;
-                                    businessContract.ProjectID = string.IsNullOrEmpty(businessContract.ProjectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : businessContract.ProjectID;
-                                    businessContract.TransactionID = string.IsNullOrEmpty(businessContract.TransactionID) == true ? fileInfo.Name.Replace(fileInfo.Extension, "") : businessContract.TransactionID;
-                                }
-
-                                if (BusinessMappings.ContainsKey(filePath) == true)
-                                {
-                                    BusinessMappings.Remove(filePath);
-                                }
-
-                                BusinessMappings.Add(filePath, businessContract);
-                                result = true;
-                            }
-                        }
-                        else
-                        {
-                            result = false;
-                        }
-                    }
-                }
-                catch (Exception exception)
-                {
-                    Log.Logger.Error("[{LogCategory}] " + $"{fileRelativePath} 업무 계약 파일 오류 - {exception.ToMessage()}", "TransactionMapper/Add");
-                    result = false;
-                }
-            }
-
-            return result;
-        }
-
-        public static bool Add(string fileRelativePath)
-        {
-            bool result = false;
-            lock (BusinessMappings)
-            {
-                try
-                {
-                    foreach (var basePath in ModuleConfiguration.ContractBasePath)
-                    {
-                        string filePath = Path.Combine(basePath, fileRelativePath);
-                        if (File.Exists(filePath) == true)
-                        {
-                            BusinessContract? businessContract = BusinessContract.FromJson(File.ReadAllText(filePath));
-                            if (businessContract != null && BusinessMappings.ContainsKey(filePath) == false)
-                            {
-                                if (filePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
-                                {
-                                    FileInfo fileInfo = new FileInfo(filePath);
-                                    businessContract.ApplicationID = string.IsNullOrEmpty(businessContract.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : businessContract.ApplicationID;
-                                    businessContract.ProjectID = string.IsNullOrEmpty(businessContract.ProjectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : businessContract.ProjectID;
-                                    businessContract.TransactionID = string.IsNullOrEmpty(businessContract.TransactionID) == true ? fileInfo.Name.Replace(fileInfo.Extension, "") : businessContract.TransactionID;
-                                }
-
-                                BusinessMappings.Add(filePath, businessContract);
-                                result = true;
-                            }
-                        }
-                        else
-                        {
-                            result = false;
-                        }
-                    }
-                }
-                catch (Exception exception)
-                {
-                    Log.Logger.Error("[{LogCategory}] " + $"{fileRelativePath} 업무 계약 파일 오류 - {exception.ToMessage()}", "TransactionMapper/Add");
-                    result = false;
-                }
-            }
-
-            return result;
-        }
-
-        public static bool Upsert(string key, BusinessContract businessContract)
+        public static bool Upsert(string key, BusinessContract businessContract, TimeSpan? expiryDuration = null)
         {
             bool result = false;
             lock (BusinessMappings)
@@ -393,34 +303,7 @@ namespace transact.Extensions
                             BusinessMappings.Remove(key);
                         }
 
-                        BusinessMappings.Add(key, businessContract);
-                        result = true;
-                    }
-                    else
-                    {
-                        result = false;
-                    }
-                }
-                catch (Exception exception)
-                {
-                    Log.Logger.Error("[{LogCategory}] " + $"{key} 업무 계약 추가 오류 - {exception.ToMessage()}", "TransactionMapper/Add");
-                    result = false;
-                }
-            }
-
-            return result;
-        }
-
-        public static bool Add(string key, BusinessContract businessContract)
-        {
-            bool result = false;
-            lock (BusinessMappings)
-            {
-                try
-                {
-                    if (businessContract != null && BusinessMappings.ContainsKey(key) == false)
-                    {
-                        BusinessMappings.Add(key, businessContract);
+                        BusinessMappings.Add(key, businessContract, expiryDuration);
                         result = true;
                     }
                     else
@@ -491,47 +374,61 @@ namespace transact.Extensions
 
                 foreach (var basePath in ModuleConfiguration.ContractBasePath)
                 {
-                    if (Directory.Exists(basePath) == false)
+                    if (Directory.Exists(basePath) == false || (basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false))
                     {
                         continue;
                     }
 
-                    string[] configFiles = Directory.GetFiles(basePath, "*.json", SearchOption.AllDirectories);
+                    string[] businessFiles = Directory.GetFiles(basePath, "*.json", SearchOption.AllDirectories);
                     lock (BusinessMappings)
                     {
-                        foreach (string configFile in configFiles)
+                        foreach (string businessFile in businessFiles)
                         {
                             try
                             {
-                                string configData = File.ReadAllText(configFile);
+                                string configData = File.ReadAllText(businessFile);
                                 BusinessContract? businessContract = BusinessContract.FromJson(configData);
                                 if (businessContract == null)
                                 {
-                                    logger.Error("[{LogCategory}] " + $"업무 계약 파일 역직렬화 오류 - {configFile}", "LoadContract");
+                                    logger.Error("[{LogCategory}] " + $"업무 계약 파일 역직렬화 오류 - {businessFile}", "LoadContract");
                                 }
                                 else
                                 {
                                     businessContract.TransactionProjectID = string.IsNullOrEmpty(businessContract.TransactionProjectID) == true ? businessContract.ProjectID : businessContract.TransactionProjectID;
 
-                                    if (configFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
-                                    {
-                                    }
-                                    else
-                                    {
-                                        if (BusinessMappings.ContainsKey(configFile) == false && HasCount(businessContract.ApplicationID, businessContract.ProjectID, businessContract.TransactionID) == 0)
+                                    // 삭제 예정
+                                    // if (businessFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
+                                    // {
+                                    //     FileInfo fileInfo = new FileInfo(businessFile);
+                                    //     businessContract.ApplicationID = string.IsNullOrEmpty(businessContract.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : businessContract.ApplicationID;
+                                    //     businessContract.ProjectID = string.IsNullOrEmpty(businessContract.ProjectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : businessContract.ProjectID;
+                                    //     businessContract.TransactionID = string.IsNullOrEmpty(businessContract.TransactionID) == true ? fileInfo.Name.Replace(fileInfo.Extension, "") : businessContract.TransactionID;
+                                    //     
+                                    //     if (BusinessMappings.ContainsKey(businessFile) == false && HasCount(businessContract.ApplicationID, businessContract.ProjectID, businessContract.TransactionID) == 0)
+                                    //     {
+                                    //         BusinessMappings.Add(businessFile, businessContract);
+                                    //     }
+                                    //     else
+                                    //     {
+                                    //         logger.Warning("[{LogCategory}] " + $"TenantApp 업무 계약 파일 또는 거래 정보 중복 오류 - {businessFile}, ProjectID - {businessContract.ApplicationID}, BusinessID - {businessContract.ProjectID}, TransactionID - {businessContract.TransactionID}", "LoadContract");
+                                    //     }
+                                    // }
+                                    // else
+                                    // {
+                                        if (BusinessMappings.ContainsKey(businessFile) == false && HasCount(businessContract.ApplicationID, businessContract.ProjectID, businessContract.TransactionID) == 0)
                                         {
-                                            BusinessMappings.Add(configFile, businessContract, TimeSpan.FromDays(3650));
+                                            BusinessMappings.Add(businessFile, businessContract, TimeSpan.FromDays(3650));
                                         }
                                         else
                                         {
-                                            logger.Warning("[{LogCategory}] " + $"업무 계약 파일 또는 거래 정보 중복 오류 - {configFile}, ProjectID - {businessContract.ApplicationID}, BusinessID - {businessContract.ProjectID}, TransactionID - {businessContract.TransactionID}", "LoadContract");
+                                            logger.Warning("[{LogCategory}] " + $"업무 계약 파일 또는 거래 정보 중복 오류 - {businessFile}, ProjectID - {businessContract.ApplicationID}, BusinessID - {businessContract.ProjectID}, TransactionID - {businessContract.TransactionID}", "LoadContract");
                                         }
-                                    }
+                                    // }
                                 }
                             }
                             catch (Exception exception)
                             {
-                                logger.Error("[{LogCategory}] " + $"업무 계약 파일 역직렬화 오류 - {configFile}, {exception.ToMessage()}", "LoadContract");
+                                logger.Error("[{LogCategory}] " + $"업무 계약 파일 역직렬화 오류 - {businessFile}, {exception.ToMessage()}", "LoadContract");
                             }
                         }
                     }

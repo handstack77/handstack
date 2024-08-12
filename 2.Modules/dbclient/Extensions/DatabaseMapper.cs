@@ -34,8 +34,8 @@ namespace dbclient.Extensions
     public static class DatabaseMapper
     {
         private static Random random = new Random();
-        public static Dictionary<DataSourceTanantKey, DataSourceMap> DataSourceMappings = new Dictionary<DataSourceTanantKey, DataSourceMap>();
-        public static Dictionary<string, StatementMap> StatementMappings = new Dictionary<string, StatementMap>();
+        public static ExpiringDictionary<DataSourceTanantKey, DataSourceMap> DataSourceMappings = new ExpiringDictionary<DataSourceTanantKey, DataSourceMap>();
+        public static ExpiringDictionary<string, StatementMap> StatementMappings = new ExpiringDictionary<string, StatementMap>();
 
         static DatabaseMapper()
         {
@@ -948,6 +948,7 @@ namespace dbclient.Extensions
                             string applicationID = (header.Element("application")?.InnerText).ToStringSafe();
                             string projectID = (header.Element("project")?.InnerText).ToStringSafe();
                             string transactionID = (header.Element("transaction")?.InnerText).ToStringSafe();
+
                             if (sqlMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false)
                             {
                                 applicationID = string.IsNullOrEmpty(applicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : applicationID;

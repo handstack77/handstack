@@ -69,7 +69,7 @@ namespace transact.Areas.transact.Controllers
 
         // http://localhost:8000/transact/api/transaction/has?projectID=HDS&businessID=SYS&transactionID=SYS010
         [HttpGet("[action]")]
-        public ActionResult Has(string projectID, string businessID, string transactionID)
+        public ActionResult Has(string applicationID, string projectID, string transactionID)
         {
             ActionResult result = BadRequest();
             string? authorizationKey = Request.Headers["AuthorizationKey"];
@@ -81,7 +81,7 @@ namespace transact.Areas.transact.Controllers
             {
                 try
                 {
-                    var value = TransactionMapper.HasCount(projectID, businessID, transactionID);
+                    var value = TransactionMapper.HasCount(applicationID, projectID, transactionID);
                     result = Content(JsonConvert.SerializeObject(value), "application/json");
                 }
                 catch (Exception exception)
@@ -95,65 +95,9 @@ namespace transact.Areas.transact.Controllers
             return result;
         }
 
-        // http://localhost:8000/transact/api/transaction/add?contractFilePath=HDS/ZZW/TST010.json
-        [HttpGet("[action]")]
-        public ActionResult Add(string contractFilePath)
-        {
-            ActionResult result = BadRequest();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
-            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
-            {
-                result = BadRequest();
-            }
-            else
-            {
-                try
-                {
-                    var value = TransactionMapper.Add(contractFilePath);
-                    result = Content(JsonConvert.SerializeObject(value), "application/json");
-                }
-                catch (Exception exception)
-                {
-                    string exceptionText = exception.ToMessage();
-                    logger.Warning("[{LogCategory}] " + exceptionText, "Transaction/Add");
-                    result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
-                }
-            }
-
-            return result;
-        }
-
-        // http://localhost:8000/transact/api/transaction/remove?contractFilePath=HDS/ZZW/TST010.json
-        [HttpGet("[action]")]
-        public ActionResult Remove(string contractFilePath)
-        {
-            ActionResult result = BadRequest();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
-            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
-            {
-                result = BadRequest();
-            }
-            else
-            {
-                try
-                {
-                    var value = TransactionMapper.Remove(contractFilePath);
-                    result = Content(JsonConvert.SerializeObject(value), "application/json");
-                }
-                catch (Exception exception)
-                {
-                    string exceptionText = exception.ToMessage();
-                    logger.Warning("[{LogCategory}] " + exceptionText, "Transaction/Remove");
-                    result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
-                }
-            }
-
-            return result;
-        }
-
         // http://localhost:8000/transact/api/transaction/refresh?changeType=Created&filePath=HDS/ZZW/TST010.json
         [HttpGet("[action]")]
-        public ActionResult Refresh(string changeType, string filePath)
+        public ActionResult Refresh(string changeType, string filePath, string? userWorkID, string? applicationID)
         {
             ActionResult result = NotFound();
             string? authorizationKey = Request.Headers["AuthorizationKey"];
@@ -163,6 +107,8 @@ namespace transact.Areas.transact.Controllers
             }
             else
             {
+                bool actionResult = false;
+
                 try
                 {
                     if (filePath.StartsWith(Path.DirectorySeparatorChar) == true)
@@ -177,42 +123,110 @@ namespace transact.Areas.transact.Controllers
                     var businessContracts = TransactionMapper.BusinessMappings;
                     lock (businessContracts)
                     {
-                        var existContracts = businessContracts.Select(p => p.Value).Where(p =>
-                            p.ApplicationID == fileInfo.Directory?.Parent?.Name &&
-                            p.ProjectID == fileInfo.Directory?.Name &&
-                            p.TransactionID == fileInfo.Name.Replace(fileInfo.Extension, ""))
-                            .ToList();
-
-                        if (existContracts != null && existContracts.Count() > 0)
+                        WatcherChangeTypes watcherChangeTypes = (WatcherChangeTypes)Enum.Parse(typeof(WatcherChangeTypes), changeType);
+                        switch (watcherChangeTypes)
                         {
-                            foreach (var item in existContracts)
-                            {
-                                logger.Information("[{LogCategory}] " + $"Delete Contract ApplicationID: {item.ApplicationID}, ProjectID: {item.ProjectID}, TransactionID: {item.TransactionID}", "Transaction/Refresh");
-                            }
+                            case WatcherChangeTypes.Created:
+                            case WatcherChangeTypes.Changed:
+                                if (string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false)
+                                {
+                                    string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                                    string itemPath = appBasePath + filePath;
+                                    DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
+                                    if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true)
+                                    {
+                                        BusinessContract? businessContract = BusinessContract.FromJson(System.IO.File.ReadAllText(itemPath));
+                                        if (businessContract != null)
+                                        {
+                                            if (businessContracts.ContainsKey(itemPath) == true)
+                                            {
+                                                businessContracts.Remove(itemPath);
+                                            }
 
-                            TransactionMapper.Remove(filePath);
+                                            businessContract.TransactionProjectID = string.IsNullOrEmpty(businessContract.TransactionProjectID) == true ? businessContract.ProjectID : businessContract.TransactionProjectID;
+
+                                            fileInfo = new FileInfo(itemPath);
+                                            businessContract.ApplicationID = string.IsNullOrEmpty(businessContract.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : businessContract.ApplicationID;
+                                            businessContract.ProjectID = string.IsNullOrEmpty(businessContract.ProjectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : businessContract.ProjectID;
+                                            businessContract.TransactionID = string.IsNullOrEmpty(businessContract.TransactionID) == true ? fileInfo.Name.Replace(fileInfo.Extension, "") : businessContract.TransactionID;
+
+                                            businessContracts.Add(itemPath, businessContract);
+
+                                            logger.Information("[{LogCategory}] " + $"Add TenantApp Contract FilePath: {itemPath}", "Transaction/Refresh");
+                                            actionResult = true;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    foreach (var basePath in ModuleConfiguration.ContractBasePath)
+                                    {
+                                        if (fileInfo.Name != "publicTransactions.json")
+                                        {
+                                            string itemPath = basePath + filePath;
+                                            BusinessContract? businessContract = BusinessContract.FromJson(System.IO.File.ReadAllText(itemPath));
+                                            if (businessContract != null)
+                                            {
+                                                if (businessContracts.ContainsKey(itemPath) == true)
+                                                {
+                                                    businessContracts.Remove(itemPath);
+                                                }
+
+                                                businessContract.TransactionProjectID = string.IsNullOrEmpty(businessContract.TransactionProjectID) == true ? businessContract.ProjectID : businessContract.TransactionProjectID;
+
+                                                businessContracts.Add(itemPath, businessContract, TimeSpan.FromDays(3650));
+
+                                                logger.Information("[{LogCategory}] " + $"Add Contract FilePath: {itemPath}", "Transaction/Refresh");
+                                                actionResult = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                                break;
+                            case WatcherChangeTypes.Deleted:
+                                if (string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false)
+                                {
+                                    string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                                    DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
+                                    if (directoryInfo.Exists == true)
+                                    {
+                                        string itemPath = appBasePath + filePath;
+                                        if (System.IO.File.Exists(itemPath) == true && fileInfo.Name != "publicTransactions.json")
+                                        {
+                                            logger.Information("[{LogCategory}] " + $"Delete TenantApp Contract FilePath: {itemPath}", "Transaction/Refresh");
+                                            actionResult = TransactionMapper.Remove(itemPath);
+                                        }
+                                        else if (System.IO.Directory.Exists(itemPath) == true)
+                                        {
+                                            string[] businessFiles = Directory.GetFiles(itemPath, "*.json", SearchOption.AllDirectories);
+                                            foreach (string businessFile in businessFiles)
+                                            {
+                                                logger.Information("[{LogCategory}] " + $"Delete TenantApp Contract FilePath: {itemPath}", "Transaction/Refresh");
+                                                actionResult = TransactionMapper.Remove(itemPath);
+                                            }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if (TransactionMapper.HasContractFile(filePath) == true && fileInfo.Name != "publicTransactions.json")
+                                    {
+                                        logger.Information("[{LogCategory}] " + $"Delete Contract FilePath: {filePath}", "Transaction/Refresh");
+                                        actionResult = TransactionMapper.Remove(filePath);
+                                    }
+                                    else if (System.IO.Directory.Exists(filePath) == true)
+                                    {
+                                        string[] businessFiles = Directory.GetFiles(filePath, "*.json", SearchOption.AllDirectories);
+                                        foreach (string businessFile in businessFiles)
+                                        {
+                                            logger.Information("[{LogCategory}] " + $"Delete Contract FilePath: {filePath}", "Transaction/Refresh");
+                                            actionResult = TransactionMapper.Remove(filePath);
+                                        }
+                                    }
+                                }
+                                break;
                         }
-                    }
-
-                    WatcherChangeTypes watcherChangeTypes = (WatcherChangeTypes)Enum.Parse(typeof(WatcherChangeTypes), changeType);
-                    bool actionResult = false;
-                    switch (watcherChangeTypes)
-                    {
-                        case WatcherChangeTypes.Created:
-                        case WatcherChangeTypes.Changed:
-                            if (TransactionMapper.HasContractFile(filePath) == true && fileInfo.Name != "publicTransactions.json")
-                            {
-                                logger.Information("[{LogCategory}] " + $"Add Contract FilePath: {filePath}", "Transaction/Refresh");
-                                actionResult = TransactionMapper.Upsert(filePath);
-                            }
-                            break;
-                        case WatcherChangeTypes.Deleted:
-                            if (TransactionMapper.HasContractFile(filePath) == true && fileInfo.Name != "publicTransactions.json")
-                            {
-                                logger.Information("[{LogCategory}] " + $"Delete Contract FilePath: {filePath}", "Transaction/Refresh");
-                                actionResult = TransactionMapper.Remove(filePath);
-                            }
-                            break;
                     }
 
                     result = Content(JsonConvert.SerializeObject(actionResult), "application/json");
@@ -354,16 +368,15 @@ namespace transact.Areas.transact.Controllers
             return result;
         }
 
-        // http://localhost:8000/transact/api/base64/encode?value={"ApplicationID":"SYN","ProjectID":"ZZD","TransactionID":"TST010"}
-        // http://localhost:8000/transact/api/transaction/retrieve?base64Json=eyJQcm9qZWN0SUQiOiJRQUYiLCJCdXNpbmVzc0lEIjoiIiwiVHJhbnNhY3Rpb25JRCI6IiIsIkZ1bmN0aW9uSUQiOiIifQ==
+        // http://localhost:8000/transact/api/transaction/retrieve?
         [HttpGet("[action]")]
-        public ActionResult Retrieve(string base64Json)
+        public ActionResult Retrieve(string applicationID, string? projectID, string? transactionID)
         {
-            var definition = new
+            var model = new
             {
-                ApplicationID = "",
-                ProjectID = "",
-                TransactionID = ""
+                ApplicationID = applicationID,
+                ProjectID = projectID,
+                TransactionID = transactionID
             };
 
             ActionResult result = BadRequest();
@@ -376,13 +389,6 @@ namespace transact.Areas.transact.Controllers
             {
                 try
                 {
-                    string json = base64Json.DecodeBase64();
-                    var model = JsonConvert.DeserializeAnonymousType(json, definition);
-                    if (model == null || string.IsNullOrEmpty(model.ApplicationID) == true || string.IsNullOrEmpty(model.ProjectID) == true)
-                    {
-                        return Content("필수 항목 확인", "text/html");
-                    }
-
                     var queryResults = TransactionMapper.BusinessMappings.Select(p => p.Value).Where(p =>
                             p.ApplicationID == model.ApplicationID);
 
@@ -406,72 +412,6 @@ namespace transact.Areas.transact.Controllers
                 {
                     string exceptionText = exception.ToMessage();
                     logger.Error("[{LogCategory}] " + exceptionText, "Transaction/Retrieve");
-                    result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
-                }
-            }
-
-            return result;
-        }
-
-        // http://localhost:8000/transact/api/base64/encode?value={"ApplicationID":"SYN","ProjectID":"ZZD","TransactionID":"TST010","ServiceID":"G01","TransactionLog":true}
-        // http://localhost:8000/transact/api/transaction/Log?base64Json=eyJQcm9qZWN0SUQiOiJTVlUiLCJCdXNpbmVzc0lEIjoiWlpEIiwiVHJhbnNhY3Rpb25JRCI6IlRTVDAxMCIsIkZ1bmN0aW9uSUQiOiJHMDEwMCIsIlRyYW5zYWN0aW9uTG9nIjp0cnVlfQ==
-        [HttpGet("[action]")]
-        public ActionResult Log(string base64Json)
-        {
-            var definition = new
-            {
-                ApplicationID = "",
-                ProjectID = "",
-                TransactionID = "",
-                ServiceID = "",
-                TransactionLog = false
-            };
-
-            ActionResult result = BadRequest();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
-            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
-            {
-                result = BadRequest();
-            }
-            else
-            {
-                try
-                {
-                    string json = base64Json.DecodeBase64();
-                    var model = JsonConvert.DeserializeAnonymousType(json, definition);
-                    if (model != null)
-                    {
-                        BusinessContract? businessContract = TransactionMapper.BusinessMappings.Select(p => p.Value).Where(p =>
-                            p.ApplicationID == model.ApplicationID &&
-                            p.ProjectID == model.ProjectID &&
-                            p.TransactionID == model.TransactionID).FirstOrDefault();
-
-                        if (businessContract != null)
-                        {
-                            TransactionInfo? transactionInfo = businessContract.Services.Select(p => p).Where(p =>
-                                p.ServiceID == model.ServiceID).FirstOrDefault();
-
-                            if (transactionInfo != null)
-                            {
-                                transactionInfo.TransactionLog = model.TransactionLog;
-                                var value = model.TransactionLog;
-                                result = Content(JsonConvert.SerializeObject(value), "application/json");
-                            }
-                            else
-                            {
-                                result = Ok();
-                            }
-                        }
-                        else
-                        {
-                            result = Ok();
-                        }
-                    }
-                }
-                catch (Exception exception)
-                {
-                    string exceptionText = exception.ToMessage();
-                    logger.Error("[{LogCategory}] " + exceptionText, "Transaction/Log");
                     result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
                 }
             }

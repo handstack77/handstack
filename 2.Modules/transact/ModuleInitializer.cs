@@ -99,7 +99,7 @@ namespace transact
 
                         foreach (var item in moduleConfig.AllowRequestTransactions.AsEnumerable())
                         {
-                            ModuleConfiguration.AllowRequestTransactions.Add(item.Key, item.Value, TimeSpan.FromDays(3650));
+                            ModuleConfiguration.AllowRequestTransactions.Add(item.Key, item.Value);
                         }
 
                         ModuleConfiguration.IsConfigure = true;
@@ -118,47 +118,48 @@ namespace transact
                     throw new FileNotFoundException(message);
                 }
 
-                if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(Path.Combine(GlobalConfiguration.TenantAppBasePath)) == true)
-                {
-                    foreach (var userWorkPath in Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath))
-                    {
-                        DirectoryInfo workDirectoryInfo = new DirectoryInfo(userWorkPath);
-                        string userWorkID = workDirectoryInfo.Name;
-                        foreach (var appBasePath in Directory.GetDirectories(userWorkPath))
-                        {
-                            DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
-                            string applicationID = directoryInfo.Name;
-                            string tenantID = $"{userWorkID}|{applicationID}";
-                            string settingFilePath = Path.Combine(appBasePath, "settings.json");
-                            if (File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
-                            {
-                                string appSettingText = File.ReadAllText(settingFilePath);
-                                var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
-                                if (appSetting != null)
-                                {
-                                    var routingCommandUri = appSetting.Routing;
-                                    if (routingCommandUri != null)
-                                    {
-                                        foreach (var item in routingCommandUri.AsEnumerable())
-                                        {
-                                            string routeSegmentID = $"{userWorkID}|{item.ApplicationID}|{item.ProjectID}|{item.CommandType}|{item.Environment}";
-                                            if (ModuleConfiguration.RoutingCommandUri.ContainsKey(routeSegmentID) == false)
-                                            {
-                                                ModuleConfiguration.RoutingCommandUri.Add(routeSegmentID, item.Uri);
-                                            }
-                                            else
-                                            {
-                                                Log.Logger.Error("[{LogCategory}] " + $"applicationID: {applicationID}의 transact 거래 프록시 설정 확인 필요, key: {routeSegmentID}, value: {item.Uri}", $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            ModuleConfiguration.ContractBasePath.Add(Path.Combine(appBasePath, "transact"));
-                        }
-                    }
-                }
+                // 삭제 예정
+                // if (string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false && Directory.Exists(Path.Combine(GlobalConfiguration.TenantAppBasePath)) == true)
+                // {
+                //     foreach (var userWorkPath in Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath))
+                //     {
+                //         DirectoryInfo workDirectoryInfo = new DirectoryInfo(userWorkPath);
+                //         string userWorkID = workDirectoryInfo.Name;
+                //         foreach (var appBasePath in Directory.GetDirectories(userWorkPath))
+                //         {
+                //             DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
+                //             string applicationID = directoryInfo.Name;
+                //             string tenantID = $"{userWorkID}|{applicationID}";
+                //             string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                //             if (File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
+                //             {
+                //                 string appSettingText = File.ReadAllText(settingFilePath);
+                //                 var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
+                //                 if (appSetting != null)
+                //                 {
+                //                     var routingCommandUri = appSetting.Routing;
+                //                     if (routingCommandUri != null)
+                //                     {
+                //                         foreach (var item in routingCommandUri.AsEnumerable())
+                //                         {
+                //                             string routeSegmentID = $"{userWorkID}|{item.ApplicationID}|{item.ProjectID}|{item.CommandType}|{item.Environment}";
+                //                             if (ModuleConfiguration.RoutingCommandUri.ContainsKey(routeSegmentID) == false)
+                //                             {
+                //                                 ModuleConfiguration.RoutingCommandUri.Add(routeSegmentID, item.Uri);
+                //                             }
+                //                             else
+                //                             {
+                //                                 Log.Logger.Error("[{LogCategory}] " + $"applicationID: {applicationID}의 transact 거래 프록시 설정 확인 필요, key: {routeSegmentID}, value: {item.Uri}", $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
+                //                             }
+                //                         }
+                //                     }
+                //                 }
+                //             }
+                // 
+                //             ModuleConfiguration.ContractBasePath.Add(Path.Combine(appBasePath, "transact"));
+                //         }
+                //     }
+                // }
 
                 TransactionMapper.LoadContract(environment.EnvironmentName, Log.Logger, configuration);
 
@@ -242,10 +243,9 @@ namespace transact
                 }
             }
 
-            int tenantsCount = 0;
             foreach (var basePath in ModuleConfiguration.ContractBasePath)
             {
-                if (Directory.Exists(basePath) == true)
+                if (Directory.Exists(basePath) == true && (basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == false && string.IsNullOrEmpty(GlobalConfiguration.TenantAppBasePath) == false))
                 {
                     var fileSyncManager = new FileSyncManager(basePath, "*.json");
                     fileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
@@ -274,21 +274,12 @@ namespace transact
                         }
                     };
 
-                    string tenantsDirectoryPath = $"{Path.DirectorySeparatorChar}tenants{Path.DirectorySeparatorChar}";
-                    if (basePath.Contains(tenantsDirectoryPath) == true)
-                    {
-                        tenantsCount = tenantsCount + 1;
-                    }
-                    else
-                    {
-                        Log.Information("[{LogCategory}] Business File Sync ContractBasePath: " + basePath, $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
-                    }
+                    Log.Information("[{LogCategory}] Business File Sync ContractBasePath: " + basePath, $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
 
                     fileSyncManager.Start();
                     ModuleConfiguration.BusinessFileSyncManager.Add(basePath, fileSyncManager);
                 }
             }
-            Log.Information("[{LogCategory}] Tenants Business File Sync: " + tenantsCount, $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
         }
     }
 

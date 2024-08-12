@@ -200,10 +200,9 @@ namespace prompter
                 }
             }
 
-            int tenantsCount = 0;
             foreach (var basePath in ModuleConfiguration.ContractBasePath)
             {
-                if (Directory.Exists(basePath) == true)
+                if (Directory.Exists(basePath) == true && basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == false)
                 {
                     var fileSyncManager = new FileSyncManager(basePath, "*.xml");
                     fileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
@@ -232,21 +231,12 @@ namespace prompter
                         }
                     };
 
-                    string tenantsDirectoryPath = $"{Path.DirectorySeparatorChar}tenants{Path.DirectorySeparatorChar}";
-                    if (basePath.Contains(tenantsDirectoryPath) == true)
-                    {
-                        tenantsCount = tenantsCount + 1;
-                    }
-                    else
-                    {
-                        Log.Information("[{LogCategory}] Prompt File Sync ContractBasePath: " + basePath, $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
-                    }
+                    Log.Information("[{LogCategory}] Prompt File Sync ContractBasePath: " + basePath, $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
 
                     fileSyncManager.Start();
                     ModuleConfiguration.PromptFileSyncManager.Add(basePath, fileSyncManager);
                 }
             }
-            Log.Information("[{LogCategory}] Tenants Prompt File Sync: " + tenantsCount, $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
         }
     }
 
