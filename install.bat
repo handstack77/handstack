@@ -53,6 +53,11 @@ if %errorlevel% neq 0 (
 set current_path=%cd%
 if exist %current_path%\1.WebHost\ack\ack.csproj (
     mkdir %current_path%\1.WebHost\build\handstack
+    if "%HANDSTACK_HOME%" == "" (
+        setx HANDSTACK_HOME %current_path%\1.WebHost\build\handstack
+        set HANDSTACK_HOME=%current_path%\1.WebHost\build\handstack
+    )
+
     cd %current_path%\1.WebHost\ack
     echo current_path: %current_path% HandStack 개발 환경 설치 확인 중...
     if not exist %current_path%\node_modules (
@@ -91,10 +96,6 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
     cd %current_path%
 	echo current_path: %current_path%
     set build_path=%current_path%\1.WebHost\build\handstack
-    if "%HANDSTACK_HOME%" == "" (
-        setx HANDSTACK_HOME %build_path%
-        set HANDSTACK_HOME=%build_path%
-    )
 
     dotnet build handstack.sln
 
@@ -109,6 +110,11 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
 
 if exist %current_path%\app\ack.exe (
     echo current_path: %current_path% ack 실행 환경 설치 확인 중...
+    if "%HANDSTACK_HOME%" == "" (
+        setx HANDSTACK_HOME %current_path%
+        set HANDSTACK_HOME=%current_path%
+    )
+
     if not exist %current_path%\node_modules (
         echo function 모듈 %current_path%\package.json 설치를 시작합니다...
         call npm install
@@ -139,10 +145,6 @@ if exist %current_path%\app\ack.exe (
         gulp
     )
     
-    if "%HANDSTACK_HOME%" == "" (
-        setx HANDSTACK_HOME %current_path%
-        set HANDSTACK_HOME=%current_path%
-    )
     echo ack 실행 환경 설치가 완료되었습니다. 터미널에서 다음 경로의 프로그램을 실행하세요. %current_path%\app\ack.exe
     cd %current_path%
 ) else (

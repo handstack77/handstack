@@ -62,6 +62,11 @@ fi
 current_path=$(pwd)
 if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
     mkdir -p $current_path/1.WebHost/build/handstack
+    if [ -z "$HANDSTACK_HOME" ]; then
+      echo 'export HANDSTACK_HOME="$current_path/1.WebHost/build/handstack"' >> ~/.bashrc
+      source ~/.bashrc
+    fi
+
     cd $current_path/1.WebHost/ack
     echo "current_path: $current_path 개발 환경 설치 확인 중..."
     if [ ! -d "$current_path/node_modules" ]; then
@@ -98,10 +103,6 @@ if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
     cd $current_path
     echo "current_path: $current_path"
     build_path=$current_path/1.WebHost/build/handstack
-    if [ -z "$HANDSTACK_HOME" ]; then
-      echo 'export HANDSTACK_HOME="build_path"' >> ~/.bashrc
-      source ~/.bashrc
-    fi
 
     echo build.sh, post-build.sh 스크립트에 실행 권한을 부여합니다...
     module_paths=("$current_path/1.WebHost/ack" "$current_path/1.WebHost/forbes" "$current_path/2.Modules/checkup" "$current_path/2.Modules/dbclient" "$current_path/2.Modules/function" "$current_path/2.Modules/logger" "$current_path/2.Modules/openapi" "$current_path/2.Modules/repository" "$current_path/2.Modules/transact" "$current_path/2.Modules/wwwroot" "$current_path/4.Tool/CLI/handstack")
@@ -128,6 +129,11 @@ fi
 
 if [ -f "$current_path/app/ack.dll" ]; then
     echo "current_path: $current_path ack 실행 환경 설치 확인 중..."
+    if [ -z "$HANDSTACK_HOME" ]; then
+      echo 'export HANDSTACK_HOME="$current_path"' >> ~/.bashrc
+      source ~/.bashrc
+    fi
+
     if [ ! -d "$current_path/node_modules" ]; then
         echo "function 모듈 $current_path/package.json 설치를 시작합니다..."
         npm install
@@ -158,10 +164,6 @@ if [ -f "$current_path/app/ack.dll" ]; then
         gulp
     fi
 
-    if [ -z "$HANDSTACK_HOME" ]; then
-      echo 'export HANDSTACK_HOME="$current_path"' >> ~/.bashrc
-      source ~/.bashrc
-    fi
     echo "ack 실행 환경 설치가 완료되었습니다. 터미널에서 다음 경로의 프로그램을 실행하세요. $current_path/app/ack"
     cd $current_path
 fi
