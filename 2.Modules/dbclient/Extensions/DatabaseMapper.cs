@@ -46,120 +46,124 @@ namespace dbclient.Extensions
             DataSourceMap? result = null;
             if (DataSourceMappings != null)
             {
-                var dataSourceMaps = DataSourceMappings.Where(item =>
-                    item.Value.ApplicationID == applicationID
-                    && (item.Value.ProjectListID.IndexOf(projectID) > -1 || item.Value.ProjectListID.IndexOf("*") > -1)
-                    && item.Key.DataSourceID == dataSourceID
-                    && string.IsNullOrEmpty(item.Key.TanantPattern) == false
-                ).ToList();
-
-                for (int i = 0; i < dataSourceMaps.Count; i++)
-                {
-                    var dataSourceMap = dataSourceMaps[i];
-
-                    string tanantPattern = dataSourceMap.Key.TanantPattern;
-                    string tanantValue = dataSourceMap.Key.TanantValue;
-                    for (int j = 0; j < queryObject.Parameters.Count; j++)
-                    {
-                        var parameter = queryObject.Parameters[j];
-                        if (parameter.ParameterName.StartsWith("$") == true && parameter.Value != null)
-                        {
-                            tanantPattern = Regex.Replace(tanantPattern, "\\${" + parameter.ParameterName.Substring(1) + "}", parameter.Value.ToStringSafe());
-                        }
-                        else if (parameter.ParameterName.StartsWith("#") == true && parameter.Value != null)
-                        {
-                            tanantPattern = Regex.Replace(tanantPattern, "\\#{" + parameter.ParameterName.Substring(1) + "}", parameter.Value.ToStringSafe());
-                        }
-                    }
-
-                    if (tanantPattern == tanantValue)
-                    {
-                        result = dataSourceMap.Value;
-                        break;
-                    }
-                }
+                result = FindDataSourceMap(queryObject, applicationID, projectID, dataSourceID);
 
                 if (result == null)
                 {
-                    result = DataSourceMappings.FirstOrDefault(item =>
-                        item.Value.ApplicationID == applicationID
-                        && (item.Value.ProjectListID.IndexOf(projectID) > -1 || item.Value.ProjectListID.IndexOf("*") > -1)
-                        && item.Key.DataSourceID == dataSourceID
-                        && string.IsNullOrEmpty(item.Key.TanantPattern) == true
-                    ).Value;
-
-                    if (result == null)
+                    string userWorkID = string.Empty;
+                    string appBasePath = string.Empty;
+                    DirectoryInfo baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
+                    var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
+                    foreach (string directory in directories)
                     {
-                        string userWorkID = string.Empty;
-                        string appBasePath = string.Empty;
-                        DirectoryInfo baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
-                        var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
-                        foreach (string directory in directories)
+                        DirectoryInfo directoryInfo = new DirectoryInfo(directory);
+                        if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
                         {
-                            DirectoryInfo directoryInfo = new DirectoryInfo(directory);
-                            if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
-                            {
-                                appBasePath = directoryInfo.FullName;
-                                userWorkID = (directoryInfo.Parent?.Name).ToStringSafe();
-                                break;
-                            }
+                            appBasePath = directoryInfo.FullName;
+                            userWorkID = (directoryInfo.Parent?.Name).ToStringSafe();
+                            break;
                         }
+                    }
 
-                        string tenantID = $"{userWorkID}|{applicationID}";
-                        string settingFilePath = Path.Combine(appBasePath, "settings.json");
-                        if (string.IsNullOrEmpty(appBasePath) == false && File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
+                    string tenantID = $"{userWorkID}|{applicationID}";
+                    string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                    if (string.IsNullOrEmpty(appBasePath) == false && File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
+                    {
+                        string appSettingText = File.ReadAllText(settingFilePath);
+                        var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
+                        if (appSetting != null)
                         {
-                            string appSettingText = File.ReadAllText(settingFilePath);
-                            var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
-                            if (appSetting != null)
+                            var dataSourceJson = appSetting.DataSource;
+                            if (dataSourceJson != null)
                             {
-                                var dataSourceJson = appSetting.DataSource;
-                                if (dataSourceJson != null)
+                                foreach (var item in dataSourceJson)
                                 {
-                                    foreach (var item in dataSourceJson)
+                                    if (ModuleConfiguration.DataSource.Contains(item) == false)
                                     {
-                                        if (ModuleConfiguration.DataSource.Contains(item) == false)
-                                        {
-                                            item.ConnectionString = item.ConnectionString.Replace("{appBasePath}", appBasePath);
-                                            ModuleConfiguration.DataSource.Add(item);
-                                        }
+                                        item.ConnectionString = item.ConnectionString.Replace("{appBasePath}", appBasePath);
+                                        ModuleConfiguration.DataSource.Add(item);
+                                    }
 
-                                        DataSourceTanantKey tanantMap = new DataSourceTanantKey();
-                                        tanantMap.DataSourceID = item.DataSourceID;
-                                        tanantMap.TanantPattern = item.TanantPattern;
-                                        tanantMap.TanantValue = item.TanantValue;
+                                    DataSourceTanantKey tanantMap = new DataSourceTanantKey();
+                                    tanantMap.DataSourceID = item.DataSourceID;
+                                    tanantMap.TanantPattern = item.TanantPattern;
+                                    tanantMap.TanantValue = item.TanantValue;
+
+                                    if (DataSourceMappings.ContainsKey(tanantMap) == false)
+                                    {
+                                        DataSourceMap dataSourceMap = new DataSourceMap();
+                                        dataSourceMap.ApplicationID = item.ApplicationID;
+                                        dataSourceMap.ProjectListID = item.ProjectID.Split(",").Where(s => string.IsNullOrWhiteSpace(s) == false).Distinct().ToList();
+                                        dataSourceMap.DataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), item.DataProvider);
+                                        dataSourceMap.ConnectionString = item.ConnectionString;
+
+                                        if (item.IsEncryption.ParseBool() == true)
+                                        {
+                                            dataSourceMap.ConnectionString = DecryptConnectionString(item);
+                                        }
 
                                         if (DataSourceMappings.ContainsKey(tanantMap) == false)
                                         {
-                                            DataSourceMap dataSourceMap = new DataSourceMap();
-                                            dataSourceMap.ApplicationID = item.ApplicationID;
-                                            dataSourceMap.ProjectListID = item.ProjectID.Split(",").Where(s => string.IsNullOrWhiteSpace(s) == false).Distinct().ToList();
-                                            dataSourceMap.DataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), item.DataProvider);
-                                            dataSourceMap.ConnectionString = item.ConnectionString;
-
-                                            if (item.IsEncryption.ParseBool() == true)
-                                            {
-                                                dataSourceMap.ConnectionString = DatabaseMapper.DecryptConnectionString(item);
-                                            }
-
-                                            if (DataSourceMappings.ContainsKey(tanantMap) == false)
-                                            {
-                                                DataSourceMappings.Add(tanantMap, dataSourceMap);
-                                            }
+                                            DataSourceMappings.Add(tanantMap, dataSourceMap);
                                         }
-
-                                        result = DataSourceMappings.FirstOrDefault(item =>
-                                            item.Value.ApplicationID == applicationID
-                                            && (item.Value.ProjectListID.IndexOf(projectID) > -1 || item.Value.ProjectListID.IndexOf("*") > -1)
-                                            && item.Key.DataSourceID == dataSourceID
-                                            && string.IsNullOrEmpty(item.Key.TanantPattern) == true
-                                        ).Value;
                                     }
                                 }
+
+                                result = FindDataSourceMap(queryObject, applicationID, projectID, dataSourceID);
                             }
                         }
                     }
                 }
+            }
+
+            return result;
+        }
+
+        private static DataSourceMap FindDataSourceMap(QueryObject queryObject, string applicationID, string projectID, string dataSourceID)
+        {
+            DataSourceMap? result = null;
+
+            var dataSourceMaps = DataSourceMappings.Where(item =>
+                item.Value.ApplicationID == applicationID
+                && (item.Value.ProjectListID.IndexOf(projectID) > -1 || item.Value.ProjectListID.IndexOf("*") > -1)
+                && item.Key.DataSourceID == dataSourceID
+                && string.IsNullOrEmpty(item.Key.TanantPattern) == false
+            ).ToList();
+
+            for (int i = 0; i < dataSourceMaps.Count; i++)
+            {
+                var dataSourceMap = dataSourceMaps[i];
+
+                string tanantPattern = dataSourceMap.Key.TanantPattern;
+                string tanantValue = dataSourceMap.Key.TanantValue;
+                for (int j = 0; j < queryObject.Parameters.Count; j++)
+                {
+                    var parameter = queryObject.Parameters[j];
+                    if (parameter.ParameterName.StartsWith("$") == true && parameter.Value != null)
+                    {
+                        tanantPattern = Regex.Replace(tanantPattern, "\\${" + parameter.ParameterName.Substring(1) + "}", parameter.Value.ToStringSafe());
+                    }
+                    else if (parameter.ParameterName.StartsWith("#") == true && parameter.Value != null)
+                    {
+                        tanantPattern = Regex.Replace(tanantPattern, "\\#{" + parameter.ParameterName.Substring(1) + "}", parameter.Value.ToStringSafe());
+                    }
+                }
+
+                if (tanantPattern == tanantValue)
+                {
+                    result = dataSourceMap.Value;
+                    break;
+                }
+            }
+
+            if (result == null)
+            {
+                result = DataSourceMappings.FirstOrDefault(item =>
+                    item.Value.ApplicationID == applicationID
+                    && (item.Value.ProjectListID.IndexOf(projectID) > -1 || item.Value.ProjectListID.IndexOf("*") > -1)
+                    && item.Key.DataSourceID == dataSourceID
+                    && string.IsNullOrEmpty(item.Key.TanantPattern) == true
+                ).Value;
             }
 
             return result;
@@ -486,23 +490,20 @@ namespace dbclient.Extensions
                                             statementMap.StatementID
                                         );
 
-                                        lock (StatementMappings)
+                                        if (StatementMappings.ContainsKey(queryID) == false)
                                         {
-                                            if (StatementMappings.ContainsKey(queryID) == false)
+                                            StatementMappings.Add(queryID, statementMap);
+                                        }
+                                        else
+                                        {
+                                            if (forceUpdate == true)
                                             {
+                                                StatementMappings.Remove(queryID);
                                                 StatementMappings.Add(queryID, statementMap);
                                             }
                                             else
                                             {
-                                                if (forceUpdate == true)
-                                                {
-                                                    StatementMappings.Remove(queryID);
-                                                    StatementMappings.Add(queryID, statementMap);
-                                                }
-                                                else
-                                                {
-                                                    logger.Error("[{LogCategory}] " + $"SqlMap 정보 중복 오류 - {filePath}, ProjectID - {statementMap.ApplicationID}, BusinessID - {statementMap.ProjectID}, TransactionID - {statementMap.TransactionID}, StatementID - {statementMap.StatementID}", "DatabaseMapper/AddStatementMap");
-                                                }
+                                                logger.Error("[{LogCategory}] " + $"SqlMap 정보 중복 오류 - {filePath}, ProjectID - {statementMap.ApplicationID}, BusinessID - {statementMap.ProjectID}, TransactionID - {statementMap.TransactionID}, StatementID - {statementMap.StatementID}", "DatabaseMapper/AddStatementMap");
                                             }
                                         }
                                     }
@@ -929,7 +930,7 @@ namespace dbclient.Extensions
 
                 foreach (var basePath in ModuleConfiguration.ContractBasePath)
                 {
-                    if (Directory.Exists(basePath) == false)
+                    if (Directory.Exists(basePath) == false || basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                     {
                         continue;
                     }
@@ -1027,7 +1028,7 @@ namespace dbclient.Extensions
                                         {
                                             if (StatementMappings.ContainsKey(queryID) == false)
                                             {
-                                                StatementMappings.Add(queryID, statementMap);
+                                                StatementMappings.Add(queryID, statementMap, TimeSpan.FromDays(3650));
                                             }
                                             else
                                             {
@@ -1069,10 +1070,10 @@ namespace dbclient.Extensions
 
                         if (item.IsEncryption.ParseBool() == true)
                         {
-                            dataSourceMap.ConnectionString = DatabaseMapper.DecryptConnectionString(item);
+                            dataSourceMap.ConnectionString = DecryptConnectionString(item);
                         }
 
-                        DataSourceMappings.Add(tanantMap, dataSourceMap);
+                        DataSourceMappings.Add(tanantMap, dataSourceMap, TimeSpan.FromDays(3650));
                     }
                     else
                     {

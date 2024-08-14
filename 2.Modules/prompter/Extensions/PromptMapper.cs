@@ -42,116 +42,120 @@ namespace prompter.Extensions
             DataSourceMap? result = null;
             lock (DataSourceMappings)
             {
-                var dataSourceMaps = DataSourceMappings.Where(item =>
-                    item.Value.ApplicationID == applicationID
-                    && (item.Value.ProjectListID.IndexOf(projectID) > -1 || item.Value.ProjectListID.IndexOf("*") > -1)
-                    && item.Key.DataSourceID == dataSourceID
-                    && string.IsNullOrEmpty(item.Key.TanantPattern) == false
-                ).ToList();
-
-                for (int i = 0; i < dataSourceMaps.Count; i++)
-                {
-                    var dataSourceMap = dataSourceMaps[i];
-
-                    string tanantPattern = dataSourceMap.Key.TanantPattern;
-                    string tanantValue = dataSourceMap.Key.TanantValue;
-                    for (int j = 0; j < queryObject.Parameters.Count; j++)
-                    {
-                        var parameter = queryObject.Parameters[j];
-                        if (parameter.ParameterName.StartsWith("$") == true && parameter.Value != null)
-                        {
-                            tanantPattern = Regex.Replace(tanantPattern, "\\${" + parameter.ParameterName.Substring(1) + "}", parameter.Value.ToStringSafe());
-                        }
-                        else if (parameter.ParameterName.StartsWith("#") == true && parameter.Value != null)
-                        {
-                            tanantPattern = Regex.Replace(tanantPattern, "\\#{" + parameter.ParameterName.Substring(1) + "}", parameter.Value.ToStringSafe());
-                        }
-                    }
-
-                    if (tanantPattern == tanantValue)
-                    {
-                        result = dataSourceMap.Value;
-                        break;
-                    }
-                }
+                result = FindDataSourceMap(queryObject, applicationID, projectID, dataSourceID);
 
                 if (result == null)
                 {
-                    result = DataSourceMappings.FirstOrDefault(item =>
-                        item.Value.ApplicationID == applicationID
-                        && (item.Value.ProjectListID.IndexOf(projectID) > -1 || item.Value.ProjectListID.IndexOf("*") > -1)
-                        && item.Key.DataSourceID == dataSourceID
-                        && string.IsNullOrEmpty(item.Key.TanantPattern) == true
-                    ).Value;
-
-                    if (result == null)
+                    string userWorkID = string.Empty;
+                    string appBasePath = string.Empty;
+                    DirectoryInfo baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
+                    var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
+                    foreach (string directory in directories)
                     {
-                        string userWorkID = string.Empty;
-                        string appBasePath = string.Empty;
-                        DirectoryInfo baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
-                        var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
-                        foreach (string directory in directories)
+                        DirectoryInfo directoryInfo = new DirectoryInfo(directory);
+                        if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
                         {
-                            DirectoryInfo directoryInfo = new DirectoryInfo(directory);
-                            if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
-                            {
-                                appBasePath = directoryInfo.FullName;
-                                userWorkID = (directoryInfo.Parent?.Name).ToStringSafe();
-                                break;
-                            }
+                            appBasePath = directoryInfo.FullName;
+                            userWorkID = (directoryInfo.Parent?.Name).ToStringSafe();
+                            break;
                         }
+                    }
 
-                        string tenantID = $"{userWorkID}|{applicationID}";
-                        string settingFilePath = Path.Combine(appBasePath, "settings.json");
-                        if (string.IsNullOrEmpty(appBasePath) == false && File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
+                    string tenantID = $"{userWorkID}|{applicationID}";
+                    string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                    if (string.IsNullOrEmpty(appBasePath) == false && File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
+                    {
+                        string appSettingText = File.ReadAllText(settingFilePath);
+                        var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
+                        if (appSetting != null)
                         {
-                            string appSettingText = File.ReadAllText(settingFilePath);
-                            var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
-                            if (appSetting != null)
+                            var dataSourceJson = appSetting.DataSource;
+                            if (dataSourceJson != null)
                             {
-                                var dataSourceJson = appSetting.DataSource;
-                                if (dataSourceJson != null)
+                                foreach (var item in dataSourceJson)
                                 {
-                                    foreach (var item in dataSourceJson)
+                                    DataSourceTanantKey tanantMap = new DataSourceTanantKey();
+                                    tanantMap.DataSourceID = item.DataSourceID;
+                                    tanantMap.TanantPattern = item.TanantPattern;
+                                    tanantMap.TanantValue = item.TanantValue;
+
+                                    if (DataSourceMappings.ContainsKey(tanantMap) == false)
                                     {
-                                        DataSourceTanantKey tanantMap = new DataSourceTanantKey();
-                                        tanantMap.DataSourceID = item.DataSourceID;
-                                        tanantMap.TanantPattern = item.TanantPattern;
-                                        tanantMap.TanantValue = item.TanantValue;
+                                        DataSourceMap dataSourceMap = new DataSourceMap();
+                                        dataSourceMap.ApplicationID = item.ApplicationID;
+                                        dataSourceMap.ProjectListID = item.ProjectID.Split(",").Where(s => string.IsNullOrWhiteSpace(s) == false).Distinct().ToList();
+                                        dataSourceMap.LLMProvider = (LLMProviders)Enum.Parse(typeof(LLMProviders), item.DataProvider);
+                                        dataSourceMap.ApiKey = item.ApiKey;
+                                        dataSourceMap.ModelID = item.ModelID;
+                                        dataSourceMap.Endpoint = item.Endpoint;
+
+                                        if (item.IsEncryption.ParseBool() == true)
+                                        {
+                                            item.ApiKey = DecryptApiKey(item);
+                                        }
 
                                         if (DataSourceMappings.ContainsKey(tanantMap) == false)
                                         {
-                                            DataSourceMap dataSourceMap = new DataSourceMap();
-                                            dataSourceMap.ApplicationID = item.ApplicationID;
-                                            dataSourceMap.ProjectListID = item.ProjectID.Split(",").Where(s => string.IsNullOrWhiteSpace(s) == false).Distinct().ToList();
-                                            dataSourceMap.LLMProvider = (LLMProviders)Enum.Parse(typeof(LLMProviders), item.DataProvider);
-                                            dataSourceMap.ApiKey = item.ApiKey;
-                                            dataSourceMap.ModelID = item.ModelID;
-                                            dataSourceMap.Endpoint = item.Endpoint;
-
-                                            if (item.IsEncryption.ParseBool() == true)
-                                            {
-                                                item.ApiKey = PromptMapper.DecryptApiKey(item);
-                                            }
-
-                                            if (DataSourceMappings.ContainsKey(tanantMap) == false)
-                                            {
-                                                DataSourceMappings.Add(tanantMap, dataSourceMap);
-                                            }
+                                            DataSourceMappings.Add(tanantMap, dataSourceMap);
                                         }
-
-                                        result = DataSourceMappings.FirstOrDefault(item =>
-                                            item.Value.ApplicationID == applicationID
-                                            && (item.Value.ProjectListID.IndexOf(projectID) > -1 || item.Value.ProjectListID.IndexOf("*") > -1)
-                                            && item.Key.DataSourceID == dataSourceID
-                                            && string.IsNullOrEmpty(item.Key.TanantPattern) == true
-                                        ).Value;
                                     }
                                 }
+
+                                result = FindDataSourceMap(queryObject, applicationID, projectID, dataSourceID);
                             }
                         }
                     }
                 }
+            }
+
+            return result;
+        }
+
+        private static DataSourceMap FindDataSourceMap(QueryObject queryObject, string applicationID, string projectID, string dataSourceID)
+        {
+            DataSourceMap? result = null;
+
+            var dataSourceMaps = DataSourceMappings.Where(item =>
+                item.Value.ApplicationID == applicationID
+                && (item.Value.ProjectListID.IndexOf(projectID) > -1 || item.Value.ProjectListID.IndexOf("*") > -1)
+                && item.Key.DataSourceID == dataSourceID
+                && string.IsNullOrEmpty(item.Key.TanantPattern) == false
+            ).ToList();
+
+            for (int i = 0; i < dataSourceMaps.Count; i++)
+            {
+                var dataSourceMap = dataSourceMaps[i];
+
+                string tanantPattern = dataSourceMap.Key.TanantPattern;
+                string tanantValue = dataSourceMap.Key.TanantValue;
+                for (int j = 0; j < queryObject.Parameters.Count; j++)
+                {
+                    var parameter = queryObject.Parameters[j];
+                    if (parameter.ParameterName.StartsWith("$") == true && parameter.Value != null)
+                    {
+                        tanantPattern = Regex.Replace(tanantPattern, "\\${" + parameter.ParameterName.Substring(1) + "}", parameter.Value.ToStringSafe());
+                    }
+                    else if (parameter.ParameterName.StartsWith("#") == true && parameter.Value != null)
+                    {
+                        tanantPattern = Regex.Replace(tanantPattern, "\\#{" + parameter.ParameterName.Substring(1) + "}", parameter.Value.ToStringSafe());
+                    }
+                }
+
+                if (tanantPattern == tanantValue)
+                {
+                    result = dataSourceMap.Value;
+                    break;
+                }
+            }
+
+            if (result == null)
+            {
+                result = DataSourceMappings.FirstOrDefault(item =>
+                    item.Value.ApplicationID == applicationID
+                    && (item.Value.ProjectListID.IndexOf(projectID) > -1 || item.Value.ProjectListID.IndexOf("*") > -1)
+                    && item.Key.DataSourceID == dataSourceID
+                    && string.IsNullOrEmpty(item.Key.TanantPattern) == true
+                ).Value;
             }
 
             return result;
@@ -200,15 +204,9 @@ namespace prompter.Extensions
                                 htmlDocument.LoadHtml(ReplaceCData(File.ReadAllText(promptMapFile)));
                                 HtmlNode header = htmlDocument.DocumentNode.SelectSingleNode("//mapper/header");
 
-                                applicationID = (header.Element("application")?.InnerText).ToStringSafe();
-                                projectID = (header.Element("project")?.InnerText).ToStringSafe();
-                                transactionID = (header.Element("transaction")?.InnerText).ToStringSafe();
-                                if (promptMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
-                                {
-                                    applicationID = string.IsNullOrEmpty(applicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : applicationID;
-                                    projectID = string.IsNullOrEmpty(projectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : projectID;
-                                    transactionID = string.IsNullOrEmpty(transactionID) == true ? fileInfo.Name.Replace(fileInfo.Extension, "") : transactionID;
-                                }
+                                applicationID = string.IsNullOrEmpty(applicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : applicationID;
+                                projectID = string.IsNullOrEmpty(projectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : projectID;
+                                transactionID = string.IsNullOrEmpty(transactionID) == true ? fileInfo.Name.Replace(fileInfo.Extension, "") : transactionID;
 
                                 var items = htmlDocument.DocumentNode.SelectNodes("//commands/statement");
                                 if (items != null)
@@ -915,7 +913,7 @@ namespace prompter.Extensions
 
                 foreach (var basePath in ModuleConfiguration.ContractBasePath)
                 {
-                    if (Directory.Exists(basePath) == false)
+                    if (Directory.Exists(basePath) == false || basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                     {
                         continue;
                     }
@@ -933,18 +931,9 @@ namespace prompter.Extensions
                             htmlDocument.LoadHtml(ReplaceCData(File.ReadAllText(promptMapFile)));
                             HtmlNode header = htmlDocument.DocumentNode.SelectSingleNode("//mapper/header");
 
-                            bool isTenantContract = false;
                             string applicationID = (header.Element("application")?.InnerText).ToStringSafe();
                             string projectID = (header.Element("project")?.InnerText).ToStringSafe();
                             string transactionID = (header.Element("transaction")?.InnerText).ToStringSafe();
-
-                            if (promptMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
-                            {
-                                isTenantContract = true;
-                                applicationID = string.IsNullOrEmpty(applicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : applicationID;
-                                projectID = string.IsNullOrEmpty(projectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : projectID;
-                                transactionID = string.IsNullOrEmpty(transactionID) == true ? fileInfo.Name.Replace(fileInfo.Extension, "") : transactionID;
-                            }
 
                             var items = htmlDocument.DocumentNode.SelectNodes("//commands/statement");
                             if (items != null)
@@ -1002,7 +991,7 @@ namespace prompter.Extensions
                                         {
                                             if (PromptMappings.ContainsKey(queryID) == false)
                                             {
-                                                PromptMappings.Add(queryID, promptMap, isTenantContract == false ? TimeSpan.FromDays(3650) : null);
+                                                PromptMappings.Add(queryID, promptMap, TimeSpan.FromDays(3650));
                                             }
                                             else
                                             {
@@ -1046,7 +1035,7 @@ namespace prompter.Extensions
 
                         if (item.IsEncryption.ParseBool() == true)
                         {
-                            item.ApiKey = PromptMapper.DecryptApiKey(item);
+                            item.ApiKey = DecryptApiKey(item);
                         }
 
                         DataSourceMappings.Add(tanantMap, dataSourceMap, TimeSpan.FromDays(3650));

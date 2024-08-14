@@ -4,10 +4,12 @@ using System.IO;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
+
+using HandStack.Core.ExtensionMethod;
+using HandStack.Core.Licensing.Security.Cryptography;
+
 using Org.BouncyCastle.Asn1.X9;
 using Org.BouncyCastle.Security;
-using HandStack.Core.Licensing.Security.Cryptography;
-using HandStack.Core.ExtensionMethod;
 
 namespace HandStack.Core.Licensing
 {

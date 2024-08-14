@@ -78,9 +78,7 @@ namespace function.Areas.function.Controllers
             return result;
         }
 
-        /// <example>
         // http://localhost:8000/function/api/execution/refresh?changeType=Created&filePath=EWP/ZZD/TST010/featureMain.js
-        /// </example>
         [HttpGet("[action]")]
         public ActionResult Refresh(string changeType, string filePath, string? userWorkID, string? applicationID)
         {
@@ -264,9 +262,7 @@ namespace function.Areas.function.Controllers
             return result;
         }
 
-        /// <example>
-        /// http://localhost:8000/api/execution/meta
-        /// </example>
+        // http://localhost:8000/function/api/execution/meta
         [HttpGet("[action]")]
         public ActionResult Meta()
         {

@@ -42,7 +42,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 
 using Newtonsoft.Json;
@@ -1020,6 +1019,7 @@ namespace ack
                         else
                         {
                             Log.Warning("[{LogCategory}] HostAccessID 확인 필요: " + hostAccessID.ToStringSafe(), "Startup/diagnostics");
+                            context.Response.StatusCode = StatusCodes.Status400BadRequest;
                         }
                     }
                     catch (Exception exception)

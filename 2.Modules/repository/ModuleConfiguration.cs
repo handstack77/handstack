@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 
 using HandStack.Web.Entity;
+using HandStack.Web.Extensions;
 
 namespace repository
 {
@@ -32,7 +33,7 @@ namespace repository
         public static long AllowMaxFileUploadLength = 120000;
         public static int PurgeTokenTimeout = 120000;
         public static bool TokenGenerateIPCheck = false;
-        public static List<Repository> FileRepositorys = new List<Repository>();
+        public static ExpiringList<Repository> FileRepositorys = new ExpiringList<Repository>();
         public static bool IsApiFindServer = false;
     }
 }

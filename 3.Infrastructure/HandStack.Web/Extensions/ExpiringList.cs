@@ -216,5 +216,21 @@ namespace HandStack.Web.Extensions
                 }
             }
         }
+
+        public T? Find(Func<T, bool> predicate)
+        {
+            lock (defaultLock)
+            {
+                var now = DateTime.Now;
+                foreach (var entry in list)
+                {
+                    if (entry.ExpiryTime > now && predicate(entry.Value))
+                    {
+                        return entry.Value;
+                    }
+                }
+                return null;
+            }
+        }
     }
 }

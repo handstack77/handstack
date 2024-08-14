@@ -131,7 +131,7 @@ namespace transact.Areas.transact.Controllers
                                 if (string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false)
                                 {
                                     string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-                                    string itemPath = appBasePath + filePath;
+                                    string itemPath = Path.Combine(appBasePath, filePath);
                                     DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
                                     if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true)
                                     {
@@ -163,7 +163,7 @@ namespace transact.Areas.transact.Controllers
                                     {
                                         if (fileInfo.Name != "publicTransactions.json")
                                         {
-                                            string itemPath = basePath + filePath;
+                                            string itemPath = Path.Combine(basePath, filePath);
                                             BusinessContract? businessContract = BusinessContract.FromJson(System.IO.File.ReadAllText(itemPath));
                                             if (businessContract != null)
                                             {
@@ -191,39 +191,18 @@ namespace transact.Areas.transact.Controllers
                                     DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
                                     if (directoryInfo.Exists == true)
                                     {
-                                        string itemPath = appBasePath + filePath;
-                                        if (System.IO.File.Exists(itemPath) == true && fileInfo.Name != "publicTransactions.json")
+                                        string itemPath = Path.Combine(appBasePath, filePath);
+                                        if (fileInfo.Name != "publicTransactions.json")
                                         {
                                             logger.Information("[{LogCategory}] " + $"Delete TenantApp Contract FilePath: {itemPath}", "Transaction/Refresh");
                                             actionResult = TransactionMapper.Remove(itemPath);
                                         }
-                                        else if (System.IO.Directory.Exists(itemPath) == true)
-                                        {
-                                            string[] businessFiles = Directory.GetFiles(itemPath, "*.json", SearchOption.AllDirectories);
-                                            foreach (string businessFile in businessFiles)
-                                            {
-                                                logger.Information("[{LogCategory}] " + $"Delete TenantApp Contract FilePath: {itemPath}", "Transaction/Refresh");
-                                                actionResult = TransactionMapper.Remove(itemPath);
-                                            }
-                                        }
                                     }
                                 }
-                                else
+                                else if (fileInfo.Name != "publicTransactions.json")
                                 {
-                                    if (TransactionMapper.HasContractFile(filePath) == true && fileInfo.Name != "publicTransactions.json")
-                                    {
-                                        logger.Information("[{LogCategory}] " + $"Delete Contract FilePath: {filePath}", "Transaction/Refresh");
-                                        actionResult = TransactionMapper.Remove(filePath);
-                                    }
-                                    else if (System.IO.Directory.Exists(filePath) == true)
-                                    {
-                                        string[] businessFiles = Directory.GetFiles(filePath, "*.json", SearchOption.AllDirectories);
-                                        foreach (string businessFile in businessFiles)
-                                        {
-                                            logger.Information("[{LogCategory}] " + $"Delete Contract FilePath: {filePath}", "Transaction/Refresh");
-                                            actionResult = TransactionMapper.Remove(filePath);
-                                        }
-                                    }
+                                    logger.Information("[{LogCategory}] " + $"Delete Contract FilePath: {filePath}", "Transaction/Refresh");
+                                    actionResult = TransactionMapper.Remove(filePath);
                                 }
                                 break;
                         }

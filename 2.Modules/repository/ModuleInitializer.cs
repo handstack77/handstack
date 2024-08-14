@@ -142,92 +142,6 @@ namespace repository
                     });
                 }
 
-                if (Directory.Exists(GlobalConfiguration.TenantAppBasePath) == true)
-                {
-                    foreach (var userWorkPath in Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath))
-                    {
-                        DirectoryInfo workDirectoryInfo = new DirectoryInfo(userWorkPath);
-                        string userWorkID = workDirectoryInfo.Name;
-                        foreach (var appBasePath in Directory.GetDirectories(userWorkPath))
-                        {
-                            DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
-                            string applicationID = directoryInfo.Name;
-                            string tenantID = $"{userWorkID}|{applicationID}";
-                            string settingFilePath = Path.Combine(appBasePath, "settings.json");
-                            if (File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
-                            {
-                                string appSettingText = File.ReadAllText(settingFilePath);
-                                var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
-                                if (appSetting != null)
-                                {
-                                    var storages = appSetting.Storage;
-                                    if (storages != null)
-                                    {
-                                        foreach (var storage in storages)
-                                        {
-                                            Repository repository = new Repository();
-
-                                            repository.ApplicationID = storage.ApplicationID;
-                                            repository.RepositoryID = storage.RepositoryID;
-                                            repository.RepositoryName = storage.RepositoryName;
-                                            repository.AccessID = storage.AccessID;
-                                            repository.StorageType = storage.StorageType;
-                                            repository.PhysicalPath = storage.PhysicalPath;
-                                            repository.BlobContainerID = storage.BlobContainerID;
-                                            repository.BlobConnectionString = storage.BlobConnectionString;
-                                            repository.BlobItemUrl = storage.BlobItemUrl;
-                                            repository.IsVirtualPath = storage.IsVirtualPath;
-                                            repository.AccessMethod = storage.AccessMethod;
-                                            repository.IsFileUploadDownloadOnly = storage.IsFileUploadDownloadOnly;
-                                            repository.IsMultiUpload = storage.IsMultiUpload;
-                                            repository.IsFileOverWrite = storage.IsFileOverWrite;
-                                            repository.IsFileNameEncrypt = storage.IsFileNameEncrypt;
-                                            repository.IsKeepFileExtension = storage.IsKeepFileExtension;
-                                            repository.IsAutoPath = storage.IsAutoPath;
-                                            repository.PolicyPathID = storage.PolicyPathID;
-                                            repository.UploadTypeID = storage.UploadTypeID;
-                                            repository.UploadExtensions = storage.UploadExtensions;
-                                            repository.UploadCount = storage.UploadCount;
-                                            repository.UploadSizeLimit = storage.UploadSizeLimit;
-                                            repository.IsLocalDbFileManaged = storage.IsLocalDbFileManaged;
-                                            repository.SQLiteConnectionString = storage.SQLiteConnectionString;
-                                            repository.TransactionGetItem = storage.TransactionGetItem;
-                                            repository.TransactionDeleteItem = storage.TransactionDeleteItem;
-                                            repository.TransactionUpsertItem = storage.TransactionUpsertItem;
-                                            repository.TransactionUpdateDependencyID = storage.TransactionUpdateDependencyID;
-                                            repository.TransactionUpdateFileName = storage.TransactionUpdateFileName;
-                                            repository.Comment = storage.Comment;
-                                            repository.CreatedAt = storage.CreatedAt;
-                                            repository.ModifiedAt = storage.ModifiedAt;
-
-                                            if (ModuleConfiguration.FileRepositorys.Contains(repository) == false)
-                                            {
-                                                repository.PhysicalPath = repository.PhysicalPath.Replace("{appBasePath}", appBasePath);
-                                                repository.PhysicalPath = GlobalConfiguration.GetBasePath(repository.PhysicalPath);
-                                                DirectoryInfo repositoryDirectoryInfo = new DirectoryInfo(repository.PhysicalPath);
-                                                if (repositoryDirectoryInfo.Exists == false)
-                                                {
-                                                    repositoryDirectoryInfo.Create();
-                                                }
-
-                                                repository.UserWorkID = userWorkID;
-                                                repository.SettingFilePath = settingFilePath;
-
-                                                if (repository.IsLocalDbFileManaged == true)
-                                                {
-                                                    ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.SLT010.ZD01");
-                                                }
-
-                                                ModuleConfiguration.FileRepositorys.Add(repository);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
                 LoadContract();
 
                 foreach (Repository item in ModuleConfiguration.FileRepositorys)
@@ -401,8 +315,7 @@ namespace repository
                                     var repository = JsonConvert.DeserializeObject<Repository>(repositoryText);
                                     if (repository != null)
                                     {
-                                        if (ModuleConfiguration.FileRepositorys.Find(x => x.ApplicationID == repository.ApplicationID
-                                            && x.RepositoryID == repository.RepositoryID) == null)
+                                        if (ModuleConfiguration.FileRepositorys.Find(x => x.ApplicationID == repository.ApplicationID && x.RepositoryID == repository.RepositoryID) == null)
                                         {
                                             if (repository.PhysicalPath.IndexOf("{appBasePath}") == -1)
                                             {
@@ -422,7 +335,7 @@ namespace repository
                                                 ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.SLT010.ZD01");
                                             }
 
-                                            ModuleConfiguration.FileRepositorys.Add(repository);
+                                            ModuleConfiguration.FileRepositorys.Add(repository, TimeSpan.FromDays(3650));
                                         }
                                         else
                                         {
@@ -437,8 +350,7 @@ namespace repository
                                     {
                                         foreach (var repository in repositorys)
                                         {
-                                            if (ModuleConfiguration.FileRepositorys.Find(x => x.ApplicationID == repository.ApplicationID
-                                                && x.RepositoryID == repository.RepositoryID) == null)
+                                            if (ModuleConfiguration.FileRepositorys.Find(x => x.ApplicationID == repository.ApplicationID && x.RepositoryID == repository.RepositoryID) == null)
                                             {
                                                 if (repository.PhysicalPath.IndexOf("{appBasePath}") == -1)
                                                 {
@@ -458,7 +370,7 @@ namespace repository
                                                     ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.SLT010.ZD01");
                                                 }
 
-                                                ModuleConfiguration.FileRepositorys.Add(repository);
+                                                ModuleConfiguration.FileRepositorys.Add(repository, TimeSpan.FromDays(3650));
                                             }
                                             else
                                             {

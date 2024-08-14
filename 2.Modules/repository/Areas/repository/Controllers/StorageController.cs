@@ -2025,8 +2025,7 @@ namespace repository.Controllers
                             }
                         }
 
-                        string tenantID = $"{userWorkID}|{applicationID}";
-                        if (Directory.Exists(appBasePath) == true)
+                        if (string.IsNullOrEmpty(userWorkID) == false && Directory.Exists(appBasePath) == true)
                         {
                             string settingFilePath = Path.Combine(appBasePath, "settings.json");
                             if (System.IO.File.Exists(settingFilePath) == true)
