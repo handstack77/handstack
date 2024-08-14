@@ -59,10 +59,10 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
     set HANDSTACK_HOME=%current_path%\1.WebHost\build\handstack
     setx HANDSTACK_HOME %current_path%\1.WebHost\build\handstack
 
-    cd %current_path%\1.WebHost\ack
     echo current_path: %current_path% HandStack 개발 환경 설치 확인 중...
-    if not exist %current_path%\node_modules (
+    if not exist %current_path%\1.WebHost\ack\node_modules (
         echo syn.js 번들링 %current_path%\package.json 설치를 시작합니다...
+        cd %current_path%\1.WebHost\ack
         call npm install
         gulp
         robocopy %current_path%\1.WebHost\ack\wwwroot\assets\js %current_path%\1.WebHost\build\handstack\node_modules\syn index.js /copy:dat

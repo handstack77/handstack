@@ -70,10 +70,10 @@ if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
 
     source ~/.bashrc
 
-    cd $current_path/1.WebHost/ack
     echo "current_path: $current_path 개발 환경 설치 확인 중..."
-    if [ ! -d "$current_path/node_modules" ]; then
+    if [ ! -d "$current_path/1.WebHost/ack/node_modules" ]; then
         echo "syn.js 번들링 $current_path/package.json 설치를 시작합니다..."
+        cd $current_path/1.WebHost/ack
         npm install
         gulp
         rsync -av --progress --exclude='*' --include='index.js' $current_path/1.WebHost/ack/wwwroot/assets/js $current_path/1.WebHost/build/handstack/node_modules/syn
