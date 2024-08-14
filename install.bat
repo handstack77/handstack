@@ -52,6 +52,9 @@ if %errorlevel% neq 0 (
 
 set current_path=%cd%
 if exist %current_path%\1.WebHost\ack\ack.csproj (
+    set HANDSTACK_SRC=%current_path%
+    setx HANDSTACK_SRC %current_path%
+
     mkdir %current_path%\1.WebHost\build\handstack
     set HANDSTACK_HOME=%current_path%\1.WebHost\build\handstack
     setx HANDSTACK_HOME %current_path%\1.WebHost\build\handstack

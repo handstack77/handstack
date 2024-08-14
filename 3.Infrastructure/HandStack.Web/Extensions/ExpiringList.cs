@@ -15,8 +15,8 @@ namespace HandStack.Web.Extensions
 
         public ExpiringList()
         {
-            this.defaultExpiryDuration = TimeSpan.FromMinutes(20);
-            purgeTimer = new Timer(RemoveExpiredItems!, null, TimeSpan.FromMinutes(10), TimeSpan.FromMinutes(10));
+            this.defaultExpiryDuration = TimeSpan.FromMinutes(2);
+            purgeTimer = new Timer(RemoveExpiredItems!, null, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
         }
 
         public ExpiringList(TimeSpan defaultExpiryDuration, TimeSpan cleanupInterval)

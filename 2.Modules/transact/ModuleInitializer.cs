@@ -118,49 +118,6 @@ namespace transact
                     throw new FileNotFoundException(message);
                 }
 
-                // 삭제 예정
-                // if (Directory.Exists(GlobalConfiguration.TenantAppBasePath) == true)
-                // {
-                //     foreach (var userWorkPath in Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath))
-                //     {
-                //         DirectoryInfo workDirectoryInfo = new DirectoryInfo(userWorkPath);
-                //         string userWorkID = workDirectoryInfo.Name;
-                //         foreach (var appBasePath in Directory.GetDirectories(userWorkPath))
-                //         {
-                //             DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
-                //             string applicationID = directoryInfo.Name;
-                //             string tenantID = $"{userWorkID}|{applicationID}";
-                //             string settingFilePath = Path.Combine(appBasePath, "settings.json");
-                //             if (File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
-                //             {
-                //                 string appSettingText = File.ReadAllText(settingFilePath);
-                //                 var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
-                //                 if (appSetting != null)
-                //                 {
-                //                     var routingCommandUri = appSetting.Routing;
-                //                     if (routingCommandUri != null)
-                //                     {
-                //                         foreach (var item in routingCommandUri.AsEnumerable())
-                //                         {
-                //                             string routeSegmentID = $"{userWorkID}|{item.ApplicationID}|{item.ProjectID}|{item.CommandType}|{item.Environment}";
-                //                             if (ModuleConfiguration.RoutingCommandUri.ContainsKey(routeSegmentID) == false)
-                //                             {
-                //                                 ModuleConfiguration.RoutingCommandUri.Add(routeSegmentID, item.Uri);
-                //                             }
-                //                             else
-                //                             {
-                //                                 Log.Logger.Error("[{LogCategory}] " + $"applicationID: {applicationID}의 transact 거래 프록시 설정 확인 필요, key: {routeSegmentID}, value: {item.Uri}", $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
-                //                             }
-                //                         }
-                //                     }
-                //                 }
-                //             }
-                // 
-                //             ModuleConfiguration.ContractBasePath.Add(Path.Combine(appBasePath, "transact"));
-                //         }
-                //     }
-                // }
-
                 TransactionMapper.LoadContract(environment.EnvironmentName, Log.Logger, configuration);
 
                 services.AddSingleton(new TransactLoggerClient(Log.Logger));

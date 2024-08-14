@@ -61,9 +61,13 @@ fi
 
 current_path=$(pwd)
 if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
+    export HANDSTACK_SRC="$current_path"
+    echo 'export HANDSTACK_SRC="$current_path"' >> ~/.bashrc
+
     mkdir -p $current_path/1.WebHost/build/handstack
     export HANDSTACK_HOME="$current_path/1.WebHost/build/handstack"
     echo 'export HANDSTACK_HOME="$current_path/1.WebHost/build/handstack"' >> ~/.bashrc
+
     source ~/.bashrc
 
     cd $current_path/1.WebHost/ack
@@ -128,8 +132,10 @@ fi
 
 if [ -f "$current_path/app/ack.dll" ]; then
     echo "current_path: $current_path ack 실행 환경 설치 확인 중..."
+
     export HANDSTACK_HOME="$current_path"
     echo 'export HANDSTACK_HOME="$current_path"' >> ~/.bashrc
+
     source ~/.bashrc
 
     if [ ! -d "$current_path/node_modules" ]; then
