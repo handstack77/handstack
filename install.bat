@@ -53,10 +53,8 @@ if %errorlevel% neq 0 (
 set current_path=%cd%
 if exist %current_path%\1.WebHost\ack\ack.csproj (
     mkdir %current_path%\1.WebHost\build\handstack
-    if "%HANDSTACK_HOME%" == "" (
-        setx HANDSTACK_HOME %current_path%\1.WebHost\build\handstack
-        set HANDSTACK_HOME=%current_path%\1.WebHost\build\handstack
-    )
+    set HANDSTACK_HOME=%current_path%\1.WebHost\build\handstack
+    setx HANDSTACK_HOME %current_path%\1.WebHost\build\handstack
 
     cd %current_path%\1.WebHost\ack
     echo current_path: %current_path% HandStack 개발 환경 설치 확인 중...
@@ -109,10 +107,8 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
 
 if exist %current_path%\app\ack.exe (
     echo current_path: %current_path% ack 실행 환경 설치 확인 중...
-    if "%HANDSTACK_HOME%" == "" (
-        setx HANDSTACK_HOME %current_path%
-        set HANDSTACK_HOME=%current_path%
-    )
+    set HANDSTACK_HOME=%current_path%
+    setx HANDSTACK_HOME %current_path%
 
     if not exist %current_path%\node_modules (
         echo function 모듈 %current_path%\package.json 설치를 시작합니다...
