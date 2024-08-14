@@ -65,15 +65,6 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
         cd %current_path%\1.WebHost\ack
         call npm install
         gulp
-        robocopy %current_path%\1.WebHost\ack\wwwroot\assets\js %current_path%\1.WebHost\build\handstack\node_modules\syn index.js /copy:dat
-    )
-
-    cd %current_path%
-    robocopy %current_path%\2.Modules\function %current_path%\1.WebHost\build\handstack package*.* /copy:dat
-    if not exist %current_path%\1.WebHost\build\handstack\node_modules (
-        echo node.js Function 모듈 %current_path%\1.WebHost\build\handstack\package.json 설치를 시작합니다...
-        cd %current_path%\1.WebHost\build\handstack
-        call npm install
     )
     
     cd %current_path%
@@ -98,6 +89,15 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
 	echo current_path: %current_path%
 
     dotnet build handstack.sln
+
+    cd %current_path%
+    robocopy %current_path%\2.Modules\function %current_path%\1.WebHost\build\handstack package*.* /copy:dat
+    if not exist %current_path%\1.WebHost\build\handstack\node_modules (
+        echo node.js Function 모듈 %current_path%\1.WebHost\build\handstack\package.json 설치를 시작합니다...
+        cd %current_path%\1.WebHost\build\handstack
+        call npm install
+        robocopy %current_path%\1.WebHost\ack\wwwroot\assets\js %current_path%\1.WebHost\build\handstack\node_modules\syn index.js /copy:dat
+    )
     
     cd %current_path%
     echo HANDSTACK_SRC: %HANDSTACK_SRC%

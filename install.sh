@@ -78,15 +78,6 @@ if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
         cd $current_path/1.WebHost/ack
         npm install
         gulp
-        rsync -av --progress --exclude='*' --include='index.js' $current_path/1.WebHost/ack/wwwroot/assets/js $current_path/1.WebHost/build/handstack/node_modules/syn
-    fi
-
-    cd $current_path
-    cp $current_path/2.Modules/function/package*.* $current_path/1.WebHost/build/handstack/
-    if [ ! -d "$current_path/1.WebHost/build/handstack/node_modules" ]; then
-        echo "node.js Function 모듈 $current_path/1.WebHost/build/handstack/package.json 설치를 시작합니다..."
-        cd $current_path/1.WebHost/build/handstack
-        npm install
     fi
     
     cd $current_path
@@ -122,6 +113,15 @@ if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
     chmod +x $current_path/4.Tool/CLI/handstack/build.sh
 
     dotnet build handstack.sln
+
+    cd $current_path
+    cp $current_path/2.Modules/function/package*.* $current_path/1.WebHost/build/handstack/
+    if [ ! -d "$current_path/1.WebHost/build/handstack/node_modules" ]; then
+        echo "node.js Function 모듈 $current_path/1.WebHost/build/handstack/package.json 설치를 시작합니다..."
+        cd $current_path/1.WebHost/build/handstack
+        npm install
+        rsync -av --progress --exclude='*' --include='index.js' $current_path/1.WebHost/ack/wwwroot/assets/js $current_path/1.WebHost/build/handstack/node_modules/syn
+    fi
 
     cd $current_path
     echo "HANDSTACK_SRC: $HANDSTACK_SRC"
