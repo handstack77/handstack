@@ -103,6 +103,7 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
     robocopy %current_path%\1.WebHost\ack\wwwroot\assets\js %current_path%\1.WebHost\build\handstack\node_modules\syn index.js /copy:dat
 
     echo HandStack 개발 환경 설치가 완료되었습니다. Visual Studio 개발 도구로 handstack.sln 를 실행하세요. 자세한 정보는 https://handstack.kr 를 참고하세요.
+    exit /b 0
 )
 
 if exist %current_path%\app\ack.exe (
@@ -144,7 +145,9 @@ if exist %current_path%\app\ack.exe (
     
     cd %current_path%
     echo ack 실행 환경 설치가 완료되었습니다. 터미널에서 다음 경로의 프로그램을 실행하세요. %current_path%\app\ack.exe
+    exit /b 0
 ) else (
     echo ack 실행 환경 설치 경로 확인이 필요합니다. current_path: %current_path%
     start "" "https://handstack.kr/docs/startup/빠른-시작"
+    exit /b 1
 )

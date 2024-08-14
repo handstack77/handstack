@@ -127,6 +127,7 @@ if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
     rsync -av --progress --exclude='*' --include='index.js' $current_path/1.WebHost/ack/wwwroot/assets/js/ $HANDSTACK_HOME/node_modules/syn/
 
     echo "HandStack 개발 환경 설치가 완료되었습니다. Visual Studio 개발 도구로 handstack.sln 를 실행 후 컴파일 하거나 터미널에서 dotnet build handstack.sln 명령으로 솔루션을 컴파일 하세요."
+    exit 0
 fi
 
 if [ -f "$current_path/app/ack.dll" ]; then
@@ -170,9 +171,11 @@ if [ -f "$current_path/app/ack.dll" ]; then
 
     cd $current_path
     echo "ack 실행 환경 설치가 완료되었습니다. 터미널에서 다음 경로의 프로그램을 실행하세요. $current_path/app/ack"
+    exit 0
 fi
 
 if [ ! -f "$current_path/app/ack.dll" ]; then
     echo "ack 실행 환경 설치 경로 확인이 필요합니다. current_path: $current_path"
     echo "참고: https://handstack.kr/docs/startup/빠른-시작"
+    exit 1
 fi
