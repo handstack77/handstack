@@ -63,8 +63,9 @@ current_path=$(pwd)
 if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
     mkdir -p $current_path/1.WebHost/build/handstack
     if [ -z "$HANDSTACK_HOME" ]; then
-      echo 'export HANDSTACK_HOME="$current_path/1.WebHost/build/handstack"' >> ~/.bashrc
-      source ~/.bashrc
+        export HANDSTACK_HOME="$current_path/1.WebHost/build/handstack"
+        echo 'export HANDSTACK_HOME="$current_path/1.WebHost/build/handstack"' >> ~/.bashrc
+        source ~/.bashrc
     fi
 
     cd $current_path/1.WebHost/ack
@@ -118,11 +119,11 @@ if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
 
     dotnet build handstack.sln
 
-    cd $build_path
-    echo "build_path: $build_path"
-    echo "function 모듈 $build_path/package.json 설치를 시작합니다..."
+    cd $HANDSTACK_HOME
+    echo "HANDSTACK_HOME: HANDSTACK_HOME"
+    echo "function 모듈 $HANDSTACK_HOME/package.json 설치를 시작합니다..."
     npm install
-    rsync -av --progress --exclude='*' --include='index.js' $current_path/1.WebHost/ack/wwwroot/assets/js/ $build_path/node_modules/syn/
+    rsync -av --progress --exclude='*' --include='index.js' $current_path/1.WebHost/ack/wwwroot/assets/js/ $HANDSTACK_HOME/node_modules/syn/
 
     echo "HandStack 개발 환경 설치가 완료되었습니다. Visual Studio 개발 도구로 handstack.sln 를 실행 후 컴파일 하거나 터미널에서 dotnet build handstack.sln 명령으로 솔루션을 컴파일 하세요."
 fi
@@ -130,8 +131,9 @@ fi
 if [ -f "$current_path/app/ack.dll" ]; then
     echo "current_path: $current_path ack 실행 환경 설치 확인 중..."
     if [ -z "$HANDSTACK_HOME" ]; then
-      echo 'export HANDSTACK_HOME="$current_path"' >> ~/.bashrc
-      source ~/.bashrc
+        export HANDSTACK_HOME="$current_path"
+        echo 'export HANDSTACK_HOME="$current_path"' >> ~/.bashrc
+        source ~/.bashrc
     fi
 
     if [ ! -d "$current_path/node_modules" ]; then

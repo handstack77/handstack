@@ -95,15 +95,14 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
     
     cd %current_path%
 	echo current_path: %current_path%
-    set build_path=%current_path%\1.WebHost\build\handstack
 
     dotnet build handstack.sln
 
-    cd %build_path%
-    echo build_path: %build_path%
-    echo function 모듈 %build_path%\package.json 설치를 시작합니다...
+    cd %HANDSTACK_HOME%
+    echo HANDSTACK_HOME: %HANDSTACK_HOME%
+    echo function 모듈 %HANDSTACK_HOME%\package.json 설치를 시작합니다...
     call npm install
-    robocopy %current_path%\1.WebHost\ack\wwwroot\assets\js %build_path%\node_modules\syn index.js /copy:dat
+    robocopy %current_path%\1.WebHost\ack\wwwroot\assets\js %HANDSTACK_HOME%\node_modules\syn index.js /copy:dat
 
     echo HandStack 개발 환경 설치가 완료되었습니다. Visual Studio 개발 도구로 handstack.sln 를 실행하세요. 자세한 정보는 https://handstack.kr 를 참고하세요.
 )
