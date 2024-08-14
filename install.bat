@@ -52,12 +52,12 @@ if %errorlevel% neq 0 (
 
 set current_path=%cd%
 if exist %current_path%\1.WebHost\ack\ack.csproj (
-    set HANDSTACK_SRC=%current_path%
     setx HANDSTACK_SRC %current_path%
+    set HANDSTACK_SRC=%current_path%
 
     mkdir %current_path%\1.WebHost\build\handstack
-    set HANDSTACK_HOME=%current_path%\1.WebHost\build\handstack
     setx HANDSTACK_HOME %current_path%\1.WebHost\build\handstack
+    set HANDSTACK_HOME=%current_path%\1.WebHost\build\handstack
 
     echo current_path: %current_path% HandStack 개발 환경 설치 확인 중...
     if not exist %current_path%\1.WebHost\ack\node_modules (
@@ -74,7 +74,6 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
         echo node.js Function 모듈 %current_path%\1.WebHost\build\handstack\package.json 설치를 시작합니다...
         cd %current_path%\1.WebHost\build\handstack
         call npm install
-        robocopy %current_path%\1.WebHost\ack\wwwroot\assets\js %current_path%\1.WebHost\build\handstack\node_modules\syn index.js /copy:dat
     )
     
     cd %current_path%
@@ -100,16 +99,19 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
 
     dotnet build handstack.sln
     
+    cd %current_path%
     echo HANDSTACK_SRC: %HANDSTACK_SRC%
     echo HANDSTACK_HOME: %HANDSTACK_HOME%
+
+    robocopy %current_path%\1.WebHost\ack\wwwroot\assets\js %current_path%\1.WebHost\build\handstack\node_modules\syn index.js /copy:dat
 
     echo HandStack 개발 환경 설치가 완료되었습니다. Visual Studio 개발 도구로 handstack.sln 를 실행하세요. 자세한 정보는 https://handstack.kr 를 참고하세요.
 )
 
 if exist %current_path%\app\ack.exe (
     echo current_path: %current_path% ack 실행 환경 설치 확인 중...
-    set HANDSTACK_HOME=%current_path%
     setx HANDSTACK_HOME %current_path%
+    set HANDSTACK_HOME=%current_path%
 
     if not exist %current_path%\node_modules (
         echo function 모듈 %current_path%\package.json 설치를 시작합니다...
@@ -141,10 +143,8 @@ if exist %current_path%\app\ack.exe (
         gulp
     )
     
-    echo HANDSTACK_HOME: %HANDSTACK_HOME%
-
-    echo ack 실행 환경 설치가 완료되었습니다. 터미널에서 다음 경로의 프로그램을 실행하세요. %current_path%\app\ack.exe
     cd %current_path%
+    echo ack 실행 환경 설치가 완료되었습니다. 터미널에서 다음 경로의 프로그램을 실행하세요. %current_path%\app\ack.exe
 ) else (
     echo ack 실행 환경 설치 경로 확인이 필요합니다. current_path: %current_path%
     start "" "https://handstack.kr/docs/startup/빠른-시작"
