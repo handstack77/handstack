@@ -5,49 +5,49 @@ where winget >nul 2>nul
 if %errorlevel% neq 0 (
     echo winget 패키지 관리자를 설치 해야합니다.
     start "" "https://handstack.kr/docs/startup/install/패키지-관리자-설치하기#windows-에-winget-설치하기"
-    exit /b
+    goto :EOF
 )
 
 where dotnet >nul 2>nul
 if %errorlevel% neq 0 (
     echo .NET Core 8.0 버전이 필요합니다. 기존 dotnet 버전을 업데이트 해야합니다.
     start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#winget-을-이용한-net-core-설치"
-    exit /b
+    goto :EOF
 )
 
 dotnet --version | findstr /R "^8\." >nul 2>nul
 if %errorlevel% neq 0 (
     echo .NET Core 8.0를 설치 해야합니다.
     start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#winget-을-이용한-net-core-설치"
-    exit /b
+    goto :EOF
 )
 
 where node >nul 2>nul
 if %errorlevel% neq 0 (
     echo Node.js v20.12.2 LTS 를 설치 해야합니다.
     start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#winget-을-이용한-nodejs-설치"
-    exit /b
+    goto :EOF
 )
 
 node --version | findstr /R "^v20\." >nul 2>nul
 if %errorlevel% neq 0 (
     echo Node.js v20.12.2 LTS 가 필요합니다. 기존 node 버전을 업데이트 해야합니다.
     start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#winget-을-이용한-nodejs-설치"
-    exit /b
+    goto :EOF
 )
 
 where gulp >nul 2>nul
 if %errorlevel% neq 0 (
     echo Node.js 기반 gulp CLI 도구를 설치 해야합니다.
     start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#gulp-설치하기"
-    exit /b
+    goto :EOF
 )
 
 where curl >nul 2>nul
 if %errorlevel% neq 0 (
     echo curl CLI 를 설치 해야합니다.
     start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#winget-을-이용한-curl-설치"
-    exit /b
+    goto :EOF
 )
 
 set current_path=%cd%
@@ -103,7 +103,6 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
     robocopy %current_path%\1.WebHost\ack\wwwroot\assets\js %current_path%\1.WebHost\build\handstack\node_modules\syn index.js /copy:dat
 
     echo HandStack 개발 환경 설치가 완료되었습니다. Visual Studio 개발 도구로 handstack.sln 를 실행하세요. 자세한 정보는 https://handstack.kr 를 참고하세요.
-    exit /b
 )
 
 if exist %current_path%\app\ack.exe (
@@ -145,9 +144,7 @@ if exist %current_path%\app\ack.exe (
     
     cd %current_path%
     echo ack 실행 환경 설치가 완료되었습니다. 터미널에서 다음 경로의 프로그램을 실행하세요. %current_path%\app\ack.exe
-    exit /b
-) else (
-    echo ack 실행 환경 설치 경로 확인이 필요합니다. current_path: %current_path%
-    start "" "https://handstack.kr/docs/startup/빠른-시작"
-    exit /b
 )
+
+:EOF
+echo 배치 스크립트가 완료 되었습니다.
