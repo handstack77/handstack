@@ -41,27 +41,38 @@ namespace dbclient.Extensions
         {
         }
 
-        public static DataSourceMap? GetDataSourceMap(QueryObject queryObject, string applicationID, string projectID, string dataSourceID)
+        public static DataSourceMap? GetDataSourceMap(QueryObject queryObject, string requestApplicationID, string projectID, string dataSourceID)
         {
             DataSourceMap? result = null;
             if (DataSourceMappings != null)
             {
+                string applicationID = requestApplicationID;
                 result = FindDataSourceMap(queryObject, applicationID, projectID, dataSourceID);
 
                 if (result == null)
                 {
                     string userWorkID = string.Empty;
                     string appBasePath = string.Empty;
-                    DirectoryInfo baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
-                    var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
-                    foreach (string directory in directories)
+                    if (string.IsNullOrEmpty(queryObject.TenantID) == false)
                     {
-                        DirectoryInfo directoryInfo = new DirectoryInfo(directory);
-                        if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
+                        var items = queryObject.TenantID.SplitAndTrim('|');
+                        userWorkID = items[0];
+                        applicationID = items[1];
+                        appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                    }
+                    else
+                    {
+                        DirectoryInfo baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
+                        var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
+                        foreach (string directory in directories)
                         {
-                            appBasePath = directoryInfo.FullName;
-                            userWorkID = (directoryInfo.Parent?.Name).ToStringSafe();
-                            break;
+                            DirectoryInfo directoryInfo = new DirectoryInfo(directory);
+                            if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
+                            {
+                                appBasePath = directoryInfo.FullName;
+                                userWorkID = (directoryInfo.Parent?.Name).ToStringSafe();
+                                break;
+                            }
                         }
                     }
 
@@ -110,6 +121,10 @@ namespace dbclient.Extensions
                                 }
 
                                 result = FindDataSourceMap(queryObject, applicationID, projectID, dataSourceID);
+                                if (result == null && applicationID != requestApplicationID)
+                                {
+                                    result = FindDataSourceMap(queryObject, requestApplicationID, projectID, dataSourceID);
+                                }
                             }
                         }
                     }

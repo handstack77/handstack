@@ -1498,10 +1498,11 @@ namespace transact.Areas.transact.Controllers
                 response.Transaction.CommandType = transactionInfo.CommandType;
                 ApplicationResponse applicationResponse = new ApplicationResponse();
 
-                if (refererPath.StartsWith(tenantAppRequestPath) && string.IsNullOrEmpty(transactionUserWorkID) == false && string.IsNullOrEmpty(transactionApplicationID) == false)
+                if (refererPath.StartsWith(tenantAppRequestPath) == true && string.IsNullOrEmpty(transactionUserWorkID) == false && string.IsNullOrEmpty(transactionApplicationID) == false)
                 {
                     if (ModuleConfiguration.AllowTenantTransactionCommands.IndexOf(transactionInfo.CommandType) > -1)
                     {
+                        transactionObject.LoadOptions.Add("$tenantID", $"{transactionUserWorkID}|{transactionApplicationID}");
                     }
                     else
                     {
