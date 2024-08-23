@@ -85,6 +85,17 @@
         <PackageReference Include="YamlDotNet" Version="15.1.6" />
     </ItemGroup>
 
+    <ItemGroup Label="modules">
+        <PackageReference Include="SkiaSharp" Version="2.88.8" />
+        <PackageReference Include="FreeSpire.XLS" Version="14.2.0" />
+        <PackageReference Include="PDFsharp" Version="6.1.1" />
+        <PackageReference Include="System.ServiceModel.Duplex" Version="6.0.*" />
+        <PackageReference Include="System.ServiceModel.Federation" Version="6.0.*" />
+        <PackageReference Include="System.ServiceModel.Http" Version="6.0.*" />
+        <PackageReference Include="System.ServiceModel.NetTcp" Version="6.0.*" />
+        <PackageReference Include="System.ServiceModel.Security" Version="6.0.*" />
+    </ItemGroup>
+
     <ItemGroup>
         <ProjectReference Include="../../3.Infrastructure/HandStack.Core/HandStack.Core.csproj" />
         <ProjectReference Include="../../3.Infrastructure/HandStack.Data/HandStack.Data.csproj" />
