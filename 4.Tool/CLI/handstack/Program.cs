@@ -374,7 +374,7 @@ namespace handstack
             #region startlog
 
             // startlog --ack=%HANDSTACK_HOME%/app/ack.exe --arguments="--debug --delay=1000000" --appsettings=ack.localhost.json
-            var subCommandStartLog = new Command("startlog", "ack 프로세스를 시작하기 위한 명령어 로그를 출력합니다") {
+            var subCommandStartLog = new Command("startlog", "ack 프로그램을 시작하기 위한 명령어 로그를 출력합니다") {
                 optionAckFile, optionArguments, optionAppSettingFile
             };
 
@@ -413,7 +413,7 @@ namespace handstack
             #region start
 
             // start --ack=%HANDSTACK_HOME%/app/ack.exe --arguments="--debug --delay=1000000" --appsettings=ack.localhost.json
-            var subCommandStart = new Command("start", "ack 프로세스를 시작합니다") {
+            var subCommandStart = new Command("start", "ack 프로그램을 시작합니다") {
                 optionAckFile, optionArguments, optionAppSettingFile
             };
 
@@ -459,7 +459,7 @@ namespace handstack
 
             #region stop
 
-            var subCommandStop = new Command("stop", "ack 프로세스를 강제 종료합니다") {
+            var subCommandStop = new Command("stop", "ack 프로그램을 종료합니다") {
                 optionProcessID, optionPort
             };
 
