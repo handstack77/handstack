@@ -27,7 +27,7 @@ namespace HandStack.Web.Modules
                 DirectoryInfo directoryInfo = new DirectoryInfo(moduleBasePath);
                 var moduleID = GlobalConfiguration.ModuleNames.Find((item) =>
                 {
-                    return item.StartsWith(directoryInfo.Name);
+                    return item == directoryInfo.Name;
                 });
 
                 if (string.IsNullOrEmpty(moduleID) == false)

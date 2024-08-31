@@ -14,6 +14,7 @@ namespace handsonapp
         private bool isDesposed;
         private readonly FileSystemWatcher fileSystemWatcher;
         private readonly ConcurrentQueue<string> queue = new ConcurrentQueue<string>();
+        private ConcurrentDictionary<string, DateTime> lastEventTimes = new ConcurrentDictionary<string, DateTime>();
 
         public FileSyncManager(string sourceRootDirectory, string filter)
         {
@@ -38,14 +39,24 @@ namespace handsonapp
 
                 fileSystemWatcher.Created += (s, e) => queue.Enqueue("Created|" + e.FullPath);
                 fileSystemWatcher.Deleted += (s, e) => queue.Enqueue("Deleted|" + e.FullPath);
-                fileSystemWatcher.Changed += (s, e) => queue.Enqueue("Changed|" + e.FullPath);
+                fileSystemWatcher.Changed += (s, e) =>
+                {
+                    string key = "Changed|" + e.FullPath;
+                    DateTime now = DateTime.Now;
+
+                    if (lastEventTimes.TryGetValue(key, out DateTime lastEventTime) && (now - lastEventTime).TotalMilliseconds < 100)
+                    {
+                        return;
+                    }
+
+                    lastEventTimes[key] = now;
+                    queue.Enqueue(key);
+                };
+
                 fileSystemWatcher.Renamed += (s, e) =>
                 {
+                    queue.Enqueue("Deleted|" + e.OldFullPath);
                     if (File.Exists(e.FullPath) == true)
-                    {
-                        queue.Enqueue("Changed|" + e.FullPath);
-                    }
-                    else
                     {
                         queue.Enqueue("Created|" + e.FullPath);
                     }
@@ -54,16 +65,6 @@ namespace handsonapp
 
                 Task.Run(ProcessQueue);
             }
-        }
-
-        public void Start()
-        {
-            fileSystemWatcher.EnableRaisingEvents = true;
-        }
-
-        public void Stop()
-        {
-            fileSystemWatcher.EnableRaisingEvents = false;
         }
 
         private async Task ProcessQueue()
@@ -85,7 +86,10 @@ namespace handsonapp
                         {
                             MonitoringFile?.Invoke(watcherChangeTypes, new FileInfo(filePath));
                         }
+
                         await Task.Delay(200);
+
+                        lastEventTimes.TryRemove(watchFilePath, out DateTime lastEventTime);
                     }
                 }
                 else
@@ -93,6 +97,16 @@ namespace handsonapp
                     await Task.Delay(1000);
                 }
             }
+        }
+
+        public void Start()
+        {
+            fileSystemWatcher.EnableRaisingEvents = true;
+        }
+
+        public void Stop()
+        {
+            fileSystemWatcher.EnableRaisingEvents = false;
         }
 
         private void HandleError(object sender, ErrorEventArgs e)

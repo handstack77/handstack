@@ -1,14 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
+using HandStack.Core.ExtensionMethod;
+using HandStack.Data.Enumeration;
 using HandStack.Web;
 using HandStack.Web.ApiClient;
 using HandStack.Web.Entity;
 using HandStack.Web.Extensions;
 
 using Microsoft.Extensions.Configuration;
+
+using Newtonsoft.Json;
 
 using Serilog;
 
@@ -71,6 +76,98 @@ namespace repository.Extensions
             {
                 result = ModuleConfiguration.FileRepositorys.AsQueryable().Where(p => p.ApplicationID == applicationID
                     && p.RepositoryID == repositoryID).FirstOrDefault();
+
+                if (result == null) {
+                    string? userWorkID = string.Empty;
+                    string appBasePath = string.Empty;
+                    DirectoryInfo baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
+                    var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
+                    foreach (string directory in directories)
+                    {
+                        DirectoryInfo directoryInfo = new DirectoryInfo(directory);
+                        if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
+                        {
+                            appBasePath = directoryInfo.FullName;
+                            userWorkID = (directoryInfo.Parent?.Name).ToStringSafe();
+                            break;
+                        }
+                    }
+
+                    if (string.IsNullOrEmpty(userWorkID) == false && Directory.Exists(appBasePath) == true)
+                    {
+                        string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                        if (System.IO.File.Exists(settingFilePath) == true)
+                        {
+                            string appSettingText = System.IO.File.ReadAllText(settingFilePath);
+                            var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
+                            if (appSetting != null)
+                            {
+                                var storages = appSetting.Storage;
+                                if (storages != null)
+                                {
+                                    foreach (var storage in storages)
+                                    {
+                                        Repository repository = new Repository();
+
+                                        repository.ApplicationID = storage.ApplicationID;
+                                        repository.RepositoryID = storage.RepositoryID;
+                                        repository.RepositoryName = storage.RepositoryName;
+                                        repository.AccessID = storage.AccessID;
+                                        repository.StorageType = storage.StorageType;
+                                        repository.PhysicalPath = storage.PhysicalPath;
+                                        repository.BlobContainerID = storage.BlobContainerID;
+                                        repository.BlobConnectionString = storage.BlobConnectionString;
+                                        repository.BlobItemUrl = storage.BlobItemUrl;
+                                        repository.IsVirtualPath = storage.IsVirtualPath;
+                                        repository.AccessMethod = storage.AccessMethod;
+                                        repository.IsFileUploadDownloadOnly = storage.IsFileUploadDownloadOnly;
+                                        repository.IsMultiUpload = storage.IsMultiUpload;
+                                        repository.IsFileOverWrite = storage.IsFileOverWrite;
+                                        repository.IsFileNameEncrypt = storage.IsFileNameEncrypt;
+                                        repository.IsKeepFileExtension = storage.IsKeepFileExtension;
+                                        repository.IsAutoPath = storage.IsAutoPath;
+                                        repository.PolicyPathID = storage.PolicyPathID;
+                                        repository.UploadTypeID = storage.UploadTypeID;
+                                        repository.UploadExtensions = storage.UploadExtensions;
+                                        repository.UploadCount = storage.UploadCount;
+                                        repository.UploadSizeLimit = storage.UploadSizeLimit;
+                                        repository.IsLocalDbFileManaged = storage.IsLocalDbFileManaged;
+                                        repository.SQLiteConnectionString = storage.SQLiteConnectionString;
+                                        repository.TransactionGetItem = storage.TransactionGetItem;
+                                        repository.TransactionDeleteItem = storage.TransactionDeleteItem;
+                                        repository.TransactionUpsertItem = storage.TransactionUpsertItem;
+                                        repository.TransactionUpdateDependencyID = storage.TransactionUpdateDependencyID;
+                                        repository.TransactionUpdateFileName = storage.TransactionUpdateFileName;
+                                        repository.Comment = storage.Comment;
+                                        repository.CreatedAt = storage.CreatedAt;
+                                        repository.ModifiedAt = storage.ModifiedAt;
+
+                                        if (ModuleConfiguration.FileRepositorys.Contains(repository) == false)
+                                        {
+                                            repository.PhysicalPath = repository.PhysicalPath.Replace("{appBasePath}", appBasePath);
+                                            repository.PhysicalPath = GlobalConfiguration.GetBasePath(repository.PhysicalPath);
+                                            DirectoryInfo repositoryDirectoryInfo = new DirectoryInfo(repository.PhysicalPath);
+                                            if (repositoryDirectoryInfo.Exists == false)
+                                            {
+                                                repositoryDirectoryInfo.Create();
+                                            }
+
+                                            repository.UserWorkID = userWorkID;
+                                            repository.SettingFilePath = settingFilePath;
+
+                                            if (repository.IsLocalDbFileManaged == true)
+                                            {
+                                                ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.SLT010.ZD01");
+                                            }
+
+                                            ModuleConfiguration.FileRepositorys.Add(repository);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
             return result;
         }

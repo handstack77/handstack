@@ -18,6 +18,7 @@ namespace transact.Extensions
         private bool isDesposed;
         private readonly FileSystemWatcher fileSystemWatcher;
         private readonly ConcurrentQueue<string> queue = new ConcurrentQueue<string>();
+        private ConcurrentDictionary<string, DateTime> lastEventTimes = new ConcurrentDictionary<string, DateTime>();
 
         public FileSyncManager(string sourceRootDirectory, string filter)
         {
@@ -42,14 +43,24 @@ namespace transact.Extensions
 
                 fileSystemWatcher.Created += (s, e) => queue.Enqueue("Created|" + e.FullPath);
                 fileSystemWatcher.Deleted += (s, e) => queue.Enqueue("Deleted|" + e.FullPath);
-                fileSystemWatcher.Changed += (s, e) => queue.Enqueue("Changed|" + e.FullPath);
+                fileSystemWatcher.Changed += (s, e) =>
+                {
+                    string key = "Changed|" + e.FullPath;
+                    DateTime now = DateTime.Now;
+
+                    if (lastEventTimes.TryGetValue(key, out DateTime lastEventTime) && (now - lastEventTime).TotalMilliseconds < 100)
+                    {
+                        return;
+                    }
+
+                    lastEventTimes[key] = now;
+                    queue.Enqueue(key);
+                };
+
                 fileSystemWatcher.Renamed += (s, e) =>
                 {
+                    queue.Enqueue("Deleted|" + e.OldFullPath);
                     if (File.Exists(e.FullPath) == true)
-                    {
-                        queue.Enqueue("Changed|" + e.FullPath);
-                    }
-                    else
                     {
                         queue.Enqueue("Created|" + e.FullPath);
                     }
@@ -79,7 +90,10 @@ namespace transact.Extensions
                         {
                             MonitoringFile?.Invoke(watcherChangeTypes, new FileInfo(filePath));
                         }
+
                         await Task.Delay(200);
+
+                        lastEventTimes.TryRemove(watchFilePath, out DateTime lastEventTime);
                     }
                 }
                 else

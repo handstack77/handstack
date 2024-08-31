@@ -103,59 +103,89 @@ namespace prompter.Areas.prompter.Controllers
 
                     logger.Information("[{LogCategory}] " + $"WatcherChangeTypes: {changeType}, FilePath: {filePath}", "Query/Refresh");
 
-                    List<PromptMap> existPromptMaps = new List<PromptMap>();
                     FileInfo fileInfo = new FileInfo(filePath);
 
-                    if (filePath.StartsWith(GlobalConfiguration.ApplicationID) == false)
+                    var businessContracts = PromptMapper.PromptMappings;
+                    lock (businessContracts)
                     {
-                        lock (PromptMapper.DataSourceMappings)
+                        WatcherChangeTypes watcherChangeTypes = (WatcherChangeTypes)Enum.Parse(typeof(WatcherChangeTypes), changeType);
+                        switch (watcherChangeTypes)
                         {
-                            var dataSourceMappings = PromptMapper.DataSourceMappings.Where(x => x.Value.ApplicationID == fileInfo.Directory?.Parent?.Name).ToList();
-                            for (int i = dataSourceMappings.Count(); i > 0; i--)
-                            {
-                                var item = dataSourceMappings[i - 1].Key;
-                                PromptMapper.DataSourceMappings.Remove(item);
-                            }
+                            case WatcherChangeTypes.Created:
+                            case WatcherChangeTypes.Changed:
+                                if (string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false)
+                                {
+                                    string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                                    string itemPath = Path.Combine(appBasePath, filePath);
+                                    DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
+                                    if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true)
+                                    {
+                                        if (PromptMapper.HasContractFile(filePath) == true && fileInfo.Extension == ".xml" == true)
+                                        {
+                                            logger.Information("[{LogCategory}] " + $"Add TenantApp PromptMap FilePath: {filePath}", "Query/Refresh");
+                                            actionResult = PromptMapper.AddPromptMap(filePath, true, logger);
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    foreach (var basePath in ModuleConfiguration.ContractBasePath)
+                                    {
+                                        string itemPath = Path.Combine(basePath, filePath);
+                                        DirectoryInfo directoryInfo = new DirectoryInfo(basePath);
+                                        if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true)
+                                        {
+                                            if (PromptMapper.HasContractFile(filePath) == true && fileInfo.Extension == ".xml" == true)
+                                            {
+                                                logger.Information("[{LogCategory}] " + $"Add PromptMap FilePath: {filePath}", "Query/Refresh");
+                                                actionResult = PromptMapper.AddPromptMap(filePath, true, logger);
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                                break;
+                            case WatcherChangeTypes.Deleted:
+                                List<PromptMap> existPromptMaps = new List<PromptMap>();
+                                if (string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false)
+                                {
+                                    string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                                    DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
+                                    if (directoryInfo.Exists == true)
+                                    {
+                                        existPromptMaps = PromptMapper.PromptMappings.Select(p => p.Value).Where(p =>
+                                            p.ApplicationID == applicationID &&
+                                            p.ProjectID == fileInfo.Directory?.Name &&
+                                            p.TransactionID == fileInfo.Name.Replace(fileInfo.Extension, "")).ToList();
+                                    }
+                                }
+                                else
+                                {
+                                    existPromptMaps = PromptMapper.PromptMappings.Select(p => p.Value).Where(p =>
+                                        p.ApplicationID == fileInfo.Directory?.Parent?.Name &&
+                                        p.ProjectID == fileInfo.Directory?.Name &&
+                                        p.TransactionID == fileInfo.Name.Replace(fileInfo.Extension, "")).ToList();
+                                }
+
+                                if (existPromptMaps.Count > 0)
+                                {
+                                    List<string> mapStrings = new List<string>();
+                                    for (int i = 0; i < existPromptMaps.Count; i++)
+                                    {
+                                        var item = existPromptMaps[i];
+                                        mapStrings.Add($"{item.ApplicationID}|{item.ProjectID}|{item.TransactionID}|{item.StatementID}");
+                                    }
+
+                                    for (int i = 0; i < mapStrings.Count; i++)
+                                    {
+                                        var item = existPromptMaps[i];
+                                        var items = mapStrings[i].SplitAndTrim('|');
+                                        logger.Information("[{LogCategory}] " + $"Delete PromptMap ApplicationID: {item.ApplicationID}, ProjectID: {item.ProjectID}, TransactionID: {item.TransactionID}, FunctionID: {item.StatementID}", "Query/Refresh");
+                                        PromptMapper.Remove(items[0], items[1], items[2], items[3]);
+                                    }
+                                }
+                                break;
                         }
-                    }
-
-                    lock (PromptMapper.PromptMappings)
-                    {
-                        existPromptMaps = PromptMapper.PromptMappings.Select(p => p.Value).Where(p =>
-                            p.ApplicationID == fileInfo.Directory?.Parent?.Name &&
-                            p.ProjectID == fileInfo.Directory?.Name &&
-                            p.TransactionID == fileInfo.Name.Replace(fileInfo.Extension, "")).ToList();
-
-                        if (existPromptMaps.Count > 0)
-                        {
-                            List<string> mapStrings = new List<string>();
-                            for (int i = 0; i < existPromptMaps.Count; i++)
-                            {
-                                var item = existPromptMaps[i];
-                                mapStrings.Add($"{item.ApplicationID}|{item.ProjectID}|{item.TransactionID}|{item.StatementID}");
-                            }
-
-                            for (int i = 0; i < mapStrings.Count; i++)
-                            {
-                                var item = existPromptMaps[i];
-                                var items = mapStrings[i].SplitAndTrim('|');
-                                logger.Information("[{LogCategory}] " + $"Delete PromptMap ApplicationID: {item.ApplicationID}, ProjectID: {item.ProjectID}, TransactionID: {item.TransactionID}, FunctionID: {item.StatementID}", "Query/Refresh");
-                                PromptMapper.Remove(items[0], items[1], items[2], items[3]);
-                            }
-                        }
-                    }
-
-                    WatcherChangeTypes watcherChangeTypes = (WatcherChangeTypes)Enum.Parse(typeof(WatcherChangeTypes), changeType);
-                    switch (watcherChangeTypes)
-                    {
-                        case WatcherChangeTypes.Created:
-                        case WatcherChangeTypes.Changed:
-                            if (PromptMapper.HasContractFile(filePath) == true && fileInfo.Extension == ".xml" == true)
-                            {
-                                logger.Information("[{LogCategory}] " + $"Add PromptMap FilePath: {filePath}", "Query/Refresh");
-                                actionResult = PromptMapper.AddPromptMap(filePath, true, logger);
-                            }
-                            break;
                     }
 
                     result = Content(JsonConvert.SerializeObject(actionResult), "application/json");

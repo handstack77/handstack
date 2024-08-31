@@ -15,8 +15,6 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
 
-using Org.BouncyCastle.Asn1.Ocsp;
-
 namespace HandStack.Web.Extensions
 {
     public static class HttpRequestExtensions

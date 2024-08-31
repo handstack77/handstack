@@ -94,6 +94,11 @@ namespace dbclient.DataClient
                 int i = 0;
                 foreach (QueryObject queryObject in request.DynamicObjects)
                 {
+                    if (request.LoadOptions?.TryGetValue("$tenantID", out string? tenantID) == true)
+                    {
+                        queryObject.TenantID = tenantID;
+                    }
+
                     var statementMap = DatabaseMapper.GetStatementMap(queryObject.QueryID);
                     if (statementMap == null)
                     {
@@ -233,6 +238,11 @@ namespace dbclient.DataClient
                 int i = 0;
                 foreach (QueryObject queryObject in request.DynamicObjects)
                 {
+                    if (request.LoadOptions?.TryGetValue("$tenantID", out string? tenantID) == true)
+                    {
+                        queryObject.TenantID = tenantID;
+                    }
+
                     var statementMap = DatabaseMapper.GetStatementMap(queryObject.QueryID);
                     if (statementMap == null)
                     {
@@ -1017,6 +1027,11 @@ TransactionException:
                 int i = 0;
                 foreach (QueryObject queryObject in request.DynamicObjects)
                 {
+                    if (request.LoadOptions?.TryGetValue("$tenantID", out string? tenantID) == true)
+                    {
+                        queryObject.TenantID = tenantID;
+                    }
+
                     var statementMap = DatabaseMapper.GetStatementMap(queryObject.QueryID);
                     if (statementMap == null)
                     {
@@ -1658,6 +1673,11 @@ TransactionException:
                 int i = 0;
                 foreach (QueryObject queryObject in request.DynamicObjects)
                 {
+                    if (request.LoadOptions?.TryGetValue("$tenantID", out string? tenantID) == true)
+                    {
+                        queryObject.TenantID = tenantID;
+                    }
+
                     var statementMap = DatabaseMapper.GetStatementMap(queryObject.QueryID);
                     if (statementMap == null)
                     {
@@ -2294,6 +2314,11 @@ TransactionException:
                 int i = 0;
                 foreach (QueryObject queryObject in request.DynamicObjects)
                 {
+                    if (request.LoadOptions?.TryGetValue("$tenantID", out string? tenantID) == true)
+                    {
+                        queryObject.TenantID = tenantID;
+                    }
+
                     var statementMap = DatabaseMapper.GetStatementMap(queryObject.QueryID);
                     if (statementMap == null)
                     {
@@ -3017,6 +3042,11 @@ TransactionException:
                 int i = 0;
                 foreach (QueryObject queryObject in request.DynamicObjects)
                 {
+                    if (request.LoadOptions?.TryGetValue("$tenantID", out string? tenantID) == true)
+                    {
+                        queryObject.TenantID = tenantID;
+                    }
+
                     var statementMap = DatabaseMapper.GetStatementMap(queryObject.QueryID);
                     if (statementMap == null)
                     {
@@ -3302,6 +3332,11 @@ TransactionException:
                 int i = 0;
                 foreach (QueryObject queryObject in request.DynamicObjects)
                 {
+                    if (request.LoadOptions?.TryGetValue("$tenantID", out string? tenantID) == true)
+                    {
+                        queryObject.TenantID = tenantID;
+                    }
+
                     var statementMap = DatabaseMapper.GetStatementMap(queryObject.QueryID);
                     if (statementMap == null)
                     {
@@ -3826,6 +3861,11 @@ TransactionException:
                 int i = 0;
                 foreach (QueryObject queryObject in request.DynamicObjects)
                 {
+                    if (request.LoadOptions?.TryGetValue("$tenantID", out string? tenantID) == true)
+                    {
+                        queryObject.TenantID = tenantID;
+                    }
+
                     var statementMap = DatabaseMapper.GetStatementMap(queryObject.QueryID);
                     if (statementMap == null)
                     {

@@ -1,26 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Data.SQLite;
 using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
-
-using MySql.Data.MySqlClient;
-
-using Newtonsoft.Json.Linq;
-
-using Npgsql;
-
-using NpgsqlTypes;
-
-using Oracle.ManagedDataAccess.Client;
 
 using function.DataClient;
 using function.Encapsulation;
@@ -28,15 +18,17 @@ using function.Entity;
 using function.Events;
 using function.Extensions;
 
-using HandStack.Data.Enumeration;
 using HandStack.Core.ExtensionMethod;
+using HandStack.Data.Client;
+using HandStack.Data.Enumeration;
+using HandStack.Data.ExtensionMethod;
 using HandStack.Web;
+using HandStack.Web.MessageContract.DataObject;
 using HandStack.Web.Modules;
 
 using Jering.Javascript.NodeJS;
 
 using MediatR;
-using Microsoft.SemanticKernel;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
@@ -45,18 +37,24 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.Logging;
+using Microsoft.SemanticKernel;
+
+using MySql.Data.MySqlClient;
 
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
+using Npgsql;
+
+using NpgsqlTypes;
+
+using Oracle.ManagedDataAccess.Client;
 
 using RestSharp;
 
 using Serilog;
-using HandStack.Data.ExtensionMethod;
-using HandStack.Data.Client;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
-using HandStack.Web.MessageContract.DataObject;
 
 namespace function
 {
@@ -380,7 +378,7 @@ namespace function
 
             foreach (var basePath in ModuleConfiguration.ContractBasePath)
             {
-                if (Directory.Exists(basePath) == true && (basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == false))
+                if (Directory.Exists(basePath) == true && basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == false)
                 {
                     string nodeContractBasePath = Path.Combine(basePath, "javascript");
                     if (Directory.Exists(nodeContractBasePath) == true && ModuleConfiguration.EnableFileWatching == true)
@@ -561,7 +559,23 @@ namespace function
 
         static void Main(string[] args)
         {
-            Kernel kernel = new Kernel(null, null);
+#pragma warning disable CS0219
+            DataSet? dataSet = null;
+            DbConnection? dbConnection = null;
+            SqlCommand? sqlCommand = null;
+            SQLiteCommand? sQLiteCommand = null;
+            NpgsqlParameter? npgsqlParameter = null;
+            CultureInfo? cultureInfo = null;
+            Encoding? encoding = null;
+            Regex? regex = null;
+            Kernel? kernel = null;
+            XmlDocument? xmlDocument = null;
+            MySqlDbType? mySqlDbType = null;
+            NpgsqlDbType? npgsqlDbType = null;
+            OracleDbType? oracleDbType = null;
+            var statusCodes = StatusCodes.Status200OK;
+#pragma warning restore CS0219
+
             Console.WriteLine("function");
         }
     }

@@ -88,7 +88,7 @@ namespace function.Extensions
                                                 moduleSourceMap.ConnectionString = connectionString;
                                                 if (moduleSourceMap.IsEncryption.ParseBool() == true)
                                                 {
-                                                    moduleSourceMap.ConnectionString = FunctionMapper.DecryptConnectionString(moduleSourceMap);
+                                                    moduleSourceMap.ConnectionString = DecryptConnectionString(moduleSourceMap);
                                                 }
 
                                                 if (moduleSourceMap.DataProvider == DataProviders.SQLite)
@@ -608,7 +608,7 @@ namespace function.Extensions
 
                 foreach (var basePath in ModuleConfiguration.ContractBasePath)
                 {
-                    if (Directory.Exists(basePath) == false || (basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && GlobalConfiguration.IsTenantFunction == false))
+                    if (Directory.Exists(basePath) == false || basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                     {
                         continue;
                     }
@@ -657,14 +657,7 @@ namespace function.Extensions
                             if (File.Exists(functionScriptFile) == true)
                             {
                                 FunctionHeader header = functionScriptContract.Header;
-                                if (scriptMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
-                                {
-                                    FileInfo fileInfo = new FileInfo(scriptMapFile);
-                                    header.ApplicationID = string.IsNullOrEmpty(header.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Parent?.Parent?.Name).ToStringSafe() : header.ApplicationID;
-                                    header.ProjectID = string.IsNullOrEmpty(header.ProjectID) == true ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : header.ProjectID;
-                                    header.TransactionID = string.IsNullOrEmpty(header.TransactionID) == true ? (fileInfo.Directory?.Name).ToStringSafe().Replace(fileInfo.Extension, "") : header.TransactionID;
-                                }
-
+              
                                 var items = functionScriptContract.Commands;
                                 foreach (var item in items)
                                 {
@@ -734,7 +727,7 @@ namespace function.Extensions
                                         {
                                             if (ScriptMappings.ContainsKey(queryID) == false)
                                             {
-                                                ScriptMappings.Add(queryID, moduleScriptMap);
+                                                ScriptMappings.Add(queryID, moduleScriptMap, TimeSpan.FromDays(3650));
                                             }
                                             else
                                             {
@@ -771,7 +764,7 @@ namespace function.Extensions
 
                             if (item.IsEncryption.ParseBool() == true)
                             {
-                                connectionString = FunctionMapper.DecryptConnectionString(item);
+                                connectionString = DecryptConnectionString(item);
                             }
 
                             if (dataProvider == DataProviders.SQLite)
@@ -794,7 +787,7 @@ namespace function.Extensions
                                 DataProvider = dataProvider,
                                 ConnectionString = connectionString,
                                 WorkingDirectoryPath = item.WorkingDirectoryPath
-                            });
+                            }, TimeSpan.FromDays(3650));
                         }
                         else
                         {

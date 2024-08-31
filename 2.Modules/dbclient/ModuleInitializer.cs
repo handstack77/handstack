@@ -25,8 +25,6 @@ using Microsoft.Extensions.FileProviders;
 
 using Newtonsoft.Json;
 
-using Org.BouncyCastle.Asn1.Crmf;
-
 using RestSharp;
 
 using Serilog;
@@ -124,48 +122,6 @@ namespace dbclient
                     throw new FileNotFoundException(message);
                 }
 
-                if (Directory.Exists(GlobalConfiguration.TenantAppBasePath) == true)
-                {
-                    foreach (var userWorkPath in Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath))
-                    {
-                        DirectoryInfo workDirectoryInfo = new DirectoryInfo(userWorkPath);
-                        string userWorkID = workDirectoryInfo.Name;
-                        foreach (var appBasePath in Directory.GetDirectories(userWorkPath))
-                        {
-                            DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
-                            string applicationID = directoryInfo.Name;
-                            string tenantID = $"{userWorkID}|{applicationID}";
-                            string settingFilePath = Path.Combine(appBasePath, "settings.json");
-                            if (File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
-                            {
-                                string appSettingText = System.IO.File.ReadAllText(settingFilePath);
-                                var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
-                                if (appSetting != null)
-                                {
-                                    var dataSourceJson = appSetting.DataSource;
-                                    if (dataSourceJson != null)
-                                    {
-                                        foreach (var dataSource in dataSourceJson)
-                                        {
-                                            if (ModuleConfiguration.DataSource.Contains(dataSource) == false)
-                                            {
-                                                dataSource.ConnectionString = dataSource.ConnectionString.Replace("{appBasePath}", appBasePath);
-                                                ModuleConfiguration.DataSource.Add(dataSource);
-                                            }
-                                            else
-                                            {
-                                                Log.Logger.Error("[{LogCategory}] " + $"applicationID: {applicationID}의 데이터 원본 설정 확인 필요, dataSource: {JsonConvert.SerializeObject(dataSource)}", $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            ModuleConfiguration.ContractBasePath.Add(Path.Combine(appBasePath, "dbclient"));
-                        }
-                    }
-                }
-
                 DatabaseMapper.LoadContract(environment.EnvironmentName, Log.Logger, configuration);
 
                 services.AddSingleton(new DbClientLoggerClient(Log.Logger, ModuleConfiguration.ModuleLogger));
@@ -252,7 +208,7 @@ namespace dbclient
 
             foreach (var basePath in ModuleConfiguration.ContractBasePath)
             {
-                if (Directory.Exists(basePath) == true && (basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == false))
+                if (Directory.Exists(basePath) == true && basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == false)
                 {
                     var fileSyncManager = new FileSyncManager(basePath, "*.xml");
                     fileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>

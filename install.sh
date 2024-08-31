@@ -61,22 +61,23 @@ fi
 
 current_path=$(pwd)
 if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
+    echo 'export HANDSTACK_SRC="$current_path"' >> ~/.bashrc
+    export HANDSTACK_SRC="$current_path"
+    HANDSTACK_SRC="$current_path"
+
     mkdir -p $current_path/1.WebHost/build/handstack
-    cd $current_path/1.WebHost/ack
+    echo 'export HANDSTACK_HOME="$current_path/1.WebHost/build/handstack"' >> ~/.bashrc
+    export HANDSTACK_HOME="$current_path/1.WebHost/build/handstack"
+    HANDSTACK_HOME="$current_path/1.WebHost/build/handstack"
+
+    source ~/.bashrc
+
     echo "current_path: $current_path 개발 환경 설치 확인 중..."
-    if [ ! -d "$current_path/node_modules" ]; then
+    if [ ! -d "$current_path/1.WebHost/ack/node_modules" ]; then
         echo "syn.js 번들링 $current_path/package.json 설치를 시작합니다..."
+        cd $current_path/1.WebHost/ack
         npm install
         gulp
-        rsync -av --progress --exclude='*' --include='index.js' $current_path/1.WebHost/ack/wwwroot/assets/js $current_path/1.WebHost/build/handstack/node_modules/syn
-    fi
-
-    cd $current_path
-    cp $current_path/2.Modules/function/package*.* $current_path/1.WebHost/build/handstack/
-    if [ ! -d "$current_path/1.WebHost/build/handstack/node_modules" ]; then
-        echo "node.js Function 모듈 $current_path/1.WebHost/build/handstack/package.json 설치를 시작합니다..."
-        cd $current_path/1.WebHost/build/handstack
-        npm install
     fi
     
     cd $current_path
@@ -98,10 +99,6 @@ if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
     cd $current_path
     echo "current_path: $current_path"
     build_path=$current_path/1.WebHost/build/handstack
-    if [ -z "$HANDSTACK_HOME" ]; then
-      echo 'export HANDSTACK_HOME="build_path"' >> ~/.bashrc
-      source ~/.bashrc
-    fi
 
     echo build.sh, post-build.sh 스크립트에 실행 권한을 부여합니다...
     module_paths=("$current_path/1.WebHost/ack" "$current_path/1.WebHost/forbes" "$current_path/2.Modules/checkup" "$current_path/2.Modules/dbclient" "$current_path/2.Modules/function" "$current_path/2.Modules/logger" "$current_path/2.Modules/openapi" "$current_path/2.Modules/repository" "$current_path/2.Modules/transact" "$current_path/2.Modules/wwwroot" "$current_path/4.Tool/CLI/handstack")
@@ -117,17 +114,31 @@ if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
 
     dotnet build handstack.sln
 
-    cd $build_path
-    echo "build_path: $build_path"
-    echo "function 모듈 $build_path/package.json 설치를 시작합니다..."
-    npm install
-    rsync -av --progress --exclude='*' --include='index.js' $current_path/1.WebHost/ack/wwwroot/assets/js/ $build_path/node_modules/syn/
+    cd $current_path
+    cp $current_path/2.Modules/function/package*.* $current_path/1.WebHost/build/handstack/
+    if [ ! -d "$current_path/1.WebHost/build/handstack/node_modules" ]; then
+        echo "node.js Function 모듈 $current_path/1.WebHost/build/handstack/package.json 설치를 시작합니다..."
+        cd $current_path/1.WebHost/build/handstack
+        npm install
+        rsync -av --progress --exclude='*' --include='index.js' $current_path/1.WebHost/ack/wwwroot/assets/js $current_path/1.WebHost/build/handstack/node_modules/syn
+    fi
+
+    cd $current_path
+    rsync -av --progress --exclude='*' --include='index.js' $current_path/1.WebHost/ack/wwwroot/assets/js/ $HANDSTACK_HOME/node_modules/syn/
 
     echo "HandStack 개발 환경 설치가 완료되었습니다. Visual Studio 개발 도구로 handstack.sln 를 실행 후 컴파일 하거나 터미널에서 dotnet build handstack.sln 명령으로 솔루션을 컴파일 하세요."
+    exit
 fi
 
 if [ -f "$current_path/app/ack.dll" ]; then
     echo "current_path: $current_path ack 실행 환경 설치 확인 중..."
+    if [ -z "$HANDSTACK_HOME" ]; then
+        echo 'export HANDSTACK_HOME="$current_path"' >> ~/.bashrc
+        export HANDSTACK_HOME="$current_path"
+        HANDSTACK_HOME="$current_path"
+        source ~/.bashrc
+    fi
+
     if [ ! -d "$current_path/node_modules" ]; then
         echo "function 모듈 $current_path/package.json 설치를 시작합니다..."
         npm install
@@ -158,15 +169,13 @@ if [ -f "$current_path/app/ack.dll" ]; then
         gulp
     fi
 
-    if [ -z "$HANDSTACK_HOME" ]; then
-      echo 'export HANDSTACK_HOME="$current_path"' >> ~/.bashrc
-      source ~/.bashrc
-    fi
-    echo "ack 실행 환경 설치가 완료되었습니다. 터미널에서 다음 경로의 프로그램을 실행하세요. $current_path/app/ack"
     cd $current_path
+    echo "ack 실행 환경 설치가 완료되었습니다. 터미널에서 다음 경로의 프로그램을 실행하세요. $current_path/app/ack"
+    exit
 fi
 
 if [ ! -f "$current_path/app/ack.dll" ]; then
     echo "ack 실행 환경 설치 경로 확인이 필요합니다. current_path: $current_path"
     echo "참고: https://handstack.kr/docs/startup/빠른-시작"
+    exit
 fi

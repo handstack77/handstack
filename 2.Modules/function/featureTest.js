@@ -68,7 +68,7 @@ var executeFunction = (req, res) => {
 
         moduleScriptMap.DataSourceID = header.DataSourceID;
         moduleScriptMap.LanguageType = header.LanguageType;
-        moduleScriptMap.ProgramPath = functionScriptFile;
+        moduleScriptMap.ProgramPath = 'featureTest.js';
         moduleScriptMap.Timeout = item.Timeout;
         moduleScriptMap.BeforeTransactionCommand = item.BeforeTransaction;
         moduleScriptMap.AfterTransactionCommand = item.AfterTransaction;
@@ -109,11 +109,11 @@ var executeFunction = (req, res) => {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.all('/function/api/execute', executeFunction);
+app.all('/function/api/execution', executeFunction);
 
 var port = process.argv[2] || 8080;
 app.listen(port, () => {
-    console.log(`Server is running... http://localhost:${port}/function/api/execute`);
+    console.log(`Server is running... http://localhost:${port}/function/api/execution`);
 });
 
 // 서버 함수 본문

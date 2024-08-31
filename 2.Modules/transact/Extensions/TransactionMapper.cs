@@ -64,19 +64,16 @@ namespace transact.Extensions
                                 {
                                     lock (BusinessMappings)
                                     {
-                                        businessContract.TransactionProjectID = string.IsNullOrEmpty(businessContract.TransactionProjectID) == true ? businessContract.ProjectID : businessContract.TransactionProjectID;
-                                        if (filePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
-                                        {
-                                            FileInfo fileInfo = new FileInfo(filePath);
-                                            businessContract.ApplicationID = string.IsNullOrEmpty(businessContract.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : businessContract.ApplicationID;
-                                            businessContract.ProjectID = string.IsNullOrEmpty(businessContract.ProjectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : businessContract.ProjectID;
-                                            businessContract.TransactionID = string.IsNullOrEmpty(businessContract.TransactionID) == true ? fileInfo.Name.Replace(fileInfo.Extension, "") : businessContract.TransactionID;
-                                        }
-
                                         if (BusinessMappings.ContainsKey(filePath) == true)
                                         {
                                             BusinessMappings.Remove(filePath);
                                         }
+
+                                        FileInfo fileInfo = new FileInfo(filePath);
+                                        businessContract.TransactionProjectID = string.IsNullOrEmpty(businessContract.TransactionProjectID) == true ? businessContract.ProjectID : businessContract.TransactionProjectID;
+                                        businessContract.ApplicationID = string.IsNullOrEmpty(businessContract.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : businessContract.ApplicationID;
+                                        businessContract.ProjectID = string.IsNullOrEmpty(businessContract.ProjectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : businessContract.ProjectID;
+                                        businessContract.TransactionID = string.IsNullOrEmpty(businessContract.TransactionID) == true ? fileInfo.Name.Replace(fileInfo.Extension, "") : businessContract.TransactionID;
 
                                         BusinessMappings.Add(filePath, businessContract);
                                     }
@@ -374,7 +371,7 @@ namespace transact.Extensions
 
                 foreach (var basePath in ModuleConfiguration.ContractBasePath)
                 {
-                    if (Directory.Exists(basePath) == false || (basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true))
+                    if (Directory.Exists(basePath) == false || basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                     {
                         continue;
                     }
@@ -396,34 +393,14 @@ namespace transact.Extensions
                                 {
                                     businessContract.TransactionProjectID = string.IsNullOrEmpty(businessContract.TransactionProjectID) == true ? businessContract.ProjectID : businessContract.TransactionProjectID;
 
-                                    // 삭제 예정
-                                    // if (businessFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
-                                    // {
-                                    //     FileInfo fileInfo = new FileInfo(businessFile);
-                                    //     businessContract.ApplicationID = string.IsNullOrEmpty(businessContract.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : businessContract.ApplicationID;
-                                    //     businessContract.ProjectID = string.IsNullOrEmpty(businessContract.ProjectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : businessContract.ProjectID;
-                                    //     businessContract.TransactionID = string.IsNullOrEmpty(businessContract.TransactionID) == true ? fileInfo.Name.Replace(fileInfo.Extension, "") : businessContract.TransactionID;
-                                    //     
-                                    //     if (BusinessMappings.ContainsKey(businessFile) == false && HasCount(businessContract.ApplicationID, businessContract.ProjectID, businessContract.TransactionID) == 0)
-                                    //     {
-                                    //         BusinessMappings.Add(businessFile, businessContract);
-                                    //     }
-                                    //     else
-                                    //     {
-                                    //         logger.Warning("[{LogCategory}] " + $"TenantApp 업무 계약 파일 또는 거래 정보 중복 오류 - {businessFile}, ProjectID - {businessContract.ApplicationID}, BusinessID - {businessContract.ProjectID}, TransactionID - {businessContract.TransactionID}", "LoadContract");
-                                    //     }
-                                    // }
-                                    // else
-                                    // {
-                                        if (BusinessMappings.ContainsKey(businessFile) == false && HasCount(businessContract.ApplicationID, businessContract.ProjectID, businessContract.TransactionID) == 0)
-                                        {
-                                            BusinessMappings.Add(businessFile, businessContract, TimeSpan.FromDays(3650));
-                                        }
-                                        else
-                                        {
-                                            logger.Warning("[{LogCategory}] " + $"업무 계약 파일 또는 거래 정보 중복 오류 - {businessFile}, ProjectID - {businessContract.ApplicationID}, BusinessID - {businessContract.ProjectID}, TransactionID - {businessContract.TransactionID}", "LoadContract");
-                                        }
-                                    // }
+                                    if (BusinessMappings.ContainsKey(businessFile) == false && HasCount(businessContract.ApplicationID, businessContract.ProjectID, businessContract.TransactionID) == 0)
+                                    {
+                                        BusinessMappings.Add(businessFile, businessContract, TimeSpan.FromDays(3650));
+                                    }
+                                    else
+                                    {
+                                        logger.Warning("[{LogCategory}] " + $"업무 계약 파일 또는 거래 정보 중복 오류 - {businessFile}, ProjectID - {businessContract.ApplicationID}, BusinessID - {businessContract.ProjectID}, TransactionID - {businessContract.TransactionID}", "LoadContract");
+                                    }
                                 }
                             }
                             catch (Exception exception)

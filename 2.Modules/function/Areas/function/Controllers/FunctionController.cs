@@ -124,7 +124,7 @@ namespace function.Areas.function.Controllers
                 FunctionHeader header = functionScriptContract.Header;
                 dataContext.functionHeader = header;
 
-                var item = functionScriptContract.Commands.First(p => p.ID == functionID.Split('.')[2]);
+                var item = functionScriptContract.Commands.FirstOrDefault(p => p.ID == (functionID.Split('.').ElementAtOrDefault(2) ?? ""));
                 if (item == null)
                 {
                     using DataSet? result = new DataSet();

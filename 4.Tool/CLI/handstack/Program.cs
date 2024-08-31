@@ -919,6 +919,43 @@ namespace handstack
 
             #endregion
 
+            #region replacetext
+
+            var subCommandReplaceText = new Command("replacetext", "텍스트 파일의 특정 문자열을 치환합니다") {
+                optionFile, optionFind, optionReplace
+            };
+
+            // handstack replacetext --file=C:/tmp/handstack.txt --find=handstack --replace=myprojectname
+            subCommandReplaceText.SetHandler((file, find, replace) =>
+            {
+                if (file != null && file.Exists == true)
+                {
+                    if (string.IsNullOrEmpty(find) == false && string.IsNullOrEmpty(replace) == false)
+                    {
+                        try
+                        {
+                            string findText = find;
+                            string replaceText = replace;
+
+                            ReplaceInFile(file, findText, replaceText);
+                        }
+                        catch (Exception exception)
+                        {
+                            Log.Information(exception.Message);
+                            Environment.Exit(-1);
+                        }
+                    }
+                }
+                else
+                {
+                    Log.Information($"file:{file?.FullName} 확인이 필요합니다");
+                }
+            }, optionFile, optionFind, optionReplace);
+
+            rootCommand.Add(subCommandReplaceText);
+
+            #endregion
+
             #region task
 
             var subCommandTask = new Command("task", "운영체제에 따라 사전에 정의된 배치 스크립트 업무를 수행합니다") {
@@ -1123,6 +1160,19 @@ namespace handstack
             }
 
             return result;
+        }
+
+        public static void ReplaceInFile(FileInfo fileInfo, string findText, string replaceText)
+        {
+            if (fileInfo.Exists == true && fileInfo.IsBinary() == false)
+            {
+                string fileText = File.ReadAllText(fileInfo.FullName);
+                int count = Regex.Matches(fileText, findText, RegexOptions.None).Count;
+                if (count > 0)
+                {
+                    File.WriteAllText(fileInfo.FullName, fileText.Replace(findText, replaceText));
+                }
+            }
         }
 
         public static void ReplaceInFiles(string ackHomePath, string directoryPath, string findText, string replaceText, bool deleteVsUserSettingsDirectory)

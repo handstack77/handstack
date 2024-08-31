@@ -94,6 +94,8 @@ namespace dbclient.Areas.dbclient.Controllers
             }
             else
             {
+                bool actionResult = false;
+
                 try
                 {
                     if (filePath.StartsWith(Path.DirectorySeparatorChar) == true)
@@ -103,60 +105,89 @@ namespace dbclient.Areas.dbclient.Controllers
 
                     logger.Information("[{LogCategory}] " + $"WatcherChangeTypes: {changeType}, FilePath: {filePath}", "Query/Refresh");
 
-                    List<StatementMap> existStatementMaps = new List<StatementMap>();
                     FileInfo fileInfo = new FileInfo(filePath);
 
-                    if (filePath.StartsWith(GlobalConfiguration.ApplicationID) == false)
+                    var businessContracts = DatabaseMapper.StatementMappings;
+                    lock (businessContracts)
                     {
-                        lock (DatabaseMapper.DataSourceMappings)
+                        WatcherChangeTypes watcherChangeTypes = (WatcherChangeTypes)Enum.Parse(typeof(WatcherChangeTypes), changeType);
+                        switch (watcherChangeTypes)
                         {
-                            var dataSourceMappings = DatabaseMapper.DataSourceMappings.Where(x => x.Value.ApplicationID == fileInfo.Directory?.Parent?.Name).ToList();
-                            for (int i = dataSourceMappings.Count(); i > 0; i--)
-                            {
-                                var item = dataSourceMappings[i - 1].Key;
-                                DatabaseMapper.DataSourceMappings.Remove(item);
-                            }
+                            case WatcherChangeTypes.Created:
+                            case WatcherChangeTypes.Changed:
+                                if (string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false)
+                                {
+                                    string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                                    string itemPath = Path.Combine(appBasePath, filePath);
+                                    DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
+                                    if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true)
+                                    {
+                                        if (DatabaseMapper.HasContractFile(filePath) == true && fileInfo.Extension == ".xml" == true)
+                                        {
+                                            logger.Information("[{LogCategory}] " + $"Add TenantApp StatementMap FilePath: {filePath}", "Query/Refresh");
+                                            actionResult = DatabaseMapper.AddStatementMap(filePath, true, logger);
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    foreach (var basePath in ModuleConfiguration.ContractBasePath)
+                                    {
+                                        string itemPath = Path.Combine(basePath, filePath);
+                                        DirectoryInfo directoryInfo = new DirectoryInfo(basePath);
+                                        if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true)
+                                        {
+                                            if (DatabaseMapper.HasContractFile(filePath) == true && fileInfo.Extension == ".xml" == true)
+                                            {
+                                                logger.Information("[{LogCategory}] " + $"Add StatementMap FilePath: {filePath}", "Query/Refresh");
+                                                actionResult = DatabaseMapper.AddStatementMap(filePath, true, logger);
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                                break;
+                            case WatcherChangeTypes.Deleted:
+                                List<StatementMap> existStatementMaps = new List<StatementMap>();
+                                if (string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false)
+                                {
+                                    string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                                    DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
+                                    if (directoryInfo.Exists == true)
+                                    {
+                                        existStatementMaps = DatabaseMapper.StatementMappings.Select(p => p.Value).Where(p =>
+                                            p.ApplicationID == applicationID &&
+                                            p.ProjectID == fileInfo.Directory?.Name &&
+                                            p.TransactionID == fileInfo.Name.Replace(fileInfo.Extension, "")).ToList();
+                                    }
+                                }
+                                else
+                                {
+                                    existStatementMaps = DatabaseMapper.StatementMappings.Select(p => p.Value).Where(p =>
+                                        p.ApplicationID == fileInfo.Directory?.Parent?.Name &&
+                                        p.ProjectID == fileInfo.Directory?.Name &&
+                                        p.TransactionID == fileInfo.Name.Replace(fileInfo.Extension, "")).ToList();
+                                }
+
+                                if (existStatementMaps.Count > 0)
+                                {
+                                    List<string> mapStrings = new List<string>();
+                                    for (int i = 0; i < existStatementMaps.Count; i++)
+                                    {
+                                        var item = existStatementMaps[i];
+                                        mapStrings.Add($"{item.ApplicationID}|{item.ProjectID}|{item.TransactionID}|{item.StatementID}");
+                                    }
+
+                                    for (int i = 0; i < mapStrings.Count; i++)
+                                    {
+                                        var item = existStatementMaps[i];
+                                        var items = mapStrings[i].SplitAndTrim('|');
+                                        logger.Information("[{LogCategory}] " + $"Delete StatementMap ApplicationID: {item.ApplicationID}, ProjectID: {item.ProjectID}, TransactionID: {item.TransactionID}, FunctionID: {item.StatementID}", "Query/Refresh");
+                                        DatabaseMapper.Remove(items[0], items[1], items[2], items[3]);
+                                    }
+                                }
+                                break;
                         }
-                    }
-
-                    lock (DatabaseMapper.StatementMappings)
-                    {
-                        existStatementMaps = DatabaseMapper.StatementMappings.Select(p => p.Value).Where(p =>
-                            p.ApplicationID == fileInfo.Directory?.Parent?.Name &&
-                            p.ProjectID == fileInfo.Directory?.Name &&
-                            p.TransactionID == fileInfo.Name.Replace(fileInfo.Extension, "")).ToList();
-
-                        if (existStatementMaps.Count > 0)
-                        {
-                            List<string> mapStrings = new List<string>();
-                            for (int i = 0; i < existStatementMaps.Count; i++)
-                            {
-                                var item = existStatementMaps[i];
-                                mapStrings.Add($"{item.ApplicationID}|{item.ProjectID}|{item.TransactionID}|{item.StatementID}");
-                            }
-
-                            for (int i = 0; i < mapStrings.Count; i++)
-                            {
-                                var item = existStatementMaps[i];
-                                var items = mapStrings[i].SplitAndTrim('|');
-                                logger.Information("[{LogCategory}] " + $"Delete StatementMap ApplicationID: {item.ApplicationID}, ProjectID: {item.ProjectID}, TransactionID: {item.TransactionID}, FunctionID: {item.StatementID}", "Query/Refresh");
-                                DatabaseMapper.Remove(items[0], items[1], items[2], items[3]);
-                            }
-                        }
-                    }
-
-                    WatcherChangeTypes watcherChangeTypes = (WatcherChangeTypes)Enum.Parse(typeof(WatcherChangeTypes), changeType);
-                    bool actionResult = false;
-                    switch (watcherChangeTypes)
-                    {
-                        case WatcherChangeTypes.Created:
-                        case WatcherChangeTypes.Changed:
-                            if (DatabaseMapper.HasContractFile(filePath) == true && fileInfo.Extension == ".xml" == true)
-                            {
-                                logger.Information("[{LogCategory}] " + $"Add StatementMap FilePath: {filePath}", "Query/Refresh");
-                                actionResult = DatabaseMapper.AddStatementMap(filePath, true, logger);
-                            }
-                            break;
                     }
 
                     result = Content(JsonConvert.SerializeObject(actionResult), "application/json");

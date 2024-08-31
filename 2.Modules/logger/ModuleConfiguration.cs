@@ -21,6 +21,7 @@ namespace logger
 {
     public static class ModuleConfiguration
     {
+        private static readonly object lockObject = new object();
         public static bool IsConfigure = false;
         public static string ModuleID = "logger";
         public static string Version = "";
@@ -80,7 +81,10 @@ namespace logger
 
                     if (fileInfo.Exists == false)
                     {
-                        SQLiteConnection.CreateFile(logDbFilePath);
+                        lock (lockObject)
+                        {
+                            SQLiteConnection.CreateFile(logDbFilePath);
+                        }
                     }
 
                     try

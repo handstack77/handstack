@@ -15,8 +15,8 @@ namespace HandStack.Web.Extensions
 
         public ExpiringList()
         {
-            this.defaultExpiryDuration = TimeSpan.FromMinutes(20);
-            purgeTimer = new Timer(RemoveExpiredItems!, null, TimeSpan.FromMinutes(10), TimeSpan.FromMinutes(10));
+            this.defaultExpiryDuration = TimeSpan.FromMinutes(2);
+            purgeTimer = new Timer(RemoveExpiredItems!, null, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
         }
 
         public ExpiringList(TimeSpan defaultExpiryDuration, TimeSpan cleanupInterval)
@@ -214,6 +214,22 @@ namespace HandStack.Web.Extensions
                     var entry = list[i];
                     list[i] = (entry.Value, dateTime);
                 }
+            }
+        }
+
+        public T? Find(Func<T, bool> predicate)
+        {
+            lock (defaultLock)
+            {
+                var now = DateTime.Now;
+                foreach (var entry in list)
+                {
+                    if (entry.ExpiryTime > now && predicate(entry.Value))
+                    {
+                        return entry.Value;
+                    }
+                }
+                return null;
             }
         }
     }
