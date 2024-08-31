@@ -143,6 +143,7 @@ namespace ack
             string moduleConfigurationUrl = "";
             try
             {
+                var client = new RestClient();
                 foreach (var item in GlobalConfiguration.ModuleConfigurationUrl)
                 {
                     moduleConfigurationUrl = item;
@@ -151,7 +152,6 @@ namespace ack
                         Log.Information($"ModuleConfigurationUrl: {item} 요청");
 
                         Uri baseUri = new Uri(item);
-                        var client = new RestClient();
                         var request = new RestRequest(baseUri, Method.Get);
                         request.AddHeader("ApplicationName", GlobalConfiguration.ApplicationName);
                         request.AddHeader("SystemID", GlobalConfiguration.SystemID);

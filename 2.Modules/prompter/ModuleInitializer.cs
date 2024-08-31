@@ -200,6 +200,7 @@ namespace prompter
                 }
             }
 
+            var client = new RestClient();
             foreach (var basePath in ModuleConfiguration.ContractBasePath)
             {
                 if (Directory.Exists(basePath) == true && basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == false)
@@ -212,7 +213,6 @@ namespace prompter
                             string filePath = fileInfo.FullName.Replace(basePath, "");
                             string hostUrl = $"http://localhost:{GlobalConfiguration.ServerPort}/prompter/api/query/refresh?changeType={changeTypes}&filePath={filePath}";
 
-                            var client = new RestClient();
                             var request = new RestRequest(hostUrl, Method.Get);
                             request.Timeout = TimeSpan.FromSeconds(3);
                             request.AddHeader("AuthorizationKey", ModuleConfiguration.AuthorizationKey);

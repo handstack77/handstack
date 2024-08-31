@@ -79,6 +79,7 @@
         <PackageReference Include="ChoETL.JSON.NETStandard" Version="1.2.1.66" />
         <PackageReference Include="Azure.Storage.Blobs" Version="12.21.2" />
         <PackageReference Include="CacheManager.Core" Version="1.2.0" />
+        <PackageReference Include="System.ServiceModel.Primitives" Version="8.0.0" />
         <PackageReference Include="System.ServiceModel.Syndication" Version="8.0.0" />
         <PackageReference Include="SoapFormatter" Version="1.1.9" />
         <PackageReference Include="YamlDotNet" Version="16.0.0" />
@@ -89,9 +90,9 @@
         <PackageReference Include="FreeSpire.XLS" Version="14.2.0" />
         <PackageReference Include="PDFsharp" Version="6.1.1" />
         <PackageReference Include="System.ServiceModel.Duplex" Version="6.0.*" />
-        <PackageReference Include="System.ServiceModel.Federation" Version="6.0.*" />
-        <PackageReference Include="System.ServiceModel.Http" Version="6.0.*" />
-        <PackageReference Include="System.ServiceModel.NetTcp" Version="6.0.*" />
+        <PackageReference Include="System.ServiceModel.Federation" Version="8.0.0" />
+        <PackageReference Include="System.ServiceModel.Http" Version="8.0.0" />
+        <PackageReference Include="System.ServiceModel.NetTcp" Version="8.0.0" />
         <PackageReference Include="System.ServiceModel.Security" Version="6.0.*" />
     </ItemGroup>
 

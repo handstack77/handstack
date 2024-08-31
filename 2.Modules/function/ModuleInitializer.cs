@@ -376,6 +376,7 @@ namespace function
                 }
             }
 
+            var client = new RestClient();
             foreach (var basePath in ModuleConfiguration.ContractBasePath)
             {
                 if (Directory.Exists(basePath) == true && basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == false)
@@ -391,7 +392,6 @@ namespace function
                                 string filePath = fileInfo.FullName.Replace(nodeContractBasePath, "");
                                 string hostUrl = $"http://localhost:{GlobalConfiguration.ServerPort}/function/api/execution/refresh?changeType={changeTypes}&filePath={filePath}";
 
-                                var client = new RestClient();
                                 var request = new RestRequest(hostUrl, Method.Get);
                                 request.Timeout = TimeSpan.FromSeconds(3);
                                 request.AddHeader("AuthorizationKey", ModuleConfiguration.AuthorizationKey);
@@ -427,7 +427,6 @@ namespace function
                                 string filePath = fileInfo.FullName.Replace(csharpContractBasePath, "");
                                 string hostUrl = $"http://localhost:{GlobalConfiguration.ServerPort}/function/api/execution/refresh?changeType={changeTypes}&filePath={filePath}";
 
-                                var client = new RestClient();
                                 var request = new RestRequest(hostUrl, Method.Get);
                                 request.Timeout = TimeSpan.FromSeconds(3);
                                 request.AddHeader("AuthorizationKey", ModuleConfiguration.AuthorizationKey);
