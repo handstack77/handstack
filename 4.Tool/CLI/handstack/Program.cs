@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.CommandLine;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,10 +21,8 @@ using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 
 using Serilog;
-using Ionic.Zip;
 
 using Sqids;
-using System.Runtime.InteropServices;
 
 namespace handstack
 {
@@ -812,15 +812,7 @@ namespace handstack
                             File.Delete(zipFileName);
                         }
 
-                        using (ZipFile zip = new ZipFile())
-                        {
-                            if (string.IsNullOrEmpty(key) == false)
-                            {
-                                zip.Password = key;
-                            }
-                            zip.AddDirectory(directory.FullName);
-                            zip.Save(zipFileName);
-                        }
+                        ZipFile.CreateFromDirectory(directory.FullName, zipFileName);
                     }
                     else
                     {
@@ -855,14 +847,7 @@ namespace handstack
                             directory.Delete(true);
                         }
 
-                        using (ZipFile zip = ZipFile.Read(file.FullName))
-                        {
-                            if (string.IsNullOrEmpty(key) == false)
-                            {
-                                zip.Password = key;
-                            }
-                            zip.ExtractAll(directory.FullName, ExtractExistingFileAction.OverwriteSilently);
-                        }
+                        ZipFile.ExtractToDirectory(file.FullName, directory.FullName);
                     }
                     else
                     {
@@ -897,14 +882,7 @@ namespace handstack
                     }
 
                     string targetDirectoryPath = directory.FullName;
-                    using (ZipFile zip = ZipFile.Read(file.FullName))
-                    {
-                        if (string.IsNullOrEmpty(key) == false)
-                        {
-                            zip.Password = key;
-                        }
-                        zip.ExtractAll(targetDirectoryPath, ExtractExistingFileAction.OverwriteSilently);
-                    }
+                    ZipFile.ExtractToDirectory(file.FullName, targetDirectoryPath);
 
                     if (string.IsNullOrEmpty(ignored) == false)
                     {

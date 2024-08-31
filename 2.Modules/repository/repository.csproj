@@ -23,17 +23,17 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Azure.Storage.Blobs" Version="12.20.0" />
+        <PackageReference Include="Azure.Storage.Blobs" Version="12.21.2" />
         <PackageReference Include="CacheManager.Core" Version="1.2.0" />
         <PackageReference Include="System.Data.SQLite.Core" Version="1.0.118" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-        <PackageReference Include="Serilog" Version="4.0.0" />
-        <PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
+        <PackageReference Include="Serilog" Version="4.0.1" />
+        <PackageReference Include="Serilog.AspNetCore" Version="8.0.2" />
         <PackageReference Include="Serilog.Extensions.Hosting" Version="8.0.0" />
         <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
         <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
-        <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
-        <PackageReference Include="MediatR" Version="12.3.0" />
+        <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+        <PackageReference Include="MediatR" Version="12.4.0" />
     </ItemGroup>
 
     <ItemGroup>
