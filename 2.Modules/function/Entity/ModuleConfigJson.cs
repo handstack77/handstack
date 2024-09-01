@@ -109,13 +109,7 @@ namespace function.Entity
 
         public int CircuitBreakResetSecond { get; set; }
 
-        public int DefaultCommandTimeout { get; set; }
-
-        public bool IsExceptionDetailText { get; set; }
-
         public bool IsLogServer { get; set; }
-
-        public string LocalStoragePath { get; set; }
 
         public string LogServerUrl { get; set; }
 
@@ -142,10 +136,7 @@ namespace function.Entity
             AuthorizationKey = "";
             BusinessServerUrl = "";
             CircuitBreakResetSecond = 60;
-            DefaultCommandTimeout = 30;
-            IsExceptionDetailText = false;
             IsLogServer = false;
-            LocalStoragePath = "";
             LogServerUrl = "";
             ContractBasePath = new List<string>();
             IsTransactionLogging = false;

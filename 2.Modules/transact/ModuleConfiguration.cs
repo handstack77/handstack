@@ -19,8 +19,6 @@ namespace transact
         public static string BusinessServerUrl = "";
         public static bool IsTransactionLogging = false;
         public static string TransactionLogBasePath = "";
-        public static int TransactionLogFileSizeLimitBytes = 104857600;
-        public static int TransactionLogMaxRollingFiles = 30;
         public static int CircuitBreakResetSecond = 60;
         public static string ModuleBasePath = "";
         public static string DatabaseContractPath = "";
@@ -36,9 +34,6 @@ namespace transact
         public static bool UseApiAuthorize = false;
         public static List<string> BypassAuthorizeIP = new List<string>();
         public static List<string> WithOrigins = new List<string>();
-        public static bool IsExceptionDetailText = false;
-        public static int DefaultCommandTimeout = 30;
-        public static bool IsApiFindServer = false;
         public static string SystemID = "";
         public static string AvailableEnvironment = "";
         public static bool IsCodeDataCache = true;

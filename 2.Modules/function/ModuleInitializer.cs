@@ -88,8 +88,6 @@ namespace function
                         ModuleConfiguration.ModuleBasePath = string.IsNullOrEmpty(moduleConfig.ModuleBasePath) == true || Directory.Exists(moduleConfig.ModuleBasePath) == false ? "" : new DirectoryInfo(moduleConfig.ModuleBasePath).FullName;
                         ModuleConfiguration.BusinessServerUrl = moduleConfig.BusinessServerUrl;
                         ModuleConfiguration.CircuitBreakResetSecond = moduleConfig.CircuitBreakResetSecond;
-                        ModuleConfiguration.DefaultCommandTimeout = moduleConfig.DefaultCommandTimeout;
-                        ModuleConfiguration.IsExceptionDetailText = moduleConfig.IsExceptionDetailText;
                         ModuleConfiguration.IsLogServer = moduleConfig.IsLogServer;
                         ModuleConfiguration.LogServerUrl = moduleConfig.LogServerUrl;
 

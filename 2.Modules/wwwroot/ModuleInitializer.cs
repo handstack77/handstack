@@ -51,11 +51,6 @@ namespace wwwroot
                         ModuleConfiguration.AuthorizationKey = string.IsNullOrEmpty(moduleConfig.AuthorizationKey) == false ? moduleConfig.AuthorizationKey : GlobalConfiguration.SystemID + GlobalConfiguration.RunningEnvironment + GlobalConfiguration.HostName;
                         ModuleConfiguration.IsBundledWithHost = moduleConfigJson.IsBundledWithHost;
                         ModuleConfiguration.BusinessServerUrl = moduleConfig.BusinessServerUrl;
-                        ModuleConfiguration.CircuitBreakResetSecond = moduleConfig.CircuitBreakResetSecond;
-                        ModuleConfiguration.DefaultCommandTimeout = moduleConfig.DefaultCommandTimeout;
-                        ModuleConfiguration.IsExceptionDetailText = moduleConfig.IsExceptionDetailText;
-                        ModuleConfiguration.IsLogServer = moduleConfig.IsLogServer;
-                        ModuleConfiguration.LogServerUrl = moduleConfig.LogServerUrl;
                         ModuleConfiguration.ContractRequestPath = string.IsNullOrEmpty(moduleConfig.ContractRequestPath) == true ? "view" : moduleConfig.ContractRequestPath;
                         ModuleConfiguration.ContractBasePath = GlobalConfiguration.GetBasePath(moduleConfig.ContractBasePath);
                         ModuleConfiguration.WWWRootBasePath = GlobalConfiguration.GetBasePath(moduleConfig.WWWRootBasePath);

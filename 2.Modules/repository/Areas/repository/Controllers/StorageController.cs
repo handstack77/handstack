@@ -53,26 +53,6 @@ namespace repository.Controllers
             this.configuration = configuration;
         }
 
-        // http://localhost:8000/repository/api/storage/get-token?remoteIP=localhost
-        [HttpGet("[action]")]
-        public string GetToken(string remoteIP)
-        {
-            string result = "";
-            if (ModuleConfiguration.TokenGenerateIPCheck == true)
-            {
-                if (GetClientIP() == remoteIP)
-                {
-                    result = ClientSessionManager.GetToken(remoteIP);
-                }
-            }
-            else
-            {
-                result = ClientSessionManager.GetToken(remoteIP);
-            }
-
-            return result;
-        }
-
         // http://localhost:8000/repository/api/storage/get-client-ip
         [HttpGet("[action]")]
         public string? GetClientIP()
@@ -1245,10 +1225,11 @@ namespace repository.Controllers
                 MD5 = repositoryItem.MD5
             };
 
-            Response.Headers["Access-Control-Expose-Headers"] = "FileModelType, FileResult";
-            Response.Headers["FileModelType"] = "FileItemResult";
-            Response.Headers["FileResult"] = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(entity)));
-            Response.Headers["X-Frame-Options"] = ModuleConfiguration.XFrameOptions;
+            Response.Headers.Append("Access-Control-Expose-Headers", "FileModelType, FileResult");
+            Response.Headers.Append("FileModelType", "FileItemResult");
+            Response.Headers.Append("FileResult", Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(entity))));
+            Response.Headers.Append("X-Frame-Options", ModuleConfiguration.XFrameOptions);
+            Response.Headers.Append("Content-Security-Policy", ModuleConfiguration.ContentSecurityPolicy);
             return Content(JsonConvert.SerializeObject(result), "application/json");
         }
 
@@ -1671,11 +1652,11 @@ namespace repository.Controllers
                 }
                 else if (responseType == "json")
                 {
-                    Response.Headers["Access-Control-Expose-Headers"] = "FileModelType, FileResult";
-                    Response.Headers["FileModelType"] = "MultiFileItemResult";
-
-                    Response.Headers["FileResult"] = Convert.ToBase64String(Encoding.UTF8.GetBytes("[]"));
-                    Response.Headers["X-Frame-Options"] = ModuleConfiguration.XFrameOptions;
+                    Response.Headers.Append("Access-Control-Expose-Headers", "FileModelType, FileResult");
+                    Response.Headers.Append("FileModelType", "MultiFileItemResult");
+                    Response.Headers.Append("FileResult", Convert.ToBase64String(Encoding.UTF8.GetBytes("[]")));
+                    Response.Headers.Append("X-Frame-Options", ModuleConfiguration.XFrameOptions);
+                    Response.Headers.Append("Content-Security-Policy", ModuleConfiguration.ContentSecurityPolicy);
                     return Content(JsonConvert.SerializeObject(result), "application/json");
                 }
                 else
@@ -1770,11 +1751,11 @@ namespace repository.Controllers
                             entitys.Add(entity);
                         }
 
-                        Response.Headers["Access-Control-Expose-Headers"] = "FileModelType, FileResult";
-                        Response.Headers["FileModelType"] = "MultiFileItemResult";
-
-                        Response.Headers["FileResult"] = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(entitys)));
-                        Response.Headers["X-Frame-Options"] = ModuleConfiguration.XFrameOptions;
+                        Response.Headers.Append("Access-Control-Expose-Headers", "FileModelType, FileResult");
+                        Response.Headers.Append("FileModelType", "MultiFileItemResult");
+                        Response.Headers.Append("FileResult", Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(entitys))));
+                        Response.Headers.Append("X-Frame-Options", ModuleConfiguration.XFrameOptions);
+                        Response.Headers.Append("Content-Security-Policy", ModuleConfiguration.ContentSecurityPolicy);
                         return Content(JsonConvert.SerializeObject(result), "application/json");
                     }
                     else
@@ -1846,10 +1827,11 @@ namespace repository.Controllers
                 Response.Headers["Content-Disposition"] = disposition;
             }
 
-            Response.Headers["Access-Control-Expose-Headers"] = "FileModelType, FileResult";
-            Response.Headers["FileModelType"] = "DownloadResult";
-            Response.Headers["FileResult"] = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(downloadResult)));
-            Response.Headers["X-Frame-Options"] = ModuleConfiguration.XFrameOptions;
+            Response.Headers.Append("Access-Control-Expose-Headers", "FileModelType, FileResult");
+            Response.Headers.Append("FileModelType", "DownloadResult");
+            Response.Headers.Append("FileResult", Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(downloadResult))));
+            Response.Headers.Append("X-Frame-Options", ModuleConfiguration.XFrameOptions);
+            Response.Headers.Append("Content-Security-Policy", ModuleConfiguration.ContentSecurityPolicy);
             return result;
         }
 
@@ -1970,10 +1952,11 @@ namespace repository.Controllers
                 Response.Headers["Content-Disposition"] = disposition;
             }
 
-            Response.Headers["Access-Control-Expose-Headers"] = "FileModelType, FileResult";
-            Response.Headers["FileModelType"] = "DownloadResult";
-            Response.Headers["FileResult"] = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(downloadResult)));
-            Response.Headers["X-Frame-Options"] = ModuleConfiguration.XFrameOptions;
+            Response.Headers.Append("Access-Control-Expose-Headers", "FileModelType, FileResult");
+            Response.Headers.Append("FileModelType", "DownloadResult");
+            Response.Headers.Append("FileResult", Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(downloadResult))));
+            Response.Headers.Append("X-Frame-Options", ModuleConfiguration.XFrameOptions);
+            Response.Headers.Append("Content-Security-Policy", ModuleConfiguration.ContentSecurityPolicy);
             return result;
         }
 
@@ -2079,10 +2062,11 @@ namespace repository.Controllers
                 Response.Headers["Content-Disposition"] = disposition;
             }
 
-            Response.Headers["Access-Control-Expose-Headers"] = "FileModelType, FileResult";
-            Response.Headers["FileModelType"] = "DownloadResult";
-            Response.Headers["FileResult"] = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(downloadResult)));
-            Response.Headers["X-Frame-Options"] = ModuleConfiguration.XFrameOptions;
+            Response.Headers.Append("Access-Control-Expose-Headers", "FileModelType, FileResult");
+            Response.Headers.Append("FileModelType", "DownloadResult");
+            Response.Headers.Append("FileResult", Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(downloadResult))));
+            Response.Headers.Append("X-Frame-Options", ModuleConfiguration.XFrameOptions);
+            Response.Headers.Append("Content-Security-Policy", ModuleConfiguration.ContentSecurityPolicy);
             return result;
         }
 
@@ -2183,11 +2167,11 @@ namespace repository.Controllers
                 }
             }
 
-            Response.Headers["Access-Control-Expose-Headers"] = "FileModelType, FileResult";
-            Response.Headers["FileModelType"] = "DeleteResult";
-
-            Response.Headers["FileResult"] = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(deleteResult)));
-            Response.Headers["X-Frame-Options"] = ModuleConfiguration.XFrameOptions;
+            Response.Headers.Append("Access-Control-Expose-Headers", "FileModelType, FileResult");
+            Response.Headers.Append("FileModelType", "DeleteResult");
+            Response.Headers.Append("FileResult", Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(deleteResult))));
+            Response.Headers.Append("X-Frame-Options", ModuleConfiguration.XFrameOptions);
+            Response.Headers.Append("Content-Security-Policy", ModuleConfiguration.ContentSecurityPolicy);
             return result;
         }
 

@@ -37,10 +37,6 @@ namespace prompter.Entity
 
         public string ModuleLogFilePath { get; set; }
 
-        public int TransactionLogFileSizeLimitBytes { get; set; }
-
-        public int TransactionLogMaxRollingFiles { get; set; }
-
         public List<DataSource> LLMSource { get; set; }
 
         public ModuleConfig()
@@ -55,8 +51,6 @@ namespace prompter.Entity
             LogServerUrl = "";
             ContractBasePath = new List<string>();
             CircuitBreakResetSecond = 30;
-            TransactionLogFileSizeLimitBytes = 104857600;
-            TransactionLogMaxRollingFiles = 30;
             LLMSource = new List<DataSource>();
         }
     }

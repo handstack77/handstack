@@ -67,8 +67,6 @@ namespace transact
                         ModuleConfiguration.UseApiAuthorize = moduleConfig.UseApiAuthorize;
                         ModuleConfiguration.BypassAuthorizeIP = moduleConfig.BypassAuthorizeIP;
                         ModuleConfiguration.WithOrigins = moduleConfig.WithOrigins;
-                        ModuleConfiguration.DefaultCommandTimeout = moduleConfig.DefaultCommandTimeout;
-                        ModuleConfiguration.IsExceptionDetailText = moduleConfig.IsExceptionDetailText;
                         ModuleConfiguration.IsValidationRequest = moduleConfig.IsValidationRequest;
                         ModuleConfiguration.IsAllowDynamicRequest = moduleConfig.IsAllowDynamicRequest;
                         ModuleConfiguration.AllowTenantTransactionCommands = moduleConfig.AllowTenantTransactionCommands;

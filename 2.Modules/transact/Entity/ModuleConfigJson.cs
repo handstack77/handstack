@@ -25,10 +25,6 @@ namespace transact.Entity
 
         public int CircuitBreakResetSecond { get; set; }
 
-        public int DefaultCommandTimeout { get; set; }
-
-        public bool IsExceptionDetailText { get; set; }
-
         public bool IsTransactAggregate { get; set; }
 
         public bool IsDataMasking { get; set; }
@@ -69,10 +65,6 @@ namespace transact.Entity
 
         public string TransactionLogBasePath { get; set; }
 
-        public int TransactionLogFileSizeLimitBytes { get; set; }
-
-        public int TransactionLogMaxRollingFiles { get; set; }
-
         public ExpiringList<PublicTransaction> PublicTransactions { get; set; }
 
         public Dictionary<string, string> RoutingCommandUri { get; set; }
@@ -85,8 +77,6 @@ namespace transact.Entity
             SystemID = "";
             BusinessServerUrl = "";
             CircuitBreakResetSecond = 60;
-            DefaultCommandTimeout = 180000;
-            IsExceptionDetailText = true;
             IsLogServer = false;
             IsTransactAggregate = false;
             IsDataMasking = false;
@@ -106,8 +96,6 @@ namespace transact.Entity
             DatabaseContractPath = "";
             IsTransactionLogging = true;
             TransactionLogBasePath = "";
-            TransactionLogFileSizeLimitBytes = 104857600;
-            TransactionLogMaxRollingFiles = 30;
             PublicTransactions = new ExpiringList<PublicTransaction>();
             RoutingCommandUri = new Dictionary<string, string>();
             AllowRequestTransactions = new Dictionary<string, List<string>>();

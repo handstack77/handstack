@@ -7,8 +7,6 @@
         "SystemID": "HANDSTACK",
         "BusinessServerUrl": "http://localhost:8000/transact/api/transaction/execute",
         "CircuitBreakResetSecond": 60,
-        "DefaultCommandTimeout": 180,
-        "IsExceptionDetailText": true,
         "IsValidationRequest": false,
         "IsAllowDynamicRequest": true,
         "AllowTenantTransactionCommands": [ "D" ],

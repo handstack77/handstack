@@ -26,18 +26,6 @@ namespace repository.Entity
 
         public string BusinessServerUrl { get; set; }
 
-        public int CircuitBreakResetSecond { get; set; }
-
-        public int DefaultCommandTimeout { get; set; }
-
-        public bool IsExceptionDetailText { get; set; }
-
-        public bool IsLogServer { get; set; }
-
-        public string LocalStoragePath { get; set; }
-
-        public string LogServerUrl { get; set; }
-
         public List<string> ContractBasePath { get; set; }
 
         public string ModuleBasePath { get; set; }
@@ -50,9 +38,9 @@ namespace repository.Entity
 
         public string ModuleLogFilePath { get; set; }
 
-        public int ModuleLogFileSizeLimitBytes { get; set; }
+        public string XFrameOptions { get; set; }
 
-        public int ModuleMaxRollingFiles { get; set; }
+        public string ContentSecurityPolicy { get; set; }
 
         public ModuleConfig()
         {
@@ -60,19 +48,13 @@ namespace repository.Entity
             DatabaseContractPath = "";
             AuthorizationKey = "";
             BusinessServerUrl = "";
-            CircuitBreakResetSecond = 60;
-            DefaultCommandTimeout = 30;
-            IsExceptionDetailText = false;
-            IsLogServer = false;
-            LocalStoragePath = "";
-            LogServerUrl = "";
             ContractBasePath = new List<string>();
             ModuleBasePath = "";
             ModuleFilePath = "";
             IsModuleLogging = false;
             ModuleLogFilePath = "";
-            ModuleLogFileSizeLimitBytes = 104857600;
-            ModuleMaxRollingFiles = 30;
+            XFrameOptions = "";
+            ContentSecurityPolicy = "";
         }
     }
 }

@@ -59,15 +59,8 @@ namespace checkup
                         ModuleConfiguration.IsBundledWithHost = moduleConfigJson.IsBundledWithHost;
                         ModuleConfiguration.AdministratorEmailID = moduleConfig.AdministratorEmailID;
                         ModuleConfiguration.BusinessServerUrl = moduleConfig.BusinessServerUrl;
-                        ModuleConfiguration.CircuitBreakResetSecond = moduleConfig.CircuitBreakResetSecond;
-                        ModuleConfiguration.DefaultCommandTimeout = moduleConfig.DefaultCommandTimeout;
-                        ModuleConfiguration.IsExceptionDetailText = moduleConfig.IsExceptionDetailText;
-                        ModuleConfiguration.IsLogServer = moduleConfig.IsLogServer;
-                        ModuleConfiguration.LogServerUrl = moduleConfig.LogServerUrl;
                         ModuleConfiguration.ModuleBasePath = string.IsNullOrEmpty(moduleConfig.ModuleBasePath) == true || Directory.Exists(moduleConfig.ModuleBasePath) == false ? "" : new DirectoryInfo(moduleConfig.ModuleBasePath).FullName;
                         ModuleConfiguration.DatabaseContractPath = GlobalConfiguration.GetBasePath(moduleConfig.DatabaseContractPath, Path.Combine(ModuleConfiguration.ModuleBasePath, "Contracts", "dbclient"));
-                        ModuleConfiguration.TransactionContractPath = GlobalConfiguration.GetBasePath(moduleConfig.TransactionContractPath, Path.Combine(ModuleConfiguration.ModuleBasePath, "Contracts", "transact"));
-                        ModuleConfiguration.FunctionContractPath = GlobalConfiguration.GetBasePath(moduleConfig.FunctionContractPath, Path.Combine(ModuleConfiguration.ModuleBasePath, "Contracts", "function"));
                         ModuleConfiguration.WWWRootBasePath = string.IsNullOrEmpty(moduleConfig.WWWRootBasePath) == true || Directory.Exists(moduleConfig.WWWRootBasePath) == false ? "" : new DirectoryInfo(moduleConfig.WWWRootBasePath).FullName;
                         ModuleConfiguration.ModuleLogFilePath = string.IsNullOrEmpty(moduleConfig.ModuleLogFilePath) == true || Directory.Exists(moduleConfig.ModuleLogFilePath) == false ? "" : new DirectoryInfo(moduleConfig.ModuleLogFilePath).FullName;
                         ModuleConfiguration.IsModuleLogging = string.IsNullOrEmpty(moduleConfig.ModuleLogFilePath) == false;

@@ -11,11 +11,17 @@
         "ModuleConfigurationUrl": "http://localhost:8000/openapi/api/managed/initialize-settings",
         "BusinessServerUrl": "http://localhost:8000/transact/api/transaction/execute",
         "IsTransactionLogging": false,
+        "ModuleLogFilePath": "../log/openapi/module.log",
         "IsLogServer": true,
         "LogServerUrl": "http://localhost:8000/logger/api/log/insert",
-        "DataProvider": "SQLite",
-        "ConnectionString": "URI=file:../sqlite/HDS/openapi/managed.db;Journal Mode=Off;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;",
-        "IsEncryption": "N",
+        "DataSource": {
+            "ApplicationID": "HDS",
+            "ProjectID": "HOA",
+            "DataSourceID": "OPENAPIDB",
+            "DataProvider": "SQLite",
+            "ConnectionString": "URI=file:../sqlite/HDS/openapi/managed.db;Journal Mode=Off;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;",
+            "IsEncryption": "N"
+        },
         "EventAction": [
             "dbclient.Events.ManagedRequest"
         ],

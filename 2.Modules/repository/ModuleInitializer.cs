@@ -63,11 +63,8 @@ namespace repository
                         ModuleConfiguration.IsBundledWithHost = moduleConfigJson.IsBundledWithHost;
                         ModuleConfiguration.FileServerUrl = moduleConfig.FileServerUrl;
                         ModuleConfiguration.BusinessServerUrl = moduleConfig.BusinessServerUrl;
-                        ModuleConfiguration.CircuitBreakResetSecond = moduleConfig.CircuitBreakResetSecond;
-                        ModuleConfiguration.DefaultCommandTimeout = moduleConfig.DefaultCommandTimeout;
-                        ModuleConfiguration.IsExceptionDetailText = moduleConfig.IsExceptionDetailText;
-                        ModuleConfiguration.IsLogServer = moduleConfig.IsLogServer;
-                        ModuleConfiguration.LogServerUrl = moduleConfig.LogServerUrl;
+                        ModuleConfiguration.XFrameOptions = moduleConfig.XFrameOptions;
+                        ModuleConfiguration.ContentSecurityPolicy = moduleConfig.ContentSecurityPolicy;
 
                         foreach (var basePath in moduleConfig.ContractBasePath)
                         {

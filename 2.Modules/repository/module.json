@@ -7,11 +7,6 @@
         "SystemID": "HANDSTACK",
         "FileServerUrl": "http://localhost:8000",
         "BusinessServerUrl": "http://localhost:8000/transact/api/transaction/execute",
-        "CircuitBreakResetSecond": 60,
-        "DefaultCommandTimeout": 180,
-        "IsExceptionDetailText": true,
-        "IsLogServer": true,
-        "LogServerUrl": "http://localhost:8000/logger/api/log/insert",
         "ContractBasePath": [
             "../contracts/repository"
         ],
@@ -20,10 +15,7 @@
         "ModuleBasePath": "../modules/repository",
         "EventAction": [],
         "SubscribeAction": [ "repository.Events.RepositoryRequest" ],
-        "AllowMaxFileUploadLength": 120000000, // 114 MB
-        "PurgeTokenTimeout": 1200,
-        "TokenGenerateIPCheck": false,
         "XFrameOptions": "ALLOW-FROM http://127.0.0.1:8000,http://localhost:8000",
-        "FileRootPath": "../storage"
+        "ContentSecurityPolicy": "frame-ancestors 'self' http://127.0.0.1:8000 http://localhost:8000;"
     }
 }

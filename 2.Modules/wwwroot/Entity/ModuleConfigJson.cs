@@ -18,18 +18,6 @@ namespace wwwroot.Entity
 
         public string BusinessServerUrl { get; set; }
 
-        public int CircuitBreakResetSecond { get; set; }
-
-        public int DefaultCommandTimeout { get; set; }
-
-        public bool IsExceptionDetailText { get; set; }
-
-        public bool IsLogServer { get; set; }
-
-        public string LocalStoragePath { get; set; }
-
-        public string LogServerUrl { get; set; }
-
         public string ContractRequestPath { get; set; }
 
         public string ContractBasePath { get; set; }
@@ -42,28 +30,16 @@ namespace wwwroot.Entity
 
         public string ModuleLogFilePath { get; set; }
 
-        public int ModuleLogFileSizeLimitBytes { get; set; }
-
-        public int ModuleMaxRollingFiles { get; set; }
-
         public ModuleConfig()
         {
             AuthorizationKey = "";
             BusinessServerUrl = "";
-            CircuitBreakResetSecond = 60;
-            DefaultCommandTimeout = 30;
-            IsExceptionDetailText = false;
-            IsLogServer = false;
-            LocalStoragePath = "";
-            LogServerUrl = "";
             ContractRequestPath = "";
             ContractBasePath = "";
             WWWRootBasePath = "";
             ModuleFilePath = "";
             IsModuleLogging = false;
             ModuleLogFilePath = "";
-            ModuleLogFileSizeLimitBytes = 104857600;
-            ModuleMaxRollingFiles = 30;
         }
     }
 }

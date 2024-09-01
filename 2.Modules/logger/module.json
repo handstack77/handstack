@@ -6,6 +6,7 @@
     "ModuleConfig": {
         "SystemID": "HANDSTACK",
         "IsSQLiteCreateOnNotSettingRequest": true,
+        "LogDeleteRepeatSecond": 43200,
         "ModuleBasePath": "../modules/logger",
         "BusinessServerUrl": "http://localhost:8000/transact/api/transaction/execute",
         "EventAction": [],

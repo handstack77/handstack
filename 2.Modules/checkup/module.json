@@ -10,15 +10,12 @@
         "AdministratorEmailID": "administrator@handstack.kr",
         "ModuleConfigurationUrl": "http://localhost:8000/checkup/api/managed/initialize-settings",
         "BusinessServerUrl": "http://localhost:8000/transact/api/transaction/execute",
-        "CircuitBreakResetSecond": 60,
-        "DefaultCommandTimeout": 180,
-        "IsExceptionDetailText": true,
-        "IsLogServer": true,
-        "LogServerUrl": "http://localhost:8000/api/log",
         "ModuleLogFilePath": "../log/checkup/module.log",
         "ModuleBasePath": "../modules/checkup",
         "WWWRootBasePath": "../modules/checkup/wwwroot/checkup",
-        "EventAction": [ "repository.Events.RepositoryRequest" ],
+        "EventAction": [
+            "repository.Events.RepositoryRequest"
+        ],
         "SubscribeAction": [],
         "ConnectionString": "URI=file:../sqlite/HDS/dbclient/checkup.db;Journal Mode=Off;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;"
     }

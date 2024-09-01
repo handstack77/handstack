@@ -25,8 +25,6 @@ namespace dbclient.Entity
 
         public int DefaultCommandTimeout { get; set; }
 
-        public bool IsExceptionDetailText { get; set; }
-
         public bool IsLogServer { get; set; }
 
         public string LocalStoragePath { get; set; }
@@ -38,10 +36,6 @@ namespace dbclient.Entity
         public bool IsTransactionLogging { get; set; }
 
         public string ModuleLogFilePath { get; set; }
-
-        public int TransactionLogFileSizeLimitBytes { get; set; }
-
-        public int TransactionLogMaxRollingFiles { get; set; }
 
         public bool IsProfileLogging { get; set; }
 
@@ -55,15 +49,12 @@ namespace dbclient.Entity
             BusinessServerUrl = "";
             CircuitBreakResetSecond = 60;
             DefaultCommandTimeout = 30;
-            IsExceptionDetailText = false;
             IsLogServer = false;
             LocalStoragePath = "";
             LogServerUrl = "";
             ContractBasePath = new List<string>();
             IsTransactionLogging = false;
             ModuleLogFilePath = "";
-            TransactionLogFileSizeLimitBytes = 104857600;
-            TransactionLogMaxRollingFiles = 30;
             IsProfileLogging = false;
             ProfileLogFilePath = "";
             DataSource = new List<DataSource>();

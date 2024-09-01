@@ -26,25 +26,9 @@ namespace checkup.Entity
 
         public string BusinessServerUrl { get; set; }
 
-        public int CircuitBreakResetSecond { get; set; }
-
-        public int DefaultCommandTimeout { get; set; }
-
-        public bool IsExceptionDetailText { get; set; }
-
-        public bool IsLogServer { get; set; }
-
-        public string LocalStoragePath { get; set; }
-
-        public string LogServerUrl { get; set; }
-
         public string ModuleBasePath { get; set; }
 
         public string DatabaseContractPath { get; set; }
-
-        public string TransactionContractPath { get; set; }
-
-        public string FunctionContractPath { get; set; }
 
         public string WWWRootBasePath { get; set; }
 
@@ -53,10 +37,6 @@ namespace checkup.Entity
         public bool IsModuleLogging { get; set; }
 
         public string ModuleLogFilePath { get; set; }
-
-        public int ModuleLogFileSizeLimitBytes { get; set; }
-
-        public int ModuleMaxRollingFiles { get; set; }
 
         public string ConnectionString { get; set; }
 
@@ -68,22 +48,12 @@ namespace checkup.Entity
             AdministratorEmailID = "";
             ModuleConfigurationUrl = "";
             BusinessServerUrl = "";
-            CircuitBreakResetSecond = 60;
-            DefaultCommandTimeout = 30;
-            IsExceptionDetailText = false;
-            IsLogServer = false;
-            LocalStoragePath = "";
-            LogServerUrl = "";
             ModuleBasePath = "";
             DatabaseContractPath = "";
-            TransactionContractPath = "";
-            FunctionContractPath = "";
             WWWRootBasePath = "";
             ModuleFilePath = "";
             IsModuleLogging = false;
             ModuleLogFilePath = "";
-            ModuleLogFileSizeLimitBytes = 104857600;
-            ModuleMaxRollingFiles = 30;
             ConnectionString = "";
         }
     }

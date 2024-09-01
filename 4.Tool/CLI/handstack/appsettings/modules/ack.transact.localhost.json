@@ -7,8 +7,6 @@
         "SystemID": "HANDSTACK",
         "BusinessServerUrl": "http://localhost:8000/transact/api/transaction/execute",
         "CircuitBreakResetSecond": 60,
-        "DefaultCommandTimeout": 180,
-        "IsExceptionDetailText": true,
         "IsValidationRequest": false,
         "IsAllowDynamicRequest": true,
         "AllowTenantTransactionCommands": [ "D" ],
@@ -43,10 +41,13 @@
         "RoutingCommandUri": {
             "HDS|*|D|D": "http://localhost:8000/dbclient/api/query",
             "HDS|*|F|D": "http://localhost:8000/function/api/execution",
+            "HDS|*|P|D": "http://localhost:8000/prompter/api/query",
             "HDS|*|D|P": "http://localhost:8000/dbclient/api/query",
             "HDS|*|F|P": "http://localhost:8000/function/api/execution",
+            "HDS|*|P|P": "http://localhost:8000/prompter/api/query",
             "HDS|*|D|T": "http://localhost:8000/dbclient/api/query",
-            "HDS|*|F|T": "http://localhost:8000/function/api/execution"
+            "HDS|*|F|T": "http://localhost:8000/function/api/execution",
+            "HDS|*|P|T": "http://localhost:8000/prompter/api/query"
         },
         "EventAction": [],
         "SubscribeAction": [

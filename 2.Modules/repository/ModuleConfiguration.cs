@@ -19,21 +19,10 @@ namespace repository
         public static string BusinessServerUrl = "";
         public static bool IsModuleLogging = false;
         public static string ModuleLogFilePath = "";
-        public static int CircuitBreakResetSecond = 60;
-        public static bool IsLogServer = false;
-        public static string LogServerUrl = "";
-        public static bool IsExceptionDetailText = false;
-        public static int DefaultCommandTimeout = 30;
-        public static string RunningEnvironment = "D";
         public static string FileServerUrl = "";
-        public static string FileRootPath = "";
-        public static string RepositoryList = "";
         public static string TransactionFileRepositorys = "";
         public static string XFrameOptions = "SAMEORIGIN";
-        public static long AllowMaxFileUploadLength = 120000;
-        public static int PurgeTokenTimeout = 120000;
-        public static bool TokenGenerateIPCheck = false;
+        public static string ContentSecurityPolicy = "frame-ancestors 'self'";
         public static ExpiringList<Repository> FileRepositorys = new ExpiringList<Repository>();
-        public static bool IsApiFindServer = false;
     }
 }
