@@ -208,11 +208,15 @@ namespace checkup
 
                 string wwwrootDirectory = string.IsNullOrEmpty(ModuleConfiguration.WWWRootBasePath) == true ? Path.Combine(module.BasePath, "wwwroot", module.ModuleID) : ModuleConfiguration.WWWRootBasePath;
 
-                app.UseStaticFiles(new StaticFileOptions
+                string moduleAssets = Path.Combine(wwwrootDirectory, "assets");
+                if (string.IsNullOrEmpty(moduleAssets) == false && Directory.Exists(moduleAssets) == true)
                 {
-                    FileProvider = new PhysicalFileProvider(Path.Combine(wwwrootDirectory, "assets")),
-                    RequestPath = "/assets"
-                });
+                    app.UseStaticFiles(new StaticFileOptions
+                    {
+                        FileProvider = new PhysicalFileProvider(moduleAssets),
+                        RequestPath = "/assets"
+                    });
+                }
 
                 if (string.IsNullOrEmpty(wwwrootDirectory) == false && Directory.Exists(wwwrootDirectory) == true)
                 {
