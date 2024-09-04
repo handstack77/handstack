@@ -1,0 +1,369 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>모듈 환경설정</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="/qramework/img/favicon.ico" type="image/x-icon" />
+    <style>
+        .nav-pills .nav-link.active,
+        .nav-pills .show > .nav-link {
+            border: 1px solid var(--tblr-nav-pills-link-active-color);
+        }
+
+        table {
+            border-collapse: collapse;
+            border-spacing: 0;
+            margin: 0 !important;
+        }
+
+            table td, table th {
+                border: 1px solid #ddd;
+                text-align: left;
+                text-overflow: ellipsis;
+                overflow: hidden;
+            }
+
+            table th {
+                background-color: #e0e0e0;
+            }
+    </style>
+</head>
+<body spellcheck="false" style="visibility: hidden;">
+    <div class="page">
+        <div class="container min-width:1320px bg-white border-1 mb-4 mt-4 p-2 border-color:#dadfe5!">
+            <div class="row g-0">
+                <div class="bg-white border-y card-header sticky-top">
+                    <h3 class="card-title">module.json 편집 도구</h3>
+                    <div class="card-actions">
+                        <div class="btn-group">
+                            <button type="button" id="btnJsonView" syn-events="['click']" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#mdlJsonView">
+                                <i class="f:18 ti ti-code mr:4"></i> JSON 보기
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-2">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <td class="bg-body w:220px">ModuleID</td>
+                                <td>
+                                    <input type="text" id="txtModuleID" class="form-control">
+                                    <small class="form-hint">
+                                        모듈을 식별하는 고유 ID 입니다. 반드시 입력 되어야 합니다.
+                                    </small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="bg-body">Name</td>
+                                <td>
+                                    <input type="text" id="txtName" class="form-control">
+                                    <small class="form-hint">
+                                        모듈의 정보성 이름을 부여합니다.
+                                    </small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="bg-body">IsBundledWithHost</td>
+                                <td>
+                                    <label class="form-check mb-2">
+                                        <input id="chkIsBundledWithHost" class="form-check-input" type="checkbox">
+                                    </label>
+                                    <small class="form-hint">
+                                        모듈이 호스트 애플리케이션과 함께 번들로 제공되는지 여부를 나타냅니다. 모놀리식 아키텍처로 개발하는 경우 true로 설정하며, 이는 ACK와 참조 프로젝트의 모든 기능이 단일 코드 베이스에서 관리됨을 의미합니다. (기본값: false)
+                                    </small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="bg-body">Version</td>
+                                <td>
+                                    <input type="text" id="txtVersion" class="form-control">
+                                    <small class="form-hint">
+                                        모듈 버전을 주.부.수 숫자로 관리합니다.
+                                    </small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="bg-body">ModuleConfig</td>
+                                <td>
+                                    <table class="table">
+                                        <tbody>
+                                            <tr>
+                                                <td class="bg-body w:220px">SystemID</td>
+                                                <td>
+                                                    <input id="txtSystemID" type="text" class="form-control">
+                                                    <small class="form-hint mt-2">
+                                                        ack 프로그램에서 운영하는 시스템 식별 ID를 입력합니다. (기본값: HANDSTACK)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">BusinessServerUrl</td>
+                                                <td>
+                                                    <input id="txtBusinessServerUrl" type="text" class="form-control">
+                                                    <small class="form-hint mt-2">
+                                                        모듈 내에서 거래를 위한 transact 모듈을 실행하는 업무 서버의 Url을 입력합니다. (기본값: http://localhost:8000/transact/api/transaction/execute)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">ModuleConfigurationUrl</td>
+                                                <td>
+                                                    <input id="txtModuleConfigurationUrl" type="text" class="form-control">
+                                                    <small class="form-hint mt-2">
+                                                        ack 프로그램이 실행되고 모듈 초기화를 실행하는 Url을 입력합니다. (기본값: http://localhost:8000/litesearch/api/managed/initialize-settings)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">ModuleLogFilePath</td>
+                                                <td>
+                                                    <input id="txtModuleLogFilePath" type="text" class="form-control">
+                                                    <small class="form-hint">
+                                                        모듈 내에서 작성하는 로그의 파일명을 포함하는 파일 경로입니다.
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">ModuleBasePath</td>
+                                                <td>
+                                                    <input id="txtModuleBasePath" type="text" class="form-control">
+                                                    <small class="form-hint">
+                                                        모듈의 기본 경로입니다. 개발 목적이 아닌경우 기본값을 적용해야합니다. (기본값: ../modules/qramework)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">WWWRootBasePath</td>
+                                                <td>
+                                                    <input id="txtWWWRootBasePath" type="text" class="form-control">
+                                                    <small class="form-hint">
+                                                        모듈의 웹 루트 기본 경로입니다. /assets 디렉토리를 추가 포함되며, 개발 목적이 아닌경우 기본값을 적용해야합니다. (기본값: ../modules/qramework/wwwroot/qramework)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">IndexingBasePath</td>
+                                                <td>
+                                                    <input id="txtIndexingBasePath" type="text" class="form-control">
+                                                    <small class="form-hint">
+                                                        태넌트 앱의 인덱싱 데이터베이스 파일을 관리하는 기본 디렉토리 경로입니다. (기본값: ../indexes)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">
+                                                    EventAction
+                                                    <div class="mt-2">
+                                                        <button type="button" id="btnEventAction" syn-events="['click']" class="btn btn-icon bg-muted-lt">
+                                                            <i class="f:18 ti ti-plus"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="table-responsive">
+                                                        <table id="tblEventAction" class="table table-vcenter card-table border-x border-y">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>항목</th>
+                                                                    <th class="w-1">관리</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="tblEventActionItems">
+                                                            </tbody>
+                                                        </table>
+                                                        <small class="form-hint mt-2">
+                                                            모듈 간의 Mediator 발신 이벤트 통신을 위한 식별 ID를 설정합니다. 예) [대상 모듈 ID].Events.[호출 이벤트 ID]
+                                                        </small>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">
+                                                    SubscribeAction
+                                                    <div class="mt-2">
+                                                        <button type="button" id="btnSubscribeAction" syn-events="['click']" class="btn btn-icon bg-muted-lt">
+                                                            <i class="f:18 ti ti-plus"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="table-responsive">
+                                                        <table id="tblSubscribeAction" class="table table-vcenter card-table border-x border-y">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>항목</th>
+                                                                    <th class="w-1">관리</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="tblSubscribeActionItems">
+                                                            </tbody>
+                                                        </table>
+                                                        <small class="form-hint mt-2">
+                                                            모듈 간의 Mediator 수신 이벤트 통신을 위한 식별 ID를 설정합니다. 예) [공개 모듈 ID].Events.[수신 이벤트 ID]
+                                                        </small>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">ConnectionString</td>
+                                                <td>
+                                                    <input id="txtConnectionString" type="text" class="form-control">
+                                                    <small class="form-hint mt-2">
+                                                        데이터베이스 연결문자열 참고자료:
+                                                        <a href="https://www.connectionstrings.com/sql-server" target="_blank">SQL Server</a>,
+                                                        <a href="https://www.connectionstrings.com/mysql" target="_blank">MySQL/MariaDB</a>,
+                                                        <a href="https://www.connectionstrings.com/oracle" target="_blank">Oracle</a>,
+                                                        <a href="https://www.connectionstrings.com/postgresql" target="_blank">PostgreSQL</a>,
+                                                        <a href="https://www.connectionstrings.com/sqlite" target="_blank">SQLite</a>
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="bg-body">
+                                    LoadPassAssemblyPath
+                                    <div class="mt-2">
+                                        <button type="button" id="btnLoadPassAssemblyPath" syn-events="['click']" class="btn btn-icon bg-muted-lt">
+                                            <i class="f:18 ti ti-plus"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="table-responsive">
+                                        <table id="tblLoadPassAssemblyPath" class="table table-vcenter card-table border-x border-y">
+                                            <thead>
+                                                <tr>
+                                                    <th>항목</th>
+                                                    <th class="w-1">관리</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tblLoadPassAssemblyPathItems">
+                                            </tbody>
+                                        </table>
+                                        <small class="form-hint mt-2">
+                                            litesearch 모듈 부트스트레핑 과정에서 어셈블리 로드를 건너 뛸 Unmanaged dll 목록입니다. 파일 경로는 모듈의 기본 디렉토리를 기준으로 설정 해야합니다.
+                                        </small>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="mdlJsonView" class="modal fade" tabindex="-1" role="dialog" aria-modal="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">JSON 보기</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <textarea id="txtJsonView" class="form-control resize:none white-space:nowrap" rows="30"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="btnImportDefaultConfig" syn-events="['click']" class="btn me-auto">
+                        <i class="f:18 ti ti-text-plus mr:4"></i> 기본값 가져오기
+                    </button>
+                    <button type="button" id="btnApplyConfig" syn-events="['click']" class="btn btn-primary" data-bs-dismiss="modal">적용하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="mdlManageAction" class="modal fade" tabindex="-1" role="dialog" aria-modal="true">
+        <input id="txtEventAction" type="hidden">
+        <input id="txtBaseEventID" type="hidden">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 id="lblActionTitle" class="modal-title"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <label class="col-3 col-form-label required">이벤트 ID</label>
+                        <div class="col">
+                            <input id="txtEventID" type="text" class="form-control">
+                            <small class="form-hint">이벤트 통신을 위한 식별 ID를 설정합니다. 예) [모듈 ID].Events.[이벤트 ID]</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="btnManageAction" syn-events="['click']" class="btn btn-primary">확인</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="mdlLoadPassAssemblyPath" class="modal fade" tabindex="-1" role="dialog" aria-modal="true">
+        <input id="txtBaseItemPathID" type="hidden">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 id="lblItemPathTitle" class="modal-title"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <label class="col-3 col-form-label">Assembly 파일경로</label>
+                        <div class="col">
+                            <input id="txtItemPathID" type="text" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="btnManageLoadPassAssemblyPath" syn-events="['click']" class="btn btn-primary" data-bs-dismiss="modal">확인</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script id="tplActionItem" type="x-tmpl-mustache">
+     {{#items}}
+    <tr syn-value="{{EventID}}">
+        <td>
+            {{EventID}}
+        </td>
+        <td>
+            <div class="btn-list flex-nowrap">
+                <button name="btnActionEdit" type="button" class="btn btn-icon bg-muted-lt">
+                    <i class="f:18 ti ti-edit"></i>
+                </button>
+                <button name="btnActionDelete" type="button" class="btn btn-icon bg-muted-lt">
+                    <i class="f:18 ti ti-minus"></i>
+                </button>
+            </div>
+        </td>
+    </tr>
+     {{/items}}
+    </script>
+    <script id="tplAssemblyPathItem" type="x-tmpl-mustache">
+     {{#items}}
+    <tr syn-value="{{ItemPathID}}">
+        <td>
+            {{ItemPathID}}
+        </td>
+        <td>
+            <div class="btn-list flex-nowrap">
+                <button name="btnActionEdit" type="button" class="btn btn-icon bg-muted-lt">
+                    <i class="f:18 ti ti-edit"></i>
+                </button>
+                <button name="btnActionDelete" type="button" class="btn btn-icon bg-muted-lt">
+                    <i class="f:18 ti ti-minus"></i>
+                </button>
+            </div>
+        </td>
+    </tr>
+     {{/items}}
+    </script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

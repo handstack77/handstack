@@ -113,7 +113,7 @@ let $HUM020 = {
                 var templateHtml = tplEL.textContent;
                 drawEl.innerHTML = prefixHtml + Mustache.render(templateHtml, dataSource);
             } catch (error) {
-                syn.$l.eventLog('$this.method.drawHtmlTemplate', error.message, 'Error');
+                syn.$l.eventLog('$this.method.drawHtmlTemplate', error.stack, 'Error');
             }
         }
     }

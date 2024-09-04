@@ -376,7 +376,7 @@ let $HAC020 = {
                 var templateHtml = tplEL.innerHTML;
                 drawEl.innerHTML = prefixHtml + Mustache.render(templateHtml, repository);
             } catch (error) {
-                syn.$l.eventLog('$this.method.drawHtmlTemplate', error.message, 'Error');
+                syn.$l.eventLog('$this.method.drawHtmlTemplate', error.stack, 'Error');
             }
         },
     },
