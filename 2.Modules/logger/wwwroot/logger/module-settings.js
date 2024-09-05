@@ -31,9 +31,6 @@ let $module_settings = {
 
     hook: {
         pageLoad() {
-            $this.prop.defaultConfig.ModuleConfig.ManagedAccessKey = syn.$l.random(32);
-            $this.prop.defaultConfig.ModuleConfig.EncryptionAES256Key = syn.$l.random(16);
-
             $this.prop.moduleConfig = $object.clone($this.prop.defaultConfig, true);
 
             syn.$l.addLive('[name="btnActionEdit"]', 'click', $this.event.btnActionEdit_click);
@@ -61,15 +58,12 @@ let $module_settings = {
 
                 syn.$l.get('txtSystemID').value = $this.prop.moduleConfig.ModuleConfig.SystemID;
                 syn.$l.get('txtBusinessServerUrl').value = $this.prop.moduleConfig.ModuleConfig.BusinessServerUrl;
-                syn.$l.get('txtModuleConfigurationUrl').value = $this.prop.moduleConfig.ModuleConfig.ModuleConfigurationUrl;
-                syn.$l.get('txtModuleLogFilePath').value = $this.prop.moduleConfig.ModuleConfig.ModuleLogFilePath;
+                syn.$l.get('txtLogDeleteRepeatSecond').value = $string.isNumber($this.prop.moduleConfig.ModuleConfig.LogDeleteRepeatSecond) == true ? $string.toNumber($this.prop.moduleConfig.ModuleConfig.LogDeleteRepeatSecond) : 60;
                 syn.$l.get('txtModuleBasePath').value = $this.prop.moduleConfig.ModuleConfig.ModuleBasePath;
-                syn.$l.get('txtWWWRootBasePath').value = $this.prop.moduleConfig.ModuleConfig.WWWRootBasePath;
-                syn.$l.get('txtIndexingBasePath').value = $this.prop.moduleConfig.ModuleConfig.IndexingBasePath;
-                syn.$l.get('txtConnectionString').value = $this.prop.moduleConfig.ModuleConfig.ConnectionString;
+                syn.$l.get('chkIsSQLiteCreateOnNotSettingRequest').checked = $string.toBoolean($this.prop.moduleConfig.ModuleConfig.IsSQLiteCreateOnNotSettingRequest);
 
                 $this.method.sectionRender('MediatorAction');
-                $this.method.sectionRender('LoadPassAssemblyPath');
+                $this.method.sectionRender('DataSource');
             } catch (error) {
                 syn.$w.notify('error', `JSON을 적용하지 못했습니다. ${error.message}`);
                 syn.$l.eventLog('$this.event.btnApplyConfig_click', error.stack, 'Error');
@@ -86,12 +80,9 @@ let $module_settings = {
 
                     $this.prop.moduleConfig.ModuleConfig.SystemID = syn.$l.get('txtSystemID').value;
                     $this.prop.moduleConfig.ModuleConfig.BusinessServerUrl = syn.$l.get('txtBusinessServerUrl').value;
-                    $this.prop.moduleConfig.ModuleConfig.ModuleConfigurationUrl = syn.$l.get('txtModuleConfigurationUrl').value;
-                    $this.prop.moduleConfig.ModuleConfig.ModuleLogFilePath = syn.$l.get('txtModuleLogFilePath').value;
+                    $this.prop.moduleConfig.ModuleConfig.LogDeleteRepeatSecond = $string.isNumber(syn.$l.get('txtLogDeleteRepeatSecond').value) ? $string.toNumber(syn.$l.get('txtLogDeleteRepeatSecond').value) : -1;
                     $this.prop.moduleConfig.ModuleConfig.ModuleBasePath = syn.$l.get('txtModuleBasePath').value;
-                    $this.prop.moduleConfig.ModuleConfig.WWWRootBasePath = syn.$l.get('txtWWWRootBasePath').value;
-                    $this.prop.moduleConfig.ModuleConfig.IndexingBasePath = syn.$l.get('txtIndexingBasePath').value;
-                    $this.prop.moduleConfig.ModuleConfig.ConnectionString = syn.$l.get('txtConnectionString').value;
+                    $this.prop.moduleConfig.ModuleConfig.IsSQLiteCreateOnNotSettingRequest = $string.toBoolean(syn.$l.get('chkIsSQLiteCreateOnNotSettingRequest').checked);
 
                     syn.$l.get('txtJsonView').value = JSON.stringify($this.prop.moduleConfig, null, 4);
                 } catch (error) {
@@ -99,14 +90,6 @@ let $module_settings = {
                     syn.$l.eventLog('$this.event.btnJsonView_click', error.stack, 'Error');
                 }
             }
-        },
-
-        btnManagedAccessKey_click() {
-            syn.$l.get('txtManagedAccessKey').value = syn.$l.random(32);
-        },
-
-        btnEncryptionAES256Key_click() {
-            syn.$l.get('txtEncryptionAES256Key').value = syn.$l.random(16);
         },
 
         btnEventAction_click() {
@@ -125,10 +108,10 @@ let $module_settings = {
             });
         },
 
-        btnLoadPassAssemblyPath_click() {
-            $this.method.showModal('LoadPassAssemblyPath', {
-                itemPathID: '',
-                title: 'LoadPassAssemblyPath 추가'
+        btnDataSource_click() {
+            $this.method.showModal('DataSource', {
+                dataID: '',
+                title: 'DataSource 추가'
             });
         },
 
@@ -145,13 +128,12 @@ let $module_settings = {
                     title: 'EventAction 수정'
                 });
             }
-            else if (baseTableID == 'tblLoadPassAssemblyPath') {
+            else if (baseTableID == 'tblDataSource') {
                 var baseEL = this.closest('tr');
                 var values = baseEL.getAttribute('syn-value');
-                var itemPathID = baseEL.querySelector('td:nth-child(1)').innerText.trim();
-                $this.method.showModal('LoadPassAssemblyPath', {
-                    itemPathID: itemPathID,
-                    title: 'LoadPassAssemblyPath 수정'
+                $this.method.showModal('DataSource', {
+                    dataID: values,
+                    title: 'DataSource 수정'
                 });
             }
         },
@@ -174,14 +156,17 @@ let $module_settings = {
                 $array.removeAt(actions, actions.indexOf(baseEventID));
                 $this.method.sectionRender('MediatorAction');
             }
-            else if (baseTableID == 'tblLoadPassAssemblyPath') {
+            else if (baseTableID == 'tblDataSource') {
                 var baseEL = this.closest('tr');
-                var baseItemPathID = baseEL.getAttribute('syn-value');
+                var baseDataID = baseEL.getAttribute('syn-value');
 
-                var items = $this.prop.moduleConfig.LoadPassAssemblyPath;
+                var data = $this.method.getDataSource(baseDataID);
+                if (data) {
+                    var items = $this.prop.moduleConfig.ModuleConfig.DataSource;
 
-                $array.removeAt(items, items.indexOf(baseItemPathID));
-                $this.method.sectionRender('LoadPassAssemblyPath');
+                    $array.removeAt(items, items.indexOf(data));
+                    $this.method.sectionRender('DataSource');
+                }
             }
         },
 
@@ -219,26 +204,55 @@ let $module_settings = {
             $this.prop.modal.hide();
         },
 
-        btnManageLoadPassAssemblyPath_click(evt) {
-            var baseItemPathID = syn.$l.get('txtBaseItemPathID').value;
-            var itemPathID = syn.$l.get('txtItemPathID').value.trim();
+        btnManageDataSource_click(evt) {
+            var baseDataID = syn.$l.get('txtBaseDataID_DataSource').value;
+            var applicationID = syn.$l.get('txtApplicationID_DataSource').value.trim();
+            var projectID = syn.$l.get('txtTableName_DataSource').value.trim();
+            var removePeriod = syn.$l.get('txtRemovePeriod_DataSource').value.trim();
+            var dataProvider = syn.$l.get('ddlDataProvider_DataSource').value.trim();
+            var connectionString = syn.$l.get('txtConnectionString_DataSource').value.trim();
+            var isEncryption = syn.$l.get('chkIsEncryption').checked == true ? 'Y' : 'N';
+            var comment = syn.$l.get('txtComment_DataSource').value.trim();
 
-            var items = $this.prop.moduleConfig.LoadPassAssemblyPath;
+            if (applicationID == '' || projectID == '' || removePeriod == '' || dataProvider == '') {
+                syn.$w.alert('필수 항목을 입력하세요.');
+                return;
+            }
 
-            if (baseItemPathID == '') {
-                if (items.includes(itemPathID) == true) {
-                    syn.$w.notify('information', `중복된 파일 경로를 입력 할 수 없습니다.`);
+            var dataID = `${applicationID}|${projectID}|${dataProvider}|${removePeriod}`;
+            var items = $this.prop.moduleConfig.ModuleConfig.DataSource;
+            if (baseDataID == '') {
+                if (items.includes(dataID) == true) {
+                    syn.$w.notify('information', `중복된 데이터 원본을 입력 할 수 없습니다.`);
                     return;
                 }
                 else {
-                    items.push(itemPathID);
+                    items.push({
+                        ApplicationID: applicationID,
+                        TableName: projectID,
+                        RemovePeriod: removePeriod,
+                        DataProvider: dataProvider,
+                        ConnectionString: connectionString,
+                        IsEncryption: isEncryption,
+                        Comment: comment
+                    });
                 }
             }
             else {
-                items[items.indexOf(baseItemPathID)] = itemPathID;
+                var data = $this.method.getDataSource(baseDataID);
+                if (data) {
+                    data.ApplicationID = applicationID;
+                    data.TableName = projectID;
+                    data.RemovePeriod = removePeriod;
+                    data.DataProvider = dataProvider;
+                    data.ConnectionString = connectionString;
+                    data.IsEncryption = isEncryption;
+                    data.Comment = comment;
+                }
             }
 
-            $this.method.sectionRender('LoadPassAssemblyPath');
+            $this.method.sectionRender('DataSource');
+            $this.prop.modal.hide();
         }
     },
 
@@ -264,24 +278,58 @@ let $module_settings = {
                     setTimeout(() => { syn.$l.get('txtEventID').focus(); }, 100);
                 }
             }
-            else if (elID == 'LoadPassAssemblyPath') {
-                var el = syn.$l.get('mdlLoadPassAssemblyPath');
+            else if (elID == 'DataSource') {
+                var el = syn.$l.get('mdlDataSource');
                 if (el && syn.$m.hasClass(el, 'show') == false) {
                     options = syn.$w.argumentsExtend({
-                        itemPathID: '',
+                        dataID: '',
                         title: ''
                     }, options || {});
 
-                    syn.$l.get('lblItemPathTitle').innerText = options.title;
-                    syn.$l.get('txtItemPathID').value = options.itemPathID;
-                    syn.$l.get('txtBaseItemPathID').value = options.itemPathID;
+                    syn.$l.get('lblTitle_DataSource').innerText = options.title;
+
+                    var data = null;
+                    if ($string.isNullOrEmpty(options.dataID) == false) {
+                        data = $this.method.getDataSource(options.dataID);
+                    }
+
+                    if (data) {
+                        syn.$l.get('txtApplicationID_DataSource').value = data.ApplicationID;
+                        syn.$l.get('txtTableName_DataSource').value = data.TableName;
+                        syn.$l.get('txtRemovePeriod_DataSource').value = data.RemovePeriod;
+                        syn.$l.get('ddlDataProvider_DataSource').value = data.DataProvider;
+                        syn.$l.get('txtBaseDataID_DataSource').value = `${data.ApplicationID}|${data.TableName}|${data.RemovePeriod}|${data.DataProvider}`;
+                        syn.$l.get('txtConnectionString_DataSource').value = data.ConnectionString;
+                        syn.$l.get('chkIsEncryption').checked = $string.toBoolean(data.IsEncryption);
+                        syn.$l.get('txtComment_DataSource').value = data.Comment;
+                    }
+                    else {
+                        syn.$l.get('txtApplicationID_DataSource').value = '';
+                        syn.$l.get('txtTableName_DataSource').value = '';
+                        syn.$l.get('txtRemovePeriod_DataSource').value = '-30';
+                        syn.$l.get('ddlDataProvider_DataSource').value = 'SqlServer';
+                        syn.$l.get('txtBaseDataID_DataSource').value = '';
+                        syn.$l.get('txtConnectionString_DataSource').value = '';
+                        syn.$l.get('chkIsEncryption').checked = false;
+                        syn.$l.get('txtComment_DataSource').value = '';
+                    }
 
                     $this.prop.modal = new bootstrap.Modal(el);
                     $this.prop.modal.show();
 
-                    setTimeout(() => { syn.$l.get('txtItemPathID').focus(); }, 100);
+                    setTimeout(() => { syn.$l.get('txtApplicationID_DataSource').focus(); }, 100);
                 }
             }
+        },
+
+        getDataSource(dataID) {
+            var values = $array.split(dataID, '|');
+            return $this.prop.moduleConfig.ModuleConfig.DataSource.find((item) => {
+                return item.ApplicationID == values[0]
+                    && item.TableName == values[1]
+                    && item.DataProvider == values[2]
+                    && item.RemovePeriod == values[3]
+            });
         },
 
         sectionRender(sectionID) {
@@ -300,13 +348,12 @@ let $module_settings = {
                     $this.method.drawHtmlTemplate(action.tbodyID, 'tplActionItem', dataSource);
                 });
             }
-            else if (sectionID == 'LoadPassAssemblyPath') {
-                var pathList = $this.prop.moduleConfig.LoadPassAssemblyPath;
+            else if (sectionID == 'DataSource') {
                 var dataSource = {
-                    items: pathList.map(pathID => ({ ItemPathID: pathID.trim() }))
+                    items: $this.prop.moduleConfig.ModuleConfig.DataSource
                 };
 
-                $this.method.drawHtmlTemplate('tblLoadPassAssemblyPathItems', 'tplAssemblyPathItem', dataSource);
+                $this.method.drawHtmlTemplate('tblDataSourceItems', 'tplDataSourceItem', dataSource);
             }
         },
 

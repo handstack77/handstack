@@ -24,6 +24,10 @@ if [ -z "$WORKING_PATH" ]; then
 fi
 
 if [ -z "$HANDSTACK_PATH" ]; then
+    HANDSTACK_PATH="$HANDSTACK_SRC"
+fi
+
+if [ -z "$HANDSTACK_PATH" ]; then
     HANDSTACK_PATH="~/projects/handstack77/handstack"
 fi
 

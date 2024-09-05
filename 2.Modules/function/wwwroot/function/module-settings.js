@@ -94,9 +94,6 @@ let $module_settings = {
 
     hook: {
         pageLoad() {
-            $this.prop.defaultConfig.ModuleConfig.ManagedAccessKey = syn.$l.random(32);
-            $this.prop.defaultConfig.ModuleConfig.EncryptionAES256Key = syn.$l.random(16);
-
             $this.prop.moduleConfig = $object.clone($this.prop.defaultConfig, true);
 
             syn.$l.addLive('[name="btnActionEdit"]', 'click', $this.event.btnActionEdit_click);
@@ -190,14 +187,6 @@ let $module_settings = {
                     syn.$l.eventLog('$this.event.btnJsonView_click', error.stack, 'Error');
                 }
             }
-        },
-
-        btnManagedAccessKey_click() {
-            syn.$l.get('txtManagedAccessKey').value = syn.$l.random(32);
-        },
-
-        btnEncryptionAES256Key_click() {
-            syn.$l.get('txtEncryptionAES256Key').value = syn.$l.random(16);
         },
 
         btnEventAction_click() {
@@ -506,7 +495,7 @@ let $module_settings = {
         },
 
         getFunctionSource(dataID) {
-            var values = dataID.split('|').map(function (s) { return s.trim(); });
+            var values = $array.split(dataID, '|');
             return $this.prop.moduleConfig.ModuleConfig.FunctionSource.find((item) => {
                 return item.ApplicationID == values[0]
                     && item.ProjectID == values[1]
