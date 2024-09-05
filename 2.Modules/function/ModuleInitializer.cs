@@ -179,7 +179,7 @@ namespace function
                             if (string.IsNullOrEmpty(item) == false)
                             {
                                 var keyValues = item.Split("=");
-                                nodeEnvironmentVariables.Add(keyValues[0], keyValues[1]);
+                                nodeEnvironmentVariables.Add(keyValues[0].Trim(), keyValues[1].Trim());
                             }
                         }
                     }
