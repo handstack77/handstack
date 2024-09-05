@@ -29,7 +29,6 @@ let $module_settings = {
                         "LLMProvider": "OpenAI",
                         "ApiKey": "[sk-proj-API...키]",
                         "ModelID": "gpt-3.5-turbo",
-                        "IsEncryption": "N",
                         "Comment": "OpenAI 프롬프트 API"
                     }
                 ]
@@ -67,15 +66,14 @@ let $module_settings = {
 
                 syn.$l.get('txtSystemID').value = $this.prop.moduleConfig.ModuleConfig.SystemID;
                 syn.$l.get('txtBusinessServerUrl').value = $this.prop.moduleConfig.ModuleConfig.BusinessServerUrl;
-                syn.$l.get('txtModuleConfigurationUrl').value = $this.prop.moduleConfig.ModuleConfig.ModuleConfigurationUrl;
+                syn.$l.get('chkIsTransactionLogging').checked = $string.toBoolean($this.prop.moduleConfig.ModuleConfig.IsTransactionLogging);
                 syn.$l.get('txtModuleLogFilePath').value = $this.prop.moduleConfig.ModuleConfig.ModuleLogFilePath;
-                syn.$l.get('txtModuleBasePath').value = $this.prop.moduleConfig.ModuleConfig.ModuleBasePath;
-                syn.$l.get('txtWWWRootBasePath').value = $this.prop.moduleConfig.ModuleConfig.WWWRootBasePath;
-                syn.$l.get('txtIndexingBasePath').value = $this.prop.moduleConfig.ModuleConfig.IndexingBasePath;
-                syn.$l.get('txtConnectionString').value = $this.prop.moduleConfig.ModuleConfig.ConnectionString;
+                syn.$l.get('chkIsLogServer').checked = $string.toBoolean($this.prop.moduleConfig.ModuleConfig.IsLogServer);
+                syn.$l.get('txtLogServerUrl').value = $this.prop.moduleConfig.ModuleConfig.LogServerUrl;
 
                 $this.method.sectionRender('MediatorAction');
-                $this.method.sectionRender('LoadPassAssemblyPath');
+                $this.method.sectionRender('ContractBasePath');
+                $this.method.sectionRender('LLMSource');
             } catch (error) {
                 syn.$w.notify('error', `JSON을 적용하지 못했습니다. ${error.message}`);
                 syn.$l.eventLog('$this.event.btnApplyConfig_click', error.stack, 'Error');
@@ -92,12 +90,10 @@ let $module_settings = {
 
                     $this.prop.moduleConfig.ModuleConfig.SystemID = syn.$l.get('txtSystemID').value;
                     $this.prop.moduleConfig.ModuleConfig.BusinessServerUrl = syn.$l.get('txtBusinessServerUrl').value;
-                    $this.prop.moduleConfig.ModuleConfig.ModuleConfigurationUrl = syn.$l.get('txtModuleConfigurationUrl').value;
+                    $this.prop.moduleConfig.ModuleConfig.IsTransactionLogging = $string.toBoolean(syn.$l.get('chkIsTransactionLogging').checked);
                     $this.prop.moduleConfig.ModuleConfig.ModuleLogFilePath = syn.$l.get('txtModuleLogFilePath').value;
-                    $this.prop.moduleConfig.ModuleConfig.ModuleBasePath = syn.$l.get('txtModuleBasePath').value;
-                    $this.prop.moduleConfig.ModuleConfig.WWWRootBasePath = syn.$l.get('txtWWWRootBasePath').value;
-                    $this.prop.moduleConfig.ModuleConfig.IndexingBasePath = syn.$l.get('txtIndexingBasePath').value;
-                    $this.prop.moduleConfig.ModuleConfig.ConnectionString = syn.$l.get('txtConnectionString').value;
+                    $this.prop.moduleConfig.ModuleConfig.IsLogServer = $string.toBoolean(syn.$l.get('chkIsLogServer').checked);
+                    $this.prop.moduleConfig.ModuleConfig.LogServerUrl = syn.$l.get('txtLogServerUrl').value;
 
                     syn.$l.get('txtJsonView').value = JSON.stringify($this.prop.moduleConfig, null, 4);
                 } catch (error) {
@@ -123,10 +119,17 @@ let $module_settings = {
             });
         },
 
-        btnLoadPassAssemblyPath_click() {
-            $this.method.showModal('LoadPassAssemblyPath', {
+        btnContractBasePath_click() {
+            $this.method.showModal('ContractBasePath', {
                 itemPathID: '',
-                title: 'LoadPassAssemblyPath 추가'
+                title: 'ContractBasePath 추가'
+            });
+        },
+
+        btnLLMSource_click() {
+            $this.method.showModal('LLMSource', {
+                dataID: '',
+                title: 'LLMSource 추가'
             });
         },
 
@@ -143,13 +146,21 @@ let $module_settings = {
                     title: 'EventAction 수정'
                 });
             }
-            else if (baseTableID == 'tblLoadPassAssemblyPath') {
+            else if (baseTableID == 'tblContractBasePath') {
                 var baseEL = this.closest('tr');
                 var values = baseEL.getAttribute('syn-value');
                 var itemPathID = baseEL.querySelector('td:nth-child(1)').innerText.trim();
-                $this.method.showModal('LoadPassAssemblyPath', {
+                $this.method.showModal('ContractBasePath', {
                     itemPathID: itemPathID,
-                    title: 'LoadPassAssemblyPath 수정'
+                    title: 'ContractBasePath 수정'
+                });
+            }
+            else if (baseTableID == 'tblLLMSource') {
+                var baseEL = this.closest('tr');
+                var values = baseEL.getAttribute('syn-value');
+                $this.method.showModal('LLMSource', {
+                    dataID: values,
+                    title: 'LLMSource 수정'
                 });
             }
         },
@@ -172,14 +183,26 @@ let $module_settings = {
                 $array.removeAt(actions, actions.indexOf(baseEventID));
                 $this.method.sectionRender('MediatorAction');
             }
-            else if (baseTableID == 'tblLoadPassAssemblyPath') {
+            else if (baseTableID == 'tblContractBasePath') {
                 var baseEL = this.closest('tr');
                 var baseItemPathID = baseEL.getAttribute('syn-value');
 
-                var items = $this.prop.moduleConfig.LoadPassAssemblyPath;
+                var items = $this.prop.moduleConfig.ModuleConfig.ContractBasePath;
 
                 $array.removeAt(items, items.indexOf(baseItemPathID));
-                $this.method.sectionRender('LoadPassAssemblyPath');
+                $this.method.sectionRender('ContractBasePath');
+            }
+            else if (baseTableID == 'tblLLMSource') {
+                var baseEL = this.closest('tr');
+                var baseDataID = baseEL.getAttribute('syn-value');
+
+                var data = $this.method.getLLMSource(baseDataID);
+                if (data) {
+                    var items = $this.prop.moduleConfig.ModuleConfig.LLMSource;
+
+                    $array.removeAt(items, items.indexOf(data));
+                    $this.method.sectionRender('LLMSource');
+                }
             }
         },
 
@@ -217,11 +240,15 @@ let $module_settings = {
             $this.prop.modal.hide();
         },
 
-        btnManageLoadPassAssemblyPath_click(evt) {
+        btnManageContractBasePath_click(evt) {
             var baseItemPathID = syn.$l.get('txtBaseItemPathID').value;
             var itemPathID = syn.$l.get('txtItemPathID').value.trim();
+            if (itemPathID == '') {
+                syn.$w.alert('필수 항목을 입력하세요.');
+                return;
+            }
 
-            var items = $this.prop.moduleConfig.LoadPassAssemblyPath;
+            var items = $this.prop.moduleConfig.ModuleConfig.ContractBasePath;
 
             if (baseItemPathID == '') {
                 if (items.includes(itemPathID) == true) {
@@ -236,7 +263,59 @@ let $module_settings = {
                 items[items.indexOf(baseItemPathID)] = itemPathID;
             }
 
-            $this.method.sectionRender('LoadPassAssemblyPath');
+            $this.method.sectionRender('ContractBasePath');
+            $this.prop.modal.hide();
+        },
+
+        btnManageLLMSource_click(evt) {
+            var baseDataID = syn.$l.get('txtBaseDataID_LLMSource').value;
+            var applicationID = syn.$l.get('txtApplicationID_LLMSource').value.trim();
+            var projectID = syn.$l.get('txtProjectID_LLMSource').value.trim();
+            var dataSourceID = syn.$l.get('txtDataSourceID_LLMSource').value.trim();
+            var dataProvider = syn.$l.get('ddlLLMProvider_LLMSource').value.trim();
+            var apiKey = syn.$l.get('txtApiKey_LLMSource').value.trim();
+            var modelID = syn.$l.get('txtModelID_LLMSource').value.trim();
+            var comment = syn.$l.get('txtComment_LLMSource').value.trim();
+
+            if (applicationID == '' || projectID == '' || dataSourceID == '' || dataProvider == '') {
+                syn.$w.alert('필수 항목을 입력하세요.');
+                return;
+            }
+
+            var dataID = `${applicationID}|${projectID}|${dataSourceID}|${dataProvider}`;
+            var items = $this.prop.moduleConfig.ModuleConfig.LLMSource;
+            if (baseDataID == '') {
+                if (items.includes(dataID) == true) {
+                    syn.$w.notify('information', `중복된 데이터 원본을 입력 할 수 없습니다.`);
+                    return;
+                }
+                else {
+                    items.push({
+                        ApplicationID: applicationID,
+                        ProjectID: projectID,
+                        DataSourceID: dataSourceID,
+                        LLMProvider: dataProvider,
+                        ApiKey: apiKey,
+                        ModelID: modelID,
+                        Comment: comment
+                    });
+                }
+            }
+            else {
+                var data = $this.method.getLLMSource(baseDataID);
+                if (data) {
+                    data.ApplicationID = applicationID;
+                    data.ProjectID = projectID;
+                    data.DataSourceID = dataSourceID;
+                    data.LLMProvider = dataProvider;
+                    data.ApiKey = apiKey;
+                    data.ModelID = modelID;
+                    data.Comment = comment;
+                }
+            }
+
+            $this.method.sectionRender('LLMSource');
+            $this.prop.modal.hide();
         }
     },
 
@@ -262,8 +341,8 @@ let $module_settings = {
                     setTimeout(() => { syn.$l.get('txtEventID').focus(); }, 100);
                 }
             }
-            else if (elID == 'LoadPassAssemblyPath') {
-                var el = syn.$l.get('mdlLoadPassAssemblyPath');
+            else if (elID == 'ContractBasePath') {
+                var el = syn.$l.get('mdlContractBasePath');
                 if (el && syn.$m.hasClass(el, 'show') == false) {
                     options = syn.$w.argumentsExtend({
                         itemPathID: '',
@@ -280,6 +359,58 @@ let $module_settings = {
                     setTimeout(() => { syn.$l.get('txtItemPathID').focus(); }, 100);
                 }
             }
+            else if (elID == 'LLMSource') {
+                var el = syn.$l.get('mdlLLMSource');
+                if (el && syn.$m.hasClass(el, 'show') == false) {
+                    options = syn.$w.argumentsExtend({
+                        dataID: '',
+                        title: ''
+                    }, options || {});
+
+                    syn.$l.get('lblTitle_LLMSource').innerText = options.title;
+
+                    var data = null;
+                    if ($string.isNullOrEmpty(options.dataID) == false) {
+                        data = $this.method.getLLMSource(options.dataID);
+                    }
+
+                    if (data) {
+                        syn.$l.get('txtApplicationID_LLMSource').value = data.ApplicationID;
+                        syn.$l.get('txtProjectID_LLMSource').value = data.ProjectID;
+                        syn.$l.get('txtDataSourceID_LLMSource').value = data.DataSourceID;
+                        syn.$l.get('ddlLLMProvider_LLMSource').value = data.LLMProvider;
+                        syn.$l.get('txtBaseDataID_LLMSource').value = `${data.ApplicationID}|${data.ProjectID}|${data.DataSourceID}|${data.LLMProvider}`;
+                        syn.$l.get('txtApiKey_LLMSource').value = data.ApiKey;
+                        syn.$l.get('txtModelID_LLMSource').value = data.ModelID;
+                        syn.$l.get('txtComment_LLMSource').value = data.Comment;
+                    }
+                    else {
+                        syn.$l.get('txtApplicationID_LLMSource').value = '';
+                        syn.$l.get('txtProjectID_LLMSource').value = '';
+                        syn.$l.get('txtDataSourceID_LLMSource').value = '';
+                        syn.$l.get('ddlLLMProvider_LLMSource').value = 'SqlServer';
+                        syn.$l.get('txtBaseDataID_LLMSource').value = '';
+                        syn.$l.get('txtApiKey_LLMSource').value = '';
+                        syn.$l.get('txtModelID_LLMSource').value = '';
+                        syn.$l.get('txtComment_LLMSource').value = '';
+                    }
+
+                    $this.prop.modal = new bootstrap.Modal(el);
+                    $this.prop.modal.show();
+
+                    setTimeout(() => { syn.$l.get('txtApplicationID_LLMSource').focus(); }, 100);
+                }
+            }
+        },
+
+        getLLMSource(dataID) {
+            var values = $array.split(dataID, '|');
+            return $this.prop.moduleConfig.ModuleConfig.LLMSource.find((item) => {
+                return item.ApplicationID == values[0]
+                    && item.ProjectID == values[1]
+                    && item.DataSourceID == values[2]
+                    && item.LLMProvider == values[3]
+            });
         },
 
         sectionRender(sectionID) {
@@ -298,13 +429,20 @@ let $module_settings = {
                     $this.method.drawHtmlTemplate(action.tbodyID, 'tplActionItem', dataSource);
                 });
             }
-            else if (sectionID == 'LoadPassAssemblyPath') {
-                var pathList = $this.prop.moduleConfig.LoadPassAssemblyPath;
+            else if (sectionID == 'ContractBasePath') {
+                var pathList = $this.prop.moduleConfig.ModuleConfig.ContractBasePath;
                 var dataSource = {
                     items: pathList.map(pathID => ({ ItemPathID: pathID.trim() }))
                 };
 
-                $this.method.drawHtmlTemplate('tblLoadPassAssemblyPathItems', 'tplAssemblyPathItem', dataSource);
+                $this.method.drawHtmlTemplate('tblContractBasePathItems', 'tplContractBasePathItem', dataSource);
+            }
+            else if (sectionID == 'LLMSource') {
+                var dataSource = {
+                    items: $this.prop.moduleConfig.ModuleConfig.LLMSource
+                };
+
+                $this.method.drawHtmlTemplate('tblLLMSourceItems', 'tplLLMSourceItem', dataSource);
             }
         },
 

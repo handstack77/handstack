@@ -54,15 +54,14 @@ let $module_settings = {
 
                 syn.$l.get('txtSystemID').value = $this.prop.moduleConfig.ModuleConfig.SystemID;
                 syn.$l.get('txtBusinessServerUrl').value = $this.prop.moduleConfig.ModuleConfig.BusinessServerUrl;
-                syn.$l.get('txtModuleConfigurationUrl').value = $this.prop.moduleConfig.ModuleConfig.ModuleConfigurationUrl;
                 syn.$l.get('txtModuleLogFilePath').value = $this.prop.moduleConfig.ModuleConfig.ModuleLogFilePath;
+                syn.$l.get('txtDatabaseContractPath').value = $this.prop.moduleConfig.ModuleConfig.DatabaseContractPath;
                 syn.$l.get('txtModuleBasePath').value = $this.prop.moduleConfig.ModuleConfig.ModuleBasePath;
-                syn.$l.get('txtWWWRootBasePath').value = $this.prop.moduleConfig.ModuleConfig.WWWRootBasePath;
-                syn.$l.get('txtIndexingBasePath').value = $this.prop.moduleConfig.ModuleConfig.IndexingBasePath;
-                syn.$l.get('txtConnectionString').value = $this.prop.moduleConfig.ModuleConfig.ConnectionString;
+                syn.$l.get('txtXFrameOptions').value = $this.prop.moduleConfig.ModuleConfig.XFrameOptions;
+                syn.$l.get('txtContentSecurityPolicy').value = $this.prop.moduleConfig.ModuleConfig.ContentSecurityPolicy;
 
                 $this.method.sectionRender('MediatorAction');
-                $this.method.sectionRender('LoadPassAssemblyPath');
+                $this.method.sectionRender('ContractBasePath');
             } catch (error) {
                 syn.$w.notify('error', `JSON을 적용하지 못했습니다. ${error.message}`);
                 syn.$l.eventLog('$this.event.btnApplyConfig_click', error.stack, 'Error');
@@ -79,12 +78,11 @@ let $module_settings = {
 
                     $this.prop.moduleConfig.ModuleConfig.SystemID = syn.$l.get('txtSystemID').value;
                     $this.prop.moduleConfig.ModuleConfig.BusinessServerUrl = syn.$l.get('txtBusinessServerUrl').value;
-                    $this.prop.moduleConfig.ModuleConfig.ModuleConfigurationUrl = syn.$l.get('txtModuleConfigurationUrl').value;
                     $this.prop.moduleConfig.ModuleConfig.ModuleLogFilePath = syn.$l.get('txtModuleLogFilePath').value;
+                    $this.prop.moduleConfig.ModuleConfig.DatabaseContractPath = syn.$l.get('txtDatabaseContractPath').value;
                     $this.prop.moduleConfig.ModuleConfig.ModuleBasePath = syn.$l.get('txtModuleBasePath').value;
-                    $this.prop.moduleConfig.ModuleConfig.WWWRootBasePath = syn.$l.get('txtWWWRootBasePath').value;
-                    $this.prop.moduleConfig.ModuleConfig.IndexingBasePath = syn.$l.get('txtIndexingBasePath').value;
-                    $this.prop.moduleConfig.ModuleConfig.ConnectionString = syn.$l.get('txtConnectionString').value;
+                    $this.prop.moduleConfig.ModuleConfig.XFrameOptions = syn.$l.get('txtXFrameOptions').value;
+                    $this.prop.moduleConfig.ModuleConfig.ContentSecurityPolicy = syn.$l.get('txtContentSecurityPolicy').value;
 
                     syn.$l.get('txtJsonView').value = JSON.stringify($this.prop.moduleConfig, null, 4);
                 } catch (error) {
@@ -110,10 +108,10 @@ let $module_settings = {
             });
         },
 
-        btnLoadPassAssemblyPath_click() {
-            $this.method.showModal('LoadPassAssemblyPath', {
+        btnContractBasePath_click() {
+            $this.method.showModal('ContractBasePath', {
                 itemPathID: '',
-                title: 'LoadPassAssemblyPath 추가'
+                title: 'ContractBasePath 추가'
             });
         },
 
@@ -130,13 +128,13 @@ let $module_settings = {
                     title: 'EventAction 수정'
                 });
             }
-            else if (baseTableID == 'tblLoadPassAssemblyPath') {
+            else if (baseTableID == 'tblContractBasePath') {
                 var baseEL = this.closest('tr');
                 var values = baseEL.getAttribute('syn-value');
                 var itemPathID = baseEL.querySelector('td:nth-child(1)').innerText.trim();
-                $this.method.showModal('LoadPassAssemblyPath', {
+                $this.method.showModal('ContractBasePath', {
                     itemPathID: itemPathID,
-                    title: 'LoadPassAssemblyPath 수정'
+                    title: 'ContractBasePath 수정'
                 });
             }
         },
@@ -159,14 +157,14 @@ let $module_settings = {
                 $array.removeAt(actions, actions.indexOf(baseEventID));
                 $this.method.sectionRender('MediatorAction');
             }
-            else if (baseTableID == 'tblLoadPassAssemblyPath') {
+            else if (baseTableID == 'tblContractBasePath') {
                 var baseEL = this.closest('tr');
                 var baseItemPathID = baseEL.getAttribute('syn-value');
 
-                var items = $this.prop.moduleConfig.LoadPassAssemblyPath;
+                var items = $this.prop.moduleConfig.ModuleConfig.ContractBasePath;
 
                 $array.removeAt(items, items.indexOf(baseItemPathID));
-                $this.method.sectionRender('LoadPassAssemblyPath');
+                $this.method.sectionRender('ContractBasePath');
             }
         },
 
@@ -204,11 +202,15 @@ let $module_settings = {
             $this.prop.modal.hide();
         },
 
-        btnManageLoadPassAssemblyPath_click(evt) {
+        btnManageContractBasePath_click(evt) {
             var baseItemPathID = syn.$l.get('txtBaseItemPathID').value;
             var itemPathID = syn.$l.get('txtItemPathID').value.trim();
+            if (itemPathID == '') {
+                syn.$w.alert('필수 항목을 입력하세요.');
+                return;
+            }
 
-            var items = $this.prop.moduleConfig.LoadPassAssemblyPath;
+            var items = $this.prop.moduleConfig.ModuleConfig.ContractBasePath;
 
             if (baseItemPathID == '') {
                 if (items.includes(itemPathID) == true) {
@@ -223,7 +225,8 @@ let $module_settings = {
                 items[items.indexOf(baseItemPathID)] = itemPathID;
             }
 
-            $this.method.sectionRender('LoadPassAssemblyPath');
+            $this.method.sectionRender('ContractBasePath');
+            $this.prop.modal.hide();
         }
     },
 
@@ -249,8 +252,8 @@ let $module_settings = {
                     setTimeout(() => { syn.$l.get('txtEventID').focus(); }, 100);
                 }
             }
-            else if (elID == 'LoadPassAssemblyPath') {
-                var el = syn.$l.get('mdlLoadPassAssemblyPath');
+            else if (elID == 'ContractBasePath') {
+                var el = syn.$l.get('mdlContractBasePath');
                 if (el && syn.$m.hasClass(el, 'show') == false) {
                     options = syn.$w.argumentsExtend({
                         itemPathID: '',
@@ -285,13 +288,13 @@ let $module_settings = {
                     $this.method.drawHtmlTemplate(action.tbodyID, 'tplActionItem', dataSource);
                 });
             }
-            else if (sectionID == 'LoadPassAssemblyPath') {
-                var pathList = $this.prop.moduleConfig.LoadPassAssemblyPath;
+            else if (sectionID == 'ContractBasePath') {
+                var pathList = $this.prop.moduleConfig.ModuleConfig.ContractBasePath;
                 var dataSource = {
                     items: pathList.map(pathID => ({ ItemPathID: pathID.trim() }))
                 };
 
-                $this.method.drawHtmlTemplate('tblLoadPassAssemblyPathItems', 'tplAssemblyPathItem', dataSource);
+                $this.method.drawHtmlTemplate('tblContractBasePathItems', 'tplContractBasePathItem', dataSource);
             }
         },
 

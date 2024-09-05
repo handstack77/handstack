@@ -6,6 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="/qramework/img/favicon.ico" type="image/x-icon" />
     <style>
+        .table thead th, .markdown > table thead th {
+            text-transform: none !important;
+        }
+
         .nav-pills .nav-link.active,
         .nav-pills .show > .nav-link {
             border: 1px solid var(--tblr-nav-pills-link-active-color);
@@ -71,7 +75,7 @@
                                         <input id="chkIsBundledWithHost" class="form-check-input" type="checkbox">
                                     </label>
                                     <small class="form-hint">
-                                        모듈이 호스트 애플리케이션과 함께 번들로 제공되는지 여부를 나타냅니다. 모놀리식 아키텍처로 개발하는 경우 true로 설정하며, 이는 ACK와 참조 프로젝트의 모든 기능이 단일 코드 베이스에서 관리됨을 의미합니다. (기본값: false)
+                                        모듈이 호스트 애플리케이션과 함께 번들로 제공되는지 여부를 나타냅니다. 모놀리식 아키텍처로 개발하는 경우 true로 설정하며, 이는 ack 프로젝트와 연관된 모든 module 프로젝트가 참조로 연결되어 단일 코드 베이스에서 관리됨을 의미합니다. (기본값: false)
                                     </small>
                                 </td>
                             </tr>
@@ -108,12 +112,30 @@
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="bg-body">ModuleConfigurationUrl</td>
+                                                <td class="bg-body">
+                                                    ContractBasePath
+                                                    <div class="mt-2">
+                                                        <button type="button" id="btnContractBasePath" syn-events="['click']" class="btn btn-icon bg-muted-lt">
+                                                            <i class="f:18 ti ti-plus"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
                                                 <td>
-                                                    <input id="txtModuleConfigurationUrl" type="text" class="form-control">
-                                                    <small class="form-hint mt-2">
-                                                        ack 프로그램이 실행되고 모듈 초기화를 실행하는 Url을 입력합니다. (기본값: http://localhost:8000/litesearch/api/managed/initialize-settings)
-                                                    </small>
+                                                    <div class="table-responsive">
+                                                        <table id="tblContractBasePath" class="table table-vcenter card-table border-x border-y">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>디렉토리 경로</th>
+                                                                    <th class="w-1">관리</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="tblContractBasePathItems">
+                                                            </tbody>
+                                                        </table>
+                                                        <small class="form-hint mt-2">
+                                                            repository 모듈의 거래 파일들이 있는 기본 디렉토리 경로를 입력합니다. 상대경로는 모듈의 기본 디렉토리를 기준으로 설정됩니다.
+                                                        </small>
+                                                    </div>
                                                 </td>
                                             </tr>
                                             <tr>
@@ -126,29 +148,38 @@
                                                 </td>
                                             </tr>
                                             <tr>
+                                                <td class="bg-body">DatabaseContractPath</td>
+                                                <td>
+                                                    <input id="txtDatabaseContractPath" type="text" class="form-control">
+                                                    <small class="form-hint">
+                                                        업로드/다운로드 되는 항목을 관리하기 위한 dbclient Contracts 기본 디렉토리입니다. 개발 목적외에 변경하는 것을 권장하지 않습니다. (기본값: ../contracts/dbclient)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
                                                 <td class="bg-body">ModuleBasePath</td>
                                                 <td>
                                                     <input id="txtModuleBasePath" type="text" class="form-control">
                                                     <small class="form-hint">
-                                                        모듈의 기본 경로입니다. 개발 목적이 아닌경우 기본값을 적용해야합니다. (기본값: ../modules/qramework)
+                                                        repository 모듈의 기본 디렉토리입니다. 개발 목적외에 변경하는 것을 권장하지 않습니다. (기본값: ../modules/repository)
                                                     </small>
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="bg-body">WWWRootBasePath</td>
+                                                <td class="bg-body">XFrameOptions</td>
                                                 <td>
-                                                    <input id="txtWWWRootBasePath" type="text" class="form-control">
+                                                    <input id="txtXFrameOptions" type="text" class="form-control">
                                                     <small class="form-hint">
-                                                        모듈의 웹 루트 기본 경로입니다. /assets 디렉토리를 추가 포함되며, 개발 목적이 아닌경우 기본값을 적용해야합니다. (기본값: ../modules/qramework/wwwroot/qramework)
+                                                        X-Frame-Options는 웹 페이지가 iframe, embed 등에서 렌더링될 수 있는지 여부를 파일 업로드/다운로드시 브라우저에 지시하는 HTTP 응답 헤더입니다.
                                                     </small>
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="bg-body">IndexingBasePath</td>
+                                                <td class="bg-body">ContentSecurityPolicy</td>
                                                 <td>
-                                                    <input id="txtIndexingBasePath" type="text" class="form-control">
+                                                    <input id="txtContentSecurityPolicy" type="text" class="form-control">
                                                     <small class="form-hint">
-                                                        태넌트 앱의 인덱싱 데이터베이스 파일을 관리하는 기본 디렉토리 경로입니다. (기본값: ../indexes)
+                                                        Content Security Policy (CSP)는 파일 업로드/다운로드시 웹 애플리케이션이 로드할 수 있는 리소스의 출처를 제어하는 HTTP 응답 헤더입니다.
                                                     </small>
                                                 </td>
                                             </tr>
@@ -206,49 +237,8 @@
                                                     </div>
                                                 </td>
                                             </tr>
-                                            <tr>
-                                                <td class="bg-body">ConnectionString</td>
-                                                <td>
-                                                    <input id="txtConnectionString" type="text" class="form-control">
-                                                    <small class="form-hint mt-2">
-                                                        데이터베이스 연결문자열 참고자료:
-                                                        <a href="https://www.connectionstrings.com/sql-server" target="_blank">SQL Server</a>,
-                                                        <a href="https://www.connectionstrings.com/mysql" target="_blank">MySQL/MariaDB</a>,
-                                                        <a href="https://www.connectionstrings.com/oracle" target="_blank">Oracle</a>,
-                                                        <a href="https://www.connectionstrings.com/postgresql" target="_blank">PostgreSQL</a>,
-                                                        <a href="https://www.connectionstrings.com/sqlite" target="_blank">SQLite</a>
-                                                    </small>
-                                                </td>
-                                            </tr>
                                         </tbody>
                                     </table>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="bg-body">
-                                    LoadPassAssemblyPath
-                                    <div class="mt-2">
-                                        <button type="button" id="btnLoadPassAssemblyPath" syn-events="['click']" class="btn btn-icon bg-muted-lt">
-                                            <i class="f:18 ti ti-plus"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="table-responsive">
-                                        <table id="tblLoadPassAssemblyPath" class="table table-vcenter card-table border-x border-y">
-                                            <thead>
-                                                <tr>
-                                                    <th>항목</th>
-                                                    <th class="w-1">관리</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="tblLoadPassAssemblyPathItems">
-                                            </tbody>
-                                        </table>
-                                        <small class="form-hint mt-2">
-                                            litesearch 모듈 부트스트레핑 과정에서 어셈블리 로드를 건너 뛸 Unmanaged dll 목록입니다. 파일 경로는 모듈의 기본 디렉토리를 기준으로 설정 해야합니다.
-                                        </small>
-                                    </div>
                                 </td>
                             </tr>
                         </tbody>
@@ -304,9 +294,9 @@
             </div>
         </div>
     </div>
-    <div id="mdlLoadPassAssemblyPath" class="modal fade" tabindex="-1" role="dialog" aria-modal="true">
+    <div id="mdlContractBasePath" class="modal fade" tabindex="-1" role="dialog" aria-modal="true">
         <input id="txtBaseItemPathID" type="hidden">
-        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 id="lblItemPathTitle" class="modal-title"></h5>
@@ -314,14 +304,15 @@
                 </div>
                 <div class="modal-body">
                     <div class="row">
-                        <label class="col-3 col-form-label">Assembly 파일경로</label>
+                        <label class="col-3 col-form-label required">디렉토리 경로</label>
                         <div class="col">
                             <input id="txtItemPathID" type="text" class="form-control">
+                            <small class="form-hint">repository 모듈의 거래 파일들이 있는 기본 디렉토리 경로를 입력합니다. 상대경로는 모듈의 기본 디렉토리를 기준으로 설정됩니다.</small>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" id="btnManageLoadPassAssemblyPath" syn-events="['click']" class="btn btn-primary" data-bs-dismiss="modal">확인</button>
+                    <button type="button" id="btnManageContractBasePath" syn-events="['click']" class="btn btn-primary">확인</button>
                 </div>
             </div>
         </div>
@@ -345,7 +336,7 @@
     </tr>
      {{/items}}
     </script>
-    <script id="tplAssemblyPathItem" type="x-tmpl-mustache">
+    <script id="tplContractBasePathItem" type="x-tmpl-mustache">
      {{#items}}
     <tr syn-value="{{ItemPathID}}">
         <td>
