@@ -6,6 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="/qramework/img/favicon.ico" type="image/x-icon" />
     <style>
+        .table thead th, .markdown > table thead th {
+            text-transform: none !important;
+        }
+
         .nav-pills .nav-link.active,
         .nav-pills .show > .nav-link {
             border: 1px solid var(--tblr-nav-pills-link-active-color);
@@ -108,12 +112,59 @@
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="bg-body">ModuleConfigurationUrl</td>
+                                                <td class="bg-body">CircuitBreakResetSecond</td>
                                                 <td>
-                                                    <input id="txtModuleConfigurationUrl" type="text" class="form-control">
+                                                    <input id="txtCircuitBreakResetSecond" type="number" class="form-control">
                                                     <small class="form-hint mt-2">
-                                                        ack 프로그램이 실행되고 모듈 초기화를 실행하는 Url을 입력합니다. (기본값: http://localhost:8000/litesearch/api/managed/initialize-settings)
+                                                        거래 로그 전송 오류시 재시도 할 때 까지 대기하기 위한 초를 입력합니다. (기본값: 30)
                                                     </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">IsLogServer</td>
+                                                <td>
+                                                    <label class="form-check mb-2">
+                                                        <input id="chkIsLogServer" class="form-check-input" type="checkbox">
+                                                    </label>
+                                                    <small class="form-hint">
+                                                        dbclient 모듈의 로그를 logger 모듈을 운영하는 서버로 저장합니다. (기본값: false)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">LogServerUrl</td>
+                                                <td>
+                                                    <input id="txtLogServerUrl" type="text" class="form-control">
+                                                    <small class="form-hint">
+                                                        logger 모듈을 운영하는 서버의 URL 경로입니다. (기본값: http://localhost:8000/logger/api/log/insert)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">
+                                                    ContractBasePath
+                                                    <div class="mt-2">
+                                                        <button type="button" id="btnContractBasePath" syn-events="['click']" class="btn btn-icon bg-muted-lt">
+                                                            <i class="f:18 ti ti-plus"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="table-responsive">
+                                                        <table id="tblContractBasePath" class="table table-vcenter card-table border-x border-y">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>디렉토리 경로</th>
+                                                                    <th class="w-1">관리</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="tblContractBasePathItems">
+                                                            </tbody>
+                                                        </table>
+                                                        <small class="form-hint mt-2">
+                                                            dbclient 모듈의 거래 파일들이 있는 기본 디렉토리 경로를 입력합니다. 상대경로는 모듈의 기본 디렉토리를 기준으로 설정됩니다.
+                                                        </small>
+                                                    </div>
                                                 </td>
                                             </tr>
                                             <tr>
@@ -126,30 +177,146 @@
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="bg-body">ModuleBasePath</td>
+                                                <td class="bg-body">NodeFunctionConfig</td>
                                                 <td>
-                                                    <input id="txtModuleBasePath" type="text" class="form-control">
-                                                    <small class="form-hint">
-                                                        모듈의 기본 경로입니다. 개발 목적이 아닌경우 기본값을 적용해야합니다. (기본값: ../modules/qramework)
-                                                    </small>
+                                                    <table class="table">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td class="bg-body w:220px">LocalStoragePath</td>
+                                                                <td>
+                                                                    <input type="text" id="txtLocalStoragePath_NodeFunctionConfig" class="form-control">
+                                                                    <small class="form-hint">
+                                                                        Node.js function 에서 사용하는 localStorage 캐시가 저장되는 디렉토리 경로입니다.
+                                                                    </small>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">LogMinimumLevel</td>
+                                                                <td>
+                                                                    <input type="text" id="txtLogMinimumLevel_NodeFunctionConfig" class="form-control">
+                                                                    <small class="form-hint">
+                                                                        $logger 에서 기록되는 로그 수준에는 trace, debug, info, warn, error, fatal 이 있습니다. 런타임 시 기록되는 최소 로그 수준을 설정할 수 있습니다. 운영 환경에서 권장되는 로그 수준은 info 입니다. (기본값: trace)
+                                                                    </small>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">FileLogBasePath</td>
+                                                                <td>
+                                                                    <input type="text" id="txtFileLogBasePath_NodeFunctionConfig" class="form-control">
+                                                                    <small class="form-hint">
+                                                                        $logger 에서 로그가 기록되는 기본 디렉토리 경로입니다.
+                                                                    </small>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">TimeoutMS</td>
+                                                                <td>
+                                                                    <input type="text" id="txtTimeoutMS_NodeFunctionConfig" class="form-control">
+                                                                    <small class="form-hint">
+                                                                        호출에 대한 응답을 기다리는 최대 기간 (밀리 초)입니다. 이 값이 음수이면 최대 지속 시간은 무한합니다. (기본값: -1)
+                                                                    </small>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">IsSingleThread</td>
+                                                                <td>
+                                                                    <label class="form-check mb-2">
+                                                                        <input id="chkIsSingleThread_NodeFunctionConfig" class="form-check-input" type="checkbox">
+                                                                    </label>
+                                                                    <small class="form-hint">
+                                                                        단일 스레드 또는 멀티 스레드 기반 실행되도록 설정합니다. false 이면 현재 머신이 보유한 논리 프로세서의 수 만큼 프로세스가 생성됩니다. (기본값: true)
+                                                                    </small>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">IsWatchGracefulShutdown</td>
+                                                                <td>
+                                                                    <label class="form-check mb-2">
+                                                                        <input id="chkIsWatchGracefulShutdown_NodeFunctionConfig" class="form-check-input" type="checkbox">
+                                                                    </label>
+                                                                    <small class="form-hint">
+                                                                        새 NodeJS 프로세스로 이동할 때 NodeJS가 정상적으로 종료를 처리하는지 여부를 지정하는 값입니다. (기본값: true)
+                                                                    </small>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">EnableFileWatching</td>
+                                                                <td>
+                                                                    <label class="form-check mb-2">
+                                                                        <input id="chkEnableFileWatching_NodeFunctionConfig" class="form-check-input" type="checkbox">
+                                                                    </label>
+                                                                    <small class="form-hint">
+                                                                        WatchFileNamePatterns 에 등록된 파일이 변경되면 NodeJS를 다시 시작합니다. 운영 환경에서는 false 를 권장합니다. (기본값: true)
+                                                                    </small>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">WatchFileNamePatterns</td>
+                                                                <td>
+                                                                    <input type="text" id="txtWatchFileNamePatterns_NodeFunctionConfig" class="form-control">
+                                                                    <small class="form-hint">
+                                                                        감시할 파일 이름 패턴입니다. "," 로 구분하여 여러 패턴을 등록할 수 있습니다.
+                                                                    </small>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">NodeAndV8Options</td>
+                                                                <td>
+                                                                    <input type="text" id="txtNodeAndV8Options_NodeFunctionConfig" class="form-control">
+                                                                    <small class="form-hint">
+                                                                        NodeJS 및 V8 옵션입니다. 디버깅을 위해 --inspect 플래그 선언 후 크롬 브라우저에서 chrome://inspect 연결할 수 있습니다. <u><a href="https://nodejs.org/api/cli.html#cli_options" target="_blank">여기에서 NodeJS 옵션의 전체 목록</a></u>을 찾을 수 있습니다.
+                                                                    </small>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">EnvironmentVariables</td>
+                                                                <td>
+                                                                    <input type="text" id="txtEnvironmentVariables_NodeFunctionConfig" class="form-control">
+                                                                    <small class="form-hint">
+                                                                        NodeJS 에 적용하는 환경변수 목록입니다. (예: AAA=AAA; BBB=BBB; CCC=CCC;)
+                                                                    </small>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="bg-body">WWWRootBasePath</td>
+                                                <td class="bg-body">CSharpFunctionConfig</td>
                                                 <td>
-                                                    <input id="txtWWWRootBasePath" type="text" class="form-control">
-                                                    <small class="form-hint">
-                                                        모듈의 웹 루트 기본 경로입니다. /assets 디렉토리를 추가 포함되며, 개발 목적이 아닌경우 기본값을 적용해야합니다. (기본값: ../modules/qramework/wwwroot/qramework)
-                                                    </small>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="bg-body">IndexingBasePath</td>
-                                                <td>
-                                                    <input id="txtIndexingBasePath" type="text" class="form-control">
-                                                    <small class="form-hint">
-                                                        태넌트 앱의 인덱싱 데이터베이스 파일을 관리하는 기본 디렉토리 경로입니다. (기본값: ../indexes)
-                                                    </small>
+                                                    <table class="table">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td class="bg-body w:220px">FileLogBasePath</td>
+                                                                <td>
+                                                                    <input type="text" id="txtFileLogBasePath_CSharpFunctionConfig" class="form-control">
+                                                                    <small class="form-hint">
+                                                                        context logger 에서 로그가 기록되는 기본 디렉토리 경로입니다.
+                                                                    </small>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">EnableFileWatching</td>
+                                                                <td>
+                                                                    <label class="form-check mb-2">
+                                                                        <input id="chkEnableFileWatching_CSharpFunctionConfig" class="form-check-input" type="checkbox">
+                                                                    </label>
+                                                                    <small class="form-hint">
+                                                                        WatchFileNamePatterns 에 등록된 파일이 변경되면 해당 Function 캐시를 다시 갱신합니다. 운영 환경에서는 false 를 권장합니다. (기본값: true)
+                                                                    </small>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">WatchFileNamePatterns</td>
+                                                                <td>
+                                                                    <input type="text" id="txtWatchFileNamePatterns_CSharpFunctionConfig" class="form-control">
+                                                                    <small class="form-hint">
+                                                                        감시할 파일 이름 패턴입니다. "," 로 구분하여 여러 패턴을 등록할 수 있습니다.
+                                                                    </small>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
                                                 </td>
                                             </tr>
                                             <tr>
@@ -207,48 +374,37 @@
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="bg-body">ConnectionString</td>
+                                                <td class="bg-body">
+                                                    FunctionSource
+                                                    <div class="mt-2">
+                                                        <button type="button" id="btnFunctionSource" syn-events="['click']" class="btn btn-icon bg-muted-lt">
+                                                            <i class="f:18 ti ti-plus"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
                                                 <td>
-                                                    <input id="txtConnectionString" type="text" class="form-control">
-                                                    <small class="form-hint mt-2">
-                                                        데이터베이스 연결문자열 참고자료:
-                                                        <a href="https://www.connectionstrings.com/sql-server" target="_blank">SQL Server</a>,
-                                                        <a href="https://www.connectionstrings.com/mysql" target="_blank">MySQL/MariaDB</a>,
-                                                        <a href="https://www.connectionstrings.com/oracle" target="_blank">Oracle</a>,
-                                                        <a href="https://www.connectionstrings.com/postgresql" target="_blank">PostgreSQL</a>,
-                                                        <a href="https://www.connectionstrings.com/sqlite" target="_blank">SQLite</a>
-                                                    </small>
+                                                    <div class="table-responsive">
+                                                        <table id="tblFunctionSource" class="table table-vcenter card-table border-x border-y">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>ApplicationID</th>
+                                                                    <th>ProjectID</th>
+                                                                    <th>DataSourceID</th>
+                                                                    <th>DataProvider</th>
+                                                                    <th class="w-1">관리</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="tblFunctionSourceItems">
+                                                            </tbody>
+                                                        </table>
+                                                        <small class="form-hint mt-2">
+                                                            dbclient 모듈내 Contract 파일에서 사용하는 (<datasource>DB01</datasource>) 데이터 원본 ID 입니다.
+                                                        </small>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         </tbody>
                                     </table>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="bg-body">
-                                    LoadPassAssemblyPath
-                                    <div class="mt-2">
-                                        <button type="button" id="btnLoadPassAssemblyPath" syn-events="['click']" class="btn btn-icon bg-muted-lt">
-                                            <i class="f:18 ti ti-plus"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="table-responsive">
-                                        <table id="tblLoadPassAssemblyPath" class="table table-vcenter card-table border-x border-y">
-                                            <thead>
-                                                <tr>
-                                                    <th>항목</th>
-                                                    <th class="w-1">관리</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="tblLoadPassAssemblyPathItems">
-                                            </tbody>
-                                        </table>
-                                        <small class="form-hint mt-2">
-                                            litesearch 모듈 부트스트레핑 과정에서 어셈블리 로드를 건너 뛸 Unmanaged dll 목록입니다. 파일 경로는 모듈의 기본 디렉토리를 기준으로 설정 해야합니다.
-                                        </small>
-                                    </div>
                                 </td>
                             </tr>
                         </tbody>
@@ -304,9 +460,9 @@
             </div>
         </div>
     </div>
-    <div id="mdlLoadPassAssemblyPath" class="modal fade" tabindex="-1" role="dialog" aria-modal="true">
+    <div id="mdlContractBasePath" class="modal fade" tabindex="-1" role="dialog" aria-modal="true">
         <input id="txtBaseItemPathID" type="hidden">
-        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 id="lblItemPathTitle" class="modal-title"></h5>
@@ -314,14 +470,103 @@
                 </div>
                 <div class="modal-body">
                     <div class="row">
-                        <label class="col-3 col-form-label">Assembly 파일경로</label>
+                        <label class="col-3 col-form-label required">디렉토리 경로</label>
                         <div class="col">
                             <input id="txtItemPathID" type="text" class="form-control">
+                            <small class="form-hint">dbclient 모듈의 거래 파일들이 있는 기본 디렉토리 경로를 입력합니다. 상대경로는 모듈의 기본 디렉토리를 기준으로 설정됩니다.</small>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" id="btnManageLoadPassAssemblyPath" syn-events="['click']" class="btn btn-primary" data-bs-dismiss="modal">확인</button>
+                    <button type="button" id="btnManageContractBasePath" syn-events="['click']" class="btn btn-primary">확인</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="mdlFunctionSource" class="modal fade" tabindex="-1" role="dialog" aria-modal="true">
+        <input id="txtBaseDataID_FunctionSource" type="hidden">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 id="lblTitle_FunctionSource" class="modal-title"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <label class="col-3 col-form-label required">ApplicationID</label>
+                        <div class="col">
+                            <input id="txtApplicationID_FunctionSource" type="text" class="form-control">
+                            <small class="form-hint">데이터 원본 ID가 적용되는 어플리케이션 ID 입니다.</small>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <label class="col-3 col-form-label required">ProjectID</label>
+                        <div class="col">
+                            <input id="txtProjectID_FunctionSource" type="text" class="form-control">
+                            <small class="form-hint">데이터 원본 ID를 적용할 업무 프로젝트 ID 범위를 입력합니다. "," 를 구분으로 여러 프로젝트 ID 입력이 가능하며 "*" 포함될 경우 모든 프로젝트에 적용합니다.</small>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <label class="col-3 col-form-label required">DataSourceID</label>
+                        <div class="col">
+                            <input id="txtDataSourceID_FunctionSource" type="text" class="form-control">
+                            <small class="form-hint">데이터 원본 ID는 Contract 파일에서 사용됩니다. 변경하거나 삭제할 경우 큰 영향을 미칠 수 있습니다.</small>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <label class="col-3 col-form-label required">DataProvider</label>
+                        <div class="col">
+                            <select id="ddlDataProvider_FunctionSource" class="form-select">
+                                <option value="SqlServer" selected>SqlServer</option>
+                                <option value="Oracle">Oracle</option>
+                                <option value="MySQL">MySQL/MariaDB</option>
+                                <option value="PostgreSQL">PostgreSQL</option>
+                                <option value="SQLite">SQLite</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <label class="col-3 col-form-label">ConnectionString</label>
+                        <div class="col">
+                            <textarea id="txtConnectionString_FunctionSource" rows="3" class="form-control resize:none"></textarea>
+                            <small class="form-hint mt-2">
+                                데이터베이스 연결문자열 참고자료:
+                                <a href="https://www.connectionstrings.com/sql-server" target="_blank">SQL Server</a>,
+                                <a href="https://www.connectionstrings.com/mysql" target="_blank">MySQL/MariaDB</a>,
+                                <a href="https://www.connectionstrings.com/oracle" target="_blank">Oracle</a>,
+                                <a href="https://www.connectionstrings.com/postgresql" target="_blank">PostgreSQL</a>,
+                                <a href="https://www.connectionstrings.com/sqlite" target="_blank">SQLite</a>
+                            </small>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <label class="col-3 col-form-label">IsEncryption</label>
+                        <div class="col">
+                            <label class="form-check mb-2">
+                                <input id="chkIsEncryption" class="form-check-input" type="checkbox">
+                            </label>
+                            <small class="form-hint">
+                                데이터베이스 연결문자열이 암호화 되어있는지 선택합니다. true 로 설정할 경우 반드시 대상 호스트에서 다음의 CLI 명령어로 암호화 된 데이터베이스 연결문자열을 입력해야 합니다. <u>handstack encrypt --format=connectionstring --value="[connection string]"</u>
+                            </small>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <label class="col-3 col-form-label required">WorkingDirectoryPath</label>
+                        <div class="col">
+                            <input id="txtWorkingDirectoryPath_FunctionSource" type="text" class="form-control">
+                            <small class="form-hint">함수 내에서 사용하는 작업 디렉토리 경로입니다.</small>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <label class="col-3 col-form-label">Comment</label>
+                        <div class="col">
+                            <textarea id="txtComment_FunctionSource" rows="3" class="form-control resize:none"></textarea>
+                            <small class="form-hint"></small>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="btnManageFunctionSource" syn-events="['click']" class="btn btn-primary">확인</button>
                 </div>
             </div>
         </div>
@@ -345,11 +590,39 @@
     </tr>
      {{/items}}
     </script>
-    <script id="tplAssemblyPathItem" type="x-tmpl-mustache">
+    <script id="tplContractBasePathItem" type="x-tmpl-mustache">
      {{#items}}
     <tr syn-value="{{ItemPathID}}">
         <td>
             {{ItemPathID}}
+        </td>
+        <td>
+            <div class="btn-list flex-nowrap">
+                <button name="btnActionEdit" type="button" class="btn btn-icon bg-muted-lt">
+                    <i class="f:18 ti ti-edit"></i>
+                </button>
+                <button name="btnActionDelete" type="button" class="btn btn-icon bg-muted-lt">
+                    <i class="f:18 ti ti-minus"></i>
+                </button>
+            </div>
+        </td>
+    </tr>
+     {{/items}}
+    </script>
+    <script id="tplFunctionSourceItem" type="x-tmpl-mustache">
+     {{#items}}
+    <tr syn-value="{{ApplicationID}}|{{ProjectID}}|{{DataSourceID}}|{{DataProvider}}">
+        <td>
+            {{ApplicationID}}
+        </td>
+        <td>
+            {{ProjectID}}
+        </td>
+        <td>
+            {{DataSourceID}}
+        </td>
+        <td>
+            {{DataProvider}}
         </td>
         <td>
             <div class="btn-list flex-nowrap">

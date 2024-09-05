@@ -18,7 +18,6 @@ let $module_settings = {
                 "ModuleLogFilePath": "../log/function/module.log",
                 "NodeFunctionConfig": {
                     "LocalStoragePath": "../cache/function",
-                    "NodeScriptMapBasePath": "",
                     "LogMinimumLevel": "trace",
                     "FileLogBasePath": "../log/function/javascript",
                     "TimeoutMS": -1,
@@ -105,9 +104,6 @@ let $module_settings = {
 
             $this.event.btnImportDefaultConfig_click();
             $this.event.btnApplyConfig_click();
-
-            $this.method.sectionRender('MediatorAction');
-            $this.method.sectionRender('LoadPassAssemblyPath');
         }
     },
 
@@ -128,12 +124,29 @@ let $module_settings = {
 
                 syn.$l.get('txtSystemID').value = $this.prop.moduleConfig.ModuleConfig.SystemID;
                 syn.$l.get('txtBusinessServerUrl').value = $this.prop.moduleConfig.ModuleConfig.BusinessServerUrl;
-                syn.$l.get('txtModuleConfigurationUrl').value = $this.prop.moduleConfig.ModuleConfig.ModuleConfigurationUrl;
+                syn.$l.get('txtCircuitBreakResetSecond').value = $string.isNumber($this.prop.moduleConfig.ModuleConfig.CircuitBreakResetSecond) == true ? $string.toNumber($this.prop.moduleConfig.ModuleConfig.CircuitBreakResetSecond) : 60;
                 syn.$l.get('txtModuleLogFilePath').value = $this.prop.moduleConfig.ModuleConfig.ModuleLogFilePath;
-                syn.$l.get('txtModuleBasePath').value = $this.prop.moduleConfig.ModuleConfig.ModuleBasePath;
-                syn.$l.get('txtWWWRootBasePath').value = $this.prop.moduleConfig.ModuleConfig.WWWRootBasePath;
-                syn.$l.get('txtIndexingBasePath').value = $this.prop.moduleConfig.ModuleConfig.IndexingBasePath;
-                syn.$l.get('txtConnectionString').value = $this.prop.moduleConfig.ModuleConfig.ConnectionString;
+                syn.$l.get('chkIsLogServer').checked = $string.toBoolean($this.prop.moduleConfig.ModuleConfig.IsLogServer);
+                syn.$l.get('txtLogServerUrl').value = $this.prop.moduleConfig.ModuleConfig.LogServerUrl;
+
+                syn.$l.get('txtLocalStoragePath_NodeFunctionConfig').value = $this.prop.moduleConfig.ModuleConfig.NodeFunctionConfig.LocalStoragePath;
+                syn.$l.get('txtLogMinimumLevel_NodeFunctionConfig').value = $this.prop.moduleConfig.ModuleConfig.NodeFunctionConfig.LogMinimumLevel;
+                syn.$l.get('txtFileLogBasePath_NodeFunctionConfig').value = $this.prop.moduleConfig.ModuleConfig.NodeFunctionConfig.FileLogBasePath;
+                syn.$l.get('txtTimeoutMS_NodeFunctionConfig').value = $string.isNumber($this.prop.moduleConfig.ModuleConfig.NodeFunctionConfig.TimeoutMS) == true ? $string.toNumber($this.prop.moduleConfig.ModuleConfig.NodeFunctionConfig.TimeoutMS) : -1;
+                syn.$l.get('chkIsSingleThread_NodeFunctionConfig').checked = $string.toBoolean($this.prop.moduleConfig.ModuleConfig.NodeFunctionConfig.IsSingleThread);
+                syn.$l.get('chkIsWatchGracefulShutdown_NodeFunctionConfig').checked = $string.toBoolean($this.prop.moduleConfig.ModuleConfig.NodeFunctionConfig.IsWatchGracefulShutdown);
+                syn.$l.get('chkEnableFileWatching_NodeFunctionConfig').checked = $string.toBoolean($this.prop.moduleConfig.ModuleConfig.NodeFunctionConfig.EnableFileWatching);
+                syn.$l.get('txtWatchFileNamePatterns_NodeFunctionConfig').value = $this.prop.moduleConfig.ModuleConfig.NodeFunctionConfig.WatchFileNamePatterns;
+                syn.$l.get('txtNodeAndV8Options_NodeFunctionConfig').value = $this.prop.moduleConfig.ModuleConfig.NodeFunctionConfig.NodeAndV8Options;
+                syn.$l.get('txtEnvironmentVariables_NodeFunctionConfig').value = $this.prop.moduleConfig.ModuleConfig.NodeFunctionConfig.EnvironmentVariables;
+
+                syn.$l.get('txtFileLogBasePath_CSharpFunctionConfig').value = $this.prop.moduleConfig.ModuleConfig.CSharpFunctionConfig.FileLogBasePath;
+                syn.$l.get('chkEnableFileWatching_CSharpFunctionConfig').checked = $string.toBoolean($this.prop.moduleConfig.ModuleConfig.CSharpFunctionConfig.EnableFileWatching);
+                syn.$l.get('txtWatchFileNamePatterns_CSharpFunctionConfig').value = $this.prop.moduleConfig.ModuleConfig.CSharpFunctionConfig.WatchFileNamePatterns;
+
+                $this.method.sectionRender('MediatorAction');
+                $this.method.sectionRender('ContractBasePath');
+                $this.method.sectionRender('FunctionSource');
             } catch (error) {
                 syn.$w.notify('error', `JSON을 적용하지 못했습니다. ${error.message}`);
                 syn.$l.eventLog('$this.event.btnApplyConfig_click', error.stack, 'Error');
@@ -150,12 +163,26 @@ let $module_settings = {
 
                     $this.prop.moduleConfig.ModuleConfig.SystemID = syn.$l.get('txtSystemID').value;
                     $this.prop.moduleConfig.ModuleConfig.BusinessServerUrl = syn.$l.get('txtBusinessServerUrl').value;
-                    $this.prop.moduleConfig.ModuleConfig.ModuleConfigurationUrl = syn.$l.get('txtModuleConfigurationUrl').value;
                     $this.prop.moduleConfig.ModuleConfig.ModuleLogFilePath = syn.$l.get('txtModuleLogFilePath').value;
-                    $this.prop.moduleConfig.ModuleConfig.ModuleBasePath = syn.$l.get('txtModuleBasePath').value;
-                    $this.prop.moduleConfig.ModuleConfig.WWWRootBasePath = syn.$l.get('txtWWWRootBasePath').value;
-                    $this.prop.moduleConfig.ModuleConfig.IndexingBasePath = syn.$l.get('txtIndexingBasePath').value;
-                    $this.prop.moduleConfig.ModuleConfig.ConnectionString = syn.$l.get('txtConnectionString').value;
+                    $this.prop.moduleConfig.ModuleConfig.CircuitBreakResetSecond = syn.$l.get('txtCircuitBreakResetSecond').value;
+                    $this.prop.moduleConfig.ModuleConfig.ModuleLogFilePath = syn.$l.get('txtModuleLogFilePath').value;
+                    $this.prop.moduleConfig.ModuleConfig.IsLogServer = $string.toBoolean(syn.$l.get('chkIsLogServer').checked);
+                    $this.prop.moduleConfig.ModuleConfig.LogServerUrl = syn.$l.get('txtLogServerUrl').value;
+
+                    $this.prop.moduleConfig.ModuleConfig.NodeFunctionConfig.LocalStoragePath = syn.$l.get('txtLocalStoragePath_NodeFunctionConfig').value;
+                    $this.prop.moduleConfig.ModuleConfig.NodeFunctionConfig.LogMinimumLevel = syn.$l.get('txtLogMinimumLevel_NodeFunctionConfig').value;
+                    $this.prop.moduleConfig.ModuleConfig.NodeFunctionConfig.FileLogBasePath = syn.$l.get('txtFileLogBasePath_NodeFunctionConfig').value;
+                    $this.prop.moduleConfig.ModuleConfig.NodeFunctionConfig.TimeoutMS = $string.isNumber(syn.$l.get('txtTimeoutMS_NodeFunctionConfig').value) ? $string.toNumber(syn.$l.get('txtTimeoutMS_NodeFunctionConfig').value) : -1;
+                    $this.prop.moduleConfig.ModuleConfig.NodeFunctionConfig.IsSingleThread = $string.toBoolean(syn.$l.get('chkIsSingleThread_NodeFunctionConfig').checked);
+                    $this.prop.moduleConfig.ModuleConfig.NodeFunctionConfig.IsWatchGracefulShutdown = $string.toBoolean(syn.$l.get('chkIsWatchGracefulShutdown_NodeFunctionConfig').checked);
+                    $this.prop.moduleConfig.ModuleConfig.NodeFunctionConfig.EnableFileWatching = $string.toBoolean(syn.$l.get('chkEnableFileWatching_NodeFunctionConfig').checked);
+                    $this.prop.moduleConfig.ModuleConfig.NodeFunctionConfig.WatchFileNamePatterns = $array.split(syn.$l.get('txtWatchFileNamePatterns_NodeFunctionConfig').value);
+                    $this.prop.moduleConfig.ModuleConfig.NodeFunctionConfig.NodeAndV8Options = syn.$l.get('txtNodeAndV8Options_NodeFunctionConfig').value;
+                    $this.prop.moduleConfig.ModuleConfig.NodeFunctionConfig.EnvironmentVariables = syn.$l.get('txtEnvironmentVariables_NodeFunctionConfig').value;
+
+                    $this.prop.moduleConfig.ModuleConfig.CSharpFunctionConfig.FileLogBasePath = syn.$l.get('txtFileLogBasePath_CSharpFunctionConfig').value;
+                    $this.prop.moduleConfig.ModuleConfig.CSharpFunctionConfig.EnableFileWatching = $string.toBoolean(syn.$l.get('chkEnableFileWatching_CSharpFunctionConfig').checked);
+                    $this.prop.moduleConfig.ModuleConfig.CSharpFunctionConfig.WatchFileNamePatterns = $array.split(syn.$l.get('txtWatchFileNamePatterns_CSharpFunctionConfig').value);
 
                     syn.$l.get('txtJsonView').value = JSON.stringify($this.prop.moduleConfig, null, 4);
                 } catch (error) {
@@ -189,10 +216,17 @@ let $module_settings = {
             });
         },
 
-        btnLoadPassAssemblyPath_click() {
-            $this.method.showModal('LoadPassAssemblyPath', {
+        btnContractBasePath_click() {
+            $this.method.showModal('ContractBasePath', {
                 itemPathID: '',
-                title: 'LoadPassAssemblyPath 추가'
+                title: 'ContractBasePath 추가'
+            });
+        },
+
+        btnFunctionSource_click() {
+            $this.method.showModal('FunctionSource', {
+                dataID: '',
+                title: 'FunctionSource 추가'
             });
         },
 
@@ -209,13 +243,21 @@ let $module_settings = {
                     title: 'EventAction 수정'
                 });
             }
-            else if (baseTableID == 'tblLoadPassAssemblyPath') {
+            else if (baseTableID == 'tblContractBasePath') {
                 var baseEL = this.closest('tr');
                 var values = baseEL.getAttribute('syn-value');
                 var itemPathID = baseEL.querySelector('td:nth-child(1)').innerText.trim();
-                $this.method.showModal('LoadPassAssemblyPath', {
+                $this.method.showModal('ContractBasePath', {
                     itemPathID: itemPathID,
-                    title: 'LoadPassAssemblyPath 수정'
+                    title: 'ContractBasePath 수정'
+                });
+            }
+            else if (baseTableID == 'tblFunctionSource') {
+                var baseEL = this.closest('tr');
+                var values = baseEL.getAttribute('syn-value');
+                $this.method.showModal('FunctionSource', {
+                    dataID: values,
+                    title: 'FunctionSource 수정'
                 });
             }
         },
@@ -238,14 +280,26 @@ let $module_settings = {
                 $array.removeAt(actions, actions.indexOf(baseEventID));
                 $this.method.sectionRender('MediatorAction');
             }
-            else if (baseTableID == 'tblLoadPassAssemblyPath') {
+            else if (baseTableID == 'tblContractBasePath') {
                 var baseEL = this.closest('tr');
                 var baseItemPathID = baseEL.getAttribute('syn-value');
 
-                var items = $this.prop.moduleConfig.LoadPassAssemblyPath;
+                var items = $this.prop.moduleConfig.ModuleConfig.ContractBasePath;
 
                 $array.removeAt(items, items.indexOf(baseItemPathID));
-                $this.method.sectionRender('LoadPassAssemblyPath');
+                $this.method.sectionRender('ContractBasePath');
+            }
+            else if (baseTableID == 'tblFunctionSource') {
+                var baseEL = this.closest('tr');
+                var baseDataID = baseEL.getAttribute('syn-value');
+
+                var data = $this.method.getFunctionSource(baseDataID);
+                if (data) {
+                    var items = $this.prop.moduleConfig.ModuleConfig.FunctionSource;
+
+                    $array.removeAt(items, items.indexOf(data));
+                    $this.method.sectionRender('FunctionSource');
+                }
             }
         },
 
@@ -280,13 +334,18 @@ let $module_settings = {
             }
 
             $this.method.sectionRender('MediatorAction');
+            $this.prop.modal.hide();
         },
 
-        btnManageLoadPassAssemblyPath_click(evt) {
+        btnManageContractBasePath_click(evt) {
             var baseItemPathID = syn.$l.get('txtBaseItemPathID').value;
             var itemPathID = syn.$l.get('txtItemPathID').value.trim();
+            if (itemPathID == '') {
+                syn.$w.alert('필수 항목을 입력하세요.');
+                return;
+            }
 
-            var items = $this.prop.moduleConfig.LoadPassAssemblyPath;
+            var items = $this.prop.moduleConfig.ModuleConfig.ContractBasePath;
 
             if (baseItemPathID == '') {
                 if (items.includes(itemPathID) == true) {
@@ -301,7 +360,62 @@ let $module_settings = {
                 items[items.indexOf(baseItemPathID)] = itemPathID;
             }
 
-            $this.method.sectionRender('LoadPassAssemblyPath');
+            $this.method.sectionRender('ContractBasePath');
+            $this.prop.modal.hide();
+        },
+
+        btnManageFunctionSource_click(evt) {
+            var baseDataID = syn.$l.get('txtBaseDataID_FunctionSource').value;
+            var applicationID = syn.$l.get('txtApplicationID_FunctionSource').value.trim();
+            var projectID = syn.$l.get('txtProjectID_FunctionSource').value.trim();
+            var dataSourceID = syn.$l.get('txtDataSourceID_FunctionSource').value.trim();
+            var dataProvider = syn.$l.get('ddlDataProvider_FunctionSource').value.trim();
+            var connectionString = syn.$l.get('txtConnectionString_FunctionSource').value.trim();
+            var isEncryption = syn.$l.get('chkIsEncryption').checked == true ? 'Y' : 'N';
+            var workingDirectoryPath = syn.$l.get('txtWorkingDirectoryPath_FunctionSource').value.trim();
+            var comment = syn.$l.get('txtComment_FunctionSource').value.trim();
+
+            if (applicationID == '' || projectID == '' || dataSourceID == '' || dataProvider == '' || workingDirectoryPath == '') {
+                syn.$w.alert('필수 항목을 입력하세요.');
+                return;
+            }
+
+            var dataID = `${applicationID}|${projectID}|${dataSourceID}|${dataProvider}`;
+            var items = $this.prop.moduleConfig.ModuleConfig.FunctionSource;
+            if (baseDataID == '') {
+                if (items.includes(dataID) == true) {
+                    syn.$w.notify('information', `중복된 데이터 원본을 입력 할 수 없습니다.`);
+                    return;
+                }
+                else {
+                    items.push({
+                        ApplicationID: applicationID,
+                        ProjectID: projectID,
+                        DataSourceID: dataSourceID,
+                        DataProvider: dataProvider,
+                        ConnectionString: connectionString,
+                        WorkingDirectoryPath: workingDirectoryPath,
+                        IsEncryption: isEncryption,
+                        Comment: comment
+                    });
+                }
+            }
+            else {
+                var data = $this.method.getFunctionSource(baseDataID);
+                if (data) {
+                    data.ApplicationID = applicationID;
+                    data.ProjectID = projectID;
+                    data.DataSourceID = dataSourceID;
+                    data.DataProvider = dataProvider;
+                    data.ConnectionString = connectionString;
+                    data.IsEncryption = isEncryption;
+                    data.WorkingDirectoryPath = workingDirectoryPath;
+                    data.Comment = comment;
+                }
+            }
+
+            $this.method.sectionRender('FunctionSource');
+            $this.prop.modal.hide();
         }
     },
 
@@ -327,8 +441,8 @@ let $module_settings = {
                     setTimeout(() => { syn.$l.get('txtEventID').focus(); }, 100);
                 }
             }
-            else if (elID == 'LoadPassAssemblyPath') {
-                var el = syn.$l.get('mdlLoadPassAssemblyPath');
+            else if (elID == 'ContractBasePath') {
+                var el = syn.$l.get('mdlContractBasePath');
                 if (el && syn.$m.hasClass(el, 'show') == false) {
                     options = syn.$w.argumentsExtend({
                         itemPathID: '',
@@ -345,6 +459,60 @@ let $module_settings = {
                     setTimeout(() => { syn.$l.get('txtItemPathID').focus(); }, 100);
                 }
             }
+            else if (elID == 'FunctionSource') {
+                var el = syn.$l.get('mdlFunctionSource');
+                if (el && syn.$m.hasClass(el, 'show') == false) {
+                    options = syn.$w.argumentsExtend({
+                        dataID: '',
+                        title: ''
+                    }, options || {});
+
+                    syn.$l.get('lblTitle_FunctionSource').innerText = options.title;
+
+                    var data = null;
+                    if ($string.isNullOrEmpty(options.dataID) == false) {
+                        data = $this.method.getFunctionSource(options.dataID);
+                    }
+
+                    if (data) {
+                        syn.$l.get('txtApplicationID_FunctionSource').value = data.ApplicationID;
+                        syn.$l.get('txtProjectID_FunctionSource').value = data.ProjectID;
+                        syn.$l.get('txtDataSourceID_FunctionSource').value = data.DataSourceID;
+                        syn.$l.get('ddlDataProvider_FunctionSource').value = data.DataProvider;
+                        syn.$l.get('txtBaseDataID_FunctionSource').value = `${data.ApplicationID}|${data.ProjectID}|${data.DataSourceID}|${data.DataProvider}`;
+                        syn.$l.get('txtConnectionString_FunctionSource').value = data.ConnectionString;
+                        syn.$l.get('chkIsEncryption').checked = $string.toBoolean(data.IsEncryption);
+                        syn.$l.get('txtWorkingDirectoryPath_FunctionSource').value = data.WorkingDirectoryPath;
+                        syn.$l.get('txtComment_FunctionSource').value = data.Comment;
+                    }
+                    else {
+                        syn.$l.get('txtApplicationID_FunctionSource').value = '';
+                        syn.$l.get('txtProjectID_FunctionSource').value = '';
+                        syn.$l.get('txtDataSourceID_FunctionSource').value = '';
+                        syn.$l.get('ddlDataProvider_FunctionSource').value = 'SqlServer';
+                        syn.$l.get('txtBaseDataID_FunctionSource').value = '';
+                        syn.$l.get('txtConnectionString_FunctionSource').value = '';
+                        syn.$l.get('chkIsEncryption').checked = false;
+                        syn.$l.get('txtWorkingDirectoryPath_FunctionSource').value = '';
+                        syn.$l.get('txtComment_FunctionSource').value = '';
+                    }
+
+                    $this.prop.modal = new bootstrap.Modal(el);
+                    $this.prop.modal.show();
+
+                    setTimeout(() => { syn.$l.get('txtApplicationID_FunctionSource').focus(); }, 100);
+                }
+            }
+        },
+
+        getFunctionSource(dataID) {
+            var values = dataID.split('|').map(function (s) { return s.trim(); });
+            return $this.prop.moduleConfig.ModuleConfig.FunctionSource.find((item) => {
+                return item.ApplicationID == values[0]
+                    && item.ProjectID == values[1]
+                    && item.DataSourceID == values[2]
+                    && item.DataProvider == values[3]
+            });
         },
 
         sectionRender(sectionID) {
@@ -363,13 +531,20 @@ let $module_settings = {
                     $this.method.drawHtmlTemplate(action.tbodyID, 'tplActionItem', dataSource);
                 });
             }
-            else if (sectionID == 'LoadPassAssemblyPath') {
-                var pathList = $this.prop.moduleConfig.LoadPassAssemblyPath;
+            else if (sectionID == 'ContractBasePath') {
+                var pathList = $this.prop.moduleConfig.ModuleConfig.ContractBasePath;
                 var dataSource = {
                     items: pathList.map(pathID => ({ ItemPathID: pathID.trim() }))
                 };
 
-                $this.method.drawHtmlTemplate('tblLoadPassAssemblyPathItems', 'tplAssemblyPathItem', dataSource);
+                $this.method.drawHtmlTemplate('tblContractBasePathItems', 'tplContractBasePathItem', dataSource);
+            }
+            else if (sectionID == 'FunctionSource') {
+                var dataSource = {
+                    items: $this.prop.moduleConfig.ModuleConfig.FunctionSource
+                };
+
+                $this.method.drawHtmlTemplate('tblFunctionSourceItems', 'tplFunctionSourceItem', dataSource);
             }
         },
 
