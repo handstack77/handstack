@@ -15,7 +15,6 @@
         "ModuleLogFilePath": "../log/function/module.log",
         "NodeFunctionConfig": {
             "LocalStoragePath": "../cache/function",
-            "NodeScriptMapBasePath": "",
             "LogMinimumLevel": "trace",
             "FileLogBasePath": "../log/function/javascript",
             "TimeoutMS": -1,
