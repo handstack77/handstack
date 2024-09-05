@@ -6,6 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="/qramework/img/favicon.ico" type="image/x-icon" />
     <style>
+        .table thead th, .markdown > table thead th {
+            text-transform: none !important;
+        }
+
         .nav-pills .nav-link.active,
         .nav-pills .show > .nav-link {
             border: 1px solid var(--tblr-nav-pills-link-active-color);
@@ -71,7 +75,7 @@
                                         <input id="chkIsBundledWithHost" class="form-check-input" type="checkbox">
                                     </label>
                                     <small class="form-hint">
-                                        모듈이 호스트 애플리케이션과 함께 번들로 제공되는지 여부를 나타냅니다. 모놀리식 아키텍처로 개발하는 경우 true로 설정하며, 이는 ACK와 참조 프로젝트의 모든 기능이 단일 코드 베이스에서 관리됨을 의미합니다. (기본값: false)
+                                        모듈이 호스트 애플리케이션과 함께 번들로 제공되는지 여부를 나타냅니다. 모놀리식 아키텍처로 개발하는 경우 true로 설정하며, 이는 ack 프로젝트와 연관된 모든 module 프로젝트가 참조로 연결되어 단일 코드 베이스에서 관리됨을 의미합니다. (기본값: false)
                                     </small>
                                 </td>
                             </tr>
@@ -108,11 +112,42 @@
                                                 </td>
                                             </tr>
                                             <tr>
+                                                <td class="bg-body">ModuleBasePath</td>
+                                                <td>
+                                                    <input id="txtModuleBasePath" type="text" class="form-control">
+                                                    <small class="form-hint">
+                                                        openapi 모듈의 기본 디렉토리입니다. 개발 목적외에 변경하는 것을 권장하지 않습니다. (기본값: ../modules/openapi)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">ManagerEmailID</td>
+                                                <td>
+                                                    <input id="txtManagerEmailID" type="text" class="form-control">
+                                                    <small class="form-hint">
+                                                        openapi 모듈의 관리자 이메일 ID 입니다. 업무에 따라 변경할 수 있습니다. (기본값: manager@handstack.kr)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">ManagerSHA256Password</td>
+                                                <td>
+                                                    <div class="row g-2">
+                                                        <div class="col">
+                                                            <input id="txtManagerSHA256Password" syn-events="['blur']" type="text" class="form-control" maxlength="64">
+                                                        </div>
+                                                    </div>
+                                                    <small class="form-hint mt-2">
+                                                        관리자 비밀번호 입니다. 반드시 SHA256 값을 넣어야 합니다. 평문을 입력 후 텍스트 박스에서 벗어나면 자동으로 변환합니다. (기본값: handstack12345)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
                                                 <td class="bg-body">ModuleConfigurationUrl</td>
                                                 <td>
                                                     <input id="txtModuleConfigurationUrl" type="text" class="form-control">
                                                     <small class="form-hint mt-2">
-                                                        ack 프로그램이 실행되고 모듈 초기화를 실행하는 Url을 입력합니다. (기본값: http://localhost:8000/litesearch/api/managed/initialize-settings)
+                                                        ack 프로그램이 실행되고 모듈 초기화를 실행하는 Url을 입력합니다. (기본값: http://localhost:8000/openapi/api/managed/initialize-settings)
                                                     </small>
                                                 </td>
                                             </tr>
@@ -126,29 +161,22 @@
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="bg-body">ModuleBasePath</td>
+                                                <td class="bg-body">IsLogServer</td>
                                                 <td>
-                                                    <input id="txtModuleBasePath" type="text" class="form-control">
+                                                    <label class="form-check mb-2">
+                                                        <input id="chkIsLogServer" class="form-check-input" type="checkbox">
+                                                    </label>
                                                     <small class="form-hint">
-                                                        모듈의 기본 경로입니다. 개발 목적이 아닌경우 기본값을 적용해야합니다. (기본값: ../modules/qramework)
+                                                        dbclient 모듈의 로그를 logger 모듈을 운영하는 서버로 저장합니다. (기본값: false)
                                                     </small>
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="bg-body">WWWRootBasePath</td>
+                                                <td class="bg-body">LogServerUrl</td>
                                                 <td>
-                                                    <input id="txtWWWRootBasePath" type="text" class="form-control">
+                                                    <input id="txtLogServerUrl" type="text" class="form-control">
                                                     <small class="form-hint">
-                                                        모듈의 웹 루트 기본 경로입니다. /assets 디렉토리를 추가 포함되며, 개발 목적이 아닌경우 기본값을 적용해야합니다. (기본값: ../modules/qramework/wwwroot/qramework)
-                                                    </small>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="bg-body">IndexingBasePath</td>
-                                                <td>
-                                                    <input id="txtIndexingBasePath" type="text" class="form-control">
-                                                    <small class="form-hint">
-                                                        태넌트 앱의 인덱싱 데이터베이스 파일을 관리하는 기본 디렉토리 경로입니다. (기본값: ../indexes)
+                                                        logger 모듈을 운영하는 서버의 URL 경로입니다. (기본값: http://localhost:8000/logger/api/log/insert)
                                                     </small>
                                                 </td>
                                             </tr>
@@ -207,48 +235,76 @@
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="bg-body">ConnectionString</td>
+                                                <td class="bg-body">
+                                                    DataSource
+                                                </td>
                                                 <td>
-                                                    <input id="txtConnectionString" type="text" class="form-control">
-                                                    <small class="form-hint mt-2">
-                                                        데이터베이스 연결문자열 참고자료:
-                                                        <a href="https://www.connectionstrings.com/sql-server" target="_blank">SQL Server</a>,
-                                                        <a href="https://www.connectionstrings.com/mysql" target="_blank">MySQL/MariaDB</a>,
-                                                        <a href="https://www.connectionstrings.com/oracle" target="_blank">Oracle</a>,
-                                                        <a href="https://www.connectionstrings.com/postgresql" target="_blank">PostgreSQL</a>,
-                                                        <a href="https://www.connectionstrings.com/sqlite" target="_blank">SQLite</a>
-                                                    </small>
+                                                    <table class="table">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td class="bg-body w:220px">SystemID</td>
+                                                                <td>
+                                                                    <input id="txtApplicationID" type="text" class="form-control">
+                                                                    <small class="form-hint">데이터 원본 ID가 적용되는 어플리케이션 ID 입니다.</small>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">ProjectID</td>
+                                                                <td>
+                                                                    <input id="txtProjectID" type="text" class="form-control">
+                                                                    <small class="form-hint">데이터 원본 ID를 적용할 업무 프로젝트 ID 범위를 입력합니다. "," 를 구분으로 여러 프로젝트 ID 입력이 가능하며 "*" 포함될 경우 모든 프로젝트에 적용합니다.</small>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">DataSourceID</td>
+                                                                <td>
+                                                                    <input id="txtDataSourceID" type="text" class="form-control">
+                                                                    <small class="form-hint">데이터 원본 ID는 Contract 파일에서 사용됩니다. 변경하거나 삭제할 경우 큰 영향을 미칠 수 있습니다.</small>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">DataProvider</td>
+                                                                <td>
+                                                                    <select id="ddlDataProvider" class="form-select">
+                                                                        <option value="SqlServer" selected>SqlServer</option>
+                                                                        <option value="Oracle">Oracle</option>
+                                                                        <option value="MySQL">MySQL/MariaDB</option>
+                                                                        <option value="PostgreSQL">PostgreSQL</option>
+                                                                        <option value="SQLite">SQLite</option>
+                                                                    </select>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">ConnectionString</td>
+                                                                <td>
+                                                                    <textarea id="txtConnectionString" rows="3" class="form-control resize:none"></textarea>
+                                                                    <small class="form-hint mt-2">
+                                                                        데이터베이스 연결문자열 참고자료:
+                                                                        <a href="https://www.connectionstrings.com/sql-server" target="_blank">SQL Server</a>,
+                                                                        <a href="https://www.connectionstrings.com/mysql" target="_blank">MySQL/MariaDB</a>,
+                                                                        <a href="https://www.connectionstrings.com/oracle" target="_blank">Oracle</a>,
+                                                                        <a href="https://www.connectionstrings.com/postgresql" target="_blank">PostgreSQL</a>,
+                                                                        <a href="https://www.connectionstrings.com/sqlite" target="_blank">SQLite</a>
+                                                                    </small>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">IsEncryption</td>
+                                                                <td>
+                                                                    <label class="form-check mb-2">
+                                                                        <input id="chkIsEncryption" class="form-check-input" type="checkbox">
+                                                                    </label>
+                                                                    <small class="form-hint">
+                                                                        데이터베이스 연결문자열이 암호화 되어있는지 선택합니다. true 로 설정할 경우 반드시 대상 호스트에서 다음의 CLI 명령어로 암호화 된 데이터베이스 연결문자열을 입력해야 합니다. <u>handstack encrypt --format=connectionstring --value="[connection string]"</u>
+                                                                    </small>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
                                                 </td>
                                             </tr>
                                         </tbody>
                                     </table>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="bg-body">
-                                    LoadPassAssemblyPath
-                                    <div class="mt-2">
-                                        <button type="button" id="btnLoadPassAssemblyPath" syn-events="['click']" class="btn btn-icon bg-muted-lt">
-                                            <i class="f:18 ti ti-plus"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="table-responsive">
-                                        <table id="tblLoadPassAssemblyPath" class="table table-vcenter card-table border-x border-y">
-                                            <thead>
-                                                <tr>
-                                                    <th>항목</th>
-                                                    <th class="w-1">관리</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="tblLoadPassAssemblyPathItems">
-                                            </tbody>
-                                        </table>
-                                        <small class="form-hint mt-2">
-                                            litesearch 모듈 부트스트레핑 과정에서 어셈블리 로드를 건너 뛸 Unmanaged dll 목록입니다. 파일 경로는 모듈의 기본 디렉토리를 기준으로 설정 해야합니다.
-                                        </small>
-                                    </div>
                                 </td>
                             </tr>
                         </tbody>
@@ -304,52 +360,11 @@
             </div>
         </div>
     </div>
-    <div id="mdlLoadPassAssemblyPath" class="modal fade" tabindex="-1" role="dialog" aria-modal="true">
-        <input id="txtBaseItemPathID" type="hidden">
-        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 id="lblItemPathTitle" class="modal-title"></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <label class="col-3 col-form-label">Assembly 파일경로</label>
-                        <div class="col">
-                            <input id="txtItemPathID" type="text" class="form-control">
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" id="btnManageLoadPassAssemblyPath" syn-events="['click']" class="btn btn-primary" data-bs-dismiss="modal">확인</button>
-                </div>
-            </div>
-        </div>
-    </div>
     <script id="tplActionItem" type="x-tmpl-mustache">
      {{#items}}
     <tr syn-value="{{EventID}}">
         <td>
             {{EventID}}
-        </td>
-        <td>
-            <div class="btn-list flex-nowrap">
-                <button name="btnActionEdit" type="button" class="btn btn-icon bg-muted-lt">
-                    <i class="f:18 ti ti-edit"></i>
-                </button>
-                <button name="btnActionDelete" type="button" class="btn btn-icon bg-muted-lt">
-                    <i class="f:18 ti ti-minus"></i>
-                </button>
-            </div>
-        </td>
-    </tr>
-     {{/items}}
-    </script>
-    <script id="tplAssemblyPathItem" type="x-tmpl-mustache">
-     {{#items}}
-    <tr syn-value="{{ItemPathID}}">
-        <td>
-            {{ItemPathID}}
         </td>
         <td>
             <div class="btn-list flex-nowrap">

@@ -34,7 +34,6 @@ namespace openapi
         public static string DatabaseContractPath = "";
         public static int CircuitBreakResetSecond = 30;
         public static bool IsApiFindServer = false;
-        public static bool IsTransactionLogging = false;
         public static string ModuleLogFilePath = "";
         public static bool IsLogServer = false;
         public static string LogServerUrl = "";

@@ -7,10 +7,9 @@
         "SystemID": "HANDSTACK",
         "ModuleBasePath": "../modules/openapi",
         "ManagerEmailID": "manager@handstack.kr",
-        "ManagerSHA256Password": "48c691ca3e9d0e01bdaab5923534a1ebc01dcb52f87bddccbae6e185f3f481d9", // handstack12345
+        "ManagerSHA256Password": "48c691ca3e9d0e01bdaab5923534a1ebc01dcb52f87bddccbae6e185f3f481d9",
         "ModuleConfigurationUrl": "http://localhost:8000/openapi/api/managed/initialize-settings",
         "BusinessServerUrl": "http://localhost:8000/transact/api/transaction/execute",
-        "IsTransactionLogging": false,
         "ModuleLogFilePath": "../log/openapi/module.log",
         "IsLogServer": true,
         "LogServerUrl": "http://localhost:8000/logger/api/log/insert",

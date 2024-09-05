@@ -13,7 +13,6 @@ let $module_settings = {
                 "ManagerSHA256Password": "48c691ca3e9d0e01bdaab5923534a1ebc01dcb52f87bddccbae6e185f3f481d9",
                 "ModuleConfigurationUrl": "http://localhost:8000/openapi/api/managed/initialize-settings",
                 "BusinessServerUrl": "http://localhost:8000/transact/api/transaction/execute",
-                "IsTransactionLogging": false,
                 "ModuleLogFilePath": "../log/openapi/module.log",
                 "IsLogServer": true,
                 "LogServerUrl": "http://localhost:8000/logger/api/log/insert",
@@ -63,15 +62,22 @@ let $module_settings = {
 
                 syn.$l.get('txtSystemID').value = $this.prop.moduleConfig.ModuleConfig.SystemID;
                 syn.$l.get('txtBusinessServerUrl').value = $this.prop.moduleConfig.ModuleConfig.BusinessServerUrl;
+                syn.$l.get('txtModuleBasePath').value = $this.prop.moduleConfig.ModuleConfig.ModuleBasePath;
+                syn.$l.get('txtManagerEmailID').value = $this.prop.moduleConfig.ModuleConfig.ManagerEmailID;
+                syn.$l.get('txtManagerSHA256Password').value = $this.prop.moduleConfig.ModuleConfig.ManagerSHA256Password;
                 syn.$l.get('txtModuleConfigurationUrl').value = $this.prop.moduleConfig.ModuleConfig.ModuleConfigurationUrl;
                 syn.$l.get('txtModuleLogFilePath').value = $this.prop.moduleConfig.ModuleConfig.ModuleLogFilePath;
-                syn.$l.get('txtModuleBasePath').value = $this.prop.moduleConfig.ModuleConfig.ModuleBasePath;
-                syn.$l.get('txtWWWRootBasePath').value = $this.prop.moduleConfig.ModuleConfig.WWWRootBasePath;
-                syn.$l.get('txtIndexingBasePath').value = $this.prop.moduleConfig.ModuleConfig.IndexingBasePath;
-                syn.$l.get('txtConnectionString').value = $this.prop.moduleConfig.ModuleConfig.ConnectionString;
+                syn.$l.get('chkIsLogServer').checked = $string.toBoolean($this.prop.moduleConfig.ModuleConfig.IsLogServer);
+                syn.$l.get('txtLogServerUrl').value = $this.prop.moduleConfig.ModuleConfig.LogServerUrl;
+
+                syn.$l.get('txtApplicationID').value = $this.prop.moduleConfig.ModuleConfig.DataSource.ApplicationID;
+                syn.$l.get('txtProjectID').value = $this.prop.moduleConfig.ModuleConfig.DataSource.ProjectID;
+                syn.$l.get('txtDataSourceID').value = $this.prop.moduleConfig.ModuleConfig.DataSource.DataSourceID;
+                syn.$l.get('ddlDataProvider').value = $this.prop.moduleConfig.ModuleConfig.DataSource.DataProvider;
+                syn.$l.get('txtConnectionString').value = $this.prop.moduleConfig.ModuleConfig.DataSource.ConnectionString;
+                syn.$l.get('chkIsEncryption').value = $string.toBoolean($this.prop.moduleConfig.ModuleConfig.DataSource.IsEncryption);
 
                 $this.method.sectionRender('MediatorAction');
-                $this.method.sectionRender('LoadPassAssemblyPath');
             } catch (error) {
                 syn.$w.notify('error', `JSON을 적용하지 못했습니다. ${error.message}`);
                 syn.$l.eventLog('$this.event.btnApplyConfig_click', error.stack, 'Error');
@@ -88,12 +94,20 @@ let $module_settings = {
 
                     $this.prop.moduleConfig.ModuleConfig.SystemID = syn.$l.get('txtSystemID').value;
                     $this.prop.moduleConfig.ModuleConfig.BusinessServerUrl = syn.$l.get('txtBusinessServerUrl').value;
+                    $this.prop.moduleConfig.ModuleConfig.ModuleBasePath = syn.$l.get('txtModuleBasePath').value;
+                    $this.prop.moduleConfig.ModuleConfig.ManagerEmailID = syn.$l.get('txtManagerEmailID').value;
+                    $this.prop.moduleConfig.ModuleConfig.ManagerSHA256Password = syn.$l.get('txtManagerSHA256Password').value;
                     $this.prop.moduleConfig.ModuleConfig.ModuleConfigurationUrl = syn.$l.get('txtModuleConfigurationUrl').value;
                     $this.prop.moduleConfig.ModuleConfig.ModuleLogFilePath = syn.$l.get('txtModuleLogFilePath').value;
-                    $this.prop.moduleConfig.ModuleConfig.ModuleBasePath = syn.$l.get('txtModuleBasePath').value;
-                    $this.prop.moduleConfig.ModuleConfig.WWWRootBasePath = syn.$l.get('txtWWWRootBasePath').value;
-                    $this.prop.moduleConfig.ModuleConfig.IndexingBasePath = syn.$l.get('txtIndexingBasePath').value;
-                    $this.prop.moduleConfig.ModuleConfig.ConnectionString = syn.$l.get('txtConnectionString').value;
+                    $this.prop.moduleConfig.ModuleConfig.IsLogServer = $string.toBoolean(syn.$l.get('chkIsLogServer').checked);
+                    $this.prop.moduleConfig.ModuleConfig.LogServerUrl = syn.$l.get('txtLogServerUrl').value;
+
+                    $this.prop.moduleConfig.ModuleConfig.DataSource.ApplicationID = syn.$l.get('txtApplicationID').value;
+                    $this.prop.moduleConfig.ModuleConfig.DataSource.ProjectID = syn.$l.get('txtProjectID').value;
+                    $this.prop.moduleConfig.ModuleConfig.DataSource.DataSourceID = syn.$l.get('txtDataSourceID').value;
+                    $this.prop.moduleConfig.ModuleConfig.DataSource.DataProvider = syn.$l.get('ddlDataProvider').value;
+                    $this.prop.moduleConfig.ModuleConfig.DataSource.ConnectionString = syn.$l.get('txtConnectionString').value;
+                    $this.prop.moduleConfig.ModuleConfig.DataSource.IsEncryption = $string.toBoolean(syn.$l.get('chkIsEncryption').value);
 
                     syn.$l.get('txtJsonView').value = JSON.stringify($this.prop.moduleConfig, null, 4);
                 } catch (error) {
@@ -119,13 +133,6 @@ let $module_settings = {
             });
         },
 
-        btnLoadPassAssemblyPath_click() {
-            $this.method.showModal('LoadPassAssemblyPath', {
-                itemPathID: '',
-                title: 'LoadPassAssemblyPath 추가'
-            });
-        },
-
         btnActionEdit_click(evt) {
             var baseTableID = this.closest('table').id;
             if (baseTableID == 'tblEventAction' || baseTableID == 'tblSubscribeAction') {
@@ -137,15 +144,6 @@ let $module_settings = {
                     action: action,
                     eventID: eventID,
                     title: 'EventAction 수정'
-                });
-            }
-            else if (baseTableID == 'tblLoadPassAssemblyPath') {
-                var baseEL = this.closest('tr');
-                var values = baseEL.getAttribute('syn-value');
-                var itemPathID = baseEL.querySelector('td:nth-child(1)').innerText.trim();
-                $this.method.showModal('LoadPassAssemblyPath', {
-                    itemPathID: itemPathID,
-                    title: 'LoadPassAssemblyPath 수정'
                 });
             }
         },
@@ -167,15 +165,6 @@ let $module_settings = {
 
                 $array.removeAt(actions, actions.indexOf(baseEventID));
                 $this.method.sectionRender('MediatorAction');
-            }
-            else if (baseTableID == 'tblLoadPassAssemblyPath') {
-                var baseEL = this.closest('tr');
-                var baseItemPathID = baseEL.getAttribute('syn-value');
-
-                var items = $this.prop.moduleConfig.LoadPassAssemblyPath;
-
-                $array.removeAt(items, items.indexOf(baseItemPathID));
-                $this.method.sectionRender('LoadPassAssemblyPath');
             }
         },
 
@@ -213,26 +202,11 @@ let $module_settings = {
             $this.prop.modal.hide();
         },
 
-        btnManageLoadPassAssemblyPath_click(evt) {
-            var baseItemPathID = syn.$l.get('txtBaseItemPathID').value;
-            var itemPathID = syn.$l.get('txtItemPathID').value.trim();
-
-            var items = $this.prop.moduleConfig.LoadPassAssemblyPath;
-
-            if (baseItemPathID == '') {
-                if (items.includes(itemPathID) == true) {
-                    syn.$w.notify('information', `중복된 파일 경로를 입력 할 수 없습니다.`);
-                    return;
-                }
-                else {
-                    items.push(itemPathID);
-                }
+        txtManagerSHA256Password_blur() {
+            var value = syn.$l.get('txtManagerSHA256Password').value.trim();
+            if (/^[a-f0-9]{64}$/i.test(value) == false) {
+                syn.$l.get('txtManagerSHA256Password').value = syn.$c.sha256(value);
             }
-            else {
-                items[items.indexOf(baseItemPathID)] = itemPathID;
-            }
-
-            $this.method.sectionRender('LoadPassAssemblyPath');
         }
     },
 
@@ -258,24 +232,6 @@ let $module_settings = {
                     setTimeout(() => { syn.$l.get('txtEventID').focus(); }, 100);
                 }
             }
-            else if (elID == 'LoadPassAssemblyPath') {
-                var el = syn.$l.get('mdlLoadPassAssemblyPath');
-                if (el && syn.$m.hasClass(el, 'show') == false) {
-                    options = syn.$w.argumentsExtend({
-                        itemPathID: '',
-                        title: ''
-                    }, options || {});
-
-                    syn.$l.get('lblItemPathTitle').innerText = options.title;
-                    syn.$l.get('txtItemPathID').value = options.itemPathID;
-                    syn.$l.get('txtBaseItemPathID').value = options.itemPathID;
-
-                    $this.prop.modal = new bootstrap.Modal(el);
-                    $this.prop.modal.show();
-
-                    setTimeout(() => { syn.$l.get('txtItemPathID').focus(); }, 100);
-                }
-            }
         },
 
         sectionRender(sectionID) {
@@ -293,14 +249,6 @@ let $module_settings = {
 
                     $this.method.drawHtmlTemplate(action.tbodyID, 'tplActionItem', dataSource);
                 });
-            }
-            else if (sectionID == 'LoadPassAssemblyPath') {
-                var pathList = $this.prop.moduleConfig.LoadPassAssemblyPath;
-                var dataSource = {
-                    items: pathList.map(pathID => ({ ItemPathID: pathID.trim() }))
-                };
-
-                $this.method.drawHtmlTemplate('tblLoadPassAssemblyPathItems', 'tplAssemblyPathItem', dataSource);
             }
         },
 

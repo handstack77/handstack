@@ -71,13 +71,8 @@ namespace openapi
                             ModuleConfiguration.ModuleDataSource.IsEncryption = "N";
                         }
                         ModuleConfiguration.BusinessServerUrl = moduleConfig.BusinessServerUrl;
-                        ModuleConfiguration.IsTransactionLogging = moduleConfig.IsTransactionLogging;
                         ModuleConfiguration.ModuleLogFilePath = string.IsNullOrEmpty(moduleConfig.ModuleLogFilePath) == true ? "transaction.log" : new FileInfo(moduleConfig.ModuleLogFilePath).FullName;
-                        if (ModuleConfiguration.IsTransactionLogging == true)
-                        {
-                            var loggerConfiguration = CreateLoggerConfiguration(ModuleConfiguration.ModuleLogFilePath);
-                            ModuleConfiguration.ModuleLogger = loggerConfiguration.CreateLogger();
-                        }
+                        ModuleConfiguration.ModuleLogger = CreateLoggerConfiguration(ModuleConfiguration.ModuleLogFilePath).CreateLogger();
                         ModuleConfiguration.IsLogServer = moduleConfig.IsLogServer;
                         ModuleConfiguration.LogServerUrl = moduleConfig.LogServerUrl;
 

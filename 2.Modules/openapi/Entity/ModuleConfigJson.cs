@@ -35,8 +35,6 @@ namespace openapi.Entity
 
         public DataSource DataSource { get; set; }
 
-        public bool IsTransactionLogging { get; set; }
-
         public string ModuleLogFilePath { get; set; }
 
         public bool IsLogServer { get; set; }
@@ -53,7 +51,6 @@ namespace openapi.Entity
             ModuleConfigurationUrl = "";
             DataSource = new DataSource();
             BusinessServerUrl = "";
-            IsTransactionLogging = false;
             ModuleLogFilePath = "";
             IsLogServer = false;
             LogServerUrl = "";
