@@ -1040,6 +1040,16 @@
             }
 
             return result;
+        },
+
+        split(value, flag) {
+            var result = [];
+            if ($object.isNullOrUndefined(value) == false && $object.isString(value) == true) {
+                flag = flag || ',';
+                result = value.split(flag).map(item => item.trim()).filter(item => item.length > 0);
+            }
+
+            return result;
         }
     });
     context.$array = $array;

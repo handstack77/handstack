@@ -1,4 +1,4 @@
-/*!
+﻿/*!
 HandStack Javascript Library v1.0.0
 https://syn.handshake.kr
 
@@ -1960,6 +1960,16 @@ globalRoot.syn = syn;
                 result = value.map(function (v) {
                     return sorted.indexOf(v) + 1;
                 });
+            }
+
+            return result;
+        },
+
+        split(value, flag) {
+            var result = [];
+            if ($object.isNullOrUndefined(value) == false && $object.isString(value) == true) {
+                flag = flag || ',';
+                result = value.split(flag).map(item => item.trim()).filter(item => item.length > 0);
             }
 
             return result;
