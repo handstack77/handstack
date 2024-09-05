@@ -350,41 +350,54 @@
         },
 
         getSelectedIndex(elID) {
-            var result = '';
+            var result = [];
             var el = syn.$l.get(elID);
             if ($object.isNullOrUndefined(el) == false) {
-                result = el.options.selectedIndex;
+                Array.from(el.options).forEach((option, index) => {
+                    if (option.selected == true) {
+                        result.push(index);
+                    }
+                });
             }
 
             return result;
         },
 
-        setSelectedIndex(elID, index) {
+        setSelectedIndex(elID, value) {
             var el = syn.$l.get(elID);
             if ($object.isNullOrUndefined(el) == false) {
-                el.options.selectedIndex = index;
+                var length = el.options.length;
+                for (var i = 0; i < length; i++) {
+                    if ($object.isNumber(value) == true) {
+                        if (i == value) {
+                            item.selected = true;
+                        }
+                    }
+                    else if ($object.isArray(value) == true) {
+                        if (value.includes(i) > -1) {
+                            item.selected = true;
+                        }
+                    }
+                }
+                $multiselect.controlReload(elID);
             }
         },
 
         getSelectedValue(elID) {
-            var result = '';
+            var result = [];
             var el = syn.$l.get(elID);
             if ($object.isNullOrUndefined(el) == false) {
-                if (el.options.selectedIndex > -1) {
-                    result = el.options[el.options.selectedIndex].value;
-                }
+                result = Array.from(el.selectedOptions).map(option => option.value);
             }
 
             return result;
         },
 
         getSelectedText(elID) {
-            var result = '';
+            var result = [];
             var el = syn.$l.get(elID);
             if ($object.isNullOrUndefined(el) == false) {
-                if (el.options.selectedIndex > -1) {
-                    result = el.options[el.options.selectedIndex].text;
-                }
+                result = Array.from(el.selectedOptions).map(option => option.text);
             }
 
             return result;
@@ -403,7 +416,7 @@
                         }
                     }
                     else if ($object.isArray(value) == true) {
-                        if (value.indexOf(item.value) > -1) {
+                        if (value.includes(item.value) > -1) {
                             item.selected = true;
                         }
                     }
@@ -425,7 +438,7 @@
                         }
                     }
                     else if ($object.isArray(text) == true) {
-                        if (text.indexOf(item.text) > -1) {
+                        if (text.includes(item.text) > -1) {
                             item.selected = true;
                         }
                     }
