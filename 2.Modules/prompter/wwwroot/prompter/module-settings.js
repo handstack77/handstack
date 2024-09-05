@@ -50,9 +50,6 @@ let $module_settings = {
 
             $this.event.btnImportDefaultConfig_click();
             $this.event.btnApplyConfig_click();
-
-            $this.method.sectionRender('MediatorAction');
-            $this.method.sectionRender('LoadPassAssemblyPath');
         }
     },
 
@@ -79,6 +76,9 @@ let $module_settings = {
                 syn.$l.get('txtWWWRootBasePath').value = $this.prop.moduleConfig.ModuleConfig.WWWRootBasePath;
                 syn.$l.get('txtIndexingBasePath').value = $this.prop.moduleConfig.ModuleConfig.IndexingBasePath;
                 syn.$l.get('txtConnectionString').value = $this.prop.moduleConfig.ModuleConfig.ConnectionString;
+
+                $this.method.sectionRender('MediatorAction');
+                $this.method.sectionRender('LoadPassAssemblyPath');
             } catch (error) {
                 syn.$w.notify('error', `JSON을 적용하지 못했습니다. ${error.message}`);
                 syn.$l.eventLog('$this.event.btnApplyConfig_click', error.stack, 'Error');
@@ -225,6 +225,7 @@ let $module_settings = {
             }
 
             $this.method.sectionRender('MediatorAction');
+            $this.prop.modal.hide();
         },
 
         btnManageLoadPassAssemblyPath_click(evt) {

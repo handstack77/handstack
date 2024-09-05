@@ -98,10 +98,6 @@ let $module_settings = {
 
             $this.event.btnImportDefaultConfig_click();
             $this.event.btnApplyConfig_click();
-
-            $this.method.sectionRender('MediatorAction');
-            $this.method.sectionRender('ContractBasePath');
-            $this.method.sectionRender('DataSource');
         }
     },
 
@@ -122,14 +118,18 @@ let $module_settings = {
 
                 syn.$l.get('txtSystemID').value = $this.prop.moduleConfig.ModuleConfig.SystemID;
                 syn.$l.get('txtBusinessServerUrl').value = $this.prop.moduleConfig.ModuleConfig.BusinessServerUrl;
-                syn.$l.get('txtCircuitBreakResetSecond').value = $this.prop.moduleConfig.ModuleConfig.CircuitBreakResetSecond;
-                syn.$l.get('txtDefaultCommandTimeout').value = $this.prop.moduleConfig.ModuleConfig.DefaultCommandTimeout;
+                syn.$l.get('txtCircuitBreakResetSecond').value = $string.isNumber($this.prop.moduleConfig.ModuleConfig.CircuitBreakResetSecond) == true ? $string.toNumber($this.prop.moduleConfig.ModuleConfig.CircuitBreakResetSecond) : 60;
+                syn.$l.get('txtDefaultCommandTimeout').value = $string.isNumber($this.prop.moduleConfig.ModuleConfig.DefaultCommandTimeout) == true ? $string.toNumber($this.prop.moduleConfig.ModuleConfig.DefaultCommandTimeout) : 30;
                 syn.$l.get('chkIsTransactionLogging').checked = $string.toBoolean($this.prop.moduleConfig.ModuleConfig.IsTransactionLogging);
                 syn.$l.get('txtModuleLogFilePath').value = $this.prop.moduleConfig.ModuleConfig.ModuleLogFilePath;
                 syn.$l.get('chkIsLogServer').checked = $string.toBoolean($this.prop.moduleConfig.ModuleConfig.IsLogServer);
                 syn.$l.get('txtLogServerUrl').value = $this.prop.moduleConfig.ModuleConfig.LogServerUrl;
                 syn.$l.get('chkIsProfileLogging').checked = $string.toBoolean($this.prop.moduleConfig.ModuleConfig.IsProfileLogging);
                 syn.$l.get('txtProfileLogFilePath').value = $this.prop.moduleConfig.ModuleConfig.ProfileLogFilePath;
+
+                $this.method.sectionRender('MediatorAction');
+                $this.method.sectionRender('ContractBasePath');
+                $this.method.sectionRender('DataSource');
             } catch (error) {
                 syn.$w.notify('error', `JSON을 적용하지 못했습니다. ${error.message}`);
                 syn.$l.eventLog('$this.event.btnApplyConfig_click', error.stack, 'Error');
@@ -306,6 +306,7 @@ let $module_settings = {
             }
 
             $this.method.sectionRender('MediatorAction');
+            $this.prop.modal.hide();
         },
 
         btnManageContractBasePath_click(evt) {
@@ -456,7 +457,7 @@ let $module_settings = {
                         syn.$l.get('txtApplicationID_DataSource').value = '';
                         syn.$l.get('txtProjectID_DataSource').value = '';
                         syn.$l.get('txtDataSourceID_DataSource').value = '';
-                        syn.$l.get('ddlDataProvider_DataSource').value = '';
+                        syn.$l.get('ddlDataProvider_DataSource').value = 'SqlServer';
                         syn.$l.get('txtBaseDataID_DataSource').value = '';
                         syn.$l.get('txtConnectionString_DataSource').value = '';
                         syn.$l.get('chkIsEncryption').checked = false;
