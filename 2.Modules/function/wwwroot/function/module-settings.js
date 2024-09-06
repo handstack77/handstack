@@ -155,30 +155,30 @@ let $module_settings = {
                 try {
                     $this.prop.moduleConfig.ModuleID = syn.$l.get('txtModuleID').value;
                     $this.prop.moduleConfig.Name = syn.$l.get('txtName').value;
-                    $this.prop.moduleConfig.IsBundledWithHost = $string.toBoolean(syn.$l.get('chkIsBundledWithHost').checked);
+                    $this.prop.moduleConfig.IsBundledWithHost = syn.$l.get('chkIsBundledWithHost').checked;
                     $this.prop.moduleConfig.Version = syn.$l.get('txtVersion').value;
 
                     $this.prop.moduleConfig.ModuleConfig.SystemID = syn.$l.get('txtSystemID').value;
                     $this.prop.moduleConfig.ModuleConfig.BusinessServerUrl = syn.$l.get('txtBusinessServerUrl').value;
                     $this.prop.moduleConfig.ModuleConfig.ModuleLogFilePath = syn.$l.get('txtModuleLogFilePath').value;
-                    $this.prop.moduleConfig.ModuleConfig.CircuitBreakResetSecond = syn.$l.get('txtCircuitBreakResetSecond').value;
+                    $this.prop.moduleConfig.ModuleConfig.CircuitBreakResetSecond = $string.isNumber(syn.$l.get('txtCircuitBreakResetSecond').value) ? $string.toNumber(syn.$l.get('txtCircuitBreakResetSecond').value) : 60;
                     $this.prop.moduleConfig.ModuleConfig.ModuleLogFilePath = syn.$l.get('txtModuleLogFilePath').value;
-                    $this.prop.moduleConfig.ModuleConfig.IsLogServer = $string.toBoolean(syn.$l.get('chkIsLogServer').checked);
+                    $this.prop.moduleConfig.ModuleConfig.IsLogServer = syn.$l.get('chkIsLogServer').checked;
                     $this.prop.moduleConfig.ModuleConfig.LogServerUrl = syn.$l.get('txtLogServerUrl').value;
 
                     $this.prop.moduleConfig.ModuleConfig.NodeFunctionConfig.LocalStoragePath = syn.$l.get('txtLocalStoragePath_NodeFunctionConfig').value;
                     $this.prop.moduleConfig.ModuleConfig.NodeFunctionConfig.LogMinimumLevel = syn.$l.get('txtLogMinimumLevel_NodeFunctionConfig').value;
                     $this.prop.moduleConfig.ModuleConfig.NodeFunctionConfig.FileLogBasePath = syn.$l.get('txtFileLogBasePath_NodeFunctionConfig').value;
                     $this.prop.moduleConfig.ModuleConfig.NodeFunctionConfig.TimeoutMS = $string.isNumber(syn.$l.get('txtTimeoutMS_NodeFunctionConfig').value) ? $string.toNumber(syn.$l.get('txtTimeoutMS_NodeFunctionConfig').value) : -1;
-                    $this.prop.moduleConfig.ModuleConfig.NodeFunctionConfig.IsSingleThread = $string.toBoolean(syn.$l.get('chkIsSingleThread_NodeFunctionConfig').checked);
-                    $this.prop.moduleConfig.ModuleConfig.NodeFunctionConfig.IsWatchGracefulShutdown = $string.toBoolean(syn.$l.get('chkIsWatchGracefulShutdown_NodeFunctionConfig').checked);
-                    $this.prop.moduleConfig.ModuleConfig.NodeFunctionConfig.EnableFileWatching = $string.toBoolean(syn.$l.get('chkEnableFileWatching_NodeFunctionConfig').checked);
+                    $this.prop.moduleConfig.ModuleConfig.NodeFunctionConfig.IsSingleThread = syn.$l.get('chkIsSingleThread_NodeFunctionConfig').checked;
+                    $this.prop.moduleConfig.ModuleConfig.NodeFunctionConfig.IsWatchGracefulShutdown = syn.$l.get('chkIsWatchGracefulShutdown_NodeFunctionConfig').checked;
+                    $this.prop.moduleConfig.ModuleConfig.NodeFunctionConfig.EnableFileWatching = syn.$l.get('chkEnableFileWatching_NodeFunctionConfig').checked;
                     $this.prop.moduleConfig.ModuleConfig.NodeFunctionConfig.WatchFileNamePatterns = $array.split(syn.$l.get('txtWatchFileNamePatterns_NodeFunctionConfig').value);
                     $this.prop.moduleConfig.ModuleConfig.NodeFunctionConfig.NodeAndV8Options = syn.$l.get('txtNodeAndV8Options_NodeFunctionConfig').value;
                     $this.prop.moduleConfig.ModuleConfig.NodeFunctionConfig.EnvironmentVariables = syn.$l.get('txtEnvironmentVariables_NodeFunctionConfig').value;
 
                     $this.prop.moduleConfig.ModuleConfig.CSharpFunctionConfig.FileLogBasePath = syn.$l.get('txtFileLogBasePath_CSharpFunctionConfig').value;
-                    $this.prop.moduleConfig.ModuleConfig.CSharpFunctionConfig.EnableFileWatching = $string.toBoolean(syn.$l.get('chkEnableFileWatching_CSharpFunctionConfig').checked);
+                    $this.prop.moduleConfig.ModuleConfig.CSharpFunctionConfig.EnableFileWatching = syn.$l.get('chkEnableFileWatching_CSharpFunctionConfig').checked;
                     $this.prop.moduleConfig.ModuleConfig.CSharpFunctionConfig.WatchFileNamePatterns = $array.split(syn.$l.get('txtWatchFileNamePatterns_CSharpFunctionConfig').value);
 
                     syn.$l.get('txtJsonView').value = JSON.stringify($this.prop.moduleConfig, null, 4);
@@ -373,7 +373,7 @@ let $module_settings = {
             var items = $this.prop.moduleConfig.ModuleConfig.FunctionSource;
             if (baseDataID == '') {
                 if (items.includes(dataID) == true) {
-                    syn.$w.notify('information', `중복된 데이터 원본을 입력 할 수 없습니다.`);
+                    syn.$w.alert(`중복된 항목을 입력 할 수 없습니다.`);
                     return;
                 }
                 else {

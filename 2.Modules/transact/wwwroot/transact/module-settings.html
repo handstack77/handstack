@@ -6,6 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="/qramework/img/favicon.ico" type="image/x-icon" />
     <style>
+        .table thead th, .markdown > table thead th {
+            text-transform: none !important;
+        }
+
         .nav-pills .nav-link.active,
         .nav-pills .show > .nav-link {
             border: 1px solid var(--tblr-nav-pills-link-active-color);
@@ -71,7 +75,7 @@
                                         <input id="chkIsBundledWithHost" class="form-check-input" type="checkbox">
                                     </label>
                                     <small class="form-hint">
-                                        모듈이 호스트 애플리케이션과 함께 번들로 제공되는지 여부를 나타냅니다. 모놀리식 아키텍처로 개발하는 경우 true로 설정하며, 이는 ACK와 참조 프로젝트의 모든 기능이 단일 코드 베이스에서 관리됨을 의미합니다. (기본값: false)
+                                        모듈이 호스트 애플리케이션과 함께 번들로 제공되는지 여부를 나타냅니다. 모놀리식 아키텍처로 개발하는 경우 true로 설정하며, 이는 ack 프로젝트와 연관된 모든 module 프로젝트가 참조로 연결되어 단일 코드 베이스에서 관리됨을 의미합니다. (기본값: false)
                                     </small>
                                 </td>
                             </tr>
@@ -108,12 +112,144 @@
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="bg-body">ModuleConfigurationUrl</td>
+                                                <td class="bg-body">CircuitBreakResetSecond</td>
                                                 <td>
-                                                    <input id="txtModuleConfigurationUrl" type="text" class="form-control">
+                                                    <input id="txtCircuitBreakResetSecond" type="number" class="form-control">
                                                     <small class="form-hint mt-2">
-                                                        ack 프로그램이 실행되고 모듈 초기화를 실행하는 Url을 입력합니다. (기본값: http://localhost:8000/litesearch/api/managed/initialize-settings)
+                                                        거래 로그 전송 오류시 재시도 할 때 까지 대기하기 위한 초를 입력합니다. (기본값: 30)
                                                     </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">IsValidationRequest</td>
+                                                <td>
+                                                    <label class="form-check mb-2">
+                                                        <input id="chkIsValidationRequest" class="form-check-input" type="checkbox">
+                                                    </label>
+                                                    <small class="form-hint">
+                                                        transact 모듈의 요청에 대한 토큰 검증을 실행할 지 유무를 설정합니다. (기본값: false)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">IsAllowDynamicRequest</td>
+                                                <td>
+                                                    <label class="form-check mb-2">
+                                                        <input id="chkIsAllowDynamicRequest" class="form-check-input" type="checkbox">
+                                                    </label>
+                                                    <small class="form-hint">
+                                                        transact 모듈내에 계약 정보가 없더라도 요청 정보를 기준으로 실행할 지 유무를 설정합니다. (기본값: false)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">AllowTenantTransactionCommands</td>
+                                                <td>
+                                                    <select id="ddlAllowTenantTransactionCommands" syn-options="{toSynControl: false}" class="form-select" multiple>
+                                                        <option value="D" selected>D: Database</option>
+                                                        <option value="C">C: Console</option>
+                                                        <option value="T">T: Task</option>
+                                                        <option value="A">A: API</option>
+                                                        <option value="F">F: Function</option>
+                                                        <option value="P">P: Prompter</option>
+                                                        <option value="R">R: ReturnResult</option>
+                                                    </select>
+                                                    <small class="form-hint">
+                                                        요청 처리 모듈(dbclient, function 등)에 태넌트 ID를 전달할 명령 구분입니다. Ctrl + Click 조합으로 여러 항목을 선택할 수 있습니다. (기본값: D)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">AvailableEnvironment</td>
+                                                <td>
+                                                    <select id="ddlAvailableEnvironment" syn-options="{toSynControl: false}" class="form-select" multiple>
+                                                        <option value="D" selected>D: Development</option>
+                                                        <option value="S">S: Staging</option>
+                                                        <option value="T">T: Test</option>
+                                                        <option value="P">P: Production</option>
+                                                    </select>
+                                                    <small class="form-hint">
+                                                        요청 가능한 환경 구분입니다. Ctrl + Click 조합으로 여러 항목을 선택할 수 있습니다. (기본값: D)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">IsTransactAggregate</td>
+                                                <td>
+                                                    <label class="form-check mb-2">
+                                                        <input id="chkIsTransactAggregate" class="form-check-input" type="checkbox">
+                                                    </label>
+                                                    <small class="form-hint">
+                                                        요청/응답 정보에 대한 집계 유무를 설정합니다. (기본값: false)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">TransactionLogBasePath</td>
+                                                <td>
+                                                    <input id="txtTransactionLogBasePath" type="text" class="form-control">
+                                                    <small class="form-hint">
+                                                        요청/응답 정보에 대한 집계 데이터베이스 기본 디렉토리 입니다. 개발 목적이 아닌경우 기본값을 적용 해야합니다. (기본값: ../sqlite/aggregate)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">IsDataMasking</td>
+                                                <td>
+                                                    <label class="form-check mb-2">
+                                                        <input id="chkIsDataMasking" class="form-check-input" type="checkbox">
+                                                    </label>
+                                                    <small class="form-hint">
+                                                        데이터 마스킹 기능의 유무를 설정합니다. (기본값: true)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">MaskingChar</td>
+                                                <td>
+                                                    <input id="txtMaskingChar" type="text" class="form-control" maxlength="1">
+                                                    <small class="form-hint">
+                                                        마스킹을 처리할 때 치환하는 문자를 설정합니다. (기본값: *)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">MaskingMethod</td>
+                                                <td>
+                                                    <select id="ddlMaskingMethod" class="form-select">
+                                                        <option value="Syn" selected>Syn</option>
+                                                        <option value="Aes">Aes</option>
+                                                    </select>
+                                                    <small class="form-hint">
+                                                        마스킹 데이터를 확인하기 위한 암호화 방식을 설정합니다. (기본값: Syn)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">
+                                                    ContractBasePath
+                                                    <div class="mt-2">
+                                                        <button type="button" id="btnContractBasePath" syn-events="['click']" class="btn btn-icon bg-muted-lt">
+                                                            <i class="f:18 ti ti-plus"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="table-responsive">
+                                                        <table id="tblContractBasePath" class="table table-vcenter card-table border-x border-y">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>디렉토리 경로</th>
+                                                                    <th class="w-1">관리</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="tblContractBasePathItems">
+                                                            </tbody>
+                                                        </table>
+                                                        <small class="form-hint mt-2">
+                                                            transact 모듈의 거래 파일들이 있는 기본 디렉토리 경로를 입력합니다. 상대경로는 모듈의 기본 디렉토리를 기준으로 설정됩니다.
+                                                        </small>
+                                                    </div>
                                                 </td>
                                             </tr>
                                             <tr>
@@ -126,30 +262,128 @@
                                                 </td>
                                             </tr>
                                             <tr>
+                                                <td class="bg-body">IsLogServer</td>
+                                                <td>
+                                                    <label class="form-check mb-2">
+                                                        <input id="chkIsLogServer" class="form-check-input" type="checkbox">
+                                                    </label>
+                                                    <small class="form-hint">
+                                                        transact 모듈의 로그를 logger 모듈을 운영하는 서버로 저장합니다. (기본값: false)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">LogServerUrl</td>
+                                                <td>
+                                                    <input id="txtLogServerUrl" type="text" class="form-control">
+                                                    <small class="form-hint">
+                                                        logger 모듈을 운영하는 서버의 URL 경로입니다. (기본값: http://localhost:8000/logger/api/log/insert)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">UseApiAuthorize</td>
+                                                <td>
+                                                    <label class="form-check mb-2">
+                                                        <input id="chkUseApiAuthorize" class="form-check-input" type="checkbox">
+                                                    </label>
+                                                    <small class="form-hint">
+                                                        사용자 인증 토큰 확인 기능의 동작 유무를 설정합니다. 운영 환경에서는 true 를 권장합니다. (기본값: false)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">BypassAuthorizeIP</td>
+                                                <td>
+                                                    <input type="text" id="txtBypassAuthorizeIP" class="form-control">
+                                                    <small class="form-hint">
+                                                        내부 시스템간의 관리 목적의 거래를 위한 인증을 건너뛰고 거래를 수행할 수 있는 IP 주소를 설정합니다. "," 로 구분하여 여러 패턴을 등록할 수 있습니다. (기본값: D)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">IsCodeDataCache</td>
+                                                <td>
+                                                    <label class="form-check mb-2">
+                                                        <input id="chkIsCodeDataCache" class="form-check-input" type="checkbox">
+                                                    </label>
+                                                    <small class="form-hint">
+                                                        코드 데이터를 캐시에 저장합니다. (기본값: true)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="bg-body">CodeDataCacheTimeout</td>
+                                                <td>
+                                                    <input id="txtCodeDataCacheTimeout" type="number" class="form-control">
+                                                    <small class="form-hint">
+                                                        코드 데이터를 캐시에 유지하는 주기(분)을 설정합니다. (기본값: 20)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                            <tr>
                                                 <td class="bg-body">ModuleBasePath</td>
                                                 <td>
                                                     <input id="txtModuleBasePath" type="text" class="form-control">
                                                     <small class="form-hint">
-                                                        모듈의 기본 경로입니다. 개발 목적이 아닌경우 기본값을 적용해야합니다. (기본값: ../modules/qramework)
+                                                        모듈의 기본 경로입니다. 개발 목적이 아닌경우 기본값을 적용 해야합니다. (기본값: ../modules/transact)
                                                     </small>
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="bg-body">WWWRootBasePath</td>
+                                                <td class="bg-body">
+                                                    AllowRequestTransaction
+                                                    <div class="mt-2">
+                                                        <button type="button" id="btnAllowRequestTransaction" syn-events="['click']" class="btn btn-icon bg-muted-lt">
+                                                            <i class="f:18 ti ti-plus"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
                                                 <td>
-                                                    <input id="txtWWWRootBasePath" type="text" class="form-control">
-                                                    <small class="form-hint">
-                                                        모듈의 웹 루트 기본 경로입니다. /assets 디렉토리를 추가 포함되며, 개발 목적이 아닌경우 기본값을 적용해야합니다. (기본값: ../modules/qramework/wwwroot/qramework)
-                                                    </small>
+                                                    <div class="table-responsive">
+                                                        <table id="tblAllowRequestTransaction" class="table table-vcenter card-table border-x border-y">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>ApplicationID</th>
+                                                                    <th>ProjectID</th>
+                                                                    <th class="w-1">관리</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="tblAllowRequestTransactionItems">
+                                                            </tbody>
+                                                        </table>
+                                                        <small class="form-hint mt-2">
+                                                            거래 요청을 허용할 어플리케이션 ID 및 프로젝트 ID 범위를 설정합니다.
+                                                        </small>
+                                                    </div>
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="bg-body">IndexingBasePath</td>
+                                                <td class="bg-body">
+                                                    RoutingCommandUri
+                                                    <div class="mt-2">
+                                                        <button type="button" id="btnRoutingCommandUri" syn-events="['click']" class="btn btn-icon bg-muted-lt">
+                                                            <i class="f:18 ti ti-plus"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
                                                 <td>
-                                                    <input id="txtIndexingBasePath" type="text" class="form-control">
-                                                    <small class="form-hint">
-                                                        태넌트 앱의 인덱싱 데이터베이스 파일을 관리하는 기본 디렉토리 경로입니다. (기본값: ../indexes)
-                                                    </small>
+                                                    <div class="table-responsive">
+                                                        <table id="tblRoutingCommandUri" class="table table-vcenter card-table border-x border-y">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Routing</th>
+                                                                    <th>CommandUri</th>
+                                                                    <th class="w-1">관리</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="tblRoutingCommandUriItems">
+                                                            </tbody>
+                                                        </table>
+                                                        <small class="form-hint mt-2">
+                                                            거래 요청을 라우트하여 실행하는 모듈을 운영중인 서버 URL을 설정합니다.
+                                                        </small>
+                                                    </div>
                                                 </td>
                                             </tr>
                                             <tr>
@@ -207,48 +441,36 @@
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="bg-body">ConnectionString</td>
+                                                <td class="bg-body">
+                                                    PublicTransaction
+                                                    <div class="mt-2">
+                                                        <button type="button" id="btnPublicTransaction" syn-events="['click']" class="btn btn-icon bg-muted-lt">
+                                                            <i class="f:18 ti ti-plus"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
                                                 <td>
-                                                    <input id="txtConnectionString" type="text" class="form-control">
-                                                    <small class="form-hint mt-2">
-                                                        데이터베이스 연결문자열 참고자료:
-                                                        <a href="https://www.connectionstrings.com/sql-server" target="_blank">SQL Server</a>,
-                                                        <a href="https://www.connectionstrings.com/mysql" target="_blank">MySQL/MariaDB</a>,
-                                                        <a href="https://www.connectionstrings.com/oracle" target="_blank">Oracle</a>,
-                                                        <a href="https://www.connectionstrings.com/postgresql" target="_blank">PostgreSQL</a>,
-                                                        <a href="https://www.connectionstrings.com/sqlite" target="_blank">SQLite</a>
-                                                    </small>
+                                                    <div class="table-responsive">
+                                                        <table id="tblPublicTransaction" class="table table-vcenter card-table border-x border-y">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>ApplicationID</th>
+                                                                    <th>ProjectID</th>
+                                                                    <th>TransactionID</th>
+                                                                    <th class="w-1">관리</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="tblPublicTransactionItems">
+                                                            </tbody>
+                                                        </table>
+                                                        <small class="form-hint mt-2">
+                                                            공개 거래를 적용할 어플리케이션 ID, 프로젝트 ID, 거래 ID 범위를 설정합니다.
+                                                        </small>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         </tbody>
                                     </table>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="bg-body">
-                                    LoadPassAssemblyPath
-                                    <div class="mt-2">
-                                        <button type="button" id="btnLoadPassAssemblyPath" syn-events="['click']" class="btn btn-icon bg-muted-lt">
-                                            <i class="f:18 ti ti-plus"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="table-responsive">
-                                        <table id="tblLoadPassAssemblyPath" class="table table-vcenter card-table border-x border-y">
-                                            <thead>
-                                                <tr>
-                                                    <th>항목</th>
-                                                    <th class="w-1">관리</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="tblLoadPassAssemblyPathItems">
-                                            </tbody>
-                                        </table>
-                                        <small class="form-hint mt-2">
-                                            litesearch 모듈 부트스트레핑 과정에서 어셈블리 로드를 건너 뛸 Unmanaged dll 목록입니다. 파일 경로는 모듈의 기본 디렉토리를 기준으로 설정 해야합니다.
-                                        </small>
-                                    </div>
                                 </td>
                             </tr>
                         </tbody>
@@ -304,9 +526,9 @@
             </div>
         </div>
     </div>
-    <div id="mdlLoadPassAssemblyPath" class="modal fade" tabindex="-1" role="dialog" aria-modal="true">
+    <div id="mdlContractBasePath" class="modal fade" tabindex="-1" role="dialog" aria-modal="true">
         <input id="txtBaseItemPathID" type="hidden">
-        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 id="lblItemPathTitle" class="modal-title"></h5>
@@ -314,14 +536,112 @@
                 </div>
                 <div class="modal-body">
                     <div class="row">
-                        <label class="col-3 col-form-label">Assembly 파일경로</label>
+                        <label class="col-3 col-form-label required">디렉토리 경로</label>
                         <div class="col">
                             <input id="txtItemPathID" type="text" class="form-control">
+                            <small class="form-hint">transact 모듈의 거래 파일들이 있는 기본 디렉토리 경로를 입력합니다. 상대경로는 모듈의 기본 디렉토리를 기준으로 설정됩니다.</small>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" id="btnManageLoadPassAssemblyPath" syn-events="['click']" class="btn btn-primary" data-bs-dismiss="modal">확인</button>
+                    <button type="button" id="btnManageContractBasePath" syn-events="['click']" class="btn btn-primary">확인</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="mdlAllowRequestTransaction" class="modal fade" tabindex="-1" role="dialog" aria-modal="true">
+        <input id="txtBaseDataID_AllowRequestTransaction" type="hidden">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 id="lblTitle_AllowRequestTransaction" class="modal-title"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <label class="col-3 col-form-label required">ApplicationID</label>
+                        <div class="col">
+                            <input id="txtKey_AllowRequestTransaction" type="text" class="form-control">
+                            <small class="form-hint">거래 요청을 허용할 어플리케이션 ID 범위를 설정합니다. "*" 경우 모든 어플리케이션 및 프로젝트에 적용합니다. (기본값: HDS)</small>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <label class="col-3 col-form-label required">ProjectID</label>
+                        <div class="col">
+                            <input id="txtValue_AllowRequestTransaction" type="text" class="form-control">
+                            <small class="form-hint">거래 요청을 허용할 프로젝트 ID 범위를 설정합니다. "," 를 구분으로 여러 프로젝트 ID 입력이 가능하며 "*" 포함될 경우 모든 프로젝트에 적용합니다.</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="btnManageAllowRequestTransaction" syn-events="['click']" class="btn btn-primary">확인</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="mdlRoutingCommandUri" class="modal fade" tabindex="-1" role="dialog" aria-modal="true">
+        <input id="txtBaseDataID_RoutingCommandUri" type="hidden">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 id="lblTitle_RoutingCommandUri" class="modal-title"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <label class="col-3 col-form-label required">Routing</label>
+                        <div class="col">
+                            <input id="txtKey_RoutingCommandUri" type="text" class="form-control">
+                            <small class="form-hint">거래 요청을 라우트할 패턴을 설정합니다. "[어플리케이션 ID]|[프로젝트 ID]|[명령 구분]|[실행 환경 구분]" 으로 구성되며, 중복으로 적용할 수 없습니다. <u>명령 구분은 AllowTenantTransactionCommands, 실행 환경 구분은 AvailableEnvironment 항목의 값을 참고하세요.</u></small>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <label class="col-3 col-form-label required">CommandUri</label>
+                        <div class="col">
+                            <input id="txtValue_RoutingCommandUri" type="text" class="form-control">
+                            <small class="form-hint">거래 요청을 실행하는 모듈을 운영중인 서버 URL을 설정합니다.</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="btnManageRoutingCommandUri" syn-events="['click']" class="btn btn-primary">확인</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="mdlPublicTransaction" class="modal fade" tabindex="-1" role="dialog" aria-modal="true">
+        <input id="txtBaseDataID_PublicTransaction" type="hidden">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 id="lblTitle_PublicTransaction" class="modal-title"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <label class="col-3 col-form-label required">ApplicationID</label>
+                        <div class="col">
+                            <input id="txtApplicationID_PublicTransaction" type="text" class="form-control">
+                            <small class="form-hint">공개 거래를 적용할 어플리케이션 ID 입니다.</small>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <label class="col-3 col-form-label required">ProjectID</label>
+                        <div class="col">
+                            <input id="txtProjectID_PublicTransaction" type="text" class="form-control">
+                            <small class="form-hint">공개 거래를 적용할 업무 프로젝트 ID 범위를 입력합니다. "," 를 구분으로 여러 프로젝트 ID 입력이 가능하며 "*" 포함될 경우 모든 프로젝트에 적용합니다.</small>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <label class="col-3 col-form-label required">TransactionID</label>
+                        <div class="col">
+                            <input id="txtTransactionID_PublicTransaction" type="text" class="form-control">
+                            <small class="form-hint">공개 거래를 적용할 TransactionID 범위를 입력합니다. "*" 경우 모든 프로젝트에 적용합니다.</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="btnManagePublicTransaction" syn-events="['click']" class="btn btn-primary">확인</button>
                 </div>
             </div>
         </div>
@@ -345,11 +665,58 @@
     </tr>
      {{/items}}
     </script>
-    <script id="tplAssemblyPathItem" type="x-tmpl-mustache">
+    <script id="tplContractBasePathItem" type="x-tmpl-mustache">
      {{#items}}
     <tr syn-value="{{ItemPathID}}">
         <td>
             {{ItemPathID}}
+        </td>
+        <td>
+            <div class="btn-list flex-nowrap">
+                <button name="btnActionEdit" type="button" class="btn btn-icon bg-muted-lt">
+                    <i class="f:18 ti ti-edit"></i>
+                </button>
+                <button name="btnActionDelete" type="button" class="btn btn-icon bg-muted-lt">
+                    <i class="f:18 ti ti-minus"></i>
+                </button>
+            </div>
+        </td>
+    </tr>
+     {{/items}}
+    </script>
+    <script id="tplKeyValueItem" type="x-tmpl-mustache">
+     {{#items}}
+    <tr syn-value="{{Key}}">
+        <td>
+            {{Key}}
+        </td>
+        <td>
+            {{Value}}
+        </td>
+        <td>
+            <div class="btn-list flex-nowrap">
+                <button name="btnActionEdit" type="button" class="btn btn-icon bg-muted-lt">
+                    <i class="f:18 ti ti-edit"></i>
+                </button>
+                <button name="btnActionDelete" type="button" class="btn btn-icon bg-muted-lt">
+                    <i class="f:18 ti ti-minus"></i>
+                </button>
+            </div>
+        </td>
+    </tr>
+     {{/items}}
+    </script>
+    <script id="tplPublicTransactionItem" type="x-tmpl-mustache">
+     {{#items}}
+    <tr syn-value="{{ApplicationID}}|{{ProjectID}}|{{TransactionID}}">
+        <td>
+            {{ApplicationID}}
+        </td>
+        <td>
+            {{ProjectID}}
+        </td>
+        <td>
+            {{TransactionID}}
         </td>
         <td>
             <div class="btn-list flex-nowrap">

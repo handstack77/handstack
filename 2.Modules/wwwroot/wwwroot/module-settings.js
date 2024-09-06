@@ -59,7 +59,7 @@ let $module_settings = {
                 try {
                     $this.prop.moduleConfig.ModuleID = syn.$l.get('txtModuleID').value;
                     $this.prop.moduleConfig.Name = syn.$l.get('txtName').value;
-                    $this.prop.moduleConfig.IsBundledWithHost = $string.toBoolean(syn.$l.get('chkIsBundledWithHost').checked);
+                    $this.prop.moduleConfig.IsBundledWithHost = syn.$l.get('chkIsBundledWithHost').checked;
                     $this.prop.moduleConfig.Version = syn.$l.get('txtVersion').value;
 
                     $this.prop.moduleConfig.ModuleConfig.SystemID = syn.$l.get('txtSystemID').value;

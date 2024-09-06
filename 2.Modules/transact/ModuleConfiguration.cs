@@ -33,9 +33,8 @@ namespace transact
         public static string LogServerUrl = "";
         public static bool UseApiAuthorize = false;
         public static List<string> BypassAuthorizeIP = new List<string>();
-        public static List<string> WithOrigins = new List<string>();
         public static string SystemID = "";
-        public static string AvailableEnvironment = "";
+        public static List<string> AvailableEnvironment = new List<string> { "D" };
         public static bool IsCodeDataCache = true;
         public static int CodeDataCacheTimeout = 20;
         public static Dictionary<string, List<string>> AllowRequestTransactions = new Dictionary<string, List<string>>();

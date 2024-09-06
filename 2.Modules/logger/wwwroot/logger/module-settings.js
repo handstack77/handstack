@@ -75,14 +75,14 @@ let $module_settings = {
                 try {
                     $this.prop.moduleConfig.ModuleID = syn.$l.get('txtModuleID').value;
                     $this.prop.moduleConfig.Name = syn.$l.get('txtName').value;
-                    $this.prop.moduleConfig.IsBundledWithHost = $string.toBoolean(syn.$l.get('chkIsBundledWithHost').checked);
+                    $this.prop.moduleConfig.IsBundledWithHost = syn.$l.get('chkIsBundledWithHost').checked;
                     $this.prop.moduleConfig.Version = syn.$l.get('txtVersion').value;
 
                     $this.prop.moduleConfig.ModuleConfig.SystemID = syn.$l.get('txtSystemID').value;
                     $this.prop.moduleConfig.ModuleConfig.BusinessServerUrl = syn.$l.get('txtBusinessServerUrl').value;
                     $this.prop.moduleConfig.ModuleConfig.LogDeleteRepeatSecond = $string.isNumber(syn.$l.get('txtLogDeleteRepeatSecond').value) ? $string.toNumber(syn.$l.get('txtLogDeleteRepeatSecond').value) : -1;
                     $this.prop.moduleConfig.ModuleConfig.ModuleBasePath = syn.$l.get('txtModuleBasePath').value;
-                    $this.prop.moduleConfig.ModuleConfig.IsSQLiteCreateOnNotSettingRequest = $string.toBoolean(syn.$l.get('chkIsSQLiteCreateOnNotSettingRequest').checked);
+                    $this.prop.moduleConfig.ModuleConfig.IsSQLiteCreateOnNotSettingRequest = syn.$l.get('chkIsSQLiteCreateOnNotSettingRequest').checked;
 
                     syn.$l.get('txtJsonView').value = JSON.stringify($this.prop.moduleConfig, null, 4);
                 } catch (error) {
@@ -223,7 +223,7 @@ let $module_settings = {
             var items = $this.prop.moduleConfig.ModuleConfig.DataSource;
             if (baseDataID == '') {
                 if (items.includes(dataID) == true) {
-                    syn.$w.notify('information', `중복된 데이터 원본을 입력 할 수 없습니다.`);
+                    syn.$w.alert(`중복된 항목을 입력 할 수 없습니다.`);
                     return;
                 }
                 else {

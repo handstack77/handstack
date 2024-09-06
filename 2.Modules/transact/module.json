@@ -18,7 +18,7 @@
         "ContractBasePath": [
             "../contracts/transact"
         ],
-        "AvailableEnvironment": "P,D,S",
+        "AvailableEnvironment": [ "P", "D", "S" ],
         "LogServerUrl": "http://localhost:8000/logger/api/log/insert",
         "IsCodeDataCache": true,
         "CodeDataCacheTimeout": 20,
@@ -28,12 +28,6 @@
         "BypassAuthorizeIP": [
             "localhost",
             "127.0.0.1"
-        ],
-        "WithOrigins": [
-            "http://127.0.0.1",
-            "http://127.0.0.1:8000",
-            "http://localhost",
-            "http://localhost:8000"
         ],
         "AllowRequestTransactions": {
             "HDS": [ "*" ]

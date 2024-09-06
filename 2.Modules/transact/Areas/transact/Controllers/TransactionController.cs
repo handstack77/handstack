@@ -641,10 +641,9 @@ namespace transact.Areas.transact.Controllers
 
                 if (string.IsNullOrEmpty(request.Environment) == false)
                 {
-                    // 환경정보구분코드가 허용 범위인지 확인
-                    if (string.IsNullOrEmpty(ModuleConfiguration.AvailableEnvironment) == true || (string.IsNullOrEmpty(ModuleConfiguration.AvailableEnvironment) == false && ModuleConfiguration.AvailableEnvironment.Split(",").Where(p => p == request.Environment).Count() == 0))
+                    if (ModuleConfiguration.AvailableEnvironment.Count == 0 || ModuleConfiguration.AvailableEnvironment.Contains(request.Environment) == false)
                     {
-                        response.ExceptionText = $"'{request.Environment}' 환경정보 구분코드가 허용 안됨";
+                        response.ExceptionText = $"'{request.Environment}' 환경정보 구분코드 허용 안됨";
                         return LoggingAndReturn(response, transactionWorkID, "Y", null);
                     }
                 }

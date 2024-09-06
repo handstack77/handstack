@@ -1,7 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using HandStack.Web;
 using HandStack.Web.Extensions;
+
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace transact.Entity
 {
@@ -49,9 +53,8 @@ namespace transact.Entity
 
         public List<string> BypassAuthorizeIP { get; set; }
 
-        public List<string> WithOrigins { get; set; }
-
-        public string AvailableEnvironment { get; set; }
+        [JsonConverter(typeof(AvailableEnvironmentConverter))]
+        public List<string> AvailableEnvironment { get; set; }
 
         public string LogServerUrl { get; set; }
 
@@ -88,8 +91,7 @@ namespace transact.Entity
             ContractBasePath = new List<string>();
             UseApiAuthorize = false;
             BypassAuthorizeIP = new List<string>();
-            WithOrigins = new List<string>();
-            AvailableEnvironment = "";
+            AvailableEnvironment = new List<string> { "D" };
             LogServerUrl = "";
             IsCodeDataCache = true;
             CodeDataCacheTimeout = 20;
@@ -99,6 +101,38 @@ namespace transact.Entity
             PublicTransactions = new ExpiringList<PublicTransaction>();
             RoutingCommandUri = new Dictionary<string, string>();
             AllowRequestTransactions = new Dictionary<string, List<string>>();
+        }
+    }
+
+    public class AvailableEnvironmentConverter : JsonConverter
+    {
+        public override bool CanConvert(Type objectType)
+        {
+            return objectType == typeof(List<string>);
+        }
+
+        public override object? ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            JToken token = JToken.Load(reader);
+            if (token.Type == JTokenType.Array)
+            {
+                return token.ToObject<List<string>>();
+            }
+            else if (token.Type == JTokenType.String)
+            {
+                return token.ToString().Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            }
+            
+            return new List<string>() { "D" };
+        }
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            var list = value as List<string>;
+            if (list != null)
+            {
+                writer.WriteValue(string.Join(",", list));
+            }
         }
     }
 }

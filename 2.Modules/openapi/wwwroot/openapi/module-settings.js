@@ -89,7 +89,7 @@ let $module_settings = {
                 try {
                     $this.prop.moduleConfig.ModuleID = syn.$l.get('txtModuleID').value;
                     $this.prop.moduleConfig.Name = syn.$l.get('txtName').value;
-                    $this.prop.moduleConfig.IsBundledWithHost = $string.toBoolean(syn.$l.get('chkIsBundledWithHost').checked);
+                    $this.prop.moduleConfig.IsBundledWithHost = syn.$l.get('chkIsBundledWithHost').checked;
                     $this.prop.moduleConfig.Version = syn.$l.get('txtVersion').value;
 
                     $this.prop.moduleConfig.ModuleConfig.SystemID = syn.$l.get('txtSystemID').value;
@@ -99,7 +99,7 @@ let $module_settings = {
                     $this.prop.moduleConfig.ModuleConfig.ManagerSHA256Password = syn.$l.get('txtManagerSHA256Password').value;
                     $this.prop.moduleConfig.ModuleConfig.ModuleConfigurationUrl = syn.$l.get('txtModuleConfigurationUrl').value;
                     $this.prop.moduleConfig.ModuleConfig.ModuleLogFilePath = syn.$l.get('txtModuleLogFilePath').value;
-                    $this.prop.moduleConfig.ModuleConfig.IsLogServer = $string.toBoolean(syn.$l.get('chkIsLogServer').checked);
+                    $this.prop.moduleConfig.ModuleConfig.IsLogServer = syn.$l.get('chkIsLogServer').checked;
                     $this.prop.moduleConfig.ModuleConfig.LogServerUrl = syn.$l.get('txtLogServerUrl').value;
 
                     $this.prop.moduleConfig.ModuleConfig.DataSource.ApplicationID = syn.$l.get('txtApplicationID').value;
@@ -107,7 +107,7 @@ let $module_settings = {
                     $this.prop.moduleConfig.ModuleConfig.DataSource.DataSourceID = syn.$l.get('txtDataSourceID').value;
                     $this.prop.moduleConfig.ModuleConfig.DataSource.DataProvider = syn.$l.get('ddlDataProvider').value;
                     $this.prop.moduleConfig.ModuleConfig.DataSource.ConnectionString = syn.$l.get('txtConnectionString').value;
-                    $this.prop.moduleConfig.ModuleConfig.DataSource.IsEncryption = $string.toBoolean(syn.$l.get('chkIsEncryption').value);
+                    $this.prop.moduleConfig.ModuleConfig.DataSource.IsEncryption = syn.$l.get('chkIsEncryption').checked;
 
                     syn.$l.get('txtJsonView').value = JSON.stringify($this.prop.moduleConfig, null, 4);
                 } catch (error) {
