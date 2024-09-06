@@ -411,14 +411,10 @@
                     var item = el.options[i];
 
                     if ($object.isString(value) == true) {
-                        if (item.value == value) {
-                            item.selected = true;
-                        }
+                        item.selected = item.value == value;
                     }
                     else if ($object.isArray(value) == true) {
-                        if (value.includes(item.value) > -1) {
-                            item.selected = true;
-                        }
+                        item.selected = value.includes(item.value) == true;
                     }
                 }
                 $multiselect.controlReload(elID);
@@ -433,14 +429,10 @@
                     var item = el.options[i];
 
                     if ($object.isString(text) == true) {
-                        if (item.text == text) {
-                            item.selected = true;
-                        }
+                        item.selected = item.text == text;
                     }
                     else if ($object.isArray(text) == true) {
-                        if (text.includes(item.text) > -1) {
-                            item.selected = true;
-                        }
+                        item.selected = text.includes(item.text) == true;
                     }
                 }
                 $multiselect.controlReload(elID);
