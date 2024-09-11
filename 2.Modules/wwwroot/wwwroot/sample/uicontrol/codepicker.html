@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<style>
+        #simplemodal-container {
+            position: absolute;
+        }
+
+        #simplemodal-container .simplemodal-data h3 {
+            cursor: move;
+        }
+	</style>
+</head>
+<body style="visibility: hidden;">
+	<form autocomplete="off" id="form1" syn-datafield="MainForm">
+		<div>
+			<div>속성</div>
+			<pre>name: 'syn.uicontrols.$codepicker',
+version: '1.0.0',
+defaultSetting: {
+    dataSourceID: null,
+    storeSourceID: null,
+    local: true,
+    parameters: '',
+    dataType: 0,
+    label: '',
+    labelWidth: '',
+    codeElementID: '',
+    textElementID: '',
+    textBelongID: null,
+    textDataFieldID: null,
+    searchValue: '',
+    searchText: '',
+    isMultiSelect: false,
+    isAutoSearch: true,
+    isOnlineData: false,
+    viewType: '',
+    dataType: 'string',
+    belongID: null,
+    controlText: null,
+    validators: null,
+    transactConfig: null,
+    triggerConfig: null
+},</pre>
+		</div>
+		<hr />
+		<div>
+			<div>메서드</div>
+			<pre>
+setText: function (elID, value, meta) - 텍스트 내용 설정
+open: function (elID) - 코드도움 팝업 실행
+toParameterString: function (jsonObject) - 코드도움 parameters 객체를 문자열로 반환
+toParameterObject: function (parameters) - 코드도움 parameters 문자열을 객체로 반환
+</pre>
+		</div>
+		<hr />
+		<div>
+			<div>
+				코드도움
+				<syn_codepicker id="chpSubjectID" syn-datafield="SUBJECTID" syn-options="{belongID: 'L01', dataSourceID: 'CH005', local: false, isMultiSelect: false, textBelongID: ['L01', 'M01'], textDataFieldID: 'CODETEXT'}"></syn_codepicker>
+				<syn_codepicker id="chpUNIVERSITYCD" syn-datafield="UNIVERSITYCD" syn-options="{belongID: 'M01', dataSourceID: 'CH009', local: false, isMultiSelect: false}"></syn_codepicker>
+				<syn_codepicker id="chpMASTERSCHOOLCD" syn-datafield="MASTERSCHOOLCD" syn-options="{belongID: 'M01', dataSourceID: 'CH009', local: false, isMultiSelect: true}"></syn_codepicker>
+				<syn_codepicker id="chpTRANSFERSCHOOLCD" syn-datafield="TRANSFERSCHOOLCD" syn-options="{belongID: 'M01', dataSourceID: 'CH009', local: false, isMultiSelect: true}"></syn_codepicker>
+			</div>
+		</div>
+		<hr />
+		<div>
+			<div>기능</div>
+			<input type="button" id="btnGetValue" value="getValue" syn-events="['click']" />
+			<input type="button" id="btnSetValue" value="setValue" syn-events="['click']" />
+			<input type="button" id="btnClear" value="clear" syn-events="['click']" />
+			<input type="button" id="btnOpen" value="open" syn-events="['click']" />
+			<input type="button" id="btnSetText" value="setText" syn-events="['click']" />
+			<input type="button" id="btnToParameterString" value="toParameterString" syn-events="['click']" />
+			<input type="button" id="btnToParameterObject" value="toParameterObject" syn-events="['click']" />
+		</div>
+	</form>
+	<script src="/js/syn.loader.js"></script>
+</body>
+</html>

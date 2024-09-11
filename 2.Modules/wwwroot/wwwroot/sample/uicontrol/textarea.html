@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <div>속성</div>
+            <pre>name: 'syn.uicontrols.$textarea',
+version: '1.0.0',
+defaultSetting: {
+    width: '320px',
+    height: '240px',
+    contents: '',
+    dataType: 'string',
+    belongID: null,
+    transactConfig: null,
+    triggerConfig: null
+},</pre>
+        </div>
+        <hr />
+        <div>
+            <div>메서드</div>
+            <pre>
+
+</pre>
+        </div>
+        <hr />
+        <div>
+            <div>예시</div>
+            <div class="syn-textarea" style="width: 800px;">
+                <textarea id="txtTextarea" syn-options="{width: '800px'}" syn-events="[]" style="width: 800px; height:240px;" maxlength="15" maxlengthB="10">
+using System;
+
+namespace Example
+{
+    /// &lt;summary>
+    /// Represents a person employed at the company
+    /// &lt;/summary>
+    public class Employee : Person
+    {
+            #region Properties
+
+            /// &lt;summary>
+            /// Gets or sets the first name.
+            /// &lt;/summary>
+            /// &lt;value>The first name.&lt;/value>
+        public string FirstName {get; set; }
+
+            #endregion
+
+            /// &lt;summary>
+            /// Calculates the salary.
+            /// &lt;/summary>
+            /// &lt;param name="grade">The grade.&lt;/param>
+            /// &lt;returns>&lt;/returns>
+            public decimal CalculateSalary(int grade)
+        {
+            if (grade > 10)
+                return 1000;
+            return 500;
+        }
+    }
+}
+</textarea>
+            </div>
+        </div>
+        <hr />
+        <div>
+            <div>기능</div>
+            <input type="button" id="btnGetValue" value="getValue" syn-events="['click']" />
+            <input type="button" id="btnSetValue" value="setValue" syn-events="['click']" />
+            <input type="button" id="btnClear" value="clear" syn-events="['click']" />
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+    <textarea id="txtTextarea11" style="width: 800px; height:240px;" onchange="$textarea.changeFunction()"></textarea>
+</body>
+</html>

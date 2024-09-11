@@ -1,0 +1,69 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+</head>
+<body style="visibility: hidden;">
+	<form autocomplete="off" id="form1" syn-datafield="MainForm">
+		<div>
+			<div>속성</div>
+			<pre>name: 'syn.uicontrols.$select',
+version: '1.0.0',
+selectControls: [],
+defaultSetting: {
+    elID: '',
+    required: false,
+    local: true,
+    search: false,
+    multiSelectAll: true,
+    dataSourceID: null,
+    parameters: null,
+    toSynControl: false,
+    dataType: 'string',
+    belongID: null,
+    transactConfig: null,
+    triggerConfig: null
+},</pre>
+		</div>
+		<hr />
+		<div>
+			<div>메서드</div>
+			<pre>
+controlReload: function (elID) - 콤보박스 UI 다시 그리기
+selectRowIndex: function(elID, row) - 콤보박스의 Row 인덱스로 항목 선택
+getSelectedIndex: function(elID) - 콤보박스의 옵션 인덱스 조회
+setSelectedIndex: function(elID) - 콤보박스의 옵션 인덱스 설정
+getSelectedValue: function (elID) - 콤보박스 선택값 조회
+getSelectedText: function (elID) - 콤보박스 선택 텍스트 조회
+getControl: function (elID) - elID의 tail.select 기본 객체 반환
+dataRefresh: function (elID, setting, callback) - 데이터 소스 업데이트
+</pre>
+		</div>
+		<hr />
+		<div>
+			<div>예시</div>
+			<select id="ddlFileExtension" syn-options="{disabled: true,dataSourceID: 'CH000', storeSourceID: 'MS001', parameters: '@GROUPCODE:MS001;', local: false, toSynControl: true, required: false}" style="width: 200px; height: 23px;"></select>
+			<select id="ddlBusinessRank" syn-options="{dataSourceID: 'CH000', storeSourceID: 'MS002', parameters: '@GROUPCODE:MS002;', local: false, toSynControl: false, required: false}" style="width: 200px; height: 23px;"></select>
+		</div>
+		<hr />
+		<div>
+			<div>기능</div>
+			<input type="button" id="btnGetValue" value="getValue" syn-events="['click']" />
+			<input type="button" id="btnSetValue" value="setValue" syn-events="['click']" />
+			<input type="button" id="btnClear" value="clear" syn-events="['click']" />
+			<input type="button" id="btnLoadData" value="loadData" syn-events="['click']" />
+			<input type="button" id="btnControlReload" value="controlReload" syn-events="['click']" />
+			<input type="button" id="btnSelectRowIndex" value="selectRowIndex" syn-events="['click']" />
+			<input type="button" id="btnGetSelectedIndex" value="getSelectedIndex" syn-events="['click']" />
+			<input type="button" id="btnSetSelectedIndex" value="setSelectedIndex" syn-events="['click']" />
+			<input type="button" id="btnGetSelectedValue" value="getSelectedValue" syn-events="['click']" />
+			<input type="button" id="btnGetSelectedText" value="getSelectedText" syn-events="['click']" />
+			<input type="button" id="btnSetSelectedValue" value="setSelectedValue" syn-events="['click']" />
+			<input type="button" id="btnSetSelectedText" value="setSelectedText" syn-events="['click']" />
+			<input type="button" id="btnGetControl" value="getControl" syn-events="['click']" />
+			<input type="button" id="btnDataRefresh" value="dataRefresh" syn-events="['click']" />
+		</div>
+	</form>
+	<script src="/js/syn.loader.js"></script>
+</body>
+</html>

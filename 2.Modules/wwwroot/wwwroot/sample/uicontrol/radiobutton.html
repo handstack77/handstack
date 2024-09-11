@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+</head>
+<body style="visibility: hidden;">
+	<form autocomplete="off" id="form1" syn-datafield="MainForm">
+		<div>
+			<div>속성</div>
+			<pre>name: 'syn.uicontrols.$radio',
+version: '1.0.0',
+defaultSetting: {
+    contents: '',
+    toSynControl: false,
+    dataType: 'string',
+    belongID: null,
+    transactConfig: null,
+    triggerConfig: null
+},</pre>
+		</div>
+		<hr />
+		<div>
+			<div>메서드</div>
+			<pre>
+selectedValue: function (group, value) - 라디오버튼 그룹의 값으로 선택 처리
+getGroupNames: function () - 화면에 선언된 모든 radio 버튼의 그룹명을 반환
+</pre>
+		</div>
+		<hr />
+		<div>
+			<div>예시</div>
+			<input id="rdoUseYN1" name="rdoUseYN" type="radio" syn-datafield="RadioUseYN" value="value 1" syn-events="['change']" syn-options="{textContent: '사용', toSynControl: true}">
+			<input id="rdoUseYN2" name="rdoUseYN" type="radio" syn-datafield="RadioUseYN" value="value 2" syn-events="['change']" syn-options="{textContent: '미사용', toSynControl: true}">
+			<input id="rdoUseYN3" name="rdoUseYN" type="radio" syn-datafield="RadioUseYN" value="value 3" syn-events="['change']" checked="checked" syn-options="{textContent: '알수없음', toSynControl: true}">
+		</div>
+		<hr />
+		<div>
+			<div>기능</div>
+			<input type="button" id="btnGetValue" value="getValue" syn-events="['click']" />
+			<input type="button" id="btnSetValue" value="setValue" syn-events="['click']" />
+			<input type="button" id="btnClear" value="clear" syn-events="['click']" />
+			<input type="button" id="btnSelectedValue" value="selectedValue" syn-events="['click']" />
+			<input type="button" id="btnGetGroupNames" value="getGroupNames" syn-events="['click']" />
+		</div>
+	</form>
+	<script src="/js/syn.loader.js"></script>
+</body>
+</html>

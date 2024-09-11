@@ -1,0 +1,242 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<style>
+		.handsontable .my-class {
+			background: #f25f5c !important;
+		}
+
+		.ht_master.handsontable table.htCore > tbody > tr:hover td {
+			background: #ffeded !important;
+		}
+
+        .handsontable.contain-filter-header tr:first-child th {
+            vertical-align: bottom;
+        }
+
+        .handsontable.contain-filter-header thead > tr:first-child > th > div.filterHeader {
+            display: none;
+        }
+
+		div.summaryRow .ht_master.handsontable table.htCore > tbody > tr:last-child {
+			display: none;
+		}
+	</style>
+	<style>
+		.handsontable table.htCore td[innerText*="중성"] {
+			color: #000 !important;
+			color: red !important;
+			cursor: default !important;
+		}
+	</style>
+	<style id="cssWeekendPseudoStyle">
+	</style>
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <div>속성</div>
+            <pre>name: 'syn.uicontrols.$grid',
+version: '1.0.0',
+defaultHotSettings: {
+    data: [],
+    colWidths: 120,
+    rowHeaders: true,
+    copyPaste: false,
+    autoColumnSize: false,
+    stretchH: 'last',
+    undo: false,
+    currentRowClassName: 'currentRow',
+    manualColumnResize: true,
+    manualRowResize: false,
+    manualColumnMove: true,
+    manualRowMove: false,
+    manualColumnFreeze: true,
+    autoWrapRow: true,
+    outsideClickDeselects: false,
+    selectionMode: 'range',
+    sortIndicator: true,
+    columnSorting: {
+        sortOrder: 'none',
+        sortEmptyCells: true
+    },
+    wordWrap: false,
+    // dropdownMenu: ['filter_by_value', 'filter_action_bar'],
+    filters: true,
+    contextMenu: false,
+    hiddenColumns: {
+        columns: [0]
+    },
+    transactConfig: null,
+    triggerConfig: null
+},</pre>
+        </div>
+        <hr />
+        <div>
+            <div>메서드</div>
+            <pre>
+getInitializeColumns: function (columns) - handsontable 그리드 컬럼 설정 고도화
+getSettings: function (elID) - handsontable 그리드 설정 조회
+updateSettings: function (elID, settings) - handsontable 그리드 설정 갱신
+countRows: function (elID, isIncludeHidden) - 그리드 행 건수 조회
+insertRow: function (elID, setting, callback) - 그리드 행추가
+removeRow: function (elID, callback, rowIndex) - 그리드 행삭제
+loadData: function (elID, objectData, callback) - 데이터 바인딩
+isUpdateData: function (elID) - 데이터 바인딩 이후 변경된 데이터 여부 조회
+getFlag: function (elID, row) - 현재 행의 CRUD 상태 조회
+setFlag: function (elID, row, flag) - 현재 행의 CRUD 상태 설정
+getDataAtCell: function (elID, row, col) - 셀의 데이터 조회
+setDataAtCell: function (elID, row, col, value, source) - 셀의 데이터 설정
+getCellMeta: function (elID, row, col) - 셀의 메타 정보 조회
+setCellMeta: function (elID, row, col, key, value) - 셀의 메타 정보 저장
+getUpdateData: function (elID, requestType, metaColumns) - 데이터 바인딩 이후 변경된 데이터 목록 조회
+getPhysicalRowIndex: function (elID, logicalRowIndex) - 논리 행의 물리 행 조회
+getPhysicalColIndex: function (elID, logicalColIndex) - 논리 열의 물리 열 조회
+getSourceDataAtRow: function (elID, row) - 현재 행의 전체 데이터 조회
+visibleColumns: function (elID, columns, isShow) - 컬럼 숨김/보이기 설정
+visibleRows: function (elID, rows, isShow) - 행 숨김/보이기 설정
+unHiddenRows: function (elID) - 모든 행 숨김 해제
+unHiddenColumns: function (elID) - 모든 열 숨김 해제
+propToCol: function (elID, columnName) - 컬럼ID로 컬럼 열 조회
+colToProp: function (elID, columnIndex) - 컬럼 열로 컬럼ID 조회
+getColHeader: function (elID, columnIndex) - 컬럼 열의 헤더 정보 조회
+countCols: function (elID) - 컬럼 갯수 조회
+getSelected: function (elID) - 그리드내 현재 선택 범위 조회
+getActiveRowIndex: function (elID) - 그리드내 현재 선택 행 조회
+getActiveColIndex: function (elID) - 그리드내 현재 선택 열 조회
+selectCell: function (elID, row, column, endRow, endColumn, scrollToCell, changeListener) - 그리드내 셀 선택 설정
+exportFile: function (elID, options) - 그리드 데이터를 CSV 파일로 내보내기
+importFile: function (elID, options) - 그리드 데이터를 CSV 파일로 가져오기
+getGridControl: function (elID) - handsontable 그리드 기본 객체 반환
+getGridSetting: function (elID) - 그리드 컨트롤 환경설정 조회
+getColumnWidths: function (elID) - 현재 컬럼들의 width 정보 조회
+scrollViewportTo: function (elID, row, column, snapToBottom, snapToRight) - 그리드 컨트롤 가상 스크롤 위치 조정
+isEmptyRow: function (elID, row) - 그리드 행 기준 빈값 여부 조회
+isEmptyCol: function (elID, col) - 그리드 열 기준 빈값 여부 조회
+getDataAtRow: function (elID, row) - 그리드 행의 셀 전체 데이터 조회
+getDataAtCol: function (elID, col) - 그리드 열의 셀 전체 데이터 조회
+getSourceDataAtCol: function (elID, row) - 그리드 열의 전체 데이터 조회
+setDataAtRow: function (elID, values) - 그리드 행의 셀 전체 데이터 설정
+validateColumns: function (elID, columns, callback) - 그리드 지정 열들의 데이터 타입 기준 유효성 검사
+validateRows: function (elID, columns, callback) - 그리드 지정 행들의 데이터 타입 기준 유효성 검사
+getLogicalRowIndex: function (elID, physicalRowIndex) - 데이터의 물리 행 인덱스를 논리 인덱스 조회
+getLogicalColIndex: function (elID, physicalColIndex) - 데이터의 물리 행 인덱스를 논리 인덱스 조회
+getFirstShowColIndex: function (elID) - 그리드의 보여지는 컬럼중 첫번째 컬럼 인덱스 조회
+getLastShowColIndex: function (elID) - 그리드의 보여지는 컬럼중 마지막 컬럼 인덱스 조회
+addCondition: function (elID, col, name, args) - 그리드 컬럼에 필터 조건 추가
+removeCondition: function (elID, col) - 그리드 컬럼에 필터 조건 삭제
+clearConditions: function (elID, col) - 그리드 모든 컬럼 필터 조건 초기화
+</pre>
+        </div>
+        <div id="example1" class="hot handsontable htColumnHeaders"></div>
+
+
+        <hr />
+        <div>
+            <div>예시</div>
+            <syn_grid id="grdGrid" syn-options="{autoColumnSize: true,
+				columns: [
+					['PersonID', '사용자ID', 200, false, 'button', false, 'center', null, null, {placeholder: '빈 값', sorting: true, clearBorder: true, color: 'red', bold: true, toCurrency: true}],
+					['UserName', '사용자', 200, false, 'safehtml', false, 'left'],
+					['MaritalStatus', '혼인여부', 200, false, {
+						columnType: 'checkbox2',
+						isSelectAll: true
+					}, false, 'center'],
+					['ReligionYN', '종교여부', 200, false, {
+						columnType: 'radio'
+					}, false, 'center'],
+					['SUBJECTID', '학과코드ID', 140, true, 'text', false, 'left','M01'],
+					['SUBJECTNAME', '학과명', 160, false, {
+						columnType: 'codehelp',
+						dataSourceID: 'CH005',
+						local: false,
+						codeColumnID: 'SUBJECTID'
+					}, false, 'left','M01'],
+					['GenderType', '성별ID', 200, false, 'text', false, 'left'],
+					['GenderTypeName', '성별', 200, false, 'text', false, 'left'],
+					['CreateDateTime', '입력일자', 200, false, 'date', false, 'left']
+				],
+				keyLockedColumns: ['PersonID', 'UserName'],
+				isContainFilterHeader: true,
+				dropdownMenu: true,
+				autoInsertRow: true,
+				controlText: '데모예제',
+				importFileColumns: 'all',
+			}" syn-events="['afterSelectionEnd', 'beforeKeyDown', 'afterCreateRow']" style="width: 960px; border: 1px solid;"></syn_grid>
+        </div>
+        <hr />
+        <div>
+            <div>기능</div>
+            <input type="button" id="btnDynamicData" value="DynamicData" syn-events="['click']" />
+            <input type="button" id="btnPseudoStyle" value="PseudoStyle" syn-events="['click']" />
+            <input type="button" id="btnGetValueRow" value="getValue Row" syn-events="['click']" />
+            <input type="button" id="btnGetValueList" value="getValue List" syn-events="['click']" />
+            <input type="button" id="btnSetValue" value="setValue" syn-events="['click']" />
+            <input type="button" id="btnClear" value="clear" syn-events="['click']" />
+            <input type="button" id="btnGetInitializeColumns" value="getInitializeColumns" syn-events="['click']" />
+            <input type="button" id="btnGetSettings" value="getSettings" syn-events="['click']" />
+            <input type="button" id="btnUpdateSettings" value="updateSettings" syn-events="['click']" />
+            <input type="button" id="btnUpdateSettings1" value="updateSettings1" syn-events="['click']" />
+            <input type="button" id="btnUpdateSettings2" value="updateSettings2" syn-events="['click']" />
+            <input type="button" id="btnCountRows" value="countRows" syn-events="['click']" />
+            <input type="button" id="btnInsertRow" value="insertRow" syn-events="['click']" />
+            <input type="button" id="btnRemoveRow" value="removeRow" syn-events="['click']" />
+            <input type="button" id="btnLoadData" value="loadData" syn-events="['click']" />
+            <input type="button" id="btnIsUpdateData" value="IsUpdateData" syn-events="['click']" />
+            <input type="button" id="btnGetFlag" value="getFlag" syn-events="['click']" />
+            <input type="button" id="btnSetFlag" value="setFlag" syn-events="['click']" />
+            <input type="button" id="btnGetDataAtCell" value="getDataAtCell" syn-events="['click']" />
+            <input type="button" id="btnSetDataAtCell" value="setDataAtCell" syn-events="['click']" />
+            <input type="button" id="btnGetCellMeta" value="getCellMeta" syn-events="['click']" />
+            <input type="button" id="btnSetCellMeta" value="setCellMeta" syn-events="['click']" />
+            <input type="button" id="btnGetUpdateData" value="getUpdateData" syn-events="['click']" />
+            <input type="button" id="btnGetPhysicalRowIndex" value="getPhysicalRowIndex" syn-events="['click']" />
+            <input type="button" id="btnGetPhysicalColIndex" value="getPhysicalColIndex" syn-events="['click']" />
+            <input type="button" id="btnGetSourceDataAtRow" value="getSourceDataAtRow" syn-events="['click']" />
+            <input type="button" id="btnVisibleColumns" value="visibleColumns" syn-events="['click']" />
+            <input type="button" id="btnVisibleRows" value="visibleRows" syn-events="['click']" />
+            <input type="button" id="btnUnHiddenRows" value="unHiddenRows" syn-events="['click']" />
+            <input type="button" id="btnUnHiddenColumns" value="unHiddenColumns" syn-events="['click']" />
+            <input type="button" id="btnPropToCol" value="propToCol" syn-events="['click']" />
+            <input type="button" id="btnColToProp" value="colToProp" syn-events="['click']" />
+            <input type="button" id="btnGetColHeader" value="getColHeader" syn-events="['click']" />
+            <input type="button" id="btnCountCols" value="countCols" syn-events="['click']" />
+            <input type="button" id="btnGetSelected" value="getSelected" syn-events="['click']" />
+            <input type="button" id="btnGetActiveRowIndex" value="getActiveRowIndex" syn-events="['click']" />
+            <input type="button" id="btnGetActiveColIndex" value="getActiveColIndex" syn-events="['click']" />
+            <input type="button" id="btnSelectCell" value="selectCell" syn-events="['click']" />
+            <input type="button" id="btnExportFile" value="exportFile" syn-events="['click']" />
+            <input type="button" id="btnExportAsString" value="exportAsString" syn-events="['click']" />
+            <input type="button" id="btnImportFile" value="importFile" syn-events="['click']" />
+            <input type="button" id="btnGetGridControl" value="getGridControl" syn-events="['click']" />
+            <input type="button" id="btnGetGridSetting" value="getGridSetting" syn-events="['click']" />
+            <input type="button" id="btnGetColumnWidths" value="getColumnWidths" syn-events="['click']" />
+            <input type="button" id="btnScrollViewportTo" value="scrollViewportTo" syn-events="['click']" />
+            <input type="button" id="btnIsEmptyRow" value="isEmptyRow" syn-events="['click']" />
+            <input type="button" id="btnIsEmptyCol" value="isEmptyCol" syn-events="['click']" />
+            <input type="button" id="btnGetDataAtRow" value="getDataAtRow" syn-events="['click']" />
+            <input type="button" id="btnGetDataAtCol" value="getDataAtCol" syn-events="['click']" />
+            <input type="button" id="btnGetSourceDataAtCol" value="getSourceDataAtCol" syn-events="['click']" />
+            <input type="button" id="btnSetDataAtRow" value="setDataAtRow" syn-events="['click']" />
+            <input type="button" id="btnValidateColumns" value="validateColumns" syn-events="['click']" />
+            <input type="button" id="btnValidateRows" value="validateRows" syn-events="['click']" />
+            <input type="button" id="btnGetLogicalRowIndex" value="getLogicalRowIndex" syn-events="['click']" />
+            <input type="button" id="btnGetLogicalColIndex" value="getLogicalColIndex" syn-events="['click']" />
+            <input type="button" id="btnGetFirstShowColIndex" value="getFirstShowColIndex" syn-events="['click']" />
+            <input type="button" id="btnGetLastShowColIndex" value="getLastShowColIndex" syn-events="['click']" />
+            <input type="button" id="btnAddCondition" value="addCondition" syn-events="['click']" />
+            <input type="button" id="btnRemoveCondition" value="removeCondition" syn-events="['click']" />
+            <input type="button" id="btnClearConditions" value="clearConditions" syn-events="['click']" />
+            <input type="button" id="btnMerge" value="Merge" syn-events="['click']" />
+            <input type="button" id="btnUnMerge" value="UnMerge" syn-events="['click']" />
+            <input type="button" id="btnIsCellClassName" value="IsCellAlert" syn-events="['click']" />
+            <input type="button" id="btnSetCellClassName" value="SetCellClassName" syn-events="['click']" />
+            <input type="button" id="btnRefreshSummary" value="RefreshSummary" syn-events="['click']" />
+        </div>
+    </form>
+	<script src="/lib/xlsx/xlsx.core.min.js"></script>
+	<script src="/lib/papaparse/papaparse.min.js"></script>
+	<script src="/js/syn.loader.js"></script>
+</body>
+</html>

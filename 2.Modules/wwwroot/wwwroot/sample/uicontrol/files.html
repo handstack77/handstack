@@ -1,0 +1,178 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <div>속성</div>
+            <pre>name: 'syn.uicontrols.$fileclient',
+version: '1.0.0',
+defaultSetting: {
+    elementID: null,
+    dialogTitle: '파일 업로드',
+    tokenID: '',
+    repositoryID: '',
+    dependencyID: '',
+    fileUpdateCallback: null,
+    uploadType: 'Single',
+    uploadUrl: '',
+    uploadExtensions: '*',
+    uploadCount: 1,
+    fileChangeHandler: undefined,
+    custom1: undefined,
+    custom2: undefined,
+    custom3: undefined,
+    fileManagerServer: '',
+    dataType: 'string',
+    belongID: null,
+    controlText: null,
+    validators: null,
+    transactConfig: null,
+    triggerConfig: null
+},</pre>
+        </div>
+        <hr />
+        <div>
+            <div>메서드</div>
+            <pre>
+컨트롤 기능
+getFileSetting: function(elID) - 저장소 정보
+getItem: function (elID, itemID, callback) - 업로드 파일 정보 조회
+getItems: function (elID, dependencyID, callback) - 업로드 파일 목록 정보 조회
+updateDependencyID: function (elID, sourceDependencyID, targetDependencyID, callback) - DependencyID 정보 변경
+fileDownload: function (elID) - 파일 다운로드
+
+API 기능
+httpDownloadFile: function (repositoryID, itemID, fileMD5, tokenID) - http 기반 직접 파일 다운로드
+uploadBlob: function (options, callback) - Blob 파일 업로드
+uploadBlobUri: function (options, callback) - BlobUri 파일 업로드
+uploadDataUri: function (options, callback) - DataUri 파일 업로드
+</pre>
+        </div>
+        <div>
+            <hr />
+            <div>
+                <div>어플리케이션 프로필 이미지 파일 업로드 예시</div>
+                txtProfile1DependencyID - <input type="text" id="txtProfile1DependencyID" value="Profile1DependencyID" />
+                <syn_fileclient id="txtProfile1FileID" syn-datafield="Profile1FileID" syn-options="{
+				repositoryID: 'LFSLP01'
+			}"></syn_fileclient>
+            </div>
+            <hr />
+            <div>
+                <div>기능</div>
+                <input type="button" id="btnProfile1FileGetValue" value="Profile1FileGetValue" syn-events="['click']" />
+                <input type="button" id="btnProfile1FileSetValue" value="Profile1FileSetValue" syn-events="['click']" />
+                <input type="button" id="btnProfile1FileClear" value="Profile1FileClear" syn-events="['click']" />
+                <input type="button" id="btnProfile1FileUpload" value="Profile1FileUpload" syn-events="['click']" />
+                <input type="button" id="btnProfile1FileDownload" value="Profile1FileDownload" syn-events="['click']" />
+                <input type="button" id="btnProfile1GetItem" value="Profile1GetItem" syn-events="['click']" />
+                <input type="button" id="btnProfile1DeleteItem" value="Profile1DeleteItem" syn-events="['click']" />
+                <input type="button" id="btnProfile1UpdateDependencyID" value="Profile1UpdateDependencyID" syn-events="['click']" />
+                <input type="button" id="btnProfile1UpdateFileName" value="Profile1UpdateFileName" syn-events="['click']" />
+            </div>
+        </div>
+        <div>
+            <hr />
+            <div>
+                <div>사용자 프로필 이미지 파일 업로드 예시</div>
+                txtProfile2DependencyID - <input type="text" id="txtProfile2DependencyID" value="Profile2DependencyID" />
+                <syn_fileclient id="txtProfile2FileID" syn-datafield="Profile2FileID" syn-options="{
+				repositoryID: 'LFSLP02'
+			}"></syn_fileclient>
+            </div>
+            <hr />
+            <div>
+                <div>기능</div>
+                <input type="button" id="btnProfile2FileGetValue" value="Profile2FileGetValue" syn-events="['click']" />
+                <input type="button" id="btnProfile2FileSetValue" value="Profile2FileSetValue" syn-events="['click']" />
+                <input type="button" id="btnProfile2FileClear" value="Profile2FileClear" syn-events="['click']" />
+                <input type="button" id="btnProfile2FileUpload" value="Profile2FileUpload" syn-events="['click']" />
+                <input type="button" id="btnProfile2FileDownload" value="Profile2FileDownload" syn-events="['click']" />
+                <input type="button" id="btnProfile2GetItem" value="Profile2GetItem" syn-events="['click']" />
+                <input type="button" id="btnProfile2DeleteItem" value="Profile2DeleteItem" syn-events="['click']" />
+                <input type="button" id="btnProfile2UpdateDependencyID" value="Profile2UpdateDependencyID" syn-events="['click']" />
+                <input type="button" id="btnProfile2UpdateFileName" value="Profile2UpdateFileName" syn-events="['click']" />
+            </div>
+        </div>
+        <div>
+            <hr />
+            <div>
+                <div>단일 파일 업로드 예시</div>
+                txtSingleDependencyID - <input type="text" id="txtSingleDependencyID" value="SingleDependencyID" />
+                <syn_fileclient id="txtSingleFileID" syn-datafield="SingleFileID" syn-options="{
+				repositoryID: 'LFSLS01'
+			}"></syn_fileclient>
+            </div>
+            <hr />
+            <div>
+                <div>기능</div>
+                <input type="button" id="btnSingleFileGetValue" value="SingleFileGetValue" syn-events="['click']" />
+                <input type="button" id="btnSingleFileSetValue" value="SingleFileSetValue" syn-events="['click']" />
+                <input type="button" id="btnSingleFileClear" value="SingleFileClear" syn-events="['click']" />
+                <input type="button" id="btnSingleFileUpload" value="SingleFileUpload" syn-events="['click']" />
+                <input type="button" id="btnSingleFileDownload" value="SingleFileDownload" syn-events="['click']" />
+                <input type="button" id="btnSingleGetItem" value="SingleGetItem" syn-events="['click']" />
+                <input type="button" id="btnSingleDeleteItem" value="SingleDeleteItem" syn-events="['click']" />
+                <input type="button" id="btnSingleUpdateDependencyID" value="SingleUpdateDependencyID" syn-events="['click']" />
+            </div>
+        </div>
+        <div>
+            <hr />
+            <div>
+                <div>멀티 파일 업로드 예시</div>
+                txtFileDependencyID - <input type="text" id="txtMultiDependencyID" value="MultiDependencyID" />
+                txtFileItemID - <input type="text" id="txtMultiItemID" value="" />
+                <syn_fileclient id="txtMultiFileID" syn-datafield="MultiFileID" syn-options="{
+				repositoryID: 'LFSLM01'
+			}"></syn_fileclient>
+            </div>
+            <hr />
+            <div>
+                <div>기능</div>
+                <input type="button" id="btnMultiFileGetValue" value="MultiFileGetValue" syn-events="['click']" />
+                <input type="button" id="btnMultiFileSetValue" value="MultiFileSetValue" syn-events="['click']" />
+                <input type="button" id="btnMultiFileClear" value="MultiFileClear" syn-events="['click']" />
+                <input type="button" id="btnMultiFileUpload" value="MultiFileUpload" syn-events="['click']" />
+                <input type="button" id="btnMultiFileDownload" value="MultiFileDownload" syn-events="['click']" />
+                <input type="button" id="btnMultiGetItem" value="MultiGetItem" syn-events="['click']" />
+                <input type="button" id="btnMultiGetItems" value="MultiGetItems" syn-events="['click']" />
+                <input type="button" id="btnMultiDeleteItem" value="MultiDeleteItem" syn-events="['click']" />
+                <input type="button" id="btnMultiDeleteItems" value="MultiDeleteItems" syn-events="['click']" />
+                <input type="button" id="btnMultiUpdateDependencyID" value="MultiUpdateDependencyID" syn-events="['click']" />
+            </div>
+        </div>
+        <div>
+            <hr />
+            <div>
+                <div>에디터내 이미지 파일 업로드 예시</div>
+                txtFileDependencyID - <input type="text" id="txtImageLinkDependencyID" value="ImageLinkDependencyID" />
+                txtFileItemID - <input type="text" id="txtImageLinkItemID" value="" />
+                <syn_fileclient id="txtImageLinkFileID" syn-datafield="ImageLinkFileID" syn-options="{
+				repositoryID: 'LFSLE01'
+			}"></syn_fileclient>
+            </div>
+            <hr />
+            <div>
+                <div>기능</div>
+                <input type="button" id="btnImageLinkFileUpload" value="ImageLinkFileUpload" syn-events="['click']" />
+                <input type="button" id="btnImageLinkGetItem" value="ImageLinkGetItem" syn-events="['click']" />
+                <input type="button" id="btnImageLinkGetItems" value="ImageLinkGetItems" syn-events="['click']" />
+                <input type="button" id="btnImageLinkDeleteItem" value="ImageLinkDeleteItem" syn-events="['click']" />
+                <input type="button" id="btnImageLinkDeleteItems" value="ImageLinkDeleteItems" syn-events="['click']" />
+                <input type="button" id="btnImageLinkUpdateDependencyID" value="ImageLinkUpdateDependencyID" syn-events="['click']" />
+            </div>
+            <div>
+                <syn_htmleditor id="txtHtmlEditor" syn-datafield="HtmlEditor" style="width:100%; height: 320px;" syn-options="{
+					repositoryID: 'LFSLE01',
+					dependencyID: 'ImageLinkDependencyID'
+				}" />
+            </div>
+        </div>
+    </form>
+    <script src="/lib/tinymce/tinymce.min.js"></script>
+	<script src="/js/syn.loader.js"></script>
+</body>
+</html>

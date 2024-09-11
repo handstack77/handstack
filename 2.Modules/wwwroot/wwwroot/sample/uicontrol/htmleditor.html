@@ -1,0 +1,66 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div>
+            <div>속성</div>
+            <pre>name: 'syn.uicontrols.$htmleditor',
+version: '1.0.0',
+defaultSetting: {
+    width: '320px',
+    height: '240px',
+    contents: '',
+    dataType: 'string',
+    belongID: null,
+    transactConfig: null,
+    triggerConfig: null,
+    읽기 모드 적용시...
+    readonly: true,
+    menubar: false,
+    statusbar: false,
+    toolbar: false
+},</pre>
+        </div>
+        <hr />
+        <div>
+            <div>메서드</div>
+            <pre>
+
+</pre>
+        </div>
+        <hr />
+        <div>
+            <div>예시</div>
+            <syn_fileclient id="txtSingleFileID" syn-datafield="SingleFileID" syn-options="{
+				repositoryID: 'LFSLE01'
+			}"></syn_fileclient>
+            <syn_htmleditor id="txtHtmlEditor" syn-datafield="HtmlEditor" style="width:100%; height: 320px;" syn-options="{
+                repositoryID: '07'
+			}">
+                <div>
+                    <div>html</div>
+                </div>
+                <p><iframe src="https://www.youtube.com/embed/e-zmLUFSnhM" width="560" height="314" allowfullscreen="allowfullscreen"></iframe></p>
+                <p>&nbsp;</p>
+                <p><a title="www.naver.com" href="http://www.naver.com" target="_self" rel="noopener">www.naver.com</a></p>
+                <p>&nbsp;</p>
+                <p>&nbsp;</p>
+            </syn_htmleditor>
+        </div>
+        <hr />
+        <div id='editableDiv' contenteditable='true'>Paste</div>
+        <hr />
+        <div>
+            <div>기능</div>
+            <input type="button" id="btnGetValue" value="getValue" syn-events="['click']" />
+            <input type="button" id="btnSetValue" value="setValue" syn-events="['click']" />
+            <input type="button" id="btnClear" value="clear" syn-events="['click']" />
+        </div>
+    </form>
+    <script src="/lib/tinymce/tinymce.min.js"></script>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

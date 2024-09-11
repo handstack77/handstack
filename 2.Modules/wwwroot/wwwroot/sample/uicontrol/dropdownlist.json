@@ -1,0 +1,41 @@
+﻿{
+	"ProgramID": "EWP",
+	"BusinessID": "DWP",
+	"SystemID": "QAFDSO01",
+	"TransactionID": "codegroup",
+	"ModifiedDate": "2020-02-11 00:00:00",
+	"DataSource": {
+		"CMM001": {
+			"CodeColumnID": "CodeID",
+			"ValueColumnID": "CodeValue",
+			"DataSource": [
+				{
+					"CodeID": "0",
+					"CodeValue": "권한없음"
+				},
+				{
+					"CodeID": "1",
+					"CodeValue": "권한존재"
+				}
+			]
+		},
+		"CMM002": {
+			"CodeColumnID": "CodeID",
+			"ValueColumnID": "CodeValue",
+			"DataSource": [
+				{
+					"CodeID": "0",
+					"CodeValue": "남자"
+				},
+				{
+					"CodeID": "1",
+					"CodeValue": "여자"
+				},
+				{
+					"CodeID": "2",
+					"CodeValue": "공개안함"
+				}
+			]
+		}
+	}
+}
