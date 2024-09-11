@@ -15,6 +15,7 @@
             indentUnit: 4,
             lineNumbers: true,
             toSynControl: true,
+            resize: false,
             dataType: 'string',
             belongID: null,
             getter: false,
@@ -57,9 +58,14 @@
             el.style.height = setting.height;
 
             el.setAttribute('syn-options', JSON.stringify(setting));
+            el.setAttribute('spellcheck', 'false');
 
             var events = el.getAttribute('syn-events');
             var editor = null;
+
+            if (setting.resize == false) {
+                el.style.resize = 'none';
+            }
 
             if (setting.toSynControl == true) {
                 if (el.getAttribute('maxlength') || el.getAttribute('maxlengthB')) {
