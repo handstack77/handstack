@@ -98,17 +98,69 @@ let $HUM040 = {
             syn.$w.addUIButton();
 
             if (syn.uicontrols.$sourceeditor) {
-                window.require = {
-                    paths: { 'vs': syn.uicontrols.$sourceeditor.defaultSetting.basePath },
-                    'vs/nls': {
-                        availableLanguages: {
-                            '*': 'ko'
-                        }
-                    }
-                };
                 syn.$w.loadScript(syn.uicontrols.$sourceeditor.defaultSetting.basePath + '/loader.js', null, () => {
-                    syn.$w.loadScript(syn.uicontrols.$sourceeditor.defaultSetting.basePath + '/editor/editor.main.nls.ko.js');
-                    syn.$w.loadScript(syn.uicontrols.$sourceeditor.defaultSetting.basePath + '/editor/editor.main.js');
+                    require.config({
+                        paths: { 'vs': syn.uicontrols.$sourceeditor.defaultSetting.basePath },
+                        'vs/nls': {
+                            availableLanguages: {
+                                '*': 'ko'
+                            }
+                        }
+                    });
+
+                    window.MonacoEnvironment = {
+                        getWorkerUrl: function (workerId, label) {
+                            return `data:text/javascript,`;
+                        }
+                    };
+
+                    require(['vs/editor/editor.main', 'vs/nls.messages.ko'], function () {
+                        if (window.monaco) {
+                            var editorSetting = {
+                                width: '100%',
+                                height: '100vh',
+                                language: 'txt',
+                                minimap: {
+                                    enabled: false
+                                },
+                                roundedSelection: false,
+                                scrollBeyondLastLine: false,
+                                readOnly: false,
+                                lineNumbers: 'on',
+                                theme: 'vs-dark',
+                                formatOnPaste: true,
+                                autoIndent: "none",
+                                fontFamily: 'D2Coding,monaco,Consolas,Lucida Console,monospace',
+                                fontSize: 20,
+                                lineHeight: 22,
+                                dataType: 'string',
+                                basePath: syn.uicontrols.$sourceeditor.defaultSetting.basePath,
+                                mouseWheelZoom: true,
+                                isLoadScript: true,
+                                belongID: null,
+                                controlText: null,
+                                validators: null,
+                                transactConfig: null,
+                                triggerConfig: null
+                            };
+
+                            var customSetting = syn.$w.getStorage('editorSetting', true);
+                            if (customSetting != null) {
+                                editorSetting.fontFamily = $string.isNullOrEmpty(customSetting.fontFamily) == false ? customSetting.fontFamily : 'D2Coding,monaco,Consolas,Lucida Console,monospace';
+                                editorSetting.fontSize = ($string.isNullOrEmpty(customSetting.fontSize) == false && $string.isNumber(customSetting.fontSize) == true) ? customSetting.fontSize : 14;
+                                editorSetting.minimap = $string.toBoolean(customSetting.minimap) == true ? { enabled: true } : { enabled: false };
+                                editorSetting.lineNumbers = $string.toBoolean(customSetting.lineNumbers) == true ? 'on' : 'off';
+                                editorSetting.theme = $string.toBoolean(customSetting.darkMode) == true ? 'vs-dark' : 'vs';
+                                editorSetting.mouseWheelZoom = $string.toBoolean(customSetting.mouseWheelZoom);
+                                editorSetting.autoIndent = $string.toBoolean(customSetting.autoIndent) == true ? 'full' : 'none';
+                            }
+
+                            editorSetting = syn.$w.argumentsExtend(syn.uicontrols.$sourceeditor.defaultSetting, editorSetting);
+                            $this.prop.sourceEditor = monaco.editor.create(syn.$l.get('divSourceEditor'), editorSetting);
+
+                            syn.$w.transactionAction('LF01');
+                        }
+                    });
                 });
             }
         },
@@ -118,57 +170,6 @@ let $HUM040 = {
             syn.$l.get('txtApplicationID').value = syn.$w.ManagedApp.ApplicationID;
             syn.$l.get('txtApplicationName').value = syn.$w.ManagedApp.ApplicationName;
             syn.$l.get('txtUserNo').value = syn.$w.User.UserNo;
-
-            $this.prop.editorLoadIntervalID = setInterval(() => {
-                if ($object.isNullOrUndefined(window.monaco) == false && $object.isNullOrUndefined($this.prop.editorLoadIntervalID) == false) {
-                    clearInterval($this.prop.editorLoadIntervalID);
-                    $this.prop.editorLoadIntervalID = null;
-
-                    var editorSetting = {
-                        width: '100%',
-                        height: '100vh',
-                        language: 'txt',
-                        minimap: {
-                            enabled: false
-                        },
-                        roundedSelection: false,
-                        scrollBeyondLastLine: false,
-                        readOnly: false,
-                        lineNumbers: 'on',
-                        theme: 'vs-dark',
-                        formatOnPaste: true,
-                        autoIndent: "none",
-                        fontFamily: 'D2Coding,monaco,Consolas,Lucida Console,monospace',
-                        fontSize: 20,
-                        lineHeight: 22,
-                        dataType: 'string',
-                        basePath: '/lib/monaco-editor-0.39.0/vs',
-                        mouseWheelZoom: true,
-                        isLoadScript: true,
-                        belongID: null,
-                        controlText: null,
-                        validators: null,
-                        transactConfig: null,
-                        triggerConfig: null
-                    };
-
-                    var customSetting = syn.$w.getStorage('editorSetting', true);
-                    if (customSetting != null) {
-                        editorSetting.fontFamily = $string.isNullOrEmpty(customSetting.fontFamily) == false ? customSetting.fontFamily : 'D2Coding,monaco,Consolas,Lucida Console,monospace';
-                        editorSetting.fontSize = ($string.isNullOrEmpty(customSetting.fontSize) == false && $string.isNumber(customSetting.fontSize) == true) ? customSetting.fontSize : 14;
-                        editorSetting.minimap = $string.toBoolean(customSetting.minimap) == true ? { enabled: true } : { enabled: false };
-                        editorSetting.lineNumbers = $string.toBoolean(customSetting.lineNumbers) == true ? 'on' : 'off';
-                        editorSetting.theme = $string.toBoolean(customSetting.darkMode) == true ? 'vs-dark' : 'vs';
-                        editorSetting.mouseWheelZoom = $string.toBoolean(customSetting.mouseWheelZoom);
-                        editorSetting.autoIndent = $string.toBoolean(customSetting.autoIndent) == true ? 'full' : 'none';
-                    }
-
-                    editorSetting = syn.$w.argumentsExtend(syn.uicontrols.$sourceeditor.defaultSetting, editorSetting);
-                    $this.prop.sourceEditor = monaco.editor.create(syn.$l.get('divSourceEditor'), editorSetting);
-
-                    syn.$w.transactionAction('LF01');
-                }
-            }, 25);
         },
     },
 

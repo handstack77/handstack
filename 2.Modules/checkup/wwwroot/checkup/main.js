@@ -130,17 +130,24 @@ let $main = {
             }
 
             if (syn.uicontrols.$sourceeditor) {
-                window.require = {
-                    paths: { 'vs': syn.uicontrols.$sourceeditor.defaultSetting.basePath },
-                    'vs/nls': {
-                        availableLanguages: {
-                            '*': 'ko'
-                        }
-                    }
-                };
                 syn.$w.loadScript(syn.uicontrols.$sourceeditor.defaultSetting.basePath + '/loader.js', null, () => {
-                    syn.$w.loadScript(syn.uicontrols.$sourceeditor.defaultSetting.basePath + '/editor/editor.main.nls.ko.js');
-                    syn.$w.loadScript(syn.uicontrols.$sourceeditor.defaultSetting.basePath + '/editor/editor.main.js');
+                    require.config({
+                        paths: { 'vs': syn.uicontrols.$sourceeditor.defaultSetting.basePath },
+                        'vs/nls': {
+                            availableLanguages: {
+                                '*': 'ko'
+                            }
+                        }
+                    });
+
+                    window.MonacoEnvironment = {
+                        getWorkerUrl: function (workerId, label) {
+                            return `data:text/javascript,`;
+                        }
+                    };
+
+                    require(['vs/editor/editor.main', 'vs/nls.messages.ko'], function () {
+                    });
                 });
             }
         },
@@ -1711,7 +1718,7 @@ let $main = {
                     fontSize: 20,
                     lineHeight: 22,
                     dataType: 'string',
-                    basePath: '/lib/monaco-editor-0.39.0/vs',
+                    basePath: syn.uicontrols.$sourceeditor.defaultSetting.basePath,
                     mouseWheelZoom: true,
                     isLoadScript: true,
                     belongID: null,

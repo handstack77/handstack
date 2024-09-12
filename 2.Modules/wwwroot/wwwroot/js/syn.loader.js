@@ -390,7 +390,7 @@
                 type: 'before-default',
                 css: [
                     '/lib/tabler-core/dist/css/tabler.css',
-                    '/lib/tabler-icons-webfont/tabler-icons.css',
+                    '/lib/tabler-icons-webfont/dist/tabler-icons.css',
                     '/js/notifier/notifier.css',
                     '/js/jquery-ui-contextmenu/jquery-ui.css'
                 ],
@@ -809,7 +809,7 @@
                     styleFiles = styleFiles.concat([
                         // syn.scripts.js
                         '/lib/tabler-core/dist/css/tabler.css',
-                        '/lib/tabler-icons-webfont/tabler-icons.css',
+                        '/lib/tabler-icons-webfont/dist/tabler-icons.css',
                         '/lib/handsontable/dist/handsontable.full.css',
                         '/lib/tail.select.js/css/default/tail.select-light.css',
                         '/lib/ispin/dist/ispin.css',

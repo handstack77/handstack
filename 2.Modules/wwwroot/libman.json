@@ -27,7 +27,7 @@
             "destination": "wwwroot/lib/contextmenu/"
         },
         {
-            "library": "darkreader@4.9.92",
+            "library": "darkreader@4.9.89",
             "destination": "wwwroot/lib/darkreader/"
         },
         {

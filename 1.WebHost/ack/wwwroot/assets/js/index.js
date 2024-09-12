@@ -1,4 +1,4 @@
-﻿/*!
+/*!
 HandStack Javascript Library v1.0.0
 https://syn.handshake.kr
 
@@ -6673,28 +6673,33 @@ globalRoot.syn = syn;
 
             resourceID = scriptID || 'id_' + syn.$l.random();
 
-            var el = document.createElement('script');
-            el.setAttribute('type', 'text/javascript');
-            el.setAttribute('id', resourceID);
-            if (syn.Config && $string.toBoolean(syn.Config.IsClientCaching) == true) {
-                el.setAttribute('src', url);
-            }
-            else {
-                el.setAttribute('src', url + (url.indexOf('?') > -1 ? '&' : '?') + 'noCache=' + (new Date()).getTime());
-            }
+            var scriptTag = document.getElementById(resourceID);
+            if (scriptTag) {
+                callback();
+            } else {
+                var el = document.createElement('script');
+                el.setAttribute('type', 'text/javascript');
+                el.setAttribute('id', resourceID);
+                if (syn.Config && $string.toBoolean(syn.Config.IsClientCaching) == true) {
+                    el.setAttribute('src', url);
+                }
+                else {
+                    el.setAttribute('src', url + (url.indexOf('?') > -1 ? '&' : '?') + 'noCache=' + (new Date()).getTime());
+                }
 
-            if (callback && typeof callback === 'function') {
-                el.onload = function () {
-                    callback();
-                };
-            }
+                if (callback && typeof callback === 'function') {
+                    el.onload = function () {
+                        callback();
+                    };
+                }
 
-            head.insertBefore(el, head.firstChild);
+                head.insertBefore(el, head.firstChild);
+            }
 
             return $webform;
         },
 
-        loadStyle(url, styleID) {
+        loadStyle(url, styleID, callback) {
             var head;
             var resourceID;
             if (document.getElementsByTagName('head')) {
@@ -6707,18 +6712,29 @@ globalRoot.syn = syn;
 
             resourceID = styleID || 'id_' + syn.$l.random();
 
-            var el = document.createElement('link');
-            el.setAttribute('rel', 'stylesheet');
-            el.setAttribute('type', 'text/css');
-            el.setAttribute('id', resourceID);
-            if (syn.Config && $string.toBoolean(syn.Config.IsClientCaching) == true) {
-                el.setAttribute('href', url);
-            }
-            else {
-                el.setAttribute('href', url + (url.indexOf('?') > -1 ? '&' : '?') + 'noCache=' + (new Date()).getTime());
-            }
+            var styleTag = document.getElementById('scriptID');
+            if (styleTag) {
+                if (callback && typeof callback === 'function') {
+                    callback();
+                }
+            } else {
+                var el = document.createElement('link');
+                el.setAttribute('rel', 'stylesheet');
+                el.setAttribute('type', 'text/css');
+                el.setAttribute('id', resourceID);
+                if (syn.Config && $string.toBoolean(syn.Config.IsClientCaching) == true) {
+                    el.setAttribute('href', url);
+                }
+                else {
+                    el.setAttribute('href', url + (url.indexOf('?') > -1 ? '&' : '?') + 'noCache=' + (new Date()).getTime());
+                }
 
-            head.appendChild(el);
+                head.appendChild(el);
+
+                if (callback && typeof callback === 'function') {
+                    callback();
+                }
+            }
 
             return $webform;
         },

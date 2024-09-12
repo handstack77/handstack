@@ -13,7 +13,7 @@
     "Definition": {
         "BindingAction": "Replace",
         "Styles": [
-            "/lib/tabler-icons-webfont/tabler-icons.css",
+            "/lib/tabler-icons-webfont/dist/tabler-icons.css",
             "/app/#{ApplicationNo}/assets/app.bundle.min.css"
         ],
         "Scripts": [

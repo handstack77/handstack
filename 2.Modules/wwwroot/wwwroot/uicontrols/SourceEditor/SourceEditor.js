@@ -35,37 +35,41 @@
                 $sourceeditor.lazyControlLoad(elID, setting);
             }
             else {
-                window.require = {
-                    paths: { 'vs': $sourceeditor.defaultSetting.basePath },
-                    'vs/nls': {
-                        availableLanguages: {
-                            '*': 'ko'
-                        }
+                syn.$w.loadScript($sourceeditor.defaultSetting.basePath + '/loader.js', 'monacosourceeditor', () => {
+                    if (window.require) {
+                        require.config({
+                            paths: { 'vs': syn.uicontrols.$sourceeditor.defaultSetting.basePath },
+                            'vs/nls': {
+                                availableLanguages: {
+                                    '*': 'ko'
+                                }
+                            }
+                        });
+
+                        window.MonacoEnvironment = {
+                            getWorkerUrl: function (workerId, label) {
+                                return `data:text/javascript,`;
+                            }
+                        };
+
+                        require(['vs/editor/editor.main', 'vs/nls.messages.ko'], function () {
+                            if (window.monaco) {
+                                var length = $sourceeditor.editorPendings.length;
+                                for (var i = 0; i < length; i++) {
+                                    var item = $sourceeditor.editorPendings[i];
+
+                                    $sourceeditor.lazyControlLoad(item.elID, item.setting);
+                                }
+
+                                $sourceeditor.editorPendings.length = 0;
+                            }
+                        });
                     }
-                };
-                syn.$w.loadScript($sourceeditor.defaultSetting.basePath + '/loader.js', null, () => {
-                    syn.$w.loadScript($sourceeditor.defaultSetting.basePath + '/editor/editor.main.nls.ko.js');
-                    syn.$w.loadScript($sourceeditor.defaultSetting.basePath + '/editor/editor.main.js');
                 });
-
-                var editorIntervalID = setInterval(function () {
-                    if (window.monaco) {
-                        var length = $sourceeditor.editorPendings.length;
-                        for (var i = 0; i < length; i++) {
-                            var item = $sourceeditor.editorPendings[i];
-
-                            clearInterval(item.intervalID);
-                            $sourceeditor.lazyControlLoad(item.elID, item.setting);
-                        }
-
-                        $sourceeditor.editorPendings.length = 0;
-                    }
-                }, 25);
 
                 $sourceeditor.editorPendings.push({
                     elID: elID,
-                    setting: setting,
-                    intervalID: editorIntervalID
+                    setting: setting
                 });
             }
         },
