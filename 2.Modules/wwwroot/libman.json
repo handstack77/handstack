@@ -15,7 +15,7 @@
             "destination": "wwwroot/lib/bootstrap/"
         },
         {
-            "library": "Chart.js@4.3.0",
+            "library": "Chart.js@4.4.1",
             "destination": "wwwroot/lib/chart.js/"
         },
         {
@@ -27,7 +27,7 @@
             "destination": "wwwroot/lib/contextmenu/"
         },
         {
-            "library": "darkreader@4.9.79",
+            "library": "darkreader@4.9.92",
             "destination": "wwwroot/lib/darkreader/"
         },
         {
@@ -57,7 +57,7 @@
         },
         {
             "provider": "jsdelivr",
-            "library": "signature_pad@5.0.2",
+            "library": "signature_pad@5.0.3",
             "destination": "wwwroot/lib/signature_pad/"
         },
         {
@@ -71,11 +71,11 @@
         },
         {
             "provider": "unpkg",
-            "library": "handsontable@14.1.0",
+            "library": "handsontable@14.5.0",
             "destination": "wwwroot/lib/handsontable/"
         },
         {
-            "library": "highlight.js@11.9.0",
+            "library": "highlight.js@11.10.0",
             "destination": "wwwroot/lib/highlight.js/"
         },
         {
@@ -83,7 +83,7 @@
             "destination": "wwwroot/lib/html2canvas/"
         },
         {
-            "library": "iframe-resizer@4.3.9",
+            "library": "iframe-resizer@4.4.4",
             "destination": "wwwroot/lib/iframe-resizer/"
         },
         {
@@ -100,7 +100,7 @@
             "destination": "wwwroot/lib/jquery/"
         },
         {
-            "library": "jsoneditor@10.0.1",
+            "library": "jsoneditor@10.1.0",
             "destination": "wwwroot/lib/jsoneditor/"
         },
         {
@@ -113,7 +113,7 @@
             "destination": "wwwroot/lib/moment.js/"
         },
         {
-            "library": "monaco-editor@0.46.0",
+            "library": "monaco-editor@0.51.0",
             "destination": "wwwroot/lib/monaco-editor/"
         },
         {
@@ -127,7 +127,7 @@
         },
         {
             "provider": "jsdelivr",
-            "library": "numbro@2.4.0",
+            "library": "numbro@2.5.0",
             "destination": "wwwroot/lib/numbro/"
         },
         {
@@ -155,7 +155,7 @@
             "destination": "wwwroot/lib/print-js/"
         },
         {
-            "library": "require.js@2.3.6",
+            "library": "require.js@2.3.7",
             "destination": "wwwroot/lib/require.js/"
         },
         {
@@ -171,11 +171,11 @@
             "destination": "wwwroot/lib/showdown/"
         },
         {
-            "library": "microsoft-signalr@8.0.0",
+            "library": "microsoft-signalr@8.0.7",
             "destination": "wwwroot/lib/microsoft-signalr/"
         },
         {
-            "library": "sql-formatter@15.2.0",
+            "library": "sql-formatter@15.4.2",
             "destination": "wwwroot/lib/sql-formatter/"
         },
         {
@@ -245,7 +245,7 @@
         },
         {
             "provider": "jsdelivr",
-            "library": "jsonata@2.0.4",
+            "library": "jsonata@2.0.5",
             "destination": "wwwroot/lib/jsonata/"
         }
     ]
