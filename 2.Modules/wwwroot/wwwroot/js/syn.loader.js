@@ -785,7 +785,6 @@
             if (bindingAction != 'None') {
                 jsFiles = window.Configuration.Definition.Scripts || [];
                 jsFiles = jsFiles.concat(window.Configuration.Definition.Controls || []);
-                styleFiles = window.Configuration.Definition.Styles || [];
             }
         }
 
@@ -886,6 +885,7 @@
         }
 
         jsFiles.push(loaderPath);
+        styleFiles = styleFiles.concat(window.Configuration.Definition.Styles || []);
 
         var moduleFile = '';
         if (window.moduleFile) {

@@ -29,6 +29,8 @@
             },
             showWeekNumber: false,
             showMonthAfterYear: true,
+            showDaysInNextAndPreviousMonths: true,
+            enableSelectionDaysInNextAndPreviousMonths: true,
             yearSuffix: '년',
             firstDay: 0,
             useRangeSelect: false,

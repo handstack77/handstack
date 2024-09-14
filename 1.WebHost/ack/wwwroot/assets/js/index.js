@@ -1093,7 +1093,7 @@ globalRoot.syn = syn;
             return result;
         },
 
-        toString(date, format) {
+        toString(date, format, options) {
             var result = '';
             if ($object.isString(date) == true && $date.isDate(date) == true) {
                 date = new Date(date);
@@ -1146,8 +1146,11 @@ globalRoot.syn = syn;
                     result = month.toString().concat('월 ', day, '일');
                     break;
                 case 'w':
+                    options = syn.$w.argumentsExtend({
+                        weekStartSunday: true
+                    }, options);
                     var weekNumber = 1;
-                    var weekOfMonths = $date.weekOfMonth(year, month);
+                    var weekOfMonths = $date.weekOfMonth(year, month, options.weekStartSunday);
                     var currentDate = Number($date.toString(date, 'd').replace(/-/g, ''));
                     for (var i = 0; i < weekOfMonths.length; i++) {
                         var weekOfMonth = weekOfMonths[i];
@@ -1317,10 +1320,11 @@ globalRoot.syn = syn;
             return result;
         },
 
-        weekOfMonth(year, month, weekStand) {
+        weekOfMonth(year, month, weekStartSunday) {
             var result = [];
+            weekStartSunday = $object.isNullOrUndefined(weekStartSunday) == true ? true : $string.toBoolean(weekStartSunday);
             month = month || new Date().getMonth() + 1;
-            weekStand = weekStand || 8;
+            var weekStand = weekStartSunday == true ? 7 : 8;
             var date = new Date(year, month);
 
             var firstDay = new Date(date.getFullYear(), date.getMonth() - 1, 1);
@@ -1342,7 +1346,9 @@ globalRoot.syn = syn;
                 week = {};
                 if (firstDay.getDay() <= 1) {
                     if (firstDay.getDay() == 0) {
-                        firstDay.setDate(firstDay.getDate() + 1);
+                        if (weekStartSunday == false) {
+                            firstDay.setDate(firstDay.getDate() + 1);
+                        }
                     }
 
                     week.weekStartDate = firstDay.getFullYear().toString() + '-' + numberPad((firstDay.getMonth() + 1).toString(), 2) + '-' + numberPad(firstDay.getDate().toString(), 2);
