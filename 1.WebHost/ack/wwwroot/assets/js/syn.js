@@ -2878,7 +2878,7 @@ globalRoot.syn = syn;
                     result = end.getMonth() - start.getMonth() + 12 * (end.getFullYear() - start.getFullYear());
                 }
                 else if ($object.isNullOrUndefined($date.interval[interval]) == false) {
-                    var diff = Math.abs(end - start)
+                    var diff = end - start;
                     result = Math.floor(diff / $date.interval[interval]);
                 }
             }

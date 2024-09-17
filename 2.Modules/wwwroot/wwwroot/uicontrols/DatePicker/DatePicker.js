@@ -257,7 +257,7 @@
                     date = $date.addMonth(new Date(), $string.toNumber(value.split(':')[1]));
                 }
                 else if (value.startsWith('year:') == true) {
-                    date = $date.addyear(new Date(), $string.toNumber(value.split(':')[1]));
+                    date = $date.addYear(new Date(), $string.toNumber(value.split(':')[1]));
                 }
 
                 if (date) {
