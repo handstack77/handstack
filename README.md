@@ -18,7 +18,7 @@ HandStack은 다음의 기술로 개발됩니다. 각 기술은 상호보완적�
 
 위의 스택 기반 위에 제공되는 HandStack의 기능은 웹 서비스와 앱을 만들기 위한 개발 언어, 시스템 간 거래, 데이터베이스 처리, 인프라 관리, 프론트엔드, 백엔드 기술이 혼합된 풀 스택 개발 프레임워크 등의 집합입니다.
 
-자세한 내용은 [공식 가이드 문서](https://handstack.kr) 및 [유튜브 채널](https://www.youtube.com/channel/UCooI0bZNk48JFgWE6LcJCNQ) 을 참고하세요.
+자세한 내용은 [공식 가이드 문서](https://handstack.kr) 및 [유튜브 채널](https://www.youtube.com/@handstack-kr) 을 참고하세요.
 
 ### HandStack의 주요 특징
 
