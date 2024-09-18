@@ -253,6 +253,7 @@
                     syn.$l.get('spnPeriodDate').innerText = `${($date.diff(startedAt, endedAt) + 1)}일`;
 
                     $dateperiodpicker.pkaEndDate.setMinDate(startedAt);
+                    $dateperiodpicker.checkPeriodMonth();
 
                     var popup = syn.$l.get('divPeriodPicker');
                     if (syn.$m.hasClass(popup, 'hidden') == false) {
@@ -291,6 +292,7 @@
                     syn.$l.get('spnPeriodDate').innerText = `${($date.diff(startedAt, endedAt) + 1)}일`;
 
                     $dateperiodpicker.pkaStartDate.setMaxDate(endedAt);
+                    $dateperiodpicker.checkPeriodMonth();
 
                     var popup = syn.$l.get('divPeriodPicker');
                     if (syn.$m.hasClass(popup, 'hidden') == false) {
