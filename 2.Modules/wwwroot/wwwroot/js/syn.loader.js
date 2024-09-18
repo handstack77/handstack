@@ -523,6 +523,22 @@
                             '/uicontrols/DatePicker/DatePicker.js'
                         ];
                         break;
+                    case 'dateperiodpicker':
+                        item.css = [
+                            '/lib/pikaday/css/pikaday.css',
+                            '/uicontrols/TextBox/TextBox.css',
+                            '/uicontrols/DatePeriodPicker/DatePeriodPicker.css'
+                        ];
+                        item.js = [
+                            '/lib/jquery.maskedinput/jquery.maskedinput.js',
+                            '/lib/ispin/dist/ispin.js',
+                            '/lib/moment.js/moment.js',
+                            '/lib/pikaday/pikaday.js',
+                            '/lib/superplaceholder/superplaceholder.js',
+                            '/uicontrols/TextBox/TextBox.js',
+                            '/uicontrols/DatePeriodPicker/DatePeriodPicker.js'
+                        ];
+                        break;
                     case 'fileclient':
                         item.css = ['/uicontrols/FileClient/FileClient.css'];
                         item.js = ['/uicontrols/FileClient/FileClient.js'];

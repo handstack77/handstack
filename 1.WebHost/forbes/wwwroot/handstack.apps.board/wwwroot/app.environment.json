@@ -82,6 +82,7 @@
             "/uicontrols/ContextMenu/ContextMenu.js",
             "/uicontrols/DataSource/DataSource.js",
             "/uicontrols/DatePicker/DatePicker.js",
+            "/uicontrols/DatePeriodPicker/DatePeriodPicker.js",
             "/uicontrols/DropDownCheckList/DropDownCheckList.js",
             "/uicontrols/DropDownList/DropDownList.js",
             "/uicontrols/FileClient/FileClient.js",
