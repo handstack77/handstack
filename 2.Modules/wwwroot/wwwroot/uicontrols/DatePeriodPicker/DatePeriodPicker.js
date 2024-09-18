@@ -192,7 +192,7 @@
                 var divPeriodPicker = syn.$m.create({
                     id: 'divPeriodPicker',
                     tag: 'div',
-                    className: 'card absolute w:568 z-index:100 hidden'
+                    className: 'card absolute w:568 z-index:100 border-radius:0! border:1px|solid|#ccc! hidden'
                 });
 
                 divPeriodPicker.innerHTML = $dateperiodpicker.periodPickerHtml;
