@@ -3,6 +3,8 @@ using System.CommandLine;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.Versioning;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,6 +28,11 @@ namespace ack
         {
             int exitCode = 0;
 
+            var version = Assembly.GetEntryAssembly()?
+                .GetCustomAttribute<TargetFrameworkAttribute>()?
+                .FrameworkName;
+
+            Console.WriteLine($"Current .NET Core version: {version}");
             Console.WriteLine($"Current Directory from {Directory.GetCurrentDirectory()}");
             Console.WriteLine($"Launched from {Environment.CurrentDirectory}");
             Console.WriteLine($"Physical location {AppDomain.CurrentDomain.BaseDirectory}");
