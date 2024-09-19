@@ -61,12 +61,12 @@ fi
 
 current_path=$(pwd)
 if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
-    echo 'export HANDSTACK_SRC="$current_path"' >> ~/.bashrc
+    echo "export HANDSTACK_SRC=\"$current_path\"" >> ~/.bashrc
     export HANDSTACK_SRC="$current_path"
     HANDSTACK_SRC="$current_path"
 
     mkdir -p $current_path/1.WebHost/build/handstack
-    echo 'export HANDSTACK_HOME="$current_path/1.WebHost/build/handstack"' >> ~/.bashrc
+    echo "export HANDSTACK_HOME=\"$current_path/1.WebHost/build/handstack\"" >> ~/.bashrc
     export HANDSTACK_HOME="$current_path/1.WebHost/build/handstack"
     HANDSTACK_HOME="$current_path/1.WebHost/build/handstack"
 
@@ -133,7 +133,7 @@ fi
 if [ -f "$current_path/app/ack.dll" ]; then
     echo "current_path: $current_path ack 실행 환경 설치 확인 중..."
     if [ -z "$HANDSTACK_HOME" ]; then
-        echo 'export HANDSTACK_HOME="$current_path"' >> ~/.bashrc 
+        echo "export HANDSTACK_HOME=\"$current_path\"" >> ~/.bashrc
         export HANDSTACK_HOME="$current_path"
         HANDSTACK_HOME="$current_path"
         source ~/.bashrc
