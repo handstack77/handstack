@@ -133,7 +133,7 @@ fi
 if [ -f "$current_path/app/ack.dll" ]; then
     echo "current_path: $current_path ack 실행 환경 설치 확인 중..."
     if [ -z "$HANDSTACK_HOME" ]; then
-        echo 'export HANDSTACK_HOME="$current_path"' >> ~/.bashrc
+        echo 'export HANDSTACK_HOME="$current_path"' >> ~/.bashrc 
         export HANDSTACK_HOME="$current_path"
         HANDSTACK_HOME="$current_path"
         source ~/.bashrc
