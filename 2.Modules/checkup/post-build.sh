@@ -1,6 +1,6 @@
 #!/bin/bash
 # chmod +x post-build.sh
-# post-build.sh $(TargetDir)
+# post-build.sh $(TargetDir) 
 
 target_dir=${1}
 configuration_name=${2}
