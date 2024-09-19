@@ -22,17 +22,35 @@ echo "os_mode: $os_mode, action_mode: $action_mode, configuration_mode: $configu
 
 rm -rf ../publish/$os_mode-$arch_mode
 
+# post-build.sh LF 적용 및 실행 권한 부여
+tr -d '\r' < 1.WebHost/ack/post-build.sh > 1.WebHost/ack/post-build_fixed.sh && mv 1.WebHost/ack/post-build_fixed.sh 1.WebHost/ack/post-build.sh
 chmod +x 1.WebHost/ack/post-build.sh
-chmod +x 1.WebHost/forbes/post-build.sh
-chmod +x 2.Modules/checkup/post-build.sh
+
+tr -d '\r' < 2.Modules/dbclient/post-build.sh > 2.Modules/dbclient/post-build_fixed.sh && mv 2.Modules/dbclient/post-build_fixed.sh 2.Modules/dbclient/post-build.sh
 chmod +x 2.Modules/dbclient/post-build.sh
+
+tr -d '\r' < 2.Modules/function/post-build.sh > 2.Modules/function/post-build_fixed.sh && mv 2.Modules/function/post-build_fixed.sh 2.Modules/function/post-build.sh
 chmod +x 2.Modules/function/post-build.sh
+
+tr -d '\r' < 2.Modules/logger/post-build.sh > 2.Modules/logger/post-build_fixed.sh && mv 2.Modules/logger/post-build_fixed.sh 2.Modules/logger/post-build.sh
 chmod +x 2.Modules/logger/post-build.sh
-chmod +x 2.Modules/openapi/post-build.sh
-chmod +x 2.Modules/prompter/post-build.sh
+
+tr -d '\r' < 2.Modules/repository/post-build.sh > 2.Modules/repository/post-build_fixed.sh && mv 2.Modules/repository/post-build_fixed.sh 2.Modules/repository/post-build.sh
 chmod +x 2.Modules/repository/post-build.sh
+
+tr -d '\r' < 2.Modules/openapi/post-build.sh > 2.Modules/openapi/post-build_fixed.sh && mv 2.Modules/openapi/post-build_fixed.sh 2.Modules/openapi/post-build.sh
+chmod +x 2.Modules/openapi/post-build.sh
+
+tr -d '\r' < 2.Modules/prompter/post-build.sh > 2.Modules/prompter/post-build_fixed.sh && mv 2.Modules/prompter/post-build_fixed.sh 2.Modules/prompter/post-build.sh
+chmod +x 2.Modules/prompter/post-build.sh
+
+tr -d '\r' < 2.Modules/transact/post-build.sh > 2.Modules/transact/post-build_fixed.sh && mv 2.Modules/transact/post-build_fixed.sh 2.Modules/transact/post-build.sh
 chmod +x 2.Modules/transact/post-build.sh
+
+tr -d '\r' < 2.Modules/wwwroot/post-build.sh > 2.Modules/wwwroot/post-build_fixed.sh && mv 2.Modules/wwwroot/post-build_fixed.sh 2.Modules/wwwroot/post-build.sh
 chmod +x 2.Modules/wwwroot/post-build.sh
+
+tr -d '\r' < 4.Tool/CLI/handstack/post-build.sh > 4.Tool/CLI/handstack/post-build_fixed.sh && mv 4.Tool/CLI/handstack/post-build_fixed.sh 4.Tool/CLI/handstack/post-build.sh
 chmod +x 4.Tool/CLI/handstack/post-build.sh
 
 dotnet $action_mode 1.WebHost/ack/ack.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/app
