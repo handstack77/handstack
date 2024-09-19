@@ -61,16 +61,16 @@ fi
 
 current_path=$(pwd)
 if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
-    echo "export HANDSTACK_SRC=\"$current_path\"" >> ~/.bashrc
+    echo "export HANDSTACK_SRC=\"$current_path\"" | sudo tee -a /etc/profile
     export HANDSTACK_SRC="$current_path"
     HANDSTACK_SRC="$current_path"
 
     mkdir -p $current_path/1.WebHost/build/handstack
-    echo "export HANDSTACK_HOME=\"$current_path/1.WebHost/build/handstack\"" >> ~/.bashrc
+    echo "export HANDSTACK_HOME=\"$current_path/1.WebHost/build/handstack\"" | sudo tee -a /etc/profile
     export HANDSTACK_HOME="$current_path/1.WebHost/build/handstack"
     HANDSTACK_HOME="$current_path/1.WebHost/build/handstack"
 
-    source ~/.bashrc
+    source /etc/profile
 
     echo "current_path: $current_path 개발 환경 설치 확인 중..."
     if [ ! -d "$current_path/1.WebHost/ack/node_modules" ]; then
@@ -133,10 +133,10 @@ fi
 if [ -f "$current_path/app/ack.dll" ]; then
     echo "current_path: $current_path ack 실행 환경 설치 확인 중..."
     if [ -z "$HANDSTACK_HOME" ]; then
-        echo "export HANDSTACK_HOME=\"$current_path\"" >> ~/.bashrc
+        echo "export HANDSTACK_HOME=\"$current_path\"" | sudo tee -a /etc/profile
         export HANDSTACK_HOME="$current_path"
         HANDSTACK_HOME="$current_path"
-        source ~/.bashrc
+        source /etc/profile
     fi
 
     if [ ! -d "$current_path/node_modules" ]; then

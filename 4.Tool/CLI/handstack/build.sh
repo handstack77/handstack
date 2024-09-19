@@ -16,5 +16,5 @@ arch_mode=${4:-x64}
 
 echo "os_mode: $os_mode, action_mode: $action_mode, configuration_mode: $configuration_mode, arch_mode: $arch_mode"
 
-rm -rf /home/qcn/publish/$os_mode-$arch_mode/handstack/app/cli
-dotnet $action_mode handstack.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output /home/qcn/publish/$os_mode-$arch_mode/handstack/app/cli
+rm -rf ~/publish/$os_mode-$arch_mode/handstack/app/cli
+dotnet $action_mode handstack.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ~/publish/$os_mode-$arch_mode/handstack/app/cli
