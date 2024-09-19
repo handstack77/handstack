@@ -21,30 +21,45 @@ arch_mode=${4:-x64}
 echo "os_mode: $os_mode, action_mode: $action_mode, configuration_mode: $configuration_mode, arch_mode: $arch_mode"
 
 rm -rf ../publish/$os_mode-$arch_mode
-dotnet $action_mode 1.WebHost/ack/ack.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/app
-dotnet $action_mode 1.WebHost/forbes/forbes.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/forbes
-dotnet publish 4.Tool/CLI/handstack/handstack.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/app/cli
+
+chmod +x 1.WebHost/ack/post-build.sh
+chmod +x 1.WebHost/forbes/post-build.sh
+chmod +x 2.Modules/checkup/post-build.sh
+chmod +x 2.Modules/dbclient/post-build.sh
+chmod +x 2.Modules/function/post-build.sh
+chmod +x 2.Modules/logger/post-build.sh
+chmod +x 2.Modules/openapi/post-build.sh
+chmod +x 2.Modules/prompter/post-build.sh
+chmod +x 2.Modules/repository/post-build.sh
+chmod +x 2.Modules/transact/post-build.sh
+chmod +x 2.Modules/wwwroot/post-build.sh
+chmod +x 4.Tool/CLI/handstack/post-build.sh
+
+dotnet $action_mode 1.WebHost/ack/ack.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/app
+dotnet $action_mode 1.WebHost/forbes/forbes.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/forbes
+dotnet publish 4.Tool/CLI/handstack/handstack.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/app/cli
 
 forbes_path=../publish/$os_mode-$arch_mode/handstack/forbes
-mv $forbes_path/wwwroot $forbes_path
+mv $forbes_path/wwwroot/* $forbes_path
+rm -rf $forbes_path/wwwroot
 rm -f $forbes_path/*
 
 contracts_path=1.WebHost/build/handstack/contracts
 rm -rf $contracts_path/*
 
-dotnet build 2.Modules/dbclient/dbclient.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/modules/dbclient
-dotnet build 2.Modules/function/function.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/modules/function
-dotnet build 2.Modules/logger/logger.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/modules/logger
-dotnet build 2.Modules/repository/repository.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/modules/repository
-dotnet build 2.Modules/transact/transact.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/modules/transact
-dotnet build 2.Modules/wwwroot/wwwroot.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/modules/wwwroot
-dotnet build 2.Modules/checkup/checkup.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/modules/checkup
-dotnet build 2.Modules/openapi/openapi.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/modules/openapi
-dotnet build 2.Modules/prompter/prompter.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/modules/prompter
+dotnet build 2.Modules/dbclient/dbclient.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/modules/dbclient
+dotnet build 2.Modules/function/function.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/modules/function
+dotnet build 2.Modules/logger/logger.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/modules/logger
+dotnet build 2.Modules/repository/repository.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/modules/repository
+dotnet build 2.Modules/transact/transact.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/modules/transact
+dotnet build 2.Modules/wwwroot/wwwroot.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/modules/wwwroot
+dotnet build 2.Modules/checkup/checkup.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/modules/checkup
+dotnet build 2.Modules/openapi/openapi.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/modules/openapi
+dotnet build 2.Modules/prompter/prompter.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/modules/prompter
 
-rsync -avq 1.WebHost/build/handstack/contracts/ ../publish/$os_mode-$arch_mode/contracts
-rsync -av --progress ./install.* ../publish/$os_mode-$arch_mode
-rsync -av --progress 2.Modules/function/package*.* ../publish/$os_mode-$arch_mode
+rsync -avq 1.WebHost/build/handstack/contracts/ ../publish/$os_mode-$arch_mode/handstack/contracts
+rsync -av --progress ./install.* ../publish/$os_mode-$arch_mode/handstack
+rsync -av --progress 2.Modules/function/package*.* ../publish/$os_mode-$arch_mode/handstack
 
 wwwroot_js_path="../publish/${os_mode}-${arch_mode}/handstack/modules/wwwroot/wwwroot"
 

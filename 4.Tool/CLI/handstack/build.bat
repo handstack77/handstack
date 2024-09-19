@@ -21,5 +21,5 @@ if "%arch_mode%" == "" set arch_mode=x64
 
 echo os_mode: %os_mode%, action_mode: %action_mode%, configuration_mode: %configuration_mode%, arch_mode: %arch_mode%
 
-rmdir /s /q C:\publish\%os_mode%-%arch_mode%\cli\handstack
-dotnet %action_mode% handstack.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output C:/publish/%os_mode%-%arch_mode%/cli/handstack
+rmdir /s /q C:\publish\%os_mode%-%arch_mode%\handstack\app\cli\handstack
+dotnet %action_mode% handstack.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output C:/publish/%os_mode%-%arch_mode%/handstack/app/cli
