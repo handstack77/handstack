@@ -842,12 +842,12 @@ namespace handstack
                 {
                     if (file != null && file.Exists == true && directory != null)
                     {
-                        if (directory.Exists == true)
+                        if (directory.Exists == true && key.ToBoolean() == true)
                         {
                             directory.Delete(true);
                         }
 
-                        ZipFile.ExtractToDirectory(file.FullName, directory.FullName);
+                        ZipFile.ExtractToDirectory(file.FullName, directory.FullName, true);
                     }
                     else
                     {
