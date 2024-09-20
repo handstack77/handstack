@@ -832,17 +832,17 @@ namespace handstack
             #region extract
 
             var subCommandExtract = new Command("extract", "지정된 ZIP 파일의 모든 파일을 파일 시스템의 디렉터리에 추출합니다") {
-                optionFile, optionDirectory, optionKey
+                optionFile, optionDirectory, optionOptions
             };
 
             // handstack extract --file=C:/tmp/handstack.zip --directory=C:/tmp/handstack
-            subCommandExtract.SetHandler((file, directory, key) =>
+            subCommandExtract.SetHandler((file, directory, options) =>
             {
                 try
                 {
                     if (file != null && file.Exists == true && directory != null)
                     {
-                        if (directory.Exists == true && key.ToBoolean() == true)
+                        if (directory.Exists == true && options.ToBoolean() == true)
                         {
                             directory.Delete(true);
                         }
@@ -858,7 +858,7 @@ namespace handstack
                 {
                     Log.Error(exception, $"extract 오류");
                 }
-            }, optionFile, optionDirectory, optionKey);
+            }, optionFile, optionDirectory, optionOptions);
 
             rootCommand.Add(subCommandExtract);
 
