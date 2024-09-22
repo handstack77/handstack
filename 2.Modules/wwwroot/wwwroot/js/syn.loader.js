@@ -901,7 +901,7 @@
         }
 
         jsFiles.push(loaderPath);
-        styleFiles = styleFiles.concat(window.Configuration.Definition.Styles || []);
+        styleFiles = styleFiles.concat(window.Configuration.Definition?.Styles || []);
 
         var moduleFile = '';
         if (window.moduleFile) {
