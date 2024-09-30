@@ -90,7 +90,7 @@
             });
 
             textboxCode.type = 'text';
-            textboxCode.setAttribute('syn-events', `['keydown']`);
+            textboxCode.setAttribute('syn-events', `['keydown', 'blur']`);
             textboxCode.setAttribute('baseID', elID);
 
             if ($string.isNullOrEmpty(dataField) == false) {
@@ -154,7 +154,7 @@
             });
 
             textboxText.type = 'text';
-            textboxText.setAttribute('syn-events', `['keydown']`);
+            textboxText.setAttribute('syn-events', `['keydown', 'blur']`);
             textboxText.setAttribute('baseID', elID);
 
             if ($string.isNullOrEmpty(setting.textDataFieldID) == false) {
@@ -207,16 +207,19 @@
                 }
             });
 
-            syn.$l.addEvent(codeEL, 'keydown', function (evt) {
+            var fnCodeChange = function (evt) {
                 var el = evt.currentTarget;
                 var elID = el.id.replace('_Code', '');
 
                 syn.$l.get(elID + '_Text').value = '';
 
-                if (evt.keyCode == 13) {
+                if (evt.keyCode == 13 || evt instanceof FocusEvent) {
                     syn.$l.trigger(syn.$l.get(elID + '_Button'), 'click', evt)
                 }
-            });
+            }
+
+            syn.$l.addEvent(codeEL, 'keydown', fnCodeChange);
+            syn.$l.addEvent(codeEL, 'blur', fnCodeChange);
 
             var synOptions = codeEL.getAttribute('syn-options');
             if ($string.isNullOrEmpty(synOptions) == false) {
@@ -235,16 +238,19 @@
                 }
             });
 
-            syn.$l.addEvent(textEL, 'keydown', function (evt) {
+            var fnTextChange = function (evt) {
                 var el = evt.currentTarget;
                 var elID = el.id.replace('_Text', '');
 
                 syn.$l.get(elID + '_Code').value = '';
 
-                if (evt.keyCode == 13) {
+                if (evt.keyCode == 13 || evt instanceof FocusEvent) {
                     syn.$l.trigger(syn.$l.get(elID + '_Button'), 'click', evt)
                 }
-            });
+            }
+
+            syn.$l.addEvent(textEL, 'keydown', fnTextChange);
+            syn.$l.addEvent(textEL, 'blur', fnTextChange);
 
             synOptions = textEL.getAttribute('syn-options');
             if ($string.isNullOrEmpty(synOptions) == false) {

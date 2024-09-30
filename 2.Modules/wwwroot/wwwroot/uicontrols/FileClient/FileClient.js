@@ -274,10 +274,10 @@
                             }
                         }
                     }
-                }
 
-                if ($.modal) {
-                    $.modal.close();
+                    if ($.modal) {
+                        $.modal.close();
+                    }
                 }
             });
         },
