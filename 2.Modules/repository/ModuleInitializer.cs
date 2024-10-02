@@ -332,7 +332,7 @@ namespace repository
                                                 ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.SLT010.ZD01");
                                             }
 
-                                            ModuleConfiguration.FileRepositorys.Add(repository, TimeSpan.MaxValue);
+                                            ModuleConfiguration.FileRepositorys.Add(repository, TimeSpan.FromDays(36500));
                                         }
                                         else
                                         {
@@ -367,7 +367,7 @@ namespace repository
                                                     ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.SLT010.ZD01");
                                                 }
 
-                                                ModuleConfiguration.FileRepositorys.Add(repository, TimeSpan.MaxValue);
+                                                ModuleConfiguration.FileRepositorys.Add(repository, TimeSpan.FromDays(36500));
                                             }
                                             else
                                             {

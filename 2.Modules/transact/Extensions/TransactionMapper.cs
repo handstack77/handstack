@@ -395,7 +395,7 @@ namespace transact.Extensions
 
                                     if (BusinessMappings.ContainsKey(businessFile) == false && HasCount(businessContract.ApplicationID, businessContract.ProjectID, businessContract.TransactionID) == 0)
                                     {
-                                        BusinessMappings.Add(businessFile, businessContract, TimeSpan.MaxValue);
+                                        BusinessMappings.Add(businessFile, businessContract, TimeSpan.FromDays(36500));
                                     }
                                     else
                                     {

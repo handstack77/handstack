@@ -176,7 +176,7 @@ namespace transact.Areas.transact.Controllers
 
                                                     businessContract.TransactionProjectID = string.IsNullOrEmpty(businessContract.TransactionProjectID) == true ? businessContract.ProjectID : businessContract.TransactionProjectID;
 
-                                                    businessContracts.Add(itemPath, businessContract, TimeSpan.MaxValue);
+                                                    businessContracts.Add(itemPath, businessContract, TimeSpan.FromDays(36500));
 
                                                     logger.Information("[{LogCategory}] " + $"Add Contract FilePath: {itemPath}", "Transaction/Refresh");
                                                     actionResult = true;

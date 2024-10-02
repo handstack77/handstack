@@ -340,7 +340,7 @@ namespace function.Extensions
                                     }
                                     else
                                     {
-                                        ScriptMappings.Add(mappingQueryID, moduleScriptMap, TimeSpan.MaxValue);
+                                        ScriptMappings.Add(mappingQueryID, moduleScriptMap, TimeSpan.FromDays(36500));
                                     }
                                 }
                                 else
@@ -582,7 +582,7 @@ namespace function.Extensions
                                             }
                                             else
                                             {
-                                                ScriptMappings.Add(queryID, moduleScriptMap, TimeSpan.MaxValue);
+                                                ScriptMappings.Add(queryID, moduleScriptMap, TimeSpan.FromDays(36500));
                                             }
                                         }
                                         else if (forceUpdate == true)
@@ -594,7 +594,7 @@ namespace function.Extensions
                                             }
                                             else
                                             {
-                                                ScriptMappings.Add(queryID, moduleScriptMap, TimeSpan.MaxValue);
+                                                ScriptMappings.Add(queryID, moduleScriptMap, TimeSpan.FromDays(36500));
                                             }
                                         }
                                         else
@@ -752,7 +752,7 @@ namespace function.Extensions
                                         {
                                             if (ScriptMappings.ContainsKey(queryID) == false)
                                             {
-                                                ScriptMappings.Add(queryID, moduleScriptMap, TimeSpan.MaxValue);
+                                                ScriptMappings.Add(queryID, moduleScriptMap, TimeSpan.FromDays(36500));
                                             }
                                             else
                                             {
@@ -812,7 +812,7 @@ namespace function.Extensions
                                 DataProvider = dataProvider,
                                 ConnectionString = connectionString,
                                 WorkingDirectoryPath = item.WorkingDirectoryPath
-                            }, TimeSpan.MaxValue);
+                            }, TimeSpan.FromDays(36500));
                         }
                         else
                         {

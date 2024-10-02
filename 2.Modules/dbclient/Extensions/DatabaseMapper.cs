@@ -514,7 +514,7 @@ namespace dbclient.Extensions
                                             }
                                             else
                                             {
-                                                StatementMappings.Add(queryID, statementMap, TimeSpan.MaxValue);
+                                                StatementMappings.Add(queryID, statementMap, TimeSpan.FromDays(36500));
                                             }
                                         }
                                         else
@@ -528,7 +528,7 @@ namespace dbclient.Extensions
                                                 }
                                                 else
                                                 {
-                                                    StatementMappings.Add(queryID, statementMap, TimeSpan.MaxValue);
+                                                    StatementMappings.Add(queryID, statementMap, TimeSpan.FromDays(36500));
                                                 }
                                             }
                                             else
@@ -1058,7 +1058,7 @@ namespace dbclient.Extensions
                                         {
                                             if (StatementMappings.ContainsKey(queryID) == false)
                                             {
-                                                StatementMappings.Add(queryID, statementMap, TimeSpan.MaxValue);
+                                                StatementMappings.Add(queryID, statementMap, TimeSpan.FromDays(36500));
                                             }
                                             else
                                             {
@@ -1103,7 +1103,7 @@ namespace dbclient.Extensions
                             dataSourceMap.ConnectionString = DecryptConnectionString(item);
                         }
 
-                        DataSourceMappings.Add(tanantMap, dataSourceMap, TimeSpan.MaxValue);
+                        DataSourceMappings.Add(tanantMap, dataSourceMap, TimeSpan.FromDays(36500));
                     }
                     else
                     {
