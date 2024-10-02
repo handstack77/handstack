@@ -1281,7 +1281,7 @@
 
 
         colToProp(elID, colIndex) {
-            var result = -1;
+            var result = null;
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
                 result = AUIGrid.getDataFieldByColumnIndex(gridID, $string.toNumber(colIndex));
@@ -2332,6 +2332,45 @@
 
         setDataAtCell(elID, rowIndex, dataField, value) {
             $auigrid.setCellValue(elID, rowIndex, dataField, value);
+        },
+
+        setDataAtRow(elID, values) {
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID && $object.isArray(values) == true && values.length > 0) {
+                var items = [];
+                var rowIndexes = [];
+
+                for (var i = 0, length = values.length; i < length; i++) {
+                    var item = values[i];
+                    var row = item[0];
+                    var col = item[1];
+                    var value = item[2];
+
+                    var dataField = null;
+                    if ($object.isString(col) == true) {
+                        if ($auigrid.propToCol(elID, col) > -1) {
+                            dataField = data;
+                        }
+                    }
+                    else if ($object.isNumber(col) == true) {
+                        dataField = $auigrid.colToProp(elID, col);
+                    }
+
+                    if ($string.isNullOrEmpty(dataField) == false) {
+                        var data = {};
+                        data[dataField] = value;
+
+                        items.push(data);
+                        rowIndexes.push(row);
+                    }
+                }
+
+                if (rowIndexes.length > 0) {
+                    AUIGrid.forceEditingComplete(gridID, null, false);
+
+                    AUIGrid.updateRows(gridID, items, rowIndexes);
+                }
+            }
         },
 
         setCellValue(elID, rowIndex, dataField, value) {
