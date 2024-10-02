@@ -116,20 +116,20 @@ namespace dbclient.Areas.dbclient.Controllers
                             }
 
                             string[] sqlMapFiles = Directory.GetFiles(basePath, "*.xml", SearchOption.AllDirectories);
-                            foreach (string sqlMapFile in sqlMapFiles)
+                            foreach (string filePath in sqlMapFiles)
                             {
                                 try
                                 {
-                                    FileInfo fileInfo = new FileInfo(sqlMapFile);
+                                    FileInfo fileInfo = new FileInfo(filePath);
                                     var htmlDocument = new HtmlDocument();
                                     htmlDocument.OptionDefaultStreamEncoding = Encoding.UTF8;
-                                    htmlDocument.LoadHtml(ReplaceCData(System.IO.File.ReadAllText(sqlMapFile)));
+                                    htmlDocument.LoadHtml(ReplaceCData(System.IO.File.ReadAllText(filePath)));
                                     HtmlNode header = htmlDocument.DocumentNode.SelectSingleNode("//mapper/header");
 
                                     applicationID = (header.Element("application")?.InnerText).ToStringSafe();
                                     string projectID = (header.Element("project")?.InnerText).ToStringSafe();
                                     string transactionID = (header.Element("transaction")?.InnerText).ToStringSafe();
-                                    if (sqlMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
+                                    if (filePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                                     {
                                         applicationID = string.IsNullOrEmpty(applicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : applicationID;
                                         projectID = string.IsNullOrEmpty(projectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : projectID;
@@ -211,7 +211,7 @@ namespace dbclient.Areas.dbclient.Controllers
                                                     }
                                                     else
                                                     {
-                                                        Log.Logger.Warning("[{LogCategory}] " + $"SqlMap 정보 중복 오류 - {sqlMapFile}, ApplicationID - {statementMap.ApplicationID}, ProjectID - {statementMap.ProjectID}, TransactionID - {statementMap.TransactionID}, StatementID - {statementMap.StatementID}", "ManagedController/ResetAppContract");
+                                                        Log.Logger.Warning("[{LogCategory}] " + $"SqlMap 정보 중복 오류 - {filePath}, ApplicationID - {statementMap.ApplicationID}, ProjectID - {statementMap.ProjectID}, TransactionID - {statementMap.TransactionID}, StatementID - {statementMap.StatementID}", "ManagedController/ResetAppContract");
                                                     }
                                                 }
                                             }
@@ -220,7 +220,7 @@ namespace dbclient.Areas.dbclient.Controllers
                                 }
                                 catch (Exception exception)
                                 {
-                                    Log.Logger.Error("[{LogCategory}] " + $"{sqlMapFile} 업무 계약 파일 오류 - " + exception.ToMessage(), "ManagedController/ResetAppContract");
+                                    Log.Logger.Error("[{LogCategory}] " + $"{filePath} 업무 계약 파일 오류 - " + exception.ToMessage(), "ManagedController/ResetAppContract");
                                 }
                             }
 

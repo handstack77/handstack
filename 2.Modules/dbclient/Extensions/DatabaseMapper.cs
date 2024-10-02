@@ -213,24 +213,23 @@ namespace dbclient.Extensions
                         }
                     }
 
-                    string tenantID = $"{userWorkID}|{applicationID}";
                     if (string.IsNullOrEmpty(appBasePath) == false && Directory.Exists(appBasePath) == true)
                     {
-                        var sqlMapFile = Path.Combine(appBasePath, "dbclient", projectID, transactionID + ".xml");
+                        var filePath = Path.Combine(appBasePath, "dbclient", projectID, transactionID + ".xml");
                         try
                         {
-                            if (File.Exists(sqlMapFile) == true)
+                            if (File.Exists(filePath) == true)
                             {
-                                FileInfo fileInfo = new FileInfo(sqlMapFile);
+                                FileInfo fileInfo = new FileInfo(filePath);
                                 var htmlDocument = new HtmlDocument();
                                 htmlDocument.OptionDefaultStreamEncoding = Encoding.UTF8;
-                                htmlDocument.LoadHtml(ReplaceCData(File.ReadAllText(sqlMapFile)));
+                                htmlDocument.LoadHtml(ReplaceCData(File.ReadAllText(filePath)));
                                 HtmlNode header = htmlDocument.DocumentNode.SelectSingleNode("//mapper/header");
 
                                 applicationID = (header.Element("application")?.InnerText).ToStringSafe();
                                 projectID = (header.Element("project")?.InnerText).ToStringSafe();
                                 transactionID = (header.Element("transaction")?.InnerText).ToStringSafe();
-                                if (sqlMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
+                                if (filePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                                 {
                                     applicationID = string.IsNullOrEmpty(applicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : applicationID;
                                     projectID = string.IsNullOrEmpty(projectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : projectID;
@@ -319,7 +318,7 @@ namespace dbclient.Extensions
                         }
                         catch (Exception exception)
                         {
-                            Log.Logger.Error(exception, "[{LogCategory}] " + $"{sqlMapFile} 업무 계약 파일 오류 - " + exception.ToMessage(), "DatabaseMapper/GetStatementMap");
+                            Log.Logger.Error(exception, "[{LogCategory}] " + $"{filePath} 업무 계약 파일 오류 - " + exception.ToMessage(), "DatabaseMapper/GetStatementMap");
                         }
                     }
                 }
@@ -430,8 +429,10 @@ namespace dbclient.Extensions
                             string applicationID = (header.Element("application")?.InnerText).ToStringSafe();
                             string projectID = (header.Element("project")?.InnerText).ToStringSafe();
                             string transactionID = (header.Element("transaction")?.InnerText).ToStringSafe();
+                            bool isTenantContractFile = false;
                             if (filePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                             {
+                                isTenantContractFile = true;
                                 FileInfo fileInfo = new FileInfo(filePath);
                                 applicationID = string.IsNullOrEmpty(applicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : applicationID;
                                 projectID = string.IsNullOrEmpty(projectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : projectID;
@@ -507,18 +508,32 @@ namespace dbclient.Extensions
 
                                         if (StatementMappings.ContainsKey(queryID) == false)
                                         {
-                                            StatementMappings.Add(queryID, statementMap);
+                                            if (isTenantContractFile == true)
+                                            {
+                                                StatementMappings.Add(queryID, statementMap);
+                                            }
+                                            else
+                                            {
+                                                StatementMappings.Add(queryID, statementMap, TimeSpan.MaxValue);
+                                            }
                                         }
                                         else
                                         {
                                             if (forceUpdate == true)
                                             {
                                                 StatementMappings.Remove(queryID);
-                                                StatementMappings.Add(queryID, statementMap);
+                                                if (isTenantContractFile == true)
+                                                {
+                                                    StatementMappings.Add(queryID, statementMap);
+                                                }
+                                                else
+                                                {
+                                                    StatementMappings.Add(queryID, statementMap, TimeSpan.MaxValue);
+                                                }
                                             }
                                             else
                                             {
-                                                logger.Error("[{LogCategory}] " + $"SqlMap 정보 중복 오류 - {filePath}, ProjectID - {statementMap.ApplicationID}, BusinessID - {statementMap.ProjectID}, TransactionID - {statementMap.TransactionID}, StatementID - {statementMap.StatementID}", "DatabaseMapper/AddStatementMap");
+                                                logger.Warning("[{LogCategory}] " + $"SqlMap 정보 중복 오류 - {filePath}, ProjectID - {statementMap.ApplicationID}, BusinessID - {statementMap.ProjectID}, TransactionID - {statementMap.TransactionID}, StatementID - {statementMap.StatementID}", "DatabaseMapper/AddStatementMap");
                                             }
                                         }
                                     }
@@ -1043,7 +1058,7 @@ namespace dbclient.Extensions
                                         {
                                             if (StatementMappings.ContainsKey(queryID) == false)
                                             {
-                                                StatementMappings.Add(queryID, statementMap, TimeSpan.FromDays(3650));
+                                                StatementMappings.Add(queryID, statementMap, TimeSpan.MaxValue);
                                             }
                                             else
                                             {
@@ -1088,7 +1103,7 @@ namespace dbclient.Extensions
                             dataSourceMap.ConnectionString = DecryptConnectionString(item);
                         }
 
-                        DataSourceMappings.Add(tanantMap, dataSourceMap, TimeSpan.FromDays(3650));
+                        DataSourceMappings.Add(tanantMap, dataSourceMap, TimeSpan.MaxValue);
                     }
                     else
                     {

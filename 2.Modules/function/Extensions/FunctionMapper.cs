@@ -257,8 +257,10 @@ namespace function.Extensions
                     if (File.Exists(functionScriptFile) == true)
                     {
                         FunctionHeader header = functionScriptContract.Header;
+                        bool isTenantContractFile = false;
                         if (scriptMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                         {
+                            isTenantContractFile = true;
                             FileInfo fileInfo = new FileInfo(scriptMapFile);
                             header.ApplicationID = string.IsNullOrEmpty(header.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Parent?.Parent?.Name).ToStringSafe() : header.ApplicationID;
                             header.ProjectID = string.IsNullOrEmpty(header.ProjectID) == true ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : header.ProjectID;
@@ -332,7 +334,14 @@ namespace function.Extensions
 
                                 if (ScriptMappings.ContainsKey(mappingQueryID) == false)
                                 {
-                                    ScriptMappings.Add(mappingQueryID, moduleScriptMap);
+                                    if (isTenantContractFile == true)
+                                    {
+                                        ScriptMappings.Add(mappingQueryID, moduleScriptMap);
+                                    }
+                                    else
+                                    {
+                                        ScriptMappings.Add(mappingQueryID, moduleScriptMap, TimeSpan.MaxValue);
+                                    }
                                 }
                                 else
                                 {
@@ -482,8 +491,10 @@ namespace function.Extensions
                         if (File.Exists(functionScriptFile) == true)
                         {
                             FunctionHeader header = functionScriptContract.Header;
+                            bool isTenantContractFile = false;
                             if (filePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                             {
+                                isTenantContractFile = true;
                                 FileInfo fileInfo = new FileInfo(filePath);
                                 header.ApplicationID = string.IsNullOrEmpty(header.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Parent?.Parent?.Name).ToStringSafe() : header.ApplicationID;
                                 header.ProjectID = string.IsNullOrEmpty(header.ProjectID) == true ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : header.ProjectID;
@@ -565,12 +576,26 @@ namespace function.Extensions
 
                                         if (ScriptMappings.ContainsKey(queryID) == false)
                                         {
-                                            ScriptMappings.Add(queryID, moduleScriptMap);
+                                            if (isTenantContractFile == true)
+                                            {
+                                                ScriptMappings.Add(queryID, moduleScriptMap);
+                                            }
+                                            else
+                                            {
+                                                ScriptMappings.Add(queryID, moduleScriptMap, TimeSpan.MaxValue);
+                                            }
                                         }
                                         else if (forceUpdate == true)
                                         {
                                             ScriptMappings.Remove(queryID);
-                                            ScriptMappings.Add(queryID, moduleScriptMap);
+                                            if (isTenantContractFile == true)
+                                            {
+                                                ScriptMappings.Add(queryID, moduleScriptMap);
+                                            }
+                                            else
+                                            {
+                                                ScriptMappings.Add(queryID, moduleScriptMap, TimeSpan.MaxValue);
+                                            }
                                         }
                                         else
                                         {
@@ -727,7 +752,7 @@ namespace function.Extensions
                                         {
                                             if (ScriptMappings.ContainsKey(queryID) == false)
                                             {
-                                                ScriptMappings.Add(queryID, moduleScriptMap, TimeSpan.FromDays(3650));
+                                                ScriptMappings.Add(queryID, moduleScriptMap, TimeSpan.MaxValue);
                                             }
                                             else
                                             {
@@ -787,7 +812,7 @@ namespace function.Extensions
                                 DataProvider = dataProvider,
                                 ConnectionString = connectionString,
                                 WorkingDirectoryPath = item.WorkingDirectoryPath
-                            }, TimeSpan.FromDays(3650));
+                            }, TimeSpan.MaxValue);
                         }
                         else
                         {

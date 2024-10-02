@@ -91,7 +91,7 @@ namespace transact
 
                         foreach (var item in moduleConfig.RoutingCommandUri.AsEnumerable())
                         {
-                            ModuleConfiguration.RoutingCommandUri.Add(item.Key, item.Value, TimeSpan.FromDays(3650));
+                            ModuleConfiguration.RoutingCommandUri.Add(item.Key, item.Value, TimeSpan.MaxValue);
                         }
 
                         foreach (var item in moduleConfig.AllowRequestTransactions.AsEnumerable())

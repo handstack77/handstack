@@ -190,18 +190,17 @@ namespace prompter.Extensions
                         }
                     }
 
-                    string tenantID = $"{userWorkID}|{applicationID}";
                     if (string.IsNullOrEmpty(appBasePath) == false && Directory.Exists(appBasePath) == true)
                     {
-                        var promptMapFile = Path.Combine(appBasePath, "prompter", projectID, transactionID + ".xml");
+                        var filePath = Path.Combine(appBasePath, "prompter", projectID, transactionID + ".xml");
                         try
                         {
-                            if (File.Exists(promptMapFile) == true)
+                            if (File.Exists(filePath) == true)
                             {
-                                FileInfo fileInfo = new FileInfo(promptMapFile);
+                                FileInfo fileInfo = new FileInfo(filePath);
                                 var htmlDocument = new HtmlDocument();
                                 htmlDocument.OptionDefaultStreamEncoding = Encoding.UTF8;
-                                htmlDocument.LoadHtml(ReplaceCData(File.ReadAllText(promptMapFile)));
+                                htmlDocument.LoadHtml(ReplaceCData(File.ReadAllText(filePath)));
                                 HtmlNode header = htmlDocument.DocumentNode.SelectSingleNode("//mapper/header");
 
                                 applicationID = string.IsNullOrEmpty(applicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : applicationID;
@@ -275,7 +274,7 @@ namespace prompter.Extensions
                         }
                         catch (Exception exception)
                         {
-                            Log.Logger.Error(exception, "[{LogCategory}] " + $"{promptMapFile} 업무 계약 파일 오류 - " + exception.ToMessage(), "PromptMapper/GetPromptMap");
+                            Log.Logger.Error(exception, "[{LogCategory}] " + $"{filePath} 업무 계약 파일 오류 - " + exception.ToMessage(), "PromptMapper/GetPromptMap");
                         }
                     }
                 }
@@ -415,8 +414,10 @@ namespace prompter.Extensions
                             string applicationID = (header.Element("application")?.InnerText).ToStringSafe();
                             string projectID = (header.Element("project")?.InnerText).ToStringSafe();
                             string transactionID = (header.Element("transaction")?.InnerText).ToStringSafe();
+                            bool isTenantContractFile = false;
                             if (filePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                             {
+                                isTenantContractFile = true;
                                 FileInfo fileInfo = new FileInfo(filePath);
                                 applicationID = string.IsNullOrEmpty(applicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : applicationID;
                                 projectID = string.IsNullOrEmpty(projectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : projectID;
@@ -479,14 +480,28 @@ namespace prompter.Extensions
                                         {
                                             if (PromptMappings.ContainsKey(queryID) == false)
                                             {
-                                                PromptMappings.Add(queryID, promptMap);
+                                                if (isTenantContractFile == true)
+                                                {
+                                                    PromptMappings.Add(queryID, promptMap);
+                                                }
+                                                else
+                                                {
+                                                    PromptMappings.Add(queryID, promptMap, TimeSpan.MaxValue);
+                                                }
                                             }
                                             else
                                             {
                                                 if (forceUpdate == true)
                                                 {
                                                     PromptMappings.Remove(queryID);
-                                                    PromptMappings.Add(queryID, promptMap);
+                                                    if (isTenantContractFile == true)
+                                                    {
+                                                        PromptMappings.Add(queryID, promptMap);
+                                                    }
+                                                    else
+                                                    {
+                                                        PromptMappings.Add(queryID, promptMap, TimeSpan.MaxValue);
+                                                    }
                                                 }
                                                 else
                                                 {
@@ -991,7 +1006,7 @@ namespace prompter.Extensions
                                         {
                                             if (PromptMappings.ContainsKey(queryID) == false)
                                             {
-                                                PromptMappings.Add(queryID, promptMap, TimeSpan.FromDays(3650));
+                                                PromptMappings.Add(queryID, promptMap, TimeSpan.MaxValue);
                                             }
                                             else
                                             {
@@ -1038,7 +1053,7 @@ namespace prompter.Extensions
                             item.ApiKey = DecryptApiKey(item);
                         }
 
-                        DataSourceMappings.Add(tanantMap, dataSourceMap, TimeSpan.FromDays(3650));
+                        DataSourceMappings.Add(tanantMap, dataSourceMap, TimeSpan.MaxValue);
                     }
                     else
                     {
