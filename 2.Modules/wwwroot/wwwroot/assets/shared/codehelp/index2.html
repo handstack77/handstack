@@ -40,7 +40,11 @@
                         <div class="card">
                             <div class="card-body p-2">
                                 <div class="form-fieldset p-0">
-                                    <syn_grid id="grdCodeList" syn-datafield="CodeList" syn-options="{ isContainFilterHeader: true, height: 280 }" syn-events="['afterOnCellDoubleClick']"></syn_grid>
+                                    <syn_auigrid id="grdCodeList" syn-datafield="CodeList" syn-options="{
+                                        height: 280,
+                                        showInlineFilter: true,
+				                        columns: []
+			                        }" syn-events="['cellDoubleClick']"></syn_auigrid>
                                 </div>
                             </div>
                         </div>

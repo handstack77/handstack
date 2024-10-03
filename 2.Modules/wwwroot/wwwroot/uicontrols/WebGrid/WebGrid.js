@@ -50,16 +50,9 @@
                     var elID = hot.rootElement.id;
                     var synOptions = syn.$w.argumentsExtend(syn.uicontrols.$codepicker.defaultSetting, columnInfo);
                     synOptions.elID = elID;
-                    synOptions.controlType = 'grid';
+                    synOptions.viewType = 'grid';
 
                     syn.uicontrols.$codepicker.find(synOptions, function (result) {
-                        if (result && columnInfo.codeColumnID && columnInfo.textColumnID) {
-                            var gridValue = [];
-                            gridValue.push([row, hot.propToCol(columnInfo.codeColumnID), result[0].value]);
-                            gridValue.push([row, col, result[0].text]);
-                            hot.setDataAtCell(gridValue);
-                        }
-
                         var mod = window[syn.$w.pageScript];
 
                         var returnHandler = mod.hook.frameEvent;

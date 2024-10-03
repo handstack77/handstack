@@ -1,5 +1,5 @@
 ﻿'use strict';
-let $index = {
+let $index2 = {
     prop: {
         gridID: 'grdCodeList',
         codeConfig: {
@@ -18,11 +18,11 @@ let $index = {
         controlInit(elID, controlOptions) {
             switch (elID) {
                 case $this.prop.gridID:
-                    return syn.uicontrols.$grid.getInitializeColumns({
+                    return syn.uicontrols.$auigrid.getInitializeColumns($this.prop.gridID, {
                         columns: [
                             ['empty', '', 10, false, 'text', false, 'left']
                         ]
-                    });
+                    }, false);
                     break;
             }
         },
@@ -89,15 +89,14 @@ let $index = {
     },
 
     event: {
-        grdCodeList_afterOnCellDoubleClick(event, coords, td) {
+        grdCodeList_cellDoubleClick(evt) {
             var result = null;
 
-            if (coords.row > -1) {
+            if (evt.rowIndex > -1) {
                 var codeConfig = $this.prop.codeConfig;
 
                 if (codeConfig.isMultiSelect == false) {
-                    var physicalRowIndex = syn.uicontrols.$grid.getPhysicalRowIndex($this.prop.gridID, coords.row);
-                    var item = syn.uicontrols.$grid.getSourceDataAtRow($this.prop.gridID, physicalRowIndex);
+                    var item = syn.uicontrols.$auigrid.getSourceDataAtRow($this.prop.gridID, evt.rowIndex);
                     var code = {
                         value: item[$this.prop.codeConfig.CodeColumnID],
                         text: item[$this.prop.codeConfig.ValueColumnID]
@@ -110,9 +109,8 @@ let $index = {
                     $this.method.saveReturn(result);
                 }
                 else {
-                    var physicalRowIndex = syn.uicontrols.$grid.getPhysicalRowIndex($this.prop.gridID, coords.row);
-                    var item = syn.uicontrols.$grid.getSourceDataAtRow($this.prop.gridID, physicalRowIndex);
-                    syn.uicontrols.$grid.setDataAtCell($this.prop.gridID, coords.row, 'IsSelect', item.IsSelect == '1' ? '0' : '1');
+                    var item = syn.uicontrols.$auigrid.getSourceDataAtRow($this.prop.gridID, evt.rowIndex);
+                    syn.uicontrols.$auigrid.setDataAtCell($this.prop.gridID, evt.rowIndex, 'IsSelect', item.IsSelect == '1' ? '0' : '1');
                 }
             }
         },
@@ -122,14 +120,9 @@ let $index = {
             var codeConfig = $this.prop.codeConfig;
 
             if (codeConfig.isMultiSelect == false) {
-                var previousRow = syn.uicontrols.$grid.getGridValue($this.prop.gridID) == null ? -1 : syn.uicontrols.$grid.getGridValue($this.prop.gridID).previousRow;
-                if (previousRow == null || previousRow == undefined) {
-                    previousRow = -1;
-                }
-
-                if (previousRow > -1) {
-                    var physicalRowIndex = syn.uicontrols.$grid.getPhysicalRowIndex($this.prop.gridID, previousRow);
-                    var item = syn.uicontrols.$grid.getSourceDataAtRow($this.prop.gridID, physicalRowIndex);
+                var currentRow = $grid.getActiveRowIndex($this.prop.gridID);
+                if (currentRow > -1) {
+                    var item = syn.uicontrols.$auigrid.getSourceDataAtRow($this.prop.gridID, currentRow);
                     var code = {
                         value: item[$this.prop.codeConfig.CodeColumnID],
                         text: item[$this.prop.codeConfig.ValueColumnID]
@@ -142,11 +135,10 @@ let $index = {
             }
             else {
                 result = [];
-                var length = syn.uicontrols.$grid.countRows($this.prop.gridID);
+                var length = syn.uicontrols.$auigrid.countRows($this.prop.gridID);
 
                 for (var rowIndex = 0; rowIndex < length; rowIndex++) {
-                    var physicalRowIndex = syn.uicontrols.$grid.getPhysicalRowIndex($this.prop.gridID, rowIndex);
-                    var item = syn.uicontrols.$grid.getSourceDataAtRow($this.prop.gridID, physicalRowIndex);
+                    var item = syn.uicontrols.$auigrid.getSourceDataAtRow($this.prop.gridID, rowIndex);
                     if (item.IsSelect == true) {
                         var code = {
                             value: item[$this.prop.codeConfig.CodeColumnID],
@@ -182,31 +174,17 @@ let $index = {
             var search = syn.$l.get('txtSearch').value.trim();
 
             if (search == '') {
-                syn.uicontrols.$grid.loadData($this.prop.gridID, $this.prop.codeConfig.DataSource);
+                syn.uicontrols.$auigrid.setValue($this.prop.gridID, $this.prop.codeConfig.DataSource);
             }
             else {
                 var items = $this.prop.codeConfig.DataSource.filter(function (item) {
                     return (item[$this.prop.codeConfig.CodeColumnID].toString().indexOf(search) > -1 || item[$this.prop.codeConfig.ValueColumnID].toString().indexOf(search) > -1);
                 });
 
-                syn.uicontrols.$grid.loadData($this.prop.gridID, items);
+                syn.uicontrols.$auigrid.setValue($this.prop.gridID, items);
             }
 
-            var settings = syn.uicontrols.$grid.getSettings($this.prop.gridID);
-            var hot = syn.uicontrols.$grid.getGridControl($this.prop.gridID);
-            var plugin = hot.getPlugin('autoColumnSize');
-
-            if (plugin.isEnabled() == false) {
-                plugin.enablePlugin();
-            }
-
-            plugin.recalculateAllColumnsWidth();
-            setTimeout(function () {
-                if (plugin.widths) {
-                    settings.colWidths = plugin.widths;
-                    syn.uicontrols.$grid.updateSettings($this.prop.gridID, settings);
-                }
-            }, 25);
+            syn.uicontrols.$auigrid.setFitColumnSize($this.prop.gridID, 200, false);
         },
 
         saveReturn(result) {
@@ -221,7 +199,7 @@ let $index = {
             var scheme = codeConfig.Scheme;
 
             if (codeConfig.isMultiSelect == true) {
-                columns.push(['IsSelect', '선택', 54, false, 'checkbox', false, 'center']);
+                columns.push(['IsSelect', '선택', 60, false, 'checkbox', false, 'center']);
 
                 var items = $this.prop.codeConfig.DataSource;
                 var length = items.length;
@@ -237,17 +215,10 @@ let $index = {
                 columns.push([item.ColumnID, item.ColumnText, 100, item.HiddenYN, 'text', true, 'left']);
             }
 
-            var settings = syn.uicontrols.$grid.getInitializeColumns({ columns: columns });
-            settings.colHeaders.unshift('Flag');
-            settings.columns.unshift({
-                data: 'Flag',
-                type: 'text'
-            });
-            settings.colWidths.unshift(10);
-            settings.autoColumnSize = true;
-            settings.stretchH = 'all';
+            columns.unshift(['Flag', 'Flag', 60, true, 'text', true, 'left']);
 
-            syn.uicontrols.$grid.updateSettings($this.prop.gridID, settings);
+            var columnLayout = syn.uicontrols.$auigrid.getInitializeColumns($this.prop.gridID, columns, true);
+            syn.uicontrols.$auigrid.changeColumnLayout($this.prop.gridID, columnLayout);
 
             if (codeConfig.isAutoSearch == true) {
                 if (codeConfig.searchValue == '' && codeConfig.searchText != '') {
@@ -262,9 +233,9 @@ let $index = {
                 $this.method.search();
 
                 if (codeConfig.isMultiSelect == false) {
-                    var count = syn.uicontrols.$grid.countRows($this.prop.gridID);
+                    var count = syn.uicontrols.$auigrid.countRows($this.prop.gridID);
                     if (count == 1) {
-                        var item = syn.uicontrols.$grid.getSourceDataAtRow($this.prop.gridID, 0);
+                        var item = syn.uicontrols.$auigrid.getSourceDataAtRow($this.prop.gridID, 0);
 
                         var result = null;
                         var codeData = item[codeConfig.CodeColumnID];
@@ -283,16 +254,16 @@ let $index = {
                     }
                 }
                 else {
-                    var count = syn.uicontrols.$grid.countRows($this.prop.gridID);
+                    var count = syn.uicontrols.$auigrid.countRows($this.prop.gridID);
                     if (0 < count) {
                         if (syn.$l.get('ddlSearchType').value == '1') {
                             var searchItems = codeConfig.searchValue.split(',');
                             for (var i = 0; i < count; i++) {
-                                var item = syn.uicontrols.$grid.getSourceDataAtRow($this.prop.gridID, i);
+                                var item = syn.uicontrols.$auigrid.getSourceDataAtRow($this.prop.gridID, i);
                                 var codeData = item[codeConfig.CodeColumnID];
                                 if (codeData) {
                                     if (searchItems.includes(item[codeConfig.CodeColumnID].toString()) == true) {
-                                        syn.uicontrols.$grid.setDataAtCell($this.prop.gridID, i, 'IsSelect', '1');
+                                        syn.uicontrols.$auigrid.setDataAtCell($this.prop.gridID, i, 'IsSelect', '1');
                                     }
                                 }
                                 else {
@@ -303,11 +274,11 @@ let $index = {
                         else {
                             var searchItems = codeConfig.searchText.split(',');
                             for (var i = 0; i < count; i++) {
-                                var item = syn.uicontrols.$grid.getSourceDataAtRow($this.prop.gridID, i);
+                                var item = syn.uicontrols.$auigrid.getSourceDataAtRow($this.prop.gridID, i);
                                 var valueData = item[codeConfig.ValueColumnID];
                                 if (valueData) {
                                     if (searchItems.includes(item[codeConfig.ValueColumnID].toString()) == true) {
-                                        syn.uicontrols.$grid.setDataAtCell($this.prop.gridID, i, 'IsSelect', '1');
+                                        syn.uicontrols.$auigrid.setDataAtCell($this.prop.gridID, i, 'IsSelect', '1');
                                     }
                                 }
                                 else {

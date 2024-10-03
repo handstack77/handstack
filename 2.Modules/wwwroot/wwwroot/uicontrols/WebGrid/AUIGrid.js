@@ -109,6 +109,7 @@
         gridCodeDatas: [],
         nowHeaderMenuVisible: false,
         currentDataField: null,
+        codeHelpUrl: '/assets/shared/codehelp/index2.html',
         gridOptions: {
             headerHeight: 40,
             rowHeight: 40,
@@ -243,55 +244,27 @@
                     if (gridHookEvents) {
                         gridHookEvents = eval(gridHookEvents);
 
+                        var bypassHookEvents = ['cellEditEndBefore', 'cellEditEnd'];
                         for (var i = 0, length = gridHookEvents.length; i < length; i++) {
                             var hook = gridHookEvents[i];
                             var eventHandler = mod.event ? mod.event['{0}_{1}'.format(elID, hook)] : null;
-                            if (eventHandler) {
+                            if (bypassHookEvents.includes(hook) == false && eventHandler) {
                                 AUIGrid.bind(gridID, hook, eventHandler);
                             }
                         }
 
                         if (gridHookEvents.indexOf('pasteBegin') == -1) {
                             AUIGrid.bind(gridID, 'pasteBegin', function (evt) {
+                                var setting = $auigrid.getGridSetting(evt.pid.substring(1));
                                 if ($string.toBoolean(setting.allowClipboardPaste) == false) {
                                     return false;
                                 }
                             });
                         }
 
-                        if (gridHookEvents.indexOf('cellEditEndBefore') == -1) {
-                            AUIGrid.bind(gridID, 'cellEditEndBefore', function (evt) {
-                                var gridID = evt.pid;
-                                var rowIndex = evt.rowIndex;
-                                var columnIndex = evt.columnIndex;
-                                var dataField = evt.dataField;
-                                var item = evt.item;
-                                var oldValue = evt.oldValue;
-                                var newValue = evt.value;
-
-                                var columns = AUIGrid.getColumnInfoList(gridID);
-                                var columnInfo = columns.find((item) => { return item.dataField == dataField });
-                                if (columnInfo && columnInfo.columnType == 'dropdown' && $string.isNullOrEmpty(columnInfo.nameColumnID) == false) {
-                                    if (rowIndex > -1) {
-                                        var storeSourceID = columnInfo.storeSourceID || columnInfo.dataSourceID;
-                                        if (storeSourceID) {
-                                            if (mod.config && mod.config.dataSource) {
-                                                var keyValueList = mod.config.dataSource[storeSourceID] ? mod.config.dataSource[storeSourceID].DataSource : [];
-                                                var keyValue = keyValueList.find((item) => { return item.CodeID == newValue });
-                                                if (keyValue) {
-                                                    AUIGrid.setCellValue(gridID, rowIndex, columnInfo.nameColumnID, keyValue.CodeValue);
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-                                return newValue;
-                            });
-                        }
-
                         if (gridHookEvents.indexOf('selectionChange') == -1) {
                             AUIGrid.bind(gridID, 'selectionChange', function (evt) {
+                                var mod = window[syn.$w.pageScript];
                                 var eventHandler = mod.event ? mod.event['{0}_{1}'.format(elID, 'afterSelectionEnd')] : null;
                                 if (eventHandler) {
                                     var primeCell = evt.primeCell;
@@ -307,22 +280,63 @@
                             });
                         }
 
-                        if (gridHookEvents.indexOf('cellEditEnd') == -1) {
-                            AUIGrid.bind(gridID, 'cellEditEnd', function (evt) {
-                                var eventHandler = mod.event ? mod.event['{0}_{1}'.format(elID, 'afterChange')] : null;
-                                if (eventHandler) {
-                                    var gridID = evt.pid;
-                                    var rowIndex = evt.rowIndex;
-                                    var columnIndex = evt.columnIndex;
-                                    var dataField = evt.dataField;
-                                    var oldValue = evt.oldValue;
-                                    var newValue = evt.value;
-                                    var item = evt.item;
+                        AUIGrid.bind(gridID, 'cellEditEndBefore', function (evt) {
+                            var gridID = evt.pid;
+                            var rowIndex = evt.rowIndex;
+                            var columnIndex = evt.columnIndex;
+                            var dataField = evt.dataField;
+                            var item = evt.item;
+                            var oldValue = evt.oldValue;
+                            var newValue = evt.value;
 
-                                    eventHandler(elID, rowIndex, columnIndex, dataField, oldValue, newValue, item);
+                            var mod = window[syn.$w.pageScript];
+                            var columns = AUIGrid.getColumnInfoList(gridID);
+                            var columnInfo = columns.find((item) => { return item.dataField == dataField });
+                            if (columnInfo && columnInfo.columnType == 'dropdown' && $string.isNullOrEmpty(columnInfo.nameColumnID) == false) {
+                                if (rowIndex > -1) {
+                                    var storeSourceID = columnInfo.storeSourceID || columnInfo.dataSourceID;
+                                    if (storeSourceID) {
+                                        if (mod.config && mod.config.dataSource) {
+                                            var keyValueList = mod.config.dataSource[storeSourceID] ? mod.config.dataSource[storeSourceID].DataSource : [];
+                                            var keyValue = keyValueList.find((item) => { return item.CodeID == newValue });
+                                            if (keyValue) {
+                                                AUIGrid.setCellValue(gridID, rowIndex, columnInfo.nameColumnID, keyValue.CodeValue);
+                                            }
+                                        }
+                                    }
                                 }
-                            });
-                        }
+                            }
+
+                            var eventHandler = mod.event ? mod.event['{0}_{1}'.format(elID, 'cellEditEndBefore')] : null;
+                            if (eventHandler) {
+                                var value = eventHandler(elID, evt);
+                                if ($object.isNullOrUndefined(value) == false) {
+                                    newValue = value;
+                                }
+                            }
+
+                            return newValue;
+                        });
+
+                        AUIGrid.bind(gridID, 'cellEditEnd', function (evt) {
+                            var eventHandler1 = mod.event ? mod.event['{0}_{1}'.format(elID, 'cellEditEnd')] : null;
+                            if (eventHandler1) {
+                                eventHandler1(elID, evt);
+                            }
+
+                            var eventHandler2 = mod.event ? mod.event['{0}_{1}'.format(elID, 'afterChange')] : null;
+                            if (eventHandler2) {
+                                var gridID = evt.pid;
+                                var rowIndex = evt.rowIndex;
+                                var columnIndex = evt.columnIndex;
+                                var dataField = evt.dataField;
+                                var oldValue = evt.oldValue;
+                                var newValue = evt.value;
+                                var item = evt.item;
+
+                                eventHandler2(elID, rowIndex, columnIndex, dataField, oldValue, newValue, item);
+                            }
+                        });
 
                         if (gridHookEvents.indexOf('contextMenu') == -1) {
                             var contextEL = document.createElement('ul');
@@ -731,6 +745,72 @@
                             }
                             break;
                         case 'codehelp':
+                            columnInfo.renderer = {
+                                type: "IconRenderer",
+                                iconPosition: "aisleRight",
+                                iconWidth: 20,
+                                iconHeight: 20,
+                                iconTableRef: {
+                                    default: '/img/btn/search.png' // 'data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-search"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>'
+                                },
+                                onClick: function (evt) {
+                                    var gridID = evt.pid;
+                                    var rowIndex = evt.rowIndex;
+                                    var columnIndex = evt.columnIndex;
+                                    var dataField = evt.dataField;
+
+                                    var isAllowEdit = true;
+                                    var mod = window[syn.$w.pageScript];
+                                    var eventHandler = mod.event ? mod.event['{0}_{1}'.format(elID, 'cellEditBegin')] : null;
+                                    if (eventHandler) {
+                                        var value = eventHandler(elID, evt);
+                                        isAllowEdit = $string.toBoolean(value);
+                                    }
+
+                                    if (isAllowEdit == true) {
+                                        var columns = AUIGrid.getColumnInfoList(gridID);
+                                        var columnInfo = columns.find((item) => { return item.dataField == dataField });
+                                        if (columnInfo && columnInfo.columnType == 'codehelp') {
+                                            if (rowIndex > -1) {
+                                                var elID = gridID.substring(1);
+                                                var synOptions = syn.$w.argumentsExtend(syn.uicontrols.$codepicker.defaultSetting, columnInfo);
+                                                synOptions.elID = elID;
+                                                synOptions.viewType = 'auigrid';
+                                                synOptions.url = $auigrid.codeHelpUrl || '';
+                                                syn.uicontrols.$codepicker.find(synOptions, function (result) {
+                                                    var returnHandler = mod.hook.frameEvent;
+                                                    if (returnHandler) {
+                                                        returnHandler.call(this, 'codeReturn', {
+                                                            elID: elID,
+                                                            row: row,
+                                                            col: col,
+                                                            columnName: columnName,
+                                                            result: result
+                                                        });
+                                                    }
+                                                });
+
+                                                setTimeout(() => { AUIGrid.forceEditingComplete(gridID, null, false); }, 25);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            columnInfo.editRenderer = {
+                                type: 'InputEditRenderer',
+                                showEditorBtn: false,
+                                showEditorBtnOver: false,
+                            }
+
+                            columnInfo.dataSource = columnInfo.dataSource || null;
+                            columnInfo.dataSourceID = columnInfo.dataSourceID || '';
+                            columnInfo.storeSourceID = columnInfo.storeSourceID || columnInfo.dataSourceID;
+                            columnInfo.local = $object.isNullOrUndefined(columnInfo.local) == true ? true : columnInfo.local;
+                            columnInfo.controlText = columnInfo.controlText || '';
+                            columnInfo.codeColumnID = columnInfo.codeColumnID ? columnInfo.codeColumnID : columnID;
+                            columnInfo.textColumnID = columnInfo.textColumnID ? columnInfo.textColumnID : columnID;
+                            columnInfo.parameters = columnInfo.parameters || '';
                             break;
                         case 'date':
                             columnInfo.dataType = 'date';

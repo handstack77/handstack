@@ -1,3 +1,28 @@
-﻿.syn-select {
-	color: #000;
+.tail-select {
+    margin: 0;
+    z-index: 1000;
+}
+
+    .tail-select .select-label {
+        height: 40px;
+        line-height: 27px;
+        border: var(--tblr-border-width) solid var(--tblr-border-color);
+        border-radius: var(--tblr-border-radius);
+        box-shadow: var(--tblr-box-shadow-input);
+    }
+
+        .tail-select .select-label:after {
+            top: 17px;
+        }
+
+    .tail-select .select-dropdown {
+        z-index: 1000;
+    }
+
+        .tail-select .select-dropdown ul li {
+            font-size: 14px;
+        }
+
+.syn-select {
+    color: #000;
 }

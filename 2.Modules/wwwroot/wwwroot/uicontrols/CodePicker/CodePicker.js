@@ -344,7 +344,8 @@
             dialogOptions.minHeight = 480;
             dialogOptions.caption = (setting.controlText || setting.columnText || setting.dataSourceID) + ' 코드도움';
 
-            syn.$w.showUIDialog(syn.Config.SharedAssetUrl + 'codehelp/index.html?parameterID={0}'.format(parameterID), dialogOptions, function (result) {
+            var url = $string.isNullOrEmpty(setting.url) == false ? setting.url : syn.Config.SharedAssetUrl + 'codehelp/index.html';
+            syn.$w.showUIDialog(url + '?parameterID={0}'.format(parameterID), dialogOptions, function (result) {
                 if (result && result.length > 0) {
                     var value = '';
                     var text = '';
@@ -371,12 +372,19 @@
                         if (setting.textElementID) {
                             syn.$l.get(setting.textElementID).value = text;
                         }
-                    } else if (setting.viewType == 'grid') {
-                        var $grid = syn.uicontrols.$grid;
-                        var row = $grid.getActiveRowIndex(setting.elID);
-                        $grid.setDataAtCell(setting.elID, row, setting.codeColumnID, value);
+                    }
+                    else if (setting.viewType == 'grid' && syn.uicontrols.$grid) {
+                        var row = syn.uicontrols.$grid.getActiveRowIndex(setting.elID);
+                        syn.uicontrols.$grid.setDataAtCell(setting.elID, row, setting.codeColumnID, value);
                         if (setting.textColumnID) {
-                            $grid.setDataAtCell(setting.elID, row, setting.textColumnID, text);
+                            syn.uicontrols.$grid.setDataAtCell(setting.elID, row, setting.textColumnID, text);
+                        }
+                    }
+                    else if (setting.viewType == 'auigrid' && syn.uicontrols.$auigrid) {
+                        var row = syn.uicontrols.$auigrid.getActiveRowIndex(setting.elID);
+                        syn.uicontrols.$auigrid.setDataAtCell(setting.elID, row, setting.codeColumnID, value);
+                        if (setting.textColumnID) {
+                            syn.uicontrols.$auigrid.setDataAtCell(setting.elID, row, setting.textColumnID, text);
                         }
                     }
                 }

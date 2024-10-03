@@ -612,9 +612,13 @@
                         break;
                     case 'auigrid':
                         item.css = [
+                            '/uicontrols/DataSource/DataSource.css',
+                            '/uicontrols/CodePicker/CodePicker.css',
                             '/uicontrols/WebGrid/AUIGrid.css'
                         ];
                         item.js = [
+                            '/uicontrols/DataSource/DataSource.js',
+                            '/uicontrols/CodePicker/CodePicker.js',
                             '/lib/papaparse/papaparse.js',
                             '/lib/xlsx/xlsx.core.min.js',
                             '/js/auigrid/AUIGridLicense.js',

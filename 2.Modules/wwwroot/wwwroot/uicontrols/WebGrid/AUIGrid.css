@@ -2165,6 +2165,11 @@
     background-color: rgba(var(--tblr-yellow-rgb), 0.1) !important;
 }
 
+.aui-grid-icon-renderer img.aui-img {
+    top: 4px;
+    cursor: pointer;
+}
+
 .syn-auigrid {
     margin: 0;
     padding: 0;
