@@ -719,7 +719,7 @@
 
     window.synConfigName = sessionStorage.getItem('synConfigName') || 'syn.config.json';
     var cacheSynConfig = sessionStorage.getItem('synConfig');
-    if (window.synConfigName == 'syn.config.json' && cacheSynConfig && cacheSynConfig.Environment == 'Production') {
+    if (window.synConfigName == 'syn.config.json' && cacheSynConfig) {
         window.synConfig = JSON.parse(cacheSynConfig);
         if (systemVersion != window.synConfig.SystemVersion) {
             window.synConfig = null;
@@ -749,7 +749,7 @@
             var applicationID = location.pathname.split('/')[3];
             var tenantID = `${userWorkID}|${applicationID}`;
             var cacheAppConfig = sessionStorage.getItem(`${tenantID}Config`);
-            if (cacheAppConfig && cacheSynConfig.Environment == 'Production') {
+            if (cacheAppConfig) {
                 window.Configuration = JSON.parse(cacheAppConfig);
                 if (window.Configuration.CreatedAt) {
                     var diffHours = Math.abs(new Date() - new Date(window.Configuration.CreatedAt)) / 3600000;
@@ -963,16 +963,17 @@
     }
 
     if (window.synConfig && synConfig.LoadModuleConfig && synConfig.LoadModuleConfig.length > 0) {
-        var moduleName = synConfig.LoadModuleConfig.find((item) => { return location.pathname.startsWith('/' + item) == true; });
-        if (moduleName) {
-            var modConfigName = '/' + moduleName + '/mod.config.json';
+        var loadModuleID = synConfig.LoadModuleConfig.find((item) => { return location.pathname.startsWith('/' + item) == true; });
+        if (loadModuleID) {
+            var modConfigName = '/' + loadModuleID + '/mod.config.json';
             var response = await fetch(modConfigName, { cache: 'no-cache' });
             if (response.status === 200) {
                 window.modConfig = await response.json();
-                if ($string.isNullOrEmpty(window.modConfig.SynConfigPath) == false) {
+                if (window.modConfig.SynConfigPath) {
                     var configResponse = await fetch(window.modConfig.SynConfigPath, { cache: 'no-cache' });
                     if (configResponse.status === 200) {
                         window.synConfig = await configResponse.json();
+                        window.synConfig.LoadModuleID = loadModuleID;
                     }
                 }
             }

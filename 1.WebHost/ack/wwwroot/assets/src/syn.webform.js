@@ -3158,11 +3158,12 @@
                 return;
             }
 
+            var serviceID = syn.Config.SystemID + syn.Config.Environment.substring(0, 1) + ($string.isNullOrEmpty(syn.Config.LoadModuleID) == true ? '' : syn.Config.LoadModuleID);
             var apiService = null;
             var apiServices = syn.$w.getStorage('apiServices', false);
             if (globalRoot.devicePlatform === 'node') {
                 if (apiServices) {
-                    apiService = apiServices[syn.Config.SystemID + syn.Config.Environment.substring(0, 1)];
+                    apiService = apiServices[serviceID];
                     if (apiService) {
                         if ($object.isNullOrUndefined(apiServices.BearerToken) == true && globalRoot.bearerToken) {
                             apiServices.BearerToken = globalRoot.bearerToken;
@@ -3171,11 +3172,11 @@
                     }
                     else if (syn.Config.DomainAPIServer != null) {
                         apiService = syn.Config.DomainAPIServer;
-                        apiServices = {};
+                        apiServices = apiServices || {};
                         if (token || globalRoot.bearerToken) {
                             apiServices.BearerToken = token || globalRoot.bearerToken;
                         }
-                        apiServices[syn.Config.SystemID + syn.Config.Environment.substring(0, 1)] = apiService;
+                        apiServices[serviceID] = apiService;
                         syn.$w.setStorage('apiServices', apiServices, false);
                     }
                     else {
@@ -3185,11 +3186,11 @@
                 else {
                     if (syn.Config.DomainAPIServer != null) {
                         apiService = syn.Config.DomainAPIServer;
-                        apiServices = {};
+                        apiServices = apiServices || {};
                         if (token || globalRoot.bearerToken) {
                             apiServices.BearerToken = token || globalRoot.bearerToken;
                         }
-                        apiServices[syn.Config.SystemID + syn.Config.Environment.substring(0, 1)] = apiService;
+                        apiServices[serviceID] = apiService;
                         syn.$w.setStorage('apiServices', apiServices, false);
                     }
                     else {
@@ -3199,7 +3200,7 @@
             }
             else {
                 if (apiServices) {
-                    apiService = apiServices[syn.Config.SystemID + syn.Config.Environment.substring(0, 1)];
+                    apiService = apiServices[serviceID];
                     if (apiService) {
                         if ((apiServices.BearerToken == null || apiServices.BearerToken == undefined) && window.bearerToken) {
                             apiServices.BearerToken = window.bearerToken;
@@ -3208,11 +3209,11 @@
                     }
                     else if (syn.Config.DomainAPIServer != null) {
                         apiService = syn.Config.DomainAPIServer;
-                        apiServices = {};
+                        apiServices = apiServices || {};
                         if (window.bearerToken) {
                             apiServices.BearerToken = window.bearerToken;
                         }
-                        apiServices[syn.Config.SystemID + syn.Config.Environment.substring(0, 1)] = apiService;
+                        apiServices[serviceID] = apiService;
                         syn.$w.setStorage('apiServices', apiServices, false);
                     }
                     else {
@@ -3222,11 +3223,11 @@
                 else {
                     if (syn.Config.DomainAPIServer != null) {
                         apiService = syn.Config.DomainAPIServer;
-                        apiServices = {};
+                        apiServices = apiServices || {};
                         if (window.bearerToken) {
                             apiServices.BearerToken = window.bearerToken;
                         }
-                        apiServices[syn.Config.SystemID + syn.Config.Environment.substring(0, 1)] = apiService;
+                        apiServices[serviceID] = apiService;
                         syn.$w.setStorage('apiServices', apiServices, false);
                     }
                     else {
@@ -3237,7 +3238,7 @@
 
             var apiServices = syn.$w.getStorage('apiServices', false);
             if (apiServices) {
-                apiService = apiServices[syn.Config.SystemID + syn.Config.Environment.substring(0, 1)];
+                apiService = apiServices[serviceID];
             }
 
             if (apiService == null) {

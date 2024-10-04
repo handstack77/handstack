@@ -25,23 +25,6 @@ let $signin = {
             localStorage.removeItem('program_token');
             sessionStorage.clear();
 
-            var cacheConfig = JSON.parse(sessionStorage.getItem('synConfig'));
-            if (cacheConfig) {
-                sessionStorage.setItem('synConfig', JSON.stringify(cacheConfig));
-            }
-
-            syn.$l.addEvent(window, 'storage', $this.event.window_storage);
-
-            if (syn.Config.DomainAPIServer != null) {
-                var apiService = syn.Config.DomainAPIServer;
-                var apiServices = {};
-                if (window.bearerToken) {
-                    apiServices.BearerToken = window.bearerToken;
-                }
-                apiServices[syn.Config.SystemID + syn.Config.Environment.substring(0, 1)] = apiService;
-                syn.$w.setStorage('apiServices', apiServices, false);
-            }
-
             syn.$l.get('txtLoginID').focus();
 
             $this.prop.tabOrderControls = [
