@@ -65,11 +65,6 @@
         <Compile Remove="Contracts/function/csharp/**" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Content Remove="wwwroot\sample\uicontrol\webgrid2.html" />
-      <Content Remove="wwwroot\sample\uicontrol\webgrid2.js" />
-    </ItemGroup>
-
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
         <Exec Condition="'$(OS)'=='Windows_NT'" Command="if not exist ..\..\1.WebHost\build\handstack\modules\wwwroot mkdir ..\..\1.WebHost\build\handstack\modules\wwwroot&#xD;&#xA;rmdir /s /q $(TargetDir)" />
         <Exec Condition="'$(OS)'!='Windows_NT'" Command="rm -rf $(TargetDir)" />
