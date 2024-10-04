@@ -110,8 +110,10 @@
         },
 
         dataRefresh(elID, setting, callback) {
-            setting = syn.$w.argumentsExtend(JSON.parse(syn.$l.get(elID).getAttribute('syn-options')), setting);
+            setting = setting || {};
+            setting.elID = elID;
             setting.storeSourceID = setting.storeSourceID || setting.dataSourceID;
+            setting = syn.$w.argumentsExtend(JSON.parse(syn.$l.get(elID).getAttribute('syn-options')), setting);
 
             var el = syn.$l.get(elID);
             el.setAttribute('syn-options', JSON.stringify(setting));

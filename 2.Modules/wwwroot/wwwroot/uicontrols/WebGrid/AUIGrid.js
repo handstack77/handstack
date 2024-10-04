@@ -906,9 +906,10 @@
                 selectedValue: null
             }
 
-            setting = syn.$w.argumentsExtend(defaultSetting, setting);
+            setting = setting || {};
             setting.elID = elID;
             setting.storeSourceID = setting.storeSourceID || setting.dataSourceID;
+            setting = syn.$w.argumentsExtend(defaultSetting, setting);
             if (setting.dataField && setting.storeSourceID) {
                 var mod = window[syn.$w.pageScript];
                 if (mod.config && mod.config.dataSource && mod.config.dataSource[setting.storeSourceID]) {
