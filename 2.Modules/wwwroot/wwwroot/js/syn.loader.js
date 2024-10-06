@@ -962,6 +962,18 @@
         await synLoader.request(loadFiles);
     }
 
+    if (!window.synConfig) {
+        var response = await fetch('/' + window.synConfigName, { cache: 'no-cache' });
+        if (response.status === 200) {
+            window.synConfig = await response.json();
+            window.synConfig.CreatedAt = new Date();
+            sessionStorage.setItem('synConfig', JSON.stringify(window.synConfig));
+        }
+        else {
+            synLoader.eventLog('loadJson', ' ' + window.synConfigName + ', ' + response.status.toString() + ', ' + await response.text(), 'Error');
+        }
+    }
+
     if (window.synConfig && synConfig.LoadModuleConfig && synConfig.LoadModuleConfig.length > 0) {
         var loadModuleID = synConfig.LoadModuleConfig.find((item) => { return location.pathname.startsWith('/' + item) == true; });
         if (loadModuleID) {
@@ -984,15 +996,6 @@
         loaderRequest();
     }
     else {
-        var response = await fetch('/' + window.synConfigName, { cache: 'no-cache' });
-        if (response.status === 200) {
-            window.synConfig = await response.json();
-            window.synConfig.CreatedAt = new Date();
-            sessionStorage.setItem('synConfig', JSON.stringify(window.synConfig));
-            loaderRequest();
-        }
-        else {
-            synLoader.eventLog('loadJson', ' ' + window.synConfigName + ', ' + response.status.toString() + ', ' + await response.text(), 'Error');
-        }
+        synLoader.eventLog('loadJson', ' ' + window.synConfigName + ', ' + response.status.toString() + ', ' + await response.text(), 'Error');
     }
 }());
