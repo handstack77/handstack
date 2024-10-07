@@ -1384,6 +1384,21 @@
             }
         },
 
+        addFilterCache(elID, dataField, value) {
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                if ($object.isNumber(dataField) == true) {
+                    dataField = AUIGrid.getDataFieldByColumnIndex(gridID, dataField);
+                }
+
+                if ($string.isNullOrEmpty(dataField) == false) {
+                    var filterCache = AUIGrid.getFilterCache(gridID);
+                    filterCache[dataField] = value;
+                    AUIGrid.setFilterCache(gridID, filterCache);
+                }
+            }
+        },
+
         /*
         name에 들어갈수 있는 조건
         begins_with: 로 시작
@@ -1402,7 +1417,7 @@
         not_empty: 비우지 않음
         neq: 같지 않다
          */
-        addFilter(elID, dataField, name, args, args2) {
+        addCondition(elID, dataField, name, args, args2) {
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
                 if ($object.isNumber(dataField) == true) {
@@ -1420,20 +1435,15 @@
                                 case 'between':
                                     result = (args <= value && value <= args2);
                                     break;
-                                case 'contains':
-                                    result = args && args.length && args.findIndex((p) => {
-                                        return p.indexOf(value) > -1
-                                    }) > -1;
-                                    break;
-                                case 'by_value':
-                                    result = args && args.length && args.indexOf(value) > -1;
-                                    break;
                                 case 'ends_with':
                                     result = value.endsWith(args);
                                     break;
+                                case 'contains':
+                                case 'by_value':
                                 case 'eq':
                                     result = value == args;
                                     break;
+                                case 'not_contains':
                                 case 'neq':
                                     result = value != args;
                                     break;
@@ -1452,11 +1462,6 @@
                                 case 'not_between':
                                     result = !(args <= value && value <= args2);
                                     break;
-                                case 'not_contains':
-                                    result = !((args && args.length && args.findIndex((p) => {
-                                        return p.indexOf(value) > -1
-                                    })) > -1);
-                                    break;
                                 case 'not_empty':
                                     result = $string.isNullOrEmpty(value) == false;
                                     break;
@@ -1472,21 +1477,6 @@
                         }
                         return result;
                     });
-                }
-            }
-        },
-
-        addCondition(elID, dataField, value) {
-            var gridID = $auigrid.getGridID(elID);
-            if (gridID) {
-                if ($object.isNumber(dataField) == true) {
-                    dataField = AUIGrid.getDataFieldByColumnIndex(gridID, dataField);
-                }
-
-                if ($string.isNullOrEmpty(dataField) == false) {
-                    var filterCache = AUIGrid.getFilterCache(gridID);
-                    filterCache[dataField] = value;
-                    AUIGrid.setFilterCache(gridID, filterCache);
                 }
             }
         },
