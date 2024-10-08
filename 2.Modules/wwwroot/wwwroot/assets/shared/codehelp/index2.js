@@ -120,7 +120,7 @@ let $index2 = {
             var codeConfig = $this.prop.codeConfig;
 
             if (codeConfig.isMultiSelect == false) {
-                var currentRow = $grid.getActiveRowIndex($this.prop.gridID);
+                var currentRow = syn.uicontrols.$auigrid.getActiveRowIndex($this.prop.gridID);
                 if (currentRow > -1) {
                     var item = syn.uicontrols.$auigrid.getSourceDataAtRow($this.prop.gridID, currentRow);
                     var code = {
