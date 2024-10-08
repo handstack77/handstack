@@ -1393,6 +1393,7 @@
     box-sizing: content-box;
     -webkit-box-sizing: content-box;
     -moz-box-sizing: content-box;
+    line-height: 20px;
 }
 
 .aui-grid-custom-complex-renderer {
@@ -2046,20 +2047,16 @@
 .aui-grid-edit-renderer-custom-textarea {
     text-align: right;
     min-width: 240px;
-    width: 320px;
-    height: 240px;
 }
 
     .aui-grid-edit-renderer-custom-textarea textarea {
         display: block;
-        font-size: 12px;
         width: calc(100% - 8px);
         height: calc(100% - 42px);
         padding: 4px;
         margin: 4px;
         box-sizing: border-box;
         resize: both !important;
-        font-size: 14px;
     }
 
     .aui-grid-edit-renderer-custom-textarea button {
@@ -2090,10 +2087,6 @@
 }
 
 .aui-grid-bar-renderer span {
-    line-height: 28px;
-}
-
-.aui-grid-renderer-base {
     line-height: 28px;
 }
 
@@ -2157,16 +2150,27 @@
     padding: 0.2em;
 }
 
-.column-readonly {
+.aui-grid .column-required {
+    background-color: #fff4f4;
+}
+
+.aui-grid .column-weekend {
+    background-color: #f0f0f0;
+}
+
+.aui-grid .column-holiday {
+    background-color: #f5f5dc;
+}
+
+.aui-grid .column-readonly {
     background-color: rgba(var(--tblr-muted-rgb), 0.1) !important;
 }
 
-.column-important {
+.aui-grid .column-important {
     background-color: rgba(var(--tblr-yellow-rgb), 0.1) !important;
 }
 
 .aui-grid-icon-renderer img.aui-img {
-    top: 4px;
     cursor: pointer;
 }
 

@@ -32,6 +32,69 @@
                 var extraProps = this.extraProps;
 
                 this.__textarea = document.createElement('textarea');
+                var measureWidth = (text) => {
+                    var el = document.createElement('div');
+
+                    el.style.position = 'absolute';
+                    el.style.visibility = 'hidden';
+                    el.style.whiteSpace = 'nowrap';
+                    el.style.left = '-9999px';
+                    el.innerText = text;
+
+                    document.body.appendChild(el);
+                    var width = window.getComputedStyle(el).width;
+                    document.body.removeChild(el);
+                    return width;
+                }
+
+                var measureHeight = (text, width) => {
+                    var el = document.createElement('div');
+
+                    el.style.position = 'absolute';
+                    el.style.visibility = 'hidden';
+                    el.style.width = width;
+                    el.style.left = '-9999px';
+                    el.innerText = text;
+
+                    document.body.appendChild(el);
+                    var height = window.getComputedStyle(el).height;
+                    document.body.removeChild(el);
+                    return height;
+                }
+
+                var documentWidth = document.documentElement.clientWidth || document.body.clientWidth || 0;
+                var documentHeight = document.documentElement.clientHeight || document.body.clientHeight || 0;
+                var frameWidth = documentWidth - 200;
+                var frameHeight = documentHeight / 2 - 60;
+                var textWidth = parseInt(measureWidth(this.labelText).replace('px', ''));
+                var textHeight = parseInt(measureHeight(this.labelText).replace('px', ''));
+
+                var columnWidth = parseInt(this.columnData.width);
+
+                if (frameWidth < columnWidth) {
+                    frameWidth = columnWidth;
+                }
+
+                if (frameWidth < textWidth) {
+                    textWidth = frameWidth;
+                }
+
+                if (frameHeight < textHeight) {
+                    textHeight = frameHeight;
+                }
+
+                if (textWidth < columnWidth) {
+                    textWidth = columnWidth;
+                }
+
+                var minHeight = (extraProps && extraProps.minHeight) ? extraProps.minHeight : 60;
+                if (textHeight < minHeight) {
+                    textHeight = minHeight;
+                }
+
+                this.__textarea.setAttribute('spellcheck', 'false');
+                this.__textarea.style.width = `${textWidth}px`;
+                this.__textarea.style.height = `${textHeight}px`;
                 this.__textarea.value = this.data[this.dataField];
                 this.__textareaKeyUpHandler = this.__textareaKeyUpHandler.bind(this);
                 this.__textarea.addEventListener('keyup', this.__textareaKeyUpHandler);
@@ -454,6 +517,7 @@
                     editable: $string.toBoolean(editable) == false ? false : !$string.toBoolean(readOnly),
                     style: $object.isNullOrUndefined(alignConstants) == true ? '' : `text:${alignConstants}!`,
                     belongID: $object.isNullOrUndefined(belongID) == true ? '' : ($object.isArray(belongID) == true ? belongID.join(',') : belongID),
+                    validators: null
                 };
 
                 if ($object.isNullOrUndefined(columnID) == false) {
@@ -477,12 +541,31 @@
                     }
                 }
 
+                if (columnInfo.validators && columnInfo.validators.indexOf('required') > -1) {
+                    columnInfo.style = columnInfo.style + ' column-required';
+                }
+
                 var dataSource = null;
                 if ($object.isString(columnType) == true) {
                     switch (columnType) {
                         case 'text':
                             columnInfo.editRenderer = {
                                 type: 'InputEditRenderer',
+                                showEditorBtn: false,
+                                showEditorBtnOver: true,
+                            }
+                            break;
+                        case 'textarea':
+                            columnInfo.style = columnInfo.style + ' white-space:pre-wrap';
+                            columnInfo.wrapText = true;
+                            columnInfo.editRenderer = {
+                                type: "CustomEditRenderer",
+                                jsClass: AUIGrid.TextareaEditor,
+                                extraProps: {
+                                    confirm: "확인",
+                                    cancel: "취소",
+                                    minHeight: 100
+                                },
                                 showEditorBtn: false,
                                 showEditorBtnOver: true,
                             }
@@ -782,9 +865,9 @@
                                                     if (returnHandler) {
                                                         returnHandler.call(this, 'codeReturn', {
                                                             elID: elID,
-                                                            row: row,
-                                                            col: col,
-                                                            columnName: columnName,
+                                                            row: rowIndex,
+                                                            col: columnIndex,
+                                                            columnName: dataField,
                                                             result: result
                                                         });
                                                     }

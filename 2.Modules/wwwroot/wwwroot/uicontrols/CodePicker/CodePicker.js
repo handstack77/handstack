@@ -342,7 +342,7 @@
             var dialogOptions = $object.clone(syn.$w.dialogOptions);
             dialogOptions.minWidth = 640;
             dialogOptions.minHeight = 480;
-            dialogOptions.caption = (setting.controlText || setting.columnText || setting.dataSourceID) + ' 코드도움';
+            dialogOptions.caption = (setting.controlText || setting.columnText || setting.headerText || setting.dataSourceID) + ' 코드도움';
 
             var url = $string.isNullOrEmpty(setting.url) == false ? setting.url : syn.Config.SharedAssetUrl + 'codehelp/index.html';
             syn.$w.showUIDialog(url + '?parameterID={0}'.format(parameterID), dialogOptions, function (result) {
