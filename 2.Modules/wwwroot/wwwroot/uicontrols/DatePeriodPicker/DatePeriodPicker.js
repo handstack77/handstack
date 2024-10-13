@@ -12,7 +12,7 @@
         selectedYear: null,
         pkaStartDate: null,
         pkaEndDate: null,
-        periodPickerHtml: '<div class=card-body><div class="row g-1"><div class="col pl-0"><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnThisYear>올해</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnUntilToday>오늘까지</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnToday>오늘</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnPreviousDay>전일</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnWeekly>주간</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnPreviousWeek>전주</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnThisMonth>당월</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnPreviousMonth>이전달</button></div></div><div class="row g-1 mt-1"><div class="col pl-0"><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnPreviousYear>전년도</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnTwoYearAgo>전전년도</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnQuarter1>1분기</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnQuarter2>2분기</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnQuarter3>3분기</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnQuarter4>4분기</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnFirstHalf>상반기</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnSecondHalf>하반기</button></div></div><div class="row g-1 mt-1"><div class="col pl-0"><div class="w-100 btn-group"role=group><input id=_DatePeriodPicker_chkPeriodMonth1 type=checkbox class=btn-check value=01> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth1>1월</label> <input id=_DatePeriodPicker_chkPeriodMonth2 type=checkbox class=btn-check value=02> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth2>2월</label> <input id=_DatePeriodPicker_chkPeriodMonth3 type=checkbox class=btn-check value=03> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth3>3월</label> <input id=_DatePeriodPicker_chkPeriodMonth4 type=checkbox class=btn-check value=04> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth4>4월</label> <input id=_DatePeriodPicker_chkPeriodMonth5 type=checkbox class=btn-check value=05> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth5>5월</label> <input id=_DatePeriodPicker_chkPeriodMonth6 type=checkbox class=btn-check value=06> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth6>6월</label> <input id=_DatePeriodPicker_chkPeriodMonth7 type=checkbox class=btn-check value=07> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth7>7월</label> <input id=_DatePeriodPicker_chkPeriodMonth8 type=checkbox class=btn-check value=08> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth8>8월</label> <input id=_DatePeriodPicker_chkPeriodMonth9 type=checkbox class=btn-check value=09> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth9>9월</label> <input id=_DatePeriodPicker_chkPeriodMonth10 type=checkbox class=btn-check value=10> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth10>10월</label> <input id=_DatePeriodPicker_chkPeriodMonth11 type=checkbox class=btn-check value=11> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth11>11월</label> <input id=_DatePeriodPicker_chkPeriodMonth12 type=checkbox class=btn-check value=12> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth12>12월</label></div></div></div><div class="row mt-2"><div class="col pl-0"><div class=h:227 id=calStartDate></div><input id=_DatePeriodPicker_txtStartDate type=hidden></div><div class="col pl-0"><div class=h:227 id=calEndDate></div><input id=_DatePeriodPicker_txtEndDate type=hidden></div></div></div><div class="p-2 card-footer"><div class="row align-items-center"><div class=col>선택기간: <span id=spnPeriodDate>0일</span></div><div class=col-auto><div class="btn-list flex-nowrap"><button class="btn w-100"id=_DatePeriodPicker_btnClose>취소</button> <button class="btn w-100 btn-primary"id=_DatePeriodPicker_btnConfirm>확인</button></div></div></div></div>',
+        periodPickerHtml: '<div class=card-body><div class="row g-1"><div class="col pl-0"><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnThisYear>올해</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnUntilToday>오늘까지</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnToday>오늘</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnPreviousDay>전일</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnWeekly>주간</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnPreviousWeek>전주</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnThisMonth>당월</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnPreviousMonth>이전달</button></div></div><div class="row g-1 mt-1"><div class="col pl-0"><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnPreviousYear>전년도</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnTwoYearAgo>전전년도</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnQuarter1>1분기</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnQuarter2>2분기</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnQuarter3>3분기</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnQuarter4>4분기</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnFirstHalf>상반기</button></div><div class=col><button class="btn w-100 border-color:#ccc!"id=_DatePeriodPicker_btnSecondHalf>하반기</button></div></div><div class="row g-1 mt-1"><div class="col pl-0"><div class="w-100 btn-group"role=group><input id=_DatePeriodPicker_chkPeriodMonth1 type=checkbox class=btn-check value=01> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth1>1월</label> <input id=_DatePeriodPicker_chkPeriodMonth2 type=checkbox class=btn-check value=02> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth2>2월</label> <input id=_DatePeriodPicker_chkPeriodMonth3 type=checkbox class=btn-check value=03> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth3>3월</label> <input id=_DatePeriodPicker_chkPeriodMonth4 type=checkbox class=btn-check value=04> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth4>4월</label> <input id=_DatePeriodPicker_chkPeriodMonth5 type=checkbox class=btn-check value=05> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth5>5월</label> <input id=_DatePeriodPicker_chkPeriodMonth6 type=checkbox class=btn-check value=06> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth6>6월</label> <input id=_DatePeriodPicker_chkPeriodMonth7 type=checkbox class=btn-check value=07> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth7>7월</label> <input id=_DatePeriodPicker_chkPeriodMonth8 type=checkbox class=btn-check value=08> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth8>8월</label> <input id=_DatePeriodPicker_chkPeriodMonth9 type=checkbox class=btn-check value=09> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth9>9월</label> <input id=_DatePeriodPicker_chkPeriodMonth10 type=checkbox class=btn-check value=10> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth10>10월</label> <input id=_DatePeriodPicker_chkPeriodMonth11 type=checkbox class=btn-check value=11> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth11>11월</label> <input id=_DatePeriodPicker_chkPeriodMonth12 type=checkbox class=btn-check value=12> <label class="btn p-2"for=_DatePeriodPicker_chkPeriodMonth12>12월</label></div></div></div><div class="row mt-2"><div class="col pl-0"><div class=h:227 id=calStartDate></div><input id=_DatePeriodPicker_txtStartDate type=hidden></div><div class="col pl-0"><div class=h:227 id=calEndDate></div><input id=_DatePeriodPicker_txtEndDate type=hidden></div></div></div><div class="p-2 card-footer"><div class="row align-items-center"><div class=col>선택기간: <span id=spnPeriodDate>0일</span></div><div class=col-auto><div class="btn-list flex-nowrap"><button class="btn w-100 btn-primary"id=_DatePeriodPicker_btnConfirm>확인</button></div></div></div></div>',
         defaultSetting: {
             elID: '',
             width: '100%',
@@ -133,7 +133,7 @@
             syn.$m.insertAfter(span, textbox1);
 
             var textbox2ID = elID + '_EndedAt';
-            var dataField1ID = setting.startDataFieldID || elID + '_EndedAt';
+            var dataField1ID = setting.endDataFieldID || elID + '_EndedAt';
 
             var textbox2 = syn.$m.create({
                 id: textbox2ID,
@@ -217,7 +217,6 @@
                 syn.$l.addEvent('_DatePeriodPicker_btnQuarter4', 'click', $dateperiodpicker._DatePeriodPicker_btnQuarter4_click);
                 syn.$l.addEvent('_DatePeriodPicker_btnFirstHalf', 'click', $dateperiodpicker._DatePeriodPicker_btnFirstHalf_click);
                 syn.$l.addEvent('_DatePeriodPicker_btnSecondHalf', 'click', $dateperiodpicker._DatePeriodPicker_btnSecondHalf_click);
-                syn.$l.addEvent('_DatePeriodPicker_btnClose', 'click', $dateperiodpicker._DatePeriodPicker_btnClose_click);
                 syn.$l.addEvent('_DatePeriodPicker_btnConfirm', 'click', $dateperiodpicker._DatePeriodPicker_btnConfirm_click);
                 syn.$l.addEvent('_DatePeriodPicker_chkPeriodMonth1', 'change', $dateperiodpicker._DatePeriodPicker_chkPeriodMonth_change);
                 syn.$l.addEvent('_DatePeriodPicker_chkPeriodMonth2', 'change', $dateperiodpicker._DatePeriodPicker_chkPeriodMonth_change);
@@ -506,7 +505,16 @@
             var dateControl = $dateperiodpicker.getControl(elID);
 
             if (dateControl) {
-                result = dateControl.picker._o.field.value;
+                var startedAt = '';
+                if (dateControl.textbox1ID && syn.$l.get(dateControl.textbox1ID)) {
+                    startedAt = syn.$l.get(dateControl.textbox1ID).value;
+                }
+
+                var endedAt = '';
+                if (dateControl.textbox1ID && syn.$l.get(dateControl.textbox2ID)) {
+                    endedAt = syn.$l.get(dateControl.textbox2ID).value;
+                }
+                result = `${startedAt},${endedAt}`;
             }
 
             return result;
@@ -515,14 +523,38 @@
         setValue(elID, value, meta) {
             var dateControl = $dateperiodpicker.getControl(elID);
             if (dateControl) {
-                dateControl.picker.setDate(value);
+                var startedAt = '';
+                var endedAt = '';
+                var splitValue = $string.split(value, ',');
+                if (splitValue.length > 1) {
+                    startedAt = splitValue[0];
+                    endedAt = splitValue[1];
+                }
+                else if (splitValue.length > 0) {
+                    startedAt = splitValue[0];
+                    endedAt = splitValue[0];
+                }
+
+                if (dateControl.textbox1ID && syn.$l.get(dateControl.textbox1ID)) {
+                    syn.$l.get(dateControl.textbox1ID).value = startedAt;
+                }
+
+                if (dateControl.textbox1ID && syn.$l.get(dateControl.textbox2ID)) {
+                    syn.$l.get(dateControl.textbox2ID).value = endedAt;
+                }
             }
         },
 
         clear(elID, isControlLoad) {
             var dateControl = $dateperiodpicker.getControl(elID);
             if (dateControl) {
-                dateControl.picker.clear();
+                if (dateControl.textbox1ID && syn.$l.get(dateControl.textbox1ID)) {
+                    syn.$l.get(dateControl.textbox1ID).value = '';
+                }
+
+                if (dateControl.textbox1ID && syn.$l.get(dateControl.textbox2ID)) {
+                    syn.$l.get(dateControl.textbox2ID).value = '';
+                }
             }
         },
 
@@ -776,9 +808,6 @@
 
             $dateperiodpicker.setDateRange(startDate, endDate);
             $dateperiodpicker.checkPeriodMonth([7, 8, 9, 10, 11, 12]);
-        },
-
-        _DatePeriodPicker_btnClose_click() {
         },
 
         _DatePeriodPicker_btnConfirm_click() {

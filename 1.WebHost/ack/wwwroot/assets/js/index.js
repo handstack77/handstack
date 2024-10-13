@@ -4331,8 +4331,108 @@ globalRoot.syn = syn;
                     }
                 }
 
+                var getTagModule = function (tagName) {
+                    var result = null;
+                    if (syn.uicontrols) {
+                        var controlType = '';
+                        if (tagName.indexOf('SYN_') > -1) {
+                            var moduleName = tagName.substring(4).toLowerCase();
+                            result = syn.uicontrols['$' + moduleName];
+                            controlType = moduleName;
+                        }
+                        else {
+                            switch (tagName) {
+                                case 'BUTTON':
+                                    result = syn.uicontrols.$button;
+                                    controlType = 'button';
+                                    break;
+                                case 'INPUT':
+                                    controlType = (synControl.getAttribute('type') || 'text').toLowerCase();
+                                    switch (controlType) {
+                                        case 'hidden':
+                                        case 'text':
+                                        case 'password':
+                                        case 'color':
+                                        case 'email':
+                                        case 'number':
+                                        case 'search':
+                                        case 'tel':
+                                        case 'url':
+                                            result = syn.uicontrols.$textbox;
+                                            break;
+                                        case 'submit':
+                                        case 'reset':
+                                        case 'button':
+                                            result = syn.uicontrols.$button;
+                                            break;
+                                        case 'radio':
+                                            result = syn.uicontrols.$radio;
+                                            break;
+                                        case 'checkbox':
+                                            result = syn.uicontrols.$checkbox;
+                                            break;
+                                    }
+                                    break;
+                                case 'TEXTAREA':
+                                    result = syn.uicontrols.$textarea;
+                                    controlType = 'textarea';
+                                    break;
+                                case 'SELECT':
+                                    if (synControl.getAttribute('multiple') == null) {
+                                        result = syn.uicontrols.$select;
+                                        controlType = 'select';
+                                    }
+                                    else {
+                                        result = syn.uicontrols.$multiselect;
+                                        controlType = 'multiselect';
+                                    }
+                                    break;
+                                default:
+                                    result = syn.uicontrols.$element;
+                                    controlType = 'element';
+                                    break;
+                            }
+                        }
+                    }
+
+                    return result;
+                }
+
                 var synControlList = [];
                 var synControls = document.querySelectorAll('[syn-datafield],[syn-options],[syn-events]');
+                for (var i = 0; i < synControls.length; i++) {
+                    var synControl = synControls[i];
+                    if (synControl.tagName) {
+                        var tagName = synControl.tagName.toUpperCase();
+                        var dataField = synControl.getAttribute('syn-datafield');
+                        var elementID = synControl.getAttribute('id');
+                        var formDataField = synControl.closest('form') ? synControl.closest('form').getAttribute('syn-datafield') : '';
+
+                        var controlOptions = synControl.getAttribute('syn-options') || null;
+                        if (controlOptions != null) {
+                            try {
+                                controlOptions = eval('(' + controlOptions + ')');
+                            } catch (error) {
+                                syn.$l.eventLog('$w.contentLoaded', 'elID: "{0}" syn-options 확인 필요 '.format(elementID) + error.message, 'Warning');
+                            }
+                        }
+                        else {
+                            controlOptions = {};
+                        }
+
+                        var controlModule = getTagModule(tagName);
+                        if (controlModule) {
+                            controlModule.controlLoad(elementID, controlOptions);
+                        }
+                        else {
+                            if ($this.hook.controlLoad) {
+                                $this.hook.controlLoad(elementID, controlOptions);
+                            }
+                        }
+                    }
+                }
+
+                synControls = document.querySelectorAll('[syn-datafield],[syn-options],[syn-events]');
                 for (var i = 0; i < synControls.length; i++) {
                     var synControl = synControls[i];
                     if (synControl.tagName) {
@@ -4354,68 +4454,6 @@ globalRoot.syn = syn;
                             controlOptions = {};
                         }
 
-                        var controlModule = null;
-                        if (syn.uicontrols) {
-                            if (tagName.indexOf('SYN_') > -1) {
-                                var moduleName = tagName.substring(4).toLowerCase();
-                                controlModule = syn.uicontrols['$' + moduleName];
-                                controlType = moduleName;
-                            }
-                            else {
-                                switch (tagName) {
-                                    case 'BUTTON':
-                                        controlModule = syn.uicontrols.$button;
-                                        controlType = 'button';
-                                        break;
-                                    case 'INPUT':
-                                        controlType = (synControl.getAttribute('type') || 'text').toLowerCase();
-                                        switch (controlType) {
-                                            case 'hidden':
-                                            case 'text':
-                                            case 'password':
-                                            case 'color':
-                                            case 'email':
-                                            case 'number':
-                                            case 'search':
-                                            case 'tel':
-                                            case 'url':
-                                                controlModule = syn.uicontrols.$textbox;
-                                                break;
-                                            case 'submit':
-                                            case 'reset':
-                                            case 'button':
-                                                controlModule = syn.uicontrols.$button;
-                                                break;
-                                            case 'radio':
-                                                controlModule = syn.uicontrols.$radio;
-                                                break;
-                                            case 'checkbox':
-                                                controlModule = syn.uicontrols.$checkbox;
-                                                break;
-                                        }
-                                        break;
-                                    case 'TEXTAREA':
-                                        controlModule = syn.uicontrols.$textarea;
-                                        controlType = 'textarea';
-                                        break;
-                                    case 'SELECT':
-                                        if (synControl.getAttribute('multiple') == null) {
-                                            controlModule = syn.uicontrols.$select;
-                                            controlType = 'select';
-                                        }
-                                        else {
-                                            controlModule = syn.uicontrols.$multiselect;
-                                            controlType = 'multiselect';
-                                        }
-                                        break;
-                                    default:
-                                        controlModule = syn.uicontrols.$element;
-                                        controlType = 'element';
-                                        break;
-                                }
-                            }
-                        }
-
                         syn.$l.addEvent(synControl.id, 'focus', function (evt) {
                             $this.context.focusControl = evt.target || evt.currentTarget || evt.srcElement;
                             if ($this.context.focusControl) {
@@ -4426,15 +4464,14 @@ globalRoot.syn = syn;
                             }
                         });
 
+                        var controlModule = getTagModule(tagName);
                         if (controlModule) {
                             if (controlModule.addModuleList) {
                                 controlModule.addModuleList(synControl, synControlList, controlOptions, controlType);
                             }
-
-                            controlModule.controlLoad(elementID, controlOptions);
                         }
                         else {
-                            if (elementID) {
+                            if (elementID && dataField) {
                                 synControlList.push({
                                     id: elementID,
                                     formDataFieldID: formDataField,
@@ -4442,10 +4479,6 @@ globalRoot.syn = syn;
                                     module: null,
                                     type: controlType ? controlType : synControl.tagName.toLowerCase()
                                 });
-                            }
-
-                            if ($this.hook.controlLoad) {
-                                $this.hook.controlLoad(elementID, controlOptions);
                             }
                         }
                     }

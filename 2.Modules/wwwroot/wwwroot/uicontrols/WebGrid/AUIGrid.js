@@ -277,7 +277,7 @@
             el.style.display = 'none';
 
             var dataField = el.getAttribute('syn-datafield');
-            var html = `<div id="{0}" syn-datafield="{1}" class="syn-auigrid" style="width:${setting.width};height:${setting.height};overflow:hidden;"></div>`.format(elID, dataField);
+            var html = `<div id="{0}" class="syn-auigrid" style="width:${setting.width};height:${setting.height};overflow:hidden;"></div>`.format(elID, dataField);
 
             var parent = el.parentNode;
             var wrapper = document.createElement('div');
@@ -2302,6 +2302,7 @@
 
         getGridID(elID) {
             var result = null;
+            elID = elID.replace('_hidden', '');
             var length = $auigrid.gridControls.length;
             for (var i = 0; i < length; i++) {
                 var item = $auigrid.gridControls[i];
