@@ -81,11 +81,6 @@
                 }
             }
 
-            setting.elID = elID;
-            el.setAttribute('id', el.id + '_hidden');
-            el.setAttribute('syn-options', JSON.stringify(setting));
-            el.style.display = 'none';
-
             var dataField = el.getAttribute('syn-datafield');
             var events = el.getAttribute('syn-events');
 
@@ -95,9 +90,16 @@
                 className: 'form-control'
             });
             textbox.type = 'text';
+
             if ($string.isNullOrEmpty(dataField) == false) {
                 textbox.setAttribute('syn-datafield', dataField);
             }
+
+            setting.elID = elID;
+            el.setAttribute('id', el.id + '_hidden');
+            el.setAttribute('syn-options', JSON.stringify(setting));
+            el.removeAttribute('syn-datafield');
+            el.style.display = 'none';
 
             if ($string.isNullOrEmpty(setting.belongID) == true) {
                 textbox.setAttribute('syn-options', `{editType: 'date', maskPattern: '9999-99-99', dataType: 'string'}`);
