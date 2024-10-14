@@ -32,6 +32,8 @@ using RestSharp;
 using transact.Entity;
 using transact.Extensions;
 
+using static System.Runtime.InteropServices.JavaScript.JSType;
+
 namespace transact.Areas.transact.Controllers
 {
     [Area("transact")]
@@ -459,7 +461,7 @@ namespace transact.Areas.transact.Controllers
 
                 if (ModuleConfiguration.IsValidationRequest == true)
                 {
-                    if (distributedCache.Get(request.Transaction.GlobalID) == null)
+                    if (request.System.Routes.Count == 0 || distributedCache.Get(request.Transaction.GlobalID) == null)
                     {
                         response.ExceptionText = "잘못된 요청";
                         return Content(JsonConvert.SerializeObject(response), "application/json");
@@ -468,6 +470,24 @@ namespace transact.Areas.transact.Controllers
                     {
                         distributedCache.Remove(request.Transaction.GlobalID);
                     }
+
+                    long jsMilliseconds = request.System.Routes[request.System.Routes.Count - 1].RequestTick;
+                    DateTimeOffset dateTimeOffset = DateTimeOffset.FromUnixTimeMilliseconds(jsMilliseconds);
+                    TimeSpan interval = DateTimeOffset.UtcNow - dateTimeOffset;
+                    if (interval.TotalSeconds > 180)
+                    {
+                        response.ExceptionText = "요청 만료";
+                        return Content(JsonConvert.SerializeObject(response), "application/json");
+                    }
+
+                    var findGlobalID = ModuleConfiguration.RequestGlobalIDList.FirstOrDefault(p => p == request.Transaction.GlobalID);
+                    if (string.IsNullOrEmpty(findGlobalID) == false)
+                    {
+                        response.ExceptionText = "중복 요청";
+                        return Content(JsonConvert.SerializeObject(response), "application/json");
+                    }
+
+                    ModuleConfiguration.RequestGlobalIDList.Add(request.Transaction.GlobalID);
                 }
 
                 bool isAllowRequestTransactions = false;

@@ -233,7 +233,13 @@ namespace transact.Extensions
                                 appPublicTransaction.ApplicationID = applicationID;
                                 appPublicTransaction.ProjectID = publicTransaction.ProjectID;
                                 appPublicTransaction.TransactionID = publicTransaction.TransactionID;
-                                if (ModuleConfiguration.PublicTransactions.Contains(appPublicTransaction) == false)
+
+                                var findPublicTransaction = ModuleConfiguration.PublicTransactions.FirstOrDefault(p => p.ApplicationID == appPublicTransaction.ApplicationID
+                                    && p.ProjectID == appPublicTransaction.ProjectID
+                                    && p.TransactionID == appPublicTransaction.TransactionID
+                                );
+
+                                if (findPublicTransaction == null)
                                 {
                                     ModuleConfiguration.PublicTransactions.Add(appPublicTransaction);
                                 }

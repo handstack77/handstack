@@ -113,7 +113,12 @@ namespace repository.Areas.repository.Controllers
                                             repository.CreatedAt = storage.CreatedAt;
                                             repository.ModifiedAt = storage.ModifiedAt;
 
-                                            if (ModuleConfiguration.FileRepositorys.Contains(repository) == false)
+                                            var findRepository = ModuleConfiguration.FileRepositorys.FirstOrDefault(p => p.ApplicationID == repository.ApplicationID
+                                                && p.RepositoryID == repository.RepositoryID
+                                                && p.UserWorkID == userWorkID
+                                            );
+
+                                            if (findRepository == null)
                                             {
                                                 repository.PhysicalPath = repository.PhysicalPath.Replace("{appBasePath}", appBasePath);
                                                 repository.PhysicalPath = GlobalConfiguration.GetBasePath(repository.PhysicalPath);

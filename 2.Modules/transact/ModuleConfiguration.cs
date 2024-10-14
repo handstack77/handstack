@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using HandStack.Web.Extensions;
 
@@ -40,6 +41,7 @@ namespace transact
         public static Dictionary<string, List<string>> AllowRequestTransactions = new Dictionary<string, List<string>>();
         public static ExpiringDictionary<string, string> RoutingCommandUri = new ExpiringDictionary<string, string>();
         public static ExpiringList<PublicTransaction>? PublicTransactions = new ExpiringList<PublicTransaction>();
+        public static ExpiringList<string> RequestGlobalIDList = new ExpiringList<string>(TimeSpan.FromMinutes(3), TimeSpan.FromMinutes(1));
         public static List<string> CacheKeys = new List<string>();
     }
 }
