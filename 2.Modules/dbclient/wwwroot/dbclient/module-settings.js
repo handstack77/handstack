@@ -28,7 +28,7 @@ let $module_settings = {
                 "DataSource": [
                     {
                         "ApplicationID": "HDS",
-                        "TableName": "*",
+                        "ProjectID": "*",
                         "DataSourceID": "CHECKUPDB",
                         "DataProvider": "SQLite",
                         "ConnectionString": "URI=file:../sqlite/HDS/dbclient/checkup.db;Journal Mode=Off;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;",
@@ -37,7 +37,7 @@ let $module_settings = {
                     },
                     {
                         "ApplicationID": "HDS",
-                        "TableName": "*",
+                        "ProjectID": "*",
                         "DataSourceID": "DB01",
                         "DataProvider": "SQLite",
                         "ConnectionString": "URI=file:../sqlite/HDS/dbclient/HDS.db;Journal Mode=Off;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;",
@@ -46,7 +46,7 @@ let $module_settings = {
                     },
                     {
                         "ApplicationID": "HDS",
-                        "TableName": "*",
+                        "ProjectID": "*",
                         "DataSourceID": "DB02",
                         "DataProvider": "SqlServer",
                         "ConnectionString": "Data Source=localhost;Initial Catalog=master;User ID=sa;Password=Strong@Passw0rd;",
@@ -55,7 +55,7 @@ let $module_settings = {
                     },
                     {
                         "ApplicationID": "HDS",
-                        "TableName": "*",
+                        "ProjectID": "*",
                         "DataSourceID": "DB03",
                         "DataProvider": "Oracle",
                         "ConnectionString": "Data Source=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521))(CONNECT_DATA=(SID=ORCL)));User Id=system;Password=Strong@Passw0rd;",
@@ -64,7 +64,7 @@ let $module_settings = {
                     },
                     {
                         "ApplicationID": "HDS",
-                        "TableName": "*",
+                        "ProjectID": "*",
                         "DataSourceID": "DB04",
                         "DataProvider": "MySQL",
                         "ConnectionString": "Server=localhost;Port=3306;Uid=root;Pwd=Strong@Passw0rd;PersistSecurityInfo=True;SslMode=none;Charset=utf8;Allow User Variables=True;",
@@ -73,7 +73,7 @@ let $module_settings = {
                     },
                     {
                         "ApplicationID": "HDS",
-                        "TableName": "*",
+                        "ProjectID": "*",
                         "DataSourceID": "DB05",
                         "DataProvider": "PostgreSQL",
                         "ConnectionString": "Host=localhost;Port=5432;Database=postgres;User ID=postgres;Password=Strong@Passw0rd;",
@@ -350,7 +350,7 @@ let $module_settings = {
                 else {
                     items.push({
                         ApplicationID: applicationID,
-                        TableName: projectID,
+                        ProjectID: projectID,
                         DataSourceID: dataSourceID,
                         DataProvider: dataProvider,
                         ConnectionString: connectionString,
@@ -363,7 +363,7 @@ let $module_settings = {
                 var data = $this.method.getDataSource(baseDataID);
                 if (data) {
                     data.ApplicationID = applicationID;
-                    data.TableName = projectID;
+                    data.ProjectID = projectID;
                     data.DataSourceID = dataSourceID;
                     data.DataProvider = dataProvider;
                     data.ConnectionString = connectionString;
@@ -434,10 +434,10 @@ let $module_settings = {
 
                     if (data) {
                         syn.$l.get('txtApplicationID_DataSource').value = data.ApplicationID;
-                        syn.$l.get('txtProjectID_DataSource').value = data.TableName;
+                        syn.$l.get('txtProjectID_DataSource').value = data.ProjectID;
                         syn.$l.get('txtDataSourceID_DataSource').value = data.DataSourceID;
                         syn.$l.get('ddlDataProvider_DataSource').value = data.DataProvider;
-                        syn.$l.get('txtBaseDataID_DataSource').value = `${data.ApplicationID}|${data.TableName}|${data.DataSourceID}|${data.DataProvider}`;
+                        syn.$l.get('txtBaseDataID_DataSource').value = `${data.ApplicationID}|${data.ProjectID}|${data.DataSourceID}|${data.DataProvider}`;
                         syn.$l.get('txtConnectionString_DataSource').value = data.ConnectionString;
                         syn.$l.get('chkIsEncryption').checked = $string.toBoolean(data.IsEncryption);
                         syn.$l.get('txtComment_DataSource').value = data.Comment;
@@ -465,7 +465,7 @@ let $module_settings = {
             var values = $array.split(dataID, '|');
             return $this.prop.moduleConfig.ModuleConfig.DataSource.find((item) => {
                 return item.ApplicationID == values[0]
-                    && item.TableName == values[1]
+                    && item.ProjectID == values[1]
                     && item.DataSourceID == values[2]
                     && item.DataProvider == values[3]
             });
