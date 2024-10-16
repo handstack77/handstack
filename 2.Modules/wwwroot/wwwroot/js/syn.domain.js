@@ -2268,15 +2268,15 @@
                 };
 
                 var controlText = options.controlText;
-                var columnName = controlModule.getColHeader(controlInfo.id, controlModule.propToCol(controlInfo.id, options.data));
+                var columnName = controlModule.getColHeader(controlInfo.id.replace('_hidden', ''), controlModule.propToCol(controlInfo.id.replace('_hidden', ''), options.data));
                 var row = controlModule.getActiveRowIndex(controlInfo.id);
-                var col = controlModule.propToCol(controlInfo.id, options.data);
-                var flag = controlModule.getDataAtCell(controlInfo.id, row, 'Flag');
+                var col = controlModule.propToCol(controlInfo.id.replace('_hidden', ''), options.data);
+                var flag = controlModule.getDataAtCell(controlInfo.id.replace('_hidden', ''), row, 'Flag');
                 if (flag != 'D') {
                     return true;
                 }
                 else {
-                    var value = controlModule.getDataAtCell(controlInfo.id, row, col);
+                    var value = controlModule.getDataAtCell(controlInfo.id.replace('_hidden', ''), row, col);
                     if (options.validators.indexOf('require') > -1) {
                         if (value === '' || value == null) {
                             var message = '{0} 그리드의 {1} 컬럼은 반드시 입력 해야입니다'.format(controlText, columnName);
@@ -2340,9 +2340,9 @@
                 };
 
                 var controlText = options.controlText;
-                var columnName = controlModule.getColHeader(controlInfo.id, controlModule.propToCol(controlInfo.id, options.data));
-                var flagData = controlModule.getSourceDataAtCol(controlInfo.id, 'Flag');
-                var rowData = controlModule.getSourceDataAtCol(controlInfo.id, options.data);
+                var columnName = controlModule.getColHeader(controlInfo.id.replace('_hidden', ''), controlModule.propToCol(controlInfo.id.replace('_hidden', ''), options.data));
+                var flagData = controlModule.getSourceDataAtCol(controlInfo.id.replace('_hidden', ''), 'Flag');
+                var rowData = controlModule.getSourceDataAtCol(controlInfo.id.replace('_hidden', ''), options.data);
 
                 var vaildateData = [];
                 var length = flagData.length;

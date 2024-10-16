@@ -5565,7 +5565,7 @@ globalRoot.syn = syn;
                                                 }
 
                                                 if ($object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
-                                                    inputObjects = controlModule.getValue(controlInfo.id, 'Row', inputMapping.items)[0];
+                                                    inputObjects = controlModule.getValue(controlInfo.id.replace('_hidden', ''), 'Row', inputMapping.items)[0];
                                                 }
                                             }
                                             else {
@@ -5615,7 +5615,7 @@ globalRoot.syn = syn;
                                                         }
 
                                                         if ($object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
-                                                            controlValue = controlModule.getValue(controlInfo.id, meta);
+                                                            controlValue = controlModule.getValue(controlInfo.id.replace('_hidden', ''), meta);
                                                         }
 
                                                         if ($object.isNullOrUndefined(controlValue) == true && (dataType == 'number' || dataType == 'numeric')) {
@@ -5724,7 +5724,7 @@ globalRoot.syn = syn;
                                         }
 
                                         if ($object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
-                                            inputObjects = controlModule.getValue(controlInfo.id, 'List', inputMapping.items);
+                                            inputObjects = controlModule.getValue(controlInfo.id.replace('_hidden', ''), 'List', inputMapping.items);
                                         }
                                     }
                                     else {
@@ -5838,7 +5838,7 @@ globalRoot.syn = syn;
                                                             var controlInfo = bindingControlInfos[0];
                                                             var controlModule = syn.$w.getControlModule(controlInfo.module);
                                                             if ($object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
-                                                                controlModule.setValue(controlInfo.id, controlValue, meta);
+                                                                controlModule.setValue(controlInfo.id.replace('_hidden', ''), controlValue, meta);
                                                             }
                                                         }
                                                         else {
@@ -5891,7 +5891,7 @@ globalRoot.syn = syn;
                                                         var controlInfo = bindingControlInfos[0];
                                                         var controlModule = syn.$w.getControlModule(controlInfo.module);
                                                         if ($object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
-                                                            controlModule.setValue(controlInfo.id, outputData, outputMapping.items);
+                                                            controlModule.setValue(controlInfo.id.replace('_hidden', ''), outputData, outputMapping.items);
                                                         }
                                                     }
                                                     else {
@@ -5960,7 +5960,7 @@ globalRoot.syn = syn;
                                                         var controlInfo = bindingControlInfos[0];
                                                         var controlModule = syn.$w.getControlModule(controlInfo.module);
                                                         if ($object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
-                                                            controlModule.setValue(controlInfo.id, outputData, outputMapping.items);
+                                                            controlModule.setValue(controlInfo.id.replace('_hidden', ''), outputData, outputMapping.items);
                                                         }
                                                     }
                                                     else {
@@ -6087,7 +6087,7 @@ globalRoot.syn = syn;
                                                 var controlInfo = bindingControlInfos[0];
                                                 var controlModule = syn.$w.getControlModule(controlInfo.module);
                                                 if ($object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
-                                                    inputObjects = controlModule.getValue(controlInfo.id, 'Row', inputMapping.items)[0];
+                                                    inputObjects = controlModule.getValue(controlInfo.id.replace('_hidden', ''), 'Row', inputMapping.items)[0];
                                                 }
                                             }
                                             else {
@@ -6113,7 +6113,7 @@ globalRoot.syn = syn;
                                                     var controlInfo = bindingControlInfos[0];
                                                     var controlModule = syn.$w.getControlModule(controlInfo.module);
                                                     if ($object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
-                                                        controlValue = controlModule.getValue(controlInfo.id, meta);
+                                                        controlValue = controlModule.getValue(controlInfo.id.replace('_hidden', ''), meta);
                                                     }
 
                                                     if ($object.isNullOrUndefined(controlValue) == true && (dataType == 'number' || dataType == 'numeric')) {
@@ -6201,7 +6201,7 @@ globalRoot.syn = syn;
                                         var controlInfo = bindingControlInfos[0];
                                         var controlModule = syn.$w.getControlModule(controlInfo.module);
                                         if ($object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
-                                            inputObjects = controlModule.getValue(controlInfo.id, 'List', inputMapping.items);
+                                            inputObjects = controlModule.getValue(controlInfo.id.replace('_hidden', ''), 'List', inputMapping.items);
                                         }
                                     }
                                     else {
@@ -6346,7 +6346,7 @@ globalRoot.syn = syn;
                                                 var controlInfo = bindingControlInfos[0];
                                                 var controlModule = syn.$w.getControlModule(controlInfo.module);
                                                 if ($object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
-                                                    controlModule.setValue(controlInfo.id, controlValue, meta);
+                                                    controlModule.setValue(controlInfo.id.replace('_hidden', ''), controlValue, meta);
                                                 }
                                             }
                                             else {
@@ -6399,7 +6399,7 @@ globalRoot.syn = syn;
                                             var controlInfo = bindingControlInfos[0];
                                             var controlModule = syn.$w.getControlModule(controlInfo.module);
                                             if ($object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
-                                                controlModule.setValue(controlInfo.id, outputData, outputMapping.items);
+                                                controlModule.setValue(controlInfo.id.replace('_hidden', ''), outputData, outputMapping.items);
                                             }
                                         }
                                         else {
@@ -6468,7 +6468,7 @@ globalRoot.syn = syn;
                                             var controlInfo = bindingControlInfos[0];
                                             var controlModule = syn.$w.getControlModule(controlInfo.module);
                                             if ($object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
-                                                controlModule.setValue(controlInfo.id, outputData, outputMapping.items);
+                                                controlModule.setValue(controlInfo.id.replace('_hidden', ''), outputData, outputMapping.items);
                                             }
                                         }
                                         else {
