@@ -328,7 +328,7 @@ let $module_settings = {
         btnManageDataSource_click(evt) {
             var baseDataID = syn.$l.get('txtBaseDataID_DataSource').value;
             var applicationID = syn.$l.get('txtApplicationID_DataSource').value.trim();
-            var projectID = syn.$l.get('txtTableName_DataSource').value.trim();
+            var projectID = syn.$l.get('txtProjectID_DataSource').value.trim();
             var dataSourceID = syn.$l.get('txtDataSourceID_DataSource').value.trim();
             var dataProvider = syn.$l.get('ddlDataProvider_DataSource').value.trim();
             var connectionString = syn.$l.get('txtConnectionString_DataSource').value.trim();
@@ -434,7 +434,7 @@ let $module_settings = {
 
                     if (data) {
                         syn.$l.get('txtApplicationID_DataSource').value = data.ApplicationID;
-                        syn.$l.get('txtTableName_DataSource').value = data.TableName;
+                        syn.$l.get('txtProjectID_DataSource').value = data.TableName;
                         syn.$l.get('txtDataSourceID_DataSource').value = data.DataSourceID;
                         syn.$l.get('ddlDataProvider_DataSource').value = data.DataProvider;
                         syn.$l.get('txtBaseDataID_DataSource').value = `${data.ApplicationID}|${data.TableName}|${data.DataSourceID}|${data.DataProvider}`;
@@ -444,7 +444,7 @@ let $module_settings = {
                     }
                     else {
                         syn.$l.get('txtApplicationID_DataSource').value = '';
-                        syn.$l.get('txtTableName_DataSource').value = '';
+                        syn.$l.get('txtProjectID_DataSource').value = '';
                         syn.$l.get('txtDataSourceID_DataSource').value = '';
                         syn.$l.get('ddlDataProvider_DataSource').value = 'SqlServer';
                         syn.$l.get('txtBaseDataID_DataSource').value = '';
