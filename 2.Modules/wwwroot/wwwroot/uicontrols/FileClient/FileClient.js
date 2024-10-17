@@ -375,7 +375,6 @@
         },
 
         getRepositoryUrl() {
-            debugger;
             var setting = $fileclient.getFileManagerSetting();
             return setting.fileManagerServer + setting.fileManagerPath;
         },
