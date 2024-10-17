@@ -1251,7 +1251,10 @@
                     else {
                         AUIGrid.resize(gridID);
                     }
-                    syn.$w.setTabContentHeight();
+
+                    if (syn.$w.setTabContentHeight) {
+                        syn.$w.setTabContentHeight();
+                    }
                 }
             }
         },
