@@ -666,13 +666,13 @@
             syn.$r.path = $fileclient.getRepositoryUrl() + '/' + (isSingleUpload == true ? setting.pageUploadFile : setting.pageUploadFiles);
             syn.$r.params['repositoryID'] = repositoryID;
             syn.$r.params['dependencyID'] = dependencyID;
+            syn.$r.params['businessID'] = $fileclient.businessID;
+            syn.$r.params['applicationID'] = $fileclient.applicationID;
             syn.$r.params['responseType'] = 'json';
 
             if (isSingleUpload == true && $string.isNullOrEmpty(fileName) == false) {
                 syn.$r.params['fileName'] = fileName;
             }
-
-            syn.$r.params['applicationID'] = $fileclient.applicationID;
 
             return syn.$r.url();
         },
