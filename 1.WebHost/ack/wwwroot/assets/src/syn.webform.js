@@ -587,7 +587,10 @@
                         }
                     }
 
-                    return { controlModule, controlType };
+                    return {
+                        module: controlModule,
+                        type: controlType
+                    };
                 }
 
                 var synControlList = [];
@@ -612,9 +615,9 @@
                             controlOptions = {};
                         }
 
-                        var { controlModule, controlType } = getTagModule(tagName);
-                        if (controlModule) {
-                            controlModule.controlLoad(elementID, controlOptions);
+                        var tagModule = getTagModule(tagName);
+                        if (tagModule.module) {
+                            tagModule.module.controlLoad(elementID, controlOptions);
                         }
                         else {
                             if ($this.hook.controlLoad) {
@@ -655,10 +658,10 @@
                             }
                         });
 
-                        var { controlModule, controlType } = getTagModule(tagName);
-                        if (controlModule) {
-                            if (controlModule.addModuleList) {
-                                controlModule.addModuleList(synControl, synControlList, controlOptions, controlType);
+                        var tagModule = getTagModule(tagName);
+                        if (tagModule.module) {
+                            if (tagModule.module.addModuleList) {
+                                tagModule.module.addModuleList(synControl, synControlList, controlOptions, tagModule.type);
                             }
                         }
                         else {
@@ -668,7 +671,7 @@
                                     formDataFieldID: formDataField,
                                     field: dataField,
                                     module: null,
-                                    type: controlType ? controlType : synControl.tagName.toLowerCase()
+                                    type: tagModule.type ? tagModule.type : synControl.tagName.toLowerCase()
                                 });
                             }
                         }
