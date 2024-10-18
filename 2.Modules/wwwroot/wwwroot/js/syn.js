@@ -1,4 +1,4 @@
-﻿/*!
+/*!
 HandStack Javascript Library v1.0.0
 https://syn.handshake.kr
 
@@ -6623,7 +6623,7 @@ globalRoot.syn = syn;
                 }
             }
 
-            var pageFormInit = async function () {
+            var pageFormInit = async () => {
                 var mod = context[syn.$w.pageScript];
                 if (mod && mod.hook.pageFormInit) {
                     await mod.hook.pageFormInit();
@@ -6636,19 +6636,19 @@ globalRoot.syn = syn;
                     }
                 }
 
-                var getTagModule = function (tagName) {
-                    var result = null;
+                var getTagModule = (tagName) => {
+                    var controlModule = null;
                     if (syn.uicontrols) {
                         var controlType = '';
                         if (tagName.indexOf('SYN_') > -1) {
                             var moduleName = tagName.substring(4).toLowerCase();
-                            result = syn.uicontrols['$' + moduleName];
+                            controlModule = syn.uicontrols['$' + moduleName];
                             controlType = moduleName;
                         }
                         else {
                             switch (tagName) {
                                 case 'BUTTON':
-                                    result = syn.uicontrols.$button;
+                                    controlModule = syn.uicontrols.$button;
                                     controlType = 'button';
                                     break;
                                 case 'INPUT':
@@ -6663,44 +6663,44 @@ globalRoot.syn = syn;
                                         case 'search':
                                         case 'tel':
                                         case 'url':
-                                            result = syn.uicontrols.$textbox;
+                                            controlModule = syn.uicontrols.$textbox;
                                             break;
                                         case 'submit':
                                         case 'reset':
                                         case 'button':
-                                            result = syn.uicontrols.$button;
+                                            controlModule = syn.uicontrols.$button;
                                             break;
                                         case 'radio':
-                                            result = syn.uicontrols.$radio;
+                                            controlModule = syn.uicontrols.$radio;
                                             break;
                                         case 'checkbox':
-                                            result = syn.uicontrols.$checkbox;
+                                            controlModule = syn.uicontrols.$checkbox;
                                             break;
                                     }
                                     break;
                                 case 'TEXTAREA':
-                                    result = syn.uicontrols.$textarea;
+                                    controlModule = syn.uicontrols.$textarea;
                                     controlType = 'textarea';
                                     break;
                                 case 'SELECT':
                                     if (synControl.getAttribute('multiple') == null) {
-                                        result = syn.uicontrols.$select;
+                                        controlModule = syn.uicontrols.$select;
                                         controlType = 'select';
                                     }
                                     else {
-                                        result = syn.uicontrols.$multiselect;
+                                        controlModule = syn.uicontrols.$multiselect;
                                         controlType = 'multiselect';
                                     }
                                     break;
                                 default:
-                                    result = syn.uicontrols.$element;
+                                    controlModule = syn.uicontrols.$element;
                                     controlType = 'element';
                                     break;
                             }
                         }
                     }
 
-                    return result;
+                    return { controlModule, controlType };
                 }
 
                 var synControlList = [];
@@ -6725,7 +6725,7 @@ globalRoot.syn = syn;
                             controlOptions = {};
                         }
 
-                        var controlModule = getTagModule(tagName);
+                        var { controlModule, controlType } = getTagModule(tagName);
                         if (controlModule) {
                             controlModule.controlLoad(elementID, controlOptions);
                         }
@@ -6745,7 +6745,6 @@ globalRoot.syn = syn;
                         var dataField = synControl.getAttribute('syn-datafield');
                         var elementID = synControl.getAttribute('id');
                         var formDataField = synControl.closest('form') ? synControl.closest('form').getAttribute('syn-datafield') : '';
-                        var controlType = '';
 
                         var controlOptions = synControl.getAttribute('syn-options') || null;
                         if (controlOptions != null) {
@@ -6769,7 +6768,7 @@ globalRoot.syn = syn;
                             }
                         });
 
-                        var controlModule = getTagModule(tagName);
+                        var { controlModule, controlType } = getTagModule(tagName);
                         if (controlModule) {
                             if (controlModule.addModuleList) {
                                 controlModule.addModuleList(synControl, synControlList, controlOptions, controlType);
