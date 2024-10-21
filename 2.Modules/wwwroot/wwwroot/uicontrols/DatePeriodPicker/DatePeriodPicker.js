@@ -398,29 +398,41 @@
 
             if ($string.isNullOrEmpty(setting.value) == false) {
                 var value = setting.value;
+                var number = $string.toNumber(value.split(':')[1]);
                 var date = null;
                 if (value == 'now') {
                     date = new Date();
                 }
                 else if (value.startsWith('day:') == true) {
-                    date = $date.addDay(new Date(), $string.toNumber(value.split(':')[1]));
+                    date = $date.addDay(new Date(), number);
                 }
                 else if (value.startsWith('week:') == true) {
-                    date = $date.addWeek(new Date(), $string.toNumber(value.split(':')[1]));
+                    date = $date.addWeek(new Date(), number);
                 }
                 else if (value.startsWith('month:') == true) {
-                    date = $date.addMonth(new Date(), $string.toNumber(value.split(':')[1]));
+                    date = $date.addMonth(new Date(), number);
                 }
                 else if (value.startsWith('year:') == true) {
-                    date = $date.addYear(new Date(), $string.toNumber(value.split(':')[1]));
+                    date = $date.addYear(new Date(), number);
                 }
 
-                if (date) {
-                    var textbox1 = syn.$l.get(textbox1ID);
-                    textbox1.value = $date.toString(date, 'd');
+                if (number < 0) {
+                    if (date) {
+                        var textbox1 = syn.$l.get(textbox1ID);
+                        textbox1.value = $date.toString(date, 'd');
 
-                    var textbox2 = syn.$l.get(textbox2ID);
-                    textbox2.value = $date.toString(new Date(), 'd');
+                        var textbox2 = syn.$l.get(textbox2ID);
+                        textbox2.value = $date.toString(new Date(), 'd');
+                    }
+                }
+                else {
+                    if (date) {
+                        var textbox1 = syn.$l.get(textbox1ID);
+                        textbox1.value = $date.toString(new Date(), 'd');
+
+                        var textbox2 = syn.$l.get(textbox2ID);
+                        textbox2.value = $date.toString(date, 'd');
+                    }
                 }
             }
 
