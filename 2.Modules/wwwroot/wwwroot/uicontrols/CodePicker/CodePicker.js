@@ -141,10 +141,6 @@
             });
             buttonOpen.innerHTML = `<i class="ti ti-search"></i>`;
 
-            if ($string.toBoolean(setting.readonly) == true || $string.toBoolean(setting.disabled) == true) {
-                textboxText.setAttribute('disabled', 'disabled');
-            }
-
             syn.$m.insertAfter(buttonOpen, textboxCode);
 
             var textboxText = syn.$m.create({
