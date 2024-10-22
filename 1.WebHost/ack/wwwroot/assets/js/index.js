@@ -4976,7 +4976,7 @@ globalRoot.syn = syn;
                                         var synControlConfig = synControlConfigs[k];
 
                                         var el = syn.$l.get(synControlConfig.id + '_hidden') || syn.$l.get(synControlConfig.id);
-                                        var options = el.getAttribute('syn-options');
+                                        var options = el && el.getAttribute('syn-options');
                                         if (options == null) {
                                             continue;
                                         }
@@ -5116,7 +5116,7 @@ globalRoot.syn = syn;
                                         var synControlConfig = synControlConfigs[k];
 
                                         var el = syn.$l.get(synControlConfig.id + '_hidden') || syn.$l.get(synControlConfig.id);
-                                        var options = el.getAttribute('syn-options');
+                                        var options = el && el.getAttribute('syn-options');
                                         if (options == null) {
                                             continue;
                                         }

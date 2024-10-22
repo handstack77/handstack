@@ -402,58 +402,60 @@
                         });
 
                         if (gridHookEvents.indexOf('contextMenu') == -1) {
-                            var contextEL = document.createElement('ul');
-                            contextEL.id = 'auigridHeaderContextMenu';
-                            contextEL.className = 'aui-grid-context-ui-menu';
-                            contextEL.style.cssText = 'position: absolute; display: none; z-index: 100; padding: 16px;';
-                            
-                            var li1 = document.createElement('li');
-                            li1.id = 'headerItem1';
-                            li1.textContent = '오름차순 정렬';
-                            contextEL.appendChild(li1);
+                            if (syn.$l.get('auigridHeaderContextMenu') == null) {
+                                var contextEL = document.createElement('ul');
+                                contextEL.id = 'auigridHeaderContextMenu';
+                                contextEL.className = 'aui-grid-context-ui-menu';
+                                contextEL.style.cssText = 'position: absolute; display: none; z-index: 100; padding: 16px;';
 
-                            var li2 = document.createElement('li');
-                            li2.id = 'headerItem2';
-                            li2.textContent = '내림차순 정렬';
-                            contextEL.appendChild(li2);
+                                var li1 = document.createElement('li');
+                                li1.id = 'headerItem1';
+                                li1.textContent = '오름차순 정렬';
+                                contextEL.appendChild(li1);
 
-                            var li3 = document.createElement('li');
-                            li3.id = 'headerItem3';
-                            li3.textContent = '정렬 초기화';
-                            contextEL.appendChild(li3);
+                                var li2 = document.createElement('li');
+                                li2.id = 'headerItem2';
+                                li2.textContent = '내림차순 정렬';
+                                contextEL.appendChild(li2);
 
-                            contextEL.appendChild(document.createElement('li'));
+                                var li3 = document.createElement('li');
+                                li3.id = 'headerItem3';
+                                li3.textContent = '정렬 초기화';
+                                contextEL.appendChild(li3);
 
-                            var li4 = document.createElement('li');
-                            li4.id = 'headerItem4';
-                            li4.textContent = '현재 칼럼 숨기기';
-                            contextEL.appendChild(li4);
+                                contextEL.appendChild(document.createElement('li'));
 
-                            var li5 = document.createElement('li');
-                            li5.id = 'headerItem5';
-                            li5.textContent = '모든 칼럼 보이기';
-                            contextEL.appendChild(li5);
+                                var li4 = document.createElement('li');
+                                li4.id = 'headerItem4';
+                                li4.textContent = '현재 칼럼 숨기기';
+                                contextEL.appendChild(li4);
 
-                            var li6 = document.createElement('li');
-                            li6.id = 'headerItem6';
-                            li6.textContent = '메뉴 닫기';
-                            contextEL.appendChild(li6);
+                                var li5 = document.createElement('li');
+                                li5.id = 'headerItem5';
+                                li5.textContent = '모든 칼럼 보이기';
+                                contextEL.appendChild(li5);
 
-                            document.body.appendChild(contextEL);
+                                var li6 = document.createElement('li');
+                                li6.id = 'headerItem6';
+                                li6.textContent = '메뉴 닫기';
+                                contextEL.appendChild(li6);
+
+                                document.body.appendChild(contextEL);
+
+                                syn.$l.addEvent(document, 'click', function (evt) {
+                                    $auigrid.hideContextMenu();
+                                });
+
+                                AUIGrid.bind(gridID, 'vScrollChange', function (evt) {
+                                    $auigrid.hideContextMenu();
+                                });
+
+                                AUIGrid.bind(gridID, 'hScrollChange', function (evt) {
+                                    $auigrid.hideContextMenu();
+                                });
+                            }
 
                             AUIGrid.bind(gridID, 'contextMenu', $auigrid.contextEventHandler);
-
-                            syn.$l.addEvent(document, 'click', function (evt) {
-                                $auigrid.hideContextMenu();
-                            });
-
-                            AUIGrid.bind(gridID, 'vScrollChange', function (evt) {
-                                $auigrid.hideContextMenu();
-                            });
-
-                            AUIGrid.bind(gridID, 'hScrollChange', function (evt) {
-                                $auigrid.hideContextMenu();
-                            });
                         }
                     }
                 } catch (error) {
