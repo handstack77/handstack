@@ -3345,6 +3345,20 @@ globalRoot.syn = syn;
             }
 
             return result;
+        },
+
+        pad(val, length, fix, isLeft) {
+            fix = fix || '0';
+            if ($object.isNullOrUndefined(isLeft) == true) {
+                isLeft = true;
+            }
+            else {
+                isLeft = $string.toBoolean(isLeft);
+            }
+            val = val.toString();
+            var padding = fix.repeat(Math.max(0, length - val.length));
+
+            return isLeft ? padding + val : val + padding;
         }
     });
     context.$string = $string;
