@@ -121,6 +121,15 @@ INSERT INTO Board (Category, Title, Content, Author, DatePosted) VALUES ('소식
         
         <statement id="LD01" seq="0" use="Y" timeout="0" desc="분류, 기간, 제목을 기준으로 게시글 조회">
             <![CDATA[
+CREATE TABLE IF NOT EXISTS Board (
+	ID INTEGER PRIMARY KEY AUTOINCREMENT,
+	Category TEXT,
+	Title TEXT,
+	Content TEXT,
+	Author TEXT,
+	DatePosted TEXT
+);
+
 SELECT B.ID
     , B.Category
     , B.Title
