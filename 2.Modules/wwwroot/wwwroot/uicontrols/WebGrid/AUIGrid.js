@@ -536,7 +536,13 @@
                             if (option == 'style') {
                                 columnInfo[option] = columnInfo[option] + ' ' + options[option];
                             }
+
                             continue;
+                        }
+
+                        if (option == 'filterEnable') {
+                            columnInfo.filter = $string.toBoolean(options[option]);
+                            columnInfo.showIcon = $string.toBoolean(options[option]);
                         }
 
                         columnInfo[option] = options[option];
@@ -695,7 +701,7 @@
                                     });
                                 };
 
-                                result = stripTags(value, '<em><p><br><b><u><strong><big><img>');
+                                result = stripTags(value, '<em><p><br><b><u><strong><big><img><div><span><label>');
                                 return result == '' ? value : result;
                             };
                             break;
