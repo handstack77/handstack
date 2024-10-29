@@ -257,7 +257,7 @@
         },
 
         request: async function (resources) {
-            synLoader.resources = resources;
+            resources = resources.filter(item => item !== null && item !== undefined);
             var length = resources.length;
             for (var i = 0; i < length; ++i) {
                 var resource = resources[i];
@@ -366,6 +366,8 @@
                                 }
                                 break;
                             default:
+                                moduleName = 'element';
+                                controlType = 'element';
                                 break;
                         }
                     }
@@ -623,6 +625,7 @@
                             '/lib/xlsx/xlsx.core.min.js',
                             '/js/auigrid/AUIGridLicense.js',
                             '/js/auigrid/AUIGrid.js',
+                            '/js/auigrid/FileSaver.min.js',
                             '/uicontrols/WebGrid/AUIGrid.js'
                         ];
                         break;
@@ -638,6 +641,9 @@
                             '/lib/superplaceholder/superplaceholder.js',
                             '/uicontrols/Guide/Guide.js'
                         ];
+                        break;
+                    case 'element':
+                        item.js = ['/uicontrols/Element/Element.js'];
                         break;
                 }
             }
