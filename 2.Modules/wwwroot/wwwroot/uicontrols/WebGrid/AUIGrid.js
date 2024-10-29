@@ -336,9 +336,9 @@
                                     var dataField = primeCell.dataField;
                                     var value = primeCell.value;
                                     var editable = primeCell.editable;
-                                    var selectedItems = evt.selectedItems;
+                                    var item = primeCell.item;
 
-                                    eventHandler(elID, rowIndex, columnIndex, dataField, value, editable, selectedItems);
+                                    eventHandler(elID, rowIndex, columnIndex, dataField, value, editable, item);
                                 }
                             });
                         }
@@ -729,6 +729,12 @@
                                     if (eventHandler) {
                                         eventHandler(columnInfo.elID, evt.rowIndex, evt.columnIndex, evt.dataField, evt.item);
                                     }
+                                },
+                                visibleFunction: function (rowIndex, columnIndex, value, item, dataField) {
+                                    if ($string.isNullOrEmpty(value) == true) {
+                                        return false;
+                                    }
+                                    return true;
                                 }
                             }
 
@@ -1905,6 +1911,24 @@
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
                 result = AUIGrid.isCreated(gridID);
+            }
+
+            return result;
+        },
+
+        getPhysicalColText(elID, columnText) {
+            var result = -1;
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                AUIGrid.forceEditingComplete(gridID, null, false);
+
+                var columnInfoList = AUIGrid.getColumnInfoList(gridID);
+                if (columnInfoList.length > 0) {
+                    var columnInfo = columnInfoList.find(item => item.headerText == columnText);
+                    if (columnInfo) {
+                        result = columnInfo.columnIndex;
+                    }
+                }
             }
 
             return result;
