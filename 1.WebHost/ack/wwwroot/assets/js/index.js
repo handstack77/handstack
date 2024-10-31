@@ -4989,7 +4989,7 @@ globalRoot.syn = syn;
                                             synOptions = eval('(' + options + ')');
                                         }
 
-                                        if (synOptions == null || synControlConfig.field == '') {
+                                        if (synOptions == null || $string.isNullOrEmpty(synControlConfig.field) == true) {
                                             continue;
                                         }
 
@@ -5129,7 +5129,7 @@ globalRoot.syn = syn;
                                             synOptions = eval('(' + options + ')');
                                         }
 
-                                        if (synOptions == null || synControlConfig.field == '') {
+                                        if (synOptions == null || $string.isNullOrEmpty(synControlConfig.field) == true) {
                                             continue;
                                         }
 

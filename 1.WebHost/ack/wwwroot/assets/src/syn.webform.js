@@ -1181,7 +1181,7 @@
                                             synOptions = eval('(' + options + ')');
                                         }
 
-                                        if (synOptions == null || synControlConfig.field == '') {
+                                        if (synOptions == null || $string.isNullOrEmpty(synControlConfig.field) == true) {
                                             continue;
                                         }
 
@@ -1321,7 +1321,7 @@
                                             synOptions = eval('(' + options + ')');
                                         }
 
-                                        if (synOptions == null || synControlConfig.field == '') {
+                                        if (synOptions == null || $string.isNullOrEmpty(synControlConfig.field) == true) {
                                             continue;
                                         }
 
