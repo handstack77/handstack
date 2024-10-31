@@ -37,7 +37,7 @@ let $BOD010 = {
         },
 
         btnNewBoard_click(evt) {
-            $this.method.openPopup('게시글 확인 및 편집', 'BOD012.html');
+            $this.method.openPopup('신규 게시글', 'BOD011.html');
         },
 
         btnSearch_click(evt) {
