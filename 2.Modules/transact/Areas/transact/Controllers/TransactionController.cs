@@ -32,8 +32,6 @@ using RestSharp;
 using transact.Entity;
 using transact.Extensions;
 
-using static System.Runtime.InteropServices.JavaScript.JSType;
-
 namespace transact.Areas.transact.Controllers
 {
     [Area("transact")]
