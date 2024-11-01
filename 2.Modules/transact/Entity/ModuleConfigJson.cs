@@ -96,7 +96,7 @@ namespace transact.Entity
             IsCodeDataCache = true;
             CodeDataCacheTimeout = 20;
             DatabaseContractPath = "";
-            IsTransactionLogging = true;
+            IsTransactionLogging = false;
             TransactionLogBasePath = "";
             PublicTransactions = new ExpiringList<PublicTransaction>();
             RoutingCommandUri = new Dictionary<string, string>();
