@@ -526,7 +526,7 @@
                     columnInfo.dataField = columnID;
                 }
 
-                if ($object.isNullOrUndefined(width) == false) {
+                if ($object.isNullOrUndefined(width) == false && width > 0) {
                     columnInfo.width = width;
                 }
 
