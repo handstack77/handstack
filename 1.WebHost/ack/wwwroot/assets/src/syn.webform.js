@@ -1066,11 +1066,11 @@
                             trigger = context[triggerConfig.action];
                         }
                     }
-                    else {
+                    else if (triggerConfig.triggerID && triggerConfig.action) {
                         trigger = $this.event ? $this.event['{0}_{1}'.format(triggerConfig.triggerID, triggerConfig.action)] : null;
                     }
 
-                    if (trigger) {
+                    if (el && trigger) {
                         el.setAttribute('triggerOptions', JSON.stringify(triggerConfig.params.options));
 
                         if (triggerConfig.action.indexOf('$') > -1) {
@@ -1085,9 +1085,23 @@
                             });
                         }
                     }
+                    else if (triggerConfig.method) {
+                        var func = eval(triggerConfig.method);
+                        if (typeof func === 'function') {
+                            trigger = func;
+
+                            triggerResult = trigger.apply($this, triggerConfig.params.arguments);
+                            if ($this.hook.afterTrigger) {
+                                $this.hook.afterTrigger(null, triggerConfig.action, {
+                                    elID: triggerConfig.triggerID,
+                                    result: triggerResult
+                                });
+                            }
+                        }
+                    }
                     else {
                         if ($this.hook.afterTrigger) {
-                            $this.hook.afterTrigger('{0} trigger 확인 필요'.format(triggerConfig.action), triggerConfig.action, null);
+                            $this.hook.afterTrigger('{0} trigger 확인 필요'.format(JSON.stringify(triggerConfig)), triggerConfig.action, null);
                         }
                     }
                 }

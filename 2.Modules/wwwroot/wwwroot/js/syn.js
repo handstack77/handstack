@@ -4160,17 +4160,20 @@ globalRoot.syn = syn;
         addEvent(el, type, func) {
             el = $object.isString(el) == true ? syn.$l.get(el) : el;
             if (el && func && $object.isFunction(func) == true) {
-                if (el.addEventListener) {
-                    el.addEventListener(type, func, false);
-                }
-                else if (el.attachEvent) {
-                    el.attachEvent('on' + type, func);
-                }
-                else {
-                    el['on' + type] = el['e' + type + func];
-                }
+                var hasEvent = syn.$l.hasEvent(el, type, func);
+                if (hasEvent == false) {
+                    if (el.addEventListener) {
+                        el.addEventListener(type, func, false);
+                    }
+                    else if (el.attachEvent) {
+                        el.attachEvent('on' + type, func);
+                    }
+                    else {
+                        el['on' + type] = el['e' + type + func];
+                    }
 
-                events.add(el, type, func);
+                    events.add(el, type, func);
+                }
 
                 if ($object.isString(type) == true && type.toLowerCase() === 'resize') {
                     func();
@@ -4248,29 +4251,15 @@ globalRoot.syn = syn;
             return $library;
         },
 
-        hasEvent(el, type) {
-            var item = null;
+        hasEvent(el, type, func) {
             var result = false;
             el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            for (var i = 0, len = events.items.length; i < len; i++) {
-                item = events.items[i];
-
-                if (item && item[0] instanceof context.constructor || item[0] instanceof document.constructor) {
-                    if (item[1] == type) {
-                        result = true;
-                        break;
-                    }
-                }
-                else {
-                    if (item && item[0].id) {
-                        if (item[0].id == el.id && item[1] == type) {
-                            result = true;
-                            break;
-                        }
-                    }
-                }
+            if (func && $object.isFunction(func) == true) {
+                result = events.items.some(item => (item[0] instanceof context.constructor || item[0] instanceof document.constructor || item[0] == el) && item[1] == type && item[2] == func)
             }
-
+            else {
+                result = events.items.some(item => (item[0] instanceof context.constructor || item[0] instanceof document.constructor || item[0] == el) && item[1] == type)
+            }
             return result;
         },
 
@@ -7193,11 +7182,11 @@ globalRoot.syn = syn;
                             trigger = context[triggerConfig.action];
                         }
                     }
-                    else {
+                    else if (triggerConfig.triggerID && triggerConfig.action) {
                         trigger = $this.event ? $this.event['{0}_{1}'.format(triggerConfig.triggerID, triggerConfig.action)] : null;
                     }
 
-                    if (trigger) {
+                    if (el && trigger) {
                         el.setAttribute('triggerOptions', JSON.stringify(triggerConfig.params.options));
 
                         if (triggerConfig.action.indexOf('$') > -1) {
@@ -7212,9 +7201,23 @@ globalRoot.syn = syn;
                             });
                         }
                     }
+                    else if (triggerConfig.method) {
+                        var func = eval(triggerConfig.method);
+                        if (typeof func === 'function') {
+                            trigger = func;
+
+                            triggerResult = trigger.apply($this, triggerConfig.params.arguments);
+                            if ($this.hook.afterTrigger) {
+                                $this.hook.afterTrigger(null, triggerConfig.action, {
+                                    elID: triggerConfig.triggerID,
+                                    result: triggerResult
+                                });
+                            }
+                        }
+                    }
                     else {
                         if ($this.hook.afterTrigger) {
-                            $this.hook.afterTrigger('{0} trigger 확인 필요'.format(triggerConfig.action), triggerConfig.action, null);
+                            $this.hook.afterTrigger('{0} trigger 확인 필요'.format(JSON.stringify(triggerConfig)), triggerConfig.action, null);
                         }
                     }
                 }

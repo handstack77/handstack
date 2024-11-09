@@ -167,17 +167,20 @@
         addEvent(el, type, func) {
             el = $object.isString(el) == true ? syn.$l.get(el) : el;
             if (el && func && $object.isFunction(func) == true) {
-                if (el.addEventListener) {
-                    el.addEventListener(type, func, false);
-                }
-                else if (el.attachEvent) {
-                    el.attachEvent('on' + type, func);
-                }
-                else {
-                    el['on' + type] = el['e' + type + func];
-                }
+                var hasEvent = syn.$l.hasEvent(el, type);
+                if (hasEvent == false) {
+                    if (el.addEventListener) {
+                        el.addEventListener(type, func, false);
+                    }
+                    else if (el.attachEvent) {
+                        el.attachEvent('on' + type, func);
+                    }
+                    else {
+                        el['on' + type] = el['e' + type + func];
+                    }
 
-                events.add(el, type, func);
+                    events.add(el, type, func);
+                }
 
                 if ($object.isString(type) == true && type.toLowerCase() === 'resize') {
                     func();
@@ -255,29 +258,15 @@
             return $library;
         },
 
-        hasEvent(el, type) {
-            var item = null;
+        hasEvent(el, type, func) {
             var result = false;
             el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            for (var i = 0, len = events.items.length; i < len; i++) {
-                item = events.items[i];
-
-                if (item && item[0] instanceof context.constructor || item[0] instanceof document.constructor) {
-                    if (item[1] == type) {
-                        result = true;
-                        break;
-                    }
-                }
-                else {
-                    if (item && item[0].id) {
-                        if (item[0].id == el.id && item[1] == type) {
-                            result = true;
-                            break;
-                        }
-                    }
-                }
+            if (func && $object.isFunction(func) == true) {
+                result = events.items.some(item => (item[0] instanceof context.constructor || item[0] instanceof document.constructor || item[0] == el) && item[1] == type && item[2] == func)
             }
-
+            else {
+                result = events.items.some(item => (item[0] instanceof context.constructor || item[0] instanceof document.constructor || item[0] == el) && item[1] == type)
+            }
             return result;
         },
 
