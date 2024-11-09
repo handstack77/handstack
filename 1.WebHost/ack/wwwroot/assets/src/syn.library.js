@@ -84,12 +84,14 @@
 
         concreate($library) {
             if (globalRoot.devicePlatform !== 'node') {
-                $library.addEvent(context, 'unload', $library.events.flush);
+                document.addEventListener('DOMContentLoaded', () => {
+                    $library.addEvent(context, 'unload', $library.events.flush);
+                });
             }
         },
 
         guid() {
-            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
                 var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
                 return v.toString(16);
             });
@@ -186,7 +188,7 @@
         addEvent(el, type, func) {
             el = $object.isString(el) == true ? syn.$l.get(el) : el;
             if (el && func && $object.isFunction(func) == true) {
-                var hasEvent = syn.$l.hasEvent(el, type);
+                var hasEvent = syn.$l.hasEvent(el, type, func);
                 if (hasEvent == false) {
                     if (el.addEventListener) {
                         el.addEventListener(type, func, false);
@@ -198,10 +200,11 @@
                         el['on' + type] = el['e' + type + func];
                     }
 
-                $library.events.add(el, type, func);
+                    syn.$l.events.add(el, type, func);
 
-                if ($object.isString(type) == true && type.toLowerCase() === 'resize') {
-                    func();
+                    if ($object.isString(type) == true && type.toLowerCase() === 'resize') {
+                        func();
+                    }
                 }
             }
 
@@ -270,7 +273,7 @@
                     el['on' + type] = null;
                 }
 
-                $library.events.remove(el, type, func);
+                syn.$l.events.remove(el, type, func);
             }
 
             return $library;
@@ -280,10 +283,10 @@
             var result = false;
             el = $object.isString(el) == true ? syn.$l.get(el) : el;
             if (func && $object.isFunction(func) == true) {
-                result = events.items.some(item => (item[0] instanceof context.constructor || item[0] instanceof document.constructor || item[0] == el) && item[1] == type && item[2] == func)
+                result = syn.$l.events.items.some(item => (item[0] instanceof context.constructor || item[0] instanceof document.constructor || item[0] == el) && item[1] == type && item[2] == func)
             }
             else {
-                result = events.items.some(item => (item[0] instanceof context.constructor || item[0] instanceof document.constructor || item[0] == el) && item[1] == type)
+                result = syn.$l.events.items.some(item => (item[0] instanceof context.constructor || item[0] instanceof document.constructor || item[0] == el) && item[1] == type)
             }
             return result;
         },
@@ -293,8 +296,8 @@
             var item = null;
             var action = null;
             el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            for (var i = 0, len = $library.events.items.length; i < len; i++) {
-                item = $library.events.items[i];
+            for (var i = 0, len = syn.$l.events.items.length; i < len; i++) {
+                item = syn.$l.events.items[i];
 
                 if (el instanceof HTMLElement) {
                     if (item[0].id == el.id && item[1] == type) {

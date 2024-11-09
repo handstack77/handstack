@@ -1,4 +1,4 @@
-﻿/*!
+/*!
 HandStack Javascript Library v1.0.0
 https://syn.handshake.kr
 
@@ -3345,6 +3345,20 @@ globalRoot.syn = syn;
             }
 
             return result;
+        },
+
+        pad(val, length, fix, isLeft) {
+            fix = fix || '0';
+            if ($object.isNullOrUndefined(isLeft) == true) {
+                isLeft = true;
+            }
+            else {
+                isLeft = $string.toBoolean(isLeft);
+            }
+            val = val.toString();
+            var padding = fix.repeat(Math.max(0, length - val.length));
+
+            return isLeft ? padding + val : val + padding;
         }
     });
     context.$string = $string;
@@ -3988,54 +4002,17 @@ globalRoot.syn = syn;
     else {
         document = context.document;
 
-        (function () {
-            if (typeof context.CustomEvent !== 'function') {
-                var CustomEvent = function (event, params) {
-                    params = params || { bubbles: false, cancelable: false, detail: undefined };
-                    var evt = document.createEvent('CustomEvent');
-                    evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
-                    return evt;
-                }
-
-                CustomEvent.prototype = context.Event.prototype;
-                context.CustomEvent = CustomEvent;
+        if (typeof context.CustomEvent !== 'function') {
+            var CustomEvent = function (event, params) {
+                params = params || { bubbles: false, cancelable: false, detail: undefined };
+                var evt = document.createEvent('CustomEvent');
+                evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
+                return evt;
             }
 
-            context['events'] = function () {
-                var items = [];
-
-                return {
-                    items: items,
-                    add(el, eventName, handler) {
-                        items.push(arguments);
-                    },
-                    remove(el, eventName, handler) {
-                        var index = items.findIndex((item) => { return item[0] == arguments[0] && item[1] == arguments[1] && item[2] == arguments[2] });
-                        if (index > -1) {
-                            items.splice(index, 1);
-                        }
-                    },
-                    flush() {
-                        var i, item;
-                        for (i = items.length - 1; i >= 0; i = i - 1) {
-                            item = items[i];
-                            if (item[0].removeEventListener) {
-                                item[0].removeEventListener(item[1], item[2], item[3]);
-                            }
-                            if (item[1].substring(0, 2) != 'on') {
-                                item[1] = 'on' + item[1];
-                            }
-                            if (item[0].detachEvent) {
-                                item[0].detachEvent(item[1], item[2]);
-                            }
-                            item[0][item[1]] = null;
-                        }
-
-                        syn.$w.purge(document.body);
-                    }
-                }
-            }();
-        })();
+            CustomEvent.prototype = context.Event.prototype;
+            context.CustomEvent = CustomEvent;
+        }
     }
 
     $library.extend({
@@ -4048,8 +4025,66 @@ globalRoot.syn = syn;
             'mousemove': 'touchmove'
         },
 
+        events: function () {
+            var items = [];
+
+            return {
+                items: items,
+                add(el, eventName, handler) {
+                    var result = false;
+                    if (el && eventName && handler) {
+                        items.push(arguments);
+                        result = true;
+                    }
+
+                    return result;
+                },
+                remove(el, eventName, handler) {
+                    var index = -1;
+                    if (el && eventName && handler) {
+                        index = items.findIndex((item) => { return item[0] == el && item[1] == eventName && item[2] == handler });
+                    }
+                    else if (el && eventName) {
+                        index = items.findIndex((item) => { return item[0] == el && item[1] == eventName });
+                    }
+
+                    if (index > -1) {
+                        items.splice(index, 1);
+                    }
+
+                    return index > -1;
+                },
+                flush() {
+                    var i, item;
+                    for (i = items.length - 1; i >= 0; i = i - 1) {
+                        item = items[i];
+                        if (item[0].removeEventListener) {
+                            item[0].removeEventListener(item[1], item[2], item[3]);
+                        }
+                        if (item[1].substring(0, 2) != 'on') {
+                            item[1] = 'on' + item[1];
+                        }
+                        if (item[0].detachEvent) {
+                            item[0].detachEvent(item[1], item[2]);
+                        }
+                        item[0][item[1]] = null;
+                    }
+
+                    syn.$w.purge(document.body);
+                }
+            }
+        }(),
+
+        concreate($library) {
+            if (globalRoot.devicePlatform !== 'node') {
+                document.addEventListener('DOMContentLoaded', () => {
+                    $library.addEvent(context, 'unload', $library.events.flush);
+                });
+            }
+        },
+
         guid() {
-            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
                 var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
                 return v.toString(16);
             });
@@ -4146,7 +4181,7 @@ globalRoot.syn = syn;
         addEvent(el, type, func) {
             el = $object.isString(el) == true ? syn.$l.get(el) : el;
             if (el && func && $object.isFunction(func) == true) {
-                var hasEvent = syn.$l.hasEvent(el, type);
+                var hasEvent = syn.$l.hasEvent(el, type, func);
                 if (hasEvent == false) {
                     if (el.addEventListener) {
                         el.addEventListener(type, func, false);
@@ -4158,11 +4193,11 @@ globalRoot.syn = syn;
                         el['on' + type] = el['e' + type + func];
                     }
 
-                    events.add(el, type, func);
-                }
+                    syn.$l.events.add(el, type, func);
 
-                if ($object.isString(type) == true && type.toLowerCase() === 'resize') {
-                    func();
+                    if ($object.isString(type) == true && type.toLowerCase() === 'resize') {
+                        func();
+                    }
                 }
             }
 
@@ -4231,7 +4266,7 @@ globalRoot.syn = syn;
                     el['on' + type] = null;
                 }
 
-                events.remove(el, type, func);
+                syn.$l.events.remove(el, type, func);
             }
 
             return $library;
@@ -4241,10 +4276,10 @@ globalRoot.syn = syn;
             var result = false;
             el = $object.isString(el) == true ? syn.$l.get(el) : el;
             if (func && $object.isFunction(func) == true) {
-                result = events.items.some(item => (item[0] instanceof context.constructor || item[0] instanceof document.constructor || item[0] == el) && item[1] == type && item[2] == func)
+                result = syn.$l.events.items.some(item => (item[0] instanceof context.constructor || item[0] instanceof document.constructor || item[0] == el) && item[1] == type && item[2] == func)
             }
             else {
-                result = events.items.some(item => (item[0] instanceof context.constructor || item[0] instanceof document.constructor || item[0] == el) && item[1] == type)
+                result = syn.$l.events.items.some(item => (item[0] instanceof context.constructor || item[0] instanceof document.constructor || item[0] == el) && item[1] == type)
             }
             return result;
         },
@@ -4254,8 +4289,8 @@ globalRoot.syn = syn;
             var item = null;
             var action = null;
             el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            for (var i = 0, len = events.items.length; i < len; i++) {
-                item = events.items[i];
+            for (var i = 0, len = syn.$l.events.items.length; i < len; i++) {
+                item = syn.$l.events.items[i];
 
                 if (el instanceof HTMLElement) {
                     if (item[0].id == el.id && item[1] == type) {
@@ -5139,12 +5174,6 @@ globalRoot.syn = syn;
     else {
         delete syn.$l.getBasePath;
         delete syn.$l.moduleEventLog;
-
-        context.onevent = syn.$l.addEvent;
-        context.bind = syn.$l.addBind;
-        context.trigger = syn.$l.trigger;
-
-        syn.$l.addEvent(context, 'unload', events.flush);
     }
 })(globalRoot);
 
@@ -6783,22 +6812,22 @@ globalRoot.syn = syn;
                 var synEventControls = document.querySelectorAll('[syn-events]');
                 for (var i = 0; i < synEventControls.length; i++) {
                     var synControl = synEventControls[i];
-                    var events = null;
+                    var elEvents = null;
 
                     try {
-                        events = eval('(' + synControl.getAttribute('syn-events') + ')');
+                        elEvents = eval('(' + synControl.getAttribute('syn-events') + ')');
                     } catch (error) {
                         syn.$l.eventLog('$w.contentLoaded', 'elID: "{0}" syn-events 확인 필요 '.format(synControl.id) + error.message, 'Warning');
                     }
 
-                    if (events && $this.event) {
-                        var length = events.length;
+                    if (elEvents && $this.event) {
+                        var length = elEvents.length;
                         for (var j = 0; j < length; j++) {
-                            var event = events[j];
+                            var elEvent = elEvents[j];
 
-                            var func = $this.event[synControl.id + '_' + event];
+                            var func = $this.event[synControl.id + '_' + elEvent];
                             if (func) {
-                                syn.$l.addEvent(synControl.id, event, func);
+                                syn.$l.addEvent(synControl.id, elEvent, func);
                             }
                         }
                     }
@@ -7746,7 +7775,7 @@ globalRoot.syn = syn;
                 transactionScope: 'N',
                 transactionLog: 'Y'
             }, options);
-            
+
             transactionObject.options = options;
 
             if (globalRoot.devicePlatform === 'node') {
