@@ -681,22 +681,22 @@
                 var synEventControls = document.querySelectorAll('[syn-events]');
                 for (var i = 0; i < synEventControls.length; i++) {
                     var synControl = synEventControls[i];
-                    var events = null;
+                    var elEvents = null;
 
                     try {
-                        events = eval('(' + synControl.getAttribute('syn-events') + ')');
+                        elEvents = eval('(' + synControl.getAttribute('syn-events') + ')');
                     } catch (error) {
                         syn.$l.eventLog('$w.contentLoaded', 'elID: "{0}" syn-events 확인 필요 '.format(synControl.id) + error.message, 'Warning');
                     }
 
-                    if (events && $this.event) {
-                        var length = events.length;
+                    if (elEvents && $this.event) {
+                        var length = elEvents.length;
                         for (var j = 0; j < length; j++) {
-                            var event = events[j];
+                            var elEvent = elEvents[j];
 
-                            var func = $this.event[synControl.id + '_' + event];
+                            var func = $this.event[synControl.id + '_' + elEvent];
                             if (func) {
-                                syn.$l.addEvent(synControl.id, event, func);
+                                syn.$l.addEvent(synControl.id, elEvent, func);
                             }
                         }
                     }
@@ -1644,7 +1644,7 @@
                 transactionScope: 'N',
                 transactionLog: 'Y'
             }, options);
-            
+
             transactionObject.options = options;
 
             if (globalRoot.devicePlatform === 'node') {

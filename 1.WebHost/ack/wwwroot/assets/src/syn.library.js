@@ -9,54 +9,17 @@
     else {
         document = context.document;
 
-        (function () {
-            if (typeof context.CustomEvent !== 'function') {
-                var CustomEvent = function (event, params) {
-                    params = params || { bubbles: false, cancelable: false, detail: undefined };
-                    var evt = document.createEvent('CustomEvent');
-                    evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
-                    return evt;
-                }
-
-                CustomEvent.prototype = context.Event.prototype;
-                context.CustomEvent = CustomEvent;
+        if (typeof context.CustomEvent !== 'function') {
+            var CustomEvent = function (event, params) {
+                params = params || { bubbles: false, cancelable: false, detail: undefined };
+                var evt = document.createEvent('CustomEvent');
+                evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
+                return evt;
             }
 
-            context['events'] = function () {
-                var items = [];
-
-                return {
-                    items: items,
-                    add(el, eventName, handler) {
-                        items.push(arguments);
-                    },
-                    remove(el, eventName, handler) {
-                        var index = items.findIndex((item) => { return item[0] == arguments[0] && item[1] == arguments[1] && item[2] == arguments[2] });
-                        if (index > -1) {
-                            items.splice(index, 1);
-                        }
-                    },
-                    flush() {
-                        var i, item;
-                        for (i = items.length - 1; i >= 0; i = i - 1) {
-                            item = items[i];
-                            if (item[0].removeEventListener) {
-                                item[0].removeEventListener(item[1], item[2], item[3]);
-                            }
-                            if (item[1].substring(0, 2) != 'on') {
-                                item[1] = 'on' + item[1];
-                            }
-                            if (item[0].detachEvent) {
-                                item[0].detachEvent(item[1], item[2]);
-                            }
-                            item[0][item[1]] = null;
-                        }
-
-                        syn.$w.purge(document.body);
-                    }
-                }
-            }();
-        })();
+            CustomEvent.prototype = context.Event.prototype;
+            context.CustomEvent = CustomEvent;
+        }
     }
 
     $library.extend({
@@ -67,6 +30,62 @@
             'mousedown': 'touchstart',
             'mouseup': 'touchend',
             'mousemove': 'touchmove'
+        },
+
+        events: function () {
+            var items = [];
+
+            return {
+                items: items,
+                add(el, eventName, handler) {
+                    var result = false;
+                    if (el && eventName && handler) {
+                        items.push(arguments);
+                        result = true;
+                    }
+
+                    return result;
+                },
+                remove(el, eventName, handler) {
+                    var index = -1;
+                    if (el && eventName && handler) {
+                        index = items.findIndex((item) => { return item[0] == el && item[1] == eventName && item[2] == handler });
+                    }
+                    else if (el && eventName) {
+                        index = items.findIndex((item) => { return item[0] == el && item[1] == eventName });
+                    }
+
+                    if (index > -1) {
+                        items.splice(index, 1);
+                    }
+
+                    return index > -1;
+                },
+                flush() {
+                    var i, item;
+                    for (i = items.length - 1; i >= 0; i = i - 1) {
+                        item = items[i];
+                        if (item[0].removeEventListener) {
+                            item[0].removeEventListener(item[1], item[2], item[3]);
+                        }
+                        if (item[1].substring(0, 2) != 'on') {
+                            item[1] = 'on' + item[1];
+                        }
+                        if (item[0].detachEvent) {
+                            item[0].detachEvent(item[1], item[2]);
+                        }
+                        item[0][item[1]] = null;
+                    }
+
+                    syn.$w.purge(document.body);
+                }
+            }
+        }(),
+
+        concreate($library) {
+            if (globalRoot.devicePlatform !== 'node') {
+                $library.addEvent(context, 'unload', $library.events.flush);
+            }
         },
 
         guid() {
@@ -179,8 +198,7 @@
                         el['on' + type] = el['e' + type + func];
                     }
 
-                    events.add(el, type, func);
-                }
+                $library.events.add(el, type, func);
 
                 if ($object.isString(type) == true && type.toLowerCase() === 'resize') {
                     func();
@@ -252,7 +270,7 @@
                     el['on' + type] = null;
                 }
 
-                events.remove(el, type, func);
+                $library.events.remove(el, type, func);
             }
 
             return $library;
@@ -275,8 +293,8 @@
             var item = null;
             var action = null;
             el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            for (var i = 0, len = events.items.length; i < len; i++) {
-                item = events.items[i];
+            for (var i = 0, len = $library.events.items.length; i < len; i++) {
+                item = $library.events.items[i];
 
                 if (el instanceof HTMLElement) {
                     if (item[0].id == el.id && item[1] == type) {
@@ -1160,11 +1178,5 @@
     else {
         delete syn.$l.getBasePath;
         delete syn.$l.moduleEventLog;
-
-        context.onevent = syn.$l.addEvent;
-        context.bind = syn.$l.addBind;
-        context.trigger = syn.$l.trigger;
-
-        syn.$l.addEvent(context, 'unload', events.flush);
     }
 })(globalRoot);
