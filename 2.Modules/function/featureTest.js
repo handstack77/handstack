@@ -1,6 +1,7 @@
 ﻿// node --inspect featureTest.js 8080
 
 var express = require('express');
+var cors = require('cors');
 var app = express();
 var syn = require('syn');
 var path = require('path');
@@ -37,7 +38,7 @@ var executeFunction = (req, res) => {
         var header = functionScriptContract.Header;
         dataContext.functionHeader = header;
 
-        var item = functionScriptContract.Commands.find((p) => { return p.ID == functionID.Split('.')[2] });
+        var item = functionScriptContract.Commands.find((p) => { return p.ID == functionID.split('.')[2] });
         if (item == null) {
             throw `${functionID} Commands 확인 필요`;
         }
@@ -106,6 +107,7 @@ var executeFunction = (req, res) => {
     }, functionID, parameters, dataContext);
 };
 
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

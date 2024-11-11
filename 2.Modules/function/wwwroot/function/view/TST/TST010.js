@@ -6,7 +6,7 @@ let $TST010 = {
             if ($this.method.validateInputFields(['txtUrl', 'txtJsonMessage']) === false) return;
 
             let data = syn.$l.get('txtJsonMessage').value.trim();
-            syn.$l.get('txtFunctionResult').value = `curl -X POST "${syn.$l.get('txtUrl').value.trim()}" -H "Content-Type: application/json" -d "${JSON.stringify(JSON.parse(data)).replaceAll('"', '\\"')}"`;
+            syn.$l.get('txtFunctionResult').value = `curl -X POST "${syn.$l.get('txtUrl').value.trim()}" -H "Content-Type: application/json" -d ""${JSON.stringify(JSON.parse(data)).replaceAll('"', '\\"')}""`;
         },
 
         btnMakeBashScript_click() {
@@ -22,8 +22,6 @@ let $TST010 = {
             let data = syn.$l.get('txtJsonMessage').value.trim();
 
             let xhr = new XMLHttpRequest();
-            xhr.withCredentials = true;
-
             xhr.addEventListener("readystatechange", function () {
                 if (this.readyState === 4) {
                     syn.$l.get('txtFunctionResult').value = JSON.stringify(JSON.parse(this.responseText), null, 4);
