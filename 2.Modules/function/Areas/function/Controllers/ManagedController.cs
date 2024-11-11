@@ -115,7 +115,7 @@ namespace function.Areas.function.Controllers
                                 {
                                     if (System.IO.File.Exists(scriptMapFile) == false)
                                     {
-                                        Log.Logger.Information("[{LogCategory}] " + $"{scriptMapFile} 대응 functionFilePath 파일 없음", "FunctionMapper/LoadContract");
+                                        Log.Logger.Information("[{LogCategory}] " + $"{scriptMapFile} 대응 functionFilePath 파일 없음", "ManagedController/ResetAppContract");
                                         continue;
                                     }
 
@@ -123,7 +123,7 @@ namespace function.Areas.function.Controllers
 
                                     if (functionScriptContract == null)
                                     {
-                                        Log.Logger.Information("[{LogCategory}] " + $"{scriptMapFile} 대응 functionFilePath 파일 없음", "FunctionMapper/LoadContract");
+                                        Log.Logger.Information("[{LogCategory}] " + $"{scriptMapFile} 대응 functionFilePath 파일 없음", "ManagedController/ResetAppContract");
                                         continue;
                                     }
 
@@ -140,7 +140,7 @@ namespace function.Areas.function.Controllers
 
                                     if (string.IsNullOrEmpty(fileExtension) == true)
                                     {
-                                        Log.Logger.Error("[{LogCategory}] " + $"{functionScriptContract.Header.LanguageType} 언어 타입 확인 필요", "FunctionMapper/LoadContract");
+                                        Log.Logger.Error("[{LogCategory}] " + $"{functionScriptContract.Header.LanguageType} 언어 타입 확인 필요", "ManagedController/ResetAppContract");
                                         continue;
                                     }
 
@@ -229,7 +229,7 @@ namespace function.Areas.function.Controllers
                                                     }
                                                     else
                                                     {
-                                                        Log.Logger.Warning("[{LogCategory}] " + $"ScriptMap 정보 중복 확인 필요 - {scriptMapFile}, ApplicationID - {moduleScriptMap.ApplicationID}, ProjectID - {moduleScriptMap.ProjectID}, TransactionID - {moduleScriptMap.TransactionID}, ScriptID - {moduleScriptMap.ScriptID}", "FunctionMapper/LoadContract");
+                                                        Log.Logger.Warning("[{LogCategory}] " + $"ScriptMap 정보 중복 확인 필요 - {scriptMapFile}, ApplicationID - {moduleScriptMap.ApplicationID}, ProjectID - {moduleScriptMap.ProjectID}, TransactionID - {moduleScriptMap.TransactionID}, ScriptID - {moduleScriptMap.ScriptID}", "ManagedController/ResetAppContract");
                                                     }
                                                 }
                                             }
@@ -237,12 +237,12 @@ namespace function.Areas.function.Controllers
                                     }
                                     else
                                     {
-                                        Log.Logger.Information("[{LogCategory}] " + $"{scriptMapFile} 대응 functionFilePath 파일 없음", "FunctionMapper/LoadContract");
+                                        Log.Logger.Information("[{LogCategory}] " + $"{scriptMapFile} 대응 functionFilePath 파일 없음", "ManagedController/ResetAppContract");
                                     }
                                 }
                                 catch (Exception exception)
                                 {
-                                    Log.Logger.Error("[{LogCategory}] " + $"{scriptMapFile} 업무 계약 파일 오류 - {exception.ToMessage()}", "FunctionMapper/LoadContract");
+                                    Log.Logger.Error("[{LogCategory}] " + $"{scriptMapFile} 업무 계약 파일 오류 - {exception.ToMessage()}", "ManagedController/ResetAppContract");
                                 }
                             }
 
