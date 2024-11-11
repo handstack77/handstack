@@ -2,9 +2,9 @@
     "Header": {
         "ApplicationID": "HDS",
         "ProjectID": "TST",
-        "TransactionID": "JSF010",
+        "TransactionID": "CSF010",
         "DataSourceID": "FN01",
-        "LanguageType": "javascript",
+        "LanguageType": "csharp",
         "Use": true,
         "Comment": "Javascript 거래 함수 테스트"
     },
