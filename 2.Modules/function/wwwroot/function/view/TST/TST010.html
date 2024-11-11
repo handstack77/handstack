@@ -1,0 +1,93 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div class="page">
+            <div class="page-wrapper">
+                <div class="page-header mt-2 d-print-none">
+                    <div class="container-fluid max-width:1600!">
+                        <div class="row g-2 align-items-center">
+                            <div class="col">
+                                <div class="page-pretitle font:12!">
+                                    function / 모듈 / 거래 확인
+                                </div>
+                                <h2 class="page-title">
+                                    업무서버 함수 테스트
+                                </h2>
+                            </div>
+                            <div class="col-auto ms-auto">
+                                <div class="btn-group">
+                                    <button id="btnMakeBatchScript" syn-events="['click']" class="btn">
+                                        Windows curl Batch 스크립트 만들기
+                                    </button>
+                                    <button id="btnMakeBashScript" syn-events="['click']" class="btn">
+                                        Linux curl bash 스크립트 만들기
+                                    </button>
+                                    <button id="btnExecuteFunction" syn-events="['click']" class="btn btn-primary">
+                                        Function 실행
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-body mt-2">
+                    <div class="container-fluid max-width:1600!">
+                        <div class="card">
+                            <div class="card-body p-2">
+                                <div class="row mb-2">
+                                    <div class="col pl-0">
+                                        <div class="input-group">
+                                            <label class="w:100 col-form-label px-2">서버 URL</label>
+                                            <input id="txtUrl" class="form-control" value="http://localhost:8000/function/api/execution">
+                                            <input id="txtAuthorizationKey" class="form-control" value="HANDSTACKDHOSTNAME">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col pl-0">
+                                        <div class="input-group">
+                                            <textarea id="txtJsonMessage" syn-options="{toSynControl: false}" class="form-control resize:none h:320!" spellcheck="false" placeholder="JSON 매개변수">{
+    "DynamicObjects": [
+        {
+            "QueryID": "HDS|TST|CSF010|GF0100",
+            "JsonObjects": [0],
+            "Parameters": [
+                {
+                    "ParameterName": "ServerDate",
+                    "Value": "",
+                    "DbType": "String",
+                    "Length": -1
+                },
+                {
+                    "ParameterName": "ServerName",
+                    "Value": "",
+                    "DbType": "String",
+                    "Length": -1
+                }
+            ]
+        }
+    ]
+}</textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" style="height: calc(100vh - 478px);">
+                                    <div class="col pl-0">
+                                        <textarea id="txtFunctionResult" class="form-control resize:none h:100%!" spellcheck="false" placeholder="실행 결과" syn-options="{toSynControl: false}"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>
