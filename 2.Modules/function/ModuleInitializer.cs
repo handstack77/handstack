@@ -144,6 +144,7 @@ namespace function
                             }
                         }
 
+                        ModuleConfiguration.AllowClientIP = moduleConfig.AllowClientIP;
                         ModuleConfiguration.IsConfigure = true;
                     }
                     else

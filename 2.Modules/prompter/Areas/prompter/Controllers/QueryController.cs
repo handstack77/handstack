@@ -56,8 +56,7 @@ namespace prompter.Areas.prompter.Controllers
             };
 
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
-            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
+            if (HttpContext.IsAllowAuthorization() == false)
             {
                 result = BadRequest();
             }
@@ -85,8 +84,7 @@ namespace prompter.Areas.prompter.Controllers
         public ActionResult Refresh(string changeType, string filePath, string? userWorkID, string? applicationID)
         {
             ActionResult result = NotFound();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
-            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
+            if (HttpContext.IsAllowAuthorization() == false)
             {
                 result = BadRequest();
             }
@@ -207,8 +205,7 @@ namespace prompter.Areas.prompter.Controllers
         public ActionResult Retrieve(string applicationID, string? projectID, string? transactionID, string? functionID)
         {
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
-            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
+            if (HttpContext.IsAllowAuthorization() == false)
             {
                 result = BadRequest();
             }
@@ -270,8 +267,7 @@ namespace prompter.Areas.prompter.Controllers
         public ActionResult Meta()
         {
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
-            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
+            if (HttpContext.IsAllowAuthorization() == false)
             {
                 result = BadRequest();
             }
@@ -303,8 +299,7 @@ namespace prompter.Areas.prompter.Controllers
         public ActionResult Reports()
         {
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
-            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
+            if (HttpContext.IsAllowAuthorization() == false)
             {
                 result = BadRequest();
             }
@@ -361,6 +356,12 @@ namespace prompter.Areas.prompter.Controllers
             if (request == null)
             {
                 response.ExceptionText = "빈 요청. 요청 정보 확인 필요";
+                return result;
+            }
+
+            if (HttpContext.IsAllowAuthorization() == false)
+            {
+                response.ExceptionText = "필수 접근 정보 확인 필요";
                 return result;
             }
 

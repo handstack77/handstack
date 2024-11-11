@@ -12,7 +12,6 @@ using dbclient.Extensions;
 using HandStack.Core.ExtensionMethod;
 using HandStack.Web;
 using HandStack.Web.Extensions;
-using HandStack.Web.MessageContract.DataObject;
 using HandStack.Web.MessageContract.Enumeration;
 using HandStack.Web.MessageContract.Message;
 
@@ -21,8 +20,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 using Newtonsoft.Json;
-
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace dbclient.Areas.dbclient.Controllers
 {
@@ -58,8 +55,7 @@ namespace dbclient.Areas.dbclient.Controllers
             };
 
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
-            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
+            if (HttpContext.IsAllowAuthorization() == false)
             {
                 result = BadRequest();
             }
@@ -87,8 +83,7 @@ namespace dbclient.Areas.dbclient.Controllers
         public ActionResult Refresh(string changeType, string filePath, string? userWorkID, string? applicationID)
         {
             ActionResult result = NotFound();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
-            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
+            if (HttpContext.IsAllowAuthorization() == false)
             {
                 result = BadRequest();
             }
@@ -209,8 +204,7 @@ namespace dbclient.Areas.dbclient.Controllers
         public ActionResult Retrieve(string applicationID, string? projectID, string? transactionID, string? functionID)
         {
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
-            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
+            if (HttpContext.IsAllowAuthorization() == false)
             {
                 result = BadRequest();
             }
@@ -272,8 +266,7 @@ namespace dbclient.Areas.dbclient.Controllers
         public ActionResult Meta()
         {
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
-            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
+            if (HttpContext.IsAllowAuthorization() == false)
             {
                 result = BadRequest();
             }
@@ -305,8 +298,7 @@ namespace dbclient.Areas.dbclient.Controllers
         public ActionResult Reports()
         {
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
-            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
+            if (HttpContext.IsAllowAuthorization() == false)
             {
                 result = BadRequest();
             }
@@ -359,6 +351,12 @@ namespace dbclient.Areas.dbclient.Controllers
             if (request == null)
             {
                 response.ExceptionText = "빈 요청. 요청 정보 확인 필요";
+                return result;
+            }
+
+            if (HttpContext.IsAllowAuthorization() == false)
+            {
+                response.ExceptionText = "필수 접근 정보 확인 필요";
                 return result;
             }
 
@@ -564,6 +562,5 @@ namespace dbclient.Areas.dbclient.Controllers
 
             return result;
         }
-
     }
 }

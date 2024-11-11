@@ -13,6 +13,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 
+using openapi.Extensions;
+
 using Serilog;
 
 namespace openapi.Areas.openapi.Controllers
@@ -41,8 +43,7 @@ namespace openapi.Areas.openapi.Controllers
         public async Task<ActionResult> InitializeSettings()
         {
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
-            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
+            if (HttpContext.IsAllowAuthorization() == false)
             {
                 result = BadRequest();
             }
@@ -94,8 +95,7 @@ namespace openapi.Areas.openapi.Controllers
         public ActionResult DeleteApiService(string apiServiceID)
         {
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
-            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
+            if (HttpContext.IsAllowAuthorization() == false)
             {
                 result = BadRequest();
             }
@@ -143,8 +143,7 @@ namespace openapi.Areas.openapi.Controllers
         public ActionResult DeleteApiDataSource(string dataSourceID)
         {
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
-            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
+            if (HttpContext.IsAllowAuthorization() == false)
             {
                 result = BadRequest();
             }
@@ -180,8 +179,7 @@ namespace openapi.Areas.openapi.Controllers
         public ActionResult CacheClear()
         {
             ActionResult result = BadRequest();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
-            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
+            if (HttpContext.IsAllowAuthorization() == false)
             {
                 result = BadRequest();
             }

@@ -11,6 +11,7 @@ namespace repository
         public static string ModuleID = "repository";
         public static string Version = "";
         public static string AuthorizationKey = "";
+        public static List<string> AllowClientIP = new List<string>() { "*" };
         public static bool IsBundledWithHost = false;
         public static string DatabaseContractPath = "";
         public static List<string> ContractBasePath = new List<string>();

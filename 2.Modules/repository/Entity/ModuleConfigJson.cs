@@ -42,6 +42,8 @@ namespace repository.Entity
 
         public string ContentSecurityPolicy { get; set; }
 
+        public List<string> AllowClientIP { get; set; }
+
         public ModuleConfig()
         {
             FileServerUrl = "";
@@ -55,6 +57,7 @@ namespace repository.Entity
             ModuleLogFilePath = "";
             XFrameOptions = "";
             ContentSecurityPolicy = "";
+            AllowClientIP = new List<string>() { "*" };
         }
     }
 }

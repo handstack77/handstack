@@ -8,6 +8,7 @@ namespace checkup
         public static string ModuleID = "checkup";
         public static string Version = "";
         public static string AuthorizationKey = "";
+        public static List<string> AllowClientIP = new List<string>() { "*" };
         public static string ManagedAccessKey = "";
         public static string EncryptionAES256Key = "1234567890123456";
         public static bool IsBundledWithHost = false;

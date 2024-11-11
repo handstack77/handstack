@@ -26,6 +26,7 @@ namespace openapi
         public static string ModuleID = "openapi";
         public static string Version = "";
         public static string AuthorizationKey = "";
+        public static List<string> AllowClientIP = new List<string>() { "*" };
         public static bool IsBundledWithHost = false;
         public static string ManagerEmailID = "";
         public static string ManagerSHA256Password = "";

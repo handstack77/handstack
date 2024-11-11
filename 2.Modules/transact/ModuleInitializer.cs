@@ -99,6 +99,7 @@ namespace transact
                             ModuleConfiguration.AllowRequestTransactions.Add(item.Key, item.Value);
                         }
 
+                        ModuleConfiguration.AllowClientIP = moduleConfig.AllowClientIP;
                         ModuleConfiguration.IsConfigure = true;
                     }
                     else

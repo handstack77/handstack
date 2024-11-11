@@ -54,8 +54,7 @@ namespace function.Areas.function.Controllers
             };
 
             ActionResult result = NotFound();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
-            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
+            if (HttpContext.IsAllowAuthorization() == false)
             {
                 result = BadRequest();
             }
@@ -83,8 +82,7 @@ namespace function.Areas.function.Controllers
         public ActionResult Refresh(string changeType, string filePath, string? userWorkID, string? applicationID)
         {
             ActionResult result = NotFound();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
-            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
+            if (HttpContext.IsAllowAuthorization() == false)
             {
                 result = BadRequest();
             }
@@ -223,8 +221,7 @@ namespace function.Areas.function.Controllers
             };
 
             ActionResult result = NotFound();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
-            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
+            if (HttpContext.IsAllowAuthorization() == false)
             {
                 result = BadRequest();
             }
@@ -281,8 +278,7 @@ namespace function.Areas.function.Controllers
         public ActionResult Meta()
         {
             ActionResult result = NotFound();
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
-            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
+            if (HttpContext.IsAllowAuthorization() == false)
             {
                 result = BadRequest();
             }
@@ -321,6 +317,12 @@ namespace function.Areas.function.Controllers
             if (request == null)
             {
                 response.ExceptionText = "빈 요청. 요청 정보 확인 필요";
+                return result;
+            }
+
+            if (HttpContext.IsAllowAuthorization() == false)
+            {
+                response.ExceptionText = "필수 접근 정보 확인 필요";
                 return result;
             }
 

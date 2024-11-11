@@ -52,7 +52,7 @@ namespace HandStack.Core.ExtensionMethod
             @this.ReadXml(filePath);
         }
 
-        public static void BuildExceptionData(this DataSet @this, string error = "", string level = "", string message = "", string? typeMember = "", string? stackTrace = "")
+        public static void BuildExceptionData(this DataSet @this, string error = "N", string level = "Information", string message = "", string? typeMember = "", string? stackTrace = "")
         {
             @this.Tables.Clear();
 
@@ -72,6 +72,30 @@ namespace HandStack.Core.ExtensionMethod
                 builder.SetValue(0, "StackTrace", stackTrace.ToStringSafe());
                 builder.SetValue(0, "TypeMember", typeMember.ToStringSafe());
             }
+
+            using (DataTable table = builder.GetDataTable())
+            {
+                @this.Tables.Add(table);
+            }
+        }
+
+        public static void BuildExceptionData(this DataSet @this, Exception exception, string? typeMember = "")
+        {
+            @this.Tables.Clear();
+
+            DataTableHelper builder = new DataTableHelper("ExceptionData");
+            builder.AddColumn("Error", typeof(string));
+            builder.AddColumn("Level", typeof(string));
+            builder.AddColumn("Message", typeof(string));
+            builder.AddColumn("StackTrace", typeof(string));
+            builder.AddColumn("TypeMember", typeof(string));
+
+            builder.NewRow();
+            builder.SetValue(0, "Error", "Y");
+            builder.SetValue(0, "Level", "Error");
+            builder.SetValue(0, "Message", exception.Message);
+            builder.SetValue(0, "StackTrace", exception.StackTrace.ToStringSafe());
+            builder.SetValue(0, "TypeMember", $"{exception.GetType().ToStringSafe()}, typeMember: {typeMember}");
 
             using (DataTable table = builder.GetDataTable())
             {

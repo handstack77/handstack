@@ -1,4 +1,6 @@
-﻿using HandStack.Web;
+﻿using System.Collections.Generic;
+
+using HandStack.Web;
 
 namespace checkup.Entity
 {
@@ -40,6 +42,8 @@ namespace checkup.Entity
 
         public string ConnectionString { get; set; }
 
+        public List<string> AllowClientIP { get; set; }
+
         public ModuleConfig()
         {
             ManagedAccessKey = "";
@@ -55,6 +59,7 @@ namespace checkup.Entity
             IsModuleLogging = false;
             ModuleLogFilePath = "";
             ConnectionString = "";
+            AllowClientIP = new List<string>() { "*" };
         }
     }
 }

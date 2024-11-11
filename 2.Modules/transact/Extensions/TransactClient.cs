@@ -1394,6 +1394,7 @@ namespace transact.Extensions
                 var restRequest = new RestRequest(messageServerUrl, Method.Post);
 
                 restRequest.AddHeader("Content-Type", "application/json");
+                restRequest.AddHeader("AuthorizationKey", ModuleConfiguration.AuthorizationKey);
                 string json = JsonConvert.SerializeObject(dynamicRequest);
                 restRequest.AddParameter("application/json", json, ParameterType.RequestBody);
 
@@ -1652,6 +1653,7 @@ namespace transact.Extensions
                     var restRequest = new RestRequest(messageServerUrl, Method.Post);
 
                     restRequest.AddHeader("Content-Type", "application/json");
+                    restRequest.AddHeader("AuthorizationKey", ModuleConfiguration.AuthorizationKey);
                     string json = JsonConvert.SerializeObject(dynamicRequest);
                     restRequest.AddParameter("application/json", json, ParameterType.RequestBody);
 

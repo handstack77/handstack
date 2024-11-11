@@ -3,12 +3,22 @@ using System.Data;
 using System.Linq;
 
 using HandStack.Core.ExtensionMethod;
+using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.DataObject;
+
+using Microsoft.AspNetCore.Http;
 
 namespace transact.Extensions
 {
     public static class RestServiceExtensions
     {
+        public static bool IsAllowAuthorization(this HttpContext httpContext)
+        {
+            string? authorizationKey = httpContext.Request.Headers["AuthorizationKey"];
+            bool isAllowClientIP = string.IsNullOrEmpty(ModuleConfiguration.AllowClientIP.FirstOrDefault(p => p == "*" || p == httpContext.GetRemoteIpAddress())) == false;
+            return ModuleConfiguration.AuthorizationKey == authorizationKey && isAllowClientIP == true;
+        }
+
         public static void Append(this List<DynamicParameter> parameters, string parameterName, DbType dbType, object? value)
         {
             parameters.Add(new DynamicParameter() { ParameterName = parameterName, DbType = dbType.ToString(), Value = value });

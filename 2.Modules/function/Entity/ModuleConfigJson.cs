@@ -131,6 +131,8 @@ namespace function.Entity
 
         public List<FunctionSource> FunctionSource { get; set; }
 
+        public List<string> AllowClientIP { get; set; }
+
         public ModuleConfig()
         {
             AuthorizationKey = "";
@@ -147,6 +149,7 @@ namespace function.Entity
             CSharpFunctionConfig = new CSharpScriptConfig();
             NodeFunctionConfig = new NodeScriptConfig();
             FunctionSource = new List<FunctionSource>();
+            AllowClientIP = new List<string>() { "*" };
         }
     }
 }

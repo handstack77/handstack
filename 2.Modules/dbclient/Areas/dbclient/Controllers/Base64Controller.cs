@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Net.Http;
 
 using dbclient.Extensions;
 
@@ -34,8 +35,7 @@ namespace dbclient.Areas.dbclient.Controllers
         public ActionResult Encode(string value)
         {
             ActionResult result;
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
-            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
+            if (HttpContext.IsAllowAuthorization() == false)
             {
                 result = BadRequest();
             }
@@ -63,8 +63,7 @@ namespace dbclient.Areas.dbclient.Controllers
         public ActionResult Decode(string value)
         {
             ActionResult result;
-            string? authorizationKey = Request.Headers["AuthorizationKey"];
-            if (string.IsNullOrEmpty(authorizationKey) == true || ModuleConfiguration.AuthorizationKey != authorizationKey)
+            if (HttpContext.IsAllowAuthorization() == false)
             {
                 result = BadRequest();
             }

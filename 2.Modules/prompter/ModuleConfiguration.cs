@@ -14,6 +14,7 @@ namespace prompter
         public static string ModuleID = "prompter";
         public static string Version = "";
         public static string AuthorizationKey = "";
+        public static List<string> AllowClientIP = new List<string>() { "*" };
         public static bool IsBundledWithHost = false;
         public static List<string> ContractBasePath = new List<string>();
         public static Dictionary<string, FileSyncManager> PromptFileSyncManager = new Dictionary<string, FileSyncManager>();

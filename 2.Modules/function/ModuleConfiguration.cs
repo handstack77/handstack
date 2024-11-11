@@ -13,6 +13,7 @@ namespace function
         public static string ModuleID = "function";
         public static string Version = "";
         public static string AuthorizationKey = "";
+        public static List<string> AllowClientIP = new List<string>() { "*" };
         public static bool IsBundledWithHost = false;
         public static string ModuleBasePath = "";
         public static Dictionary<string, FileSyncManager> NodeFileSyncManager = new Dictionary<string, FileSyncManager>();

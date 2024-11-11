@@ -84,6 +84,7 @@ namespace openapi
                         // 관리 DB APIService 테이블 확인 및 생성 쿼리 실행
                         CreateNotExistTable("APIService");
 
+                        ModuleConfiguration.AllowClientIP = moduleConfig.AllowClientIP;
                         ModuleConfiguration.IsConfigure = true;
                     }
                     else

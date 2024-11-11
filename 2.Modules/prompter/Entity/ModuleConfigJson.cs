@@ -39,6 +39,8 @@ namespace prompter.Entity
 
         public List<DataSource> LLMSource { get; set; }
 
+        public List<string> AllowClientIP { get; set; }
+
         public ModuleConfig()
         {
             AuthorizationKey = "";
@@ -52,6 +54,7 @@ namespace prompter.Entity
             ContractBasePath = new List<string>();
             CircuitBreakResetSecond = 30;
             LLMSource = new List<DataSource>();
+            AllowClientIP = new List<string>() { "*" };
         }
     }
 }

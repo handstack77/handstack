@@ -41,6 +41,8 @@ namespace openapi.Entity
 
         public string LogServerUrl { get; set; }
 
+        public List<string> AllowClientIP { get; set; }
+
         public ModuleConfig()
         {
             AuthorizationKey = "";
@@ -55,6 +57,7 @@ namespace openapi.Entity
             IsLogServer = false;
             LogServerUrl = "";
             CircuitBreakResetSecond = 30;
+            AllowClientIP = new List<string>() { "*" };
         }
     }
 }

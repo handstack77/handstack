@@ -74,6 +74,8 @@ namespace transact.Entity
 
         public Dictionary<string, List<string>> AllowRequestTransactions { get; set; }
 
+        public List<string> AllowClientIP { get; set; }
+
         public ModuleConfig()
         {
             AuthorizationKey = "";
@@ -101,6 +103,7 @@ namespace transact.Entity
             PublicTransactions = new ExpiringList<PublicTransaction>();
             RoutingCommandUri = new Dictionary<string, string>();
             AllowRequestTransactions = new Dictionary<string, List<string>>();
+            AllowClientIP = new List<string>() { "*" };
         }
     }
 
