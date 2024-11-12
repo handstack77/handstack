@@ -136,11 +136,14 @@ namespace function.Areas.function.Controllers
                                         case "csharp":
                                             fileExtension = "cs";
                                             break;
+                                        default:
+                                            fileExtension = "js";
+                                            break;
                                     }
 
                                     if (string.IsNullOrEmpty(fileExtension) == true)
                                     {
-                                        Log.Logger.Error("[{LogCategory}] " + $"{functionScriptContract.Header.LanguageType} 언어 타입 확인 필요", "ManagedController/ResetAppContract");
+                                        Log.Logger.Error("[{LogCategory}] " + $"{scriptMapFile} 언어 타입 확인 필요", "ManagedController/ResetAppContract");
                                         continue;
                                     }
 

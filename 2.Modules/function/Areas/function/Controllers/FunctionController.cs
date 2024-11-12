@@ -115,7 +115,7 @@ namespace function.Areas.function.Controllers
                 if (string.IsNullOrEmpty(fileExtension) == true)
                 {
                     using DataSet? result = new DataSet();
-                    result.BuildExceptionData("Y", "Warning", $"{functionScriptContract.Header.LanguageType} 언어 타입 확인 필요");
+                    result.BuildExceptionData("Y", "Warning", $"{scriptMapFile} 언어 타입 확인 필요");
                     result.Tables.Add(new DataTable());
                     return result;
                 }
@@ -220,7 +220,7 @@ namespace function.Areas.function.Controllers
             dataTableBuilder.AddColumn("FunctionResult", typeof(string));
 
             dataTableBuilder.NewRow();
-            dataTableBuilder.SetValue(0, 0, $"typeMember: {typeMember}, serverDate: {serverDate}, serverName: {serverName}");
+            dataTableBuilder.SetValue(0, 0, $"typeMember: {typeMember}, serverDate: {DateTime.Now}, serverName: {serverName}");
 
             using DataSet result = new DataSet();
             using (DataTable table = dataTableBuilder.GetDataTable())

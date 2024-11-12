@@ -245,11 +245,14 @@ namespace function.Extensions
                         case "csharp":
                             fileExtension = "cs";
                             break;
+                        default:
+                            fileExtension = "js";
+                            break;
                     }
 
                     if (string.IsNullOrEmpty(fileExtension) == true)
                     {
-                        Log.Logger.Error("[{LogCategory}] " + $"{functionScriptContract.Header.LanguageType} 언어 타입 확인 필요", "FunctionMapper/MergeContractFile");
+                        Log.Logger.Error("[{LogCategory}] " + $"{scriptMapFile} 언어 타입 확인 필요", "FunctionMapper/MergeContractFile");
                         return;
                     }
 
@@ -479,11 +482,14 @@ namespace function.Extensions
                             case "csharp":
                                 fileExtension = "cs";
                                 break;
+                            default:
+                                fileExtension = "js";
+                                break;
                         }
 
                         if (string.IsNullOrEmpty(fileExtension) == true)
                         {
-                            logger.Error("[{LogCategory}] " + $"{functionScriptContract.Header.LanguageType} 언어 타입 확인 필요", "FunctionMapper/AddScriptMap");
+                            logger.Error("[{LogCategory}] " + $"{scriptMapFile} 언어 타입 확인 필요", "FunctionMapper/AddScriptMap");
                             continue;
                         }
 
@@ -670,11 +676,14 @@ namespace function.Extensions
                                 case "csharp":
                                     fileExtension = "cs";
                                     break;
+                                default:
+                                    fileExtension = "js";
+                                    break;
                             }
 
                             if (string.IsNullOrEmpty(fileExtension) == true)
                             {
-                                logger.Error("[{LogCategory}] " + $"{functionScriptContract.Header.LanguageType} 언어 타입 확인 필요", "FunctionMapper/LoadContract");
+                                logger.Error("[{LogCategory}] " + $"{scriptMapFile} 언어 타입 확인 필요", "FunctionMapper/LoadContract");
                                 continue;
                             }
 
