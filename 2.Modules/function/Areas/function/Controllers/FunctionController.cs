@@ -96,7 +96,7 @@ namespace function.Areas.function.Controllers
             dataContext.platform = string.IsNullOrEmpty(dataContext.platform) == false ? dataContext.platform : "Windows"; // Windows, Linux, MacOS
             dataContext.workingDirectoryPath = string.IsNullOrEmpty(dataContext.workingDirectoryPath) == false ? dataContext.workingDirectoryPath : "../tmp/HDS/function/HDS_FN00";
 
-            var scriptMapFile = string.IsNullOrEmpty(ModuleConfiguration.ModuleBasePath) == true ? Path.Combine(ModuleConfiguration.ModuleBasePath, "featureTest.json") : Path.Combine(GlobalConfiguration.GetBasePath($"../modules/{ModuleConfiguration.ModuleID}"), "featureTest.json");
+            var scriptMapFile = string.IsNullOrEmpty(ModuleConfiguration.ModuleBasePath) == true ? Path.Combine(GlobalConfiguration.GetBasePath($"../modules/{ModuleConfiguration.ModuleID}"), "featureTest.json"): Path.Combine(ModuleConfiguration.ModuleBasePath, "featureTest.json");
             if (System.IO.File.Exists(scriptMapFile) == true)
             {
                 var scriptMapData = System.IO.File.ReadAllText(scriptMapFile);
