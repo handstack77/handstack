@@ -6,6 +6,5 @@ namespace function.Entity
     {
         public QueryObject DynamicObject = new QueryObject();
         public ModuleScriptMap ModuleScriptMap = new ModuleScriptMap();
-        public ModuleSourceMap? DataSourceMap = new ModuleSourceMap();
     }
 }

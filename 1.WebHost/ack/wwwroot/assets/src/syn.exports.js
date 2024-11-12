@@ -31,7 +31,7 @@ if (globalRoot.devicePlatform === 'node') {
     }
 
     if (syn && !syn.initializeModuleScript) {
-        syn.initializeModuleScript = function (functionID, moduleFileName, dataSourceMap) {
+        syn.initializeModuleScript = function (functionID, moduleFileName) {
             var result = null;
             if (moduleFileName) {
                 try {
@@ -41,16 +41,10 @@ if (globalRoot.devicePlatform === 'node') {
 
                     var functionModule = syn.functionModules[moduleID];
                     if (functionModule == undefined) {
-                        var dataSource = null;
-                        if (dataSourceMap) {
-                            var dataSource = JSON.parse(dataSourceMap);
-                        }
-
                         functionModule = {
                             path: fileDirectory,
                             config: eval('(' + fs.readFileSync(moduleFileName.replace('featureMain.js', 'featureMeta.json'), 'utf8') + ')').Header,
                             featureSQLPath: null,
-                            dataSource: dataSource,
                             logger: null,
                         };
 

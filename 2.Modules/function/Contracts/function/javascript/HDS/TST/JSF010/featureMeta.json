@@ -3,7 +3,7 @@
         "ApplicationID": "HDS",
         "ProjectID": "TST",
         "TransactionID": "JSF010",
-        "DataSourceID": "FN01",
+        "DataSourceID": "FN01, FN02, FN04",
         "LanguageType": "javascript",
         "Use": true,
         "Comment": "Javascript 거래 함수 테스트"

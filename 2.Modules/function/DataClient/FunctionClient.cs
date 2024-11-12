@@ -68,7 +68,6 @@ namespace function.DataClient
                         return;
                     }
 
-                    var dataSourceMap = FunctionMapper.GetDataSourceMap(moduleScriptMap.ApplicationID, moduleScriptMap.ProjectID, moduleScriptMap.TransactionID, moduleScriptMap.DataSourceID);
                     if (ModuleConfiguration.IsTransactionLogging == true || moduleScriptMap.TransactionLog == true)
                     {
                         if (logQuerys.Contains(queryObject.QueryID) == false)
@@ -80,8 +79,7 @@ namespace function.DataClient
                     transactionDynamicObjects.Add(string.Concat(queryObject.QueryID, "_", i.ToString()), new TransactionScriptObjects()
                     {
                         DynamicObject = queryObject,
-                        ModuleScriptMap = moduleScriptMap,
-                        DataSourceMap = dataSourceMap
+                        ModuleScriptMap = moduleScriptMap
                     });
 
                     i = i + 1;
@@ -119,7 +117,6 @@ namespace function.DataClient
                 {
                     QueryObject queryObject = transactionDynamicObject.Value.DynamicObject;
                     ModuleScriptMap moduleScriptMap = transactionDynamicObject.Value.ModuleScriptMap;
-                    ModuleSourceMap? dataSourceMap = transactionDynamicObject.Value.DataSourceMap;
 
                     List<DynamicParameter> dynamicParameters = new List<DynamicParameter>();
                     if (queryObject.Parameters.Count() > 0)
@@ -280,10 +277,31 @@ namespace function.DataClient
                     dataContext.globalID = request.GlobalID;
                     dataContext.environment = GlobalConfiguration.RunningEnvironment;
                     dataContext.platform = GlobalConfiguration.OSPlatform;
-                    dataContext.dataProvider = dataSourceMap?.DataProvider.ToString();
-                    dataContext.connectionString = dataSourceMap?.ConnectionString;
-                    dataContext.workingDirectoryPath = dataSourceMap?.WorkingDirectoryPath;
                     dataContext.featureMeta = moduleScriptMap;
+
+                    string dataProvider = "";
+                    string connectionString = "";
+                    string workingDirectoryPath = "";
+                    var dataSourceIDs = moduleScriptMap.DataSourceID.SplitComma();
+                    for (int j = 0; j < dataSourceIDs.Count; j++)
+                    {
+                        string dataSourceID = dataSourceIDs[j];
+                        var dataSourceMap = FunctionMapper.GetDataSourceMap(moduleScriptMap.ApplicationID, moduleScriptMap.ProjectID, moduleScriptMap.TransactionID, dataSourceID);
+
+                        if (dataSourceMap != null)
+                        {
+                            dataProvider = dataProvider + "|" + dataSourceMap.DataProvider.ToString();
+                            connectionString = connectionString + "|" + dataSourceMap.ConnectionString;
+                            workingDirectoryPath = workingDirectoryPath + "|" + dataSourceMap.WorkingDirectoryPath;
+                        }
+                    }
+
+                    if (string.IsNullOrEmpty(dataProvider) == false)
+                    {
+                        dataContext.dataProvider = dataProvider.Substring(1);
+                        dataContext.connectionString = connectionString.Substring(1);
+                        dataContext.workingDirectoryPath = workingDirectoryPath.Substring(1);
+                    }
 
                     listParams.Add(dataContext);
 
@@ -295,8 +313,8 @@ namespace function.DataClient
                         try
                         {
                             string functionID = queryObject.QueryID;
-                            string module = "var syn=require('syn');module.exports=async(functionID,moduleFileName,dataSourceMap)=>{return syn.initializeModuleScript(functionID,moduleFileName,dataSourceMap);}";
-                            var moduleID = await nodeJSService.InvokeFromStringAsync<string>(module, args: new[] { functionID, programPath, dataSourceMap == null ? null : JsonConvert.SerializeObject(dataSourceMap) });
+                            string module = "var syn=require('syn');module.exports=async(functionID,moduleFileName,dataSourceMap)=>{return syn.initializeModuleScript(functionID,moduleFileName);}";
+                            var moduleID = await nodeJSService.InvokeFromStringAsync<string>(module, args: new[] { functionID, programPath });
 
                             listParams.Insert(0, moduleID.ToStringSafe());
                             arguments = listParams.ToArray();
