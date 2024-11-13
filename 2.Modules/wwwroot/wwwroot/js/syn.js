@@ -8215,105 +8215,89 @@ globalRoot.syn = syn;
                                             }
                                         }
                                         else if (outputMapping.responseType == 'Grid') {
-                                            if (outputData.length && outputData.length > 0) {
-                                                result.outputStat.push({
-                                                    fieldID: responseFieldID,
-                                                    Count: outputData.length
+                                            result.outputStat.push({
+                                                fieldID: responseFieldID,
+                                                Count: outputData.length
+                                            });
+                                            var dataFieldID = outputMapping.dataFieldID; // syn-datafield
+                                            if (synControls && synControls.length > 0) {
+                                                var bindingControlInfos = synControls.filter(function (item) {
+                                                    return item.field == dataFieldID;
                                                 });
-                                                var dataFieldID = outputMapping.dataFieldID; // syn-datafield
-                                                if (synControls && synControls.length > 0) {
-                                                    var bindingControlInfos = synControls.filter(function (item) {
-                                                        return item.field == dataFieldID;
-                                                    });
 
-                                                    if (bindingControlInfos.length == 1) {
-                                                        var controlInfo = bindingControlInfos[0];
-                                                        var controlModule = syn.$w.getControlModule(controlInfo.module);
-                                                        if ($object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
-                                                            controlModule.setValue(controlInfo.id.replace('_hidden', ''), outputData, outputMapping.items);
-                                                        }
-                                                    }
-                                                    else {
-                                                        var isMapping = false;
-                                                        if (syn.uicontrols.$data && syn.uicontrols.$data.storeList.length > 0) {
-                                                            for (var k = 0; k < syn.uicontrols.$data.storeList.length; k++) {
-                                                                var store = syn.uicontrols.$data.storeList[k];
-                                                                if ($object.isNullOrUndefined($this.store[store.dataSourceID]) == true) {
-                                                                    $this.store[store.dataSourceID] = [];
-                                                                }
-
-                                                                if (store.storeType == 'Grid' && store.dataSourceID == outputMapping.dataFieldID) {
-                                                                    isMapping = true;
-                                                                    var bindingInfos = syn.uicontrols.$data.bindingList.filter(function (item) {
-                                                                        return (item.dataSourceID == store.dataSourceID && item.controlType == 'grid');
-                                                                    });
-
-                                                                    var length = outputData.length;
-                                                                    for (var i = 0; i < length; i++) {
-                                                                        outputData[i].Flag = 'R';
-                                                                    }
-
-                                                                    if (bindingInfos.length > 0) {
-                                                                        for (var binding_i = 0; binding_i < bindingInfos.length; binding_i++) {
-                                                                            var bindingInfo = bindingInfos[binding_i];
-                                                                            $this.store[store.dataSourceID][bindingInfo.dataFieldID] = outputData;
-                                                                        }
-                                                                    }
-                                                                    else {
-                                                                        $this.store[store.dataSourceID] = outputData;
-                                                                    }
-                                                                    break;
-                                                                }
-                                                            }
-                                                        }
-
-                                                        if (isMapping == false) {
-                                                            errorText = '"{0}" Grid Output Mapping 확인 필요'.format(dataFieldID);
-                                                            result.errorText.push(errorText);
-                                                            syn.$l.eventLog('$w.transaction', errorText, 'Error');
-                                                        }
+                                                if (bindingControlInfos.length == 1) {
+                                                    var controlInfo = bindingControlInfos[0];
+                                                    var controlModule = syn.$w.getControlModule(controlInfo.module);
+                                                    if ($object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
+                                                        controlModule.setValue(controlInfo.id.replace('_hidden', ''), outputData, outputMapping.items);
                                                     }
                                                 }
-                                            }
-                                            else {
-                                                result.outputStat.push({
-                                                    fieldID: responseFieldID,
-                                                    Count: 0
-                                                });
-                                            }
-                                        }
-                                        else if (outputMapping.responseType == 'Chart') {
-                                            if (outputData.length && outputData.length > 0) {
-                                                result.outputStat.push({
-                                                    fieldID: responseFieldID,
-                                                    Count: outputData.length
-                                                });
-                                                var dataFieldID = outputMapping.dataFieldID; // syn-datafield
+                                                else {
+                                                    var isMapping = false;
+                                                    if (syn.uicontrols.$data && syn.uicontrols.$data.storeList.length > 0) {
+                                                        for (var k = 0; k < syn.uicontrols.$data.storeList.length; k++) {
+                                                            var store = syn.uicontrols.$data.storeList[k];
+                                                            if ($object.isNullOrUndefined($this.store[store.dataSourceID]) == true) {
+                                                                $this.store[store.dataSourceID] = [];
+                                                            }
 
-                                                if (synControls && synControls.length > 0) {
-                                                    var bindingControlInfos = synControls.filter(function (item) {
-                                                        return item.field == dataFieldID;
-                                                    });
+                                                            if (store.storeType == 'Grid' && store.dataSourceID == outputMapping.dataFieldID) {
+                                                                isMapping = true;
+                                                                var bindingInfos = syn.uicontrols.$data.bindingList.filter(function (item) {
+                                                                    return (item.dataSourceID == store.dataSourceID && item.controlType == 'grid');
+                                                                });
 
-                                                    if (bindingControlInfos.length == 1) {
-                                                        var controlInfo = bindingControlInfos[0];
-                                                        var controlModule = syn.$w.getControlModule(controlInfo.module);
-                                                        if ($object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
-                                                            controlModule.setValue(controlInfo.id.replace('_hidden', ''), outputData, outputMapping.items);
+                                                                var length = outputData.length;
+                                                                for (var i = 0; i < length; i++) {
+                                                                    outputData[i].Flag = 'R';
+                                                                }
+
+                                                                if (bindingInfos.length > 0) {
+                                                                    for (var binding_i = 0; binding_i < bindingInfos.length; binding_i++) {
+                                                                        var bindingInfo = bindingInfos[binding_i];
+                                                                        $this.store[store.dataSourceID][bindingInfo.dataFieldID] = outputData;
+                                                                    }
+                                                                }
+                                                                else {
+                                                                    $this.store[store.dataSourceID] = outputData;
+                                                                }
+                                                                break;
+                                                            }
                                                         }
                                                     }
-                                                    else {
-                                                        errorText = '"{0}" Chart Output Mapping 확인 필요'.format(dataFieldID);
+
+                                                    if (isMapping == false) {
+                                                        errorText = '"{0}" Grid Output Mapping 확인 필요'.format(dataFieldID);
                                                         result.errorText.push(errorText);
                                                         syn.$l.eventLog('$w.transaction', errorText, 'Error');
                                                     }
                                                 }
                                             }
-                                            else {
-                                                result.outputStat.push({
-                                                    fieldID: responseFieldID,
-                                                    Count: 0
+                                        }
+                                        else if (outputMapping.responseType == 'Chart') {
+                                            result.outputStat.push({
+                                                fieldID: responseFieldID,
+                                                Count: outputData.length
+                                            });
+                                            var dataFieldID = outputMapping.dataFieldID; // syn-datafield
+
+                                            if (synControls && synControls.length > 0) {
+                                                var bindingControlInfos = synControls.filter(function (item) {
+                                                    return item.field == dataFieldID;
                                                 });
+
+                                                if (bindingControlInfos.length == 1) {
+                                                    var controlInfo = bindingControlInfos[0];
+                                                    var controlModule = syn.$w.getControlModule(controlInfo.module);
+                                                    if ($object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
+                                                        controlModule.setValue(controlInfo.id.replace('_hidden', ''), outputData, outputMapping.items);
+                                                    }
+                                                }
+                                                else {
+                                                    errorText = '"{0}" Chart Output Mapping 확인 필요'.format(dataFieldID);
+                                                    result.errorText.push(errorText);
+                                                    syn.$l.eventLog('$w.transaction', errorText, 'Error');
+                                                }
                                             }
                                         }
                                     }
