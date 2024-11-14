@@ -1663,6 +1663,10 @@
 
                 var triggerOptions = syn.$w.getTriggerOptions(elID);
                 if (triggerOptions) {
+                    if (triggerOptions.focusColumnID) {
+                        setting.focusColumnID = triggerOptions.focusColumnID;
+                    }
+
                     if (triggerOptions.sourceValueID && triggerOptions.targetColumnID) {
                         var mod = window[syn.$w.pageScript];
                         if (mod) {
