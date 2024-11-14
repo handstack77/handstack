@@ -1676,6 +1676,7 @@
                                     var length = triggerOptions.sourceValueID.length;
                                     for (var i = 0; i < length; i++) {
                                         var sourceValueID = triggerOptions.sourceValueID[i];
+                                        var targetColumnID = triggerOptions.targetColumnID[i];
                                         var keyValues = sourceValueID.split('@');
                                         var dataFieldID = keyValues[0];
                                         var dataColumnID = keyValues[1];
@@ -1686,7 +1687,7 @@
                                         if (items.length == 1) {
                                             var controlInfo = items[0];
 
-                                            var targetColumn = columns.find(function (item) { return item.dataField == triggerOptions.targetColumnID; });
+                                            var targetColumn = columns.find(function (item) { return item.dataField == targetColumnID; });
                                             if (targetColumn != null) {
                                                 if (controlInfo.type == 'grid') {
                                                     var sourceGridID = controlInfo.id;
@@ -1694,7 +1695,7 @@
                                                     var sourceCol = $grid.propToCol(sourceGridID, dataColumnID);
                                                     var sourceValue = $grid.getDataAtCell(sourceGridID, sourceRow, sourceCol);
 
-                                                    defaultValue[triggerOptions.targetColumnID] = sourceValue;
+                                                    defaultValue[targetColumnID] = sourceValue;
                                                 }
                                                 else if (controlInfo.type == 'auigrid') {
                                                     var sourceGridID = controlInfo.id;
@@ -1703,12 +1704,12 @@
                                                     var sourceRow = selected[0];
                                                     var sourceValue = AUIGrid.getCellValue(gridID, sourceRow, dataColumnID);
 
-                                                    defaultValue[triggerOptions.targetColumnID] = sourceValue;
+                                                    defaultValue[targetColumnID] = sourceValue;
                                                 }
                                                 else {
                                                     var el = syn.$l.querySelector('[syn-datafield="{0}"] #{1}'.format(dataFieldID, dataColumnID));
                                                     if ($object.isNullOrUndefined(el) == false) {
-                                                        defaultValue[triggerOptions.targetColumnID] = el.value;
+                                                        defaultValue[targetColumnID] = el.value;
                                                     }
                                                 }
                                             }
