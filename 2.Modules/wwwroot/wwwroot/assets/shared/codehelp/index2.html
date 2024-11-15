@@ -32,6 +32,9 @@
                                         <div class="input-group">
                                             <label class="w:90 col-form-label px-2">코드/명</label>
                                             <input id="txtSearch" syn-datafield="Search" type="text" class="form-control" maxlengthB="50">
+                                            <button type="button" id="btnSearch" syn-events="['click']" class="btn btn-icon">
+                                                <i class="font:20 ti ti-search"></i>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -55,10 +58,6 @@
                         <div class="row g-2 align-items-center">
                             <div class="col-auto ms-auto">
                                 <div class="btn-list">
-                                    <button type="button" id="btnSearch" syn-events="['click']" class="btn">
-                                        <i class="font:20 mr:4 ti ti-search"></i>
-                                        검색
-                                    </button>
                                     <button type="button" id="btnConfirm" syn-events="['click']" class="btn btn-primary">
                                         <i class="font:20 mr:4 ti ti-check"></i>
                                         확인

@@ -338,6 +338,7 @@
             var dialogOptions = $object.clone(syn.$w.dialogOptions);
             dialogOptions.minWidth = 640;
             dialogOptions.minHeight = 480;
+            dialogOptions.close = true;
             dialogOptions.caption = (setting.controlText || setting.columnText || setting.headerText || setting.dataSourceID) + ' 코드도움';
 
             var url = $string.isNullOrEmpty(setting.url) == false ? setting.url : syn.Config.SharedAssetUrl + 'codehelp/index.html';

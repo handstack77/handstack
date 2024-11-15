@@ -156,7 +156,7 @@
             opacity: 0,
             overlayId: 'simplemodal-overlay',
             containerId: 'simplemodal-container',
-            closeHTML: '<div class="absolute font:22 right:8 ti ti-x top:8"></div>',
+            closeHTML: '<div class="absolute font:22 right:8 ti ti-x top:8 fg-black"></div>',
             minWidth: 320,
             minHeight: 240,
             modal: true,

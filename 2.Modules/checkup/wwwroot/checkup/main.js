@@ -2512,8 +2512,8 @@ let $main = {
                     syn.$m.appendChild(divActionButtons, button);
                 }
 
-                if (tabEl && tabEl.functions) {
-                    var commands = tabEl.functions.split("|");
+                if (tabEl && $object.isNullOrUndefined(tabEl.functions) == false) {
+                    var commands = tabEl.functions.split('|');
                     for (var i = 0; i < commands.length; i++) {
                         var command = commands[i];
                         if ($string.isNullOrEmpty(command) == false) {

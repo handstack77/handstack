@@ -1821,6 +1821,13 @@
             }
         },
 
+        removeRowByRowId(elID, rowIDs) {
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                AUIGrid.removeRowByRowId(gridID, rowIDs);
+            }
+        },
+
         countRows(elID) {
             var result = 0;
             var gridID = $auigrid.getGridID(elID);
