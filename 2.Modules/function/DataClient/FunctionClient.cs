@@ -313,7 +313,7 @@ namespace function.DataClient
                         try
                         {
                             string functionID = queryObject.QueryID;
-                            string module = "var syn=require('syn');module.exports=async(functionID,moduleFileName,dataSourceMap)=>{return syn.initializeModuleScript(functionID,moduleFileName);}";
+                            string module = "var syn=require('syn');module.exports=async(functionID,moduleFileName)=>{return syn.initializeModuleScript(functionID,moduleFileName);}";
                             var moduleID = await nodeJSService.InvokeFromStringAsync<string>(module, args: new[] { functionID, programPath });
 
                             listParams.Insert(0, moduleID.ToStringSafe());
