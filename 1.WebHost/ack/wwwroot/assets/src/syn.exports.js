@@ -4,7 +4,6 @@
 if (globalRoot.devicePlatform === 'node') {
     var fs = require('fs');
     var path = require('path');
-    var crypto = require('crypto');
 
     if (typeof localStorage === 'undefined' || localStorage === null) {
         var LocalStorage = require('node-localstorage').LocalStorage;
@@ -37,7 +36,7 @@ if (globalRoot.devicePlatform === 'node') {
                 try {
                     var fileDirectory = path.dirname(moduleFileName);
                     var fileDirectoryName = fileDirectory.split(path.sep).pop();
-                    var moduleID = crypto.createHash('sha1').update(functionID).digest('hex');
+                    var moduleID = functionID;
 
                     var functionModule = syn.functionModules[moduleID];
                     if (functionModule == undefined) {
@@ -70,7 +69,6 @@ if (globalRoot.devicePlatform === 'node') {
                         logger.setLevel((process.env.SYN_LogMinimumLevel || 'trace'));
                         functionModule.logger = logger;
                         syn.functionModules[moduleID] = functionModule;
-
                         result = moduleID;
                     }
                     else {
@@ -89,8 +87,15 @@ if (globalRoot.devicePlatform === 'node') {
     }
 
     if (syn && !syn.getModuleLibrary) {
-        syn.getModuleLibrary = function (moduleID) {
-            return syn.functionModules[moduleID];
+        syn.getModuleLibrary = function (moduleID, moduleFileName) {
+            var result = null;
+            result = syn.functionModules[moduleID];
+            if ($object.isNullOrUndefined(result) == true && moduleFileName) {
+                syn.initializeModuleScript(moduleID, moduleFileName);
+                result = syn.functionModules[moduleID];
+            }
+
+            return result;
         };
     }
 
