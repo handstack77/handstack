@@ -325,7 +325,7 @@
                             });
                         }
 
-                        if (gridHookEvents.indexOf('selectionChange') == -1) {
+                        if (gridHookEvents.includes('afterSelectionEnd') == true && gridHookEvents.indexOf('selectionChange') == -1) {
                             AUIGrid.bind(gridID, 'selectionChange', function (evt) {
                                 var mod = window[syn.$w.pageScript];
                                 var eventHandler = mod.event ? mod.event['{0}_{1}'.format(elID, 'afterSelectionEnd')] : null;
@@ -860,7 +860,7 @@
                                     var mod = window[syn.$w.pageScript];
                                     var eventHandler = mod.event ? mod.event['{0}_{1}'.format(elID, 'cellEditBegin')] : null;
                                     if (eventHandler) {
-                                        var value = eventHandler(elID, evt);
+                                        var value = eventHandler(evt);
                                         isAllowEdit = $string.toBoolean(value);
                                     }
 
