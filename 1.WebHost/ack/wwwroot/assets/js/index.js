@@ -1526,24 +1526,26 @@ globalRoot.syn = syn;
         },
 
         // 참조(http://www.ascii.cl/htmlcodes.htm)
-        toHtmlChar(val) {
+        toHtmlChar(val, charStrings) {
+            charStrings = charStrings || `&'<>!"#%()*+,./;=@[\]^\`{|}~`;
             var charMap = {
                 '&': '&amp;', '\'': '&apos;', '<': '&lt;', '>': '&gt;', '"': '&quot;', '!': '&excl;', '#': '&num;', '%': '&percnt;',
                 '(': '&lpar;', ')': '&rpar;', '*': '&ast;', '+': '&plus;', ',': '&comma;', '.': '&period;', '/': '&sol;', ';': '&semi;',
                 '=': '&equals;', '@': '&commat;', '[': '&lsqb;', '\\': '&bsol;', ']': '&rsqb;', '^': '&Hat;', '`': '&grave;', '{': '&lcub;',
                 '|': '&verbar;', '}': '&rcub;', '~': '&tilde;'
             };
-            return val.replace(/[&'<>!"#%()*+,./;=@[\]^`{|}~]/g, char => charMap[char]);
+            return val.replace(new RegExp(`[${charStrings}]`, 'g'), char => charMap[char] ? charMap[char] : '');
         },
 
-        toCharHtml(val) {
+        toCharHtml(val, htmlStrings) {
+            htmlStrings = htmlStrings || `amp|apos|lt|gt|quot|excl|num|percnt|lpar|rpar|ast|plus|comma|period|sol|semi|equals|commat|lsqb|bsol|rsqb|Hat|grave|lcub|verbar|rcub|tilde`;
             var charMap = {
                 '&amp;': '&', '&apos;': '\'', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&excl;': '!', '&num;': '#', '&percnt;': '%',
                 '&lpar;': '(', '&rpar;': ')', '&ast;': '*', '&plus;': '+', '&comma;': ',', '&period;': '.', '&sol;': '/', '&semi;': ';',
                 '&equals;': '=', '&commat;': '@', '&lsqb;': '[', '&bsol;': '\\', '&rsqb;': ']', '&Hat;': '^', '&grave;': '`', '&lcub;': '{',
                 '&verbar;': '|', '&rcub;': '}', '&tilde;': '~'
             };
-            return val.replace(/&(amp|apos|lt|gt|quot|excl|num|percnt|lpar|rpar|ast|plus|comma|period|sol|semi|equals|commat|lsqb|bsol|rsqb|Hat|grave|lcub|verbar|rcub|tilde);/g, char => charMap[char]);
+            return val.replace(new RegExp(`/&(${htmlStrings});`, 'g'), char => charMap[char] ? charMap[char] : '');
         },
 
         length(val) {
