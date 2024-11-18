@@ -324,6 +324,6 @@ gulp.task('watch', async function () {
     gulp.watch(files, gulp.series(['controls']));
 });
 
-gulp.task('default', gulp.series(['controls', 'scripts', 'styles', 'bundle']));
+gulp.task('default', gulp.series(['controls', 'basescripts', 'basestyles', 'scripts', 'styles', 'bundle']));
 
 gulp.task('base', gulp.series(['controls', 'basescripts', 'basestyles']));
