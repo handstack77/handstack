@@ -136,7 +136,7 @@
             var wrapper = document.createElement('div');
             wrapper.style.width = setting.width;
             wrapper.style.height = setting.height;
-            wrapper.className = 'tree-container border';
+            wrapper.className = 'tree-container border overflow-auto';
             wrapper.innerHTML = '<div id="' + elID + '"></div>';
             parent.appendChild(wrapper);
 

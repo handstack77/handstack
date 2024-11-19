@@ -202,6 +202,7 @@
             useContextMenu: true,
             enableFilter: true,
             showInlineFilter: false,
+            showEditedCellMarker: false,
             useGroupingPanel: false,
             showStateColumn: false,
             displayTreeOpen: false,
