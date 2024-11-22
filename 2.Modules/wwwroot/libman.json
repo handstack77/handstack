@@ -247,6 +247,10 @@
             "provider": "jsdelivr",
             "library": "jsonata@2.0.5",
             "destination": "wwwroot/lib/jsonata/"
+        },
+        {
+            "library": "highcharts@11.4.8",
+            "destination": "wwwroot/lib/highcharts/"
         }
     ]
 }

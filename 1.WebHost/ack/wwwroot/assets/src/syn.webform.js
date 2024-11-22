@@ -594,7 +594,7 @@
                 }
 
                 var synControlList = [];
-                var synControls = document.querySelectorAll('[syn-datafield],[syn-options],[syn-events]');
+                var synControls = document.querySelectorAll('[tag^="syn_"],[syn-datafield],[syn-options],[syn-events]');
                 for (var i = 0; i < synControls.length; i++) {
                     var synControl = synControls[i];
                     if (synControl.tagName) {
@@ -627,7 +627,7 @@
                     }
                 }
 
-                synControls = document.querySelectorAll('[syn-datafield],[syn-options],[syn-events]');
+                synControls = document.querySelectorAll('[tag^="syn_"],[syn-datafield],[syn-options],[syn-events]');
                 for (var i = 0; i < synControls.length; i++) {
                     var synControl = synControls[i];
                     if (synControl.tagName) {

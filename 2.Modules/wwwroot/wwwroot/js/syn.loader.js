@@ -306,7 +306,7 @@
         definedResources() {
             var result = [];
             var synControlList = [];
-            var synControls = document.querySelectorAll('[syn-datafield],[syn-options],[syn-events]');
+            var synControls = document.querySelectorAll('[tag^="syn_"],[syn-datafield],[syn-options],[syn-events]');
             for (var i = 0; i < synControls.length; i++) {
                 var synControl = synControls[i];
                 if (synControl.tagName) {
@@ -469,6 +469,15 @@
                         item.js = [
                             '/lib/tail.select.js/js/tail.select.js',
                             '/uicontrols/DropDownCheckList/DropDownCheckList.js'
+                        ];
+                        break;
+                    case 'chart':
+                        item.css = [
+                            '/uicontrols/Chart/Chart.css'
+                        ];
+                        item.js = [
+                            '/lib/highcharts/highcharts.js',
+                            '/uicontrols/Chart/Chart.js'
                         ];
                         break;
                     case 'chartjs':

@@ -2,8 +2,8 @@
 
 (function (window) {
     'use strict';
-    syn.uicontrols = syn.uicontrols || new baseCore();
-    var $chartjs = syn.uicontrols.$chartjs || new baseCore();
+    syn.uicontrols = syn.uicontrols || new syn.module();
+    var $chartjs = syn.uicontrols.$chartjs || new syn.module();
 
     if (window.Chart) {
         /*
@@ -36,7 +36,6 @@
         }
 
         Chart.defaults.global.elements.line.fill = false;
-        */
 
         Chart.plugins.register({
             beforeDraw: function (c) {
@@ -45,6 +44,7 @@
                 ctx.fillRect(0, 0, c.chart.width, c.chart.height);
             }
         });
+        */
     }
 
     $chartjs.extend({
@@ -84,7 +84,6 @@
 
         controlLoad: function (elID, setting) {
             var el = syn.$l.get(elID);
-
             setting = syn.$w.argumentsExtend($chartjs.defaultSetting, setting);
             var isDarkMode = (window.localStorage && localStorage.getItem('isDarkMode') == 'true');
             if (isDarkMode == false) {
@@ -100,7 +99,7 @@
                         fontColor: '#ccc'
                     },
                     scales: {
-                        xAxes: [{
+                        x: [{
                             gridLines: {
                                 color: 'rgba(0, 0, 0, 0.2)',
                                 zeroLineColor: 'rgba(0, 0, 0, 0.5)'
@@ -109,7 +108,7 @@
                                 fontColor: '#ccc'
                             }
                         }],
-                        yAxes: [{
+                        y: [{
                             gridLines: {
                                 color: 'rgba(0, 0, 0, 0.2)',
                                 zeroLineColor: 'rgba(0, 0, 0, 0.5)'
@@ -159,25 +158,12 @@
                         fontColor: '#ccc'
                     },
                     scales: {
-                        xAxes: [{
-                            gridLines: {
-                                color: 'rgba(255, 255, 255, 0.2)',
-                                zeroLineColor: 'rgba(255, 255, 255, 0.5)'
-                            },
-                            ticks: {
-                                fontColor: '#ccc'
-                            }
-                        }],
-                        yAxes: [{
-                            gridLines: {
-                                color: 'rgba(255, 255, 255, 0.2)',
-                                zeroLineColor: 'rgba(255, 255, 255, 0.5)'
-                            },
-                            ticks: {
-                                beginAtZero: true,
-                                fontColor: '#ccc'
-                            }
-                        }]
+                        x: {
+                            beginAtZero: true
+                        },
+                        y: {
+                            beginAtZero: true
+                        }
                     },
                     animation: {
                         duration: 0
@@ -210,8 +196,8 @@
             // https://nagix.github.io/chartjs-plugin-colorschemes/colorchart.html
             controlInit: function (elID, settings) {
                 if (elID == 'chtChart1' || elID == 'chtChart2' || elID == 'chtChart3') {
-                    settings.options.scales.yAxes[0].ticks.min = 0;
-                    settings.options.scales.yAxes[0].ticks.max = 100;
+                    settings.options.scales.y[0].ticks.min = 0;
+                    settings.options.scales.y[0].ticks.max = 100;
                 }
 
                 if (elID == 'chtChart1' || elID == 'chtChart2' || elID == 'chtChart3') {
