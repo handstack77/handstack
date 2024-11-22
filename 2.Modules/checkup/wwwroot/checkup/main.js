@@ -1863,7 +1863,9 @@ let $main = {
                         }
                     }
 
-                    tabContent.events.flush();
+                    if (tabContent.syn) {
+                        tabContent.syn.$l.events.flush();
+                    }
                     tabContent.close();
                     tabIFrame.src = '';
                 }
@@ -2220,10 +2222,9 @@ let $main = {
                         }
                     }
 
-                    if (contentWindow.events && contentWindow.events.flush) {
-                        contentWindow.events.flush();
+                    if (contentWindow.syn) {
+                        contentWindow.syn.$l.events.flush();
                     }
-
                     contentWindow.close();
                     iframe.src = '';
                     syn.$m.remove(iframe);
