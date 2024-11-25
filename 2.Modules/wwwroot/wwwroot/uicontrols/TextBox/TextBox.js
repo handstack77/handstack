@@ -627,7 +627,7 @@
             var val = el.value;
             if (val.length > 0) {
                 el.setAttribute('placeholder', '');
-                if (syn.$w.isBusinessNo(val) == false) {
+                if ($textbox.isBusinessNo(val) == false) {
                     el.setAttribute('placeholder', '사업자번호 확인 필요');
                     el.value = '';
                 }
@@ -647,7 +647,7 @@
             var val = el.value;
             if (val.length > 0) {
                 el.setAttribute('placeholder', '');
-                if ($string.isCorporateNo(val) == false) {
+                if ($textbox.isCorporateNo(val) == false) {
                     el.setAttribute('placeholder', '법인번호 확인 필요');
                     el.value = '';
                 }
@@ -660,6 +660,56 @@
                     el.value = val;
                 }
             }
+        },
+
+        isBusinessNo(val) {
+            var result = false;
+            var valueMap = val.replace(/-/gi, '').split('').map(function (item) {
+                return parseInt(item, 10);
+            });
+
+            if (valueMap.length === 10) {
+                try {
+                    var multiply = [1, 3, 7, 1, 3, 7, 1, 3, 5];
+                    var checkSum = 0;
+
+                    for (var i = 0; i < multiply.length; ++i) {
+                        checkSum += multiply[i] * valueMap[i];
+                    }
+
+                    checkSum += parseInt((multiply[8] * valueMap[8]) / 10, 10);
+                    result = Math.floor(valueMap[9]) === ((10 - (checkSum % 10)) % 10);
+                } catch (e) {
+                    result = false;
+                }
+            }
+
+            return result;
+        },
+
+        isCorporateNo(val) {
+            var result = false;
+            var corpNo = val.replace(/-/gi, '');
+            corpNo = corpNo.trim();
+
+            var checkID = [1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2];
+            var i, checkSum = 0;
+
+            if (corpNo.length != 13) {
+                return false;
+            }
+
+            for (var i = 0; i < 12; i++) {
+                checkSum += checkID[i] * corpNo.charAt(i);
+            }
+
+            if ((10 - (checkSum % 10)) % 10 != corpNo.charAt(12)) {
+                result = false;
+            } else {
+                result = true;
+            }
+
+            return result;
         },
 
         rangeMoveCaret(evt) {
