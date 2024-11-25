@@ -221,6 +221,7 @@ namespace function
                             "AssetsCachingID": "",
                             "IsClientCaching": true,
                             "IsDebugMode": false,
+                            "IsBundleLoad": false,
                             "BaseDirectory": "/",
                             "TenantAppRequestPath": "app",
                             "SharedAssetUrl": "/assets/shared/",

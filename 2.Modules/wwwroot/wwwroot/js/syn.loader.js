@@ -809,8 +809,8 @@
             var configuration = window.Configuration;
             if (configuration.Application) {
                 loaderPath = configuration.Application.LoaderPath || loaderPath;
-                synConfig.IsDebugMode = configuration.Application.IsDebugMode;
-                synConfig.CodeHelpID = configuration.Application.CodeHelpID;
+                synConfig.IsDebugMode = configuration.Application.IsDebugMode || synConfig.IsDebugMode;
+                synConfig.IsBundleLoad = configuration.Application.IsBundleLoad || synConfig.IsBundleLoad;
             }
         }
 
@@ -824,8 +824,7 @@
         }
 
         if (bindingAction != 'Replace') {
-            var synBundleLoad = toBoolean(urlOptions.bundle);
-            if (window.synConfigName == 'syn.config.json' && synBundleLoad == false) {
+            if (toBoolean(synConfig.IsBundleLoad) == false) {
                 var definedResource = synLoader.definedResources();
                 var cssList = definedResource.map(function (item) { return item.css });
                 var jsList = definedResource.map(function (item) { return item.js });
