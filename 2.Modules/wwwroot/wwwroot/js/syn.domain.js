@@ -2444,6 +2444,10 @@ function domainLibraryLoad() {
         syn.$l.addEvent(document, 'selectstart', (evt) => { if (evt.preventDefault) { evt.preventDefault(); } if (evt.stopPropagation) { evt.stopPropagation(); } return false; });
         syn.$l.addEvent(document, 'contextmenu', (evt) => { if (evt.preventDefault) { evt.preventDefault(); } if (evt.stopPropagation) { evt.stopPropagation(); } return false; });
     }
+    else {
+        syn.$w.removeStorage('synConfig');
+    }
+
     syn.$l.addEvent(document, 'keypress', (evt) => {
         var el = (evt && evt.target || evt.srcElement);
         if (el && el.tagName != 'TEXTAREA' && evt.which == '13') {
