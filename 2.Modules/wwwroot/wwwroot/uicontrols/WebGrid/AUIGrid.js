@@ -3126,9 +3126,9 @@
                         }
                     }
                 }
-
-                AUIGrid.setGridData(gridID, value);
             }
+
+            AUIGrid.setGridData(gridID, value);
         },
 
         clear(elID, isControlLoad) {
