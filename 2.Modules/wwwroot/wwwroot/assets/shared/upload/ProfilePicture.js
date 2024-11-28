@@ -31,7 +31,7 @@ let $ProfilePicture = {
             }
 
             if ($string.isNullOrEmpty(syn.uicontrols.$fileclient.applicationID) == true) {
-                syn.$l.eventLog('$fileclient.controlLoad', '파일 컨트롤 초기화 오류, ApplicationID 정보 확인 필요', 'Error');
+                syn.$l.eventLog('$fileclient.hook.controlLoad', '파일 컨트롤 초기화 오류, ApplicationID 정보 확인 필요', 'Error');
                 return;
             }
 
@@ -64,12 +64,6 @@ let $ProfilePicture = {
 
     event: {
         btnUpload_click() {
-            var profileFile = syn.$l.querySelector('[name=files]').value.trim();
-            if (profileFile == '') {
-                syn.$w.alert('업로드 할 파일을 선택하세요');
-                return;
-            }
-
             syn.uicontrols.$fileclient.doUpload($this.prop.managerID, $this.prop.fileUploadOptions, '$this.method.doUploadCallback');
         },
 
@@ -151,23 +145,28 @@ let $ProfilePicture = {
             syn.uicontrols.$fileclient.setDependencyID($this.prop.managerID, $this.prop.uploadDependencyID);
 
             syn.uicontrols.$fileclient.getItems($this.prop.managerID, $this.prop.uploadDependencyID, function (repositoryItems) {
-                $this.prop.uploadExtensions = uploadSetting.uploadExtensions;
-                $this.prop.uploadCount = uploadSetting.uploadCount;
+                if ($object.isArray(repositoryItems) == true) {
+                    $this.prop.uploadExtensions = uploadSetting.uploadExtensions;
+                    $this.prop.uploadCount = uploadSetting.uploadCount;
 
-                // Repository에 등록된 uploadCount와 업로드된 아이템의 갯수를 비교하여 FileUpload UI 항목를 화면에 추가합니다.
-                for (var i = 0; i < $this.prop.uploadCount - repositoryItems.length; i++) {
-                    syn.uicontrols.$fileclient.addFileUI($this.prop.managerID, uploadSetting.accept);
+                    // Repository에 등록된 uploadCount와 업로드된 아이템의 갯수를 비교하여 FileUpload UI 항목를 화면에 추가합니다.
+                    for (var i = 0; i < $this.prop.uploadCount - repositoryItems.length; i++) {
+                        syn.uicontrols.$fileclient.addFileUI($this.prop.managerID, uploadSetting.accept);
+                    }
+
+                    // 업로드된 아이템의 갯수만큼 FileDownload UI 항목를 화면에 추가합니다.
+                    if (repositoryItems.length > 0) {
+                        var repositoryItem = repositoryItems[0];
+                        syn.$l.get('imgProfilePicture').src = repositoryItem.AbsolutePath + (repositoryItem.AbsolutePath.indexOf('?') == -1 ? '?' : '&') + 'ext=' + repositoryItem.Extension;
+                        syn.$l.get('imgProfilePicture').item = repositoryItem;
+
+                        syn.$m.removeClass(syn.$l.get('btnUploadFileDelete'), 'hidden');
+                        syn.$m.removeClass(syn.$l.get('btnUploadFileDownload'), 'hidden');
+                        syn.$m.addClass(syn.$l.get('btnUpload'), 'hidden');
+                    }
                 }
-
-                // 업로드된 아이템의 갯수만큼 FileDownload UI 항목를 화면에 추가합니다.
-                if (repositoryItems.length > 0) {
-                    var repositoryItem = repositoryItems[0];
-                    syn.$l.get('imgProfilePicture').src = repositoryItem.AbsolutePath + (repositoryItem.AbsolutePath.indexOf('?') == -1 ? '?' : '&') + 'ext=' + repositoryItem.Extension;
-                    syn.$l.get('imgProfilePicture').item = repositoryItem;
-
-                    syn.$m.removeClass(syn.$l.get('btnUploadFileDelete'), 'hidden');
-                    syn.$m.removeClass(syn.$l.get('btnUploadFileDownload'), 'hidden');
-                    syn.$m.addClass(syn.$l.get('btnUpload'), 'hidden');
+                else {
+                    syn.$l.eventLog('$fileclient.method.initFileUploadUI', '파일 컨트롤 초기화 오류, ApplicationID 정보 확인 필요', 'Error');
                 }
             });
         },
@@ -187,7 +186,7 @@ let $ProfilePicture = {
 
             if (el.value == '') {
                 var alertOptions = $object.clone(syn.$w.alertOptions);
-                alertOptions.stack = '"{0}" 이미지 파일을 선택하세요'.format($this.prop.uploadExtensions);
+                alertOptions.stack = '"{0}" 이미지 파일을 선택 하세요'.format($this.prop.uploadExtensions);
                 syn.$w.alert('선택할 수 없는 파일입니다', '이미지 업로드', alertOptions);
                 return;
             }

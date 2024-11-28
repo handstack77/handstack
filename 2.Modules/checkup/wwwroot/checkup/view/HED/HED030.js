@@ -225,7 +225,7 @@ let $HED030 = {
                 syn.$w.transactionAction('LF03');
             }
             else {
-                syn.$w.alert('관리 대상 서버를 선택하세요');
+                syn.$w.alert('관리 대상 서버를 선택 하세요');
             }
         },
 
@@ -240,7 +240,7 @@ let $HED030 = {
                 });
             }
             else {
-                syn.$w.alert('관리 대상 서버를 선택하세요');
+                syn.$w.alert('관리 대상 서버를 선택 하세요');
             }
         },
 

@@ -1645,7 +1645,7 @@ namespace repository.Controllers
                     stringBuilder.AppendLine("var repositoryItems = [];");
 
                     // stringBuilder.AppendLine("parent." + callback + "(repositoryID, repositoryItems);");
-                    stringBuilder.AppendLine("parent.postMessage({action: 'UploadFiles', elementID: elementID, callback: callback, repositoryID: repositoryID, repositoryItems: repositoryItems}, '*');");
+                    stringBuilder.AppendLine("parent.postMessage({action: 'upload-files', elementID: elementID, callback: callback, repositoryID: repositoryID, repositoryItems: repositoryItems}, '*');");
                     stringBuilder.AppendLine(scriptEnd);
 
                     return Content(stringBuilder.ToString(), "text/html", Encoding.UTF8);
@@ -1718,7 +1718,7 @@ namespace repository.Controllers
                         }
 
                         // stringBuilder.AppendLine("parent." + callback + "(repositoryID, repositoryItems);");
-                        stringBuilder.AppendLine("parent.postMessage({action: 'UploadFiles', elementID: elementID, callback: callback, repositoryID: repositoryID, repositoryItems: repositoryItems}, '*');");
+                        stringBuilder.AppendLine("parent.postMessage({action: 'upload-files', elementID: elementID, callback: callback, repositoryID: repositoryID, repositoryItems: repositoryItems}, '*');");
                         stringBuilder.AppendLine(scriptEnd);
 
                         return Content(stringBuilder.ToString(), "text/html", Encoding.UTF8);

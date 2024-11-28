@@ -224,7 +224,7 @@ let $main = {
                     var alertOptions = $object.clone(syn.$w.alertOptions);
                     alertOptions.icon = 'warning';
                     alertOptions.buttonType = '1';
-                    syn.$w.alert('프로젝트 정보를 확인 해야합니다', '프로젝트 닫기', alertOptions, function (result) {
+                    syn.$w.alert('프로젝트 정보를 확인 해야 합니다', '프로젝트 닫기', alertOptions, function (result) {
                         location.href = 'checkin.html';
                     });
                     return;

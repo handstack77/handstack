@@ -30,7 +30,7 @@ let $ImageLinkFiles = {
             }
 
             if ($string.isNullOrEmpty(syn.uicontrols.$fileclient.applicationID) == true) {
-                syn.$l.eventLog('$fileclient.controlLoad', '파일 컨트롤 초기화 오류, ApplicationID 정보 확인 필요', 'Error');
+                syn.$l.eventLog('$fileclient.hook.controlLoad', '파일 컨트롤 초기화 오류, ApplicationID 정보 확인 필요', 'Error');
                 return;
             }
 
@@ -130,42 +130,47 @@ let $ImageLinkFiles = {
             syn.uicontrols.$fileclient.setDependencyID($this.prop.managerID, $this.prop.uploadDependencyID);
 
             syn.uicontrols.$fileclient.getItems($this.prop.managerID, $this.prop.uploadDependencyID, function (repositoryItems) {
-                $this.prop.uploadExtensions = uploadSetting.uploadExtensions;
-                $this.prop.uploadCount = uploadSetting.uploadCount;
+                if ($object.isArray(repositoryItems) == true) {
+                    $this.prop.uploadExtensions = uploadSetting.uploadExtensions;
+                    $this.prop.uploadCount = uploadSetting.uploadCount;
 
-                syn.$l.get('spnMaxUploadCount').textContent = $this.prop.uploadCount.toString();
-                syn.$l.get('spnRemainUploadCount').textContent = ($this.prop.uploadCount - repositoryItems.length).toString();
+                    syn.$l.get('spnMaxUploadCount').textContent = $this.prop.uploadCount.toString();
+                    syn.$l.get('spnRemainUploadCount').textContent = ($this.prop.uploadCount - repositoryItems.length).toString();
 
-                // 업로드된 아이템의 갯수만큼 FileDownload UI 항목를 화면에 추가합니다.
-                if (repositoryItems.length > 0) {
-                    for (var i = 0; i < repositoryItems.length; i++) {
-                        repositoryItem = repositoryItems[i];
+                    // 업로드된 아이템의 갯수만큼 FileDownload UI 항목를 화면에 추가합니다.
+                    if (repositoryItems.length > 0) {
+                        for (var i = 0; i < repositoryItems.length; i++) {
+                            repositoryItem = repositoryItems[i];
 
-                        var li = syn.$m.append(syn.$l.get('divFileInfos'), 'li', repositoryItem.ItemID);
-                        var image = syn.$m.append(li, 'img', repositoryItem.ItemID + '_image');
-                        image.src = repositoryItem.AbsolutePath + (repositoryItem.AbsolutePath.indexOf('?') == -1 ? '?' : '&') + 'ext=' + repositoryItem.Extension;
-                        image.style.width = '64px';
-                        image.style.height = '64px';
+                            var li = syn.$m.append(syn.$l.get('divFileInfos'), 'li', repositoryItem.ItemID);
+                            var image = syn.$m.append(li, 'img', repositoryItem.ItemID + '_image');
+                            image.src = repositoryItem.AbsolutePath + (repositoryItem.AbsolutePath.indexOf('?') == -1 ? '?' : '&') + 'ext=' + repositoryItem.Extension;
+                            image.style.width = '64px';
+                            image.style.height = '64px';
 
-                        var link = syn.$m.append(li, 'a', repositoryItem.ItemID + '_link');
-                        link.href = 'javascript: void(0)';
-                        link.downloadPath = repositoryItem.AbsolutePath + (repositoryItem.AbsolutePath.indexOf('?') == -1 ? '?' : '&') + 'ext=' + repositoryItem.Extension;
-                        link.download = repositoryItem.FileName;
-                        syn.$l.addEvent(link, 'click', function () {
-                            var downloadPath = this.downloadPath;
-                            var download = this.download;
-                            syn.$l.blobUrlToData(downloadPath, function (blob) {
-                                syn.$l.blobToDownload(blob, download);
+                            var link = syn.$m.append(li, 'a', repositoryItem.ItemID + '_link');
+                            link.href = 'javascript: void(0)';
+                            link.downloadPath = repositoryItem.AbsolutePath + (repositoryItem.AbsolutePath.indexOf('?') == -1 ? '?' : '&') + 'ext=' + repositoryItem.Extension;
+                            link.download = repositoryItem.FileName;
+                            syn.$l.addEvent(link, 'click', function () {
+                                var downloadPath = this.downloadPath;
+                                var download = this.download;
+                                syn.$l.blobUrlToBlob(downloadPath, function (blob) {
+                                    syn.$l.blobToDownload(blob, download);
+                                });
+                                return false;
                             });
-                            return false;
-                        });
-                        link.textContent = repositoryItem.FileName;
+                            link.textContent = repositoryItem.FileName;
 
-                        var span = syn.$m.append(li, 'span', repositoryItem.ItemID + '_span');
-                        syn.$l.addEvent(span, 'click', $this.event.btnAttachFileDelete_click);
-                        span.innerText = '삭제';
-                        span.item = repositoryItem;
+                            var span = syn.$m.append(li, 'span', repositoryItem.ItemID + '_span');
+                            syn.$l.addEvent(span, 'click', $this.event.btnAttachFileDelete_click);
+                            span.innerText = '삭제';
+                            span.item = repositoryItem;
+                        }
                     }
+                }
+                else {
+                    syn.$l.eventLog('$fileclient.method.initFileUploadUI', '파일 컨트롤 초기화 오류, ApplicationID 정보 확인 필요', 'Error');
                 }
             });
         },

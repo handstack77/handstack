@@ -578,7 +578,7 @@
                 "Anchor...": "앵커...",
                 "Name": "이름",
                 "Id": "아이디",
-                "Id should start with a letter, followed only by letters, numbers, dashes, dots, colons or underscores.": "아이디는 문자, 숫자, 대시, 점, 콜론 또는 밑줄로 시작해야합니다.",
+                "Id should start with a letter, followed only by letters, numbers, dashes, dots, colons or underscores.": "아이디는 문자, 숫자, 대시, 점, 콜론 또는 밑줄로 시작해야 합니다.",
                 "You have unsaved changes are you sure you want to navigate away?": "저장하지 않은 정보가 있습니다. 이 페이지를 벗어나시겠습니까?",
                 "Restore last draft": "마지막 초안 복원",
                 "Special character...": "특수 문자...",

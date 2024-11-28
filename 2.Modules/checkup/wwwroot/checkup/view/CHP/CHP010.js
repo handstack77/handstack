@@ -182,7 +182,7 @@ let $CHP010 = {
 
         btnAddCodeDetail_click() {
             if ($string.isNullOrEmpty($this.prop.focusGroupCode) == true) {
-                syn.$w.alert('기초코드를 선택하세요');
+                syn.$w.alert('기초코드를 선택 하세요');
             }
             else {
                 syn.uicontrols.$grid.insertRow('grdCodeDetail', {

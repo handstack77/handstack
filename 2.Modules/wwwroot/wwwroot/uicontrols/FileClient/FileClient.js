@@ -236,10 +236,6 @@
                 var repositoryData = e.data;
                 var setting = $fileclient.getFileSetting(repositoryData.elementID);
                 if (setting && ($fileclient.getRepositoryUrl()).indexOf(e.origin) > -1 && repositoryData && repositoryData.action == 'upload-files') {
-                    if (window.$progressBar) {
-                        $progressBar.close();
-                    }
-
                     if (repositoryData.callback) {
                         var mod = window[syn.$w.pageScript];
                         if (mod) {
@@ -279,6 +275,9 @@
                         $.modal.close();
                     }
                 }
+
+                e.stopPropagation();
+                return false;
             });
         },
 
@@ -598,7 +597,7 @@
                         }
 
                         if (isContinue == false) {
-                            syn.$w.alert('업로드할 파일을 선택해야합니다');
+                            syn.$w.alert('업로드할 파일을 선택 해야 합니다');
                             return;
                         }
                     }
@@ -645,10 +644,10 @@
                 }
                 else {
                     if ($object.isNullOrUndefined(uploadItem) == true) {
-                        syn.$w.alert('이전에 업로드 한 파일을 삭제해야합니다');
+                        syn.$w.alert('업로드할 파일을 선택 해야 합니다');
                     }
                     else {
-                        syn.$w.alert(manager.datas.uploadExtensions + '확장자를 가진 파일을 업로드 해야합니다');
+                        syn.$w.alert(manager.datas.uploadExtensions + '확장자를 가진 파일을 업로드 해야 합니다');
                     }
                 }
             }
@@ -1222,7 +1221,7 @@
             }, options);
 
             if ($string.isNullOrEmpty(options.repositoryID) == false && $string.isNullOrEmpty(options.dependencyID) == false && $string.isNullOrEmpty(options.blobUri) == false) {
-                syn.$l.blobUrlToData(options.blobUri, function (blobInfo) {
+                syn.$l.blobUrlToBlob(options.blobUri, function (blobInfo) {
                     options.blobInfo = blobInfo;
                     options.mimeType = options.blobInfo.type;
                     $fileclient.uploadBlob(options, callback);
@@ -1243,7 +1242,6 @@
             uploadOptions = syn.$w.argumentsExtend(dialogOptions, uploadOptions);
             dialogOptions.minWidth = uploadOptions.minWidth;
             dialogOptions.minHeight = uploadOptions.minHeight;
-
             dialogOptions.caption = uploadOptions.dialogTitle;
 
             if (uploadOptions.repositoryID == '' || uploadOptions.uploadUrl == '') {

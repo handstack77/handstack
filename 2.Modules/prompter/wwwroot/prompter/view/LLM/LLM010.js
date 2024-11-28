@@ -325,7 +325,7 @@ ModifiedAt,DateTime,0,8`
 
         btnSearchPrompt_click() {
             if ($this.prop.focusFeature == null) {
-                syn.$w.alert('프롬프트 거래 ID를 선택하세요.');
+                syn.$w.alert('프롬프트 거래 ID를 선택 하세요.');
                 return;
             }
 

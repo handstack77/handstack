@@ -54,10 +54,10 @@ uploadDataUri: function (options, callback) - DataUri 파일 업로드
         <div>
             <hr />
             <div>
-                <div>어플리케이션 프로필 이미지 파일 업로드 예시</div>
+                <div>프로필 이미지 파일 업로드 예시</div>
                 txtProfile1DependencyID - <input type="text" id="txtProfile1DependencyID" value="Profile1DependencyID" />
                 <syn_fileclient id="txtProfile1FileID" syn-datafield="Profile1FileID" syn-options="{
-				repositoryID: 'LFSLP01'
+				repositoryID: 'TSTLP01'
 			}"></syn_fileclient>
             </div>
             <hr />
@@ -77,33 +77,10 @@ uploadDataUri: function (options, callback) - DataUri 파일 업로드
         <div>
             <hr />
             <div>
-                <div>사용자 프로필 이미지 파일 업로드 예시</div>
-                txtProfile2DependencyID - <input type="text" id="txtProfile2DependencyID" value="Profile2DependencyID" />
-                <syn_fileclient id="txtProfile2FileID" syn-datafield="Profile2FileID" syn-options="{
-				repositoryID: 'LFSLP02'
-			}"></syn_fileclient>
-            </div>
-            <hr />
-            <div>
-                <div>기능</div>
-                <input type="button" id="btnProfile2FileGetValue" value="Profile2FileGetValue" syn-events="['click']" />
-                <input type="button" id="btnProfile2FileSetValue" value="Profile2FileSetValue" syn-events="['click']" />
-                <input type="button" id="btnProfile2FileClear" value="Profile2FileClear" syn-events="['click']" />
-                <input type="button" id="btnProfile2FileUpload" value="Profile2FileUpload" syn-events="['click']" />
-                <input type="button" id="btnProfile2FileDownload" value="Profile2FileDownload" syn-events="['click']" />
-                <input type="button" id="btnProfile2GetItem" value="Profile2GetItem" syn-events="['click']" />
-                <input type="button" id="btnProfile2DeleteItem" value="Profile2DeleteItem" syn-events="['click']" />
-                <input type="button" id="btnProfile2UpdateDependencyID" value="Profile2UpdateDependencyID" syn-events="['click']" />
-                <input type="button" id="btnProfile2UpdateFileName" value="Profile2UpdateFileName" syn-events="['click']" />
-            </div>
-        </div>
-        <div>
-            <hr />
-            <div>
                 <div>단일 파일 업로드 예시</div>
                 txtSingleDependencyID - <input type="text" id="txtSingleDependencyID" value="SingleDependencyID" />
                 <syn_fileclient id="txtSingleFileID" syn-datafield="SingleFileID" syn-options="{
-				repositoryID: 'LFSLS01'
+				repositoryID: 'TSTLS01'
 			}"></syn_fileclient>
             </div>
             <hr />
@@ -126,7 +103,7 @@ uploadDataUri: function (options, callback) - DataUri 파일 업로드
                 txtFileDependencyID - <input type="text" id="txtMultiDependencyID" value="MultiDependencyID" />
                 txtFileItemID - <input type="text" id="txtMultiItemID" value="" />
                 <syn_fileclient id="txtMultiFileID" syn-datafield="MultiFileID" syn-options="{
-				repositoryID: 'LFSLM01'
+				repositoryID: 'TSTLM01'
 			}"></syn_fileclient>
             </div>
             <hr />
@@ -151,7 +128,7 @@ uploadDataUri: function (options, callback) - DataUri 파일 업로드
                 txtFileDependencyID - <input type="text" id="txtImageLinkDependencyID" value="ImageLinkDependencyID" />
                 txtFileItemID - <input type="text" id="txtImageLinkItemID" value="" />
                 <syn_fileclient id="txtImageLinkFileID" syn-datafield="ImageLinkFileID" syn-options="{
-				repositoryID: 'LFSLE01'
+				repositoryID: 'TSTLE01'
 			}"></syn_fileclient>
             </div>
             <hr />
@@ -166,7 +143,7 @@ uploadDataUri: function (options, callback) - DataUri 파일 업로드
             </div>
             <div>
                 <syn_htmleditor id="txtHtmlEditor" syn-datafield="HtmlEditor" style="width:100%; height: 320px;" syn-options="{
-					repositoryID: 'LFSLE01',
+					repositoryID: 'TSTLE01',
 					dependencyID: 'ImageLinkDependencyID'
 				}" />
             </div>

@@ -289,7 +289,7 @@ let $HDM010 = {
 
         btnAddMetaField_click() {
             if ($string.isNullOrEmpty($this.prop.focusMetaEntityNo) == true) {
-                syn.$w.alert('엔티티를 선택하세요');
+                syn.$w.alert('엔티티를 선택 하세요');
             }
             else {
                 syn.uicontrols.$grid.insertRow('grdMetaField', {

@@ -318,6 +318,10 @@ namespace HandStack.Data.Client
                 {
                     results = reader.ToObjectList<T>();
                 }
+                else
+                {
+                    results = new List<T>();
+                }
             }
 
             return results;

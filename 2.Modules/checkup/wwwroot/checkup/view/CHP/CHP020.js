@@ -185,7 +185,7 @@ let $CHP020 = {
 
         btnAddCodeHelpScheme_click() {
             if ($string.isNullOrEmpty($this.prop.focusCodeHelpID) == true) {
-                syn.$w.alert('코드도움를 선택하세요');
+                syn.$w.alert('코드도움를 선택 하세요');
             }
             else {
                 syn.uicontrols.$grid.insertRow('grdCodeHelpScheme', {

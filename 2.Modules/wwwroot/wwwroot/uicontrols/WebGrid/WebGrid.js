@@ -1681,7 +1681,7 @@
                     columnInfo.correctFormat = true;
                     columnInfo.datePickerConfig = {
                         format: columnInfo.dateFormat,
-                        ariaLabel: '날짜를 선택하세요',
+                        ariaLabel: '날짜를 선택 하세요',
                         i18n: {
                             previousMonth: '이전 달',
                             nextMonth: '다음 달',

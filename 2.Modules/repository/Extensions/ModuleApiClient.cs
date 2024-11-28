@@ -53,7 +53,7 @@ namespace repository.Extensions
 
                 if (transactionResult.ContainsKey("HasException") == true)
                 {
-                    logger.Error("[{LogCategory}] " + $"ErrorMessage: {transactionResult?["HasException"]?["ErrorMessage"]?.ToString()}", "FileManagerController/GetRepositorys");
+                    logger.Error("[{LogCategory}] " + $"ErrorMessage: {transactionResult?["HasException"]?["ErrorMessage"]?.ToString()}", "ModuleApiClient/GetRepositorys");
                     return result;
                 }
                 else
@@ -204,7 +204,7 @@ namespace repository.Extensions
                     }
                     else
                     {
-                        logger.Error("[{LogCategory}] " + $"transactionInfo: {transactionInfo} 확인 필요", "FileManagerController/GetRepositoryItem");
+                        logger.Error("[{LogCategory}] " + $"transactionInfo: {transactionInfo} 확인 필요", "ModuleApiClient/GetRepositoryItem");
                         return result;
                     }
                     transactionObject.ScreenID = transactionObject.TransactionID;
@@ -219,7 +219,7 @@ namespace repository.Extensions
                     var transactionResult = await transactionClient.TransactionDirect(ModuleConfiguration.BusinessServerUrl, transactionObject);
                     if (transactionResult.ContainsKey("HasException") == true)
                     {
-                        logger.Error("[{LogCategory}] " + $"ErrorMessage: {transactionResult?["HasException"]?["ErrorMessage"]?.ToString()}", "FileManagerController/GetRepositoryItem");
+                        logger.Error("[{LogCategory}] " + $"ErrorMessage: {transactionResult?["HasException"]?["ErrorMessage"]?.ToString()}", "ModuleApiClient/GetRepositoryItem");
                         return result;
                     }
                     else
@@ -267,7 +267,7 @@ namespace repository.Extensions
                     }
                     else
                     {
-                        logger.Error("[{LogCategory}] " + $"transactionInfo: {transactionInfo} 확인 필요", "FileManagerController/GetRepositoryItems");
+                        logger.Error("[{LogCategory}] " + $"transactionInfo: {transactionInfo} 확인 필요", "ModuleApiClient/GetRepositoryItems");
                         return result;
                     }
                     transactionObject.ScreenID = transactionObject.TransactionID;
@@ -282,7 +282,7 @@ namespace repository.Extensions
                     var transactionResult = await transactionClient.TransactionDirect(ModuleConfiguration.BusinessServerUrl, transactionObject);
                     if (transactionResult.ContainsKey("HasException") == true)
                     {
-                        logger.Error("[{LogCategory}] " + $"ErrorMessage: {transactionResult?["HasException"]?["ErrorMessage"]?.ToString()}", "FileManagerController/GetRepositoryItems");
+                        logger.Error("[{LogCategory}] " + $"ErrorMessage: {transactionResult?["HasException"]?["ErrorMessage"]?.ToString()}", "ModuleApiClient/GetRepositoryItems");
                         return result;
                     }
                     else
@@ -327,7 +327,7 @@ namespace repository.Extensions
                     }
                     else
                     {
-                        logger.Error("[{LogCategory}] " + $"transactionInfo: {transactionInfo} 확인 필요", "FileManagerController/DeleteRepositoryItem");
+                        logger.Error("[{LogCategory}] " + $"transactionInfo: {transactionInfo} 확인 필요", "ModuleApiClient/DeleteRepositoryItem");
                         return result;
                     }
                     transactionObject.ScreenID = transactionObject.TransactionID;
@@ -342,7 +342,7 @@ namespace repository.Extensions
                     var transactionResult = await transactionClient.TransactionDirect(ModuleConfiguration.BusinessServerUrl, transactionObject);
                     if (transactionResult.ContainsKey("HasException") == true)
                     {
-                        logger.Error("[{LogCategory}] " + $"ErrorMessage: {transactionResult?["HasException"]?["ErrorMessage"]?.ToString()}", "FileManagerController/DeleteRepositoryItem");
+                        logger.Error("[{LogCategory}] " + $"ErrorMessage: {transactionResult?["HasException"]?["ErrorMessage"]?.ToString()}", "ModuleApiClient/DeleteRepositoryItem");
                         return result;
                     }
                     else
@@ -387,7 +387,7 @@ namespace repository.Extensions
                     }
                     else
                     {
-                        logger.Error("[{LogCategory}] " + $"transactionInfo: {transactionInfo} 확인 필요", "FileManagerController/GetRepUpsertRepositoryItemositoryItems");
+                        logger.Error("[{LogCategory}] " + $"transactionInfo: {transactionInfo} 확인 필요", "ModuleApiClient/GetRepUpsertRepositoryItemositoryItems");
                         return result;
                     }
                     transactionObject.ScreenID = transactionObject.TransactionID;
@@ -421,7 +421,7 @@ namespace repository.Extensions
 
                     if (transactionResult.ContainsKey("HasException") == true)
                     {
-                        logger.Error("[{LogCategory}] " + $"ErrorMessage: {transactionResult?["HasException"]?["ErrorMessage"]?.ToString()}", "FileManagerController/UpsertRepositoryItem");
+                        logger.Error("[{LogCategory}] " + $"ErrorMessage: {transactionResult?["HasException"]?["ErrorMessage"]?.ToString()}", "ModuleApiClient/UpsertRepositoryItem");
                         return result;
                     }
                     else
@@ -466,7 +466,7 @@ namespace repository.Extensions
                     }
                     else
                     {
-                        logger.Error("[{LogCategory}] " + $"transactionInfo: {transactionInfo} 확인 필요", "FileManagerController/UpdateDependencyID");
+                        logger.Error("[{LogCategory}] " + $"transactionInfo: {transactionInfo} 확인 필요", "ModuleApiClient/UpdateDependencyID");
                         return result;
                     }
                     transactionObject.ScreenID = transactionObject.TransactionID;
@@ -483,7 +483,7 @@ namespace repository.Extensions
                     var transactionResult = await transactionClient.TransactionDirect(ModuleConfiguration.BusinessServerUrl, transactionObject);
                     if (transactionResult.ContainsKey("HasException") == true)
                     {
-                        logger.Error("[{LogCategory}] " + $"ErrorMessage: {transactionResult?["HasException"]?["ErrorMessage"]?.ToString()}", "FileManagerController/UpdateDependencyID");
+                        logger.Error("[{LogCategory}] " + $"ErrorMessage: {transactionResult?["HasException"]?["ErrorMessage"]?.ToString()}", "ModuleApiClient/UpdateDependencyID");
                         return result;
                     }
                     else
@@ -528,7 +528,7 @@ namespace repository.Extensions
                     }
                     else
                     {
-                        logger.Error("[{LogCategory}] " + $"transactionInfo: {transactionInfo} 확인 필요", "FileManagerController/UpdateFileName");
+                        logger.Error("[{LogCategory}] " + $"transactionInfo: {transactionInfo} 확인 필요", "ModuleApiClient/UpdateFileName");
                         return result;
                     }
                     transactionObject.ScreenID = transactionObject.TransactionID;
@@ -544,7 +544,7 @@ namespace repository.Extensions
                     var transactionResult = await transactionClient.TransactionDirect(ModuleConfiguration.BusinessServerUrl, transactionObject);
                     if (transactionResult.ContainsKey("HasException") == true)
                     {
-                        logger.Error("[{LogCategory}] " + $"ErrorMessage: {transactionResult?["HasException"]?["ErrorMessage"]?.ToString()}", "FileManagerController/UpdateFileName");
+                        logger.Error("[{LogCategory}] " + $"ErrorMessage: {transactionResult?["HasException"]?["ErrorMessage"]?.ToString()}", "ModuleApiClient/UpdateFileName");
                         return result;
                     }
                     else

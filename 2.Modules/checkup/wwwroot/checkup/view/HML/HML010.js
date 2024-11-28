@@ -55,7 +55,7 @@ let $HML010 = {
                 }
 
                 if (syn.uicontrols.$grid.checkEmptyValueCols(gridID, ['RoleDevelop', 'RoleBusiness', 'RoleOperation', 'RoleManaged'], '0') == true) {
-                    syn.$w.alert('개발, 업무, 운영, 관리 역할중 하나를 선택하세요');
+                    syn.$w.alert('개발, 업무, 운영, 관리 역할중 하나를 선택 하세요');
                     return false;
                 }
 

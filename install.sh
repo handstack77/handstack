@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if ! command -v dotnet 2> ~/null; then
-    echo ".NET Core 8.0를 설치 해야합니다."
+    echo ".NET Core 8.0를 설치 해야 합니다."
     if [[ "$OSTYPE" == "darwin"* ]]; then
         echo "참고: https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#homebrew-를-이용한-net-core-설치"
     else
@@ -13,7 +13,7 @@ fi
 dotnet_version=$(dotnet --version | grep -E "^8\.")
 if [ -z "$dotnet_version" ]; then
     dotnet --version
-    echo ".NET Core 8.0 버전이 필요합니다. 기존 dotnet 버전을 업데이트 해야합니다."
+    echo ".NET Core 8.0 버전이 필요합니다. 기존 dotnet 버전을 업데이트 해야 합니다."
     if [[ "$OSTYPE" == "darwin"* ]]; then
         echo "참고: https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#homebrew-를-이용한-net-core-설치"
     else
@@ -23,7 +23,7 @@ if [ -z "$dotnet_version" ]; then
 fi
 
 if ! command -v node 2> ~/null; then
-    echo "Node.js v20.12.2 LTS 를 설치 해야합니다."
+    echo "Node.js v20.12.2 LTS 를 설치 해야 합니다."
     if [[ "$OSTYPE" == "darwin"* ]]; then
         echo "참고: https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#homebrew-를-이용한-net-core-설치"
     else
@@ -34,13 +34,13 @@ fi
 
 node_version=$(node --version | grep -E "^v20\.")
 if [ -z "$node_version" ]; then
-    echo "Node.js v20.12.2 LTS 가 필요합니다. 기존 node 버전을 업데이트 해야합니다."
+    echo "Node.js v20.12.2 LTS 가 필요합니다. 기존 node 버전을 업데이트 해야 합니다."
     echo "참고: https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#gulp-설치하기"
     exit
 fi
 
 if ! command -v gulp 2> ~/null; then
-    echo "Node.js 기반 gulp CLI 도구를 설치 해야합니다."
+    echo "Node.js 기반 gulp CLI 도구를 설치 해야 합니다."
     if [[ "$OSTYPE" == "darwin"* ]]; then
         echo "참고: https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#homebrew-를-이용한-curl-설치"
     else
@@ -50,7 +50,7 @@ if ! command -v gulp 2> ~/null; then
 fi
 
 if ! command -v curl 2> ~/null; then
-    echo "curl CLI 를 설치 해야합니다."
+    echo "curl CLI 를 설치 해야 합니다."
     if [[ "$OSTYPE" == "darwin"* ]]; then
         echo "참고: https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#homebrew-를-이용한-curl-설치"
     else

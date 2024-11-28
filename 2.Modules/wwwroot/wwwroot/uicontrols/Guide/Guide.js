@@ -135,7 +135,7 @@
                     helpType: 'P',
                     selector: '#txtConnectionString',
                     subject: '중요',
-                    sentence: '개발 및 테스트 목적의 데이터베이스 연결문자열을 입력해야합니다. 데이터베이스에 따라 연결문자열에 대한 참고 내용은 https://www.connectionstrings.com 를 확인하세요.',
+                    sentence: '개발 및 테스트 목적의 데이터베이스 연결문자열을 입력해야 합니다. 데이터베이스에 따라 연결문자열에 대한 참고 내용은 https://www.connectionstrings.com 를 확인하세요.',
                 }]
                 */
                 var helpIntros = setting.items.filter(function (item) { return item.helpType == 'I' });
@@ -319,7 +319,7 @@
                     else {
                         var helpWindow = window.open('', 'help');
                         if ($object.isNullOrUndefined(helpWindow) == true) {
-                            syn.$w.alert('"{0}" 내용을 확인하기 위해 팝업을 허용해야합니다'.format(help.subject));
+                            syn.$w.alert('"{0}" 내용을 확인하기 위해 팝업을 허용해야 합니다'.format(help.subject));
                         }
                         else {
                             var html = `
