@@ -897,7 +897,9 @@
                     }, syn.$w.pageReadyTimeout);
                 }
                 else {
-                    await pageFormInit();
+                    setTimeout(async () => {
+                        await pageFormInit();
+                    }, 25);
                 }
             }
             else {

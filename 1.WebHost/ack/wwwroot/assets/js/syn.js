@@ -1,4 +1,4 @@
-/*!
+﻿/*!
 HandStack Javascript Library v1.0.0
 https://syn.handshake.kr
 
@@ -7030,7 +7030,9 @@ globalRoot.syn = syn;
                     }, syn.$w.pageReadyTimeout);
                 }
                 else {
-                    await pageFormInit();
+                    setTimeout(async () => {
+                        await pageFormInit();
+                    }, 25);
                 }
             }
             else {
