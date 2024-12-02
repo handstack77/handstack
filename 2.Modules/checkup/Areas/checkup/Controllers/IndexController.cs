@@ -118,7 +118,6 @@ namespace checkup.Areas.checkup.Controllers
                 && string.IsNullOrEmpty(projectID) == false
                 && string.IsNullOrEmpty(transactionID) == false
                 && string.IsNullOrEmpty(serviceID) == false
-                && string.IsNullOrEmpty(screenID) == false
                 && string.IsNullOrEmpty(tokenID) == false
             )
             {
