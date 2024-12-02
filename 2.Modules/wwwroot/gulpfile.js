@@ -204,7 +204,7 @@ gulp.task('styles', async function () {
     return gulp.src([
         // syn.scripts.js
         'wwwroot/lib/tabler-core/dist/css/tabler.css',
-        'wwwroot/css/tabler-icons.css',
+        'wwwroot/lib/tabler-icons-webfont/dist/tabler-icons.css',
         'wwwroot/lib/handsontable/dist/handsontable.full.css',
         'wwwroot/lib/tail.select.js/css/default/tail.select-light.css',
         'wwwroot/lib/ispin/dist/ispin.css',

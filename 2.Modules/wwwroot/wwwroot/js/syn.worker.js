@@ -1,7 +1,7 @@
 ﻿const CACHE_NAME = 'handstack-v2';
 
 const URLS_CACHE_ONLY = [
-    '/css/tabler-icons.css',
+    '/lib/tabler-icons-webfont/dist/tabler-icons.css',
     '/font/tabler-icons.eot',
     '/font/tabler-icons.ttf',
     '/font/tabler-icons.woff',

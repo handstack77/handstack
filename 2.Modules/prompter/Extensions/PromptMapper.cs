@@ -265,10 +265,10 @@ namespace prompter.Extensions
                                             }
 
                                             PromptMappings.Add(mappingQueryID, promptMap);
-
-                                            result = promptMap;
                                         }
                                     }
+
+                                    result = PromptMappings.FirstOrDefault(item => item.Key == queryID).Value;
                                 }
                             }
                         }

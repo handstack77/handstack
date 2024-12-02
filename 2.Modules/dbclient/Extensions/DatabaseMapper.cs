@@ -309,10 +309,10 @@ namespace dbclient.Extensions
                                             }
 
                                             StatementMappings.Add(mappingQueryID, statementMap);
-
-                                            result = statementMap;
                                         }
                                     }
+
+                                    result = StatementMappings.FirstOrDefault(item => item.Key == queryID).Value;
                                 }
                             }
                         }
