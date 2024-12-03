@@ -842,6 +842,14 @@
 
                     var textbox2 = syn.$l.get(control.textbox2ID);
                     textbox2.value = $date.toString(endedAt, 'd');
+
+                    var mod = window[syn.$w.pageScript];
+                    var events = eval(textbox1.getAttribute('syn-events'));
+
+                    var confirmFunction = '{0}_onconfirm'.format(elID);
+                    if (events && events.includes('onconfirm') && mod && mod.event[confirmFunction]) {
+                        mod.event[confirmFunction](elID, textbox1.value, textbox2.value);
+                    }
                 }
 
                 $dateperiodpicker.hidePopup();
