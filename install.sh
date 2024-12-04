@@ -1,7 +1,8 @@
 #!/bin/bash
 
-if ! command -v dotnet 2> ~/null; then
-    echo ".NET Core 8.0를 설치 해야 합니다."
+dotnet --version > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+    echo ".NET Core 8.0 이상 버전을 설치 해야 합니다."
     if [[ "$OSTYPE" == "darwin"* ]]; then
         echo "참고: https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#homebrew-를-이용한-net-core-설치"
     else
@@ -10,10 +11,9 @@ if ! command -v dotnet 2> ~/null; then
     exit
 fi
 
-dotnet_version=$(dotnet --version | grep -E "^8\.")
-if [ -z "$dotnet_version" ]; then
-    dotnet --version
-    echo ".NET Core 8.0 버전이 필요합니다. 기존 dotnet 버전을 업데이트 해야 합니다."
+MAJOR_VERSION=$(dotnet --version | cut -d. -f1)
+if [ $MAJOR_VERSION -lt 8 ]; then
+    echo ".NET Core 8.0 이상 버전이 필요합니다. 기존 dotnet 버전을 업데이트 해야 합니다."
     if [[ "$OSTYPE" == "darwin"* ]]; then
         echo "참고: https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#homebrew-를-이용한-net-core-설치"
     else
