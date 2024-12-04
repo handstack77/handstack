@@ -55,7 +55,7 @@
             "MySqlConnectionString": "Server=127.0.0.1;Port=3306;Database=HandStack_Cache;Uid=handstack;Pwd=handstack~!@34;PersistSecurityInfo=True;SslMode=none;Charset=utf8;Allow User Variables=True;",
             "MySqlSchemaName": "HandStack_Cache",
             "MySqlTableName": "SessionData",
-            "SqlServerConnectionString": "Data Source=127.0.0.1;Initial Catalog=HandStack_Cache;User ID=handstack;Password=handstack~!@34;Connection Timeout=0;",
+            "SqlServerConnectionString": "Data Source=127.0.0.1;TrustServerCertificate=True;Initial Catalog=HandStack_Cache;User ID=handstack;Password=handstack~!@34;Connection Timeout=0;",
             "SqlServerSchemaName": "dbo",
             "SqlServerTableName": "SessionData"
         },

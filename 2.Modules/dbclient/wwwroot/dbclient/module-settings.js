@@ -49,7 +49,7 @@ let $module_settings = {
                         "ProjectID": "*",
                         "DataSourceID": "DB02",
                         "DataProvider": "SqlServer",
-                        "ConnectionString": "Data Source=localhost;Initial Catalog=master;User ID=sa;Password=Strong@Passw0rd;",
+                        "ConnectionString": "Data Source=localhost;TrustServerCertificate=True;Initial Catalog=master;User ID=sa;Password=Strong@Passw0rd;",
                         "IsEncryption": "N",
                         "Comment": "SqlServer 기본 데이터베이스"
                     },

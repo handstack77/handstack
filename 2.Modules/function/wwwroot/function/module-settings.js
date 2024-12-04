@@ -51,7 +51,7 @@ let $module_settings = {
                         "ProjectID": "*",
                         "DataSourceID": "FN02",
                         "DataProvider": "SqlServer",
-                        "ConnectionString": "Data Source=localhost;Initial Catalog=master;User ID=sa;Password=Strong@Passw0rd;",
+                        "ConnectionString": "Data Source=localhost;TrustServerCertificate=True;Initial Catalog=master;User ID=sa;Password=Strong@Passw0rd;",
                         "IsEncryption": "N",
                         "WorkingDirectoryPath": "../tmp/HDS/function/HDS_FN02",
                         "Comment": "SqlServer 기본 거래"
