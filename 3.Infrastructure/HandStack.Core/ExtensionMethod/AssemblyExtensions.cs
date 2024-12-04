@@ -65,7 +65,7 @@ namespace HandStack.Core.ExtensionMethod
 
             using (Stream stream = new FileStream(path, FileMode.Open, FileAccess.Read))
             {
-                stream.Read(buffer, 0, buffer.Length);
+                stream.ReadExactly(buffer);
             }
 
             int i = BitConverter.ToInt32(buffer, peHeaderOffset);

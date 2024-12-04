@@ -19,7 +19,7 @@ namespace HandStack.Core.Helpers
             len = ioStream.ReadByte() * 256;
             len += ioStream.ReadByte();
             byte[] inBuffer = new byte[len];
-            ioStream.Read(inBuffer, 0, len);
+            ioStream.ReadExactly(inBuffer, 0, len);
 
             return Encoding.UTF8.GetString(inBuffer);
         }
