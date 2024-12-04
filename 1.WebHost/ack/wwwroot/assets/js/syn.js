@@ -1,4 +1,4 @@
-﻿/*!
+/*!
 HandStack Javascript Library v1.0.0
 https://syn.handshake.kr
 
@@ -1057,27 +1057,31 @@ globalRoot.syn = syn;
     $dimension.extend({
         version: '1.0.0',
 
-        getDocumentSize() {
+        getDocumentSize(isTopWindow) {
+            isTopWindow = $string.toBoolean(isTopWindow);
+            var currentDocument = isTopWindow == true ? top.document : context.document;
             return {
                 width: Math.max(
-                    document.body.scrollWidth, document.documentElement.scrollWidth,
-                    document.body.offsetWidth, document.documentElement.offsetWidth,
-                    document.body.clientWidth, document.documentElement.clientWidth
+                    currentDocument.body.scrollWidth, currentDocument.documentElement.scrollWidth,
+                    currentDocument.body.offsetWidth, currentDocument.documentElement.offsetWidth,
+                    currentDocument.body.clientWidth, currentDocument.documentElement.clientWidth
                 ),
                 height: Math.max(
-                    document.body.scrollHeight, document.documentElement.scrollHeight,
-                    document.body.offsetHeight, document.documentElement.offsetHeight,
-                    document.body.clientHeight, document.documentElement.clientHeight
+                    currentDocument.body.scrollHeight, currentDocument.documentElement.scrollHeight,
+                    currentDocument.body.offsetHeight, currentDocument.documentElement.offsetHeight,
+                    currentDocument.body.clientHeight, currentDocument.documentElement.clientHeight
                 ),
-                frameWidth: document.documentElement.clientWidth || document.body.clientWidth || 0,
-                frameHeight: document.documentElement.clientHeight || document.body.clientHeight || 0
+                frameWidth: currentDocument.documentElement.clientWidth || currentDocument.body.clientWidth || 0,
+                frameHeight: currentDocument.documentElement.clientHeight || currentDocument.body.clientHeight || 0
             };
         },
 
-        getWindowSize() {
+        getWindowSize(isTopWindow) {
+            isTopWindow = $string.toBoolean(isTopWindow);
+            var currentWindow = isTopWindow == true ? top.window : context;
             return {
-                width: globalRoot.innerWidth,
-                height: globalRoot.innerHeight
+                width: currentWindow.innerWidth,
+                height: currentWindow.innerHeight
             };
         },
 
@@ -6645,6 +6649,32 @@ globalRoot.syn = syn;
 
             var pageFormInit = async () => {
                 var mod = context[syn.$w.pageScript];
+                if (mod.config && $string.isNullOrEmpty(mod.config.layoutPage) == false) {
+                    var masterLayout = await syn.$w.fetchText(mod.config.layoutPage);
+                    if (masterLayout) {
+                        var parser = new DOMParser();
+                        var masterPage = parser.parseFromString(masterLayout, 'text/html');
+                        if (masterPage) {
+                            document.body.style.visibility = 'hidden';
+
+                            var sections = syn.$l.querySelectorAll('syn-section');
+                            for (var i = 0, length = sections.length; i < length; i++) {
+                                var section = sections[i];
+                                var componentSection = masterPage.querySelector(section.getAttribute('selector'));
+                                if (componentSection) {
+                                    componentSection.innerHTML = section.innerHTML;
+                                }
+                            }
+
+                            sections.forEach(section => {
+                                section.remove();
+                            });
+
+                            document.body.innerHTML = masterPage.body.innerHTML;
+                        }
+                    }
+                }
+
                 if (mod && mod.hook.pageFormInit) {
                     await mod.hook.pageFormInit();
                 }

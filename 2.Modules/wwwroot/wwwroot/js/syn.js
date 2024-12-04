@@ -1,4 +1,4 @@
-﻿/*!
+/*!
 HandStack Javascript Library v1.0.0
 https://syn.handshake.kr
 
@@ -6649,6 +6649,32 @@ globalRoot.syn = syn;
 
             var pageFormInit = async () => {
                 var mod = context[syn.$w.pageScript];
+                if (mod.config && $string.isNullOrEmpty(mod.config.layoutPage) == false) {
+                    var masterLayout = await syn.$w.fetchText(mod.config.layoutPage);
+                    if (masterLayout) {
+                        var parser = new DOMParser();
+                        var masterPage = parser.parseFromString(masterLayout, 'text/html');
+                        if (masterPage) {
+                            document.body.style.visibility = 'hidden';
+
+                            var sections = syn.$l.querySelectorAll('syn-section');
+                            for (var i = 0, length = sections.length; i < length; i++) {
+                                var section = sections[i];
+                                var componentSection = masterPage.querySelector(section.getAttribute('selector'));
+                                if (componentSection) {
+                                    componentSection.innerHTML = section.innerHTML;
+                                }
+                            }
+
+                            sections.forEach(section => {
+                                section.remove();
+                            });
+
+                            document.body.innerHTML = masterPage.body.innerHTML;
+                        }
+                    }
+                }
+
                 if (mod && mod.hook.pageFormInit) {
                     await mod.hook.pageFormInit();
                 }
