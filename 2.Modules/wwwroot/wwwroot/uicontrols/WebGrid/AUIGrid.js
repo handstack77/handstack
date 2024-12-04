@@ -1700,10 +1700,10 @@
                                                 }
                                                 else if (controlInfo.type == 'auigrid') {
                                                     var sourceGridID = controlInfo.id;
-                                                    var gridID = $auigrid.getGridID(sourceGridID);
-                                                    var selected = AUIGrid.getSelectedIndex(gridID);
+                                                    var auiGridID = $auigrid.getGridID(sourceGridID);
+                                                    var selected = AUIGrid.getSelectedIndex(auiGridID);
                                                     var sourceRow = selected[0];
-                                                    var sourceValue = AUIGrid.getCellValue(gridID, sourceRow, dataColumnID);
+                                                    var sourceValue = AUIGrid.getCellValue(auiGridID, sourceRow, dataColumnID);
 
                                                     defaultValue[targetColumnID] = sourceValue;
                                                 }
