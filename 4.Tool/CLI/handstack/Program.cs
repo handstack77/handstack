@@ -784,7 +784,7 @@ namespace handstack
                 optionDirectory, optionFile, optionKey
             };
 
-            // handstack compress --directory=C:/projects/handstack77/handstack/4.Tool/CLI/handstack/bin/Debug/net9.0/win-x64 --file=C:/tmp/handstack.zip
+            // handstack compress --directory=C:/projects/handstack77/handstack/4.Tool/CLI/handstack/bin/Debug/net8.0/win-x64 --file=C:/tmp/handstack.zip
             subCommandCompress.SetHandler((directory, file, key) =>
             {
                 try

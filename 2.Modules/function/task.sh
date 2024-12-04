@@ -36,7 +36,7 @@ if [ -z "$HANDSTACK_ACK" ]; then
 fi
 
 if [ -z "$HANDSTACK_CLI" ]; then
-    HANDSTACK_CLI="$HANDSTACK_PATH/4.Tool/CLI/handstack/bin/Debug/net9.0/handstack"
+    HANDSTACK_CLI="$HANDSTACK_PATH/4.Tool/CLI/handstack/bin/Debug/net8.0/handstack"
 fi
 
 echo "WORKING_PATH: $WORKING_PATH"
