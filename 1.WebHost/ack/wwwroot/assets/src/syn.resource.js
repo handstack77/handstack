@@ -19,136 +19,141 @@
         translateControls: [],
 
         concreate() {
-            var els = document.querySelectorAll('[syn-i18n]');
-            for (var i = 0; i < els.length; i++) {
-                var el = els[i];
+            $resource.remainingReadyIntervalID = setInterval(function () {
+                if (syn.$w.isPageLoad == true) {
+                    clearInterval($resource.remainingReadyIntervalID);
+                    $resource.remainingReadyIntervalID = null;
 
-                var tagName = el.tagName.toUpperCase();
-                var elID = el.getAttribute('id');
-                var i18nOption = el.getAttribute('syn-i18n');
+                    var els = document.querySelectorAll('[syn-i18n]');
+                    for (var i = 0; i < els.length; i++) {
+                        var el = els[i];
 
-                if (i18nOption === undefined || i18nOption === null || i18nOption === '') {
-                    continue;
-                }
+                        var tagName = el.tagName.toUpperCase();
+                        var elID = el.getAttribute('id');
+                        var i18nOption = el.getAttribute('syn-i18n');
 
-                var options = null;
-                if (i18nOption.startsWith('{') == true) {
-                    try {
-                        options = eval('(' + i18nOption + ')');
-                        if (options.options.bindSource === undefined || options.options.bindSource === null) {
-                            options.bindSource = 'content';
+                        if (i18nOption === undefined || i18nOption === null || i18nOption === '') {
+                            continue;
                         }
-                        else {
-                            options.bindSource = options.options.bindSource;
-                        }
-                    } catch (error) {
-                        console.log('$resource.concreate, tagName: "' + tagName + '", elID: "' + elID + '" syn-i18n 확인 필요, error: ' + error.message);
-                    }
-                }
-                else {
-                    options = {
-                        key: i18nOption,
-                        bindSource: 'content'
-                    };
-                }
 
-                if (options && (options.key === undefined || options.key === null || options.key === '') == false) {
-                    el.setAttribute('i18n-key', options.key);
-                    var controlType = '';
-                    var moduleName = null;
-
-                    if (tagName.indexOf('SYN_') > -1) {
-                        moduleName = tagName.substring(4).toLowerCase();
-                        controlType = moduleName;
-                    }
-                    else {
-                        switch (tagName) {
-                            case 'BUTTON':
-                                moduleName = 'button';
-                                controlType = 'button';
-                                break;
-                            case 'INPUT':
-                                controlType = (el.getAttribute('type') || 'text').toLowerCase();
-                                switch (controlType) {
-                                    case 'hidden':
-                                    case 'text':
-                                    case 'password':
-                                    case 'color':
-                                    case 'email':
-                                    case 'number':
-                                    case 'search':
-                                    case 'tel':
-                                    case 'url':
-                                        moduleName = 'textbox';
-                                        break;
-                                    case 'submit':
-                                    case 'reset':
-                                    case 'button':
-                                        moduleName = 'button';
-                                        break;
-                                    case 'radio':
-                                        moduleName = 'radio';
-                                        break;
-                                    case 'checkbox':
-                                        moduleName = 'checkbox';
-                                        break;
-                                }
-                                break;
-                            case 'TEXTAREA':
-                                moduleName = 'textarea';
-                                controlType = 'textarea';
-                                break;
-                            case 'SELECT':
-                                if (el.getAttribute('multiple') == null) {
-                                    moduleName = 'select';
-                                    controlType = 'select';
+                        var options = null;
+                        if (i18nOption.startsWith('{') == true) {
+                            try {
+                                options = eval('(' + i18nOption + ')');
+                                if (options.options.bindSource === undefined || options.options.bindSource === null) {
+                                    options.bindSource = 'content';
                                 }
                                 else {
-                                    moduleName = 'multiselect';
-                                    controlType = 'multiselect';
+                                    options.bindSource = options.options.bindSource;
                                 }
-                                break;
-                            default:
-                                moduleName = 'element';
-                                break;
+                            } catch (error) {
+                                console.log('$resource.concreate, tagName: "' + tagName + '", elID: "' + elID + '" syn-i18n 확인 필요, error: ' + error.message);
+                            }
+                        }
+                        else {
+                            options = {
+                                key: i18nOption,
+                                bindSource: 'content'
+                            };
+                        }
+
+                        if (options && (options.key === undefined || options.key === null || options.key === '') == false) {
+                            el.setAttribute('i18n-key', options.key);
+                            var controlType = '';
+                            var moduleName = null;
+
+                            if (tagName.indexOf('SYN_') > -1) {
+                                moduleName = tagName.substring(4).toLowerCase();
+                                controlType = moduleName;
+                            }
+                            else {
+                                switch (tagName) {
+                                    case 'BUTTON':
+                                        moduleName = 'button';
+                                        controlType = 'button';
+                                        break;
+                                    case 'INPUT':
+                                        controlType = (el.getAttribute('type') || 'text').toLowerCase();
+                                        switch (controlType) {
+                                            case 'hidden':
+                                            case 'text':
+                                            case 'password':
+                                            case 'color':
+                                            case 'email':
+                                            case 'number':
+                                            case 'search':
+                                            case 'tel':
+                                            case 'url':
+                                                moduleName = 'textbox';
+                                                break;
+                                            case 'submit':
+                                            case 'reset':
+                                            case 'button':
+                                                moduleName = 'button';
+                                                break;
+                                            case 'radio':
+                                                moduleName = 'radio';
+                                                break;
+                                            case 'checkbox':
+                                                moduleName = 'checkbox';
+                                                break;
+                                        }
+                                        break;
+                                    case 'TEXTAREA':
+                                        moduleName = 'textarea';
+                                        controlType = 'textarea';
+                                        break;
+                                    case 'SELECT':
+                                        if (el.getAttribute('multiple') == null) {
+                                            moduleName = 'select';
+                                            controlType = 'select';
+                                        }
+                                        else {
+                                            moduleName = 'multiselect';
+                                            controlType = 'multiselect';
+                                        }
+                                        break;
+                                    default:
+                                        moduleName = 'element';
+                                        break;
+                                }
+                            }
+
+                            var key = options.key;
+                            var bindSource = options.bindSource;
+
+                            delete options.key;
+                            delete options.bindSource;
+
+                            $resource.translateControls.push({
+                                elID: elID,
+                                key: key,
+                                bindSource: bindSource,
+                                tag: tagName,
+                                module: moduleName,
+                                type: controlType,
+                                options: options
+                            });
+                        }
+                        else {
+                            console.log('$resource.concreate, tagName: "' + tagName + '", elID: "' + elID + '" key 확인 필요');
                         }
                     }
 
-                    var key = options.key;
-                    var bindSource = options.bindSource;
+                    var mod = window[syn.$w.pageScript];
+                    if (mod && mod.hook.pageResource) {
+                        mod.hook.pageResource($resource.localeID);
+                    }
 
-                    delete options.key;
-                    delete options.bindSource;
+                    if (syn.Config && $string.toBoolean(syn.Config.IsLocaleTranslations) == true && syn.$w.pageResource) {
+                        syn.$w.pageResource($resource.localeID);
+                    }
 
-                    $resource.translateControls.push({
-                        elID: elID,
-                        key: key,
-                        bindSource: bindSource,
-                        tag: tagName,
-                        module: moduleName,
-                        type: controlType,
-                        options: options
-                    });
-                }
-                else {
-                    console.log('$resource.concreate, tagName: "' + tagName + '", elID: "' + elID + '" key 확인 필요');
-                }
-            }
-
-            var mod = window[syn.$w.pageScript];
-            if (mod && mod.hook.pageResource) {
-                mod.hook.pageResource($resource.localeID);
-            }
-
-            if (syn.Config && $string.toBoolean(syn.Config.IsLocaleTranslations) == true) {
-                $resource.remainingReadyIntervalID = setInterval(function () {
-                    if (syn.$w.isPageLoad == true) {
-                        clearInterval($resource.remainingReadyIntervalID);
-                        $resource.remainingReadyIntervalID = null;
+                    if (syn.Config && $string.toBoolean(syn.Config.IsLocaleTranslations) == true) {
                         $resource.setLocale($resource.localeID);
                     }
-                }, 25);
-            }
+                }
+            }, 25);
         },
 
         add(id, val) {

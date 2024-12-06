@@ -671,6 +671,7 @@
                     '/css/base.css',
                 ],
                 js: [
+                    '/uicontrols/Element/Element.js',
                     '/lib/darkreader/darkreader.min.js',
                     '/lib/master-css/index.js'
                 ]

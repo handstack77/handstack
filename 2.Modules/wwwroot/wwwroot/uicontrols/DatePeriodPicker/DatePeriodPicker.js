@@ -322,6 +322,17 @@
                             }
                         }
                     }
+
+                    evt.returnValue = false;
+                    evt.cancel = true;
+                    if (evt.preventDefault) {
+                        evt.preventDefault();
+                    }
+
+                    if (evt.stopPropagation) {
+                        evt.stopPropagation();
+                    }
+                    return false;
                 });
             }
 
