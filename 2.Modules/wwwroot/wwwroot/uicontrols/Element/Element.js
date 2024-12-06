@@ -36,19 +36,20 @@
 
         controlLoad(elID, setting) {
             var el = syn.$l.get(elID);
+            if (el) {
+                setting = syn.$w.argumentsExtend($element.defaultSetting, setting);
 
-            setting = syn.$w.argumentsExtend($element.defaultSetting, setting);
+                var mod = window[syn.$w.pageScript];
+                if (mod && mod.hook.controlInit) {
+                    var moduleSettings = mod.hook.controlInit(elID, setting);
+                    setting = syn.$w.argumentsExtend(setting, moduleSettings);
+                }
 
-            var mod = window[syn.$w.pageScript];
-            if (mod && mod.hook.controlInit) {
-                var moduleSettings = mod.hook.controlInit(elID, setting);
-                setting = syn.$w.argumentsExtend(setting, moduleSettings);
-            }
+                el.setAttribute('syn-options', JSON.stringify(setting));
 
-            el.setAttribute('syn-options', JSON.stringify(setting));
-
-            if (setting.bindingID && syn.uicontrols.$data) {
-                syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                if (setting.bindingID && syn.uicontrols.$data) {
+                    syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
+                }
             }
         },
 

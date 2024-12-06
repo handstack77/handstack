@@ -4348,6 +4348,12 @@ globalRoot.syn = syn;
                         if (masterPage) {
                             document.body.style.visibility = 'hidden';
 
+                            var heads = syn.$l.querySelectorAll('syn-head');
+                            for (var i = 0, length = heads.length; i < length; i++) {
+                                var head = heads[i];
+                                masterPage.head.insertAdjacentHTML('afterbegin', head.innerHTML);
+                            }
+
                             var sections = syn.$l.querySelectorAll('syn-section');
                             for (var i = 0, length = sections.length; i < length; i++) {
                                 var section = sections[i];
@@ -4357,9 +4363,14 @@ globalRoot.syn = syn;
                                 }
                             }
 
-                            sections.forEach(section => {
-                                section.remove();
-                            });
+                            var bodys = syn.$l.querySelectorAll('syn-body');
+                            for (var i = 0, length = bodys.length; i < length; i++) {
+                                var body = bodys[i];
+                                var position = body.getAttribute('position');
+                                if ($string.isNullOrEmpty(position) == false && ['beforebegin', 'afterbegin', 'beforeend', 'afterend'].indexOf(position) > -1) {
+                                    masterPage.body.insertAdjacentHTML(position, body.innerHTML);
+                                }
+                            }
 
                             document.body.innerHTML = masterPage.body.innerHTML;
                         }
