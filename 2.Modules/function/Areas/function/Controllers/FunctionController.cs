@@ -161,7 +161,7 @@ namespace function.Areas.function.Controllers
                     moduleScriptMap.EntryMethod = item.EntryMethod;
                 }
 
-                moduleScriptMap.DataSourceID = header.DataSourceID;
+                moduleScriptMap.DataSourceID = string.IsNullOrEmpty(header.DataSourceID) == false ? header.DataSourceID : ModuleConfiguration.DefaultDataSourceID;
                 moduleScriptMap.LanguageType = header.LanguageType;
                 moduleScriptMap.ProgramPath = functionScriptFile;
                 moduleScriptMap.Timeout = item.Timeout;

@@ -10,7 +10,7 @@
         "DefaultCommandTimeout": 180,
         "IsExceptionDetailText": true,
         "IsValidationRequest": false,
-        "IsAllowDynamicRequest": true,
+        "IsAllowDynamicRequest": false,
         "AllowTenantTransactionCommands": [ "D" ],
         "IsLogServer": true,
         "IsTransactAggregate": true,

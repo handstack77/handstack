@@ -124,12 +124,18 @@ namespace dbclient.Areas.dbclient.Controllers
                                     htmlDocument.LoadHtml(ReplaceCData(System.IO.File.ReadAllText(filePath)));
                                     HtmlNode header = htmlDocument.DocumentNode.SelectSingleNode("//mapper/header");
 
-                                    applicationID = (header.Element("application")?.InnerText).ToStringSafe();
-                                    string projectID = (header.Element("project")?.InnerText).ToStringSafe();
-                                    string transactionID = (header.Element("transaction")?.InnerText).ToStringSafe();
+                                    applicationID = (header?.Element("application")?.InnerText).ToStringSafe();
+                                    string projectID = (header?.Element("project")?.InnerText).ToStringSafe();
+                                    string transactionID = (header?.Element("transaction")?.InnerText).ToStringSafe();
                                     if (filePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                                     {
                                         applicationID = string.IsNullOrEmpty(applicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : applicationID;
+                                        projectID = string.IsNullOrEmpty(projectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : projectID;
+                                        transactionID = string.IsNullOrEmpty(transactionID) == true ? fileInfo.Name.Replace(fileInfo.Extension, "") : transactionID;
+                                    }
+                                    else
+                                    {
+                                        applicationID = string.IsNullOrEmpty(applicationID) == true ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : applicationID;
                                         projectID = string.IsNullOrEmpty(projectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : projectID;
                                         transactionID = string.IsNullOrEmpty(transactionID) == true ? fileInfo.Name.Replace(fileInfo.Extension, "") : transactionID;
                                     }
@@ -139,13 +145,18 @@ namespace dbclient.Areas.dbclient.Controllers
                                     {
                                         foreach (var item in items)
                                         {
-                                            if ($"{header.Element("use")?.InnerText}".ToBoolean() == true)
+                                            if (header == null || $"{header?.Element("use")?.InnerText}".ToBoolean() == true)
                                             {
                                                 StatementMap statementMap = new StatementMap();
                                                 statementMap.ApplicationID = applicationID;
                                                 statementMap.ProjectID = projectID;
                                                 statementMap.TransactionID = transactionID;
-                                                statementMap.DataSourceID = item.Attributes["datasource"] == null ? header.Element("datasource").InnerText : item.Attributes["datasource"].Value;
+                                                statementMap.DataSourceID = item.Attributes["datasource"] == null ? (header?.Element("datasource")?.InnerText).ToStringSafe() : item.Attributes["datasource"].Value;
+                                                if (string.IsNullOrEmpty(statementMap.DataSourceID) == true)
+                                                {
+                                                    statementMap.DataSourceID = ModuleConfiguration.DefaultDataSourceID;
+                                                }
+
                                                 statementMap.StatementID = item.Attributes["id"].Value + item.Attributes["seq"].Value.PadLeft(2, '0');
                                                 statementMap.Seq = int.Parse(item.Attributes["seq"].Value);
                                                 statementMap.Comment = item.Attributes["desc"].Value;

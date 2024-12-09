@@ -11,7 +11,7 @@ let $module_settings = {
                 "BusinessServerUrl": "http://localhost:8000/transact/api/transaction/execute",
                 "CircuitBreakResetSecond": 60,
                 "IsValidationRequest": false,
-                "IsAllowDynamicRequest": true,
+                "IsAllowDynamicRequest": false,
                 "AllowTenantTransactionCommands": ["D"],
                 "IsLogServer": true,
                 "IsTransactAggregate": true,

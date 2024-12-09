@@ -150,13 +150,19 @@ namespace function.Areas.function.Controllers
                                     functionScriptFile = scriptMapFile.Replace("featureMeta.json", $"featureMain.{fileExtension}");
                                     if (System.IO.File.Exists(functionScriptFile) == true)
                                     {
+                                        FileInfo fileInfo = new FileInfo(scriptMapFile);
                                         FunctionHeader header = functionScriptContract.Header;
                                         if (scriptMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                                         {
-                                            FileInfo fileInfo = new FileInfo(scriptMapFile);
                                             header.ApplicationID = string.IsNullOrEmpty(header.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Parent?.Parent?.Name).ToStringSafe() : header.ApplicationID;
                                             header.ProjectID = string.IsNullOrEmpty(header.ProjectID) == true ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : header.ProjectID;
                                             header.TransactionID = string.IsNullOrEmpty(header.TransactionID) == true ? (fileInfo.Directory?.Name).ToStringSafe().Replace(fileInfo.Extension, "") : header.TransactionID;
+                                        }
+                                        else
+                                        {
+                                            header.ApplicationID = string.IsNullOrEmpty(header.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : header.ApplicationID;
+                                            header.ProjectID = string.IsNullOrEmpty(header.ProjectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : header.ProjectID;
+                                            header.TransactionID = string.IsNullOrEmpty(header.TransactionID) == true ? fileInfo.Name.Replace(fileInfo.Extension, "") : header.TransactionID;
                                         }
 
                                         var items = functionScriptContract.Commands;
@@ -192,7 +198,7 @@ namespace function.Areas.function.Controllers
                                                     moduleScriptMap.EntryMethod = item.EntryMethod;
                                                 }
 
-                                                moduleScriptMap.DataSourceID = header.DataSourceID;
+                                                moduleScriptMap.DataSourceID = string.IsNullOrEmpty(header.DataSourceID) == false ? header.DataSourceID : ModuleConfiguration.DefaultDataSourceID;
                                                 moduleScriptMap.LanguageType = header.LanguageType;
                                                 moduleScriptMap.ProgramPath = functionScriptFile;
                                                 moduleScriptMap.Timeout = item.Timeout;

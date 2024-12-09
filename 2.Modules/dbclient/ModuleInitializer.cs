@@ -87,6 +87,7 @@ namespace dbclient
                             ModuleConfiguration.ProfileLogger = loggerConfiguration.CreateLogger();
                         }
 
+                        ModuleConfiguration.DefaultDataSourceID = moduleConfig.DefaultDataSourceID;
                         ModuleConfiguration.DataSource.Clear();
                         if (moduleConfig.DataSource != null && moduleConfig.DataSource.Count > 0)
                         {

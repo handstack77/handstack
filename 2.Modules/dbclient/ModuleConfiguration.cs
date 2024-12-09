@@ -26,6 +26,7 @@ namespace dbclient
         public static int CircuitBreakResetSecond = 60;
         public static bool IsLogServer = false;
         public static string LogServerUrl = "";
+        public static string DefaultDataSourceID = "";
         public static int DefaultCommandTimeout = 30;
         public static List<DataSource> DataSource = new List<DataSource>();
         public static ILogger? ModuleLogger = null;

@@ -129,6 +129,8 @@ namespace function.Entity
 
         public CSharpScriptConfig CSharpFunctionConfig { get; set; }
 
+        public string DefaultDataSourceID { get; set; }
+
         public List<FunctionSource> FunctionSource { get; set; }
 
         public List<string> AllowClientIP { get; set; }
@@ -148,6 +150,7 @@ namespace function.Entity
             TransactionLogMaxRollingFiles = 30;
             CSharpFunctionConfig = new CSharpScriptConfig();
             NodeFunctionConfig = new NodeScriptConfig();
+            DefaultDataSourceID = "";
             FunctionSource = new List<FunctionSource>();
             AllowClientIP = new List<string>() { "*" };
         }

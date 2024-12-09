@@ -41,6 +41,8 @@ namespace dbclient.Entity
 
         public string ProfileLogFilePath { get; set; }
 
+        public string DefaultDataSourceID { get; set; }
+
         public List<DataSource> DataSource { get; set; }
 
         public List<string> AllowClientIP { get; set; }
@@ -59,6 +61,7 @@ namespace dbclient.Entity
             ModuleLogFilePath = "";
             IsProfileLogging = false;
             ProfileLogFilePath = "";
+            DefaultDataSourceID = "";
             DataSource = new List<DataSource>();
             AllowClientIP = new List<string>() { "*" };
         }

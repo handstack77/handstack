@@ -121,6 +121,7 @@ namespace function
                         ModuleConfiguration.CSharpFunctionLogBasePath = GlobalConfiguration.GetBasePath(moduleConfig.CSharpFunctionConfig.FileLogBasePath);
                         ModuleConfiguration.CSharpWatchFileNamePatterns = moduleConfig.CSharpFunctionConfig.WatchFileNamePatterns;
 
+                        ModuleConfiguration.DefaultDataSourceID = moduleConfig.DefaultDataSourceID;
                         ModuleConfiguration.FunctionSource.Clear();
                         if (moduleConfig.FunctionSource != null && moduleConfig.FunctionSource.Count > 0)
                         {

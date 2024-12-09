@@ -5,9 +5,9 @@ using System.IO;
 using System.Linq;
 
 using HandStack.Core.ExtensionMethod;
-using HandStack.Web.Extensions;
 using HandStack.Web;
 using HandStack.Web.Entity;
+using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.DataObject;
 
 using Microsoft.Extensions.Configuration;
@@ -70,10 +70,10 @@ namespace transact.Extensions
                                         }
 
                                         FileInfo fileInfo = new FileInfo(filePath);
-                                        businessContract.TransactionProjectID = string.IsNullOrEmpty(businessContract.TransactionProjectID) == true ? businessContract.ProjectID : businessContract.TransactionProjectID;
                                         businessContract.ApplicationID = string.IsNullOrEmpty(businessContract.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : businessContract.ApplicationID;
                                         businessContract.ProjectID = string.IsNullOrEmpty(businessContract.ProjectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : businessContract.ProjectID;
                                         businessContract.TransactionID = string.IsNullOrEmpty(businessContract.TransactionID) == true ? fileInfo.Name.Replace(fileInfo.Extension, "") : businessContract.TransactionID;
+                                        businessContract.TransactionProjectID = string.IsNullOrEmpty(businessContract.TransactionProjectID) == true ? businessContract.ProjectID : businessContract.TransactionProjectID;
 
                                         BusinessMappings.Add(filePath, businessContract);
                                     }
@@ -389,6 +389,7 @@ namespace transact.Extensions
                         {
                             try
                             {
+                                FileInfo fileInfo = new FileInfo(businessFile);
                                 string configData = File.ReadAllText(businessFile);
                                 BusinessContract? businessContract = BusinessContract.FromJson(configData);
                                 if (businessContract == null)
@@ -397,6 +398,9 @@ namespace transact.Extensions
                                 }
                                 else
                                 {
+                                    businessContract.ApplicationID = string.IsNullOrEmpty(businessContract.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : businessContract.ApplicationID;
+                                    businessContract.ProjectID = string.IsNullOrEmpty(businessContract.ProjectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : businessContract.ProjectID;
+                                    businessContract.TransactionID = string.IsNullOrEmpty(businessContract.TransactionID) == true ? fileInfo.Name.Replace(fileInfo.Extension, "") : businessContract.TransactionID;
                                     businessContract.TransactionProjectID = string.IsNullOrEmpty(businessContract.TransactionProjectID) == true ? businessContract.ProjectID : businessContract.TransactionProjectID;
 
                                     if (BusinessMappings.ContainsKey(businessFile) == false && HasCount(businessContract.ApplicationID, businessContract.ProjectID, businessContract.TransactionID) == 0)
