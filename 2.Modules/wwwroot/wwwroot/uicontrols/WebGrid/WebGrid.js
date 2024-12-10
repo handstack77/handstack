@@ -2692,6 +2692,17 @@
                             }
                         }
                     }
+
+                    var order = ['D', 'U', 'C'];
+                    result = result.sort(function (a, b) {
+                        var indexA = order.indexOf(a.Flag);
+                        var indexB = order.indexOf(b.Flag);
+
+                        if (indexA === -1) return 1;
+                        if (indexB === -1) return -1;
+
+                        return indexA - indexB;
+                    });
                 }
             } else {
                 syn.$l.eventLog('getUpdateData', 'Input Mapping 설정 없음', 'Debug');
