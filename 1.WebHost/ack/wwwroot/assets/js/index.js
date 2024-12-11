@@ -3789,6 +3789,68 @@ globalRoot.syn = syn;
             }
         },
 
+        httpDataSubmit(formData, url, timeout, callback) {
+            if ($object.isNullOrUndefined(timeout) == true) {
+                timeout = 0;
+            }
+
+            var xhr = syn.$w.xmlHttp();
+            xhr.open('POST', url, true);
+
+            if ($w.setServiceClientHeader) {
+                if ($w.setServiceClientHeader(xhr) == false) {
+                    return;
+                }
+            }
+
+            xhr.timeout = timeout;
+
+            if (callback) {
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4) {
+                        if (xhr.status !== 200) {
+                            if (xhr.status == 0) {
+                                syn.$l.eventLog('$r.httpDataSubmit', 'X-Requested transfort error', 'Fatal');
+                            }
+                            else {
+                                syn.$l.eventLog('$r.httpDataSubmit', 'response status - {0}'.format(xhr.statusText) + xhr.responseText, 'Error');
+                            }
+                            return;
+                        }
+
+                        if (callback) {
+                            callback({
+                                status: xhr.status,
+                                response: xhr.responseText
+                            });
+                        }
+                    }
+                }
+                xhr.send(formData);
+            }
+            else if (globalThis.Promise) {
+                return new Promise(function (resolve) {
+                    xhr.onload = function () {
+                        return resolve({
+                            status: xhr.status,
+                            response: xhr.responseText
+                        });
+                    };
+                    xhr.onerror = function () {
+                        return resolve({
+                            status: xhr.status,
+                            response: xhr.responseText
+                        });
+                    };
+
+                    xhr.send(formData);
+                });
+            }
+            else {
+                syn.$l.eventLog('$r.httpDataSubmit', '지원하지 않는 기능. 매개변수 확인 필요', 'Error');
+            }
+        },
+
         createBlobUrl: (globalRoot.URL && URL.createObjectURL && URL.createObjectURL.bind(URL)) || (globalRoot.webkitURL && webkitURL.createObjectURL && webkitURL.createObjectURL.bind(webkitURL)) || globalRoot.createObjectURL,
         revokeBlobUrl: (globalRoot.URL && URL.revokeObjectURL && URL.revokeObjectURL.bind(URL)) || (globalRoot.webkitURL && webkitURL.revokeObjectURL && webkitURL.revokeObjectURL.bind(webkitURL)) || globalRoot.revokeObjectURL,
 
