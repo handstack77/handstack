@@ -224,8 +224,8 @@
             var xhr = syn.$w.xmlHttp();
             xhr.open('POST', url, true);
 
-            if ($w.setServiceClientHeader) {
-                if ($w.setServiceClientHeader(xhr) == false) {
+            if (syn.$w.setServiceClientHeader) {
+                if (syn.$w.setServiceClientHeader(xhr) == false) {
                     return;
                 }
             }

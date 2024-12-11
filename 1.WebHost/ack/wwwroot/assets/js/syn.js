@@ -1332,6 +1332,233 @@ globalRoot.syn = syn;
             return plainString;
         },
 
+        isWebCryptoSupported() {
+            return (typeof window.crypto !== 'undefined' && typeof window.crypto.subtle !== 'undefined');
+        },
+
+        padKey(key, length) {
+            var result = null;
+            if (typeof key === 'string') {
+                key = new TextEncoder().encode(key);
+
+                if (key.length >= length) {
+                    return key.slice(0, length);
+                }
+
+                result = new Uint8Array(length);
+                result.set(key);
+            }
+            return result;
+        },
+
+        // syn.$c.generateHMAC().then((signature) => { debugger; });
+        async generateHMAC(key, message) {
+            var result = null;
+            var encoder = new TextEncoder();
+            var keyData = encoder.encode(key);
+            var messageData = encoder.encode(message);
+            var cryptoKey = await crypto.subtle.importKey(
+                'raw',
+                keyData,
+                { name: 'HMAC', hash: 'SHA-256' },
+                false,
+                ['sign']
+            );
+
+            var signature = await crypto.subtle.sign('HMAC', cryptoKey, messageData);
+            result = Array.from(new Uint8Array(signature)).map(b => b.toString(16).padStart(2, '0')).join('');
+            return result;
+        },
+
+        // syn.$c.verifyHMAC('handstack', 'hello world', '25a00a2d55bbb313329c8abba5aebc8b282615876544c5be236d75d1418fc612').then((result) => { debugger; });
+        async verifyHMAC(key, message, signature) {
+            return await $crytography.generateHMAC(key, message) === signature;
+        },
+
+        // syn.$c.generateRSAKey().then((cryptoKey) => { debugger; });
+        async generateRSAKey() {
+            var result = null;
+            result = await window.crypto.subtle.generateKey(
+                {
+                    name: "RSA-OAEP",
+                    modulusLength: 2048,
+                    publicExponent: new Uint8Array([1, 0, 1]),
+                    hash: "SHA-256"
+                },
+                true,
+                ['encrypt', 'decrypt']
+            );
+            return result;
+        },
+
+        // syn.$c.exportCryptoKey(cryptoKey.publicKey, true).then((result) => { debugger; });
+        async exportCryptoKey(cryptoKey, isPublic) {
+            var result = '';
+            isPublic = $string.toBoolean(isPublic);
+            var exportLabel = isPublic == true ? 'PUBLIC' : 'PRIVATE';
+            var exported = await window.crypto.subtle.exportKey(
+                (isPublic == true ? 'spki' : 'pkcs8'),
+                cryptoKey
+            );
+            var exportedAsString = String.fromCharCode.apply(null, new Uint8Array(exported));
+            var exportedAsBase64 = window.btoa(exportedAsString);
+            result = `-----BEGIN ${exportLabel} KEY-----\n${exportedAsBase64}\n-----END ${exportLabel} KEY-----`;
+
+            return result;
+        },
+
+        // syn.$c.importCryptoKey('-----BEGIN PUBLIC KEY-----...-----END PUBLIC KEY-----', true).then((result) => { debugger; });
+        async importCryptoKey(pem, isPublic) {
+            var result = null;
+            isPublic = $string.toBoolean(isPublic);
+            var exportLabel = isPublic == true ? 'PUBLIC' : 'PRIVATE';
+            var pemHeader = `-----BEGIN ${exportLabel} KEY-----`;
+            var pemFooter = `-----END ${exportLabel} KEY-----`;
+            var pemContents = pem.substring(pemHeader.length, pem.length - pemFooter.length).replaceAll('\n', '');
+            var binaryDerString = window.atob(pemContents);
+            var binaryDer = syn.$l.stringToArrayBuffer(binaryDerString);
+            var importMode = isPublic == true ? ['encrypt'] : ['decrypt'];
+
+            result = await crypto.subtle.importKey(
+                (isPublic == true ? 'spki' : 'pkcs8'),
+                binaryDer,
+                {
+                    name: 'RSA-OAEP',
+                    hash: 'SHA-256'
+                },
+                true,
+                importMode
+            );
+            return result;
+        },
+
+        // syn.$c.rsaEncode('hello world', result).then((result) => { debugger; });
+        async rsaEncode(text, publicKey) {
+            var result = null;
+            var encoder = new TextEncoder();
+            var data = encoder.encode(text);
+            var encrypted = await crypto.subtle.encrypt(
+                {
+                    name: 'RSA-OAEP'
+                },
+                publicKey,
+                data
+            );
+
+            result = $crytography.base64Encode(new Uint8Array(encrypted));
+            return result;
+        },
+
+        // syn.$c.rsaDecode(encryptData, result).then((result) => { debugger; });
+        async rsaDecode(encryptedData, privateKey) {
+            var result = null;
+            var encrypted = new Uint8Array($crytography.base64Decode(encryptedData).split(',').map(Number));
+            var decrypted = await crypto.subtle.decrypt(
+                {
+                    name: 'RSA-OAEP'
+                },
+                privateKey,
+                encrypted
+            );
+
+            var decoder = new TextDecoder();
+            result = decoder.decode(decrypted);
+            return result;
+        },
+
+        generateIV(key, ivLength) {
+            var result;
+            ivLength = ivLength || 16;
+            if (key && key.toUpperCase() == '$RANDOM$') {
+                result = window.crypto.getRandomValues(new Uint8Array(ivLength));
+            }
+            else {
+                key = key || '';
+                result = $crytography.padKey(key, ivLength);
+            }
+
+            return result;
+        },
+
+        async aesEncode(text, key, algorithm, keyLength) {
+            var result = null;
+            key = key || '';
+            algorithm = algorithm || 'AES-CBC'; // AES-CBC, AES-GCM
+            keyLength = keyLength || 256; // 128, 256
+            var ivLength = algorithm === 'AES-GCM' ? 12 : 16;
+            var iv = $crytography.generateIV(key, ivLength);
+            var encoder = new TextEncoder();
+            var data = encoder.encode(text);
+
+            var cryptoKey = await window.crypto.subtle.importKey(
+                'raw',
+                $crytography.padKey(key, keyLength / 8),
+                { name: algorithm },
+                false,
+                ['encrypt']
+            );
+
+            var encrypted = await window.crypto.subtle.encrypt(
+                {
+                    name: algorithm,
+                    iv: iv
+                },
+                cryptoKey,
+                data
+            );
+
+            result = {
+                iv: $crytography.base64Encode(iv),
+                encrypted: $crytography.base64Encode(new Uint8Array(encrypted))
+            };
+
+            return result;
+        },
+
+        async aesDecode(encryptedData, key, algorithm, keyLength) {
+            var result = null;
+            key = key || '';
+            algorithm = algorithm || 'AES-CBC'; // AES-CBC, AES-GCM
+            keyLength = keyLength || 256; // 128, 256
+            if (encryptedData && encryptedData.iv && encryptedData.encrypted) {
+                var iv = new Uint8Array($crytography.base64Decode(encryptedData.iv).split(',').map(Number));
+                var encrypted = new Uint8Array($crytography.base64Decode(encryptedData.encrypted).split(',').map(Number));
+                var cryptoKey = await window.crypto.subtle.importKey(
+                    'raw',
+                    $crytography.padKey(key, keyLength / 8),
+                    { name: algorithm },
+                    false,
+                    ['decrypt']
+                );
+
+                const decrypted = await window.crypto.subtle.decrypt(
+                    {
+                        name: algorithm,
+                        iv: iv
+                    },
+                    cryptoKey,
+                    encrypted
+                );
+
+                const decoder = new TextDecoder();
+                result = decoder.decode(decrypted);
+            }
+
+            return result;
+        },
+
+        async sha(message, algorithms) {
+            var result = '';
+            algorithms = algorithms || 'SHA-1'; // SHA-1,SHA-2,SHA-224,SHA-256,SHA-384,SHA-512,SHA3-224,SHA3-256,SHA3-384,SHA3-512,SHAKE128,SHAKE256
+            var encoder = new TextEncoder();
+            var data = encoder.encode(message);
+            var hash = await crypto.subtle.digest(algorithms, data);
+            result = Array.from(new Uint8Array(hash))
+                .map(b => b.toString(16).padStart(2, '0'))
+                .join('');
+            return result;
+        },
+
         sha256(s) {
             var chrsz = 8;
             var hexcase = 0;
@@ -5409,8 +5636,8 @@ globalRoot.syn = syn;
             var xhr = syn.$w.xmlHttp();
             xhr.open('POST', url, true);
 
-            if ($w.setServiceClientHeader) {
-                if ($w.setServiceClientHeader(xhr) == false) {
+            if (syn.$w.setServiceClientHeader) {
+                if (syn.$w.setServiceClientHeader(xhr) == false) {
                     return;
                 }
             }
