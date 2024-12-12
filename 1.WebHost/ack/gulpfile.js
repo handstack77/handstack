@@ -21,7 +21,7 @@ gulp.task('scripts', async function () {
         'wwwroot/assets/src/syn.browser.js',
         'wwwroot/assets/src/syn.manipulation.js',
         'wwwroot/assets/src/syn.dimension.js',
-        'wwwroot/assets/src/syn.crytography.js',
+        'wwwroot/assets/src/syn.cryptography.js',
         'wwwroot/assets/src/syn.keyboard.js',
         'wwwroot/assets/src/syn.vaildation.js',
         'wwwroot/assets/src/syn.extension.js',
@@ -39,7 +39,7 @@ gulp.task('scripts', async function () {
 gulp.task('nodescripts', async function () {
     return gulp.src([
         'wwwroot/assets/src/syn.core.js',
-        'wwwroot/assets/src/syn.crytography.js',
+        'wwwroot/assets/src/syn.cryptography.js',
         'wwwroot/assets/src/syn.extension.js',
         'wwwroot/assets/src/syn.library.js',
         'wwwroot/assets/src/syn.request.js',

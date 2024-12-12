@@ -1272,9 +1272,9 @@ globalRoot.syn = syn;
 
 (function (context) {
     'use strict';
-    var $crytography = context.$crytography || new syn.module();
+    var $cryptography = context.$cryptography || new syn.module();
 
-    $crytography.extend({
+    $cryptography.extend({
         version: '1.0.0',
 
         base64Encode(val) {
@@ -1372,7 +1372,7 @@ globalRoot.syn = syn;
 
         // syn.$c.verifyHMAC('handstack', 'hello world', '25a00a2d55bbb313329c8abba5aebc8b282615876544c5be236d75d1418fc612').then((result) => { debugger; });
         async verifyHMAC(key, message, signature) {
-            return await $crytography.generateHMAC(key, message) === signature;
+            return await $cryptography.generateHMAC(key, message) === signature;
         },
 
         // syn.$c.generateRSAKey().then((cryptoKey) => { debugger; });
@@ -1445,14 +1445,14 @@ globalRoot.syn = syn;
                 data
             );
 
-            result = $crytography.base64Encode(new Uint8Array(encrypted));
+            result = $cryptography.base64Encode(new Uint8Array(encrypted));
             return result;
         },
 
         // syn.$c.rsaDecode(encryptData, result).then((result) => { debugger; });
         async rsaDecode(encryptedData, privateKey) {
             var result = null;
-            var encrypted = new Uint8Array($crytography.base64Decode(encryptedData).split(',').map(Number));
+            var encrypted = new Uint8Array($cryptography.base64Decode(encryptedData).split(',').map(Number));
             var decrypted = await crypto.subtle.decrypt(
                 {
                     name: 'RSA-OAEP'
@@ -1474,7 +1474,7 @@ globalRoot.syn = syn;
             }
             else {
                 key = key || '';
-                result = $crytography.padKey(key, ivLength);
+                result = $cryptography.padKey(key, ivLength);
             }
 
             return result;
@@ -1486,13 +1486,13 @@ globalRoot.syn = syn;
             algorithm = algorithm || 'AES-CBC'; // AES-CBC, AES-GCM
             keyLength = keyLength || 256; // 128, 256
             var ivLength = algorithm === 'AES-GCM' ? 12 : 16;
-            var iv = $crytography.generateIV(key, ivLength);
+            var iv = $cryptography.generateIV(key, ivLength);
             var encoder = new TextEncoder();
             var data = encoder.encode(text);
 
             var cryptoKey = await window.crypto.subtle.importKey(
                 'raw',
-                $crytography.padKey(key, keyLength / 8),
+                $cryptography.padKey(key, keyLength / 8),
                 { name: algorithm },
                 false,
                 ['encrypt']
@@ -1508,8 +1508,8 @@ globalRoot.syn = syn;
             );
 
             result = {
-                iv: $crytography.base64Encode(iv),
-                encrypted: $crytography.base64Encode(new Uint8Array(encrypted))
+                iv: $cryptography.base64Encode(iv),
+                encrypted: $cryptography.base64Encode(new Uint8Array(encrypted))
             };
 
             return result;
@@ -1521,11 +1521,11 @@ globalRoot.syn = syn;
             algorithm = algorithm || 'AES-CBC'; // AES-CBC, AES-GCM
             keyLength = keyLength || 256; // 128, 256
             if (encryptedData && encryptedData.iv && encryptedData.encrypted) {
-                var iv = new Uint8Array($crytography.base64Decode(encryptedData.iv).split(',').map(Number));
-                var encrypted = new Uint8Array($crytography.base64Decode(encryptedData.encrypted).split(',').map(Number));
+                var iv = new Uint8Array($cryptography.base64Decode(encryptedData.iv).split(',').map(Number));
+                var encrypted = new Uint8Array($cryptography.base64Decode(encryptedData.encrypted).split(',').map(Number));
                 var cryptoKey = await window.crypto.subtle.importKey(
                     'raw',
-                    $crytography.padKey(key, keyLength / 8),
+                    $cryptography.padKey(key, keyLength / 8),
                     { name: algorithm },
                     false,
                     ['decrypt']
@@ -2220,7 +2220,7 @@ globalRoot.syn = syn;
             return LZString;
         })()
     });
-    syn.$c = $crytography;
+    syn.$c = $cryptography;
 })(globalRoot);
 
 /// <reference path='syn.core.js' />

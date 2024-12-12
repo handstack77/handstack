@@ -1,5 +1,5 @@
 ﻿'use strict';
-let $crytography = {
+let $cryptography = {
     extends: [
         'parsehtml'
     ],
