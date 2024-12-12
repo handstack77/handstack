@@ -329,7 +329,11 @@ globalRoot.syn = syn;
             var exportedAsBase64 = window.btoa(exportedAsString);
             result = `-----BEGIN ${exportLabel} KEY-----\n${exportedAsBase64}\n-----END ${exportLabel} KEY-----`;
 
-            return result;
+            var lines = result.split('\n');
+            result = lines.map(line => {
+                return line.match(/.{1,64}/g).join('\n');
+            });
+            return result.join('\n');
         },
 
         // syn.$c.importCryptoKey('-----BEGIN PUBLIC KEY-----...-----END PUBLIC KEY-----', true).then((result) => { debugger; });
@@ -4636,11 +4640,10 @@ globalRoot.syn = syn;
                         var masterPage = parser.parseFromString(masterLayout, 'text/html');
                         if (masterPage) {
                             document.body.style.visibility = 'hidden';
-
                             var heads = syn.$l.querySelectorAll('syn-head');
                             for (var i = 0, length = heads.length; i < length; i++) {
                                 var head = heads[i];
-                                masterPage.head.insertAdjacentHTML('afterbegin', head.innerHTML);
+                                document.head.insertAdjacentHTML('afterbegin', head.innerHTML);
                             }
 
                             var sections = syn.$l.querySelectorAll('syn-section');

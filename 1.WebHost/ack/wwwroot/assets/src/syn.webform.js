@@ -519,11 +519,10 @@
                         var masterPage = parser.parseFromString(masterLayout, 'text/html');
                         if (masterPage) {
                             document.body.style.visibility = 'hidden';
-
                             var heads = syn.$l.querySelectorAll('syn-head');
                             for (var i = 0, length = heads.length; i < length; i++) {
                                 var head = heads[i];
-                                masterPage.head.insertAdjacentHTML('afterbegin', head.innerHTML);
+                                document.head.insertAdjacentHTML('afterbegin', head.innerHTML);
                             }
 
                             var sections = syn.$l.querySelectorAll('syn-section');
