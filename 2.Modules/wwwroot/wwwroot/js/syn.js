@@ -1,4 +1,4 @@
-/*!
+﻿/*!
 HandStack Javascript Library v1.0.0
 https://syn.handshake.kr
 
@@ -6714,8 +6714,8 @@ globalRoot.syn = syn;
                         UserNo: 0,
                         UserID: '',
                         UserName: '',
-                        BusinessTel: '',
-                        BusinessEMail: '',
+                        BusinessPhone: '',
+                        BusinessEmail: '',
                         DepartmentID: '',
                         DepartmentName: '',
                         PositionID: '',

@@ -5,8 +5,6 @@ using System.Data.Common;
 using System.Linq.Expressions;
 using System.Reflection;
 
-using MySqlX.XDevAPI.Common;
-
 namespace dbclient.Profiler
 {
     public class ProfilerDbCommand : DbCommand
