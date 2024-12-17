@@ -9,6 +9,9 @@ namespace HandStack.Web.MessageContract.Contract
         [JsonProperty("programID")]
         public string ProgramID { get; set; }
 
+        [JsonProperty("moduleID")]
+        public string ModuleID { get; set; }
+
         [JsonProperty("version")]
         public string Version { get; set; }
 
@@ -27,6 +30,7 @@ namespace HandStack.Web.MessageContract.Contract
         public SystemType()
         {
             ProgramID = "";
+            ModuleID = "";
             Version = "";
             Routes = new List<Route>();
             LocaleID = "";

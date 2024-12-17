@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,6 +19,7 @@ using HandStack.Web.MessageContract.DataObject;
 using HandStack.Web.MessageContract.Enumeration;
 using HandStack.Web.MessageContract.Message;
 
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -942,9 +944,35 @@ namespace transact.Areas.transact.Controllers
                         }
                         else if (string.IsNullOrEmpty(token) == true)
                         {
-                            if (ModuleConfiguration.UseApiAuthorize == true && transactionInfo.Authorize == true)
+                            var moduleScheme = $"{GlobalConfiguration.CookiePrefixName}.{request.System.ModuleID}.AuthenticationScheme";
+                            bool isRoleYN = false;
+                            if (refererPath.StartsWith(baseUrl) == true)
                             {
-                                response.ExceptionText = $"'{businessContract.ApplicationID}' 애플리케이션 또는 '{businessContract.ProjectID}' 프로젝트 권한 확인 필요";
+                                var authenticateResult = await HttpContext.AuthenticateAsync(moduleScheme);
+                                if (authenticateResult.Succeeded == true)
+                                {
+                                    var principal = authenticateResult.Principal;
+                                    if (principal?.Identity?.IsAuthenticated == true)
+                                    {
+                                        var roles = principal.FindFirst("Roles")?.Value;
+                                        if (roles != null && transactionInfo.Roles != null && transactionInfo.Roles.Count > 0)
+                                        {
+                                            foreach (var role in roles.SplitComma())
+                                            {
+                                                if (transactionInfo.Roles.IndexOf(role) > -1)
+                                                {
+                                                    isRoleYN = true;
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (isRoleYN == false && ModuleConfiguration.UseApiAuthorize == true && transactionInfo.Authorize == true)
+                            {
+                                response.ExceptionText = $"'{businessContract.ApplicationID}' 애플리케이션, '{businessContract.ProjectID}' 프로젝트 또는 {moduleScheme} 역할 권한 확인 필요";
                                 return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                             }
                         }

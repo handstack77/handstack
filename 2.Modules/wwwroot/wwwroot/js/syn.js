@@ -8097,6 +8097,7 @@ globalRoot.syn = syn;
             var transactionObject = syn.$w.transactionObject(directObject.functionID, 'Json');
 
             transactionObject.programID = directObject.programID;
+            transactionObject.moduleID = directObject.moduleID || location.pathname.split('/').filter(Boolean)[0] || syn.Config.ModuleID;
             transactionObject.businessID = directObject.businessID;
             transactionObject.systemID = directObject.systemID;
             transactionObject.transactionID = directObject.transactionID;
@@ -9824,6 +9825,7 @@ globalRoot.syn = syn;
                     environment: syn.Config.Environment.substring(0, 1),
                     system: {
                         programID: config.programID,
+                        moduleID: transactionObject.moduleID || globalRoot[syn.$w.pageScript].config.moduleID || location.pathname.split('/').filter(Boolean)[0] || syn.Config.ModuleID,
                         version: syn.Config.SystemVersion,
                         routes: [
                             {
