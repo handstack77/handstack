@@ -1,0 +1,46 @@
+# curl -f -L -o ijhttp.zip "https://jb.gg/ijhttp/latest"
+# ijhttp -L VERBOSE function-test.http
+
+POST /function/api/function/execute?accessToken=&loadOptions[option1]=value1&featureMeta.Timeout=0&globalID=blabla&featureSQLPath=C:\projects\qcn.qramework\modules\filehub\Contracts\function\csharp\HDS\FHB\SYS010\featureSQL.xml&dataProvider=SqlServer&connectionString=Data Source=localhost;TrustServerCertificate=True;Initial Catalog=master;User ID=sa;Password=Strong@Passw0rd;&platform=Windows&functionID=FHB.SYS010.GF01 HTTP/1.1
+Host: localhost:8000
+accept: */*
+Content-Type: application/json
+
+[
+  {
+    "ParameterName": "WorkUserID",
+    "Value": "junchul@qcn.co.kr",
+    "DbType": "String",
+    "Length": 0
+  },
+  {
+    "ParameterName": "UserNo",
+    "Value": "12401002",
+    "DbType": "String",
+    "Length": 0
+  },
+  {
+    "ParameterName": "ApplicationName",
+    "Value": "ack",
+    "DbType": "String",
+    "Length": 0
+  },
+  {
+    "ParameterName": "ApplicationID",
+    "Value": "HDS",
+    "DbType": "String",
+    "Length": 0
+  },
+  {
+    "ParameterName": "ProjectType",
+    "Value": "U",
+    "DbType": "String",
+    "Length": 0
+  },
+  {
+    "ParameterName": "ItemPath",
+    "Value": "FHB/SYS010.html",
+    "DbType": "String",
+    "Length": 0
+  }
+]

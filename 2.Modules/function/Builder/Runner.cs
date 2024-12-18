@@ -95,7 +95,7 @@ namespace function.Builder
                         myObject = Activator.CreateInstance(myType, [httpContext]);
                     }
 
-                    MethodInfo? entry = myObject?.GetType().GetMethod(methodName);
+                    MethodInfo? entry = myObject?.GetType().GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
 
                     if (entry != null)
                     {

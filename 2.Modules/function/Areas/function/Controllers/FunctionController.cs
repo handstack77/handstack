@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 using HandStack.Core.ExtensionMethod;
@@ -42,10 +43,10 @@ namespace function.Areas.function.Controllers
         // public async Task<DataSet?> Execute([FromBody] List<DynamicParameter> dynamicParameters, [FromQuery] DataContext dataContext)
         public async Task<DataSet?> Execute([FromBody] List<DynamicParameter>? dynamicParameters, [FromQuery] DataContext? dataContext)
         {
+            using DataSet? result = new DataSet();
             string functionID = (httpContext?.Request.Query["functionID"]).ToStringSafe();
             if (string.IsNullOrEmpty(functionID) == true)
             {
-                using DataSet? result = new DataSet();
                 result.BuildExceptionData("Y", "Warning", $"functionID 확인 필요");
                 result.Tables.Add(new DataTable());
                 return result;
@@ -96,7 +97,8 @@ namespace function.Areas.function.Controllers
             dataContext.platform = string.IsNullOrEmpty(dataContext.platform) == false ? dataContext.platform : "Windows"; // Windows, Linux, MacOS
             dataContext.workingDirectoryPath = string.IsNullOrEmpty(dataContext.workingDirectoryPath) == false ? dataContext.workingDirectoryPath : "../tmp/HDS/function/HDS_FN00";
 
-            var scriptMapFile = string.IsNullOrEmpty(ModuleConfiguration.ModuleBasePath) == true ? Path.Combine(GlobalConfiguration.GetBasePath($"../modules/{ModuleConfiguration.ModuleID}"), "featureTest.json"): Path.Combine(ModuleConfiguration.ModuleBasePath, "featureTest.json");
+            string commandID = string.Empty;
+            var scriptMapFile = string.IsNullOrEmpty(ModuleConfiguration.ModuleBasePath) == true ? Path.Combine(ModuleConfiguration.ModuleBasePath, "featureTest.json") : Path.Combine(GlobalConfiguration.GetBasePath($"../modules/{ModuleConfiguration.ModuleID}"), "featureTest.json");
             if (System.IO.File.Exists(scriptMapFile) == true)
             {
                 var scriptMapData = System.IO.File.ReadAllText(scriptMapFile);
@@ -105,7 +107,6 @@ namespace function.Areas.function.Controllers
 
                 if (functionScriptContract == null)
                 {
-                    using DataSet? result = new DataSet();
                     result.BuildExceptionData("Y", "Warning", $"{scriptMapFile} 대응 functionFilePath 파일 없음");
                     result.Tables.Add(new DataTable());
                     return result;
@@ -114,8 +115,7 @@ namespace function.Areas.function.Controllers
                 string? fileExtension = functionScriptContract.Header.LanguageType == "csharp" ? "cs" : null;
                 if (string.IsNullOrEmpty(fileExtension) == true)
                 {
-                    using DataSet? result = new DataSet();
-                    result.BuildExceptionData("Y", "Warning", $"{scriptMapFile} 언어 타입 확인 필요");
+                    result.BuildExceptionData("Y", "Warning", $"{functionScriptContract.Header.LanguageType} 언어 타입 확인 필요");
                     result.Tables.Add(new DataTable());
                     return result;
                 }
@@ -127,7 +127,6 @@ namespace function.Areas.function.Controllers
                 var item = functionScriptContract.Commands.FirstOrDefault(p => p.ID == (functionID.Split('.').ElementAtOrDefault(2) ?? ""));
                 if (item == null)
                 {
-                    using DataSet? result = new DataSet();
                     result.BuildExceptionData("Y", "Warning", $"{functionID} Commands 확인 필요");
                     result.Tables.Add(new DataTable());
                     return result;
@@ -161,7 +160,9 @@ namespace function.Areas.function.Controllers
                     moduleScriptMap.EntryMethod = item.EntryMethod;
                 }
 
-                moduleScriptMap.DataSourceID = string.IsNullOrEmpty(header.DataSourceID) == false ? header.DataSourceID : ModuleConfiguration.DefaultDataSourceID;
+                commandID = moduleScriptMap.EntryMethod.ToStringSafe();
+
+                moduleScriptMap.DataSourceID = header.DataSourceID;
                 moduleScriptMap.LanguageType = header.LanguageType;
                 moduleScriptMap.ProgramPath = functionScriptFile;
                 moduleScriptMap.Timeout = item.Timeout;
@@ -190,7 +191,6 @@ namespace function.Areas.function.Controllers
             }
             else
             {
-                using DataSet? result = new DataSet();
                 result.BuildExceptionData("Y", "Warning", $"Function 헤더 파일이 존재하지 않습니다. 파일경로: {scriptMapFile}");
                 result.Tables.Add(new DataTable());
                 return result;
@@ -198,7 +198,6 @@ namespace function.Areas.function.Controllers
 
             if (string.IsNullOrEmpty(dataContext.featureMeta.ApplicationID) == true)
             {
-                using DataSet? result = new DataSet();
                 result.BuildExceptionData("Y", "Warning", $"Function 정보 확인 필요: {functionID}");
                 result.Tables.Add(new DataTable());
                 return result;
@@ -206,11 +205,45 @@ namespace function.Areas.function.Controllers
 
             #endregion
 
-            return await GF01(dynamicParameters!, dataContext!);
+            var method = this.GetType().GetMethod(commandID, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+            if (method != null)
+            {
+                var returnType = method.ReturnType;
+                object[] parameters = { dynamicParameters, dataContext };
+                if (typeof(Task).IsAssignableFrom(returnType))
+                {
+                    var task = method.Invoke(this, parameters) as Task;
+                    if (task != null)
+                    {
+                        await task.ConfigureAwait(false);
+                    }
+
+                    if (returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(Task<>))
+                    {
+                        var resultProperty = returnType.GetProperty("Result");
+                        return resultProperty?.GetValue(task) as DataSet;
+                    }
+
+                    return null;
+                }
+                else
+                {
+                    return method.Invoke(this, parameters) as DataSet;
+                }
+            }
+            else
+            {
+                return null;
+            }
         }
 
-        [NonAction]
-        public async Task<DataSet?> GF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
+        [HttpGet]
+        public string Get()
+        {
+            return "function FunctionController";
+        }
+
+        protected async Task<DataSet?> GF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
             string typeMember = "TST.CSF010.GF01";
             string serverDate = dynamicParameters.Value("ServerDate").ToStringSafe();
@@ -230,12 +263,6 @@ namespace function.Areas.function.Controllers
 
             await Task.Delay(1);
             return result;
-        }
-
-        [HttpGet]
-        public string Get()
-        {
-            return "function FunctionController";
         }
     }
 }
