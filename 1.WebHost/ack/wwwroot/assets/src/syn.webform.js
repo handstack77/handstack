@@ -3051,6 +3051,43 @@
                             moduleScript = await syn.$w.fetchText(moduleUrl + '.js?tick=' + new Date().getTime());
                         }
 
+                        var isBase64 = function (str) {
+                            var result = false;
+                            if (str && str.length > 10) {
+                                var base64Regex = /^[A-Za-z0-9+/]+={0,2}$/;
+                                if (base64Regex.test(str.substring(0, 10)) == true) {
+                                    result = true;
+                                }
+                            }
+                            return result;
+                        }
+
+                        if (isBase64(moduleScript) == true) {
+                            var decodeError = null;
+                            var decodeScript;
+                            try {
+                                decodeScript = syn.$c.LZString.decompressFromBase64(moduleScript);
+                            } catch {
+                                decodeError = 'LZString decompress 오류';
+                            }
+
+                            if (decodeError) {
+                                try {
+                                    decodeScript = syn.$c.LZString.base64Decode(moduleScript);
+                                    decodeError = null;
+                                } catch {
+                                    decodeError = 'base64Decode 오류';
+                                }
+                            }
+
+                            if (decodeError) {
+                                syn.$l.eventLog('$w.fetchScript', `${decodeError}, <script src="${moduleUrl}.js"></script> 문법 확인 필요`, 'Error');
+                            }
+                            else {
+                                moduleScript = decodeScript;
+                            }
+                        }
+
                         if (moduleScript) {
                             var moduleFunction = "return (function() {var module = {};(function (window, module) {'use strict';" + moduleScript + ";var $module = new syn.module();$module.extend($" + moduleName + ");module.exports = $module;})(typeof window !== 'undefined' ? window : {},typeof module !== 'undefined' ? module : {});return module.exports;})();";
                             module = new Function(moduleFunction).call(globalRoot);
@@ -3091,7 +3128,7 @@
                 catch (error) {
                     syn.$l.eventLog('$w.fetchScript', error, 'Warning');
                     if (moduleScript) {
-                        syn.$l.eventLog('$w.fetchScript', '<script src="{0}.js"></script> 문법 확인 필요'.format(moduleUrl), 'Information');
+                        syn.$l.eventLog('$w.fetchScript', '<script src="{0}.js"></script> 문법 확인 필요'.format(moduleUrl), 'Error');
                     }
                 }
             }
