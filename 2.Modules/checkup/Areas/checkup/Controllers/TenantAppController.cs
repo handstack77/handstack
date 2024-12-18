@@ -22,6 +22,7 @@ using HandStack.Data.Client;
 using HandStack.Data.Enumeration;
 using HandStack.Web;
 using HandStack.Web.ApiClient;
+using HandStack.Web.Common;
 using HandStack.Web.Entity;
 using HandStack.Web.Extensions;
 using HandStack.Web.Helper;
@@ -53,7 +54,7 @@ namespace checkup.Areas.checkup.Controllers
     [Route("[area]/api/[controller]")]
     [ApiExplorerSettings(IgnoreApi = true)]
     [ApiController]
-    public class TenantAppController : ControllerBase
+    public class TenantAppController : BaseController
     {
         private readonly object balanceLock = new object();
 

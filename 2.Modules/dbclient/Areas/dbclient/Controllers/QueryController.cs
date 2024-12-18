@@ -11,6 +11,7 @@ using dbclient.Extensions;
 
 using HandStack.Core.ExtensionMethod;
 using HandStack.Web;
+using HandStack.Web.Common;
 using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.Enumeration;
 using HandStack.Web.MessageContract.Message;
@@ -27,7 +28,7 @@ namespace dbclient.Areas.dbclient.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors]
-    public class QueryController : ControllerBase
+    public class QueryController : BaseController
     {
         private DbClientLoggerClient loggerClient { get; }
 

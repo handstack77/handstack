@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using HandStack.Web.ApiClient;
+using HandStack.Web.Common;
 using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.Enumeration;
 using HandStack.Web.MessageContract.Message;
@@ -23,7 +24,7 @@ namespace openapi.Areas.openapi.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors]
-    public class ManagedController : ControllerBase
+    public class ManagedController : BaseController
     {
         private ILogger logger { get; }
 

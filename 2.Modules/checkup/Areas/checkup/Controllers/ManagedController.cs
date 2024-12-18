@@ -5,6 +5,7 @@ using checkup.Extensions;
 using HandStack.Core.ExtensionMethod;
 using HandStack.Data.Enumeration;
 using HandStack.Web;
+using HandStack.Web.Common;
 using HandStack.Web.Extensions;
 
 using Microsoft.AspNetCore.Cors;
@@ -19,7 +20,7 @@ namespace checkup.Areas.checkup.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors]
-    public class ManagedController : ControllerBase
+    public class ManagedController : BaseController
     {
         private ILogger logger { get; }
         private readonly ISequentialIdGenerator sequentialIdGenerator;

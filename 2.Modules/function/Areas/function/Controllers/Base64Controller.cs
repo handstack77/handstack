@@ -4,6 +4,7 @@ using System.Net;
 using function.Extensions;
 
 using HandStack.Core.ExtensionMethod;
+using HandStack.Web.Common;
 using HandStack.Web.Extensions;
 
 using Microsoft.AspNetCore.Cors;
@@ -16,7 +17,7 @@ namespace function.Areas.function.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors]
-    public class Base64Controller : ControllerBase
+    public class Base64Controller : BaseController
     {
         private FunctionLoggerClient loggerClient { get; }
         

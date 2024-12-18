@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 
-using Microsoft.AspNetCore.Diagnostics;
+using HandStack.Web.Common;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -14,7 +14,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
     [Area("wwwroot")]
     [Route("[controller]")]
     [ApiController]
-    public class ErrorController : ControllerBase
+    public class ErrorController : BaseController
     {
         private readonly IConfiguration configuration;
         private readonly ILogger logger;

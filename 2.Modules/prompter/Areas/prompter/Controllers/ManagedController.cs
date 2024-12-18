@@ -26,6 +26,7 @@ using Newtonsoft.Json;
 
 using Serilog;
 using prompter.Enumeration;
+using HandStack.Web.Common;
 
 namespace prompter.Areas.prompter.Controllers
 {
@@ -33,7 +34,7 @@ namespace prompter.Areas.prompter.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors]
-    public class ManagedController : ControllerBase
+    public class ManagedController : BaseController
     {
         private ILogger logger { get; }
         private IConfiguration configuration { get; }

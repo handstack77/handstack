@@ -4,6 +4,7 @@ using System.Globalization;
 
 using HandStack.Core.ExtensionMethod;
 using HandStack.Data.Enumeration;
+using HandStack.Web.Common;
 
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +19,7 @@ namespace transact.Areas.transact.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors]
-    public class AggregateController : ControllerBase
+    public class AggregateController : BaseController
     {
         private TransactLoggerClient loggerClient { get; }
         private Serilog.ILogger logger { get; }

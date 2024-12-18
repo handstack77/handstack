@@ -6,6 +6,7 @@ using System.Linq;
 using HandStack.Core.ExtensionMethod;
 using HandStack.Core.Helpers;
 using HandStack.Web;
+using HandStack.Web.Common;
 using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.DataObject;
 
@@ -25,7 +26,7 @@ namespace transact.Areas.transact.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors]
-    public class ManagedController : ControllerBase
+    public class ManagedController : BaseController
     {
         private TransactLoggerClient loggerClient { get; }
         private ILogger logger { get; }

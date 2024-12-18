@@ -5,14 +5,14 @@ using System.IO;
 using System.Linq;
 using System.Net;
 
-using checkup;
 using checkup.Entity;
 
 using HandStack.Core.ExtensionMethod;
-using HandStack.Web.Extensions;
 using HandStack.Core.Helpers;
 using HandStack.Web;
+using HandStack.Web.Common;
 using HandStack.Web.Entity;
+using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.DataObject;
 using HandStack.Web.Modules;
 
@@ -30,7 +30,7 @@ namespace checkup.Areas.checkup.Controllers
     [Route("[area]/api/[controller]")]
     [ApiExplorerSettings(IgnoreApi = true)]
     [ApiController]
-    public class FunctionController : ControllerBase
+    public class FunctionController : BaseController
     {
         // http://localhost:8000/checkup/api/function/execute?accessToken=test&loadOptions[option1]=value1&featureMeta.Timeout=0
         [HttpPost("[action]")]

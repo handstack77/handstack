@@ -9,6 +9,7 @@ using function.Extensions;
 
 using HandStack.Core.ExtensionMethod;
 using HandStack.Web;
+using HandStack.Web.Common;
 using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.DataObject;
 using HandStack.Web.MessageContract.Enumeration;
@@ -26,7 +27,7 @@ namespace function.Areas.function.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors()]
-    public class ExecutionController : ControllerBase
+    public class ExecutionController : BaseController
     {
         private FunctionLoggerClient loggerClient { get; }
 

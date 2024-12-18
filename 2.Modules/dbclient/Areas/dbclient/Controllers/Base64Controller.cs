@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Net;
-using System.Net.Http;
 
 using dbclient.Extensions;
 
 using HandStack.Core.ExtensionMethod;
+using HandStack.Web.Common;
 using HandStack.Web.Extensions;
 
 using Microsoft.AspNetCore.Cors;
@@ -17,7 +17,7 @@ namespace dbclient.Areas.dbclient.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors]
-    public class Base64Controller : ControllerBase
+    public class Base64Controller : BaseController
     {
         private DbClientLoggerClient loggerClient { get; }
         

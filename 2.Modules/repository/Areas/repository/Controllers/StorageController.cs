@@ -13,6 +13,7 @@ using Azure.Storage.Blobs.Models;
 using HandStack.Core.ExtensionMethod;
 using HandStack.Data.Enumeration;
 using HandStack.Web;
+using HandStack.Web.Common;
 using HandStack.Web.Entity;
 using HandStack.Web.Extensions;
 using HandStack.Web.Helper;
@@ -36,7 +37,7 @@ namespace repository.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors]
-    public class StorageController : ControllerBase
+    public class StorageController : BaseController
     {
         private readonly ModuleApiClient moduleApiClient;
         private readonly ISequentialIdGenerator sequentialIdGenerator;

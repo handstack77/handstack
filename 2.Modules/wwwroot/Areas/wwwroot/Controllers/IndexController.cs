@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using HandStack.Core.ExtensionMethod;
 using HandStack.Web;
 using HandStack.Web.ApiClient;
+using HandStack.Web.Common;
 using HandStack.Web.Entity;
 using HandStack.Web.Extensions;
 
@@ -26,7 +27,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
     [Area("wwwroot")]
     [Route("[area]/api/[controller]")]
     [ApiController]
-    public class IndexController : ControllerBase
+    public class IndexController : BaseController
     {
         private readonly IMediator mediator;
         private readonly ILogger logger;

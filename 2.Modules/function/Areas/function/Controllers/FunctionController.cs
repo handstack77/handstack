@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using HandStack.Core.ExtensionMethod;
 using HandStack.Core.Helpers;
 using HandStack.Web;
+using HandStack.Web.Common;
 using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.DataObject;
 
@@ -25,7 +26,7 @@ namespace function.Areas.function.Controllers
     [Route("[area]/api/[controller]")]
     [ApiExplorerSettings(IgnoreApi = true)]
     [ApiController]
-    public class FunctionController : ControllerBase
+    public class FunctionController : BaseController
     {
         private ILogger? logger { get; }
         private readonly IHttpContextAccessor httpContextAccessor;

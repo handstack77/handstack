@@ -1,3 +1,5 @@
+﻿using HandStack.Web.Common;
+
 using MediatR;
 
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +11,7 @@ namespace prompter.Areas.prompter.Controllers
     [Area("prompter")]
     [Route("[area]/api/[controller]")]
     [ApiController]
-    public class IndexController : ControllerBase
+    public class IndexController : BaseController
     {
         private readonly IMediator mediator;
         private readonly ILogger logger;

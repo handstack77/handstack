@@ -11,6 +11,7 @@ using dbclient.Extensions;
 using HandStack.Core.ExtensionMethod;
 using HandStack.Data;
 using HandStack.Web;
+using HandStack.Web.Common;
 using HandStack.Web.Entity;
 using HandStack.Web.Extensions;
 
@@ -32,7 +33,7 @@ namespace dbclient.Areas.dbclient.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors]
-    public class ManagedController : ControllerBase
+    public class ManagedController : BaseController
     {
         private ILogger logger { get; }
         private IConfiguration configuration { get; }

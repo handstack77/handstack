@@ -2,6 +2,7 @@
 using System.Net;
 
 using HandStack.Core.ExtensionMethod;
+using HandStack.Web.Common;
 using HandStack.Web.Extensions;
 
 using Microsoft.AspNetCore.Cors;
@@ -15,7 +16,7 @@ namespace transact.Areas.transact.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors]
-    public class Base64Controller : ControllerBase
+    public class Base64Controller : BaseController
     {
         private TransactLoggerClient loggerClient { get; }
         private Serilog.ILogger logger { get; }

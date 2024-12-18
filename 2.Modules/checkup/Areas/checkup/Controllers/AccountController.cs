@@ -12,6 +12,7 @@ using HandStack.Core.ExtensionMethod;
 using HandStack.Data.Enumeration;
 using HandStack.Web;
 using HandStack.Web.ApiClient;
+using HandStack.Web.Common;
 using HandStack.Web.Entity;
 using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.DataObject;
@@ -38,7 +39,7 @@ namespace checkup.Areas.checkup.Controllers
     [Area("checkup")]
     [Route("[area]/api/[controller]")]
     [ApiController]
-    public class AccountController : ControllerBase
+    public class AccountController : BaseController
     {
         private readonly IDataProtector dataProtector;
         private readonly MediatorClient mediatorClient;

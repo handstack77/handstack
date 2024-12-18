@@ -5,6 +5,7 @@ using System.Linq;
 
 using HandStack.Data.Enumeration;
 using HandStack.Web;
+using HandStack.Web.Common;
 using HandStack.Web.Entity;
 using HandStack.Web.Extensions;
 
@@ -24,7 +25,7 @@ namespace repository.Areas.repository.Controllers
     [Area("repository")]
     [Route("[area]/api/[controller]")]
     [ApiController]
-    public class ManagedController : ControllerBase
+    public class ManagedController : BaseController
     {
         private IConfiguration configuration { get; }
 

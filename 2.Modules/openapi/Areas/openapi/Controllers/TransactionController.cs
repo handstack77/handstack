@@ -11,6 +11,7 @@ using System.Xml;
 
 using HandStack.Core.ExtensionMethod;
 using HandStack.Data;
+using HandStack.Web.Common;
 using HandStack.Web.Entity;
 using HandStack.Web.Enumeration;
 using HandStack.Web.Extensions;
@@ -36,7 +37,7 @@ namespace openapi.Areas.openapi.Controllers
     [Route("[area]")]
     [ApiController]
     [EnableCors]
-    public class TransactionController : ControllerBase
+    public class TransactionController : BaseController
     {
         private readonly ILogger logger;
 

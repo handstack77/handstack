@@ -12,6 +12,7 @@ using ChoETL;
 using HandStack.Core.ExtensionMethod;
 using HandStack.Core.Helpers;
 using HandStack.Web;
+using HandStack.Web.Common;
 using HandStack.Web.Entity;
 using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.Contract;
@@ -41,7 +42,7 @@ namespace transact.Areas.transact.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors]
-    public class TransactionController : ControllerBase
+    public class TransactionController : BaseController
     {
         private TransactLoggerClient loggerClient { get; }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
+using HandStack.Web.Common;
 using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.Message;
 
@@ -19,7 +20,7 @@ namespace logger.Areas.logger.Controllers
     [Route("[area]/api/[controller]")]
     [ApiController]
     [EnableCors]
-    public class LogController : ControllerBase
+    public class LogController : BaseController
     {
         private ILogger logger { get; }
 
