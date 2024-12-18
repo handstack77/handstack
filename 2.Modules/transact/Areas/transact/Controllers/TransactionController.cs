@@ -25,6 +25,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -948,25 +949,37 @@ namespace transact.Areas.transact.Controllers
                             bool isRoleYN = false;
                             if (refererPath.StartsWith(baseUrl) == true)
                             {
-                                var authenticateResult = await HttpContext.AuthenticateAsync(moduleScheme);
-                                if (authenticateResult.Succeeded == true)
+                                try
                                 {
-                                    var principal = authenticateResult.Principal;
-                                    if (principal?.Identity?.IsAuthenticated == true)
+                                    var schemeProvider = HttpContext.RequestServices.GetRequiredService<IAuthenticationSchemeProvider>();
+                                    var scheme = await schemeProvider.GetSchemeAsync(moduleScheme);
+                                    if (scheme != null)
                                     {
-                                        var roles = principal.FindFirst("Roles")?.Value;
-                                        if (roles != null && transactionInfo.Roles != null && transactionInfo.Roles.Count > 0)
+                                        var authenticateResult = await HttpContext.AuthenticateAsync(moduleScheme);
+                                        if (authenticateResult.Succeeded == true)
                                         {
-                                            foreach (var role in roles.SplitComma())
+                                            var principal = authenticateResult.Principal;
+                                            if (principal?.Identity?.IsAuthenticated == true)
                                             {
-                                                if (transactionInfo.Roles.IndexOf(role) > -1)
+                                                var roles = principal.FindFirst("Roles")?.Value;
+                                                if (roles != null && transactionInfo.Roles != null && transactionInfo.Roles.Count > 0)
                                                 {
-                                                    isRoleYN = true;
-                                                    break;
+                                                    foreach (var role in roles.SplitComma())
+                                                    {
+                                                        if (transactionInfo.Roles.IndexOf(role) > -1)
+                                                        {
+                                                            isRoleYN = true;
+                                                            break;
+                                                        }
+                                                    }
                                                 }
                                             }
                                         }
                                     }
+                                }
+                                catch
+                                {
+                                    isRoleYN = false;
                                 }
                             }
 
