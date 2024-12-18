@@ -275,27 +275,6 @@
                 }
             }
 
-            if (window.synConfigName == 'syn.config.json') {
-                var moduleFile = '';
-                if (window.moduleFile) {
-                    moduleFile = window.moduleFile;
-                }
-                else {
-                    var pathname = location.pathname;
-                    if (pathname.split('/').length > 0) {
-                        moduleFile = pathname.split('/')[location.pathname.split('/').length - 1];
-                        moduleFile = moduleFile.split('.').length == 2 ? (moduleFile.indexOf('.') > -1 ? moduleFile.substring(0, moduleFile.indexOf('.')) : moduleFile) : '';
-                    }
-                }
-
-                if (moduleFile.length > 0 && window['$' + moduleFile] == undefined) {
-                    var fileName = moduleFile.indexOf('.js') > -1 ? moduleFile : moduleFile + '.js';
-                    if (synLoader.scriptFiles.find(function (p) { return p === fileName; }) === undefined) {
-                        synLoader.scriptFiles.push(fileName);
-                    }
-                }
-            }
-
             await synLoader.loadFiles();
         },
 
@@ -922,20 +901,22 @@
         jsFiles.push(loaderPath);
         styleFiles = styleFiles.concat(window.Configuration.Definition?.Styles || []);
 
-        var moduleFile = '';
-        if (window.moduleFile) {
-            moduleFile = window.moduleFile;
-        }
-        else {
-            var pathname = location.pathname;
-            if (pathname.split('/').length > 0) {
-                moduleFile = pathname.split('/')[pathname.split('/').length - 1];
-                moduleFile = moduleFile.split('.').length == 2 ? (moduleFile.indexOf('.') > -1 ? moduleFile.substring(0, moduleFile.indexOf('.')) : moduleFile) : '';
+        if (synConfig.Environment !== 'Development') {
+            var moduleFile = '';
+            if (window.moduleFile) {
+                moduleFile = window.moduleFile;
             }
-        }
+            else {
+                var pathname = location.pathname;
+                if (pathname.split('/').length > 0) {
+                    moduleFile = pathname.split('/')[pathname.split('/').length - 1];
+                    moduleFile = moduleFile.split('.').length == 2 ? (moduleFile.indexOf('.') > -1 ? moduleFile.substring(0, moduleFile.indexOf('.')) : moduleFile) : '';
+                }
+            }
 
-        if (moduleFile.length > 0 && window['$' + moduleFile] == undefined) {
-            jsFiles.unshift(moduleFile.indexOf('.js') > -1 ? moduleFile : moduleFile + '.js');
+            if (moduleFile.length > 0 && window['$' + moduleFile] == undefined) {
+                jsFiles.unshift(moduleFile.indexOf('.js') > -1 ? moduleFile : moduleFile + '.js');
+            }
         }
 
         /*
