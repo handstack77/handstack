@@ -901,7 +901,7 @@
         jsFiles.push(loaderPath);
         styleFiles = styleFiles.concat(window.Configuration.Definition?.Styles || []);
 
-        if (synConfig.Environment !== 'Development') {
+        if (synConfig.Environment == 'Development') {
             var moduleFile = '';
             if (window.moduleFile) {
                 moduleFile = window.moduleFile;
