@@ -7,6 +7,7 @@ using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.Message;
 
 using logger.Encapsulation;
+using logger.Entity;
 
 using MediatR;
 

@@ -18,6 +18,7 @@ using Microsoft.Extensions.Configuration;
 
 using Serilog;
 
+using transact.Entity;
 using transact.Extensions;
 
 namespace transact.Areas.transact.Controllers

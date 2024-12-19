@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace checkup
+namespace checkup.Entity
 {
     public static class ModuleConfiguration
     {

@@ -6,7 +6,7 @@ using HandStack.Web.Entity;
 
 using Serilog;
 
-namespace dbclient
+namespace dbclient.Entity
 {
     public static class ModuleConfiguration
     {

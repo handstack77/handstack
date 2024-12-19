@@ -18,6 +18,8 @@ using Polly.CircuitBreaker;
 
 using RestSharp;
 
+using transact.Entity;
+
 namespace transact.Extensions
 {
     public class TransactLoggerClient

@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 
-using function.Entity;
 using function.Extensions;
 
 using Serilog;
 
-namespace function
+namespace function.Entity
 {
     public static class ModuleConfiguration
     {

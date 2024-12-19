@@ -3,7 +3,7 @@
 using HandStack.Web.Entity;
 using HandStack.Web.Extensions;
 
-namespace repository
+namespace repository.Entity
 {
     public static class ModuleConfiguration
     {

@@ -9,6 +9,8 @@ using HandStack.Data.ExtensionMethod;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
+using openapi.Entity;
+
 using Serilog;
 
 namespace openapi.Extensions

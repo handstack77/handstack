@@ -10,6 +10,7 @@ using HandStack.Web.Entity;
 using Newtonsoft.Json.Linq;
 
 using Serilog;
+using prompter.Entity;
 
 namespace prompter.Extensions
 {

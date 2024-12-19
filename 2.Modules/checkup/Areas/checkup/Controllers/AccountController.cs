@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
+using checkup.Entity;
 using checkup.Extensions;
 
 using HandStack.Core.ExtensionMethod;

@@ -24,6 +24,7 @@ using Newtonsoft.Json.Linq;
 
 using RestSharp;
 using System.IO;
+using transact.Entity;
 
 namespace transact.Extensions
 {

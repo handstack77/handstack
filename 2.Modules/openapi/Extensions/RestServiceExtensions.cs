@@ -4,6 +4,8 @@ using HandStack.Web.Extensions;
 
 using Microsoft.AspNetCore.Http;
 
+using openapi.Entity;
+
 namespace openapi.Extensions
 {
     public static class RestServiceExtensions

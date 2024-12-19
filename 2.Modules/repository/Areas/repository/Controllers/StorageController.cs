@@ -26,6 +26,7 @@ using Microsoft.Extensions.Configuration;
 
 using Newtonsoft.Json;
 
+using repository.Entity;
 using repository.Extensions;
 using repository.Message;
 

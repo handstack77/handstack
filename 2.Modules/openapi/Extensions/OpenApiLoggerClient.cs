@@ -8,6 +8,8 @@ using HandStack.Web.MessageContract.Message;
 
 using Newtonsoft.Json;
 
+using openapi.Entity;
+
 using Polly;
 using Polly.CircuitBreaker;
 

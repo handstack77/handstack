@@ -1,5 +1,7 @@
 ﻿using System;
 
+using checkup.Entity;
+
 using HandStack.Data.Client;
 using HandStack.Data.Enumeration;
 using HandStack.Data.ExtensionMethod;

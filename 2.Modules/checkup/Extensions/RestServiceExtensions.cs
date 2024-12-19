@@ -1,5 +1,7 @@
 ﻿using System.Linq;
 
+using checkup.Entity;
+
 using HandStack.Web.Extensions;
 
 using Microsoft.AspNetCore.Http;

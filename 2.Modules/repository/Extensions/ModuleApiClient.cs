@@ -15,6 +15,8 @@ using Microsoft.Extensions.Configuration;
 
 using Newtonsoft.Json;
 
+using repository.Entity;
+
 using Serilog;
 
 namespace repository.Extensions

@@ -4,6 +4,8 @@ using HandStack.Web.Extensions;
 
 using Microsoft.AspNetCore.Http;
 
+using prompter.Entity;
+
 namespace prompter.Extensions
 {
     public static class RestServiceExtensions

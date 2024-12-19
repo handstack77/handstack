@@ -11,6 +11,8 @@ using HandStack.Web.Entity;
 
 using Newtonsoft.Json;
 
+using repository.Entity;
+
 using Serilog;
 
 namespace repository.Extensions

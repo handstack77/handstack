@@ -13,6 +13,8 @@ using Newtonsoft.Json;
 
 using Serilog;
 
+using transact.Entity;
+
 namespace transact.Extensions
 {
     public static class ModuleExtensions

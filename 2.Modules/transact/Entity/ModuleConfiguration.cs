@@ -3,10 +3,9 @@ using System.Collections.Generic;
 
 using HandStack.Web.Extensions;
 
-using transact.Entity;
 using transact.Extensions;
 
-namespace transact
+namespace transact.Entity
 {
     public static class ModuleConfiguration
     {

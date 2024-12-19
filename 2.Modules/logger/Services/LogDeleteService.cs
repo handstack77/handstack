@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using logger.Encapsulation;
+using logger.Entity;
 
 using Microsoft.Extensions.Hosting;
 

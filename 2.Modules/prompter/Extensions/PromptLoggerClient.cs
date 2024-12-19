@@ -11,6 +11,8 @@ using Newtonsoft.Json;
 using Polly;
 using Polly.CircuitBreaker;
 
+using prompter.Entity;
+
 using RestSharp;
 
 namespace prompter.Extensions

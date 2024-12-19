@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using function.Encapsulation;
+using function.Entity;
 using function.Extensions;
 
 using HandStack.Core.ExtensionMethod;

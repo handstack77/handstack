@@ -1,5 +1,6 @@
 ﻿using System;
 
+using checkup.Entity;
 using checkup.Extensions;
 
 using HandStack.Core.ExtensionMethod;

@@ -10,6 +10,7 @@ using HandStack.Web.Entity;
 using Newtonsoft.Json.Linq;
 
 using Serilog;
+using checkup.Entity;
 
 namespace checkup.Extensions
 {

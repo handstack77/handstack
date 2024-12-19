@@ -10,6 +10,7 @@ using HandStack.Web;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
 
+using openapi.Entity;
 using openapi.Enumeration;
 
 using Serilog;

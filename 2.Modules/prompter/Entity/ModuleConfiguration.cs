@@ -6,7 +6,7 @@ using prompter.Extensions;
 
 using Serilog;
 
-namespace prompter
+namespace prompter.Entity
 {
     public static class ModuleConfiguration
     {

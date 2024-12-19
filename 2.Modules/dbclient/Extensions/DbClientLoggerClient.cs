@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 
+using dbclient.Entity;
+
 using HandStack.Web;
 using HandStack.Web.MessageContract.Message;
 

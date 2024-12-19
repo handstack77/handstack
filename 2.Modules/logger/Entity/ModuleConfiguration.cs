@@ -10,14 +10,12 @@ using HandStack.Core.ExtensionMethod;
 using HandStack.Data;
 using HandStack.Web;
 
-using logger.Entity;
-
 using Polly;
 using Polly.CircuitBreaker;
 
 using Serilog;
 
-namespace logger
+namespace logger.Entity
 {
     public static class ModuleConfiguration
     {
@@ -46,13 +44,13 @@ namespace logger
             var dataSource = DataSource.FirstOrDefault(p => p.ApplicationID == applicationID);
             if (dataSource == null)
             {
-                string userWorkID = string.Empty;
-                string appBasePath = string.Empty;
-                DirectoryInfo baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
+                var userWorkID = string.Empty;
+                var appBasePath = string.Empty;
+                var baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
                 var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
-                foreach (string directory in directories)
+                foreach (var directory in directories)
                 {
-                    DirectoryInfo directoryInfo = new DirectoryInfo(directory);
+                    var directoryInfo = new DirectoryInfo(directory);
                     if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
                     {
                         appBasePath = directoryInfo.FullName;
@@ -61,19 +59,19 @@ namespace logger
                     }
                 }
 
-                string tenantID = $"{userWorkID}|{applicationID}";
+                var tenantID = $"{userWorkID}|{applicationID}";
                 if (string.IsNullOrEmpty(appBasePath) == false)
                 {
-                    string transactionLogBasePath = Path.Combine(appBasePath, ".managed", "sqlite");
+                    var transactionLogBasePath = Path.Combine(appBasePath, ".managed", "sqlite");
                     if (Directory.Exists(transactionLogBasePath) == false)
                     {
                         Directory.CreateDirectory(transactionLogBasePath);
                     }
 
-                    string logDbFilePath = Path.Combine(transactionLogBasePath, $"transact.db");
-                    string connectionString = $"URI=file:{logDbFilePath};Journal Mode=Off;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;";
+                    var logDbFilePath = Path.Combine(transactionLogBasePath, $"transact.db");
+                    var connectionString = $"URI=file:{logDbFilePath};Journal Mode=Off;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;";
 
-                    FileInfo fileInfo = new FileInfo(logDbFilePath);
+                    var fileInfo = new FileInfo(logDbFilePath);
                     if (fileInfo.Directory != null && fileInfo.Directory.Exists == false)
                     {
                         Directory.CreateDirectory(fileInfo.Directory.FullName);
@@ -89,7 +87,7 @@ namespace logger
 
                     try
                     {
-                        bool isExistTable = CreateNotExistTable(connectionString, "TransactLog");
+                        var isExistTable = CreateNotExistTable(connectionString, "TransactLog");
                         if (isExistTable == true)
                         {
                             DataSource.Add(new DataSource()
@@ -104,8 +102,8 @@ namespace logger
 
                             if (ApplicationIDCircuitBreakers.ContainsKey(applicationID) == false)
                             {
-                                ApplicationCircuitBreakerPolicy applicationCircuitBreakerPolicy = new ApplicationCircuitBreakerPolicy();
-                                applicationCircuitBreakerPolicy.ApplicationCircuitBreaker = Polly.Policy
+                                var applicationCircuitBreakerPolicy = new ApplicationCircuitBreakerPolicy();
+                                applicationCircuitBreakerPolicy.ApplicationCircuitBreaker = Policy
                                     .Handle<SqlException>()
                                     .Or<Exception>()
                                     .CircuitBreaker(1, TimeSpan.FromSeconds(CircuitBreakResetSecond), onBreak: (exception, timespan, context) =>
@@ -138,10 +136,10 @@ namespace logger
 
         private static bool CreateNotExistTable(string connectionString, string tableName)
         {
-            bool result = false;
+            var result = false;
             var dataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), "SQLite");
-            string commandText = $"SELECT COUNT(*) AS IsExists FROM sqlite_master WHERE type='table' AND name ='{tableName}';";
-            using (DatabaseFactory databaseFactory = new DatabaseFactory(connectionString, dataProvider))
+            var commandText = $"SELECT COUNT(*) AS IsExists FROM sqlite_master WHERE type='table' AND name ='{tableName}';";
+            using (var databaseFactory = new DatabaseFactory(connectionString, dataProvider))
             {
                 if (databaseFactory.Connection == null)
                 {
@@ -163,10 +161,10 @@ namespace logger
 
                         if (isExists == false)
                         {
-                            string sqlFilePath = Path.Combine(ModuleConfiguration.ModuleBasePath, "SQL", "Create", dataProvider.ToString() + ".txt");
+                            var sqlFilePath = Path.Combine(ModuleBasePath, "SQL", "Create", dataProvider.ToString() + ".txt");
                             if (File.Exists(sqlFilePath) == true)
                             {
-                                string ddlScript = File.ReadAllText(sqlFilePath).Replace("{TableName}", tableName);
+                                var ddlScript = File.ReadAllText(sqlFilePath).Replace("{TableName}", tableName);
 
                                 command.CommandText = ddlScript;
                                 command.ExecuteNonQuery();

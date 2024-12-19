@@ -8,6 +8,8 @@ using HandStack.Web.MessageContract.DataObject;
 
 using Microsoft.AspNetCore.Http;
 
+using transact.Entity;
+
 namespace transact.Extensions
 {
     public static class RestServiceExtensions

@@ -14,6 +14,7 @@ using HandStack.Web.MessageContract.Message;
 using MediatR;
 
 using Newtonsoft.Json;
+using function.Entity;
 
 namespace function.Events
 {

@@ -3,6 +3,7 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
 
+using dbclient.Entity;
 using dbclient.Profiler;
 
 using HandStack.Data.ExtensionMethod;

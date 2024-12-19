@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace wwwroot
+namespace wwwroot.Entity
 {
     public static class ModuleConfiguration
     {
