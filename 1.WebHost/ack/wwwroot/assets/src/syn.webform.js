@@ -3053,9 +3053,9 @@
 
                         var isBase64 = function (str) {
                             var result = false;
-                            if (str && str.length > 10) {
+                            if (str && str.length > 32) {
                                 var base64Regex = /^[A-Za-z0-9+/]+={0,2}$/;
-                                if (base64Regex.test(str.substring(0, 10)) == true) {
+                                if (base64Regex.test(str.substring(0, 32)) == true) {
                                     result = true;
                                 }
                             }
@@ -3067,13 +3067,16 @@
                             var decodeScript;
                             try {
                                 decodeScript = syn.$c.LZString.decompressFromBase64(moduleScript);
+                                if (decodeScript == null) {
+                                    decodeError = 'LZString decompress 오류';
+                                }
                             } catch {
                                 decodeError = 'LZString decompress 오류';
                             }
 
                             if (decodeError) {
                                 try {
-                                    decodeScript = syn.$c.LZString.base64Decode(moduleScript);
+                                    decodeScript = syn.$c.base64Decode(moduleScript);
                                     decodeError = null;
                                 } catch {
                                     decodeError = 'base64Decode 오류';
@@ -3089,7 +3092,7 @@
                         }
 
                         if (moduleScript) {
-                            var moduleFunction = "return (function() {var module = {};(function (window, module) {'use strict';" + moduleScript + ";var $module = new syn.module();$module.extend($" + moduleName + ");module.exports = $module;})(typeof window !== 'undefined' ? window : {},typeof module !== 'undefined' ? module : {});return module.exports;})();";
+                            var moduleFunction = "return (function(){var module={};(function(window,module){'use strict';" + moduleScript + ";var $module=new syn.module();$module.extend($" + moduleName + ");module.exports=$module;})(typeof window!=='undefined'?window:{},typeof module!=='undefined'?module:{});return module.exports;})();";
                             module = new Function(moduleFunction).call(globalRoot);
                         }
                         else {
