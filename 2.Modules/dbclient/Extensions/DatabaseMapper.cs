@@ -108,6 +108,7 @@ namespace dbclient.Extensions
                                         dataSourceMap.ProjectListID = item.ProjectID.Split(",").Where(s => string.IsNullOrWhiteSpace(s) == false).Distinct().ToList();
                                         dataSourceMap.DataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), item.DataProvider);
                                         dataSourceMap.ConnectionString = item.ConnectionString;
+                                        dataSourceMap.TransactionIsolationLevel = string.IsNullOrEmpty(item.TransactionIsolationLevel) == true ? "ReadCommitted" : item.TransactionIsolationLevel;
 
                                         if (item.IsEncryption.ParseBool() == true)
                                         {
@@ -260,6 +261,7 @@ namespace dbclient.Extensions
                                                 statementMap.DataSourceID = ModuleConfiguration.DefaultDataSourceID;
                                             }
 
+                                            statementMap.TransactionIsolationLevel = (header?.Element("isolation")?.InnerText).ToStringSafe();
                                             statementMap.StatementID = item.Attributes["id"].Value + item.Attributes["seq"].Value.PadLeft(2, '0');
                                             statementMap.Seq = int.Parse(item.Attributes["seq"].Value);
                                             statementMap.Comment = item.Attributes["desc"].Value;
@@ -474,6 +476,7 @@ namespace dbclient.Extensions
                                             statementMap.DataSourceID = ModuleConfiguration.DefaultDataSourceID;
                                         }
 
+                                        statementMap.TransactionIsolationLevel = (header?.Element("isolation")?.InnerText).ToStringSafe();
                                         statementMap.StatementID = item.Attributes["id"].Value + item.Attributes["seq"].Value.PadLeft(2, '0');
                                         statementMap.Seq = int.Parse(item.Attributes["seq"].Value);
                                         statementMap.Comment = item.Attributes["desc"].Value;
@@ -1032,6 +1035,7 @@ namespace dbclient.Extensions
                                             statementMap.DataSourceID = ModuleConfiguration.DefaultDataSourceID;
                                         }
 
+                                        statementMap.TransactionIsolationLevel = (header?.Element("isolation")?.InnerText).ToStringSafe();
                                         statementMap.StatementID = item.Attributes["id"].Value + item.Attributes["seq"].Value.PadLeft(2, '0');
                                         statementMap.Seq = int.Parse(item.Attributes["seq"].Value);
                                         statementMap.Comment = item.Attributes["desc"].Value;
@@ -1130,6 +1134,7 @@ namespace dbclient.Extensions
                         dataSourceMap.ProjectListID = item.ProjectID.Split(",").Where(s => string.IsNullOrWhiteSpace(s) == false).Distinct().ToList();
                         dataSourceMap.DataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), item.DataProvider);
                         dataSourceMap.ConnectionString = item.ConnectionString;
+                        dataSourceMap.TransactionIsolationLevel = string.IsNullOrEmpty(item.TransactionIsolationLevel) == true ? "ReadCommitted" : item.TransactionIsolationLevel;
 
                         if (item.IsEncryption.ParseBool() == true)
                         {

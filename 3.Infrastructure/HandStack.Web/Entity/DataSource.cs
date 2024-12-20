@@ -13,6 +13,9 @@ namespace HandStack.Web.Entity
         [JsonProperty("DataSourceID")]
         public string DataSourceID { get; set; } = string.Empty;
 
+        [JsonProperty("TransactionIsolationLevel")]
+        public string TransactionIsolationLevel { get; set; } = "ReadCommitted";
+
         [JsonProperty("TanantPattern")]
         public string TanantPattern { get; set; } = string.Empty;
 

@@ -33,6 +33,7 @@ namespace dbclient.Events
     templateParameters.Add("applicationID", "");
     templateParameters.Add("projectID", "");
     templateParameters.Add("dataSourceID", "");
+    templateParameters.Add("isolationLevel", "");
     templateParameters.Add("dataProvider", "");
     templateParameters.Add("connectionString", "");
     templateParameters.Add("isEncryption", "");
@@ -80,6 +81,7 @@ namespace dbclient.Events
                             ApplicationID = managedAction.Arguments.Get<string>("applicationID").ToStringSafe(),
                             ProjectID = managedAction.Arguments.Get<string>("projectID").ToStringSafe(),
                             DataSourceID = managedAction.Arguments.Get<string>("dataSourceID").ToStringSafe(),
+                            TransactionIsolationLevel = managedAction.Arguments.Get<string>("isolationLevel").ToStringSafe(),
                             DataProvider = managedAction.Arguments.Get<string>("dataProvider").ToStringSafe(),
                             ConnectionString = managedAction.Arguments.Get<string>("connectionString").ToStringSafe(),
                             IsEncryption = managedAction.Arguments.Get<string>("isEncryption").ToStringSafe(),
@@ -112,6 +114,7 @@ namespace dbclient.Events
                                     dataSourceMap.ProjectListID = item.ProjectID.Split(",").Where(s => string.IsNullOrWhiteSpace(s) == false).Distinct().ToList();
                                     dataSourceMap.DataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), item.DataProvider);
                                     dataSourceMap.ConnectionString = item.ConnectionString;
+                                    dataSourceMap.TransactionIsolationLevel = string.IsNullOrEmpty(item.TransactionIsolationLevel) == true ? "ReadCommitted" : item.TransactionIsolationLevel;
 
                                     if (item.IsEncryption.ParseBool() == true)
                                     {

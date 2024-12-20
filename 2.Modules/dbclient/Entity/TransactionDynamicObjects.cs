@@ -1,5 +1,4 @@
-﻿using System.Data;
-using System.Data.Common;
+﻿using System.Data.Common;
 
 using HandStack.Data;
 using HandStack.Web.MessageContract.DataObject;
@@ -11,12 +10,14 @@ namespace dbclient.Entity
         public QueryObject DynamicTransaction = new QueryObject();
         public StatementMap Statement = new StatementMap();
         public string? ConnectionString;
+        public string? TransactionIsolationLevel;
+        public DataProviders DataProvider;
+    }
+
+    public class DatabaseTransactionObjects
+    {
         public DataProviders DataProvider;
         public DatabaseFactory? ConnectionFactory;
         public DbTransaction? DatabaseTransaction;
-        public IDataReader? MainReader;
-        public DatabaseFactory? PretreatmentConnectionFactory;
-        public DbTransaction? PretreatmentDatabaseTransaction;
-        public IDataReader? PretreatmentReader;
     }
 }

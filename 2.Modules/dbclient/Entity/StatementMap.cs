@@ -23,6 +23,9 @@ namespace dbclient.Entity
         public string DataSourceID { get; set; }
 
         [JsonProperty]
+        public string TransactionIsolationLevel { get; set; }
+
+        [JsonProperty]
         public string StatementID { get; set; }
 
         [JsonProperty]
@@ -66,6 +69,7 @@ namespace dbclient.Entity
             ProjectID = "";
             TransactionID = "";
             DataSourceID = "";
+            TransactionIsolationLevel = "ReadCommitted";
             StatementID = "";
             Seq = 0;
             Comment = "";

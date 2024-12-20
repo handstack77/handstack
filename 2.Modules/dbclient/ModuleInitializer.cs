@@ -98,6 +98,7 @@ namespace dbclient
                                     ApplicationID = item.ApplicationID,
                                     ProjectID = item.ProjectID,
                                     DataSourceID = item.DataSourceID,
+                                    TransactionIsolationLevel = string.IsNullOrEmpty(item.TransactionIsolationLevel) == true ? "ReadCommitted" : item.TransactionIsolationLevel,
                                     DataProvider = item.DataProvider,
                                     ConnectionString = item.ConnectionString,
                                     IsEncryption = item.IsEncryption,
