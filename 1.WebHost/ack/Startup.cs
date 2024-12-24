@@ -98,6 +98,7 @@ namespace ack
             GlobalConfiguration.BusinessServerUrl = appSettings["BusinessServerUrl"].ToStringSafe();
             GlobalConfiguration.RunningEnvironment = appSettings["RunningEnvironment"].ToStringSafe();
             GlobalConfiguration.HostName = string.IsNullOrEmpty(appSettings["HostName"].ToStringSafe()) == true ? Dns.GetHostName() : appSettings["HostName"].ToStringSafe();
+            GlobalConfiguration.SystemName = Dns.GetHostName();
             GlobalConfiguration.HostAccessID = appSettings["HostAccessID"].ToStringSafe();
             GlobalConfiguration.SystemID = appSettings["SystemID"].ToStringSafe();
             GlobalConfiguration.FindGlobalIDServer = appSettings["FindGlobalIDServer"].ToStringSafe();
