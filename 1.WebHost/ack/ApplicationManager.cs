@@ -89,6 +89,7 @@ namespace ack
                 BackgroundTaskAsync();
             });
 
+            GlobalConfiguration.IsRunning = true;
             await host.RunAsync(cancellationTokenSource.Token);
             host.Dispose();
         }

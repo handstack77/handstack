@@ -575,6 +575,21 @@ namespace ack
             services.AddModules();
             services.AddCustomizedMvc(GlobalConfiguration.Modules);
 
+            var homePath = new DirectoryInfo(GlobalConfiguration.EntryBasePath).Parent?.FullName;
+            string baseContractPath = Path.Combine(homePath.ToStringSafe(), "contracts");
+            if (Directory.Exists(baseContractPath) == true)
+            {
+                foreach (string file in Directory.GetFiles(baseContractPath))
+                {
+                    File.Delete(file);
+                }
+
+                foreach (string subdirectory in Directory.GetDirectories(baseContractPath))
+                {
+                    Directory.Delete(subdirectory, true);
+                }
+            }
+
             foreach (var module in GlobalConfiguration.Modules)
             {
                 Log.Information("[{LogCategory}] " + $"module: {module.ModuleID}", "Startup/ConfigureServices");
@@ -592,6 +607,12 @@ namespace ack
                             {
                                 try
                                 {
+                                    string moduleContractPath = Path.Combine(module.BasePath, "Contracts");
+                                    if (Directory.Exists(moduleContractPath) == true)
+                                    {
+                                        DirectoryCopy(moduleContractPath, baseContractPath);
+                                    }
+
                                     services.AddSingleton(typeof(IModuleInitializer), moduleInitializer);
                                     moduleInitializer.ConfigureServices(services, environment, configuration);
                                 }
@@ -1059,6 +1080,18 @@ namespace ack
             }
             catch
             {
+            }
+        }
+
+        protected void DirectoryCopy(string sourceDir, string destDir)
+        {
+            Directory.CreateDirectory(destDir);
+
+            foreach (string file in Directory.GetFiles(sourceDir, "*", SearchOption.AllDirectories))
+            {
+                string destFile = file.Replace(sourceDir, destDir);
+                Directory.CreateDirectory(Path.GetDirectoryName(destFile).ToStringSafe());
+                File.Copy(file, destFile, true);
             }
         }
 

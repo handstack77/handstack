@@ -81,6 +81,7 @@ namespace HandStack.Web
         public static string CookiePrefixName = "";
         public static int ServerPort = 80;
         public static bool IsApiFindServer = true;
+        public static bool IsRunning = false;
         public static List<string> DisposeTenantApps = new List<string>();
         public static List<string> WithOrigins = new List<string>();
         public static string FindGlobalIDServer = "";

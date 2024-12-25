@@ -206,7 +206,7 @@ namespace transact
                     var fileSyncManager = new FileSyncManager(basePath, "*.json");
                     fileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
                     {
-                        if (fileInfo.FullName.IndexOf(basePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))
+                        if (GlobalConfiguration.IsRunning == true && fileInfo.FullName.IndexOf(basePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))
                         {
                             string filePath = fileInfo.FullName.Replace(basePath, "");
                             string hostUrl = $"http://localhost:{GlobalConfiguration.ServerPort}/transact/api/transaction/refresh?changeType={changeTypes}&filePath={filePath}";
