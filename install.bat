@@ -24,14 +24,7 @@ if %errorlevel% neq 0 (
 
 where node >nul 2>nul
 if %errorlevel% neq 0 (
-    echo Node.js v20.12.2 LTS 를 설치 해야 합니다.
-    start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#winget-을-이용한-nodejs-설치"
-    goto :EOF
-)
-
-node --version | findstr /R "^v20\." >nul 2>nul
-if %errorlevel% neq 0 (
-    echo Node.js v20.12.2 LTS 가 필요합니다. 기존 node 버전을 업데이트 해야 합니다.
+    echo Node.js v20.12.2 LTS 이상 버전을 설치 해야 합니다.
     start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#winget-을-이용한-nodejs-설치"
     goto :EOF
 )

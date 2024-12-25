@@ -23,19 +23,8 @@ if [ $MAJOR_VERSION -lt 8 ]; then
 fi
 
 if ! command -v node 2> ~/null; then
-    echo "Node.js v20.12.2 LTS 를 설치 해야 합니다."
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        echo "참고: https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#homebrew-를-이용한-net-core-설치"
-    else
-        echo "참고: https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#homebrew-를-이용한-nodejs-설치"
-    fi
-    exit
-fi
-
-node_version=$(node --version | grep -E "^v20\.")
-if [ -z "$node_version" ]; then
-    echo "Node.js v20.12.2 LTS 가 필요합니다. 기존 node 버전을 업데이트 해야 합니다."
-    echo "참고: https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#gulp-설치하기"
+    echo "Node.js v20.12.2 LTS 이상 버전을 설치 해야 합니다."
+    echo "참고: https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#homebrew-를-이용한-nodejs-설치"
     exit
 fi
 
