@@ -26,13 +26,11 @@ echo HANDSTACK_CLI: %HANDSTACK_CLI%
 echo TASK_COMMAND: %TASK_COMMAND%
 echo TASK_SETTING: %TASK_SETTING%
 
-if "%TASK_COMMAND%"=="run" (
-    echo TASK_SETTING: %TASK_SETTING%
-    if "%TASK_SETTING%"=="development" (
-        echo purge contracts...
-	    %HANDSTACK_CLI% purgecontracts --ack=%HANDSTACK_ACK% --directory=%WORKING_PATH%/Contracts
-    )
+if "%TASK_COMMAND%"=="purge" (
+    %HANDSTACK_CLI% purgecontracts --ack=%HANDSTACK_ACK% --directory=%WORKING_PATH%/Contracts
+)
 
+if "%TASK_COMMAND%"=="run" (
     %HANDSTACK_CLI% configuration --ack=%HANDSTACK_ACK% --appsettings=%WORKING_PATH%/Settings/ack.%TASK_SETTING%.json
     %HANDSTACK_ACK%
 )

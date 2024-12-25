@@ -46,15 +46,13 @@ echo "HANDSTACK_CLI: $HANDSTACK_CLI"
 echo "TASK_COMMAND: $TASK_COMMAND"
 echo "TASK_SETTING: $TASK_SETTING"
 
-if [ "$TASK_COMMAND" == "run" ]; then
-    echo "TASK_SETTING: $TASK_SETTING"
-    if [ "$TASK_SETTING" == "development" ]; then
-        echo "purge contracts..."
-	    $HANDSTACK_CLI purgecontracts --ack=$HANDSTACK_PATH/1.WebHost/build/handstack/app/ack.exe --directory=$WORKING_PATH/Contracts
-    fi
+if [ "$TASK_COMMAND" == "purge" ]; then
+    $HANDSTACK_CLI purgecontracts --ack=$HANDSTACK_ACK --directory=$WORKING_PATH/Contracts
+fi
 
-    $HANDSTACK_CLI configuration --ack=$HANDSTACK_PATH/1.WebHost/build/handstack/app/ack.exe --appsettings=$WORKING_PATH/Settings/ack.$TASK_SETTING.json
-    $HANDSTACK_PATH/1.WebHost/build/handstack/app/ack.exe
+if [ "$TASK_COMMAND" == "run" ]; then
+    $HANDSTACK_CLI configuration --ack=$HANDSTACK_ACK --appsettings=$WORKING_PATH/Settings/ack.$TASK_SETTING.json
+    $HANDSTACK_ACK
 fi
 
 if [ "$TASK_COMMAND" == "copy" ]; then
