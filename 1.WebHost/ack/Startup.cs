@@ -613,6 +613,48 @@ namespace ack
                                         DirectoryCopy(moduleContractPath, baseContractPath);
                                     }
 
+                                    if (module.IsPurgeContract == true)
+                                    {
+                                        var ackFile = new FileInfo(Path.Combine(GlobalConfiguration.EntryBasePath, "ack.dll"));
+                                        var directory = new DirectoryInfo(moduleContractPath);
+                                        if (ackFile != null && ackFile.Exists == true && directory != null && directory.Exists == true)
+                                        {
+                                            string appBasePath = ackFile.DirectoryName.ToStringSafe();
+                                            string ackHomePath = (ackFile.Directory?.Parent?.FullName).ToStringSafe();
+                                            string targetContractDir = Path.Combine(ackHomePath, "contracts");
+                                            string baseDir = directory.FullName;
+
+                                            try
+                                            {
+                                                string[] subDirs = { "dbclient", "transact", "wwwroot", "repository", "function" };
+                                                foreach (string subDir in subDirs)
+                                                {
+                                                    string dirPath = Path.Combine(baseDir, subDir);
+                                                    if (Directory.Exists(dirPath))
+                                                    {
+                                                        string[] files = Directory.GetFiles(dirPath, "*", SearchOption.AllDirectories);
+                                                        foreach (string baseFile in files)
+                                                        {
+                                                            string targetFile = baseFile.Replace(baseDir, targetContractDir);
+                                                            if (File.Exists(targetFile) == true)
+                                                            {
+                                                                File.Delete(targetFile);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            catch (Exception exception)
+                                            {
+                                                Log.Error(exception, $"{module.ModuleID} purgecontracts 오류");
+                                            }
+                                        }
+                                        else
+                                        {
+                                            Log.Information($"ackFile:{ackFile?.FullName} 파일 확인 또는 settings:{directory?.FullName} 파일 확인이 필요합니다");
+                                        }
+                                    }
+
                                     services.AddSingleton(typeof(IModuleInitializer), moduleInitializer);
                                     moduleInitializer.ConfigureServices(services, environment, configuration);
                                 }

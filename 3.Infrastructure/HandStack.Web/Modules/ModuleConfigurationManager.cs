@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.IO;
 
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace HandStack.Web.Modules
 {
@@ -51,7 +53,7 @@ namespace HandStack.Web.Modules
                     {
                         using var reader = new StreamReader(moduleSettingFilePath);
                         string content = reader.ReadToEnd();
-                        dynamic? module = JsonConvert.DeserializeObject(content);
+                        var module = JsonConvert.DeserializeObject<DefaultModuleConfigJson>(content);
 
                         if (module != null)
                         {
@@ -62,6 +64,7 @@ namespace HandStack.Web.Modules
                             moduleInfo.Name = moduleID;
                             moduleInfo.Version = Version.Parse(module.Version.ToString());
                             moduleInfo.IsBundledWithHost = module.IsBundledWithHost;
+                            moduleInfo.IsPurgeContract = module.IsPurgeContract;
 
                             if (module.ModuleConfig?.EventAction != null)
                             {
@@ -103,6 +106,32 @@ namespace HandStack.Web.Modules
             }
 
             return modules;
+        }
+    }
+
+    class DefaultModuleConfigJson : ModuleSetting
+    {
+        public List<string> LoadPassAssemblyPath { get; set; }
+
+        public DefaultModuleConfig ModuleConfig { get; set; }
+
+        public DefaultModuleConfigJson()
+        {
+            ModuleConfig = new DefaultModuleConfig();
+            LoadPassAssemblyPath = new List<string>();
+        }
+    }
+
+    class DefaultModuleConfig
+    {
+        public List<string> EventAction { get; set; }
+
+        public List<string> SubscribeAction { get; set; }
+
+        public DefaultModuleConfig()
+        {
+            EventAction = new List<string>();
+            SubscribeAction = new List<string>();
         }
     }
 }

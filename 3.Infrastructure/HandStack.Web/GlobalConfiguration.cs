@@ -33,6 +33,8 @@ namespace HandStack.Web
 
         public bool IsBundledWithHost { get; set; }
 
+        public bool IsPurgeContract { get; set; }
+
         public string Version { get; set; }
 
         public ModuleSetting()
@@ -43,6 +45,7 @@ namespace HandStack.Web
             Company = "";
             IsRequiredLicense = false;
             IsBundledWithHost = false;
+            IsPurgeContract = false;
             Version = "";
         }
     }
