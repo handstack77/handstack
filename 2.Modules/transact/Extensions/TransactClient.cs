@@ -1126,7 +1126,8 @@ namespace transact.Extensions
                 }
                 else
                 {
-                    jObject[targetFieldID + "_$MASKING"] = AesCryptoHelper.Encrypt(targetFieldValue, correlationID);
+                    var aesResult = CryptoHelper.AesEncode(targetFieldValue, correlationID);
+                    jObject[targetFieldID + "_$MASKING"] = $"{aesResult.iv}|{aesResult.encrypted}";
                 }
 
                 string matchPattern = masking.MatchPattern;
