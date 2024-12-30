@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
@@ -137,7 +138,7 @@ namespace ack
                     webBuilder.UseKestrel((options) =>
                     {
                         options.ListenAnyIP(port);
-                        if (string.IsNullOrEmpty(GlobalConfiguration.ServerDevCertFilePath) == false)
+                        if (string.IsNullOrEmpty(GlobalConfiguration.ServerDevCertFilePath) == false && File.Exists(GlobalConfiguration.ServerDevCertFilePath) == true)
                         {
                             if (SocketExtensions.PortInUse(GlobalConfiguration.ServerDevCertSslPort) == true)
                             {
@@ -155,7 +156,7 @@ namespace ack
                                 }
                                 catch (Exception exception)
                                 {
-                                    Log.Error(exception, $"ASP.NET Core HTTPS 개발 인증서 확인 필요. SslPort: {GlobalConfiguration.ServerDevCertSslPort}, Thumbprint: {GlobalConfiguration.ServerDevCertFilePath}");
+                                    Log.Error(exception, $"HTTPS 인증서 확인 필요. SslPort: {GlobalConfiguration.ServerDevCertSslPort}, FilePath: {GlobalConfiguration.ServerDevCertFilePath}");
                                 }
                             }
                         }
