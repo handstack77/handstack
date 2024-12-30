@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using ack.Extensions;
@@ -211,6 +213,20 @@ namespace ack
                 }
             }
 
+            GlobalConfiguration.IsPermissionRoles = bool.Parse(appSettings["IsPermissionRoles"].ToStringSafe("false"));
+            var sectionPermissionRoles = appSettings.GetSection("PermissionRoles");
+            if (sectionPermissionRoles != null)
+            {
+                var permissionRoles = sectionPermissionRoles.Get<List<PermissionRoles>>();
+                if (permissionRoles != null && permissionRoles.Any() == true)
+                {
+                    foreach (var item in permissionRoles)
+                    {
+                        GlobalConfiguration.PermissionRoles.Add(item);
+                    }
+                }
+            }
+
             TransactionConfig.DiscoveryApiServerUrl = appSettings["DiscoveryApiServerUrl"].ToStringSafe();
             TransactionConfig.Program.InstallType = appSettings["InstallType"].ToStringSafe();
             TransactionConfig.Program.ProgramVersion = GlobalConfiguration.ApplicationVersion;
@@ -378,6 +394,7 @@ namespace ack
                     builder => builder
                         .AllowAnyHeader()
                         .AllowAnyMethod()
+                        .AllowCredentials()
                         .WithOrigins(GlobalConfiguration.WithOrigins.ToArray())
                         .SetIsOriginAllowedToAllowWildcardSubdomains()
                         .SetPreflightMaxAge(TimeSpan.FromSeconds(86400))
@@ -403,7 +420,7 @@ namespace ack
                     builder => builder
                         .AllowAnyHeader()
                         .AllowAnyMethod()
-                        .AllowAnyOrigin()
+                        .AllowCredentials()
                         .SetIsOriginAllowedToAllowWildcardSubdomains()
                         .SetPreflightMaxAge(TimeSpan.FromSeconds(86400))
                         .WithHeaders(HeaderNames.CacheControl)
@@ -672,10 +689,8 @@ namespace ack
             services.AddHostedService<NamePipeService>();
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment environment, ICorsService corsService, ICorsPolicyProvider corsPolicyProvider, IHostApplicationLifetime lifetime)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment environment, ICorsService corsService, ICorsPolicyProvider corsPolicyProvider)
         {
-            lifetime.ApplicationStarted.Register(() => ServerPortDetect(app.ServerFeatures));
-
             var ipRateLimitingSection = configuration.GetSection("IpRateLimiting");
             if (ipRateLimitingSection.Exists() == true)
             {
@@ -693,17 +708,11 @@ namespace ack
                 {
                     ForwardedHeaders = ForwardedHeaders.All
                 });
+            }
 
-                if (useHttpLogging == true)
-                {
-                    app.UseHttpLogging();
-
-                    app.Use(async (context, next) =>
-                    {
-                        var connectionInfo = context.Connection;
-                        await next(context);
-                    });
-                }
+            if (useHttpLogging == true)
+            {
+                app.UseHttpLogging();
             }
 
             GlobalConfiguration.ContentTypeProvider = new FileExtensionContentTypeProvider();
@@ -728,6 +737,55 @@ namespace ack
             {
                 Log.Error(exception, "[{LogCategory}] ncloudconfig.json 코드설정 확인 필요", "ack ModuleInitializer/InitailizeAppSetting");
             }
+
+            app.Use(async (context, next) =>
+            {
+                var connectionInfo = context.Connection;
+                var requestPath = context.Request.Path.ToString();
+                if (GlobalConfiguration.IsPermissionRoles == true && requestPath.IndexOf("/view/") > -1)
+                {
+                    bool isAuthorized = false;
+                    var permissionRoles = GlobalConfiguration.PermissionRoles.Where(x => x.ModuleID == "wwwroot");
+                    if (permissionRoles.Any() == true)
+                    {
+                        string? authenticationScheme = context.Request.Cookies[$"{GlobalConfiguration.CookiePrefixName}.AuthenticationScheme"];
+                        string? member = context.Request.Cookies[$"{GlobalConfiguration.CookiePrefixName}.Member"];
+                        if (string.IsNullOrEmpty(authenticationScheme) == false && string.IsNullOrEmpty(member) == false)
+                        {
+                            var user = JsonConvert.DeserializeObject<UserAccount>(member.DecodeBase64());
+                            if (user != null)
+                            {
+                                var userRoles = user.ApplicationRoleID.SplitComma();
+                                if (userRoles.Any() == true)
+                                {
+                                    foreach (var permissionRole in permissionRoles)
+                                    {
+                                        var roles = permissionRole.RoleID.SplitComma();
+                                        if (roles.Intersect(userRoles).Any() == true)
+                                        {
+                                            var allowFilePattern = new Regex($"[\\/]{permissionRole.ApplicationID}[\\/]{permissionRole.ProjectID}[\\/]{permissionRole.TransactionID}");
+                                            isAuthorized = allowFilePattern.IsMatch(requestPath);
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        isAuthorized = true;
+                    }
+
+                    if (isAuthorized == false)
+                    {
+                        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                        return;
+                    }
+                }
+
+                await next(context);
+            });
 
             string physicalPath = Path.Combine(GlobalConfiguration.EntryBasePath, "wwwroot");
             if (Directory.Exists(physicalPath) == true)
@@ -1120,8 +1178,9 @@ namespace ack
                     File.WriteAllText("app-startup.log", DateTime.Now.ToString());
                 }
             }
-            catch
+            catch (Exception exception)
             {
+                Log.Error(exception, "[{LogCategory}] " + "app-startup.log 파일 생성 실패", "Startup/Configure");
             }
         }
 
@@ -1160,21 +1219,6 @@ namespace ack
                     Log.Error("[{LogCategory}]" + $"{destFileName} 실패. {exception.Message}", "Startup/contractsync");
                 }
             }
-        }
-
-        static void ServerPortDetect(IFeatureCollection features)
-        {
-            int port = 80;
-            var addressFeature = features.Get<IServerAddressesFeature>();
-            if (addressFeature != null)
-            {
-                foreach (var address in addressFeature.Addresses)
-                {
-                    port = int.Parse(address.Split(':').Last());
-                }
-            }
-
-            GlobalConfiguration.ServerPort = port;
         }
     }
 }

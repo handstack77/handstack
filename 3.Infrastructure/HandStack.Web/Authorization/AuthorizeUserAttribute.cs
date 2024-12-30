@@ -27,9 +27,27 @@ namespace HandStack.Web.Authorization
             if (allowAnonymous == false)
             {
                 var account = context.HttpContext.Items["UserAccount"] as UserAccount;
-                if (account == null || (Roles.Any() == true && Roles.Any(account.Roles.Contains) == false))
+                if (account == null)
                 {
                     context.Result = new JsonResult(new { message = "Unauthorized" }) { StatusCode = StatusCodes.Status401Unauthorized };
+                }
+                else if (Roles.Any() == true)
+                {
+                    bool isAuthorized = false;
+                    for (int i = 0; i < account.Roles.Count; i++)
+                    {
+                        var memberRole = account.Roles[i];
+                        if (Enum.TryParse<Role>(memberRole, out var role) == true)
+                        {
+                            isAuthorized = Roles.Contains(role);
+                            break;
+                        }
+                    }
+
+                    if (isAuthorized == false)
+                    {
+                        context.Result = new JsonResult(new { message = "Unauthorized" }) { StatusCode = StatusCodes.Status401Unauthorized };
+                    }
                 }
             }
         }

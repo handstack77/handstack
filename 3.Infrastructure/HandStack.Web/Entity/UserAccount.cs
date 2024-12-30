@@ -47,7 +47,21 @@ namespace HandStack.Web.Entity
 
         public string SessionKey { get; set; } = string.Empty;
 
-        public List<Role> Roles { get; set; } = new List<Role>();
+        public string ApplicationRoleID { get; set; } = string.Empty;
+
+        /*
+        Root = 0,
+        Administrator = 100,
+        Master = 200,
+        Architect = 300,
+        Manager = 400,
+        BusinessOwner = 500,
+        Operator = 600,
+        Developer = 700,
+        Designer = 800,
+        User = 900
+         */
+        public List<string> Roles { get; set; } = new List<string>();
 
         public Dictionary<string, string> Claims { get; set; } = new Dictionary<string, string>();
 

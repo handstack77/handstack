@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO;
@@ -244,9 +244,9 @@ namespace checkup.Services
                         {
                             if (Enum.TryParse<Role>(tokenRole, out var role) == true)
                             {
-                                if (result.Roles.Contains(role) == false)
+                                if (result.Roles.Contains(role.ToString()) == false)
                                 {
-                                    result.Roles.Add(role);
+                                    result.Roles.Add(role.ToString());
                                 }
                             }
                         }

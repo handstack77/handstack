@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Net;
+using System.Runtime.InteropServices;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 
+using HandStack.Core.ExtensionMethod;
 using HandStack.Web;
 
 using Microsoft.AspNetCore.Hosting;
@@ -81,7 +84,14 @@ namespace ack
                 }
             }
 
-            Log.Information($"ack {port} Start...");
+            if (string.IsNullOrEmpty(GlobalConfiguration.ServerDevCertFilePath) == true)
+            {
+                Log.Information($"ack Port: {port} Start...");
+            }
+            else
+            {
+                Log.Information($"ack Port: {port}, SslPort: {GlobalConfiguration.ServerDevCertSslPort} Start...");
+            }
 
             _ = Task.Run(async () =>
             {
@@ -127,6 +137,28 @@ namespace ack
                     webBuilder.UseKestrel((options) =>
                     {
                         options.ListenAnyIP(port);
+                        if (string.IsNullOrEmpty(GlobalConfiguration.ServerDevCertFilePath) == false)
+                        {
+                            if (SocketExtensions.PortInUse(GlobalConfiguration.ServerDevCertSslPort) == true)
+                            {
+                                Log.Error($"{GlobalConfiguration.ServerDevCertSslPort} SSL 포트는 이미 사용중입니다. 참고 명령어) netstat -ano | findstr {GlobalConfiguration.ServerDevCertSslPort}");
+                            }
+                            else
+                            {
+                                try
+                                {
+                                    X509Certificate2 cert = new X509Certificate2(GlobalConfiguration.ServerDevCertFilePath, GlobalConfiguration.ServerDevCertPassword);
+                                    options.ListenAnyIP(GlobalConfiguration.ServerDevCertSslPort, listenOptions =>
+                                    {
+                                        listenOptions.UseHttps(cert);
+                                    });
+                                }
+                                catch (Exception exception)
+                                {
+                                    Log.Error(exception, $"ASP.NET Core HTTPS 개발 인증서 확인 필요. SslPort: {GlobalConfiguration.ServerDevCertSslPort}, Thumbprint: {GlobalConfiguration.ServerDevCertFilePath}");
+                                }
+                            }
+                        }
                         options.AddServerHeader = false;
                     });
                 })

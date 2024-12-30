@@ -325,7 +325,7 @@ namespace checkup.Areas.checkup.Controllers
                                     UserID = member.GetString("UserID").ToStringSafe(),
                                     UserName = member.GetString("UserName").ToStringSafe(),
                                     Email = member.GetString("Email").ToStringSafe(),
-                                    Roles = new List<Role>(),
+                                    Roles = new List<string>(),
                                     Claims = new Dictionary<string, string>(),
                                     LoginedAt = DateTime.Now
                                 };
@@ -335,9 +335,9 @@ namespace checkup.Areas.checkup.Controllers
                                 {
                                     if (Enum.TryParse<Role>(memberRole, out var role) == true)
                                     {
-                                        if (userAccount.Roles.Contains(role) == false)
+                                        if (userAccount.Roles.Contains(role.ToString()) == false)
                                         {
-                                            userAccount.Roles.Add(role);
+                                            userAccount.Roles.Add(role.ToString());
                                         }
                                     }
                                 }

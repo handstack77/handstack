@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -50,7 +50,7 @@ namespace checkup.Services
                         UserID = token["UserID"].ToStringSafe(),
                         UserName = token["UserName"].ToStringSafe(),
                         Email = token["Email"].ToStringSafe(),
-                        Roles = new List<Role>(),
+                        Roles = new List<string>(),
                         Claims = new Dictionary<string, string>(),
                         LoginedAt = DateTime.Now
                     };
@@ -70,9 +70,9 @@ namespace checkup.Services
                     {
                         if (Enum.TryParse<Role>(memberRole, out var role) == true)
                         {
-                            if (userAccount.Roles.Contains(role) == false)
+                            if (userAccount.Roles.Contains(role.ToString()) == false)
                             {
-                                userAccount.Roles.Add(role);
+                                userAccount.Roles.Add(role.ToString());
                             }
                         }
                     }

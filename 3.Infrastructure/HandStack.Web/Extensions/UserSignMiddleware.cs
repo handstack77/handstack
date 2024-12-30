@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -71,12 +72,9 @@ namespace HandStack.Web.Extensions
                             var tokenRoles = (httpContext.User.Claims.FirstOrDefault(x => x.Type == "Roles")?.Value).ToStringSafe().Split(",", StringSplitOptions.RemoveEmptyEntries);
                             foreach (var tokenRole in tokenRoles)
                             {
-                                if (Enum.TryParse<Role>(tokenRole, out var role) == true)
+                                if (userAccount.Roles.Contains(tokenRole) == false)
                                 {
-                                    if (userAccount.Roles.Contains(role) == false)
-                                    {
-                                        userAccount.Roles.Add(role);
-                                    }
+                                    userAccount.Roles.Add(tokenRole);
                                 }
                             }
 

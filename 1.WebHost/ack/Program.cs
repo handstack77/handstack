@@ -153,7 +153,13 @@ namespace ack
 
                     Log.Logger = loggerConfiguration.CreateLogger();
 
-                    int listenPort = (port == null ? 8000 : (int)port);
+                    GlobalConfiguration.ServerPort = (port == null ? int.Parse(configuration["AppSettings:ServerPort"].ToStringSafe("8000")) : (int)port);
+                    GlobalConfiguration.ServerDevCertSslPort = int.Parse(configuration["AppSettings:ServerDevCertSslPort"].ToStringSafe("8443"));
+                    // dotnet dev-certs https -ep %HANDSTACK_HOME%/ack.pfx [-p 1234]
+                    GlobalConfiguration.ServerDevCertFilePath = configuration["AppSettings:ServerDevCertFilePath"].ToStringSafe();
+                    GlobalConfiguration.ServerDevCertPassword = configuration["AppSettings:ServerDevCertPassword"];
+
+                    int listenPort = GlobalConfiguration.ServerPort;
                     if (SocketExtensions.PortInUse(listenPort) == true)
                     {
                         Log.Error($"{listenPort} 포트는 이미 사용중입니다. 참고 명령어) netstat -ano | findstr {listenPort}");

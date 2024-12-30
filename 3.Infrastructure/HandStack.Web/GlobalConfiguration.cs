@@ -6,6 +6,7 @@ using System.Net;
 using System.Text;
 
 using HandStack.Core.ExtensionMethod;
+using HandStack.Web.Entity;
 using HandStack.Web.Model;
 using HandStack.Web.Modules;
 
@@ -82,7 +83,10 @@ namespace HandStack.Web
         public static string LoadModuleBasePath = "";
         public static int UserSignExpire = 720;
         public static string CookiePrefixName = "";
-        public static int ServerPort = 80;
+        public static int ServerPort = 8000;
+        public static int ServerDevCertSslPort = 8443;
+        public static string ServerDevCertFilePath = "";
+        public static string? ServerDevCertPassword;
         public static bool IsApiFindServer = true;
         public static bool IsRunning = false;
         public static List<string> DisposeTenantApps = new List<string>();
@@ -99,6 +103,8 @@ namespace HandStack.Web
         public static string SessionCookieName = "";
         public static List<string> ModuleNames { get; set; } = new List<string>();
         public static List<ModuleInfo> Modules { get; set; } = new List<ModuleInfo>();
+        public static bool IsPermissionRoles = false;
+        public static List<PermissionRoles> PermissionRoles { get; set; } = new List<PermissionRoles>();
 
         public static string DefaultCulture => "ko-KR";
 
