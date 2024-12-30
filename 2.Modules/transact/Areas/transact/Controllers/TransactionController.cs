@@ -1120,11 +1120,19 @@ namespace transact.Areas.transact.Controllers
                         {
                             string queryID = $"/{request.System.ProgramID}/{request.Transaction.BusinessID}/{request.Transaction.TransactionID}";
 
-                            var publicRole = permissionRoles.FirstOrDefault(x => x.RoleID == "Public");
-                            if (publicRole != null)
+                            var publicRoles = permissionRoles.Where(x => x.RoleID == "Public");
+                            for (int i = 0; i < publicRoles.Count(); i++)
                             {
-                                var allowTransactionPattern = new Regex($"[\\/]{publicRole.ApplicationID}[\\/]{publicRole.ProjectID}[\\/]{publicRole.TransactionID}");
-                                isAuthorized = allowTransactionPattern.IsMatch(queryID);
+                                var publicRole = publicRoles.ElementAt(i);
+                                if (publicRole != null)
+                                {
+                                    var allowTransactionPattern = new Regex($"[\\/]{publicRole.ApplicationID}[\\/]{publicRole.ProjectID}[\\/]{publicRole.TransactionID}");
+                                    isAuthorized = allowTransactionPattern.IsMatch(queryID);
+                                    if (isAuthorized == true)
+                                    {
+                                        break;
+                                    }
+                                }
                             }
 
                             if (isAuthorized == false)
