@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using ChoETL;
@@ -30,6 +31,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+
+using Polly;
 
 using RestSharp;
 
@@ -1106,6 +1109,59 @@ namespace transact.Areas.transact.Controllers
                                     }
                                 }
                             }
+                        }
+                    }
+
+                    if (GlobalConfiguration.IsPermissionRoles == true && isBypassAuthorizeIP == false)
+                    {
+                        bool isAuthorized = false;
+                        var permissionRoles = GlobalConfiguration.PermissionRoles.Where(x => x.ModuleID == "transact");
+                        if (permissionRoles.Any() == true)
+                        {
+                            string queryID = $"/{request.System.ProgramID}/{request.Transaction.BusinessID}/{request.Transaction.TransactionID}";
+
+                            var publicRole = permissionRoles.FirstOrDefault(x => x.RoleID == "Public");
+                            if (publicRole != null)
+                            {
+                                var allowTransactionPattern = new Regex($"[\\/]{publicRole.ApplicationID}[\\/]{publicRole.ProjectID}[\\/]{publicRole.TransactionID}");
+                                isAuthorized = allowTransactionPattern.IsMatch(queryID);
+                            }
+
+                            if (isAuthorized == false)
+                            {
+                                var member = HttpContext.Request.Cookies[$"{GlobalConfiguration.CookiePrefixName}.Member"];
+                                if (string.IsNullOrEmpty(member) == false)
+                                {
+                                    var user = JsonConvert.DeserializeObject<UserAccount>(member.DecodeBase64());
+                                    if (user != null)
+                                    {
+                                        var userRoles = user.ApplicationRoleID.SplitComma();
+                                        if (userRoles.Any() == true)
+                                        {
+                                            foreach (var permissionRole in permissionRoles.Where(x => x.RoleID != "Public"))
+                                            {
+                                                var roles = permissionRole.RoleID.SplitComma();
+                                                if (roles.Intersect(userRoles).Any() == true)
+                                                {
+                                                    var allowTransactionPattern = new Regex($"[\\/]{permissionRole.ApplicationID}[\\/]{permissionRole.ProjectID}[\\/]{permissionRole.TransactionID}");
+                                                    isAuthorized = allowTransactionPattern.IsMatch(queryID);
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            isAuthorized = true;
+                        }
+
+                        if (isAuthorized == false)
+                        {
+                            response.ExceptionText = "인증 자격 증명 확인 필요";
+                            return Content(JsonConvert.SerializeObject(response), "application/json");
                         }
                     }
 

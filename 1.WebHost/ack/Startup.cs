@@ -740,7 +740,6 @@ namespace ack
 
             app.Use(async (context, next) =>
             {
-                var connectionInfo = context.Connection;
                 var requestPath = context.Request.Path.ToString();
                 if (GlobalConfiguration.IsPermissionRoles == true && requestPath.IndexOf("/view/") > -1)
                 {
@@ -748,24 +747,33 @@ namespace ack
                     var permissionRoles = GlobalConfiguration.PermissionRoles.Where(x => x.ModuleID == "wwwroot");
                     if (permissionRoles.Any() == true)
                     {
-                        string? authenticationScheme = context.Request.Cookies[$"{GlobalConfiguration.CookiePrefixName}.AuthenticationScheme"];
-                        string? member = context.Request.Cookies[$"{GlobalConfiguration.CookiePrefixName}.Member"];
-                        if (string.IsNullOrEmpty(authenticationScheme) == false && string.IsNullOrEmpty(member) == false)
+                        var publicRole = permissionRoles.FirstOrDefault(x => x.RoleID == "Public");
+                        if (publicRole != null)
                         {
-                            var user = JsonConvert.DeserializeObject<UserAccount>(member.DecodeBase64());
-                            if (user != null)
+                            var allowTransactionPattern = new Regex($"[\\/]{publicRole.ApplicationID}[\\/]{publicRole.ProjectID}[\\/]{publicRole.TransactionID}");
+                            isAuthorized = allowTransactionPattern.IsMatch(requestPath);
+                        }
+
+                        if (isAuthorized == false)
+                        {
+                            var member = context.Request.Cookies[$"{GlobalConfiguration.CookiePrefixName}.Member"];
+                            if (string.IsNullOrEmpty(member) == false)
                             {
-                                var userRoles = user.ApplicationRoleID.SplitComma();
-                                if (userRoles.Any() == true)
+                                var user = JsonConvert.DeserializeObject<UserAccount>(member.DecodeBase64());
+                                if (user != null)
                                 {
-                                    foreach (var permissionRole in permissionRoles)
+                                    var userRoles = user.ApplicationRoleID.SplitComma();
+                                    if (userRoles.Any() == true)
                                     {
-                                        var roles = permissionRole.RoleID.SplitComma();
-                                        if (roles.Intersect(userRoles).Any() == true)
+                                        foreach (var permissionRole in permissionRoles.Where(x => x.RoleID != "Public"))
                                         {
-                                            var allowFilePattern = new Regex($"[\\/]{permissionRole.ApplicationID}[\\/]{permissionRole.ProjectID}[\\/]{permissionRole.TransactionID}");
-                                            isAuthorized = allowFilePattern.IsMatch(requestPath);
-                                            break;
+                                            var roles = permissionRole.RoleID.SplitComma();
+                                            if (roles.Intersect(userRoles).Any() == true)
+                                            {
+                                                var allowTransactionPattern = new Regex($"[\\/]{permissionRole.ApplicationID}[\\/]{permissionRole.ProjectID}[\\/]{permissionRole.TransactionID}");
+                                                isAuthorized = allowTransactionPattern.IsMatch(requestPath);
+                                                break;
+                                            }
                                         }
                                     }
                                 }
