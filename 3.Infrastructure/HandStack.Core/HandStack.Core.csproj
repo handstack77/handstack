@@ -6,6 +6,7 @@
         <RuntimeIdentifiers>win-x64;linux-x64;osx-x64</RuntimeIdentifiers>
         <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
         <Nullable>enable</Nullable>
+        <PlatformTarget>AnyCPU</PlatformTarget>
         <NoWarn>IL3000;IL3002</NoWarn>
     </PropertyGroup>
 
