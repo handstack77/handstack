@@ -18,7 +18,7 @@ namespace HDS.Function.TST
 {
     public class CSF010
     {
-        public DataSet? GF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
+        protected DataSet? GF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
             string typeMember = "TST.CSF010.GF01";
 

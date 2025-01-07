@@ -34,7 +34,7 @@ namespace HDS.Function.HUM
             this.httpContext = httpContext;
         }
 
-        public DataSet? LF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
+        protected DataSet? LF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
             string typeMember = "HUM.HUM040.LF01";
             using (DataSet? result = new DataSet())
@@ -136,7 +136,7 @@ TransactionException:
             }
         }
 
-        public DataSet? GF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
+        protected DataSet? GF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
             string typeMember = "HUM.HUM040.GF01";
             using DataSet? result = new DataSet();
@@ -214,7 +214,7 @@ TransactionException:
             return result;
         }
 
-        public DataSet? MF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
+        protected DataSet? MF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
             string typeMember = "HUM.HUM040.MF01";
             using DataSet? result = new DataSet();

@@ -24,7 +24,7 @@ namespace HDS.Function.HFM
 {
     public class HFM020
     {
-        public DataSet? LF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
+        protected DataSet? LF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
             string typeMember = "HFM.HFM020.LF01";
             using (DataSet? result = new DataSet())

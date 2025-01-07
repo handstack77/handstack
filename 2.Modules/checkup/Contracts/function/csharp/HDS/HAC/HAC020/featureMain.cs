@@ -27,7 +27,7 @@ namespace HDS.Function.HAC
 {
     public class HAC020
     {
-        public DataSet? LF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
+        protected DataSet? LF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
             string typeMember = "HAC.HAC020.LF01";
             using DataSet? result = new DataSet();
@@ -85,7 +85,7 @@ TransactionException:
             return result;
         }
 
-        public DataSet? GF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
+        protected DataSet? GF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
             string typeMember = "HAC.HAC020.GF01";
             using DataSet? result = new DataSet();
@@ -152,7 +152,7 @@ TransactionException:
             return result;
         }
 
-        public DataSet? MF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
+        protected DataSet? MF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
             string typeMember = "HAC.HAC020.MF01";
             using DataSet? result = new DataSet();
@@ -385,7 +385,7 @@ TransactionException:
             return result;
         }
 
-        public DataSet? DF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
+        protected DataSet? DF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
             string typeMember = "HAC.HAC020.DF01";
             using DataSet? result = new DataSet();

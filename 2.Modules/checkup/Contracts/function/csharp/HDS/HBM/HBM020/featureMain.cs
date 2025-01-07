@@ -20,7 +20,7 @@ namespace HDS.Function.HBM
 {
     public class HBM020
     {
-        public DataSet? LF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
+        protected DataSet? LF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
             string typeMember = "HBM.HBM020.LF01";
             using DataSet? result = new DataSet();
@@ -101,7 +101,7 @@ TransactionException:
             return result;
         }
 
-        public DataSet? MF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
+        protected DataSet? MF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
             string typeMember = "HBM.HBM010.MF01";
             using DataSet? result = new DataSet();

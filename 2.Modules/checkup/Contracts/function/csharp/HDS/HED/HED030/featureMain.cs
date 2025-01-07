@@ -46,7 +46,7 @@ namespace HDS.Function.HED
             this.httpContext = httpContext;
         }
 
-        public DataSet? LF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
+        protected DataSet? LF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
             string typeMember = "HED.HED030.LF01";
             using (DataSet? result = new DataSet())
@@ -169,7 +169,7 @@ TransactionException:
             }
         }
 
-        public DataSet? LF02(List<DynamicParameter> dynamicParameters, DataContext dataContext)
+        protected DataSet? LF02(List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
             string typeMember = "HDM.HED030.LF02";
             using (DataSet? result = new DataSet())
@@ -294,7 +294,7 @@ TransactionException:
             }
         }
 
-        public DataSet? LF03(List<DynamicParameter> dynamicParameters, DataContext dataContext)
+        protected DataSet? LF03(List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
             string typeMember = "HDM.HED030.LF03";
             using (DataSet? result = new DataSet())
@@ -421,7 +421,7 @@ TransactionException:
             }
         }
 
-        public DataSet? MF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
+        protected DataSet? MF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
             string typeMember = "HED.HED030.MF01";
             using (DataSet? result = new DataSet())
@@ -553,7 +553,7 @@ TransactionException:
             }
         }
 
-        public DataSet? MF02(List<DynamicParameter> dynamicParameters, DataContext dataContext)
+        protected DataSet? MF02(List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
             string typeMember = "HED.HED030.MF02";
             using (DataSet? result = new DataSet())
@@ -685,7 +685,7 @@ TransactionException:
             }
         }
 
-        public DataSet? IF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
+        protected DataSet? IF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
             string typeMember = "HED.HED030.IF01";
             using (DataSet? result = new DataSet())

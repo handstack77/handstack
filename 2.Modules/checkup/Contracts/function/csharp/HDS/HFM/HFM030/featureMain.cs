@@ -49,7 +49,7 @@ namespace HDS.Function.HFM
             public Uri Resolved { get; set; }
         }
 
-        public DataSet? LF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
+        protected DataSet? LF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
             string typeMember = "HFM.HFM030.LF01";
             using (DataSet? result = new DataSet())

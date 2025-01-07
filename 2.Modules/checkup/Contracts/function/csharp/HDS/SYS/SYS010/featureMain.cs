@@ -36,7 +36,7 @@ namespace HDS.Function.SYS
             this.httpContext = httpContext;
         }
 
-        public DataSet? LF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
+        protected DataSet? LF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
             string typeMember = "SYS.SYS010.LF01";
             using (DataSet? result = new DataSet())
@@ -151,7 +151,7 @@ TransactionException:
             }
         }
 
-        public DataSet? LF02(List<DynamicParameter> dynamicParameters, DataContext dataContext)
+        protected DataSet? LF02(List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
             string typeMember = "SYS.SYS010.LF02";
             using (DataSet? result = new DataSet())
@@ -273,7 +273,7 @@ TransactionException:
             }
         }
 
-        public DataSet? LF03(List<DynamicParameter> dynamicParameters, DataContext dataContext)
+        protected DataSet? LF03(List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
             string typeMember = "SYS.SYS010.LF03";
             DataSet result = new DataSet();
@@ -361,7 +361,7 @@ TransactionException:
             return result;
         }
 
-        public DataSet? LF04(List<DynamicParameter> dynamicParameters, DataContext dataContext)
+        protected DataSet? LF04(List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
             string typeMember = "SYS.SYS010.LF04";
             using DataSet result = new DataSet();
@@ -449,7 +449,7 @@ TransactionException:
             return result;
         }
 
-        public DataSet? GF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
+        protected DataSet? GF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
             string typeMember = "SYS.SYS010.GF01";
             using DataSet? result = new DataSet();
@@ -521,7 +521,7 @@ TransactionException:
             return result;
         }
 
-        public DataSet? MF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
+        protected DataSet? MF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
             string typeMember = "SYS.SYS010.MF01";
             using DataSet? result = new DataSet();
@@ -581,7 +581,7 @@ TransactionException:
             return result;
         }
 
-        public DataSet? IF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
+        protected DataSet? IF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
             string typeMember = "SYS.SYS010.IF01";
             using DataSet? result = new DataSet();
@@ -645,7 +645,7 @@ TransactionException:
             return result;
         }
 
-        public DataSet? IF02(List<DynamicParameter> dynamicParameters, DataContext dataContext)
+        protected DataSet? IF02(List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
             string typeMember = "SYS.SYS010.IF02";
             using DataSet? result = new DataSet();
@@ -710,7 +710,7 @@ TransactionException:
             return result;
         }
 
-        public DataSet? DF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
+        protected DataSet? DF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
             string typeMember = "SYS.SYS010.DF01";
             using DataSet? result = new DataSet();
@@ -774,7 +774,7 @@ TransactionException:
             return result;
         }
 
-        public DataSet? DF02(List<DynamicParameter> dynamicParameters, DataContext dataContext)
+        protected DataSet? DF02(List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
             string typeMember = "SYS.SYS010.DF02";
             using DataSet? result = new DataSet();

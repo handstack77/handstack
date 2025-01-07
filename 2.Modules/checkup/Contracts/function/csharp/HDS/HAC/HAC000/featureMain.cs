@@ -23,7 +23,7 @@ namespace HDS.Function.HAC
 {
     public class HAC000
     {
-        public DataSet? AF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
+        protected DataSet? AF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
             string typeMember = "HAC.HAC000.AF01";
             using (DataSet? result = new DataSet())
@@ -168,7 +168,7 @@ TransactionException:
             }
         }
 
-        public DataSet? LF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
+        protected DataSet? LF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
             string typeMember = "HAC.HAC000.LF01";
             using (DataSet? result = new DataSet())
@@ -240,7 +240,7 @@ TransactionException:
             }
         }
 
-        public DataSet? LF02(List<DynamicParameter> dynamicParameters, DataContext dataContext)
+        protected DataSet? LF02(List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
             string typeMember = "HAC.HAC000.LF02";
             using (DataSet? result = new DataSet())

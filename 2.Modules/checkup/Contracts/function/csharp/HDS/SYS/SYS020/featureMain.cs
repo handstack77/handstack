@@ -22,7 +22,7 @@ namespace HDS.Function.SYS
 {
     public class SYS020
     {
-        public DataSet? LF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
+        protected DataSet? LF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
             string typeMember = "SYS.SYS020.LF01";
             using (DataSet? result = new DataSet())
@@ -92,7 +92,7 @@ TransactionException:
             }
         }
 
-        public DataSet? GF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
+        protected DataSet? GF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
             string typeMember = "SYS.SYS020.GF01";
             using (DataSet? result = new DataSet())
