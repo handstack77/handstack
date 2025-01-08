@@ -81,7 +81,7 @@ namespace function.Areas.function.Controllers
 
         // http://localhost:8000/function/api/execution/refresh?changeType=Created&filePath=EWP/ZZD/TST010/featureMain.js
         [HttpGet("[action]")]
-        public ActionResult Refresh(string changeType, string filePath, string? userWorkID, string? applicationID)
+        public ActionResult Refresh(string changeType, string filePath, string language, string? userWorkID, string? applicationID)
         {
             ActionResult result = NotFound();
             if (HttpContext.IsAllowAuthorization() == false)
@@ -114,7 +114,7 @@ namespace function.Areas.function.Controllers
                                 if (string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false)
                                 {
                                     string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-                                    string itemPath = Path.Combine(appBasePath, filePath);
+                                    string itemPath = Path.Combine(appBasePath, language, filePath);
                                     DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
                                     if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true)
                                     {
@@ -126,7 +126,7 @@ namespace function.Areas.function.Controllers
                                             }
 
                                             logger.Information("[{LogCategory}] " + $"Add TenantApp ModuleScriptMap FilePath: {filePath}", "Query/Refresh");
-                                            actionResult = FunctionMapper.AddScriptMap(filePath, true, logger);
+                                            actionResult = FunctionMapper.AddScriptMap(filePath, true, logger, language);
                                         }
                                     }
                                 }
@@ -134,7 +134,7 @@ namespace function.Areas.function.Controllers
                                 {
                                     foreach (var basePath in ModuleConfiguration.ContractBasePath)
                                     {
-                                        string itemPath = Path.Combine(basePath, filePath);
+                                        string itemPath = Path.Combine(basePath, language, filePath);
                                         DirectoryInfo directoryInfo = new DirectoryInfo(basePath);
                                         if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true)
                                         {
@@ -146,7 +146,7 @@ namespace function.Areas.function.Controllers
                                                 }
 
                                                 logger.Information("[{LogCategory}] " + $"Add ModuleScriptMap FilePath: {filePath}", "Query/Refresh");
-                                                actionResult = FunctionMapper.AddScriptMap(filePath, true, logger);
+                                                actionResult = FunctionMapper.AddScriptMap(filePath, true, logger, language);
                                                 break;
                                             }
                                         }
@@ -163,16 +163,16 @@ namespace function.Areas.function.Controllers
                                     {
                                         existStatementMaps = FunctionMapper.ScriptMappings.Select(p => p.Value).Where(p =>
                                             p.ApplicationID == applicationID &&
-                                            p.ProjectID == fileInfo.Directory?.Name &&
-                                            p.TransactionID == fileInfo.Name.Replace(fileInfo.Extension, "")).ToList();
+                                            p.ProjectID == fileInfo.Directory?.Parent?.Name &&
+                                            p.TransactionID == fileInfo.Directory?.Name).ToList();
                                     }
                                 }
                                 else
                                 {
                                     existStatementMaps = FunctionMapper.ScriptMappings.Select(p => p.Value).Where(p =>
-                                        p.ApplicationID == fileInfo.Directory?.Parent?.Name &&
-                                        p.ProjectID == fileInfo.Directory?.Name &&
-                                        p.TransactionID == fileInfo.Name.Replace(fileInfo.Extension, "")).ToList();
+                                        p.ApplicationID == GlobalConfiguration.ApplicationID &&
+                                        p.ProjectID == fileInfo.Directory?.Parent?.Name &&
+                                        p.TransactionID == fileInfo.Directory?.Name).ToList();
                                 }
 
                                 if (existStatementMaps.Count > 0)

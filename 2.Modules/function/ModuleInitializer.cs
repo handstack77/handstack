@@ -391,7 +391,7 @@ namespace function
                             if (GlobalConfiguration.IsRunning == true && fileInfo.FullName.IndexOf(nodeContractBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed) && (fileInfo.Name == "featureMain.js" || fileInfo.Name == "featureMeta.json" || fileInfo.Name == "featureSQL.xml") == true)
                             {
                                 string filePath = fileInfo.FullName.Replace(nodeContractBasePath, "");
-                                string hostUrl = $"http://localhost:{GlobalConfiguration.ServerPort}/function/api/execution/refresh?changeType={changeTypes}&filePath={filePath}";
+                                string hostUrl = $"http://localhost:{GlobalConfiguration.ServerPort}/function/api/execution/refresh?changeType={changeTypes}&filePath={filePath}&language=javascript";
 
                                 var request = new RestRequest(hostUrl, Method.Get);
                                 request.Timeout = TimeSpan.FromSeconds(3);
@@ -426,7 +426,7 @@ namespace function
                             if (GlobalConfiguration.IsRunning == true && fileInfo.FullName.IndexOf(csharpContractBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed) && (fileInfo.Name == "featureMain.cs" || fileInfo.Name == "featureMeta.json" || fileInfo.Name == "featureSQL.xml") == true)
                             {
                                 string filePath = fileInfo.FullName.Replace(csharpContractBasePath, "");
-                                string hostUrl = $"http://localhost:{GlobalConfiguration.ServerPort}/function/api/execution/refresh?changeType={changeTypes}&filePath={filePath}";
+                                string hostUrl = $"http://localhost:{GlobalConfiguration.ServerPort}/function/api/execution/refresh?changeType={changeTypes}&filePath={filePath}&language=csharp";
 
                                 var request = new RestRequest(hostUrl, Method.Get);
                                 request.Timeout = TimeSpan.FromSeconds(3);

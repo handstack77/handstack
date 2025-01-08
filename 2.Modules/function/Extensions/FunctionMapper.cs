@@ -442,7 +442,7 @@ namespace function.Extensions
             return result;
         }
 
-        public static bool AddScriptMap(string scriptMapFile, bool forceUpdate, ILogger logger)
+        public static bool AddScriptMap(string scriptMapFile, bool forceUpdate, ILogger logger, string? language = null)
         {
             bool result = false;
 
@@ -456,14 +456,27 @@ namespace function.Extensions
                     }
 
                     string filePath = string.Empty;
-                    var scriptMapFilePath = Path.Combine(basePath, "csharp", scriptMapFile);
-                    if (File.Exists(scriptMapFilePath) == true)
+                    string scriptMapFilePath = string.Empty;
+
+                    if (string.IsNullOrEmpty(language) == true)
                     {
-                        filePath = scriptMapFilePath;
+                        scriptMapFilePath = Path.Combine(basePath, "csharp", scriptMapFile);
+                        if (File.Exists(scriptMapFilePath) == true)
+                        {
+                            filePath = scriptMapFilePath;
+                        }
+                        else
+                        {
+                            scriptMapFilePath = Path.Combine(basePath, "javascript", scriptMapFile);
+                            if (File.Exists(scriptMapFilePath) == true)
+                            {
+                                filePath = scriptMapFilePath;
+                            }
+                        }
                     }
                     else
                     {
-                        scriptMapFilePath = Path.Combine(basePath, "javascript", scriptMapFile);
+                        scriptMapFilePath = Path.Combine(basePath, language, scriptMapFile);
                         if (File.Exists(scriptMapFilePath) == true)
                         {
                             filePath = scriptMapFilePath;
