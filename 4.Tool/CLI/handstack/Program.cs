@@ -224,6 +224,7 @@ namespace handstack
                         var loadModules = setting.SelectToken("AppSettings.LoadModules");
                         if (string.IsNullOrEmpty(moduleBasePath) == false && loadModules != null && loadModules.Count() > 0)
                         {
+                            string wwwrootModuleBasePath = string.Empty;
                             string functionModuleBasePath = string.Empty;
                             string moduleSettingFile = "module.json";
                             var modules = (JArray)loadModules;
@@ -262,7 +263,11 @@ namespace handstack
                                         DirectoryInfo directoryInfo = new DirectoryInfo(Path.Combine(moduleBasePath, moduleID));
                                         if (directoryInfo.Exists == true)
                                         {
-                                            if (moduleID == "function")
+                                            if (moduleID == "wwwroot")
+                                            {
+                                                wwwrootModuleBasePath = directoryInfo.FullName;
+                                            }
+                                            else if (moduleID == "function")
                                             {
                                                 functionModuleBasePath = directoryInfo.FullName;
                                             }
@@ -288,9 +293,9 @@ namespace handstack
                             Log.Information($"appsettings: {appSettingFilePath}");
 
                             string synConfigFilePath = Path.Combine(settingDirectoryPath, "synconfigs", settingFileName);
-                            if (File.Exists(synConfigFilePath) == true)
+                            if (File.Exists(synConfigFilePath) == true && string.IsNullOrEmpty(wwwrootModuleBasePath) == false)
                             {
-                                FileInfo synConfigFileInfo = new FileInfo(Path.Combine(appBasePath, "wwwroot", "syn.config.json"));
+                                FileInfo synConfigFileInfo = new FileInfo(Path.Combine(wwwrootModuleBasePath, "wwwroot", "syn.config.json"));
                                 File.Copy(synConfigFilePath, synConfigFileInfo.FullName, true);
                                 Log.Information($"synconfigs: {synConfigFileInfo.FullName}");
                             }
