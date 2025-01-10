@@ -869,7 +869,7 @@
                 }
 
                 syn.$w.remainingReadyIntervalID = setInterval(function () {
-                    if (syn.$w.remainingReadyCount == 0) {
+                    if ($object.isNullOrUndefined(syn.$w.remainingReadyIntervalID) == false && syn.$w.remainingReadyCount == 0) {
                         clearInterval(syn.$w.remainingReadyIntervalID);
                         syn.$w.remainingReadyIntervalID = null;
 
@@ -879,7 +879,7 @@
                 }, 25);
 
                 setTimeout(function () {
-                    if (syn.$w.remainingReadyIntervalID != null) {
+                    if ($object.isNullOrUndefined(syn.$w.remainingReadyIntervalID) == false) {
                         clearInterval(syn.$w.remainingReadyIntervalID);
                         syn.$w.remainingReadyIntervalID = null;
                         syn.$l.eventLog('pageLoad', '화면 초기화 오류, remainingReadyCount: {0} 확인 필요'.format(syn.$w.remainingReadyCount), 'Fatal');
