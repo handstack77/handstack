@@ -619,7 +619,6 @@ CREATE INDEX IF NOT EXISTS "IX_Member_EmailID" ON "Member" ("EmailID");
 CREATE INDEX IF NOT EXISTS "IX_RefreshToken_UserAccountID" ON "RefreshToken" ("UserAccountID");
 CREATE INDEX IF NOT EXISTS "IX_UserAccount_ApplicationID" ON "UserAccount" ("ApplicationID");
 			]]>
-            <param id="@CodeHelpID" type="String" length="-1" value="NULL" />
         </statement>
         
         <statement id="ZD02" seq="0" use="Y" timeout="0" desc="AdministratorEmailID 관리자 계정 생성">
