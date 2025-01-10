@@ -3294,14 +3294,25 @@ globalRoot.syn = syn;
         },
 
         deepFreeze(object) {
-            var propNames = Object.getOwnPropertyNames(object);
-            for (let name of propNames) {
-                let value = object[name];
+            var result = null;
+            if (Object.isFrozen(object) == false) {
+                var propNames = Object.getOwnPropertyNames(object);
+                for (var name of propNames) {
+                    if (Object.isFrozen(object[name]) == true) {
+                        continue;
+                    }
 
-                object[name] = value && typeof value === 'object' ? syn.$l.deepFreeze(value) : value;
+                    var value = object[name];
+                    object[name] = value && typeof value === 'object' ? syn.$l.deepFreeze(value) : value;
+                }
+
+                result = Object.freeze(object);
+            }
+            else {
+                result = object;
             }
 
-            return Object.freeze(object);
+            return result;
         },
 
         createBlob(data, type) {
