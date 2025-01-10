@@ -4734,12 +4734,6 @@ TransactionException:
                     databaseTransactionObject.ConnectionFactory?.Connection.Close();
                 }
                 databaseTransactionObject.ConnectionFactory?.Dispose();
-
-                if (databaseTransactionObject.ConnectionFactory?.Connection?.IsConnectionOpen() == true)
-                {
-                    databaseTransactionObject.ConnectionFactory?.Connection.Close();
-                }
-                databaseTransactionObject.ConnectionFactory?.Dispose();
             }
         }
 
