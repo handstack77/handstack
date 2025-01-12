@@ -73,58 +73,6 @@ span.fancytree-node {
     padding: 0.2rem;
 }
 
-.fancytree-exp-c span.fancytree-expander,
-.fancytree-exp-cl span.fancytree-expander {
-    background-position: bottom;
-    font-family: "tabler-icons" !important;
-    font-size: 16px;
-    speak: none;
-    font-style: normal;
-    font-weight: normal;
-    font-variant: normal;
-    text-transform: none;
-    line-height: 1;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
-
-    .fancytree-exp-c span.fancytree-expander:before,
-    .fancytree-exp-cl span.fancytree-expander:before {
-        content: "\ea61";
-    }
-
-    .fancytree-exp-c span.fancytree-expander:hover .fancytree-exp-cl span.fancytree-expander:hover {
-        background-position: bottom;
-    }
-
-.fancytree-exp-e span.fancytree-expander,
-.fancytree-exp-el span.fancytree-expander,
-.fancytree-exp-edl span.fancytree-expander {
-    background-position: bottom;
-    font-family: "tabler-icons" !important;
-    font-size: 16px;
-    speak: none;
-    font-style: normal;
-    font-weight: normal;
-    font-variant: normal;
-    text-transform: none;
-    line-height: 1;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
-
-    .fancytree-exp-e span.fancytree-expander:before,
-    .fancytree-exp-el span.fancytree-expander:before,
-    .fancytree-exp-edl span.fancytree-expander:before {
-        content: "\ea5f";
-    }
-
-    .fancytree-exp-e span.fancytree-expander:hover,
-    .fancytree-exp-el span.fancytree-expander:hover,
-    .fancytree-exp-edl span.fancytree-expander:hover {
-        background-position: bottom;
-    }
-
 .fancytree-ext-filter span.fancytree-title mark {
     background-color: #E09090;
 }
