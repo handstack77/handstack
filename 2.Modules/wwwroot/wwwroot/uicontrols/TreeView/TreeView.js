@@ -354,12 +354,24 @@
             return result;
         },
 
-        setSelectedAll(elID, node) {
+        setNodeSelectedAll(elID, node) {
             var result = [];
             var tree = $tree.getControl(elID).tree;
             if (tree) {
                 var isSelected = node.isSelected();
                 node.visit(function (childNode) {
+                    childNode.setSelected(isSelected);
+                });
+            }
+
+            return result;
+        },
+
+        selectedAll(elID, isSelected) {
+            var result = [];
+            var tree = $tree.getControl(elID).tree;
+            if (tree) {
+                tree.visit(function (childNode) {
                     childNode.setSelected(isSelected);
                 });
             }
