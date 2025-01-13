@@ -625,7 +625,7 @@ namespace ack
                                 try
                                 {
                                     string moduleContractPath = Path.Combine(module.BasePath, "Contracts");
-                                    if (Directory.Exists(moduleContractPath) == true)
+                                    if (module.IsCopyContract == true && Directory.Exists(moduleContractPath) == true)
                                     {
                                         DirectoryCopy(moduleContractPath, baseContractPath);
                                     }

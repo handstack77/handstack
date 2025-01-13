@@ -20,6 +20,8 @@ namespace HandStack.Web.Modules
 
         public bool IsBundledWithHost { get; set; }
 
+        public bool IsCopyContract { get; set; }
+
         public bool IsPurgeContract { get; set; }
 
         public Version Version { get; set; }
@@ -40,6 +42,7 @@ namespace HandStack.Web.Modules
             ModuleSettingFilePath = "";
             Configuration = null;
             IsBundledWithHost = false;
+            IsCopyContract = true;
             IsPurgeContract = false;
             Version = Version.Parse("0.0.0");
             Assembly = null;

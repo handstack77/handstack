@@ -65,6 +65,7 @@ namespace HandStack.Web.Modules
                             moduleInfo.Version = Version.Parse(module.Version.ToString());
                             moduleInfo.IsBundledWithHost = module.IsBundledWithHost;
                             moduleInfo.IsPurgeContract = module.IsPurgeContract;
+                            moduleInfo.IsCopyContract = module.IsCopyContract;
 
                             if (module.ModuleConfig?.EventAction != null)
                             {
