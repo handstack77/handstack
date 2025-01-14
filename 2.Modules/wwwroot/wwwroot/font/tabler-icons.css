@@ -1,51 +1,71 @@
 svg.icon-size-1 {
     --tblr-btn-icon-size: 1rem;
     --tblr-icon-size: 1rem;
+    width: var(--tblr-icon-size) !important;
+    height: var(--tblr-icon-size) !important;
 }
 
 svg.icon-size-2 {
     --tblr-btn-icon-size: 1.125rem;
     --tblr-icon-size: 1.125rem;
+    width: var(--tblr-icon-size) !important;
+    height: var(--tblr-icon-size) !important;
 }
 
 svg.icon-size-3 {
     --tblr-btn-icon-size: 1.25rem;
     --tblr-icon-size: 1.25rem;
+    width: var(--tblr-icon-size) !important;
+    height: var(--tblr-icon-size) !important;
 }
 
 svg.icon-size-4 {
     --tblr-btn-icon-size: 1.375rem;
     --tblr-icon-size: 1.375rem;
+    width: var(--tblr-icon-size) !important;
+    height: var(--tblr-icon-size) !important;
 }
 
 svg.icon-size-5 {
     --tblr-btn-icon-size: 1.5rem;
     --tblr-icon-size: 1.5rem;
+    width: var(--tblr-icon-size) !important;
+    height: var(--tblr-icon-size) !important;
 }
 
 svg.icon-size-6 {
     --tblr-btn-icon-size: 1.625rem;
     --tblr-icon-size: 1.625rem;
+    width: var(--tblr-icon-size) !important;
+    height: var(--tblr-icon-size) !important;
 }
 
 svg.icon-size-7 {
     --tblr-btn-icon-size: 1.75rem;
     --tblr-icon-size: 1.75rem;
+    width: var(--tblr-icon-size) !important;
+    height: var(--tblr-icon-size) !important;
 }
 
 svg.icon-size-8 {
     --tblr-btn-icon-size: 1.875rem;
     --tblr-icon-size: 1.875rem;
+    width: var(--tblr-icon-size) !important;
+    height: var(--tblr-icon-size) !important;
 }
 
 svg.icon-size-9 {
     --tblr-btn-icon-size: 2rem;
     --tblr-icon-size: 2rem;
+    width: var(--tblr-icon-size) !important;
+    height: var(--tblr-icon-size) !important;
 }
 
 svg.icon-size-10 {
     --tblr-btn-icon-size: 2.125rem;
     --tblr-icon-size: 2.125rem;
+    width: var(--tblr-icon-size) !important;
+    height: var(--tblr-icon-size) !important;
 }
 
 svg.icon-stroke-1 {
@@ -69,58 +89,72 @@ svg.icon-stroke-5 {
 }
 
 svg.icon-color-blue {
+    stroke: #066fd1 !important;
     color: #066fd1 !important;
 }
 
 svg.icon-color-azure {
+    stroke: #45aaf2 !important;
     color: #45aaf2 !important;
 }
 
 svg.icon-color-indigo {
+    stroke: #6574cd !important;
     color: #6574cd !important;
 }
 
 svg.icon-color-purple {
+    stroke: #a55eea !important;
     color: #a55eea !important;
 }
 
 svg.icon-color-pink {
+    stroke: #f66d9b !important;
     color: #f66d9b !important;
 }
 
 svg.icon-color-red {
+    stroke: #fa4654 !important;
     color: #fa4654 !important;
 }
 
 svg.icon-color-orange {
+    stroke: #fd9644 !important;
     color: #fd9644 !important;
 }
 
 svg.icon-color-yellow {
+    stroke: #f1c40f !important;
     color: #f1c40f !important;
 }
 
 svg.icon-color-lime {
+    stroke: #7bd235 !important;
     color: #7bd235 !important;
 }
 
 svg.icon-color-green {
+    stroke: #5eba00 !important;
     color: #5eba00 !important;
 }
 
 svg.icon-color-teal {
+    stroke: #2bcbba !important;
     color: #2bcbba !important;
 }
 
 svg.icon-color-cyan {
+    stroke: #17a2b8 !important;
     color: #17a2b8 !important;
 }
 
 svg.icon-color-dark {
+    stroke: #000 !important;
     color: #000 !important;
 }
 
 svg.icon-color-white {
+    stroke: #fff !important;
     color: #fff !important;
 }
 
