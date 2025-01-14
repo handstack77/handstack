@@ -1,3 +1,129 @@
+svg.icon-size-1 {
+    --tblr-btn-icon-size: 1rem;
+    --tblr-icon-size: 1rem;
+}
+
+svg.icon-size-2 {
+    --tblr-btn-icon-size: 1.125rem;
+    --tblr-icon-size: 1.125rem;
+}
+
+svg.icon-size-3 {
+    --tblr-btn-icon-size: 1.25rem;
+    --tblr-icon-size: 1.25rem;
+}
+
+svg.icon-size-4 {
+    --tblr-btn-icon-size: 1.375rem;
+    --tblr-icon-size: 1.375rem;
+}
+
+svg.icon-size-5 {
+    --tblr-btn-icon-size: 1.5rem;
+    --tblr-icon-size: 1.5rem;
+}
+
+svg.icon-size-6 {
+    --tblr-btn-icon-size: 1.625rem;
+    --tblr-icon-size: 1.625rem;
+}
+
+svg.icon-size-7 {
+    --tblr-btn-icon-size: 1.75rem;
+    --tblr-icon-size: 1.75rem;
+}
+
+svg.icon-size-8 {
+    --tblr-btn-icon-size: 1.875rem;
+    --tblr-icon-size: 1.875rem;
+}
+
+svg.icon-size-9 {
+    --tblr-btn-icon-size: 2rem;
+    --tblr-icon-size: 2rem;
+}
+
+svg.icon-size-10 {
+    --tblr-btn-icon-size: 2.125rem;
+    --tblr-icon-size: 2.125rem;
+}
+
+svg.icon-stroke-1 {
+    stroke-width: 1;
+}
+
+svg.icon-stroke-2 {
+    stroke-width: 2;
+}
+
+svg.icon-stroke-3 {
+    stroke-width: 3;
+}
+
+svg.icon-stroke-4 {
+    stroke-width: 4;
+}
+
+svg.icon-stroke-5 {
+    stroke-width: 5;
+}
+
+svg.icon-color-blue {
+    color: #066fd1 !important;
+}
+
+svg.icon-color-azure {
+    color: #45aaf2 !important;
+}
+
+svg.icon-color-indigo {
+    color: #6574cd !important;
+}
+
+svg.icon-color-purple {
+    color: #a55eea !important;
+}
+
+svg.icon-color-pink {
+    color: #f66d9b !important;
+}
+
+svg.icon-color-red {
+    color: #fa4654 !important;
+}
+
+svg.icon-color-orange {
+    color: #fd9644 !important;
+}
+
+svg.icon-color-yellow {
+    color: #f1c40f !important;
+}
+
+svg.icon-color-lime {
+    color: #7bd235 !important;
+}
+
+svg.icon-color-green {
+    color: #5eba00 !important;
+}
+
+svg.icon-color-teal {
+    color: #2bcbba !important;
+}
+
+svg.icon-color-cyan {
+    color: #17a2b8 !important;
+}
+
+svg.icon-color-dark {
+    color: #000 !important;
+}
+
+svg.icon-color-white {
+    color: #fff !important;
+}
+
 .ti {
     display: inline-block;
     width: 1em;
