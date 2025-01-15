@@ -633,7 +633,7 @@ namespace function.Extensions
                         }
                         else
                         {
-                            logger.Error("[{LogCategory}] " + $"functionFilePath 파일 없음 - " + functionScriptFile, "FunctionMapper/AddScriptMap");
+                            logger.Information("[{LogCategory}] " + $"functionFilePath 파일 없음 - " + functionScriptFile, "FunctionMapper/AddScriptMap");
                         }
 
                         result = true;

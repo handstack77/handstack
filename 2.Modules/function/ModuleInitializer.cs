@@ -401,7 +401,7 @@ namespace function
                                     RestResponse response = await client.ExecuteAsync(request);
                                     if (response.StatusCode != HttpStatusCode.OK)
                                     {
-                                        Log.Error("[{LogCategory}] " + $"{filePath} 파일 갱신 확인 필요. {response.Content.ToStringSafe()}", $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
+                                        Log.Warning("[{LogCategory}] " + $"{filePath} 파일 갱신 확인 필요. {response.Content.ToStringSafe()}", $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
                                     }
                                 }
                                 catch (Exception exception)
@@ -436,7 +436,7 @@ namespace function
                                     RestResponse response = await client.ExecuteAsync(request);
                                     if (response.StatusCode != HttpStatusCode.OK)
                                     {
-                                        Log.Error("[{LogCategory}] " + $"{filePath} 파일 갱신 확인 필요. {response.Content.ToStringSafe()}", $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
+                                        Log.Warning("[{LogCategory}] " + $"{filePath} 파일 갱신 확인 필요. {response.Content.ToStringSafe()}", $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
                                     }
                                 }
                                 catch (Exception exception)
