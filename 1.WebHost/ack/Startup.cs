@@ -31,9 +31,7 @@ using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
@@ -643,10 +641,10 @@ namespace ack
 
                                             try
                                             {
-                                                string[] subDirs = { "dbclient", "transact", "wwwroot", "repository", "function" };
-                                                foreach (string subDir in subDirs)
+                                                string[] modules = { "dbclient", "transact", "wwwroot", "repository", "function" };
+                                                foreach (string moduleID in modules)
                                                 {
-                                                    string dirPath = PathExtensions.Combine(baseDir, subDir);
+                                                    string dirPath = PathExtensions.Combine(baseDir, moduleID);
                                                     if (Directory.Exists(dirPath))
                                                     {
                                                         string[] files = Directory.GetFiles(dirPath, "*", SearchOption.AllDirectories);
@@ -656,6 +654,14 @@ namespace ack
                                                             if (File.Exists(targetFile) == true)
                                                             {
                                                                 File.Delete(targetFile);
+                                                                if (moduleID == "function")
+                                                                {
+                                                                    var parentDirectory = Path.GetDirectoryName(targetFile);
+                                                                    if (Directory.Exists(parentDirectory) == true && Directory.GetFiles(parentDirectory).Length == 0)
+                                                                    {
+                                                                        Directory.Delete(parentDirectory);
+                                                                    }
+                                                                }
                                                             }
                                                         }
                                                     }
