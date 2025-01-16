@@ -72,6 +72,18 @@
                     syn.$l.addEvent(el, 'keydown', $textbox.event_english_keydown);
                     syn.$m.setStyle(el, 'ime-mode', 'disabled');
                     break;
+                case 'uppercase':
+                    syn.$l.addEvent(el, 'focus', $textbox.event_focus);
+                    syn.$l.addEvent(el, 'blur', $textbox.event_uppercase_blur);
+                    syn.$l.addEvent(el, 'input', $textbox.event_uppercase_input);
+                    syn.$m.setStyle(el, 'ime-mode', 'disabled');
+                    break;
+                case 'lowercase':
+                    syn.$l.addEvent(el, 'focus', $textbox.event_focus);
+                    syn.$l.addEvent(el, 'blur', $textbox.event_lowercase_blur);
+                    syn.$l.addEvent(el, 'input', $textbox.event_lowercase_input);
+                    syn.$m.setStyle(el, 'ime-mode', 'disabled');
+                    break;
                 case 'number':
                     syn.$l.addEvent(el, 'focus', $textbox.event_numeric_focus);
                     syn.$l.addEvent(el, 'blur', $textbox.event_number_blur);
@@ -231,8 +243,33 @@
             }
 
             value = true;
-
             return value;
+        },
+
+        event_uppercase_input(evt) {
+            var el = evt.target || evt.srcElement || evt;
+            el.value = el.value.replace(/[^A-Z]/g, '').toUpperCase();
+
+            evt.returnValue = false;
+            evt.cancel = true;
+            if (evt.preventDefault) {
+                evt.preventDefault();
+            }
+
+            return false;
+        },
+
+        event_lowercase_input(evt) {
+            var el = evt.target || evt.srcElement || evt;
+            el.value = el.value.replace(/[^a-z]/g, '').toLowerCase();
+
+            evt.returnValue = false;
+            evt.cancel = true;
+            if (evt.preventDefault) {
+                evt.preventDefault();
+            }
+
+            return false;
         },
 
         event_numeric_keypress(evt) {
@@ -354,6 +391,16 @@
             else {
                 el.value = el.value.replace(/[^a-z0-9]/gi, '');
             }
+        },
+
+        event_uppercase_blur(evt) {
+            var el = evt.target || evt.srcElement || evt;
+            el.value = el.value.replace(/[^A-Z]/gi, '');
+        },
+
+        event_lowercase_blur(evt) {
+            var el = evt.target || evt.srcElement || evt;
+            el.value = el.value.replace(/[^a-z]/gi, '');
         },
 
         event_number_blur(evt) {
