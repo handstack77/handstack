@@ -201,6 +201,7 @@
                     });
                 }
 
+                tree.reduceSource = reduceSource;
                 var nestedValue = syn.$l.flat2Nested(reduceSource, setting.itemID, setting.parentItemID, setting.childrenID);
                 tree.reload([nestedValue]);
             }
