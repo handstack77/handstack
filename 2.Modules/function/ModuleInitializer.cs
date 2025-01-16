@@ -85,7 +85,7 @@ namespace function
                         ModuleConfiguration.Version = moduleConfigJson.Version;
                         ModuleConfiguration.AuthorizationKey = string.IsNullOrEmpty(moduleConfig.AuthorizationKey) == false ? moduleConfig.AuthorizationKey : GlobalConfiguration.SystemID + GlobalConfiguration.RunningEnvironment + GlobalConfiguration.HostName;
                         ModuleConfiguration.IsBundledWithHost = moduleConfigJson.IsBundledWithHost;
-                        ModuleConfiguration.ModuleBasePath = string.IsNullOrEmpty(moduleConfig.ModuleBasePath) == true || Directory.Exists(moduleConfig.ModuleBasePath) == false ? "" : new DirectoryInfo(moduleConfig.ModuleBasePath).FullName;
+                        ModuleConfiguration.ModuleBasePath = string.IsNullOrEmpty(moduleConfig.ModuleBasePath) == true || Directory.Exists(moduleConfig.ModuleBasePath) == false ? "" : new DirectoryInfo(moduleConfig.ModuleBasePath).FullName.Replace("\\", "/");
                         ModuleConfiguration.BusinessServerUrl = moduleConfig.BusinessServerUrl;
                         ModuleConfiguration.CircuitBreakResetSecond = moduleConfig.CircuitBreakResetSecond;
                         ModuleConfiguration.IsLogServer = moduleConfig.IsLogServer;
@@ -97,7 +97,7 @@ namespace function
                         }
 
                         ModuleConfiguration.IsTransactionLogging = moduleConfig.IsTransactionLogging;
-                        ModuleConfiguration.ModuleLogFilePath = string.IsNullOrEmpty(moduleConfig.ModuleLogFilePath) == true ? "transaction.log" : new FileInfo(moduleConfig.ModuleLogFilePath).FullName;
+                        ModuleConfiguration.ModuleLogFilePath = string.IsNullOrEmpty(moduleConfig.ModuleLogFilePath) == true ? "transaction.log" : new FileInfo(moduleConfig.ModuleLogFilePath).FullName.Replace("\\", "/");
                         if (ModuleConfiguration.IsTransactionLogging == true)
                         {
                             var loggerConfiguration = CreateLoggerConfiguration(ModuleConfiguration.ModuleLogFilePath);
@@ -315,7 +315,7 @@ namespace function
 
                 if (string.IsNullOrEmpty(GlobalConfiguration.ProcessName) == true)
                 {
-                    logFilePath = fileInfo.FullName;
+                    logFilePath = fileInfo.FullName.Replace("\\", "/");
                 }
                 else
                 {
@@ -388,9 +388,9 @@ namespace function
                         var nodeFileSyncManager = new FileSyncManager(nodeContractBasePath, string.Join("|", ModuleConfiguration.WatchFileNamePatterns));
                         nodeFileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
                         {
-                            if (GlobalConfiguration.IsRunning == true && fileInfo.FullName.IndexOf(nodeContractBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed) && (fileInfo.Name == "featureMain.js" || fileInfo.Name == "featureMeta.json" || fileInfo.Name == "featureSQL.xml") == true)
+                            if (GlobalConfiguration.IsRunning == true && fileInfo.FullName.Replace("\\", "/").IndexOf(nodeContractBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed) && (fileInfo.Name == "featureMain.js" || fileInfo.Name == "featureMeta.json" || fileInfo.Name == "featureSQL.xml") == true)
                             {
-                                string filePath = fileInfo.FullName.Replace(nodeContractBasePath, "");
+                                string filePath = fileInfo.FullName.Replace("\\", "/").Replace(nodeContractBasePath, "");
                                 string hostUrl = $"http://localhost:{GlobalConfiguration.ServerPort}/function/api/execution/refresh?changeType={changeTypes}&filePath={filePath}&language=javascript";
 
                                 var request = new RestRequest(hostUrl, Method.Get);
@@ -423,9 +423,9 @@ namespace function
                         var csharpFileSyncManager = new FileSyncManager(csharpContractBasePath, string.Join("|", ModuleConfiguration.CSharpWatchFileNamePatterns));
                         csharpFileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
                         {
-                            if (GlobalConfiguration.IsRunning == true && fileInfo.FullName.IndexOf(csharpContractBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed) && (fileInfo.Name == "featureMain.cs" || fileInfo.Name == "featureMeta.json" || fileInfo.Name == "featureSQL.xml") == true)
+                            if (GlobalConfiguration.IsRunning == true && fileInfo.FullName.Replace("\\", "/").IndexOf(csharpContractBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed) && (fileInfo.Name == "featureMain.cs" || fileInfo.Name == "featureMeta.json" || fileInfo.Name == "featureSQL.xml") == true)
                             {
-                                string filePath = fileInfo.FullName.Replace(csharpContractBasePath, "");
+                                string filePath = fileInfo.FullName.Replace("\\", "/").Replace(csharpContractBasePath, "");
                                 string hostUrl = $"http://localhost:{GlobalConfiguration.ServerPort}/function/api/execution/refresh?changeType={changeTypes}&filePath={filePath}&language=csharp";
 
                                 var request = new RestRequest(hostUrl, Method.Get);

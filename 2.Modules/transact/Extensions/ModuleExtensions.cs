@@ -56,7 +56,7 @@ namespace transact.Extensions
             FileInfo fileInfo = new FileInfo(logDbFilePath);
             if (fileInfo.Directory != null && fileInfo.Directory.Exists == false)
             {
-                Directory.CreateDirectory(fileInfo.Directory.FullName);
+                Directory.CreateDirectory(fileInfo.Directory.FullName.Replace("\\", "/"));
             }
 
             if (fileInfo.Exists == false)

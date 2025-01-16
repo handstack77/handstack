@@ -816,7 +816,7 @@ namespace checkup.Areas.checkup.Controllers
                                 FileInfo targetFileInfo = new FileInfo(phisycalTargetFilePath);
                                 if (targetFileInfo.Directory?.Exists == false)
                                 {
-                                    Directory.CreateDirectory(targetFileInfo.Directory.FullName);
+                                    Directory.CreateDirectory(targetFileInfo.Directory.FullName.Replace("\\", "/"));
                                 }
 
                                 fileType = "js";
@@ -855,7 +855,7 @@ namespace checkup.Areas.checkup.Controllers
                                 targetFileInfo = new FileInfo(phisycalTargetFilePath);
                                 if (targetFileInfo.Directory?.Exists == false)
                                 {
-                                    Directory.CreateDirectory(targetFileInfo.Directory.FullName);
+                                    Directory.CreateDirectory(targetFileInfo.Directory.FullName.Replace("\\", "/"));
                                 }
 
                                 fileType = "css";
@@ -1227,7 +1227,7 @@ namespace checkup.Areas.checkup.Controllers
                 FileInfo fileInfo = new FileInfo(logDbFilePath);
                 if (fileInfo.Directory != null && fileInfo.Directory.Exists == false)
                 {
-                    Directory.CreateDirectory(fileInfo.Directory.FullName);
+                    Directory.CreateDirectory(fileInfo.Directory.FullName.Replace("\\", "/"));
                 }
 
                 if (fileInfo.Exists == false)
@@ -2125,7 +2125,7 @@ namespace checkup.Areas.checkup.Controllers
 
                             string saveFileName = file.FileName;
                             string extension = Path.GetExtension(saveFileName);
-                            string itemPhysicalPath = PathExtensions.Combine(directoryInfo.FullName, saveFileName);
+                            string itemPhysicalPath = PathExtensions.Combine(directoryInfo.FullName.Replace("\\", "/"), saveFileName);
                             outputBuilder.AppendLine($"I|{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}|{saveFileName} 패키지 파일 복사 시작");
                             using (FileStream fileStream = new FileStream(itemPhysicalPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
                             {
@@ -2135,7 +2135,7 @@ namespace checkup.Areas.checkup.Controllers
 
                             outputBuilder.AppendLine($"I|{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}|{saveFileName} 패키지 파일 압축 해제 시작");
                             DirectoryInfo extractDirectoryInfo = directoryInfo.CreateSubdirectory(saveFileName.Replace(extension, ""));
-                            ZipFile.ExtractToDirectory(itemPhysicalPath, extractDirectoryInfo.FullName, true);
+                            ZipFile.ExtractToDirectory(itemPhysicalPath, extractDirectoryInfo.FullName.Replace("\\", "/"), true);
                             outputBuilder.AppendLine($"I|{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}|{saveFileName} 패키지 파일 압축 해제 완료");
                         }
                         else
@@ -2193,7 +2193,7 @@ TransactionException:
                             directoryInfo.Create();
                         }
 
-                        string backupDirectoryPath = directoryInfo.FullName;
+                        string backupDirectoryPath = directoryInfo.FullName.Replace("\\", "/");
                         outputBuilder.AppendLine($"I|{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}|package-archives.json 읽기 시작");
                         string packageArchiveJson = await System.IO.File.ReadAllTextAsync(packageArchiveFilePath);
                         var packageArchive = JsonConvert.DeserializeAnonymousType(packageArchiveJson, new
@@ -2345,7 +2345,7 @@ TransactionException:
                             directoryInfo.Create();
                         }
 
-                        string backupDirectoryPath = directoryInfo.FullName;
+                        string backupDirectoryPath = directoryInfo.FullName.Replace("\\", "/");
                         outputBuilder.AppendLine($"I|{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}|package-archives.json 읽기 시작");
                         string packageArchiveJson = await System.IO.File.ReadAllTextAsync(packageArchiveFilePath);
                         var packageArchive = JsonConvert.DeserializeAnonymousType(packageArchiveJson, new
@@ -2645,7 +2645,7 @@ TransactionException:
                             no = index + 1,
                             @class = fsi.Attributes.HasFlag(FileAttributes.Directory) == true ? "directory" : "file",
                             name = fsi.Attributes.HasFlag(FileAttributes.Directory) == true ? fsi.Name + "/" : fsi.Name,
-                            size = fsi.Attributes.HasFlag(FileAttributes.Directory) ? null : new FileInfo(fsi.FullName).Length.ToString("N0"),
+                            size = fsi.Attributes.HasFlag(FileAttributes.Directory) ? null : new FileInfo(fsi.FullName.Replace("\\", "/")).Length.ToString("N0"),
                             lastmodified = fsi.LastWriteTime.ToString("yyyy-MM-dd tt h:mm:ss")
                         })
                         .OrderBy(fsi => fsi.@class == "directory" ? 0 : 1)
@@ -3100,7 +3100,7 @@ TransactionException:
                             foreach (var directory in directoryInfo.GetDirectories("*", SearchOption.TopDirectoryOnly))
                             {
                                 Menu menuDirectory = new Menu();
-                                menuDirectory.menuID = directory.FullName.Replace(appBasePath, "").Replace(@"\", "/");
+                                menuDirectory.menuID = directory.FullName.Replace("\\", "/").Replace(appBasePath, "");
                                 menuDirectory.menuName = directory.Name;
                                 menuDirectory.parentMenuID = parentMenuID;
                                 menuDirectory.parentMenuName = parentMenuName;
@@ -3171,7 +3171,7 @@ TransactionException:
                 string directorySeparatorChar = Path.DirectorySeparatorChar.ToString();
                 string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID) + directorySeparatorChar;
                 Menu featureDirectory = new Menu();
-                featureDirectory.menuID = featureDirectoryInfo.FullName.Replace(appBasePath, "").Replace(@"\", "/");
+                featureDirectory.menuID = featureDirectoryInfo.FullName.Replace("\\", "/").Replace(appBasePath, "");
                 featureDirectory.menuName = featureDirectoryInfo.Name;
                 featureDirectory.parentMenuID = rootDirectory.menuID;
                 featureDirectory.parentMenuName = rootDirectory.menuName;
@@ -3190,7 +3190,7 @@ TransactionException:
                 foreach (var directory in featureDirectoryInfo.GetDirectories("*", SearchOption.TopDirectoryOnly))
                 {
                     Menu menuDirectory = new Menu();
-                    menuDirectory.menuID = directory.FullName.Replace(appBasePath, "").Replace(@"\", "/");
+                    menuDirectory.menuID = directory.FullName.Replace("\\", "/").Replace(appBasePath, "");
                     menuDirectory.menuName = directory.Name;
                     menuDirectory.parentMenuID = featureDirectory.menuID;
                     menuDirectory.parentMenuName = featureDirectory.menuName;
@@ -3220,9 +3220,9 @@ TransactionException:
                 foreach (var directoryInfo in directory.GetDirectories("*", SearchOption.TopDirectoryOnly))
                 {
                     Menu menuDirectory = new Menu();
-                    menuDirectory.menuID = directoryInfo.FullName.Replace(appBasePath, "").Replace(@"\", "/");
+                    menuDirectory.menuID = directoryInfo.FullName.Replace("\\", "/").Replace(appBasePath, "");
                     menuDirectory.menuName = directoryInfo.Name;
-                    menuDirectory.parentMenuID = directory.FullName.Replace(appBasePath, "").Replace(@"\", "/");
+                    menuDirectory.parentMenuID = directory.FullName.Replace("\\", "/").Replace(appBasePath, "");
                     menuDirectory.parentMenuName = directory.Name;
                     menuDirectory.showYN = "Y";
                     menuDirectory.menuType = "D";
@@ -3239,7 +3239,7 @@ TransactionException:
                     foreach (var file in directoryInfo.GetFileInfos(SearchOption.AllDirectories, searchPattern.Split("|").Where(x => string.IsNullOrWhiteSpace(x) == false).ToArray()))
                     {
                         Menu menuItem = new Menu();
-                        menuItem.menuID = file.FullName.Replace(appBasePath, "").Replace(@"\", "/");
+                        menuItem.menuID = file.FullName.Replace("\\", "/").Replace(appBasePath, "");
                         menuItem.menuName = file.Directory?.Name + file.Extension;
                         menuItem.parentMenuID = menuDirectory.menuID;
                         menuItem.parentMenuName = menuDirectory.menuName;
@@ -3268,9 +3268,9 @@ TransactionException:
                 foreach (var file in directory.GetFileInfos(SearchOption.TopDirectoryOnly, searchPattern.Split("|").Where(x => string.IsNullOrWhiteSpace(x) == false).ToArray()))
                 {
                     Menu menuItem = new Menu();
-                    menuItem.menuID = file.FullName.Replace(appBasePath, "").Replace(@"\", "/");
+                    menuItem.menuID = file.FullName.Replace("\\", "/").Replace(appBasePath, "");
                     menuItem.menuName = file.Name;
-                    menuItem.parentMenuID = directory.FullName.Replace(appBasePath, "").Replace(@"\", "/");
+                    menuItem.parentMenuID = directory.FullName.Replace("\\", "/").Replace(appBasePath, "");
                     menuItem.parentMenuName = directory.Name;
                     menuItem.showYN = "Y";
                     menuItem.menuType = "F";

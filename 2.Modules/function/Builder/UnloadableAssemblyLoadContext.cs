@@ -19,15 +19,15 @@ namespace function.Builder
 
         private Assembly LoadContext_Resolving(AssemblyLoadContext assemblyLoadContext, AssemblyName assemblyName)
         {
-            return LoadedAssemblies[assemblyName.FullName];
+            return LoadedAssemblies[assemblyName.FullName.Replace("\\", "/")];
         }
 
         public Assembly? LoadAssembliyFromStream(Stream stream)
         {
             var assembly = LoadFromStream(stream);
-            if (string.IsNullOrEmpty(assembly.FullName) == false)
+            if (string.IsNullOrEmpty(assembly.FullName.Replace("\\", "/")) == false)
             {
-                LoadedAssemblies.TryAdd(assembly.FullName, assembly);
+                LoadedAssemblies.TryAdd(assembly.FullName.Replace("\\", "/"), assembly);
             }
 
             return assembly;

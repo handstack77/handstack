@@ -15,7 +15,7 @@ namespace HandStack.Core.ExtensionMethod
         public static IEnumerable<string> GetEnumerateFiles(this DirectoryInfo @this, SearchOption searchOption = SearchOption.TopDirectoryOnly, params string[] searchPatterns)
         {
             return searchPatterns.AsParallel()
-                .SelectMany(searchPattern => Directory.EnumerateFiles(@this.FullName, searchPattern, searchOption));
+                .SelectMany(searchPattern => Directory.EnumerateFiles(@this.FullName.Replace("\\", "/"), searchPattern, searchOption));
         }
 
         /// <code>
@@ -25,7 +25,7 @@ namespace HandStack.Core.ExtensionMethod
         {
             var result = new List<FileInfo>();
             var items = searchPatterns.AsParallel()
-               .SelectMany(searchPattern => Directory.EnumerateFiles(@this.FullName, searchPattern, searchOption))
+               .SelectMany(searchPattern => Directory.EnumerateFiles(@this.FullName.Replace("\\", "/"), searchPattern, searchOption))
                .ToList();
 
             for (int i = 0; i < items.Count; i++)
@@ -133,7 +133,7 @@ namespace HandStack.Core.ExtensionMethod
             DirectoryInfo target = new DirectoryInfo(destination);
             if (@this.Exists == false)
             {
-                throw new DirectoryNotFoundException("source 디렉토리 확인 필요: " + @this.FullName);
+                throw new DirectoryNotFoundException("source 디렉토리 확인 필요: " + @this.FullName.Replace("\\", "/"));
             }
             if (target.Exists == false)
             {
@@ -142,46 +142,46 @@ namespace HandStack.Core.ExtensionMethod
 
             foreach (var file in @this.GetFiles())
             {
-                file.CopyTo(PathExtensions.Combine(target.FullName, file.Name), true);
+                file.CopyTo(PathExtensions.Combine(target.FullName.Replace("\\", "/"), file.Name), true);
             }
 
             if (recursive == true)
             {
                 foreach (var subDirectory in @this.GetDirectories())
                 {
-                    CopyTo(subDirectory, PathExtensions.Combine(target.FullName, subDirectory.Name), recursive);
+                    CopyTo(subDirectory, PathExtensions.Combine(target.FullName.Replace("\\", "/"), subDirectory.Name), recursive);
                 }
             }
         }
 
         public static void CreateZipFile(this DirectoryInfo @this, string destinationArchiveFileName)
         {
-            ZipFile.CreateFromDirectory(@this.FullName, destinationArchiveFileName);
+            ZipFile.CreateFromDirectory(@this.FullName.Replace("\\", "/"), destinationArchiveFileName);
         }
 
         public static void CreateZipFile(this DirectoryInfo @this, string destinationArchiveFileName, CompressionLevel compressionLevel, bool includeBaseDirectory)
         {
-            ZipFile.CreateFromDirectory(@this.FullName, destinationArchiveFileName, compressionLevel, includeBaseDirectory);
+            ZipFile.CreateFromDirectory(@this.FullName.Replace("\\", "/"), destinationArchiveFileName, compressionLevel, includeBaseDirectory);
         }
 
         public static void CreateZipFile(this DirectoryInfo @this, string destinationArchiveFileName, CompressionLevel compressionLevel, bool includeBaseDirectory, Encoding entryNameEncoding)
         {
-            ZipFile.CreateFromDirectory(@this.FullName, destinationArchiveFileName, compressionLevel, includeBaseDirectory, entryNameEncoding);
+            ZipFile.CreateFromDirectory(@this.FullName.Replace("\\", "/"), destinationArchiveFileName, compressionLevel, includeBaseDirectory, entryNameEncoding);
         }
 
         public static void CreateZipFile(this DirectoryInfo @this, FileInfo destinationArchiveFile)
         {
-            ZipFile.CreateFromDirectory(@this.FullName, destinationArchiveFile.FullName);
+            ZipFile.CreateFromDirectory(@this.FullName.Replace("\\", "/"), destinationArchiveFile.FullName.Replace("\\", "/"));
         }
 
         public static void CreateZipFile(this DirectoryInfo @this, FileInfo destinationArchiveFile, CompressionLevel compressionLevel, bool includeBaseDirectory)
         {
-            ZipFile.CreateFromDirectory(@this.FullName, destinationArchiveFile.FullName, compressionLevel, includeBaseDirectory);
+            ZipFile.CreateFromDirectory(@this.FullName.Replace("\\", "/"), destinationArchiveFile.FullName.Replace("\\", "/"), compressionLevel, includeBaseDirectory);
         }
 
         public static void CreateZipFile(this DirectoryInfo @this, FileInfo destinationArchiveFile, CompressionLevel compressionLevel, bool includeBaseDirectory, Encoding entryNameEncoding)
         {
-            ZipFile.CreateFromDirectory(@this.FullName, destinationArchiveFile.FullName, compressionLevel, includeBaseDirectory, entryNameEncoding);
+            ZipFile.CreateFromDirectory(@this.FullName.Replace("\\", "/"), destinationArchiveFile.FullName.Replace("\\", "/"), compressionLevel, includeBaseDirectory, entryNameEncoding);
         }
     }
 }

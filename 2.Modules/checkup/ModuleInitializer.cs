@@ -59,12 +59,12 @@ namespace checkup
                         ModuleConfiguration.IsBundledWithHost = moduleConfigJson.IsBundledWithHost;
                         ModuleConfiguration.AdministratorEmailID = moduleConfig.AdministratorEmailID;
                         ModuleConfiguration.BusinessServerUrl = moduleConfig.BusinessServerUrl;
-                        ModuleConfiguration.ModuleBasePath = string.IsNullOrEmpty(moduleConfig.ModuleBasePath) == true || Directory.Exists(moduleConfig.ModuleBasePath) == false ? "" : new DirectoryInfo(moduleConfig.ModuleBasePath).FullName;
+                        ModuleConfiguration.ModuleBasePath = string.IsNullOrEmpty(moduleConfig.ModuleBasePath) == true || Directory.Exists(moduleConfig.ModuleBasePath) == false ? "" : new DirectoryInfo(moduleConfig.ModuleBasePath).FullName.Replace("\\", "/");
                         ModuleConfiguration.DatabaseContractPath = GlobalConfiguration.GetBasePath(moduleConfig.DatabaseContractPath, PathExtensions.Combine(ModuleConfiguration.ModuleBasePath, "Contracts", "dbclient"));
-                        ModuleConfiguration.WWWRootBasePath = string.IsNullOrEmpty(moduleConfig.WWWRootBasePath) == true || Directory.Exists(moduleConfig.WWWRootBasePath) == false ? "" : new DirectoryInfo(moduleConfig.WWWRootBasePath).FullName;
-                        ModuleConfiguration.ModuleLogFilePath = string.IsNullOrEmpty(moduleConfig.ModuleLogFilePath) == true || Directory.Exists(moduleConfig.ModuleLogFilePath) == false ? "" : new DirectoryInfo(moduleConfig.ModuleLogFilePath).FullName;
+                        ModuleConfiguration.WWWRootBasePath = string.IsNullOrEmpty(moduleConfig.WWWRootBasePath) == true || Directory.Exists(moduleConfig.WWWRootBasePath) == false ? "" : new DirectoryInfo(moduleConfig.WWWRootBasePath).FullName.Replace("\\", "/");
+                        ModuleConfiguration.ModuleLogFilePath = string.IsNullOrEmpty(moduleConfig.ModuleLogFilePath) == true || Directory.Exists(moduleConfig.ModuleLogFilePath) == false ? "" : new DirectoryInfo(moduleConfig.ModuleLogFilePath).FullName.Replace("\\", "/");
                         ModuleConfiguration.IsModuleLogging = string.IsNullOrEmpty(moduleConfig.ModuleLogFilePath) == false;
-                        ModuleConfiguration.ModuleFilePath = string.IsNullOrEmpty(moduleConfig.ModuleFilePath) == true || Directory.Exists(moduleConfig.ModuleFilePath) == false ? "" : new DirectoryInfo(moduleConfig.ModuleFilePath).FullName;
+                        ModuleConfiguration.ModuleFilePath = string.IsNullOrEmpty(moduleConfig.ModuleFilePath) == true || Directory.Exists(moduleConfig.ModuleFilePath) == false ? "" : new DirectoryInfo(moduleConfig.ModuleFilePath).FullName.Replace("\\", "/");
 
                         if (moduleConfig.ConnectionString.IndexOf("|") > -1)
                         {

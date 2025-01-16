@@ -68,7 +68,7 @@ namespace HandStack.Core.ExpendObjects
                 else
                 {
                     isCustom = true;
-                    xmlType = "___" + value.GetType().FullName;
+                    xmlType = "___" + value.GetType().FullName.Replace("\\", "/");
                     writer.WriteStartAttribute("type");
                     writer.WriteString(xmlType);
                     writer.WriteEndAttribute();

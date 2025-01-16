@@ -64,7 +64,7 @@ namespace openapi.Entity
                     var directoryInfo = new DirectoryInfo(directory);
                     if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
                     {
-                        appBasePath = directoryInfo.FullName;
+                        appBasePath = directoryInfo.FullName.Replace("\\", "/");
                         userWorkID = (directoryInfo.Parent?.Name).ToStringSafe();
                         break;
                     }
@@ -85,7 +85,7 @@ namespace openapi.Entity
                     var fileInfo = new FileInfo(logDbFilePath);
                     if (fileInfo.Directory != null && fileInfo.Directory.Exists == false)
                     {
-                        Directory.CreateDirectory(fileInfo.Directory.FullName);
+                        Directory.CreateDirectory(fileInfo.Directory.FullName.Replace("\\", "/"));
                     }
 
                     if (fileInfo.Exists == false)

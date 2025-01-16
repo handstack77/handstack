@@ -22,7 +22,7 @@ namespace dbclient.Profiler
 
             if (profilerType.GetInterfaces().All(x => x != typeof(IAdoNetProfiler)))
             {
-                throw new ArgumentException($"The type must be {typeof(IAdoNetProfiler).FullName}.", nameof(profilerType));
+                throw new ArgumentException($"The type must be {typeof(IAdoNetProfiler).FullName.Replace("\\", "/")}.", nameof(profilerType));
             }
 
             readerWriterLockSlim.ExecuteWithReadLock(() =>

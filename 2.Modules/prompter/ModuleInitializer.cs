@@ -70,7 +70,7 @@ namespace prompter
 
                         ModuleConfiguration.BusinessServerUrl = moduleConfig.BusinessServerUrl;
                         ModuleConfiguration.IsTransactionLogging = moduleConfig.IsTransactionLogging;
-                        ModuleConfiguration.ModuleLogFilePath = string.IsNullOrEmpty(moduleConfig.ModuleLogFilePath) == true ? "transaction.log" : new FileInfo(moduleConfig.ModuleLogFilePath).FullName;
+                        ModuleConfiguration.ModuleLogFilePath = string.IsNullOrEmpty(moduleConfig.ModuleLogFilePath) == true ? "transaction.log" : new FileInfo(moduleConfig.ModuleLogFilePath).FullName.Replace("\\", "/");
                         if (ModuleConfiguration.IsTransactionLogging == true)
                         {
                             var loggerConfiguration = CreateLoggerConfiguration(ModuleConfiguration.ModuleLogFilePath);
@@ -139,7 +139,7 @@ namespace prompter
 
                 if (string.IsNullOrEmpty(GlobalConfiguration.ProcessName) == true)
                 {
-                    logFilePath = fileInfo.FullName;
+                    logFilePath = fileInfo.FullName.Replace("\\", "/");
                 }
                 else
                 {
@@ -209,9 +209,9 @@ namespace prompter
                     var fileSyncManager = new FileSyncManager(basePath, "*.xml");
                     fileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
                     {
-                        if (GlobalConfiguration.IsRunning == true && fileInfo.FullName.IndexOf(basePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))
+                        if (GlobalConfiguration.IsRunning == true && fileInfo.FullName.Replace("\\", "/").IndexOf(basePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))
                         {
-                            string filePath = fileInfo.FullName.Replace(basePath, "");
+                            string filePath = fileInfo.FullName.Replace("\\", "/").Replace(basePath, "");
                             string hostUrl = $"http://localhost:{GlobalConfiguration.ServerPort}/prompter/api/query/refresh?changeType={changeTypes}&filePath={filePath}";
 
                             var request = new RestRequest(hostUrl, Method.Get);

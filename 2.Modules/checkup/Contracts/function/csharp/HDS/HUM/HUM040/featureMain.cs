@@ -286,7 +286,7 @@ TransactionException:
             foreach (var file in directory.GetFileInfos(SearchOption.TopDirectoryOnly, searchPattern.Split("|").Where(x => string.IsNullOrWhiteSpace(x) == false).ToArray()))
             {
                 Menu menuItem = new Menu();
-                menuItem.menuID = file.FullName.Replace(appBasePath, "").Replace(@"\", "/");
+                menuItem.menuID = file.FullName.Replace("\\", "/").Replace(appBasePath, "");
                 menuItem.menuName = file.Name;
                 menuItem.parentMenuID = rootDirectory.menuID;
                 menuItem.parentMenuName = rootDirectory.menuName;

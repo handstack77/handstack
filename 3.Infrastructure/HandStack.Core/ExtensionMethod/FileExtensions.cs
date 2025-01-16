@@ -122,7 +122,7 @@ namespace HandStack.Core.ExtensionMethod
                 if (@this.Exists == true)
                 {
                     using (var md5 = MD5.Create())
-                    using (var stream = File.OpenRead(@this.FullName))
+                    using (var stream = File.OpenRead(@this.FullName.Replace("\\", "/")))
                     {
                         return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", string.Empty);
                     }
@@ -140,7 +140,7 @@ namespace HandStack.Core.ExtensionMethod
         {
             if (@this != null)
             {
-                string? directoryName = Path.GetDirectoryName(@this.FullName);
+                string? directoryName = Path.GetDirectoryName(@this.FullName.Replace("\\", "/"));
                 if (string.IsNullOrEmpty(directoryName) == false)
                 {
                     var filePath = PathExtensions.Combine(directoryName, newName);
@@ -168,7 +168,7 @@ namespace HandStack.Core.ExtensionMethod
         /// </code>
         public static FileInfo ChangeExtension(this FileInfo @this, string newExtension)
         {
-            var fileName = string.Concat(Path.GetFileNameWithoutExtension(@this.FullName), newExtension);
+            var fileName = string.Concat(Path.GetFileNameWithoutExtension(@this.FullName.Replace("\\", "/")), newExtension);
             @this.Rename(fileName);
             return @this;
         }
@@ -261,7 +261,7 @@ namespace HandStack.Core.ExtensionMethod
             char nulChar = '\0';
 
             int nulCount = 0;
-            using (var streamReader = new StreamReader(file.FullName))
+            using (var streamReader = new StreamReader(file.FullName.Replace("\\", "/")))
             {
                 for (var i = 0; i < charsToCheck; i++)
                 {
@@ -287,37 +287,37 @@ namespace HandStack.Core.ExtensionMethod
 
         public static void ExtractZipFileToDirectory(this FileInfo @this, string destinationDirectoryName)
         {
-            ZipFile.ExtractToDirectory(@this.FullName, destinationDirectoryName);
+            ZipFile.ExtractToDirectory(@this.FullName.Replace("\\", "/"), destinationDirectoryName);
         }
 
         public static void ExtractZipFileToDirectory(this FileInfo @this, string destinationDirectoryName, Encoding entryNameEncoding)
         {
-            ZipFile.ExtractToDirectory(@this.FullName, destinationDirectoryName, entryNameEncoding);
+            ZipFile.ExtractToDirectory(@this.FullName.Replace("\\", "/"), destinationDirectoryName, entryNameEncoding);
         }
 
         public static void ExtractZipFileToDirectory(this FileInfo @this, DirectoryInfo destinationDirectory)
         {
-            ZipFile.ExtractToDirectory(@this.FullName, destinationDirectory.FullName);
+            ZipFile.ExtractToDirectory(@this.FullName.Replace("\\", "/"), destinationDirectory.FullName.Replace("\\", "/"));
         }
 
         public static void ExtractZipFileToDirectory(this FileInfo @this, DirectoryInfo destinationDirectory, Encoding entryNameEncoding)
         {
-            ZipFile.ExtractToDirectory(@this.FullName, destinationDirectory.FullName, entryNameEncoding);
+            ZipFile.ExtractToDirectory(@this.FullName.Replace("\\", "/"), destinationDirectory.FullName.Replace("\\", "/"), entryNameEncoding);
         }
 
         public static ZipArchive OpenReadZipFile(this FileInfo @this)
         {
-            return ZipFile.OpenRead(@this.FullName);
+            return ZipFile.OpenRead(@this.FullName.Replace("\\", "/"));
         }
 
         public static ZipArchive OpenZipFile(this FileInfo @this, ZipArchiveMode mode)
         {
-            return ZipFile.Open(@this.FullName, mode);
+            return ZipFile.Open(@this.FullName.Replace("\\", "/"), mode);
         }
 
         public static ZipArchive OpenZipFile(this FileInfo @this, ZipArchiveMode mode, Encoding entryNameEncoding)
         {
-            return ZipFile.Open(@this.FullName, mode, entryNameEncoding);
+            return ZipFile.Open(@this.FullName.Replace("\\", "/"), mode, entryNameEncoding);
         }
     }
 }

@@ -104,16 +104,16 @@ namespace ack.Extensions
                     Assembly? assembly = null;
                     try
                     {
-                        if (file.FullName.IndexOf($"{Path.DirectorySeparatorChar}runtimes{Path.DirectorySeparatorChar}") > -1)
+                        if (file.FullName.Replace("\\", "/").IndexOf($"{Path.DirectorySeparatorChar}runtimes{Path.DirectorySeparatorChar}") > -1)
                         {
                      
                         }
                         else
                         {
-                            string filePath = file.FullName.Replace(moduleBasePath, "").Replace(Path.DirectorySeparatorChar, '/');
+                            string filePath = file.FullName.Replace("\\", "/").Replace(moduleBasePath, "").Replace(Path.DirectorySeparatorChar, '/');
                             if (module.LoadPassAssemblyPath.Contains(filePath) == false)
                             {
-                                assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(file.FullName);
+                                assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(file.FullName.Replace("\\", "/"));
                             }
                         }
                     }
@@ -127,13 +127,13 @@ namespace ack.Extensions
                             throw;
                         }
 
-                        string assemblyFilePath = string.IsNullOrEmpty(assembly.Location) == true ? file.FullName : assembly.Location;
+                        string assemblyFilePath = string.IsNullOrEmpty(assembly.Location) == true ? file.FullName.Replace("\\", "/") : assembly.Location;
                         string? loadedAssemblyVersion = FileVersionInfo.GetVersionInfo(assemblyFilePath).FileVersion;
-                        string? tryToLoadAssemblyVersion = FileVersionInfo.GetVersionInfo(file.FullName).FileVersion;
+                        string? tryToLoadAssemblyVersion = FileVersionInfo.GetVersionInfo(file.FullName.Replace("\\", "/")).FileVersion;
 
                         if (tryToLoadAssemblyVersion != loadedAssemblyVersion)
                         {
-                            throw new Exception($"Cannot load {file.FullName} {tryToLoadAssemblyVersion} because {assembly.Location} {loadedAssemblyVersion} has been loaded");
+                            throw new Exception($"Cannot load {file.FullName.Replace("\\", "/")} {tryToLoadAssemblyVersion} because {assembly.Location} {loadedAssemblyVersion} has been loaded");
                         }
                     }
 

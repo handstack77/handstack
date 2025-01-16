@@ -94,7 +94,7 @@ namespace repository.Extensions
                 result = PathExtensions.Combine(repository.PhysicalPath, GetCustomFileStoragePath(customPath1, customPath2, customPath3));
             }
 
-            result = new DirectoryInfo(result).FullName;
+            result = new DirectoryInfo(result).FullName.Replace("\\", "/");
             return result;
         }
 

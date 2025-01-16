@@ -217,7 +217,7 @@ TransactionException:
                                 foreach (var directory in directoryInfo.GetDirectories("*", SearchOption.TopDirectoryOnly))
                                 {
                                     Menu menuDirectory = new Menu();
-                                    menuDirectory.menuID = directory.FullName.Replace(appBasePath, "").Replace(@"\", "/");
+                                    menuDirectory.menuID = directory.FullName.Replace("\\", "/").Replace(appBasePath, "");
                                     menuDirectory.menuName = directory.Name;
                                     menuDirectory.parentMenuID = parentMenuID;
                                     menuDirectory.parentMenuName = parentMenuName;
@@ -914,7 +914,7 @@ TransactionException:
                 string directorySeparatorChar = System.IO.Path.DirectorySeparatorChar.ToString();
                 string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID) + directorySeparatorChar;
                 Menu featureDirectory = new Menu();
-                featureDirectory.menuID = featureDirectoryInfo.FullName.Replace(appBasePath, "").Replace(@"\", "/");
+                featureDirectory.menuID = featureDirectoryInfo.FullName.Replace("\\", "/").Replace(appBasePath, "");
                 featureDirectory.menuName = featureDirectoryInfo.Name;
                 featureDirectory.parentMenuID = rootDirectory.menuID;
                 featureDirectory.parentMenuName = rootDirectory.menuName;
@@ -939,7 +939,7 @@ TransactionException:
                     }
 
                     Menu menuDirectory = new Menu();
-                    menuDirectory.menuID = directory.FullName.Replace(appBasePath, "").Replace(@"\", "/");
+                    menuDirectory.menuID = directory.FullName.Replace("\\", "/").Replace(appBasePath, "");
                     menuDirectory.menuName = directory.Name;
                     menuDirectory.parentMenuID = featureDirectory.menuID;
                     menuDirectory.parentMenuName = featureDirectory.menuName;
@@ -970,9 +970,9 @@ TransactionException:
                 foreach (var directoryInfo in directory.GetDirectories("*", SearchOption.TopDirectoryOnly))
                 {
                     Menu menuDirectory = new Menu();
-                    menuDirectory.menuID = directoryInfo.FullName.Replace(appBasePath, "").Replace(@"\", "/");
+                    menuDirectory.menuID = directoryInfo.FullName.Replace("\\", "/").Replace(appBasePath, "");
                     menuDirectory.menuName = directoryInfo.Name;
-                    menuDirectory.parentMenuID = directory.FullName.Replace(appBasePath, "").Replace(@"\", "/");
+                    menuDirectory.parentMenuID = directory.FullName.Replace("\\", "/").Replace(appBasePath, "");
                     menuDirectory.parentMenuName = directory.Name;
                     menuDirectory.showYN = "Y";
                     menuDirectory.projectType = projectType;
@@ -990,7 +990,7 @@ TransactionException:
                     foreach (var file in directoryInfo.GetFileInfos(SearchOption.AllDirectories, searchPattern.Split("|").Where(x => string.IsNullOrWhiteSpace(x) == false).ToArray()))
                     {
                         Menu menuItem = new Menu();
-                        menuItem.menuID = file.FullName.Replace(appBasePath, "").Replace(@"\", "/");
+                        menuItem.menuID = file.FullName.Replace("\\", "/").Replace(appBasePath, "");
                         menuItem.menuName = file.Directory?.Name + file.Extension;
                         menuItem.parentMenuID = menuDirectory.menuID;
                         menuItem.parentMenuName = menuDirectory.menuName;
@@ -1024,9 +1024,9 @@ TransactionException:
                 foreach (var file in directory.GetFileInfos(SearchOption.TopDirectoryOnly, searchPattern.Split("|").Where(x => string.IsNullOrWhiteSpace(x) == false).ToArray()))
                 {
                     Menu menuItem = new Menu();
-                    menuItem.menuID = file.FullName.Replace(appBasePath, "").Replace(@"\", "/");
+                    menuItem.menuID = file.FullName.Replace("\\", "/").Replace(appBasePath, "");
                     menuItem.menuName = file.Name;
-                    menuItem.parentMenuID = directory.FullName.Replace(appBasePath, "").Replace(@"\", "/");
+                    menuItem.parentMenuID = directory.FullName.Replace("\\", "/").Replace(appBasePath, "");
                     menuItem.parentMenuName = directory.Name;
                     menuItem.showYN = "Y";
                     menuItem.projectType = projectType;

@@ -209,7 +209,7 @@ namespace handstack
                 {
                     string targetBasePath = ackFile.DirectoryName.ToStringSafe();
                     string settingDirectoryPath = settings.DirectoryName.ToStringSafe();
-                    string settingFilePath = settings.FullName;
+                    string settingFilePath = settings.FullName.Replace("\\", "/");
                     string settingFileName = settings.Name;
                     try
                     {
@@ -265,11 +265,11 @@ namespace handstack
                                         {
                                             if (moduleID == "wwwroot")
                                             {
-                                                wwwrootModuleBasePath = directoryInfo.FullName;
+                                                wwwrootModuleBasePath = directoryInfo.FullName.Replace("\\", "/");
                                             }
                                             else if (moduleID == "function")
                                             {
-                                                functionModuleBasePath = directoryInfo.FullName;
+                                                functionModuleBasePath = directoryInfo.FullName.Replace("\\", "/");
                                             }
 
                                             FileInfo sourceModuleSettingFileInfo = new FileInfo(sourceModuleSettingFilePath);
@@ -287,7 +287,7 @@ namespace handstack
 
                             string appBasePath = ackFile.DirectoryName.ToStringSafe();
                             FileInfo appSettingFileInfo = new FileInfo(PathExtensions.Combine(appBasePath, "appsettings.json"));
-                            var appSettingFilePath = appSettingFileInfo.FullName;
+                            var appSettingFilePath = appSettingFileInfo.FullName.Replace("\\", "/");
                             File.WriteAllText(appSettingFilePath, setting.ToString());
                             FileInfo settingFileInfo = new FileInfo(settingFilePath);
                             Log.Information($"appsettings: {appSettingFilePath}");
@@ -296,16 +296,16 @@ namespace handstack
                             if (File.Exists(synConfigFilePath) == true && string.IsNullOrEmpty(wwwrootModuleBasePath) == false)
                             {
                                 FileInfo synConfigFileInfo = new FileInfo(PathExtensions.Combine(wwwrootModuleBasePath, "wwwroot", "syn.config.json"));
-                                File.Copy(synConfigFilePath, synConfigFileInfo.FullName, true);
-                                Log.Information($"synconfigs: {synConfigFileInfo.FullName}");
+                                File.Copy(synConfigFilePath, synConfigFileInfo.FullName.Replace("\\", "/"), true);
+                                Log.Information($"synconfigs: {synConfigFileInfo.FullName.Replace("\\", "/")}");
                             }
 
                             string nodeConfigFilePath = PathExtensions.Combine(settingDirectoryPath, "nodeconfigs", settingFileName);
                             if (File.Exists(nodeConfigFilePath) == true && string.IsNullOrEmpty(functionModuleBasePath) == false)
                             {
                                 FileInfo nodeConfigFileInfo = new FileInfo(PathExtensions.Combine(functionModuleBasePath, "node.config.json"));
-                                File.Copy(nodeConfigFilePath, nodeConfigFileInfo.FullName, true);
-                                Log.Information($"nodeconfigs: {nodeConfigFileInfo.FullName}");
+                                File.Copy(nodeConfigFilePath, nodeConfigFileInfo.FullName.Replace("\\", "/"), true);
+                                Log.Information($"nodeconfigs: {nodeConfigFileInfo.FullName.Replace("\\", "/")}");
                             }
                         }
                     }
@@ -316,7 +316,7 @@ namespace handstack
                 }
                 else
                 {
-                    Log.Information($"ackFile:{ackFile?.FullName} 파일 확인 또는 settings:{settings?.FullName} 파일 확인이 필요합니다");
+                    Log.Information($"ackFile:{ackFile?.FullName.Replace("\\", "/")} 파일 확인 또는 settings:{settings?.FullName.Replace("\\", "/")} 파일 확인이 필요합니다");
                 }
             }, optionAckFile, optionAppSettingFile);
 
@@ -336,9 +336,9 @@ namespace handstack
                 if (ackFile != null && ackFile.Exists == true && directory != null && directory.Exists == true)
                 {
                     string appBasePath = ackFile.DirectoryName.ToStringSafe();
-                    string ackHomePath = (ackFile.Directory?.Parent?.FullName).ToStringSafe();
+                    string ackHomePath = (ackFile.Directory?.Parent?.FullName.Replace("\\", "/")).ToStringSafe();
                     string targetContractDir = PathExtensions.Combine(ackHomePath, "contracts");
-                    string baseDir = directory.FullName;
+                    string baseDir = directory.FullName.Replace("\\", "/");
 
                     try
                     {
@@ -368,7 +368,7 @@ namespace handstack
                 }
                 else
                 {
-                    Log.Information($"ackFile:{ackFile?.FullName} 파일 확인 또는 settings:{directory?.FullName} 파일 확인이 필요합니다");
+                    Log.Information($"ackFile:{ackFile?.FullName.Replace("\\", "/")} 파일 확인 또는 settings:{directory?.FullName.Replace("\\", "/")} 파일 확인이 필요합니다");
                 }
             }, optionAckFile, optionDirectory);
 
@@ -390,7 +390,7 @@ namespace handstack
                     string targetBasePath = ackFile.DirectoryName.ToStringSafe();
                     if (settings != null && settings.Exists == true)
                     {
-                        string settingFilePath = settings.FullName;
+                        string settingFilePath = settings.FullName.Replace("\\", "/");
                         try
                         {
                             string settingText = File.ReadAllText(settingFilePath);
@@ -403,11 +403,11 @@ namespace handstack
                         }
                     }
 
-                    Log.Information($"{ackFile.FullName} {arguments.ToStringSafe()}");
+                    Log.Information($"{ackFile.FullName.Replace("\\", "/")} {arguments.ToStringSafe()}");
                 }
                 else
                 {
-                    Log.Information($"ackFile:{ackFile?.FullName} 파일 확인이 필요합니다");
+                    Log.Information($"ackFile:{ackFile?.FullName.Replace("\\", "/")} 파일 확인이 필요합니다");
                 }
             }, optionAckFile, optionArguments, optionAppSettingFile);
 
@@ -429,7 +429,7 @@ namespace handstack
                     string targetBasePath = ackFile.DirectoryName.ToStringSafe();
                     if (settings != null && settings.Exists == true)
                     {
-                        string settingFilePath = settings.FullName;
+                        string settingFilePath = settings.FullName.Replace("\\", "/");
                         try
                         {
                             string settingText = File.ReadAllText(settingFilePath);
@@ -442,7 +442,7 @@ namespace handstack
                         }
                     }
 
-                    string ackFilePath = ackFile.FullName;
+                    string ackFilePath = ackFile.FullName.Replace("\\", "/");
                     Process process = new Process();
                     process.StartInfo = new ProcessStartInfo(ackFilePath);
                     process.StartInfo.Arguments = arguments.ToStringSafe();
@@ -454,7 +454,7 @@ namespace handstack
                 }
                 else
                 {
-                    Log.Information($"ackFile:{ackFile?.FullName} 파일 확인이 필요합니다");
+                    Log.Information($"ackFile:{ackFile?.FullName.Replace("\\", "/")} 파일 확인이 필요합니다");
                 }
             }, optionAckFile, optionArguments, optionAppSettingFile);
 
@@ -801,7 +801,7 @@ namespace handstack
                             file.Delete();
                         }
 
-                        string zipFileName = (file?.FullName).ToStringSafe();
+                        string zipFileName = (file?.FullName.Replace("\\", "/")).ToStringSafe();
                         if (file != null && file.Extension != ".zip")
                         {
                             zipFileName = $"{zipFileName}.zip";
@@ -809,7 +809,7 @@ namespace handstack
 
                         if (string.IsNullOrEmpty(zipFileName) == true)
                         {
-                            zipFileName = PathExtensions.Combine(directory.Parent.FullName, $"{directory.Name}.zip");
+                            zipFileName = PathExtensions.Combine(directory.Parent.FullName.Replace("\\", "/"), $"{directory.Name}.zip");
                         }
 
                         if (File.Exists(zipFileName) == true)
@@ -817,11 +817,11 @@ namespace handstack
                             File.Delete(zipFileName);
                         }
 
-                        ZipFile.CreateFromDirectory(directory.FullName, zipFileName);
+                        ZipFile.CreateFromDirectory(directory.FullName.Replace("\\", "/"), zipFileName);
                     }
                     else
                     {
-                        Log.Information($"directory:{directory?.FullName}, file:{file?.FullName} 확인이 필요합니다");
+                        Log.Information($"directory:{directory?.FullName.Replace("\\", "/")}, file:{file?.FullName.Replace("\\", "/")} 확인이 필요합니다");
                     }
                 }
                 catch (Exception exception)
@@ -852,11 +852,11 @@ namespace handstack
                             directory.Delete(true);
                         }
 
-                        ZipFile.ExtractToDirectory(file.FullName, directory.FullName, true);
+                        ZipFile.ExtractToDirectory(file.FullName.Replace("\\", "/"), directory.FullName.Replace("\\", "/"), true);
                     }
                     else
                     {
-                        Log.Information($"directory:{directory?.FullName}, file:{file?.FullName} 확인이 필요합니다");
+                        Log.Information($"directory:{directory?.FullName.Replace("\\", "/")}, file:{file?.FullName.Replace("\\", "/")} 확인이 필요합니다");
                     }
                 }
                 catch (Exception exception)
@@ -880,14 +880,14 @@ namespace handstack
             {
                 if (ackFile != null && ackFile.Exists == true && file != null && file.Exists == true && directory != null)
                 {
-                    string ackHomePath = (ackFile.Directory?.Parent?.FullName).ToStringSafe();
+                    string ackHomePath = (ackFile.Directory?.Parent?.FullName.Replace("\\", "/")).ToStringSafe();
                     if (directory.Exists == true)
                     {
                         directory.Delete(true);
                     }
 
-                    string targetDirectoryPath = directory.FullName;
-                    ZipFile.ExtractToDirectory(file.FullName, targetDirectoryPath);
+                    string targetDirectoryPath = directory.FullName.Replace("\\", "/");
+                    ZipFile.ExtractToDirectory(file.FullName.Replace("\\", "/"), targetDirectoryPath);
 
                     if (string.IsNullOrEmpty(ignored) == false)
                     {
@@ -916,7 +916,7 @@ namespace handstack
                 }
                 else
                 {
-                    Log.Information($"ackFile:{ackFile?.FullName}, directory:{directory?.FullName}, file:{file?.FullName} 확인이 필요합니다");
+                    Log.Information($"ackFile:{ackFile?.FullName.Replace("\\", "/")}, directory:{directory?.FullName.Replace("\\", "/")}, file:{file?.FullName.Replace("\\", "/")} 확인이 필요합니다");
                 }
             }, optionAckFile, optionFile, optionKey, optionDirectory, optionFind, optionReplace, optionValue);
 
@@ -953,7 +953,7 @@ namespace handstack
                 }
                 else
                 {
-                    Log.Information($"file:{file?.FullName} 확인이 필요합니다");
+                    Log.Information($"file:{file?.FullName.Replace("\\", "/")} 확인이 필요합니다");
                 }
             }, optionFile, optionFind, optionReplace);
 
@@ -975,7 +975,7 @@ namespace handstack
                     string command = value.ToStringSafe();
                     if (command.StartsWith("*:") == true)
                     {
-                        var tasks = BindTasks(file.FullName, command);
+                        var tasks = BindTasks(file.FullName.Replace("\\", "/"), command);
                         if (tasks != null)
                         {
                             foreach (var task in tasks)
@@ -989,7 +989,7 @@ namespace handstack
                         var commands = command.SplitAndTrim(';');
                         foreach (var item in commands)
                         {
-                            var task = BindTask(file.FullName, item);
+                            var task = BindTask(file.FullName.Replace("\\", "/"), item);
                             if (task != null)
                             {
                                 RunningTask(file, task);
@@ -999,7 +999,7 @@ namespace handstack
                 }
                 else
                 {
-                    Log.Information($"file:{file?.FullName}, value:{value} 확인이 필요합니다");
+                    Log.Information($"file:{file?.FullName.Replace("\\", "/")}, value:{value} 확인이 필요합니다");
                 }
 
                 static void RunningTask(FileInfo? file, Entity.Tasks task)
@@ -1171,11 +1171,11 @@ namespace handstack
         {
             if (fileInfo.Exists == true && fileInfo.IsBinary() == false)
             {
-                string fileText = File.ReadAllText(fileInfo.FullName);
+                string fileText = File.ReadAllText(fileInfo.FullName.Replace("\\", "/"));
                 int count = Regex.Matches(fileText, findText, RegexOptions.None).Count;
                 if (count > 0)
                 {
-                    File.WriteAllText(fileInfo.FullName, fileText.Replace(findText, replaceText));
+                    File.WriteAllText(fileInfo.FullName.Replace("\\", "/"), fileText.Replace(findText, replaceText));
                 }
             }
         }
@@ -1230,15 +1230,15 @@ namespace handstack
                     if (newFileName.Equals(originalFileName, StringComparison.InvariantCultureIgnoreCase))
                     {
                         string tempFileName = $"temp_{originalFileName}_{Guid.NewGuid()}";
-                        string tempFullFileName = fileInfo.FullName.ReplaceLastOccurrence(fileInfo.Name, tempFileName);
-                        File.Move(fileInfo.FullName, tempFullFileName);
-                        string newFullFileName = fileInfo.FullName.ReplaceLastOccurrence(fileInfo.Name, newFileName);
+                        string tempFullFileName = fileInfo.FullName.Replace("\\", "/").ReplaceLastOccurrence(fileInfo.Name, tempFileName);
+                        File.Move(fileInfo.FullName.Replace("\\", "/"), tempFullFileName);
+                        string newFullFileName = fileInfo.FullName.Replace("\\", "/").ReplaceLastOccurrence(fileInfo.Name, newFileName);
                         File.Move(tempFullFileName, newFullFileName);
                     }
                     else
                     {
-                        string newFullFileName = fileInfo.FullName.ReplaceLastOccurrence(fileInfo.Name, newFileName);
-                        File.Move(fileInfo.FullName, newFullFileName);
+                        string newFullFileName = fileInfo.FullName.Replace("\\", "/").ReplaceLastOccurrence(fileInfo.Name, newFileName);
+                        File.Move(fileInfo.FullName.Replace("\\", "/"), newFullFileName);
                     }
 
                     replaceInFileNamesCount += count;
@@ -1260,7 +1260,7 @@ namespace handstack
             }
 
             int count = Regex.Matches(directoryInfo.Name, findText, RegexOptions.None).Count;
-            string directoryInfoFullName = directoryInfo.FullName;
+            string directoryInfoFullName = directoryInfo.FullName.Replace("\\", "/");
 
             if (count > 0)
             {
@@ -1269,15 +1269,15 @@ namespace handstack
                 if (newDirectoryName.Equals(orginalDirectoryName, StringComparison.InvariantCultureIgnoreCase))
                 {
                     string tempDirectoryName = $"temp_{orginalDirectoryName}_{Guid.NewGuid()}";
-                    string tempFullDirectoryName = directoryInfo.FullName.ReplaceLastOccurrence(directoryInfo.Name, tempDirectoryName);
-                    Directory.Move(directoryInfo.FullName, tempFullDirectoryName);
-                    string newFullDirectoryName = directoryInfo.FullName.ReplaceLastOccurrence(directoryInfo.Name, newDirectoryName);
+                    string tempFullDirectoryName = directoryInfo.FullName.Replace("\\", "/").ReplaceLastOccurrence(directoryInfo.Name, tempDirectoryName);
+                    Directory.Move(directoryInfo.FullName.Replace("\\", "/"), tempFullDirectoryName);
+                    string newFullDirectoryName = directoryInfo.FullName.Replace("\\", "/").ReplaceLastOccurrence(directoryInfo.Name, newDirectoryName);
                     Directory.Move(tempFullDirectoryName, newFullDirectoryName);
                 }
                 else
                 {
-                    directoryInfoFullName = directoryInfo.FullName.ReplaceLastOccurrence(directoryInfo.Name, newDirectoryName);
-                    Directory.Move(directoryInfo.FullName, directoryInfoFullName);
+                    directoryInfoFullName = directoryInfo.FullName.Replace("\\", "/").ReplaceLastOccurrence(directoryInfo.Name, newDirectoryName);
+                    Directory.Move(directoryInfo.FullName.Replace("\\", "/"), directoryInfoFullName);
                 }
 
                 replaceInDirectoryNamesCount += count;

@@ -250,7 +250,7 @@ namespace repository.Controllers
                 RepositoryManager repositoryManager = new RepositoryManager();
                 repositoryManager.PersistenceDirectoryPath = repositoryManager.GetPhysicalPath(repository, customPath1, customPath2, customPath3);
                 string relativeDirectoryPath = repositoryManager.GetRelativePath(repository, customPath1, customPath2, customPath3);
-                string relativeDirectoryUrlPath = string.IsNullOrEmpty(relativeDirectoryPath) == true ? "" : relativeDirectoryPath.Replace(@"\", "/");
+                string relativeDirectoryUrlPath = string.IsNullOrEmpty(relativeDirectoryPath) == true ? "" : relativeDirectoryPath;
                 relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.Substring(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
 
                 bool isExistFile = false;
@@ -586,7 +586,7 @@ namespace repository.Controllers
                         RepositoryManager repositoryManager = new RepositoryManager();
                         repositoryManager.PersistenceDirectoryPath = repositoryManager.GetPhysicalPath(repository, customPath1, customPath2, customPath3);
                         string relativeDirectoryPath = repositoryManager.GetRelativePath(repository, customPath1, customPath2, customPath3);
-                        string relativeDirectoryUrlPath = string.IsNullOrEmpty(relativeDirectoryPath) == true ? "" : relativeDirectoryPath.Replace(@"\", "/");
+                        string relativeDirectoryUrlPath = string.IsNullOrEmpty(relativeDirectoryPath) == true ? "" : relativeDirectoryPath;
                         relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.Substring(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
 
                         if (repository.IsMultiUpload == true)
@@ -919,7 +919,7 @@ namespace repository.Controllers
                         RepositoryManager repositoryManager = new RepositoryManager();
                         repositoryManager.PersistenceDirectoryPath = repositoryManager.GetPhysicalPath(repository, customPath1, customPath2, customPath3);
                         string relativeDirectoryPath = repositoryManager.GetRelativePath(repository, customPath1, customPath2, customPath3);
-                        string relativeDirectoryUrlPath = string.IsNullOrEmpty(relativeDirectoryPath) == true ? "" : relativeDirectoryPath.Replace(@"\", "/");
+                        string relativeDirectoryUrlPath = string.IsNullOrEmpty(relativeDirectoryPath) == true ? "" : relativeDirectoryPath;
                         relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.Substring(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
 
                         if (repository.IsMultiUpload == true)
@@ -1303,7 +1303,7 @@ namespace repository.Controllers
                 RepositoryManager repositoryManager = new RepositoryManager();
                 repositoryManager.PersistenceDirectoryPath = repositoryManager.GetPhysicalPath(repository, customPath1, customPath2, customPath3);
                 string relativeDirectoryPath = repositoryManager.GetRelativePath(repository, customPath1, customPath2, customPath3);
-                string relativeDirectoryUrlPath = string.IsNullOrEmpty(relativeDirectoryPath) == true ? "" : relativeDirectoryPath.Replace(@"\", "/");
+                string relativeDirectoryUrlPath = string.IsNullOrEmpty(relativeDirectoryPath) == true ? "" : relativeDirectoryPath;
                 relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.Substring(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
                 string policyPath = repositoryManager.GetPolicyPath(repository);
 
@@ -1881,7 +1881,7 @@ namespace repository.Controllers
                             DirectoryInfo directoryInfo = new DirectoryInfo(directory);
                             if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
                             {
-                                appBasePath = directoryInfo.FullName;
+                                appBasePath = directoryInfo.FullName.Replace("\\", "/");
                                 userWorkID = (directoryInfo.Parent?.Name).ToStringSafe();
                                 break;
                             }
@@ -2004,7 +2004,7 @@ namespace repository.Controllers
                             DirectoryInfo directoryInfo = new DirectoryInfo(directory);
                             if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
                             {
-                                appBasePath = directoryInfo.FullName;
+                                appBasePath = directoryInfo.FullName.Replace("\\", "/");
                                 userWorkID = (directoryInfo.Parent?.Name).ToStringSafe();
                                 break;
                             }
@@ -2245,7 +2245,7 @@ namespace repository.Controllers
                     RepositoryManager repositoryManager = new RepositoryManager();
                     repositoryManager.PersistenceDirectoryPath = repositoryManager.GetRepositoryItemPath(repository, repositoryItem);
                     string relativeDirectoryPath = repositoryManager.GetRelativePath(repository, repositoryItem.CustomPath1, repositoryItem.CustomPath2, repositoryItem.CustomPath3);
-                    string relativeDirectoryUrlPath = string.IsNullOrEmpty(relativeDirectoryPath) == true ? "" : relativeDirectoryPath.Replace(@"\", "/");
+                    string relativeDirectoryUrlPath = string.IsNullOrEmpty(relativeDirectoryPath) == true ? "" : relativeDirectoryPath;
                     relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.Substring(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
 
                     BlobContainerClient? container = null;
@@ -2370,7 +2370,7 @@ namespace repository.Controllers
                     {
                         repositoryManager.PersistenceDirectoryPath = repositoryManager.GetRepositoryItemPath(repository, repositoryItem);
                         string relativeDirectoryPath = repositoryManager.GetRelativePath(repository, repositoryItem.CustomPath1, repositoryItem.CustomPath2, repositoryItem.CustomPath3);
-                        string relativeDirectoryUrlPath = string.IsNullOrEmpty(relativeDirectoryPath) == true ? "" : relativeDirectoryPath.Replace(@"\", "/");
+                        string relativeDirectoryUrlPath = string.IsNullOrEmpty(relativeDirectoryPath) == true ? "" : relativeDirectoryPath;
                         relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.Substring(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
 
                         string deleteFileName;
@@ -2589,7 +2589,7 @@ namespace repository.Controllers
 
             RepositoryManager repositoryManager = new RepositoryManager();
             string relativeDirectoryPath = repositoryManager.GetRelativePath(repository, repositoryItem.CustomPath1, repositoryItem.CustomPath2, repositoryItem.CustomPath3);
-            string relativeDirectoryUrlPath = string.IsNullOrEmpty(relativeDirectoryPath) == true ? "" : relativeDirectoryPath.Replace(@"\", "/");
+            string relativeDirectoryUrlPath = string.IsNullOrEmpty(relativeDirectoryPath) == true ? "" : relativeDirectoryPath;
             relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.Substring(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
 
             BlobContainerClient container = new BlobContainerClient(repository.BlobConnectionString, repository.BlobContainerID.ToLower());

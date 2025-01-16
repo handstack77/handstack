@@ -113,13 +113,13 @@ namespace HandStack.Web
 
         public static string GetBasePath(string? basePath, string? defaultPath = "")
         {
-            basePath = string.IsNullOrEmpty(basePath) == true ? "" : (basePath.StartsWith(".") == true ? Path.GetFullPath(basePath, EntryBasePath) : new DirectoryInfo(basePath).FullName);
+            basePath = string.IsNullOrEmpty(basePath) == true ? "" : (basePath.StartsWith(".") == true ? Path.GetFullPath(basePath, EntryBasePath) : new DirectoryInfo(basePath).FullName.Replace("\\", "/"));
             if (string.IsNullOrEmpty(basePath) == true && string.IsNullOrEmpty(defaultPath) == false)
             {
                 basePath = defaultPath;
             }
 
-            return basePath.Replace(@"\", "/");
+            return basePath;
         }
 
         public static bool InitailizeAppSetting(Dictionary<string, JToken> transactionResult)

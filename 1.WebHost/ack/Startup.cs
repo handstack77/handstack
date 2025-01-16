@@ -592,7 +592,7 @@ namespace ack
             services.AddModules();
             services.AddCustomizedMvc(GlobalConfiguration.Modules);
 
-            var homePath = new DirectoryInfo(GlobalConfiguration.EntryBasePath).Parent?.FullName;
+            var homePath = new DirectoryInfo(GlobalConfiguration.EntryBasePath).Parent?.FullName.Replace("\\", "/");
             string baseContractPath = PathExtensions.Combine(homePath.ToStringSafe(), "contracts");
             if (Directory.Exists(baseContractPath) == true)
             {
@@ -637,9 +637,9 @@ namespace ack
                                         if (ackFile != null && ackFile.Exists == true && directory != null && directory.Exists == true)
                                         {
                                             string appBasePath = ackFile.DirectoryName.ToStringSafe();
-                                            string ackHomePath = (ackFile.Directory?.Parent?.FullName).ToStringSafe();
+                                            string ackHomePath = (ackFile.Directory?.Parent?.FullName.Replace("\\", "/")).ToStringSafe();
                                             string targetContractDir = PathExtensions.Combine(ackHomePath, "contracts");
-                                            string baseDir = directory.FullName;
+                                            string baseDir = directory.FullName.Replace("\\", "/");
 
                                             try
                                             {
@@ -668,7 +668,7 @@ namespace ack
                                         }
                                         else
                                         {
-                                            Log.Information($"ackFile:{ackFile?.FullName} 파일 확인 또는 settings:{directory?.FullName} 파일 확인이 필요합니다");
+                                            Log.Information($"ackFile:{ackFile?.FullName.Replace("\\", "/")} 파일 확인 또는 settings:{directory?.FullName.Replace("\\", "/")} 파일 확인이 필요합니다");
                                         }
                                     }
 

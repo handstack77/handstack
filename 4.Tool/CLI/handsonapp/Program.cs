@@ -244,9 +244,9 @@ namespace handsonapp
                                 SQLFileSyncManager = new FileSyncManager(dbclientBasePath, "*.xml");
                                 SQLFileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
                                 {
-                                    if (fileInfo.FullName.IndexOf(dbclientBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))
+                                    if (fileInfo.FullName.Replace("\\", "/").IndexOf(dbclientBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))
                                     {
-                                        string destFilePath = fileInfo.FullName.Replace(dbclientBasePath, "");
+                                        string destFilePath = fileInfo.FullName.Replace("\\", "/").Replace(dbclientBasePath, "");
                                         if(useContractFileSync == true)
                                         {
                                             if (changeTypes == WatcherChangeTypes.Deleted)
@@ -256,14 +256,14 @@ namespace handsonapp
                                             }
                                             else
                                             {
-                                                await CopyFileAsync(fileInfo.FullName, destDbclientBasePath + destFilePath);
-                                                await CopyFileAsync(fileInfo.FullName, destContractDbclientBasePath + destFilePath);
+                                                await CopyFileAsync(fileInfo.FullName.Replace("\\", "/"), destDbclientBasePath + destFilePath);
+                                                await CopyFileAsync(fileInfo.FullName.Replace("\\", "/"), destContractDbclientBasePath + destFilePath);
                                             }
                                         }
 
                                         if (string.IsNullOrEmpty(handstackUrl) == false)
                                         {
-                                            await UploadFileAsync(moduleName, "dbclient", fileInfo.FullName, destFilePath, changeTypes.ToString());
+                                            await UploadFileAsync(moduleName, "dbclient", fileInfo.FullName.Replace("\\", "/"), destFilePath, changeTypes.ToString());
                                         }
                                     }
                                 };
@@ -279,9 +279,9 @@ namespace handsonapp
                                 CsharpFileSyncManager = new FileSyncManager(functionCSharpBasePath, "featureMain.cs|featureMeta.json|featureSQL.xml");
                                 CsharpFileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
                                 {
-                                    if (fileInfo.FullName.IndexOf(functionCSharpBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))
+                                    if (fileInfo.FullName.Replace("\\", "/").IndexOf(functionCSharpBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))
                                     {
-                                        string destFilePath = fileInfo.FullName.Replace(functionCSharpBasePath, "");
+                                        string destFilePath = fileInfo.FullName.Replace("\\", "/").Replace(functionCSharpBasePath, "");
                                         if (useContractFileSync == true)
                                         {
                                             if (changeTypes == WatcherChangeTypes.Deleted)
@@ -291,14 +291,14 @@ namespace handsonapp
                                             }
                                             else
                                             {
-                                                await CopyFileAsync(fileInfo.FullName, destFunctionCSharpBasePath + destFilePath);
-                                                await CopyFileAsync(fileInfo.FullName, destContractFunctionCSharpBasePath + destFilePath);
+                                                await CopyFileAsync(fileInfo.FullName.Replace("\\", "/"), destFunctionCSharpBasePath + destFilePath);
+                                                await CopyFileAsync(fileInfo.FullName.Replace("\\", "/"), destContractFunctionCSharpBasePath + destFilePath);
                                             }
                                         }
 
                                         if (string.IsNullOrEmpty(handstackUrl) == false)
                                         {
-                                            await UploadFileAsync(moduleName, "function_csharp", fileInfo.FullName, destFilePath, changeTypes.ToString());
+                                            await UploadFileAsync(moduleName, "function_csharp", fileInfo.FullName.Replace("\\", "/"), destFilePath, changeTypes.ToString());
                                         }
                                     }
                                 };
@@ -314,9 +314,9 @@ namespace handsonapp
                                 {
                                     string destFunctionNodeBasePath = PathExtensions.Combine(handstackHomePath, "modules", moduleName, "Contracts", "function", "javascript");
                                     string destContractFunctionNodeBasePath = PathExtensions.Combine(handstackHomePath, "contracts", "function", "javascript");
-                                    if (fileInfo.FullName.IndexOf(functionNodeBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))
+                                    if (fileInfo.FullName.Replace("\\", "/").IndexOf(functionNodeBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))
                                     {
-                                        string destFilePath = fileInfo.FullName.Replace(functionNodeBasePath, "");
+                                        string destFilePath = fileInfo.FullName.Replace("\\", "/").Replace(functionNodeBasePath, "");
                                         if (useContractFileSync == true)
                                         {
                                             if (changeTypes == WatcherChangeTypes.Deleted)
@@ -326,14 +326,14 @@ namespace handsonapp
                                             }
                                             else
                                             {
-                                                await CopyFileAsync(fileInfo.FullName, destFunctionNodeBasePath + destFilePath);
-                                                await CopyFileAsync(fileInfo.FullName, destContractFunctionNodeBasePath + destFilePath);
+                                                await CopyFileAsync(fileInfo.FullName.Replace("\\", "/"), destFunctionNodeBasePath + destFilePath);
+                                                await CopyFileAsync(fileInfo.FullName.Replace("\\", "/"), destContractFunctionNodeBasePath + destFilePath);
                                             }
                                         }
 
                                         if (string.IsNullOrEmpty(handstackUrl) == false)
                                         {
-                                            await UploadFileAsync(moduleName, "function_javascript", fileInfo.FullName, destFilePath, changeTypes.ToString());
+                                            await UploadFileAsync(moduleName, "function_javascript", fileInfo.FullName.Replace("\\", "/"), destFilePath, changeTypes.ToString());
                                         }
                                     }
                                 };
@@ -349,9 +349,9 @@ namespace handsonapp
                                 SQLFileSyncManager = new FileSyncManager(transactBasePath, "*.json");
                                 SQLFileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
                                 {
-                                    if (fileInfo.FullName.IndexOf(transactBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))
+                                    if (fileInfo.FullName.Replace("\\", "/").IndexOf(transactBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))
                                     {
-                                        string destFilePath = fileInfo.FullName.Replace(transactBasePath, "");
+                                        string destFilePath = fileInfo.FullName.Replace("\\", "/").Replace(transactBasePath, "");
                                         if (useContractFileSync == true)
                                         {
                                             if (changeTypes == WatcherChangeTypes.Deleted)
@@ -361,14 +361,14 @@ namespace handsonapp
                                             }
                                             else
                                             {
-                                                await CopyFileAsync(fileInfo.FullName, destTransactBasePath + destFilePath);
-                                                await CopyFileAsync(fileInfo.FullName, destContractTransactBasePath + destFilePath);
+                                                await CopyFileAsync(fileInfo.FullName.Replace("\\", "/"), destTransactBasePath + destFilePath);
+                                                await CopyFileAsync(fileInfo.FullName.Replace("\\", "/"), destContractTransactBasePath + destFilePath);
                                             }
                                         }
 
                                         if (string.IsNullOrEmpty(handstackUrl) == false)
                                         {
-                                            await UploadFileAsync(moduleName, "transact", fileInfo.FullName, destFilePath, changeTypes.ToString());
+                                            await UploadFileAsync(moduleName, "transact", fileInfo.FullName.Replace("\\", "/"), destFilePath, changeTypes.ToString());
                                         }
                                     }
                                 };
@@ -383,9 +383,9 @@ namespace handsonapp
                                 WWWFileSyncManager = new FileSyncManager(wwwrootBasePath, "*.html|*.css|*.js|*.json");
                                 WWWFileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
                                 {
-                                    if (fileInfo.FullName.IndexOf(wwwrootBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))
+                                    if (fileInfo.FullName.Replace("\\", "/").IndexOf(wwwrootBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))
                                     {
-                                        string destFilePath = fileInfo.FullName.Replace(PathExtensions.Combine(wwwrootBasePath, "wwwroot"), "");
+                                        string destFilePath = fileInfo.FullName.Replace("\\", "/").Replace(PathExtensions.Combine(wwwrootBasePath, "wwwroot"), "");
                                         if (useContractFileSync == true)
                                         {
                                             if (changeTypes == WatcherChangeTypes.Deleted)
@@ -394,13 +394,13 @@ namespace handsonapp
                                             }
                                             else
                                             {
-                                                await CopyFileAsync(fileInfo.FullName, destWWWRootBasePath + destFilePath);
+                                                await CopyFileAsync(fileInfo.FullName.Replace("\\", "/"), destWWWRootBasePath + destFilePath);
                                             }
                                         }
 
                                         if (string.IsNullOrEmpty(handstackUrl) == false)
                                         {
-                                            await UploadFileAsync(moduleName, "wwwroot", fileInfo.FullName, destFilePath, changeTypes.ToString());
+                                            await UploadFileAsync(moduleName, "wwwroot", fileInfo.FullName.Replace("\\", "/"), destFilePath, changeTypes.ToString());
                                         }
                                     }
                                 };
@@ -416,10 +416,10 @@ namespace handsonapp
                                 SQLFileSyncManager = new FileSyncManager(dbclientBasePath, "*.xml");
                                 SQLFileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
                                 {
-                                    if (fileInfo.FullName.IndexOf(dbclientBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))
+                                    if (fileInfo.FullName.Replace("\\", "/").IndexOf(dbclientBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))
                                     {
-                                        string destFilePath = fileInfo.FullName.Replace(dbclientBasePath, "");
-                                        await UploadFileAsync(moduleName, "dbclient", fileInfo.FullName, destFilePath, changeTypes.ToString());
+                                        string destFilePath = fileInfo.FullName.Replace("\\", "/").Replace(dbclientBasePath, "");
+                                        await UploadFileAsync(moduleName, "dbclient", fileInfo.FullName.Replace("\\", "/"), destFilePath, changeTypes.ToString());
                                     }
                                 };
 
@@ -432,12 +432,12 @@ namespace handsonapp
                                 CsharpFileSyncManager = new FileSyncManager(functionCSharpBasePath, "featureMain.cs|featureMeta.json|featureSQL.xml");
                                 CsharpFileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
                                 {
-                                    if (fileInfo.FullName.IndexOf(functionCSharpBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))
+                                    if (fileInfo.FullName.Replace("\\", "/").IndexOf(functionCSharpBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))
                                     {
-                                        string destFilePath = fileInfo.FullName.Replace(functionCSharpBasePath, "");
+                                        string destFilePath = fileInfo.FullName.Replace("\\", "/").Replace(functionCSharpBasePath, "");
                                         if (string.IsNullOrEmpty(handstackUrl) == false)
                                         {
-                                            await UploadFileAsync(moduleName, "function_csharp", fileInfo.FullName, destFilePath, changeTypes.ToString());
+                                            await UploadFileAsync(moduleName, "function_csharp", fileInfo.FullName.Replace("\\", "/"), destFilePath, changeTypes.ToString());
                                         }
                                     }
                                 };
@@ -451,12 +451,12 @@ namespace handsonapp
                                 NodeFileSyncManager = new FileSyncManager(functionNodeBasePath, "featureMain.js|featureMeta.json|featureSQL.xml");
                                 NodeFileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
                                 {
-                                    if (fileInfo.FullName.IndexOf(functionNodeBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))
+                                    if (fileInfo.FullName.Replace("\\", "/").IndexOf(functionNodeBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))
                                     {
-                                        string destFilePath = fileInfo.FullName.Replace(functionNodeBasePath, "");
+                                        string destFilePath = fileInfo.FullName.Replace("\\", "/").Replace(functionNodeBasePath, "");
                                         if (string.IsNullOrEmpty(handstackUrl) == false)
                                         {
-                                            await UploadFileAsync(moduleName, "function_javascript", fileInfo.FullName, destFilePath, changeTypes.ToString());
+                                            await UploadFileAsync(moduleName, "function_javascript", fileInfo.FullName.Replace("\\", "/"), destFilePath, changeTypes.ToString());
                                         }
                                     }
                                 };
@@ -470,12 +470,12 @@ namespace handsonapp
                                 SQLFileSyncManager = new FileSyncManager(transactBasePath, "*.json");
                                 SQLFileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
                                 {
-                                    if (fileInfo.FullName.IndexOf(transactBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))
+                                    if (fileInfo.FullName.Replace("\\", "/").IndexOf(transactBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))
                                     {
-                                        string destFilePath = fileInfo.FullName.Replace(transactBasePath, "");
+                                        string destFilePath = fileInfo.FullName.Replace("\\", "/").Replace(transactBasePath, "");
                                         if (string.IsNullOrEmpty(handstackUrl) == false)
                                         {
-                                            await UploadFileAsync(moduleName, "transact", fileInfo.FullName, destFilePath, changeTypes.ToString());
+                                            await UploadFileAsync(moduleName, "transact", fileInfo.FullName.Replace("\\", "/"), destFilePath, changeTypes.ToString());
                                         }
                                     }
                                 };
@@ -489,12 +489,12 @@ namespace handsonapp
                                 SQLFileSyncManager = new FileSyncManager(wwwrootBasePath, "*.html|*.css|*.js|*.json");
                                 SQLFileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
                                 {
-                                    if (fileInfo.FullName.IndexOf(wwwrootBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))
+                                    if (fileInfo.FullName.Replace("\\", "/").IndexOf(wwwrootBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))
                                     {
-                                        string destFilePath = fileInfo.FullName.Replace(PathExtensions.Combine(wwwrootBasePath, "wwwroot"), "");
+                                        string destFilePath = fileInfo.FullName.Replace("\\", "/").Replace(PathExtensions.Combine(wwwrootBasePath, "wwwroot"), "");
                                         if (string.IsNullOrEmpty(handstackUrl) == false)
                                         {
-                                            await UploadFileAsync(moduleName, "wwwroot", fileInfo.FullName, destFilePath, changeTypes.ToString());
+                                            await UploadFileAsync(moduleName, "wwwroot", fileInfo.FullName.Replace("\\", "/"), destFilePath, changeTypes.ToString());
                                         }
                                     }
                                 };

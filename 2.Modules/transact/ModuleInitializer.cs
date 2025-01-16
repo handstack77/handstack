@@ -136,7 +136,7 @@ namespace transact
 
                 if (string.IsNullOrEmpty(GlobalConfiguration.ProcessName) == true)
                 {
-                    logFilePath = fileInfo.FullName;
+                    logFilePath = fileInfo.FullName.Replace("\\", "/");
                 }
                 else
                 {
@@ -206,9 +206,9 @@ namespace transact
                     var fileSyncManager = new FileSyncManager(basePath, "*.json");
                     fileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
                     {
-                        if (GlobalConfiguration.IsRunning == true && fileInfo.FullName.IndexOf(basePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))
+                        if (GlobalConfiguration.IsRunning == true && fileInfo.FullName.Replace("\\", "/").IndexOf(basePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))
                         {
-                            string filePath = fileInfo.FullName.Replace(basePath, "");
+                            string filePath = fileInfo.FullName.Replace("\\", "/").Replace(basePath, "");
                             string hostUrl = $"http://localhost:{GlobalConfiguration.ServerPort}/transact/api/transaction/refresh?changeType={changeTypes}&filePath={filePath}";
 
                             var request = new RestRequest(hostUrl, Method.Get);

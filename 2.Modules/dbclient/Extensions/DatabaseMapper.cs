@@ -70,7 +70,7 @@ namespace dbclient.Extensions
                             DirectoryInfo directoryInfo = new DirectoryInfo(directory);
                             if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
                             {
-                                appBasePath = directoryInfo.FullName;
+                                appBasePath = directoryInfo.FullName.Replace("\\", "/");
                                 userWorkID = (directoryInfo.Parent?.Name).ToStringSafe();
                                 break;
                             }
@@ -209,7 +209,7 @@ namespace dbclient.Extensions
                         DirectoryInfo directoryInfo = new DirectoryInfo(directory);
                         if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
                         {
-                            appBasePath = directoryInfo.FullName;
+                            appBasePath = directoryInfo.FullName.Replace("\\", "/");
                             userWorkID = (directoryInfo.Parent?.Name).ToStringSafe();
                             break;
                         }

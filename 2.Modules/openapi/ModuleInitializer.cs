@@ -71,7 +71,7 @@ namespace openapi
                             ModuleConfiguration.ModuleDataSource.IsEncryption = "N";
                         }
                         ModuleConfiguration.BusinessServerUrl = moduleConfig.BusinessServerUrl;
-                        ModuleConfiguration.ModuleLogFilePath = string.IsNullOrEmpty(moduleConfig.ModuleLogFilePath) == true ? "transaction.log" : new FileInfo(moduleConfig.ModuleLogFilePath).FullName;
+                        ModuleConfiguration.ModuleLogFilePath = string.IsNullOrEmpty(moduleConfig.ModuleLogFilePath) == true ? "transaction.log" : new FileInfo(moduleConfig.ModuleLogFilePath).FullName.Replace("\\", "/");
                         ModuleConfiguration.ModuleLogger = CreateLoggerConfiguration(ModuleConfiguration.ModuleLogFilePath).CreateLogger();
                         ModuleConfiguration.IsLogServer = moduleConfig.IsLogServer;
                         ModuleConfiguration.LogServerUrl = moduleConfig.LogServerUrl;
@@ -120,7 +120,7 @@ namespace openapi
 
                 if (string.IsNullOrEmpty(GlobalConfiguration.ProcessName) == true)
                 {
-                    logFilePath = fileInfo.FullName;
+                    logFilePath = fileInfo.FullName.Replace("\\", "/");
                 }
                 else
                 {

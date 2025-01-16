@@ -239,7 +239,7 @@ namespace function.DataClient
                         var directoryInfo = fileInfo.Directory;
                         if (directoryInfo != null && fileInfo.Exists == true)
                         {
-                            string fileDirectory = directoryInfo.FullName;
+                            string fileDirectory = directoryInfo.FullName.Replace("\\", "/");
                             string fileDirectoryName = directoryInfo.Name;
                             string scriptMapFile = programPath.Replace("featureMain.cs", "featureMeta.json");
                             var functionScriptContract = FunctionScriptContract.FromJson(File.ReadAllText(scriptMapFile));
