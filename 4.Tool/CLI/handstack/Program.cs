@@ -56,7 +56,7 @@ namespace handstack
                 environmentName = "";
             }
 
-            string appSettingsFilePath = Path.Combine(entryBasePath, "appsettings.json");
+            string appSettingsFilePath = PathExtensions.Combine(entryBasePath, "appsettings.json");
             var configurationBuilder = new ConfigurationBuilder().AddJsonFile(appSettingsFilePath);
             IConfigurationRoot configuration = configurationBuilder.Build();
 
@@ -218,7 +218,7 @@ namespace handstack
                         var moduleBasePath = setting.SelectToken("AppSettings.LoadModuleBasePath").ToStringSafe();
                         if (moduleBasePath.StartsWith(".") == true)
                         {
-                            moduleBasePath = Path.Combine(targetBasePath, moduleBasePath);
+                            moduleBasePath = PathExtensions.Combine(targetBasePath, moduleBasePath);
                         }
 
                         var loadModules = setting.SelectToken("AppSettings.LoadModules");
@@ -251,16 +251,16 @@ namespace handstack
                                     }
                                     else
                                     {
-                                        sourceModuleSettingFilePath = Path.Combine(settingDirectoryPath, "modulesettings", $"{programID}.{moduleID}.{environment}.json");
+                                        sourceModuleSettingFilePath = PathExtensions.Combine(settingDirectoryPath, "modulesettings", $"{programID}.{moduleID}.{environment}.json");
                                         if (File.Exists(sourceModuleSettingFilePath) == false)
                                         {
-                                            sourceModuleSettingFilePath = Path.Combine(settingDirectoryPath, "modules", $"{programID}.{moduleID}.{environment}.json");
+                                            sourceModuleSettingFilePath = PathExtensions.Combine(settingDirectoryPath, "modules", $"{programID}.{moduleID}.{environment}.json");
                                         }
                                     }
 
                                     if (File.Exists(sourceModuleSettingFilePath) == true)
                                     {
-                                        DirectoryInfo directoryInfo = new DirectoryInfo(Path.Combine(moduleBasePath, moduleID));
+                                        DirectoryInfo directoryInfo = new DirectoryInfo(PathExtensions.Combine(moduleBasePath, moduleID));
                                         if (directoryInfo.Exists == true)
                                         {
                                             if (moduleID == "wwwroot")
@@ -273,7 +273,7 @@ namespace handstack
                                             }
 
                                             FileInfo sourceModuleSettingFileInfo = new FileInfo(sourceModuleSettingFilePath);
-                                            string targetModuleSettingFilePath = Path.Combine(moduleBasePath, moduleID, moduleSettingFile);
+                                            string targetModuleSettingFilePath = PathExtensions.Combine(moduleBasePath, moduleID, moduleSettingFile);
                                             File.Copy(sourceModuleSettingFilePath, targetModuleSettingFilePath, true);
                                             Log.Information($"modules: {targetModuleSettingFilePath}");
                                         }
@@ -286,24 +286,24 @@ namespace handstack
                             }
 
                             string appBasePath = ackFile.DirectoryName.ToStringSafe();
-                            FileInfo appSettingFileInfo = new FileInfo(Path.Combine(appBasePath, "appsettings.json"));
+                            FileInfo appSettingFileInfo = new FileInfo(PathExtensions.Combine(appBasePath, "appsettings.json"));
                             var appSettingFilePath = appSettingFileInfo.FullName;
                             File.WriteAllText(appSettingFilePath, setting.ToString());
                             FileInfo settingFileInfo = new FileInfo(settingFilePath);
                             Log.Information($"appsettings: {appSettingFilePath}");
 
-                            string synConfigFilePath = Path.Combine(settingDirectoryPath, "synconfigs", settingFileName);
+                            string synConfigFilePath = PathExtensions.Combine(settingDirectoryPath, "synconfigs", settingFileName);
                             if (File.Exists(synConfigFilePath) == true && string.IsNullOrEmpty(wwwrootModuleBasePath) == false)
                             {
-                                FileInfo synConfigFileInfo = new FileInfo(Path.Combine(wwwrootModuleBasePath, "wwwroot", "syn.config.json"));
+                                FileInfo synConfigFileInfo = new FileInfo(PathExtensions.Combine(wwwrootModuleBasePath, "wwwroot", "syn.config.json"));
                                 File.Copy(synConfigFilePath, synConfigFileInfo.FullName, true);
                                 Log.Information($"synconfigs: {synConfigFileInfo.FullName}");
                             }
 
-                            string nodeConfigFilePath = Path.Combine(settingDirectoryPath, "nodeconfigs", settingFileName);
+                            string nodeConfigFilePath = PathExtensions.Combine(settingDirectoryPath, "nodeconfigs", settingFileName);
                             if (File.Exists(nodeConfigFilePath) == true && string.IsNullOrEmpty(functionModuleBasePath) == false)
                             {
-                                FileInfo nodeConfigFileInfo = new FileInfo(Path.Combine(functionModuleBasePath, "node.config.json"));
+                                FileInfo nodeConfigFileInfo = new FileInfo(PathExtensions.Combine(functionModuleBasePath, "node.config.json"));
                                 File.Copy(nodeConfigFilePath, nodeConfigFileInfo.FullName, true);
                                 Log.Information($"nodeconfigs: {nodeConfigFileInfo.FullName}");
                             }
@@ -337,7 +337,7 @@ namespace handstack
                 {
                     string appBasePath = ackFile.DirectoryName.ToStringSafe();
                     string ackHomePath = (ackFile.Directory?.Parent?.FullName).ToStringSafe();
-                    string targetContractDir = Path.Combine(ackHomePath, "contracts");
+                    string targetContractDir = PathExtensions.Combine(ackHomePath, "contracts");
                     string baseDir = directory.FullName;
 
                     try
@@ -345,7 +345,7 @@ namespace handstack
                         string[] subDirs = { "dbclient", "transact", "wwwroot", "repository", "function" };
                         foreach (string subDir in subDirs)
                         {
-                            string dirPath = Path.Combine(baseDir, subDir);
+                            string dirPath = PathExtensions.Combine(baseDir, subDir);
                             if (Directory.Exists(dirPath))
                             {
                                 string[] files = Directory.GetFiles(dirPath, "*", SearchOption.AllDirectories);
@@ -809,7 +809,7 @@ namespace handstack
 
                         if (string.IsNullOrEmpty(zipFileName) == true)
                         {
-                            zipFileName = Path.Combine(directory.Parent.FullName, $"{directory.Name}.zip");
+                            zipFileName = PathExtensions.Combine(directory.Parent.FullName, $"{directory.Name}.zip");
                         }
 
                         if (File.Exists(zipFileName) == true)

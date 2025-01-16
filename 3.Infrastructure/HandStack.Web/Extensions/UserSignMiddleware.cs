@@ -279,7 +279,7 @@ namespace HandStack.Web.Extensions
                             string applicationID = splits.Length > 3 ? splits[3] : "";
                             if (string.IsNullOrEmpty(applicationID) == false)
                             {
-                                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                                 DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
                                 if (directoryInfo.Exists == true)
                                 {

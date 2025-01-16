@@ -201,7 +201,7 @@ namespace function
                     nodeEnvironmentVariables.Add("SYN_LogMinimumLevel", ModuleConfiguration.LogMinimumLevel);
                     nodeEnvironmentVariables.Add("SYN_LocalStoragePath", GlobalConfiguration.GetBasePath(ModuleConfiguration.LocalStoragePath));
 
-                    string nodeConfigFilePath = Path.Combine(module.BasePath, "node.config.json");
+                    string nodeConfigFilePath = PathExtensions.Combine(module.BasePath, "node.config.json");
                     if (File.Exists(nodeConfigFilePath) == true)
                     {
                         nodeEnvironmentVariables.Add("SYN_CONFIG", File.ReadAllText(nodeConfigFilePath));
@@ -288,7 +288,7 @@ namespace function
                     }
                     else
                     {
-                        options.WatchPath = Path.Combine(watchPath, "javascript");
+                        options.WatchPath = PathExtensions.Combine(watchPath, "javascript");
                         Log.Information("[{LogCategory}] Node File WatchPath: " + options.WatchPath, $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
 
                         options.GracefulProcessShutdown = ModuleConfiguration.WatchGracefulShutdown;
@@ -319,7 +319,7 @@ namespace function
                 }
                 else
                 {
-                    logFilePath = Path.Combine(fileInfo.DirectoryName, GlobalConfiguration.ProcessName + "_" + fileInfo.Name);
+                    logFilePath = PathExtensions.Combine(fileInfo.DirectoryName, GlobalConfiguration.ProcessName + "_" + fileInfo.Name);
                 }
             }
 
@@ -346,12 +346,12 @@ namespace function
             ModuleInfo? module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == ModuleID);
             if (string.IsNullOrEmpty(ModuleID) == false && module != null)
             {
-                string wwwrootDirectory = Path.Combine(module.BasePath, "wwwroot", module.ModuleID);
+                string wwwrootDirectory = PathExtensions.Combine(module.BasePath, "wwwroot", module.ModuleID);
                 if (string.IsNullOrEmpty(wwwrootDirectory) == false && Directory.Exists(wwwrootDirectory) == true)
                 {
                     app.UseStaticFiles(new StaticFileOptions
                     {
-                        FileProvider = new PhysicalFileProvider(Path.Combine(wwwrootDirectory)),
+                        FileProvider = new PhysicalFileProvider(PathExtensions.Combine(wwwrootDirectory)),
                         RequestPath = "/" + ModuleID,
                         ServeUnknownFileTypes = true,
                         OnPrepareResponse = httpContext =>
@@ -382,7 +382,7 @@ namespace function
             {
                 if (Directory.Exists(basePath) == true && basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == false)
                 {
-                    string nodeContractBasePath = Path.Combine(basePath, "javascript");
+                    string nodeContractBasePath = PathExtensions.Combine(basePath, "javascript");
                     if (Directory.Exists(nodeContractBasePath) == true && ModuleConfiguration.EnableFileWatching == true)
                     {
                         var nodeFileSyncManager = new FileSyncManager(nodeContractBasePath, string.Join("|", ModuleConfiguration.WatchFileNamePatterns));
@@ -417,7 +417,7 @@ namespace function
                         ModuleConfiguration.NodeFileSyncManager.Add(nodeContractBasePath, nodeFileSyncManager);
                     }
 
-                    string csharpContractBasePath = Path.Combine(basePath, "csharp");
+                    string csharpContractBasePath = PathExtensions.Combine(basePath, "csharp");
                     if (Directory.Exists(csharpContractBasePath) == true && ModuleConfiguration.CSharpEnableFileWatching == true)
                     {
                         var csharpFileSyncManager = new FileSyncManager(csharpContractBasePath, string.Join("|", ModuleConfiguration.CSharpWatchFileNamePatterns));

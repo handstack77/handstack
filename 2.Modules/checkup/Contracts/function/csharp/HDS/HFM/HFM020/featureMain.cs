@@ -52,7 +52,7 @@ namespace HDS.Function.HFM
                     dataTableBuilder.AddColumn("name", typeof(string));
                     dataTableBuilder.AddColumn("version", typeof(string));
 
-                    string nugetPackageFilePath = Path.Combine(GlobalConfiguration.EntryBasePath, "nuget.json");
+                    string nugetPackageFilePath = PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "nuget.json");
                     if (System.IO.File.Exists(nugetPackageFilePath) == true)
                     {
                         string packageJson = "";

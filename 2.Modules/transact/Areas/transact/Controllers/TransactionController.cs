@@ -135,8 +135,8 @@ namespace transact.Areas.transact.Controllers
                             case WatcherChangeTypes.Changed:
                                 if (string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false)
                                 {
-                                    string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-                                    string itemPath = Path.Combine(appBasePath, filePath);
+                                    string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                                    string itemPath = PathExtensions.Combine(appBasePath, filePath);
                                     DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
                                     if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true)
                                     {
@@ -169,7 +169,7 @@ namespace transact.Areas.transact.Controllers
                                     {
                                         if (fileInfo.Name != "publicTransactions.json")
                                         {
-                                            string itemPath = Path.Combine(basePath, filePath);
+                                            string itemPath = PathExtensions.Combine(basePath, filePath);
                                             if (System.IO.File.Exists(itemPath) == true)
                                             {
                                                 BusinessContract? businessContract = BusinessContract.FromJson(System.IO.File.ReadAllText(itemPath));
@@ -200,11 +200,11 @@ namespace transact.Areas.transact.Controllers
                             case WatcherChangeTypes.Deleted:
                                 if (string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false)
                                 {
-                                    string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                                    string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                                     DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
                                     if (directoryInfo.Exists == true)
                                     {
-                                        string itemPath = Path.Combine(appBasePath, filePath);
+                                        string itemPath = PathExtensions.Combine(appBasePath, filePath);
                                         if (fileInfo.Name != "publicTransactions.json")
                                         {
                                             logger.Information("[{LogCategory}] " + $"Delete TenantApp Contract FilePath: {itemPath}", "Transaction/Refresh");
@@ -923,7 +923,7 @@ namespace transact.Areas.transact.Controllers
                         string applicationID = splits.Length > 3 ? splits[3] : "";
                         if (string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false)
                         {
-                            string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                            string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                             DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
                             if (directoryInfo.Exists == true)
                             {

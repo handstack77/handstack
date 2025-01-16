@@ -540,7 +540,7 @@ namespace checkup.Areas.checkup.Controllers
             //         SubscribeEventID = "ncloudsender.Events.PublishHtmlMail",
             //     };
             // 
-            //     string mailTemplate = System.IO.File.ReadAllText(Path.Combine(ModuleConfiguration.WWWRootBasePath, "verify-email.html"));
+            //     string mailTemplate = System.IO.File.ReadAllText(PathExtensions.Combine(ModuleConfiguration.WWWRootBasePath, "verify-email.html"));
             //     mailTemplate = mailTemplate.Replace("#{이름}", "HandStack");
             //     mailTemplate = mailTemplate.Replace("#{로그인주소}", "http://localhost:8000/checkup/account/signin.html");
             // 

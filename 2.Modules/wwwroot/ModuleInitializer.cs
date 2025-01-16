@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 
+using HandStack.Core.ExtensionMethod;
 using HandStack.Web;
 using HandStack.Web.Entity;
 using HandStack.Web.Modules;
@@ -87,7 +88,7 @@ namespace wwwroot
                             {
                                 string applicationID = directoryInfo.Name;
                                 string tenantID = $"{userWorkID}|{applicationID}";
-                                string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                                string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                                 if (File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                                 {
                                     string appSettingText = File.ReadAllText(settingFilePath);
@@ -172,12 +173,12 @@ namespace wwwroot
                     });
                 }
 
-                string wwwrootDirectory = string.IsNullOrEmpty(ModuleConfiguration.WWWRootBasePath) == true ? Path.Combine(module.BasePath, "wwwroot") : ModuleConfiguration.WWWRootBasePath;
+                string wwwrootDirectory = string.IsNullOrEmpty(ModuleConfiguration.WWWRootBasePath) == true ? PathExtensions.Combine(module.BasePath, "wwwroot") : ModuleConfiguration.WWWRootBasePath;
                 if (string.IsNullOrEmpty(wwwrootDirectory) == false && Directory.Exists(wwwrootDirectory) == true)
                 {
                     app.UseStaticFiles(new StaticFileOptions
                     {
-                        FileProvider = new PhysicalFileProvider(Path.Combine(wwwrootDirectory)),
+                        FileProvider = new PhysicalFileProvider(PathExtensions.Combine(wwwrootDirectory)),
                         ServeUnknownFileTypes = true,
                         OnPrepareResponse = httpContext =>
                         {
@@ -229,7 +230,7 @@ namespace wwwroot
                         }
                     });
 
-                    string libDirectoryPath = Path.Combine(wwwrootDirectory, "lib");
+                    string libDirectoryPath = PathExtensions.Combine(wwwrootDirectory, "lib");
                     if (Directory.Exists(libDirectoryPath) == true)
                     {
                         app.UseDirectoryBrowser(new DirectoryBrowserOptions

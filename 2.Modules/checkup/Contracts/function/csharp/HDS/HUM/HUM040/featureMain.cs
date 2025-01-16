@@ -60,7 +60,7 @@ namespace HDS.Function.HUM
                     var logger = dataContext.logger;
                     logger?.Information($"Function: {typeMember} 작업 시작");
 
-                    string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                    string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                     if (Directory.Exists(appBasePath) == true)
                     {
                         string directorySeparatorChar = System.IO.Path.DirectorySeparatorChar.ToString();
@@ -81,7 +81,7 @@ namespace HDS.Function.HUM
 
                                 projectType = "R";
                                 searchPattern = "*.html|*.js|*.css|*.json";
-                                sourceDirectoryPath = Path.Combine(appBasePath, "wwwroot");
+                                sourceDirectoryPath = PathExtensions.Combine(appBasePath, "wwwroot");
                                 directoryInfo = new DirectoryInfo(sourceDirectoryPath);
                                 WWWRootFileMenu(userWorkID, applicationID, projectType, searchPattern, menus, directoryInfo, rootDirectory, 2);
                             }
@@ -162,7 +162,7 @@ TransactionException:
                 logger?.Information($"Function: {typeMember} 작업 시작");
 
                 string sourceText = string.Empty;
-                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
                     string directorySeparatorChar = System.IO.Path.DirectorySeparatorChar.ToString();
@@ -170,7 +170,7 @@ TransactionException:
                     {
                         itemPath = itemPath.Replace("/", directorySeparatorChar);
                     }
-                    string? sourceItemPath = Path.Combine(appBasePath, itemPath);
+                    string? sourceItemPath = PathExtensions.Combine(appBasePath, itemPath);
 
                     if (string.IsNullOrEmpty(sourceItemPath) == false && System.IO.File.Exists(sourceItemPath) == true)
                     {
@@ -242,7 +242,7 @@ TransactionException:
                 logger?.Information($"Function: {typeMember} 작업 시작");
 
                 FileInfo fileInfo = new FileInfo(itemPath);
-                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
                     string directorySeparatorChar = System.IO.Path.DirectorySeparatorChar.ToString();
@@ -250,7 +250,7 @@ TransactionException:
                     {
                         itemPath = itemPath.Replace("/", directorySeparatorChar);
                     }
-                    string? sourceItemPath = Path.Combine(appBasePath, itemPath);
+                    string? sourceItemPath = PathExtensions.Combine(appBasePath, itemPath);
 
                     if (string.IsNullOrEmpty(sourceItemPath) == false && System.IO.File.Exists(sourceItemPath) == true)
                     {
@@ -282,7 +282,7 @@ TransactionException:
         private void WWWRootFileMenu(string userWorkID, string applicationID, string projectType, string searchPattern, List<Menu> menus, DirectoryInfo directory, Menu rootDirectory, int level)
         {
             string directorySeparatorChar = System.IO.Path.DirectorySeparatorChar.ToString();
-            string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID) + directorySeparatorChar;
+            string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID) + directorySeparatorChar;
             foreach (var file in directory.GetFileInfos(SearchOption.TopDirectoryOnly, searchPattern.Split("|").Where(x => string.IsNullOrWhiteSpace(x) == false).ToArray()))
             {
                 Menu menuItem = new Menu();

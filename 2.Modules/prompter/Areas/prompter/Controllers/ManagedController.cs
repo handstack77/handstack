@@ -109,7 +109,7 @@ namespace prompter.Areas.prompter.Controllers
                                 PromptMapper.PromptMappings.Remove(item);
                             }
 
-                            var basePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID, "prompter");
+                            var basePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID, "prompter");
                             if (Directory.Exists(basePath) == false)
                             {
                                 return Ok();
@@ -210,8 +210,8 @@ namespace prompter.Areas.prompter.Controllers
                             }
 
                             string tenantID = $"{userWorkID}|{applicationID}";
-                            string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-                            string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                            string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                            string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                             if (System.IO.File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                             {
                                 string appSettingText = System.IO.File.ReadAllText(settingFilePath);

@@ -70,11 +70,11 @@ namespace HDS.Function.HED
                 {
                     var logger = dataContext.logger;
                     logger?.Information($"Function: {typeMember} 작업 시작");
-                    string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                    string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
 
                     if (Directory.Exists(appBasePath) == true)
                     {
-                        string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                        string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                         if (System.IO.File.Exists(settingFilePath) == true)
                         {
                             string? protocol = string.Empty;
@@ -85,7 +85,7 @@ namespace HDS.Function.HED
                                 ModuleInfo? module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == "checkup");
                                 if (module != null)
                                 {
-                                    string moduleConfigFilePath = Path.Combine(module.BasePath, "module.json");
+                                    string moduleConfigFilePath = PathExtensions.Combine(module.BasePath, "module.json");
                                     string configurationText = System.IO.File.ReadAllText(moduleConfigFilePath);
                                     ModuleConfigJson? moduleConfigJson = JsonConvert.DeserializeObject<ModuleConfigJson>(configurationText);
 
@@ -195,11 +195,11 @@ TransactionException:
                 {
                     var logger = dataContext.logger;
                     logger?.Information($"Function: {typeMember} 작업 시작");
-                    string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                    string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
 
                     if (Directory.Exists(appBasePath) == true)
                     {
-                        string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                        string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                         if (System.IO.File.Exists(settingFilePath) == true)
                         {
                             string? protocol = string.Empty;
@@ -210,7 +210,7 @@ TransactionException:
                                 ModuleInfo? module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == "checkup");
                                 if (module != null)
                                 {
-                                    string moduleConfigFilePath = Path.Combine(module.BasePath, "module.json");
+                                    string moduleConfigFilePath = PathExtensions.Combine(module.BasePath, "module.json");
                                     string configurationText = System.IO.File.ReadAllText(moduleConfigFilePath);
                                     ModuleConfigJson? moduleConfigJson = JsonConvert.DeserializeObject<ModuleConfigJson>(configurationText);
 
@@ -321,11 +321,11 @@ TransactionException:
                 {
                     var logger = dataContext.logger;
                     logger?.Information($"Function: {typeMember} 작업 시작");
-                    string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                    string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
 
                     if (Directory.Exists(appBasePath) == true)
                     {
-                        string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                        string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                         if (System.IO.File.Exists(settingFilePath) == true)
                         {
                             string? protocol = string.Empty;
@@ -336,7 +336,7 @@ TransactionException:
                                 ModuleInfo? module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == "checkup");
                                 if (module != null)
                                 {
-                                    string moduleConfigFilePath = Path.Combine(module.BasePath, "module.json");
+                                    string moduleConfigFilePath = PathExtensions.Combine(module.BasePath, "module.json");
                                     string configurationText = System.IO.File.ReadAllText(moduleConfigFilePath);
                                     ModuleConfigJson? moduleConfigJson = JsonConvert.DeserializeObject<ModuleConfigJson>(configurationText);
 
@@ -445,11 +445,11 @@ TransactionException:
                 {
                     var logger = dataContext.logger;
                     logger?.Information($"Function: {typeMember} 작업 시작");
-                    string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                    string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
 
                     if (Directory.Exists(appBasePath) == true)
                     {
-                        string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                        string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                         if (System.IO.File.Exists(settingFilePath) == true)
                         {
                             string? protocol = string.Empty;
@@ -460,7 +460,7 @@ TransactionException:
                                 ModuleInfo? module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == "checkup");
                                 if (module != null)
                                 {
-                                    string moduleConfigFilePath = Path.Combine(module.BasePath, "module.json");
+                                    string moduleConfigFilePath = PathExtensions.Combine(module.BasePath, "module.json");
                                     string configurationText = System.IO.File.ReadAllText(moduleConfigFilePath);
                                     ModuleConfigJson? moduleConfigJson = JsonConvert.DeserializeObject<ModuleConfigJson>(configurationText);
 
@@ -577,11 +577,11 @@ TransactionException:
                 {
                     var logger = dataContext.logger;
                     logger?.Information($"Function: {typeMember} 작업 시작");
-                    string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                    string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
 
                     if (Directory.Exists(appBasePath) == true)
                     {
-                        string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                        string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                         if (System.IO.File.Exists(settingFilePath) == true)
                         {
                             string? protocol = string.Empty;
@@ -592,7 +592,7 @@ TransactionException:
                                 ModuleInfo? module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == "checkup");
                                 if (module != null)
                                 {
-                                    string moduleConfigFilePath = Path.Combine(module.BasePath, "module.json");
+                                    string moduleConfigFilePath = PathExtensions.Combine(module.BasePath, "module.json");
                                     string configurationText = System.IO.File.ReadAllText(moduleConfigFilePath);
                                     ModuleConfigJson? moduleConfigJson = JsonConvert.DeserializeObject<ModuleConfigJson>(configurationText);
 
@@ -711,11 +711,11 @@ TransactionException:
                 {
                     var logger = dataContext.logger;
                     logger?.Information($"Function: {typeMember} 작업 시작");
-                    string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                    string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
 
                     if (Directory.Exists(appBasePath) == true)
                     {
-                        string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                        string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                         if (System.IO.File.Exists(settingFilePath) == true)
                         {
                             string? protocol = string.Empty;
@@ -726,7 +726,7 @@ TransactionException:
                                 ModuleInfo? module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == "checkup");
                                 if (module != null)
                                 {
-                                    string moduleConfigFilePath = Path.Combine(module.BasePath, "module.json");
+                                    string moduleConfigFilePath = PathExtensions.Combine(module.BasePath, "module.json");
                                     string configurationText = System.IO.File.ReadAllText(moduleConfigFilePath);
                                     ModuleConfigJson? moduleConfigJson = JsonConvert.DeserializeObject<ModuleConfigJson>(configurationText);
 

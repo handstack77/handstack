@@ -40,4 +40,8 @@
         <Folder Include="contracts\transact\HDS\" />
         <Folder Include="wwwroot\checkup\wwwroot\view\" />
     </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="../../../3.Infrastructure/HandStack.Core/HandStack.Core.csproj" />
+    </ItemGroup>
 </Project>

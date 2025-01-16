@@ -39,7 +39,7 @@ namespace HandStack.Web.Extensions
 
             relativePath = relativePath.TrimStart('~', '/', '\\');
 
-            string path = Path.Combine(basePath, relativePath);
+            string path = PathExtensions.Combine(basePath, relativePath);
             string slash = Path.DirectorySeparatorChar.ToString();
             return path.Replace("/", slash)
                 .Replace("\\", slash)

@@ -144,12 +144,12 @@ namespace checkup.Areas.checkup.Controllers
         {
             AuthenticateResponse result = new AuthenticateResponse();
 
-            string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+            string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
             DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
             if (directoryInfo.Exists == true)
             {
                 string tenantID = $"{userWorkID}|{applicationID}";
-                string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                 if (System.IO.File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                 {
                     string appSettingText = await System.IO.File.ReadAllTextAsync(settingFilePath);
@@ -613,13 +613,13 @@ namespace checkup.Areas.checkup.Controllers
                 var corsPolicy = corsOptions.Value.GetPolicy(tenantID);
                 try
                 {
-                    if (corsPolicy != null && Directory.Exists(Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID)) == true)
+                    if (corsPolicy != null && Directory.Exists(PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID)) == true)
                     {
-                        string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                        string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                         DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
                         if (directoryInfo.Exists == true)
                         {
-                            string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                            string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                             if (System.IO.File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                             {
                                 string appSettingText = await System.IO.File.ReadAllTextAsync(settingFilePath);
@@ -674,13 +674,13 @@ namespace checkup.Areas.checkup.Controllers
                         ModuleConfiguration.TenantAppOrigins.Remove(tenantID);
                     }
 
-                    string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                    string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                     if (Directory.Exists(appBasePath) == true)
                     {
                         DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
                         if (directoryInfo.Exists == true)
                         {
-                            string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                            string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                             if (System.IO.File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                             {
                                 string appSettingText = await System.IO.File.ReadAllTextAsync(settingFilePath);
@@ -730,13 +730,13 @@ namespace checkup.Areas.checkup.Controllers
                         ModuleConfiguration.TenantAppReferers.Remove(tenantID);
                     }
 
-                    string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                    string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                     if (Directory.Exists(appBasePath) == true)
                     {
                         DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
                         if (directoryInfo.Exists == true)
                         {
-                            string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                            string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                             if (System.IO.File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                             {
                                 string appSettingText = await System.IO.File.ReadAllTextAsync(settingFilePath);
@@ -776,11 +776,11 @@ namespace checkup.Areas.checkup.Controllers
             if (ModuleConfiguration.ManagedAccessKey == accessKey && string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false)
             {
                 ModuleInfo? module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == "wwwroot");
-                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (module != null && Directory.Exists(appBasePath) == true)
                 {
                     string tenantID = $"{userWorkID}|{applicationID}";
-                    string environmentFilePath = Path.Combine(appBasePath, "wwwroot", "app.environment.json");
+                    string environmentFilePath = PathExtensions.Combine(appBasePath, "wwwroot", "app.environment.json");
                     if (System.IO.File.Exists(environmentFilePath) == true || GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == true)
                     {
                         string appEnvironmentText = System.IO.File.ReadAllText(environmentFilePath);
@@ -789,12 +789,12 @@ namespace checkup.Areas.checkup.Controllers
                         {
                             string fileType = string.Empty;
                             string errorText = string.Empty;
-                            string appAssetsPath = Path.Combine(appBasePath, "wwwroot", "assets");
-                            string phisycalTargetFilePath = Path.Combine(appAssetsPath, "app.bundle.js");
+                            string appAssetsPath = PathExtensions.Combine(appBasePath, "wwwroot", "assets");
+                            string phisycalTargetFilePath = PathExtensions.Combine(appAssetsPath, "app.bundle.js");
 
                             try
                             {
-                                string webRootPath = Path.Combine(module.BasePath, "wwwroot");
+                                string webRootPath = PathExtensions.Combine(module.BasePath, "wwwroot");
                                 List<string> phisycalSourceFilePaths = new List<string>();
 
                                 List<string> definitionScripts = environmentSetting.Definition.Scripts.Concat(environmentSetting.Definition.Controls).ToList();
@@ -806,7 +806,7 @@ namespace checkup.Areas.checkup.Controllers
                                     phisycalFilePaths.Add(webRootPath);
                                     phisycalFilePaths.AddRange(sourceFile.Split("/"));
 
-                                    string phisycalSourceFilePath = Path.Combine(phisycalFilePaths.ToArray());
+                                    string phisycalSourceFilePath = PathExtensions.Combine(phisycalFilePaths.ToArray());
                                     if (phisycalSourceFilePath.IndexOf("http") == -1 && System.IO.File.Exists(phisycalSourceFilePath) == true)
                                     {
                                         phisycalSourceFilePaths.Add(phisycalSourceFilePath);
@@ -834,7 +834,7 @@ namespace checkup.Areas.checkup.Controllers
                                     logger.Error("[{LogCategory}] " + $"applicationID: {applicationID}, bundle: {base64BundleFile}", "TenantAppController/DefinitionBundling");
                                 }
 
-                                phisycalTargetFilePath = Path.Combine(appAssetsPath, "app.bundle.css");
+                                phisycalTargetFilePath = PathExtensions.Combine(appAssetsPath, "app.bundle.css");
                                 phisycalSourceFilePaths.Clear();
                                 definitionScripts = environmentSetting.Definition.Styles;
                                 for (int i = 0; i < definitionScripts.Count; i++)
@@ -845,7 +845,7 @@ namespace checkup.Areas.checkup.Controllers
                                     phisycalFilePaths.Add(webRootPath);
                                     phisycalFilePaths.AddRange(sourceFile.Split("/"));
 
-                                    string phisycalSourceFilePath = Path.Combine(phisycalFilePaths.ToArray());
+                                    string phisycalSourceFilePath = PathExtensions.Combine(phisycalFilePaths.ToArray());
                                     if (phisycalSourceFilePath.IndexOf("http") == -1 && System.IO.File.Exists(phisycalSourceFilePath) == true)
                                     {
                                         phisycalSourceFilePaths.Add(phisycalSourceFilePath);
@@ -873,7 +873,7 @@ namespace checkup.Areas.checkup.Controllers
                                     logger.Error("[{LogCategory}] " + $"applicationID: {applicationID}, bundle: {base64BundleFile}", "TenantAppController/DefinitionBundling");
                                 }
 
-                                string phisycalBundleFilePath = Path.Combine(appAssetsPath, "app.bundle.json");
+                                string phisycalBundleFilePath = PathExtensions.Combine(appAssetsPath, "app.bundle.json");
                                 if (System.IO.File.Exists(phisycalBundleFilePath) == true)
                                 {
                                     System.IO.File.Delete(phisycalBundleFilePath);
@@ -899,7 +899,7 @@ namespace checkup.Areas.checkup.Controllers
             bool result = false;
             try
             {
-                string bundlerFilePath = Path.Combine(GlobalConfiguration.BatchProgramBasePath, "bundling", (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true ? "bundling.exe" : "bundling"));
+                string bundlerFilePath = PathExtensions.Combine(GlobalConfiguration.BatchProgramBasePath, "bundling", (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true ? "bundling.exe" : "bundling"));
                 if (System.IO.File.Exists(bundlerFilePath) == false)
                 {
                     return result;
@@ -935,7 +935,7 @@ namespace checkup.Areas.checkup.Controllers
                     _ = Task.Run(() =>
                     {
                         // https://github.com/fmarcia/uglifycss
-                        string cssRootPath = Path.Combine(webRootPath, "css");
+                        string cssRootPath = PathExtensions.Combine(webRootPath, "css");
                         var executeResult = CommandHelper.RunScript($"uglifycss --convert-urls {cssRootPath} {outputFileName} --output {minifyFilePath}");
                         if (executeResult.Count > 0 && executeResult[0].Item1 != 0)
                         {
@@ -1092,7 +1092,7 @@ namespace checkup.Areas.checkup.Controllers
                 }
 
                 // Application 임시 디렉토리 확인 및 삭제
-                string appTempBasePath = Path.Combine(GlobalConfiguration.CreateAppTempPath, applicationID);
+                string appTempBasePath = PathExtensions.Combine(GlobalConfiguration.CreateAppTempPath, applicationID);
                 if (Directory.Exists(appTempBasePath) == true)
                 {
                     Directory.Delete(appTempBasePath, true);
@@ -1102,7 +1102,7 @@ namespace checkup.Areas.checkup.Controllers
                 Directory.CreateDirectory(appTempBasePath);
 
                 // Forbes 앱 파일을 임시 디렉토리에 복사
-                string forbesAppBasePath = Path.Combine(GlobalConfiguration.ForbesBasePath, forbesID.ToStringSafe());
+                string forbesAppBasePath = PathExtensions.Combine(GlobalConfiguration.ForbesBasePath, forbesID.ToStringSafe());
                 if (Directory.Exists(forbesAppBasePath) == false)
                 {
                     return BadRequest("Forbes ID 정보 또는 요청 정보 확인이 필요합니다");
@@ -1111,14 +1111,14 @@ namespace checkup.Areas.checkup.Controllers
                 DirectoryInfo forbesAppDirectoryInfo = new DirectoryInfo(forbesAppBasePath);
                 forbesAppDirectoryInfo.CopyTo(appTempBasePath, true);
 
-                Directory.CreateDirectory(Path.Combine(appTempBasePath, "dbclient"));
-                Directory.CreateDirectory(Path.Combine(appTempBasePath, "transact"));
-                Directory.CreateDirectory(Path.Combine(appTempBasePath, "function"));
-                Directory.CreateDirectory(Path.Combine(appTempBasePath, "function", "csharp"));
-                Directory.CreateDirectory(Path.Combine(appTempBasePath, "function", "javascript"));
-                Directory.CreateDirectory(Path.Combine(appTempBasePath, "wwwroot"));
+                Directory.CreateDirectory(PathExtensions.Combine(appTempBasePath, "dbclient"));
+                Directory.CreateDirectory(PathExtensions.Combine(appTempBasePath, "transact"));
+                Directory.CreateDirectory(PathExtensions.Combine(appTempBasePath, "function"));
+                Directory.CreateDirectory(PathExtensions.Combine(appTempBasePath, "function", "csharp"));
+                Directory.CreateDirectory(PathExtensions.Combine(appTempBasePath, "function", "javascript"));
+                Directory.CreateDirectory(PathExtensions.Combine(appTempBasePath, "wwwroot"));
 
-                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
                     ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, "SYS.SYS010.DD01", new
@@ -1131,7 +1131,7 @@ namespace checkup.Areas.checkup.Controllers
                 }
 
                 string tenantID = $"{userWorkID}|{applicationID}";
-                string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                 if (System.IO.File.Exists(settingFilePath) == true || GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == true)
                 {
                     ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, "SYS.SYS010.DD01", new
@@ -1222,7 +1222,7 @@ namespace checkup.Areas.checkup.Controllers
                 }
 
                 string connectionString = appDbConnectionString.Replace("{appBasePath}", appBasePath);
-                string logDbFilePath = Path.Combine(appBasePath, $".managed/sqlite/app.db");
+                string logDbFilePath = PathExtensions.Combine(appBasePath, $".managed/sqlite/app.db");
 
                 FileInfo fileInfo = new FileInfo(logDbFilePath);
                 if (fileInfo.Directory != null && fileInfo.Directory.Exists == false)
@@ -1236,7 +1236,7 @@ namespace checkup.Areas.checkup.Controllers
                 }
 
                 // checkup Forbes 앱 데이터 모델 정보를 Forbes 앱에 복사
-                string forbesMetaFilePath = Path.Combine(forbesAppBasePath, "meta.xml");
+                string forbesMetaFilePath = PathExtensions.Combine(forbesAppBasePath, "meta.xml");
                 if (System.IO.File.Exists(forbesMetaFilePath) == true)
                 {
                     using DataSet dsMetaData = new DataSet();
@@ -1356,7 +1356,7 @@ namespace checkup.Areas.checkup.Controllers
                 }
 
                 // checkup Forbes 앱 데이터 정보를 Forbes 앱에 복사
-                string forbesMetaDataFilePath = Path.Combine(forbesAppBasePath, "meta.sql");
+                string forbesMetaDataFilePath = PathExtensions.Combine(forbesAppBasePath, "meta.sql");
                 if (System.IO.File.Exists(forbesMetaDataFilePath) == true)
                 {
                     string forbesMetaDataText = System.IO.File.ReadAllText(forbesMetaDataFilePath);
@@ -1388,7 +1388,7 @@ namespace checkup.Areas.checkup.Controllers
                 tempAppDirectoryInfo.CopyTo(appBasePath, true);
 
                 // forbes 앱 meta.xml 엔티티 정보 파일 삭제
-                string metaFilePath = Path.Combine(appBasePath, "meta.xml");
+                string metaFilePath = PathExtensions.Combine(appBasePath, "meta.xml");
                 if (System.IO.File.Exists(metaFilePath) == true)
                 {
                     System.IO.File.Delete(metaFilePath);
@@ -1406,12 +1406,12 @@ namespace checkup.Areas.checkup.Controllers
 
         private void TenentAppContractUpdate(string userWorkID, string applicationID)
         {
-            string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+            string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
             DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
             if (directoryInfo.Exists == true)
             {
                 string tenantID = $"{userWorkID}|{applicationID}";
-                string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                 if (System.IO.File.Exists(settingFilePath) == true || GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == true)
                 {
                     string appSettingText = System.IO.File.ReadAllText(settingFilePath);
@@ -1481,12 +1481,12 @@ namespace checkup.Areas.checkup.Controllers
                     return BadRequest("어플리케이션 정보 또는 요청 정보 확인이 필요합니다");
                 }
 
-                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
                 if (directoryInfo.Exists == true)
                 {
                     string tenantID = $"{userWorkID}|{applicationID}";
-                    string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                    string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                     if (System.IO.File.Exists(settingFilePath) == true || GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == true)
                     {
                         string appSettingText = await System.IO.File.ReadAllTextAsync(settingFilePath);
@@ -1500,7 +1500,7 @@ namespace checkup.Areas.checkup.Controllers
 
                             try
                             {
-                                string disposeTenantAppsFilePath = Path.Combine(GlobalConfiguration.EntryBasePath, "dispose-tenantapps.log");
+                                string disposeTenantAppsFilePath = PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "dispose-tenantapps.log");
                                 using (StreamWriter file = new StreamWriter(disposeTenantAppsFilePath, true))
                                 {
                                     file.WriteLine($"{tenantID}|{appBasePath}");
@@ -1662,7 +1662,7 @@ namespace checkup.Areas.checkup.Controllers
 
             if (ModuleConfiguration.ManagedAccessKey == accessKey && string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false)
             {
-                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
                     string appDbFilePath = $"{appBasePath}/.managed/sqlite/app.db";
@@ -1697,7 +1697,7 @@ namespace checkup.Areas.checkup.Controllers
                 && string.IsNullOrEmpty(tableName) == false
             )
             {
-                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
                     string appDbFilePath = $"{appBasePath}/.managed/sqlite/app.db";
@@ -1766,7 +1766,7 @@ namespace checkup.Areas.checkup.Controllers
                 && string.IsNullOrEmpty(tableName) == false
             )
             {
-                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
                     string appDbFilePath = $"{appBasePath}/.managed/sqlite/app.db";
@@ -1801,7 +1801,7 @@ namespace checkup.Areas.checkup.Controllers
 
             if (ModuleConfiguration.ManagedAccessKey == accessKey && string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false)
             {
-                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
                     string appDbFilePath = $"{appBasePath}/.managed/sqlite/app.db";
@@ -1809,7 +1809,7 @@ namespace checkup.Areas.checkup.Controllers
                     string backupAppDbFilePath = $"{appBasePath}/.managed/sqlite/app-backup.db";
                     if (System.IO.File.Exists(appDbFilePath) == true)
                     {
-                        string appDbDirectoryPath = Path.Combine(appBasePath, ".managed", "sqlite");
+                        string appDbDirectoryPath = PathExtensions.Combine(appBasePath, ".managed", "sqlite");
                         var backupIssueFiles = Directory.GetFiles(appDbDirectoryPath, "backup-*");
                         for (int i = 0; i < backupIssueFiles.Length; i++)
                         {
@@ -1857,7 +1857,7 @@ namespace checkup.Areas.checkup.Controllers
 
             if (string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false && string.IsNullOrEmpty(downloadTokenID) == false)
             {
-                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
                     if (Guid.TryParse(downloadTokenID, out Guid issueGuid) == true)
@@ -1890,10 +1890,10 @@ namespace checkup.Areas.checkup.Controllers
 
             if (ModuleConfiguration.ManagedAccessKey == accessKey && string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false)
             {
-                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
-                    string appDbDirectoryPath = Path.Combine(appBasePath, ".managed", "sqlite");
+                    string appDbDirectoryPath = PathExtensions.Combine(appBasePath, ".managed", "sqlite");
                     var restoreIssueFiles = Directory.GetFiles(appDbDirectoryPath, "restore-*");
                     for (int i = 0; i < restoreIssueFiles.Length; i++)
                     {
@@ -1944,7 +1944,7 @@ namespace checkup.Areas.checkup.Controllers
                 {
                     try
                     {
-                        string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                        string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                         if (Directory.Exists(appBasePath) == true)
                         {
                             string restoreIssueDbFilePath = $"{appBasePath}/.managed/sqlite/restore-{uploadTokenID}";
@@ -1954,10 +1954,10 @@ namespace checkup.Areas.checkup.Controllers
                                 DateTime issueDateTime = (issueGuid.ToDateTime() ?? DateTime.UtcNow).ToLocalTime();
                                 string issueNumber = issueDateTime.ToString("yyyyMMddHHmmss");
                                 string appDbFilePath = $"{appBasePath}/.managed/sqlite/app.db";
-                                string appDbDirectoryPath = Path.Combine(appBasePath, ".managed", "sqlite");
+                                string appDbDirectoryPath = PathExtensions.Combine(appBasePath, ".managed", "sqlite");
                                 if (Directory.Exists(appDbDirectoryPath) == true)
                                 {
-                                    string itemPhysicalPath = Path.Combine(appDbDirectoryPath, $"app-restore-{issueNumber}.db");
+                                    string itemPhysicalPath = PathExtensions.Combine(appDbDirectoryPath, $"app-restore-{issueNumber}.db");
                                     using (FileStream fileStream = new FileStream(itemPhysicalPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
                                     {
                                         await file.CopyToAsync(fileStream);
@@ -2027,7 +2027,7 @@ namespace checkup.Areas.checkup.Controllers
 
             if (ModuleConfiguration.ManagedAccessKey == accessKey && string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false && string.IsNullOrEmpty(compressBase64) == false)
             {
-                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
                     string appDbFilePath = $"{appBasePath}/.managed/sqlite/app.db";
@@ -2058,10 +2058,10 @@ namespace checkup.Areas.checkup.Controllers
 
             if (ModuleConfiguration.ManagedAccessKey == accessKey && string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false && string.IsNullOrEmpty(packageNo) == false)
             {
-                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
-                    string packageFilePath = Path.Combine(appBasePath, "publish", $"hostapp-{applicationID}-{packageNo}.zip");
+                    string packageFilePath = PathExtensions.Combine(appBasePath, "publish", $"hostapp-{applicationID}-{packageNo}.zip");
                     if (string.IsNullOrEmpty(packageFilePath) == false && System.IO.File.Exists(packageFilePath) == true)
                     {
                         result = new PhysicalFileResult(packageFilePath, MimeHelper.GetMimeType(packageFilePath).ToStringSafe());
@@ -2113,10 +2113,10 @@ namespace checkup.Areas.checkup.Controllers
                 {
                     try
                     {
-                        string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                        string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                         if (Directory.Exists(appBasePath) == true)
                         {
-                            DirectoryInfo directoryInfo = new DirectoryInfo(Path.Combine(appBasePath, ".managed", "publish"));
+                            DirectoryInfo directoryInfo = new DirectoryInfo(PathExtensions.Combine(appBasePath, ".managed", "publish"));
                             if (directoryInfo.Exists == false)
                             {
                                 outputBuilder.AppendLine($"I|{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}|{directoryInfo.Name} 게시 디렉토리 생성");
@@ -2125,7 +2125,7 @@ namespace checkup.Areas.checkup.Controllers
 
                             string saveFileName = file.FileName;
                             string extension = Path.GetExtension(saveFileName);
-                            string itemPhysicalPath = Path.Combine(directoryInfo.FullName, saveFileName);
+                            string itemPhysicalPath = PathExtensions.Combine(directoryInfo.FullName, saveFileName);
                             outputBuilder.AppendLine($"I|{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}|{saveFileName} 패키지 파일 복사 시작");
                             using (FileStream fileStream = new FileStream(itemPhysicalPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
                             {
@@ -2178,15 +2178,15 @@ TransactionException:
 
             try
             {
-                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
                     string packageDirectoryName = $"hostapp-{applicationID}-{packageNo}";
-                    string packageDirectoryPath = Path.Combine(appBasePath, ".managed", "publish", packageDirectoryName);
-                    string packageArchiveFilePath = Path.Combine(packageDirectoryPath, "package-archives.json");
+                    string packageDirectoryPath = PathExtensions.Combine(appBasePath, ".managed", "publish", packageDirectoryName);
+                    string packageArchiveFilePath = PathExtensions.Combine(packageDirectoryPath, "package-archives.json");
                     if (Directory.Exists(packageDirectoryPath) == true && System.IO.File.Exists(packageArchiveFilePath) == true)
                     {
-                        DirectoryInfo directoryInfo = new DirectoryInfo(Path.Combine(appBasePath, ".managed", "backup", packageNo));
+                        DirectoryInfo directoryInfo = new DirectoryInfo(PathExtensions.Combine(appBasePath, ".managed", "backup", packageNo));
                         if (directoryInfo.Exists == false)
                         {
                             outputBuilder.AppendLine($"I|{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}|{directoryInfo.Name} 백업 디렉토리 생성");
@@ -2242,8 +2242,8 @@ TransactionException:
                                 locationPath = item.RelativePath.Replace("/", directorySeparatorChar);
                                 if (item.ItemType == "F" || item.ItemType == "P")
                                 {
-                                    sourceItemPath = Path.Combine(appBasePath, locationPath);
-                                    targetItemPath = Path.Combine(backupDirectoryPath, locationPath);
+                                    sourceItemPath = PathExtensions.Combine(appBasePath, locationPath);
+                                    targetItemPath = PathExtensions.Combine(backupDirectoryPath, locationPath);
 
                                     if (System.IO.File.Exists(sourceItemPath) == true)
                                     {
@@ -2265,8 +2265,8 @@ TransactionException:
                                 }
                                 else if (item.ItemType == "D")
                                 {
-                                    sourceItemPath = Path.Combine(appBasePath, locationPath);
-                                    targetItemPath = Path.Combine(backupDirectoryPath, locationPath);
+                                    sourceItemPath = PathExtensions.Combine(appBasePath, locationPath);
+                                    targetItemPath = PathExtensions.Combine(backupDirectoryPath, locationPath);
 
                                     if (Directory.Exists(sourceItemPath) == true)
                                     {
@@ -2330,15 +2330,15 @@ TransactionException:
 
             try
             {
-                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
                     string packageDirectoryName = $"hostapp-{applicationID}-{packageNo}";
-                    string packageDirectoryPath = Path.Combine(appBasePath, ".managed", "publish", packageDirectoryName);
-                    string packageArchiveFilePath = Path.Combine(packageDirectoryPath, "package-archives.json");
+                    string packageDirectoryPath = PathExtensions.Combine(appBasePath, ".managed", "publish", packageDirectoryName);
+                    string packageArchiveFilePath = PathExtensions.Combine(packageDirectoryPath, "package-archives.json");
                     if (Directory.Exists(packageDirectoryPath) == true && System.IO.File.Exists(packageArchiveFilePath) == true)
                     {
-                        DirectoryInfo directoryInfo = new DirectoryInfo(Path.Combine(appBasePath, ".managed", "backup", packageNo));
+                        DirectoryInfo directoryInfo = new DirectoryInfo(PathExtensions.Combine(appBasePath, ".managed", "backup", packageNo));
                         if (directoryInfo.Exists == false)
                         {
                             outputBuilder.AppendLine($"I|{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}|{directoryInfo.Name} 백업 디렉토리 생성");
@@ -2394,8 +2394,8 @@ TransactionException:
                                 locationPath = item.RelativePath.Replace("/", directorySeparatorChar);
                                 if (item.ItemType == "F" || item.ItemType == "P")
                                 {
-                                    sourceItemPath = Path.Combine(packageDirectoryPath, locationPath);
-                                    targetItemPath = Path.Combine(appBasePath, locationPath);
+                                    sourceItemPath = PathExtensions.Combine(packageDirectoryPath, locationPath);
+                                    targetItemPath = PathExtensions.Combine(appBasePath, locationPath);
 
                                     if (System.IO.File.Exists(sourceItemPath) == true)
                                     {
@@ -2473,8 +2473,8 @@ TransactionException:
                                 }
                                 else if (item.ItemType == "D")
                                 {
-                                    sourceItemPath = Path.Combine(packageDirectoryPath, locationPath);
-                                    targetItemPath = Path.Combine(appBasePath, locationPath);
+                                    sourceItemPath = PathExtensions.Combine(packageDirectoryPath, locationPath);
+                                    targetItemPath = PathExtensions.Combine(appBasePath, locationPath);
 
                                     if (Directory.Exists(sourceItemPath) == true)
                                     {
@@ -2567,15 +2567,15 @@ TransactionException:
 
                         if (ModuleConfiguration.ManagedAccessKey == accessKey)
                         {
-                            string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                            string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                             if (Directory.Exists(appBasePath) == true)
                             {
-                                string? appWWWDirectoryPath = Path.Combine(appBasePath, "wwwroot");
+                                string? appWWWDirectoryPath = PathExtensions.Combine(appBasePath, "wwwroot");
 
                                 if (string.IsNullOrEmpty(appWWWDirectoryPath) == false && Directory.Exists(appWWWDirectoryPath) == true)
                                 {
                                     string saveFileName = file.FileName;
-                                    string itemPhysicalPath = Path.Combine(appWWWDirectoryPath, saveFileName);
+                                    string itemPhysicalPath = PathExtensions.Combine(appWWWDirectoryPath, saveFileName);
                                     using (FileStream fileStream = new FileStream(itemPhysicalPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
                                     {
                                         await file.CopyToAsync(fileStream);
@@ -2609,7 +2609,7 @@ TransactionException:
             if (string.IsNullOrEmpty(requestRefererUrl) == false && requestRefererUrl.IndexOf(viewRequestPath) > -1 && ModuleConfiguration.ManagedAccessKey == accessKey)
             {
                 string tenantID = $"{userWorkID}|{applicationID}";
-                string physicalPath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID, "wwwroot", "assets");
+                string physicalPath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID, "wwwroot", "assets");
 
                 if (Directory.Exists(physicalPath) == false)
                 {
@@ -2633,7 +2633,7 @@ TransactionException:
                         physicalPaths = physicalPaths.Concat(paths).ToList();
                     }
 
-                    physicalPath = Path.Combine(physicalPaths.ToArray());
+                    physicalPath = PathExtensions.Combine(physicalPaths.ToArray());
                 }
 
                 if (Directory.Exists(physicalPath) == true)
@@ -2704,7 +2704,7 @@ TransactionException:
 
                         if (ModuleConfiguration.ManagedAccessKey == accessKey)
                         {
-                            string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                            string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                             if (Directory.Exists(appBasePath) == true)
                             {
                                 string directorySeparatorChar = Path.DirectorySeparatorChar.ToString();
@@ -2714,7 +2714,7 @@ TransactionException:
                                 }
 
                                 locationPath = locationPath.Replace("/", directorySeparatorChar);
-                                string? appAssetDirectoryPath = Path.Combine(appBasePath, "wwwroot", locationPath);
+                                string? appAssetDirectoryPath = PathExtensions.Combine(appBasePath, "wwwroot", locationPath);
 
                                 if (string.IsNullOrEmpty(appAssetDirectoryPath) == false && Directory.Exists(appAssetDirectoryPath) == true)
                                 {
@@ -2732,7 +2732,7 @@ TransactionException:
                                         }
                                     }
 
-                                    string itemPhysicalPath = Path.Combine(appAssetDirectoryPath, saveFileName);
+                                    string itemPhysicalPath = PathExtensions.Combine(appAssetDirectoryPath, saveFileName);
                                     using (FileStream fileStream = new FileStream(itemPhysicalPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
                                     {
                                         await file.CopyToAsync(fileStream);
@@ -2832,7 +2832,7 @@ TransactionException:
 
             if (ModuleConfiguration.ManagedAccessKey == accessKey && string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false && string.IsNullOrEmpty(directoryName) == false)
             {
-                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
                     string? sourceFilePath = GetHostItemPath(appBasePath, projectType, directoryName);
@@ -2861,7 +2861,7 @@ TransactionException:
 
             if (ModuleConfiguration.ManagedAccessKey == accessKey && string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false && string.IsNullOrEmpty(directoryName) == false)
             {
-                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
                     string? sourceFilePath = GetHostItemPath(appBasePath, projectType, directoryName);
@@ -2890,7 +2890,7 @@ TransactionException:
 
             if (ModuleConfiguration.ManagedAccessKey == accessKey && string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false && string.IsNullOrEmpty(itemPath) == false)
             {
-                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
                     string directorySeparatorChar = Path.DirectorySeparatorChar.ToString();
@@ -2902,7 +2902,7 @@ TransactionException:
                     string? sourceFilePath = null;
                     if (projectType == "R")
                     {
-                        sourceFilePath = Path.Combine(appBasePath, "wwwroot", itemPath);
+                        sourceFilePath = PathExtensions.Combine(appBasePath, "wwwroot", itemPath);
                     }
                     else
                     {
@@ -2933,7 +2933,7 @@ TransactionException:
 
             if (ModuleConfiguration.ManagedAccessKey == accessKey && string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false && string.IsNullOrEmpty(filePath) == false)
             {
-                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
                     string? sourceFilePath = GetHostItemPath(appBasePath, projectType, filePath);
@@ -2966,7 +2966,7 @@ TransactionException:
 
             if (ModuleConfiguration.ManagedAccessKey == accessKey && string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false && string.IsNullOrEmpty(compressBase64) == false && string.IsNullOrEmpty(filePath) == false)
             {
-                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
                     string? sourceFilePath = GetHostItemPath(appBasePath, projectType, filePath);
@@ -2991,7 +2991,7 @@ TransactionException:
 
             if (ModuleConfiguration.ManagedAccessKey == accessKey && string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false)
             {
-                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
                     string searchPattern = "*.*";
@@ -3023,24 +3023,24 @@ TransactionException:
                             string projectType = string.Empty;
                             projectType = "D";
                             searchPattern = "*.xml";
-                            sourceDirectoryPath = Path.Combine(appBasePath, "dbclient");
+                            sourceDirectoryPath = PathExtensions.Combine(appBasePath, "dbclient");
                             FeatureBuildFileMenu(userWorkID, applicationID, searchPattern, sourceDirectoryPath, menus, directoryInfo, rootDirectory, projectType);
 
                             projectType = "B";
                             searchPattern = "*.json";
-                            sourceDirectoryPath = Path.Combine(appBasePath, "transact");
+                            sourceDirectoryPath = PathExtensions.Combine(appBasePath, "transact");
                             FeatureBuildFileMenu(userWorkID, applicationID, searchPattern, sourceDirectoryPath, menus, directoryInfo, rootDirectory, projectType);
 
                             projectType = "U";
                             searchPattern = "*.html|*.js|*.json";
-                            sourceDirectoryPath = Path.Combine(appBasePath, "wwwroot", "view");
+                            sourceDirectoryPath = PathExtensions.Combine(appBasePath, "wwwroot", "view");
                             FeatureBuildFileMenu(userWorkID, applicationID, searchPattern, sourceDirectoryPath, menus, directoryInfo, rootDirectory, projectType);
 
                             if (GlobalConfiguration.IsTenantFunction == true)
                             {
                                 projectType = "F";
                                 searchPattern = "*.cs|*.js|*.json|*.xml|";
-                                sourceDirectoryPath = Path.Combine(appBasePath, "function");
+                                sourceDirectoryPath = PathExtensions.Combine(appBasePath, "function");
                                 FeatureBuildFileMenu(userWorkID, applicationID, searchPattern, sourceDirectoryPath, menus, directoryInfo, rootDirectory, projectType);
                             }
                         }
@@ -3066,7 +3066,7 @@ TransactionException:
             if (ModuleConfiguration.ManagedAccessKey == accessKey && string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false && string.IsNullOrEmpty(projectType) == false && string.IsNullOrEmpty(parentMenuID) == false && string.IsNullOrEmpty(parentMenuName) == false)
             {
                 string directorySeparatorChar = Path.DirectorySeparatorChar.ToString();
-                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID) + directorySeparatorChar;
+                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID) + directorySeparatorChar;
                 if (Directory.Exists(appBasePath) == true)
                 {
                     string searchPattern = "*.*";
@@ -3075,19 +3075,19 @@ TransactionException:
                     {
                         case "D":
                             searchPattern = "*.xml";
-                            sourceDirectoryPath = Path.Combine(appBasePath, "dbclient");
+                            sourceDirectoryPath = PathExtensions.Combine(appBasePath, "dbclient");
                             break;
                         case "F":
                             searchPattern = "*.cs|*.js|*.json|*.xml|";
-                            sourceDirectoryPath = Path.Combine(appBasePath, "function", "Node");
+                            sourceDirectoryPath = PathExtensions.Combine(appBasePath, "function", "Node");
                             break;
                         case "B":
                             searchPattern = "*.json";
-                            sourceDirectoryPath = Path.Combine(appBasePath, "transact");
+                            sourceDirectoryPath = PathExtensions.Combine(appBasePath, "transact");
                             break;
                         case "U":
                             searchPattern = "*.html|*.js|*.json";
-                            sourceDirectoryPath = Path.Combine(appBasePath, "wwwroot", "view");
+                            sourceDirectoryPath = PathExtensions.Combine(appBasePath, "wwwroot", "view");
                             break;
                     }
 
@@ -3144,19 +3144,19 @@ TransactionException:
             switch (projectType)
             {
                 case "D":
-                    result = Path.Combine(appBasePath, "dbclient", itemPath);
+                    result = PathExtensions.Combine(appBasePath, "dbclient", itemPath);
                     break;
                 case "F":
-                    result = Path.Combine(appBasePath, "function", itemPath);
+                    result = PathExtensions.Combine(appBasePath, "function", itemPath);
                     break;
                 case "B":
-                    result = Path.Combine(appBasePath, "transact", itemPath);
+                    result = PathExtensions.Combine(appBasePath, "transact", itemPath);
                     break;
                 case "U":
-                    result = Path.Combine(appBasePath, "wwwroot", "view", itemPath);
+                    result = PathExtensions.Combine(appBasePath, "wwwroot", "view", itemPath);
                     break;
                 default:
-                    result = Path.Combine(appBasePath, "wwwroot", itemPath);
+                    result = PathExtensions.Combine(appBasePath, "wwwroot", itemPath);
                     break;
             }
 
@@ -3169,7 +3169,7 @@ TransactionException:
             if (directoryInfo.Exists == true)
             {
                 string directorySeparatorChar = Path.DirectorySeparatorChar.ToString();
-                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID) + directorySeparatorChar;
+                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID) + directorySeparatorChar;
                 Menu featureDirectory = new Menu();
                 featureDirectory.menuID = featureDirectoryInfo.FullName.Replace(appBasePath, "").Replace(@"\", "/");
                 featureDirectory.menuName = featureDirectoryInfo.Name;
@@ -3214,7 +3214,7 @@ TransactionException:
         private void BuildFileMenu(string userWorkID, string applicationID, string projectType, string searchPattern, string sourceDirectoryPath, List<Menu> menus, Menu parentMenu, DirectoryInfo directory, int level)
         {
             string directorySeparatorChar = System.IO.Path.DirectorySeparatorChar.ToString();
-            string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID) + directorySeparatorChar;
+            string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID) + directorySeparatorChar;
             if (projectType == "F")
             {
                 foreach (var directoryInfo in directory.GetDirectories("*", SearchOption.TopDirectoryOnly))

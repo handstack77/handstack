@@ -96,7 +96,7 @@ namespace transact.Areas.transact.Controllers
                                 businessContracts.Remove(item);
                             }
 
-                            var basePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID, "transact");
+                            var basePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID, "transact");
 
                             if (Directory.Exists(basePath) == false)
                             {

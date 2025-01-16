@@ -45,10 +45,10 @@ namespace HDS.Function.HAC
                     goto TransactionException;
                 }
 
-                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
-                    string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                    string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                     if (System.IO.File.Exists(settingFilePath) == true)
                     {
                         string appSettingText = System.IO.File.ReadAllText(settingFilePath);
@@ -234,13 +234,13 @@ TransactionException:
 
             try
             {
-                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
                     DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
                     string tenantAppID = directoryInfo.Name;
 
-                    string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                    string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                     if (System.IO.File.Exists(settingFilePath) == true)
                     {
                         string appSettingText = System.IO.File.ReadAllText(settingFilePath);
@@ -408,13 +408,13 @@ TransactionException:
 
             try
             {
-                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
                     DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
                     string tenantAppID = directoryInfo.Name;
 
-                    string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                    string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                     if (System.IO.File.Exists(settingFilePath) == true)
                     {
                         string appSettingText = System.IO.File.ReadAllText(settingFilePath);

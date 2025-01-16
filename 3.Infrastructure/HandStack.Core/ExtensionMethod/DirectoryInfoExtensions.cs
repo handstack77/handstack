@@ -142,14 +142,14 @@ namespace HandStack.Core.ExtensionMethod
 
             foreach (var file in @this.GetFiles())
             {
-                file.CopyTo(Path.Combine(target.FullName, file.Name), true);
+                file.CopyTo(PathExtensions.Combine(target.FullName, file.Name), true);
             }
 
             if (recursive == true)
             {
                 foreach (var subDirectory in @this.GetDirectories())
                 {
-                    CopyTo(subDirectory, Path.Combine(target.FullName, subDirectory.Name), recursive);
+                    CopyTo(subDirectory, PathExtensions.Combine(target.FullName, subDirectory.Name), recursive);
                 }
             }
         }

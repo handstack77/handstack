@@ -156,7 +156,7 @@ namespace ack
             GlobalConfiguration.ForbesBasePath = GlobalConfiguration.GetBasePath(appSettings["ForbesBasePath"]);
             GlobalConfiguration.LoadModuleBasePath = GlobalConfiguration.GetBasePath(appSettings["LoadModuleBasePath"]);
 
-            string disposeTenantAppsFilePath = Path.Combine(GlobalConfiguration.EntryBasePath, "dispose-tenantapps.log");
+            string disposeTenantAppsFilePath = PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "dispose-tenantapps.log");
             if (File.Exists(disposeTenantAppsFilePath) == true)
             {
                 using (StreamReader file = new StreamReader(disposeTenantAppsFilePath))
@@ -442,7 +442,7 @@ namespace ack
                             string applicationID = directoryInfo.Name;
                             string tenantID = $"{userWorkID}|{applicationID}";
 
-                            string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                            string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                             if (File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                             {
                                 string appSettingText = File.ReadAllText(settingFilePath);
@@ -593,7 +593,7 @@ namespace ack
             services.AddCustomizedMvc(GlobalConfiguration.Modules);
 
             var homePath = new DirectoryInfo(GlobalConfiguration.EntryBasePath).Parent?.FullName;
-            string baseContractPath = Path.Combine(homePath.ToStringSafe(), "contracts");
+            string baseContractPath = PathExtensions.Combine(homePath.ToStringSafe(), "contracts");
             if (Directory.Exists(baseContractPath) == true)
             {
                 foreach (string file in Directory.GetFiles(baseContractPath))
@@ -624,7 +624,7 @@ namespace ack
                             {
                                 try
                                 {
-                                    string moduleContractPath = Path.Combine(module.BasePath, "Contracts");
+                                    string moduleContractPath = PathExtensions.Combine(module.BasePath, "Contracts");
                                     if (module.IsCopyContract == true && Directory.Exists(moduleContractPath) == true)
                                     {
                                         DirectoryCopy(moduleContractPath, baseContractPath);
@@ -632,13 +632,13 @@ namespace ack
 
                                     if (module.IsPurgeContract == true)
                                     {
-                                        var ackFile = new FileInfo(Path.Combine(GlobalConfiguration.EntryBasePath, "ack.dll"));
+                                        var ackFile = new FileInfo(PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "ack.dll"));
                                         var directory = new DirectoryInfo(moduleContractPath);
                                         if (ackFile != null && ackFile.Exists == true && directory != null && directory.Exists == true)
                                         {
                                             string appBasePath = ackFile.DirectoryName.ToStringSafe();
                                             string ackHomePath = (ackFile.Directory?.Parent?.FullName).ToStringSafe();
-                                            string targetContractDir = Path.Combine(ackHomePath, "contracts");
+                                            string targetContractDir = PathExtensions.Combine(ackHomePath, "contracts");
                                             string baseDir = directory.FullName;
 
                                             try
@@ -646,7 +646,7 @@ namespace ack
                                                 string[] subDirs = { "dbclient", "transact", "wwwroot", "repository", "function" };
                                                 foreach (string subDir in subDirs)
                                                 {
-                                                    string dirPath = Path.Combine(baseDir, subDir);
+                                                    string dirPath = PathExtensions.Combine(baseDir, subDir);
                                                     if (Directory.Exists(dirPath))
                                                     {
                                                         string[] files = Directory.GetFiles(dirPath, "*", SearchOption.AllDirectories);
@@ -719,7 +719,7 @@ namespace ack
 
             try
             {
-                string contentTypeFilePath = Path.Combine(GlobalConfiguration.WebRootPath, "contenttype.json");
+                string contentTypeFilePath = PathExtensions.Combine(GlobalConfiguration.WebRootPath, "contenttype.json");
 
                 if (File.Exists(contentTypeFilePath) == true)
                 {
@@ -803,7 +803,7 @@ namespace ack
                 await next(context);
             });
 
-            string physicalPath = Path.Combine(GlobalConfiguration.EntryBasePath, "wwwroot");
+            string physicalPath = PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "wwwroot");
             if (Directory.Exists(physicalPath) == true)
             {
                 app.UseDefaultFiles();
@@ -1017,24 +1017,24 @@ namespace ack
                                 switch (contractType)
                                 {
                                     case "dbclient":
-                                        destModuleBasePath = Path.Combine(handstackHomePath, "modules", moduleName, "Contracts", "dbclient");
-                                        destContractModuleBasePath = Path.Combine(handstackHomePath, "contracts", "dbclient");
+                                        destModuleBasePath = PathExtensions.Combine(handstackHomePath, "modules", moduleName, "Contracts", "dbclient");
+                                        destContractModuleBasePath = PathExtensions.Combine(handstackHomePath, "contracts", "dbclient");
                                         break;
                                     case "function_csharp":
-                                        destModuleBasePath = Path.Combine(handstackHomePath, "modules", moduleName, "Contracts", "function", "csharp");
-                                        destContractModuleBasePath = Path.Combine(handstackHomePath, "contracts", "function", "csharp");
+                                        destModuleBasePath = PathExtensions.Combine(handstackHomePath, "modules", moduleName, "Contracts", "function", "csharp");
+                                        destContractModuleBasePath = PathExtensions.Combine(handstackHomePath, "contracts", "function", "csharp");
                                         break;
                                     case "function_javascript":
-                                        destModuleBasePath = Path.Combine(handstackHomePath, "modules", moduleName, "Contracts", "function", "javascript");
-                                        destContractModuleBasePath = Path.Combine(handstackHomePath, "contracts", "function", "javascript");
+                                        destModuleBasePath = PathExtensions.Combine(handstackHomePath, "modules", moduleName, "Contracts", "function", "javascript");
+                                        destContractModuleBasePath = PathExtensions.Combine(handstackHomePath, "contracts", "function", "javascript");
                                         break;
                                     case "transact":
-                                        destModuleBasePath = Path.Combine(handstackHomePath, "modules", moduleName, "Contracts", "transact");
-                                        destContractModuleBasePath = Path.Combine(handstackHomePath, "contracts", "transact");
+                                        destModuleBasePath = PathExtensions.Combine(handstackHomePath, "modules", moduleName, "Contracts", "transact");
+                                        destContractModuleBasePath = PathExtensions.Combine(handstackHomePath, "contracts", "transact");
                                         break;
                                     case "wwwroot":
-                                        destModuleBasePath = Path.Combine(handstackHomePath, "modules", moduleName, "wwwroot", moduleName);
-                                        destContractModuleBasePath = Path.Combine(handstackHomePath, "modules", moduleName, "wwwroot", moduleName);
+                                        destModuleBasePath = PathExtensions.Combine(handstackHomePath, "modules", moduleName, "wwwroot", moduleName);
+                                        destContractModuleBasePath = PathExtensions.Combine(handstackHomePath, "modules", moduleName, "wwwroot", moduleName);
                                         break;
                                 }
 

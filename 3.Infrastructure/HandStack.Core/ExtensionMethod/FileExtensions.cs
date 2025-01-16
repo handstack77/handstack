@@ -21,7 +21,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string PathCombine(params string[] paths)
         {
-            return Path.Combine(paths);
+            return PathExtensions.Combine(paths);
         }
 
         public static string GetFileName(string filePath)
@@ -143,7 +143,7 @@ namespace HandStack.Core.ExtensionMethod
                 string? directoryName = Path.GetDirectoryName(@this.FullName);
                 if (string.IsNullOrEmpty(directoryName) == false)
                 {
-                    var filePath = Path.Combine(directoryName, newName);
+                    var filePath = PathExtensions.Combine(directoryName, newName);
                     @this.MoveTo(filePath);
                 }
             }
@@ -204,7 +204,7 @@ namespace HandStack.Core.ExtensionMethod
             var copiedfiles = new List<FileInfo>();
             foreach (var @this in files)
             {
-                var fileName = Path.Combine(targetPath, @this.Name);
+                var fileName = PathExtensions.Combine(targetPath, @this.Name);
                 copiedfiles.Add(@this.CopyTo(fileName));
             }
 
@@ -219,7 +219,7 @@ namespace HandStack.Core.ExtensionMethod
         {
             foreach (var @this in files)
             {
-                var fileName = Path.Combine(targetPath, @this.Name);
+                var fileName = PathExtensions.Combine(targetPath, @this.Name);
                 @this.MoveTo(fileName);
             }
 

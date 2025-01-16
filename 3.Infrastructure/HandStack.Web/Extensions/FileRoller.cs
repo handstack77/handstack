@@ -60,7 +60,7 @@ namespace HandStack.Web.Extensions
                 file = file + "-" + date.ToString(dateFormat);
             }
 
-            stringParser["filename"] = Path.Combine(folderPart, $"{file}{extension}");
+            stringParser["filename"] = PathExtensions.Combine(folderPart, $"{file}{extension}");
 
             return ConnectionStringParser.Create(stringParser);
         }

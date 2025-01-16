@@ -143,12 +143,12 @@ namespace logger
             ModuleInfo? module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == ModuleID);
             if (string.IsNullOrEmpty(ModuleID) == false && module != null)
             {
-                string wwwrootDirectory = Path.Combine(module.BasePath, "wwwroot", module.ModuleID);
+                string wwwrootDirectory = PathExtensions.Combine(module.BasePath, "wwwroot", module.ModuleID);
                 if (string.IsNullOrEmpty(wwwrootDirectory) == false && Directory.Exists(wwwrootDirectory) == true)
                 {
                     app.UseStaticFiles(new StaticFileOptions
                     {
-                        FileProvider = new PhysicalFileProvider(Path.Combine(wwwrootDirectory)),
+                        FileProvider = new PhysicalFileProvider(PathExtensions.Combine(wwwrootDirectory)),
                         RequestPath = "/" + ModuleID,
                         ServeUnknownFileTypes = true,
                         OnPrepareResponse = httpContext =>
@@ -222,7 +222,7 @@ namespace logger
 
                         if (isExists == false)
                         {
-                            string sqlFilePath = Path.Combine(ModuleConfiguration.ModuleBasePath, "SQL", "Create", dataProvider.ToString() + ".txt");
+                            string sqlFilePath = PathExtensions.Combine(ModuleConfiguration.ModuleBasePath, "SQL", "Create", dataProvider.ToString() + ".txt");
                             if (File.Exists(sqlFilePath) == true)
                             {
                                 string ddlScript = File.ReadAllText(sqlFilePath).Replace("{TableName}", tableName);

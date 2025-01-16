@@ -72,14 +72,14 @@ namespace transact.Extensions
                             string projectID = request.Transaction.BusinessID;
                             string transactionID = request.Transaction.TransactionID;
 
-                            string dummyFileDirectory = Path.Combine(GlobalConfiguration.EntryBasePath, "..", "tmp", GlobalConfiguration.ApplicationID, "dummyfile");
+                            string dummyFileDirectory = PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "..", "tmp", GlobalConfiguration.ApplicationID, "dummyfile");
                             if (Directory.Exists(dummyFileDirectory) == false)
                             {
                                 Directory.CreateDirectory(dummyFileDirectory);
                             }
 
-                            string dummyFile = Path.Combine(applicationID, projectID, transactionID, transactionInfo.ServiceID + ".dat");
-                            string dummyFilePath = Path.Combine(dummyFileDirectory, dummyFile);
+                            string dummyFile = PathExtensions.Combine(applicationID, projectID, transactionID, transactionInfo.ServiceID + ".dat");
+                            string dummyFilePath = PathExtensions.Combine(dummyFileDirectory, dummyFile);
                             if (File.Exists(dummyFilePath) == false)
                             {
                                 applicationResponse.ExceptionText = $"DummyFile: {dummyFile} 확인 필요";

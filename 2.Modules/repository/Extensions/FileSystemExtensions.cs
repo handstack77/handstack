@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
+using HandStack.Core.ExtensionMethod;
+
 namespace repository.Extensions
 {
     public static class FileSystemExtensions
@@ -18,7 +20,7 @@ namespace repository.Extensions
 
         public static string PathCombine(params string[] paths)
         {
-            return Path.Combine(paths);
+            return PathExtensions.Combine(paths);
         }
 
         public static string GetFileName(string filePath)

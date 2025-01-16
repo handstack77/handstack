@@ -52,7 +52,7 @@ namespace {{applicationID}}.Function.{{projectID}}
                     var logger = dataContext.logger;
                     logger?.Information($"Function: {typeMember} 작업 시작");
 
-                    string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                    string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                     if (Directory.Exists(appBasePath) == true)
                     {
                         // 여기에서 업무 로직 시작합니다

@@ -775,7 +775,7 @@ namespace HandStack.Data.ExtensionMethod
             string filePath = string.Empty;
             if (string.IsNullOrEmpty(baseDirectoryPath) == false)
             {
-                filePath = Path.Combine(baseDirectoryPath, applicationID, projectID, fileID + ".xml");
+                filePath = PathExtensions.Combine(baseDirectoryPath, applicationID, projectID, fileID + ".xml");
             }
 
             if (File.Exists(filePath) == false)
@@ -965,7 +965,7 @@ namespace HandStack.Data.ExtensionMethod
             string filePath = string.Empty;
             if (string.IsNullOrEmpty(baseDirectoryPath) == false)
             {
-                filePath = Path.Combine(baseDirectoryPath, applicationID, projectID, fileID + ".xml");
+                filePath = PathExtensions.Combine(baseDirectoryPath, applicationID, projectID, fileID + ".xml");
             }
 
             if (File.Exists(filePath) == false)
@@ -1084,7 +1084,7 @@ namespace HandStack.Data.ExtensionMethod
             string filePath = string.Empty;
             if (string.IsNullOrEmpty(baseDirectoryPath) == false)
             {
-                filePath = Path.Combine(baseDirectoryPath, applicationID, projectID, fileID + ".xml");
+                filePath = PathExtensions.Combine(baseDirectoryPath, applicationID, projectID, fileID + ".xml");
             }
 
             if (File.Exists(filePath) == false)
@@ -1203,7 +1203,7 @@ namespace HandStack.Data.ExtensionMethod
             string filePath = string.Empty;
             if (string.IsNullOrEmpty(baseDirectoryPath) == false)
             {
-                filePath = Path.Combine(baseDirectoryPath, applicationID, projectID, fileID + ".xml");
+                filePath = PathExtensions.Combine(baseDirectoryPath, applicationID, projectID, fileID + ".xml");
             }
 
             if (File.Exists(filePath) == false)
@@ -1322,7 +1322,7 @@ namespace HandStack.Data.ExtensionMethod
             string filePath = string.Empty;
             if (string.IsNullOrEmpty(baseDirectoryPath) == false)
             {
-                filePath = Path.Combine(baseDirectoryPath, applicationID, projectID, fileID + ".xml");
+                filePath = PathExtensions.Combine(baseDirectoryPath, applicationID, projectID, fileID + ".xml");
             }
 
             if (File.Exists(filePath) == false)

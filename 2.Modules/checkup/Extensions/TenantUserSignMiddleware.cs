@@ -36,7 +36,7 @@ namespace checkup.Extensions
                 string applicationID = splits.Count > 2 ? splits[2] : "";
                 if (string.IsNullOrEmpty(applicationID) == false)
                 {
-                    string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                    string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                     DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
                     if (directoryInfo.Exists == false)
                     {
@@ -53,7 +53,7 @@ namespace checkup.Extensions
                         else
                         {
                             string tenantID = $"{userWorkID}|{applicationID}";
-                            string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                            string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                             if (File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                             {
                                 string appSettingText = await File.ReadAllTextAsync(settingFilePath);

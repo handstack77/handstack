@@ -1890,7 +1890,7 @@ namespace repository.Controllers
                         string tenantID = $"{userWorkID}|{applicationID}";
                         if (Directory.Exists(appBasePath) == true)
                         {
-                            string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                            string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                             if (System.IO.File.Exists(settingFilePath) == true)
                             {
                                 string appSettingText = System.IO.File.ReadAllText(settingFilePath);
@@ -2012,7 +2012,7 @@ namespace repository.Controllers
 
                         if (string.IsNullOrEmpty(userWorkID) == false && Directory.Exists(appBasePath) == true)
                         {
-                            string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                            string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                             if (System.IO.File.Exists(settingFilePath) == true)
                             {
                                 string appSettingText = System.IO.File.ReadAllText(settingFilePath);
@@ -2134,7 +2134,7 @@ namespace repository.Controllers
                 string persistenceDirectoryPath = repository.PhysicalPath;
                 if (string.IsNullOrEmpty(applicationID) == false)
                 {
-                    persistenceDirectoryPath = Path.Combine(repository.PhysicalPath, applicationID);
+                    persistenceDirectoryPath = PathExtensions.Combine(repository.PhysicalPath, applicationID);
                 }
 
                 if (string.IsNullOrEmpty(subDirectory) == true)
@@ -2143,10 +2143,10 @@ namespace repository.Controllers
                 }
                 else
                 {
-                    repositoryManager.PersistenceDirectoryPath = Path.Combine(persistenceDirectoryPath, subDirectory);
+                    repositoryManager.PersistenceDirectoryPath = PathExtensions.Combine(persistenceDirectoryPath, subDirectory);
                 }
 
-                var filePath = Path.Combine(repositoryManager.PersistenceDirectoryPath, fileName);
+                var filePath = PathExtensions.Combine(repositoryManager.PersistenceDirectoryPath, fileName);
                 try
                 {
                     if (System.IO.File.Exists(filePath) == true)
@@ -2493,7 +2493,7 @@ namespace repository.Controllers
                 string persistenceDirectoryPath = repository.PhysicalPath;
                 if (string.IsNullOrEmpty(applicationID) == false)
                 {
-                    persistenceDirectoryPath = Path.Combine(repository.PhysicalPath, applicationID);
+                    persistenceDirectoryPath = PathExtensions.Combine(repository.PhysicalPath, applicationID);
                 }
 
                 if (string.IsNullOrEmpty(subDirectory) == true)
@@ -2502,10 +2502,10 @@ namespace repository.Controllers
                 }
                 else
                 {
-                    repositoryManager.PersistenceDirectoryPath = Path.Combine(persistenceDirectoryPath, subDirectory);
+                    repositoryManager.PersistenceDirectoryPath = PathExtensions.Combine(persistenceDirectoryPath, subDirectory);
                 }
 
-                var filePath = Path.Combine(repositoryManager.PersistenceDirectoryPath, fileName);
+                var filePath = PathExtensions.Combine(repositoryManager.PersistenceDirectoryPath, fileName);
                 try
                 {
                     if (System.IO.File.Exists(filePath) == true)

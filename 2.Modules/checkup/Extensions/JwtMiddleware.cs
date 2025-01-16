@@ -32,7 +32,7 @@ namespace checkup.Extensions
                 string applicationID = splits.Count > 2 ? splits[2] : "";
                 if (string.IsNullOrEmpty(userWorkID) == false&& string.IsNullOrEmpty(applicationID) == false)
                 {
-                    string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                    string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                     DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
                     if (directoryInfo.Exists == false)
                     {

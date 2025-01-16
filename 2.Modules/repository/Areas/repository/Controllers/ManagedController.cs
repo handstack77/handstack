@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
+using HandStack.Core.ExtensionMethod;
 using HandStack.Data.Enumeration;
 using HandStack.Web;
 using HandStack.Web.Common;
@@ -63,11 +64,11 @@ namespace repository.Areas.repository.Controllers
                             ModuleConfiguration.FileRepositorys.Remove(item);
                         }
 
-                        string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                        string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                         if (Directory.Exists(appBasePath) == true)
                         {
                             string tenantID = $"{userWorkID}|{applicationID}";
-                            string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                            string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                             if (System.IO.File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                             {
                                 string appSettingText = System.IO.File.ReadAllText(settingFilePath);
@@ -144,7 +145,7 @@ namespace repository.Areas.repository.Controllers
                                 }
                             }
 
-                            var repositoryFile = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID, "repository", "storage.json");
+                            var repositoryFile = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID, "repository", "storage.json");
                             try
                             {
                                 if (System.IO.File.Exists(repositoryFile) == true)

@@ -4,6 +4,8 @@ using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 
+using HandStack.Core.ExtensionMethod;
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -110,7 +112,7 @@ namespace handsonapp
 
             string entryBasePath = Environment.CurrentDirectory;
 
-            if (Directory.Exists(Path.Combine(Environment.CurrentDirectory, "wwwroot")) == false || Directory.Exists(Path.Combine(Environment.CurrentDirectory, "contracts")) == false)
+            if (Directory.Exists(PathExtensions.Combine(Environment.CurrentDirectory, "wwwroot")) == false || Directory.Exists(PathExtensions.Combine(Environment.CurrentDirectory, "contracts")) == false)
             {
                 Console.WriteLine($"{Environment.CurrentDirectory} handsonapp 디렉토리 확인 필요");
                 Environment.Exit(-1);
@@ -200,9 +202,9 @@ namespace handsonapp
                     {
                         app.UseDefaultFiles();
 
-                        if (string.IsNullOrEmpty(handstackHomePath) == false && Directory.Exists(handstackHomePath) == true && File.Exists(Path.Combine(handstackHomePath, "app", "ack.dll")) == true)
+                        if (string.IsNullOrEmpty(handstackHomePath) == false && Directory.Exists(handstackHomePath) == true && File.Exists(PathExtensions.Combine(handstackHomePath, "app", "ack.dll")) == true)
                         {
-                            string wwwRootBasePath = Path.Combine(handstackHomePath, "modules", "wwwroot", "wwwroot");
+                            string wwwRootBasePath = PathExtensions.Combine(handstackHomePath, "modules", "wwwroot", "wwwroot");
                             app.UseStaticFiles(new StaticFileOptions
                             {
                                 FileProvider = new PhysicalFileProvider(wwwRootBasePath),
@@ -234,11 +236,11 @@ namespace handsonapp
                                 }
                             });
                             
-                            var dbclientBasePath = Path.Combine(entryBasePath, "contracts", "dbclient");
+                            var dbclientBasePath = PathExtensions.Combine(entryBasePath, "contracts", "dbclient");
                             if (Directory.Exists(dbclientBasePath) == true)
                             {
-                                string destDbclientBasePath = Path.Combine(handstackHomePath, "modules", moduleName, "Contracts", "dbclient");
-                                string destContractDbclientBasePath = Path.Combine(handstackHomePath, "contracts", "dbclient");
+                                string destDbclientBasePath = PathExtensions.Combine(handstackHomePath, "modules", moduleName, "Contracts", "dbclient");
+                                string destContractDbclientBasePath = PathExtensions.Combine(handstackHomePath, "contracts", "dbclient");
                                 SQLFileSyncManager = new FileSyncManager(dbclientBasePath, "*.xml");
                                 SQLFileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
                                 {
@@ -269,11 +271,11 @@ namespace handsonapp
                                 SQLFileSyncManager.Start();
                             }
 
-                            var functionCSharpBasePath = Path.Combine(entryBasePath, "contracts", "function", "csharp");
+                            var functionCSharpBasePath = PathExtensions.Combine(entryBasePath, "contracts", "function", "csharp");
                             if (Directory.Exists(functionCSharpBasePath) == true)
                             {
-                                string destFunctionCSharpBasePath = Path.Combine(handstackHomePath, "modules", moduleName, "Contracts", "function", "csharp");
-                                string destContractFunctionCSharpBasePath = Path.Combine(handstackHomePath, "contracts", "function", "csharp");
+                                string destFunctionCSharpBasePath = PathExtensions.Combine(handstackHomePath, "modules", moduleName, "Contracts", "function", "csharp");
+                                string destContractFunctionCSharpBasePath = PathExtensions.Combine(handstackHomePath, "contracts", "function", "csharp");
                                 CsharpFileSyncManager = new FileSyncManager(functionCSharpBasePath, "featureMain.cs|featureMeta.json|featureSQL.xml");
                                 CsharpFileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
                                 {
@@ -304,14 +306,14 @@ namespace handsonapp
                                 CsharpFileSyncManager.Start();
                             }
 
-                            var functionNodeBasePath = Path.Combine(entryBasePath, "contracts", "function", "javascript");
+                            var functionNodeBasePath = PathExtensions.Combine(entryBasePath, "contracts", "function", "javascript");
                             if (Directory.Exists(functionNodeBasePath) == true)
                             {
                                 NodeFileSyncManager = new FileSyncManager(functionNodeBasePath, "featureMain.js|featureMeta.json|featureSQL.xml");
                                 NodeFileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
                                 {
-                                    string destFunctionNodeBasePath = Path.Combine(handstackHomePath, "modules", moduleName, "Contracts", "function", "javascript");
-                                    string destContractFunctionNodeBasePath = Path.Combine(handstackHomePath, "contracts", "function", "javascript");
+                                    string destFunctionNodeBasePath = PathExtensions.Combine(handstackHomePath, "modules", moduleName, "Contracts", "function", "javascript");
+                                    string destContractFunctionNodeBasePath = PathExtensions.Combine(handstackHomePath, "contracts", "function", "javascript");
                                     if (fileInfo.FullName.IndexOf(functionNodeBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))
                                     {
                                         string destFilePath = fileInfo.FullName.Replace(functionNodeBasePath, "");
@@ -339,11 +341,11 @@ namespace handsonapp
                                 NodeFileSyncManager.Start();
                             }
 
-                            var transactBasePath = Path.Combine(entryBasePath, "contracts", "transact");
+                            var transactBasePath = PathExtensions.Combine(entryBasePath, "contracts", "transact");
                             if (Directory.Exists(transactBasePath) == true)
                             {
-                                string destTransactBasePath = Path.Combine(handstackHomePath, "modules", moduleName, "Contracts", "transact");
-                                string destContractTransactBasePath = Path.Combine(handstackHomePath, "contracts", "transact");
+                                string destTransactBasePath = PathExtensions.Combine(handstackHomePath, "modules", moduleName, "Contracts", "transact");
+                                string destContractTransactBasePath = PathExtensions.Combine(handstackHomePath, "contracts", "transact");
                                 SQLFileSyncManager = new FileSyncManager(transactBasePath, "*.json");
                                 SQLFileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
                                 {
@@ -374,16 +376,16 @@ namespace handsonapp
                                 SQLFileSyncManager.Start();
                             }
 
-                            var wwwrootBasePath = Path.Combine(entryBasePath, "wwwroot", moduleName);
+                            var wwwrootBasePath = PathExtensions.Combine(entryBasePath, "wwwroot", moduleName);
                             if (Directory.Exists(wwwrootBasePath) == true)
                             {
-                                string destWWWRootBasePath = Path.Combine(handstackHomePath, "modules", moduleName, "wwwroot", moduleName);
+                                string destWWWRootBasePath = PathExtensions.Combine(handstackHomePath, "modules", moduleName, "wwwroot", moduleName);
                                 WWWFileSyncManager = new FileSyncManager(wwwrootBasePath, "*.html|*.css|*.js|*.json");
                                 WWWFileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
                                 {
                                     if (fileInfo.FullName.IndexOf(wwwrootBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))
                                     {
-                                        string destFilePath = fileInfo.FullName.Replace(Path.Combine(wwwrootBasePath, "wwwroot"), "");
+                                        string destFilePath = fileInfo.FullName.Replace(PathExtensions.Combine(wwwrootBasePath, "wwwroot"), "");
                                         if (useContractFileSync == true)
                                         {
                                             if (changeTypes == WatcherChangeTypes.Deleted)
@@ -408,7 +410,7 @@ namespace handsonapp
                         }
                         else if (string.IsNullOrEmpty(handstackUrl) == false)
                         {
-                            var dbclientBasePath = Path.Combine(entryBasePath, "contracts", "dbclient");
+                            var dbclientBasePath = PathExtensions.Combine(entryBasePath, "contracts", "dbclient");
                             if (Directory.Exists(dbclientBasePath) == true)
                             {
                                 SQLFileSyncManager = new FileSyncManager(dbclientBasePath, "*.xml");
@@ -424,7 +426,7 @@ namespace handsonapp
                                 SQLFileSyncManager.Start();
                             }
 
-                            var functionCSharpBasePath = Path.Combine(entryBasePath, "contracts", "function", "csharp");
+                            var functionCSharpBasePath = PathExtensions.Combine(entryBasePath, "contracts", "function", "csharp");
                             if (Directory.Exists(functionCSharpBasePath) == true)
                             {
                                 CsharpFileSyncManager = new FileSyncManager(functionCSharpBasePath, "featureMain.cs|featureMeta.json|featureSQL.xml");
@@ -443,7 +445,7 @@ namespace handsonapp
                                 CsharpFileSyncManager.Start();
                             }
 
-                            var functionNodeBasePath = Path.Combine(entryBasePath, "contracts", "function", "javascript");
+                            var functionNodeBasePath = PathExtensions.Combine(entryBasePath, "contracts", "function", "javascript");
                             if (Directory.Exists(functionNodeBasePath) == true)
                             {
                                 NodeFileSyncManager = new FileSyncManager(functionNodeBasePath, "featureMain.js|featureMeta.json|featureSQL.xml");
@@ -462,7 +464,7 @@ namespace handsonapp
                                 NodeFileSyncManager.Start();
                             }
 
-                            var transactBasePath = Path.Combine(entryBasePath, "contracts", "transact");
+                            var transactBasePath = PathExtensions.Combine(entryBasePath, "contracts", "transact");
                             if (Directory.Exists(transactBasePath) == true)
                             {
                                 SQLFileSyncManager = new FileSyncManager(transactBasePath, "*.json");
@@ -481,7 +483,7 @@ namespace handsonapp
                                 SQLFileSyncManager.Start();
                             }
 
-                            var wwwrootBasePath = Path.Combine(entryBasePath, "wwwroot", moduleName);
+                            var wwwrootBasePath = PathExtensions.Combine(entryBasePath, "wwwroot", moduleName);
                             if (Directory.Exists(wwwrootBasePath) == true)
                             {
                                 SQLFileSyncManager = new FileSyncManager(wwwrootBasePath, "*.html|*.css|*.js|*.json");
@@ -489,7 +491,7 @@ namespace handsonapp
                                 {
                                     if (fileInfo.FullName.IndexOf(wwwrootBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))
                                     {
-                                        string destFilePath = fileInfo.FullName.Replace(Path.Combine(wwwrootBasePath, "wwwroot"), "");
+                                        string destFilePath = fileInfo.FullName.Replace(PathExtensions.Combine(wwwrootBasePath, "wwwroot"), "");
                                         if (string.IsNullOrEmpty(handstackUrl) == false)
                                         {
                                             await UploadFileAsync(moduleName, "wwwroot", fileInfo.FullName, destFilePath, changeTypes.ToString());

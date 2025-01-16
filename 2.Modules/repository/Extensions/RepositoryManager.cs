@@ -7,6 +7,7 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Specialized;
 using Azure.Storage.Sas;
 
+using HandStack.Core.ExtensionMethod;
 using HandStack.Web.Entity;
 
 using Serilog;
@@ -86,11 +87,11 @@ namespace repository.Extensions
                         dynamicPath = GetCustomFileStoragePath(customPath1, customPath2, customPath3);
                         break;
                 }
-                result = Path.Combine(repository.PhysicalPath, dynamicPath);
+                result = PathExtensions.Combine(repository.PhysicalPath, dynamicPath);
             }
             else
             {
-                result = Path.Combine(repository.PhysicalPath, GetCustomFileStoragePath(customPath1, customPath2, customPath3));
+                result = PathExtensions.Combine(repository.PhysicalPath, GetCustomFileStoragePath(customPath1, customPath2, customPath3));
             }
 
             result = new DirectoryInfo(result).FullName;
@@ -148,11 +149,11 @@ namespace repository.Extensions
                 if (repository.IsAutoPath == true)
                 {
                     string dynamicPath = GetCustomFileStoragePath(repositoryItem.CustomPath1, repositoryItem.CustomPath2, repositoryItem.CustomPath3) + repositoryItem.PolicyPath;
-                    result = Path.Combine(repository.PhysicalPath, dynamicPath);
+                    result = PathExtensions.Combine(repository.PhysicalPath, dynamicPath);
                 }
                 else
                 {
-                    result = Path.Combine(repository.PhysicalPath, GetCustomFileStoragePath(repositoryItem.CustomPath1, repositoryItem.CustomPath2, repositoryItem.CustomPath3));
+                    result = PathExtensions.Combine(repository.PhysicalPath, GetCustomFileStoragePath(repositoryItem.CustomPath1, repositoryItem.CustomPath2, repositoryItem.CustomPath3));
                 }
             }
 
@@ -274,7 +275,7 @@ namespace repository.Extensions
 
         public void WriteTextFile(string fileName, string addedText)
         {
-            File.WriteAllText(Path.Combine(persistenceDirectoryPath, fileName), addedText);
+            File.WriteAllText(PathExtensions.Combine(persistenceDirectoryPath, fileName), addedText);
         }
 
         public async Task<string> GetDuplicateCheckUniqueFileName(BlobContainerClient container, string blobID)
@@ -284,7 +285,7 @@ namespace repository.Extensions
             if (await blob.ExistsAsync() == true)
             {
                 string originalBlobID = blobID;
-                if (File.Exists(Path.Combine(this.PersistenceDirectoryPath, blobID)) == false)
+                if (File.Exists(PathExtensions.Combine(this.PersistenceDirectoryPath, blobID)) == false)
                 {
                     result = blobID;
                 }
@@ -312,7 +313,7 @@ namespace repository.Extensions
         public string GetDuplicateCheckUniqueFileName(string fileName)
         {
             string result;
-            if (File.Exists(Path.Combine(this.PersistenceDirectoryPath, fileName)) == true)
+            if (File.Exists(PathExtensions.Combine(this.PersistenceDirectoryPath, fileName)) == true)
             {
                 string originalFileName = fileName;
                 int i = 0;
@@ -327,7 +328,7 @@ namespace repository.Extensions
                 do
                 {
                     fileName = string.Concat(originalFileName, " (", (i++).ToString(), ")", extension);
-                    fileInfo = new FileInfo(Path.Combine(this.PersistenceDirectoryPath, fileName));
+                    fileInfo = new FileInfo(PathExtensions.Combine(this.PersistenceDirectoryPath, fileName));
                 } while (fileInfo.Exists);
 
                 result = fileName;
@@ -349,7 +350,7 @@ namespace repository.Extensions
                 saveFolder.Create();
             }
 
-            return Path.Combine(this.PersistenceDirectoryPath, itemID);
+            return PathExtensions.Combine(this.PersistenceDirectoryPath, itemID);
         }
 
         public void Move(string sourceFileName, string destnationFileName)
@@ -368,7 +369,7 @@ namespace repository.Extensions
         {
             if (string.IsNullOrEmpty(itemID) == false)
             {
-                string fileName = Path.Combine(this.PersistenceDirectoryPath, itemID);
+                string fileName = PathExtensions.Combine(this.PersistenceDirectoryPath, itemID);
                 if (File.Exists(fileName) == true)
                 {
                     File.Delete(fileName);

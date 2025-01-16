@@ -59,7 +59,7 @@ namespace HDS.Function.SYS
                     var logger = dataContext.logger;
                     logger?.Information($"Function: {typeMember} 작업 시작");
 
-                    string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                    string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                     if (Directory.Exists(appBasePath) == true)
                     {
                         string directorySeparatorChar = System.IO.Path.DirectorySeparatorChar.ToString();
@@ -92,24 +92,24 @@ namespace HDS.Function.SYS
                                 string projectType = string.Empty;
                                 projectType = "D";
                                 searchPattern = "*.xml";
-                                sourceDirectoryPath = Path.Combine(appBasePath, "dbclient");
+                                sourceDirectoryPath = PathExtensions.Combine(appBasePath, "dbclient");
                                 FeatureBuildFileMenu(userWorkID, applicationID, searchPattern, sourceDirectoryPath, menus, directoryInfo, rootDirectory, projectType);
 
                                 projectType = "B";
                                 searchPattern = "*.json";
-                                sourceDirectoryPath = Path.Combine(appBasePath, "transact");
+                                sourceDirectoryPath = PathExtensions.Combine(appBasePath, "transact");
                                 FeatureBuildFileMenu(userWorkID, applicationID, searchPattern, sourceDirectoryPath, menus, directoryInfo, rootDirectory, projectType);
 
                                 projectType = "U";
                                 searchPattern = "*.html|*.js|*.json";
-                                sourceDirectoryPath = Path.Combine(appBasePath, "wwwroot", "view");
+                                sourceDirectoryPath = PathExtensions.Combine(appBasePath, "wwwroot", "view");
                                 FeatureBuildFileMenu(userWorkID, applicationID, searchPattern, sourceDirectoryPath, menus, directoryInfo, rootDirectory, projectType);
 
                                 if (GlobalConfiguration.IsTenantFunction == true)
                                 {
                                     projectType = "F";
                                     searchPattern = "*.cs|*.js|*.json|*.xml|";
-                                    sourceDirectoryPath = Path.Combine(appBasePath, "function");
+                                    sourceDirectoryPath = PathExtensions.Combine(appBasePath, "function");
                                     FeatureBuildFileMenu(userWorkID, applicationID, searchPattern, sourceDirectoryPath, menus, directoryInfo, rootDirectory, projectType, new List<string>() { "working" });
                                 }
                             }
@@ -181,7 +181,7 @@ TransactionException:
                     var logger = dataContext.logger;
                     logger?.Information($"Function: {typeMember} 작업 시작");
 
-                    string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                    string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                     if (Directory.Exists(appBasePath) == true)
                     {
                         string directorySeparatorChar = System.IO.Path.DirectorySeparatorChar.ToString();
@@ -192,19 +192,19 @@ TransactionException:
                         {
                             case "D":
                                 searchPattern = "*.xml";
-                                sourceDirectoryPath = Path.Combine(appBasePath, "dbclient");
+                                sourceDirectoryPath = PathExtensions.Combine(appBasePath, "dbclient");
                                 break;
                             case "F":
                                 searchPattern = "*.cs|*.js|*.json|*.xml|";
-                                sourceDirectoryPath = Path.Combine(appBasePath, "function", "Node");
+                                sourceDirectoryPath = PathExtensions.Combine(appBasePath, "function", "Node");
                                 break;
                             case "B":
                                 searchPattern = "*.json";
-                                sourceDirectoryPath = Path.Combine(appBasePath, "transact");
+                                sourceDirectoryPath = PathExtensions.Combine(appBasePath, "transact");
                                 break;
                             case "U":
                                 searchPattern = "*.html|*.js|*.json";
-                                sourceDirectoryPath = Path.Combine(appBasePath, "wwwroot", "view");
+                                sourceDirectoryPath = PathExtensions.Combine(appBasePath, "wwwroot", "view");
                                 break;
                         }
 
@@ -292,10 +292,10 @@ TransactionException:
                     goto TransactionException;
                 }
 
-                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
-                    string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                    string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                     if (System.IO.File.Exists(settingFilePath) == true)
                     {
                         string appSettingText = System.IO.File.ReadAllText(settingFilePath);
@@ -382,14 +382,14 @@ TransactionException:
                 ModuleInfo? module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == "checkup");
                 if (module != null)
                 {
-                    string moduleConfigFilePath = Path.Combine(module.BasePath, "module.json");
+                    string moduleConfigFilePath = PathExtensions.Combine(module.BasePath, "module.json");
                     string configurationText = System.IO.File.ReadAllText(moduleConfigFilePath);
                     ModuleConfigJson? moduleConfigJson = JsonConvert.DeserializeObject<ModuleConfigJson>(configurationText);
 
-                    string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                    string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                     if (Directory.Exists(appBasePath) == true)
                     {
-                        string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                        string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                         if (System.IO.File.Exists(settingFilePath) == true)
                         {
                             string appSettingText = System.IO.File.ReadAllText(settingFilePath);
@@ -474,7 +474,7 @@ TransactionException:
                 logger?.Information($"Function: {typeMember} 작업 시작");
 
                 string sourceText = string.Empty;
-                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
                     string? sourceItemPath = GetHostItemPath(appBasePath, projectType, itemPath);
@@ -549,7 +549,7 @@ TransactionException:
                 var logger = dataContext.logger;
                 logger?.Information($"Function: {typeMember} 작업 시작");
 
-                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
                     string? sourceItemPath = GetHostItemPath(appBasePath, projectType, itemPath);
@@ -614,7 +614,7 @@ TransactionException:
                     goto TransactionException;
                 }
 
-                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
                     string? sourceItemPath = GetHostItemPath(appBasePath, "", itemPath);
@@ -673,7 +673,7 @@ TransactionException:
                 var logger = dataContext.logger;
                 logger?.Information($"Function: {typeMember} 작업 시작");
 
-                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
                     string? sourceItemPath = GetHostItemPath(appBasePath, projectType, itemPath);
@@ -743,7 +743,7 @@ TransactionException:
                     goto TransactionException;
                 }
 
-                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
                     string? sourceItemPath = GetHostItemPath(appBasePath, "", itemPath);
@@ -800,7 +800,7 @@ TransactionException:
                 var logger = dataContext.logger;
                 logger?.Information($"Function: {typeMember} 작업 시작");
 
-                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
                     string? sourceItemPath = GetHostItemPath(appBasePath, projectType, itemPath);
@@ -882,19 +882,19 @@ TransactionException:
             switch (projectType)
             {
                 case "D":
-                    sourceItemPath = Path.Combine(appBasePath, "dbclient", itemPath);
+                    sourceItemPath = PathExtensions.Combine(appBasePath, "dbclient", itemPath);
                     break;
                 case "F":
-                    sourceItemPath = Path.Combine(appBasePath, "function", itemPath);
+                    sourceItemPath = PathExtensions.Combine(appBasePath, "function", itemPath);
                     break;
                 case "B":
-                    sourceItemPath = Path.Combine(appBasePath, "transact", itemPath);
+                    sourceItemPath = PathExtensions.Combine(appBasePath, "transact", itemPath);
                     break;
                 case "U":
-                    sourceItemPath = Path.Combine(appBasePath, "wwwroot", "view", itemPath);
+                    sourceItemPath = PathExtensions.Combine(appBasePath, "wwwroot", "view", itemPath);
                     break;
                 default:
-                    sourceItemPath = Path.Combine(appBasePath, itemPath);
+                    sourceItemPath = PathExtensions.Combine(appBasePath, itemPath);
                     break;
             }
 
@@ -912,7 +912,7 @@ TransactionException:
             if (directoryInfo.Exists == true)
             {
                 string directorySeparatorChar = System.IO.Path.DirectorySeparatorChar.ToString();
-                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID) + directorySeparatorChar;
+                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID) + directorySeparatorChar;
                 Menu featureDirectory = new Menu();
                 featureDirectory.menuID = featureDirectoryInfo.FullName.Replace(appBasePath, "").Replace(@"\", "/");
                 featureDirectory.menuName = featureDirectoryInfo.Name;
@@ -964,7 +964,7 @@ TransactionException:
         private void BuildFileMenu(string userWorkID, string applicationID, string projectType, string searchPattern, List<Menu> menus, DirectoryInfo directory, int level)
         {
             string directorySeparatorChar = System.IO.Path.DirectorySeparatorChar.ToString();
-            string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID) + directorySeparatorChar;
+            string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID) + directorySeparatorChar;
             if (projectType == "F")
             {
                 foreach (var directoryInfo in directory.GetDirectories("*", SearchOption.TopDirectoryOnly))

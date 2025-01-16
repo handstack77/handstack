@@ -60,7 +60,7 @@ namespace logger.DataClient
                                 }
                                 else
                                 {
-                                    string sqlFilePath = Path.Combine(ModuleConfiguration.ModuleBasePath, "SQL", "Insert", dataProvider.ToString() + ".txt");
+                                    string sqlFilePath = PathExtensions.Combine(ModuleConfiguration.ModuleBasePath, "SQL", "Insert", dataProvider.ToString() + ".txt");
                                     if (File.Exists(sqlFilePath) == true)
                                     {
                                         string dmlScript = File.ReadAllText(sqlFilePath).Replace("{TableName}", tableName);
@@ -150,7 +150,7 @@ namespace logger.DataClient
                         }
                         else
                         {
-                            string sqlFilePath = Path.Combine(ModuleConfiguration.ModuleBasePath, "SQL", "List", dataProvider.ToString() + ".txt");
+                            string sqlFilePath = PathExtensions.Combine(ModuleConfiguration.ModuleBasePath, "SQL", "List", dataProvider.ToString() + ".txt");
                             if (File.Exists(sqlFilePath) == true)
                             {
                                 string dmlScript = File.ReadAllText(sqlFilePath).Replace("{TableName}", tableName);
@@ -216,7 +216,7 @@ namespace logger.DataClient
                         }
                         else
                         {
-                            string sqlFilePath = Path.Combine(ModuleConfiguration.ModuleBasePath, "SQL", "Get", dataProvider.ToString() + ".txt");
+                            string sqlFilePath = PathExtensions.Combine(ModuleConfiguration.ModuleBasePath, "SQL", "Get", dataProvider.ToString() + ".txt");
                             if (File.Exists(sqlFilePath) == true)
                             {
                                 string dmlScript = File.ReadAllText(sqlFilePath).Replace("{TableName}", tableName);
@@ -274,7 +274,7 @@ namespace logger.DataClient
                         }
                         else
                         {
-                            string sqlFilePath = Path.Combine(ModuleConfiguration.ModuleBasePath, "SQL", "Delete", dataProvider.ToString() + ".txt");
+                            string sqlFilePath = PathExtensions.Combine(ModuleConfiguration.ModuleBasePath, "SQL", "Delete", dataProvider.ToString() + ".txt");
                             if (File.Exists(sqlFilePath) == true)
                             {
                                 string dmlScript = File.ReadAllText(sqlFilePath)

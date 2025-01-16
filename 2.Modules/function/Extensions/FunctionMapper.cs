@@ -61,7 +61,7 @@ namespace function.Extensions
                     string tenantID = $"{userWorkID}|{applicationID}";
                     if (Directory.Exists(appBasePath) == true)
                     {
-                        string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                        string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                         if (File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                         {
                             string appSettingText = File.ReadAllText(settingFilePath);
@@ -100,7 +100,7 @@ namespace function.Extensions
                                                     }
                                                 }
 
-                                                string workingDirectoryPath = Path.Combine(appBasePath, "function", "working", projectID, transactionID);
+                                                string workingDirectoryPath = PathExtensions.Combine(appBasePath, "function", "working", projectID, transactionID);
                                                 if (Directory.Exists(workingDirectoryPath) == false)
                                                 {
                                                     Directory.CreateDirectory(workingDirectoryPath);
@@ -141,14 +141,14 @@ namespace function.Extensions
                     string filePath = string.Empty;
                     foreach (var basePath in ModuleConfiguration.ContractBasePath)
                     {
-                        var scriptMapFile = Path.Combine(basePath, "csharp", applicationID, projectID, transactionID, "featureMeta.json");
+                        var scriptMapFile = PathExtensions.Combine(basePath, "csharp", applicationID, projectID, transactionID, "featureMeta.json");
                         if (File.Exists(scriptMapFile) == true)
                         {
                             filePath = scriptMapFile;
                         }
                         else
                         {
-                            scriptMapFile = Path.Combine(basePath, "javascript", applicationID, projectID, transactionID, "featureMeta.json");
+                            scriptMapFile = PathExtensions.Combine(basePath, "javascript", applicationID, projectID, transactionID, "featureMeta.json");
                             if (File.Exists(scriptMapFile) == true)
                             {
                                 filePath = scriptMapFile;
@@ -187,14 +187,14 @@ namespace function.Extensions
                         if (string.IsNullOrEmpty(appBasePath) == false)
                         {
                             string tenantID = $"{userWorkID}|{applicationID}";
-                            var scriptMapFile = Path.Combine(appBasePath, "csharp", "javascript", projectID, transactionID, "featureMeta.json");
+                            var scriptMapFile = PathExtensions.Combine(appBasePath, "csharp", "javascript", projectID, transactionID, "featureMeta.json");
                             if (File.Exists(scriptMapFile) == true)
                             {
                                 filePath = scriptMapFile;
                             }
                             else
                             {
-                                scriptMapFile = Path.Combine(appBasePath, "function", "javascript", projectID, transactionID, "featureMeta.json");
+                                scriptMapFile = PathExtensions.Combine(appBasePath, "function", "javascript", projectID, transactionID, "featureMeta.json");
                                 if (File.Exists(scriptMapFile) == true)
                                 {
                                     filePath = scriptMapFile;
@@ -377,7 +377,7 @@ namespace function.Extensions
             bool result = false;
             foreach (var basePath in ModuleConfiguration.ContractBasePath)
             {
-                string filePath = Path.Combine(basePath, fileRelativePath);
+                string filePath = PathExtensions.Combine(basePath, fileRelativePath);
                 result = File.Exists(filePath);
                 if (result == true)
                 {
@@ -386,14 +386,14 @@ namespace function.Extensions
 
                 if (filePath.IndexOf(@"\csharp\") == -1 || filePath.IndexOf(@"\javascript\") == -1)
                 {
-                    filePath = Path.Combine(basePath, "csharp", fileRelativePath);
+                    filePath = PathExtensions.Combine(basePath, "csharp", fileRelativePath);
                     result = File.Exists(filePath);
                     if (result == true)
                     {
                         break;
                     }
 
-                    filePath = Path.Combine(basePath, "javascript", fileRelativePath);
+                    filePath = PathExtensions.Combine(basePath, "javascript", fileRelativePath);
                     result = File.Exists(filePath);
                     if (result == true)
                     {
@@ -460,14 +460,14 @@ namespace function.Extensions
 
                     if (string.IsNullOrEmpty(language) == true)
                     {
-                        scriptMapFilePath = Path.Combine(basePath, "csharp", scriptMapFile);
+                        scriptMapFilePath = PathExtensions.Combine(basePath, "csharp", scriptMapFile);
                         if (File.Exists(scriptMapFilePath) == true)
                         {
                             filePath = scriptMapFilePath;
                         }
                         else
                         {
-                            scriptMapFilePath = Path.Combine(basePath, "javascript", scriptMapFile);
+                            scriptMapFilePath = PathExtensions.Combine(basePath, "javascript", scriptMapFile);
                             if (File.Exists(scriptMapFilePath) == true)
                             {
                                 filePath = scriptMapFilePath;
@@ -476,7 +476,7 @@ namespace function.Extensions
                     }
                     else
                     {
-                        scriptMapFilePath = Path.Combine(basePath, language, scriptMapFile);
+                        scriptMapFilePath = PathExtensions.Combine(basePath, language, scriptMapFile);
                         if (File.Exists(scriptMapFilePath) == true)
                         {
                             filePath = scriptMapFilePath;

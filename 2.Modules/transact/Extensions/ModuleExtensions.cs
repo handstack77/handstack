@@ -4,6 +4,7 @@ using System.Data.SQLite;
 using System.Globalization;
 using System.IO;
 
+using HandStack.Core.ExtensionMethod;
 using HandStack.Data.Client;
 using HandStack.Data.Enumeration;
 using HandStack.Data.ExtensionMethod;
@@ -21,8 +22,8 @@ namespace transact.Extensions
     {
         public static bool IsLogDbFile(string userWorkID, string applicationID, string rollingID)
         {
-            string transactionLogBasePath = Path.Combine(ModuleConfiguration.TransactionLogBasePath, userWorkID, applicationID);
-            string logDbFilePath = Path.Combine(transactionLogBasePath, $"{rollingID}-{applicationID}.db");
+            string transactionLogBasePath = PathExtensions.Combine(ModuleConfiguration.TransactionLogBasePath, userWorkID, applicationID);
+            string logDbFilePath = PathExtensions.Combine(transactionLogBasePath, $"{rollingID}-{applicationID}.db");
             FileInfo fileInfo = new FileInfo(logDbFilePath);
             return fileInfo.Exists;
         }
@@ -30,7 +31,7 @@ namespace transact.Extensions
         public static string? GetLogDbConnectionString(string userWorkID, string applicationID, string? rollingID = "")
         {
             string? result = null;
-            string transactionLogBasePath = Path.Combine(ModuleConfiguration.TransactionLogBasePath, userWorkID, applicationID);
+            string transactionLogBasePath = PathExtensions.Combine(ModuleConfiguration.TransactionLogBasePath, userWorkID, applicationID);
             if (Directory.Exists(transactionLogBasePath) == false)
             {
                 Directory.CreateDirectory(transactionLogBasePath);
@@ -49,7 +50,7 @@ namespace transact.Extensions
             }
 
             // 주간별 SQLite 데이터베이스 파일 생성: {년도}{주2자리}-{애플리케이션 ID}.db
-            string logDbFilePath = Path.Combine(transactionLogBasePath, $"{rollingID}-{applicationID}.db");
+            string logDbFilePath = PathExtensions.Combine(transactionLogBasePath, $"{rollingID}-{applicationID}.db");
             result = $"URI=file:{logDbFilePath};Journal Mode=Off;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;";
 
             FileInfo fileInfo = new FileInfo(logDbFilePath);

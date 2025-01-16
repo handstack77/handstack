@@ -54,7 +54,7 @@ namespace transact.Extensions
                     if (string.IsNullOrEmpty(appBasePath) == false)
                     {
                         string tenantID = $"{userWorkID}|{applicationID}";
-                        var filePath = Path.Combine(appBasePath, "transact", projectID, transactionID + ".json");
+                        var filePath = PathExtensions.Combine(appBasePath, "transact", projectID, transactionID + ".json");
                         if (File.Exists(filePath) == true)
                         {
                             try
@@ -138,11 +138,11 @@ namespace transact.Extensions
                     }
                     else
                     {
-                        appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                        appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                     }
 
                     string tenantID = $"{userWorkID}|{applicationID}";
-                    string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                    string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                     if (string.IsNullOrEmpty(appBasePath) == false && File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                     {
                         string appSettingText = File.ReadAllText(settingFilePath);
@@ -210,7 +210,7 @@ namespace transact.Extensions
                 }
 
                 string tenantID = $"{userWorkID}|{applicationID}";
-                string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                 if (string.IsNullOrEmpty(appBasePath) == false && File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                 {
                     string appSettingText = File.ReadAllText(settingFilePath);
@@ -262,7 +262,7 @@ namespace transact.Extensions
             bool result = false;
             foreach (var basePath in ModuleConfiguration.ContractBasePath)
             {
-                string filePath = Path.Combine(basePath, fileRelativePath);
+                string filePath = PathExtensions.Combine(basePath, fileRelativePath);
                 result = File.Exists(filePath);
                 if (result == true)
                 {

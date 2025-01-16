@@ -89,7 +89,7 @@ namespace ack
                     }
 
                     IConfigurationRoot configuration;
-                    string appSettingsFilePath = Path.Combine(GlobalConfiguration.EntryBasePath, "appsettings.json");
+                    string appSettingsFilePath = PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "appsettings.json");
                     Console.WriteLine($"appSettings.json FilePath {appSettingsFilePath}");
                     var configurationBuilder = new ConfigurationBuilder().AddJsonFile(appSettingsFilePath);
                     configurationBuilder.AddEnvironmentVariables();
@@ -105,7 +105,7 @@ namespace ack
                     else
                     {
                         string environmentFileName = $"appsettings.{environmentName}.json";
-                        if (File.Exists(Path.Combine(GlobalConfiguration.EntryBasePath, environmentFileName)) == true)
+                        if (File.Exists(PathExtensions.Combine(GlobalConfiguration.EntryBasePath, environmentFileName)) == true)
                         {
                             configuration = configurationBuilder.AddJsonFile(environmentFileName).Build();
                         }
@@ -140,7 +140,7 @@ namespace ack
                                             Directory.CreateDirectory(fileInfo.DirectoryName);
                                         }
 
-                                        sinkFilePath = Path.Combine(fileInfo.DirectoryName, GlobalConfiguration.ProcessName + "_" + fileInfo.Name);
+                                        sinkFilePath = PathExtensions.Combine(fileInfo.DirectoryName, GlobalConfiguration.ProcessName + "_" + fileInfo.Name);
 
                                         loggerConfiguration.WriteTo.File(
                                             path: sinkFilePath

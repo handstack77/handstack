@@ -150,7 +150,7 @@ namespace dbclient
                 }
                 else
                 {
-                    logFilePath = Path.Combine(fileInfo.DirectoryName, GlobalConfiguration.ProcessName + "_" + fileInfo.Name);
+                    logFilePath = PathExtensions.Combine(fileInfo.DirectoryName, GlobalConfiguration.ProcessName + "_" + fileInfo.Name);
                 }
             }
 
@@ -177,12 +177,12 @@ namespace dbclient
             ModuleInfo? module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == ModuleID);
             if (string.IsNullOrEmpty(ModuleID) == false && module != null)
             {
-                string wwwrootDirectory = Path.Combine(module.BasePath, "wwwroot", module.ModuleID);
+                string wwwrootDirectory = PathExtensions.Combine(module.BasePath, "wwwroot", module.ModuleID);
                 if (string.IsNullOrEmpty(wwwrootDirectory) == false && Directory.Exists(wwwrootDirectory) == true)
                 {
                     app.UseStaticFiles(new StaticFileOptions
                     {
-                        FileProvider = new PhysicalFileProvider(Path.Combine(wwwrootDirectory)),
+                        FileProvider = new PhysicalFileProvider(PathExtensions.Combine(wwwrootDirectory)),
                         RequestPath = "/" + ModuleID,
                         ServeUnknownFileTypes = true,
                         OnPrepareResponse = httpContext =>

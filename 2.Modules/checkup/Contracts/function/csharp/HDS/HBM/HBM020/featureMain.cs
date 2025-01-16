@@ -38,10 +38,10 @@ namespace HDS.Function.HBM
                     goto TransactionException;
                 }
 
-                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
-                    string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                    string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                     if (System.IO.File.Exists(settingFilePath) == true)
                     {
                         string appSettingText = System.IO.File.ReadAllText(settingFilePath);
@@ -122,10 +122,10 @@ TransactionException:
 
             try
             {
-                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
-                    string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                    string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                     if (System.IO.File.Exists(settingFilePath) == true)
                     {
                         string appSettingText = System.IO.File.ReadAllText(settingFilePath);

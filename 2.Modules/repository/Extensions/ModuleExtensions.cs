@@ -56,7 +56,7 @@ namespace repository.Extensions
                             string connectionString = repository.SQLiteConnectionString;
                             if (connectionString.IndexOf("{appBasePath}") > -1)
                             {
-                                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, repository.UserWorkID.ToStringSafe(), repository.ApplicationID);
+                                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, repository.UserWorkID.ToStringSafe(), repository.ApplicationID);
                                 connectionString = connectionString.Replace("{appBasePath}", appBasePath);
                             }
 
@@ -115,7 +115,7 @@ namespace repository.Extensions
                             string connectionString = repository.SQLiteConnectionString;
                             if (connectionString.IndexOf("{appBasePath}") > -1)
                             {
-                                string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, repository.UserWorkID.ToStringSafe(), repository.ApplicationID);
+                                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, repository.UserWorkID.ToStringSafe(), repository.ApplicationID);
                                 connectionString = connectionString.Replace("{appBasePath}", appBasePath);
                             }
 

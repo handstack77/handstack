@@ -4,6 +4,12 @@ namespace HandStack.Core.ExtensionMethod
 {
     public static class PathExtensions
     {
+        public static string Combine(string path1, char separator = '/')
+        {
+            string combinedPath = Path.Combine(path1);
+            return combinedPath.Replace('\\', separator).Replace('/', separator);
+        }
+
         public static string Combine(string path1, string path2, char separator = '/')
         {
             string combinedPath = Path.Combine(path1, path2);
@@ -28,9 +34,45 @@ namespace HandStack.Core.ExtensionMethod
             return combinedPath.Replace('\\', separator).Replace('/', separator);
         }
 
+        public static string Combine(string path1, string path2, string path3, string path4, string path5, string path6, char separator = '/')
+        {
+            string combinedPath = Path.Combine(path1, path2, path3, path4, path5, path6);
+            return combinedPath.Replace('\\', separator).Replace('/', separator);
+        }
+
+        public static string Combine(string path1, string path2, string path3, string path4, string path5, string path6, string path7, char separator = '/')
+        {
+            string combinedPath = Path.Combine(path1, path2, path3, path4, path5, path6, path7);
+            return combinedPath.Replace('\\', separator).Replace('/', separator);
+        }
+
+        public static string Combine(string path1, string path2, string path3, string path4, string path5, string path6, string path7, string path8, char separator = '/')
+        {
+            string combinedPath = Path.Combine(path1, path2, path3, path4, path5, path6, path7, path8);
+            return combinedPath.Replace('\\', separator).Replace('/', separator);
+        }
+
+        public static string Combine(string path1, string path2, string path3, string path4, string path5, string path6, string path7, string path8, string path9, char separator = '/')
+        {
+            string combinedPath = Path.Combine(path1, path2, path3, path4, path5, path6, path7, path8, path9);
+            return combinedPath.Replace('\\', separator).Replace('/', separator);
+        }
+
+        public static string Combine(string path1, string path2, string path3, string path4, string path5, string path6, string path7, string path8, string path9, string path10, char separator = '/')
+        {
+            string combinedPath = Path.Combine(path1, path2, path3, path4, path5, path6, path7, path8, path9, path10);
+            return combinedPath.Replace('\\', separator).Replace('/', separator);
+        }
+
         public static string Combine(string[] paths, char separator = '/')
         {
             string combinedPath = Path.Combine(paths);
+            return combinedPath.Replace('\\', separator).Replace('/', separator);
+        }
+
+        public static string Join(string path1, char separator = '/')
+        {
+            string combinedPath = Path.Join(path1);
             return combinedPath.Replace('\\', separator).Replace('/', separator);
         }
 
@@ -55,6 +97,36 @@ namespace HandStack.Core.ExtensionMethod
         public static string Join(string path1, string path2, string path3, string path4, string path5, char separator = '/')
         {
             string combinedPath = Path.Join(path1, path2, path3, path4, path5);
+            return combinedPath.Replace('\\', separator).Replace('/', separator);
+        }
+
+        public static string Join(string path1, string path2, string path3, string path4, string path5, string path6, char separator = '/')
+        {
+            string combinedPath = Path.Join(path1, path2, path3, path4, path5, path6);
+            return combinedPath.Replace('\\', separator).Replace('/', separator);
+        }
+
+        public static string Join(string path1, string path2, string path3, string path4, string path5, string path6, string path7, char separator = '/')
+        {
+            string combinedPath = Path.Join(path1, path2, path3, path4, path5, path6, path7);
+            return combinedPath.Replace('\\', separator).Replace('/', separator);
+        }
+
+        public static string Join(string path1, string path2, string path3, string path4, string path5, string path6, string path7, string path8, char separator = '/')
+        {
+            string combinedPath = Path.Join(path1, path2, path3, path4, path5, path6, path7, path8);
+            return combinedPath.Replace('\\', separator).Replace('/', separator);
+        }
+
+        public static string Join(string path1, string path2, string path3, string path4, string path5, string path6, string path7, string path8, string path9, char separator = '/')
+        {
+            string combinedPath = Path.Join(path1, path2, path3, path4, path5, path6, path7, path8, path9);
+            return combinedPath.Replace('\\', separator).Replace('/', separator);
+        }
+
+        public static string Join(string path1, string path2, string path3, string path4, string path5, string path6, string path7, string path8, string path9, string path10, char separator = '/')
+        {
+            string combinedPath = Path.Join(path1, path2, path3, path4, path5, path6, path7, path8, path9, path10);
             return combinedPath.Replace('\\', separator).Replace('/', separator);
         }
 

@@ -33,8 +33,8 @@ namespace checkup.Services
         public async Task<string?> GenerateJwtToken(UserAccount userAccount)
         {
             string? result = null;
-            string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userAccount.ApplicationID);
-            string settingFilePath = Path.Combine(appBasePath, "settings.json");
+            string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userAccount.ApplicationID);
+            string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
             if (File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(userAccount.ApplicationID) == false)
             {
                 string appSettingText = await System.IO.File.ReadAllTextAsync(settingFilePath);
@@ -141,8 +141,8 @@ namespace checkup.Services
             }
 
             string tenantID = $"{userWorkID}|{applicationID}";
-            string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-            string settingFilePath = Path.Combine(appBasePath, "settings.json");
+            string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+            string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
             if (File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
             {
                 string appSettingText = await System.IO.File.ReadAllTextAsync(settingFilePath);
@@ -201,8 +201,8 @@ namespace checkup.Services
             }
 
             string tenantID = $"{userWorkID}|{applicationID}";
-            string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-            string settingFilePath = Path.Combine(appBasePath, "settings.json");
+            string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+            string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
             if (File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
             {
                 string appSettingText = await File.ReadAllTextAsync(settingFilePath);

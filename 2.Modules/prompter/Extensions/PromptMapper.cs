@@ -62,7 +62,7 @@ namespace prompter.Extensions
                     }
 
                     string tenantID = $"{userWorkID}|{applicationID}";
-                    string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                    string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                     if (string.IsNullOrEmpty(appBasePath) == false && File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                     {
                         string appSettingText = File.ReadAllText(settingFilePath);
@@ -192,7 +192,7 @@ namespace prompter.Extensions
 
                     if (string.IsNullOrEmpty(appBasePath) == false && Directory.Exists(appBasePath) == true)
                     {
-                        var filePath = Path.Combine(appBasePath, "prompter", projectID, transactionID + ".xml");
+                        var filePath = PathExtensions.Combine(appBasePath, "prompter", projectID, transactionID + ".xml");
                         try
                         {
                             if (File.Exists(filePath) == true)
@@ -346,7 +346,7 @@ namespace prompter.Extensions
             bool result = false;
             foreach (var basePath in ModuleConfiguration.ContractBasePath)
             {
-                string filePath = Path.Combine(basePath, fileRelativePath);
+                string filePath = PathExtensions.Combine(basePath, fileRelativePath);
                 result = File.Exists(filePath);
                 if (result == true)
                 {
@@ -402,7 +402,7 @@ namespace prompter.Extensions
                 {
                     foreach (var basePath in ModuleConfiguration.ContractBasePath)
                     {
-                        string filePath = Path.Combine(basePath, fileRelativePath);
+                        string filePath = PathExtensions.Combine(basePath, fileRelativePath);
 
                         if (File.Exists(filePath) == true)
                         {

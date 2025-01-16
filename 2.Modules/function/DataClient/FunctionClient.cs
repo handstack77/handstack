@@ -246,9 +246,9 @@ namespace function.DataClient
                             if (functionScriptContract != null)
                             {
                                 var moduleConfig = functionScriptContract.Header;
-                                var featureSQLPath = Path.Combine(fileDirectory, "featureSQL.xml");
+                                var featureSQLPath = PathExtensions.Combine(fileDirectory, "featureSQL.xml");
 
-                                var functionLogDirectory = Path.Combine(ModuleConfiguration.CSharpFunctionLogBasePath, moduleConfig.ApplicationID, moduleConfig.ProjectID, fileDirectoryName);
+                                var functionLogDirectory = PathExtensions.Combine(ModuleConfiguration.CSharpFunctionLogBasePath, moduleConfig.ApplicationID, moduleConfig.ProjectID, fileDirectoryName);
                                 if (Directory.Exists(functionLogDirectory) == false)
                                 {
                                     Directory.CreateDirectory(functionLogDirectory);
@@ -256,7 +256,7 @@ namespace function.DataClient
 
                                 Serilog.ILogger logger = new LoggerConfiguration()
                                     .WriteTo.Console()
-                                    .WriteTo.File(Path.Combine(functionLogDirectory, "function.log"), rollingInterval: RollingInterval.Day)
+                                    .WriteTo.File(PathExtensions.Combine(functionLogDirectory, "function.log"), rollingInterval: RollingInterval.Day)
                                     .CreateLogger();
 
                                 dataContext.fileDirectory = fileDirectory;

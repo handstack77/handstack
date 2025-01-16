@@ -219,8 +219,8 @@ namespace HandStack.Core.Helpers
                             process.StartInfo.EnvironmentVariables[variable.Key] = variable.Value;
                         }
 
-                        string logDirectory = Path.Combine(workingDirectory ?? Directory.GetCurrentDirectory(), "tasklogs");
-                        logFilePath = logFilePath ?? Path.Combine(logDirectory, (echoPrefix ?? DefaultPrefix.Value).ToStringSafe() + Guid.NewGuid().ToString("N") + ".log");
+                        string logDirectory = PathExtensions.Combine(workingDirectory ?? Directory.GetCurrentDirectory(), "tasklogs");
+                        logFilePath = logFilePath ?? PathExtensions.Combine(logDirectory, (echoPrefix ?? DefaultPrefix.Value).ToStringSafe() + Guid.NewGuid().ToString("N") + ".log");
                         FileInfo fileInfo = new FileInfo(logFilePath);
                         if (fileInfo.Directory?.Exists == false)
                         {

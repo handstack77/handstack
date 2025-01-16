@@ -5,6 +5,7 @@ using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 
+using HandStack.Core.ExtensionMethod;
 using HandStack.Data.Client;
 using HandStack.Data.Enumeration;
 using HandStack.Web;
@@ -382,10 +383,10 @@ namespace transact.Extensions
             DataSet? result = null;
             try
             {
-                if (ModuleConfiguration.IsTransactAggregate == true && Directory.Exists(Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID)) == true)
+                if (ModuleConfiguration.IsTransactAggregate == true && Directory.Exists(PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID)) == true)
                 {
-                    string appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-                    string logDbFilePath = Path.Combine(appBasePath, ".managed", "sqlite", "transact", $"log-{rollingID}.db");
+                    string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                    string logDbFilePath = PathExtensions.Combine(appBasePath, ".managed", "sqlite", "transact", $"log-{rollingID}.db");
                     if (Directory.Exists(appBasePath) == true && File.Exists(logDbFilePath) == true)
                     {
                         string connectionString = $"URI=file:{logDbFilePath};Journal Mode=Off;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;";

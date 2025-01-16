@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
+using HandStack.Core.ExtensionMethod;
 using HandStack.Web;
 using HandStack.Web.Modules;
 
@@ -101,7 +102,7 @@ namespace function.Builder
                 var path = Path.GetDirectoryName(typeof(object).Assembly.Location);
                 if (path != null)
                 {
-                    file = Path.Combine(path, assemblyFilePath);
+                    file = PathExtensions.Combine(path, assemblyFilePath);
                     if (File.Exists(file) == false)
                     {
                         return false;

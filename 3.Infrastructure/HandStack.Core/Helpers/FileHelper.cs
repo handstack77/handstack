@@ -1,6 +1,8 @@
 ﻿using System.IO;
 using System.Security.Cryptography;
 
+using HandStack.Core.ExtensionMethod;
+
 namespace HandStack.Core.Helpers
 {
     public static class FileHelper
@@ -18,14 +20,14 @@ namespace HandStack.Core.Helpers
             foreach (string file in files)
             {
                 string name = Path.GetFileName(file);
-                string dest = Path.Combine(destnationFolder, name);
+                string dest = PathExtensions.Combine(destnationFolder, name);
                 File.Copy(file, dest);
             }
 
             foreach (string folder in folders)
             {
                 string name = Path.GetFileName(folder);
-                string dest = Path.Combine(destnationFolder, name);
+                string dest = PathExtensions.Combine(destnationFolder, name);
                 CopyFolder(folder, dest);
             }
         }

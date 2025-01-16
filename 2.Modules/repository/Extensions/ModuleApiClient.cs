@@ -97,7 +97,7 @@ namespace repository.Extensions
 
                     if (string.IsNullOrEmpty(userWorkID) == false && Directory.Exists(appBasePath) == true)
                     {
-                        string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                        string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                         if (System.IO.File.Exists(settingFilePath) == true)
                         {
                             string appSettingText = System.IO.File.ReadAllText(settingFilePath);

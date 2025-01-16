@@ -59,7 +59,7 @@ namespace dbclient.Extensions
                         var items = queryObject.TenantID.SplitAndTrim('|');
                         userWorkID = items[0];
                         applicationID = items[1];
-                        appBasePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                        appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                     }
                     else
                     {
@@ -78,7 +78,7 @@ namespace dbclient.Extensions
                     }
 
                     string tenantID = $"{userWorkID}|{applicationID}";
-                    string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                    string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                     if (string.IsNullOrEmpty(appBasePath) == false && File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                     {
                         string appSettingText = File.ReadAllText(settingFilePath);
@@ -217,7 +217,7 @@ namespace dbclient.Extensions
 
                     if (string.IsNullOrEmpty(appBasePath) == false && Directory.Exists(appBasePath) == true)
                     {
-                        var filePath = Path.Combine(appBasePath, "dbclient", projectID, transactionID + ".xml");
+                        var filePath = PathExtensions.Combine(appBasePath, "dbclient", projectID, transactionID + ".xml");
                         try
                         {
                             if (File.Exists(filePath) == true)
@@ -375,7 +375,7 @@ namespace dbclient.Extensions
             bool result = false;
             foreach (var basePath in ModuleConfiguration.ContractBasePath)
             {
-                string filePath = Path.Combine(basePath, fileRelativePath);
+                string filePath = PathExtensions.Combine(basePath, fileRelativePath);
                 result = File.Exists(filePath);
                 if (result == true)
                 {
@@ -431,7 +431,7 @@ namespace dbclient.Extensions
                 {
                     foreach (var basePath in ModuleConfiguration.ContractBasePath)
                     {
-                        string filePath = Path.Combine(basePath, fileRelativePath);
+                        string filePath = PathExtensions.Combine(basePath, fileRelativePath);
 
                         if (File.Exists(filePath) == true)
                         {

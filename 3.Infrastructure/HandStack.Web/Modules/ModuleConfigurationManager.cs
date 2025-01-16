@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Dynamic;
 using System.IO;
 
+using HandStack.Core.ExtensionMethod;
+
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace HandStack.Web.Modules
 {
@@ -15,7 +15,7 @@ namespace HandStack.Web.Modules
             List<ModuleInfo> modules = new List<ModuleInfo>();
             if (string.IsNullOrEmpty(GlobalConfiguration.LoadModuleBasePath) == true)
             {
-                GlobalConfiguration.LoadModuleBasePath = Path.Combine(GlobalConfiguration.EntryBasePath, @"modules");
+                GlobalConfiguration.LoadModuleBasePath = PathExtensions.Combine(GlobalConfiguration.EntryBasePath, @"modules");
             }
 
             if (Directory.Exists(GlobalConfiguration.LoadModuleBasePath) == false)
@@ -34,7 +34,7 @@ namespace HandStack.Web.Modules
 
                 if (string.IsNullOrEmpty(moduleID) == false)
                 {
-                    string moduleSettingFilePath = Path.Combine(moduleBasePath, moduleSettingFile);
+                    string moduleSettingFilePath = PathExtensions.Combine(moduleBasePath, moduleSettingFile);
                     if (moduleID.IndexOf("|") > -1)
                     {
                         string passModuleSettingFilePath = moduleID.Substring(moduleID.IndexOf("|") + 1);

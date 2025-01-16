@@ -62,13 +62,13 @@ namespace logger.Entity
                 var tenantID = $"{userWorkID}|{applicationID}";
                 if (string.IsNullOrEmpty(appBasePath) == false)
                 {
-                    var transactionLogBasePath = Path.Combine(appBasePath, ".managed", "sqlite");
+                    var transactionLogBasePath = PathExtensions.Combine(appBasePath, ".managed", "sqlite");
                     if (Directory.Exists(transactionLogBasePath) == false)
                     {
                         Directory.CreateDirectory(transactionLogBasePath);
                     }
 
-                    var logDbFilePath = Path.Combine(transactionLogBasePath, $"transact.db");
+                    var logDbFilePath = PathExtensions.Combine(transactionLogBasePath, $"transact.db");
                     var connectionString = $"URI=file:{logDbFilePath};Journal Mode=Off;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;";
 
                     var fileInfo = new FileInfo(logDbFilePath);
@@ -161,7 +161,7 @@ namespace logger.Entity
 
                         if (isExists == false)
                         {
-                            var sqlFilePath = Path.Combine(ModuleBasePath, "SQL", "Create", dataProvider.ToString() + ".txt");
+                            var sqlFilePath = PathExtensions.Combine(ModuleBasePath, "SQL", "Create", dataProvider.ToString() + ".txt");
                             if (File.Exists(sqlFilePath) == true)
                             {
                                 var ddlScript = File.ReadAllText(sqlFilePath).Replace("{TableName}", tableName);

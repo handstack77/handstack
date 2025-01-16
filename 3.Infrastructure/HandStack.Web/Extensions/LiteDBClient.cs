@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 
+using HandStack.Core.ExtensionMethod;
+
 using LiteDB;
 
 using Serilog;
@@ -28,7 +30,7 @@ namespace HandStack.Web.Extensions
 		public void SetFileBasePath(string userWorkID, string applicationID)
 		{
 			if (string.IsNullOrEmpty(applicationID) == false) {
-				connectionString = connectionString.Replace("{appBasePath}", Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID));
+				connectionString = connectionString.Replace("{appBasePath}", PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID));
 			}
 		}
 
@@ -279,7 +281,7 @@ namespace HandStack.Web.Extensions
 						IEnumerable<BsonDocument> backupCollection = liteDB.GetCollection(collectionName).FindAll();
 						if (backupCollection != null)
 						{
-							string exportFileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"{collectionName}.collection");
+							string exportFileName = PathExtensions.Combine(AppDomain.CurrentDomain.BaseDirectory, $"{collectionName}.collection");
 							File.AppendAllText(exportFileName, JsonSerializer.Serialize(new BsonValue(backupCollection)));
 						}
 					}
@@ -298,7 +300,7 @@ namespace HandStack.Web.Extensions
 				try
 				{
 					string collectionName = typeof(T).Name.ToLower();
-					string exportFileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"{collectionName}.collection");
+					string exportFileName = PathExtensions.Combine(AppDomain.CurrentDomain.BaseDirectory, $"{collectionName}.collection");
 					File.AppendAllText(exportFileName, JsonSerializer.Serialize(new BsonValue(liteDB.GetCollection(collectionName).FindAll())));
 				}
 				catch (Exception exception)
@@ -314,8 +316,8 @@ namespace HandStack.Web.Extensions
 			{
 				foreach (string collectionName in liteDB.GetCollectionNames())
 				{
-					string backupFileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"{collectionName}.backup");
-					string exportFileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"{collectionName}.collection");
+					string backupFileName = PathExtensions.Combine(AppDomain.CurrentDomain.BaseDirectory, $"{collectionName}.backup");
+					string exportFileName = PathExtensions.Combine(AppDomain.CurrentDomain.BaseDirectory, $"{collectionName}.collection");
 
 					if (File.Exists(exportFileName) == true)
 					{
@@ -363,8 +365,8 @@ namespace HandStack.Web.Extensions
 			using (var liteDB = new LiteDatabase(FileRoller.RollingFileName(connectionString, rollingPeriod)))
 			{
 				string collectionName = typeof(T).Name.ToLower();
-				string backupFileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"{collectionName}.backup");
-				string exportFileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"{collectionName}.collection");
+				string backupFileName = PathExtensions.Combine(AppDomain.CurrentDomain.BaseDirectory, $"{collectionName}.backup");
+				string exportFileName = PathExtensions.Combine(AppDomain.CurrentDomain.BaseDirectory, $"{collectionName}.collection");
 
 				if (File.Exists(exportFileName) == true)
 				{

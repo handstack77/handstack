@@ -41,7 +41,7 @@ namespace checkup
             ModuleInfo? module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == ModuleID);
             if (module != null)
             {
-                string moduleConfigFilePath = Path.Combine(module.BasePath, "module.json");
+                string moduleConfigFilePath = PathExtensions.Combine(module.BasePath, "module.json");
                 if (File.Exists(moduleConfigFilePath) == true)
                 {
                     string configurationText = File.ReadAllText(moduleConfigFilePath);
@@ -60,7 +60,7 @@ namespace checkup
                         ModuleConfiguration.AdministratorEmailID = moduleConfig.AdministratorEmailID;
                         ModuleConfiguration.BusinessServerUrl = moduleConfig.BusinessServerUrl;
                         ModuleConfiguration.ModuleBasePath = string.IsNullOrEmpty(moduleConfig.ModuleBasePath) == true || Directory.Exists(moduleConfig.ModuleBasePath) == false ? "" : new DirectoryInfo(moduleConfig.ModuleBasePath).FullName;
-                        ModuleConfiguration.DatabaseContractPath = GlobalConfiguration.GetBasePath(moduleConfig.DatabaseContractPath, Path.Combine(ModuleConfiguration.ModuleBasePath, "Contracts", "dbclient"));
+                        ModuleConfiguration.DatabaseContractPath = GlobalConfiguration.GetBasePath(moduleConfig.DatabaseContractPath, PathExtensions.Combine(ModuleConfiguration.ModuleBasePath, "Contracts", "dbclient"));
                         ModuleConfiguration.WWWRootBasePath = string.IsNullOrEmpty(moduleConfig.WWWRootBasePath) == true || Directory.Exists(moduleConfig.WWWRootBasePath) == false ? "" : new DirectoryInfo(moduleConfig.WWWRootBasePath).FullName;
                         ModuleConfiguration.ModuleLogFilePath = string.IsNullOrEmpty(moduleConfig.ModuleLogFilePath) == true || Directory.Exists(moduleConfig.ModuleLogFilePath) == false ? "" : new DirectoryInfo(moduleConfig.ModuleLogFilePath).FullName;
                         ModuleConfiguration.IsModuleLogging = string.IsNullOrEmpty(moduleConfig.ModuleLogFilePath) == false;
@@ -117,7 +117,7 @@ namespace checkup
                             if (directoryInfo.Exists == true)
                             {
                                 string tenantID = $"{userWorkID}|{directoryInfo.Name}";
-                                string settingFilePath = Path.Combine(appBasePath, "settings.json");
+                                string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                                 if (File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                                 {
                                     string appSettingText = File.ReadAllText(settingFilePath);
@@ -207,9 +207,9 @@ namespace checkup
                 app.UseMiddleware<JwtMiddleware>();
                 app.UseMiddleware<TenantUserSignMiddleware>();
 
-                string wwwrootDirectory = string.IsNullOrEmpty(ModuleConfiguration.WWWRootBasePath) == true ? Path.Combine(module.BasePath, "wwwroot", module.ModuleID) : ModuleConfiguration.WWWRootBasePath;
+                string wwwrootDirectory = string.IsNullOrEmpty(ModuleConfiguration.WWWRootBasePath) == true ? PathExtensions.Combine(module.BasePath, "wwwroot", module.ModuleID) : ModuleConfiguration.WWWRootBasePath;
 
-                string moduleAssets = Path.Combine(wwwrootDirectory, "assets");
+                string moduleAssets = PathExtensions.Combine(wwwrootDirectory, "assets");
                 if (string.IsNullOrEmpty(moduleAssets) == false && Directory.Exists(moduleAssets) == true)
                 {
                     app.UseStaticFiles(new StaticFileOptions
@@ -224,7 +224,7 @@ namespace checkup
                     app.UseStaticFiles(new StaticFileOptions
                     {
                         RequestPath = "/" + ModuleID,
-                        FileProvider = new PhysicalFileProvider(Path.Combine(wwwrootDirectory)),
+                        FileProvider = new PhysicalFileProvider(PathExtensions.Combine(wwwrootDirectory)),
                         ServeUnknownFileTypes = true,
                         OnPrepareResponse = httpContext =>
                         {
@@ -272,7 +272,7 @@ namespace checkup
                                 if ("wwwroot" == moduleID)
                                 {
                                     string tenantID = $"{userWorkID}|{applicationID}";
-                                    string physicalPath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID, "wwwroot");
+                                    string physicalPath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID, "wwwroot");
 
                                     bool isWithOrigin = false;
                                     CorsPolicy? policy = null;
@@ -327,7 +327,7 @@ namespace checkup
 
                                     if (string.IsNullOrEmpty(requestRefererUrl) == true)
                                     {
-                                        string settingFilePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID, "settings.json");
+                                        string settingFilePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID, "settings.json");
                                         if (File.Exists(settingFilePath) == true)
                                         {
                                             string appSettingText = await File.ReadAllTextAsync(settingFilePath);

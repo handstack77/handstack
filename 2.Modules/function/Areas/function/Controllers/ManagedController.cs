@@ -101,7 +101,7 @@ namespace function.Areas.function.Controllers
                                 FunctionMapper.ScriptMappings.Remove(item);
                             }
 
-                            var basePath = Path.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID, "function");
+                            var basePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID, "function");
 
                             if (Directory.Exists(basePath) == false)
                             {

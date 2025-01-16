@@ -101,7 +101,7 @@ namespace function.Areas.function.Controllers
             dataContext.workingDirectoryPath = string.IsNullOrEmpty(dataContext.workingDirectoryPath) == false ? dataContext.workingDirectoryPath : "../tmp/HDS/function/HDS_FN00";
 
             string commandID = string.Empty;
-            var scriptMapFile = string.IsNullOrEmpty(ModuleConfiguration.ModuleBasePath) == true ? Path.Combine(ModuleConfiguration.ModuleBasePath, "featureTest.json") : Path.Combine(GlobalConfiguration.GetBasePath($"../modules/{ModuleConfiguration.ModuleID}"), "featureTest.json");
+            var scriptMapFile = string.IsNullOrEmpty(ModuleConfiguration.ModuleBasePath) == true ? PathExtensions.Combine(ModuleConfiguration.ModuleBasePath, "featureTest.json") : PathExtensions.Combine(GlobalConfiguration.GetBasePath($"../modules/{ModuleConfiguration.ModuleID}"), "featureTest.json");
             if (System.IO.File.Exists(scriptMapFile) == true)
             {
                 var scriptMapData = System.IO.File.ReadAllText(scriptMapFile);
