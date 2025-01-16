@@ -119,7 +119,7 @@ namespace HandStack.Web
                 basePath = defaultPath;
             }
 
-            return basePath;
+            return basePath.Replace(@"\", "/");
         }
 
         public static bool InitailizeAppSetting(Dictionary<string, JToken> transactionResult)
