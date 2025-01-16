@@ -6,7 +6,7 @@
     "TransactionTimeout": 180000,
     "HostName": "WebClient",
     "UIEventLogLevel": "Verbose",
-    "AssetsCachingID": "",
+    "AssetsCachingID": "cache-id",
     "IsClientCaching": true,
     "IsDebugMode": false
 }

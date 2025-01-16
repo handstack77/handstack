@@ -954,7 +954,7 @@
         }
 
         synLoader.assetsCachingID = synConfig.AssetsCachingID === '' ? '' : 'tick=' + synConfig.AssetsCachingID;
-        synLoader.noCache = toBoolean(synConfig.IsClientCaching) === true ? '' : 'tick=' + new Date().getTime();
+        synLoader.noCache = toBoolean(synConfig.IsClientCaching) === true ? synLoader.assetsCachingID : 'tick=' + new Date().getTime();
         await synLoader.request(loadFiles);
     }
 

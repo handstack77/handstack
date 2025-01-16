@@ -219,7 +219,7 @@ namespace function
                             "UIEventLogLevel": "Verbose",
                             "IsLocaleTranslations": true,
                             "LocaleAssetUrl": "/assets/shared/language/",
-                            "AssetsCachingID": "",
+                            "AssetsCachingID": "cache-id",
                             "IsClientCaching": true,
                             "IsDebugMode": false,
                             "IsBundleLoad": false,
