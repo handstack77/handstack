@@ -248,7 +248,7 @@
 
         event_uppercase_input(evt) {
             var el = evt.target || evt.srcElement || evt;
-            el.value = el.value.replace(/[^A-Z]/g, '').toUpperCase();
+            el.value = el.value.replace(/[^A-Za-z]/g, '').toUpperCase();
 
             evt.returnValue = false;
             evt.cancel = true;
@@ -261,7 +261,7 @@
 
         event_lowercase_input(evt) {
             var el = evt.target || evt.srcElement || evt;
-            el.value = el.value.replace(/[^a-z]/g, '').toLowerCase();
+            el.value = el.value.replace(/[^A-Za-z]/g, '').toLowerCase();
 
             evt.returnValue = false;
             evt.cancel = true;
