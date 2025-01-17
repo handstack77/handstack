@@ -1041,12 +1041,12 @@ namespace ack
                             {
                                 var form = await context.Request.ReadFormAsync();
                                 var file = form.Files["file"];
-                                var moduleName = form["moduleName"].ToString();
+                                var moduleID = form["moduleID"].ToString();
                                 var contractType = form["contractType"].ToString();
                                 var destFilePath = form["destFilePath"].ToString();
                                 var changeType = form["changeType"].ToString();
 
-                                if (string.IsNullOrEmpty(moduleName) == true || string.IsNullOrEmpty(destFilePath) == true || string.IsNullOrEmpty(changeType) == true || (changeType != "Deleted" && (file == null || file.Length == 0)))
+                                if (string.IsNullOrEmpty(moduleID) == true || string.IsNullOrEmpty(destFilePath) == true || string.IsNullOrEmpty(changeType) == true || (changeType != "Deleted" && (file == null || file.Length == 0)))
                                 {
                                     context.Response.StatusCode = StatusCodes.Status400BadRequest;
                                     return;
@@ -1055,24 +1055,20 @@ namespace ack
                                 switch (contractType)
                                 {
                                     case "dbclient":
-                                        destModuleBasePath = PathExtensions.Combine(handstackHomePath, "modules", moduleName, "Contracts", "dbclient");
+                                        destModuleBasePath = PathExtensions.Combine(handstackHomePath, "modules", moduleID, "Contracts", "dbclient");
                                         destContractModuleBasePath = PathExtensions.Combine(handstackHomePath, "contracts", "dbclient");
                                         break;
-                                    case "function_csharp":
-                                        destModuleBasePath = PathExtensions.Combine(handstackHomePath, "modules", moduleName, "Contracts", "function", "csharp");
-                                        destContractModuleBasePath = PathExtensions.Combine(handstackHomePath, "contracts", "function", "csharp");
-                                        break;
-                                    case "function_javascript":
-                                        destModuleBasePath = PathExtensions.Combine(handstackHomePath, "modules", moduleName, "Contracts", "function", "javascript");
-                                        destContractModuleBasePath = PathExtensions.Combine(handstackHomePath, "contracts", "function", "javascript");
+                                    case "function":
+                                        destModuleBasePath = PathExtensions.Combine(handstackHomePath, "modules", moduleID, "Contracts", "function");
+                                        destContractModuleBasePath = PathExtensions.Combine(handstackHomePath, "contracts", "function");
                                         break;
                                     case "transact":
-                                        destModuleBasePath = PathExtensions.Combine(handstackHomePath, "modules", moduleName, "Contracts", "transact");
+                                        destModuleBasePath = PathExtensions.Combine(handstackHomePath, "modules", moduleID, "Contracts", "transact");
                                         destContractModuleBasePath = PathExtensions.Combine(handstackHomePath, "contracts", "transact");
                                         break;
                                     case "wwwroot":
-                                        destModuleBasePath = PathExtensions.Combine(handstackHomePath, "modules", moduleName, "wwwroot", moduleName);
-                                        destContractModuleBasePath = PathExtensions.Combine(handstackHomePath, "modules", moduleName, "wwwroot", moduleName);
+                                        destModuleBasePath = PathExtensions.Combine(handstackHomePath, "modules", moduleID, "wwwroot", moduleID);
+                                        destContractModuleBasePath = PathExtensions.Combine(handstackHomePath, "modules", moduleID, "wwwroot", moduleID);
                                         break;
                                 }
 

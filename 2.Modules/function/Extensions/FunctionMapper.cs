@@ -8,10 +8,10 @@ using function.Builder;
 using function.Entity;
 
 using HandStack.Core.ExtensionMethod;
-using HandStack.Web.Extensions;
 using HandStack.Data;
 using HandStack.Web;
 using HandStack.Web.Entity;
+using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.DataObject;
 
 using Microsoft.Extensions.Configuration;
@@ -19,7 +19,6 @@ using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 
 using Serilog;
-using Mysqlx.Crud;
 
 namespace function.Extensions
 {
@@ -141,18 +140,10 @@ namespace function.Extensions
                     string filePath = string.Empty;
                     foreach (var basePath in ModuleConfiguration.ContractBasePath)
                     {
-                        var scriptMapFile = PathExtensions.Combine(basePath, "csharp", applicationID, projectID, transactionID, "featureMeta.json");
+                        var scriptMapFile = PathExtensions.Combine(basePath, applicationID, projectID, transactionID, "featureMeta.json");
                         if (File.Exists(scriptMapFile) == true)
                         {
                             filePath = scriptMapFile;
-                        }
-                        else
-                        {
-                            scriptMapFile = PathExtensions.Combine(basePath, "javascript", applicationID, projectID, transactionID, "featureMeta.json");
-                            if (File.Exists(scriptMapFile) == true)
-                            {
-                                filePath = scriptMapFile;
-                            }
                         }
 
                         if (File.Exists(filePath) == true)
@@ -187,18 +178,10 @@ namespace function.Extensions
                         if (string.IsNullOrEmpty(appBasePath) == false)
                         {
                             string tenantID = $"{userWorkID}|{applicationID}";
-                            var scriptMapFile = PathExtensions.Combine(appBasePath, "function", "csharp", applicationID, projectID, transactionID, "featureMeta.json");
+                            var scriptMapFile = PathExtensions.Combine(appBasePath, "function", projectID, transactionID, "featureMeta.json");
                             if (File.Exists(scriptMapFile) == true)
                             {
                                 filePath = scriptMapFile;
-                            }
-                            else
-                            {
-                                scriptMapFile = PathExtensions.Combine(appBasePath, "function", "javascript", applicationID, projectID, transactionID, "featureMeta.json");
-                                if (File.Exists(scriptMapFile) == true)
-                                {
-                                    filePath = scriptMapFile;
-                                }
                             }
 
                             if (File.Exists(filePath) == true)
@@ -246,8 +229,8 @@ namespace function.Extensions
                         case "csharp":
                             fileExtension = "cs";
                             break;
-                        default:
-                            fileExtension = "";
+                        case "python":
+                            fileExtension = "py";
                             break;
                     }
 
@@ -383,23 +366,6 @@ namespace function.Extensions
                 {
                     break;
                 }
-
-                if (filePath.IndexOf(@"\csharp\") == -1 || filePath.IndexOf(@"\javascript\") == -1)
-                {
-                    filePath = PathExtensions.Combine(basePath, "csharp", fileRelativePath);
-                    result = File.Exists(filePath);
-                    if (result == true)
-                    {
-                        break;
-                    }
-
-                    filePath = PathExtensions.Combine(basePath, "javascript", fileRelativePath);
-                    result = File.Exists(filePath);
-                    if (result == true)
-                    {
-                        break;
-                    }
-                }
             }
 
             return result;
@@ -458,29 +424,10 @@ namespace function.Extensions
                     string filePath = string.Empty;
                     string scriptMapFilePath = string.Empty;
 
-                    if (string.IsNullOrEmpty(language) == true)
+                    scriptMapFilePath = PathExtensions.Combine(basePath, scriptMapFile);
+                    if (File.Exists(scriptMapFilePath) == true)
                     {
-                        scriptMapFilePath = PathExtensions.Combine(basePath, "csharp", scriptMapFile);
-                        if (File.Exists(scriptMapFilePath) == true)
-                        {
-                            filePath = scriptMapFilePath;
-                        }
-                        else
-                        {
-                            scriptMapFilePath = PathExtensions.Combine(basePath, "javascript", scriptMapFile);
-                            if (File.Exists(scriptMapFilePath) == true)
-                            {
-                                filePath = scriptMapFilePath;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        scriptMapFilePath = PathExtensions.Combine(basePath, language, scriptMapFile);
-                        if (File.Exists(scriptMapFilePath) == true)
-                        {
-                            filePath = scriptMapFilePath;
-                        }
+                        filePath = scriptMapFilePath;
                     }
 
                     if (File.Exists(filePath) == true)
@@ -502,8 +449,8 @@ namespace function.Extensions
                             case "csharp":
                                 fileExtension = "cs";
                                 break;
-                            default:
-                                fileExtension = "";
+                            case "python":
+                                fileExtension = "py";
                                 break;
                         }
 
@@ -696,8 +643,8 @@ namespace function.Extensions
                                 case "csharp":
                                     fileExtension = "cs";
                                     break;
-                                default:
-                                    fileExtension = "";
+                                case "python":
+                                    fileExtension = "py";
                                     break;
                             }
 
@@ -711,7 +658,7 @@ namespace function.Extensions
                             if (File.Exists(functionScriptFile) == true)
                             {
                                 FunctionHeader header = functionScriptContract.Header;
-              
+
                                 var items = functionScriptContract.Commands;
                                 foreach (var item in items)
                                 {

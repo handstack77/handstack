@@ -23,14 +23,14 @@
             "IsSingleThread": true,
             "WatchGracefulShutdown": true,
             "EnableFileWatching": true,
-            "WatchFileNamePatterns": [ "featureMain.js", "featureMeta.json", "featureSQL.xml", "syn.config.json" ],
+            "WatchFileNamePatterns": [ "featureMain.js" ],
             "NodeAndV8Options": "",
             "EnvironmentVariables": ""
         },
         "CSharpFunctionConfig": {
             "EnableFileWatching": true,
             "FileLogBasePath": "../log/function/csharp",
-            "WatchFileNamePatterns": [ "featureMain.cs", "featureMeta.json", "featureSQL.xml" ]
+            "WatchFileNamePatterns": [ "featureMain.cs" ],
         },
         "EventAction": [],
         "SubscribeAction": [],

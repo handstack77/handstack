@@ -114,7 +114,7 @@ namespace function.Areas.function.Controllers
                                 if (string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false)
                                 {
                                     string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-                                    string itemPath = PathExtensions.Combine(appBasePath, language, filePath);
+                                    string itemPath = PathExtensions.Combine(appBasePath, filePath);
                                     DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
                                     if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true)
                                     {
@@ -126,7 +126,7 @@ namespace function.Areas.function.Controllers
                                             }
 
                                             logger.Information("[{LogCategory}] " + $"Add TenantApp ModuleScriptMap FilePath: {filePath}", "Query/Refresh");
-                                            actionResult = FunctionMapper.AddScriptMap(filePath, true, logger, language);
+                                            actionResult = FunctionMapper.AddScriptMap(filePath, true, logger);
                                         }
                                     }
                                 }
@@ -134,7 +134,7 @@ namespace function.Areas.function.Controllers
                                 {
                                     foreach (var basePath in ModuleConfiguration.ContractBasePath)
                                     {
-                                        string itemPath = PathExtensions.Combine(basePath, language, filePath);
+                                        string itemPath = PathExtensions.Combine(basePath, filePath);
                                         DirectoryInfo directoryInfo = new DirectoryInfo(basePath);
                                         if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true)
                                         {
@@ -146,7 +146,7 @@ namespace function.Areas.function.Controllers
                                                 }
 
                                                 logger.Information("[{LogCategory}] " + $"Add ModuleScriptMap FilePath: {filePath}", "Query/Refresh");
-                                                actionResult = FunctionMapper.AddScriptMap(filePath, true, logger, language);
+                                                actionResult = FunctionMapper.AddScriptMap(filePath, true, logger);
                                                 break;
                                             }
                                         }

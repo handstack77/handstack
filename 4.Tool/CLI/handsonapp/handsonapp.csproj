@@ -30,7 +30,7 @@
         <None Update="contracts/**">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <Compile Remove="Contracts/function/csharp/**" />
+        <Compile Remove="Contracts/function/**" />
     </ItemGroup>
 
     <ItemGroup>

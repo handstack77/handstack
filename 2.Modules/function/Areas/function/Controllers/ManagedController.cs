@@ -138,8 +138,8 @@ namespace function.Areas.function.Controllers
                                         case "csharp":
                                             fileExtension = "cs";
                                             break;
-                                        default:
-                                            fileExtension = "";
+                                        case "python":
+                                            fileExtension = "py";
                                             break;
                                     }
 
@@ -288,9 +288,9 @@ namespace function.Areas.function.Controllers
             {
                 try
                 {
-                    lock (ModuleConfiguration.NodeFileSyncManager)
+                    lock (ModuleConfiguration.FunctionFileSyncManager)
                     {
-                        var tenants = ModuleConfiguration.NodeFileSyncManager.Where(pair => pair.Key.Contains($"{userWorkID}{Path.DirectorySeparatorChar}{applicationID}"));
+                        var tenants = ModuleConfiguration.FunctionFileSyncManager.Where(pair => pair.Key.IndexOf($"{userWorkID}/{applicationID}") > -1);
                         if (tenants.Any() == true)
                         {
                             List<string> tenantsPath = new List<string>();
@@ -302,28 +302,7 @@ namespace function.Areas.function.Controllers
 
                             for (int i = 0; i < tenantsPath.Count; i++)
                             {
-                                ModuleConfiguration.NodeFileSyncManager.Remove(tenantsPath[i]);
-                            }
-
-                            logger.Information("[{LogCategory}] " + string.Join(",", tenantsPath), "Managed/DeleteAppContract");
-                        }
-                    }
-
-                    lock (ModuleConfiguration.CSharpFileSyncManager)
-                    {
-                        var tenants = ModuleConfiguration.CSharpFileSyncManager.Where(pair => pair.Key.Contains($"{userWorkID}{Path.DirectorySeparatorChar}{applicationID}"));
-                        if (tenants.Any() == true)
-                        {
-                            List<string> tenantsPath = new List<string>();
-                            foreach (var tenant in tenants)
-                            {
-                                tenantsPath.Add(tenant.Key);
-                                tenant.Value?.Stop();
-                            }
-
-                            for (int i = 0; i < tenantsPath.Count; i++)
-                            {
-                                ModuleConfiguration.CSharpFileSyncManager.Remove(tenantsPath[i]);
+                                ModuleConfiguration.FunctionFileSyncManager.Remove(tenantsPath[i]);
                             }
 
                             logger.Information("[{LogCategory}] " + string.Join(",", tenantsPath), "Managed/DeleteAppContract");

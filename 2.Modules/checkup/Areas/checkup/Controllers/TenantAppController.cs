@@ -1114,8 +1114,6 @@ namespace checkup.Areas.checkup.Controllers
                 Directory.CreateDirectory(PathExtensions.Combine(appTempBasePath, "dbclient"));
                 Directory.CreateDirectory(PathExtensions.Combine(appTempBasePath, "transact"));
                 Directory.CreateDirectory(PathExtensions.Combine(appTempBasePath, "function"));
-                Directory.CreateDirectory(PathExtensions.Combine(appTempBasePath, "function", "csharp"));
-                Directory.CreateDirectory(PathExtensions.Combine(appTempBasePath, "function", "javascript"));
                 Directory.CreateDirectory(PathExtensions.Combine(appTempBasePath, "wwwroot"));
 
                 string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);

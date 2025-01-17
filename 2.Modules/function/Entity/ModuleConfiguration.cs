@@ -15,8 +15,7 @@ namespace function.Entity
         public static List<string> AllowClientIP = new List<string>() { "*" };
         public static bool IsBundledWithHost = false;
         public static string ModuleBasePath = "";
-        public static Dictionary<string, FileSyncManager> NodeFileSyncManager = new Dictionary<string, FileSyncManager>();
-        public static Dictionary<string, FileSyncManager> CSharpFileSyncManager = new Dictionary<string, FileSyncManager>();
+        public static Dictionary<string, FileSyncManager> FunctionFileSyncManager = new Dictionary<string, FileSyncManager>();
         public static List<string> ContractBasePath = new List<string>();
         public static Dictionary<string, string> ContractModulePath = new Dictionary<string, string>();
         public static string LogMinimumLevel = "";
@@ -29,7 +28,6 @@ namespace function.Entity
         public static List<string> WatchFileNamePatterns = new List<string>();
         public static string NodeAndV8Options = "";
         public static string EnvironmentVariables = "";
-        public static bool CSharpEnableFileWatching = false;
         public static string CSharpFunctionLogBasePath = "";
         public static List<string> CSharpWatchFileNamePatterns = new List<string>();
         public static string BusinessServerUrl = "";

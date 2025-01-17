@@ -117,7 +117,7 @@ namespace function
                         ModuleConfiguration.WatchFileNamePatterns.Clear();
                         ModuleConfiguration.WatchFileNamePatterns = moduleConfig.NodeFunctionConfig.WatchFileNamePatterns;
 
-                        ModuleConfiguration.CSharpEnableFileWatching = moduleConfig.CSharpFunctionConfig.EnableFileWatching;
+                        ModuleConfiguration.EnableFileWatching = moduleConfig.CSharpFunctionConfig.EnableFileWatching;
                         ModuleConfiguration.CSharpFunctionLogBasePath = GlobalConfiguration.GetBasePath(moduleConfig.CSharpFunctionConfig.FileLogBasePath);
                         ModuleConfiguration.CSharpWatchFileNamePatterns = moduleConfig.CSharpFunctionConfig.WatchFileNamePatterns;
 
@@ -288,7 +288,7 @@ namespace function
                     }
                     else
                     {
-                        options.WatchPath = PathExtensions.Combine(watchPath, "javascript");
+                        options.WatchPath = PathExtensions.Combine(watchPath);
                         Log.Information("[{LogCategory}] Node File WatchPath: " + options.WatchPath, $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
 
                         options.GracefulProcessShutdown = ModuleConfiguration.WatchGracefulShutdown;
@@ -382,50 +382,15 @@ namespace function
             {
                 if (Directory.Exists(basePath) == true && basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == false)
                 {
-                    string nodeContractBasePath = PathExtensions.Combine(basePath, "javascript");
-                    if (Directory.Exists(nodeContractBasePath) == true && ModuleConfiguration.EnableFileWatching == true)
+                    string functionContractBasePath = PathExtensions.Combine(basePath);
+                    if (Directory.Exists(functionContractBasePath) == true && ModuleConfiguration.EnableFileWatching == true)
                     {
-                        var nodeFileSyncManager = new FileSyncManager(nodeContractBasePath, string.Join("|", ModuleConfiguration.WatchFileNamePatterns));
-                        nodeFileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
+                        var functionFileSyncManager = new FileSyncManager(functionContractBasePath, $"{ModuleConfiguration.WatchFileNamePatterns}|{ModuleConfiguration.CSharpWatchFileNamePatterns}");
+                        functionFileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
                         {
-                            if (GlobalConfiguration.IsRunning == true && fileInfo.FullName.Replace("\\", "/").IndexOf(nodeContractBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed) && (fileInfo.Name == "featureMain.js" || fileInfo.Name == "featureMeta.json" || fileInfo.Name == "featureSQL.xml") == true)
+                            if (GlobalConfiguration.IsRunning == true && fileInfo.FullName.Replace("\\", "/").IndexOf(functionContractBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed) && (fileInfo.Name == "featureMain.cs" || fileInfo.Name == "featureMeta.json" || fileInfo.Name == "featureSQL.xml") == true)
                             {
-                                string filePath = fileInfo.FullName.Replace("\\", "/").Replace(nodeContractBasePath, "");
-                                string hostUrl = $"http://localhost:{GlobalConfiguration.ServerPort}/function/api/execution/refresh?changeType={changeTypes}&filePath={filePath}&language=javascript";
-
-                                var request = new RestRequest(hostUrl, Method.Get);
-                                request.Timeout = TimeSpan.FromSeconds(3);
-                                request.AddHeader("AuthorizationKey", ModuleConfiguration.AuthorizationKey);
-                                try
-                                {
-                                    RestResponse response = await client.ExecuteAsync(request);
-                                    if (response.StatusCode != HttpStatusCode.OK)
-                                    {
-                                        Log.Warning("[{LogCategory}] " + $"{filePath} 파일 갱신 확인 필요. {response.Content.ToStringSafe()}", $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
-                                    }
-                                }
-                                catch (Exception exception)
-                                {
-                                    Log.Error(exception, "[{LogCategory}] " + $"{filePath} 파일 서버 확인 필요.", $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
-                                }
-                            }
-                        };
-
-                        Log.Information("[{LogCategory}] Node File Sync ContractBasePath: " + basePath, $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
-
-                        nodeFileSyncManager.Start();
-                        ModuleConfiguration.NodeFileSyncManager.Add(nodeContractBasePath, nodeFileSyncManager);
-                    }
-
-                    string csharpContractBasePath = PathExtensions.Combine(basePath, "csharp");
-                    if (Directory.Exists(csharpContractBasePath) == true && ModuleConfiguration.CSharpEnableFileWatching == true)
-                    {
-                        var csharpFileSyncManager = new FileSyncManager(csharpContractBasePath, string.Join("|", ModuleConfiguration.CSharpWatchFileNamePatterns));
-                        csharpFileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
-                        {
-                            if (GlobalConfiguration.IsRunning == true && fileInfo.FullName.Replace("\\", "/").IndexOf(csharpContractBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed) && (fileInfo.Name == "featureMain.cs" || fileInfo.Name == "featureMeta.json" || fileInfo.Name == "featureSQL.xml") == true)
-                            {
-                                string filePath = fileInfo.FullName.Replace("\\", "/").Replace(csharpContractBasePath, "");
+                                string filePath = fileInfo.FullName.Replace("\\", "/").Replace(functionContractBasePath, "");
                                 string hostUrl = $"http://localhost:{GlobalConfiguration.ServerPort}/function/api/execution/refresh?changeType={changeTypes}&filePath={filePath}&language=csharp";
 
                                 var request = new RestRequest(hostUrl, Method.Get);
@@ -448,8 +413,8 @@ namespace function
 
                         Log.Information("[{LogCategory}] CSharp File Sync ContractBasePath: " + basePath, $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
 
-                        csharpFileSyncManager.Start();
-                        ModuleConfiguration.NodeFileSyncManager.Add(csharpContractBasePath, csharpFileSyncManager);
+                        functionFileSyncManager.Start();
+                        ModuleConfiguration.FunctionFileSyncManager.Add(functionContractBasePath, functionFileSyncManager);
                     }
                 }
             }
