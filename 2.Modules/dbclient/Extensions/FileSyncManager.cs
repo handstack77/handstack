@@ -31,7 +31,10 @@ namespace dbclient.Extensions
                 {
                     foreach (var item in filter.Split("|"))
                     {
-                        fileSystemWatcher.Filters.Add(item.Trim());
+                        if (string.IsNullOrEmpty(item.Trim()) == false)
+                        {
+                            fileSystemWatcher.Filters.Add(item.Trim());
+                        }
                     }
                 }
                 else

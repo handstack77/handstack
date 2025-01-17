@@ -385,7 +385,10 @@ namespace function
                     string functionContractBasePath = PathExtensions.Combine(basePath);
                     if (Directory.Exists(functionContractBasePath) == true && ModuleConfiguration.EnableFileWatching == true)
                     {
-                        var functionFileSyncManager = new FileSyncManager(functionContractBasePath, $"{ModuleConfiguration.WatchFileNamePatterns}|{ModuleConfiguration.CSharpWatchFileNamePatterns}");
+                        List<string> patterns = new List<string>();
+                        patterns.AddRange(ModuleConfiguration.WatchFileNamePatterns);
+                        patterns.AddRange(ModuleConfiguration.CSharpWatchFileNamePatterns);
+                        var functionFileSyncManager = new FileSyncManager(functionContractBasePath, $"|{string.Join("|", patterns)}");
                         functionFileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
                         {
                             if (GlobalConfiguration.IsRunning == true && fileInfo.FullName.Replace("\\", "/").IndexOf(functionContractBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed) && (fileInfo.Name == "featureMain.cs" || fileInfo.Name == "featureMeta.json" || fileInfo.Name == "featureSQL.xml") == true)
