@@ -31,7 +31,8 @@ namespace HandStack.Core.ExtensionMethod
             for (int i = 0; i < items.Count; i++)
             {
                 var item = new FileInfo(items[i]);
-                if (result.Contains(item) == false) {
+                if (result.Contains(item) == false)
+                {
                     result.Add(item);
                 }
             }

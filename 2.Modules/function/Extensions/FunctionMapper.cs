@@ -187,14 +187,14 @@ namespace function.Extensions
                         if (string.IsNullOrEmpty(appBasePath) == false)
                         {
                             string tenantID = $"{userWorkID}|{applicationID}";
-                            var scriptMapFile = PathExtensions.Combine(appBasePath, "csharp", "javascript", projectID, transactionID, "featureMeta.json");
+                            var scriptMapFile = PathExtensions.Combine(appBasePath, "function", "csharp", applicationID, projectID, transactionID, "featureMeta.json");
                             if (File.Exists(scriptMapFile) == true)
                             {
                                 filePath = scriptMapFile;
                             }
                             else
                             {
-                                scriptMapFile = PathExtensions.Combine(appBasePath, "function", "javascript", projectID, transactionID, "featureMeta.json");
+                                scriptMapFile = PathExtensions.Combine(appBasePath, "function", "javascript", applicationID, projectID, transactionID, "featureMeta.json");
                                 if (File.Exists(scriptMapFile) == true)
                                 {
                                     filePath = scriptMapFile;
@@ -247,7 +247,7 @@ namespace function.Extensions
                             fileExtension = "cs";
                             break;
                         default:
-                            fileExtension = "js";
+                            fileExtension = "";
                             break;
                     }
 
@@ -503,7 +503,7 @@ namespace function.Extensions
                                 fileExtension = "cs";
                                 break;
                             default:
-                                fileExtension = "js";
+                                fileExtension = "";
                                 break;
                         }
 
@@ -697,7 +697,7 @@ namespace function.Extensions
                                     fileExtension = "cs";
                                     break;
                                 default:
-                                    fileExtension = "js";
+                                    fileExtension = "";
                                     break;
                             }
 

@@ -52,12 +52,12 @@ namespace wwwroot
                         ModuleConfiguration.AuthorizationKey = string.IsNullOrEmpty(moduleConfig.AuthorizationKey) == false ? moduleConfig.AuthorizationKey : GlobalConfiguration.SystemID + GlobalConfiguration.RunningEnvironment + GlobalConfiguration.HostName;
                         ModuleConfiguration.IsBundledWithHost = moduleConfigJson.IsBundledWithHost;
                         ModuleConfiguration.BusinessServerUrl = moduleConfig.BusinessServerUrl;
-                        ModuleConfiguration.ContractRequestPath = string.IsNullOrEmpty(moduleConfig.ContractRequestPath) == true ? "view" : moduleConfig.ContractRequestPath;
                         ModuleConfiguration.ContractBasePath = GlobalConfiguration.GetBasePath(moduleConfig.ContractBasePath);
                         ModuleConfiguration.WWWRootBasePath = GlobalConfiguration.GetBasePath(moduleConfig.WWWRootBasePath);
                         ModuleConfiguration.ModuleLogFilePath = GlobalConfiguration.GetBasePath(moduleConfig.ModuleLogFilePath);
                         ModuleConfiguration.IsModuleLogging = string.IsNullOrEmpty(moduleConfig.ModuleLogFilePath) == false;
                         ModuleConfiguration.ModuleFilePath = GlobalConfiguration.GetBasePath(moduleConfig.ModuleFilePath);
+                        GlobalConfiguration.ContractRequestPath = string.IsNullOrEmpty(moduleConfig.ContractRequestPath) == true ? "view" : moduleConfig.ContractRequestPath;
 
                         ModuleConfiguration.IsConfigure = true;
                     }
@@ -144,12 +144,14 @@ namespace wwwroot
                     await next.Invoke();
                 });
 
-                if (string.IsNullOrEmpty(ModuleConfiguration.ContractBasePath) == false && Directory.Exists(ModuleConfiguration.ContractBasePath) == true)
+                string wwwrootContractBasePath = PathExtensions.Combine(ModuleConfiguration.ContractBasePath, GlobalConfiguration.ApplicationID);
+                if (string.IsNullOrEmpty(ModuleConfiguration.ContractBasePath) == false && Directory.Exists(wwwrootContractBasePath) == true)
                 {
+                    ModuleConfiguration.IsContractRequestPath = true;
                     app.UseStaticFiles(new StaticFileOptions
                     {
-                        FileProvider = new PhysicalFileProvider(ModuleConfiguration.ContractBasePath),
-                        RequestPath = "/" + ModuleConfiguration.ContractRequestPath,
+                        FileProvider = new PhysicalFileProvider(wwwrootContractBasePath),
+                        RequestPath = "/" + GlobalConfiguration.ContractRequestPath,
                         ServeUnknownFileTypes = true,
                         OnPrepareResponse = httpContext =>
                         {
@@ -182,6 +184,17 @@ namespace wwwroot
                         ServeUnknownFileTypes = true,
                         OnPrepareResponse = httpContext =>
                         {
+                            if (ModuleConfiguration.IsContractRequestPath == true)
+                            {
+                                if (httpContext.Context.Request.Path.ToString().StartsWith($"/{GlobalConfiguration.ContractRequestPath}/") == true)
+                                {
+                                    httpContext.Context.Response.StatusCode = StatusCodes.Status404NotFound;
+                                    httpContext.Context.Response.ContentLength = 0;
+                                    httpContext.Context.Response.Body = Stream.Null;
+                                    return;
+                                }
+                            }
+
                             var policy = corsPolicyProvider.GetPolicyAsync(httpContext.Context, null)
                             .ConfigureAwait(false)
                             .GetAwaiter().GetResult();

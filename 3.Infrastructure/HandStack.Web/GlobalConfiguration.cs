@@ -72,6 +72,7 @@ namespace HandStack.Web
         public static string ApplicationVersion = "";
         public static string EntryBasePath = "";
         public static string ContentRootPath = "";
+        public static string ContractRequestPath = "";
         public static string EnvironmentName = "";
         public static string WebRootPath = "";
         public static string BusinessServerUrl = "";

@@ -747,7 +747,7 @@ namespace ack
             app.Use(async (context, next) =>
             {
                 var requestPath = context.Request.Path.ToString();
-                if (GlobalConfiguration.IsPermissionRoles == true && requestPath.IndexOf("/view/") > -1)
+                if (GlobalConfiguration.IsPermissionRoles == true && requestPath.IndexOf($"/{GlobalConfiguration.ContractRequestPath}/") > -1)
                 {
                     bool isAuthorized = false;
                     var permissionRoles = GlobalConfiguration.PermissionRoles.Where(x => x.ModuleID == "wwwroot");
@@ -759,7 +759,23 @@ namespace ack
                             var publicRole = publicRoles.ElementAt(i);
                             if (publicRole != null)
                             {
-                                var allowTransactionPattern = new Regex($"[\\/]{publicRole.ApplicationID}[\\/]{publicRole.ProjectID}[\\/]{publicRole.TransactionID}");
+                                string pattern = "";
+                                if (string.IsNullOrEmpty(publicRole.ApplicationID) == false)
+                                {
+                                    pattern = pattern + $"[\\/]{publicRole.ApplicationID}";
+                                }
+
+                                if (string.IsNullOrEmpty(publicRole.ProjectID) == false)
+                                {
+                                    pattern = pattern + $"[\\/]{publicRole.ProjectID}";
+                                }
+
+                                if (string.IsNullOrEmpty(publicRole.TransactionID) == false)
+                                {
+                                    pattern = pattern + $"[\\/]{publicRole.TransactionID}";
+                                }
+
+                                var allowTransactionPattern = new Regex(pattern);
                                 isAuthorized = allowTransactionPattern.IsMatch(requestPath);
                                 if (isAuthorized == true)
                                 {
@@ -784,7 +800,23 @@ namespace ack
                                             var roles = permissionRole.RoleID.SplitComma();
                                             if (roles.Intersect(userRoles).Any() == true)
                                             {
-                                                var allowTransactionPattern = new Regex($"[\\/]{permissionRole.ApplicationID}[\\/]{permissionRole.ProjectID}[\\/]{permissionRole.TransactionID}");
+                                                string pattern = "";
+                                                if (string.IsNullOrEmpty(permissionRole.ApplicationID) == false)
+                                                {
+                                                    pattern = pattern + $"[\\/]{permissionRole.ApplicationID}";
+                                                }
+
+                                                if (string.IsNullOrEmpty(permissionRole.ProjectID) == false)
+                                                {
+                                                    pattern = pattern + $"[\\/]{permissionRole.ProjectID}";
+                                                }
+
+                                                if (string.IsNullOrEmpty(permissionRole.TransactionID) == false)
+                                                {
+                                                    pattern = pattern + $"[\\/]{permissionRole.TransactionID}";
+                                                }
+
+                                                var allowTransactionPattern = new Regex(pattern);
                                                 isAuthorized = allowTransactionPattern.IsMatch(requestPath);
                                                 break;
                                             }

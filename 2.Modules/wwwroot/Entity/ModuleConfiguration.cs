@@ -9,7 +9,7 @@ namespace wwwroot.Entity
         public static string Version = "";
         public static string AuthorizationKey = "";
         public static bool IsBundledWithHost = false;
-        public static string ContractRequestPath = "";
+        public static bool IsContractRequestPath = false;
         public static string ContractBasePath = "";
         public static string WWWRootBasePath = "";
         public static string ModuleFilePath = "";

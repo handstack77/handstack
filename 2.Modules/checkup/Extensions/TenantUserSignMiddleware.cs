@@ -93,7 +93,7 @@ namespace checkup.Extensions
                                                 else
                                                 {
                                                     string requestAbsoluteUrl = httpContext.Request.GetBaseUrl() + tenantAppBasePath;
-                                                    if (requestRefererUrl.Contains("/view/") == false && appSetting.AllowAnonymousPath?.Contains(requestRefererUrl.Replace(requestAbsoluteUrl, "")) == false)
+                                                    if (requestRefererUrl.Contains($"/{GlobalConfiguration.ContractRequestPath}/") == false && appSetting.AllowAnonymousPath?.Contains(requestRefererUrl.Replace(requestAbsoluteUrl, "")) == false)
                                                     {
                                                         httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
                                                         return;

@@ -139,7 +139,7 @@ namespace function.Areas.function.Controllers
                                             fileExtension = "cs";
                                             break;
                                         default:
-                                            fileExtension = "js";
+                                            fileExtension = "";
                                             break;
                                     }
 
