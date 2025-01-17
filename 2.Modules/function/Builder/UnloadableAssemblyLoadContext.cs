@@ -25,7 +25,7 @@ namespace function.Builder
         public Assembly? LoadAssembliyFromStream(Stream stream)
         {
             var assembly = LoadFromStream(stream);
-            if (string.IsNullOrEmpty(assembly.FullName.Replace("\\", "/")) == false)
+            if (string.IsNullOrEmpty(assembly.FullName) == false)
             {
                 LoadedAssemblies.TryAdd(assembly.FullName.Replace("\\", "/"), assembly);
             }

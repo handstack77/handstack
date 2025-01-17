@@ -56,7 +56,7 @@ namespace HandStack.Core
             Type? type = null;
             foreach (Type? eachType in targetAssembly.GetTypes())
             {
-                if (eachType != null && eachType.FullName.Replace("\\", "/") != null && eachType.FullName.Replace("\\", "/").Equals(typeName, StringComparison.OrdinalIgnoreCase))
+                if (eachType != null && eachType.FullName?.Replace("\\", "/") != null && eachType.FullName.Replace("\\", "/").Equals(typeName, StringComparison.OrdinalIgnoreCase))
                 {
                     type = eachType;
                     break;
@@ -83,7 +83,7 @@ namespace HandStack.Core
             {
                 foreach (Type? type in targetAssembly.GetTypes())
                 {
-                    if (type != null && type.FullName.Replace("\\", "/") != null && type.FullName.Replace("\\", "/").Equals(typeName, StringComparison.OrdinalIgnoreCase))
+                    if (type != null && type.FullName?.Replace("\\", "/") != null && type.FullName.Replace("\\", "/").Equals(typeName, StringComparison.OrdinalIgnoreCase))
                     {
                         return type;
                     }
@@ -97,7 +97,7 @@ namespace HandStack.Core
         {
             foreach (Type type in targetAssembly.GetTypes())
             {
-                if (type != null && type.FullName.Replace("\\", "/") != null && type.FullName.Replace("\\", "/").Equals(typeName, StringComparison.OrdinalIgnoreCase))
+                if (type != null && type.FullName?.Replace("\\", "/") != null && type.FullName.Replace("\\", "/").Equals(typeName, StringComparison.OrdinalIgnoreCase))
                 {
                     return type;
                 }
@@ -135,7 +135,7 @@ namespace HandStack.Core
 
                 foreach (Type type in targetAssembly.GetTypes())
                 {
-                    if (type != null && type.FullName.Replace("\\", "/") != null)
+                    if (type != null && type.FullName?.Replace("\\", "/") != null)
                     {
                         if (type.IsClass == true && type.FullName.Replace("\\", "/").EndsWith(className, StringComparison.CurrentCultureIgnoreCase))
                         {
@@ -159,7 +159,7 @@ namespace HandStack.Core
             {
                 foreach (Type type in loadAssembly.GetTypes())
                 {
-                    if (type != null && type.FullName.Replace("\\", "/") != null && type.IsClass == true)
+                    if (type != null && type.FullName?.Replace("\\", "/") != null && type.IsClass == true)
                     {
                         if (type.FullName.Replace("\\", "/").EndsWith(className, StringComparison.CurrentCultureIgnoreCase))
                         {
@@ -184,7 +184,7 @@ namespace HandStack.Core
 
                 foreach (Type type in targetAssembly.GetTypes())
                 {
-                    if (type != null && type.FullName.Replace("\\", "/") != null && type.IsClass == true)
+                    if (type != null && type.FullName?.Replace("\\", "/") != null && type.IsClass == true)
                     {
                         if (type.FullName.Replace("\\", "/").EndsWith(className, StringComparison.CurrentCultureIgnoreCase))
                         {
