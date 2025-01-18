@@ -104,6 +104,7 @@ namespace ack
             GlobalConfiguration.FindGlobalIDServer = appSettings["FindGlobalIDServer"].ToStringSafe();
             GlobalConfiguration.IsTenantFunction = bool.Parse(appSettings["IsTenantFunction"].ToStringSafe("false"));
             GlobalConfiguration.IsExceptionDetailText = bool.Parse(appSettings["IsExceptionDetailText"].ToStringSafe("false"));
+            GlobalConfiguration.IsModuleContractClear = bool.Parse(appSettings["IsModuleContractClear"].ToStringSafe("true"));
             GlobalConfiguration.SessionCookieName = appSettings.GetSection("SessionState").Exists() == true && bool.Parse(appSettings["SessionState:IsSession"].ToStringSafe("false")) == true ? appSettings["SessionState:SessionCookieName"].ToStringSafe("") : "";
             GlobalConfiguration.CookiePrefixName = appSettings["CookiePrefixName"].ToStringSafe("HandStack");
             GlobalConfiguration.UserSignExpire = int.Parse(appSettings["UserSignExpire"].ToStringSafe("1440"));
@@ -592,16 +593,19 @@ namespace ack
 
             var homePath = new DirectoryInfo(GlobalConfiguration.EntryBasePath).Parent?.FullName.Replace("\\", "/");
             string baseContractPath = PathExtensions.Combine(homePath.ToStringSafe(), "contracts");
-            if (Directory.Exists(baseContractPath) == true)
+            if (GlobalConfiguration.IsModuleContractClear == true)
             {
-                foreach (string file in Directory.GetFiles(baseContractPath))
+                if (Directory.Exists(baseContractPath) == true)
                 {
-                    File.Delete(file);
-                }
+                    foreach (string file in Directory.GetFiles(baseContractPath))
+                    {
+                        File.Delete(file);
+                    }
 
-                foreach (string subdirectory in Directory.GetDirectories(baseContractPath))
-                {
-                    Directory.Delete(subdirectory, true);
+                    foreach (string subdirectory in Directory.GetDirectories(baseContractPath))
+                    {
+                        Directory.Delete(subdirectory, true);
+                    }
                 }
             }
 
