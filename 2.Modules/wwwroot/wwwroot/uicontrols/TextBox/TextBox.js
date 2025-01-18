@@ -69,7 +69,7 @@
                 case 'english':
                     syn.$l.addEvent(el, 'focus', $textbox.event_focus);
                     syn.$l.addEvent(el, 'blur', $textbox.event_english_blur);
-                    syn.$l.addEvent(el, 'keydown', $textbox.event_english_keydown);
+                    syn.$l.addEvent(el, 'input', $textbox.event_english_input);
                     syn.$m.setStyle(el, 'ime-mode', 'disabled');
                     break;
                 case 'uppercase':
@@ -87,7 +87,7 @@
                 case 'number':
                     syn.$l.addEvent(el, 'focus', $textbox.event_numeric_focus);
                     syn.$l.addEvent(el, 'blur', $textbox.event_number_blur);
-                    syn.$l.addEvent(el, 'keypress', $textbox.event_numeric_keypress);
+                    syn.$l.addEvent(el, 'input', $textbox.event_numeric_input);
                     syn.$m.setStyle(el, 'ime-mode', 'disabled');
 
                     VMasker(el).maskNumber();
@@ -95,7 +95,7 @@
                 case 'numeric':
                     syn.$l.addEvent(el, 'focus', $textbox.event_numeric_focus);
                     syn.$l.addEvent(el, 'blur', $textbox.event_numeric_blur);
-                    syn.$l.addEvent(el, 'keypress', $textbox.event_numeric_keypress);
+                    syn.$l.addEvent(el, 'input', $textbox.event_numeric_input);
                     syn.$m.setStyle(el, 'ime-mode', 'disabled');
 
                     VMasker(el).maskNumber();
@@ -103,7 +103,7 @@
                 case 'spinner':
                     syn.$l.addEvent(el, 'focus', $textbox.event_numeric_focus);
                     syn.$l.addEvent(el, 'blur', $textbox.event_numeric_blur);
-                    syn.$l.addEvent(el, 'keypress', $textbox.event_numeric_keypress);
+                    syn.$l.addEvent(el, 'input', $textbox.event_numeric_input);
                     syn.$m.setStyle(el, 'ime-mode', 'disabled');
                     if (el.offsetWidth) {
                         // el.offsetWidth = el.offsetWidth <= 28 ? 0 : el.offsetWidth - 28;
@@ -125,46 +125,46 @@
                 case 'year':
                     syn.$l.addEvent(el, 'focus', $textbox.event_focus);
                     syn.$l.addEvent(el, 'blur', $textbox.event_year_blur);
-                    syn.$l.addEvent(el, 'keypress', $textbox.event_numeric_keypress);
+                    syn.$l.addEvent(el, 'input', $textbox.event_numeric_input);
                     break;
                 case 'date':
                     syn.$l.addEvent(el, 'focus', $textbox.event_focus);
                     syn.$l.addEvent(el, 'blur', $textbox.event_date_blur);
-                    syn.$l.addEvent(el, 'keypress', $textbox.event_numeric_keypress);
+                    syn.$l.addEvent(el, 'input', $textbox.event_numeric_input);
                     break;
                 case 'hour':
                     syn.$l.addEvent(el, 'focus', $textbox.event_focus);
                     syn.$l.addEvent(el, 'blur', $textbox.event_hour_blur);
-                    syn.$l.addEvent(el, 'keypress', $textbox.event_numeric_keypress);
+                    syn.$l.addEvent(el, 'input', $textbox.event_numeric_input);
                     syn.$m.setStyle(el, 'ime-mode', 'disabled');
                     break;
                 case 'minute':
                     syn.$l.addEvent(el, 'focus', $textbox.event_focus);
                     syn.$l.addEvent(el, 'blur', $textbox.event_minute_blur);
-                    syn.$l.addEvent(el, 'keypress', $textbox.event_numeric_keypress);
+                    syn.$l.addEvent(el, 'input', $textbox.event_numeric_input);
                     syn.$m.setStyle(el, 'ime-mode', 'disabled');
                     break;
                 case 'yearmonth':
                     syn.$l.addEvent(el, 'focus', $textbox.event_focus);
                     syn.$l.addEvent(el, 'blur', $textbox.event_yearmonth_blur);
-                    syn.$l.addEvent(el, 'keypress', $textbox.event_numeric_keypress);
+                    syn.$l.addEvent(el, 'input', $textbox.event_numeric_input);
                     break;
                 case 'homephone':
                     syn.$l.addEvent(el, 'focus', $textbox.event_phone_focus);
                     syn.$l.addEvent(el, 'blur', $textbox.event_homephone_blur);
-                    syn.$l.addEvent(el, 'keypress', $textbox.event_numeric_keypress);
+                    syn.$l.addEvent(el, 'input', $textbox.event_numeric_input);
                     syn.$m.setStyle(el, 'ime-mode', 'disabled');
                     break;
                 case 'mobilephone':
                     syn.$l.addEvent(el, 'focus', $textbox.event_phone_focus);
                     syn.$l.addEvent(el, 'blur', $textbox.event_mobilephone_blur);
-                    syn.$l.addEvent(el, 'keypress', $textbox.event_numeric_keypress);
+                    syn.$l.addEvent(el, 'input', $textbox.event_numeric_input);
                     syn.$m.setStyle(el, 'ime-mode', 'disabled');
                     break;
                 case 'phone':
                     syn.$l.addEvent(el, 'focus', $textbox.event_phone_focus);
                     syn.$l.addEvent(el, 'blur', $textbox.event_phone_blur);
-                    syn.$l.addEvent(el, 'keypress', $textbox.event_numeric_keypress);
+                    syn.$l.addEvent(el, 'input', $textbox.event_numeric_input);
                     syn.$m.setStyle(el, 'ime-mode', 'disabled');
                     break;
                 case 'email':
@@ -175,7 +175,7 @@
                 case 'juminno':
                     syn.$l.addEvent(el, 'focus', $textbox.event_focus);
                     syn.$l.addEvent(el, 'blur', $textbox.event_juminno_blur);
-                    syn.$l.addEvent(el, 'keypress', $textbox.event_numeric_keypress);
+                    syn.$l.addEvent(el, 'input', $textbox.event_numeric_input);
                     syn.$m.setStyle(el, 'ime-mode', 'disabled');
 
                     if ($string.isNullOrEmpty(setting.maskPattern) == true) {
@@ -185,7 +185,7 @@
                 case 'businessno':
                     syn.$l.addEvent(el, 'focus', $textbox.event_focus);
                     syn.$l.addEvent(el, 'blur', $textbox.event_businessno_blur);
-                    syn.$l.addEvent(el, 'keypress', $textbox.event_numeric_keypress);
+                    syn.$l.addEvent(el, 'input', $textbox.event_numeric_input);
                     syn.$m.setStyle(el, 'ime-mode', 'disabled');
 
                     if ($string.isNullOrEmpty(setting.maskPattern) == true) {
@@ -195,7 +195,7 @@
                 case 'corporateno':
                     syn.$l.addEvent(el, 'focus', $textbox.event_focus);
                     syn.$l.addEvent(el, 'blur', $textbox.event_corporateno_blur);
-                    syn.$l.addEvent(el, 'keypress', $textbox.event_numeric_keypress);
+                    syn.$l.addEvent(el, 'input', $textbox.event_numeric_input);
                     syn.$m.setStyle(el, 'ime-mode', 'disabled');
 
                     if ($string.isNullOrEmpty(setting.maskPattern) == true) {
@@ -224,13 +224,14 @@
             }
         },
 
-        event_english_keydown(evt) {
+        event_english_input(evt) {
+            var el = evt.target || evt.srcElement || evt;
             var charCode = evt.which || evt.keyCode;
             var value = false;
-            if ((charCode > 7 && charCode < 47) == true || (charCode > 64 && charCode < 91) == true || (charCode > 47 && charCode < 58) == true || (charCode > 95 && charCode < 123) == true) {
+            if (/^[a-zA-Z0-9_]$/.test(String.fromCharCode(charCode))) {
+                value = true;
             }
             else {
-                var el = evt.target || evt.srcElement || evt;
                 el.value = el.value.replace(/[\ㄱ-ㅎㅏ-ㅣ가-힣]/g, '');
 
                 evt.returnValue = false;
@@ -242,7 +243,15 @@
                 value = false;
             }
 
-            value = true;
+            var synOptions = JSON.parse(el.getAttribute('syn-options'));
+            var textCase = synOptions.textCase || '';
+            if (textCase == 'upper') {
+                el.value = el.value.toUpperCase();
+            }
+            else if (textCase == 'lower') {
+                el.value = el.value.toLowerCase();
+            }
+
             return value;
         },
 
@@ -272,7 +281,7 @@
             return false;
         },
 
-        event_numeric_keypress(evt) {
+        event_numeric_input(evt) {
             var el = evt.target || evt.srcElement || evt;
             var charCode = evt.which || evt.keyCode;
             var value = false;
