@@ -115,6 +115,7 @@ namespace HandStack.Web
 
         public static string GetBasePath(string? basePath, string? defaultPath = "")
         {
+            basePath = Environment.ExpandEnvironmentVariables(basePath.ToStringSafe());
             basePath = string.IsNullOrEmpty(basePath) == true ? "" : (basePath.StartsWith(".") == true ? Path.GetFullPath(basePath, EntryBasePath) : new DirectoryInfo(basePath).FullName.Replace("\\", "/"));
             if (string.IsNullOrEmpty(basePath) == true && string.IsNullOrEmpty(defaultPath) == false)
             {
