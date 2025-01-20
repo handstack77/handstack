@@ -872,22 +872,16 @@ namespace handstack
             #region create
 
             var subCommandCreate = new Command("create", "modules, webapp 템플릿 ZIP 파일을 기반으로 프로젝트를 생성합니다") {
-                optionAckFile, optionFile, optionKey, optionDirectory, optionFind, optionReplace, optionValue
+                optionFile, optionDirectory, optionFind, optionReplace, optionValue
             };
 
-            // handstack create --ack=%HANDSTACK_HOME%/app/ack.exe --file=C:/tmp/handstack.zip --directory=C:/tmp/handstack --find=handstack --replace=myprojectname
-            subCommandCreate.SetHandler((ackFile, file, key, directory, find, replace, ignored) =>
+            // handstack create --file=C:/tmp/handstack.zip --directory=C:/tmp/handstack --find=handstack --replace=myprojectname
+            subCommandCreate.SetHandler((file, directory, find, replace, ignored) =>
             {
-                if (ackFile != null && ackFile.Exists == true && file != null && file.Exists == true && directory != null)
+                if (file != null && file.Exists == true && directory != null && directory.Exists == false)
                 {
-                    string ackHomePath = (ackFile.Directory?.Parent?.FullName.Replace("\\", "/")).ToStringSafe();
-                    if (directory.Exists == true)
-                    {
-                        directory.Delete(true);
-                    }
-
                     string targetDirectoryPath = directory.FullName.Replace("\\", "/");
-                    ZipFile.ExtractToDirectory(file.FullName.Replace("\\", "/"), targetDirectoryPath);
+                    ZipFile.ExtractToDirectory(file.FullName.Replace("\\", "/"), targetDirectoryPath, true);
 
                     if (string.IsNullOrEmpty(ignored) == false)
                     {
@@ -901,7 +895,7 @@ namespace handstack
                             string findText = find;
                             string replaceText = replace;
 
-                            ReplaceInFiles(ackHomePath, targetDirectoryPath, findText, replaceText, deleteVsUserSettingsDirectory: true);
+                            ReplaceInFiles(targetDirectoryPath, findText, replaceText, deleteVsUserSettingsDirectory: true);
 
                             ReplaceInFileNames(targetDirectoryPath, findText, replaceText, deleteVsUserSettingsDirectory: true);
 
@@ -916,9 +910,9 @@ namespace handstack
                 }
                 else
                 {
-                    Log.Information($"ackFile:{ackFile?.FullName.Replace("\\", "/")}, directory:{directory?.FullName.Replace("\\", "/")}, file:{file?.FullName.Replace("\\", "/")} 확인이 필요합니다");
+                    Log.Information($"file:{file?.FullName.Replace("\\", "/")}, directory:{directory?.FullName.Replace("\\", "/")} 확인이 필요합니다");
                 }
-            }, optionAckFile, optionFile, optionKey, optionDirectory, optionFind, optionReplace, optionValue);
+            }, optionFile, optionDirectory, optionFind, optionReplace, optionValue);
 
             rootCommand.Add(subCommandCreate);
 
@@ -1180,7 +1174,7 @@ namespace handstack
             }
         }
 
-        public static void ReplaceInFiles(string ackHomePath, string directoryPath, string findText, string replaceText, bool deleteVsUserSettingsDirectory)
+        public static void ReplaceInFiles(string directoryPath, string findText, string replaceText, bool deleteVsUserSettingsDirectory)
         {
             var directoryInfo = new DirectoryInfo(directoryPath);
 
@@ -1206,7 +1200,7 @@ namespace handstack
 
             foreach (string directory in Directory.GetDirectories(directoryPath))
             {
-                ReplaceInFiles(ackHomePath, directory, findText, replaceText, deleteVsUserSettingsDirectory);
+                ReplaceInFiles(directory, findText, replaceText, deleteVsUserSettingsDirectory);
             }
         }
 

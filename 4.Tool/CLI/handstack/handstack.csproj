@@ -64,6 +64,11 @@
         <None Update="appsettings/**">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+        <None Include="templates/**" />
+        <None Update="templates/**">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <Compile Remove="templates/**" />
         <None Update="task.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
