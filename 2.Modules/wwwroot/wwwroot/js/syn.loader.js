@@ -130,6 +130,9 @@
                 synLoader.eventLog('request', 'loading style ' + url);
 
                 var url = synLoader.styleFiles[i];
+                var originalUrl = url;
+                var style = document.createElement('link');
+                var fileName = url.split('?')[0].split('/').pop();
                 if (synLoader.assetsCachingID != '' && url.indexOf('/view/') == -1) {
                     url = url + (url.indexOf('?') > -1 ? '&' : '?') + synLoader.assetsCachingID;
                 }
@@ -137,10 +140,16 @@
                     url = url + (url.indexOf('?') > -1 ? '&' : '?') + synLoader.noCache;
                 }
 
-                var style = document.createElement('link');
-                style.rel = 'stylesheet';
+                if (fileName == 'preload.css') {
+                    style.rel = 'preload';
+                    style.as = 'style';
+                    style.href = originalUrl;
+                } else {
+                    style.rel = 'stylesheet';
+                    style.href = url;
+                }
+
                 style.type = 'text/css';
-                style.href = url;
                 style.async = 'async';
 
                 if (url.indexOf('dark_mode') > -1) {
@@ -148,6 +157,10 @@
                 }
 
                 style.onload = function (evt) {
+                    if (evt.target.rel == 'preload') {
+                        evt.target.rel = 'stylesheet';
+                    }
+
                     synLoader.eventLog('loaded', 'loaded style: ' + evt.target.href);
                     synLoader.currentLoadedCount++;
                     synLoader.styleLoadedCount++;
