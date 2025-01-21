@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.IO;
 using System.Net;
-using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
@@ -67,7 +66,7 @@ namespace ack
             cancellationTokenSource.Token.ThrowIfCancellationRequested();
             isServiceRunning = true;
 
-            if (Array.Exists(args, p => p == "showenv=1") == true || Array.Exists(args, p => p == "showenv=Y") == true)
+            if (Array.Exists(args, p => p == "--showenv") == true)
             {
                 Log.Information($"Bootstrapping IConfigurationRoot... {GlobalConfiguration.BootstrappingVariables(configuration)}");
             }

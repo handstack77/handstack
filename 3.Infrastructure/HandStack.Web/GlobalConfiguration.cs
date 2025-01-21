@@ -86,6 +86,7 @@ namespace HandStack.Web
         public static string CreateAppTempPath = "";
         public static string ForbesBasePath = "";
         public static string LoadModuleBasePath = "";
+        public static string LoadContractBasePath = "";
         public static int UserSignExpire = 720;
         public static string CookiePrefixName = "";
         public static int ServerPort = 8000;

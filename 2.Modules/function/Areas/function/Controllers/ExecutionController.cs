@@ -81,7 +81,7 @@ namespace function.Areas.function.Controllers
 
         // http://localhost:8000/function/api/execution/refresh?changeType=Created&filePath=EWP/ZZD/TST010/featureMain.js
         [HttpGet("[action]")]
-        public ActionResult Refresh(string changeType, string filePath, string language, string? userWorkID, string? applicationID)
+        public ActionResult Refresh(string changeType, string filePath, string? userWorkID, string? applicationID)
         {
             ActionResult result = NotFound();
             if (HttpContext.IsAllowAuthorization() == false)
@@ -114,7 +114,7 @@ namespace function.Areas.function.Controllers
                                 if (string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false)
                                 {
                                     string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-                                    string itemPath = PathExtensions.Combine(appBasePath, filePath);
+                                    string itemPath = PathExtensions.Join(appBasePath, filePath);
                                     DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
                                     if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true)
                                     {
@@ -134,7 +134,7 @@ namespace function.Areas.function.Controllers
                                 {
                                     foreach (var basePath in ModuleConfiguration.ContractBasePath)
                                     {
-                                        string itemPath = PathExtensions.Combine(basePath, filePath);
+                                        string itemPath = PathExtensions.Join(basePath, filePath);
                                         DirectoryInfo directoryInfo = new DirectoryInfo(basePath);
                                         if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true)
                                         {

@@ -114,7 +114,7 @@ namespace prompter.Areas.prompter.Controllers
                                 if (string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false)
                                 {
                                     string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-                                    string itemPath = PathExtensions.Combine(appBasePath, filePath);
+                                    string itemPath = PathExtensions.Join(appBasePath, filePath);
                                     DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
                                     if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true)
                                     {
@@ -129,7 +129,7 @@ namespace prompter.Areas.prompter.Controllers
                                 {
                                     foreach (var basePath in ModuleConfiguration.ContractBasePath)
                                     {
-                                        string itemPath = PathExtensions.Combine(basePath, filePath);
+                                        string itemPath = PathExtensions.Join(basePath, filePath);
                                         DirectoryInfo directoryInfo = new DirectoryInfo(basePath);
                                         if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true)
                                         {

@@ -5,6 +5,7 @@ using System.IO;
 using HandStack.Core.ExtensionMethod;
 
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace HandStack.Web.Modules
 {
@@ -53,7 +54,10 @@ namespace HandStack.Web.Modules
                     {
                         using var reader = new StreamReader(moduleSettingFilePath);
                         string content = reader.ReadToEnd();
-                        var module = JsonConvert.DeserializeObject<DefaultModuleConfigJson>(content);
+
+                        var settings = new JsonSerializerSettings();
+                        settings.Converters.Add(new StringOrArrayConverter());
+                        var module = JsonConvert.DeserializeObject<DefaultModuleConfigJson>(content, settings);
 
                         if (module != null)
                         {
@@ -64,8 +68,19 @@ namespace HandStack.Web.Modules
                             moduleInfo.Name = moduleID;
                             moduleInfo.Version = Version.Parse(module.Version.ToString());
                             moduleInfo.IsBundledWithHost = module.IsBundledWithHost;
-                            moduleInfo.IsPurgeContract = module.IsPurgeContract;
                             moduleInfo.IsCopyContract = module.IsCopyContract;
+                            moduleInfo.IsPurgeContract = module.IsPurgeContract;
+
+                            if (module.ModuleConfig?.ContractBasePath != null)
+                            {
+                                List<string> keyValues = new List<string>();
+                                foreach (var item in module.ModuleConfig.ContractBasePath)
+                                {
+                                    keyValues.Add(item.ToString());
+                                }
+
+                                moduleInfo.ContractBasePath = keyValues;
+                            }
 
                             if (module.ModuleConfig?.EventAction != null)
                             {
@@ -125,14 +140,57 @@ namespace HandStack.Web.Modules
 
     class DefaultModuleConfig
     {
+        public List<string> ContractBasePath { get; set; }
+
         public List<string> EventAction { get; set; }
 
         public List<string> SubscribeAction { get; set; }
 
         public DefaultModuleConfig()
         {
+            ContractBasePath = new List<string>();
             EventAction = new List<string>();
             SubscribeAction = new List<string>();
+        }
+    }
+
+    class StringOrArrayConverter : JsonConverter
+    {
+        public override bool CanConvert(Type objectType)
+        {
+            return objectType == typeof(List<string>);
+        }
+
+#pragma warning disable CS8765
+        public override object? ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+#pragma warning restore CS8765
+        {
+            JToken token = JToken.Load(reader);
+            if (token.Type == JTokenType.Array)
+            {
+                return token.ToObject<List<string>>();
+            }
+            return new List<string> { token.ToString() };
+        }
+
+#pragma warning disable CS8765
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+#pragma warning restore CS8765
+        {
+            var list = (List<string>)value;
+            if (list.Count == 1)
+            {
+                writer.WriteValue(list[0]);
+            }
+            else
+            {
+                writer.WriteStartArray();
+                foreach (var item in list)
+                {
+                    writer.WriteValue(item);
+                }
+                writer.WriteEndArray();
+            }
         }
     }
 }

@@ -24,6 +24,8 @@ namespace HandStack.Web.Modules
 
         public bool IsPurgeContract { get; set; }
 
+        public List<string> ContractBasePath { get; set; }
+
         public Version Version { get; set; }
 
         public Assembly? Assembly { get; set; }
@@ -44,6 +46,7 @@ namespace HandStack.Web.Modules
             IsBundledWithHost = false;
             IsCopyContract = true;
             IsPurgeContract = false;
+            ContractBasePath = new List<string>();
             Version = Version.Parse("0.0.0");
             Assembly = null;
             EventAction = new List<string>(); // ToModuleEventID

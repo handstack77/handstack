@@ -154,6 +154,7 @@ namespace ack
             GlobalConfiguration.CreateAppTempPath = GlobalConfiguration.GetBasePath(appSettings["CreateAppTempPath"]);
             GlobalConfiguration.ForbesBasePath = GlobalConfiguration.GetBasePath(appSettings["ForbesBasePath"]);
             GlobalConfiguration.LoadModuleBasePath = GlobalConfiguration.GetBasePath(appSettings["LoadModuleBasePath"]);
+            GlobalConfiguration.LoadContractBasePath = GlobalConfiguration.GetBasePath(PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "..", "contracts"));
 
             string disposeTenantAppsFilePath = PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "dispose-tenantapps.log");
             if (File.Exists(disposeTenantAppsFilePath) == true)
@@ -615,6 +616,28 @@ namespace ack
 
                 if (module.Assembly != null)
                 {
+                    try
+                    {
+                        string moduleContractPath = PathExtensions.Combine(module.BasePath, "Contracts");
+                        if (module.IsCopyContract == true && Directory.Exists(moduleContractPath) == true)
+                        {
+                            DirectoryCopy(moduleContractPath, baseContractPath);
+                        }
+                    }
+                    catch
+                    {
+                        Log.Error("[{LogCategory}] " + $"module: {module.ModuleID} DirectoryCopy 확인 필요", "ack Startup/ConfigureServices");
+                        throw;
+                    }
+                }
+            }
+
+            foreach (var module in GlobalConfiguration.Modules)
+            {
+                Log.Information("[{LogCategory}] " + $"module: {module.ModuleID}", "Startup/ConfigureServices");
+
+                if (module.Assembly != null)
+                {
                     var moduleInitializerType = module.Assembly.GetTypes().FirstOrDefault(t => typeof(IModuleInitializer).IsAssignableFrom(t));
                     if (moduleInitializerType != null && (moduleInitializerType != typeof(IModuleInitializer)))
                     {
@@ -626,39 +649,37 @@ namespace ack
                             {
                                 try
                                 {
-                                    string moduleContractPath = PathExtensions.Combine(module.BasePath, "Contracts");
-                                    if (module.IsCopyContract == true && Directory.Exists(moduleContractPath) == true)
-                                    {
-                                        DirectoryCopy(moduleContractPath, baseContractPath);
-                                    }
-
                                     if (module.IsPurgeContract == true)
                                     {
-                                        var ackFile = new FileInfo(PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "ack.dll"));
-                                        var directory = new DirectoryInfo(moduleContractPath);
-                                        if (ackFile != null && ackFile.Exists == true && directory != null && directory.Exists == true)
+                                        foreach (var basePath in module.ContractBasePath)
                                         {
-                                            string appBasePath = ackFile.DirectoryName.ToStringSafe();
-                                            string ackHomePath = (ackFile.Directory?.Parent?.FullName.Replace("\\", "/")).ToStringSafe();
-                                            string targetContractDir = PathExtensions.Combine(ackHomePath, "contracts");
-                                            string baseDir = directory.FullName.Replace("\\", "/");
-
-                                            try
+                                            string moduleContractPath = GlobalConfiguration.GetBasePath(basePath);
+                                            if (moduleContractPath.StartsWith(GlobalConfiguration.LoadContractBasePath) == true)
                                             {
-                                                string[] modules = { "dbclient", "transact", "wwwroot", "repository", "function" };
-                                                foreach (string moduleID in modules)
+                                                continue;
+                                            }
+
+                                            var ackFile = new FileInfo(PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "ack.dll"));
+                                            var directory = new DirectoryInfo(moduleContractPath);
+                                            if (ackFile != null && ackFile.Exists == true && directory != null && directory.Exists == true)
+                                            {
+                                                string appBasePath = ackFile.DirectoryName.ToStringSafe();
+                                                string ackHomePath = (ackFile.Directory?.Parent?.FullName.Replace("\\", "/")).ToStringSafe();
+                                                string sourceContractDirectory = directory.FullName.Replace("\\", "/");
+                                                string targetContractDirectory = PathExtensions.Combine(ackHomePath, "contracts", module.ModuleID);
+
+                                                try
                                                 {
-                                                    string dirPath = PathExtensions.Combine(baseDir, moduleID);
-                                                    if (Directory.Exists(dirPath))
+                                                    if (Directory.Exists(sourceContractDirectory))
                                                     {
-                                                        string[] files = Directory.GetFiles(dirPath, "*", SearchOption.AllDirectories);
+                                                        string[] files = Directory.GetFiles(sourceContractDirectory, "*", SearchOption.AllDirectories);
                                                         foreach (string baseFile in files)
                                                         {
-                                                            string targetFile = baseFile.Replace(baseDir, targetContractDir);
+                                                            string targetFile = baseFile.Replace(sourceContractDirectory, targetContractDirectory);
                                                             if (File.Exists(targetFile) == true)
                                                             {
                                                                 File.Delete(targetFile);
-                                                                if (moduleID == "function")
+                                                                if (module.ModuleID == "function")
                                                                 {
                                                                     var parentDirectory = Path.GetDirectoryName(targetFile);
                                                                     if (Directory.Exists(parentDirectory) == true && Directory.GetFiles(parentDirectory).Length == 0)
@@ -670,17 +691,17 @@ namespace ack
                                                         }
                                                     }
                                                 }
+                                                catch (Exception exception)
+                                                {
+                                                    Log.Error(exception, $"{module.ModuleID} purgecontracts 오류");
+                                                }
                                             }
-                                            catch (Exception exception)
+                                            else
                                             {
-                                                Log.Error(exception, $"{module.ModuleID} purgecontracts 오류");
-                                            }
-                                        }
-                                        else
-                                        {
-                                            if (ackFile?.Exists == false)
-                                            {
-                                                Log.Error($"ackFile:{ackFile?.FullName.Replace("\\", "/")} 파일 확인이 필요합니다");
+                                                if (ackFile?.Exists == false)
+                                                {
+                                                    Log.Error($"ackFile:{ackFile?.FullName.Replace("\\", "/")} 파일 확인이 필요합니다");
+                                                }
                                             }
                                         }
                                     }
