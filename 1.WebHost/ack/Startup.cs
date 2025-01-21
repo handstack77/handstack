@@ -678,7 +678,10 @@ namespace ack
                                         }
                                         else
                                         {
-                                            Log.Information($"ackFile:{ackFile?.FullName.Replace("\\", "/")} 파일 확인 또는 settings:{directory?.FullName.Replace("\\", "/")} 파일 확인이 필요합니다");
+                                            if (ackFile?.Exists == false)
+                                            {
+                                                Log.Error($"ackFile:{ackFile?.FullName.Replace("\\", "/")} 파일 확인이 필요합니다");
+                                            }
                                         }
                                     }
 
