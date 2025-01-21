@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.CommandLine;
 using System.Diagnostics;
 using System.IO;
@@ -56,6 +57,21 @@ namespace ack
             if (GlobalConfiguration.EntryBasePath != Environment.CurrentDirectory)
             {
                 Environment.CurrentDirectory = GlobalConfiguration.EntryBasePath;
+            }
+
+            if (OperatingSystem.IsWindows() == true)
+            {
+                IDictionary userVariables = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.User);
+                foreach (DictionaryEntry entry in userVariables)
+                {
+                    Environment.SetEnvironmentVariable(entry.Key.ToStringSafe(), entry.Value.ToStringSafe(), EnvironmentVariableTarget.Process);
+                }
+
+                IDictionary machineVariables = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Machine);
+                foreach (DictionaryEntry entry in machineVariables)
+                {
+                    Environment.SetEnvironmentVariable(entry.Key.ToStringSafe(), entry.Value.ToStringSafe(), EnvironmentVariableTarget.Process);
+                }
             }
 
             var environmentName = Environment.GetEnvironmentVariable("ACK_ENVIRONMENT");
