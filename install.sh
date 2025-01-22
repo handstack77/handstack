@@ -53,13 +53,13 @@ if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
     sudo sed -i '/export HANDSTACK_SRC=/d' /etc/profile
     echo "export HANDSTACK_SRC=\"$current_path\"" | sudo tee -a /etc/profile
     export HANDSTACK_SRC="$current_path"
+    source /etc/profile
 
     mkdir -p $current_path/1.WebHost/build/handstack
     
     sudo sed -i '/export HANDSTACK_HOME=/d' /etc/profile
     echo "export HANDSTACK_HOME=\"$current_path/1.WebHost/build/handstack\"" | sudo tee -a /etc/profile
     export HANDSTACK_HOME="$current_path/1.WebHost/build/handstack"
-
     source /etc/profile
 
     echo "current_path: $current_path 개발 환경 설치 확인 중..."
