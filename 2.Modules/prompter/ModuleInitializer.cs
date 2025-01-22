@@ -63,6 +63,7 @@ namespace prompter
                         ModuleConfiguration.AuthorizationKey = string.IsNullOrEmpty(moduleConfig.AuthorizationKey) == false ? moduleConfig.AuthorizationKey : GlobalConfiguration.SystemID + GlobalConfiguration.RunningEnvironment + GlobalConfiguration.HostName;
                         ModuleConfiguration.IsBundledWithHost = moduleConfigJson.IsBundledWithHost;
 
+                        ModuleConfiguration.IsContractFileWatching = moduleConfig.IsContractFileWatching;
                         foreach (var basePath in moduleConfig.ContractBasePath)
                         {
                             ModuleConfiguration.ContractBasePath.Add(GlobalConfiguration.GetBasePath(basePath));
@@ -204,7 +205,7 @@ namespace prompter
             var client = new RestClient();
             foreach (var basePath in ModuleConfiguration.ContractBasePath)
             {
-                if (Directory.Exists(basePath) == true && basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == false)
+                if (Directory.Exists(basePath) == true && basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == false && ModuleConfiguration.IsContractFileWatching == true)
                 {
                     var fileSyncManager = new FileSyncManager(basePath, "*.xml");
                     fileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>

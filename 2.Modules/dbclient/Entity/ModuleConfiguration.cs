@@ -16,6 +16,7 @@ namespace dbclient.Entity
         public static string AuthorizationKey = "";
         public static List<string> AllowClientIP = new List<string>() { "*" };
         public static bool IsBundledWithHost = false;
+        public static bool IsContractFileWatching = true;
         public static List<string> ContractBasePath = new List<string>();
         public static Dictionary<string, FileSyncManager> SQLFileSyncManager = new Dictionary<string, FileSyncManager>();
         public static string BusinessServerUrl = "";

@@ -31,6 +31,8 @@ namespace dbclient.Entity
 
         public string LogServerUrl { get; set; }
 
+        public bool IsContractFileWatching { get; set; }
+
         public List<string> ContractBasePath { get; set; }
 
         public bool IsTransactionLogging { get; set; }
@@ -56,6 +58,7 @@ namespace dbclient.Entity
             IsLogServer = false;
             LocalStoragePath = "";
             LogServerUrl = "";
+            IsContractFileWatching = false;
             ContractBasePath = new List<string>();
             IsTransactionLogging = false;
             ModuleLogFilePath = "";

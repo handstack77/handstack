@@ -47,6 +47,8 @@ namespace transact.Entity
 
         public string ModuleBasePath { get; set; }
 
+        public bool IsContractFileWatching { get; set; }
+
         public List<string> ContractBasePath { get; set; }
 
         public bool UseApiAuthorize { get; set; }
@@ -90,6 +92,7 @@ namespace transact.Entity
             MaskingChar = "";
             MaskingMethod = "";
             ModuleBasePath = "";
+            IsContractFileWatching = false;
             ContractBasePath = new List<string>();
             UseApiAuthorize = false;
             BypassAuthorizeIP = new List<string>();

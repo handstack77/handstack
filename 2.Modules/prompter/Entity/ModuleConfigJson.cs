@@ -31,6 +31,8 @@ namespace prompter.Entity
 
         public string LogServerUrl { get; set; }
 
+        public bool IsContractFileWatching { get; set; }
+
         public List<string> ContractBasePath { get; set; }
 
         public bool IsTransactionLogging { get; set; }
@@ -51,6 +53,7 @@ namespace prompter.Entity
             ModuleLogFilePath = "";
             IsLogServer = false;
             LogServerUrl = "";
+            IsContractFileWatching = false;
             ContractBasePath = new List<string>();
             CircuitBreakResetSecond = 30;
             LLMSource = new List<DataSource>();

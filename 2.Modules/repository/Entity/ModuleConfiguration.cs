@@ -14,6 +14,7 @@ namespace repository.Entity
         public static List<string> AllowClientIP = new List<string>() { "*" };
         public static bool IsBundledWithHost = false;
         public static string DatabaseContractPath = "";
+        public static bool IsContractFileWatching = true;
         public static List<string> ContractBasePath = new List<string>();
         public static string ModuleBasePath = "";
         public static string ModuleFilePath = "";

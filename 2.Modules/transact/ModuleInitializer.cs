@@ -77,6 +77,7 @@ namespace transact
                         ModuleConfiguration.IsTransactionLogging = moduleConfig.IsTransactionLogging;
                         ModuleConfiguration.LogServerUrl = moduleConfig.LogServerUrl;
 
+                        ModuleConfiguration.IsContractFileWatching = moduleConfig.IsContractFileWatching;
                         foreach (var basePath in moduleConfig.ContractBasePath)
                         {
                             ModuleConfiguration.ContractBasePath.Add(GlobalConfiguration.GetBasePath(basePath));
@@ -201,7 +202,7 @@ namespace transact
             var client = new RestClient();
             foreach (var basePath in ModuleConfiguration.ContractBasePath)
             {
-                if (Directory.Exists(basePath) == true && basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == false)
+                if (Directory.Exists(basePath) == true && basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == false && ModuleConfiguration.IsContractFileWatching == true)
                 {
                     var fileSyncManager = new FileSyncManager(basePath, "*.json");
                     fileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>

@@ -380,10 +380,10 @@ namespace function
             var client = new RestClient();
             foreach (var basePath in ModuleConfiguration.ContractBasePath)
             {
-                if (Directory.Exists(basePath) == true && basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == false)
+                if (Directory.Exists(basePath) == true && basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == false && ModuleConfiguration.EnableFileWatching == true)
                 {
                     string functionContractBasePath = PathExtensions.Combine(basePath);
-                    if (Directory.Exists(functionContractBasePath) == true && ModuleConfiguration.EnableFileWatching == true)
+                    if (Directory.Exists(functionContractBasePath) == true)
                     {
                         List<string> patterns = new List<string>();
                         patterns.AddRange(ModuleConfiguration.WatchFileNamePatterns);
