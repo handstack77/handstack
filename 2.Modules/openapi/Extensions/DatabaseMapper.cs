@@ -161,7 +161,6 @@ namespace openapi.Extensions
             evalString = evalString.Replace(" or ", " || ");
             string evalText = evalString.Replace("'", "\"");
 
-            // bool evalResult = Eval.Execute<bool>(evalText, parameters);
             string line = JsonUtils.GenerateDynamicLinqStatement(parameters);
             var queryable = new[] { parameters }.AsQueryable().Select(line.Replace("#", "$"));
             bool evalResult = queryable.Any(evalText);
@@ -185,7 +184,6 @@ namespace openapi.Extensions
             evalString = ReplaceEvalString(evalString, parameters);
             string evalText = evalString.Replace("'", "\"");
 
-            // string evalResult = Eval.Execute<string>(evalText, parameters);
             string evalResult = evalText;
             string line = JsonUtils.GenerateDynamicLinqStatement(parameters);
             var queryable = new[] { parameters }.AsQueryable().Select(line.Replace("#", "$"));
