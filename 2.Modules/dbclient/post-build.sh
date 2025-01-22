@@ -7,7 +7,11 @@ configuration_name=${2}
 platform_name=${3}
 project_dir=${4}
 
-echo "target_dir: $target_dir, configuration_name: $configuration_name, platform_name: $platform_name, project_dir: $project_dir"
+echo "HANDSTACK_HOME: $HANDSTACK_HOME"
+echo "target_dir: $target_dir"
+echo "configuration_name: $configuration_name"
+echo "platform_name: $platform_name"
+echo "project_dir: $project_dir"
 
 if [ ! -d ../../1.WebHost/build/handstack/modules/dbclient ]; then 
     mkdir -p ../../1.WebHost/build/handstack/modules/dbclient
