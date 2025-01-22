@@ -17,7 +17,7 @@
         <IsPublishable>True</IsPublishable>
         <AssemblyName>ack</AssemblyName>
         <Description>HandStack은 고객과 업무에 들여야 하는 시간과 노력을 줄입니다</Description>
-		<NoWarn>IL3000;IL3002</NoWarn>
+		<NoWarn>IL3000;IL3002;NU1903;ASP0023;</NoWarn>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

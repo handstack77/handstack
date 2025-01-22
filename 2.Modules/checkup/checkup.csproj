@@ -13,7 +13,7 @@
 		<PlatformTarget>AnyCPU</PlatformTarget>
 		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 		<OutputType>Library</OutputType>
-		<NoWarn>ASP0023;NETSDK1206</NoWarn>
+		<NoWarn>NU1903;ASP0023;</NoWarn>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

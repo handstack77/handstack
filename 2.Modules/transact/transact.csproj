@@ -11,7 +11,7 @@
         <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
         <BaseOutputPath></BaseOutputPath>
         <OutputType>Library</OutputType>
-        <NoWarn>ASP0023;CS8765</NoWarn>
+        <NoWarn>NU1903;ASP0023;CS8765</NoWarn>
     </PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
