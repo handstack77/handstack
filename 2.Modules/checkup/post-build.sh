@@ -18,4 +18,4 @@ if [ ! -d ../../1.WebHost/build/handstack/modules/checkup ]; then
 fi
 
 rm -f $target_dir/HandStack.*
-rsync -avq $target_dir ../../1.WebHost/build/handstack/modules/checkup
+rsync -avq --delete $target_dir ../../1.WebHost/build/handstack/modules/checkup

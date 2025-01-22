@@ -54,13 +54,13 @@ if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
     echo "export HANDSTACK_SRC=\"$current_path\"" | sudo tee -a /etc/profile
     export HANDSTACK_SRC="$current_path"
     source /etc/profile
-
-    mkdir -p $current_path/1.WebHost/build/handstack
     
     sudo sed -i '/export HANDSTACK_HOME=/d' /etc/profile
     echo "export HANDSTACK_HOME=\"$current_path/1.WebHost/build/handstack\"" | sudo tee -a /etc/profile
     export HANDSTACK_HOME="$current_path/1.WebHost/build/handstack"
     source /etc/profile
+
+    mkdir -p $current_path/1.WebHost/build/handstack
 
     echo "current_path: $current_path 개발 환경 설치 확인 중..."
     if [ ! -d "$current_path/1.WebHost/ack/node_modules" ]; then
@@ -122,12 +122,10 @@ fi
 
 if [ -f "$current_path/app/ack.dll" ]; then
     echo "current_path: $current_path ack 실행 환경 설치 확인 중..."
-    if [ -z "$HANDSTACK_HOME" ]; then
-        sudo sed -i '/export HANDSTACK_HOME=/d' /etc/profile
-        echo "export HANDSTACK_HOME=\"$current_path\"" | sudo tee -a /etc/profile
-        export HANDSTACK_HOME="$current_path"
-        source /etc/profile
-    fi
+    sudo sed -i '/export HANDSTACK_HOME=/d' /etc/profile
+    echo "export HANDSTACK_HOME=\"$current_path\"" | sudo tee -a /etc/profile
+    export HANDSTACK_HOME="$current_path"
+    source /etc/profile
 
     if [ ! -d "$current_path/node_modules" ]; then
         echo "function 모듈 $current_path/package.json 설치를 시작합니다..."
