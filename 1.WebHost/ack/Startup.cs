@@ -866,6 +866,19 @@ namespace ack
                     }
                 }
 
+                var path = context.Request.Path.Value;
+                if (path != null && (path.EndsWith(".html", StringComparison.OrdinalIgnoreCase) == true || path.EndsWith(".htm", StringComparison.OrdinalIgnoreCase) == true))
+                {
+                    context.Response.OnStarting(() =>
+                    {
+                        if (context.Response.Headers.ContainsKey("Content-Type") == false)
+                        {
+                            context.Response.Headers.Append("Content-Type", "text/html; charset=utf-8");
+                        }
+                        return Task.CompletedTask;
+                    });
+                }
+
                 await next(context);
             });
 
