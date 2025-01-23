@@ -5,6 +5,7 @@ using System.Linq;
 using HandStack.Core.ExtensionMethod;
 using HandStack.Web;
 using HandStack.Web.Entity;
+using HandStack.Web.Extensions;
 using HandStack.Web.Modules;
 
 using Microsoft.AspNetCore.Builder;
@@ -178,6 +179,7 @@ namespace wwwroot
                 string wwwrootDirectory = string.IsNullOrEmpty(ModuleConfiguration.WWWRootBasePath) == true ? PathExtensions.Combine(module.BasePath, "wwwroot") : ModuleConfiguration.WWWRootBasePath;
                 if (string.IsNullOrEmpty(wwwrootDirectory) == false && Directory.Exists(wwwrootDirectory) == true)
                 {
+                    app.UseMiddleware<CaseInsensitiveStaticFileMiddleware>(wwwrootDirectory);
                     app.UseStaticFiles(new StaticFileOptions
                     {
                         FileProvider = new PhysicalFileProvider(PathExtensions.Combine(wwwrootDirectory)),

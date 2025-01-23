@@ -872,6 +872,7 @@ namespace ack
             string physicalPath = PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "wwwroot");
             if (Directory.Exists(physicalPath) == true)
             {
+                app.UseMiddleware<CaseInsensitiveStaticFileMiddleware>(physicalPath);
                 app.UseDefaultFiles();
                 // wwwroot 디렉토리내 파일들은 Cache-Control 값을 적용
                 app.UseStaticFiles(new StaticFileOptions

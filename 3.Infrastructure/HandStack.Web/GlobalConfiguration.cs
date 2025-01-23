@@ -95,6 +95,7 @@ namespace HandStack.Web
         public static string? ServerDevCertPassword;
         public static bool IsApiFindServer = true;
         public static bool IsRunning = false;
+        public static List<string> PhysicalFileProviders = new List<string>();
         public static List<string> DisposeTenantApps = new List<string>();
         public static List<string> WithOrigins = new List<string>();
         public static string FindGlobalIDServer = "";
