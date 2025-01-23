@@ -935,7 +935,7 @@
                 }
             }
             else {
-                if (window.parent) {
+                if (window.parent && window.top !== window.parent) {
                     window.parent.syn.$w.statusMessage(val);
                 }
             }
@@ -993,7 +993,7 @@
                 }
             }
             else {
-                if (window.parent) {
+                if (window.parent && window.top !== window.parent) {
                     window.parent.syn.$w.notify(type, message, title, timeout);
                 }
             }
@@ -1619,7 +1619,7 @@
                 }
             }
             else {
-                if (window.parent) {
+                if (window.parent && window.top !== window.parent) {
                     setTimeout(function () {
                         window.parent.syn.$w.windowOpen(elID, options, callback);
                     });
@@ -1670,7 +1670,7 @@
                 }
             }
             else {
-                if (window.parent) {
+                if (window.parent && window.top !== window.parent) {
                     window.parent.syn.$w.windowClose(elID);
                 }
             }
