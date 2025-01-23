@@ -224,6 +224,7 @@ namespace function
                             "IsDebugMode": false,
                             "IsBundleLoad": false,
                             "BaseDirectory": "/",
+                            "ContractRequestPath": "view",
                             "TenantAppRequestPath": "app",
                             "SharedAssetUrl": "/assets/shared/",
                             "IsApiFindServer": false,

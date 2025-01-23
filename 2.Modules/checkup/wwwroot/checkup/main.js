@@ -1307,7 +1307,7 @@ let $main = {
         btnApplyDevelopmentSetting_click(evt, data) {
             var editorSetting = {
                 fontFamily: syn.$l.get('txtFontFamily').value,
-                fontSize: syn.$l.get('txtFontSize').value,
+                fontSize: $string.toNumber(syn.$l.get('txtFontSize').value),
                 minimap: syn.$l.get('chkMinimap').checked,
                 lineNumbers: syn.$l.get('chkLineNumbers').checked,
                 darkMode: syn.$l.get('chkDarkMode').checked,

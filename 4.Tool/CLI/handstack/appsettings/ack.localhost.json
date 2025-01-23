@@ -20,6 +20,7 @@
         "ForwardProxyIP": [],
         "IsTenantFunction": true,
         "IsExceptionDetailText": true,
+        "ContractRequestPath": "view",
         "TenantAppRequestPath": "app",
         "TenantAppBasePath": "../tenants",
         "BatchProgramBasePath": "../batchs",
