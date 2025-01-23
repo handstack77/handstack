@@ -37,16 +37,11 @@ namespace HandStack.Web.Extensions
                 var path = context.Request.Path.Value;
                 if (string.IsNullOrEmpty(path) == false)
                 {
-                    var fileInfo = fileProvider.GetFileInfo(path);
-                    if (fileInfo.Exists == true)
+                    var directoryContents = fileProvider.GetDirectoryContents(Path.GetDirectoryName(path).ToStringSafe());
+                    var file = directoryContents?.FirstOrDefault(f => f.Name.Equals(Path.GetFileName(path), StringComparison.OrdinalIgnoreCase));
+                    if (file != null)
                     {
-                        var directoryContents = fileProvider.GetDirectoryContents(Path.GetDirectoryName(path).ToStringSafe());
-                        var file = directoryContents?.FirstOrDefault(f => f.Name.Equals(Path.GetFileName(path), StringComparison.OrdinalIgnoreCase));
-
-                        if (file != null)
-                        {
-                            context.Request.Path = PathExtensions.Combine(Path.GetDirectoryName(path).ToStringSafe(), file.Name);
-                        }
+                        context.Request.Path = PathExtensions.Combine(Path.GetDirectoryName(path).ToStringSafe(), file.Name);
                     }
                 }
             }
