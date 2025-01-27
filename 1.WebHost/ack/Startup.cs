@@ -1345,7 +1345,7 @@ namespace ack
                 }
             }
 
-            return result;
+            return result.ToSHA256();
         }
 
         protected string GetHardwareID()
