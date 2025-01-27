@@ -4,9 +4,11 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Management;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -99,7 +101,7 @@ namespace ack
             GlobalConfiguration.RunningEnvironment = appSettings["RunningEnvironment"].ToStringSafe();
             GlobalConfiguration.HostName = string.IsNullOrEmpty(appSettings["HostName"].ToStringSafe()) == true ? Dns.GetHostName() : appSettings["HostName"].ToStringSafe();
             GlobalConfiguration.SystemName = Dns.GetHostName();
-            GlobalConfiguration.HostAccessID = appSettings["HostAccessID"].ToStringSafe();
+            GlobalConfiguration.HostAccessID = GetHostAccessID(appSettings["HostAccessID"].ToStringSafe());
             GlobalConfiguration.SystemID = appSettings["SystemID"].ToStringSafe();
             GlobalConfiguration.FindGlobalIDServer = appSettings["FindGlobalIDServer"].ToStringSafe();
             GlobalConfiguration.IsTenantFunction = bool.Parse(appSettings["IsTenantFunction"].ToStringSafe("false"));
@@ -108,6 +110,9 @@ namespace ack
             GlobalConfiguration.SessionCookieName = appSettings.GetSection("SessionState").Exists() == true && bool.Parse(appSettings["SessionState:IsSession"].ToStringSafe("false")) == true ? appSettings["SessionState:SessionCookieName"].ToStringSafe("") : "";
             GlobalConfiguration.CookiePrefixName = appSettings["CookiePrefixName"].ToStringSafe("HandStack");
             GlobalConfiguration.UserSignExpire = int.Parse(appSettings["UserSignExpire"].ToStringSafe("1440"));
+
+            string hardwareId = GetHardwareID();
+            Console.WriteLine($"Current Hardware ID: {hardwareId}");
 
             switch (GlobalConfiguration.RunningEnvironment)
             {
@@ -1288,7 +1293,7 @@ namespace ack
             }
         }
 
-        static async Task CopyFileAsync(MemoryStream sourceStream, string destAbsoluteFilePath)
+        protected async Task CopyFileAsync(MemoryStream sourceStream, string destAbsoluteFilePath)
         {
             var destDirectory = Path.GetDirectoryName(destAbsoluteFilePath);
             if (string.IsNullOrEmpty(destDirectory) == false && Directory.Exists(destDirectory) == false)
@@ -1311,6 +1316,112 @@ namespace ack
                     Log.Error("[{LogCategory}]" + $"{destFileName} 실패. {exception.Message}", "Startup/contractsync");
                 }
             }
+        }
+
+        protected string GetHostAccessID(string hostAccessID)
+        {
+            string result = "HANDSTACK_HOSTACCESSID";
+
+            if (hostAccessID == result)
+            {
+                try
+                {
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true)
+                    {
+                        result = GetWindowsHardwareID();
+                    }
+                    else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) == true)
+                    {
+                        result = GetLinuxHardwareID();
+                    }
+                    else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) == true)
+                    {
+                        result = GetMacHardwareID();
+                    }
+                }
+                catch (Exception exception)
+                {
+                    Log.Logger.Warning(exception, "[{LogCategory}] " + $"HardwareID 확인 오류", $"Startup/GetHostAccessID");
+                }
+            }
+
+            return result;
+        }
+
+        protected string GetHardwareID()
+        {
+            string result = "HANDSTACK_HOSTACCESSID";
+
+            try
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true)
+                {
+                    result = GetWindowsHardwareID();
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) == true)
+                {
+                    result = GetLinuxHardwareID();
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) == true)
+                {
+                    result = GetMacHardwareID();
+                }
+            }
+            catch (Exception exception)
+            {
+                Log.Logger.Warning(exception, "[{LogCategory}] " + $"HardwareID 확인 오류", $"Startup/GetHardwareID");
+            }
+
+            return result;
+        }
+
+        protected string GetWindowsHardwareID()
+        {
+            string result = "";
+#pragma warning disable CA1416 // 플랫폼 호환성 유효성 검사
+            var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_Processor");
+            foreach (ManagementObject obj in searcher.Get())
+            {
+                result = obj["ProcessorId"].ToStringSafe("HANDSTACK_HOSTACCESSID");
+            }
+#pragma warning restore CA1416 // 플랫폼 호환성 유효성 검사
+            return result;
+        }
+
+        protected string GetLinuxHardwareID()
+        {
+            return ExecuteBashCommand("dmidecode -s system-uuid");
+        }
+
+        protected string GetMacHardwareID()
+        {
+            return ExecuteBashCommand("ioreg -rd1 -c IOPlatformExpertDevice | grep IOPlatformUUID | awk '{print $3}' | sed 's/\\\"//g'");
+        }
+
+        protected string ExecuteBashCommand(string command)
+        {
+            string result = "";
+            ProcessStartInfo psi = new ProcessStartInfo
+            {
+                FileName = "/bin/bash",
+                Arguments = $"-c \"{command}\"",
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            using (var process = Process.Start(psi))
+            {
+                if (process != null)
+                {
+                    result = process.StandardOutput.ReadToEnd().Trim();
+                }
+                else
+                {
+                    result = "HANDSTACK_HOSTACCESSID";
+                }
+            }
+            return result;
         }
     }
 }
