@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
-using System.Security.Claims;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -32,8 +31,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-using Polly;
-
 using RestSharp;
 
 using transact.Entity;
@@ -56,6 +53,8 @@ namespace transact.Areas.transact.Controllers
         private readonly IDistributedCache distributedCache;
 
         private Serilog.ILogger logger { get; }
+
+        private int transactionRouteCount = 0;
 
         public TransactionController(IDistributedCache distributedCache, IMemoryCache memoryCache, Serilog.ILogger logger, TransactLoggerClient loggerClient, TransactClient transactClient)
         {
@@ -448,6 +447,7 @@ namespace transact.Areas.transact.Controllers
                 return Content(JsonConvert.SerializeObject(response), "application/json");
             }
 
+            transactionRouteCount = request.System.Routes.Count > 0 ? request.System.Routes.Count - 1 : 0;
             string transactionWorkID = "mainapp";
             try
             {
@@ -463,6 +463,8 @@ namespace transact.Areas.transact.Controllers
                     transactionWorkID = transactionUserWorkID;
                 }
 
+                transactClient.DefaultResponseHeaderConfiguration(request, response, transactionRouteCount);
+
                 if (ModuleConfiguration.IsValidationRequest == true)
                 {
                     if (request.System.Routes.Count == 0 || distributedCache.Get(request.Transaction.GlobalID) == null)
@@ -475,7 +477,7 @@ namespace transact.Areas.transact.Controllers
                         distributedCache.Remove(request.Transaction.GlobalID);
                     }
 
-                    long jsMilliseconds = request.System.Routes[request.System.Routes.Count - 1].RequestTick;
+                    long jsMilliseconds = request.System.Routes[transactionRouteCount].RequestTick;
                     DateTimeOffset dateTimeOffset = DateTimeOffset.FromUnixTimeMilliseconds(jsMilliseconds);
                     TimeSpan interval = DateTimeOffset.UtcNow - dateTimeOffset;
                     if (interval.TotalSeconds > 180)
@@ -518,7 +520,6 @@ namespace transact.Areas.transact.Controllers
                     return Content(JsonConvert.SerializeObject(response), "application/json");
                 }
 
-                transactClient.DefaultResponseHeaderConfiguration(request, response);
                 response.System.PathName = Request.Path;
 
                 if (ModuleConfiguration.IsTransactionLogging == true)
@@ -647,7 +648,7 @@ namespace transact.Areas.transact.Controllers
                             }
 
                             transactionResponse.ResponseID = string.Concat(ModuleConfiguration.SystemID, GlobalConfiguration.HostName, request.Environment, DateTime.Now.ToString("yyyyMMddHHmmss"));
-                            transactClient.DefaultResponseHeaderConfiguration(request, transactionResponse);
+                            transactClient.DefaultResponseHeaderConfiguration(request, transactionResponse, transactionRouteCount);
                             transactionResponse.System.PathName = Request.Path;
                             return LoggingAndReturn(transactionResponse, transactionWorkID, "Y", null);
                         }
@@ -910,7 +911,7 @@ namespace transact.Areas.transact.Controllers
 
                     if (request.System.Routes.Count > 0)
                     {
-                        var route = request.System.Routes[request.System.Routes.Count - 1];
+                        var route = request.System.Routes[transactionRouteCount];
                         requestSystemID = route.SystemID;
                     }
 
@@ -1240,380 +1241,430 @@ namespace transact.Areas.transact.Controllers
                     }
                 }
 
-                // 거래 Inputs/Outpus 정보 확인
-                if (string.IsNullOrEmpty(request.PayLoad.DataMapInterface) == false)
-                {
-                    if (transactionInfo.Inputs.Count == 0)
-                    {
-                        string[] dti = request.PayLoad.DataMapInterface.Split("|");
-                        string[] inputs = dti[0].Split(",");
-                        foreach (string item in inputs)
-                        {
-                            if (string.IsNullOrEmpty(item) == false)
-                            {
-                                transactionInfo.Inputs.Add(new ModelInputContract()
-                                {
-                                    ModelID = "Dynamic",
-                                    Fields = new List<string>(),
-                                    TestValues = new List<TestValue>(),
-                                    DefaultValues = new List<DefaultValue>(),
-                                    Type = item,
-                                    BaseFieldMappings = new List<BaseFieldMapping>(),
-                                    ParameterHandling = item == "Row" ? "Rejected" : "ByPassing"
-                                });
-                            }
-                        }
-                    }
-
-                    if (transactionInfo.Outputs.Count == 0)
-                    {
-                        string[] dti = request.PayLoad.DataMapInterface.Split("|");
-                        string[] outputs = dti[1].Split(",");
-                        foreach (string item in outputs)
-                        {
-                            if (string.IsNullOrEmpty(item) == false)
-                            {
-                                transactionInfo.Outputs.Add(new ModelOutputContract()
-                                {
-                                    ModelID = "Dynamic",
-                                    Fields = new List<string>(),
-                                    Type = item
-                                });
-                            }
-                        }
-                    }
-                }
-
                 TransactionObject transactionObject = new TransactionObject();
-                transactionObject.LoadOptions = request.LoadOptions;
-
-                if (transactionObject.LoadOptions == null)
+                ApplicationResponse applicationResponse = new ApplicationResponse();
+                List<Model> businessModels = new List<Model>();
+                List<ModelInputContract> inputContracts = new List<ModelInputContract>();
+                List<ModelOutputContract> outputContracts = new List<ModelOutputContract>();
+                if (refererPath.StartsWith(tenantAppRequestPath) == false && string.IsNullOrEmpty(transactionUserWorkID) == true && string.IsNullOrEmpty(transactionInfo.RoutingCommandUri) == false && transactionInfo.RoutingCommandUri.IndexOf("http") > -1)
                 {
-                    transactionObject.LoadOptions = new Dictionary<string, string>();
-                }
+                    var route = new Route();
+                    route.SystemID = GlobalConfiguration.SystemID;
+                    route.RequestTick = DateTime.UtcNow.GetJavascriptTime();
+                    request.System.Routes.Add(route);
 
-                foreach (var item in privillegeTypes)
-                {
-                    transactionObject.LoadOptions.Add("$" + item.Key, item.Value);
-                }
-
-                transactionObject.RequestID = string.Concat(ModuleConfiguration.SystemID, GlobalConfiguration.HostName, request.Environment, request.Transaction.ScreenID, DateTime.Now.ToString("yyyyMMddHHmmddsss"));
-                transactionObject.GlobalID = request.Transaction.GlobalID;
-                transactionObject.TransactionID = string.Concat(businessContract.TransactionApplicationID
-                    , "|"
-                    , string.IsNullOrEmpty(businessContract.TransactionProjectID) == true ? businessContract.ProjectID : businessContract.TransactionProjectID
-                    , "|"
-                    , request.Transaction.TransactionID
-                );
-                transactionObject.ServiceID = request.Transaction.FunctionID;
-                transactionObject.TransactionScope = transactionInfo.TransactionScope;
-                transactionObject.ReturnType = transactionInfo.ReturnType;
-                transactionObject.InputsItemCount = request.PayLoad.DataMapCount;
-
-                List<Model> businessModels = businessContract.Models;
-                List<ModelInputContract> inputContracts = transactionInfo.Inputs;
-                List<ModelOutputContract> outputContracts = transactionInfo.Outputs;
-                var requestInputs = request.PayLoad.DataMapSet;
-
-                // 입력 항목이 계약과 동일한지 확인
-                if (inputContracts.Count > 0 && inputContracts.Count != request.PayLoad.DataMapCount.Count)
-                {
-                    response.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력 항목이 계약과 동일한지 확인 필요";
-                    return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
-                }
-
-                // 입력 항목ID가 계약에 적합한지 확인
-                int inputOffset = 0;
-                Dictionary<string, List<List<DataMapItem>>> requestInputItems = new Dictionary<string, List<List<DataMapItem>>>();
-                for (int i = 0; i < inputContracts.Count; i++)
-                {
-                    ModelInputContract inputContract = inputContracts[i];
-                    Model? model = businessModels.GetBusinessModel(inputContract.ModelID);
-
-                    if (model == null && inputContract.ModelID != "Unknown" && inputContract.ModelID != "Dynamic")
+                    var routeResponse = await transactClient.TransactionRoute(transactionInfo, request);
+                    TransactionResponse transactionResponse = routeResponse.transactionResponse;
+                    string transactionContent = routeResponse.content;
+                    applicationResponse.Acknowledge = transactionResponse.Message.ResponseStatus == "N" ? AcknowledgeType.Success : AcknowledgeType.Failure;
+                    if (applicationResponse.Acknowledge == AcknowledgeType.Failure)
                     {
-                        response.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 '{inputContract.ModelID}' 입력 모델 ID가 계약에 있는지 확인";
-                        return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
+                        applicationResponse.ExceptionText = $"{transactionResponse.Message.MainCode}:{transactionResponse.Message.MainText}|{JsonConvert.SerializeObject(transactionResponse.Message.Additions)}";
+                    }
+                    applicationResponse.CorrelationID = transactionResponse.Transaction.GlobalID;
+                    switch (transactionInfo.ReturnType)
+                    {
+                        case "DynamicJson":
+                        case "CodeHelp":
+                        case "SchemeOnly":
+                        case "SQLText":
+                        case "Json":
+                            applicationResponse.ResultJson = JsonConvert.SerializeObject(transactionResponse.Result.DataSet);
+                            break;
+                        case "Xml":
+                        case "Scalar":
+                            applicationResponse.ResultObject = transactionContent;
+                            break;
+                        case "NonQuery":
+                            int nonQuery = 0;
+                            if (int.TryParse(transactionContent.ToString(), out nonQuery))
+                            {
+                                applicationResponse.ResultInteger = nonQuery;
+                            }
+                            else
+                            {
+                                applicationResponse.ResultInteger = 0;
+                            }
+                            
+                            break;
+                    }
+                }
+                else
+                {
+                    // 거래 Inputs/Outpus 정보 확인
+                    if (string.IsNullOrEmpty(request.PayLoad.DataMapInterface) == false)
+                    {
+                        if (transactionInfo.Inputs.Count == 0)
+                        {
+                            string[] dti = request.PayLoad.DataMapInterface.Split("|");
+                            string[] inputs = dti[0].Split(",");
+                            foreach (string item in inputs)
+                            {
+                                if (string.IsNullOrEmpty(item) == false)
+                                {
+                                    transactionInfo.Inputs.Add(new ModelInputContract()
+                                    {
+                                        ModelID = "Dynamic",
+                                        Fields = new List<string>(),
+                                        TestValues = new List<TestValue>(),
+                                        DefaultValues = new List<DefaultValue>(),
+                                        Type = item,
+                                        BaseFieldMappings = new List<BaseFieldMapping>(),
+                                        ParameterHandling = item == "Row" ? "Rejected" : "ByPassing"
+                                    });
+                                }
+                            }
+                        }
+
+                        if (transactionInfo.Outputs.Count == 0)
+                        {
+                            string[] dti = request.PayLoad.DataMapInterface.Split("|");
+                            string[] outputs = dti[1].Split(",");
+                            foreach (string item in outputs)
+                            {
+                                if (string.IsNullOrEmpty(item) == false)
+                                {
+                                    transactionInfo.Outputs.Add(new ModelOutputContract()
+                                    {
+                                        ModelID = "Dynamic",
+                                        Fields = new List<string>(),
+                                        Type = item
+                                    });
+                                }
+                            }
+                        }
                     }
 
-                    int inputCount = request.PayLoad.DataMapCount[i];
-                    if (inputContract.Type == "Row" && inputCount != 1)
+                    transactionObject.LoadOptions = request.LoadOptions;
+
+                    if (transactionObject.LoadOptions == null)
+                    {
+                        transactionObject.LoadOptions = new Dictionary<string, string>();
+                    }
+
+                    foreach (var item in privillegeTypes)
+                    {
+                        transactionObject.LoadOptions.Add("$" + item.Key, item.Value);
+                    }
+
+                    transactionObject.RequestID = string.Concat(ModuleConfiguration.SystemID, GlobalConfiguration.HostName, request.Environment, request.Transaction.ScreenID, DateTime.Now.ToString("yyyyMMddHHmmddsss"));
+                    transactionObject.GlobalID = request.Transaction.GlobalID;
+                    transactionObject.TransactionID = string.Concat(businessContract.TransactionApplicationID
+                        , "|"
+                        , string.IsNullOrEmpty(businessContract.TransactionProjectID) == true ? businessContract.ProjectID : businessContract.TransactionProjectID
+                        , "|"
+                        , request.Transaction.TransactionID
+                    );
+                    transactionObject.ServiceID = request.Transaction.FunctionID;
+                    transactionObject.TransactionScope = transactionInfo.TransactionScope;
+                    transactionObject.ReturnType = transactionInfo.ReturnType;
+                    transactionObject.InputsItemCount = request.PayLoad.DataMapCount;
+
+                    businessModels = businessContract.Models;
+                    inputContracts = transactionInfo.Inputs;
+                    outputContracts = transactionInfo.Outputs;
+                    var requestInputs = request.PayLoad.DataMapSet;
+
+                    // 입력 항목이 계약과 동일한지 확인
+                    if (inputContracts.Count > 0 && inputContracts.Count != request.PayLoad.DataMapCount.Count)
                     {
                         response.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력 항목이 계약과 동일한지 확인 필요";
                         return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                     }
 
-                    if (inputContract.ParameterHandling == "Rejected" && inputCount == 0)
+                    // 입력 항목ID가 계약에 적합한지 확인
+                    int inputOffset = 0;
+                    Dictionary<string, List<List<DataMapItem>>> requestInputItems = new Dictionary<string, List<List<DataMapItem>>>();
+                    for (int i = 0; i < inputContracts.Count; i++)
                     {
-                        response.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 필요한 입력 항목이 필요";
-                        return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
-                    }
+                        ModelInputContract inputContract = inputContracts[i];
+                        Model? model = businessModels.GetBusinessModel(inputContract.ModelID);
 
-                    if (inputContract.ParameterHandling == "ByPassing" && inputCount == 0)
-                    {
-                        continue;
-                    }
-
-                    List<DataMapItem> requestInput;
-                    if (inputContract.ParameterHandling == "DefaultValue" && inputCount == 0)
-                    {
-                        if (inputContract.DefaultValues == null)
+                        if (model == null && inputContract.ModelID != "Unknown" && inputContract.ModelID != "Dynamic")
                         {
-                            response.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 필요한 기본값 입력 항목 확인 필요";
+                            response.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 '{inputContract.ModelID}' 입력 모델 ID가 계약에 있는지 확인";
                             return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                         }
 
-                        request.PayLoad.DataMapCount[i] = 1;
-                        transactionObject.InputsItemCount[i] = 1;
-                        inputCount = 1;
-                        requestInput = new List<DataMapItem>();
-
-                        int fieldIndex = 0;
-                        foreach (string REQ_FIELD_ID in inputContract.Fields)
+                        int inputCount = request.PayLoad.DataMapCount[i];
+                        if (inputContract.Type == "Row" && inputCount != 1)
                         {
-                            DefaultValue defaultValue = inputContract.DefaultValues[fieldIndex];
-                            DatabaseColumn? column = null;
-
-                            if (model == null)
-                            {
-                                column = new DatabaseColumn()
-                                {
-                                    Name = REQ_FIELD_ID,
-                                    Length = -1,
-                                    DataType = "String",
-                                    Default = "",
-                                    Require = false
-                                };
-                            }
-                            else
-                            {
-                                column = model.Columns.FirstOrDefault(p => p.Name == REQ_FIELD_ID);
-                            }
-
-                            DataMapItem tempReqInput = new DataMapItem();
-                            tempReqInput.FieldID = REQ_FIELD_ID;
-
-                            transactClient.SetInputDefaultValue(defaultValue, column, tempReqInput);
-
-                            requestInput.Add(tempReqInput);
-
-                            fieldIndex = fieldIndex + 1;
+                            response.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력 항목이 계약과 동일한지 확인 필요";
+                            return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                         }
 
-                        requestInputs.Add(requestInput);
-                    }
-                    else
-                    {
-                        requestInput = requestInputs[inputOffset];
-                    }
-
-                    if (inputContract.ModelID != "Unknown" && inputContract.ModelID != "Dynamic")
-                    {
-                        foreach (var item in requestInput)
+                        if (inputContract.ParameterHandling == "Rejected" && inputCount == 0)
                         {
-                            if (inputContract.Fields.Contains(item.FieldID) == false)
-                            {
-                                if (item.FieldID == "Flag")
-                                {
-                                }
-                                else
-                                {
-                                    response.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 '{item.FieldID}' 항목 ID가 계약에 있는지 확인";
-                                    return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
-                                }
-                            }
+                            response.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 필요한 입력 항목이 필요";
+                            return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                         }
-                    }
 
-                    requestInputItems.Add(inputContract.ModelID + i.ToString(), requestInputs.Skip(inputOffset).Take(inputCount).ToList());
-                    inputOffset = inputOffset + inputCount;
-                }
-
-                List<List<TransactField>> transactInputs = new List<List<TransactField>>();
-
-                int index = 0;
-                foreach (var requestInputItem in requestInputItems)
-                {
-                    string modelID = requestInputItem.Key;
-                    List<List<DataMapItem>> inputItems = requestInputItem.Value;
-
-                    // 입력 정보 생성
-                    ModelInputContract inputContract = inputContracts[index];
-                    Model? model = businessModels.GetBusinessModel(inputContract.ModelID);
-
-                    if (model == null && inputContract.ModelID != "Unknown" && inputContract.ModelID != "Dynamic")
-                    {
-                        response.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 '{inputContract.ModelID}' 입력 모델 ID가 계약에 있는지 확인";
-                        return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
-                    }
-
-                    for (int i = 0; i < inputItems.Count; i++)
-                    {
-                        List<TransactField> transactInput = new List<TransactField>();
-                        List<DataMapItem> requestInput = inputItems[i];
-
-                        foreach (var item in requestInput)
+                        if (inputContract.ParameterHandling == "ByPassing" && inputCount == 0)
                         {
-                            DatabaseColumn? column = null;
+                            continue;
+                        }
 
-                            if (model == null)
+                        List<DataMapItem> requestInput;
+                        if (inputContract.ParameterHandling == "DefaultValue" && inputCount == 0)
+                        {
+                            if (inputContract.DefaultValues == null)
                             {
-                                column = new DatabaseColumn()
-                                {
-                                    Name = item.FieldID,
-                                    Length = -1,
-                                    DataType = "String",
-                                    Default = "",
-                                    Require = false
-                                };
-                            }
-                            else
-                            {
-                                column = model.Columns.FirstOrDefault(p => p.Name == item.FieldID);
-                            }
-
-                            if (column == null)
-                            {
-                                response.ExceptionText = $"'{inputContract.ModelID}' 입력 모델 또는 '{item.FieldID}' 항목 확인 필요";
+                                response.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 필요한 기본값 입력 항목 확인 필요";
                                 return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                             }
-                            else
-                            {
-                                TransactField transactField = new TransactField();
-                                transactField.FieldID = item.FieldID;
-                                transactField.Length = column.Length;
-                                transactField.DataType = column.DataType.ToString();
 
-                                if (item.Value == null)
+                            request.PayLoad.DataMapCount[i] = 1;
+                            transactionObject.InputsItemCount[i] = 1;
+                            inputCount = 1;
+                            requestInput = new List<DataMapItem>();
+
+                            int fieldIndex = 0;
+                            foreach (string REQ_FIELD_ID in inputContract.Fields)
+                            {
+                                DefaultValue defaultValue = inputContract.DefaultValues[fieldIndex];
+                                DatabaseColumn? column = null;
+
+                                if (model == null)
                                 {
-                                    if (column.Require == true)
+                                    column = new DatabaseColumn()
                                     {
-                                        transactField.Value = column.Default;
-                                    }
-                                    else
-                                    {
-                                        transactField.Value = null;
-                                    }
+                                        Name = REQ_FIELD_ID,
+                                        Length = -1,
+                                        DataType = "String",
+                                        Default = "",
+                                        Require = false
+                                    };
                                 }
                                 else
                                 {
-                                    if (item.Value.ToString() == "[DbNull]")
-                                    {
-                                        transactField.Value = null;
-                                    }
-                                    else
-                                    {
-                                        transactField.Value = item.Value;
-                                        if (transactField.Value.ToString() == "")
-                                        {
-                                            string dataType = transactField.DataType.ToLower();
-                                            if (dataType.Contains("string") == true || dataType.Contains("char") == true)
-                                            {
-                                            }
-                                            else
-                                            {
-                                                transactField.Value = null;
-                                            }
-                                        }
-                                    }
+                                    column = model.Columns.FirstOrDefault(p => p.Name == REQ_FIELD_ID);
                                 }
 
-                                transactInput.Add(transactField);
-                            }
-                        }
+                                DataMapItem tempReqInput = new DataMapItem();
+                                tempReqInput.FieldID = REQ_FIELD_ID;
 
-                        JObject? bearerFields = bearerToken == null ? null : bearerToken.Variable as JObject;
-                        if (bearerFields != null)
+                                transactClient.SetInputDefaultValue(defaultValue, column, tempReqInput);
+
+                                requestInput.Add(tempReqInput);
+
+                                fieldIndex = fieldIndex + 1;
+                            }
+
+                            requestInputs.Add(requestInput);
+                        }
+                        else
                         {
-                            foreach (var item in bearerFields)
+                            requestInput = requestInputs[inputOffset];
+                        }
+
+                        if (inputContract.ModelID != "Unknown" && inputContract.ModelID != "Dynamic")
+                        {
+                            foreach (var item in requestInput)
                             {
-                                string REQ_FIELD_ID = "$" + item.Key;
-
-                                if (transactInput.Where(p => p.FieldID == REQ_FIELD_ID).Count() > 0)
+                                if (inputContract.Fields.Contains(item.FieldID) == false)
                                 {
-                                    transactInput.RemoveAll(p => p.FieldID == REQ_FIELD_ID);
-                                }
-
-                                JToken? jToken = item.Value;
-                                if (jToken == null)
-                                {
-                                    response.ExceptionText = $"{REQ_FIELD_ID} Bearer 필드 확인 필요";
-                                    return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
-                                }
-
-                                DatabaseColumn column = new DatabaseColumn()
-                                {
-                                    Name = REQ_FIELD_ID,
-                                    Length = -1,
-                                    DataType = "String",
-                                    Default = "",
-                                    Require = false
-                                };
-
-                                TransactField transactField = new TransactField();
-                                transactField.FieldID = REQ_FIELD_ID;
-                                transactField.Length = column.Length;
-                                transactField.DataType = column.DataType.ToString();
-
-                                object? REQ_FIELD_DAT = null;
-                                if (jToken is JValue)
-                                {
-                                    REQ_FIELD_DAT = jToken.ToObject<string>();
-                                }
-                                else if (jToken is JObject)
-                                {
-                                    REQ_FIELD_DAT = jToken.ToString();
-                                }
-                                else if (jToken is JArray)
-                                {
-                                    REQ_FIELD_DAT = jToken.ToArray();
-                                }
-
-                                if (REQ_FIELD_DAT == null)
-                                {
-                                    if (column.Require == true)
+                                    if (item.FieldID == "Flag")
                                     {
-                                        transactField.Value = column.Default;
                                     }
                                     else
                                     {
-                                        transactField.Value = null;
+                                        response.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 '{item.FieldID}' 항목 ID가 계약에 있는지 확인";
+                                        return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                                     }
                                 }
-                                else
-                                {
-                                    if (REQ_FIELD_DAT.ToString() == "[DbNull]")
-                                    {
-                                        transactField.Value = null;
-                                    }
-                                    else
-                                    {
-                                        transactField.Value = REQ_FIELD_DAT;
-                                        if (transactField.Value.ToString() == "")
-                                        {
-                                            string dataType = transactField.DataType.ToLower();
-                                            if (dataType.Contains("string") == true || dataType.Contains("char") == true)
-                                            {
-                                            }
-                                            else
-                                            {
-                                                transactField.Value = null;
-                                            }
-                                        }
-                                    }
-                                }
-
-                                transactInput.Add(transactField);
                             }
                         }
 
-                        transactInputs.Add(transactInput);
+                        requestInputItems.Add(inputContract.ModelID + i.ToString(), requestInputs.Skip(inputOffset).Take(inputCount).ToList());
+                        inputOffset = inputOffset + inputCount;
                     }
 
-                    index = index + 1;
-                }
+                    List<List<TransactField>> transactInputs = new List<List<TransactField>>();
 
-                transactionObject.Inputs = transactInputs;
+                    int index = 0;
+                    foreach (var requestInputItem in requestInputItems)
+                    {
+                        string modelID = requestInputItem.Key;
+                        List<List<DataMapItem>> inputItems = requestInputItem.Value;
+
+                        // 입력 정보 생성
+                        ModelInputContract inputContract = inputContracts[index];
+                        Model? model = businessModels.GetBusinessModel(inputContract.ModelID);
+
+                        if (model == null && inputContract.ModelID != "Unknown" && inputContract.ModelID != "Dynamic")
+                        {
+                            response.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 '{inputContract.ModelID}' 입력 모델 ID가 계약에 있는지 확인";
+                            return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
+                        }
+
+                        for (int i = 0; i < inputItems.Count; i++)
+                        {
+                            List<TransactField> transactInput = new List<TransactField>();
+                            List<DataMapItem> requestInput = inputItems[i];
+
+                            foreach (var item in requestInput)
+                            {
+                                DatabaseColumn? column = null;
+
+                                if (model == null)
+                                {
+                                    column = new DatabaseColumn()
+                                    {
+                                        Name = item.FieldID,
+                                        Length = -1,
+                                        DataType = "String",
+                                        Default = "",
+                                        Require = false
+                                    };
+                                }
+                                else
+                                {
+                                    column = model.Columns.FirstOrDefault(p => p.Name == item.FieldID);
+                                }
+
+                                if (column == null)
+                                {
+                                    response.ExceptionText = $"'{inputContract.ModelID}' 입력 모델 또는 '{item.FieldID}' 항목 확인 필요";
+                                    return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
+                                }
+                                else
+                                {
+                                    TransactField transactField = new TransactField();
+                                    transactField.FieldID = item.FieldID;
+                                    transactField.Length = column.Length;
+                                    transactField.DataType = column.DataType.ToString();
+
+                                    if (item.Value == null)
+                                    {
+                                        if (column.Require == true)
+                                        {
+                                            transactField.Value = column.Default;
+                                        }
+                                        else
+                                        {
+                                            transactField.Value = null;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (item.Value.ToString() == "[DbNull]")
+                                        {
+                                            transactField.Value = null;
+                                        }
+                                        else
+                                        {
+                                            transactField.Value = item.Value;
+                                            if (transactField.Value.ToString() == "")
+                                            {
+                                                string dataType = transactField.DataType.ToLower();
+                                                if (dataType.Contains("string") == true || dataType.Contains("char") == true)
+                                                {
+                                                }
+                                                else
+                                                {
+                                                    transactField.Value = null;
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    transactInput.Add(transactField);
+                                }
+                            }
+
+                            JObject? bearerFields = bearerToken == null ? null : bearerToken.Variable as JObject;
+                            if (bearerFields != null)
+                            {
+                                foreach (var item in bearerFields)
+                                {
+                                    string REQ_FIELD_ID = "$" + item.Key;
+
+                                    if (transactInput.Where(p => p.FieldID == REQ_FIELD_ID).Count() > 0)
+                                    {
+                                        transactInput.RemoveAll(p => p.FieldID == REQ_FIELD_ID);
+                                    }
+
+                                    JToken? jToken = item.Value;
+                                    if (jToken == null)
+                                    {
+                                        response.ExceptionText = $"{REQ_FIELD_ID} Bearer 필드 확인 필요";
+                                        return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
+                                    }
+
+                                    DatabaseColumn column = new DatabaseColumn()
+                                    {
+                                        Name = REQ_FIELD_ID,
+                                        Length = -1,
+                                        DataType = "String",
+                                        Default = "",
+                                        Require = false
+                                    };
+
+                                    TransactField transactField = new TransactField();
+                                    transactField.FieldID = REQ_FIELD_ID;
+                                    transactField.Length = column.Length;
+                                    transactField.DataType = column.DataType.ToString();
+
+                                    object? REQ_FIELD_DAT = null;
+                                    if (jToken is JValue)
+                                    {
+                                        REQ_FIELD_DAT = jToken.ToObject<string>();
+                                    }
+                                    else if (jToken is JObject)
+                                    {
+                                        REQ_FIELD_DAT = jToken.ToString();
+                                    }
+                                    else if (jToken is JArray)
+                                    {
+                                        REQ_FIELD_DAT = jToken.ToArray();
+                                    }
+
+                                    if (REQ_FIELD_DAT == null)
+                                    {
+                                        if (column.Require == true)
+                                        {
+                                            transactField.Value = column.Default;
+                                        }
+                                        else
+                                        {
+                                            transactField.Value = null;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (REQ_FIELD_DAT.ToString() == "[DbNull]")
+                                        {
+                                            transactField.Value = null;
+                                        }
+                                        else
+                                        {
+                                            transactField.Value = REQ_FIELD_DAT;
+                                            if (transactField.Value.ToString() == "")
+                                            {
+                                                string dataType = transactField.DataType.ToLower();
+                                                if (dataType.Contains("string") == true || dataType.Contains("char") == true)
+                                                {
+                                                }
+                                                else
+                                                {
+                                                    transactField.Value = null;
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    transactInput.Add(transactField);
+                                }
+                            }
+
+                            transactInputs.Add(transactInput);
+                        }
+
+                        index = index + 1;
+                    }
+
+                    transactionObject.Inputs = transactInputs;
+                }
 
                 #endregion
 
@@ -1621,13 +1672,11 @@ namespace transact.Areas.transact.Controllers
 
                 request.Transaction.CommandType = transactionInfo.CommandType;
                 response.Transaction.CommandType = transactionInfo.CommandType;
-                ApplicationResponse applicationResponse = new ApplicationResponse();
-
                 if (refererPath.StartsWith(tenantAppRequestPath) == true && string.IsNullOrEmpty(transactionUserWorkID) == false && string.IsNullOrEmpty(transactionApplicationID) == false)
                 {
                     if (ModuleConfiguration.AllowTenantTransactionCommands.IndexOf(transactionInfo.CommandType) > -1)
                     {
-                        transactionObject.LoadOptions.Add("$tenantID", $"{transactionUserWorkID}|{transactionApplicationID}");
+                        transactionObject.LoadOptions?.Add("$tenantID", $"{transactionUserWorkID}|{transactionApplicationID}");
                     }
                     else
                     {

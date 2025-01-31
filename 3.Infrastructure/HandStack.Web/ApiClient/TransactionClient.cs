@@ -241,7 +241,7 @@ namespace HandStack.Web.ApiClient
                     restRequest.AddHeader("cache-control", "no-cache");
                     restRequest.AddHeader("ClientTag", TransactionConfig.ClientTag);
 
-                    var restResponse = await client.ExecuteAsync<TransactionResponse>(restRequest);
+                    var restResponse = await client.ExecuteAsync(restRequest);
                     if (restResponse != null && restResponse.StatusCode != HttpStatusCode.NotFound && restResponse.ResponseStatus == ResponseStatus.Completed)
                     {
                         var content = restResponse.Content;

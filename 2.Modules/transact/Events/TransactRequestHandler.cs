@@ -9,10 +9,10 @@ using System.Threading.Tasks;
 using ChoETL;
 
 using HandStack.Core.ExtensionMethod;
-using HandStack.Web.Extensions;
 using HandStack.Core.Helpers;
 using HandStack.Web;
 using HandStack.Web.Entity;
+using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.Contract;
 using HandStack.Web.MessageContract.DataObject;
 using HandStack.Web.MessageContract.Enumeration;
@@ -74,6 +74,8 @@ namespace transact.Events
 
         private readonly IDistributedCache distributedCache;
 
+        private int transactionRouteCount = 0;
+
         public TransactRequestHandler(IDistributedCache distributedCache, IMemoryCache memoryCache, Serilog.ILogger logger, TransactLoggerClient loggerClient, TransactClient transactClient)
         {
             this.logger = logger;
@@ -96,6 +98,7 @@ namespace transact.Events
                 return response;
             }
 
+            transactionRouteCount = request.System.Routes.Count > 0 ? request.System.Routes.Count - 1 : 0;
             string transactionWorkID = "mainapp";
             try
             {
@@ -141,7 +144,7 @@ namespace transact.Events
                     return response;
                 }
 
-                transactClient.DefaultResponseHeaderConfiguration(request, response);
+                transactClient.DefaultResponseHeaderConfiguration(request, response, transactionRouteCount);
                 response.System.PathName = "event";
 
                 if (ModuleConfiguration.IsTransactionLogging == true)
@@ -270,7 +273,7 @@ namespace transact.Events
                             }
 
                             transactionResponse.ResponseID = string.Concat(ModuleConfiguration.SystemID, GlobalConfiguration.HostName, request.Environment, DateTime.Now.ToString("yyyyMMddHHmmss"));
-                            transactClient.DefaultResponseHeaderConfiguration(request, transactionResponse);
+                            transactClient.DefaultResponseHeaderConfiguration(request, transactionResponse, transactionRouteCount);
                             transactionResponse.System.PathName = "event";;
                             return LoggingAndReturn(transactionResponse, transactionWorkID, "Y", null);
                         }
@@ -471,7 +474,7 @@ namespace transact.Events
 
                     if (request.System.Routes.Count > 0)
                     {
-                        var route = request.System.Routes[request.System.Routes.Count - 1];
+                        var route = request.System.Routes[transactionRouteCount];
                         requestSystemID = route.SystemID;
                     }
 

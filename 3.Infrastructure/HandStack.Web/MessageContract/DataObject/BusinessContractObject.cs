@@ -152,6 +152,9 @@ namespace HandStack.Web.MessageContract.DataObject
         [JsonProperty("AccessScreenID")]
         public List<string> AccessScreenID { get; set; }
 
+        [JsonProperty("RoutingCommandUri")]
+        public string RoutingCommandUri { get; set; }
+
         [JsonProperty("Comment")]
         public string Comment { get; set; }
 
@@ -173,6 +176,7 @@ namespace HandStack.Web.MessageContract.DataObject
             SequentialOptions = new List<SequentialOption>();
             ReturnType = "";
             AccessScreenID = new List<string>();
+            RoutingCommandUri = "";
             Comment = "";
             TransactionLog = false;
             Inputs = new List<ModelInputContract>();

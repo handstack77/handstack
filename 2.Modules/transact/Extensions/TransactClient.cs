@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
@@ -9,9 +10,10 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using HandStack.Core.ExtensionMethod;
-using HandStack.Web.Extensions;
 using HandStack.Core.Helpers;
 using HandStack.Web;
+using HandStack.Web.ApiClient;
+using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.Contract;
 using HandStack.Web.MessageContract.DataObject;
 using HandStack.Web.MessageContract.Enumeration;
@@ -23,7 +25,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 using RestSharp;
-using System.IO;
+
 using transact.Entity;
 
 namespace transact.Extensions
@@ -41,6 +43,79 @@ namespace transact.Extensions
             this.logger = logger;
             this.loggerClient = loggerClient;
             this.mediator = mediator;
+        }
+
+        public async Task<(TransactionResponse transactionResponse, string content)> TransactionRoute(TransactionInfo transactionInfo, TransactionRequest transactionRequest)
+        {
+            (TransactionResponse transactionResponse, string content) result;
+            string transactionContent = "";
+            TransactionResponse transactionResponse = new TransactionResponse();
+            DefaultResponseHeaderConfiguration(transactionRequest, transactionResponse, -1);
+            string requestID = string.Empty;
+
+            try
+            {
+                var installType = TransactionConfig.Program.InstallType;
+                var environment = TransactionConfig.Transaction.RunningEnvironment;
+                var machineTypeID = TransactionConfig.Transaction.MachineTypeID;
+                var programID = transactionRequest.System.ProgramID.PadLeft(8, '0');
+                var businessID = transactionRequest.Transaction.BusinessID.PadLeft(3, '0');
+                var transactionID = transactionRequest.Transaction.TransactionID.PadLeft(6, '0');
+                var functionID = transactionRequest.Transaction.FunctionID.PadLeft(4, '0');
+                var tokenID = TransactionConfig.Program.ClientTokenID.Substring(0, 6).PadLeft(6, '0');
+                var requestTime = DateTime.Now.ToString("HHmmss");
+
+                transactionRequest.RequestID = $"{installType}{environment}{programID}{businessID}{transactionID}{functionID}{machineTypeID}{tokenID}{requestTime}";
+
+                RestClient client = new RestClient();
+                var restRequest = new RestRequest(transactionInfo.RoutingCommandUri, Method.Post);
+                restRequest.AddStringBody(JsonConvert.SerializeObject(transactionRequest), DataFormat.Json);
+
+                restRequest.AddHeader("Content-Type", "application/json");
+                restRequest.AddHeader("cache-control", "no-cache");
+                restRequest.AddHeader("ClientTag", TransactionConfig.ClientTag);
+
+                var restResponse = await client.ExecuteAsync(restRequest);
+                if (restResponse != null && restResponse.StatusCode != HttpStatusCode.NotFound && restResponse.ResponseStatus == ResponseStatus.Completed)
+                {
+                    switch (transactionInfo.ReturnType)
+                    {
+                        case "Xml":
+                        case "Scalar":
+                        case "NonQuery":
+                            transactionContent = restResponse.Content.ToStringSafe();
+                            break;
+                        default:
+                            var content = restResponse.Content;
+                            if (content != null)
+                            {
+                                transactionResponse = JsonConvert.DeserializeObject<TransactionResponse>(content)!;
+                            }
+                            break;
+                    }
+                }
+                else
+                {
+                    if (restResponse != null)
+                    {
+                        ResponseStatus responseStatus = restResponse.ResponseStatus;
+                        HttpStatusCode statusCode = restResponse.StatusCode;
+
+                        transactionResponse.ExceptionText = $"TransactionRoute 응답 확인 필요 {statusCode}|{responseStatus}|{restResponse.ErrorMessage}";
+                    }
+                    else
+                    {
+                        transactionResponse.ExceptionText = $"TransactionRoute 연결 확인 필요";
+                    }
+                }
+            }
+            catch (Exception exception)
+            {
+                transactionResponse.ExceptionText = $"TransactionRoute 예외 확인 필요 {exception.Message}";
+            }
+
+            result = new(transactionResponse, transactionContent);
+            return result;
         }
 
         public async Task<ApplicationResponse> ApplicationRequest(TransactionRequest request, TransactionResponse response, TransactionInfo? transactionInfo, TransactionObject transactionObject, List<Model> businessModels, List<ModelInputContract> inputContracts, List<ModelOutputContract> outputContracts, ApplicationResponse applicationResponse)
@@ -599,10 +674,10 @@ namespace transact.Extensions
 
             switch (transactionInfo.ReturnType)
             {
-                case "Native":
+                case "DynamicJson":
                     response.Result.DataSet.Add(new DataMapItem()
                     {
-                        FieldID = "Native",
+                        FieldID = "DynamicJson",
                         Value = JsonConvert.DeserializeObject<dynamic>(applicationResponse.ResultJson)
                     });
 
@@ -863,10 +938,10 @@ namespace transact.Extensions
 
             switch (transactionInfo.ReturnType)
             {
-                case "Native":
+                case "DynamicJson":
                     response.Result.DataSet.Add(new DataMapItem()
                     {
-                        FieldID = "Native",
+                        FieldID = "DynamicJson",
                         Value = JsonConvert.DeserializeObject<dynamic>(applicationResponse.ResultJson)
                     });
 
@@ -1582,7 +1657,7 @@ namespace transact.Extensions
                     {
                         QueryObject queryObject = new QueryObject();
                         queryObject.QueryID = string.Concat(transactionObject.TransactionID, "|", transactionObject.ServiceID, i.ToString().PadLeft(2, '0'));
-                        
+
                         var baseFieldRelations = new List<BaseFieldRelation?>();
                         List<JsonObjectType> jsonObjectTypes = new List<JsonObjectType>();
                         foreach (ModelOutputContract item in outputContracts)
@@ -1840,7 +1915,7 @@ namespace transact.Extensions
             return result;
         }
 
-        public void DefaultResponseHeaderConfiguration(TransactionRequest request, TransactionResponse response)
+        public void DefaultResponseHeaderConfiguration(TransactionRequest request, TransactionResponse response, int transactionRouteCount)
         {
             request.AcceptDateTime = DateTime.Now;
             response.AcceptDateTime = request.AcceptDateTime;
@@ -1866,9 +1941,9 @@ namespace transact.Extensions
             response.Transaction.DataFormat = request.Transaction.DataFormat;
             response.System.Routes = request.System.Routes;
 
-            if (response.System.Routes.Count > 0)
+            if (transactionRouteCount >= 0 && response.System.Routes.Count >= transactionRouteCount)
             {
-                var route = response.System.Routes[response.System.Routes.Count - 1];
+                var route = response.System.Routes[transactionRouteCount];
                 route.SystemID = GlobalConfiguration.SystemID;
                 route.HostName = GlobalConfiguration.HostName;
                 route.Environment = request.Environment;
