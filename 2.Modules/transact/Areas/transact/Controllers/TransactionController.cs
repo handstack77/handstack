@@ -1246,47 +1246,73 @@ namespace transact.Areas.transact.Controllers
                 List<Model> businessModels = new List<Model>();
                 List<ModelInputContract> inputContracts = new List<ModelInputContract>();
                 List<ModelOutputContract> outputContracts = new List<ModelOutputContract>();
-                if (refererPath.StartsWith(tenantAppRequestPath) == false && string.IsNullOrEmpty(transactionUserWorkID) == true && string.IsNullOrEmpty(transactionInfo.RoutingCommandUri) == false && transactionInfo.RoutingCommandUri.IndexOf("http") > -1)
+                if (refererPath.StartsWith(tenantAppRequestPath) == false && string.IsNullOrEmpty(transactionUserWorkID) == true && string.IsNullOrEmpty(transactionInfo.RoutingCommandUri) == false)
                 {
+                    if (transactionInfo.RoutingCommandUri.IndexOf("http") == -1)
+                    {
+                        response.ExceptionText = $"거래 라우팅 경로 확인 필요";
+                        return LoggingAndReturn(response, transactionWorkID, "N", transactionInfo);
+                    }
+
                     var route = new Route();
                     route.SystemID = GlobalConfiguration.SystemID;
                     route.RequestTick = DateTime.UtcNow.GetJavascriptTime();
                     request.System.Routes.Add(route);
 
-                    var routeResponse = await transactClient.TransactionRoute(transactionInfo, request);
-                    TransactionResponse transactionResponse = routeResponse.transactionResponse;
-                    string transactionContent = routeResponse.content;
-                    applicationResponse.Acknowledge = transactionResponse.Message.ResponseStatus == "N" ? AcknowledgeType.Success : AcknowledgeType.Failure;
-                    if (applicationResponse.Acknowledge == AcknowledgeType.Failure)
+                    TransactionResponse? transactionResponse = null;
+                    string transactionContent = string.Empty;
+
+                    try
                     {
-                        applicationResponse.ExceptionText = $"{transactionResponse.Message.MainCode}:{transactionResponse.Message.MainText}|{JsonConvert.SerializeObject(transactionResponse.Message.Additions)}";
+                        var routeResponse = await transactClient.TransactionRoute(transactionInfo, request);
+                        transactionResponse = routeResponse.transactionResponse;
+                        transactionContent = routeResponse.content;
+                        applicationResponse.Acknowledge = transactionResponse.Message.ResponseStatus == "N" ? AcknowledgeType.Success : AcknowledgeType.Failure;
+                        if (applicationResponse.Acknowledge == AcknowledgeType.Failure)
+                        {
+                            applicationResponse.ExceptionText = $"{transactionResponse.Message.MainCode}:{transactionResponse.Message.MainText}|{JsonConvert.SerializeObject(transactionResponse.Message.Additions)}";
+                        }
+                        applicationResponse.CorrelationID = transactionResponse.Transaction.GlobalID;
                     }
-                    applicationResponse.CorrelationID = transactionResponse.Transaction.GlobalID;
-                    switch (transactionInfo.ReturnType)
+                    catch (Exception exception)
                     {
-                        case "DynamicJson":
-                        case "CodeHelp":
-                        case "SchemeOnly":
-                        case "SQLText":
-                        case "Json":
-                            applicationResponse.ResultJson = JsonConvert.SerializeObject(transactionResponse.Result.DataSet);
-                            break;
-                        case "Xml":
-                        case "Scalar":
-                            applicationResponse.ResultObject = transactionContent;
-                            break;
-                        case "NonQuery":
-                            int nonQuery = 0;
-                            if (int.TryParse(transactionContent.ToString(), out nonQuery))
-                            {
-                                applicationResponse.ResultInteger = nonQuery;
-                            }
-                            else
-                            {
-                                applicationResponse.ResultInteger = 0;
-                            }
-                            
-                            break;
+                        response.ExceptionText = $"거래 라우팅 요청 오류: {exception.ToMessage()}";
+                        return LoggingAndReturn(response, transactionWorkID, "N", transactionInfo);
+                    }
+
+                    try
+                    {
+                        switch (transactionInfo.ReturnType)
+                        {
+                            case "DynamicJson":
+                            case "CodeHelp":
+                            case "SchemeOnly":
+                            case "SQLText":
+                            case "Json":
+                                applicationResponse.ResultJson = JsonConvert.SerializeObject(transactionResponse.Result.DataSet);
+                                break;
+                            case "Xml":
+                            case "Scalar":
+                                applicationResponse.ResultObject = transactionContent;
+                                break;
+                            case "NonQuery":
+                                int nonQuery = 0;
+                                if (int.TryParse(transactionContent.ToString(), out nonQuery))
+                                {
+                                    applicationResponse.ResultInteger = nonQuery;
+                                }
+                                else
+                                {
+                                    applicationResponse.ResultInteger = 0;
+                                }
+
+                                break;
+                        }
+                    }
+                    catch (Exception exception)
+                    {
+                        response.ExceptionText = $"거래 라우팅 응답 오류: {exception.ToMessage()}";
+                        return LoggingAndReturn(response, transactionWorkID, "N", transactionInfo);
                     }
                 }
                 else
