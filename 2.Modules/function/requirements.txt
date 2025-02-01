@@ -1,0 +1,14 @@
+numpy
+pandas
+requests
+httpx
+PyMySQL
+pymssql
+psycopg2
+oracledb
+mapper-parser
+localStoragePy
+psutil
+logging4
+suid
+xmltodict
