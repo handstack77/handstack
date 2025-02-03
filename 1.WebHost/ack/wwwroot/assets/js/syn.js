@@ -1,4 +1,4 @@
-/*!
+﻿/*!
 HandStack Javascript Library v1.0.0
 https://syn.handshake.kr
 
@@ -3377,18 +3377,20 @@ globalRoot.syn = syn;
                 '=': '&equals;', '@': '&commat;', '[': '&lsqb;', '\\': '&bsol;', ']': '&rsqb;', '^': '&Hat;', '`': '&grave;', '{': '&lcub;',
                 '|': '&verbar;', '}': '&rcub;', '~': '&tilde;'
             };
-            return val.replace(new RegExp(`[${charStrings}]`, 'g'), char => charMap[char] ? charMap[char] : '');
+            return val.replace(new RegExp(`[${charStrings.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}]`, 'g'), char => charMap[char] || char);
         },
 
         toCharHtml(val, htmlStrings) {
-            htmlStrings = htmlStrings || `amp|apos|lt|gt|quot|excl|num|percnt|lpar|rpar|ast|plus|comma|period|sol|semi|equals|commat|lsqb|bsol|rsqb|Hat|grave|lcub|verbar|rcub|tilde`;
+            htmlStrings = htmlStrings || '&amp|&apos|&lt|&gt|&quot|&excl|&num|&percnt|&lpar|&rpar|&ast|&plus|&comma|&period|&sol|&semi|&equals|&commat|&lsqb|&bsol|&rsqb|&Hat|&grave|&lcub|&verbar|&rcub|&tilde';
             var charMap = {
                 '&amp;': '&', '&apos;': '\'', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&excl;': '!', '&num;': '#', '&percnt;': '%',
                 '&lpar;': '(', '&rpar;': ')', '&ast;': '*', '&plus;': '+', '&comma;': ',', '&period;': '.', '&sol;': '/', '&semi;': ';',
                 '&equals;': '=', '&commat;': '@', '&lsqb;': '[', '&bsol;': '\\', '&rsqb;': ']', '&Hat;': '^', '&grave;': '`', '&lcub;': '{',
                 '&verbar;': '|', '&rcub;': '}', '&tilde;': '~'
             };
-            return val.replace(new RegExp(`/&(${htmlStrings});`, 'g'), char => charMap[char] ? charMap[char] : '');
+            return val.replace(/&(\w+);/g, function (match, entity) {
+                return charMap[match] || match;
+            });
         },
 
         length(val) {

@@ -17,7 +17,7 @@
         <IsPublishable>True</IsPublishable>
         <AssemblyName>ack</AssemblyName>
         <Description>HandStack은 고객과 업무에 들여야 하는 시간과 노력을 줄입니다</Description>
-		<NoWarn>IL3000;IL3002;NU1903;ASP0023;</NoWarn>
+        <NoWarn>IL3000;IL3002;NU1903;ASP0023;</NoWarn>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -115,14 +115,14 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="checkip.js">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
+        <None Update="checkip.js">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
         <Exec Condition="'$(OS)'=='Windows_NT'" Command="rmdir /s /q $(TargetDir)" />
-		<Exec Condition="'$(OS)'!='Windows_NT'" Command="rm -rf $(TargetDir)" />
+        <Exec Condition="'$(OS)'!='Windows_NT'" Command="rm -rf $(TargetDir)" />
     </Target>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
