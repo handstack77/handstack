@@ -14,7 +14,7 @@ namespace function.Extensions
         {
             string? authorizationKey = httpContext.Request.Headers["AuthorizationKey"];
             bool isAllowClientIP = string.IsNullOrEmpty(ModuleConfiguration.AllowClientIP.FirstOrDefault(p => p == "*" || p == httpContext.GetRemoteIpAddress())) == false;
-            return ModuleConfiguration.AuthorizationKey == authorizationKey && isAllowClientIP == true;
+            return ModuleConfiguration.AuthorizationKey == authorizationKey || isAllowClientIP == true;
         }
     }
 }

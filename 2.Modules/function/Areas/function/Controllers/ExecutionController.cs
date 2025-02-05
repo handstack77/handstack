@@ -118,7 +118,7 @@ namespace function.Areas.function.Controllers
                                     DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
                                     if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true)
                                     {
-                                        if (FunctionMapper.HasContractFile(filePath) == true && (fileInfo.Name == "featureMain.cs" || fileInfo.Name == "featureMain.js" || fileInfo.Name == "featureMeta.json" || fileInfo.Name == "featureSQL.xml") == true)
+                                        if (FunctionMapper.HasContractFile(filePath) == true && (fileInfo.Name.StartsWith("featureMain.") == true || fileInfo.Name == "featureMeta.json" || fileInfo.Name == "featureSQL.xml") == true)
                                         {
                                             if (fileInfo.Extension != ".json")
                                             {
@@ -138,7 +138,7 @@ namespace function.Areas.function.Controllers
                                         DirectoryInfo directoryInfo = new DirectoryInfo(basePath);
                                         if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true)
                                         {
-                                            if (FunctionMapper.HasContractFile(filePath) == true && (fileInfo.Name == "featureMain.cs" || fileInfo.Name == "featureMain.js" || fileInfo.Name == "featureMeta.json" || fileInfo.Name == "featureSQL.xml") == true)
+                                            if (FunctionMapper.HasContractFile(filePath) == true && (fileInfo.Name.StartsWith("featureMain.") == true || fileInfo.Name == "featureMeta.json" || fileInfo.Name == "featureSQL.xml") == true)
                                             {
                                                 if (fileInfo.Extension != ".json")
                                                 {

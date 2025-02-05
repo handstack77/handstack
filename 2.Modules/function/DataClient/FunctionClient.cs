@@ -12,10 +12,10 @@ using function.Entity;
 using function.Extensions;
 
 using HandStack.Core.ExtensionMethod;
-using HandStack.Web.Extensions;
 using HandStack.Web;
 using HandStack.Web.ApiClient;
 using HandStack.Web.Entity;
+using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.DataObject;
 using HandStack.Web.MessageContract.Enumeration;
 using HandStack.Web.MessageContract.Message;
@@ -23,9 +23,10 @@ using HandStack.Web.MessageContract.Message;
 using Jering.Javascript.NodeJS;
 
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 
 using Newtonsoft.Json;
+
+using Python.Runtime;
 
 using Serilog;
 
@@ -233,42 +234,45 @@ namespace function.DataClient
 
                     DataContext dataContext = new DataContext();
 
-                    if (moduleScriptMap.LanguageType == "csharp")
+                    FileInfo fileInfo = new FileInfo(programPath);
+                    var directoryInfo = fileInfo.Directory;
+                    if (directoryInfo != null && fileInfo.Exists)
                     {
-                        FileInfo fileInfo = new FileInfo(programPath);
-                        var directoryInfo = fileInfo.Directory;
-                        if (directoryInfo != null && fileInfo.Exists == true)
+                        string fileDirectory = directoryInfo.FullName.Replace("\\", "/");
+                        string fileDirectoryName = directoryInfo.Name;
+                        string scriptMapFile = PathExtensions.Combine(fileDirectory, "featureMeta.json");
+
+                        var functionScriptContract = File.Exists(scriptMapFile) == true ? FunctionScriptContract.FromJson(File.ReadAllText(scriptMapFile)) : null;
+
+                        if (functionScriptContract != null)
                         {
-                            string fileDirectory = directoryInfo.FullName.Replace("\\", "/");
-                            string fileDirectoryName = directoryInfo.Name;
-                            string scriptMapFile = programPath.Replace("featureMain.cs", "featureMeta.json");
-                            var functionScriptContract = FunctionScriptContract.FromJson(File.ReadAllText(scriptMapFile));
-                            if (functionScriptContract != null)
+                            var moduleConfig = functionScriptContract.Header;
+                            var featureSQLPath = PathExtensions.Combine(fileDirectory, "featureSQL.xml");
+                            var functionLogDirectory = PathExtensions.Combine(ModuleConfiguration.CSharpFunctionLogBasePath, moduleConfig.ApplicationID, moduleConfig.ProjectID, fileDirectoryName);
+
+                            if (!Directory.Exists(functionLogDirectory))
                             {
-                                var moduleConfig = functionScriptContract.Header;
-                                var featureSQLPath = PathExtensions.Combine(fileDirectory, "featureSQL.xml");
+                                Directory.CreateDirectory(functionLogDirectory);
+                            }
 
-                                var functionLogDirectory = PathExtensions.Combine(ModuleConfiguration.CSharpFunctionLogBasePath, moduleConfig.ApplicationID, moduleConfig.ProjectID, fileDirectoryName);
-                                if (Directory.Exists(functionLogDirectory) == false)
-                                {
-                                    Directory.CreateDirectory(functionLogDirectory);
-                                }
-
+                            if (moduleScriptMap.LanguageType == "csharp")
+                            {
                                 Serilog.ILogger logger = new LoggerConfiguration()
                                     .WriteTo.Console()
                                     .WriteTo.File(PathExtensions.Combine(functionLogDirectory, "function.log"), rollingInterval: RollingInterval.Day)
                                     .CreateLogger();
 
-                                dataContext.fileDirectory = fileDirectory;
-                                dataContext.functionHeader = moduleConfig;
-                                dataContext.featureSQLPath = featureSQLPath;
                                 dataContext.logger = logger;
                             }
-                            else
-                            {
-                                response.ExceptionText = $"'{queryObject.QueryID}'에 대한 featureMeta.json 확인 필요";
-                                return;
-                            }
+
+                            dataContext.fileDirectory = fileDirectory;
+                            dataContext.functionHeader = moduleConfig;
+                            dataContext.featureSQLPath = File.Exists(featureSQLPath) == true ? featureSQLPath : "";
+                        }
+                        else
+                        {
+                            response.ExceptionText = $"'{queryObject.QueryID}'에 대한 featureMeta.json 확인 필요";
+                            return;
                         }
                     }
 
@@ -308,7 +312,67 @@ namespace function.DataClient
                     object[]? arguments = null;
 
                     string? executeResult = null;
-                    if (moduleScriptMap.LanguageType == "javascript")
+                    if (moduleScriptMap.LanguageType == "python")
+                    {
+                        try
+                        {
+                            arguments = listParams.ToArray();
+
+                            if (ModuleConfiguration.IsTransactionLogging == true || moduleScriptMap.TransactionLog == true)
+                            {
+                                string requestData = $"ProgramPath: {programPath}, Arguments: {jsonArguments}";
+                                loggerClient.TransactionMessageLogging(request.GlobalID, "Y", moduleScriptMap.ApplicationID, moduleScriptMap.ProjectID, moduleScriptMap.TransactionID, moduleScriptMap.ScriptID, requestData, "FunctionClient/InvokeFromFileAsync ReturnType: " + request.ReturnType.ToString(), (string error) =>
+                                {
+                                    logger.Warning("[{LogCategory}] [{GlobalID}] " + $"Request JSON: {requestData}", "FunctionClient/InvokeFromFileAsync", response.CorrelationID);
+                                });
+                            }
+
+                            if (moduleScriptMap.Timeout <= 0)
+                            {
+                                executeResult = InvokePythonScriptFile(moduleScriptMap, programPath, dynamicParameters, dataContext);
+                            }
+                            else
+                            {
+                                int timeout = moduleScriptMap.Timeout * 1000;
+                                var task = HandStack.Core.ExtensionMethod.TaskExtensions.ExecuteWithTimeout(() => InvokePythonScriptFile(moduleScriptMap, programPath, dynamicParameters, dataContext), TimeSpan.FromMilliseconds(timeout));
+                                if (task.Wait(timeout) == true)
+                                {
+                                    executeResult = task.Result;
+                                }
+                                else
+                                {
+                                    response.ExceptionText = $"TimeoutException - '{timeout.ToString()}' 실행 시간 초과";
+
+                                    if (ModuleConfiguration.IsLogServer == true)
+                                    {
+                                        loggerClient.ProgramMessageLogging(request.GlobalID, "N", GlobalConfiguration.ApplicationID, response.ExceptionText, $"FunctionClient/InvokeFromFileAsync: dynamicParameters={JsonConvert.SerializeObject(arguments)}", (string error) =>
+                                        {
+                                            logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + response.ExceptionText, "FunctionClient/InvokeFromFileAsync");
+                                        });
+                                    }
+                                    else
+                                    {
+                                        logger.Error("[{LogCategory}] [{GlobalID}] " + response.ExceptionText, "FunctionClient/InvokeFromFileAsync", request.GlobalID);
+                                    }
+                                    return;
+                                }
+                            }
+                        }
+                        catch (Exception exception)
+                        {
+                            response.ExceptionText = $"GlobalID: {request.GlobalID}, QueryID: {queryObject.QueryID}, Exception: '{exception.ToMessage()}'";
+
+                            if (ModuleConfiguration.IsTransactionLogging == true || moduleScriptMap.TransactionLog == true)
+                            {
+                                string requestData = $"ProgramPath: {programPath}, Arguments: {jsonArguments}";
+                                loggerClient.TransactionMessageLogging(request.GlobalID, "N", moduleScriptMap.ApplicationID, moduleScriptMap.ProjectID, moduleScriptMap.TransactionID, moduleScriptMap.ScriptID, requestData, "FunctionClient/InvokeFromFileAsync ReturnType: " + request.ReturnType.ToString(), (string error) =>
+                                {
+                                    logger.Warning("[{LogCategory}] [{GlobalID}] " + $"Request JSON: {requestData}, ExceptionText: {response.ExceptionText}", "FunctionClient/InvokeFromFileAsync", response.CorrelationID);
+                                });
+                            }
+                        }
+                    }
+                    else if (moduleScriptMap.LanguageType == "javascript")
                     {
                         try
                         {
@@ -413,22 +477,45 @@ namespace function.DataClient
                                     {
                                         if (task.IsCompleted == false)
                                         {
-                                            task.Wait();
+                                            if (moduleScriptMap.Timeout <= 0)
+                                            {
+                                                task.Wait();
+                                            }
+                                            else
+                                            {
+                                                int timeout = moduleScriptMap.Timeout * 1000;
+                                                if (task.Wait(timeout) == false)
+                                                {
+                                                    response.ExceptionText = $"TimeoutException - '{timeout.ToString()}' 실행 시간 초과";
+                                                    if (ModuleConfiguration.IsLogServer == true)
+                                                    {
+                                                        loggerClient.ProgramMessageLogging(request.GlobalID, "N", GlobalConfiguration.ApplicationID, response.ExceptionText, $"FunctionClient/InvokeFromFileAsync: dynamicParameters={JsonConvert.SerializeObject(arguments)}", (string error) =>
+                                                        {
+                                                            logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + response.ExceptionText, "FunctionClient/InvokeFromFileAsync");
+                                                        });
+                                                    }
+                                                    else
+                                                    {
+                                                        logger.Error("[{LogCategory}] [{GlobalID}] " + response.ExceptionText, "FunctionClient/InvokeFromFileAsync", request.GlobalID);
+                                                    }
+                                                    return;
+                                                }
+                                            }
+                                            executeResult = JsonConvert.SerializeObject(task.Result);
                                         }
-                                        executeResult = JsonConvert.SerializeObject(task.Result);
+                                        else
+                                        {
+                                            executeResult = JsonConvert.SerializeObject(null);
+                                        }
+                                    }
+                                    else if (result is DataSet)
+                                    {
+                                        executeResult = JsonConvert.SerializeObject(result);
                                     }
                                     else
                                     {
-                                        executeResult = JsonConvert.SerializeObject(null);
+                                        response.ExceptionText = $"GlobalID: {request.GlobalID}, QueryID: {queryObject.QueryID}, Exception: EntryType, EntryMethod 반환 결과 확인 필요";
                                     }
-                                }
-                                else if (result is DataSet)
-                                {
-                                    executeResult = JsonConvert.SerializeObject(result);
-                                }
-                                else
-                                {
-                                    response.ExceptionText = $"GlobalID: {request.GlobalID}, QueryID: {queryObject.QueryID}, Exception: EntryType, EntryMethod 반환 결과 확인 필요";
                                 }
                             }
                         }
@@ -557,93 +644,97 @@ namespace function.DataClient
                     {
                         if (executeResult != null && executeResult.Length > 0)
                         {
-                            if (request.ReturnType == ExecuteDynamicTypeObject.DynamicJson)
+                            switch (request.ReturnType)
                             {
-                                response.ResultJson = executeResult;
-                            }
-                            else
-                            {
-                                using (DataSet? ds = JsonConvert.DeserializeObject<DataSet>(executeResult))
-                                {
-                                    if (ds != null)
+                                case ExecuteDynamicTypeObject.Json:
+                                    using (DataSet? ds = JsonConvert.DeserializeObject<DataSet>(executeResult))
                                     {
-                                        JsonObjectType jsonObjectType = JsonObjectType.FormJson;
-
-                                        for (int j = 0; j < ds.Tables.Count; j++)
+                                        if (ds != null)
                                         {
-                                            DataTable table = ds.Tables[j];
+                                            JsonObjectType jsonObjectType = JsonObjectType.FormJson;
 
-                                            if (queryObject.JsonObjects == null || queryObject.JsonObjects.Count == 0)
+                                            for (int j = 0; j < ds.Tables.Count; j++)
                                             {
-                                                jsonObjectType = queryObject.JsonObject;
-                                            }
-                                            else
-                                            {
-                                                try
-                                                {
-                                                    jsonObjectType = queryObject.JsonObjects[i];
-                                                }
-                                                catch
+                                                DataTable table = ds.Tables[j];
+
+                                                if (queryObject.JsonObjects == null || queryObject.JsonObjects.Count == 0)
                                                 {
                                                     jsonObjectType = queryObject.JsonObject;
                                                 }
-                                            }
+                                                else
+                                                {
+                                                    try
+                                                    {
+                                                        jsonObjectType = queryObject.JsonObjects[i];
+                                                    }
+                                                    catch
+                                                    {
+                                                        jsonObjectType = queryObject.JsonObject;
+                                                    }
+                                                }
 
-                                            StringBuilder sb = new StringBuilder(256);
-                                            for (int k = 0; k < table.Columns.Count; k++)
-                                            {
-                                                var column = table.Columns[k];
-                                                sb.Append($"{column.ColumnName}:{JsonExtensions.toMetaDataType(column.DataType.Name)};");
-                                            }
+                                                StringBuilder sb = new StringBuilder(256);
+                                                for (int k = 0; k < table.Columns.Count; k++)
+                                                {
+                                                    var column = table.Columns[k];
+                                                    sb.Append($"{column.ColumnName}:{JsonExtensions.toMetaDataType(column.DataType.Name)};");
+                                                }
 
-                                            switch (jsonObjectType)
-                                            {
-                                                case JsonObjectType.FormJson:
-                                                    mergeMetaDatas.Add(sb.ToString());
-                                                    mergeDatas.Add(FormJson.ToJsonObject("FormData" + i.ToString(), table));
-                                                    break;
-                                                case JsonObjectType.jqGridJson:
-                                                    mergeMetaDatas.Add(sb.ToString());
-                                                    mergeDatas.Add(jqGridJson.ToJsonObject("jqGridData" + i.ToString(), table));
-                                                    break;
-                                                case JsonObjectType.GridJson:
-                                                    mergeMetaDatas.Add(sb.ToString());
-                                                    mergeDatas.Add(GridJson.ToJsonObject("GridData" + i.ToString(), table));
-                                                    break;
-                                                case JsonObjectType.ChartJson:
-                                                    mergeMetaDatas.Add(sb.ToString());
-                                                    mergeDatas.Add(ChartGridJson.ToJsonObject("ChartData" + i.ToString(), table));
-                                                    break;
-                                                case JsonObjectType.DataSetJson:
-                                                    mergeMetaDatas.Add(sb.ToString());
-                                                    mergeDatas.Add(DataTableJson.ToJsonObject("DataSetData" + i.ToString(), table));
-                                                    break;
-                                                case JsonObjectType.AdditionJson:
-                                                    additionalData.Merge(table);
-                                                    break;
-                                            }
+                                                switch (jsonObjectType)
+                                                {
+                                                    case JsonObjectType.FormJson:
+                                                        mergeMetaDatas.Add(sb.ToString());
+                                                        mergeDatas.Add(FormJson.ToJsonObject("FormData" + i.ToString(), table));
+                                                        break;
+                                                    case JsonObjectType.jqGridJson:
+                                                        mergeMetaDatas.Add(sb.ToString());
+                                                        mergeDatas.Add(jqGridJson.ToJsonObject("jqGridData" + i.ToString(), table));
+                                                        break;
+                                                    case JsonObjectType.GridJson:
+                                                        mergeMetaDatas.Add(sb.ToString());
+                                                        mergeDatas.Add(GridJson.ToJsonObject("GridData" + i.ToString(), table));
+                                                        break;
+                                                    case JsonObjectType.ChartJson:
+                                                        mergeMetaDatas.Add(sb.ToString());
+                                                        mergeDatas.Add(ChartGridJson.ToJsonObject("ChartData" + i.ToString(), table));
+                                                        break;
+                                                    case JsonObjectType.DataSetJson:
+                                                        mergeMetaDatas.Add(sb.ToString());
+                                                        mergeDatas.Add(DataTableJson.ToJsonObject("DataSetData" + i.ToString(), table));
+                                                        break;
+                                                    case JsonObjectType.AdditionJson:
+                                                        additionalData.Merge(table);
+                                                        break;
+                                                }
 
-                                            if (table.Rows.Count > 0)
-                                            {
-                                                dataRow = table.Rows[0];
-                                            }
-                                            else
-                                            {
-                                                dataRow = null;
-                                            }
+                                                if (table.Rows.Count > 0)
+                                                {
+                                                    dataRow = table.Rows[0];
+                                                }
+                                                else
+                                                {
+                                                    dataRow = null;
+                                                }
 
-                                            i++;
+                                                i++;
+                                            }
                                         }
                                     }
-                                }
 
-                                if (additionalData.Rows.Count > 0)
-                                {
-                                    mergeDatas.Add(GridJson.ToJsonObject("AdditionalData", additionalData));
-                                }
+                                    if (additionalData.Rows.Count > 0)
+                                    {
+                                        mergeDatas.Add(GridJson.ToJsonObject("AdditionalData", additionalData));
+                                    }
 
-                                response.ResultMeta = mergeMetaDatas;
-                                response.ResultJson = mergeDatas;
+                                    response.ResultMeta = mergeMetaDatas;
+                                    response.ResultJson = mergeDatas;
+                                    break;
+                                case ExecuteDynamicTypeObject.DynamicJson:
+                                    response.ResultJson = executeResult;
+                                    break;
+                                default:
+                                    response.ExceptionText = $"{response.ResultJson} 지원하지 않는 응답 타입";
+                                    break;
                             }
                         }
                     }
@@ -686,6 +777,84 @@ namespace function.DataClient
                 {
                 }
             }
+        }
+
+        private string? InvokePythonScriptFile(ModuleScriptMap moduleScriptMap, string programPath, List<DynamicParameter> dynamicParameters, DataContext dataContext)
+        {
+            string? result = null;
+            string moduleName = "";
+            Exception? invokeException = null;
+            try
+            {
+                if (PythonEngine.IsInitialized == false)
+                {
+                    if (Runtime.PythonDLL == null)
+                    {
+                        result = "{\"DataTable1\": [{\"Message\": \"Python DLL이 없습니다.\"}]}";
+                        return result;
+                    }
+
+                    PythonEngine.Initialize();
+                }
+
+                string transactionID = new DirectoryInfo(Path.GetDirectoryName(programPath)!).Name;
+                moduleName = $"{moduleScriptMap.ApplicationID}_{moduleScriptMap.ProjectID}_{moduleScriptMap.TransactionID}_{moduleScriptMap.ScriptID}";
+                string mainFilePath = programPath.Replace("featureMain.py", $"{moduleName}.py");
+                if (File.Exists(mainFilePath) == false)
+                {
+                    File.Copy(programPath, mainFilePath, true);
+                }
+
+                using (Py.GIL())
+                {
+                    dynamic sys = Py.Import("sys");
+                    sys.path.append(Path.GetDirectoryName(mainFilePath));
+
+                    var scriptModule = Py.Import(moduleName).GetAttr(transactionID);
+
+                    var pythonParameters = new List<PyObject>();
+
+                    var args = new Dictionary<string, object?>();
+                    foreach (var dynamicParameter in dynamicParameters)
+                    {
+                        args.Add(dynamicParameter.ParameterName, dynamicParameter.Value);
+                    }
+
+                    pythonParameters.Add(args.ToPython());
+                    pythonParameters.Add(JsonConvert.SerializeObject(dataContext).ToPython());
+
+                    var pythonResult = scriptModule.InvokeMethod(moduleScriptMap.ExportName, pythonParameters.ToArray());
+
+                    object? moduleResult = pythonResult.AsManagedObject(typeof(object));
+                    if (moduleResult != null)
+                    {
+                        var resultType = moduleResult.GetType().Name;
+
+                        result = pythonResult.As<string>();
+                    }
+                }
+            }
+            catch (PythonException exception)
+            {
+                logger.Error(exception, "[{LogCategory}] " + $"PythonException moduleName: {moduleName}", "FunctionClient/InvokePythonScriptFile");
+                invokeException = new Exception($"PythonException moduleName: {moduleName}, exception: {exception.Message}");
+            }
+            catch (Exception exception)
+            {
+                logger.Error(exception, "[{LogCategory}] " + $"moduleName: {moduleName}", "FunctionClient/InvokePythonScriptFile");
+                invokeException = exception;
+            }
+            finally
+            {
+                PythonEngine.Shutdown();
+            }
+
+            if (invokeException != null)
+            {
+                throw invokeException;
+            }
+
+            return result;
         }
 
         private DynamicParameter? GetDbParameterMap(string parameterName, List<DynamicParameter> dynamicParameters)

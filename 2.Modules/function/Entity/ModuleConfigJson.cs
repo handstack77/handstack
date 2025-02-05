@@ -67,6 +67,28 @@ namespace function.Entity
         }
     }
 
+    public class PythonFunctionConfig
+    {
+        public bool EnablePythonDLL { get; set; }
+
+        public string PythonDLLFilePath { get; set; }
+
+        public bool EnableFileWatching { get; set; }
+
+        public string FileLogBasePath { get; set; }
+
+        public List<string> WatchFileNamePatterns { get; set; }
+
+        public PythonFunctionConfig()
+        {
+            EnablePythonDLL = false;
+            PythonDLLFilePath = "";
+            EnableFileWatching = false;
+            FileLogBasePath = "";
+            WatchFileNamePatterns = new List<string>();
+        }
+    }
+
     public class FunctionSource
     {
         public string ApplicationID { get; set; }
@@ -129,6 +151,8 @@ namespace function.Entity
 
         public CSharpScriptConfig CSharpFunctionConfig { get; set; }
 
+        public PythonFunctionConfig PythonFunctionConfig { get; set; }
+
         public string DefaultDataSourceID { get; set; }
 
         public List<FunctionSource> FunctionSource { get; set; }
@@ -150,6 +174,7 @@ namespace function.Entity
             TransactionLogMaxRollingFiles = 30;
             CSharpFunctionConfig = new CSharpScriptConfig();
             NodeFunctionConfig = new NodeScriptConfig();
+            PythonFunctionConfig = new PythonFunctionConfig();
             DefaultDataSourceID = "";
             FunctionSource = new List<FunctionSource>();
             AllowClientIP = new List<string>() { "*" };

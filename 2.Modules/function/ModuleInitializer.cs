@@ -55,6 +55,7 @@ using RestSharp;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
+using Python.Runtime;
 
 namespace function
 {
@@ -117,9 +118,27 @@ namespace function
                         ModuleConfiguration.WatchFileNamePatterns.Clear();
                         ModuleConfiguration.WatchFileNamePatterns = moduleConfig.NodeFunctionConfig.WatchFileNamePatterns;
 
-                        ModuleConfiguration.EnableFileWatching = moduleConfig.CSharpFunctionConfig.EnableFileWatching;
+                        ModuleConfiguration.CSharpEnableFileWatching = moduleConfig.CSharpFunctionConfig.EnableFileWatching;
                         ModuleConfiguration.CSharpFunctionLogBasePath = GlobalConfiguration.GetBasePath(moduleConfig.CSharpFunctionConfig.FileLogBasePath);
                         ModuleConfiguration.CSharpWatchFileNamePatterns = moduleConfig.CSharpFunctionConfig.WatchFileNamePatterns;
+
+                        ModuleConfiguration.EnablePythonDLL = moduleConfig.PythonFunctionConfig.EnablePythonDLL;
+                        ModuleConfiguration.PythonDLLFilePath = GlobalConfiguration.GetBasePath(moduleConfig.PythonFunctionConfig.PythonDLLFilePath);
+                        ModuleConfiguration.PythonEnableFileWatching = moduleConfig.PythonFunctionConfig.EnableFileWatching;
+                        ModuleConfiguration.PythonFunctionLogBasePath = GlobalConfiguration.GetBasePath(moduleConfig.PythonFunctionConfig.FileLogBasePath);
+                        ModuleConfiguration.PythonWatchFileNamePatterns = moduleConfig.PythonFunctionConfig.WatchFileNamePatterns;
+
+                        if (ModuleConfiguration.EnablePythonDLL == true)
+                        {
+                            if (string.IsNullOrEmpty(ModuleConfiguration.PythonDLLFilePath) == true || File.Exists(ModuleConfiguration.PythonDLLFilePath) == false)
+                            {
+                                string message = $"Python DLL 파일 확인 필요: {ModuleConfiguration.PythonDLLFilePath}";
+                                Log.Logger.Error("[{LogCategory}] " + message, $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
+                                throw new FileNotFoundException(message);
+                            }
+
+                            Runtime.PythonDLL = ModuleConfiguration.PythonDLLFilePath;
+                        }
 
                         ModuleConfiguration.DefaultDataSourceID = moduleConfig.DefaultDataSourceID;
                         ModuleConfiguration.FunctionSource.Clear();
@@ -381,21 +400,35 @@ namespace function
             var client = new RestClient();
             foreach (var basePath in ModuleConfiguration.ContractBasePath)
             {
-                if (Directory.Exists(basePath) == true && basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == false && ModuleConfiguration.EnableFileWatching == true)
+                if (Directory.Exists(basePath) == true && basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == false && (ModuleConfiguration.EnableFileWatching == true || ModuleConfiguration.CSharpEnableFileWatching == true || ModuleConfiguration.PythonEnableFileWatching == true))
                 {
                     string functionContractBasePath = PathExtensions.Combine(basePath);
                     if (Directory.Exists(functionContractBasePath) == true)
                     {
                         List<string> patterns = new List<string>();
-                        patterns.AddRange(ModuleConfiguration.WatchFileNamePatterns);
-                        patterns.AddRange(ModuleConfiguration.CSharpWatchFileNamePatterns);
+
+                        if (ModuleConfiguration.EnableFileWatching == true)
+                        {
+                            patterns.AddRange(ModuleConfiguration.WatchFileNamePatterns);
+                        }
+
+                        if (ModuleConfiguration.CSharpEnableFileWatching == true)
+                        {
+                            patterns.AddRange(ModuleConfiguration.CSharpWatchFileNamePatterns);
+                        }
+
+                        if (ModuleConfiguration.PythonEnableFileWatching == true)
+                        {
+                            patterns.AddRange(ModuleConfiguration.PythonWatchFileNamePatterns);
+                        }
+
                         var functionFileSyncManager = new FileSyncManager(functionContractBasePath, $"|{string.Join("|", patterns)}");
                         functionFileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
                         {
                             if (GlobalConfiguration.IsRunning == true && fileInfo.FullName.Replace("\\", "/").IndexOf(functionContractBasePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed) && (fileInfo.Name == "featureMain.cs" || fileInfo.Name == "featureMeta.json" || fileInfo.Name == "featureSQL.xml") == true)
                             {
                                 string filePath = fileInfo.FullName.Replace("\\", "/").Replace(functionContractBasePath, "");
-                                string hostUrl = $"http://localhost:{GlobalConfiguration.ServerPort}/function/api/execution/refresh?changeType={changeTypes}&filePath={filePath}&language=csharp";
+                                string hostUrl = $"http://localhost:{GlobalConfiguration.ServerPort}/function/api/execution/refresh?changeType={changeTypes}&filePath={filePath}";
 
                                 var request = new RestRequest(hostUrl, Method.Get);
                                 request.Timeout = TimeSpan.FromSeconds(3);

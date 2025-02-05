@@ -178,5 +178,23 @@ namespace HandStack.Core.ExtensionMethod
                 return fallbackValue;
             }
         }
+
+        // var result = TaskExtensions.ExecuteWithTimeout(() => LongRunningOperation(), TimeSpan.FromSeconds(5)).Result;
+        public static async Task<T> ExecuteWithTimeout<T>(Func<T> func, TimeSpan timeout)
+        {
+            using (var cts = new CancellationTokenSource())
+            {
+                var task = Task.Run(func, cts.Token);
+                if (await Task.WhenAny(task, Task.Delay(timeout, cts.Token)) == task)
+                {
+                    cts.Cancel();
+                    return task.Result;
+                }
+                else
+                {
+                    throw new TimeoutException();
+                }
+            }
+        }
     }
 }

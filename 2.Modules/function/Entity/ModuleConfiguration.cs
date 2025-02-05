@@ -28,8 +28,14 @@ namespace function.Entity
         public static List<string> WatchFileNamePatterns = new List<string>();
         public static string NodeAndV8Options = "";
         public static string EnvironmentVariables = "";
+        public static bool CSharpEnableFileWatching = false;
         public static string CSharpFunctionLogBasePath = "";
         public static List<string> CSharpWatchFileNamePatterns = new List<string>();
+        public static bool PythonEnableFileWatching = false;
+        public static bool EnablePythonDLL = false;
+        public static string PythonDLLFilePath = "";
+        public static string PythonFunctionLogBasePath = "";
+        public static List<string> PythonWatchFileNamePatterns = new List<string>();
         public static string BusinessServerUrl = "";
         public static bool IsTransactionLogging = false;
         public static string ModuleLogFilePath = "";

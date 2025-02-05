@@ -408,7 +408,7 @@ namespace function.Extensions
             return result;
         }
 
-        public static bool AddScriptMap(string scriptMapFile, bool forceUpdate, ILogger logger, string? language = null)
+        public static bool AddScriptMap(string scriptMapFile, bool forceUpdate, ILogger logger)
         {
             bool result = false;
 
@@ -560,6 +560,11 @@ namespace function.Extensions
                                         }
                                         else if (forceUpdate == true)
                                         {
+                                            if (functionScriptContract.Header.LanguageType == "python")
+                                            {
+                                                deletePythonCache(functionScriptFile, moduleScriptMap);
+                                            }
+
                                             ScriptMappings.Remove(queryID);
                                             if (isTenantContractFile == true)
                                             {
@@ -593,6 +598,24 @@ namespace function.Extensions
             }
 
             return result;
+        }
+
+        private static void deletePythonCache(string functionScriptFile, ModuleScriptMap moduleScriptMap)
+        {
+            string functionDirectoryPath = Path.GetDirectoryName(functionScriptFile)!;
+            string transactionID = new DirectoryInfo(functionDirectoryPath).Name;
+            string moduleName = $"{moduleScriptMap.ApplicationID}_{moduleScriptMap.ProjectID}_{moduleScriptMap.TransactionID}_{moduleScriptMap.ScriptID}";
+            string mainFilePath = functionScriptFile.Replace("featureMain.py", $"{moduleName}.py");
+            if (File.Exists(mainFilePath) == false)
+            {
+                File.Delete(mainFilePath);
+            }
+
+            string pythonCachePath = PathExtensions.Combine(functionDirectoryPath, "__pycache__");
+            if (Directory.Exists(pythonCachePath) == true)
+            {
+                Directory.Delete(pythonCachePath, true);
+            }
         }
 
         public static void LoadContract(string environmentName, ILogger logger, IConfiguration configuration)
@@ -728,6 +751,11 @@ namespace function.Extensions
                                         {
                                             if (ScriptMappings.ContainsKey(queryID) == false)
                                             {
+                                                if (functionScriptContract.Header.LanguageType == "python")
+                                                {
+                                                    deletePythonCache(functionScriptFile, moduleScriptMap);
+                                                }
+
                                                 ScriptMappings.Add(queryID, moduleScriptMap, TimeSpan.FromDays(36500));
                                             }
                                             else
