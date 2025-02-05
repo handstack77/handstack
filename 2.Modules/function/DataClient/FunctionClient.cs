@@ -798,7 +798,7 @@ namespace function.DataClient
                 }
 
                 string transactionID = new DirectoryInfo(Path.GetDirectoryName(programPath)!).Name;
-                moduleName = $"{moduleScriptMap.ApplicationID}_{moduleScriptMap.ProjectID}_{moduleScriptMap.TransactionID}_{moduleScriptMap.ScriptID}";
+                moduleName = $"{moduleScriptMap.ApplicationID}_{moduleScriptMap.ProjectID}_{moduleScriptMap.TransactionID}";
                 string mainFilePath = programPath.Replace("featureMain.py", $"{moduleName}.py");
                 if (File.Exists(mainFilePath) == false)
                 {

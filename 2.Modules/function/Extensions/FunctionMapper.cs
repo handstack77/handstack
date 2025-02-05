@@ -546,6 +546,10 @@ namespace function.Extensions
                                             var runner = Runner.Instance;
                                             runner.FileAssemblyCache.Remove(functionScriptFile);
                                         }
+                                        else if (functionScriptContract.Header.LanguageType == "python")
+                                        {
+                                            deletePythonCache(functionScriptFile, moduleScriptMap);
+                                        }
 
                                         if (ScriptMappings.ContainsKey(queryID) == false)
                                         {
@@ -560,11 +564,6 @@ namespace function.Extensions
                                         }
                                         else if (forceUpdate == true)
                                         {
-                                            if (functionScriptContract.Header.LanguageType == "python")
-                                            {
-                                                deletePythonCache(functionScriptFile, moduleScriptMap);
-                                            }
-
                                             ScriptMappings.Remove(queryID);
                                             if (isTenantContractFile == true)
                                             {
@@ -604,7 +603,7 @@ namespace function.Extensions
         {
             string functionDirectoryPath = Path.GetDirectoryName(functionScriptFile)!;
             string transactionID = new DirectoryInfo(functionDirectoryPath).Name;
-            string moduleName = $"{moduleScriptMap.ApplicationID}_{moduleScriptMap.ProjectID}_{moduleScriptMap.TransactionID}_{moduleScriptMap.ScriptID}";
+            string moduleName = $"{moduleScriptMap.ApplicationID}_{moduleScriptMap.ProjectID}_{moduleScriptMap.TransactionID}";
             string mainFilePath = functionScriptFile.Replace("featureMain.py", $"{moduleName}.py");
             if (File.Exists(mainFilePath) == false)
             {
