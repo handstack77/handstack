@@ -30,7 +30,14 @@
         "CSharpFunctionConfig": {
             "EnableFileWatching": true,
             "FileLogBasePath": "../log/function/csharp",
-            "WatchFileNamePatterns": [ "featureMain.cs" ],
+            "WatchFileNamePatterns": [ "featureMain.cs" ]
+        },
+        "PythonFunctionConfig": {
+            "EnablePythonDLL": false,
+            "PythonDLLFilePath": "C:/anaconda3/envs/myenv/python313.dll",
+            "FileLogBasePath": "../log/function/python",
+            "EnableFileWatching": true,
+            "WatchFileNamePatterns": [ "featureMain.py" ]
         },
         "EventAction": [],
         "SubscribeAction": [],

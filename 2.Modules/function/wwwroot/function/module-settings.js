@@ -24,14 +24,21 @@ let $module_settings = {
                     "IsSingleThread": true,
                     "WatchGracefulShutdown": true,
                     "EnableFileWatching": true,
-                    "WatchFileNamePatterns": ["featureMain.js", "featureMeta.json", "featureSQL.xml", "syn.config.json"],
+                    "WatchFileNamePatterns": ["featureMain.js"],
                     "NodeAndV8Options": "",
                     "EnvironmentVariables": ""
                 },
                 "CSharpFunctionConfig": {
                     "EnableFileWatching": true,
                     "FileLogBasePath": "../log/function/csharp",
-                    "WatchFileNamePatterns": ["featureMain.cs", "featureMeta.json", "featureSQL.xml"]
+                    "WatchFileNamePatterns": ["featureMain.cs"]
+                },
+                "PythonFunctionConfig": {
+                    "EnablePythonDLL": false,
+                    "PythonDLLFilePath": "C:/anaconda3/envs/myenv/python313.dll",
+                    "FileLogBasePath": "../log/function/python",
+                    "EnableFileWatching": true,
+                    "WatchFileNamePatterns": ["featureMain.py"]
                 },
                 "EventAction": [],
                 "SubscribeAction": [],
@@ -141,6 +148,12 @@ let $module_settings = {
                 syn.$l.get('chkEnableFileWatching_CSharpFunctionConfig').checked = $string.toBoolean($this.prop.moduleConfig.ModuleConfig.CSharpFunctionConfig.EnableFileWatching);
                 syn.$l.get('txtWatchFileNamePatterns_CSharpFunctionConfig').value = $this.prop.moduleConfig.ModuleConfig.CSharpFunctionConfig.WatchFileNamePatterns;
 
+                syn.$l.get('chkEnablePythonDLL_PythonFunctionConfig').checked = $string.toBoolean($this.prop.moduleConfig.ModuleConfig.PythonFunctionConfig.EnablePythonDLL);
+                syn.$l.get('txtPythonDLLFilePath_PythonFunctionConfig').value = $this.prop.moduleConfig.ModuleConfig.PythonFunctionConfig.PythonDLLFilePath;
+                syn.$l.get('txtFileLogBasePath_PythonFunctionConfig').value = $this.prop.moduleConfig.ModuleConfig.PythonFunctionConfig.FileLogBasePath;
+                syn.$l.get('chkEnableFileWatching_PythonFunctionConfig').checked = $string.toBoolean($this.prop.moduleConfig.ModuleConfig.PythonFunctionConfig.EnableFileWatching);
+                syn.$l.get('txtWatchFileNamePatterns_PythonFunctionConfig').value = $this.prop.moduleConfig.ModuleConfig.PythonFunctionConfig.WatchFileNamePatterns;
+
                 $this.method.sectionRender('MediatorAction');
                 $this.method.sectionRender('ContractBasePath');
                 $this.method.sectionRender('FunctionSource');
@@ -180,6 +193,12 @@ let $module_settings = {
                     $this.prop.moduleConfig.ModuleConfig.CSharpFunctionConfig.FileLogBasePath = syn.$l.get('txtFileLogBasePath_CSharpFunctionConfig').value;
                     $this.prop.moduleConfig.ModuleConfig.CSharpFunctionConfig.EnableFileWatching = syn.$l.get('chkEnableFileWatching_CSharpFunctionConfig').checked;
                     $this.prop.moduleConfig.ModuleConfig.CSharpFunctionConfig.WatchFileNamePatterns = $array.split(syn.$l.get('txtWatchFileNamePatterns_CSharpFunctionConfig').value);
+
+                    $this.prop.moduleConfig.ModuleConfig.PythonFunctionConfig.EnablePythonDLL = syn.$l.get('chkEnablePythonDLL_PythonFunctionConfig').checked;
+                    $this.prop.moduleConfig.ModuleConfig.PythonFunctionConfig.PythonDLLFilePath = syn.$l.get('txtPythonDLLFilePath_PythonFunctionConfig').value;
+                    $this.prop.moduleConfig.ModuleConfig.PythonFunctionConfig.FileLogBasePath = syn.$l.get('txtFileLogBasePath_PythonFunctionConfig').value;
+                    $this.prop.moduleConfig.ModuleConfig.PythonFunctionConfig.EnableFileWatching = syn.$l.get('chkEnableFileWatching_PythonFunctionConfig').checked;
+                    $this.prop.moduleConfig.ModuleConfig.PythonFunctionConfig.WatchFileNamePatterns = $array.split(syn.$l.get('txtWatchFileNamePatterns_PythonFunctionConfig').value);
 
                     syn.$l.get('txtJsonView').value = JSON.stringify($this.prop.moduleConfig, null, 4);
                 } catch (error) {

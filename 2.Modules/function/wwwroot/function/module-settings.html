@@ -320,6 +320,64 @@
                                                 </td>
                                             </tr>
                                             <tr>
+                                                <td class="bg-body">PythonFunctionConfig</td>
+                                                <td>
+                                                    <table class="table">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td class="bg-body">EnablePythonDLL</td>
+                                                                <td>
+                                                                    <label class="form-check mb-2">
+                                                                        <input id="chkEnablePythonDLL_PythonFunctionConfig" class="form-check-input" type="checkbox">
+                                                                    </label>
+                                                                    <small class="form-hint">
+                                                                        파이썬 서버 함수를 실행하기 위한 런타임을 활성화 합니다. (기본값: false)
+                                                                    </small>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body w:220px">PythonDLLFilePath</td>
+                                                                <td>
+                                                                    <input type="text" id="txtPythonDLLFilePath_PythonFunctionConfig" class="form-control">
+                                                                    <small class="form-hint">
+                                                                        파이썬 런타임 라이브러리 파일 전체 경로입니다. (예: /home/qcn/anaconda3/envs/myenv/lib/libpython3.so)
+                                                                    </small>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body w:220px">FileLogBasePath</td>
+                                                                <td>
+                                                                    <input type="text" id="txtFileLogBasePath_PythonFunctionConfig" class="form-control">
+                                                                    <small class="form-hint">
+                                                                        context logger 에서 로그가 기록되는 기본 디렉토리 경로입니다.
+                                                                    </small>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">EnableFileWatching</td>
+                                                                <td>
+                                                                    <label class="form-check mb-2">
+                                                                        <input id="chkEnableFileWatching_PythonFunctionConfig" class="form-check-input" type="checkbox">
+                                                                    </label>
+                                                                    <small class="form-hint">
+                                                                        WatchFileNamePatterns 에 등록된 파일이 변경되면 해당 Function 캐시를 다시 갱신합니다. 운영 환경에서는 false 를 권장합니다. (기본값: true)
+                                                                    </small>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="bg-body">WatchFileNamePatterns</td>
+                                                                <td>
+                                                                    <input type="text" id="txtWatchFileNamePatterns_PythonFunctionConfig" class="form-control">
+                                                                    <small class="form-hint">
+                                                                        감시할 파일 이름 패턴입니다. "," 로 구분하여 여러 패턴을 등록할 수 있습니다.
+                                                                    </small>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                            <tr>
                                                 <td class="bg-body">
                                                     EventAction
                                                     <div class="mt-2">
