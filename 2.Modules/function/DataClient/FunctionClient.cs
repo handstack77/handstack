@@ -508,14 +508,14 @@ namespace function.DataClient
                                             executeResult = JsonConvert.SerializeObject(null);
                                         }
                                     }
-                                    else if (result is DataSet)
-                                    {
-                                        executeResult = JsonConvert.SerializeObject(result);
-                                    }
-                                    else
-                                    {
-                                        response.ExceptionText = $"GlobalID: {request.GlobalID}, QueryID: {queryObject.QueryID}, Exception: EntryType, EntryMethod 반환 결과 확인 필요";
-                                    }
+                                }
+                                else if (result is DataSet)
+                                {
+                                    executeResult = JsonConvert.SerializeObject(result);
+                                }
+                                else
+                                {
+                                    response.ExceptionText = $"GlobalID: {request.GlobalID}, QueryID: {queryObject.QueryID}, Exception: EntryType, EntryMethod 반환 결과 확인 필요";
                                 }
                             }
                         }
