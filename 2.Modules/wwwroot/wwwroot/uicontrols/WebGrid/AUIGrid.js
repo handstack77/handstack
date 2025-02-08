@@ -246,7 +246,7 @@
 
             var columnLayout = null;
             if (setting.columns) {
-                var flagColumn = setting.columns.find(function (item) { return item.dataField == 'Flag'; });
+                var flagColumn = setting.columns.find(function (item) { return item.length > 0 && item[0] == 'Flag'; });
                 if ($object.isNullOrUndefined(flagColumn) == true) {
                     setting.columns.unshift(['Flag', 'Flag', 60, true, 'text', true, 'left']);
                 }
