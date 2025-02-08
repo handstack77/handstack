@@ -2841,11 +2841,11 @@ let $main = {
             alertOptions.icon = 'success';
             alertOptions.buttonType = '1';
             syn.$w.alert(message, 'System Logout', alertOptions, function (result) {
-                location.href = '/checkup//account/signin.html';
+                location.href = '/checkup/account/signin.html';
             });
 
             setTimeout(() => {
-                location.href = '/checkup//account/signin.html';
+                location.href = '/checkup/account/signin.html';
             }, 10000);
         },
 

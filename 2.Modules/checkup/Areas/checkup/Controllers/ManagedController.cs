@@ -80,7 +80,7 @@ namespace checkup.Areas.checkup.Controllers
 
                         Console.WriteLine($"Administrator Email ID: {ModuleConfiguration.AdministratorEmailID}");
                         Console.WriteLine($"Administrator Key: {administratorKey}");
-                        Console.WriteLine($"http://localhost:{GlobalConfiguration.ServerPort}/checkup//account/signin.html");
+                        Console.WriteLine($"http://localhost:{GlobalConfiguration.ServerPort}/checkup/account/signin.html");
                     }
 
                     result = Ok();
