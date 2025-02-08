@@ -188,12 +188,12 @@
         },
         {
             "provider": "jsdelivr",
-            "library": "@tabler/core@1.0.0-beta21",
+            "library": "@tabler/core@1.0.0",
             "destination": "wwwroot/lib/tabler-core/"
         },
         {
             "provider": "jsdelivr",
-            "library": "@tabler/icons-webfont@3.16.0",
+            "library": "@tabler/icons-webfont@3.30.0",
             "destination": "wwwroot/lib/tabler-icons-webfont/"
         },
         {
