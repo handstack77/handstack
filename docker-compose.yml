@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  myapp:
+    image: myapp:1.0.0
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./contracts:/home/handstack/contracts
+      - ./log:/home/handstack/log
+      - ./modules:/home/handstack/modules
+      - ./storage:/home/handstack/storage
+    entrypoint: ["dotnet", "ack.dll"]
+    # command: ["tail", "-f", "/dev/null"]
