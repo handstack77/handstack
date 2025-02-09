@@ -41,16 +41,18 @@ RUN /opt/anaconda/bin/conda create -n myenv python=3.11 -y && \
 	/opt/anaconda/bin/conda run -n myenv pip install numpy pandas requests httpx PyMySQL pymssql asyncpg oracledb mapper-parser localStoragePy psutil logging4 suid xmltodict && \
 	/opt/anaconda/bin/conda clean -ya
 
-# Handstack 설치
+# Handstack 압축 파일 다운로드 및 배치
 RUN curl -L -o handstack.zip https://github.com/handstack77/handstack/releases/latest/download/linux-x64.zip && \
     unzip handstack.zip -d /opt && \
-    rm handstack.zip && \
-    tr -d '\r' < /opt/handstack/install.sh > /opt/handstack/install_fixed.sh && mv /opt/handstack/install_fixed.sh /opt/handstack/install.sh && \
-    chmod +x /opt/handstack/install.sh
-
-RUN cd /opt/handstack && /opt/handstack/install.sh
+    rm handstack.zip
 
 # 모듈 및 구성 설치
+# COPY ./handstack /opt/handstack
+
+# Handstack 설치
+RUN tr -d '\r' < /opt/handstack/install.sh > /opt/handstack/install_fixed.sh && mv /opt/handstack/install_fixed.sh /opt/handstack/install.sh && \
+    chmod +x /opt/handstack/install.sh && \
+    cd /opt/handstack && /opt/handstack/install.sh
 
 # 작업 디렉토리 설정
 WORKDIR /opt/handstack/app
