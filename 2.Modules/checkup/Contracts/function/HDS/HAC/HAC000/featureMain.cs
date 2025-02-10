@@ -9,7 +9,7 @@ using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.Contract;
 using HandStack.Web.MessageContract.DataObject;
 
-using checkup;
+using checkup.Entity;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
