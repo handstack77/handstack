@@ -91,4 +91,5 @@ rm -f $wwwroot_js_path/js/syn.scripts.base.min.js
 rm -f $wwwroot_js_path/js/syn.scripts.js
 rm -f $wwwroot_js_path/js/syn.scripts.min.js
 
+tar -czf ../publish/%os_mode%-%arch_mode%.zip -C ../publish %os_mode%-%arch_mode%
 # git archive --format zip --output ../publish/handstack-src.zip master
