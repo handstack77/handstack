@@ -64,7 +64,4 @@ del /F /Q "%wwwroot_js_path%\js\syn.scripts.base.min.js"
 del /F /Q "%wwwroot_js_path%\js\syn.scripts.js"
 del /F /Q "%wwwroot_js_path%\js\syn.scripts.min.js"
 
-tar -czf ../publish/%os_mode%-%arch_mode%.zip -C ../publish %os_mode%-%arch_mode%
-set zip_path=%cd%\publish\%os_mode%-%arch_mode%.zip
-echo %zip_path%
 REM git archive --format zip --output ../publish/handstack-src.zip master
