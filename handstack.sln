@@ -65,6 +65,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "prompter", "2.Modules\promp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "handsonapp", "4.Tool\CLI\handsonapp\handsonapp.csproj", "{EBA5D7AF-5876-4088-B39B-E8FCDA762F67}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "edgeproxy", "4.Tool\CLI\edgeproxy\edgeproxy.csproj", "{30ADF3F5-3D36-4C80-9F1B-BEC9145494E8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -135,6 +137,10 @@ Global
 		{EBA5D7AF-5876-4088-B39B-E8FCDA762F67}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EBA5D7AF-5876-4088-B39B-E8FCDA762F67}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EBA5D7AF-5876-4088-B39B-E8FCDA762F67}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30ADF3F5-3D36-4C80-9F1B-BEC9145494E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30ADF3F5-3D36-4C80-9F1B-BEC9145494E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30ADF3F5-3D36-4C80-9F1B-BEC9145494E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30ADF3F5-3D36-4C80-9F1B-BEC9145494E8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -157,6 +163,7 @@ Global
 		{57D246F6-FA45-49C1-A3F0-E0597B75EE98} = {43B577AB-74FA-4B53-A2BE-E369622F970F}
 		{A5EAE6C9-3724-4FD2-9FEF-8682E1269529} = {43B577AB-74FA-4B53-A2BE-E369622F970F}
 		{EBA5D7AF-5876-4088-B39B-E8FCDA762F67} = {FA291842-9FD5-4508-A423-7421803FDA88}
+		{30ADF3F5-3D36-4C80-9F1B-BEC9145494E8} = {FA291842-9FD5-4508-A423-7421803FDA88}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		VisualSVNWorkingCopyRoot = .

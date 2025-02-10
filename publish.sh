@@ -56,6 +56,7 @@ chmod +x 4.Tool/CLI/handstack/post-build.sh
 dotnet $action_mode 1.WebHost/ack/ack.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/app
 dotnet $action_mode 1.WebHost/forbes/forbes.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/forbes
 dotnet publish 4.Tool/CLI/handstack/handstack.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/app/cli
+dotnet publish 4.Tool/CLI/edgeproxy/edgeproxy.csproj --configuration Release --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/app/cli
 
 forbes_path=../publish/$os_mode-$arch_mode/handstack/forbes
 mv $forbes_path/wwwroot/* $forbes_path
