@@ -78,7 +78,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="../../../3.Infrastructure/HandStack.Core/HandStack.Core.csproj" />
+        <Reference Include="HandStack.Core">
+            <HintPath>../../../3.Infrastructure/Assemblies/HandStack.Core.dll</HintPath>
+        </Reference>
     </ItemGroup>
 
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">

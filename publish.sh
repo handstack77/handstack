@@ -63,7 +63,9 @@ rm -rf $forbes_path/wwwroot
 rm -f $forbes_path/*
 
 contracts_path=1.WebHost/build/handstack/contracts
-rm -rf $contracts_path/*
+if [ -d "$contracts_path" ]; then
+    rm -rf $contracts_path/*
+fi
 
 dotnet build 2.Modules/dbclient/dbclient.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/modules/dbclient
 dotnet build 2.Modules/function/function.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/modules/function
