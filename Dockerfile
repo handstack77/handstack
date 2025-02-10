@@ -70,7 +70,6 @@ EXPOSE 9229
 
 # 프로그램 시작
 ENTRYPOINT ["dotnet", "ack.dll"]
-CMD ["--port=8000"]
 
 # 컨테이너를 계속 실행 상태로 유지
 # CMD ["tail", "-f", "/dev/null"]
