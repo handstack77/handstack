@@ -82,3 +82,6 @@ ENTRYPOINT ["dotnet", "ack.dll"]
 # docker stop myapp-1.0.0
 # docker rm myapp-1.0.0
 # docker rmi myapp:1.0.0
+# docker commit myapp-1.0.0 myapp
+# docker save -o myimage.tar myapp
+# docker load -i myimage.tar
