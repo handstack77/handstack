@@ -9,9 +9,9 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./contracts:/home/handstack/contracts
-      - ./log:/home/handstack/log
-      - ./modules:/home/handstack/modules
-      - ./storage:/home/handstack/storage
+      - ./contracts:/opt/handstack/contracts
+      - ./log:/opt/handstack/log
+      - ./modules:/opt/handstack/modules
+      - ./sqlite:/opt/handstack/sqlite
+      - ./storage:/opt/handstack/storage
     entrypoint: ["dotnet", "ack.dll"]
-    # command: ["tail", "-f", "/dev/null"]
