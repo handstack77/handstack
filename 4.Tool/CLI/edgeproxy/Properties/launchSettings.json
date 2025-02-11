@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "edgeproxy": {
+      "commandName": "Project",
+      "commandLineArgs": ""
+    }
+  }
+}
