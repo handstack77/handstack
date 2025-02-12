@@ -111,7 +111,7 @@ namespace handstack
                         }
                         else
                         {
-                            var regex = new Regex(@"(\w+)\s+(?<pid>\d+)\s+\w+\s+\d+u\s+\w+\s+\w+\s+\d+t\d+\s+TCP\s+(?<ip>\d+\.\d+\.\d+\.\d+|\[\:\:1\]|\*):(?<port>\d+)\s+\(LISTEN\)");
+                            var regex = new Regex(@"(\w+)\s+(?<pid>\d+)\s+\w+\s+\d+u\s+\w+\s+\w+\s+\d+t\d+\s+TCP\s+(?<ip>[\d\.]+|\[::1\]|\*):(?<port>\d+)\s+\(LISTEN\)");
                             matches = regex.Matches(netstatOutput);
                         }
 
@@ -403,7 +403,11 @@ namespace handstack
                         }
                     }
 
-                    Log.Information($"{ackFile.FullName.Replace("\\", "/")} {arguments.ToStringSafe()}");
+                    string ackFilePath = ackFile.FullName.Replace("\\", "/");
+                    var ackFileName = ackFile.Name == "ack.dll" ? "dotnet" : ackFilePath;
+                    arguments = ackFile.Name == "ack.dll" ? $"ack.dll {arguments}" : arguments.ToStringSafe();
+
+                    Log.Information($"{ackFileName} {arguments.ToStringSafe()}".Trim());
                 }
                 else
                 {
@@ -444,12 +448,15 @@ namespace handstack
 
                     string ackFilePath = ackFile.FullName.Replace("\\", "/");
                     Process process = new Process();
-                    process.StartInfo = new ProcessStartInfo(ackFilePath);
-                    process.StartInfo.Arguments = arguments.ToStringSafe();
-                    process.StartInfo.WorkingDirectory = Path.GetDirectoryName(ackFilePath);
-                    process.StartInfo.CreateNoWindow = true;
-                    process.StartInfo.UseShellExecute = false;
-                    process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                    process.StartInfo = new ProcessStartInfo
+                    {
+                        FileName = ackFile.Name == "ack.dll" ? "dotnet" : ackFilePath,
+                        Arguments = ackFile.Name == "ack.dll" ? $"ack.dll {arguments}".Trim() : arguments.ToStringSafe(),
+                        WorkingDirectory = Path.GetDirectoryName(ackFilePath),
+                        CreateNoWindow = true,
+                        UseShellExecute = false,
+                        WindowStyle = ProcessWindowStyle.Hidden
+                    };
                     process.Start();
                 }
                 else
