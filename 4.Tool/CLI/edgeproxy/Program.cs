@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -26,7 +27,6 @@ namespace edgeproxy
             }
 
             var host = builder.Build();
-
             var handstackHome = Environment.GetEnvironmentVariable("HANDSTACK_HOME");
             if (string.IsNullOrEmpty(handstackHome))
             {
@@ -34,9 +34,16 @@ namespace edgeproxy
                 Environment.Exit(1);
             }
 
+            var entryAckFileName = Path.Join(handstackHome, "app", RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true ? "ack.exe" : "ack");
+            FileInfo ackFile = new FileInfo(entryAckFileName);
+            if (ackFile.Exists == false)
+            {
+                Console.WriteLine($"ACK 파일이 존재하지 않습니다. {ackFile.FullName}");
+                Environment.Exit(1);
+            }
+
             var processes = Process.GetProcessesByName("ack");
-            var entryAckDllFileName = Path.Join(handstackHome, "app", "ack.dll");
-            if (File.Exists(entryAckDllFileName) == true && processes.Any() == false)
+            if (processes.Any() == false)
             {
                 bool isAckProcessRun = true;
                 var ackProcessRun = args.FirstOrDefault(arg => arg.StartsWith("--ackrun="))?.Split('=')[1];
@@ -47,14 +54,19 @@ namespace edgeproxy
 
                 if (isAckProcessRun == true)
                 {
-                    var entryCommand = Path.Join(handstackHome, "app", "ack");
-                    var entryArguments = args.FirstOrDefault(arg => arg.StartsWith("--arguments="))?.Replace("--arguments=", "");
-                    if (string.IsNullOrEmpty(entryArguments) == false)
-                    {
-                        entryCommand = $"{entryCommand} {entryArguments}";
-                    }
+                    var arguments = $"{args.FirstOrDefault(arg => arg.StartsWith("--arguments="))?.Replace("--arguments=", "")} --pname=edgeproxy-ack".Trim();
 
-                    ExecuteEntryCommand(entryCommand);
+                    string ackFilePath = ackFile.FullName.Replace("\\", "/");
+
+                    var processInfo = new ProcessStartInfo();
+                    processInfo.FileName = ackFilePath;
+                    processInfo.Arguments = arguments;
+                    processInfo.WorkingDirectory = Path.GetDirectoryName(ackFilePath);
+                    processInfo.CreateNoWindow = true;
+                    processInfo.UseShellExecute = false;
+                    processInfo.WindowStyle = ProcessWindowStyle.Hidden;
+
+                    ackProcess = Process.Start(processInfo);
                 }
             }
             else
@@ -84,63 +96,36 @@ namespace edgeproxy
             host.Run();
         }
 
-        private static void ExecuteEntryCommand(string command)
-        {
-            var processInfo = new ProcessStartInfo();
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                processInfo.FileName = "cmd.exe";
-                processInfo.Arguments = $"/c {command}";
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                processInfo.FileName = "/bin/bash";
-                processInfo.Arguments = $"-c \"{command}\"";
-            }
-
-            processInfo.CreateNoWindow = true;
-            processInfo.UseShellExecute = false;
-
-            ackProcess = Process.Start(processInfo);
-        }
-
         public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureAppConfiguration((hostingContext, config) =>
-                {
-                    config.AddJsonFile("edgeproxy.appsettings.json", optional: false, reloadOnChange: true);
-                })
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.ConfigureKestrel(serverOptions =>
-                    {
-                        var configuration = (IConfiguration?)serverOptions.ApplicationServices.GetService(typeof(IConfiguration));
-                        if (configuration != null)
-                        {
-                            serverOptions.Configure(configuration.GetSection("Kestrel"));
-                        }
-                    });
+           Host.CreateDefaultBuilder(args)
+               .ConfigureAppConfiguration((hostingContext, config) =>
+               {
+                   config.AddJsonFile("edgeproxy.appsettings.json", optional: false, reloadOnChange: true);
+               })
+               .ConfigureWebHostDefaults(webBuilder =>
+               {
+                   webBuilder.ConfigureServices((context, services) =>
+                   {
+                       services.Configure<KestrelServerOptions>(context.Configuration.GetSection("Kestrel"));
+                       services.AddReverseProxy()
+                           .LoadFromConfig(context.Configuration.GetSection("ReverseProxy"));
+                   });
 
-                    webBuilder.ConfigureServices((context, services) =>
-                    {
-                        services.AddReverseProxy()
-                            .LoadFromConfig(context.Configuration.GetSection("ReverseProxy"));
-                    });
-
-                    webBuilder.Configure(app =>
-                    {
-                        app.UseRouting();
-                        app.UseEndpoints(endpoints =>
-                        {
-                            endpoints.MapReverseProxy();
-                        });
-                    });
-                })
-                .ConfigureLogging(logging =>
-                {
-                    logging.ClearProviders();
-                    logging.AddConsole();
-                    logging.AddFilter("Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager", LogLevel.None);
-                });
+                   webBuilder.Configure(app =>
+                   {
+                       app.UseRouting();
+                       app.UseEndpoints(endpoints =>
+                       {
+                           endpoints.MapReverseProxy();
+                       });
+                   });
+               })
+               .ConfigureLogging(logging =>
+               {
+                   logging.ClearProviders();
+                   logging.AddConsole();
+                   logging.AddFilter("Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager", LogLevel.None);
+                   logging.AddFilter("Microsoft.AspNetCore.DataProtection.Repositories.FileSystemXmlRepository", LogLevel.None);
+               });
     }
 }

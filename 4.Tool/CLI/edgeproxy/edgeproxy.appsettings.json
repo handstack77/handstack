@@ -1,4 +1,4 @@
-﻿{
+{
     "Logging": {
         "LogLevel": {
             "Default": "Warning",
@@ -10,7 +10,7 @@
     "Kestrel": {
         "Endpoints": {
             "Http": {
-                "Url": "http://localhost:8080"
+                "Url": "http://*:8080"
             }
         }
     },

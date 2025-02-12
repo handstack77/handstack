@@ -2,7 +2,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0
 
 # CLI 도구 설치
 RUN apt-get update && \
-    apt-get install -y curl wget net-tools iputils-ping vim unzip gnupg sudo bash bash-completion locales
+    apt-get install -y curl wget net-tools iputils-ping vim unzip gnupg sudo bash bash-completion locales dmidecode lsof
 
 RUN echo "source /etc/profile.d/bash_completion.sh" >> ~/.bashrc
 
@@ -14,6 +14,9 @@ RUN echo "ko_KR.UTF-8 UTF-8" >> /etc/locale.gen && \
 ENV LANG=ko_KR.UTF-8
 ENV LANGUAGE=ko_KR:ko
 ENV LC_ALL=ko_KR.UTF-8
+ENV HANDSTACK_HOME=/opt/handstack
+ENV DOTNET_RUNNING_IN_CONTAINER=true
+ENV PATH="/opt/handstack/app/cli:${PATH}"
 
 # .NET Core SDK 8 설치
 # RUN wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb && \
@@ -59,29 +62,32 @@ RUN unzip handstack.zip -d /opt && \
 # Handstack 설치
 RUN tr -d '\r' < /opt/handstack/install.sh > /opt/handstack/install_fixed.sh && mv /opt/handstack/install_fixed.sh /opt/handstack/install.sh && \
     chmod +x /opt/handstack/install.sh && \
+    chmod +x /opt/handstack/app/ack && \
+    chmod +x /opt/handstack/app/cli/handstack && \
+    chmod +x /opt/handstack/app/cli/edgeproxy && \
     cd /opt/handstack && /opt/handstack/install.sh
 
-# 작업 디렉토리 설정
-WORKDIR /opt/handstack/app
-
 # 서비스 및 디버깅 포트 노출
-EXPOSE 8000
+EXPOSE 8080
 EXPOSE 9229
 
+# 작업 디렉토리 설정
+WORKDIR /opt/handstack/app/cli
+
 # 프로그램 시작
-ENTRYPOINT ["dotnet", "ack.dll"]
+ENTRYPOINT ["edgeproxy"]
 
 # 컨테이너를 계속 실행 상태로 유지
 # CMD ["tail", "-f", "/dev/null"]
 
 # Docker 빌드 및 실행 명령
 # docker build -t myapp:1.0.0 -f Dockerfile .
-# docker run -d --name myapp-1.0.0 -v "C:/home/handstack/contracts:/home/handstack/contracts" -v "C:/home/handstack/log:/home/handstack/log" -v "C:/home/handstack/modules:/home/handstack/modules" -v "C:/home/handstack/storage:/home/handstack/storage" -p 8080:8080 myapp:1.0.0
-# docker run -d --name myapp-1.0.0 -p 8000:8000 myapp:1.0.0
+# docker run -d --name myapp-1.0.0 -p 8000:8080 -v %cd%\contracts:/opt/handstack/contracts -v %cd%\log:/opt/handstack/log -v %cd%\modules:/opt/handstack/modules -v %cd%\sqlite:/opt/handstack/sqlite -v %cd%\storage:/opt/handstack/storage myapp:1.0.0
+# docker run -d --name myapp-1.0.0 -p 8000:8080 myapp:1.0.0
 # docker exec -it myapp-1.0.0 /bin/bash
 # docker stop myapp-1.0.0
 # docker rm myapp-1.0.0
 # docker rmi myapp:1.0.0
-# docker commit myapp-1.0.0 myapp
-# docker save -o myimage.tar myapp
+# docker commit myapp-1.0.0 myapp-commit
+# docker save -o myimage.tar myapp-commit
 # docker load -i myimage.tar

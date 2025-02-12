@@ -1348,7 +1348,7 @@ namespace ack
                     }
                     catch (Exception exception)
                     {
-                        Log.Logger.Warning(exception, "[{LogCategory}] " + $"HardwareID 확인 오류", $"Startup/GetHostAccessID");
+                        Log.Logger.Warning(exception, "[{LogCategory}] " + $"HostAccessID 확인 오류", $"Startup/GetHostAccessID");
                     }
                 }
             }
@@ -1360,24 +1360,35 @@ namespace ack
         {
             string result = "HANDSTACK_HOSTACCESSID";
 
-            try
+            bool isRunningInDocker = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
+            if (isRunningInDocker == true)
             {
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true)
-                {
-                    result = GetWindowsHardwareID();
-                }
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) == true)
-                {
-                    result = GetLinuxHardwareID();
-                }
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) == true)
-                {
-                    result = GetMacHardwareID();
-                }
+                result = GlobalConfiguration.HostAccessID;
             }
-            catch (Exception exception)
+            else
             {
-                Log.Logger.Warning(exception, "[{LogCategory}] " + $"HardwareID 확인 오류", $"Startup/GetHardwareID");
+                if (GlobalConfiguration.HostAccessID == result)
+                {
+                    try
+                    {
+                        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true)
+                        {
+                            result = GetWindowsHardwareID();
+                        }
+                        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) == true)
+                        {
+                            result = GetLinuxHardwareID();
+                        }
+                        else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) == true)
+                        {
+                            result = GetMacHardwareID();
+                        }
+                    }
+                    catch (Exception exception)
+                    {
+                        Log.Logger.Warning(exception, "[{LogCategory}] " + $"HardwareID 확인 오류", $"Startup/GetHostAccessID");
+                    }
+                }
             }
 
             return result;

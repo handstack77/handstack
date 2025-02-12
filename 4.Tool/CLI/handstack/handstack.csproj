@@ -24,7 +24,7 @@
         <Authors>handstack77</Authors>
         <Company>handstack</Company>
         <Title>HandStack은 기업 경쟁력 유지를 위한 도구입니다</Title>
-        <Version>1.0.0-alpha4</Version>
+        <Version>1.0.0</Version>
         <IsPackable>True</IsPackable>
         <IncludeSymbols>True</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
