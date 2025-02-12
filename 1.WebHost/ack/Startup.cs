@@ -1322,26 +1322,34 @@ namespace ack
         {
             string result = "HANDSTACK_HOSTACCESSID";
 
-            if (hostAccessID == result)
+            bool isRunningInDocker = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
+            if (isRunningInDocker == true)
             {
-                try
+                result = hostAccessID;
+            }
+            else
+            {
+                if (hostAccessID == result)
                 {
-                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true)
+                    try
                     {
-                        result = GetWindowsHardwareID();
+                        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true)
+                        {
+                            result = GetWindowsHardwareID();
+                        }
+                        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) == true)
+                        {
+                            result = GetLinuxHardwareID();
+                        }
+                        else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) == true)
+                        {
+                            result = GetMacHardwareID();
+                        }
                     }
-                    else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) == true)
+                    catch (Exception exception)
                     {
-                        result = GetLinuxHardwareID();
+                        Log.Logger.Warning(exception, "[{LogCategory}] " + $"HardwareID 확인 오류", $"Startup/GetHostAccessID");
                     }
-                    else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) == true)
-                    {
-                        result = GetMacHardwareID();
-                    }
-                }
-                catch (Exception exception)
-                {
-                    Log.Logger.Warning(exception, "[{LogCategory}] " + $"HardwareID 확인 오류", $"Startup/GetHostAccessID");
                 }
             }
 
