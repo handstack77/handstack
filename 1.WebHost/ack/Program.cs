@@ -86,14 +86,14 @@ namespace ack
             var optionProcessName = new Option<string?>("--pname", description: "관리 업무 목적으로 부여한 프로세스 이름입니다");
             var optionKey = new Option<string?>(name: "--key", description: "ack 프로그램 실행 검증키입니다");
             var optionAppSettings = new Option<string?>(name: "--appsettings", description: "ack 프로그램 appsettings 파일명입니다");
-
+            var optionShowEnv = new Option<string?>("--showenv", description: "ack 프로그램 시작할 때 적용되는 환경설정을 출력합니다. (기본값: false)");
             var rootOptionModules = new Option<string?>("--modules", description: "프로그램 시작시 포함할 모듈을 설정합니다. 예) --modules=wwwroot,transact,dbclient,function");
 
             var rootCommand = new RootCommand("IT 혁신은 고객과 업무에 들여야 하는 시간과 노력을 줄이는 데 있습니다. HandStack은 기업 경쟁력 유지를 위한 도구입니다") {
-                optionDebug, optionDelay, optionPort, rootOptionModules, optionKey, optionAppSettings, optionProcessName
+                optionDebug, optionDelay, optionPort, rootOptionModules, optionKey, optionAppSettings, optionProcessName, optionShowEnv
             };
 
-            rootCommand.SetHandler(async (debug, delay, port, modules, key, settings, pname) =>
+            rootCommand.SetHandler(async (debug, delay, port, modules, key, settings, pname, showenv) =>
             {
                 await DebuggerAttach(args, debug, delay);
 
@@ -241,7 +241,7 @@ namespace ack
                     Log.Fatal(exception, "프로그램 실행 중 오류가 발생했습니다");
                     exitCode = -1;
                 }
-            }, optionDebug, optionDelay, optionPort, rootOptionModules, optionKey, optionAppSettings, optionProcessName);
+            }, optionDebug, optionDelay, optionPort, rootOptionModules, optionKey, optionAppSettings, optionProcessName, optionShowEnv);
 
             await rootCommand.InvokeAsync(args);
             return exitCode;
