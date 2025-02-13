@@ -612,17 +612,45 @@ namespace handstack
             #region encrypt
 
             var subCommandEncrypt = new Command("encrypt", "지정된 매개변수로 값 인코딩을 수행합니다") {
-                optionFormat, optionKey, optionValue
+                optionFormat, optionKey, optionValue, optionOptions
             };
 
             // handstack encrypt --format=base64 --value="helloworld"
             // handstack encrypt --format=connectionstring --value="[connection string]"
-            subCommandEncrypt.SetHandler((format, key, value) =>
+            subCommandEncrypt.SetHandler((format, key, value, options) =>
             {
                 switch (format)
                 {
                     case "base64":
-                        Log.Information($"{value?.EncodeBase64()}");
+                        if (string.IsNullOrEmpty(options) == true)
+                        {
+                            options = "string";
+                        }
+
+                        if (options == "string")
+                        {
+                            Log.Information($"{value?.EncodeBase64()}");
+                        }
+                        else if (options == "file")
+                        {
+                            string inputFilePath = value.ToStringSafe();
+                            FileInfo fileInfo = new FileInfo(inputFilePath);
+                            if (fileInfo.Exists == false)
+                            {
+                                Log.Information($"'{inputFilePath}' 파일 확인이 필요합니다");
+                                return;
+                            }
+
+                            string outputFilePath = PathExtensions.Join(fileInfo.DirectoryName!, fileInfo.Name + ".txt");
+                            byte[] fileBytes = File.ReadAllBytes(inputFilePath);
+                            string base64String = Convert.ToBase64String(fileBytes);
+                            File.WriteAllText(outputFilePath, base64String);
+                            Log.Information(outputFilePath);
+                        }
+                        else
+                        {
+                            Log.Information($"'{options}' 지원하지 않는 옵션입니다. string, file 을 입력하세요.");
+                        }
                         break;
                     case "suid":
                         ISequentialIdGenerator sequentialIdGenerator = new SequentialIdGenerator();
@@ -698,7 +726,7 @@ namespace handstack
                         Log.Information($"{encrypt}.{encrypt.ToSHA256()}");
                         break;
                 }
-            }, optionFormat, optionKey, optionValue);
+            }, optionFormat, optionKey, optionValue, optionOptions);
 
             rootCommand.Add(subCommandEncrypt);
 
