@@ -31,19 +31,19 @@ if %errorlevel% neq 0 (
 
 set current_path=%cd%
 if exist %current_path%\1.WebHost\ack\ack.csproj (
-    for /f "tokens=1 delims=." %%i in ('dotnet --version') do set MAJOR_VERSION=%%i
-    if %MAJOR_VERSION% lss 8 (
-        echo .NET Core 8.0 이상 버전을 설치 해야 합니다.
-        start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#winget-을-이용한-net-core-설치"
-        goto :EOF
-    )
+	where dotnet >nul 2>nul
+	if %errorlevel% neq 0 (
+        echo .NET Core 8.0 버전을 설치 해야 합니다.
+		start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#winget-을-이용한-net-core-설치"
+		goto :EOF
+	)
 
-    dotnet --version >nul 2>&1
-    if %errorlevel% neq 0 (
-        echo .NET Core 8.0 이상 버전이 필요합니다. 기존 dotnet 버전을 업데이트 해야 합니다.
-        start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#winget-을-이용한-net-core-설치"
-        goto :EOF
-    )
+	dotnet --version | findstr /R "^8\." >nul 2>nul
+	if %errorlevel% neq 0 (
+        echo .NET Core 8.0 버전을 설치 해야 합니다.
+		start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#winget-을-이용한-net-core-설치"
+		goto :EOF
+	)
 
     setx HANDSTACK_SRC %current_path%
     set HANDSTACK_SRC=%current_path%
