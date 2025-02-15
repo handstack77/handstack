@@ -193,7 +193,7 @@
         },
         {
             "provider": "jsdelivr",
-            "library": "@tabler/icons-webfont@3.30.0",
+            "library": "@tabler/icons-webfont@3.25.0",
             "destination": "wwwroot/lib/tabler-icons-webfont/"
         },
         {
