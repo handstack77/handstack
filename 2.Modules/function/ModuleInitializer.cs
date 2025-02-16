@@ -236,7 +236,7 @@ namespace function
                             "TransactionTimeout": 180000,
                             "HostName": "WebClient",
                             "UIEventLogLevel": "Verbose",
-                            "IsLocaleTranslations": true,
+                            "IsLocaleTranslations": false,
                             "LocaleAssetUrl": "/assets/shared/language/",
                             "AssetsCachingID": "cache-id",
                             "IsClientCaching": true,

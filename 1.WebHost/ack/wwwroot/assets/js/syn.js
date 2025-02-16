@@ -10624,7 +10624,7 @@ globalRoot.syn = syn;
                         syn.$w.pageResource($resource.localeID);
                     }
 
-                    if (syn.Config && $string.toBoolean(syn.Config.IsLocaleTranslations) == true) {
+                    if (syn.Config && $string.toBoolean(syn.Config.IsLocaleTranslations) == true && mod.config && ($string.isNullOrEmpty(mod.config.isLocaleTranslations) == true || $string.toBoolean(mod.config.isLocaleTranslations) == true)) {
                         $resource.setLocale($resource.localeID);
                     }
                 }
