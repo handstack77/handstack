@@ -880,6 +880,7 @@ namespace ack
                         {
                             context.Response.Headers.Append("Content-Type", "text/html; charset=utf-8");
                         }
+                        context.Response.Headers.Remove("Server");
                         return Task.CompletedTask;
                     });
                 }
