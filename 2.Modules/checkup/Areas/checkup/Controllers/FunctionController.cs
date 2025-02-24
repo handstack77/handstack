@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
-using System.Net;
+using System.Reflection;
+using System.Threading.Tasks;
 
 using checkup.Entity;
 
@@ -22,7 +23,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-using RestSharp;
+using Serilog;
 
 namespace checkup.Areas.checkup.Controllers
 {
@@ -32,21 +33,216 @@ namespace checkup.Areas.checkup.Controllers
     [ApiController]
     public class FunctionController : BaseController
     {
-        // http://localhost:8000/checkup/api/function/execute?accessToken=test&loadOptions[option1]=value1&featureMeta.Timeout=0
-        [HttpPost("[action]")]
-        public DataSet? Execute([FromBody] List<DynamicParameter> dynamicParameters, [FromQuery] DataContext dataContext)
+        protected ILogger logger { get; }
+        protected Extensions.ModuleApiClient moduleApiClient { get; }
+        protected readonly IHttpContextAccessor httpContextAccessor;
+        protected readonly HttpContext? httpContext;
+
+        public FunctionController(ILogger logger, Extensions.ModuleApiClient moduleApiClient, IHttpContextAccessor httpContextAccessor)
         {
-            return LF01(dynamicParameters, dataContext);
-        }
-
-        private readonly IHttpContextAccessor httpContextAccessor;
-
-        private readonly HttpContext? httpContext;
-
-        public FunctionController(IHttpContextAccessor httpContextAccessor)
-        {
+            this.logger = logger;
+            this.moduleApiClient = moduleApiClient;
             this.httpContextAccessor = httpContextAccessor;
             httpContext = httpContextAccessor.HttpContext;
+        }
+
+        // http://localhost:8000/checkup/api/function/execute?functionID=HAC.HAC040.UF01&accessToken=test&loadOptions[option1]=value1&featureMeta.Timeout=0
+        [Route("[action]")]
+        // public async Task<DataSet?> Execute([FromBody] List<DynamicParameter> dynamicParameters, [FromQuery] DataContext dataContext)
+        public async Task<DataSet?> Execute([FromBody] List<DynamicParameter>? dynamicParameters, [FromQuery] DataContext? dataContext)
+        {
+            using DataSet? result = new DataSet();
+            string functionID = (httpContext?.Request.Query["functionID"]).ToStringSafe();
+            if (string.IsNullOrEmpty(functionID) == true)
+            {
+                result.BuildExceptionData("Y", "Warning", $"functionID 확인 필요");
+                result.Tables.Add(new DataTable());
+                return result;
+            }
+
+            if (dynamicParameters == null)
+            {
+                dynamicParameters = new List<DynamicParameter>();
+                dynamicParameters.Add(new DynamicParameter()
+                {
+                    ParameterName = "ApplicationID",
+                    Value = "9ysztou4",
+                    DbType = "String",
+                    Length = 0,
+                });
+
+                dynamicParameters.Add(new DynamicParameter()
+                {
+                    ParameterName = "UserWorkID",
+                    Value = "3qmbxyhc",
+                    DbType = "String",
+                    Length = 0,
+                });
+
+                dynamicParameters.Add(new DynamicParameter()
+                {
+                    ParameterName = "Prompt",
+                    Value = "아빠가 방에 들어가셨다.",
+                    DbType = "String",
+                    Length = 0,
+                });
+            }
+
+            #region DataContext
+
+            DateTime now = DateTime.Now;
+            if (dataContext == null)
+            {
+                dataContext = new DataContext();
+                dataContext.accessToken = null;
+                dataContext.loadOptions = null;
+                dataContext.dataProvider = null; // SQLite, SqlServer, MySql, Oracle, PostgreSql, MariaDB
+                dataContext.connectionString = null;
+            }
+
+            dataContext.globalID = string.IsNullOrEmpty(dataContext.globalID) == false ? dataContext.globalID : $"OD00000{GlobalConfiguration.ApplicationID}{functionID.Replace(".", "")}F{now.ToString("HHmmss").ToSHA256().Substring(0, 6) + now.ToString("HHmmss")}";
+            dataContext.environment = string.IsNullOrEmpty(dataContext.environment) == false ? dataContext.environment : "D";
+            dataContext.platform = string.IsNullOrEmpty(dataContext.platform) == false ? dataContext.platform : "Windows"; // Windows, Linux, MacOS
+            dataContext.workingDirectoryPath = string.IsNullOrEmpty(dataContext.workingDirectoryPath) == false ? dataContext.workingDirectoryPath : "../tmp/HDS/function/HDS_FN00";
+
+            string commandID = string.Empty;
+            var scriptMapFile = string.IsNullOrEmpty(ModuleConfiguration.ModuleBasePath) == true ? PathExtensions.Combine(ModuleConfiguration.ModuleBasePath, "featureTest.json") : PathExtensions.Combine(GlobalConfiguration.GetBasePath($"../modules/{ModuleConfiguration.ModuleID}"), "featureTest.json");
+            if (System.IO.File.Exists(scriptMapFile) == true)
+            {
+                var scriptMapData = System.IO.File.ReadAllText(scriptMapFile);
+
+                FunctionScriptContract? functionScriptContract = FunctionScriptContract.FromJson(scriptMapData);
+
+                if (functionScriptContract == null)
+                {
+                    result.BuildExceptionData("Y", "Warning", $"{scriptMapFile} 대응 functionFilePath 파일 없음");
+                    result.Tables.Add(new DataTable());
+                    return result;
+                }
+
+                string? fileExtension = functionScriptContract.Header.LanguageType == "csharp" ? "cs" : null;
+                if (string.IsNullOrEmpty(fileExtension) == true)
+                {
+                    result.BuildExceptionData("Y", "Warning", $"{functionScriptContract.Header.LanguageType} 언어 타입 확인 필요");
+                    result.Tables.Add(new DataTable());
+                    return result;
+                }
+
+                var functionScriptFile = scriptMapFile.Replace("featureMeta.json", $"featureMain.{fileExtension}");
+                FunctionHeader header = functionScriptContract.Header;
+                dataContext.functionHeader = header;
+
+                var item = functionScriptContract.Commands.FirstOrDefault(p => p.ID == (functionID.Split('.').ElementAtOrDefault(2) ?? ""));
+                if (item == null)
+                {
+                    result.BuildExceptionData("Y", "Warning", $"{functionID} Commands 확인 필요");
+                    result.Tables.Add(new DataTable());
+                    return result;
+                }
+
+                ModuleScriptMap moduleScriptMap = new ModuleScriptMap();
+                moduleScriptMap.ApplicationID = header.ApplicationID;
+                moduleScriptMap.ProjectID = header.ProjectID;
+                moduleScriptMap.TransactionID = header.TransactionID;
+                moduleScriptMap.ScriptID = item.ID + item.Seq.ToString().PadLeft(2, '0');
+                moduleScriptMap.ExportName = item.ID;
+                moduleScriptMap.Seq = item.Seq;
+                moduleScriptMap.IsHttpContext = header.IsHttpContext;
+                moduleScriptMap.ReferenceModuleID = header.ReferenceModuleID;
+
+                if (string.IsNullOrEmpty(item.EntryType) == true)
+                {
+                    moduleScriptMap.EntryType = $"{header.ApplicationID}.Function.{header.ProjectID}.{header.TransactionID}";
+                }
+                else
+                {
+                    moduleScriptMap.EntryType = item.EntryType;
+                }
+
+                if (string.IsNullOrEmpty(item.EntryType) == true)
+                {
+                    moduleScriptMap.EntryMethod = item.ID;
+                }
+                else
+                {
+                    moduleScriptMap.EntryMethod = item.EntryMethod;
+                }
+
+                commandID = moduleScriptMap.EntryMethod.ToStringSafe();
+
+                moduleScriptMap.DataSourceID = header.DataSourceID;
+                moduleScriptMap.LanguageType = header.LanguageType;
+                moduleScriptMap.ProgramPath = functionScriptFile;
+                moduleScriptMap.Timeout = item.Timeout;
+                moduleScriptMap.BeforeTransactionCommand = item.BeforeTransaction;
+                moduleScriptMap.AfterTransactionCommand = item.AfterTransaction;
+                moduleScriptMap.FallbackTransactionCommand = item.FallbackTransaction;
+                moduleScriptMap.Comment = item.Comment;
+
+                moduleScriptMap.ModuleParameters = new List<ModuleParameterMap>();
+                List<FunctionParam> functionParams = item.Params;
+                if (functionParams != null && functionParams.Count > 0)
+                {
+                    foreach (FunctionParam functionParam in functionParams)
+                    {
+                        moduleScriptMap.ModuleParameters.Add(new ModuleParameterMap()
+                        {
+                            Name = functionParam.ID,
+                            DbType = functionParam.Type,
+                            Length = functionParam.Length,
+                            DefaultValue = functionParam.Value,
+                        });
+                    }
+                }
+
+                dataContext.featureMeta = moduleScriptMap;
+            }
+            else
+            {
+                result.BuildExceptionData("Y", "Warning", $"Function 헤더 파일이 존재하지 않습니다. 파일경로: {scriptMapFile}");
+                result.Tables.Add(new DataTable());
+                return result;
+            }
+
+            if (string.IsNullOrEmpty(dataContext.featureMeta.ApplicationID) == true)
+            {
+                result.BuildExceptionData("Y", "Warning", $"Function 정보 확인 필요: {functionID}");
+                result.Tables.Add(new DataTable());
+                return result;
+            }
+
+            #endregion
+
+            var method = this.GetType().GetMethod(commandID, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+            if (method != null)
+            {
+                var returnType = method.ReturnType;
+                object[] parameters = { dynamicParameters, dataContext };
+                if (typeof(Task).IsAssignableFrom(returnType))
+                {
+                    var task = method.Invoke(this, parameters) as Task;
+                    if (task != null)
+                    {
+                        await task.ConfigureAwait(false);
+                    }
+
+                    if (returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(Task<>))
+                    {
+                        var resultProperty = returnType.GetProperty("Result");
+                        return resultProperty?.GetValue(task) as DataSet;
+                    }
+
+                    return null;
+                }
+                else
+                {
+                    return method.Invoke(this, parameters) as DataSet;
+                }
+            }
+            else
+            {
+                return null;
+            }
         }
 
         [HttpGet]
@@ -55,21 +251,22 @@ namespace checkup.Areas.checkup.Controllers
             return "checkup FunctionController";
         }
 
-        private DataSet? LF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
+        protected DataSet? LF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
-            string typeMember = "HED.HED030.LF01";
+            string typeMember = "HUM.HUM040.LF01";
             using (DataSet? result = new DataSet())
             {
                 result.BuildExceptionData();
 
                 string userWorkID = dynamicParameters.Value("UserWorkID").ToStringSafe();
                 string applicationID = dynamicParameters.Value("ApplicationID").ToStringSafe();
-                string deployID = dynamicParameters.Value("DeployID").ToStringSafe();
+                string applicationName = dynamicParameters.Value("ApplicationName").ToStringSafe();
+                string userNo = dynamicParameters.Value("UserNo").ToStringSafe();
 
                 if (string.IsNullOrEmpty(userWorkID) == true
                     || string.IsNullOrEmpty(applicationID) == true
-                    || string.IsNullOrEmpty(deployID) == true
-                )
+                    || string.IsNullOrEmpty(applicationName) == true
+                    || string.IsNullOrEmpty(userNo) == true)
                 {
                     result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
                     goto TransactionException;
@@ -79,93 +276,70 @@ namespace checkup.Areas.checkup.Controllers
                 {
                     var logger = dataContext.logger;
                     logger?.Information($"Function: {typeMember} 작업 시작");
-                    string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
 
+                    string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                     if (Directory.Exists(appBasePath) == true)
                     {
-                        string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
-                        if (System.IO.File.Exists(settingFilePath) == true)
+                        string searchPattern = "*.*";
+                        string? sourceDirectoryPath = appBasePath;
+
+                        List<Menu> menus = new List<Menu>();
+                        if (string.IsNullOrEmpty(sourceDirectoryPath) == false && Directory.Exists(sourceDirectoryPath) == true)
                         {
-                            string? protocol = string.Empty;
-                            string? host = string.Empty;
-                            string? managedKey = string.Empty;
-                            if (deployID == "RequestOrigin")
+                            DirectoryInfo directoryInfo = new DirectoryInfo(sourceDirectoryPath);
+                            if (directoryInfo.Exists == true)
                             {
-                                ModuleInfo? module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == "checkup");
-                                if (module != null)
-                                {
-                                    string moduleConfigFilePath = PathExtensions.Combine(module.BasePath, "module.json");
-                                    string configurationText = System.IO.File.ReadAllText(moduleConfigFilePath);
-                                    ModuleConfigJson? moduleConfigJson = JsonConvert.DeserializeObject<ModuleConfigJson>(configurationText);
+                                Menu rootDirectory = new Menu();
+                                rootDirectory.menuID = applicationID;
+                                rootDirectory.menuName = string.IsNullOrEmpty(applicationName) == true ? applicationID : applicationName;
 
-                                    protocol = httpContext?.Request.Scheme;
-                                    host = httpContext?.Request.Host.ToString();
-                                    managedKey = moduleConfigJson?.ModuleConfig.ManagedAccessKey;
-                                }
-                            }
-                            else
-                            {
-                                string appSettingText = System.IO.File.ReadAllText(settingFilePath);
-                                var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
-                                if (appSetting != null)
-                                {
-                                    var dataTable = JsonConvert.DeserializeObject<DataTable>(JsonConvert.SerializeObject(appSetting.Publish == null ? "[]" : appSetting.Publish));
-                                    if (dataTable != null && dataTable.Rows.Count > 0)
-                                    {
-                                        var item = dataTable.Select($"DeployID = '{deployID}'").FirstOrDefault();
-                                        if (item != null)
-                                        {
-                                            protocol = item["Protocol"].ToStringSafe();
-                                            host = item["Host"].ToStringSafe();
-                                            managedKey = item["ManagedKey"].ToStringSafe();
-                                        }
-                                    }
-                                }
+                                string projectType = string.Empty;
+
+                                projectType = "R";
+                                searchPattern = "*.html|*.js|*.css|*.json";
+                                sourceDirectoryPath = PathExtensions.Combine(appBasePath, "wwwroot");
+                                directoryInfo = new DirectoryInfo(sourceDirectoryPath);
+                                WWWRootFileMenu(userWorkID, applicationID, projectType, searchPattern, menus, directoryInfo, rootDirectory, 2);
                             }
 
-                            if (string.IsNullOrEmpty(protocol) == true || string.IsNullOrEmpty(host) == true)
-                            {
-                            }
-                            else
-                            {
-                                string resource = $"/checkup/api/tenant-app/meta-scheme?userWorkID={userWorkID}&applicationID={applicationID}&accessKey={managedKey}";
-                                var client = new RestClient();
-                                var url = $"{protocol}://{host}{resource}";
-                                var request = new RestRequest(url, Method.Get);
+                            menus = menus.OrderBy(p => p.menuID).ToList();
+                            DataTableHelper dataTableBuilder = new DataTableHelper();
+                            dataTableBuilder.AddColumn("FileID", typeof(string));
+                            dataTableBuilder.AddColumn("FileName", typeof(string));
+                            dataTableBuilder.AddColumn("Extension", typeof(string));
+                            dataTableBuilder.AddColumn("MD5", typeof(string));
+                            dataTableBuilder.AddColumn("Length", typeof(string));
+                            dataTableBuilder.AddColumn("LastWriteTime", typeof(string));
 
-                                request.AddHeader("AuthorizationKey", ModuleConfiguration.AuthorizationKey);
-                                RestResponse response = client.Execute(request);
-                                if (response.StatusCode != HttpStatusCode.OK)
-                                {
-                                    result.BuildExceptionData("Y", "Warning", $"{deployID} 대상 서버 실행 정보 확인 필요", typeMember);
-                                }
-                                else
-                                {
-                                    using var table = JsonConvert.DeserializeObject<DataTable>(response.Content.ToStringSafe());
-                                    if (table != null)
-                                    {
-                                        result.Tables.Add(table);
-                                    }
-                                    else
-                                    {
-                                        result.BuildExceptionData("Y", "Warning", $"{deployID} 대상 서버 응답 정보 확인 필요", typeMember);
-                                    }
-                                }
+                            for (int i = 0; i < menus.Count; i++)
+                            {
+                                dataTableBuilder.NewRow();
+
+                                var menu = menus[i];
+                                dataTableBuilder.SetValue(i, 0, menu.menuID);
+                                dataTableBuilder.SetValue(i, 1, menu.menuName);
+                                dataTableBuilder.SetValue(i, 2, menu.extension);
+                                dataTableBuilder.SetValue(i, 3, menu.md5);
+                                dataTableBuilder.SetValue(i, 4, menu.length);
+                                dataTableBuilder.SetValue(i, 5, menu.lastWriteTime);
                             }
-                        }
-                        else
-                        {
-                            result.BuildExceptionData("Y", "Warning", $"applicationID: {applicationID}의 앱 환경설정 파일 확인 필요", typeMember);
+
+                            using (DataTable table = dataTableBuilder.GetDataTable())
+                            {
+                                result.Tables.Add(table);
+                            }
                         }
                     }
                     else
                     {
-                        result.BuildExceptionData("Y", "Warning", "applicationID 정보 확인 필요", typeMember);
+                        result.BuildExceptionData("Y", "Warning", "앱 정보 확인 필요", typeMember);
+                        goto TransactionException;
                     }
                 }
                 catch (Exception exception)
                 {
                     result.BuildExceptionData("Y", "Error", exception.Message, typeMember);
+                    goto TransactionException;
                 }
 
 TransactionException:
@@ -178,653 +352,171 @@ TransactionException:
             }
         }
 
-        private DataSet? LF02(List<DynamicParameter> dynamicParameters, DataContext dataContext)
+        protected DataSet? GF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
-            string typeMember = "HDM.HED030.LF02";
-            using (DataSet? result = new DataSet())
+            string typeMember = "HUM.HUM040.GF01";
+            using DataSet? result = new DataSet();
+            result.BuildExceptionData();
+
+            string userWorkID = dynamicParameters.Value("UserWorkID").ToStringSafe();
+            string applicationID = dynamicParameters.Value("ApplicationID").ToStringSafe();
+            string itemPath = dynamicParameters.Value("ItemPath").ToStringSafe();
+            string userNo = dynamicParameters.Value("UserNo").ToStringSafe();
+
+            if (string.IsNullOrEmpty(userWorkID) == true
+                || string.IsNullOrEmpty(applicationID) == true
+                || string.IsNullOrEmpty(itemPath) == true
+                || string.IsNullOrEmpty(userNo) == true)
             {
-                result.BuildExceptionData();
+                result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
+                goto TransactionException;
+            }
 
-                string userWorkID = dynamicParameters.Value("UserWorkID").ToStringSafe();
-                string applicationID = dynamicParameters.Value("ApplicationID").ToStringSafe();
-                string tableName = dynamicParameters.Value("TableName").ToStringSafe();
-                string deployID = dynamicParameters.Value("DeployID").ToStringSafe();
+            try
+            {
+                var logger = dataContext.logger;
+                logger?.Information($"Function: {typeMember} 작업 시작");
 
-                if (string.IsNullOrEmpty(userWorkID) == true
-                    || string.IsNullOrEmpty(applicationID) == true
-                    || string.IsNullOrEmpty(tableName) == true
-                    || string.IsNullOrEmpty(deployID) == true
-                )
+                string sourceText = string.Empty;
+                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                if (Directory.Exists(appBasePath) == true)
                 {
-                    result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
-                    goto TransactionException;
-                }
+                    string? sourceItemPath = PathExtensions.Combine(appBasePath, itemPath);
 
-                try
-                {
-                    var logger = dataContext.logger;
-                    logger?.Information($"Function: {typeMember} 작업 시작");
-                    string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-
-                    if (Directory.Exists(appBasePath) == true)
+                    if (string.IsNullOrEmpty(sourceItemPath) == false && System.IO.File.Exists(sourceItemPath) == true)
                     {
-                        string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
-                        if (System.IO.File.Exists(settingFilePath) == true)
-                        {
-                            string? protocol = string.Empty;
-                            string? host = string.Empty;
-                            string? managedKey = string.Empty;
-                            if (deployID == "RequestOrigin")
-                            {
-                                ModuleInfo? module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == "checkup");
-                                if (module != null)
-                                {
-                                    string moduleConfigFilePath = PathExtensions.Combine(module.BasePath, "module.json");
-                                    string configurationText = System.IO.File.ReadAllText(moduleConfigFilePath);
-                                    ModuleConfigJson? moduleConfigJson = JsonConvert.DeserializeObject<ModuleConfigJson>(configurationText);
-
-                                    protocol = httpContext?.Request.Scheme;
-                                    host = httpContext?.Request.Host.ToString();
-                                    managedKey = moduleConfigJson?.ModuleConfig.ManagedAccessKey;
-                                }
-                            }
-                            else
-                            {
-                                string appSettingText = System.IO.File.ReadAllText(settingFilePath);
-                                var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
-                                if (appSetting != null)
-                                {
-                                    var dataTable = JsonConvert.DeserializeObject<DataTable>(JsonConvert.SerializeObject(appSetting.Publish == null ? "[]" : appSetting.Publish));
-                                    if (dataTable != null && dataTable.Rows.Count > 0)
-                                    {
-                                        var item = dataTable.Select($"DeployID = '{deployID}'").FirstOrDefault();
-                                        if (item != null)
-                                        {
-                                            protocol = item["Protocol"].ToStringSafe();
-                                            host = item["Host"].ToStringSafe();
-                                            managedKey = item["ManagedKey"].ToStringSafe();
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (string.IsNullOrEmpty(protocol) == true || string.IsNullOrEmpty(host) == true)
-                            {
-                            }
-                            else
-                            {
-                                string resource = $"/checkup/api/tenant-app/table-columns?userWorkID={userWorkID}&applicationID={applicationID}&tableName={tableName}&accessKey={managedKey}";
-                                var client = new RestClient();
-                                var url = $"{protocol}://{host}{resource}";
-                                var request = new RestRequest(url, Method.Get);
-
-                                request.AddHeader("AuthorizationKey", ModuleConfiguration.AuthorizationKey);
-                                RestResponse response = client.Execute(request);
-                                if (response.StatusCode != HttpStatusCode.OK)
-                                {
-                                    result.BuildExceptionData("Y", "Warning", $"{deployID} 대상 서버 실행 정보 확인 필요", typeMember);
-                                }
-                                else
-                                {
-                                    using var table = JsonConvert.DeserializeObject<DataTable>(response.Content.ToStringSafe());
-                                    if (table != null)
-                                    {
-                                        result.Tables.Add(table);
-                                    }
-                                    else
-                                    {
-                                        result.BuildExceptionData("Y", "Warning", $"{deployID} 대상 서버 응답 정보 확인 필요", typeMember);
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            result.BuildExceptionData("Y", "Warning", $"applicationID: {applicationID}의 앱 환경설정 파일 확인 필요", typeMember);
-                        }
+                        sourceText = LZStringHelper.CompressToBase64(System.IO.File.ReadAllText(sourceItemPath));
                     }
                     else
                     {
-                        result.BuildExceptionData("Y", "Warning", "applicationID 정보 확인 필요", typeMember);
+                        result.BuildExceptionData("Y", "Warning", "파일 정보 확인 필요", typeMember);
+                        goto TransactionException;
                     }
                 }
-                catch (Exception exception)
+                else
                 {
-                    result.BuildExceptionData("Y", "Error", exception.Message, typeMember);
+                    result.BuildExceptionData("Y", "Warning", "앱 정보 확인 필요", typeMember);
+                    goto TransactionException;
                 }
+
+                DataTableHelper dataTableBuilder = new DataTableHelper();
+                dataTableBuilder.AddColumn("CompressBase64", typeof(string));
+
+                dataTableBuilder.NewRow();
+                dataTableBuilder.SetValue(0, 0, sourceText);
+
+                using (DataTable table = dataTableBuilder.GetDataTable())
+                {
+                    result.Tables.Add(table);
+                }
+            }
+            catch (Exception exception)
+            {
+                result.BuildExceptionData("Y", "Error", exception.Message, typeMember);
+                goto TransactionException;
+            }
 
 TransactionException:
-                if (result.Tables.Count == 1)
-                {
-                    result.Tables.Add(new DataTable());
-                }
-
-                return result;
+            if (result.Tables.Count == 1)
+            {
+                result.Tables.Add(new DataTable());
             }
+
+            return result;
         }
 
-        private DataSet? LF03(List<DynamicParameter> dynamicParameters, DataContext dataContext)
+        protected DataSet? MF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
-            string typeMember = "HDM.HED030.LF03";
-            using (DataSet? result = new DataSet())
+            string typeMember = "HUM.HUM040.MF01";
+            using DataSet? result = new DataSet();
+            result.BuildExceptionData();
+
+            string userWorkID = dynamicParameters.Value("UserWorkID").ToStringSafe();
+            string applicationID = dynamicParameters.Value("ApplicationID").ToStringSafe();
+            string compressBase64 = dynamicParameters.Value("CompressBase64").ToStringSafe();
+            string itemPath = dynamicParameters.Value("ItemPath").ToStringSafe();
+            string userNo = dynamicParameters.Value("UserNo").ToStringSafe();
+
+            if (string.IsNullOrEmpty(userWorkID) == true
+                || string.IsNullOrEmpty(applicationID) == true
+                || string.IsNullOrEmpty(compressBase64) == true
+                || string.IsNullOrEmpty(itemPath) == true
+                || string.IsNullOrEmpty(userNo) == true)
             {
-                result.BuildExceptionData();
+                result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
+                goto TransactionException;
+            }
 
-                string userWorkID = dynamicParameters.Value("UserWorkID").ToStringSafe();
-                string applicationID = dynamicParameters.Value("ApplicationID").ToStringSafe();
-                string tableName = dynamicParameters.Value("TableName").ToStringSafe();
-                string deployID = dynamicParameters.Value("DeployID").ToStringSafe();
-                string pageIndex = dynamicParameters.Value("PageIndex").ToStringSafe();
+            try
+            {
+                var logger = dataContext.logger;
+                logger?.Information($"Function: {typeMember} 작업 시작");
 
-                if (string.IsNullOrEmpty(userWorkID) == true
-                    || string.IsNullOrEmpty(applicationID) == true
-                    || string.IsNullOrEmpty(tableName) == true
-                    || string.IsNullOrEmpty(deployID) == true
-                )
+                FileInfo fileInfo = new FileInfo(itemPath);
+                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                if (Directory.Exists(appBasePath) == true)
                 {
-                    result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
-                    goto TransactionException;
-                }
+                    string? sourceItemPath = PathExtensions.Combine(appBasePath, itemPath);
 
-                try
-                {
-                    var logger = dataContext.logger;
-                    logger?.Information($"Function: {typeMember} 작업 시작");
-                    string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-
-                    if (Directory.Exists(appBasePath) == true)
+                    if (string.IsNullOrEmpty(sourceItemPath) == false && System.IO.File.Exists(sourceItemPath) == true)
                     {
-                        string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
-                        if (System.IO.File.Exists(settingFilePath) == true)
-                        {
-                            string? protocol = string.Empty;
-                            string? host = string.Empty;
-                            string? managedKey = string.Empty;
-                            if (deployID == "RequestOrigin")
-                            {
-                                ModuleInfo? module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == "checkup");
-                                if (module != null)
-                                {
-                                    string moduleConfigFilePath = PathExtensions.Combine(module.BasePath, "module.json");
-                                    string configurationText = System.IO.File.ReadAllText(moduleConfigFilePath);
-                                    ModuleConfigJson? moduleConfigJson = JsonConvert.DeserializeObject<ModuleConfigJson>(configurationText);
-
-                                    protocol = httpContext?.Request.Scheme;
-                                    host = httpContext?.Request.Host.ToString();
-                                    managedKey = moduleConfigJson?.ModuleConfig.ManagedAccessKey;
-                                }
-                            }
-                            else
-                            {
-                                string appSettingText = System.IO.File.ReadAllText(settingFilePath);
-                                var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
-                                if (appSetting != null)
-                                {
-                                    var dataTable = JsonConvert.DeserializeObject<DataTable>(JsonConvert.SerializeObject(appSetting.Publish == null ? "[]" : appSetting.Publish));
-                                    if (dataTable != null && dataTable.Rows.Count > 0)
-                                    {
-                                        var item = dataTable.Select($"DeployID = '{deployID}'").FirstOrDefault();
-                                        if (item != null)
-                                        {
-                                            protocol = item["Protocol"].ToStringSafe();
-                                            host = item["Host"].ToStringSafe();
-                                            managedKey = item["ManagedKey"].ToStringSafe();
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (string.IsNullOrEmpty(protocol) == true || string.IsNullOrEmpty(host) == true)
-                            {
-                            }
-                            else
-                            {
-                                string resource = $"/checkup/api/tenant-app/table-data?userWorkID={userWorkID}&applicationID={applicationID}&tableName={tableName}&pageIndex={pageIndex}&accessKey={managedKey}";
-                                var client = new RestClient();
-                                var url = $"{protocol}://{host}{resource}";
-                                var request = new RestRequest(url, Method.Get);
-
-                                request.AddHeader("AuthorizationKey", ModuleConfiguration.AuthorizationKey);
-                                RestResponse response = client.Execute(request);
-                                if (response.StatusCode != HttpStatusCode.OK)
-                                {
-                                    result.BuildExceptionData("Y", "Warning", $"{deployID} 대상 서버 실행 정보 확인 필요", typeMember);
-                                }
-                                else
-                                {
-                                    using var dataSet = JsonConvert.DeserializeObject<DataSet>(response.Content.ToStringSafe());
-                                    if (dataSet != null)
-                                    {
-                                        result.Tables.Add(dataSet.Tables[0].Copy());
-                                        result.Tables.Add(dataSet.Tables[1].Copy());
-                                    }
-                                    else
-                                    {
-                                        result.BuildExceptionData("Y", "Warning", $"{deployID} 대상 서버 응답 정보 확인 필요", typeMember);
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            result.BuildExceptionData("Y", "Warning", $"applicationID: {applicationID}의 앱 환경설정 파일 확인 필요", typeMember);
-                        }
+                        string? sourceText = LZStringHelper.DecompressFromBase64(compressBase64);
+                        System.IO.File.WriteAllText(sourceItemPath, sourceText);
                     }
                     else
                     {
-                        result.BuildExceptionData("Y", "Warning", "applicationID 정보 확인 필요", typeMember);
+                        result.BuildExceptionData("Y", "Warning", "파일 정보 확인 필요", typeMember);
+                        goto TransactionException;
                     }
                 }
-                catch (Exception exception)
+                else
                 {
-                    result.BuildExceptionData("Y", "Error", exception.Message, typeMember);
+                    result.BuildExceptionData("Y", "Warning", "앱 정보 확인 필요", typeMember);
+                    goto TransactionException;
                 }
+            }
+            catch (Exception exception)
+            {
+                result.BuildExceptionData("Y", "Error", exception.Message, typeMember);
+                goto TransactionException;
+            }
 
 TransactionException:
-                if (result.Tables.Count == 1)
-                {
-                    result.Tables.Add(new DataTable());
-                }
-
-                return result;
-            }
+            return result;
         }
 
-        private DataSet? MF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
+        private void WWWRootFileMenu(string userWorkID, string applicationID, string projectType, string searchPattern, List<Menu> menus, DirectoryInfo directory, Menu rootDirectory, int level)
         {
-            string typeMember = "HED.HED030.MF01";
-            using (DataSet? result = new DataSet())
+            string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID) + "/";
+            foreach (var file in directory.GetFileInfos(SearchOption.TopDirectoryOnly, searchPattern.Split("|").Where(x => string.IsNullOrWhiteSpace(x) == false).ToArray()))
             {
-                result.BuildExceptionData();
+                Menu menuItem = new Menu();
+                menuItem.menuID = file.FullName.Replace("\\", "/").Replace(appBasePath, "");
+                menuItem.menuName = file.Name;
+                menuItem.parentMenuID = rootDirectory.menuID;
+                menuItem.parentMenuName = rootDirectory.menuName;
+                menuItem.showYN = "Y";
+                menuItem.projectType = projectType;
+                menuItem.menuType = "F";
+                menuItem.directoryYN = "N";
+                menuItem.functions = "";
+                menuItem.projectID = "";
+                menuItem.fileID = "";
+                menuItem.sortingNo = 2;
+                menuItem.level = level;
+                menuItem.icon = "";
+                menuItem.badge = "";
+                menuItem.extension = file.Extension;
+                menuItem.lastWriteTime = file.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss");
+                menuItem.length = file.Length.ToString();
+                menuItem.md5 = file.ToMD5Hash();
 
-                string userWorkID = dynamicParameters.Value("UserWorkID").ToStringSafe();
-                string applicationID = dynamicParameters.Value("ApplicationID").ToStringSafe();
-                string deployID = dynamicParameters.Value("DeployID").ToStringSafe();
-
-                if (string.IsNullOrEmpty(userWorkID) == true
-                    || string.IsNullOrEmpty(applicationID) == true
-                    || string.IsNullOrEmpty(deployID) == true
-                )
+                if (menuItem.fileID.StartsWith("/") == true)
                 {
-                    result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
-                    goto TransactionException;
+                    menuItem.fileID = menuItem.fileID.Substring(1);
                 }
 
-                try
-                {
-                    var logger = dataContext.logger;
-                    logger?.Information($"Function: {typeMember} 작업 시작");
-                    string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-
-                    if (Directory.Exists(appBasePath) == true)
-                    {
-                        string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
-                        if (System.IO.File.Exists(settingFilePath) == true)
-                        {
-                            string? protocol = string.Empty;
-                            string? host = string.Empty;
-                            string? managedKey = string.Empty;
-                            if (deployID == "RequestOrigin")
-                            {
-                                ModuleInfo? module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == "checkup");
-                                if (module != null)
-                                {
-                                    string moduleConfigFilePath = PathExtensions.Combine(module.BasePath, "module.json");
-                                    string configurationText = System.IO.File.ReadAllText(moduleConfigFilePath);
-                                    ModuleConfigJson? moduleConfigJson = JsonConvert.DeserializeObject<ModuleConfigJson>(configurationText);
-
-                                    protocol = httpContext?.Request.Scheme;
-                                    host = httpContext?.Request.Host.ToString();
-                                    managedKey = moduleConfigJson?.ModuleConfig.ManagedAccessKey;
-                                }
-                            }
-                            else
-                            {
-                                string appSettingText = System.IO.File.ReadAllText(settingFilePath);
-                                var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
-                                if (appSetting != null)
-                                {
-                                    var dataTable = JsonConvert.DeserializeObject<DataTable>(JsonConvert.SerializeObject(appSetting.Publish == null ? "[]" : appSetting.Publish));
-                                    if (dataTable != null && dataTable.Rows.Count > 0)
-                                    {
-                                        var item = dataTable.Select($"DeployID = '{deployID}'").FirstOrDefault();
-                                        if (item != null)
-                                        {
-                                            protocol = item["Protocol"].ToStringSafe();
-                                            host = item["Host"].ToStringSafe();
-                                            managedKey = item["ManagedKey"].ToStringSafe();
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (string.IsNullOrEmpty(protocol) == true || string.IsNullOrEmpty(host) == true)
-                            {
-                            }
-                            else
-                            {
-                                string resource = $"/checkup/api/tenant-app/backup-database?userWorkID={userWorkID}&applicationID={applicationID}&accessKey={managedKey}";
-                                var client = new RestClient();
-                                var url = $"{protocol}://{host}{resource}";
-                                var request = new RestRequest(url, Method.Get);
-
-                                request.AddHeader("AuthorizationKey", ModuleConfiguration.AuthorizationKey);
-                                RestResponse response = client.Execute(request);
-                                if (response.StatusCode != HttpStatusCode.OK)
-                                {
-                                    result.BuildExceptionData("Y", "Warning", $"{deployID} 대상 서버 실행 정보 확인 필요", typeMember);
-                                }
-                                else
-                                {
-                                    var content = response.Content;
-                                    if (content != null)
-                                    {
-                                        DataTableHelper dataTableBuilder = new DataTableHelper();
-                                        dataTableBuilder.AddColumn("TokenID", typeof(string));
-
-                                        dataTableBuilder.NewRow();
-                                        dataTableBuilder.SetValue(0, 0, content);
-
-                                        using (DataTable table = dataTableBuilder.GetDataTable())
-                                        {
-                                            result.Tables.Add(table);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        result.BuildExceptionData("Y", "Warning", $"{deployID} 대상 서버 응답 정보 확인 필요", typeMember);
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            result.BuildExceptionData("Y", "Warning", $"applicationID: {applicationID}의 앱 환경설정 파일 확인 필요", typeMember);
-                        }
-                    }
-                    else
-                    {
-                        result.BuildExceptionData("Y", "Warning", "applicationID 정보 확인 필요", typeMember);
-                    }
-                }
-                catch (Exception exception)
-                {
-                    result.BuildExceptionData("Y", "Error", exception.Message, typeMember);
-                }
-
-TransactionException:
-                if (result.Tables.Count == 1)
-                {
-                    result.Tables.Add(new DataTable());
-                }
-
-                return result;
-            }
-        }
-
-        private DataSet? MF02(List<DynamicParameter> dynamicParameters, DataContext dataContext)
-        {
-            string typeMember = "HED.HED030.MF02";
-            using (DataSet? result = new DataSet())
-            {
-                result.BuildExceptionData();
-
-                string userWorkID = dynamicParameters.Value("UserWorkID").ToStringSafe();
-                string applicationID = dynamicParameters.Value("ApplicationID").ToStringSafe();
-                string deployID = dynamicParameters.Value("DeployID").ToStringSafe();
-
-                if (string.IsNullOrEmpty(userWorkID) == true
-                    || string.IsNullOrEmpty(applicationID) == true
-                    || string.IsNullOrEmpty(deployID) == true
-                )
-                {
-                    result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
-                    goto TransactionException;
-                }
-
-                try
-                {
-                    var logger = dataContext.logger;
-                    logger?.Information($"Function: {typeMember} 작업 시작");
-                    string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-
-                    if (Directory.Exists(appBasePath) == true)
-                    {
-                        string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
-                        if (System.IO.File.Exists(settingFilePath) == true)
-                        {
-                            string? protocol = string.Empty;
-                            string? host = string.Empty;
-                            string? managedKey = string.Empty;
-                            if (deployID == "RequestOrigin")
-                            {
-                                ModuleInfo? module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == "checkup");
-                                if (module != null)
-                                {
-                                    string moduleConfigFilePath = PathExtensions.Combine(module.BasePath, "module.json");
-                                    string configurationText = System.IO.File.ReadAllText(moduleConfigFilePath);
-                                    ModuleConfigJson? moduleConfigJson = JsonConvert.DeserializeObject<ModuleConfigJson>(configurationText);
-
-                                    protocol = httpContext?.Request.Scheme;
-                                    host = httpContext?.Request.Host.ToString();
-                                    managedKey = moduleConfigJson?.ModuleConfig.ManagedAccessKey;
-                                }
-                            }
-                            else
-                            {
-                                string appSettingText = System.IO.File.ReadAllText(settingFilePath);
-                                var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
-                                if (appSetting != null)
-                                {
-                                    var dataTable = JsonConvert.DeserializeObject<DataTable>(JsonConvert.SerializeObject(appSetting.Publish == null ? "[]" : appSetting.Publish));
-                                    if (dataTable != null && dataTable.Rows.Count > 0)
-                                    {
-                                        var item = dataTable.Select($"DeployID = '{deployID}'").FirstOrDefault();
-                                        if (item != null)
-                                        {
-                                            protocol = item["Protocol"].ToStringSafe();
-                                            host = item["Host"].ToStringSafe();
-                                            managedKey = item["ManagedKey"].ToStringSafe();
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (string.IsNullOrEmpty(protocol) == true || string.IsNullOrEmpty(host) == true)
-                            {
-                            }
-                            else
-                            {
-                                string resource = $"/checkup/api/tenant-app/restore-database?userWorkID={userWorkID}&applicationID={applicationID}&accessKey={managedKey}";
-                                var client = new RestClient();
-                                var url = $"{protocol}://{host}{resource}";
-                                var request = new RestRequest(url, Method.Get);
-
-                                request.AddHeader("AuthorizationKey", ModuleConfiguration.AuthorizationKey);
-                                RestResponse response = client.Execute(request);
-                                if (response.StatusCode != HttpStatusCode.OK)
-                                {
-                                    result.BuildExceptionData("Y", "Warning", $"{deployID} 대상 서버 실행 정보 확인 필요", typeMember);
-                                }
-                                else
-                                {
-                                    var content = response.Content;
-                                    if (content != null)
-                                    {
-                                        DataTableHelper dataTableBuilder = new DataTableHelper();
-                                        dataTableBuilder.AddColumn("TokenID", typeof(string));
-
-                                        dataTableBuilder.NewRow();
-                                        dataTableBuilder.SetValue(0, 0, content);
-
-                                        using (DataTable table = dataTableBuilder.GetDataTable())
-                                        {
-                                            result.Tables.Add(table);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        result.BuildExceptionData("Y", "Warning", $"{deployID} 대상 서버 응답 정보 확인 필요", typeMember);
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            result.BuildExceptionData("Y", "Warning", $"applicationID: {applicationID}의 앱 환경설정 파일 확인 필요", typeMember);
-                        }
-                    }
-                    else
-                    {
-                        result.BuildExceptionData("Y", "Warning", "applicationID 정보 확인 필요", typeMember);
-                    }
-                }
-                catch (Exception exception)
-                {
-                    result.BuildExceptionData("Y", "Error", exception.Message, typeMember);
-                }
-
-TransactionException:
-                if (result.Tables.Count == 1)
-                {
-                    result.Tables.Add(new DataTable());
-                }
-
-                return result;
-            }
-        }
-
-        private DataSet? IF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
-        {
-            string typeMember = "HED.HED030.IF01";
-            using (DataSet? result = new DataSet())
-            {
-                result.BuildExceptionData();
-
-                string userWorkID = dynamicParameters.Value("UserWorkID").ToStringSafe();
-                string applicationID = dynamicParameters.Value("ApplicationID").ToStringSafe();
-                string deployID = dynamicParameters.Value("DeployID").ToStringSafe();
-                string compressBase64 = dynamicParameters.Value("CompressBase64").ToStringSafe();
-
-                if (string.IsNullOrEmpty(userWorkID) == true
-                    || string.IsNullOrEmpty(applicationID) == true
-                    || string.IsNullOrEmpty(deployID) == true
-                    || string.IsNullOrEmpty(compressBase64) == true
-                )
-                {
-                    result.BuildExceptionData("Y", "Warning", "필수 요청 정보 확인 필요", typeMember);
-                    goto TransactionException;
-                }
-
-                try
-                {
-                    var logger = dataContext.logger;
-                    logger?.Information($"Function: {typeMember} 작업 시작");
-                    string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-
-                    if (Directory.Exists(appBasePath) == true)
-                    {
-                        string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
-                        if (System.IO.File.Exists(settingFilePath) == true)
-                        {
-                            string? protocol = string.Empty;
-                            string? host = string.Empty;
-                            string? managedKey = string.Empty;
-                            if (deployID == "RequestOrigin")
-                            {
-                                ModuleInfo? module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == "checkup");
-                                if (module != null)
-                                {
-                                    string moduleConfigFilePath = PathExtensions.Combine(module.BasePath, "module.json");
-                                    string configurationText = System.IO.File.ReadAllText(moduleConfigFilePath);
-                                    ModuleConfigJson? moduleConfigJson = JsonConvert.DeserializeObject<ModuleConfigJson>(configurationText);
-
-                                    protocol = httpContext?.Request.Scheme;
-                                    host = httpContext?.Request.Host.ToString();
-                                    managedKey = moduleConfigJson?.ModuleConfig.ManagedAccessKey;
-                                }
-                            }
-                            else
-                            {
-                                string appSettingText = System.IO.File.ReadAllText(settingFilePath);
-                                var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
-                                if (appSetting != null)
-                                {
-                                    var dataTable = JsonConvert.DeserializeObject<DataTable>(JsonConvert.SerializeObject(appSetting.Publish == null ? "[]" : appSetting.Publish));
-                                    if (dataTable != null && dataTable.Rows.Count > 0)
-                                    {
-                                        var item = dataTable.Select($"DeployID = '{deployID}'").FirstOrDefault();
-                                        if (item != null)
-                                        {
-                                            protocol = item["Protocol"].ToStringSafe();
-                                            host = item["Host"].ToStringSafe();
-                                            managedKey = item["ManagedKey"].ToStringSafe();
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (string.IsNullOrEmpty(protocol) == true || string.IsNullOrEmpty(host) == true)
-                            {
-                            }
-                            else
-                            {
-                                string resource = $"/checkup/api/tenant-app/execute-sql?userWorkID={userWorkID}&applicationID={applicationID}&accessKey={managedKey}";
-                                var client = new RestClient();
-                                var url = $"{protocol}://{host}{resource}";
-                                var request = new RestRequest(url, Method.Post);
-                                request.AddParameter("compressBase64", compressBase64);
-
-                                RestResponse response = client.Execute(request);
-                                if (response.StatusCode != HttpStatusCode.OK)
-                                {
-                                    result.BuildExceptionData("Y", "Warning", $"{deployID} 대상 서버 실행 정보 확인 필요", typeMember);
-                                }
-                                else
-                                {
-                                    var content = response.Content;
-                                    if (content != null)
-                                    {
-                                        DataTableHelper dataTableBuilder = new DataTableHelper();
-                                        dataTableBuilder.AddColumn("AffectedRows", typeof(string));
-
-                                        dataTableBuilder.NewRow();
-                                        dataTableBuilder.SetValue(0, 0, content);
-
-                                        using (DataTable table = dataTableBuilder.GetDataTable())
-                                        {
-                                            result.Tables.Add(table);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        result.BuildExceptionData("Y", "Warning", $"{deployID} 대상 서버 응답 정보 확인 필요", typeMember);
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            result.BuildExceptionData("Y", "Warning", $"applicationID: {applicationID}의 앱 환경설정 파일 확인 필요", typeMember);
-                        }
-                    }
-                    else
-                    {
-                        result.BuildExceptionData("Y", "Warning", "applicationID 정보 확인 필요", typeMember);
-                    }
-                }
-                catch (Exception exception)
-                {
-                    result.BuildExceptionData("Y", "Error", exception.Message, typeMember);
-                }
-
-TransactionException:
-                if (result.Tables.Count == 1)
-                {
-                    result.Tables.Add(new DataTable());
-                }
-
-                return result;
+                menus.Add(menuItem);
             }
         }
     }

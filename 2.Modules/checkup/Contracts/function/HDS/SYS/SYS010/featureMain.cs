@@ -3,14 +3,17 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
 
 using checkup.Entity;
 
 using HandStack.Core.ExtensionMethod;
-using HandStack.Web.Extensions;
 using HandStack.Core.Helpers;
 using HandStack.Web;
+using HandStack.Web.Common;
 using HandStack.Web.Entity;
+using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.DataObject;
 using HandStack.Web.Modules;
 
@@ -19,6 +22,8 @@ using Microsoft.AspNetCore.Mvc;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+
+using Serilog;
 
 namespace HDS.Function.SYS
 {
@@ -62,7 +67,6 @@ namespace HDS.Function.SYS
                     string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                     if (Directory.Exists(appBasePath) == true)
                     {
-                        string directorySeparatorChar = System.IO.Path.DirectorySeparatorChar.ToString();
                         string searchPattern = "*.*";
                         string? sourceDirectoryPath = appBasePath;
 
@@ -184,7 +188,6 @@ TransactionException:
                     string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                     if (Directory.Exists(appBasePath) == true)
                     {
-                        string directorySeparatorChar = System.IO.Path.DirectorySeparatorChar.ToString();
                         string searchPattern = "*.*";
                         string? sourceDirectoryPath = appBasePath;
 
@@ -834,15 +837,9 @@ TransactionException:
         private static string GetItemPathToProjectType(string itemPath)
         {
             string? result = null;
-            string directorySeparatorChar = System.IO.Path.DirectorySeparatorChar.ToString();
-            if (itemPath.StartsWith(directorySeparatorChar) == true)
+            if (itemPath.StartsWith("/") == true)
             {
                 itemPath = itemPath.Substring(1);
-            }
-
-            if (directorySeparatorChar != "/")
-            {
-                itemPath = itemPath.Replace("/", directorySeparatorChar);
             }
 
             if (itemPath.StartsWith("dbclient") == true)
@@ -868,15 +865,9 @@ TransactionException:
         private static string GetHostItemPath(string appBasePath, string? projectType, string itemPath)
         {
             string? sourceItemPath = null;
-            string directorySeparatorChar = System.IO.Path.DirectorySeparatorChar.ToString();
-            if (itemPath.StartsWith(directorySeparatorChar) == true)
+            if (itemPath.StartsWith("/") == true)
             {
                 itemPath = itemPath.Substring(1);
-            }
-
-            if (directorySeparatorChar != "/")
-            {
-                itemPath = itemPath.Replace("/", directorySeparatorChar);
             }
 
             switch (projectType)
@@ -911,8 +902,7 @@ TransactionException:
 
             if (directoryInfo.Exists == true)
             {
-                string directorySeparatorChar = System.IO.Path.DirectorySeparatorChar.ToString();
-                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID) + directorySeparatorChar;
+                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID) + "/";
                 Menu featureDirectory = new Menu();
                 featureDirectory.menuID = featureDirectoryInfo.FullName.Replace("\\", "/").Replace(appBasePath, "");
                 featureDirectory.menuName = featureDirectoryInfo.Name;
@@ -963,8 +953,7 @@ TransactionException:
 
         private void BuildFileMenu(string userWorkID, string applicationID, string projectType, string searchPattern, List<Menu> menus, DirectoryInfo directory, int level)
         {
-            string directorySeparatorChar = System.IO.Path.DirectorySeparatorChar.ToString();
-            string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID) + directorySeparatorChar;
+            string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID) + "/";
             if (projectType == "F")
             {
                 foreach (var directoryInfo in directory.GetDirectories("*", SearchOption.TopDirectoryOnly))

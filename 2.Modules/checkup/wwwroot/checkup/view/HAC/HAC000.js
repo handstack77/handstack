@@ -190,6 +190,11 @@ let $HAC000 = {
             });
 
             syn.$w.transactionAction('AF01');
+
+            setTimeout(() => {
+                syn.uicontrols.$auigrid.setControlSize('grdValidTransaction');
+                syn.uicontrols.$auigrid.setControlSize('grdErrorTransaction');
+            }, 300);
         }
     },
 

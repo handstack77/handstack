@@ -2230,14 +2230,13 @@ TransactionException:
                         if (packageArchive != null)
                         {
                             outputBuilder.AppendLine($"I|{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}|게시 대상 파일 백업 시작");
-                            string directorySeparatorChar = Path.DirectorySeparatorChar.ToString();
                             string locationPath = "";
                             string sourceItemPath = "";
                             string targetItemPath = "";
                             for (int i = 0; i < packageArchive.Table1.Length; i++)
                             {
                                 var item = packageArchive.Table1[i];
-                                locationPath = item.RelativePath.Replace("/", directorySeparatorChar);
+                                locationPath = item.RelativePath.Replace("\\", "/");
                                 if (item.ItemType == "F" || item.ItemType == "P")
                                 {
                                     sourceItemPath = PathExtensions.Combine(appBasePath, locationPath);
@@ -2382,14 +2381,13 @@ TransactionException:
                         if (packageArchive != null)
                         {
                             outputBuilder.AppendLine($"I|{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}|게시 진행 시작");
-                            string directorySeparatorChar = Path.DirectorySeparatorChar.ToString();
                             string locationPath = "";
                             string sourceItemPath = "";
                             string targetItemPath = "";
                             for (int i = 0; i < packageArchive.Table1.Length; i++)
                             {
                                 var item = packageArchive.Table1[i];
-                                locationPath = item.RelativePath.Replace("/", directorySeparatorChar);
+                                locationPath = item.RelativePath.Replace("\\", "/");
                                 if (item.ItemType == "F" || item.ItemType == "P")
                                 {
                                     sourceItemPath = PathExtensions.Combine(packageDirectoryPath, locationPath);
@@ -2705,13 +2703,12 @@ TransactionException:
                             string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                             if (Directory.Exists(appBasePath) == true)
                             {
-                                string directorySeparatorChar = Path.DirectorySeparatorChar.ToString();
                                 if (locationPath.StartsWith($"/{userWorkID}/{applicationID}/") == true)
                                 {
                                     locationPath = locationPath.Substring($"/{userWorkID}/{applicationID}/".Length);
                                 }
 
-                                locationPath = locationPath.Replace("/", directorySeparatorChar);
+                                locationPath = locationPath.Replace("\\", "/");
                                 string? appAssetDirectoryPath = PathExtensions.Combine(appBasePath, "wwwroot", locationPath);
 
                                 if (string.IsNullOrEmpty(appAssetDirectoryPath) == false && Directory.Exists(appAssetDirectoryPath) == true)
@@ -2891,12 +2888,6 @@ TransactionException:
                 string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
-                    string directorySeparatorChar = Path.DirectorySeparatorChar.ToString();
-                    if (directorySeparatorChar != "/")
-                    {
-                        itemPath = itemPath.Replace("/", directorySeparatorChar);
-                    }
-
                     string? sourceFilePath = null;
                     if (projectType == "R")
                     {
@@ -3063,8 +3054,7 @@ TransactionException:
 
             if (ModuleConfiguration.ManagedAccessKey == accessKey && string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false && string.IsNullOrEmpty(projectType) == false && string.IsNullOrEmpty(parentMenuID) == false && string.IsNullOrEmpty(parentMenuName) == false)
             {
-                string directorySeparatorChar = Path.DirectorySeparatorChar.ToString();
-                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID) + directorySeparatorChar;
+                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID) + "/";
                 if (Directory.Exists(appBasePath) == true)
                 {
                     string searchPattern = "*.*";
@@ -3128,15 +3118,9 @@ TransactionException:
         private static string GetHostItemPath(string appBasePath, string? projectType, string itemPath)
         {
             string result = "";
-            string directorySeparatorChar = System.IO.Path.DirectorySeparatorChar.ToString();
-            if (itemPath.StartsWith(directorySeparatorChar) == true)
+            if (itemPath.StartsWith("/") == true)
             {
                 itemPath = itemPath.Substring(1);
-            }
-
-            if (directorySeparatorChar != "/")
-            {
-                itemPath = itemPath.Replace("/", directorySeparatorChar);
             }
 
             switch (projectType)
@@ -3166,8 +3150,7 @@ TransactionException:
             DirectoryInfo featureDirectoryInfo = new DirectoryInfo(sourceDirectoryPath);
             if (directoryInfo.Exists == true)
             {
-                string directorySeparatorChar = Path.DirectorySeparatorChar.ToString();
-                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID) + directorySeparatorChar;
+                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID) + "/";
                 Menu featureDirectory = new Menu();
                 featureDirectory.menuID = featureDirectoryInfo.FullName.Replace("\\", "/").Replace(appBasePath, "");
                 featureDirectory.menuName = featureDirectoryInfo.Name;
@@ -3211,8 +3194,7 @@ TransactionException:
 
         private void BuildFileMenu(string userWorkID, string applicationID, string projectType, string searchPattern, string sourceDirectoryPath, List<Menu> menus, Menu parentMenu, DirectoryInfo directory, int level)
         {
-            string directorySeparatorChar = System.IO.Path.DirectorySeparatorChar.ToString();
-            string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID) + directorySeparatorChar;
+            string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID) + "/";
             if (projectType == "F")
             {
                 foreach (var directoryInfo in directory.GetDirectories("*", SearchOption.TopDirectoryOnly))

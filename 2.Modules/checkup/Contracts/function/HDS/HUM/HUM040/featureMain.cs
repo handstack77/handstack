@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -63,7 +63,6 @@ namespace HDS.Function.HUM
                     string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                     if (Directory.Exists(appBasePath) == true)
                     {
-                        string directorySeparatorChar = System.IO.Path.DirectorySeparatorChar.ToString();
                         string searchPattern = "*.*";
                         string? sourceDirectoryPath = appBasePath;
 
@@ -165,11 +164,6 @@ TransactionException:
                 string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
-                    string directorySeparatorChar = System.IO.Path.DirectorySeparatorChar.ToString();
-                    if (directorySeparatorChar != "/")
-                    {
-                        itemPath = itemPath.Replace("/", directorySeparatorChar);
-                    }
                     string? sourceItemPath = PathExtensions.Combine(appBasePath, itemPath);
 
                     if (string.IsNullOrEmpty(sourceItemPath) == false && System.IO.File.Exists(sourceItemPath) == true)
@@ -245,11 +239,6 @@ TransactionException:
                 string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                 if (Directory.Exists(appBasePath) == true)
                 {
-                    string directorySeparatorChar = System.IO.Path.DirectorySeparatorChar.ToString();
-                    if (directorySeparatorChar != "/")
-                    {
-                        itemPath = itemPath.Replace("/", directorySeparatorChar);
-                    }
                     string? sourceItemPath = PathExtensions.Combine(appBasePath, itemPath);
 
                     if (string.IsNullOrEmpty(sourceItemPath) == false && System.IO.File.Exists(sourceItemPath) == true)
@@ -281,8 +270,7 @@ TransactionException:
 
         private void WWWRootFileMenu(string userWorkID, string applicationID, string projectType, string searchPattern, List<Menu> menus, DirectoryInfo directory, Menu rootDirectory, int level)
         {
-            string directorySeparatorChar = System.IO.Path.DirectorySeparatorChar.ToString();
-            string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID) + directorySeparatorChar;
+            string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID) + "/";
             foreach (var file in directory.GetFileInfos(SearchOption.TopDirectoryOnly, searchPattern.Split("|").Where(x => string.IsNullOrWhiteSpace(x) == false).ToArray()))
             {
                 Menu menuItem = new Menu();
