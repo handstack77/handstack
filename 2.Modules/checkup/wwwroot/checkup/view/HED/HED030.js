@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 let $HED030 = {
     config: {
         actionButtons: [{
@@ -199,15 +199,15 @@ let $HED030 = {
 
         grdTable_afterSelectionEnd(row, column, row2, column2, selectionLayerLevel) {
             var gridID = 'grdTable';
-            if (syn.uicontrols.$grid.getGridValue(gridID).colHeaderClick) {
+            if (syn.uicontrols.$auigrid.getGridValue(gridID).colHeaderClick) {
                 return;
             }
 
-            var tableName = syn.uicontrols.$grid.getDataAtCell(gridID, row, 'tbl_name');
+            var tableName = syn.uicontrols.$auigrid.getDataAtCell(gridID, row, 'tbl_name');
             if (tableName != $this.prop.focusTableName) {
                 $this.prop.focusTableName = tableName;
                 syn.$l.get('txtTableName').value = tableName;
-                syn.uicontrols.$grid.clear('grdTableColumn');
+                syn.uicontrols.$auigrid.clear('grdTableColumn');
 
                 $this.store.Exception.Error = '';
                 syn.$w.transactionAction('LF02');

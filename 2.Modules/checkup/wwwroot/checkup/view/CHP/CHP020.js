@@ -50,18 +50,18 @@ let $CHP020 = {
                 if ($string.isNullOrEmpty(error) == true) {
                     var gridID = 'grdCodeHelp';
                     if ($string.isNullOrEmpty($this.prop.focusCodeHelpID) == true) {
-                        var rowCount = syn.uicontrols.$grid.countRows(gridID);
+                        var rowCount = syn.uicontrols.$auigrid.countRows(gridID);
                         if (rowCount > 0) {
-                            syn.uicontrols.$grid.selectCell(gridID, 0, 1);
+                            syn.uicontrols.$auigrid.selectCell(gridID, 0, 1);
                         }
                     }
                     else {
-                        var items = syn.uicontrols.$grid.getDataAtCol(gridID, 'CodeHelpID');
+                        var items = syn.uicontrols.$auigrid.getDataAtCol(gridID, 'CodeHelpID');
                         for (var i = 0, length = items.length; i < length; i++) {
                             var item = items[i];
 
                             if ($this.prop.focusCodeHelpID == item) {
-                                syn.uicontrols.$grid.selectCell('grdCodeHelp', i, 1);
+                                syn.uicontrols.$auigrid.selectCell('grdCodeHelp', i, 1);
                                 syn.$w.transactionAction('LD02');
                                 break;
                             }
@@ -147,15 +147,15 @@ let $CHP020 = {
     event: {
         grdCodeHelp_afterSelectionEnd(row, column, row2, column2, selectionLayerLevel) {
             var gridID = 'grdCodeHelp';
-            if (syn.uicontrols.$grid.getGridValue(gridID).colHeaderClick) {
+            if (syn.uicontrols.$auigrid.getGridValue(gridID).colHeaderClick) {
                 return;
             }
 
-            var activeRow = syn.uicontrols.$grid.getActiveRowIndex(gridID);
-            var codeHelpID = syn.uicontrols.$grid.getDataAtCell(gridID, activeRow, 'CodeHelpID');
+            var activeRow = syn.uicontrols.$auigrid.getActiveRowIndex(gridID);
+            var codeHelpID = syn.uicontrols.$auigrid.getDataAtCell(gridID, activeRow, 'CodeHelpID');
             if (codeHelpID != $this.prop.focusCodeHelpID) {
                 $this.prop.focusCodeHelpID = codeHelpID;
-                syn.uicontrols.$grid.clear('grdCodeHelpScheme');
+                syn.uicontrols.$auigrid.clear('grdCodeHelpScheme');
                 syn.$w.transactionAction('LD02');
             }
 
@@ -188,7 +188,7 @@ let $CHP020 = {
                 syn.$w.alert('코드도움를 선택 하세요');
             }
             else {
-                syn.uicontrols.$grid.insertRow('grdCodeHelpScheme', {
+                syn.uicontrols.$auigrid.insertRow('grdCodeHelpScheme', {
                     amount: parseInt(syn.$l.get('ddlAddCount').value),
                     values: {
                         CodeHelpID: $this.prop.focusCodeHelpID,
@@ -200,7 +200,7 @@ let $CHP020 = {
         },
 
         btnRemoveCodeHelpScheme_click() {
-            syn.uicontrols.$grid.removeRow('grdCodeHelpScheme', 2);
+            syn.uicontrols.$auigrid.removeRow('grdCodeHelpScheme', 2);
         },
 
         btnSaveCodeHelp_click() {
@@ -246,44 +246,44 @@ let $CHP020 = {
 
     method: {
         search() {
-            syn.uicontrols.$grid.clear('grdCodeHelpScheme');
+            syn.uicontrols.$auigrid.clear('grdCodeHelpScheme');
             syn.$w.transactionAction('LD01');
         },
 
         save() {
             var gridID = 'grdCodeHelp';
-            if (syn.uicontrols.$grid.checkEmptyValueCol(gridID, 'CodeHelpName') == true) {
+            if (syn.uicontrols.$auigrid.checkEmptyValueCol(gridID, 'CodeHelpName') == true) {
                 syn.$w.alert('코드도움 명을 입력하세요');
                 return false;
             }
 
-            if (syn.uicontrols.$grid.checkEmptyValueCol(gridID, 'DataSourceID') == true) {
+            if (syn.uicontrols.$auigrid.checkEmptyValueCol(gridID, 'DataSourceID') == true) {
                 syn.$w.alert('데이터 소스 ID를 입력하세요');
                 return false;
             }
 
-            if (syn.uicontrols.$grid.checkEmptyValueCol(gridID, 'CommandText') == true) {
+            if (syn.uicontrols.$auigrid.checkEmptyValueCol(gridID, 'CommandText') == true) {
                 syn.$w.alert('SQL을 입력하세요');
                 return false;
             }
 
-            if (syn.uicontrols.$grid.checkEmptyValueCol(gridID, 'CodeColumnID') == true) {
+            if (syn.uicontrols.$auigrid.checkEmptyValueCol(gridID, 'CodeColumnID') == true) {
                 syn.$w.alert('코드 컬럼 ID를 입력하세요');
                 return false;
             }
 
-            if (syn.uicontrols.$grid.checkEmptyValueCol(gridID, 'ValueColumnID') == true) {
+            if (syn.uicontrols.$auigrid.checkEmptyValueCol(gridID, 'ValueColumnID') == true) {
                 syn.$w.alert('데이터 컬럼 ID를 입력하세요');
                 return false;
             }
 
             gridID = 'grdCodeHelpScheme';
-            if (syn.uicontrols.$grid.checkEmptyValueCol(gridID, 'ColumnID') == true) {
+            if (syn.uicontrols.$auigrid.checkEmptyValueCol(gridID, 'ColumnID') == true) {
                 syn.$w.alert('코드 컬럼 ID를 입력하세요');
                 return false;
             }
 
-            if (syn.uicontrols.$grid.checkUniqueValueCol(gridID, 'ColumnID') == false) {
+            if (syn.uicontrols.$auigrid.checkUniqueValueCol(gridID, 'ColumnID') == false) {
                 syn.$w.alert('고유한 코드 컬럼 ID를 입력하세요');
                 return false;
             }

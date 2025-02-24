@@ -50,18 +50,18 @@ let $CHP010 = {
                 if ($string.isNullOrEmpty(error) == true) {
                     var gridID = 'grdCodeGroup';
                     if ($string.isNullOrEmpty($this.prop.focusGroupCode) == true) {
-                        var rowCount = syn.uicontrols.$grid.countRows(gridID);
+                        var rowCount = syn.uicontrols.$auigrid.countRows(gridID);
                         if (rowCount > 0) {
-                            syn.uicontrols.$grid.selectCell(gridID, 0, 2);
+                            syn.uicontrols.$auigrid.selectCell(gridID, 0, 2);
                         }
                     }
                     else {
-                        var items = syn.uicontrols.$grid.getDataAtCol(gridID, 'GroupID');
+                        var items = syn.uicontrols.$auigrid.getDataAtCol(gridID, 'GroupID');
                         for (var i = 0, length = items.length; i < length; i++) {
                             var item = items[i];
 
                             if ($this.prop.focusGroupCode == item) {
-                                syn.uicontrols.$grid.selectCell('grdCodeGroup', i, 2);
+                                syn.uicontrols.$auigrid.selectCell('grdCodeGroup', i, 2);
                                 syn.$w.transactionAction('LD02');
                                 break;
                             }
@@ -147,15 +147,15 @@ let $CHP010 = {
     event: {
         grdCodeGroup_afterSelectionEnd(row, column, row2, column2, selectionLayerLevel) {
             var gridID = 'grdCodeGroup';
-            if (syn.uicontrols.$grid.getGridValue(gridID).colHeaderClick) {
+            if (syn.uicontrols.$auigrid.getGridValue(gridID).colHeaderClick) {
                 return;
             }
 
-            var activeRow = syn.uicontrols.$grid.getActiveRowIndex(gridID);
-            var groupCode = syn.uicontrols.$grid.getDataAtCell(gridID, activeRow, 'GroupID');
+            var activeRow = syn.uicontrols.$auigrid.getActiveRowIndex(gridID);
+            var groupCode = syn.uicontrols.$auigrid.getDataAtCell(gridID, activeRow, 'GroupID');
             if (groupCode != $this.prop.focusGroupCode) {
                 $this.prop.focusGroupCode = groupCode;
-                syn.uicontrols.$grid.clear('grdCodeDetail');
+                syn.uicontrols.$auigrid.clear('grdCodeDetail');
                 syn.$w.transactionAction('LD02');
             }
 
@@ -185,7 +185,7 @@ let $CHP010 = {
                 syn.$w.alert('기초코드를 선택 하세요');
             }
             else {
-                syn.uicontrols.$grid.insertRow('grdCodeDetail', {
+                syn.uicontrols.$auigrid.insertRow('grdCodeDetail', {
                     amount: parseInt(syn.$l.get('ddlAddCount').value),
                     values: {
                         GroupCode: $this.prop.focusGroupCode,
@@ -197,7 +197,7 @@ let $CHP010 = {
         },
 
         btnRemoveCodeDetail_click() {
-            syn.uicontrols.$grid.removeRow('grdCodeDetail', 2);
+            syn.uicontrols.$auigrid.removeRow('grdCodeDetail', 2);
         },
 
         btnSaveCodeGroup_click() {
@@ -219,18 +219,18 @@ let $CHP010 = {
 
     method: {
         search() {
-            syn.uicontrols.$grid.clear('grdCodeDetail');
+            syn.uicontrols.$auigrid.clear('grdCodeDetail');
             syn.$w.transactionAction('LD01');
         },
 
         save() {
             var gridID = 'grdCodeDetail';
-            if (syn.uicontrols.$grid.checkEmptyValueCol(gridID, 'CodeID') == true) {
+            if (syn.uicontrols.$auigrid.checkEmptyValueCol(gridID, 'CodeID') == true) {
                 syn.$w.alert('코드 ID를 입력하세요');
                 return false;
             }
 
-            if (syn.uicontrols.$grid.checkUniqueValueCol(gridID, 'CodeID') == false) {
+            if (syn.uicontrols.$auigrid.checkUniqueValueCol(gridID, 'CodeID') == false) {
                 syn.$w.alert('고유한 코드 ID를 입력하세요');
                 return false;
             }

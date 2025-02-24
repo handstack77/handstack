@@ -15,7 +15,7 @@ let $HBM020 = {
             text: '저장',
             class: 'btn-primary',
             action(evt) {
-                var withPublics = syn.uicontrols.$grid.getSettings('grdAppPublics').data.filter((item) => item.Flag != 'D').map((item) => item);
+                var withPublics = syn.uicontrols.$auigrid.getSettings('grdAppPublics').data.filter((item) => item.Flag != 'D').map((item) => item);
                 withPublics = $array.distinct(withPublics).filter(n => n);
 
                 for (var i = 0, length = withPublics.length; i < length; i++) {
@@ -80,14 +80,14 @@ let $HBM020 = {
 
     event: {
         btnAddAppPublics_click() {
-            syn.uicontrols.$grid.insertRow('grdAppPublics', {
+            syn.uicontrols.$auigrid.insertRow('grdAppPublics', {
                 amount: 1,
                 focusColumnID: 'ProjectID'
             });
         },
 
         btnRemoveAppPublics_click() {
-            syn.uicontrols.$grid.removeRow('grdAppPublics');
+            syn.uicontrols.$auigrid.removeRow('grdAppPublics');
         }
     },
 

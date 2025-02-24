@@ -68,12 +68,12 @@ let $HDM010 = {
             callback: (error, responseObject, addtionalData, correlationID) => {
                 if ($string.isNullOrEmpty(error) == true) {
                     if ($string.isNullOrEmpty($this.prop.focusMetaEntityNo) == false) {
-                        var items = syn.uicontrols.$grid.getDataAtCol('grdMetaEntity', 'EntityNo');
+                        var items = syn.uicontrols.$auigrid.getDataAtCol('grdMetaEntity', 'EntityNo');
                         for (var i = 0, length = items.length; i < length; i++) {
                             var item = items[i];
 
                             if ($this.prop.focusMetaEntityNo == item) {
-                                syn.uicontrols.$grid.selectCell('grdMetaEntity', i, 2);
+                                syn.uicontrols.$auigrid.selectCell('grdMetaEntity', i, 2);
                                 break;
                             }
                         }
@@ -87,7 +87,7 @@ let $HDM010 = {
             outputs: [{ type: 'Grid', dataFieldID: 'MetaField', clear: true }],
             callback: (error, responseObject, addtionalData, correlationID) => {
                 if ($string.isNullOrEmpty(error) == true) {
-                    var countRows = syn.uicontrols.$grid.countRows('grdMetaField');
+                    var countRows = syn.uicontrols.$auigrid.countRows('grdMetaField');
                     if (countRows > 0) {
                         syn.$l.get('btnInitialData').removeAttribute('disabled');
                     }
@@ -153,18 +153,18 @@ let $HDM010 = {
 
                     syn.$w.windowOpen(windowID, popupOptions, (elID) => {
                         var gridID = 'grdMetaEntity';
-                        var activeRow = syn.uicontrols.$grid.getActiveRowIndex(gridID);
+                        var activeRow = syn.uicontrols.$auigrid.getActiveRowIndex(gridID);
                         var entityMeta = {
                             readonly: false,
-                            entityNo: syn.uicontrols.$grid.getDataAtCell(gridID, activeRow, 'EntityNo'),
-                            entityID: syn.uicontrols.$grid.getDataAtCell(gridID, activeRow, 'EntityID'),
-                            entityName: syn.uicontrols.$grid.getDataAtCell(gridID, activeRow, 'EntityName'),
-                            categoryName: syn.uicontrols.$grid.getDataAtCell(gridID, activeRow, 'CategoryName'),
+                            entityNo: syn.uicontrols.$auigrid.getDataAtCell(gridID, activeRow, 'EntityNo'),
+                            entityID: syn.uicontrols.$auigrid.getDataAtCell(gridID, activeRow, 'EntityID'),
+                            entityName: syn.uicontrols.$auigrid.getDataAtCell(gridID, activeRow, 'EntityName'),
+                            categoryName: syn.uicontrols.$auigrid.getDataAtCell(gridID, activeRow, 'CategoryName'),
                             fields: [],
                             seedData: JSON.parse(syn.$l.get('txtSeedData').value.trim() || '[]')
                         };
 
-                        var items = syn.uicontrols.$grid.getSettings('grdMetaField').data;
+                        var items = syn.uicontrols.$auigrid.getSettings('grdMetaField').data;
                         for (var i = 0, length = items.length; i < length; i++) {
                             var item = items[i];
                             entityMeta.fields.push({
@@ -226,15 +226,15 @@ let $HDM010 = {
     event: {
         grdMetaEntity_afterSelectionEnd(row, column, row2, column2, selectionLayerLevel) {
             var gridID = 'grdMetaEntity';
-            if (syn.uicontrols.$grid.getGridValue(gridID).colHeaderClick) {
+            if (syn.uicontrols.$auigrid.getGridValue(gridID).colHeaderClick) {
                 return;
             }
 
-            var activeRow = syn.uicontrols.$grid.getActiveRowIndex(gridID);
-            var entityNo = syn.uicontrols.$grid.getDataAtCell(gridID, activeRow, 'EntityNo');
+            var activeRow = syn.uicontrols.$auigrid.getActiveRowIndex(gridID);
+            var entityNo = syn.uicontrols.$auigrid.getDataAtCell(gridID, activeRow, 'EntityNo');
             if (entityNo != $this.prop.focusMetaEntityNo) {
                 $this.prop.focusMetaEntityNo = entityNo;
-                syn.uicontrols.$grid.clear('grdMetaField');
+                syn.uicontrols.$auigrid.clear('grdMetaField');
                 syn.$w.transactionAction('LD02');
             }
 
@@ -259,9 +259,9 @@ let $HDM010 = {
                 var columns = ['MemberStatusName', 'RoleDevelop', 'RoleBusiness', 'RoleOperation', 'RoleManaged', 'ExpiredAt'];
                 if (columns.indexOf(columnID) > -1 && oldValue != newValue) {
                     var gridID = 'grdMetaEntity';
-                    if (syn.uicontrols.$grid.getDataAtCell(gridID, row, 'ModifiedMemberNo') != syn.$w.User.UserNo) {
-                        syn.uicontrols.$grid.setDataAtCell(gridID, row, 'ModifiedMemberNo', syn.$w.User.UserNo);
-                        syn.uicontrols.$grid.setDataAtCell(gridID, row, 'ModifiedMemberName', syn.$w.User.UserName);
+                    if (syn.uicontrols.$auigrid.getDataAtCell(gridID, row, 'ModifiedMemberNo') != syn.$w.User.UserNo) {
+                        syn.uicontrols.$auigrid.setDataAtCell(gridID, row, 'ModifiedMemberNo', syn.$w.User.UserNo);
+                        syn.uicontrols.$auigrid.setDataAtCell(gridID, row, 'ModifiedMemberName', syn.$w.User.UserName);
                     }
                 }
             }
@@ -292,7 +292,7 @@ let $HDM010 = {
                 syn.$w.alert('엔티티를 선택 하세요');
             }
             else {
-                syn.uicontrols.$grid.insertRow('grdMetaField', {
+                syn.uicontrols.$auigrid.insertRow('grdMetaField', {
                     amount: parseInt(syn.$l.get('ddlAddCount').value),
                     values: {
                         EntityNo: $this.prop.focusMetaEntityNo,
@@ -307,7 +307,7 @@ let $HDM010 = {
         },
 
         btnRemoveMetaField_click() {
-            syn.uicontrols.$grid.removeRow('grdMetaField', 3);
+            syn.uicontrols.$auigrid.removeRow('grdMetaField', 3);
         },
 
         btnSaveMetaEntity_click() {
@@ -334,24 +334,24 @@ let $HDM010 = {
 
         save() {
             var gridID = 'grdMetaField';
-            if (syn.uicontrols.$grid.checkEditValue('grdMetaEntity') == false && syn.uicontrols.$grid.checkEditValue(gridID) == false) {
+            if (syn.uicontrols.$auigrid.checkEditValue('grdMetaEntity') == false && syn.uicontrols.$auigrid.checkEditValue(gridID) == false) {
                 if ($this.prop.saveAndAction == 'initialData') {
                     $this.method.windowOpenInitialData();
                 }
                 return false;
             }
 
-            if (syn.uicontrols.$grid.checkValueCountCol(gridID, 'PK', '1') == 0) {
+            if (syn.uicontrols.$auigrid.checkValueCountCol(gridID, 'PK', '1') == 0) {
                 syn.$w.alert('PK (기본키)를 하나 이상 입력하세요');
                 return false;
             }
 
-            if (syn.uicontrols.$grid.checkEmptyValueCol(gridID, 'FieldID') == true) {
+            if (syn.uicontrols.$auigrid.checkEmptyValueCol(gridID, 'FieldID') == true) {
                 syn.$w.alert('필드 ID를 입력하세요');
                 return false;
             }
 
-            if (syn.uicontrols.$grid.checkUniqueValueCol(gridID, 'FieldID') == false) {
+            if (syn.uicontrols.$auigrid.checkUniqueValueCol(gridID, 'FieldID') == false) {
                 syn.$w.alert('고유한 필드 ID를 입력하세요');
                 return false;
             }
@@ -360,7 +360,7 @@ let $HDM010 = {
         },
 
         windowOpenInitialData() {
-            var items = syn.uicontrols.$grid.getSettings('grdMetaField').data;
+            var items = syn.uicontrols.$auigrid.getSettings('grdMetaField').data;
             if (items.length > 0) {
                 syn.$w.transactionAction('GD01');
             }

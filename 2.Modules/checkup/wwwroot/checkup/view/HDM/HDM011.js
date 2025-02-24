@@ -36,7 +36,7 @@ let $HDM011 = {
                     syn.$l.get('txtEntityNo').value = params.entityNo;
                     syn.$l.get('lblTitle').textContent = `${params.entityName} (${params.entityID}) 엔티티`;
                     var gridID = 'grdMetaData';
-                    var settings = syn.uicontrols.$grid.getSettings(gridID);
+                    var settings = syn.uicontrols.$auigrid.getSettings(gridID);
 
                     var columns = [];
 
@@ -45,7 +45,7 @@ let $HDM011 = {
                         columns.push([field.FieldID, field.FieldName, 100, false, field.FieldType, false, 'left']);
                     }
 
-                    var gridSetting = syn.uicontrols.$grid.getInitializeColumns({ columns: columns }, gridID);
+                    var gridSetting = syn.uicontrols.$auigrid.getInitializeColumns({ columns: columns }, gridID);
 
                     settings.colHeaders = gridSetting.colHeaders;
                     settings.colWidths = gridSetting.colWidths;
@@ -58,7 +58,7 @@ let $HDM011 = {
                         type: 'text',
                         readOnly: true
                     });
-                    syn.uicontrols.$grid.updateSettings(gridID, settings);
+                    syn.uicontrols.$auigrid.updateSettings(gridID, settings);
 
                     setTimeout(() => {
                         var metaColumns = {};
@@ -85,7 +85,7 @@ let $HDM011 = {
                             };
                         }
 
-                        syn.uicontrols.$grid.setValue(gridID, params.seedData, metaColumns);
+                        syn.uicontrols.$auigrid.setValue(gridID, params.seedData, metaColumns);
                     }, 25);
                 });
             }
@@ -94,25 +94,25 @@ let $HDM011 = {
 
     event: {
         btnAddMetaData_click() {
-            syn.uicontrols.$grid.insertRow('grdMetaData', {
+            syn.uicontrols.$auigrid.insertRow('grdMetaData', {
                 amount: parseInt(syn.$l.get('ddlAddCount').value),
             }, (row, amount) => {
-                syn.uicontrols.$grid.setDataAtCell('grdMetaData', row, 1, '');
-                syn.uicontrols.$grid.selectCell('grdMetaData', row, 1);
+                syn.uicontrols.$auigrid.setDataAtCell('grdMetaData', row, 1, '');
+                syn.uicontrols.$auigrid.selectCell('grdMetaData', row, 1);
             });
         },
 
         btnRemoveMetaData_click() {
-            syn.uicontrols.$grid.removeRow('grdMetaData');
+            syn.uicontrols.$auigrid.removeRow('grdMetaData');
         },
 
         btnSaveMetaData_click() {
             var gridID = 'grdMetaData';
             var seeds = [];
-            var rowCount = syn.uicontrols.$grid.countRows(gridID);
+            var rowCount = syn.uicontrols.$auigrid.countRows(gridID);
             for (var i = 0, iLength = rowCount; i < iLength; i++) {
-                var visualRow = syn.uicontrols.$grid.getPhysicalRowIndex(gridID, i);
-                var item = syn.uicontrols.$grid.getSourceDataAtRow(gridID, visualRow);
+                var visualRow = syn.uicontrols.$auigrid.getPhysicalRowIndex(gridID, i);
+                var item = syn.uicontrols.$auigrid.getSourceDataAtRow(gridID, visualRow);
 
                 if (item.Flag != 'D') {
                     seeds.push(item);

@@ -44,8 +44,8 @@ let $SYS020 = {
                     var message = syn.$l.get('txtMessage').value;
                     try {
                         var gridID = 'grdTraceLog';
-                        var activeRow = syn.uicontrols.$grid.getActiveRowIndex(gridID);
-                        var format = syn.uicontrols.$grid.getDataAtCell(gridID, activeRow, 'Format');
+                        var activeRow = syn.uicontrols.$auigrid.getActiveRowIndex(gridID);
+                        var format = syn.uicontrols.$auigrid.getDataAtCell(gridID, activeRow, 'Format');
                         if (format == 'J' && (message.startsWith('{') == true || message.startsWith('[') == true)) {
                             var data = JSON.parse(message);
                             syn.$l.get('txtMessage').value = JSON.stringify(data, null, '\t');
@@ -137,16 +137,16 @@ let $SYS020 = {
 
         grdTraceLog_afterSelectionEnd(row, column, row2, column2) {
             var gridID = 'grdTraceLog';
-            if (syn.uicontrols.$grid.getGridValue(gridID).colHeaderClick) {
+            if (syn.uicontrols.$auigrid.getGridValue(gridID).colHeaderClick) {
                 return;
             }
 
             if ($object.isNullOrUndefined($this.prop.beforeRow) == false && $this.prop.beforeRow == row) {
             }
             else {
-                var activeRow = syn.uicontrols.$grid.getActiveRowIndex(gridID);
-                var physicalRowIndex = syn.uicontrols.$grid.getPhysicalRowIndex(gridID, activeRow);
-                var item = syn.uicontrols.$grid.getSourceDataAtRow(gridID, physicalRowIndex);
+                var activeRow = syn.uicontrols.$auigrid.getActiveRowIndex(gridID);
+                var physicalRowIndex = syn.uicontrols.$auigrid.getPhysicalRowIndex(gridID, activeRow);
+                var item = syn.uicontrols.$auigrid.getSourceDataAtRow(gridID, physicalRowIndex);
 
                 var message = `- GlobalID: <b class="fg-red-500">${item.GlobalID}</b>`;
 
