@@ -1,5 +1,5 @@
 :root {
-    --tblr-font-sans-serif: "Noto+Sans+KR";
+    --tblr-font-sans-serif: 'Noto Sans KR', 'Pretendard', 'Nanum Gothic', 나눔 고딕, 'Malgun Gothic', 맑은 고딕, Gulim, 굴림, sans-serif;
     --tblr-navbar-color: rgba(255, 255, 255, 0.8);
     --tblr-navbar-hover-color: rgba(255, 255, 255);
 }
