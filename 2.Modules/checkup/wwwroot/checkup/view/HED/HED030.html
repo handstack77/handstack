@@ -58,7 +58,7 @@
                                         </div>
                                         <div class="card-body p-2">
                                             <div class="form-fieldset p-0">
-                                                <syn_grid id="grdTable" syn-datafield="Table" syn-options="{
+                                                <syn_auigrid id="grdTable" syn-datafield="Table" syn-options="{
                                                 height: 280
 				                                , outsideClickDeselects: false
 				                                , columns: [
@@ -67,7 +67,7 @@
                                                     , ['tbl_name', '테이블 ID', 100, false, 'text', true, 'left']
                                                     , ['sql', '스크립트', 176, false, 'text', false, 'left']
 				                                ]
-			                                }" syn-events="['afterSelectionEnd']"></syn_grid>
+			                                }" syn-events="['afterSelectionEnd']"></syn_auigrid>
                                             </div>
                                         </div>
                                     </div>
@@ -77,7 +77,7 @@
                                         </div>
                                         <div class="card-body p-2">
                                             <div class="form-fieldset p-0">
-                                                <syn_grid id="grdTableColumn" syn-datafield="TableColumn" syn-options="{
+                                                <syn_auigrid id="grdTableColumn" syn-datafield="TableColumn" syn-options="{
                                                 height: 280
 				                                , columns: [
                                                     ['ColumnName', '컬럼 ID', 116, false, 'text', false, 'left']
@@ -88,7 +88,7 @@
                                                     , ['AI', 'AI', 40, false, 'checkbox2', false, 'center']
                                                     , ['Ordinal', '정렬', 60, false, 'numeric', false, 'right']
 				                                ]
-			                                }" syn-events="['afterSelectionEnd']"></syn_grid>
+			                                }" syn-events="['afterSelectionEnd']"></syn_auigrid>
                                             </div>
                                         </div>
                                     </div>

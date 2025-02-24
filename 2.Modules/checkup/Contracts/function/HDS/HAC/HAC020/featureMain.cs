@@ -13,7 +13,7 @@ using HandStack.Web;
 using HandStack.Web.Entity;
 using HandStack.Web.MessageContract.DataObject;
 
-using checkup;
+using checkup.Entity;
 
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;

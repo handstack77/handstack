@@ -180,5 +180,16 @@ WHERE MemberNo = @MemberNo;
 			<param id="@MemberNo" type="String" length="36" value="" />
 			<param id="@UserWorkID" type="String" length="36" value="" />
 		</statement>
+
+		<statement id="UD03" seq="0" use="Y" timeout="0" desc="회원 비밀번호 변경">
+			<![CDATA[
+UPDATE Person SET Password = @NewPassword
+WHERE Password = @OldPassword
+	AND PersonID = @UserID;
+			]]>
+            <param id="@UserID" type="String" length="256" value="" />
+			<param id="@NewPassword" type="String" length="100" value="" />
+			<param id="@OldPassword" type="String" length="100" value="" />
+		</statement>
 	</commands>
 </mapper>

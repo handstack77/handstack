@@ -17,7 +17,7 @@ using HandStack.Web.Entity;
 using HandStack.Web.MessageContract.DataObject;
 using HandStack.Web.Modules;
 
-using checkup;
+using checkup.Entity;
 using checkup.Entity;
 
 using Microsoft.AspNetCore.Http;

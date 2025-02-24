@@ -43,7 +43,7 @@
                                     </div>
                                     <div class="card-body p-2">
                                         <div class="form-fieldset p-0">
-                                            <syn_grid id="grdCodeGroup" syn-datafield="CodeGroup" syn-options="{
+                                            <syn_auigrid id="grdCodeGroup" syn-datafield="CodeGroup" syn-options="{
                                                 height: 584
                                                 , outsideClickDeselects: false
 				                                , columns: [
@@ -56,7 +56,7 @@
                                                     , ['CreatedAt', '입력일자', 90, false, 'text', true, 'center']
                                                     , ['#TenantID', 'TenantID', 100, true, 'text', true, 'center', ['LD02', 'DD01', 'MD01']]
 				                                ]
-			                                }" syn-events="['afterSelectionEnd']"></syn_grid>
+			                                }" syn-events="['afterSelectionEnd']"></syn_auigrid>
                                         </div>
                                     </div>
                                 </div>
@@ -80,7 +80,7 @@
                                     </div>
                                     <div class="card-body p-2">
                                         <div class="form-fieldset p-0">
-                                            <syn_grid id="grdCodeDetail" syn-datafield="CodeDetail" syn-options="{
+                                            <syn_auigrid id="grdCodeDetail" syn-datafield="CodeDetail" syn-options="{
                                                 height: 584
                                                 , isContainFilterHeader: true
 				                                , columns: [
@@ -100,7 +100,7 @@
                                                     , ['CreatedAt', '입력일자', 90, false, 'text', true, 'center', 'MD01']
                                                     , ['#TenantID', 'TenantID', 100, true, 'text', true, 'center', ['LD02', 'MD01']]
 				                                ]
-			                                }" syn-events="['afterSelectionEnd']"></syn_grid>
+			                                }" syn-events="['afterSelectionEnd']"></syn_auigrid>
                                         </div>
                                     </div>
                                 </div>

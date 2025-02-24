@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Net;
@@ -7,7 +7,7 @@ using HandStack.Core.ExtensionMethod;
 using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.DataObject;
 
-using checkup;
+using checkup.Entity;
 using checkup.Entity;
 
 using Microsoft.AspNetCore.Http;

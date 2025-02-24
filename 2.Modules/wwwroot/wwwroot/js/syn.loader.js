@@ -624,9 +624,9 @@
                             '/uicontrols/CodePicker/CodePicker.js',
                             '/lib/papaparse/papaparse.js',
                             '/lib/xlsx/xlsx.core.min.js',
-                            '/js/auigrid/AUIGridLicense.js',
-                            '/js/auigrid/AUIGrid.js',
-                            '/js/auigrid/FileSaver.min.js',
+                            '/lib/auigrid/dist/AUIGridLicense.js',
+                            '/lib/auigrid/dist/AUIGrid.js',
+                            '/lib/filesaver/FileSaver.min.js',
                             '/uicontrols/WebGrid/AUIGrid.js'
                         ];
                         break;
