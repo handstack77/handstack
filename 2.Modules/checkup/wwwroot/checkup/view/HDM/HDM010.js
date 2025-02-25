@@ -224,12 +224,8 @@ let $HDM010 = {
     },
 
     event: {
-        grdMetaEntity_afterSelectionEnd(row, column, row2, column2, selectionLayerLevel) {
+        grdMetaEntity_afterSelectionEnd(elID, rowIndex, columnIndex, dataField, value) {
             var gridID = 'grdMetaEntity';
-            if (syn.uicontrols.$auigrid.getGridValue(gridID).colHeaderClick) {
-                return;
-            }
-
             var activeRow = syn.uicontrols.$auigrid.getActiveRowIndex(gridID);
             var entityNo = syn.uicontrols.$auigrid.getDataAtCell(gridID, activeRow, 'EntityNo');
             if (entityNo != $this.prop.focusMetaEntityNo) {

@@ -37,7 +37,7 @@ let $HED030 = {
     },
 
     prop: {
-        hotTableData: null,
+        gridInstance: null,
         focusTableName: null,
         selectedPageIndex: '0'
     },
@@ -197,13 +197,9 @@ let $HED030 = {
             }
         },
 
-        grdTable_afterSelectionEnd(row, column, row2, column2, selectionLayerLevel) {
+        grdTable_afterSelectionEnd(elID, rowIndex, columnIndex, dataField, value) {
             var gridID = 'grdTable';
-            if (syn.uicontrols.$auigrid.getGridValue(gridID).colHeaderClick) {
-                return;
-            }
-
-            var tableName = syn.uicontrols.$auigrid.getDataAtCell(gridID, row, 'tbl_name');
+            var tableName = syn.uicontrols.$auigrid.getDataAtCell(gridID, rowIndex, 'tbl_name');
             if (tableName != $this.prop.focusTableName) {
                 $this.prop.focusTableName = tableName;
                 syn.$l.get('txtTableName').value = tableName;
@@ -299,31 +295,69 @@ let $HED030 = {
         },
 
         updateTableData(dataSource) {
+            var gridID = '#grdTableData';
             var headers = [];
+            var item = null;
             if (dataSource.length > 0) {
-                var item = dataSource[0];
+                item = dataSource[0];
+            }
+            else {
+                if (syn.$l.get('grdTable').className.includes('auigrid') == true) {
+                    AUIGrid.destroy(gridID);
+                }
+                else {
+                    $this.prop.gridInstance?.destroy();
+                }
+                return;
+            }
+
+            if (syn.$l.get('grdTable').className.includes('auigrid') == true) {
+                for (var key in item) {
+                    headers.push({
+                        dataField: key,
+                        headerText: key,
+                        style: 'text:left!'
+                    });
+                }
+            }
+            else {
                 for (var key in item) {
                     headers.push(key);
                 }
             }
 
-            if ($this.prop.hotTableData == null) {
-                $this.prop.hotTableData = new Handsontable(syn.$l.get('grdTableData'), {
-                    readOnly: true,
-                    licenseKey: 'non-commercial-and-evaluation',
-                    data: dataSource,
-                    colHeaders: headers,
-                    rowHeaders: true
+            if (syn.$l.get('grdTable').className.includes('auigrid') == true) {
+                AUIGrid.destroy(gridID);
+                AUIGrid.create(gridID, headers, {
+                    showRowCheckColumn: false,
+                    selectionMode: "multipleCells",
+                    showRowNumColumn: true,
+                    enableSorting: true
                 });
+
+                AUIGrid.setGridData(gridID, dataSource);
+                var colSizeList = AUIGrid.getFitColumnSizeList(gridID);
+                AUIGrid.setColumnSizeList(gridID, colSizeList);
             }
             else {
-                var settings = $this.prop.hotTableData.getSettings();
-                settings.data = dataSource;
-                settings.colHeaders = headers;
-                $this.prop.hotTableData.updateSettings(settings);
-            }
 
-            $this.prop.hotTableData.render();
+                if ($this.prop.gridInstance == null) {
+                    $this.prop.gridInstance = new Handsontable(syn.$l.querySelector(gridID), {
+                        readOnly: true,
+                        licenseKey: 'non-commercial-and-evaluation',
+                        data: dataSource,
+                        colHeaders: headers,
+                        rowHeaders: true
+                    });
+                }
+                else {
+                    var settings = $this.prop.gridInstance.getSettings();
+                    settings.data = dataSource;
+                    settings.colHeaders = headers;
+                    $this.prop.gridInstance.updateSettings(settings);
+                    $this.prop.gridInstance.render();
+                }
+            }
         },
     },
 }

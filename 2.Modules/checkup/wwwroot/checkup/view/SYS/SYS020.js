@@ -135,12 +135,8 @@ let $SYS020 = {
             syn.$l.get('txtEndedTime').value = '23:59:59';
         },
 
-        grdTraceLog_afterSelectionEnd(row, column, row2, column2) {
+        grdTraceLog_afterSelectionEnd(elID, rowIndex, columnIndex, dataField, value) {
             var gridID = 'grdTraceLog';
-            if (syn.uicontrols.$auigrid.getGridValue(gridID).colHeaderClick) {
-                return;
-            }
-
             if ($object.isNullOrUndefined($this.prop.beforeRow) == false && $this.prop.beforeRow == row) {
             }
             else {

@@ -145,12 +145,8 @@ let $CHP020 = {
     },
 
     event: {
-        grdCodeHelp_afterSelectionEnd(row, column, row2, column2, selectionLayerLevel) {
+        grdCodeHelp_afterSelectionEnd(elID, rowIndex, columnIndex, dataField, value) {
             var gridID = 'grdCodeHelp';
-            if (syn.uicontrols.$auigrid.getGridValue(gridID).colHeaderClick) {
-                return;
-            }
-
             var activeRow = syn.uicontrols.$auigrid.getActiveRowIndex(gridID);
             var codeHelpID = syn.uicontrols.$auigrid.getDataAtCell(gridID, activeRow, 'CodeHelpID');
             if (codeHelpID != $this.prop.focusCodeHelpID) {

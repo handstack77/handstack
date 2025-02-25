@@ -145,12 +145,8 @@ let $CHP010 = {
     },
 
     event: {
-        grdCodeGroup_afterSelectionEnd(row, column, row2, column2, selectionLayerLevel) {
+        grdCodeGroup_afterSelectionEnd(elID, rowIndex, columnIndex, dataField, value) {
             var gridID = 'grdCodeGroup';
-            if (syn.uicontrols.$auigrid.getGridValue(gridID).colHeaderClick) {
-                return;
-            }
-
             var activeRow = syn.uicontrols.$auigrid.getActiveRowIndex(gridID);
             var groupCode = syn.uicontrols.$auigrid.getDataAtCell(gridID, activeRow, 'GroupID');
             if (groupCode != $this.prop.focusGroupCode) {
