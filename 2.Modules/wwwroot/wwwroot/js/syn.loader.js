@@ -383,6 +383,7 @@
                 module: 'before-default',
                 type: 'before-default',
                 css: [
+                    '/css/preload.css',
                     '/lib/tabler-core/dist/css/tabler.css',
                     '/lib/tabler-icons-webfont/dist/tabler-icons.css',
                     '/js/notifier/notifier.css',

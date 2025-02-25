@@ -38,6 +38,13 @@
 */
 
 @font-face {
+    font-family: "Noto Sans KR";
+    font-style: normal;
+    font-weight: 400;
+    src: url("/font/NotoSans-Regular.woff2") format('woff2'), url("/font/NotoSans-Regular.woff") format('woff');
+}
+
+@font-face {
     font-family: "tabler-icons";
     font-style: normal;
     font-weight: 400;
