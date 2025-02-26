@@ -408,7 +408,7 @@
                 }
             }
 
-            if (result.length == 1) {
+            if (result.length <= 1) {
                 return find;
             }
             else {
