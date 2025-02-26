@@ -329,6 +329,8 @@ let $HED030 = {
             if (syn.$l.get('grdTable').className.includes('auigrid') == true) {
                 AUIGrid.destroy(gridID);
                 AUIGrid.create(gridID, headers, {
+                    headerHeight: 40,
+                    rowHeight: 40,
                     showRowCheckColumn: false,
                     selectionMode: "multipleCells",
                     showRowNumColumn: true,

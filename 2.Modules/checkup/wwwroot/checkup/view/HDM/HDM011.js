@@ -68,7 +68,6 @@ let $HDM011 = {
                             switch (column.type) {
                                 case 'radio':
                                 case 'checkbox':
-                                case 'checkbox2':
                                     dataType = 'bool';
                                     break;
                                 case 'numeric':
