@@ -199,7 +199,7 @@ TransactionException:
                                 break;
                             case "F":
                                 searchPattern = "*.cs|*.js|*.json|*.xml|";
-                                sourceDirectoryPath = PathExtensions.Combine(appBasePath, "function", "Node");
+                                sourceDirectoryPath = PathExtensions.Combine(appBasePath, "function");
                                 break;
                             case "B":
                                 searchPattern = "*.json";
