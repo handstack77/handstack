@@ -1,4 +1,4 @@
-﻿/*!
+/*!
 HandStack Javascript Library v1.0.0
 https://syn.handshake.kr
 
@@ -3013,10 +3013,19 @@ globalRoot.syn = syn;
                 query = arguments[i];
 
                 if ($object.isString(query) == true) {
-                    find = document.querySelector(query);
-                }
+                    if (query.startsWith('//') || query.startsWith('.//')) {
+                        var xpathResult = document.evaluate(query, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+                        if (xpathResult.snapshotLength > 0) {
+                            find = xpathResult.snapshotItem(0);
+                        }
+                    } else {
+                        find = document.querySelector(query);
+                    }
 
-                result.push(find);
+                    if (find) {
+                        result.push(find);
+                    }
+                }
             }
 
             if (result.length == 1) {
@@ -3046,9 +3055,16 @@ globalRoot.syn = syn;
             for (var i = 0, len = arguments.length; i < len; i++) {
                 var query = arguments[i];
                 if ($object.isString(query) == true) {
-                    var els = document.querySelectorAll(query);
-                    for (var j = 0, length = els.length; j < length; j++) {
-                        result.push(els[j]);
+                    if (query.startsWith('//') || query.startsWith('.//')) {
+                        var xpathResult = document.evaluate(query, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+                        for (var j = 0; j < xpathResult.snapshotLength; j++) {
+                            result.push(xpathResult.snapshotItem(j));
+                        }
+                    } else {
+                        var els = document.querySelectorAll(query);
+                        for (var k = 0, length = els.length; k < length; k++) {
+                            result.push(els[k]);
+                        }
                     }
                 }
             }

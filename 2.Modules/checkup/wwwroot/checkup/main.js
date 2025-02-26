@@ -1430,20 +1430,24 @@ let $main = {
                 }
             }
 
-            var tabID = null;
-            var tabEL = $this.method.getActiveTab();
-            if (tabEL) {
-                tabID = tabEL.getAttribute('data-tab-id');
-            }
-            else {
-                tabID = 'HAC$HAC000$HAC000$HAC';
-            }
-
-            if ($string.isNullOrEmpty(tabID) == false) {
-                var pageWindow = $this.method.getActiveTabContent(tabID);
-                if (pageWindow && pageWindow.syn && pageWindow.syn.$w.setTabContentHeight) {
-                    pageWindow.syn.$w.setTabContentHeight();
+            if ($this.prop.windowHeight > 600) {
+                var tabID = null;
+                var tabEL = $this.method.getActiveTab();
+                if (tabEL) {
+                    tabID = tabEL.getAttribute('data-tab-id');
                 }
+                else {
+                    tabID = 'HAC$HAC000$HAC000$HAC';
+                }
+
+                if ($string.isNullOrEmpty(tabID) == false) {
+                    var pageWindow = $this.method.getActiveTabContent(tabID);
+                    if (pageWindow && pageWindow.syn && pageWindow.syn.$w.setTabContentHeight) {
+                        pageWindow.syn.$w.setTabContentHeight();
+                    }
+                }
+
+                $this.method.resizeTabUI();
             }
         },
 
@@ -2433,8 +2437,8 @@ let $main = {
                 var dimension = {
                     windowWidth: $this.prop.windowWidth,
                     windowHeight: $this.prop.windowHeight,
-                    tabWidth: $this.prop.tabFrameSize.width,
-                    tabHeight: $this.prop.tabFrameSize.height
+                    tabWidth: ($this.prop.tabFrameSize && $this.prop.tabFrameSize.width) || $this.prop.windowWidth,
+                    tabHeight: ($this.prop.tabFrameSize && $this.prop.tabFrameSize.height) || $this.prop.windowHeight
                 };
 
                 pageScript.hook.pageResizing(dimension);

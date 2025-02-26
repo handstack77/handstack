@@ -59,15 +59,14 @@
                                         <div class="card-body p-2">
                                             <div class="form-fieldset p-0">
                                                 <syn_auigrid id="grdTable" syn-datafield="Table" syn-options="{
-                                                height: 280
-				                                , outsideClickDeselects: false
-				                                , columns: [
-                                                    ['type', '구분', 60, false, 'text', true, 'left']
-                                                    , ['name', '엔티티 ID', 100, false, 'text', true, 'left']
-                                                    , ['tbl_name', '테이블 ID', 100, false, 'text', true, 'left']
-                                                    , ['sql', '스크립트', 176, false, 'text', false, 'left']
+                                                height: 280,
+				                                columns: [
+                                                    ['type', '구분', 60, false, 'text', true, 'left'],
+                                                    ['name', '엔티티 ID', 140, false, 'text', true, 'left'],
+                                                    ['tbl_name', '테이블 ID', 140, false, 'text', true, 'left'],
+                                                    ['sql', '스크립트', null, false, 'text', false, 'left']
 				                                ]
-			                                }" syn-events="['afterSelectionEnd']"></syn_auigrid>
+			                                    }" syn-events="['afterSelectionEnd']"></syn_auigrid>
                                             </div>
                                         </div>
                                     </div>
@@ -78,17 +77,17 @@
                                         <div class="card-body p-2">
                                             <div class="form-fieldset p-0">
                                                 <syn_auigrid id="grdTableColumn" syn-datafield="TableColumn" syn-options="{
-                                                height: 280
-				                                , columns: [
-                                                    ['ColumnName', '컬럼 ID', 116, false, 'text', false, 'left']
-                                                    , ['DataType', '타입', 100, false, 'text', false, 'left']
-                                                    , ['PK', 'PK', 40, false, 'checkbox', false, 'center']
-                                                    , ['UI', 'UI', 40, false, 'checkbox', false, 'center']
-                                                    , ['NN', 'NN', 40, false, 'checkbox', false, 'center']
-                                                    , ['AI', 'AI', 40, false, 'checkbox', false, 'center']
-                                                    , ['Ordinal', '정렬', 60, false, 'numeric', false, 'right']
+                                                height: 280,
+				                                columns: [
+                                                    ['ColumnName', '컬럼 ID', null, false, 'text', false, 'left'],
+                                                    ['DataType', '타입', 80, false, 'text', false, 'left'],
+                                                    ['PK', 'PK', 60, false, 'checkbox', false, 'center'],
+                                                    ['IX', 'IX', 60, false, 'checkbox', false, 'center'],
+                                                    ['UI', 'UI', 60, false, 'checkbox', false, 'center'],
+                                                    ['NN', 'NN', 60, false, 'checkbox', false, 'center'],
+                                                    ['AI', 'AI', 60, false, 'checkbox', false, 'center']
 				                                ]
-			                                }" syn-events="['afterSelectionEnd']"></syn_auigrid>
+			                                    }"></syn_auigrid>
                                             </div>
                                         </div>
                                     </div>
@@ -106,7 +105,15 @@
                                             </div>
                                         </div>
                                         <div class="card-body p-2">
-                                            <div id="grdTableData" class="hot handsontable htColumnHeaders overflow-auto" style="height: calc(100vh - 158px);"></div>
+                                            <div class="form-fieldset p-0">
+                                                <syn_auigrid id="grdTableData" syn-options="{
+                                                height: 580,
+	                                            enableFilter : true,
+                                                showInlineFilter: true,
+	                                            editable : false,
+				                                columns: []
+			                                    }"></syn_auigrid>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

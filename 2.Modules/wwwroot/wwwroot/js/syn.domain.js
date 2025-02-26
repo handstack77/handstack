@@ -2595,6 +2595,13 @@ function domainPageLoad() {
                 }
             }
 
+            var xpath = "//div[contains(text(), 'AUIGrid NON-COMMERCIAL')]";
+            var result = document.evaluate(xpath, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+            for (var i = 0; i < result.snapshotLength; i++) {
+                var el = result.snapshotItem(i);
+                el.style.zIndex = '10';
+            }
+
             var isDarkMode = (window.localStorage && localStorage.getItem('isDarkMode') == 'true');
             if (isDarkMode == true) {
                 DarkReader.enable({

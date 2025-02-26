@@ -58,7 +58,8 @@ let $HDM010 = {
 
     prop: {
         focusMetaEntityNo: null,
-        saveAndAction: ''
+        saveAndAction: '',
+        adjustHeight: 298
     },
 
     transaction: {
@@ -221,6 +222,11 @@ let $HDM010 = {
 
             $this.method.search();
         },
+
+        pageResizing: function (dimension) {
+            syn.uicontrols.$auigrid.setControlSize('grdMetaEntity', { height: (dimension.windowHeight - $this.prop.adjustHeight) });
+            syn.uicontrols.$auigrid.setControlSize('grdMetaField', { height: (dimension.windowHeight - $this.prop.adjustHeight) });
+        }
     },
 
     event: {

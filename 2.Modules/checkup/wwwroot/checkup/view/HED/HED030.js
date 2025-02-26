@@ -39,7 +39,8 @@ let $HED030 = {
     prop: {
         gridInstance: null,
         focusTableName: null,
-        selectedPageIndex: '0'
+        selectedPageIndex: '0',
+        adjustHeight: 654
     },
 
     transaction: {
@@ -162,6 +163,15 @@ let $HED030 = {
 
             $this.method.searchAppTarget();
         },
+
+        pageResizing: function (dimension) {
+            var windowHeight = dimension.windowHeight;
+            if (windowHeight < 820) {
+                windowHeight = 820;
+            }
+            syn.uicontrols.$auigrid.setControlSize('grdTableColumn', { height: (windowHeight - $this.prop.adjustHeight) });
+            syn.uicontrols.$auigrid.setControlSize('grdTableData', { height: (windowHeight - ($this.prop.adjustHeight - 356)) });
+        }
     },
 
     event: {
@@ -295,71 +305,23 @@ let $HED030 = {
         },
 
         updateTableData(dataSource) {
-            var gridID = '#grdTableData';
-            var headers = [];
-            var item = null;
-            if (dataSource.length > 0) {
-                item = dataSource[0];
-            }
-            else {
-                if (syn.$l.get('grdTable').className.includes('auigrid') == true) {
-                    AUIGrid.destroy(gridID);
-                }
-                else {
-                    $this.prop.gridInstance?.destroy();
-                }
-                return;
+            var gridID = 'grdTableData';
+            syn.uicontrols.$auigrid.clear(gridID);
+
+            var columns = [];
+            var columnNames = syn.uicontrols.$auigrid.getColumnValues('grdTableColumn', 'ColumnName');
+            for (var i = 0, length = columnNames.length; i < length; i++) {
+                var columnName = columnNames[i];
+                columns.push([columnName, columnName, null, false, 'text', true, 'left']);
             }
 
-            if (syn.$l.get('grdTable').className.includes('auigrid') == true) {
-                for (var key in item) {
-                    headers.push({
-                        dataField: key,
-                        headerText: key,
-                        style: 'text:left!'
-                    });
-                }
-            }
-            else {
-                for (var key in item) {
-                    headers.push(key);
-                }
-            }
+            var columnLayout = syn.uicontrols.$auigrid.getInitializeColumns(gridID, columns, true);
+            syn.uicontrols.$auigrid.changeColumnLayout(gridID, columnLayout);
+            syn.uicontrols.$auigrid.setValue(gridID, dataSource);
 
-            if (syn.$l.get('grdTable').className.includes('auigrid') == true) {
-                AUIGrid.destroy(gridID);
-                AUIGrid.create(gridID, headers, {
-                    headerHeight: 40,
-                    rowHeight: 40,
-                    showRowCheckColumn: false,
-                    selectionMode: "multipleCells",
-                    showRowNumColumn: true,
-                    enableSorting: true
-                });
-
-                AUIGrid.setGridData(gridID, dataSource);
-                var colSizeList = AUIGrid.getFitColumnSizeList(gridID);
-                AUIGrid.setColumnSizeList(gridID, colSizeList);
+            if (dataSource && $object.isEmpty(dataSource) == false) {
+                syn.uicontrols.$auigrid.setFitColumnSize(gridID);
             }
-            else {
-
-                if ($this.prop.gridInstance == null) {
-                    $this.prop.gridInstance = new Handsontable(syn.$l.querySelector(gridID), {
-                        readOnly: true,
-                        licenseKey: 'non-commercial-and-evaluation',
-                        data: dataSource,
-                        colHeaders: headers,
-                        rowHeaders: true
-                    });
-                }
-                else {
-                    var settings = $this.prop.gridInstance.getSettings();
-                    settings.data = dataSource;
-                    settings.colHeaders = headers;
-                    $this.prop.gridInstance.updateSettings(settings);
-                    $this.prop.gridInstance.render();
-                }
-            }
-        },
-    },
+        }
+    }
 }
