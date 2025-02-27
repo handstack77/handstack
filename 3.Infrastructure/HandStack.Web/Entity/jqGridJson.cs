@@ -3,7 +3,7 @@ using System.Data;
 
 namespace HandStack.Web.Entity
 {
-    public sealed class jqGridJson
+    public sealed record jqGridJson
     {
         public static List<jqGridJsonData> ToJsonObject(string fieldID, DataSet source)
         {
@@ -115,9 +115,9 @@ namespace HandStack.Web.Entity
         }
     }
 
-    public class jqGridJsonData
+    public record jqGridJsonData
     {
-        public class Row
+        public record Row
         {
             public string id { get; set; }
 

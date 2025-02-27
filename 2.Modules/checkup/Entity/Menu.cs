@@ -1,8 +1,8 @@
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace checkup.Entity
 {
-    public class Menu
+    public record Menu
     {
         public string menuID { get; set; } = "";
 

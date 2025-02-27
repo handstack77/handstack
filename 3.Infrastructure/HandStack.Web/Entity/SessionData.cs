@@ -2,7 +2,7 @@
 
 namespace HandStack.Web.Entity
 {
-    public partial class Variable
+    public partial record Variable
     {
         public Variable()
         {
@@ -20,7 +20,7 @@ namespace HandStack.Web.Entity
         public List<string> Roles { get; set; }
     }
 
-    public partial class Code
+    public partial record Code
     {
         public Code()
         {

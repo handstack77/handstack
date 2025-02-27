@@ -2,7 +2,7 @@
 
 namespace HandStack.Web.Entity
 {
-    public partial class PermissionRoles
+    public partial record PermissionRoles
     {
         [JsonProperty("RoleID")]
         public string RoleID { get; set; } = string.Empty;

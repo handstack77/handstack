@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 namespace prompter.Entity
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class PromptMap
+    public record PromptMap
     {
         [JsonProperty]
         public string ApplicationID { get; set; }

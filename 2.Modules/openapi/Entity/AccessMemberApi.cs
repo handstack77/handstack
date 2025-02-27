@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace openapi.Entity
 {
-    public partial class AccessMemberApi
+    public partial record AccessMemberApi
     {
         [JsonProperty("AccessID")]
         public string AccessID { get; set; } = string.Empty;

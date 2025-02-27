@@ -2,7 +2,7 @@
 
 namespace HandStack.Web.Entity
 {
-    public partial class DataSource
+    public partial record DataSource
     {
         [JsonProperty("ApplicationID")]
         public string ApplicationID { get; set; } = string.Empty;

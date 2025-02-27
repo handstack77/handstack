@@ -1,6 +1,6 @@
 ﻿namespace transact.Entity
 {
-    public class Input
+    public record Input
     {
         public string JsonObjectType { get; set; }
         public string CommandText { get; set; }

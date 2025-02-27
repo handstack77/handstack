@@ -5,7 +5,7 @@ using HandStack.Web.MessageContract.DataObject;
 
 namespace dbclient.Entity
 {
-    public class TransactionDynamicObjects
+    public record TransactionDynamicObjects
     {
         public QueryObject DynamicTransaction = new QueryObject();
         public StatementMap Statement = new StatementMap();
@@ -14,7 +14,7 @@ namespace dbclient.Entity
         public DataProviders DataProvider;
     }
 
-    public class DatabaseTransactionObjects
+    public record DatabaseTransactionObjects
     {
         public DataProviders DataProvider;
         public DatabaseFactory? ConnectionFactory;

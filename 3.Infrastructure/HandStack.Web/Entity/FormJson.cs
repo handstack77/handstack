@@ -3,7 +3,7 @@ using System.Data;
 
 namespace HandStack.Web.Entity
 {
-    public sealed class FormJson
+    public sealed record FormJson
     {
         public static List<FormJsonData> ToJsonObject(string fieldID, DataSet source)
         {
@@ -93,7 +93,7 @@ namespace HandStack.Web.Entity
         }
     }
 
-    public class FormJsonData
+    public record FormJsonData
     {
         public string ID { get; set; }
 

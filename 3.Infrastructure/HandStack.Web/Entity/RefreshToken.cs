@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace HandStack.Web.Entity
 {
-    public class RefreshToken
+    public record RefreshToken
     {
         [Key]
         public int RefreshTokenNo { get; set; }

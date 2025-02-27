@@ -14,7 +14,7 @@ namespace function.Entity
         }
     }
 
-    public class NodeScriptConfig
+    public record NodeScriptConfig
     {
         public string LocalStoragePath { get; set; }
 
@@ -51,7 +51,7 @@ namespace function.Entity
         }
     }
 
-    public class CSharpScriptConfig
+    public record CSharpScriptConfig
     {
         public bool EnableFileWatching { get; set; }
 
@@ -67,7 +67,7 @@ namespace function.Entity
         }
     }
 
-    public class PythonFunctionConfig
+    public record PythonFunctionConfig
     {
         public bool EnablePythonDLL { get; set; }
 
@@ -89,7 +89,7 @@ namespace function.Entity
         }
     }
 
-    public class FunctionSource
+    public record FunctionSource
     {
         public string ApplicationID { get; set; }
 
@@ -123,7 +123,7 @@ namespace function.Entity
         }
     }
 
-    public class ModuleConfig
+    public record ModuleConfig
     {
         public string AuthorizationKey { get; set; }
 

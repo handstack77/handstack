@@ -1,6 +1,6 @@
-namespace checkup.Entity
+﻿namespace checkup.Entity
 {
-    public class AuthenticateResponse
+    public record AuthenticateResponse
     {
         public string ErrorMessage { get; set; } = string.Empty;
 

@@ -4,7 +4,7 @@ using HandStack.Data;
 
 namespace dbclient.Entity
 {
-    public class DataSourceMap
+    public record DataSourceMap
     {
         public string ApplicationID { get; set; }
 

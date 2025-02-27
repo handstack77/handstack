@@ -1,8 +1,8 @@
-using System;
+﻿using System;
 
 namespace checkup.Entity
 {
-	public class ClientToken
+	public record ClientToken
     {
         public string ClientIP = "";
         public DateTime LastedDownloadTime;

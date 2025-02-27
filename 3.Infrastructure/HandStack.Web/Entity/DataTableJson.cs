@@ -2,7 +2,7 @@
 
 namespace HandStack.Web.Entity
 {
-    public sealed class DataTableJson
+    public sealed record DataTableJson
     {
         public static DataTableJsonData ToJsonObject(string fieldID, DataTable source)
         {
@@ -14,7 +14,7 @@ namespace HandStack.Web.Entity
         }
     }
 
-    public class DataTableJsonData
+    public record DataTableJsonData
     {
         public DataTableJsonData()
         {

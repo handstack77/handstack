@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 namespace dbclient.Entity
 {
     [JsonObject(MemberSerialization.OptIn)]
-    public class StatementMap
+    public record StatementMap
     {
         [JsonProperty]
         public string ApplicationID { get; set; }

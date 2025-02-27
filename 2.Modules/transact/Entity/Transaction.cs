@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace transact.Entity
 {
-    public partial class Transaction
+    public partial record Transaction
     {
         public string TX_ID { get; set; }
         public string ProjectID { get; set; }

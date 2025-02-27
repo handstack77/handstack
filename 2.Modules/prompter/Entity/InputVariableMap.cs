@@ -1,6 +1,6 @@
 ﻿namespace prompter.Entity
 {
-    public class InputVariableMap
+    public record InputVariableMap
     {
         public string Name { get; set; }
 

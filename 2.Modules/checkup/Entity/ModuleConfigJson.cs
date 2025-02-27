@@ -14,7 +14,7 @@ namespace checkup.Entity
         }
     }
 
-    public class ModuleConfig
+    public record ModuleConfig
     {
         public string AuthorizationKey { get; set; }
 

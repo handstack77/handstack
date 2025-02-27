@@ -7,7 +7,7 @@ using prompter.Enumeration;
 
 namespace prompter.Entity
 {
-    public class TransactionDynamicObjects
+    public record TransactionDynamicObjects
     {
         public QueryObject DynamicTransaction = new QueryObject();
         public PromptMap Statement = new PromptMap();

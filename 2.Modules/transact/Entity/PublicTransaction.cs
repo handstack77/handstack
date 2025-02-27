@@ -1,6 +1,6 @@
 ﻿namespace transact.Entity
 {
-    public class PublicTransaction
+    public record PublicTransaction
     {
         public string ApplicationID { get; set; }
         public string ProjectID { get; set; }

@@ -4,7 +4,7 @@ using dbclient.Extensions;
 
 namespace dbclient.Entity
 {
-    public class SQLMapMeta
+    public record SQLMapMeta
     {
         public List<StatementMap> Statements = new List<StatementMap>();
         public Dictionary<string, string> DefinedSQL = new Dictionary<string, string>();

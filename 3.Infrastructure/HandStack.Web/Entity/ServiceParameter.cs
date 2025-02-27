@@ -5,7 +5,7 @@ using HandStack.Web.Extensions;
 
 namespace HandStack.Web.Entity
 {
-    public class ServiceParameter
+    public record ServiceParameter
     {
         public ServiceParameter()
         {

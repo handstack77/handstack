@@ -1,8 +1,8 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace checkup.Entity
 {
-    public class EnvironmentSetting
+    public record EnvironmentSetting
     {
         public Application Application { get; set; } = new Application();
 
@@ -13,7 +13,7 @@ namespace checkup.Entity
         public Definition Definition { get; set; } = new Definition();
     }
 
-    public class Application
+    public record Application
     {
         public string LoaderPath { get; set; } = string.Empty;
 
@@ -22,7 +22,7 @@ namespace checkup.Entity
         public string CodeHelpID { get; set; } = string.Empty;
     }
 
-    public class Definition
+    public record Definition
     {
         public List<string> Styles { get; set; } = new List<string>();
 

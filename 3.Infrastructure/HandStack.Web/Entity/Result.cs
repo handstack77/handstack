@@ -2,7 +2,7 @@
 
 namespace HandStack.Web.Entity
 {
-    public partial class EntityResult
+    public partial record EntityResult
     {
         [JsonProperty("error")]
         public string ErrorText { get; set; } = string.Empty;

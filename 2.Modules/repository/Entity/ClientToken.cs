@@ -2,7 +2,7 @@
 
 namespace repository.Entity
 {
-	public class ClientToken
+	public record ClientToken
     {
         public ClientToken() {
             ClientIP = "";

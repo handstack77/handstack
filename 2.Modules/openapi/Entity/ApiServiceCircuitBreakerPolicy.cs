@@ -4,7 +4,7 @@ using Polly.CircuitBreaker;
 
 namespace openapi.Entity
 {
-    public class ApiServiceCircuitBreakerPolicy
+    public record ApiServiceCircuitBreakerPolicy
     {
         public CircuitBreakerPolicy? ApplicationCircuitBreaker;
         public CircuitState ApplicationCircuitState;

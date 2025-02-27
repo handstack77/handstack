@@ -4,7 +4,7 @@ using Polly.CircuitBreaker;
 
 namespace logger.Entity
 {
-    public class ApplicationCircuitBreakerPolicy
+    public record ApplicationCircuitBreakerPolicy
     {
         public CircuitBreakerPolicy? ApplicationCircuitBreaker;
         public CircuitState ApplicationCircuitState;

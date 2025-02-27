@@ -1,6 +1,6 @@
 ﻿namespace dbclient.Entity
 {
-    public class DataSourceTanantKey
+    public record DataSourceTanantKey
     {
         public string DataSourceID { get; set; }
 

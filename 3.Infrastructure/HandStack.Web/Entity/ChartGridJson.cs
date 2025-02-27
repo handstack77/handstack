@@ -3,7 +3,7 @@ using System.Data;
 
 namespace HandStack.Web.Entity
 {
-    public sealed class ChartGridJson
+    public sealed record ChartGridJson
     {
         public static ChartJsonData ToJsonObject(string fieldID, DataTable source)
         {
@@ -30,7 +30,7 @@ namespace HandStack.Web.Entity
         }
     }
 
-    public class ChartJsonData
+    public record ChartJsonData
     {
         public string ID { get; set; }
 

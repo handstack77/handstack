@@ -1,6 +1,6 @@
 ﻿namespace dbclient.Entity
 {
-    public class DbParameterMap
+    public record DbParameterMap
     {
         public string Name { get; set; }
 

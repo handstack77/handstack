@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace HandStack.Web.Entity
 {
-    public class TransactionClientObject
+    public record TransactionClientObject
     {
         [JsonProperty(Required = Required.DisallowNull)]
         public string ProgramID { get; set; }

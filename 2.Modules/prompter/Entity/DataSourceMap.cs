@@ -4,7 +4,7 @@ using prompter.Enumeration;
 
 namespace prompter.Entity
 {
-    public class DataSourceMap
+    public record DataSourceMap
     {
         public string ApplicationID { get; set; }
 

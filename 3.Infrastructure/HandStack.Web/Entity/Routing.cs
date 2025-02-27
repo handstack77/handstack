@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace HandStack.Web.Entity
 {
-    public partial class Routing
+    public partial record Routing
     {
         [JsonProperty("ApplicationID")]
         public string ApplicationID { get; set; } = string.Empty;

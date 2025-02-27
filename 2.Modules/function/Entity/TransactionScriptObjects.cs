@@ -2,7 +2,7 @@
 
 namespace function.Entity
 {
-    public class TransactionScriptObjects
+    public record TransactionScriptObjects
     {
         public QueryObject DynamicObject = new QueryObject();
         public ModuleScriptMap ModuleScriptMap = new ModuleScriptMap();

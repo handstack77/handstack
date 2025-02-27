@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace HandStack.Web.Entity
 {
-    public partial class AppSettings
+    public partial record AppSettings
     {
         [JsonProperty("ApplicationNo")]
         public string ApplicationNo { get; set; } = string.Empty;
@@ -70,7 +70,7 @@ namespace HandStack.Web.Entity
         public List<AppPublish>? Publish { get; set; } = new List<AppPublish>();
     }
 
-    public partial class AppPublic
+    public partial record AppPublic
     {
         [JsonProperty("ProjectID")]
         public string ProjectID { get; set; } = string.Empty;
@@ -82,7 +82,7 @@ namespace HandStack.Web.Entity
         public string Comment { get; set; } = string.Empty;
     }
 
-    public partial class AppPublish
+    public partial record AppPublish
     {
         [JsonProperty("DeployID")]
         public string DeployID { get; set; } = string.Empty;
@@ -106,7 +106,7 @@ namespace HandStack.Web.Entity
         public string Comment { get; set; } = string.Empty;
     }
 
-    public partial class AppReceive
+    public partial record AppReceive
     {
         [JsonProperty("DomainID")]
         public string DomainID { get; set; } = string.Empty;
@@ -124,7 +124,7 @@ namespace HandStack.Web.Entity
         public string ProtocolName { get; set; } = string.Empty;
     }
 
-    public partial class AppStorage
+    public partial record AppStorage
     {
         [JsonProperty("ApplicationID")]
         public string ApplicationID { get; set; } = string.Empty;

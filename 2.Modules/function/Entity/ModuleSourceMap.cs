@@ -4,7 +4,7 @@ using HandStack.Data;
 
 namespace function.Entity
 {
-    public class ModuleSourceMap
+    public record ModuleSourceMap
     {
         public List<string> ProjectListID { get; set; } = new List<string>();
 

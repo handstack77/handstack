@@ -2,7 +2,7 @@
 
 namespace HandStack.Web.Entity
 {
-    public partial class Repository
+    public partial record Repository
     {
         public string ApplicationID { get; set; } = "";
 

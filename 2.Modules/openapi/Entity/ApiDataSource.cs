@@ -2,7 +2,7 @@
 
 namespace openapi.Entity
 {
-    public partial class ApiDataSource
+    public partial record ApiDataSource
     {
         [JsonProperty("DataSourceID")]
         public string DataSourceID { get; set; } = string.Empty;
