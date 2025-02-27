@@ -20,6 +20,113 @@ namespace HandStack.Core
         public const BindingFlags memberAccess = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance | BindingFlags.IgnoreCase;
         public const BindingFlags memberPublicInstanceAccess = BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase;
 
+        // Reflector.AssertLicenseStaticAction(ModuleConfiguration.ModuleID, typeof(MyStaticService), "MyStaticMethod", "example parameter");
+        public static void AssertLicenseStaticAction(string moduleID, Type targetType, string methodName, params object[] parameters)
+        {
+            // LicenseValidator.AssertValidLicense();
+            // ModuleConfiguration.HandleInvalidLicenseKey();
+
+            var method = targetType.GetMethod(methodName, BindingFlags.Static | BindingFlags.Public);
+            if (method == null)
+            {
+                throw new ArgumentException($"대상 {targetType.Name}에서 메서드 {methodName}을(를) 찾을 수 없습니다.");
+            }
+
+            var parameterInfos = method.GetParameters();
+            if (parameterInfos.Length != parameters.Length)
+            {
+                throw new ArgumentException("매개변수 개수가 일치하지 않습니다.");
+            }
+
+            var matchedParameters = new object[parameterInfos.Length];
+            for (int i = 0; i < parameterInfos.Length; i++)
+            {
+                matchedParameters[i] = Convert.ChangeType(parameters[i], parameterInfos[i].ParameterType);
+            }
+
+            method.Invoke(null, matchedParameters);
+        }
+
+        // var result = Reflector.AssertLicenseStaticFunc<string>(ModuleConfiguration.ModuleID, typeof(MyStaticService), "MyStaticMethod", "example parameter");
+        public static TResult? AssertLicenseStaticFunc<TResult>(string moduleID, Type targetType, string methodName, params object[] parameters)
+        {
+            // LicenseValidator.AssertValidLicense();
+
+            var method = targetType.GetMethod(methodName, BindingFlags.Static | BindingFlags.Public);
+            if (method == null)
+            {
+                throw new ArgumentException($"대상 {targetType.Name}에서 메서드 {methodName}을(를) 찾을 수 없습니다.");
+            }
+
+            var parameterInfos = method.GetParameters();
+            if (parameterInfos.Length != parameters.Length)
+            {
+                throw new ArgumentException("매개변수 개수가 일치하지 않습니다.");
+            }
+
+            var matchedParameters = new object[parameterInfos.Length];
+            for (int i = 0; i < parameterInfos.Length; i++)
+            {
+                matchedParameters[i] = Convert.ChangeType(parameters[i], parameterInfos[i].ParameterType);
+            }
+
+            return (TResult?)method.Invoke(null, matchedParameters);
+        }
+
+        // var service = new MyService();
+        // Reflector.AssertLicenseAction(ModuleConfiguration.ModuleID, service, "MyMethod", "example parameter");
+        public static void AssertLicenseAction(string moduleID, object target, string methodName, params object[] parameters)
+        {
+            // LicenseValidator.AssertValidLicense();
+
+            var method = target.GetType().GetMethod(methodName);
+            if (method == null)
+            {
+                throw new ArgumentException($"대상 {target.GetType().Name}에서 메서드 {methodName}을(를) 찾을 수 없습니다.");
+            }
+
+            var parameterInfos = method.GetParameters();
+            if (parameterInfos.Length != parameters.Length)
+            {
+                throw new ArgumentException("매개변수 개수가 일치하지 않습니다.");
+            }
+
+            var matchedParameters = new object[parameterInfos.Length];
+            for (int i = 0; i < parameterInfos.Length; i++)
+            {
+                matchedParameters[i] = Convert.ChangeType(parameters[i], parameterInfos[i].ParameterType);
+            }
+
+            method.Invoke(target, matchedParameters);
+        }
+
+        // var service = new MyService();
+        // var result = Reflector.AssertLicenseFunc<string>(ModuleConfiguration.ModuleID, [this|service], "MyMethod", "example parameter");
+        public static TResult? AssertLicenseFunc<TResult>(string moduleID, object target, string methodName, params object[] parameters)
+        {
+            // LicenseValidator.AssertValidLicense();
+
+            var method = target.GetType().GetMethod(methodName);
+            if (method == null)
+            {
+                throw new ArgumentException($"대상 {target.GetType().Name}에서 메서드 {methodName}을(를) 찾을 수 없습니다.");
+            }
+
+            var parameterInfos = method.GetParameters();
+            if (parameterInfos.Length != parameters.Length)
+            {
+                throw new ArgumentException("매개변수 개수가 일치하지 않습니다.");
+            }
+
+            var matchedParameters = new object[parameterInfos.Length];
+            for (int i = 0; i < parameterInfos.Length; i++)
+            {
+                matchedParameters[i] = Convert.ChangeType(parameters[i], parameterInfos[i].ParameterType);
+            }
+
+            return (TResult?)method.Invoke(target, matchedParameters);
+        }
+
         public List<string> GetTraceMethods()
         {
             List<string> traceMethods = new List<string>();

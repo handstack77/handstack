@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
+using HandStack.Core;
 using HandStack.Core.ExtensionMethod;
 using HandStack.Web;
 using HandStack.Web.ApiClient;
@@ -21,6 +22,8 @@ using Newtonsoft.Json;
 using Serilog;
 
 using Sqids;
+
+using wwwroot.Entity;
 
 namespace wwwroot.Areas.wwwroot.Controllers
 {
@@ -169,6 +172,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
         [HttpGet("[action]")]
         public string SHA256Hash(string text)
         {
+            var result = Reflector.AssertLicenseStaticFunc<string>(ModuleConfiguration.ModuleID, typeof(ModuleConfiguration), "MyStaticMethod", "example parameter");
             return text.ToSHA256();
         }
 

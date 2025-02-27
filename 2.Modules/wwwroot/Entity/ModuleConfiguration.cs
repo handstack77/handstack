@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace wwwroot.Entity
 {
@@ -23,5 +24,11 @@ namespace wwwroot.Entity
         public static int DefaultCommandTimeout = 30;
         public static Dictionary<string, List<string>> TenantAppOrigins = new Dictionary<string, List<string>>();
         public static Dictionary<string, List<string>> TenantAppReferers = new Dictionary<string, List<string>>();
+
+        public static string MyStaticMethod(string parameter)
+        {
+            Console.WriteLine($"MyStaticMethod called with parameter: {parameter}");
+            return parameter;
+        }
     }
 }
