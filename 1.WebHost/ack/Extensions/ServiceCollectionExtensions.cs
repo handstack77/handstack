@@ -111,7 +111,7 @@ namespace ack.Extensions
                         else
                         {
                             string filePath = file.FullName.Replace("\\", "/").Replace(moduleBasePath, "");
-                            if (module.LoadPassAssemblyPath.Contains(filePath) == false)
+                            if (ShouldSkipLoading(module.LoadPassAssemblyPath, filePath) == false)
                             {
                                 assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(file.FullName.Replace("\\", "/"));
                             }
@@ -133,7 +133,7 @@ namespace ack.Extensions
 
                         if (tryToLoadAssemblyVersion != loadedAssemblyVersion)
                         {
-                            throw new Exception($"Cannot load {file.FullName.Replace("\\", "/")} {tryToLoadAssemblyVersion} because {assembly.Location} {loadedAssemblyVersion} has been loaded");
+                            throw new Exception($"파일 {file.FullName.Replace("\\", "/")} {tryToLoadAssemblyVersion}을(를) 로드할 수 없습니다. 이미 {assembly.Location} {loadedAssemblyVersion}이(가) 로드되었습니다.");
                         }
                     }
 
@@ -143,6 +143,27 @@ namespace ack.Extensions
                     }
                 }
             }
+        }
+
+        private static bool ShouldSkipLoading(List<string> paths, string filePath)
+        {
+            foreach (var path in paths)
+            {
+                if (path == filePath)
+                {
+                    return true;
+                }
+
+                if (path.EndsWith("/**") == true)
+                {
+                    string directoryPath = path.Replace("/**", "");
+                    if (filePath.StartsWith(directoryPath) == true)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
     }
 }
