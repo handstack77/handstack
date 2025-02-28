@@ -1352,6 +1352,10 @@ namespace ack
                         Log.Logger.Warning(exception, "[{LogCategory}] " + $"HostAccessID 확인 오류", $"Startup/GetHostAccessID");
                     }
                 }
+                else
+                {
+                    result = hostAccessID;
+                }
             }
 
             return result.ToSHA256();
@@ -1389,6 +1393,10 @@ namespace ack
                     {
                         Log.Logger.Warning(exception, "[{LogCategory}] " + $"HardwareID 확인 오류", $"Startup/GetHostAccessID");
                     }
+                }
+                else
+                {
+                    result = GlobalConfiguration.HostAccessID;
                 }
             }
 
