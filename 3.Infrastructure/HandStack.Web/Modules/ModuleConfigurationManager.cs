@@ -109,7 +109,8 @@ namespace HandStack.Web.Modules
                                 List<string> keyValues = new List<string>();
                                 foreach (var item in module.LoadPassAssemblyPath)
                                 {
-                                    keyValues.Add(item.ToString());
+                                    var passAssemblyPath = PathExtensions.Join(moduleBasePath, item);
+                                    keyValues.Add(passAssemblyPath);
                                 }
 
                                 moduleInfo.LoadPassAssemblyPath = keyValues;

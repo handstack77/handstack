@@ -104,13 +104,13 @@ namespace ack.Extensions
                     Assembly? assembly = null;
                     try
                     {
-                        if (file.FullName.Replace("\\", "/").IndexOf($"{Path.DirectorySeparatorChar}runtimes{Path.DirectorySeparatorChar}") > -1)
+                        if (file.FullName.Replace("\\", "/").IndexOf($"/runtimes/") > -1)
                         {
                      
                         }
                         else
                         {
-                            string filePath = file.FullName.Replace("\\", "/").Replace(moduleBasePath, "").Replace(Path.DirectorySeparatorChar, '/');
+                            string filePath = file.FullName.Replace("\\", "/").Replace(moduleBasePath, "");
                             if (module.LoadPassAssemblyPath.Contains(filePath) == false)
                             {
                                 assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(file.FullName.Replace("\\", "/"));
