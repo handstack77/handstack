@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace HandStack.Web.Entity
 {
-    public record UserAccount
+    public class UserAccount
     {
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string? UserAccountID { get; set; } = string.Empty;
