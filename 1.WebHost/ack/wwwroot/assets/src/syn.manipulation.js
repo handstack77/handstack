@@ -6,8 +6,6 @@
     var document = context.document;
 
     $manipulation.extend({
-        version: '1.0.0',
-
         body() {
             return document;
         },

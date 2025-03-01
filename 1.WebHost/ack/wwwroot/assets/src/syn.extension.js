@@ -110,7 +110,6 @@
     })();
 
     $date.extend({
-        version: '1.0.0',
         interval: {
             year: 1000 * 60 * 60 * 24 * 365,
             week: 1000 * 60 * 60 * 24 * 7,
@@ -497,8 +496,6 @@
     context.$date = $date;
 
     $string.extend({
-        version: '1.0.0',
-
         toValue(value, defaultValue) {
             var result = '';
             if ($object.isNullOrUndefined(value) == true) {
@@ -837,8 +834,6 @@
     context.$string = $string;
 
     $array.extend({
-        version: '1.0.0',
-
         distinct(arr) {
             var derived = [];
             for (var i = 0, len = arr.length; i < len; i++) {
@@ -1091,8 +1086,6 @@
     context.$array = $array;
 
     $number.extend({
-        version: '1.0.0',
-
         duration(ms) {
             if (ms < 0) ms = -ms;
             var time = {
@@ -1164,8 +1157,6 @@
     context.$number = $number;
 
     $object.extend({
-        version: '1.0.0',
-
         isNullOrUndefined(val) {
             if (val === undefined || val === null) {
                 return true;

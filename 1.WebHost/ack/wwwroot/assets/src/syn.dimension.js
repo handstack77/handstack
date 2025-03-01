@@ -7,8 +7,6 @@
     var document = context.document;
 
     $dimension.extend({
-        version: '1.0.0',
-
         getDocumentSize(isTopWindow) {
             isTopWindow = $string.toBoolean(isTopWindow);
             var currentDocument = isTopWindow == true ? top.document : context.document;

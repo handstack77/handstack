@@ -6,7 +6,6 @@
     var $validation = context.$validation || new syn.module();
 
     $validation.extend({
-        version: '1.0.0',
         isContinue: true,
         messages: [],
         targetEL: null,

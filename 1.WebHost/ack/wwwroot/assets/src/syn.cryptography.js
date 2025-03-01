@@ -5,8 +5,6 @@
     var $cryptography = context.$cryptography || new syn.module();
 
     $cryptography.extend({
-        version: '1.0.0',
-
         base64Encode(val) {
             if (globalRoot.devicePlatform === 'node') {
                 return Buffer.from(val).toString('base64');

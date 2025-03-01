@@ -12,7 +12,6 @@
     }
 
     $request.extend({
-        version: '1.0.0',
         params: {},
         path: (globalRoot.devicePlatform === 'node') ? '' : location.pathname,
 

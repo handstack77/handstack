@@ -6,7 +6,6 @@
     var document = context.document;
 
     $resource.extend({
-        version: '1.0.0',
         localeID: 'ko-KR',
         fullyQualifiedLocale: {
             ko: 'ko-KR',

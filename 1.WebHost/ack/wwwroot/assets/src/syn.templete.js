@@ -7,8 +7,6 @@
     var document = context.document;
 
     $templete.extend({
-        version: '1.0.0',
-
         method() {
             return $templete;
         }

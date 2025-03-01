@@ -6,8 +6,6 @@
     var document = context.document;
 
     $browser.extend({
-        version: '1.0.0',
-
         appName: navigator.appName,
         appCodeName: navigator.appCodeName,
         appVersion: navigator.appVersion,

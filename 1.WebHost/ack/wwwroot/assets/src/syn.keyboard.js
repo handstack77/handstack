@@ -6,8 +6,6 @@
     var $keyboard = context.$keyboard || new syn.module();
 
     $keyboard.extend({
-        version: '1.0.0',
-
         keyCodes: {
             'backspace': 8,
             'tab': 9,

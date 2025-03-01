@@ -23,7 +23,6 @@
     }
 
     $library.extend({
-        version: '1.0.0',
         prefixs: ['webkit', 'moz', 'ms', 'o', ''],
 
         eventMap: {

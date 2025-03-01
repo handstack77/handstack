@@ -6,8 +6,6 @@
     var document = context.document;
 
     $network.extend({
-        version: '1.0.0',
-
         myChannelID: null,
         connections: [],
         concreate($network) {

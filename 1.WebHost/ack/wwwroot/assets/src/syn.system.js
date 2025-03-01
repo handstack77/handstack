@@ -1,15 +1,10 @@
 ﻿/// <reference path='syn.core.js' />
 
-/// <summary>
-/// AP Node.js 전용 라이브러리
-/// </summary>
 (function (context) {
     'use strict';
     var $system = context.$system || new syn.module();
 
     $system.extend({
-        version: '1.0.0',
-
         getDataSource(moduleID, dataSourceID, callback) {
             if (!callback) {
                 throw new Error('callback 함수 정의 필요');
