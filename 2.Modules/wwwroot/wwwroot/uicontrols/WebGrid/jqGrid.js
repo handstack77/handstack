@@ -239,7 +239,7 @@
 
     $jqgrid.extend({
         name: 'syn.uicontrols.$jqgrid',
-        version: '1.0.0',
+        version: 'v2025.3.1',
 
         sortDatas: [],
         selectOptions: [],

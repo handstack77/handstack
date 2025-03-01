@@ -7,7 +7,7 @@
 
     $organization.extend({
         name: 'syn.uicontrols.$organization',
-        version: '1.0',
+        version: 'v2025.3.1',
         organizationControls: [],
         eventHooks: [
             'nodedrop',

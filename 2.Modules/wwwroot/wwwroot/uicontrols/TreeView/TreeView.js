@@ -7,7 +7,7 @@
 
     $tree.extend({
         name: 'syn.uicontrols.$tree',
-        version: '1.0.0',
+        version: 'v2025.3.1',
         treeControls: [],
         eventHooks: [
             'blurTree',

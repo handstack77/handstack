@@ -7,7 +7,7 @@
 
     $datepicker.extend({
         name: 'syn.uicontrols.$datepicker',
-        version: '1.0.0',
+        version: 'v2025.3.1',
         dateControls: [],
         defaultSetting: {
             elID: '',

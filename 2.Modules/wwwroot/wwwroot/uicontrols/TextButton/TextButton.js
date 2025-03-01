@@ -1,4 +1,4 @@
-/// <reference path="/js/syn.js" />
+﻿/// <reference path="/js/syn.js" />
 
 (function (window) {
     'use strict';
@@ -7,7 +7,7 @@
 
     $button.extend({
         name: 'syn.uicontrols.$button',
-        version: '1.0.0',
+        version: 'v2025.3.1',
         defaultSetting: {
             color: 'default',
             toSynControl: false,

@@ -7,7 +7,7 @@
 
     $element.extend({
         name: 'syn.uicontrols.$element',
-        version: '1.0.0',
+        version: 'v2025.3.1',
         defaultSetting: {
             contents: '',
             disabled: false,

@@ -7,7 +7,7 @@
 
     $checkbox.extend({
         name: 'syn.uicontrols.$checkbox',
-        version: '1.0.0',
+        version: 'v2025.3.1',
         defaultSetting: {
             contents: '',
             toSynControl: false,

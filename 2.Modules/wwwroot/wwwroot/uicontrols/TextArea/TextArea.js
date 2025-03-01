@@ -7,7 +7,7 @@
 
     $textarea.extend({
         name: 'syn.uicontrols.$textarea',
-        version: '1.0.0',
+        version: 'v2025.3.1',
         textControls: [],
         defaultSetting: {
             width: '100%',

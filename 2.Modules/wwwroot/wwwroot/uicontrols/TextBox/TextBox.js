@@ -8,7 +8,7 @@
 
     $textbox.extend({
         name: 'syn.uicontrols.$textbox',
-        version: '1.0.0',
+        version: 'v2025.3.1',
         defaultSetting: {
             editType: 'text',
             formatNumber: true,

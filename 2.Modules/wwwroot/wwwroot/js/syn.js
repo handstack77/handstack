@@ -1,10 +1,11 @@
 /*!
-HandStack Javascript Library v1.0.0
-https://syn.handshake.kr
+HandStack Javascript Library v2025.3.1
+https://handshake.kr
 
-Copyright 2023, HandStack
+Copyright 2025, HandStack
 */
-var getGlobal = function () {
+
+const getGlobal = () => {
     if (typeof globalThis !== 'undefined') return globalThis;
     if (typeof self !== 'undefined') return self;
     if (typeof window !== 'undefined') return window;
@@ -13,185 +14,237 @@ var getGlobal = function () {
     throw new Error('전역 객체를 찾을 수 없습니다');
 };
 
-var globalRoot = getGlobal();
+const globalRoot = getGlobal();
+
 globalRoot.devicePlatform = 'browser';
 if ('AndroidScript' in globalRoot) {
     globalRoot.devicePlatform = 'android';
-}
-else if ('webkit' in globalRoot) {
+} else if ('webkit' in globalRoot) {
     globalRoot.devicePlatform = 'ios';
-}
-else if ('process' in globalRoot && typeof module === 'object') {
+} else if ('process' in globalRoot && typeof module === 'object') {
     globalRoot.devicePlatform = 'node';
 }
 
-var syn = syn || function () { };
-syn.module = function () { };
-syn.module.extend = function (newType, staticType) {
-    var extend = syn.module.prototype.extend;
-
-    syn.module.prototyping = true;
-    var prototype = new this;
-
-    extend.call(prototype, newType);
-
-    prototype.base = function () {
-    };
-
-    delete syn.module.prototyping;
-
-    var constructor = prototype.constructor;
-    var object = prototype.constructor = function () {
-        if (!syn.module.prototyping) {
-            if (this.constructing || this.constructor == object) {
-                this.constructing = true;
-                constructor.apply(this, arguments);
-
-                delete this.constructing;
-            }
-            else if (arguments[0] != null) {
-                return (arguments[0].extend || extend).call(arguments[0], prototype);
-            }
+class Module {
+    constructor(config) {
+        if (config) {
+            this.extend(config);
         }
-    };
-
-    object.ancestor = this;
-    object.extend = this.extend;
-    object.each = this.each;
-    object.implement = this.implement;
-    object.prototype = prototype;
-    object.toString = this.toString;
-    object.valueOf = function (type) {
-        return (type == 'object') ? object : constructor.valueOf();
     }
 
-    extend.call(object, staticType);
+    concreate() { }
 
-    if (typeof object.init == 'function') {
-        object.init();
-    }
-
-    return object;
-};
-
-syn.module.prototype = {
     extend(source, val) {
         if (arguments.length > 1) {
-            var ancestor = this[source];
-            if (ancestor && (typeof val == 'function') && (!ancestor.valueOf || ancestor.valueOf() != val.valueOf()) && /\bbase\b/.test(val)) {
-                var method = val.valueOf();
+            const ancestor = this[source];
+            if (
+                ancestor &&
+                typeof val === 'function' &&
+                (!ancestor.valueOf || ancestor.valueOf() !== val.valueOf()) &&
+                /\bbase\b/.test(val)
+            ) {
+                const method = val.valueOf();
 
                 val = function () {
-                    var previous = this.base || syn.module.prototype.base;
+                    const previous = this.base || Module.prototype.base;
                     this.base = ancestor;
-                    var returnValue = method.apply(this, arguments);
+                    const returnValue = method.apply(this, arguments);
                     this.base = previous;
                     return returnValue;
                 };
 
-                val.valueOf = function (type) {
-                    return (type == 'object') ? val : method;
-                };
-
-                val.toString = syn.module.toString;
+                val.valueOf = (type) => (type === 'object' ? val : method);
+                val.toString = Module.toString;
             }
 
             if (source === 'config') {
-                var argumentsExtend = function () {
-                    var extended = {};
-
-                    for (var key in arguments) {
-                        var argument = arguments[key];
-                        for (var prop in argument) {
-                            if (Object.prototype.hasOwnProperty.call(argument, prop)) {
-                                extended[prop] = argument[prop];
+                const argumentsExtend = (...args) => {
+                    const extended = {};
+                    for (const arg of args) {
+                        for (const prop in arg) {
+                            if (Object.prototype.hasOwnProperty.call(arg, prop)) {
+                                extended[prop] = arg[prop];
                             }
                         }
                     }
-
                     return extended;
-                }
+                };
 
                 this[source] = argumentsExtend(this[source], val);
-            }
-            else {
+            } else {
                 this[source] = val;
             }
-        }
-        else if (source) {
-            var extend = syn.module.prototype.extend;
+        } else if (source) {
+            let extend = Module.prototype.extend;
 
-            if (!syn.module.prototyping && typeof this != 'function') {
+            if (!Module.prototyping && typeof this !== 'function') {
                 extend = this.extend || extend;
             }
-            var prototype = { toSource: null }
-            var hidden = ['constructor', 'toString', 'valueOf', 'concreate'];
-            var i = syn.module.prototyping ? 0 : 1;
-            while (key = hidden[i++]) {
+
+            const prototype = { toSource: null };
+            const hidden = ['constructor', 'toString', 'valueOf', 'concreate'];
+            let i = Module.prototyping ? 0 : 1;
+            let key;
+
+            while ((key = hidden[i++])) {
                 if (source[key] != prototype[key]) {
                     extend.call(this, key, source[key]);
                 }
             }
 
-            for (var key in source) {
+            for (const key in source) {
                 if (!prototype[key]) {
                     extend.call(this, key, source[key]);
                 }
             }
 
-            var concreate = source['concreate'];
+            const concreate = source['concreate'];
             if (concreate) {
                 concreate(source);
             }
         }
         return this;
     }
+
+    base() { }
+
+    static extend(newType, staticType) {
+        Module.prototyping = true;
+        const prototype = new this();
+
+        prototype.extend(newType);
+        prototype.base = function () { };
+
+        delete Module.prototyping;
+
+        const constructor = prototype.constructor;
+        const object = prototype.constructor = function () {
+            if (!Module.prototyping) {
+                if (this.constructing || this.constructor === object) {
+                    this.constructing = true;
+                    constructor.apply(this, arguments);
+                    delete this.constructing;
+                } else if (arguments[0] != null) {
+                    return (arguments[0].extend || Module.prototype.extend).call(arguments[0], prototype);
+                }
+            }
+        };
+
+        object.ancestor = this;
+        object.extend = this.extend;
+        object.each = this.each;
+        object.implement = this.implement;
+        object.prototype = prototype;
+        object.toString = this.toString;
+        object.valueOf = (type) => (type === 'object' ? object : constructor.valueOf());
+
+        object.extend(staticType);
+
+        if (typeof object.init === 'function') {
+            object.init();
+        }
+
+        return object;
+    }
+
+    static each(elements, func, props) {
+        if (func === undefined || func.length === 0) {
+            return;
+        }
+
+        for (const key in elements) {
+            if (typeof elements[key] === 'object') {
+                func.apply(elements[key], props);
+            }
+        }
+    }
+
+    static implement(...args) {
+        for (let i = 0; i < args.length; i++) {
+            if (typeof args[i] === 'function') {
+                args[i](this.prototype);
+            } else {
+                this.prototype.extend(args[i]);
+            }
+        }
+        return this;
+    }
+
+    static toString() {
+        return String(this.valueOf());
+    }
+}
+
+Module.ancestor = Object;
+Module.version = 'v2025.3.1';
+
+const syn = { Module };
+syn.Config = {
+    SystemID: 'HANDSTACK',
+    ApplicationID: 'HDS',
+    ProjectID: 'SYS',
+    SystemVersion: '1.0.0',
+    TransactionTimeout: 180000,
+    HostName: 'WebClient',
+    UIEventLogLevel: 'Verbose',
+    IsLocaleTranslations: false,
+    LocaleAssetUrl: '/assets/shared/language/',
+    AssetsCachingID: 'cache-id',
+    IsClientCaching: true,
+    IsDebugMode: false,
+    IsBundleLoad: false,
+    ContractRequestPath: 'view',
+    TenantAppRequestPath: 'app',
+    SharedAssetUrl: '/assets/shared/',
+    IsApiFindServer: false,
+    DiscoveryApiServerUrl: '',
+    ReportServer: '',
+    FileManagerServer: 'http://localhost:8000',
+    FindClientIPServer: '/checkip',
+    FindGlobalIDServer: '',
+    FileServerType: 'L',
+    FileBusinessIDSource: 'None',
+    CookiePrefixName: 'HandStack',
+    Environment: 'Development',
+    DomainAPIServer: {
+        ServerID: 'SERVERD01',
+        ServerType: 'D',
+        Protocol: 'http',
+        IP: 'localhost',
+        Port: '8000',
+        Path: '/transact/api/transaction/execute',
+        ClientIP: 'localhost'
+    },
+    Program: {
+        ProgramName: 'ack',
+        ProgramVersion: '1.0.0',
+        LanguageID: 'ko',
+        LocaleID: 'ko-KR',
+        BranchCode: ''
+    },
+    Transaction: {
+        ProtocolVersion: '001',
+        SimulationType: 'P',
+        DataFormat: 'J',
+        MachineTypeID: 'WEB',
+        EncryptionType: 'P',
+        EncryptionKey: 'G',
+        CompressionYN: 'N'
+    },
+    EnvironmentSetting: {
+        Application: {
+            LoaderPath: '/js/syn.domain.js'
+        }
+    }
 };
 
-syn.module = syn.module.extend(
-    {
-        constructor() {
-            this.extend(arguments[0]);
-        },
-
-        concreate() {
-        }
-    },
-    {
-        ancestor: Object,
-
-        version: '1.0.0',
-
-        each(els, func, props) {
-            if (func == undefined || func.length == 0) {
-                return;
-            }
-
-            for (var key in els) {
-                if (typeof els[key] === 'object') {
-                    func.apply(els[key], props);
-                }
-            }
-        },
-
-        implement() {
-            for (var i = 0, len = arguments.length; i < len; i++) {
-                if (typeof arguments[i] === 'function') {
-                    arguments[i](this.prototype);
-                }
-                else {
-                    this.prototype.extend(arguments[i]);
-                }
-            }
-            return this;
-        },
-
-        toString() {
-            return String(this.valueOf());
-        }
-    });
+syn.module = Module;
 
 globalRoot.syn = syn;
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = syn;
+}
 
 /// <reference path='syn.core.js' />
 
@@ -201,8 +254,6 @@ globalRoot.syn = syn;
     var document = context.document;
 
     $browser.extend({
-        version: '1.0.0',
-
         appName: navigator.appName,
         appCodeName: navigator.appCodeName,
         appVersion: navigator.appVersion,
@@ -424,8 +475,6 @@ globalRoot.syn = syn;
     var document = context.document;
 
     $manipulation.extend({
-        version: '1.0.0',
-
         body() {
             return document;
         },
@@ -1055,8 +1104,6 @@ globalRoot.syn = syn;
     var document = context.document;
 
     $dimension.extend({
-        version: '1.0.0',
-
         getDocumentSize(isTopWindow) {
             isTopWindow = $string.toBoolean(isTopWindow);
             var currentDocument = isTopWindow == true ? top.document : context.document;
@@ -1275,8 +1322,6 @@ globalRoot.syn = syn;
     var $cryptography = context.$cryptography || new syn.module();
 
     $cryptography.extend({
-        version: '1.0.0',
-
         base64Encode(val) {
             if (globalRoot.devicePlatform === 'node') {
                 return Buffer.from(val).toString('base64');
@@ -2235,8 +2280,6 @@ globalRoot.syn = syn;
     var $keyboard = context.$keyboard || new syn.module();
 
     $keyboard.extend({
-        version: '1.0.0',
-
         keyCodes: {
             'backspace': 8,
             'tab': 9,
@@ -2426,7 +2469,6 @@ globalRoot.syn = syn;
     var $validation = context.$validation || new syn.module();
 
     $validation.extend({
-        version: '1.0.0',
         isContinue: true,
         messages: [],
         targetEL: null,
@@ -2876,7 +2918,6 @@ globalRoot.syn = syn;
     })();
 
     $date.extend({
-        version: '1.0.0',
         interval: {
             year: 1000 * 60 * 60 * 24 * 365,
             week: 1000 * 60 * 60 * 24 * 7,
@@ -3263,8 +3304,6 @@ globalRoot.syn = syn;
     context.$date = $date;
 
     $string.extend({
-        version: '1.0.0',
-
         toValue(value, defaultValue) {
             var result = '';
             if ($object.isNullOrUndefined(value) == true) {
@@ -3603,8 +3642,6 @@ globalRoot.syn = syn;
     context.$string = $string;
 
     $array.extend({
-        version: '1.0.0',
-
         distinct(arr) {
             var derived = [];
             for (var i = 0, len = arr.length; i < len; i++) {
@@ -3857,8 +3894,6 @@ globalRoot.syn = syn;
     context.$array = $array;
 
     $number.extend({
-        version: '1.0.0',
-
         duration(ms) {
             if (ms < 0) ms = -ms;
             var time = {
@@ -3930,8 +3965,6 @@ globalRoot.syn = syn;
     context.$number = $number;
 
     $object.extend({
-        version: '1.0.0',
-
         isNullOrUndefined(val) {
             if (val === undefined || val === null) {
                 return true;
@@ -4255,7 +4288,6 @@ globalRoot.syn = syn;
     }
 
     $library.extend({
-        version: '1.0.0',
         prefixs: ['webkit', 'moz', 'ms', 'o', ''],
 
         eventMap: {
@@ -5457,7 +5489,6 @@ globalRoot.syn = syn;
     }
 
     $request.extend({
-        version: '1.0.0',
         params: {},
         path: (globalRoot.devicePlatform === 'node') ? '' : location.pathname,
 
@@ -5768,8 +5799,6 @@ globalRoot.syn = syn;
     var document = context.document;
 
     $network.extend({
-        version: '1.0.0',
-
         myChannelID: null,
         connections: [],
         concreate($network) {
@@ -10497,7 +10526,6 @@ globalRoot.syn = syn;
     var document = context.document;
 
     $resource.extend({
-        version: '1.0.0',
         localeID: 'ko-KR',
         fullyQualifiedLocale: {
             ko: 'ko-KR',

@@ -31,7 +31,7 @@
 
     $list.extend({
         name: 'syn.uicontrols.$list',
-        version: '1.0',
+        version: 'v2025.3.1',
         listControls: [],
         defaultSetting: {
             width: '100%',

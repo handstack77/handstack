@@ -382,7 +382,7 @@
 
     $grid.extend({
         name: 'syn.uicontrols.$grid',
-        version: '1.0.0',
+        version: 'v2025.3.1',
         defaultHotSettings: {
             licenseKey: 'non-commercial-and-evaluation',
             language: 'ko-KR',

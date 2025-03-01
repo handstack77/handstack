@@ -7,7 +7,7 @@
 
     $guide.extend({
         name: 'syn.uicontrols.$guide',
-        version: '1.0.0',
+        version: 'v2025.3.1',
         guideControls: [],
         itemTemplate: {
             helpType: '', // I: introJs, T: tippy, P: superplaceholder, U: UI Help & Link

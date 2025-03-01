@@ -6,7 +6,7 @@
 
     $chart.extend({
         name: 'syn.uicontrols.$chart',
-        version: '1.0',
+        version: 'v2025.3.1',
         chartControls: [],
         randomSeed: Date.now(),
         defaultSetting: {

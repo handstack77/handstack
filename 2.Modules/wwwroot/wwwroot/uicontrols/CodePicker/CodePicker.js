@@ -8,7 +8,7 @@
 
     $codepicker.extend({
         name: 'syn.uicontrols.$codepicker',
-        version: '1.0.0',
+        version: 'v2025.3.1',
         defaultSetting: {
             dataSourceID: null,
             storeSourceID: null,

@@ -7,7 +7,7 @@
 
     $radio.extend({
         name: 'syn.uicontrols.$radio',
-        version: '1.0.0',
+        version: 'v2025.3.1',
         defaultSetting: {
             contents: '',
             toSynControl: false,

@@ -49,7 +49,7 @@
 
     $chartjs.extend({
         name: 'syn.uicontrols.$chartjs',
-        version: '1.0',
+        version: 'v2025.3.1',
         chartControls: [],
         randomSeed: Date.now(),
         defaultSetting: {

@@ -7,7 +7,7 @@
 
     $dateperiodpicker.extend({
         name: 'syn.uicontrols.$dateperiodpicker',
-        version: '1.0.0',
+        version: 'v2025.3.1',
         dateControls: [],
         selectedYear: null,
         pkaStartDate: null,
