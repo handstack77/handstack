@@ -34,7 +34,7 @@ if (typeof module === 'object' && module.exports) {
     }
 
     $templete.extend({
-        extendVersion: "1.0",
+        extendVersion: "v년.월.일",
 
         method() {
             return $templete;
