@@ -10,10 +10,36 @@ using Microsoft.Net.Http.Headers;
 
 using Newtonsoft.Json;
 
+using repository.Entity;
+
 using Serilog;
 
 namespace dbclient.Extensions
 {
+    /*
+    [HttpPost("process")]
+    public async Task<IActionResult> Process()
+    {
+        var formatter = new RawRequestBodyFormatter(logger);
+        var context = new InputFormatterContext(
+            HttpContext,
+            nameof(TransactionRequest),
+            new ModelStateDictionary(),
+            new EmptyModelMetadataProvider().GetMetadataForType(typeof(TransactionRequest)),
+            (stream, encoding) => new StreamReader(stream, encoding)
+        );
+
+        var result = await formatter.ReadRequestBodyAsync(context);
+
+        if (result.HasError)
+        {
+            return BadRequest("Invalid request body");
+        }
+
+        var transactionRequest = result.Model as TransactionRequest;
+        return Ok(transactionRequest);
+    }
+    */
     public class RawRequestBodyFormatter : InputFormatter
     {
         private ILogger logger { get; }
@@ -32,8 +58,10 @@ namespace dbclient.Extensions
                 throw new ArgumentNullException(nameof(context));
             }
 
-            var contentType = context.HttpContext.Request.ContentType;
-            if (string.IsNullOrEmpty(contentType) == false && contentType.IndexOf("application/json") > -1)
+            var request = context.HttpContext.Request;
+            var contentType = request.ContentType;
+            var path = request.Path.Value;
+            if (string.IsNullOrEmpty(contentType) == false && string.IsNullOrEmpty(path) == false && contentType.IndexOf("application/json") > -1 && path.StartsWith($"/{ModuleConfiguration.ModuleID}/api"))
             {
                 return true;
             }
