@@ -1,5 +1,5 @@
 ﻿/*!
-HandStack Javascript Library v2025.3.1
+HandStack Javascript Library v2025.3.2
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -176,7 +176,7 @@ class Module {
 }
 
 Module.ancestor = Object;
-Module.version = 'v2025.3.1';
+Module.version = 'v2025.3.2';
 
 const syn = { Module };
 syn.Config = {
