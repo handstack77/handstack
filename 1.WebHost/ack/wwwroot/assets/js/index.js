@@ -3962,7 +3962,12 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         // var result = await syn.$r.httpRequest('GET', '/index');
-        httpRequest(method, url, data, callback) {
+        httpRequest(method, url, data, callback, options) {
+            options = syn.$w.argumentsExtend({
+                timeout: 0,
+                responseType: 'text'
+            }, options);
+
             if ($object.isNullOrUndefined(data) == true) {
                 data = {};
             }
@@ -3992,7 +3997,8 @@ if (typeof module !== 'undefined' && module.exports) {
 
             var xhr = syn.$w.xmlHttp();
             xhr.open(method, url, true);
-
+            xhr.timeout = options.timeout;
+            xhr.responseType = options.responseType;
             xhr.setRequestHeader('OffsetMinutes', syn.$w.timezoneOffsetMinutes);
 
             if (syn.$w.setServiceClientHeader) {
@@ -4006,10 +4012,10 @@ if (typeof module !== 'undefined' && module.exports) {
                     if (xhr.readyState === 4) {
                         if (xhr.status !== 200) {
                             if (xhr.status == 0) {
-                                syn.$l.eventLog('$r.httpRequest', 'X-Requested transfort error', 'Fatal');
+                                syn.$l.eventLog('$r.httpRequest', 'X-Requested transport error', 'Fatal');
                             }
                             else {
-                                syn.$l.eventLog('$r.httpRequest', 'response status - {0}'.format(xhr.statusText) + xhr.responseText, 'Error');
+                                syn.$l.eventLog('$r.httpRequest', 'response status - {0}'.format(xhr.statusText) + xhr.response, 'Error');
                             }
                             return;
                         }
@@ -4017,7 +4023,7 @@ if (typeof module !== 'undefined' && module.exports) {
                         if (callback) {
                             callback({
                                 status: xhr.status,
-                                response: xhr.responseText
+                                response: xhr.response
                             });
                         }
                     }
@@ -4039,13 +4045,13 @@ if (typeof module !== 'undefined' && module.exports) {
                     xhr.onload = function () {
                         return resolve({
                             status: xhr.status,
-                            response: xhr.responseText
+                            response: xhr.response
                         });
                     };
                     xhr.onerror = function () {
                         return resolve({
                             status: xhr.status,
-                            response: xhr.responseText
+                            response: xhr.response
                         });
                     };
 
@@ -4089,21 +4095,23 @@ if (typeof module !== 'undefined' && module.exports) {
             }
         },
 
-        httpDataSubmit(formData, url, timeout, callback) {
-            if ($object.isNullOrUndefined(timeout) == true) {
-                timeout = 0;
-            }
+        httpDataSubmit(formData, url, callback, options) {
+            options = syn.$w.argumentsExtend({
+                timeout: 0,
+                responseType: 'text'
+            }, options);
 
             var xhr = syn.$w.xmlHttp();
             xhr.open('POST', url, true);
+            xhr.timeout = options.timeout;
+            xhr.responseType = options.responseType;
+            xhr.setRequestHeader('OffsetMinutes', syn.$w.timezoneOffsetMinutes);
 
             if (syn.$w.setServiceClientHeader) {
                 if (syn.$w.setServiceClientHeader(xhr) == false) {
                     return;
                 }
             }
-
-            xhr.timeout = timeout;
 
             if (callback) {
                 xhr.onreadystatechange = function () {
@@ -4113,7 +4121,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                 syn.$l.eventLog('$r.httpDataSubmit', 'X-Requested transfort error', 'Fatal');
                             }
                             else {
-                                syn.$l.eventLog('$r.httpDataSubmit', 'response status - {0}'.format(xhr.statusText) + xhr.responseText, 'Error');
+                                syn.$l.eventLog('$r.httpDataSubmit', 'response status - {0}'.format(xhr.statusText) + xhr.response, 'Error');
                             }
                             return;
                         }
@@ -4121,7 +4129,7 @@ if (typeof module !== 'undefined' && module.exports) {
                         if (callback) {
                             callback({
                                 status: xhr.status,
-                                response: xhr.responseText
+                                response: xhr.response
                             });
                         }
                     }
@@ -4133,13 +4141,13 @@ if (typeof module !== 'undefined' && module.exports) {
                     xhr.onload = function () {
                         return resolve({
                             status: xhr.status,
-                            response: xhr.responseText
+                            response: xhr.response
                         });
                     };
                     xhr.onerror = function () {
                         return resolve({
                             status: xhr.status,
-                            response: xhr.responseText
+                            response: xhr.response
                         });
                     };
 
