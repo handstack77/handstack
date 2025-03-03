@@ -617,8 +617,6 @@ namespace ack
 
             foreach (var module in GlobalConfiguration.Modules)
             {
-                Log.Information("[{LogCategory}] " + $"module: {module.ModuleID}", "Startup/ConfigureServices");
-
                 if (module.Assembly != null)
                 {
                     try
