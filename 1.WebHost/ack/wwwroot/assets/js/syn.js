@@ -5575,7 +5575,6 @@ if (typeof module !== 'undefined' && module.exports) {
                 data = {};
             }
 
-            var contentType = 'application/json';
             var formData = null;
             if ($object.isNullOrUndefined(data.body) == false) {
                 contentType = null;
@@ -5602,6 +5601,7 @@ if (typeof module !== 'undefined' && module.exports) {
             xhr.open(method, url, true);
             xhr.timeout = options.timeout;
             xhr.responseType = options.responseType;
+            xhr.setRequestHeader('Content-Type', options.contentType || 'application/json');
             xhr.setRequestHeader('OffsetMinutes', syn.$w.timezoneOffsetMinutes);
 
             if (syn.$w.setServiceClientHeader) {
@@ -5657,10 +5657,6 @@ if (typeof module !== 'undefined' && module.exports) {
                             response: xhr.response
                         });
                     };
-
-                    if (contentType != null) {
-                        xhr.setRequestHeader('Content-Type', contentType);
-                    }
 
                     if (formData == null) {
                         if (data != {}) {
