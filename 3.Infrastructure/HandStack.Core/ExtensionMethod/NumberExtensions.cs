@@ -248,5 +248,30 @@ namespace HandStack.Core.ExtensionMethod
 
             return $"{fileSize.ToCurrencyString()} {SizesStrings[order]}";
         }
+
+        public static bool IsNullOrZero(this int? @this)
+        {
+            return @this == null || @this.HasValue == false || @this.Value == 0;
+        }
+
+        public static bool IsNullOrZero(this long? @this)
+        {
+            return @this == null || @this.HasValue == false || @this.Value == 0;
+        }
+
+        public static bool IsNullOrZero(this decimal? @this)
+        {
+            return @this == null || @this.HasValue == false || @this.Value == 0;
+        }
+
+        public static bool IsNullOrZero(this float? @this)
+        {
+            return @this == null || @this.HasValue == false || @this.Value == 0;
+        }
+
+        public static bool IsNullOrZero(this double? @this)
+        {
+            return @this == null || @this.HasValue == false || @this.Value == 0;
+        }
     }
 }
