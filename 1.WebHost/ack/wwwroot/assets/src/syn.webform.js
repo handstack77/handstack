@@ -2267,7 +2267,7 @@
             try {
                 var transactConfig = $this.transaction[functionID];
                 if ($object.isNullOrUndefined(transactConfig) == true) {
-                    syn.$l.eventLog('$w.setterValue', 'functionID "{0}" 확인 필요'.format(functionID), 'Warning');
+                    syn.$l.eventLog('$w.getterValue', 'functionID "{0}" 확인 필요'.format(functionID), 'Warning');
                     return;
                 }
 
@@ -2608,7 +2608,7 @@
                                                 if (isMapping == false) {
                                                     errorText = '"{0}" Form Output Mapping 확인 필요'.format(dataFieldID);
                                                     result.errors.push(errorText);
-                                                    syn.$l.eventLog('$w.transaction', errorText, 'Error');
+                                                    syn.$l.eventLog('$w.setterValue', errorText, 'Error');
                                                 }
                                             }
                                         }
@@ -2671,7 +2671,7 @@
                                             if (isMapping == false) {
                                                 errorText = '"{0}" Grid Output Mapping 확인 필요'.format(dataFieldID);
                                                 result.errors.push(errorText);
-                                                syn.$l.eventLog('$w.transaction', errorText, 'Error');
+                                                syn.$l.eventLog('$w.setterValue', errorText, 'Error');
                                             }
                                         }
                                     }
@@ -2706,7 +2706,7 @@
                                         else {
                                             errorText = '"{0}" Chart Output Mapping 확인 필요'.format(dataFieldID);
                                             result.errors.push(errorText);
-                                            syn.$l.eventLog('$w.transaction', errorText, 'Error');
+                                            syn.$l.eventLog('$w.setterValue', errorText, 'Error');
                                         }
                                     }
                                 }
@@ -2724,7 +2724,7 @@
                     else {
                         errorText = '"{0}" 거래 중복 또는 존재여부 확인 필요'.format(functionID);
                         result.errors.push(errorText);
-                        syn.$l.eventLog('$w.transaction', errorText, 'Error');
+                        syn.$l.eventLog('$w.setterValue', errorText, 'Error');
 
                         return result;
                     }
@@ -2732,12 +2732,12 @@
                 else {
                     errorText = '화면 매핑 정의 데이터가 없습니다';
                     result.errors.push(errorText);
-                    syn.$l.eventLog('$w.transaction', errorText, 'Error');
+                    syn.$l.eventLog('$w.setterValue', errorText, 'Error');
 
                     return result;
                 }
             } catch (error) {
-                syn.$l.eventLog('$w.transaction', error, 'Error');
+                syn.$l.eventLog('$w.setterValue', error, 'Error');
                 result.errors.push(error.message);
                 return result;
             }
