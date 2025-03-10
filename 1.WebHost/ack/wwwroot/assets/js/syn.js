@@ -4629,7 +4629,7 @@ if (typeof module !== 'undefined' && module.exports) {
             var result = defaultValue === undefined ? '' : defaultValue;
             var synControls = $this.context.synControls;
             var controlInfo = synControls.find(function (item) {
-                return item.id == elID;
+                return item.id == elID || item.id == `${elID}_hidden`;
             });
 
             if (controlInfo != null) {
