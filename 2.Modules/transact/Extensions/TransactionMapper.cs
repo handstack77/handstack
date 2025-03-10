@@ -262,7 +262,7 @@ namespace transact.Extensions
             bool result = false;
             foreach (var basePath in ModuleConfiguration.ContractBasePath)
             {
-                string filePath = PathExtensions.Combine(basePath, fileRelativePath);
+                string filePath = PathExtensions.Join(basePath, fileRelativePath);
                 result = File.Exists(filePath);
                 if (result == true)
                 {

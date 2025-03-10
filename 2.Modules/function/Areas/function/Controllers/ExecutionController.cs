@@ -116,18 +116,15 @@ namespace function.Areas.function.Controllers
                                     string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                                     string itemPath = PathExtensions.Join(appBasePath, filePath);
                                     DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
-                                    if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true)
+                                    if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true && (fileInfo.Name.StartsWith("featureMain.") == true || fileInfo.Name == "featureMeta.json" || fileInfo.Name == "featureSQL.xml") == true)
                                     {
-                                        if (FunctionMapper.HasContractFile(filePath) == true && (fileInfo.Name.StartsWith("featureMain.") == true || fileInfo.Name == "featureMeta.json" || fileInfo.Name == "featureSQL.xml") == true)
+                                        if (fileInfo.Extension != ".json")
                                         {
-                                            if (fileInfo.Extension != ".json")
-                                            {
-                                                filePath = filePath.Replace(fileInfo.Name, "featureMeta.json");
-                                            }
-
-                                            logger.Information("[{LogCategory}] " + $"Add TenantApp ModuleScriptMap FilePath: {filePath}", "Query/Refresh");
-                                            actionResult = FunctionMapper.AddScriptMap(filePath, true, logger);
+                                            filePath = filePath.Replace(fileInfo.Name, "featureMeta.json");
                                         }
+
+                                        logger.Information("[{LogCategory}] " + $"Add TenantApp ModuleScriptMap FilePath: {filePath}", "Query/Refresh");
+                                        actionResult = FunctionMapper.AddScriptMap(filePath, true, logger);
                                     }
                                 }
                                 else
@@ -136,19 +133,16 @@ namespace function.Areas.function.Controllers
                                     {
                                         string itemPath = PathExtensions.Join(basePath, filePath);
                                         DirectoryInfo directoryInfo = new DirectoryInfo(basePath);
-                                        if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true)
+                                        if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true && (fileInfo.Name.StartsWith("featureMain.") == true || fileInfo.Name == "featureMeta.json" || fileInfo.Name == "featureSQL.xml") == true)
                                         {
-                                            if (FunctionMapper.HasContractFile(filePath) == true && (fileInfo.Name.StartsWith("featureMain.") == true || fileInfo.Name == "featureMeta.json" || fileInfo.Name == "featureSQL.xml") == true)
+                                            if (fileInfo.Extension != ".json")
                                             {
-                                                if (fileInfo.Extension != ".json")
-                                                {
-                                                    filePath = filePath.Replace(fileInfo.Name, "featureMeta.json");
-                                                }
-
-                                                logger.Information("[{LogCategory}] " + $"Add ModuleScriptMap FilePath: {filePath}", "Query/Refresh");
-                                                actionResult = FunctionMapper.AddScriptMap(filePath, true, logger);
-                                                break;
+                                                filePath = filePath.Replace(fileInfo.Name, "featureMeta.json");
                                             }
+
+                                            logger.Information("[{LogCategory}] " + $"Add ModuleScriptMap FilePath: {filePath}", "Query/Refresh");
+                                            actionResult = FunctionMapper.AddScriptMap(filePath, true, logger);
+                                            break;
                                         }
                                     }
                                 }

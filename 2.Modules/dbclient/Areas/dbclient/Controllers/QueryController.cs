@@ -116,13 +116,10 @@ namespace dbclient.Areas.dbclient.Controllers
                                     string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                                     string itemPath = PathExtensions.Join(appBasePath, filePath);
                                     DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
-                                    if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true)
+                                    if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true && fileInfo.Extension == ".xml" == true)
                                     {
-                                        if (DatabaseMapper.HasContractFile(filePath) == true && fileInfo.Extension == ".xml" == true)
-                                        {
-                                            logger.Information("[{LogCategory}] " + $"Add TenantApp StatementMap FilePath: {filePath}", "Query/Refresh");
-                                            actionResult = DatabaseMapper.AddStatementMap(filePath, true, logger);
-                                        }
+                                        logger.Information("[{LogCategory}] " + $"Add TenantApp StatementMap FilePath: {filePath}", "Query/Refresh");
+                                        actionResult = DatabaseMapper.AddStatementMap(filePath, true, logger);
                                     }
                                 }
                                 else
@@ -131,14 +128,11 @@ namespace dbclient.Areas.dbclient.Controllers
                                     {
                                         string itemPath = PathExtensions.Join(basePath, filePath);
                                         DirectoryInfo directoryInfo = new DirectoryInfo(basePath);
-                                        if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true)
+                                        if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true && fileInfo.Extension == ".xml" == true)
                                         {
-                                            if (DatabaseMapper.HasContractFile(filePath) == true && fileInfo.Extension == ".xml" == true)
-                                            {
-                                                logger.Information("[{LogCategory}] " + $"Add StatementMap FilePath: {filePath}", "Query/Refresh");
-                                                actionResult = DatabaseMapper.AddStatementMap(filePath, true, logger);
-                                                break;
-                                            }
+                                            logger.Information("[{LogCategory}] " + $"Add StatementMap FilePath: {filePath}", "Query/Refresh");
+                                            actionResult = DatabaseMapper.AddStatementMap(filePath, true, logger);
+                                            break;
                                         }
                                     }
                                 }
