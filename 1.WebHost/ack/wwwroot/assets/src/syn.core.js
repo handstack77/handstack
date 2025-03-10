@@ -176,7 +176,7 @@ class Module {
 }
 
 Module.ancestor = Object;
-Module.version = 'v2025.3.2';
+Module.version = 'v2025.3.10';
 
 const syn = { Module };
 syn.Config = {

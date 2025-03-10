@@ -14,7 +14,6 @@
     }
 
     $webform.extend({
-        version: '1.0.0',
         localeID: 'ko-KR',
         cookiePrefixName: 'HandStack',
         timezoneOffsetMinutes: -(new Date().getTimezoneOffset()),

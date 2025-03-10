@@ -176,7 +176,7 @@ class Module {
 }
 
 Module.ancestor = Object;
-Module.version = 'v2025.3.2';
+Module.version = 'v2025.3.10';
 
 const syn = { Module };
 syn.Config = {
@@ -3022,6 +3022,38 @@ if (typeof module !== 'undefined' && module.exports) {
             return $library;
         },
 
+        getValue(elID, defaultValue) {
+            var result = defaultValue === undefined ? '' : defaultValue;
+            var synControls = $this.context.synControls;
+            var controlInfo = synControls.find(function (item) {
+                return item.id == elID;
+            });
+
+            if (controlInfo != null) {
+                var controlModule = syn.$w.getControlModule(controlInfo.module);
+                if ($object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
+                    if (controlInfo.type.indexOf('grid') > -1 || controlInfo.type.indexOf('chart') > -1) {
+                        var input = {
+                            requestType: inputConfig.type,
+                            dataFieldID: inputConfig.dataFieldID ? inputConfig.dataFieldID : document.forms.length > 0 ? document.forms[0].getAttribute('syn-datafield') : '',
+                            items: {}
+                        }
+
+                        if (controlModule.setTransactionBelongID) {
+                            controlModule.setTransactionBelongID(synControlConfig.id, input);
+                            result = controlModule.getValue(controlInfo.id.replace('_hidden', ''), 'List', input.items);
+                        }
+
+                    }
+                    else {
+                        result = controlModule.getValue(controlInfo.id.replace('_hidden', ''));
+                    }
+                }
+            }
+
+            return result;
+        },
+
         get() {
             var result = [];
             var find = null;
@@ -3858,6 +3890,7 @@ if (typeof module !== 'undefined' && module.exports) {
         delete syn.$l.trigger;
         delete syn.$l.triggerEvent;
         delete syn.$l.addBind;
+        delete syn.$l.getValue;
         delete syn.$l.get;
         delete syn.$l.querySelector;
         delete syn.$l.getName;
@@ -4208,7 +4241,6 @@ if (typeof module !== 'undefined' && module.exports) {
     }
 
     $webform.extend({
-        version: '1.0.0',
         localeID: 'ko-KR',
         cookiePrefixName: 'HandStack',
         timezoneOffsetMinutes: -(new Date().getTimezoneOffset()),
@@ -6461,7 +6493,7 @@ if (typeof module !== 'undefined' && module.exports) {
             try {
                 var transactConfig = $this.transaction[functionID];
                 if ($object.isNullOrUndefined(transactConfig) == true) {
-                    syn.$l.eventLog('$w.setterValue', 'functionID "{0}" 확인 필요'.format(functionID), 'Warning');
+                    syn.$l.eventLog('$w.getterValue', 'functionID "{0}" 확인 필요'.format(functionID), 'Warning');
                     return;
                 }
 
@@ -6802,7 +6834,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                                 if (isMapping == false) {
                                                     errorText = '"{0}" Form Output Mapping 확인 필요'.format(dataFieldID);
                                                     result.errors.push(errorText);
-                                                    syn.$l.eventLog('$w.transaction', errorText, 'Error');
+                                                    syn.$l.eventLog('$w.setterValue', errorText, 'Error');
                                                 }
                                             }
                                         }
@@ -6865,7 +6897,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                             if (isMapping == false) {
                                                 errorText = '"{0}" Grid Output Mapping 확인 필요'.format(dataFieldID);
                                                 result.errors.push(errorText);
-                                                syn.$l.eventLog('$w.transaction', errorText, 'Error');
+                                                syn.$l.eventLog('$w.setterValue', errorText, 'Error');
                                             }
                                         }
                                     }
@@ -6900,7 +6932,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                         else {
                                             errorText = '"{0}" Chart Output Mapping 확인 필요'.format(dataFieldID);
                                             result.errors.push(errorText);
-                                            syn.$l.eventLog('$w.transaction', errorText, 'Error');
+                                            syn.$l.eventLog('$w.setterValue', errorText, 'Error');
                                         }
                                     }
                                 }
@@ -6918,7 +6950,7 @@ if (typeof module !== 'undefined' && module.exports) {
                     else {
                         errorText = '"{0}" 거래 중복 또는 존재여부 확인 필요'.format(functionID);
                         result.errors.push(errorText);
-                        syn.$l.eventLog('$w.transaction', errorText, 'Error');
+                        syn.$l.eventLog('$w.setterValue', errorText, 'Error');
 
                         return result;
                     }
@@ -6926,12 +6958,12 @@ if (typeof module !== 'undefined' && module.exports) {
                 else {
                     errorText = '화면 매핑 정의 데이터가 없습니다';
                     result.errors.push(errorText);
-                    syn.$l.eventLog('$w.transaction', errorText, 'Error');
+                    syn.$l.eventLog('$w.setterValue', errorText, 'Error');
 
                     return result;
                 }
             } catch (error) {
-                syn.$l.eventLog('$w.transaction', error, 'Error');
+                syn.$l.eventLog('$w.setterValue', error, 'Error');
                 result.errors.push(error.message);
                 return result;
             }

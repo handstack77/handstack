@@ -7,7 +7,7 @@
 
     $data.extend({
         name: 'syn.uicontrols.$data',
-        version: 'v2025.3.1',
+        version: 'v2025.3.10',
         bindingList: [],
         storeList: [],
 
@@ -94,7 +94,7 @@
                     return (item.dataSourceID == bindingInfo.dataSourceID);
                 });
 
-                if (bindingInfo.controlType == 'grid' || bindingInfo.controlType == 'list' || bindingInfo.controlType == 'chart') {
+                if (bindingInfo.controlType.indexOf('grid') > -1 || bindingInfo.controlType == 'list' || bindingInfo.controlType == 'chart') {
                     var metaItems = {};
                     var length = storeInfo.columns.length;
                     for (var i = 0; i < length; i++) {
@@ -127,7 +127,7 @@
                     return (item.dataSourceID == bindingInfo.dataSourceID);
                 });
 
-                if (bindingInfo.controlType == 'grid' || bindingInfo.controlType == 'list' || bindingInfo.controlType == 'chart') {
+                if (bindingInfo.controlType.indexOf('grid') > -1 || bindingInfo.controlType == 'list' || bindingInfo.controlType == 'chart') {
                     var metaItems = {};
                     var length = storeInfo.columns.length;
                     for (var i = 0; i < length; i++) {

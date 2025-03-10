@@ -360,6 +360,38 @@
             return $library;
         },
 
+        getValue(elID, defaultValue) {
+            var result = defaultValue === undefined ? '' : defaultValue;
+            var synControls = $this.context.synControls;
+            var controlInfo = synControls.find(function (item) {
+                return item.id == elID;
+            });
+
+            if (controlInfo != null) {
+                var controlModule = syn.$w.getControlModule(controlInfo.module);
+                if ($object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
+                    if (controlInfo.type.indexOf('grid') > -1 || controlInfo.type.indexOf('chart') > -1) {
+                        var input = {
+                            requestType: inputConfig.type,
+                            dataFieldID: inputConfig.dataFieldID ? inputConfig.dataFieldID : document.forms.length > 0 ? document.forms[0].getAttribute('syn-datafield') : '',
+                            items: {}
+                        }
+
+                        if (controlModule.setTransactionBelongID) {
+                            controlModule.setTransactionBelongID(synControlConfig.id, input);
+                            result = controlModule.getValue(controlInfo.id.replace('_hidden', ''), 'List', input.items);
+                        }
+
+                    }
+                    else {
+                        result = controlModule.getValue(controlInfo.id.replace('_hidden', ''));
+                    }
+                }
+            }
+
+            return result;
+        },
+
         get() {
             var result = [];
             var find = null;
@@ -1196,6 +1228,7 @@
         delete syn.$l.trigger;
         delete syn.$l.triggerEvent;
         delete syn.$l.addBind;
+        delete syn.$l.getValue;
         delete syn.$l.get;
         delete syn.$l.querySelector;
         delete syn.$l.getName;
