@@ -11,7 +11,7 @@
             return $templete;
         }
     });
-    context.$templete = context.$t = syn.$t = context.$templete || $templete;
+    context.$templete = syn.$t = context.$templete || $templete;
 })(globalRoot);
 
 if (typeof module === 'object' && module.exports) {

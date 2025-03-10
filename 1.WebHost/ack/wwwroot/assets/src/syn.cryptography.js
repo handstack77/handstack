@@ -952,5 +952,5 @@
             return LZString;
         })()
     });
-    syn.$c = $cryptography;
+    context.$cryptography = syn.$c = $cryptography;
 })(globalRoot);

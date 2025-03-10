@@ -623,5 +623,5 @@
             return new RegExp('(^|\\s)' + css + '(\\s|$)');
         }
     });
-    syn.$m = $manipulation;
+    context.$manipulation = syn.$m = $manipulation;
 })(globalRoot);

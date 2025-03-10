@@ -366,5 +366,5 @@
             }
         }
     });
-    syn.$s = context.$system || $system;
+    context.$system = syn.$s = $system;
 })(globalRoot);

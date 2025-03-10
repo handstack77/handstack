@@ -315,5 +315,5 @@
             return $request;
         }
     });
-    syn.$r = $request;
+    context.$request = syn.$r = $request;
 })(globalRoot);

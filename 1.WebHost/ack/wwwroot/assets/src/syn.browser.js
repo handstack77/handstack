@@ -216,5 +216,5 @@
             return result;
         }
     });
-    syn.$b = $browser;
+    context.$browser = syn.$b = $browser;
 })(globalRoot);

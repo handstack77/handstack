@@ -176,7 +176,7 @@ class Module {
 }
 
 Module.ancestor = Object;
-Module.version = 'v2025.3.10';
+Module.version = 'v2025.3.11';
 
 const syn = { Module };
 syn.Config = {
@@ -464,7 +464,7 @@ if (typeof module !== 'undefined' && module.exports) {
             return result;
         }
     });
-    syn.$b = $browser;
+    context.$browser = syn.$b = $browser;
 })(globalRoot);
 
 /// <reference path='syn.core.js' />
@@ -1092,7 +1092,7 @@ if (typeof module !== 'undefined' && module.exports) {
             return new RegExp('(^|\\s)' + css + '(\\s|$)');
         }
     });
-    syn.$m = $manipulation;
+    context.$manipulation = syn.$m = $manipulation;
 })(globalRoot);
 
 /// <reference path='syn.core.js' />
@@ -1312,7 +1312,7 @@ if (typeof module !== 'undefined' && module.exports) {
             };
         }
     });
-    syn.$d = $dimension;
+    context.$dimension = syn.$d = $dimension;
 })(globalRoot);
 
 /// <reference path='syn.core.js' />
@@ -2269,7 +2269,7 @@ if (typeof module !== 'undefined' && module.exports) {
             return LZString;
         })()
     });
-    syn.$c = $cryptography;
+    context.$cryptography = syn.$c = $cryptography;
 })(globalRoot);
 
 /// <reference path='syn.core.js' />
@@ -2458,7 +2458,7 @@ if (typeof module !== 'undefined' && module.exports) {
             return $keyboard;
         }
     });
-    syn.$k = $keyboard;
+    context.$keyboard = syn.$k = $keyboard;
 })(globalRoot);
 
 /// <reference path='syn.core.js' />
@@ -2803,7 +2803,7 @@ if (typeof module !== 'undefined' && module.exports) {
             this.isoDate = /(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))/;
         }
     });
-    syn.$v = $validation;
+    context.$validation = syn.$v = $validation;
 })(globalRoot);
 
 /// <reference path='syn.core.js' />
@@ -5484,7 +5484,7 @@ if (typeof module !== 'undefined' && module.exports) {
         }
     });
 
-    syn.$l = $library;
+    context.$library = syn.$l = $library;
     if (globalRoot.devicePlatform === 'node') {
         delete syn.$l.addEvent;
         delete syn.$l.addLive;
@@ -5825,7 +5825,7 @@ if (typeof module !== 'undefined' && module.exports) {
             return $request;
         }
     });
-    syn.$r = $request;
+    context.$request = syn.$r = $request;
 })(globalRoot);
 
 /// <reference path='syn.core.js' />
@@ -6520,7 +6520,7 @@ if (typeof module !== 'undefined' && module.exports) {
     });
 
     $network.myChannelID = syn.$r.query('channelID') || syn.$r.query('ChannelID') || syn.$r.query('CHANNELID') || syn.$r.query('channelid') || '';
-    syn.$n = $network;
+    context.$network = syn.$n = $network;
 })(globalRoot);
 
 /// <reference path='syn.core.js' />
@@ -10446,7 +10446,7 @@ if (typeof module !== 'undefined' && module.exports) {
         syn.Config = {};
     }
 
-    syn.$w = $webform;
+    context.$webform = syn.$w = $webform;
     if (globalRoot.devicePlatform === 'node') {
         var fs = require('fs');
         var path = require('path');
@@ -10876,7 +10876,7 @@ if (typeof module !== 'undefined' && module.exports) {
         }
     });
 
-    context.$resource = $resource;
+    context.$resource = syn.$res = $resource;
 })(globalRoot);
 
 (function (context, $res) {

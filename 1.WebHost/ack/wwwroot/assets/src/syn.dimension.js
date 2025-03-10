@@ -215,5 +215,5 @@
             };
         }
     });
-    syn.$d = $dimension;
+    context.$dimension = syn.$d = $dimension;
 })(globalRoot);

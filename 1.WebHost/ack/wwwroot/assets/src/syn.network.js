@@ -690,5 +690,5 @@
     });
 
     $network.myChannelID = syn.$r.query('channelID') || syn.$r.query('ChannelID') || syn.$r.query('CHANNELID') || syn.$r.query('channelid') || '';
-    syn.$n = $network;
+    context.$network = syn.$n = $network;
 })(globalRoot);

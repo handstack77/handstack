@@ -3921,7 +3921,7 @@
         syn.Config = {};
     }
 
-    syn.$w = $webform;
+    context.$webform = syn.$w = $webform;
     if (globalRoot.devicePlatform === 'node') {
         var fs = require('fs');
         var path = require('path');

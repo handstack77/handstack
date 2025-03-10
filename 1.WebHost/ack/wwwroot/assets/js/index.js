@@ -176,7 +176,7 @@ class Module {
 }
 
 Module.ancestor = Object;
-Module.version = 'v2025.3.10';
+Module.version = 'v2025.3.11';
 
 const syn = { Module };
 syn.Config = {
@@ -1200,7 +1200,7 @@ if (typeof module !== 'undefined' && module.exports) {
             return LZString;
         })()
     });
-    syn.$c = $cryptography;
+    context.$cryptography = syn.$c = $cryptography;
 })(globalRoot);
 
 /// <reference path='syn.core.js' />
@@ -3881,7 +3881,7 @@ if (typeof module !== 'undefined' && module.exports) {
         }
     });
 
-    syn.$l = $library;
+    context.$library = syn.$l = $library;
     if (globalRoot.devicePlatform === 'node') {
         delete syn.$l.addEvent;
         delete syn.$l.addLive;
@@ -4222,7 +4222,7 @@ if (typeof module !== 'undefined' && module.exports) {
             return $request;
         }
     });
-    syn.$r = $request;
+    context.$request = syn.$r = $request;
 })(globalRoot);
 
 /// <reference path='syn.core.js' />
@@ -8148,7 +8148,7 @@ if (typeof module !== 'undefined' && module.exports) {
         syn.Config = {};
     }
 
-    syn.$w = $webform;
+    context.$webform = syn.$w = $webform;
     if (globalRoot.devicePlatform === 'node') {
         var fs = require('fs');
         var path = require('path');
@@ -8624,7 +8624,7 @@ if (typeof module !== 'undefined' && module.exports) {
             }
         }
     });
-    syn.$s = context.$system || $system;
+    context.$system = syn.$s = $system;
 })(globalRoot);
 
 /// <summary>

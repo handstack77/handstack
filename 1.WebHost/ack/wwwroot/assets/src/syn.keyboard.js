@@ -184,5 +184,5 @@
             return $keyboard;
         }
     });
-    syn.$k = $keyboard;
+    context.$keyboard = syn.$k = $keyboard;
 })(globalRoot);

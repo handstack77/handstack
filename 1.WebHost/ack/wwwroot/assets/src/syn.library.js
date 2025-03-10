@@ -1219,7 +1219,7 @@
         }
     });
 
-    syn.$l = $library;
+    context.$library = syn.$l = $library;
     if (globalRoot.devicePlatform === 'node') {
         delete syn.$l.addEvent;
         delete syn.$l.addLive;

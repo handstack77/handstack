@@ -320,5 +320,5 @@
         }
     });
 
-    context.$resource = $resource;
+    context.$resource = syn.$res = $resource;
 })(globalRoot);
