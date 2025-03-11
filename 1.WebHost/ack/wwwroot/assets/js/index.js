@@ -8161,10 +8161,18 @@ if (typeof module !== 'undefined' && module.exports) {
             if (fs.existsSync(filePath) == true) {
                 var data = fs.readFileSync(filePath, 'utf8');
                 syn.Config = JSON.parse(data);
+
+                process.env.SYN_LogMinimumLevel = syn.Config.LogMinimumLevel || 'trace';
+                process.env.SYN_FileLogBasePath = syn.Config.FileLogBasePath || path.join(process.cwd(), '..', 'log', 'function', 'javascript');
+                process.env.SYN_LocalStoragePath = syn.Config.LocalStoragePath || path.join(process.cwd(), '..', 'cache', 'function');
             }
             else {
                 console.error('Node.js 환경설정 파일이 존재하지 않습니다. 파일경로: {0}'.format(filePath));
             }
+        }
+
+        if (syn.Config && $string.isNullOrEmpty(syn.Config.DataSourceFilePath) == true) {
+            syn.Config.DataSourceFilePath = path.join(process.cwd(), '..', 'modules', 'dbclient', 'module.json');
         }
 
         delete syn.$w.isPageLoad;
@@ -8274,41 +8282,55 @@ if (typeof module !== 'undefined' && module.exports) {
                     var moduleConfig = moduleLibrary.config;
 
                     var fs = require('fs');
-                    var xml2js = require('xml2js');
                     if (fs.existsSync(syn.Config.DataSourceFilePath) == true) {
-                        var parser = new xml2js.Parser({ explicitArray: false });
-                        fs.readFile(syn.Config.DataSourceFilePath, function (err, data) {
-                            parser.parseString(data, function (error, result) {
-                                if (error) {
-                                    callback(error, null);
-                                }
-                                else {
-                                    var dataSource = result.NewDataSet.DataSource;
-                                    if ($object.isArray(dataSource) == false) {
-                                        if (dataSource.DataSourceID === dataSourceID && dataSource.ApplicationID === moduleConfig.ApplicationID && dataSource.ProjectID.split(',').indexOf(moduleConfig.ProjectID) > -1) {
-                                            callback(null, {
-                                                connectionString: dataSource.ConnectionString,
-                                                provider: dataSource.DataProvider
-                                            });
+                        fs.readFile(syn.Config.DataSourceFilePath, function (error, data) {
+                            if (error) {
+                                callback(error, null);
+                            }
+                            else {
+                                var dbclientJson = JSON.parse(data);
+                                var dataSource = dbclientJson.ModuleConfig.DataSource;
+                                if ($object.isArray(dataSource) == false) {
+                                    if (dataSource.DataSourceID === dataSourceID
+                                        && dataSource.ApplicationID === moduleConfig.ApplicationID
+                                        && (dataSource.ProjectID.includes('*') || dataSource.ProjectID.split(',').indexOf(moduleConfig.ProjectID) > -1)
+                                    ) {
+                                        if ($string.toBoolean(dataSource.IsEncryption) == true) {
+                                            dataSource.ConnectionString = syn.$s.decryptConnectionString(dataSource);
+                                            dataSource.IsEncryption = false;
                                         }
-                                        else {
-                                            callback('DataSourceID: {0}, ApplicationID: {1}, ProjectID: {2} 환경 설정 확인 필요'.format(dataSourceID, moduleConfig.ApplicationID, moduleConfig.ProjectID), null);
-                                        }
+
+                                        callback(null, {
+                                            connectionString: dataSource.ConnectionString,
+                                            provider: dataSource.DataProvider
+                                        });
                                     }
                                     else {
-                                        var findDataSource = dataSource.find(function (item) { return item.DataSourceID == dataSourceID && item.ApplicationID === moduleConfig.ApplicationID && item.ProjectID.split(',').indexOf(moduleConfig.ProjectID) > -1; });
-                                        if (findDataSource) {
-                                            callback(null, {
-                                                connectionString: findDataSource.ConnectionString,
-                                                provider: findDataSource.DataProvider
-                                            });
-                                        }
-                                        else {
-                                            callback('DataSourceID: {0}, ApplicationID: {1}, ProjectID: {2} 환경 설정 확인 필요'.format(dataSourceID, moduleConfig.ApplicationID, moduleConfig.ProjectID), null);
-                                        }
+                                        callback('DataSourceID: {0}, ApplicationID: {1}, ProjectID: {2} 환경 설정 확인 필요'.format(dataSourceID, moduleConfig.ApplicationID, moduleConfig.ProjectID), null);
                                     }
                                 }
-                            });
+                                else {
+                                    var findDataSource = dataSource.find(function (item) {
+                                        return item.DataSourceID == dataSourceID
+                                            && item.ApplicationID === moduleConfig.ApplicationID
+                                            && (item.ProjectID.includes('*') || item.ProjectID.split(',').indexOf(moduleConfig.ProjectID) > -1);
+                                    });
+                                    if (findDataSource) {
+                                        if ($string.toBoolean(findDataSource.IsEncryption) == true) {
+                                            findDataSource.ConnectionString = syn.$s.decryptConnectionString(findDataSource);
+                                            findDataSource.IsEncryption = false;
+                                        }
+
+                                        callback(null, {
+                                            connectionString: findDataSource.ConnectionString,
+                                            provider: findDataSource.DataProvider
+                                        });
+                                    }
+                                    else {
+                                        callback('DataSourceID: {0}, ApplicationID: {1}, ProjectID: {2} 환경 설정 확인 필요'.format(dataSourceID, moduleConfig.ApplicationID, moduleConfig.ProjectID), null);
+                                    }
+                                }
+                            }
                         });
                     }
                     else {
@@ -8321,6 +8343,28 @@ if (typeof module !== 'undefined' && module.exports) {
             } catch (error) {
                 callback(error, null);
             }
+        },
+
+        decryptConnectionString(dataSource) {
+            var result = '';
+            if (dataSource && dataSource.ConnectionString) {
+                try {
+                    var values = $string.split(dataSource.ConnectionString, '.');
+                    var encrypt = values[0];
+                    var decryptKey = values[1];
+                    var hostName = values[2];
+                    var hash = values[3];
+
+                    if (syn.$c.sha256(`${encrypt}.${decryptKey}.${hostName}`) === hash) {
+                        var processedKey = syn.$c.base64Decode(decryptKey).padEnd(32, '0').substring(0, 32);
+                        result = syn.$c.aesDecode(encrypt, processedKey);
+                    }
+                } catch (exception) {
+                    syn.$l.eventLog('decryptConnectionString', `${JSON.stringify(dataSource)} 확인 필요`, 'Error');
+                }
+            }
+
+            return result;
         },
 
         getStatement(moduleID, statementID, parameters) {
@@ -8355,7 +8399,7 @@ if (typeof module !== 'undefined' && module.exports) {
             var moduleLibrary = syn.getModuleLibrary(moduleID);
             if (moduleLibrary) {
                 var moduleConfig = moduleLibrary.config;
-                $s.getDataSource(moduleID, moduleConfig.DataSourceID, function (error, dataSource) {
+                syn.$s.getDataSource(moduleID, moduleConfig.DataSourceID, function (error, dataSource) {
                     if (error) {
                         if (callback) {
                             callback(error, null);
@@ -8374,7 +8418,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                     var sql = '';
 
                                     try {
-                                        sql = $s.getStatement(moduleID, statementID, parameters);
+                                        sql = syn.$s.getStatement(moduleID, statementID, parameters);
                                         if (sql == null) {
                                             var message = 'moduleID: {0}, statementID: {1} - 쿼리 매핑 확인 필요'.format(moduleID, statementID);
                                             syn.$l.eventLog('getStatement', message, 'Error');
@@ -8483,7 +8527,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                     var sql = '';
 
                                     try {
-                                        sql = $s.getStatement(moduleID, statementID, parameters);
+                                        sql = syn.$s.getStatement(moduleID, statementID, parameters);
                                         sql = sql.replace(/\\\"/g, '"');
 
                                         if ($string.isNullOrEmpty(sql.trim()) == true) {
@@ -8566,7 +8610,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                     var sql = '';
 
                                     try {
-                                        sql = $s.getStatement(moduleID, statementID, parameters);
+                                        sql = syn.$s.getStatement(moduleID, statementID, parameters);
                                         sql = sql.replace(/\\\"/g, '"');
 
                                         if ($string.isNullOrEmpty(sql.trim()) == true) {
@@ -8664,7 +8708,7 @@ if (globalRoot.devicePlatform === 'node') {
             if (moduleFileName) {
                 try {
                     var fileDirectory = path.dirname(moduleFileName);
-                    var fileDirectoryName = fileDirectory.split(path.sep).pop();
+                    var fileDirectoryName = path.basename(fileDirectory);
                     var moduleID = functionID;
 
                     var functionModule = syn.functionModules[moduleID];
@@ -8730,6 +8774,4 @@ if (globalRoot.devicePlatform === 'node') {
 
     globalRoot.XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
     syn.functionModules = {};
-
-    module.exports = syn;
 }

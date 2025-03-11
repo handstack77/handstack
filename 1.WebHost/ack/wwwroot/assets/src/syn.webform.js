@@ -3934,10 +3934,18 @@
             if (fs.existsSync(filePath) == true) {
                 var data = fs.readFileSync(filePath, 'utf8');
                 syn.Config = JSON.parse(data);
+
+                process.env.SYN_LogMinimumLevel = syn.Config.LogMinimumLevel || 'trace';
+                process.env.SYN_FileLogBasePath = syn.Config.FileLogBasePath || path.join(process.cwd(), '..', 'log', 'function', 'javascript');
+                process.env.SYN_LocalStoragePath = syn.Config.LocalStoragePath || path.join(process.cwd(), '..', 'cache', 'function');
             }
             else {
                 console.error('Node.js 환경설정 파일이 존재하지 않습니다. 파일경로: {0}'.format(filePath));
             }
+        }
+
+        if (syn.Config && $string.isNullOrEmpty(syn.Config.DataSourceFilePath) == true) {
+            syn.Config.DataSourceFilePath = path.join(process.cwd(), '..', 'modules', 'dbclient', 'module.json');
         }
 
         delete syn.$w.isPageLoad;

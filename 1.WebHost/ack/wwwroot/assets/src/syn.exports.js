@@ -35,7 +35,7 @@ if (globalRoot.devicePlatform === 'node') {
             if (moduleFileName) {
                 try {
                     var fileDirectory = path.dirname(moduleFileName);
-                    var fileDirectoryName = fileDirectory.split(path.sep).pop();
+                    var fileDirectoryName = path.basename(fileDirectory);
                     var moduleID = functionID;
 
                     var functionModule = syn.functionModules[moduleID];
