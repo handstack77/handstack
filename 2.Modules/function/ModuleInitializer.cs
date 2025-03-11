@@ -301,7 +301,7 @@ namespace function
                         options.EnableFileWatching = false;
                     }
 
-                    string watchPath = ModuleConfiguration.ContractBasePath.Count > 0 ? ModuleConfiguration.ContractBasePath[0] : "";
+                    string watchPath = ModuleConfiguration.ContractBasePath.Count > 0 ? ModuleConfiguration.ContractBasePath[ModuleConfiguration.ContractBasePath.Count - 1] : "";
                     if (string.IsNullOrEmpty(watchPath) == true)
                     {
                         options.EnableFileWatching = false;
