@@ -889,10 +889,22 @@
             xhr.send();
         },
 
-        async blobToBase64(blob) {
+        async blobToBase64(blob, base64Only) {
+            base64Only = $string.toBoolean(base64Only);
             return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result);
+                var reader = new FileReader();
+                reader.onloadend = () => {
+                    if (base64Only == true) {
+                        var base64Content = null;
+                        var base64Index = reader.result.indexOf(';base64,');
+                        if (base64Index > -1) {
+                            base64Content = reader.result.substring(base64Index + 8);
+                        }
+                        resolve(base64Content);
+                    } else {
+                        resolve(reader.result);
+                    }
+                };
                 reader.onerror = error => reject(error);
                 reader.readAsDataURL(blob);
             });
