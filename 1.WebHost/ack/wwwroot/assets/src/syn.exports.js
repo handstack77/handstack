@@ -101,6 +101,4 @@ if (globalRoot.devicePlatform === 'node') {
 
     globalRoot.XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
     syn.functionModules = {};
-
-    module.exports = syn;
 }
