@@ -5620,9 +5620,14 @@ if (typeof module !== 'undefined' && module.exports) {
                 data = {};
             }
 
+            var xhr = syn.$w.xmlHttp();
+            xhr.open(method, url, true);
+            xhr.timeout = options.timeout;
+            xhr.responseType = options.responseType;
+            xhr.setRequestHeader('OffsetMinutes', syn.$w.timezoneOffsetMinutes);
+
             var formData = null;
             if ($object.isNullOrUndefined(data.body) == false) {
-                contentType = null;
                 var params = data.body;
                 if (method.toUpperCase() == 'GET') {
                     var paramUrl = url + ((url.split('?').length > 1) ? '&' : '?');
@@ -5641,13 +5646,9 @@ if (typeof module !== 'undefined' && module.exports) {
                     }
                 }
             }
-
-            var xhr = syn.$w.xmlHttp();
-            xhr.open(method, url, true);
-            xhr.timeout = options.timeout;
-            xhr.responseType = options.responseType;
-            xhr.setRequestHeader('Content-Type', options.contentType || 'application/json');
-            xhr.setRequestHeader('OffsetMinutes', syn.$w.timezoneOffsetMinutes);
+            else {
+                xhr.setRequestHeader('Content-Type', options.contentType || 'application/json');
+            }
 
             if (syn.$w.setServiceClientHeader) {
                 if (syn.$w.setServiceClientHeader(xhr) == false) {
