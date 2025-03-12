@@ -3523,6 +3523,13 @@ if (typeof module !== 'undefined' && module.exports) {
             }, {});
         },
 
+        toUrlObject(url) {
+            url = url || '';
+            return (url.match(/([^?=&]+)(=([^&]*))/g) || []).reduce(function (a, v) {
+                return a[v.slice(0, v.indexOf('='))] = v.slice(v.indexOf('=') + 1), a;
+            }, {});
+        },
+
         toBoolean(val) {
             return (val === 'true' || val === 'True' || val === 'TRUE' || val === 'Y' || val == '1');
         },
