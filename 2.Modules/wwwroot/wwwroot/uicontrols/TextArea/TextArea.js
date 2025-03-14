@@ -7,7 +7,7 @@
 
     $textarea.extend({
         name: 'syn.uicontrols.$textarea',
-        version: 'v2025.3.1',
+        version: 'v2025.3.14',
         textControls: [],
         defaultSetting: {
             width: '100%',
@@ -138,6 +138,11 @@
             if (setting.bindingID && syn.uicontrols.$data) {
                 syn.uicontrols.$data.bindingSource(elID, setting.bindingID);
             }
+        },
+
+        countLines(elID) {
+            var result = $textarea.getValue(elID) || '';
+            return result.split('\n').length;
         },
 
         getValue(elID) {
