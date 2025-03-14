@@ -124,7 +124,12 @@ namespace HandStack.Web
                 basePath = defaultPath;
             }
 
-            return basePath.Replace("\\", "/");
+            basePath = basePath.Replace("\\", "/");
+            if (Directory.Exists(basePath) == false)
+            {
+                basePath = "";
+            }
+            return basePath;
         }
 
         public static bool InitailizeAppSetting(Dictionary<string, JToken> transactionResult)
