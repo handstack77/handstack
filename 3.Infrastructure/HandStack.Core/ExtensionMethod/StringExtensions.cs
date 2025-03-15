@@ -299,6 +299,10 @@ namespace HandStack.Core.ExtensionMethod
                 {
                     result = dateTime;
                 }
+                else
+                {
+                    result = defaultValue;
+                }
             }
 
             return result;
@@ -311,9 +315,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static int ParseInt(this string @this, int defaultValue, IFormatProvider numberFormat)
         {
-            int Result = defaultValue;
-            int.TryParse(@this, NumberStyles.Any, numberFormat, out Result);
-            return Result;
+            int result = defaultValue;
+            return int.TryParse(@this, NumberStyles.Any, numberFormat, out result) == true ? result : defaultValue;
         }
 
         public static long ParseLong(this string @this, long defaultValue)
@@ -323,9 +326,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static long ParseLong(this string @this, long defaultValue, IFormatProvider numberFormat)
         {
-            long Result = defaultValue;
-            long.TryParse(@this, NumberStyles.Any, numberFormat, out Result);
-            return Result;
+            long result = defaultValue;
+            return long.TryParse(@this, NumberStyles.Any, numberFormat, out result) == true ? result : defaultValue;
         }
 
         public static decimal ParseDecimal(this string @this, decimal defaultValue)
@@ -335,9 +337,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static decimal ParseDecimal(this string @this, decimal defaultValue, IFormatProvider numberFormat)
         {
-            decimal Result = defaultValue;
-            decimal.TryParse(@this, NumberStyles.Any, numberFormat, out Result);
-            return Result;
+            decimal result = defaultValue;
+            return decimal.TryParse(@this, NumberStyles.Any, numberFormat, out result) == true ? result : defaultValue;
         }
 
         public static double ParseDouble(this string @this, double defaultValue)
@@ -347,9 +348,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static double ParseDouble(this string @this, double defaultValue, IFormatProvider numberFormat)
         {
-            double Result = defaultValue;
-            double.TryParse(@this, NumberStyles.Any, numberFormat, out Result);
-            return Result;
+            double result = defaultValue;
+            return double.TryParse(@this, NumberStyles.Any, numberFormat, out result) == true ? result : defaultValue;
         }
 
         public static float ParseFloat(this string @this, float defaultValue)
@@ -359,9 +359,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static float ParseFloat(this string @this, float defaultValue, IFormatProvider numberFormat)
         {
-            float Result = defaultValue;
-            float.TryParse(@this, NumberStyles.Any, numberFormat, out Result);
-            return Result;
+            float result = defaultValue;
+            return float.TryParse(@this, NumberStyles.Any, numberFormat, out result) == true ? result : defaultValue;
         }
 
         public static string ToNumeric(this string @this)
