@@ -115,7 +115,7 @@ namespace HandStack.Web
 
         public static string DefaultCulture => "ko-KR";
 
-        public static string GetBasePath(string? basePath, string? defaultPath = "")
+        public static string GetBasePath(string basePath, string? defaultPath = "")
         {
             basePath = Environment.ExpandEnvironmentVariables(basePath.ToStringSafe());
             basePath = string.IsNullOrEmpty(basePath) == true ? "" : (basePath.StartsWith(".") == true ? Path.GetFullPath(basePath, EntryBasePath) : new DirectoryInfo(basePath).FullName.Replace("\\", "/"));
@@ -125,9 +125,9 @@ namespace HandStack.Web
             }
 
             basePath = basePath.Replace("\\", "/");
-            if (Directory.Exists(basePath) == false)
+            if (string.IsNullOrEmpty(basePath) == false && Directory.Exists(basePath) == false && string.IsNullOrEmpty(defaultPath) == true)
             {
-                basePath = "";
+                Directory.CreateDirectory(basePath);
             }
             return basePath;
         }
