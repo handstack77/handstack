@@ -1,4 +1,4 @@
-/*!
+﻿/*!
 HandStack Javascript Library v2025.3.2
 https://handshake.kr
 
@@ -3560,23 +3560,41 @@ if (typeof module !== 'undefined' && module.exports) {
 
         async blobToBase64(blob, base64Only) {
             base64Only = $string.toBoolean(base64Only);
-            return new Promise((resolve, reject) => {
-                var reader = new FileReader();
-                reader.onloadend = () => {
-                    if (base64Only == true) {
-                        var base64Content = null;
-                        var base64Index = reader.result.indexOf(';base64,');
-                        if (base64Index > -1) {
-                            base64Content = reader.result.substring(base64Index + 8);
+            if (globalRoot.devicePlatform === 'node') {
+                return new Promise((resolve, reject) => {
+                    blob.arrayBuffer()
+                        .then(arrayBuffer => {
+                            var buffer = Buffer.from(arrayBuffer);
+                            var base64Data = buffer.toString('base64');
+                            if (base64Only == true) {
+                                resolve(base64Data);
+                            } else {
+                                const mimeType = blob.type || 'application/octet-stream';
+                                resolve(`data:${mimeType};base64,${base64Data}`);
+                            }
+                        })
+                        .catch(error => reject(error));
+                });
+            }
+            else {
+                return new Promise((resolve, reject) => {
+                    var reader = new FileReader();
+                    reader.onloadend = () => {
+                        if (base64Only == true) {
+                            var base64Content = null;
+                            var base64Index = reader.result.indexOf(';base64,');
+                            if (base64Index > -1) {
+                                base64Content = reader.result.substring(base64Index + 8);
+                            }
+                            resolve(base64Content);
+                        } else {
+                            resolve(reader.result);
                         }
-                        resolve(base64Content);
-                    } else {
-                        resolve(reader.result);
-                    }
-                };
-                reader.onerror = error => reject(error);
-                reader.readAsDataURL(blob);
-            });
+                    };
+                    reader.onerror = error => reject(error);
+                    reader.readAsDataURL(blob);
+                });
+            }
         },
 
         base64ToBlob(b64Data, contentType, sliceSize) {
@@ -3618,12 +3636,51 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         async fileToBase64(file) {
-            return new Promise((resolve, reject) => {
-                var reader = new FileReader();
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = error => reject(error);
-                reader.readAsDataURL(file);
-            });
+            if (globalRoot.devicePlatform === 'node') {
+                if (file.startsWith('http:') == true || file.startsWith('https:') == true) {
+                    var response = await fetch(file);
+                    var contentType = response.headers.get('Content-Type') || 'application/octet-stream';
+                    var arrayBuffer = await response.arrayBuffer();
+                    var buffer = Buffer.from(arrayBuffer);
+                    var base64Data = buffer.toString('base64');
+
+                    return `data:${contentType};base64,${base64Data}`;
+                }
+                else {
+                    var fs = require('fs').promises;
+                    var buffer = await fs.readFile(filePath);
+                    var base64Data = buffer.toString('base64');
+
+                    var path = require('path');
+                    var extension = path.extname(filePath).toLowerCase();
+                    var mimeType = 'application/octet-stream';
+
+                    var mimeTypes = {
+                        '.jpg': 'image/jpeg',
+                        '.jpeg': 'image/jpeg',
+                        '.png': 'image/png',
+                        '.gif': 'image/gif',
+                        '.pdf': 'application/pdf',
+                        '.txt': 'text/plain',
+                        '.html': 'text/html',
+                        '.json': 'application/json'
+                    };
+
+                    if (mimeTypes[extension]) {
+                        mimeType = mimeTypes[extension];
+                    }
+
+                    return `data:${mimeType};base64,${base64Data}`;
+                }
+            }
+            else {
+                return new Promise((resolve, reject) => {
+                    var reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = error => reject(error);
+                    reader.readAsDataURL(file);
+                });
+            }
         },
 
         async fileToBlob(file) {
@@ -4011,6 +4068,129 @@ if (typeof module !== 'undefined' && module.exports) {
             }
 
             return result;
+        },
+
+        httpFetch(url) {
+            return new Proxy({}, {
+                get(target, action) {
+                    return async function (raw, options) {
+                        if (['send'].indexOf(action) == -1) {
+                            return Promise.resolve({ error: `${action} 메서드 확인 필요` });
+                        }
+
+                        options = syn.$w.argumentsExtend({
+                            method: 'GET'
+                        }, options);
+
+                        var requestTimeoutID = null;
+                        if ($object.isNullOrUndefined(raw) == false && $object.isString(raw) == false) {
+                            options.method = options.method || 'POST';
+
+                            if ($object.isNullOrUndefined(options.headers) == true) {
+                                options.headers = new Headers();
+                                if (raw instanceof FormData) {
+                                }
+                                else {
+                                    options.headers.append('Content-Type', options.contentType || 'application/json');
+                                }
+                            }
+
+                            if (syn.Environment) {
+                                var environment = syn.Environment;
+                                if (environment.Header) {
+                                    for (var item in environment.Header) {
+                                        if (options.headers.has(item) == false) {
+                                            options.headers.append(item, environment.Header[item]);
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (options.headers.has('OffsetMinutes') == false) {
+                                options.headers.append('OffsetMinutes', syn.$w.timezoneOffsetMinutes);
+                            }
+
+                            var data = {
+                                method: options.method,
+                                headers: options.headers,
+                                body: raw instanceof FormData ? raw : JSON.stringify(raw),
+                                redirect: 'follow'
+                            };
+
+                            if ($object.isNullOrUndefined(options.timeout) == false) {
+                                var controller = new AbortController();
+                                requestTimeoutID = setTimeout(() => controller.abort(), options.timeout);
+                                data.signal = controller.signal;
+                            }
+
+                            var response = await fetch(url, data);
+
+                            if (requestTimeoutID) {
+                                clearTimeout(requestTimeoutID);
+                            }
+                        }
+                        else {
+                            if ($object.isNullOrUndefined(options.headers) == true) {
+                                options.headers = new Headers();
+                                options.headers.append('Content-Type', options.contentType || 'application/json');
+                            }
+
+                            if (syn.Environment) {
+                                var environment = syn.Environment;
+                                if (environment.Header) {
+                                    for (var item in environment.Header) {
+                                        if (options.headers.has(item) == false) {
+                                            options.headers.append(item, environment.Header[item]);
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (options.headers.has('OffsetMinutes') == false) {
+                                options.headers.append('OffsetMinutes', syn.$w.timezoneOffsetMinutes);
+                            }
+
+                            var data = {
+                                method: options.method,
+                                headers: options.headers,
+                                redirect: 'follow'
+                            };
+
+                            if ($object.isNullOrUndefined(options.timeout) == false) {
+                                var controller = new AbortController();
+                                requestTimeoutID = setTimeout(() => controller.abort(), options.timeout);
+                                data.signal = controller.signal;
+                            }
+
+                            var response = await fetch(url, data);
+
+                            if (requestTimeoutID) {
+                                clearTimeout(requestTimeoutID);
+                            }
+                        }
+
+                        if (response.ok == true) {
+                            var result = null;
+                            var contentType = response.headers.get('Content-Type') || '';
+                            if (contentType.includes('application/json') == true) {
+                                result = await response.json();
+                            }
+                            else if (contentType.includes('text/') == true) {
+                                result = await response.text();
+                            }
+                            else {
+                                result = await response.blob();
+                            }
+                            return Promise.resolve(result);
+                        }
+                        else {
+                            syn.$l.eventLog('$r.httpFetch', `status: ${response.status}, text: ${await response.text()}`, 'Error');
+                        }
+
+                        return Promise.resolve({ error: '요청 정보 확인 필요' });
+                    };
+                }
+            });
         },
 
         // var result = await syn.$r.httpRequest('GET', '/index');
@@ -7094,12 +7274,17 @@ if (typeof module !== 'undefined' && module.exports) {
                             method: 'GET'
                         }, options);
 
+                        var requestTimeoutID = null;
                         if ($object.isNullOrUndefined(raw) == false && $object.isString(raw) == false) {
-                            options.method = 'POST';
+                            options.method = options.method || 'POST';
 
                             if ($object.isNullOrUndefined(options.headers) == true) {
                                 options.headers = new Headers();
-                                options.headers.append('Content-Type', 'application/json');
+                                if (raw instanceof FormData) {
+                                }
+                                else {
+                                    options.headers.append('Content-Type', options.contentType || 'application/json');
+                                }
                             }
 
                             if (syn.Environment) {
@@ -7125,15 +7310,21 @@ if (typeof module !== 'undefined' && module.exports) {
                             };
 
                             if ($object.isNullOrUndefined(options.timeout) == false) {
-                                data.timeout = options.timeout;
+                                var controller = new AbortController();
+                                requestTimeoutID = setTimeout(() => controller.abort(), options.timeout);
+                                data.signal = controller.signal;
                             }
 
                             var response = await fetch(url, data);
+
+                            if (requestTimeoutID) {
+                                clearTimeout(requestTimeoutID);
+                            }
                         }
                         else {
                             if ($object.isNullOrUndefined(options.headers) == true) {
                                 options.headers = new Headers();
-                                options.headers.append('Content-Type', 'text/plain');
+                                options.headers.append('Content-Type', options.contentType || 'application/json');
                             }
 
                             if (syn.Environment) {
@@ -7158,20 +7349,29 @@ if (typeof module !== 'undefined' && module.exports) {
                             };
 
                             if ($object.isNullOrUndefined(options.timeout) == false) {
-                                data.timeout = options.timeout;
+                                var controller = new AbortController();
+                                requestTimeoutID = setTimeout(() => controller.abort(), options.timeout);
+                                data.signal = controller.signal;
                             }
 
                             var response = await fetch(url, data);
+
+                            if (requestTimeoutID) {
+                                clearTimeout(requestTimeoutID);
+                            }
                         }
 
                         if (response.ok == true) {
                             var result = null;
-                            var contentType = response.headers.get('Content-Type');
-                            if ($object.isNullOrUndefined(contentType) == false && contentType.indexOf('application/json') > -1) {
-                                result = response.json();
+                            var contentType = response.headers.get('Content-Type') || '';
+                            if (contentType.includes('application/json') == true) {
+                                result = await response.json();
+                            }
+                            else if (contentType.includes('text/') == true) {
+                                result = await response.text();
                             }
                             else {
-                                result = response.text();
+                                result = await response.blob();
                             }
                             return Promise.resolve(result);
                         }
@@ -7611,7 +7811,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
                 var ipAddress = syn.$w.getStorage('ipAddress', false);
                 if ($object.isNullOrUndefined(ipAddress) == true && $string.isNullOrEmpty(syn.Config.FindClientIPServer) == false) {
-                    ipAddress = await syn.$w.apiHttp(syn.Config.FindClientIPServer || '/checkip').send(null, {
+                    ipAddress = await syn.$r.httpFetch(syn.Config.FindClientIPServer || '/checkip').send(null, {
                         method: 'GET',
                         redirect: 'follow',
                         timeout: 1000
@@ -7646,7 +7846,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 var globalID = '';
 
                 if ($string.isNullOrEmpty(syn.Config.FindGlobalIDServer) == false) {
-                    apiService.GlobalID = await syn.$w.apiHttp(syn.Config.FindGlobalIDServer).send({
+                    apiService.GlobalID = await syn.$r.httpFetch(syn.Config.FindGlobalIDServer).send({
                         applicationID: programID,
                         projectID: businessID,
                         transactionID: transactionID,

@@ -133,12 +133,12 @@ let $webforms = {
         },
 
         async btn_apiHttp_get_click() {
-            var result = await syn.$w.apiHttp('sample.json').send();
+            var result = await syn.$r.httpFetch('sample.json').send();
             syn.$l.get('txt_apiHttp').value = JSON.stringify(result);
         },
 
         async btn_apiHttp_post_click() {
-            var result = await syn.$w.apiHttp('sample.json').send({
+            var result = await syn.$r.httpFetch('sample.json').send({
                 applicationID: 'programID',
                 projectID: 'businessID',
                 transactionID: 'transactionID',
@@ -151,7 +151,7 @@ let $webforms = {
             var formData = new FormData();
             formData.append('field', 'data');
 
-            var result = await syn.$w.apiHttp('sample.json').send(formData);
+            var result = await syn.$r.httpFetch('sample.json').send(formData);
             syn.$l.get('txt_apiHttp').value = JSON.stringify(result);
         },
 

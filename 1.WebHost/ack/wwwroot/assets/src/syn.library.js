@@ -891,23 +891,41 @@
 
         async blobToBase64(blob, base64Only) {
             base64Only = $string.toBoolean(base64Only);
-            return new Promise((resolve, reject) => {
-                var reader = new FileReader();
-                reader.onloadend = () => {
-                    if (base64Only == true) {
-                        var base64Content = null;
-                        var base64Index = reader.result.indexOf(';base64,');
-                        if (base64Index > -1) {
-                            base64Content = reader.result.substring(base64Index + 8);
+            if (globalRoot.devicePlatform === 'node') {
+                return new Promise((resolve, reject) => {
+                    blob.arrayBuffer()
+                        .then(arrayBuffer => {
+                            var buffer = Buffer.from(arrayBuffer);
+                            var base64Data = buffer.toString('base64');
+                            if (base64Only == true) {
+                                resolve(base64Data);
+                            } else {
+                                const mimeType = blob.type || 'application/octet-stream';
+                                resolve(`data:${mimeType};base64,${base64Data}`);
+                            }
+                        })
+                        .catch(error => reject(error));
+                });
+            }
+            else {
+                return new Promise((resolve, reject) => {
+                    var reader = new FileReader();
+                    reader.onloadend = () => {
+                        if (base64Only == true) {
+                            var base64Content = null;
+                            var base64Index = reader.result.indexOf(';base64,');
+                            if (base64Index > -1) {
+                                base64Content = reader.result.substring(base64Index + 8);
+                            }
+                            resolve(base64Content);
+                        } else {
+                            resolve(reader.result);
                         }
-                        resolve(base64Content);
-                    } else {
-                        resolve(reader.result);
-                    }
-                };
-                reader.onerror = error => reject(error);
-                reader.readAsDataURL(blob);
-            });
+                    };
+                    reader.onerror = error => reject(error);
+                    reader.readAsDataURL(blob);
+                });
+            }
         },
 
         base64ToBlob(b64Data, contentType, sliceSize) {
@@ -949,12 +967,51 @@
         },
 
         async fileToBase64(file) {
-            return new Promise((resolve, reject) => {
-                var reader = new FileReader();
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = error => reject(error);
-                reader.readAsDataURL(file);
-            });
+            if (globalRoot.devicePlatform === 'node') {
+                if (file.startsWith('http:') == true || file.startsWith('https:') == true) {
+                    var response = await fetch(file);
+                    var contentType = response.headers.get('Content-Type') || 'application/octet-stream';
+                    var arrayBuffer = await response.arrayBuffer();
+                    var buffer = Buffer.from(arrayBuffer);
+                    var base64Data = buffer.toString('base64');
+
+                    return `data:${contentType};base64,${base64Data}`;
+                }
+                else {
+                    var fs = require('fs').promises;
+                    var buffer = await fs.readFile(filePath);
+                    var base64Data = buffer.toString('base64');
+
+                    var path = require('path');
+                    var extension = path.extname(filePath).toLowerCase();
+                    var mimeType = 'application/octet-stream';
+
+                    var mimeTypes = {
+                        '.jpg': 'image/jpeg',
+                        '.jpeg': 'image/jpeg',
+                        '.png': 'image/png',
+                        '.gif': 'image/gif',
+                        '.pdf': 'application/pdf',
+                        '.txt': 'text/plain',
+                        '.html': 'text/html',
+                        '.json': 'application/json'
+                    };
+
+                    if (mimeTypes[extension]) {
+                        mimeType = mimeTypes[extension];
+                    }
+
+                    return `data:${mimeType};base64,${base64Data}`;
+                }
+            }
+            else {
+                return new Promise((resolve, reject) => {
+                    var reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = error => reject(error);
+                    reader.readAsDataURL(file);
+                });
+            }
         },
 
         async fileToBlob(file) {

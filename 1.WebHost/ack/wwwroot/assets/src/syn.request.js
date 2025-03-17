@@ -87,6 +87,129 @@
             return result;
         },
 
+        httpFetch(url) {
+            return new Proxy({}, {
+                get(target, action) {
+                    return async function (raw, options) {
+                        if (['send'].indexOf(action) == -1) {
+                            return Promise.resolve({ error: `${action} 메서드 확인 필요` });
+                        }
+
+                        options = syn.$w.argumentsExtend({
+                            method: 'GET'
+                        }, options);
+
+                        var requestTimeoutID = null;
+                        if ($object.isNullOrUndefined(raw) == false && $object.isString(raw) == false) {
+                            options.method = options.method || 'POST';
+
+                            if ($object.isNullOrUndefined(options.headers) == true) {
+                                options.headers = new Headers();
+                                if (raw instanceof FormData) {
+                                }
+                                else {
+                                    options.headers.append('Content-Type', options.contentType || 'application/json');
+                                }
+                            }
+
+                            if (syn.Environment) {
+                                var environment = syn.Environment;
+                                if (environment.Header) {
+                                    for (var item in environment.Header) {
+                                        if (options.headers.has(item) == false) {
+                                            options.headers.append(item, environment.Header[item]);
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (options.headers.has('OffsetMinutes') == false) {
+                                options.headers.append('OffsetMinutes', syn.$w.timezoneOffsetMinutes);
+                            }
+
+                            var data = {
+                                method: options.method,
+                                headers: options.headers,
+                                body: raw instanceof FormData ? raw : JSON.stringify(raw),
+                                redirect: 'follow'
+                            };
+
+                            if ($object.isNullOrUndefined(options.timeout) == false) {
+                                var controller = new AbortController();
+                                requestTimeoutID = setTimeout(() => controller.abort(), options.timeout);
+                                data.signal = controller.signal;
+                            }
+
+                            var response = await fetch(url, data);
+
+                            if (requestTimeoutID) {
+                                clearTimeout(requestTimeoutID);
+                            }
+                        }
+                        else {
+                            if ($object.isNullOrUndefined(options.headers) == true) {
+                                options.headers = new Headers();
+                                options.headers.append('Content-Type', options.contentType || 'application/json');
+                            }
+
+                            if (syn.Environment) {
+                                var environment = syn.Environment;
+                                if (environment.Header) {
+                                    for (var item in environment.Header) {
+                                        if (options.headers.has(item) == false) {
+                                            options.headers.append(item, environment.Header[item]);
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (options.headers.has('OffsetMinutes') == false) {
+                                options.headers.append('OffsetMinutes', syn.$w.timezoneOffsetMinutes);
+                            }
+
+                            var data = {
+                                method: options.method,
+                                headers: options.headers,
+                                redirect: 'follow'
+                            };
+
+                            if ($object.isNullOrUndefined(options.timeout) == false) {
+                                var controller = new AbortController();
+                                requestTimeoutID = setTimeout(() => controller.abort(), options.timeout);
+                                data.signal = controller.signal;
+                            }
+
+                            var response = await fetch(url, data);
+
+                            if (requestTimeoutID) {
+                                clearTimeout(requestTimeoutID);
+                            }
+                        }
+
+                        if (response.ok == true) {
+                            var result = null;
+                            var contentType = response.headers.get('Content-Type') || '';
+                            if (contentType.includes('application/json') == true) {
+                                result = await response.json();
+                            }
+                            else if (contentType.includes('text/') == true) {
+                                result = await response.text();
+                            }
+                            else {
+                                result = await response.blob();
+                            }
+                            return Promise.resolve(result);
+                        }
+                        else {
+                            syn.$l.eventLog('$r.httpFetch', `status: ${response.status}, text: ${await response.text()}`, 'Error');
+                        }
+
+                        return Promise.resolve({ error: '요청 정보 확인 필요' });
+                    };
+                }
+            });
+        },
+
         // var result = await syn.$r.httpRequest('GET', '/index');
         httpRequest(method, url, data, callback, options) {
             options = syn.$w.argumentsExtend({

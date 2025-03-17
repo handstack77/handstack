@@ -270,7 +270,7 @@ let $HDM010 = {
         },
 
         async btnNewMetaEntity_click(evt) {
-            syn.$l.get('txtEntityNo').value = await syn.$w.apiHttp('/checkup/api/index/id').send();
+            syn.$l.get('txtEntityNo').value = await syn.$r.httpFetch('/checkup/api/index/id').send();
             syn.$l.get('txtCreatedMemberNo').value = syn.$w.User.UserNo;
             syn.$l.get('txtEntityID').value = '';
             syn.$l.get('txtAcronyms').value = '';

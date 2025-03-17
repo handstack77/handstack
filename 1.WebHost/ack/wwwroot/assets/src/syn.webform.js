@@ -2847,12 +2847,17 @@
                             method: 'GET'
                         }, options);
 
+                        var requestTimeoutID = null;
                         if ($object.isNullOrUndefined(raw) == false && $object.isString(raw) == false) {
-                            options.method = 'POST';
+                            options.method = options.method || 'POST';
 
                             if ($object.isNullOrUndefined(options.headers) == true) {
                                 options.headers = new Headers();
-                                options.headers.append('Content-Type', 'application/json');
+                                if (raw instanceof FormData) {
+                                }
+                                else {
+                                    options.headers.append('Content-Type', options.contentType || 'application/json');
+                                }
                             }
 
                             if (syn.Environment) {
@@ -2878,15 +2883,21 @@
                             };
 
                             if ($object.isNullOrUndefined(options.timeout) == false) {
-                                data.timeout = options.timeout;
+                                var controller = new AbortController();
+                                requestTimeoutID = setTimeout(() => controller.abort(), options.timeout);
+                                data.signal = controller.signal;
                             }
 
                             var response = await fetch(url, data);
+
+                            if (requestTimeoutID) {
+                                clearTimeout(requestTimeoutID);
+                            }
                         }
                         else {
                             if ($object.isNullOrUndefined(options.headers) == true) {
                                 options.headers = new Headers();
-                                options.headers.append('Content-Type', 'text/plain');
+                                options.headers.append('Content-Type', options.contentType || 'application/json');
                             }
 
                             if (syn.Environment) {
@@ -2911,20 +2922,29 @@
                             };
 
                             if ($object.isNullOrUndefined(options.timeout) == false) {
-                                data.timeout = options.timeout;
+                                var controller = new AbortController();
+                                requestTimeoutID = setTimeout(() => controller.abort(), options.timeout);
+                                data.signal = controller.signal;
                             }
 
                             var response = await fetch(url, data);
+
+                            if (requestTimeoutID) {
+                                clearTimeout(requestTimeoutID);
+                            }
                         }
 
                         if (response.ok == true) {
                             var result = null;
-                            var contentType = response.headers.get('Content-Type');
-                            if ($object.isNullOrUndefined(contentType) == false && contentType.indexOf('application/json') > -1) {
-                                result = response.json();
+                            var contentType = response.headers.get('Content-Type') || '';
+                            if (contentType.includes('application/json') == true) {
+                                result = await response.json();
+                            }
+                            else if (contentType.includes('text/') == true) {
+                                result = await response.text();
                             }
                             else {
-                                result = response.text();
+                                result = await response.blob();
                             }
                             return Promise.resolve(result);
                         }
@@ -3364,7 +3384,7 @@
 
                 var ipAddress = syn.$w.getStorage('ipAddress', false);
                 if ($object.isNullOrUndefined(ipAddress) == true && $string.isNullOrEmpty(syn.Config.FindClientIPServer) == false) {
-                    ipAddress = await syn.$w.apiHttp(syn.Config.FindClientIPServer || '/checkip').send(null, {
+                    ipAddress = await syn.$r.httpFetch(syn.Config.FindClientIPServer || '/checkip').send(null, {
                         method: 'GET',
                         redirect: 'follow',
                         timeout: 1000
@@ -3399,7 +3419,7 @@
                 var globalID = '';
 
                 if ($string.isNullOrEmpty(syn.Config.FindGlobalIDServer) == false) {
-                    apiService.GlobalID = await syn.$w.apiHttp(syn.Config.FindGlobalIDServer).send({
+                    apiService.GlobalID = await syn.$r.httpFetch(syn.Config.FindGlobalIDServer).send({
                         applicationID: programID,
                         projectID: businessID,
                         transactionID: transactionID,

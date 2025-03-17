@@ -62,7 +62,7 @@ let $signin = {
 
     method: {
         async handleLoginCredentialMail(loginID, password) {
-            var result = await syn.$w.apiHttp(`/checkup/api/account/login?userID=${loginID}&password=${syn.$c.sha256(password)}&clientIP=${$this.prop.clientIP}`).send();
+            var result = await syn.$r.httpFetch(`/checkup/api/account/login?userID=${loginID}&password=${syn.$c.sha256(password)}&clientIP=${$this.prop.clientIP}`).send();
             if (result && $string.isNullOrEmpty(result.error) == true) {
                 location.href = result.message;
             }
