@@ -103,6 +103,7 @@ namespace dbclient.Events
                                 }
 
                                 DataSourceTanantKey tanantMap = new DataSourceTanantKey();
+                                tanantMap.ApplicationID = item.ApplicationID;
                                 tanantMap.DataSourceID = item.DataSourceID;
                                 tanantMap.TanantPattern = "";
                                 tanantMap.TanantValue = "";

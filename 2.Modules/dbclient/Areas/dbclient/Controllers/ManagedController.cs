@@ -256,6 +256,7 @@ namespace dbclient.Areas.dbclient.Controllers
                                             }
 
                                             DataSourceTanantKey tanantMap = new DataSourceTanantKey();
+                                            tanantMap.ApplicationID = item.ApplicationID;
                                             tanantMap.DataSourceID = item.DataSourceID;
                                             tanantMap.TanantPattern = item.TanantPattern;
                                             tanantMap.TanantValue = item.TanantValue;

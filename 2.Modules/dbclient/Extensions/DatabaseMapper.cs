@@ -23,7 +23,6 @@ using HandStack.Web.MessageContract.DataObject;
 using HtmlAgilityPack;
 
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.FileProviders;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -90,13 +89,18 @@ namespace dbclient.Extensions
                             {
                                 foreach (var item in dataSourceJson)
                                 {
-                                    if (ModuleConfiguration.DataSource.Contains(item) == false)
+                                    if (ModuleConfiguration.DataSource.FindIndex(p =>
+                                        p.ApplicationID == item.ApplicationID
+                                        && p.ProjectID == item.ProjectID
+                                        && p.DataSourceID == item.DataSourceID
+                                    ) == -1)
                                     {
                                         item.ConnectionString = item.ConnectionString.Replace("{appBasePath}", appBasePath);
                                         ModuleConfiguration.DataSource.Add(item);
                                     }
 
                                     DataSourceTanantKey tanantMap = new DataSourceTanantKey();
+                                    tanantMap.ApplicationID = item.ApplicationID;
                                     tanantMap.DataSourceID = item.DataSourceID;
                                     tanantMap.TanantPattern = item.TanantPattern;
                                     tanantMap.TanantValue = item.TanantValue;
@@ -1114,6 +1118,7 @@ namespace dbclient.Extensions
                 foreach (var item in ModuleConfiguration.DataSource)
                 {
                     DataSourceTanantKey tanantMap = new DataSourceTanantKey();
+                    tanantMap.ApplicationID = item.ApplicationID;
                     tanantMap.DataSourceID = item.DataSourceID;
                     tanantMap.TanantPattern = item.TanantPattern;
                     tanantMap.TanantValue = item.TanantValue;
