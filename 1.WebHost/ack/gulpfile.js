@@ -29,6 +29,7 @@ gulp.task('scripts', async function () {
         'wwwroot/assets/src/syn.request.js',
         'wwwroot/assets/src/syn.network.js',
         'wwwroot/assets/src/syn.webform.js',
+        'wwwroot/assets/src/syn.print.js',
         'wwwroot/assets/src/syn.resource.js',
         'wwwroot/assets/src/lang/syn.resource.ko-KR.js',
     ])
@@ -44,6 +45,7 @@ gulp.task('nodescripts', async function () {
         'wwwroot/assets/src/syn.library.js',
         'wwwroot/assets/src/syn.request.js',
         'wwwroot/assets/src/syn.webform.js',
+        'wwwroot/assets/src/syn.print.js',
         'wwwroot/assets/src/syn.system.js',
         'wwwroot/assets/src/syn.exports.js',
     ])
