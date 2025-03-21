@@ -1,5 +1,5 @@
-﻿/*!
-HandStack Javascript Library v2025.3.2
+/*!
+HandStack Javascript Library v2025.3.22
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -11160,13 +11160,13 @@ if (typeof module !== 'undefined' && module.exports) {
                             clipboard.on('success', (e) => {
                                 clipboard.destroy();
                                 document.body.removeChild(tempButton);
-                                resolve(result);
+                                resolve(true);
                             });
 
                             clipboard.on('error', (e) => {
                                 clipboard.destroy();
                                 document.body.removeChild(tempButton);
-                                reject('');
+                                reject(false);
                             });
 
                             tempButton.click();
