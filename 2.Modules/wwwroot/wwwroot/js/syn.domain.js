@@ -2204,7 +2204,7 @@
                     return false;
                 };
 
-                var controlText = options.controlText;
+                var controlText = options.controlText || controlInfo.id.replace('_hidden', '');
                 var value = controlModule.getValue(controlInfo.id);
                 if (options.validators.indexOf('require') > -1) {
                     if (value == '' || value == null) {
@@ -2267,7 +2267,7 @@
                     return false;
                 };
 
-                var controlText = options.controlText;
+                var controlText = options.controlText || controlInfo.id.replace('_hidden', '');
                 var columnName = controlModule.getColHeader(controlInfo.id.replace('_hidden', ''), controlModule.propToCol(controlInfo.id.replace('_hidden', ''), options.data));
                 var row = controlModule.getActiveRowIndex(controlInfo.id);
                 var col = controlModule.propToCol(controlInfo.id.replace('_hidden', ''), options.data);
@@ -2339,7 +2339,7 @@
                     return false;
                 };
 
-                var controlText = options.controlText;
+                var controlText = options.controlText || controlInfo.id.replace('_hidden', '');
                 var columnName = controlModule.getColHeader(controlInfo.id.replace('_hidden', ''), controlModule.propToCol(controlInfo.id.replace('_hidden', ''), options.data));
                 var flagData = controlModule.getSourceDataAtCol(controlInfo.id.replace('_hidden', ''), 'Flag');
                 var rowData = controlModule.getSourceDataAtCol(controlInfo.id.replace('_hidden', ''), options.data);
