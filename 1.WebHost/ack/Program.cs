@@ -23,21 +23,23 @@ namespace ack
     public class Program
     {
         private static System.Timers.Timer? startupAwaitTimer;
-        private static CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        private static readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
         public static async Task<int> Main(string[] args)
         {
             int exitCode = 0;
 
+            var sb = new StringBuilder();
             var version = Assembly.GetEntryAssembly()?
                 .GetCustomAttribute<TargetFrameworkAttribute>()?
                 .FrameworkName;
 
-            Console.WriteLine($"Current .NET Core version: {version}");
-            Console.WriteLine($"Current Directory from {Directory.GetCurrentDirectory()}");
-            Console.WriteLine($"Launched from {Environment.CurrentDirectory}");
-            Console.WriteLine($"Physical location {AppDomain.CurrentDomain.BaseDirectory}");
-            Console.WriteLine($"Runtime call {Path.GetDirectoryName(Process.GetCurrentProcess().MainModule?.FileName)}");
+            sb.AppendLine($"Current .NET Core version: {version}");
+            sb.AppendLine($"Current Directory from {Directory.GetCurrentDirectory()}");
+            sb.AppendLine($"Launched from {Environment.CurrentDirectory}");
+            sb.AppendLine($"Physical location {AppDomain.CurrentDomain.BaseDirectory}");
+            sb.AppendLine($"Runtime call {Path.GetDirectoryName(Process.GetCurrentProcess().MainModule?.FileName)}");
+            Console.Write(sb.ToString());
 
             GlobalConfiguration.EntryBasePath = AppDomain.CurrentDomain.BaseDirectory;
             if (File.Exists("entrybasepath.txt") == true)
@@ -61,17 +63,23 @@ namespace ack
 
             if (OperatingSystem.IsWindows() == true)
             {
-                IDictionary userVariables = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.User);
-                foreach (DictionaryEntry entry in userVariables)
+                await Task.Run(() =>
                 {
-                    Environment.SetEnvironmentVariable(entry.Key.ToStringSafe(), entry.Value.ToStringSafe(), EnvironmentVariableTarget.Process);
-                }
+                    IDictionary userVariables = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.User);
+                    IDictionary machineVariables = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Machine);
 
-                IDictionary machineVariables = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Machine);
-                foreach (DictionaryEntry entry in machineVariables)
-                {
-                    Environment.SetEnvironmentVariable(entry.Key.ToStringSafe(), entry.Value.ToStringSafe(), EnvironmentVariableTarget.Process);
-                }
+                    Parallel.ForEach(userVariables.Cast<DictionaryEntry>().Concat(machineVariables.Cast<DictionaryEntry>()), entry =>
+                    {
+                        try
+                        {
+                            Environment.SetEnvironmentVariable(entry.Key.ToStringSafe(), entry.Value.ToStringSafe(), EnvironmentVariableTarget.Process);
+                        }
+                        catch
+                        {
+                            // 환경 변수 설정 중 오류가 발생할 경우 무시하고 계속 진행
+                        }
+                    });
+                });
             }
 
             var environmentName = Environment.GetEnvironmentVariable("ACK_ENVIRONMENT");
@@ -169,9 +177,10 @@ namespace ack
 
                     Log.Logger = loggerConfiguration.CreateLogger();
 
-                    GlobalConfiguration.ServerPort = (port == null ? int.Parse(configuration["AppSettings:ServerPort"].ToStringSafe("8000")) : (int)port);
-                    GlobalConfiguration.ServerDevCertSslPort = int.Parse(configuration["AppSettings:ServerDevCertSslPort"].ToStringSafe("8443"));
+                    GlobalConfiguration.ServerPort = port ?? int.Parse(configuration["AppSettings:ServerPort"].ToStringSafe("8000"));
+
                     // dotnet dev-certs https -ep %HANDSTACK_HOME%/ack.pfx [-p 1234]
+                    GlobalConfiguration.ServerDevCertSslPort = int.Parse(configuration["AppSettings:ServerDevCertSslPort"].ToStringSafe("8443"));
                     GlobalConfiguration.ServerDevCertFilePath = configuration["AppSettings:ServerDevCertFilePath"].ToStringSafe();
                     GlobalConfiguration.ServerDevCertPassword = configuration["AppSettings:ServerDevCertPassword"];
 
@@ -185,7 +194,7 @@ namespace ack
 
                     if (string.IsNullOrEmpty(modules) == false)
                     {
-                        var loadModules = modules.Split(",");
+                        var loadModules = modules.Split(',', StringSplitOptions.RemoveEmptyEntries);
                         foreach (var item in loadModules)
                         {
                             string module = item.Trim();
@@ -216,8 +225,8 @@ namespace ack
                     {
                         if (File.Exists("bootstraping-ignore.json") == true)
                         {
-                            string ignoreKey = File.ReadAllText("bootstraping-ignore.json");
-                            GlobalConfiguration.ByPassBootstrappingLoggingKey = ignoreKey.Split("\n").ToList();
+                            string ignoreKey = await File.ReadAllTextAsync("bootstraping-ignore.json");
+                            GlobalConfiguration.ByPassBootstrappingLoggingKey = ignoreKey.Split('\n').ToList();
                         }
                     }
                     catch

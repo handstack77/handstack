@@ -44,6 +44,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 
 using Newtonsoft.Json;
@@ -901,7 +902,8 @@ namespace ack
                     {
                         var policy = corsPolicyProvider.GetPolicyAsync(httpContext.Context, null)
                         .ConfigureAwait(false)
-                        .GetAwaiter().GetResult();
+                        .GetAwaiter()
+                        .GetResult();
 
                         if (policy != null)
                         {
@@ -918,27 +920,11 @@ namespace ack
 
                         if (httpContext.Context.Request.Path.ToString().IndexOf("syn.loader.js") > -1)
                         {
-                            if (httpContext.Context.Response.Headers.ContainsKey("Cache-Control") == true)
-                            {
-                                httpContext.Context.Response.Headers.Remove("Cache-Control");
-                            }
-
                             httpContext.Context.Response.Headers.Append("Cache-Control", "no-cache, no-store");
-
-                            if (httpContext.Context.Response.Headers.ContainsKey("Expires") == false)
-                            {
-                                httpContext.Context.Response.Headers.Remove("Expires");
-                            }
-
                             httpContext.Context.Response.Headers.Append("Expires", "-1");
                         }
                         else if (GlobalConfiguration.StaticFileCacheMaxAge > 0)
                         {
-                            if (httpContext.Context.Response.Headers.ContainsKey("Cache-Control") == true)
-                            {
-                                httpContext.Context.Response.Headers.Remove("Cache-Control");
-                            }
-
                             httpContext.Context.Response.Headers.Append("Cache-Control", $"public, max-age={GlobalConfiguration.StaticFileCacheMaxAge}");
                         }
 
@@ -962,11 +948,16 @@ namespace ack
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
+
+                app.UseDeveloperExceptionPage();
             }
 
-            // app.UseDeveloperExceptionPage();
-            // app.UseHsts();
-            // app.UseHttpsRedirection();
+            if (string.IsNullOrEmpty(GlobalConfiguration.ServerDevCertFilePath) == false && File.Exists(GlobalConfiguration.ServerDevCertFilePath) == true && string.IsNullOrEmpty(GlobalConfiguration.ServerDevCertPassword) == false)
+            {
+                app.UseHsts();
+                app.UseHttpsRedirection();
+            }
+
             app.UseExceptionHandler(exceptionHandlerApp =>
             {
                 exceptionHandlerApp.Run(async context =>
@@ -988,8 +979,6 @@ namespace ack
                         message = exceptionType.Message;
                         stackTrace = exceptionType.StackTrace;
                     }
-
-                    // 설정에 의해 오류 로그를 파일 또는 API로 전송
 
                     context.Response.StatusCode = StatusCodes.Status500InternalServerError;
                     context.Response.ContentType = Text.Plain;
@@ -1200,50 +1189,65 @@ namespace ack
                     try
                     {
                         var hostAccessID = context.Request.GetContainValue("hostAccessID");
-                        if (string.IsNullOrEmpty(hostAccessID) == false && GlobalConfiguration.HostAccessID == hostAccessID)
+                        if (!string.IsNullOrEmpty(hostAccessID) && GlobalConfiguration.HostAccessID == hostAccessID)
                         {
                             var result = new
                             {
                                 Environment = new
                                 {
-                                    ProcessID = GlobalConfiguration.ProcessID,
+                                    ProcessID = Environment.ProcessId,
                                     StartTime = startTime,
-                                    SystemID = GlobalConfiguration.SystemID,
                                     ApplicationName = GlobalConfiguration.ApplicationName,
-                                    Is64Bit = Environment.Is64BitOperatingSystem,
-                                    MachineName = Environment.MachineName,
-                                    HostName = GlobalConfiguration.HostName,
                                     RunningEnvironment = GlobalConfiguration.RunningEnvironment,
-                                    CommandLine = Environment.CommandLine
+                                    HostName = GlobalConfiguration.HostName,
+                                    AspNetCoreVersion = Environment.Version.ToString()
                                 },
-                                Modules = GlobalConfiguration.Modules.Select(p => new
+                                Modules = GlobalConfiguration.Modules
+                                    .Select(p => new
+                                    {
+                                        ModuleID = p.ModuleID,
+                                        Name = p.Name,
+                                        IsBundledWithHost = p.IsBundledWithHost,
+                                        EventAction = p.EventAction,
+                                        SubscribeAction = p.SubscribeAction,
+                                        Version = p.Version.ToString()
+                                    })
+                                    .ToArray(),
+                                Performance = new
                                 {
-                                    ModuleID = p.ModuleID,
-                                    Name = p.Name,
-                                    BasePath = p.BasePath,
-                                    IsBundledWithHost = p.IsBundledWithHost,
-                                    EventAction = p.EventAction,
-                                    SubscribeAction = p.SubscribeAction,
-                                    Version = p.Version.ToString(),
-                                }),
-                                System = serverEventListener.SystemRuntime,
-                                Hosting = serverEventListener.AspNetCoreHosting,
-                                Kestrel = serverEventListener.AspNetCoreServerKestrel,
-                                NetSocket = serverEventListener.SystemNetSocket
+                                    TotalRequests = serverEventListener.AspNetCoreHosting?.TotalRequests ?? 0,
+                                    CurrentRequests = serverEventListener.AspNetCoreHosting?.CurrentRequests ?? 0,
+                                    FailedRequests = serverEventListener.AspNetCoreHosting?.FailedRequests ?? 0,
+                                    MemoryUsageMB = Math.Round(GC.GetTotalMemory(false) / (1024.0 * 1024.0), 2),
+                                    GCCollections = new
+                                    {
+                                        Gen0 = GC.CollectionCount(0),
+                                        Gen1 = GC.CollectionCount(1),
+                                        Gen2 = GC.CollectionCount(2)
+                                    }
+                                },
+                                DiagnosticCheckTime = DateTime.Now
                             };
-                            context.Response.Headers["Content-Type"] = "application/json";
-                            await context.Response.WriteAsync(JsonConvert.SerializeObject(result, Formatting.Indented));
+
+                            context.Response.Headers.ContentType = "application/json; charset=utf-8";
+                            await context.Response.WriteAsJsonAsync(result, new System.Text.Json.JsonSerializerOptions
+                            {
+                                WriteIndented = true,
+                                PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+                            });
                         }
                         else
                         {
-                            Log.Warning("[{LogCategory}] HostAccessID 확인 필요: " + hostAccessID.ToStringSafe(), "Startup/diagnostics");
-                            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                            var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+                            logger.LogWarning("HostAccessID 확인 필요: {HostAccessID}", hostAccessID ?? "null");
+                            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                         }
                     }
                     catch (Exception exception)
                     {
-                        Log.Error(exception, "[{LogCategory}] diagnostics 조회 실패", "Startup/diagnostics");
-                        context.Response.StatusCode = StatusCodes.Status404NotFound;
+                        var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+                        logger.LogError(exception, "진단 정보 조회 실패");
+                        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
                     }
                 });
 
