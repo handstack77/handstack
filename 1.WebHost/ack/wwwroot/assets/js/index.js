@@ -1,5 +1,5 @@
 /*!
-HandStack Javascript Library v2025.3.22
+HandStack Javascript Library v2025.3.23
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -8498,6 +8498,7 @@ if (typeof module !== 'undefined' && module.exports) {
         workData: null,
         reportifyServer: '',
         reportifyPath: '/reportify/api/brief',
+        reportifyTemplateUrl: '/reportify/api/index/download-template?reportFileID=',
         pageExportScheme: 'export-scheme',
         pageExcelToPdf: 'excel-to-pdf',
 
@@ -8518,6 +8519,10 @@ if (typeof module !== 'undefined' && module.exports) {
 
         getReportifyUrl(actionName) {
             return `${$print.reportifyServer}${$print.reportifyPath}/${actionName}`;
+        },
+
+        getDocumentTemplateUrl(reportFileID) {
+            return `${$print.reportifyServer}${$print.reportifyTemplateUrl}${reportFileID}`;
         },
 
         formatDate(date, format) {

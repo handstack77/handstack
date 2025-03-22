@@ -12,6 +12,7 @@
         workData: null,
         reportifyServer: '',
         reportifyPath: '/reportify/api/brief',
+        reportifyTemplateUrl: '/reportify/api/index/download-template?reportFileID=',
         pageExportScheme: 'export-scheme',
         pageExcelToPdf: 'excel-to-pdf',
 
@@ -32,6 +33,10 @@
 
         getReportifyUrl(actionName) {
             return `${$print.reportifyServer}${$print.reportifyPath}/${actionName}`;
+        },
+
+        getDocumentTemplateUrl(reportFileID) {
+            return `${$print.reportifyServer}${$print.reportifyTemplateUrl}${reportFileID}`;
         },
 
         formatDate(date, format) {
