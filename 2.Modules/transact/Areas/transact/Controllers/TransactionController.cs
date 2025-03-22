@@ -213,8 +213,17 @@ namespace transact.Areas.transact.Controllers
                                 }
                                 else if (fileInfo.Name != "publicTransactions.json")
                                 {
-                                    logger.Information("[{LogCategory}] " + $"Delete Contract FilePath: {filePath}", "Transaction/Refresh");
-                                    actionResult = TransactionMapper.Remove(filePath);
+                                    foreach (var basePath in ModuleConfiguration.ContractBasePath)
+                                    {
+                                        string itemPath = PathExtensions.Join(basePath, filePath);
+                                        if (System.IO.File.Exists(itemPath) == true)
+                                        {
+                                            logger.Information("[{LogCategory}] " + $"Delete Contract FilePath: {itemPath}", "Transaction/Refresh");
+
+                                            actionResult = TransactionMapper.Remove(itemPath);
+                                            break;
+                                        }
+                                    }
                                 }
                                 break;
                         }
