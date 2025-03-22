@@ -19,7 +19,7 @@ namespace HandStack.Core.ExtensionMethod
             return result;
         }
 
-        public static string? GetStringEmbeddedResource(this Assembly @this, string resourceName)
+        public async static Task<string?> GetStringEmbeddedResource(this Assembly @this, string resourceName)
         {
             string? result = null;
             using (Stream? stream = @this.GetStreamEmbeddedResource(resourceName))
@@ -27,7 +27,7 @@ namespace HandStack.Core.ExtensionMethod
                 if (stream != null)
                 {
                     using var reader = new StreamReader(stream);
-                    result = reader.ReadToEnd();
+                    result = await reader.ReadToEndAsync();
                 }
             }
             return result;
