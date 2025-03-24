@@ -175,13 +175,20 @@ namespace repository
                                         case "public":
                                             break;
                                         case "protected":
-                                            string referer = httpContext.Context.Request.Headers.Referer.ToString();
-                                            if (referer.EndsWith("/") == true)
+                                            string baseUrl = httpContext.Context.Request.GetBaseUrl();
+                                            if (baseUrl.Contains("localhost") == true|| baseUrl.Contains("127.0.0.1") == true)
                                             {
-                                                referer = referer.Substring(0, referer.Length - 1);
                                             }
-                                            string host = httpContext.Context.Request.Host.ToString();
-                                            isResponse = (string.IsNullOrEmpty(referer) == false && (referer.IndexOf(host) > -1 || GlobalConfiguration.WithOrigins.IndexOf(referer) > -1));
+                                            else
+                                            {
+                                                string referer = httpContext.Context.Request.Headers.Referer.ToString();
+                                                if (referer.EndsWith("/") == true)
+                                                {
+                                                    referer = referer.Substring(0, referer.Length - 1);
+                                                }
+                                                string host = httpContext.Context.Request.Host.ToString();
+                                                isResponse = (string.IsNullOrEmpty(referer) == false && (referer.IndexOf(host) > -1 || GlobalConfiguration.WithOrigins.IndexOf(referer) > -1));
+                                            }
                                             break;
                                         case "private":
                                             string? token = httpContext.Context.Request.Cookies["BearerToken"];
