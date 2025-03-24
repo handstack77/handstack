@@ -7,7 +7,7 @@
 
     $dateperiodpicker.extend({
         name: 'syn.uicontrols.$dateperiodpicker',
-        version: 'v2025.3.1',
+        version: 'v2025.3.24',
         dateControls: [],
         selectedYear: null,
         pkaStartDate: null,
@@ -537,7 +537,7 @@
                 if (dateControl.textbox1ID && syn.$l.get(dateControl.textbox2ID)) {
                     endedAt = syn.$l.get(dateControl.textbox2ID).value;
                 }
-                result = `${startedAt},${endedAt}`;
+                result = `${startedAt} ~ ${endedAt}`;
             }
 
             return result;
