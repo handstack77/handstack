@@ -7,7 +7,7 @@
 
     $checkbox.extend({
         name: 'syn.uicontrols.$checkbox',
-        version: 'v2025.3.1',
+        version: 'v2025.3.24',
         defaultSetting: {
             contents: '',
             toSynControl: false,
@@ -90,27 +90,22 @@
         },
 
         getValue(elID, meta) {
-            var result = null;
+            var result = '0';
             var el = syn.$l.get(elID);
             if ($object.isNullOrUndefined(el) == false) {
                 var synOptions = el.getAttribute('syn-options');
                 if (synOptions) {
                     var options = JSON.parse(synOptions);
-                    if (options.checkedValue && options.uncheckedValue) {
-                        if (el.checked == true) {
-                            result = options.checkedValue;
-                        }
-                        else {
-                            result = options.uncheckedValue;
-                        }
+                    if (el.checked == true) {
+                        result = $object.isNullOrUndefined(options.checkedValue) == true ? '1' : options.checkedValue;
+                    }
+                    else {
+                        result = $object.isNullOrUndefined(options.uncheckedValue) == true ? '0' : options.uncheckedValue;
                     }
                 }
                 else {
-                    result = el.checked;
+                    result = el.checked == true ? '1' : '0';
                 }
-            }
-            else {
-                result = '';
             }
 
             return result;
@@ -118,12 +113,25 @@
 
         setValue(elID, value, meta) {
             var el = syn.$l.get(elID);
-            if (value) {
-                value = value.toString().toUpperCase();
-                el.checked = (value == 'TRUE' || value == 'Y' || value == '1');
-            }
-            else {
-                el.checked = false;
+            if ($object.isNullOrUndefined(el) == false) {
+                if (value) {
+                    value = value.toString().toUpperCase();
+                    var synOptions = el.getAttribute('syn-options');
+                    if (synOptions) {
+                        var options = JSON.parse(synOptions);
+                        if ($object.isNullOrUndefined(options.checkedValue) == false) {
+                            value = value == options.checkedValue;
+                        }
+
+                        el.checked = (value == true || value == 'TRUE' || value == 'Y' || value == '1');
+                    }
+                    else {
+                        el.checked = (value == true || value == 'TRUE' || value == 'Y' || value == '1');
+                    }
+                }
+                else {
+                    el.checked = false;
+                }
             }
         },
 
