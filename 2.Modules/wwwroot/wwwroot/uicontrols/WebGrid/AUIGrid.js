@@ -3100,7 +3100,7 @@
                         if (metaColumn) {
                             switch (metaColumn.dataType.toLowerCase()) {
                                 case 'string':
-                                    isTypeCheck = item[column] == null || $object.isString(item[column]) || $string.isNumber(item[column]);
+                                    isTypeCheck = $string.isNullOrEmpty(item[column]) == true || $object.isString(item[column]) || $string.isNumber(item[column]);
                                     break;
                                 case 'bool':
                                     isTypeCheck = $string.isNullOrEmpty(item[column]) == true || $object.isBoolean(item[column]);

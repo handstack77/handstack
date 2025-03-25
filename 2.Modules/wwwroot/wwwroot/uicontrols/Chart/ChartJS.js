@@ -285,10 +285,10 @@
                         if (metaColumn) {
                             switch (metaColumn.DataType.toLowerCase()) {
                                 case 'string':
-                                    isTypeCheck = item[column] == null || $object.isString(item[column]);
+                                    isTypeCheck = $string.isNullOrEmpty(item[column]) == true || $object.isString(item[column]);
                                     break;
                                 case 'bool':
-                                    if (item[column] == null || item[column] == '1' || item[column] == '0') {
+                                    if ($string.isNullOrEmpty(item[column]) == true || item[column] == '1' || item[column] == '0') {
                                         isTypeCheck = true;
                                     }
                                     else {
@@ -297,10 +297,10 @@
                                     break;
                                 case 'number':
                                 case 'int':
-                                    isTypeCheck = item[column] == null || $string.isNumber(item[column]) || $object.isNumber(item[column]);
+                                    isTypeCheck = $string.isNullOrEmpty(item[column]) == true || $string.isNumber(item[column]) || $object.isNumber(item[column]);
                                     break;
                                 case 'date':
-                                    isTypeCheck = item[column] == null || $object.isDate(item[column]);
+                                    isTypeCheck = $string.isNullOrEmpty(item[column]) == true || $object.isDate(item[column]);
                                     break;
                                 default:
                                     isTypeCheck = false;
