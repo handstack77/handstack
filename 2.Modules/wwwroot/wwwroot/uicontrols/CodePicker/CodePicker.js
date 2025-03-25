@@ -8,7 +8,7 @@
 
     $codepicker.extend({
         name: 'syn.uicontrols.$codepicker',
-        version: 'v2025.3.24',
+        version: 'v2025.3.25',
         defaultSetting: {
             dataSourceID: null,
             storeSourceID: null,
@@ -45,23 +45,14 @@
 
         addModuleList(el, moduleList, setting, controlType) {
             var elementID = el.getAttribute('id');
-            var dataField = el.getAttribute('syn-datafield');
             var formDataField = el.closest('form') ? el.closest('form').getAttribute('syn-datafield') : '';
 
             moduleList.push({
                 id: elementID,
                 formDataFieldID: formDataField,
-                field: dataField,
+                field: null,
                 module: this.name,
                 type: controlType
-            });
-
-            moduleList.push({
-                id: elementID + '_Text',
-                formDataFieldID: formDataField,
-                field: setting.textDataFieldID,
-                module: syn.uicontrols.$textbox.name,
-                type: 'text'
             });
         },
 

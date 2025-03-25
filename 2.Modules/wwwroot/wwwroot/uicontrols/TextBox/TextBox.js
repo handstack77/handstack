@@ -8,9 +8,10 @@
 
     $textbox.extend({
         name: 'syn.uicontrols.$textbox',
-        version: 'v2025.3.1',
+        version: 'v2025.3.25',
         defaultSetting: {
             editType: 'text',
+            inValidateClear: true,
             formatNumber: true,
             maskPattern: null,
             maxCount: null,
@@ -704,8 +705,15 @@
             if (val.length > 0) {
                 el.setAttribute('placeholder', '');
                 if ($textbox.isCorporateNo(val) == false) {
-                    el.setAttribute('placeholder', '법인번호 확인 필요');
-                    el.value = '';
+                    var synOptions = JSON.parse(el.getAttribute('syn-options'));
+                    if ($object.isNullOrUndefined(synOptions.inValidateClear) == true || synOptions.inValidateClear == true) {
+                        el.setAttribute('placeholder', '법인번호 확인 필요');
+                        el.value = '';
+                    }
+                    else {
+                        syn.$m.addClass(el, 'font:red!');
+                        syn.$m.addClass(el, 'font:bold');
+                    }
                 }
                 else {
                     if (val.length != 14) {
@@ -714,6 +722,9 @@
                     }
 
                     el.value = val;
+
+                    syn.$m.removeClass(el, 'font:red!');
+                    syn.$m.removeClass(el, 'font:bold');
                 }
             }
         },
