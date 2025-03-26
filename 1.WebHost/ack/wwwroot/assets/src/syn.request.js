@@ -186,8 +186,8 @@
                             }
                         }
 
+                        var result = { error: '요청 정보 확인 필요' };
                         if (response.ok == true) {
-                            var result = null;
                             var contentType = response.headers.get('Content-Type') || '';
                             if (contentType.includes('application/json') == true) {
                                 result = await response.json();
@@ -201,10 +201,11 @@
                             return Promise.resolve(result);
                         }
                         else {
-                            syn.$l.eventLog('$r.httpFetch', `status: ${response.status}, text: ${await response.text()}`, 'Error');
+                            result = { error: `status: ${response.status}, text: ${await response.text()}` }
+                            syn.$l.eventLog('$r.httpFetch', `${result.error}`, 'Error');
                         }
 
-                        return Promise.resolve({ error: '요청 정보 확인 필요' });
+                        return Promise.resolve(result);
                     };
                 }
             });
