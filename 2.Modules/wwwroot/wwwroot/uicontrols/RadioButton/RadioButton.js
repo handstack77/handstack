@@ -7,7 +7,7 @@
 
     $radio.extend({
         name: 'syn.uicontrols.$radio',
-        version: 'v2025.3.1',
+        version: 'v2025.3.26',
         defaultSetting: {
             contents: '',
             toSynControl: false,
@@ -121,6 +121,20 @@
                 var el = els[i];
                 if (el.id.indexOf('_hidden') == -1 && el.checked == true) {
                     result = el.value;
+                    break;
+                }
+            }
+
+            return result;
+        },
+
+        getSelectedByText(group) {
+            var result = null;
+            var els = syn.$l.querySelectorAll('input[type="radio"][name="{0}"]'.format(group));
+            for (var i = 0; i < els.length; i++) {
+                var el = els[i];
+                if (el.id.indexOf('_hidden') == -1 && el.checked == true) {
+                    result = el.nextElementSibling.textContent.trim();
                     break;
                 }
             }
