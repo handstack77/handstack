@@ -1,4 +1,4 @@
-/*!
+﻿/*!
 HandStack Javascript Library v2025.3.26
 https://handshake.kr
 
@@ -7645,7 +7645,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
                 mod.extend(module);
                 context[syn.$w.pageScript] = mod;
-                context['$this'] = mod;
+                context.$this = mod;
 
                 if (window.synLoader) {
                     syn.$l.addEvent(document, 'pageReady', pageFormInit);
@@ -10352,7 +10352,7 @@ if (typeof module !== 'undefined' && module.exports) {
                     var xhr = syn.$w.xmlHttp();
                     xhr.open(syn.$w.method, url, true);
                     xhr.setRequestHeader('Accept-Language', syn.$w.localeID);
-                    xhr.setRequestHeader('Server-SystemID', config.systemID);
+                    xhr.setRequestHeader('Server-SystemID', config.systemID || syn.Config.SystemID);
                     xhr.setRequestHeader('Server-BusinessID', config.businessID);
 
                     if (syn.Environment) {

@@ -110,336 +110,243 @@
     })();
 
     $date.extend({
-        interval: {
-            year: 1000 * 60 * 60 * 24 * 365,
-            week: 1000 * 60 * 60 * 24 * 7,
-            day: 1000 * 60 * 60 * 24,
-            hour: 60000 * 60,
+        interval: Object.freeze({
+            year: 31536000000,
+            week: 604800000,
+            day: 86400000,
+            hour: 3600000,
             minute: 60000,
             second: 1000,
-        },
+        }),
 
         now() {
             return new Date();
         },
 
         clone(date) {
-            var result = null;
             if (date instanceof Date) {
-                result = new Date(date.getTime());
+                return new Date(date.getTime());
+            } else if ($object.isString(date)) {
+                try {
+                    return new Date(date);
+                } catch {
+                    return null;
+                }
             }
-            else if ($object.isString(date) == true) {
-                result = new Date(date);
-            }
-            return result;
+            return null;
         },
 
         isBetween(date, start, end) {
-            var result = false;
-            if (date instanceof Date && start instanceof Date && end instanceof Date) {
-                result = date.getTime() >= start.getTime() && date.getTime() <= end.getTime();
-            }
-
-            return result;
+            if (!(date instanceof Date && start instanceof Date && end instanceof Date)) return false;
+            const time = date.getTime();
+            return time >= start.getTime() && time <= end.getTime();
         },
 
         equals(date, targetDate) {
-            var result = false;
-            if (date instanceof Date && targetDate instanceof Date) {
-                result = (date.getTime() == targetDate.getTime());
-            }
-
-            return result;
+            return date instanceof Date && targetDate instanceof Date && date.getTime() === targetDate.getTime();
         },
 
         equalDay(date, targetDate) {
-            var result = false;
-            if (date instanceof Date && targetDate instanceof Date) {
-                result = date.toDateString() == targetDate.toDateString();
-            }
-
-            return result;
+            return date instanceof Date && targetDate instanceof Date && date.toDateString() === targetDate.toDateString();
         },
 
         isToday(date) {
-            var result = false;
-            if (date instanceof Date) {
-                result = $date.equalDay(date, new Date());
-            }
-            return result;
+            return date instanceof Date && this.equalDay(date, new Date());
         },
 
-        toString(date, format, options) {
-            var result = '';
-            if ($object.isString(date) == true && $date.isDate(date) == true) {
-                date = new Date(date);
+        toString(date, format, options = {}) {
+            let dateObj = date;
+            if ($object.isString(date) && this.isDate(date)) {
+                dateObj = new Date(date);
             }
 
-            if ($object.isDate(date) == false) {
-                return result;
+            if (!($object.isDate(dateObj) && !isNaN(dateObj))) {
+                return '';
             }
 
-            var year = date.getFullYear();
-            var month = date.getMonth() + 1;
-            var day = date.getDate().toString().length == 1 ? '0' + date.getDate().toString() : date.getDate().toString();
-            var hours = date.getHours().toString().length == 1 ? '0' + date.getHours().toString() : date.getHours().toString();
-            var minutes = date.getMinutes().toString().length == 1 ? '0' + date.getMinutes().toString() : date.getMinutes().toString();
-            var seconds = date.getSeconds().toString().length == 1 ? '0' + date.getSeconds().toString() : date.getSeconds().toString();
-            var milliseconds = date.getMilliseconds().toString().padStart(3, '0');
-            var weekNames = ['일', '월', '화', '수', '목', '금', '토'];
+            const year = dateObj.getFullYear();
+            const month = dateObj.getMonth() + 1;
+            const day = dateObj.getDate();
+            const hours = dateObj.getHours();
+            const minutes = dateObj.getMinutes();
+            const seconds = dateObj.getSeconds();
+            const milliseconds = dateObj.getMilliseconds();
+            const weekNames = ['일', '월', '화', '수', '목', '금', '토'];
+            const dayOfWeek = weekNames[dateObj.getDay()];
 
-            month = month.toString().length == 1 ? '0' + month.toString() : month.toString();
+            const pad = (num, len = 2) => String(num).padStart(len, '0');
 
             switch (format) {
-                case 'd':
-                    result = year.toString().concat('-', month, '-', day);
-                    break;
-                case 't':
-                    result = hours.toString().concat(':', minutes, ':', seconds);
-                    break;
-                case 'a':
-                    result = year.toString().concat('-', month, '-', day, ' ', hours, ':', minutes, ':', seconds);
-                    break;
-                case 'i':
-                    result = year.toString().concat('-', month, '-', day, 'T', hours, ':', minutes, ':', seconds, '.', milliseconds);
-                    break;
-                case 'f':
-                    result = year.toString().concat(month, day, hours, minutes, seconds, milliseconds);
-                    break;
-                case 's':
-                    result = hours.toString().concat(minutes, seconds, milliseconds);
-                    break;
-                case 'n':
-                    var dayOfWeek = weekNames[date.getDay()];
-                    result = year.toString().concat('년 ', month, '월 ', day, '일 ', '(', dayOfWeek, ')');
-                    break;
-                case 'nt':
-                    var dayOfWeek = weekNames[date.getDay()];
-                    result = year.toString().concat('년 ', month, '월 ', day, '일 ', '(', dayOfWeek, ')') + ', ' + hours.toString().concat(':', minutes, ':', seconds);
-                    break;
-                case 'mdn':
-                    var dayOfWeek = weekNames[date.getDay()];
-                    result = month.toString().concat('월 ', day, '일');
-                    break;
+                case 'd': return `${year}-${pad(month)}-${pad(day)}`;
+                case 't': return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+                case 'a': return `${year}-${pad(month)}-${pad(day)} ${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+                case 'i': return `${year}-${pad(month)}-${pad(day)}T${pad(hours)}:${pad(minutes)}:${pad(seconds)}.${pad(milliseconds, 3)} Z`; // Assuming UTC for ISO
+                case 'f': return `${year}${pad(month)}${pad(day)}${pad(hours)}${pad(minutes)}${pad(seconds)}${pad(milliseconds, 3)}`;
+                case 's': return `${pad(hours)}${pad(minutes)}${pad(seconds)}${pad(milliseconds, 3)}`;
+                case 'n': return `${year}년 ${pad(month)}월 ${pad(day)} 일(${dayOfWeek})`;
+                case 'nt': return `${year}년 ${pad(month)}월 ${pad(day)} 일(${dayOfWeek}), ${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+                case 'mdn': return `${pad(month)}월 ${pad(day)} 일`;
                 case 'w':
-                    options = syn.$w.argumentsExtend({
-                        weekStartSunday: true
-                    }, options);
-                    var weekNumber = 1;
-                    var weekOfMonths = $date.weekOfMonth(year, month, options.weekStartSunday);
-                    var currentDate = Number($date.toString(date, 'd').replace(/-/g, ''));
-                    for (var i = 0; i < weekOfMonths.length; i++) {
-                        var weekOfMonth = weekOfMonths[i];
-                        var startDate = Number(weekOfMonth.weekStartDate.replace(/-/g, ''));
-                        var endDate = Number(weekOfMonth.weekEndDate.replace(/-/g, ''));
+                    const opts = { weekStartSunday: true, ...options };
+                    const yearNum = dateObj.getFullYear();
+                    const monthNum = dateObj.getMonth() + 1;
+                    const weeksInMonth = this.weekOfMonth(yearNum, monthNum, opts.weekStartSunday);
+                    const currentDateNum = parseInt(`${yearNum}${pad(monthNum)}${pad(day)} `, 10);
 
-                        if (currentDate >= startDate && currentDate <= endDate) {
-                            weekNumber = (i + 1);
-                            break;
+                    for (let i = 0; i < weeksInMonth.length; i++) {
+                        const week = weeksInMonth[i];
+                        const start = parseInt(week.weekStartDate.replace(/-/g, ''), 10);
+                        const end = parseInt(week.weekEndDate.replace(/-/g, ''), 10);
+                        if (currentDateNum >= start && currentDateNum <= end) {
+                            return i + 1;
                         }
                     }
-
-                    result = weekNumber;
-                    break;
-                case 'wn':
-                    result = weekNames[date.getDay()];
-                    break;
-                case 'm':
-                    result = month;
-                    break;
-                case 'y':
-                    result = year.toString();
-                    break;
-                case 'ym':
-                    result = year.toString().concat('-', month);
-                    break;
-                default:
-                    result = date.getDate().toString().padStart(2, '0');
+                    return 1;
+                case 'wn': return dayOfWeek;
+                case 'm': return pad(month);
+                case 'y': return String(year);
+                case 'ym': return `${year}-${pad(month)}`;
+                default: return pad(day);
             }
-
-            return result;
         },
 
+
         addSecond(date, val) {
-            var result = null;
-            if (date instanceof Date) {
-                result = new Date(date.getTime() + (val * $date.interval.second));
-            }
-            return result;
+            if (!(date instanceof Date) || isNaN(val)) return null;
+            return new Date(date.getTime() + val * this.interval.second);
         },
 
         addMinute(date, val) {
-            var result = null;
-            if (date instanceof Date) {
-                result = new Date(date.getTime() + (val * $date.interval.minute));
-            }
-            return result;
+            if (!(date instanceof Date) || isNaN(val)) return null;
+            return new Date(date.getTime() + val * this.interval.minute);
         },
 
         addHour(date, val) {
-            var result = null;
-            if (date instanceof Date) {
-                result = new Date(date.getTime() + (val * $date.interval.hour));
-            }
-            return result;
+            if (!(date instanceof Date) || isNaN(val)) return null;
+            return new Date(date.getTime() + val * this.interval.hour);
         },
 
         addDay(date, val) {
-            var result = null;
-            if (date instanceof Date) {
-                var cloneDate = new Date(date.getTime());
-                result = new Date(cloneDate.setDate(date.getDate() + val));
-            }
-            return result;
+            if (!(date instanceof Date) || isNaN(val)) return null;
+            const newDate = new Date(date.getTime());
+            newDate.setDate(date.getDate() + val);
+            return newDate;
         },
 
         addWeek(date, val) {
-            var result = null;
-            if (date instanceof Date) {
-                var cloneDate = new Date(date.getTime());
-                result = new Date(cloneDate.setDate(date.getDate() + (val * 7)));
-            }
-            return result;
+            return this.addDay(date, val * 7);
         },
 
         addMonth(date, val) {
-            var result = null;
-            if (date instanceof Date) {
-                var cloneDate = new Date(date.getTime());
-                result = new Date(cloneDate.setMonth(date.getMonth() + val));
+            if (!(date instanceof Date) || isNaN(val)) return null;
+            const newDate = new Date(date.getTime());
+            const targetMonth = date.getMonth() + val;
+            newDate.setMonth(targetMonth);
+            if (newDate.getMonth() !== (targetMonth % 12 + 12) % 12) {
+                newDate.setDate(0);
             }
-            return result;
+            return newDate;
         },
 
         addYear(date, val) {
-            var result = null;
-            if (date instanceof Date) {
-                var cloneDate = new Date(date.getTime());
-                result = new Date(cloneDate.setFullYear(date.getFullYear() + val));
+            if (!(date instanceof Date) || isNaN(val)) return null;
+            const newDate = new Date(date.getTime());
+            newDate.setFullYear(date.getFullYear() + val);
+            if (date.getMonth() === 1 && date.getDate() === 29 && newDate.getDate() !== 29) {
+                newDate.setDate(0);
             }
-            return result;
+            return newDate;
         },
 
+
         getFirstDate(date) {
-            var result = null;
-            if (date instanceof Date) {
-                result = new Date(date.setDate(1));
-            }
-            return result;
+            if (!(date instanceof Date)) return null;
+            return new Date(date.getFullYear(), date.getMonth(), 1);
         },
 
         getLastDate(date) {
-            var result = null;
-            if (date instanceof Date) {
-                date = $date.addMonth(date, 1);
-                return $date.addDay(new Date(date.setDate(1)), -1);
-            }
-            return result;
+            if (!(date instanceof Date)) return null;
+            return new Date(date.getFullYear(), date.getMonth() + 1, 0);
         },
 
-        diff(start, end, interval) {
-            var result = 0;
-            if (start instanceof Date && end instanceof Date) {
-                interval = interval || 'day';
+        diff(start, end, interval = 'day') {
+            if (!(start instanceof Date && end instanceof Date)) return 0;
 
-                if (interval == 'month') {
-                    result = end.getMonth() - start.getMonth() + 12 * (end.getFullYear() - start.getFullYear());
-                }
-                else if ($object.isNullOrUndefined($date.interval[interval]) == false) {
-                    var diff = end - start;
-                    result = Math.floor(diff / $date.interval[interval]);
-                }
+            if (interval === 'month') {
+                return (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+            } else if (this.interval[interval]) {
+                const diffMs = end.getTime() - start.getTime();
+                return Math.floor(diffMs / this.interval[interval]);
             }
-
-            return result;
+            return 0;
         },
 
         toTicks(date) {
-            return ((date.getTime() * 10000) + 621355968000000000);
+            if (!(date instanceof Date)) return 0;
+            return date.getTime() * 10000 + 621355968000000000;
         },
 
         isDate(val) {
-            var result = false;
-            var scratch = null;
-            if ($object.isString(val) == true) {
-                scratch = new Date(val);
-                if (scratch.toString() == 'NaN' || scratch.toString() == 'Invalid Date') {
-                    if (syn.$b.isSafari == true && syn.$b.isChrome == false) {
-                        var parts = val.match(/(\d+)/g);
-                        scratch = new Date(parts[0], parts[1] - 1, parts[2]);
-                        if (scratch.toString() == 'NaN' || scratch.toString() == 'Invalid Date') {
-                            result = false;
-                        }
-                        else {
-                            result = true;
-                        }
-                    }
-                    else {
-                        result = false;
-                    }
-                }
-                else {
-                    result = true;
+            if (val instanceof Date && !isNaN(val)) return true;
+            if (!$object.isString(val)) return false;
+
+            const parsedDate = new Date(val);
+            if (!isNaN(parsedDate)) return true;
+
+            if (/^\d{4}-\d{2}-\d{2}$/.test(val)) {
+                const parts = val.split('-');
+                if (parts[1] >= 1 && parts[1] <= 12 && parts[2] >= 1 && parts[2] <= 31) {
+                    const specificDate = new Date(parts[0], parts[1] - 1, parts[2]);
+                    return !isNaN(specificDate);
                 }
             }
 
-            return result;
+            return false;
         },
 
         isISOString(val) {
-            var result = false;
-            if ($date.isDate(val) == true) {
-                var date = new Date(val);
-                result = $date.toString(date, 'i').indexOf(val) > -1;
-            }
-
-            return result;
+            return $object.isString(val) && $validation.regexs.isoDate.test(val);
         },
 
-        weekOfMonth(year, month, weekStartSunday) {
-            var result = [];
-            weekStartSunday = $object.isNullOrUndefined(weekStartSunday) == true ? true : $string.toBoolean(weekStartSunday);
-            month = month || new Date().getMonth() + 1;
-            var weekStand = weekStartSunday == true ? 7 : 8;
-            var date = new Date(year, month);
+        weekOfMonth(year, month, weekStartSunday = true) {
+            const result = [];
+            const normalizedWeekStartSunday = typeof weekStartSunday === 'boolean'
+                ? weekStartSunday
+                : weekStartSunday === 'true';
+            const currentMonth = month || new Date().getMonth() + 1;
+            const weekStand = normalizedWeekStartSunday ? 7 : 8;
 
-            var firstDay = new Date(date.getFullYear(), date.getMonth() - 1, 1);
-            var lastDay = new Date(date.getFullYear(), date.getMonth(), 0);
-            var week = null;
+            const date = new Date(year, currentMonth - 1);
+            const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+            const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
 
-            var firstWeekEndDate = true;
-            var thisMonthFirstWeek = firstDay.getDay();
-            var numberPad = function (num, width) {
-                num = String(num);
-                return num.length >= width ? num : new Array(width - num.length + 1).join('0') + num;
-            }
+            const numberPad = (num, width) =>
+                String(num).padStart(width, '0');
 
-            for (var num = 1; num <= 6; num++) {
-                if (lastDay.getMonth() != firstDay.getMonth()) {
+            let firstWeekEndDate = true;
+            const thisMonthFirstWeek = firstDay.getDay();
+
+            for (let num = 1; num <= 6; num++) {
+                if (lastDay.getMonth() !== firstDay.getMonth()) {
                     break;
                 }
 
-                week = {};
+                const week = {};
                 if (firstDay.getDay() <= 1) {
-                    if (firstDay.getDay() == 0) {
-                        if (weekStartSunday == false) {
-                            firstDay.setDate(firstDay.getDate() + 1);
-                        }
+                    if (firstDay.getDay() === 0 && !normalizedWeekStartSunday) {
+                        firstDay.setDate(firstDay.getDate() + 1);
                     }
 
-                    week.weekStartDate = firstDay.getFullYear().toString() + '-' + numberPad((firstDay.getMonth() + 1).toString(), 2) + '-' + numberPad(firstDay.getDate().toString(), 2);
+                    week.weekStartDate = `${firstDay.getFullYear()}-${numberPad(firstDay.getMonth() + 1, 2)}-${numberPad(firstDay.getDate(), 2)}`;
                 }
 
                 if (weekStand > thisMonthFirstWeek) {
                     if (firstWeekEndDate) {
-                        if (weekStand - firstDay.getDay() == 1) {
+                        if (weekStand - firstDay.getDay() === 1) {
+                            firstDay.setDate(firstDay.getDate() + (weekStand - firstDay.getDay()) - 1);
+                        } else if (weekStand - firstDay.getDay() > 1) {
                             firstDay.setDate(firstDay.getDate() + (weekStand - firstDay.getDay()) - 1);
                         }
-
-                        if (weekStand - firstDay.getDay() > 1) {
-                            firstDay.setDate(firstDay.getDate() + (weekStand - firstDay.getDay()) - 1);
-                        }
-
                         firstWeekEndDate = false;
                     } else {
                         firstDay.setDate(firstDay.getDate() + 6);
@@ -448,8 +355,8 @@
                     firstDay.setDate(firstDay.getDate() + (6 - firstDay.getDay()) + weekStand);
                 }
 
-                if (typeof week.weekStartDate !== 'undefined') {
-                    week.weekEndDate = firstDay.getFullYear().toString() + '-' + numberPad((firstDay.getMonth() + 1).toString(), 2) + '-' + numberPad(firstDay.getDate().toString(), 2);
+                if (week.weekStartDate) {
+                    week.weekEndDate = `${firstDay.getFullYear()}-${numberPad(firstDay.getMonth() + 1, 2)}-${numberPad(firstDay.getDate(), 2)}`;
                     result.push(week);
                 }
 
@@ -459,200 +366,156 @@
             return result;
         },
 
-        timeAgo(date) {
-            if ($date.isISOString(date) == true) {
-                var seconds = Math.floor((new Date() - new Date(date)) / 1000);
-                var interval = Math.floor(seconds / 31536000);
-
-                if (interval > 1) {
-                    return interval + " 년전";
-                }
-                interval = Math.floor(seconds / 2592000);
-                if (interval > 1) {
-                    return interval + " 달전";
-                }
-                interval = Math.floor(seconds / 604800);
-                if (interval > 1) {
-                    return interval + " 주전";
-                }
-                interval = Math.floor(seconds / 86400);
-                if (interval > 1) {
-                    return interval + " 일전";
-                }
-                interval = Math.floor(seconds / 3600);
-                if (interval > 1) {
-                    return interval + " 시간전";
-                }
-                interval = Math.floor(seconds / 60);
-                if (interval > 1) {
-                    return interval + " 분전";
-                }
-                return Math.floor(seconds) + " 초전";
+        timeAgo(dateInput) {
+            let date;
+            if ($object.isString(dateInput) && this.isDate(dateInput)) {
+                date = new Date(dateInput);
+            } else if (dateInput instanceof Date) {
+                date = dateInput;
+            } else {
+                return '';
             }
 
-            return '';
+            const seconds = Math.floor((new Date() - date) / 1000);
+            if (seconds < 0) return 'in the future';
+
+            const intervals = [
+                { label: '년', seconds: 31536000 },
+                { label: '달', seconds: 2592000 },
+                { label: '주', seconds: 604800 },
+                { label: '일', seconds: 86400 },
+                { label: '시간', seconds: 3600 },
+                { label: '분', seconds: 60 },
+                { label: '초', seconds: 1 }
+            ];
+
+            for (const interval of intervals) {
+                const count = Math.floor(seconds / interval.seconds);
+                if (count >= 1) {
+                    return `${count}${interval.label} 전`;
+                }
+            }
+            return '방금 전';
         }
+
     });
     context.$date = $date;
 
     $string.extend({
-        toValue(value, defaultValue) {
-            var result = '';
-            if ($object.isNullOrUndefined(value) == true) {
-                if ($string.isNullOrEmpty(defaultValue) == false) {
-                    result = defaultValue.toString();
-                }
-            }
-            else {
-                result = value.toString();
-            }
-
-            return result;
+        toValue(value, defaultValue = '') {
+            return (value === undefined || value === null) ? String(defaultValue) : String(value);
         },
 
         br(val) {
-            return val.replace(/(\r\n|\r|\n)/g, '<br />');
+            return String(val).replace(/(\r\n|\r|\n)/g, '<br />');
         },
 
-        interpolate(text, json, options = null) {
-            var result = null;
+        interpolate(text, json, options = {}) {
+            if (json === null || json === undefined || typeof text !== 'string') return text;
 
-            if (json != null) {
-                options = syn.$w.argumentsExtend({
-                    defaultValue: null,
-                    separator: '\n',
-                }, options);
+            const { defaultValue = null, separator = '\n' } = options;
 
-                var replaceFunc = function (text, item) {
-                    return text.replace(/\#{([^{}]*)}/g,
-                        function (pattern, key) {
-                            var value = item[key];
-                            var result = pattern;
-                            if (typeof value === 'string' || typeof value === 'number') {
-                                result = value;
-                            }
-                            else if ($object.isNullOrUndefined(value) == false) {
-                                if ($object.isArray(value) == true) {
-                                    result = value.join(', ');
-                                }
-                                else if ($object.isDate(value) == true) {
-                                    result = $date.toString(value, 'a');
-                                }
-                                else if ($object.isBoolean(value) == true) {
-                                    result = value.toString();
-                                }
-                            }
-                            else {
-                                result = options.defaultValue == null ? pattern : options.defaultValue;
-                            }
-                            return result;
-                        }
-                    )
-                };
-
-                if ($object.isArray(json) == false) {
-                    result = replaceFunc(text, json);
-                }
-                else {
-                    var values = [];
-                    for (var key in json) {
-                        var item = json[key];
-                        values.push(replaceFunc(text, item));
+            const replaceFunc = (template, item) => {
+                return template.replace(/#\{([^{}]*)\}/g, (match, key) => {
+                    const value = item[key];
+                    if (value !== undefined && value !== null) {
+                        if (Array.isArray(value)) return value.join(', ');
+                        if (value instanceof Date) return $date.toString(value, 'a');
+                        return String(value);
                     }
+                    return defaultValue !== null ? defaultValue : match;
+                });
+            };
 
-                    result = values.join(options.separator);
-                }
+            if (Array.isArray(json)) {
+                return json.map(item => replaceFunc(text, item)).join(separator);
+            } else if (typeof json === 'object') {
+                return replaceFunc(text, json);
             }
 
-            return result;
+            return text;
         },
 
         isNullOrEmpty(val) {
-            if (val === undefined || val === null || val === '') {
-                return true;
-            }
-            else {
-                return false;
-            }
+            return val === undefined || val === null || String(val).trim() === '';
         },
 
-        sanitizeHTML(val, hasSpecialChar) {
-            var result = '';
-            hasSpecialChar = hasSpecialChar || true;
-
-            if (hasSpecialChar == true) {
-                result = val.replace(/<.[^<>]*?>/g, '')
-                    .replace(/&nbsp;|&#160;/gi, ' ');
+        sanitizeHTML(val, removeSpecialChars = false) {
+            if (typeof val !== 'string') return '';
+            let result = val.replace(/<[^>]*>/g, '').replace(/&nbsp;|&#160;/gi, ' ');
+            if (removeSpecialChars) {
+                result = result.replace(/[.,;:'"!?%#$*_+=\-\\/()[\]{}<>~`“”’]/g, '');
             }
-            else {
-                result = val.replace(/<.[^<>]*?>/g, '')
-                    .replace(/&nbsp;|&#160;/gi, ' ')
-                    .replace(/[.(),;:!?%#$'\"_+=\/\-“”’]*/g, '');
-            }
-
             return result.trim();
         },
 
         cleanHTML(val) {
-            var el = document.createElement('div');
-            el.innerHTML = val.replace(/\<br\s*\/\>/gim, '\n');
-            return el.innerText.trim();
+            if (typeof val !== 'string' || globalRoot.devicePlatform === 'node') return val;
+            try {
+                const el = document.createElement('div');
+                el.innerHTML = val.replace(/<br\s*\/?>/gi, '\n');
+                return el.textContent || el.innerText || '';
+            } catch {
+                return val;
+            }
         },
 
-        // 참조(http://www.ascii.cl/htmlcodes.htm)
-        toHtmlChar(val, charStrings) {
-            charStrings = charStrings || `&'<>!"#%()*+,./;=@[\]^\`{|}~`;
-            var charMap = {
-                '&': '&amp;', '\'': '&apos;', '<': '&lt;', '>': '&gt;', '"': '&quot;', '!': '&excl;', '#': '&num;', '%': '&percnt;',
-                '(': '&lpar;', ')': '&rpar;', '*': '&ast;', '+': '&plus;', ',': '&comma;', '.': '&period;', '/': '&sol;', ';': '&semi;',
-                '=': '&equals;', '@': '&commat;', '[': '&lsqb;', '\\': '&bsol;', ']': '&rsqb;', '^': '&Hat;', '`': '&grave;', '{': '&lcub;',
-                '|': '&verbar;', '}': '&rcub;', '~': '&tilde;'
+        toHtmlChar(val, charStrings = `&'<>!"#%()*+,./;=@[\]^\`{|}~`) {
+            if (typeof val !== 'string') return '';
+            const charMap = {
+                '&': '&amp;', '\'': '&#39;', '<': '&lt;', '>': '&gt;', '"': '&quot;', '!': '&#33;', '#': '&#35;', '%': '&#37;',
+                '(': '&#40;', ')': '&#41;', '*': '&#42;', '+': '&#43;', ',': '&#44;', '.': '&#46;', '/': '&#47;', ';': '&#59;',
+                '=': '&#61;', '@': '&#64;', '[': '&#91;', '\\': '&#92;', ']': '&#93;', '^': '&#94;', '`': '&#96;', '{': '&#123;',
+                '|': '&#124;', '}': '&#125;', '~': '&#126;'
             };
-            return val.replace(new RegExp(`[${charStrings.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}]`, 'g'), char => charMap[char] || char);
+            const escapedChars = charStrings.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+            const regex = new RegExp(`[${escapedChars}]`, 'g');
+            return val.replace(regex, char => charMap[char] || char);
         },
 
-        toCharHtml(val, htmlStrings) {
-            htmlStrings = htmlStrings || '&amp|&apos|&lt|&gt|&quot|&excl|&num|&percnt|&lpar|&rpar|&ast|&plus|&comma|&period|&sol|&semi|&equals|&commat|&lsqb|&bsol|&rsqb|&Hat|&grave|&lcub|&verbar|&rcub|&tilde';
-            var charMap = {
-                '&amp;': '&', '&apos;': '\'', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&excl;': '!', '&num;': '#', '&percnt;': '%',
-                '&lpar;': '(', '&rpar;': ')', '&ast;': '*', '&plus;': '+', '&comma;': ',', '&period;': '.', '&sol;': '/', '&semi;': ';',
-                '&equals;': '=', '&commat;': '@', '&lsqb;': '[', '&bsol;': '\\', '&rsqb;': ']', '&Hat;': '^', '&grave;': '`', '&lcub;': '{',
-                '&verbar;': '|', '&rcub;': '}', '&tilde;': '~'
+        toCharHtml(val, escapedChars = '&(amp|#39|lt|gt|quot|#33|#35|#37|#40|#41|#42|#43|#44|#46|#47|#59|#61|#64|#91|#92|#93|#94|#96|#123|#124|#125|#126);') {
+            if (typeof val !== 'string') return '';
+            const entityMap = {
+                '&amp;': '&', '&#39;': '\'', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&#33;': '!', '&#35;': '#', '&#37;': '%',
+                '&#40;': '(', '&#41;': ')', '&#42;': '*', '&#43;': '+', '&#44;': ',', '&#46;': '.', '&#47;': '/', '&#59;': ';',
+                '&#61;': '=', '&#64;': '@', '&#91;': '[', '&#92;': '\\', '&#93;': ']', '&#94;': '^', '&#96;': '`', '&#123;': '{',
+                '&#124;': '|', '&#125;': '}', '&#126;': '~'
             };
-            return val.replace(/&(\w+);/g, function (match, entity) {
-                return charMap[match] || match;
-            });
+            const regex = new RegExp(escapedChars, 'g');
+            return val.replace(regex, match => entityMap[match] || match);
         },
 
         length(val) {
-            var result = 0;
-            for (var i = 0, len = val.length; i < len; i++) {
-                if (val.charCodeAt(i) > 127) {
-                    result += 2;
-                }
-                else {
-                    result++;
+            if (typeof val !== 'string') return 0;
+            let byteLength = 0;
+            for (let i = 0; i < val.length; i++) {
+                const charCode = val.charCodeAt(i);
+                if (charCode <= 0x7F) {
+                    byteLength += 1;
+                } else if (charCode <= 0x7FF) {
+                    byteLength += 2;
+                } else if (charCode <= 0xFFFF) {
+                    byteLength += 3;
+                } else {
+                    byteLength += 4;
                 }
             }
-
-            return result;
+            return byteLength;
         },
 
-        split(val, char) {
-            char = char || ',';
-            return $string.isNullOrEmpty(val) == true ? [] : val.split(char).filter(p => p);
+        split(val, char = ',') {
+            return typeof val === 'string' ? val.split(char).filter(p => p.trim() !== '') : [];
         },
 
         isNumber(num) {
-            num = String(num).replace(/^\s+|\s+$/g, '');
-            var regex = /^[\-]?(([1-9][0-9]{0,2}(,[0-9]{3})*)|[0-9]+){1}(\.[0-9]+)?$/g;
-
-            if (regex.test(num)) {
-                num = num.replace(/,/g, '');
-                return isNaN(num) ? false : true;
-            } else {
-                return false;
+            if (num === null || num === undefined || String(num).trim() === '') return false;
+            const regex = /^-?(\d+|\d{1,3}(,\d{3})*)(\.\d+)?$/;
+            const strNum = String(num).trim();
+            if (regex.test(strNum)) {
+                const cleanedNum = strNum.replace(/,/g, '');
+                return !isNaN(parseFloat(cleanedNum));
             }
+            return false;
         },
 
         toNumber(val) {
@@ -667,44 +530,38 @@
         },
 
         capitalize(val) {
-            return val.replace(/\b([a-z])/g, function (val) {
-                return val.toUpperCase()
-            });
+            return typeof val === 'string'
+                ? val.replace(/\b([a-z])/g, match => match.toUpperCase())
+                : '';
         },
 
-        toJson(val, option) {
-            option = option || {};
-            var delimeter = option.delimeter || ',';
-            var newline = option.newline || '\n';
-            var meta = option.meta || {};
-            var i, row, lines = val.split(RegExp('{0}'.format(newline), 'g'));
-            var headers = lines[0].split(delimeter);
-            for (i = 0; i < headers.length; i++) {
-                headers[i] = headers[i].replace(/(^[\s"]+|[\s"]+$)/g, '');
-            }
-            var result = [];
-            var lineLength = lines.length;
-            var headerLength = headers.length;
-            if ($object.isEmpty(meta) == true) {
-                for (i = 1; i < lineLength; i++) {
-                    row = lines[i].split(delimeter);
-                    var item = {};
-                    for (var j = 0; j < headerLength; j++) {
-                        item[headers[j]] = $string.toDynamic(row[j]);
-                    }
-                    result.push(item);
+        toJson(val, options = {}) {
+            if (typeof val !== 'string') return [];
+
+            const { delimiter = ',', newline = '\n', meta = {} } = options;
+            const lines = val.split(newline);
+            if (lines.length < 1) return [];
+
+            const headers = lines[0].split(delimiter).map(header => header.trim().replace(/^"|"$/g, ''));
+            const headerLength = headers.length;
+            const result = [];
+
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i];
+                if (!line.trim()) continue;
+
+                const row = line.split(delimiter);
+                const item = {};
+
+                for (let j = 0; j < headerLength; j++) {
+                    const columnName = headers[j];
+                    const cellValue = row[j]?.trim() ?? '';
+
+                    item[columnName] = meta[columnName]
+                        ? this.toParseType(cellValue, meta[columnName])
+                        : this.toDynamic(cellValue);
                 }
-            }
-            else {
-                for (i = 1; i < lineLength; i++) {
-                    row = lines[i].split(delimeter);
-                    var item = {};
-                    for (var j = 0; j < headerLength; j++) {
-                        var columnName = headers[j];
-                        item[columnName] = $string.toParseType(row[j], meta[columnName]);
-                    }
-                    result.push(item);
-                }
+                result.push(item);
             }
             return result;
         },
@@ -726,298 +583,202 @@
             return (val === 'true' || val === 'True' || val === 'TRUE' || val === 'Y' || val == '1');
         },
 
-        toDynamic(val, emptyIsNull) {
-            var result;
-            emptyIsNull = $string.toBoolean(emptyIsNull);
+        toDynamic(val, emptyIsNull = false) {
+            const strVal = String(val).trim();
 
-            if (emptyIsNull == true && val === '') {
-                result = null;
-            }
-            else {
-                if (val === 'true' || val === 'True' || val === 'TRUE') {
-                    result = true;
-                }
-                else if (val === 'false' || val === 'False' || val === 'FALSE') {
-                    result = false;
-                }
-                else if ($validation.regexs.float.test(val)) {
-                    result = $string.toNumber(val);
-                }
-                else if ($validation.regexs.isoDate.test(val)) {
-                    result = new Date(val);
-                }
-                else {
-                    result = val;
-                }
+            if (emptyIsNull && strVal === '') return null;
+            if (strVal === '') return '';
+
+            if (/^(true|y|1)$/i.test(strVal)) return true;
+            if (/^(false|n|0)$/i.test(strVal)) return false;
+
+            const numStr = strVal.replace(/,/g, '');
+            if ($validation.regexs.float.test(numStr)) {
+                const num = parseFloat(numStr);
+                if (!isNaN(num)) return num;
             }
 
-            return result;
+            if ($validation.regexs.isoDate.test(strVal)) {
+                const date = new Date(strVal);
+                if (!isNaN(date)) return date;
+            }
+
+            return val;
         },
 
-        toParseType(val, metaType, emptyIsNull) {
-            var result;
-            metaType = metaType || 'string';
-            emptyIsNull = $string.toBoolean(emptyIsNull);
+        toParseType(val, metaType = 'string', emptyIsNull = false) {
+            const strVal = String(val).trim();
 
-            if (emptyIsNull == true && val === '') {
-                result = null;
-            }
-            else {
-                switch (metaType) {
-                    case 'string':
-                        result = val;
-                        break;
-                    case 'bool':
-                        result = $string.toBoolean(val);
-                        break;
-                    case 'number':
-                    case 'numeric':
-                        result = $object.isNullOrUndefined(val) == true ? null : $string.isNumber(val) == true ? $string.toNumber(val) : null;
-                        break;
-                    case 'date':
-                        if ($validation.regexs.isoDate.test(val)) {
-                            result = new Date(val);
-                        }
-                        break;
-                    default:
-                        result = val;
-                        break;
-                }
-            }
+            if (emptyIsNull && strVal === '') return null;
 
-            return result;
+            switch (String(metaType).toLowerCase()) {
+                case 'string':
+                    return strVal;
+                case 'bool':
+                case 'boolean':
+                    return this.toBoolean(strVal);
+                case 'number':
+                case 'numeric':
+                case 'int':
+                    const numStr = strVal.replace(/,/g, '');
+                    if ($validation.regexs.float.test(numStr)) {
+                        const num = parseFloat(numStr);
+                        return isNaN(num) ? (emptyIsNull ? null : 0) : num;
+                    }
+                    return emptyIsNull ? null : 0;
+                case 'date':
+                case 'datetime':
+                    if ($validation.regexs.isoDate.test(strVal)) {
+                        const date = new Date(strVal);
+                        return isNaN(date) ? null : date;
+                    } else if ($date.isDate(strVal)) {
+                        const date = new Date(strVal);
+                        return isNaN(date) ? null : date;
+                    }
+                    return null;
+                default:
+                    return strVal;
+            }
         },
 
         toNumberString(val) {
-            return val.trim().replace(/[^0-9\-\.]/g, '');
+            return typeof val === 'string' ? val.trim().replace(/[^\d.-]/g, '') : '';
         },
 
-        toCurrency(val, localeID, options) {
-            var result = null;
-            if ($string.isNumber(val) == false) {
-                return result;
-            }
+        toCurrency(val, localeID, options = {}) {
+            const num = this.toNumber(val);
+            if (isNaN(num)) return null;
 
-            if ($object.isNullOrUndefined(localeID) == true) {
-                var x = val.toString().split('.');
-                var x1 = x[0];
-
-                var x2 = x.length > 1 ? '.' + x[1] : '';
-                var expr = /(\d+)(\d{3})/;
-
-                while (expr.test(x1)) {
-                    x1 = x1.replace(expr, '$1' + ',' + '$2');
-                }
-
-                result = x1 + x2;
-            }
-            else {
-                // https://ko.wikipedia.org/wiki/ISO_4217
-                var formatOptions = syn.$w.argumentsExtend({
+            if (localeID && typeof Intl !== 'undefined' && Intl.NumberFormat) {
+                const formatOptions = {
                     style: 'currency',
-                    currency: 'KRW'
-                }, options);
-
-                result = Intl.NumberFormat(localeID, formatOptions).format(val);
+                    currency: 'KRW',
+                    ...options
+                };
+                try {
+                    return new Intl.NumberFormat(localeID, formatOptions).format(num);
+                } catch (e) {
+                    $l.eventLog('$string.toCurrency', `Intl formatting error for locale ${localeID}: ${e}`, 'Warning');
+                }
             }
 
-            return result;
+            const [integerPart, decimalPart] = String(num).split('.');
+            const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            return decimalPart ? `${formattedInteger}.${decimalPart}` : formattedInteger;
         },
 
-        pad(val, length, fix, isLeft) {
-            fix = fix || '0';
-            if ($object.isNullOrUndefined(isLeft) == true) {
-                isLeft = true;
-            }
-            else {
-                isLeft = $string.toBoolean(isLeft);
-            }
-            val = val.toString();
-            var padding = fix.repeat(Math.max(0, length - val.length));
 
-            return isLeft ? padding + val : val + padding;
+        pad(val, length, fix = '0', isLeft = true) {
+            const strVal = String(val);
+            const padLength = Math.max(0, length - strVal.length);
+            const padding = String(fix).repeat(padLength);
+            return $string.toBoolean(isLeft) ? padding + strVal : strVal + padding;
         }
+
     });
     context.$string = $string;
 
     $array.extend({
         distinct(arr) {
-            var derived = [];
-            for (var i = 0, len = arr.length; i < len; i++) {
-                if ($array.contains(derived, arr[i]) == false) {
-                    derived.push(arr[i])
-                }
-            }
-
-            return derived;
+            return Array.isArray(arr) ? [...new Set(arr)] : [];
         },
 
-        sort(arr, order) {
-            var temp = null;
-            order = order || true;
-            if (order == true) {
-                for (var i = 0, ilen = arr.length; i < ilen; i++) {
-                    for (var j = 0, jlen = arr.length; j < jlen; j++) {
-                        if (arr[i] < arr[j]) {
-                            temp = arr[i];
-                            arr[i] = arr[j];
-                            arr[j] = temp;
-                        }
-                    }
-                }
-            }
-            else {
-                for (var i = 0, ilen = arr.length; i < ilen; i++) {
-                    for (var j = 0, jlen = arr.length; j < jlen; j++) {
-                        if (arr[i] > arr[j]) {
-                            temp = arr[i];
-                            arr[i] = arr[j];
-                            arr[j] = temp;
-                        }
-                    }
-                }
-            }
-            return arr;
+        sort(arr, ascending = true) {
+            if (!Array.isArray(arr)) return [];
+            return [...arr].sort((a, b) => {
+                if (a < b) return ascending ? -1 : 1;
+                if (a > b) return ascending ? 1 : -1;
+                return 0;
+            });
         },
 
-        objectSort(arr, prop, order) {
-            order = order || true;
-            if (order == true) {
-                arr.sort(
-                    function (v1, v2) {
-                        var prop1 = v1[prop];
-                        var prop2 = v2[prop];
-
-                        if (prop1 < prop2) {
-                            return -1;
-                        }
-
-                        if (prop1 > prop2) {
-                            return 1;
-                        }
-
-                        return 0;
-                    }
-                );
-            }
-            else {
-                arr.sort(
-                    function (v1, v2) {
-                        var prop1 = v1[prop];
-                        var prop2 = v2[prop];
-
-                        if (prop1 < prop2) {
-                            return 1;
-                        }
-
-                        if (prop1 > prop2) {
-                            return -1;
-                        }
-
-                        return 0;
-                    }
-                );
-            }
-            return arr;
+        objectSort(arr, prop, ascending = true) {
+            if (!Array.isArray(arr) || !prop) return [];
+            return [...arr].sort((v1, v2) => {
+                const prop1 = v1[prop];
+                const prop2 = v2[prop];
+                if (prop1 < prop2) return ascending ? -1 : 1;
+                if (prop1 > prop2) return ascending ? 1 : -1;
+                return 0;
+            });
         },
 
         groupBy(data, predicate) {
+            if (!Array.isArray(data)) return {};
+            const keySelector = typeof predicate === 'function' ? predicate : (item => item[predicate]);
             return data.reduce((result, value) => {
-                var group = value[predicate];
-
-                if ('function' === typeof predicate) {
-                    group = predicate(value);
-                }
-
-                if (result[group] === undefined) {
-                    result[group] = [];
-                }
-
-                result[group].push(value);
+                const groupKey = keySelector(value);
+                (result[groupKey] = result[groupKey] || []).push(value);
                 return result;
             }, {});
         },
 
         shuffle(arr) {
-            var i = arr.length, j;
-            var temp = null;
-            while (i--) {
-                j = Math.floor((i + 1) * Math.random());
-                temp = arr[i];
-                arr[i] = arr[j];
-                arr[j] = temp;
+            if (!Array.isArray(arr)) return [];
+            const shuffled = [...arr];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
             }
-            return arr;
+            return shuffled;
         },
 
         addAt(arr, index, val) {
-            if (index <= arr.length - 1) {
-                arr.splice(index, 0, val);
-            }
-            else {
-                arr.push(val);
-            }
-            return arr;
+            if (!Array.isArray(arr)) return [];
+            const copy = [...arr];
+            const effectiveIndex = Math.max(0, Math.min(index, copy.length));
+            copy.splice(effectiveIndex, 0, val);
+            return copy;
         },
 
         removeAt(arr, index) {
-            if (index <= (arr.length - 1)) {
-                arr.splice(index, 1);
+            if (!Array.isArray(arr)) return [];
+            const copy = [...arr];
+            if (index >= 0 && index < copy.length) {
+                copy.splice(index, 1);
             }
-            return arr;
+            return copy;
         },
 
         contains(arr, val) {
-            for (var i = 0, len = arr.length; i < len; i++) {
-                if (arr[i] === val) {
-                    return true;
-                }
-            }
-
-            return false;
+            return Array.isArray(arr) && arr.includes(val);
         },
 
-        merge(arr, brr, predicate = (arr, brr) => arr === brr) {
+        merge(arr, brr, predicate = (a, b) => a === b) {
+            if (!Array.isArray(arr) || !Array.isArray(brr)) return arr || [];
             const crr = [...arr];
-            brr.forEach((bItem) => (crr.some((cItem) => predicate(bItem, cItem)) ? null : crr.push(bItem)));
+            brr.forEach(bItem => {
+                if (!crr.some(cItem => predicate(bItem, cItem))) {
+                    crr.push(bItem);
+                }
+            });
             return crr;
         },
 
         union(sourceArray, targetArray) {
-            var result = [];
-            var temp = {}
-            for (var i = 0; i < sourceArray.length; i++) {
-                temp[sourceArray[i]] = 1;
-            }
-
-            for (var i = 0; i < targetArray.length; i++) {
-                temp[targetArray[i]] = 1;
-            }
-
-            for (var k in temp) {
-                result.push(k)
-            };
-            return result;
+            if (!Array.isArray(sourceArray) || !Array.isArray(targetArray)) return [];
+            return [...new Set([...sourceArray, ...targetArray])];
         },
 
         difference(sourceArray, targetArray) {
-            return sourceArray.filter(function (x) {
-                return !targetArray.includes(x);
-            });
+            if (!Array.isArray(sourceArray) || !Array.isArray(targetArray)) return [];
+            const targetSet = new Set(targetArray);
+            return sourceArray.filter(x => !targetSet.has(x));
         },
 
         intersect(sourceArray, targetArray) {
-            return sourceArray.filter(function (x) {
-                return targetArray.includes(x);
-            });
+            if (!Array.isArray(sourceArray) || !Array.isArray(targetArray)) return [];
+            const targetSet = new Set(targetArray);
+            return sourceArray.filter(x => targetSet.has(x));
         },
 
         symmetryDifference(sourceArray, targetArray) {
-            return sourceArray.filter(function (x) {
-                return !targetArray.includes(x);
-            }).concat(targetArray.filter(function (x) {
-                return !sourceArray.includes(x);
-            }));
+            if (!Array.isArray(sourceArray) || !Array.isArray(targetArray)) return [];
+            const sourceSet = new Set(sourceArray);
+            const targetSet = new Set(targetArray);
+            const diff1 = sourceArray.filter(x => !targetSet.has(x));
+            const diff2 = targetArray.filter(x => !sourceSet.has(x));
+            return [...diff1, ...diff2];
         },
 
         getValue(items, parameterName, defaultValue, parameterProperty, valueProperty) {
@@ -1040,243 +801,194 @@
                         result = parseParameter.Value || parseParameter.value;
                     }
                 }
+            }
+
+            if (result == null) {
+                if (defaultValue === undefined) {
+                    result = '';
+                }
                 else {
-                    if (defaultValue === undefined) {
-                        result = '';
-                    }
-                    else {
-                        result = defaultValue;
-                    }
+                    result = defaultValue;
                 }
             }
 
             return result;
         },
 
-        ranks(value, asc) {
-            var result = [];
-            if ($object.isNullOrUndefined(value) == false && $object.isArray(value) == true) {
-                if ($object.isNullOrUndefined(asc) == true) {
-                    asc = false;
-                }
-                else {
-                    asc = $string.toBoolean(asc);
-                }
+        ranks(values, asc = false) {
+            if (!Array.isArray(values)) return [];
 
-                if (asc == true) {
-                    for (var i = 0; i < value.length; i++) {
-                        value[i] = - + value[i];
-                    }
-                }
+            const indexedValues = values.map((value, index) => ({ value: $string.toNumber(value), index }));
 
-                var sorted = value.slice().sort(function (a, b) {
-                    return b - a;
-                });
-                result = value.map(function (v) {
-                    return sorted.indexOf(v) + 1;
-                });
+            indexedValues.sort((a, b) => asc ? a.value - b.value : b.value - a.value);
+
+            const ranks = new Array(values.length);
+            let currentRank = 1;
+            for (let i = 0; i < indexedValues.length; i++) {
+                if (i > 0 && indexedValues[i].value !== indexedValues[i - 1].value) {
+                    currentRank = i + 1;
+                }
+                ranks[indexedValues[i].index] = currentRank;
             }
 
-            return result;
+            return ranks;
         },
 
-        split(value, flag) {
-            var result = [];
-            if ($object.isNullOrUndefined(value) == false && $object.isString(value) == true) {
-                flag = flag || ',';
-                result = value.split(flag).map(item => item.trim()).filter(item => item.length > 0);
-            }
-
-            return result;
+        split(value, flag = ',') {
+            if (typeof value !== 'string') return [];
+            return value.split(flag).map(item => item.trim()).filter(item => item.length > 0);
         }
     });
     context.$array = $array;
 
     $number.extend({
         duration(ms) {
-            if (ms < 0) ms = -ms;
-            var time = {
-                year: 0,
-                week: 0,
-                day: Math.floor(ms / 86400000),
-                hour: Math.floor(ms / 3600000) % 24,
-                minute: Math.floor(ms / 60000) % 60,
-                second: Math.floor(ms / 1000) % 60,
-                millisecond: Math.floor(ms) % 1000
+            if (typeof ms !== 'number' || isNaN(ms)) return {};
+            const absMs = Math.abs(ms);
+            const seconds = Math.floor(absMs / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+            const years = Math.floor(days / 365);
+            const weeks = Math.floor((days % 365) / 7);
+
+            return {
+                year: years,
+                week: weeks,
+                day: days,
+                hour: hours % 24,
+                minute: minutes % 60,
+                second: seconds % 60,
+                millisecond: absMs % 1000
             };
-
-            if (time.day > 365) {
-                time.year = time.day % 365;
-                time.day = Math.floor(time.day / 365);
-            }
-
-            if (time.day > 7) {
-                time.week = time.day % 7;
-                time.day = Math.floor(time.day / 7);
-            }
-
-            return time;
         },
 
-        toByteString(num, precision, addSpace) {
-            if (precision === void 0) {
-                precision = 3;
-            }
+        toByteString(num, precision = 3, addSpace = true) {
+            if (typeof num !== 'number' || isNaN(num)) return `0${addSpace ? ' ' : ''}B`;
 
-            if (addSpace === void 0) {
-                addSpace = true;
-            }
+            const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+            const absNum = Math.abs(num);
 
-            var units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-            if (Math.abs(num) < 1) return num + (addSpace ? ' ' : '') + units[0];
-            var exponent = Math.min(Math.floor(Math.log10(num < 0 ? -num : num) / 3), units.length - 1);
-            var n = Number(((num < 0 ? -num : num) / Math.pow(1024, exponent)).toPrecision(precision));
-            return (num < 0 ? '-' : '') + n + (addSpace ? ' ' : '') + units[exponent];
+            if (absNum < 1) return `${num}${addSpace ? ' ' : ''}${units[0]}`;
+
+            const exponent = Math.min(
+                Math.floor(Math.log(absNum) / Math.log(1024)),
+                units.length - 1
+            );
+
+            const scaledNum = absNum / Math.pow(1024, exponent);
+            const formattedNum = Number(scaledNum.toPrecision(precision));
+
+            return `${num < 0 ? '-' : ''}${formattedNum}${addSpace ? ' ' : ''}${units[exponent]}`;
         },
 
-        random(start, end) {
-            if ($string.isNullOrEmpty(start) == true) {
-                start = 0;
-            }
 
-            if ($string.isNullOrEmpty(end) == true) {
-                end = 10;
-            }
-
-            return Math.floor((Math.random() * (end - start + 1)) + start);
+        random(start = 0, end = 10) {
+            const min = Math.ceil(Math.min(start, end));
+            const max = Math.floor(Math.max(start, end));
+            return Math.floor(Math.random() * (max - min + 1)) + min;
         },
 
         isRange(num, low, high) {
-            return num >= low && num <= high;
+            return typeof num === 'number' && num >= low && num <= high;
         },
 
         limit(num, low, high) {
-            return num < low ? low : (num > high ? high : num);
+            return typeof num === 'number' ? Math.max(low, Math.min(num, high)) : low;
         },
 
-        percent(num, total, precision) {
-            var precision = precision || 0;
-            var result = Math.pow(10, precision);
-
-            return Math.round((num * 100 / total) * result) / result;
+        percent(num, total, precision = 0) {
+            if (typeof num !== 'number' || typeof total !== 'number' || total === 0) return 0;
+            const factor = Math.pow(10, precision);
+            return Math.round((num * 100 / total) * factor) / factor;
         }
     });
     context.$number = $number;
 
     $object.extend({
         isNullOrUndefined(val) {
-            if (val === undefined || val === null) {
-                return true;
-            }
-            else {
-                return false;
-            }
+            return val === undefined || val === null;
         },
 
-        toCSV(obj, option) {
-            if (typeof obj !== 'object') return null;
-            option = option || {};
-            var scopechar = option.scopechar || '/';
-            var delimeter = option.delimeter || ',';
-            var newline = option.newline || '\n';
-            if (Array.isArray(obj) === false) obj = [obj];
-            var curs, name, i, key, queue, values = [], rows = [], headers = {}, headersArr = [];
-            for (i = 0; i < obj.length; i++) {
-                queue = [obj[i], ''];
-                rows[i] = {};
-                while (queue.length > 0) {
-                    name = queue.pop();
-                    curs = queue.pop();
-                    if (curs !== null && typeof curs === 'object') {
-                        for (key in curs) {
-                            if (curs.hasOwnProperty(key)) {
-                                queue.push(curs[key]);
-                                queue.push(name + (name ? scopechar : '') + key);
-                            }
-                        }
-                    } else {
-                        if (headers[name] === undefined) headers[name] = true;
-                        rows[i][name] = curs;
-                    }
-                }
-                values[i] = [];
-            }
+        toCSV(obj, options = {}) {
+            if (typeof obj !== 'object' || obj === null) return null;
 
-            for (key in headers) {
-                if (headers.hasOwnProperty(key)) {
-                    headersArr.push(key);
-                    for (i = 0; i < obj.length; i++) {
-                        values[i].push(rows[i][key] === undefined
-                            ? ''
-                            : rows[i][key]);
+            const { scopechar = '/', delimiter = ',', newline = '\n' } = options;
+            const dataArray = Array.isArray(obj) ? obj : [obj];
+            if (dataArray.length === 0) return '';
+
+            const rowsData = [];
+            const headersSet = new Set();
+
+            dataArray.forEach(item => {
+                const flatRow = {};
+                const queue = [[item, '']];
+
+                while (queue.length > 0) {
+                    const [currentObj, prefix] = queue.pop();
+
+                    if (currentObj !== null && typeof currentObj === 'object' && !Array.isArray(currentObj) && !(currentObj instanceof Date)) {
+                        Object.entries(currentObj).forEach(([key, value]) => {
+                            queue.push([value, prefix ? `${prefix}${scopechar}${key}` : key]);
+                        });
+                    } else {
+                        const headerName = prefix || 'value';
+                        headersSet.add(headerName);
+                        flatRow[headerName] = (Array.isArray(currentObj) || currentObj instanceof Date)
+                            ? JSON.stringify(currentObj)
+                            : (currentObj ?? '');
                     }
                 }
-            }
-            for (i = 0; i < obj.length; i++) {
-                values[i] = values[i].join(delimeter);
-            }
-            return headersArr.join(delimeter) + newline + values.join(newline);
+                rowsData.push(flatRow);
+            });
+
+            const headersArray = Array.from(headersSet).sort();
+            const headerRow = headersArray.join(delimiter);
+
+            const valueRows = rowsData.map(row =>
+                headersArray.map(header => {
+                    let cellValue = String(row[header] ?? '');
+                    if (cellValue.includes(delimiter) || cellValue.includes(newline) || cellValue.includes('"')) {
+                        cellValue = `"${cellValue.replace(/"/g, '""')}"`;
+                    }
+                    return cellValue;
+                }).join(delimiter)
+            );
+
+            return [headerRow, ...valueRows].join(newline);
         },
 
         toParameterString(jsonObject) {
-            return jsonObject ? Object.entries(jsonObject).reduce(function (queryString, ref, index) {
-                var key = ref[0];
-                var val = ref[1];
-                queryString += `@${key}:${$string.toValue($string.toDynamic(val), '')};`;
-                return queryString;
-            }, '') : '';
+            if (!jsonObject || typeof jsonObject !== 'object') return '';
+            return Object.entries(jsonObject)
+                .map(([key, val]) => `@${key}:${$string.toValue($string.toDynamic(val), '')}`)
+                .join(';');
         },
 
         getType(val) {
-            var result = typeof val;
-            if (result == 'object') {
-                if (val) {
-                    if (val instanceof Array || (!(val instanceof Object) && (Object.prototype.toString.call((val)) == '[object Array]') || typeof val.length == 'number' && typeof val.splice != 'undefined' && typeof val.propertyIsEnumerable != 'undefined' && !val.propertyIsEnumerable('splice'))) {
-                        return 'array';
-                    }
-
-                    if (!(val instanceof Object) && (Object.prototype.toString.call((val)) == '[object Function]' || typeof val.call != 'undefined' && typeof val.propertyIsEnumerable != 'undefined' && !val.propertyIsEnumerable('call'))) {
-                        return 'function';
-                    }
-
-                    if (val instanceof Date) {
-                        return 'date';
-                    }
-
-                    if (val instanceof HTMLElement) {
-                        return 'element';
-                    }
-                }
-                else {
-                    return 'null';
-                }
-            }
-            else if (result == 'function' && typeof val.call == 'undefined') {
+            const type = typeof val;
+            if (type === 'object') {
+                if (val === null) return 'null';
+                if (Array.isArray(val)) return 'array';
+                if (val instanceof Date) return 'date';
+                if (globalRoot.devicePlatform !== 'node' && val instanceof HTMLElement) return 'element';
                 return 'object';
             }
-
-            return result;
+            return type;
         },
 
         defaultValue(type) {
-            if (typeof type !== 'string') {
-                return '';
-            }
-
-            switch (type) {
-                case 'bool':
-                case 'boolean':
-                    return false;
-                case 'function': return function () { };
+            switch (String(type).toLowerCase()) {
+                case 'boolean': return false;
+                case 'function': return () => { };
                 case 'null': return null;
-                case 'numeric':
-                case 'number':
-                    return 0;
+                case 'number': case 'numeric': case 'int': return 0;
                 case 'object': return {};
-                case 'date': return new Date();
+                case 'date': case 'datetime': return new Date();
                 case 'string': return '';
                 case 'symbol': return Symbol();
-                case 'undefined': return void 0;
+                case 'undefined': return undefined;
+                case 'array': return [];
                 default: return '';
             }
         },
@@ -1290,172 +1002,97 @@
         },
 
         isArray(val) {
-            return this.getType(val) == 'array';
+            return Array.isArray(val);
         },
 
         isDate(val) {
-            var result = false;
-            try {
-                if (Object.prototype.toString.call(val) === '[object Date]') {
-                    result = true;
-                }
-                else if (typeof val == 'string') {
-                    if (val.includes('T') == true) {
-                        var date = val.parseISOString();
-                        result = typeof date.getFullYear == 'function';
-                    }
-                    else if ($date.isDate(val) == true) {
-                        result = true;
-                    }
-                }
-            } catch (e) {
-            }
-
-            return result;
+            return val instanceof Date && !isNaN(val.getTime());
         },
 
         isString(val) {
-            return typeof val == 'string';
+            return typeof val === 'string';
         },
 
         isNumber(val) {
-            return typeof val == 'number';
+            return typeof val === 'number' && !isNaN(val);
         },
 
         isFunction(val) {
-            return this.getType(val) == 'function';
+            return typeof val === 'function';
         },
 
         isObject(val) {
-            return typeof val == 'object';
+            return typeof val === 'object' && val !== null;
         },
 
         isObjectEmpty(val) {
-            if (typeof val == 'object') {
-                for (var key in val) {
-                    if (val.hasOwnProperty(key) == true) {
-                        return false;
-                    }
-                }
-            }
-            return true;
+            return typeof val === 'object' && val !== null && Object.keys(val).length === 0 && val.constructor === Object;
         },
 
         isBoolean(val) {
-            if ($object.isNullOrUndefined(val) == true) {
-                return false;
-            }
-
-            if (typeof val == 'boolean') {
-                return true;
-            }
-            else if (typeof val == 'string' || typeof val == 'number') {
-                val = val.toString();
-                return (val.toUpperCase() === 'TRUE' ||
-                    val.toUpperCase() === 'FALSE' ||
-                    val === 'Y' ||
-                    val === 'N' ||
-                    val == '1' ||
-                    val == '0');
-            }
-
-            return false;
+            if (typeof val === 'boolean') return true;
+            if (val === undefined || val === null) return false;
+            const strVal = String(val).toUpperCase();
+            return ['TRUE', 'FALSE', 'Y', 'N', '1', '0'].includes(strVal);
         },
 
         isEmpty(val) {
-            var result = false;
-            if (typeof val == 'number' || typeof val == 'boolean' || typeof val == 'function' || (typeof val === 'object' && val instanceof Date)) {
-                result = false;
-            }
-            else {
-                result = (val == null || !(Object.keys(val) || val).length);
-            }
-            return result;
+            if (val === undefined || val === null) return true;
+            if (typeof val === 'number' && isNaN(val)) return true;
+            if (typeof val === 'string' && val.trim() === '') return true;
+            if (Array.isArray(val) && val.length === 0) return true;
+            if (typeof val === 'object' && !(val instanceof Date) && Object.keys(val).length === 0 && val.constructor === Object) return true;
+            return false;
         },
 
-        clone(val, isNested) {
-            var result = null;
-
-            if ($object.isNullOrUndefined(isNested) == true) {
-                isNested = true;
+        clone(val, isNested = true) {
+            if (typeof val !== 'object' || val === null) {
+                return val;
             }
 
-            if ($object.isArray(val) == true) {
-                result = JSON.parse(JSON.stringify(val));
+            if (val instanceof Date) {
+                return new Date(val.getTime());
             }
-            else if ($object.isObject(val) == true) {
-                if (val) {
-                    var types = [Number, String, Boolean], result;
-                    types.forEach(function (type) {
-                        if (val instanceof type) {
-                            result = type(val);
-                        }
+
+            if (Array.isArray(val)) {
+                return isNested ? val.map(item => this.clone(item, true)) : [...val];
+            }
+
+            if (val instanceof HTMLElement && typeof val.cloneNode === 'function') {
+                return val.cloneNode(isNested);
+            }
+
+            if (typeof val === 'object') {
+                const clonedObj = Object.create(Object.getPrototypeOf(val));
+                if (isNested) {
+                    Object.keys(val).forEach(key => {
+                        clonedObj[key] = this.clone(val[key], true);
                     });
-
-                    if (isNested == true && Object.prototype.toString.call(val) === '[object Array]') {
-                        result = [];
-                        val.forEach(function (child, index, array) {
-                            result[index] = $object.clone(child);
-                        });
-                    }
-                    else if (typeof val == 'object') {
-                        if (val.nodeType && typeof val.cloneNode == 'function') {
-                            result = val.cloneNode(true);
-                        }
-                        else if (!val.prototype) {
-                            result = {};
-                            for (var i in val) {
-                                result[i] = $object.clone(val[i]);
-                            }
-                        }
-                        else {
-                            if (val.constructor) {
-                                result = new val.constructor();
-                            }
-                            else {
-                                result = val;
-                            }
-                        }
-                    }
-                    else {
-                        result = val;
-                    }
+                } else {
+                    Object.assign(clonedObj, val);
                 }
-                else {
-                    result = val;
-                }
-            }
-            else if ($object.isFunction(val) == true) {
-                result = val.clone();
-            }
-            else {
-                result = val;
+                return clonedObj;
             }
 
-            return result;
+            return val;
         },
 
-        extend(to, from, overwrite) {
-            var prop, hasProp;
-            for (prop in from) {
-                hasProp = to[prop] !== undefined;
-                if (hasProp && typeof from[prop] === 'object' && from[prop] !== null && from[prop].nodeName === undefined) {
-                    if ($object.isDate(from[prop])) {
-                        if (overwrite) {
-                            to[prop] = new Date(from[prop].getTime());
-                        }
+        extend(to, from, overwrite = true) {
+            if (!from || typeof from !== 'object') return to;
+
+            Object.entries(from).forEach(([prop, fromVal]) => {
+                const toVal = to[prop];
+                const hasProp = Object.prototype.hasOwnProperty.call(to, prop);
+
+                if (this.isObject(fromVal) && fromVal !== null && !this.isDate(fromVal) && !Array.isArray(fromVal) && !(fromVal instanceof HTMLElement)) {
+                    if (!hasProp || !this.isObject(toVal)) {
+                        to[prop] = {};
                     }
-                    else if ($object.isArray(from[prop])) {
-                        if (overwrite) {
-                            to[prop] = from[prop].slice(0);
-                        }
-                    } else {
-                        to[prop] = $object.extend({}, from[prop], overwrite);
-                    }
+                    this.extend(to[prop], fromVal, overwrite);
                 } else if (overwrite || !hasProp) {
-                    to[prop] = from[prop];
+                    to[prop] = this.clone(fromVal, false);
                 }
-            }
+            });
             return to;
         }
     });

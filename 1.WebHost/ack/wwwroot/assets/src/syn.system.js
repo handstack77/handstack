@@ -154,7 +154,7 @@
                                     try {
                                         sql = syn.$s.getStatement(moduleID, statementID, parameters);
                                         if (sql == null) {
-                                            var message = 'moduleID: {0}, statementID: {1} - 쿼리 매핑 확인 필요'.format(moduleID, statementID);
+                                            var message = 'moduleID: {0}, statementID: {1}- 쿼리 매핑 확인 필요'.format(moduleID, statementID);
                                             syn.$l.eventLog('getStatement', message, 'Error');
                                             if (callback) {
                                                 callback(message, null);
@@ -164,7 +164,7 @@
                                         sql = sql.replace(/\\\"/g, '"');
 
                                         if ($string.isNullOrEmpty(sql.trim()) == true) {
-                                            var message = 'moduleID: {0}, statementID: {1} - SQL 내용 없음'.format(moduleID, statementID, error.message);
+                                            var message = 'moduleID: {0}, statementID: {1}- SQL 내용 없음'.format(moduleID, statementID, error.message);
                                             syn.$l.eventLog('getStatement', message, 'Error');
                                             if (callback) {
                                                 callback(message, null);
@@ -172,7 +172,7 @@
                                         }
                                     } catch (error) {
                                         db.close();
-                                        var message = 'moduleID: {0}, statementID: {1} - {2}'.format(moduleID, statementID, error.message);
+                                        var message = 'moduleID: {0}, statementID: {1}- {2}'.format(moduleID, statementID, error.message);
                                         syn.$l.eventLog('getStatement', message, 'Error');
                                         if (callback) {
                                             callback(message, null);
@@ -183,7 +183,7 @@
                                         db.query(sql, function (error, result) {
                                             db.close();
                                             if (error) {
-                                                var message = 'moduleID: {0}, statementID: {1} - {2}'.format(moduleID, statementID, error.message);
+                                                var message = 'moduleID: {0}, statementID: {1}- {2}'.format(moduleID, statementID, error.message);
                                                 syn.$l.eventLog('getStatement', message, 'Error');
                                                 if (callback) {
                                                     callback(message, null);
@@ -199,7 +199,7 @@
                                             db.close();
 
                                             if (error) {
-                                                var message = 'moduleID: {0}, statementID: {1} - {2}'.format(moduleID, statementID, error.message);
+                                                var message = 'moduleID: {0}, statementID: {1}- {2}'.format(moduleID, statementID, error.message);
                                                 syn.$l.eventLog('getStatement', message, 'Error');
                                             }
                                         });
@@ -265,7 +265,7 @@
                                         sql = sql.replace(/\\\"/g, '"');
 
                                         if ($string.isNullOrEmpty(sql.trim()) == true) {
-                                            var message = 'moduleID: {0}, statementID: {1} - SQL 내용 없음'.format(moduleID, statementID, error.message);
+                                            var message = 'moduleID: {0}, statementID: {1}- SQL 내용 없음'.format(moduleID, statementID, error.message);
                                             syn.$l.eventLog('getStatement', message, 'Error');
                                             if (callback) {
                                                 callback(message, null);
@@ -273,7 +273,7 @@
                                         }
                                     } catch (error) {
                                         db.end();
-                                        var message = 'moduleID: {0}, statementID: {1} - {2}'.format(moduleID, statementID, error.message);
+                                        var message = 'moduleID: {0}, statementID: {1}- {2}'.format(moduleID, statementID, error.message);
                                         syn.$l.eventLog('getStatement', message, 'Error');
                                         if (callback) {
                                             callback(message, null);
@@ -284,7 +284,7 @@
                                         db.query(sql, function (error, result) {
                                             db.end();
                                             if (error) {
-                                                var message = 'moduleID: {0}, statementID: {1} - {2}'.format(moduleID, statementID, error.message);
+                                                var message = 'moduleID: {0}, statementID: {1}- {2}'.format(moduleID, statementID, error.message);
                                                 syn.$l.eventLog('getStatement', message, 'Error');
                                                 if (callback) {
                                                     callback(message, null);
@@ -300,7 +300,7 @@
                                             db.end();
 
                                             if (error) {
-                                                var message = 'moduleID: {0}, statementID: {1} - {2}'.format(moduleID, statementID, error.message);
+                                                var message = 'moduleID: {0}, statementID: {1}- {2}'.format(moduleID, statementID, error.message);
                                                 syn.$l.eventLog('getStatement', message, 'Error');
                                             }
                                         });
@@ -348,7 +348,7 @@
                                         sql = sql.replace(/\\\"/g, '"');
 
                                         if ($string.isNullOrEmpty(sql.trim()) == true) {
-                                            var message = 'moduleID: {0}, statementID: {1} - SQL 내용 없음'.format(moduleID, statementID, error.message);
+                                            var message = 'moduleID: {0}, statementID: {1}- SQL 내용 없음'.format(moduleID, statementID, error.message);
                                             syn.$l.eventLog('getStatement', message, 'Error');
                                             if (callback) {
                                                 callback(message, null);
@@ -356,7 +356,7 @@
                                         }
                                     } catch (error) {
                                         db.close();
-                                        var message = 'moduleID: {0}, statementID: {1} - {2}'.format(moduleID, statementID, error.message);
+                                        var message = 'moduleID: {0}, statementID: {1}- {2}'.format(moduleID, statementID, error.message);
                                         syn.$l.eventLog('getStatement', message, 'Error');
                                         if (callback) {
                                             callback(message, null);
@@ -367,7 +367,7 @@
                                         db.execute(sql, function (error, result) {
                                             db.close();
                                             if (error) {
-                                                var message = 'moduleID: {0}, statementID: {1} - {2}'.format(moduleID, statementID, error.message);
+                                                var message = 'moduleID: {0}, statementID: {1}- {2}'.format(moduleID, statementID, error.message);
                                                 syn.$l.eventLog('getStatement', message, 'Error');
                                                 if (callback) {
                                                     callback(message, null);
@@ -383,7 +383,7 @@
                                             db.close();
 
                                             if (error) {
-                                                var message = 'moduleID: {0}, statementID: {1} - {2}'.format(moduleID, statementID, error.message);
+                                                var message = 'moduleID: {0}, statementID: {1}- {2}'.format(moduleID, statementID, error.message);
                                                 syn.$l.eventLog('getStatement', message, 'Error');
                                             }
                                         });

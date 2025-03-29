@@ -1,9 +1,6 @@
-﻿/// <reference path='syn.core.js' />
-
-(function (context) {
+﻿(function (context) {
     'use strict';
-    var $network = context.$network || new syn.module();
-    var document = context.document;
+    const $network = context.$network || new syn.module();
 
     $network.extend({
         myChannelID: null,
@@ -13,218 +10,158 @@
         },
 
         rooms: (function () {
-            var currentTransactionID = Math.floor(Math.random() * 1000001);
-            var boundChannels = {};
+            let currentTransactionID = Math.floor(Math.random() * 1000001);
+            const boundChannels = {};
 
-            function addChannel(channelWindow, origin, scope, handler) {
-                function hasWin(arr) {
-                    for (var i = 0; i < arr.length; i++) {
-                        if (arr[i].channelWindow === channelWindow) {
-                            return true;
-                        }
-                    }
-                    return false;
-                }
+            const addChannel = (channelWindow, origin, scope, handler) => {
+                const hasWin = (arr) => arr.some(item => item.channelWindow === channelWindow);
 
-                var exists = false;
+                let exists = false;
 
                 if (origin === '*') {
-                    for (var k in boundChannels) {
-                        if (!boundChannels.hasOwnProperty(k)) {
-                            continue;
-                        }
-
-                        if (k === '*') {
-                            continue;
-                        }
-
+                    for (const k in boundChannels) {
+                        if (!boundChannels.hasOwnProperty(k) || k === '*') continue;
                         if (typeof boundChannels[k][scope] === 'object') {
                             exists = hasWin(boundChannels[k][scope]);
-                            if (exists) {
-                                break;
-                            }
+                            if (exists) break;
                         }
                     }
                 } else {
-                    if ((boundChannels['*'] && boundChannels['*'][scope])) {
+                    if (boundChannels['*']?.[scope]) {
                         exists = hasWin(boundChannels['*'][scope]);
                     }
-                    if (!exists && boundChannels[origin] && boundChannels[origin][scope]) {
+                    if (!exists && boundChannels[origin]?.[scope]) {
                         exists = hasWin(boundChannels[origin][scope]);
                     }
                 }
 
                 if (exists) {
-                    syn.$l.eventLog('$network.addChannel', 'origin: ' + origin + ', scope: ' + scope + '에 해당하는 채널이 이미 있습니다', 'Warning');
+                    syn.$l.eventLog('$network.addChannel', `origin: ${origin}, scope: ${scope}에 해당하는 채널이 이미 있습니다`, 'Warning');
                     return;
                 }
 
-                if (typeof boundChannels[origin] != 'object') {
+                if (typeof boundChannels[origin] !== 'object') {
                     boundChannels[origin] = {};
                 }
-
-                if (typeof boundChannels[origin][scope] != 'object') {
+                if (typeof boundChannels[origin][scope] !== 'object') {
                     boundChannels[origin][scope] = [];
                 }
 
-                boundChannels[origin][scope].push({
-                    channelWindow: channelWindow,
-                    handler: handler
-                });
-            }
+                boundChannels[origin][scope].push({ channelWindow, handler });
+            };
 
-            function removeChannel(channelWindow, origin, scope) {
-                var arr = boundChannels[origin][scope];
-                for (var i = 0; i < arr.length; i++) {
-                    if (arr[i].channelWindow === channelWindow) {
-                        arr.splice(i, 1);
-                    }
-                }
+            const removeChannel = (channelWindow, origin, scope) => {
+                const arr = boundChannels[origin]?.[scope];
+                if (!arr) return;
+
+                boundChannels[origin][scope] = arr.filter(item => item.channelWindow !== channelWindow);
 
                 if (boundChannels[origin][scope].length === 0) {
                     delete boundChannels[origin][scope];
+                    if (Object.keys(boundChannels[origin]).length === 0) {
+                        delete boundChannels[origin];
+                    }
                 }
 
-                var idx = $network.connections.findIndex((item) => { return item.options.origin == origin && item.options.scope == scope });
+                const idx = $network.connections.findIndex(item => item.options.origin === origin && item.options.scope === scope);
                 if (idx > -1) {
                     $network.connections.splice(idx, 1);
                 }
-            }
+            };
 
-            function isArray(obj) {
-                if (Array.isArray) {
-                    return Array.isArray(obj);
-                }
-                else {
-                    return (obj.constructor.toString().indexOf('Array') != -1);
-                }
-            }
+            const transactionMessages = {};
 
-            var transactionMessages = {};
-
-            var onPostMessage = function (evt) {
+            const onPostMessage = (evt) => {
+                let parsedMessage;
                 try {
-                    if ($string.isNullOrEmpty(evt.data) == true) {
-                        return;
-                    }
-
-                    var parsedMessage = JSON.parse(evt.data);
+                    if (!evt.data) return;
+                    parsedMessage = JSON.parse(evt.data);
                     if (typeof parsedMessage !== 'object' || parsedMessage === null) {
-                        syn.$l.eventLog('$network.onPostMessage', 'postMessage data 확인 필요', 'Warning');
+                        syn.$l.eventLog('$network.onPostMessage', 'postMessage data 확인 필요 (non-object)', 'Verbose');
                         return;
                     }
                 } catch (error) {
+                    syn.$l.eventLog('$network.onPostMessage', `JSON parse error: ${error.message}`, 'Verbose');
                     return;
                 }
 
-                var sourceWindow = evt.source;
-                var channelOrigin = evt.origin;
-                var channelScope = null;
-                var messageID = null;
-                var methodName = null;
+                const sourceWindow = evt.source;
+                const channelOrigin = evt.origin;
+                let channelScope = null;
+                let methodName = null;
+                let messageID = parsedMessage.id;
 
                 if (typeof parsedMessage.method === 'string') {
-                    var ar = parsedMessage.method.split('::');
-                    if (ar.length == 2) {
-                        channelScope = ar[0];
-                        methodName = ar[1];
+                    const parts = parsedMessage.method.split('::');
+                    if (parts.length === 2) {
+                        [channelScope, methodName] = parts;
                     } else {
                         methodName = parsedMessage.method;
                     }
                 }
 
-                if (typeof parsedMessage.id !== 'undefined') {
-                    messageID = parsedMessage.id;
-                }
-
-                if (typeof methodName === 'string') {
-                    var delivered = false;
-                    if (boundChannels[channelOrigin] && boundChannels[channelOrigin][channelScope]) {
-                        for (var j = 0; j < boundChannels[channelOrigin][channelScope].length; j++) {
-                            if (boundChannels[channelOrigin][channelScope][j].channelWindow === sourceWindow) {
-                                boundChannels[channelOrigin][channelScope][j].handler(channelOrigin, methodName, parsedMessage);
-                                delivered = true;
-                                break;
+                if (methodName) {
+                    let delivered = false;
+                    const deliver = (originToCheck) => {
+                        const handlers = boundChannels[originToCheck]?.[channelScope];
+                        if (handlers) {
+                            for (const handlerObj of handlers) {
+                                if (handlerObj.channelWindow === sourceWindow) {
+                                    handlerObj.handler(channelOrigin, methodName, parsedMessage);
+                                    return true;
+                                }
                             }
                         }
+                        return false;
+                    };
+
+                    if (deliver(channelOrigin)) {
+                        delivered = true;
+                    }
+                    if (!delivered) {
+                        deliver('*');
                     }
 
-                    if (!delivered && boundChannels['*'] && boundChannels['*'][channelScope]) {
-                        for (var j = 0; j < boundChannels['*'][channelScope].length; j++) {
-                            if (boundChannels['*'][channelScope][j].channelWindow === sourceWindow) {
-                                boundChannels['*'][channelScope][j].handler(channelOrigin, methodName, parsedMessage);
-                                break;
-                            }
-                        }
-                    }
-                }
-                else if (typeof messageID != 'undefined') {
-                    if (transactionMessages[messageID]) {
-                        transactionMessages[messageID](channelOrigin, methodName, parsedMessage);
+                } else if (messageID !== undefined) {
+                    const callback = transactionMessages[messageID];
+                    if (callback) {
+                        callback(channelOrigin, methodName, parsedMessage);
                     }
                 }
             };
 
             if (context.addEventListener) {
                 context.addEventListener('message', onPostMessage, false);
-            }
-            else if (context.attachEvent) {
+            } else if (context.attachEvent) {
                 context.attachEvent('onmessage', onPostMessage);
             }
 
-            var connectChannel = {
+            const connectChannel = {
                 connect(options) {
-                    var channelID = options.scope || syn.$l.random();
-
-                    var channel = $network.findChannel(channelID);
-                    if (channel) {
-                        syn.$l.eventLog('$network.connect', 'channelID: {0} 중복 확인 필요'.format(channelID), 'Warning');
-                        return;
-                    }
-
-                    var debug = function (message) {
-                        if (options.debugOutput) {
-                            try {
-                                if (typeof message !== 'string') {
-                                    message = JSON.stringify(message);
-                                }
-                            }
-                            catch (error) {
-                                syn.$l.eventLog('$network.debug', 'channelID: {0}, message: {1}'.format(channelID, error.message), 'Error');
-                            }
-
-                            syn.$l.eventLog('$network.debug', 'channelID: {0}, message: {1}'.format(channelID, message), 'Information');
-                        }
-                    };
-
-                    if (typeof options != 'object') {
+                    if (typeof options !== 'object') {
                         syn.$l.eventLog('$network.options', '유효한 매개변수 없이 호출된 채널 빌드', 'Error');
                         return;
                     }
-
                     if (!options.window || !options.window.postMessage) {
-                        syn.$l.eventLog('$network.context', '필수 매개변수 없이 호출된 채널 빌드', 'Error');
+                        syn.$l.eventLog('$network.context', '필수 매개변수 없이 호출된 채널 빌드 (window)', 'Error');
                         return;
                     }
-
                     if (context === options.window) {
                         syn.$l.eventLog('$network.context', '동일한 화면에서 거래되는 채널 생성은 허용되지 않음', 'Error');
                         return;
                     }
 
-                    if (!options.origin) {
-                        options.origin = '*';
-                    }
-
-                    var validOrigin = false;
+                    options.origin = options.origin || '*';
+                    let validOrigin = false;
                     if (typeof options.origin === 'string') {
-                        var oMatch;
                         if (options.origin === '*') {
                             validOrigin = true;
-                        }
-                        else if (null !== (oMatch = options.origin.match(/^https?:\/\/(?:[-a-zA-Z0-9_\.])+(?::\d+)?/))) {
-                            options.origin = oMatch[0].toLowerCase();
-                            validOrigin = true;
+                        } else {
+                            const oMatch = options.origin.match(/^https?:\/\/(?:[-a-zA-Z0-9_\.])+(?::\d+)?/);
+                            if (oMatch) {
+                                options.origin = oMatch[0].toLowerCase();
+                                validOrigin = true;
+                            }
                         }
                     }
 
@@ -233,192 +170,191 @@
                         return;
                     }
 
+                    let channelID = options.scope || syn.$l.random();
+
                     if (typeof options.scope !== 'undefined') {
                         if (typeof options.scope !== 'string') {
                             syn.$l.eventLog('$network.scope', 'scope는 문자열이어야 함', 'Error');
                             return;
                         }
-
-                        if (options.scope.split('::').length > 1) {
+                        if (options.scope.includes('::')) {
                             syn.$l.eventLog('$network.scope', 'scope에는 이중 콜론 ("::")이 포함될 수 없음', 'Error');
                             return;
                         }
+                    } else {
+                        options.scope = '';
                     }
 
-                    var registrationMappingMethods = {};
-                    var sendRequests = {};
-                    var receivedRequests = {};
-                    var ready = false;
-                    var pendingQueue = [];
 
-                    var createTransaction = function (id, origin, callbacks) {
-                        var shouldDelayReturn = false;
-                        var completed = false;
+                    const channel = $network.findChannel(channelID);
+                    if (channel && channelID !== '') {
+                        syn.$l.eventLog('$network.connect', `channelID: ${channelID} 중복 확인 필요`, 'Warning');
+                        return;
+                    }
+
+                    const debug = (message) => {
+                        if (options.debugOutput) {
+                            try {
+                                const msgString = typeof message !== 'string' ? JSON.stringify(message) : message;
+                                syn.$l.eventLog('$network.debug', `channelID: ${channelID}, message: ${msgString}`, 'Information');
+                            } catch (error) {
+                                syn.$l.eventLog('$network.debug', `channelID: ${channelID}, message stringify error: ${error.message}`, 'Error');
+                            }
+                        }
+                    };
+
+                    const registrationMappingMethods = {};
+                    const sendRequests = {};
+                    const receivedRequests = {};
+                    let ready = false;
+                    const pendingQueue = [];
+
+                    const createTransaction = (id, origin, callbacks) => {
+                        let shouldDelayReturn = false;
+                        let completed = false;
 
                         return {
-                            origin: origin,
-                            invoke(callbackName, v) {
+                            origin,
+                            invoke: (callbackName, v) => {
                                 if (!receivedRequests[id]) {
-                                    syn.$l.eventLog('$network.invoke', '존재하지 않는 트랜잭션의 콜백 호출 시도: ' + id, 'Warning');
+                                    debug(`존재하지 않는 트랜잭션의 콜백 호출 시도: ${id}`);
                                     return;
                                 }
-
-                                var valid = false;
-                                for (var i = 0; i < callbacks.length; i++) {
-                                    if (callbackName === callbacks[i]) {
-                                        valid = true;
-                                        break;
-                                    }
-                                }
-                                if (!valid) {
-                                    syn.$l.eventLog('$network.invoke', '존재하지 않는 콜백 호출 시도: ' + callbackName, 'Warning');
+                                if (!callbacks.includes(callbackName)) {
+                                    debug(`존재하지 않는 콜백 호출 시도: ${callbackName}`);
                                     return;
                                 }
-
-                                postMessage({ id: id, callback: callbackName, params: v });
+                                postMessage({ id, callback: callbackName, params: v });
                             },
-                            error(error, message) {
+                            error: (error, message) => {
+                                if (completed) return;
                                 completed = true;
                                 if (!receivedRequests[id]) {
-                                    syn.$l.eventLog('$network.error', '존재하지 않는 메시지의 호출 시도: ' + id, 'Warning');
+                                    debug(`존재하지 않는 메시지의 에러 호출 시도: ${id}`);
                                     return;
                                 }
-
                                 delete receivedRequests[id];
-
-                                postMessage({ id: id, error: error, message: message });
+                                postMessage({ id, error, message });
                             },
-                            complete(v) {
+                            complete: (v) => {
+                                if (completed) return;
                                 completed = true;
                                 if (!receivedRequests[id]) {
-                                    syn.$l.eventLog('$network.complete', '존재하지 않는 메시지의 호출 시도: ' + id, 'Warning');
+                                    debug(`존재하지 않는 메시지의 완료 호출 시도: ${id}`);
                                     return;
                                 }
-
                                 delete receivedRequests[id];
-                                postMessage({ id: id, result: v });
+                                postMessage({ id, result: v });
                             },
-                            delayReturn(delay) {
+                            delayReturn: (delay) => {
                                 if (typeof delay === 'boolean') {
-                                    shouldDelayReturn = (delay === true);
+                                    shouldDelayReturn = delay;
                                 }
                                 return shouldDelayReturn;
                             },
-                            completed() {
-                                return completed;
-                            }
+                            completed: () => completed,
                         };
                     };
 
-                    var setTransactionTimeout = function (transactionID, timeout, method) {
-                        return setTimeout(function () {
-                            if (sendRequests[transactionID]) {
-                                var message = '"' + method + '" 타임아웃 (' + timeout + 'ms) ';
-                                (1, sendRequests[transactionID].error)('timeout_error', message);
+                    const setTransactionTimeout = (transactionID, timeout, method) => {
+                        return setTimeout(() => {
+                            const request = sendRequests[transactionID];
+                            if (request) {
+                                const message = `"${method}" 타임아웃 (${timeout}ms) `;
+                                request.error('timeout_error', message);
                                 delete sendRequests[transactionID];
                                 delete transactionMessages[transactionID];
                             }
                         }, timeout);
                     };
 
-                    var onMessage = function (origin, method, data) {
+                    const onMessage = (origin, method, data) => {
                         if (typeof options.gotMessageObserver === 'function') {
                             try {
                                 options.gotMessageObserver(origin, data);
                             } catch (error) {
-                                debug('gotMessageObserver() 오류: ' + error.toString());
+                                debug(`gotMessageObserver() 오류: ${error.toString()}`);
                             }
                         }
 
-                        if (data.id && method) {
-                            if (registrationMappingMethods[method]) {
-                                var transaction = createTransaction(data.id, origin, data.callbacks ? data.callbacks : []);
-                                receivedRequests[data.id] = {};
+                        const { id, callback: callbackName, params, error: errorName, message: errorMessage, result } = data;
+
+                        if (id !== undefined && method) {
+                            const targetMethod = registrationMappingMethods[method];
+                            if (targetMethod) {
+                                const transaction = createTransaction(id, origin, data.callbacks || []);
+                                receivedRequests[id] = {};
                                 try {
-                                    if (data.callbacks && isArray(data.callbacks) && data.callbacks.length > 0) {
-                                        for (var i = 0; i < data.callbacks.length; i++) {
-                                            var path = data.callbacks[i];
-                                            var params = data.params;
-                                            var pathItems = path.split('/');
-                                            for (var j = 0; j < pathItems.length - 1; j++) {
-                                                var cp = pathItems[j];
-                                                if (typeof params[cp] !== 'object') {
-                                                    params[cp] = {};
+                                    const processedParams = params;
+                                    if (Array.isArray(data.callbacks)) {
+                                        data.callbacks.forEach(path => {
+                                            const pathItems = path.split('/');
+                                            let currentParamLevel = processedParams;
+                                            for (let j = 0; j < pathItems.length - 1; j++) {
+                                                const cp = pathItems[j];
+                                                if (typeof currentParamLevel[cp] !== 'object' || currentParamLevel[cp] === null) {
+                                                    currentParamLevel[cp] = {};
                                                 }
-                                                params = params[cp];
+                                                currentParamLevel = currentParamLevel[cp];
                                             }
-                                            params[pathItems[pathItems.length - 1]] = (function () {
-                                                var callbackName = path;
-                                                return function (data) {
-                                                    return transaction.invoke(callbackName, data);
-                                                };
-                                            })();
-                                        }
-                                    }
-                                    var resp = registrationMappingMethods[method](transaction, data.params);
-                                    if (!transaction.delayReturn() && !transaction.completed()) {
-                                        transaction.complete(resp);
-                                    }
-                                }
-                                catch (error) {
-                                    var name = 'runtime_error';
-                                    var message = null;
-                                    if (typeof error === 'string') {
-                                        message = error;
-                                    } else if (typeof error === 'object') {
-                                        name = error.name;
-                                        message = error.stack || error.message;
+                                            const finalKey = pathItems[pathItems.length - 1];
+                                            currentParamLevel[finalKey] = (callbackData) => transaction.invoke(path, callbackData);
+                                        });
                                     }
 
-                                    syn.$l.eventLog('$network.onMessage', `name: ${name}, message: ${message}`, 'Error');
-                                    transaction.error(name, message);
+                                    const response = targetMethod(transaction, processedParams);
+                                    if (!transaction.delayReturn() && !transaction.completed()) {
+                                        transaction.complete(response);
+                                    }
+                                } catch (e) {
+                                    const errName = e.name || 'runtime_error';
+                                    const errMessage = e.stack || e.message || String(e);
+                                    syn.$l.eventLog('$network.onMessage', `Request handler error: name: ${errName}, message: ${errMessage}`, 'Error');
+                                    transaction.error(errName, errMessage);
                                 }
                             }
-                        } else if (data.id && data.callback) {
-                            if (!sendRequests[data.id] || !sendRequests[data.id].callbacks || !sendRequests[data.id].callbacks[data.callback]) {
-                                debug('유효하지 않는 콜백, id:' + data.id + ' (' + data.callback + ')');
+                        } else if (id !== undefined && callbackName) {
+                            const request = sendRequests[id];
+                            if (request?.callbacks?.[callbackName]) {
+                                request.callbacks[callbackName](params);
                             } else {
-                                sendRequests[data.id].callbacks[data.callback](data.params);
+                                debug(`유효하지 않는 콜백, id: ${id} (${callbackName})`);
                             }
-                        } else if (data.id) {
-                            if (!sendRequests[data.id]) {
-                                debug('유효하지 않는 응답: ' + data.id);
+                        } else if (id !== undefined) {
+                            const request = sendRequests[id];
+                            if (!request) {
+                                debug(`유효하지 않는 응답: ${id}`);
                             } else {
-                                if (data.error) {
-                                    (1, sendRequests[data.id].error)(data.error, data.message);
+                                clearTimeout(request.timeoutId);
+                                if (errorName) {
+                                    request.error(errorName, errorMessage);
                                 } else {
-                                    if (data.result !== undefined) {
-                                        (1, sendRequests[data.id].success)(data.result);
-                                    }
-                                    else {
-                                        (1, sendRequests[data.id].success)();
-                                    }
+                                    request.success(result);
                                 }
-                                delete sendRequests[data.id];
-                                delete transactionMessages[data.id];
+                                delete sendRequests[id];
+                                delete transactionMessages[id];
                             }
                         } else if (method) {
-                            if (registrationMappingMethods[method]) {
-                                registrationMappingMethods[method]({ origin: origin }, data.params);
+                            const targetMethod = registrationMappingMethods[method];
+                            if (targetMethod) {
+                                targetMethod({ origin }, params);
                             }
                         }
                     };
 
-                    addChannel(options.window, options.origin, ((typeof options.scope === 'string') ? options.scope : ''), onMessage);
+                    addChannel(options.window, options.origin, options.scope, onMessage);
 
-                    var scopeMethod = function (data) {
-                        if (typeof options.scope === 'string' && options.scope.length) data = [options.scope, data].join('::');
-                        return data;
-                    };
+                    const scopeMethod = (data) => (options.scope ? `${options.scope}::${data}` : data);
 
-                    var postMessage = function (message, force) {
+                    const postMessage = (message, force = false) => {
                         if (!message) {
-                            syn.$l.eventLog('$network.postMessage', 'null 메시지로 postMessage 호출', 'Error');
+                            syn.$l.eventLog('$network.postMessage', 'null 메시지로 postMessage 호출 시도', 'Error');
                             return;
                         }
+                        const verb = ready ? 'post ' : 'queue ';
+                        debug(`${verb} message (type: ${message.method || message.id || 'response'})`);
 
-                        var verb = (ready ? 'post ' : 'queue ');
-                        debug(verb + ' message: ' + JSON.stringify(message));
+
                         if (!force && !ready) {
                             pendingQueue.push(message);
                         } else {
@@ -426,26 +362,26 @@
                                 try {
                                     options.postMessageObserver(options.origin, message);
                                 } catch (e) {
-                                    debug('postMessageObserver() 확인 필요: ' + e.toString());
+                                    debug(`postMessageObserver() 확인 필요: ${e.toString()}`);
                                 }
                             }
-
-                            options.window.postMessage(JSON.stringify(message), options.origin);
+                            try {
+                                options.window.postMessage(JSON.stringify(message), options.origin);
+                            } catch (error) {
+                                debug(`postMessage failed: ${error.message}`);
+                                syn.$l.eventLog('$network.postMessage', `postMessage failed: ${error.message}`, 'Error');
+                            }
                         }
                     };
 
-                    var onReady = function (transaction, type) {
+                    const onReady = (transaction, type) => {
                         debug('ready message received');
                         if (ready) {
-                            syn.$l.eventLog('$network.onReady', 'ready 메시지 확인 필요', 'Warning');
+                            syn.$l.eventLog('$network.onReady', '중복 ready 메시지 수신', 'Warning');
                             return;
                         }
 
-                        if (type === 'T') {
-                            channelID += '-R';
-                        } else {
-                            channelID += '-L';
-                        }
+                        channelID = type === 'T' ? `${channelID}-R` : `${channelID}-L`;
 
                         boundMessage.unbind('__ready');
                         ready = true;
@@ -455,144 +391,137 @@
                             boundMessage.emit({ method: '__ready', params: 'A' });
                         }
 
-                        while (pendingQueue.length) {
-                            postMessage(pendingQueue.pop());
+                        while (pendingQueue.length > 0) {
+                            postMessage(pendingQueue.shift());
                         }
 
                         if (typeof options.onReady === 'function') {
-                            options.onReady(boundMessage);
+                            try {
+                                options.onReady(boundMessage);
+                            } catch (e) {
+                                debug(`onReady handler failed: ${e.message}`);
+                            }
                         }
                     };
 
-                    var boundMessage = {
+                    const boundMessage = {
                         unbind(method) {
-                            if (registrationMappingMethods[method]) {
-                                if (!(delete registrationMappingMethods[method])) {
-                                    syn.$l.eventLog('$network.unbind', 'registrationMappingMethods 삭제 확인 필요: ' + method, 'Warning');
-                                    return;
-                                }
-
-                                return true;
-                            }
-                            return false;
+                            if (!registrationMappingMethods[method]) return false;
+                            delete registrationMappingMethods[method];
+                            return true;
                         },
                         bind(method, callback) {
                             if (!method || typeof method !== 'string') {
-                                syn.$l.eventLog('$network.bind', 'method 매개변수 확인 필요', 'Warning');
-                                return;
+                                syn.$l.eventLog('$network.bind', 'method 매개변수 확인 필요 (유효하지 않음)', 'Warning');
+                                return this;
                             }
-
                             if (!callback || typeof callback !== 'function') {
-                                syn.$l.eventLog('$network.bind', 'callback 매개변수 확인 필요', 'Warning');
-                                return;
+                                syn.$l.eventLog('$network.bind', 'callback 매개변수 확인 필요 (유효하지 않음)', 'Warning');
+                                return this;
                             }
-
                             if (registrationMappingMethods[method]) {
-                                syn.$l.eventLog('$network.bind', method + ' method 중복 확인 필요', 'Warning');
-                                return;
+                                syn.$l.eventLog('$network.bind', `${method} method 중복 확인 필요`, 'Warning');
+                                return this;
                             }
-
                             registrationMappingMethods[method] = callback;
-                            return $network;
+                            return this;
                         },
                         call(data) {
-                            if (!data) {
-                                syn.$l.eventLog('$network.call', '매개변수 확인 필요', 'Warning');
+                            if (!data || !data.method || typeof data.method !== 'string' || !data.success || typeof data.success !== 'function') {
+                                syn.$l.eventLog('$network.call', '필수 매개변수 확인 필요 (method, success)', 'Warning');
                                 return;
                             }
 
-                            if (!data.method || typeof data.method !== 'string') {
-                                syn.$l.eventLog('$network.call', 'method 매개변수 확인 필요', 'Warning');
-                                return;
-                            }
+                            const callbacks = {};
+                            const callbackNames = [];
+                            const seen = new Set();
 
-                            if (!data.success || typeof data.success !== 'function') {
-                                syn.$l.eventLog('$network.call', 'callback 매개변수 확인 필요', 'Warning');
-                                return;
-                            }
+                            const pruneFunctions = (path, params) => {
+                                if (params !== null && typeof params === 'object') {
+                                    if (seen.has(params)) {
+                                        debug('순환 참조 감지됨, 함수 제거 건너뛰기: ' + path);
+                                        return;
+                                    }
+                                    seen.add(params);
 
-                            var callbacks = {};
-                            var callbackNames = [];
-                            var seen = [];
-
-                            var pruneFunctions = function (path, params) {
-                                if (seen.indexOf(params) >= 0) {
-                                    syn.$l.eventLog('$network.pruneFunctions', 'recursive params 데이터 없음', 'Warning');
-                                    return;
-                                }
-                                seen.push(params);
-
-                                if (typeof params === 'object') {
-                                    for (var k in params) {
-                                        if (!params.hasOwnProperty(k)) {
-                                            continue;
-                                        }
-
-                                        var np = path + (path.length ? '/' : '') + k;
-                                        if (typeof params[k] === 'function') {
-                                            callbacks[np] = params[k];
-                                            callbackNames.push(np);
-                                            delete params[k];
-                                        } else if (typeof params[k] === 'object') {
-                                            pruneFunctions(np, params[k]);
+                                    for (const k in params) {
+                                        if (params.hasOwnProperty(k)) {
+                                            const value = params[k];
+                                            const np = path ? `${path}/${k}` : k;
+                                            if (typeof value === 'function') {
+                                                callbacks[np] = value;
+                                                callbackNames.push(np);
+                                                delete params[k];
+                                            } else if (value !== null && typeof value === 'object') {
+                                                pruneFunctions(np, value);
+                                            }
                                         }
                                     }
                                 }
                             };
-                            pruneFunctions('', data.params);
 
-                            var message = { id: currentTransactionID, method: scopeMethod(data.method), params: data.params };
-                            if (callbackNames.length) {
+                            const paramsClone = data.params ? JSON.parse(JSON.stringify(data.params)) : {};
+                            pruneFunctions('', paramsClone);
+
+                            const message = {
+                                id: currentTransactionID,
+                                method: scopeMethod(data.method),
+                                params: paramsClone
+                            };
+                            if (callbackNames.length > 0) {
                                 message.callbacks = callbackNames;
                             }
 
+                            const errorCallback = data.error || ((errName, errMessage) => debug(`Default error handler: ${errName}- ${errMessage}`)); // Default error handler
+
+                            const requestInfo = {
+                                callbacks,
+                                error: errorCallback,
+                                success: data.success,
+                                timeoutId: null
+                            };
+
                             if (data.timeout) {
-                                setTransactionTimeout(currentTransactionID, data.timeout, scopeMethod(data.method));
+                                requestInfo.timeoutId = setTransactionTimeout(currentTransactionID, data.timeout, scopeMethod(data.method));
                             }
 
-                            sendRequests[currentTransactionID] = { callbacks: callbacks, error: data.error, success: data.success };
+                            sendRequests[currentTransactionID] = requestInfo;
                             transactionMessages[currentTransactionID] = onMessage;
 
                             currentTransactionID++;
-
                             postMessage(message);
                         },
                         emit(data) {
-                            if (!data) {
-                                throw 'missing arguments to emit function';
-                                syn.$l.eventLog('$network.emit', 'emit params 데이터 없음', 'Warning');
+                            if (!data || !data.method || typeof data.method !== 'string') {
+                                syn.$l.eventLog('$network.emit', '필수 매개변수 확인 필요 (method)', 'Warning');
                                 return;
                             }
-
-                            if (!data.method || typeof data.method !== 'string') {
-                                syn.$l.eventLog('$network.emit', 'method 매개변수 확인 필요', 'Warning');
-                                return;
-                            }
-
                             postMessage({ method: scopeMethod(data.method), params: data.params });
                         },
                         destroy() {
-                            removeChannel(options.window, options.origin, ((typeof options.scope === 'string') ? options.scope : ''));
-                            if (context.removeEventListener) {
-                                context.removeEventListener('message', onMessage, false);
-                            }
-                            else if (context.detachEvent) {
-                                context.detachEvent('onmessage', onMessage);
-                            }
-
+                            removeChannel(options.window, options.origin, options.scope);
                             ready = false;
-                            registrationMappingMethods = {};
-                            receivedRequests = {};
-                            sendRequests = {};
+                            Object.keys(registrationMappingMethods).forEach(key => delete registrationMappingMethods[key]);
+                            Object.keys(receivedRequests).forEach(key => delete receivedRequests[key]);
+                            Object.keys(sendRequests).forEach(key => {
+                                clearTimeout(sendRequests[key].timeoutId);
+                                delete sendRequests[key];
+                                delete transactionMessages[key];
+                            });
                             options.origin = null;
-                            pendingQueue = [];
+                            pendingQueue.length = 0;
                             channelID = '';
-                            debug('채널 삭제');
+                            debug('채널 삭제됨');
+
+                            const idx = $network.connections.indexOf(boundMessage);
+                            if (idx > -1) {
+                                $network.connections.splice(idx, 1);
+                            }
                         }
                     };
 
                     boundMessage.bind('__ready', onReady);
-                    setTimeout(function () {
+                    setTimeout(() => {
                         postMessage({ method: scopeMethod('__ready'), params: 'T' }, true);
                     }, 0);
 
@@ -601,91 +530,79 @@
                     return boundMessage;
                 }
             };
-
             return connectChannel;
         })(),
 
         findChannel(channelID) {
-            return $network.connections.find((item) => { return item.options.scope == channelID });
+            if (!channelID) return undefined;
+            return $network.connections.find(item => item.options.scope === channelID);
         },
 
-        // syn.$n.call('local-channelID', 'pageLoad', '?')
         call(channelID, evt, params) {
-            var connection = $network.findChannel(channelID);
-            if (connection) {
-                var val = {
+            const connection = this.findChannel(channelID);
+            if (!connection) {
+                syn.$l.eventLog('$network.call', `Channel not found: ${channelID}`, 'Warning');
+                return;
+            }
+
+            const val = {
+                method: evt,
+                params: params,
+                success: (res) => {
+                    if (connection.options.debugOutput) {
+                        syn.$l.eventLog('$network.call.success', `"${evt}" call success, channelID: ${connection.options.scope}`, 'Information'); // Avoid logging potentially large 'res'
+                    }
+                },
+                error: (error, message) => {
+                    if (connection.options.debugOutput) {
+                        syn.$l.eventLog('$network.call.error', `"${evt}" call error: ${error}, message: ${message || ''}, channelID: ${connection.options.scope}`, 'Information');
+                    }
+                }
+            };
+            connection.call(val);
+        },
+
+        broadCast(evt, params) {
+            this.connections.forEach(connection => {
+                const val = {
                     method: evt,
                     params: params,
-                    error: (error, message) => { },
-                    success: (val) => { }
+                    success: (res) => {
+                        if (connection.options.debugOutput) {
+                            syn.$l.eventLog('$network.broadcast.success', `"${evt}" broadcast success, channelID: ${connection.options.scope}`, 'Information');
+                        }
+                    },
+                    error: (error, message) => {
+                        if (connection.options.debugOutput) {
+                            syn.$l.eventLog('$network.broadcast.error', `"${evt}" broadcast error: ${error}, message: ${message || ''}, channelID: ${connection.options.scope}`, 'Information');
+                        }
+                    }
                 };
-
-                if (connection.options.debugOutput === true) {
-                    val.error = (error, message) => {
-                        syn.$l.eventLog('$network.call.error', '"{0}" call error: {1}, message: {2}, channelID: {3}'.format(evt, error, message, connection.options.scope), 'Information');
-                    };
-
-                    val.success = (val) => {
-                        syn.$l.eventLog('$network.call.success', '"{0}" call returns: {1}, channelID: {2}'.format(evt, val, connection.options.scope), 'Information');
-                    };
-                }
-
                 connection.call(val);
-            }
+            });
         },
 
-        // syn.$n.broadCast('pageLoad', '?')
-        broadCast(evt, params) {
-            for (var i = 0; i < connections.length; i++) {
-                var connection = connections[i];
-                if (connection) {
-                    var val = {
-                        method: evt,
-                        params: params,
-                        error: (error, message) => { },
-                        success: (val) => { }
-                    };
-
-                    if (connection.options.debugOutput === true) {
-                        val.error = (error, message) => {
-                            syn.$l.eventLog('$network.call.error', '"{0}" call error: {1}, message: {2}, channelID: {3}'.format(evt, error, message, connection.options.scope), 'Information');
-                        };
-
-                        val.success = (val) => {
-                            syn.$l.eventLog('$network.call.success', '"{0}" call returns: {1}, channelID: {2}'.format(evt, val, connection.options.scope), 'Information');
-                        };
-                    }
-
-                    connection.call(val);
-                }
-            }
-        },
-
-        // syn.$n.emit('pageLoad', '?')
         emit(evt, params) {
-            if ($string.isNullOrEmpty($network.myChannelID) == false) {
-                var connection = $network.findChannel($network.myChannelID);
-                if (connection) {
-                    var val = {
-                        method: evt,
-                        params: params,
-                        error: (error, message) => { },
-                        success: (val) => { }
-                    };
-
-                    if (connection.options.debugOutput === true) {
-                        val.error = (error, message) => {
-                            syn.$l.eventLog('$network.emit.error', '"{0}" emit error: {1}, message: {2}'.format(evt, error, message), 'Information');
-                        };
-
-                        val.success = (val) => {
-                            syn.$l.eventLog('$network.emit.success', '"{0}" emit returns: {1}'.format(evt, val), 'Information');
-                        };
-                    }
-
-                    connection.emit(val);
-                }
+            if (!this.myChannelID) {
+                syn.$l.eventLog('$network.emit', 'Cannot emit: myChannelID is not set.', 'Warning');
+                return;
             }
+            const connection = this.findChannel(this.myChannelID);
+            if (!connection) {
+                syn.$l.eventLog('$network.emit', `Emit failed: Own channel not found or ready: ${this.myChannelID}`, 'Warning');
+                return;
+            }
+
+            const val = {
+                method: evt,
+                params: params,
+            };
+
+            if (connection.options.debugOutput) {
+                syn.$l.eventLog('$network.emit', `Emitting "${evt}", channelID: ${connection.options.scope}`, 'Information');
+            }
+
+            connection.emit(val);
         }
     });
 

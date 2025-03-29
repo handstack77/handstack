@@ -349,14 +349,14 @@
             }
 
             if (clientTag == "ROQKFWKTLFGODZNJFL") {
-                syn.$l.eventLog('serviceClientInterceptor', JSON.parse(xhr.responseText).Result.replace(/↓/g, '\n\n'), 'Information');
+                syn.$l.eventLog('serviceClientInterceptor', transactionResponse.Result.replace(/↓/g, '\n\n'), 'Information');
                 return false;
             }
             else {
                 try {
-                    var response = JSON.parse(xhr.responseText);
-                    var acknowledge = response.Acknowledge;
-                    var exceptionText = response.ExceptionText;
+                    var response = transactionResponse;
+                    var acknowledge = response.acknowledge;
+                    var exceptionText = response.exceptionText;
                     if (acknowledge == 0 && exceptionText.match(/(ERR-20[0-9]{3})/) != null) {
                         var messages = ['ERR-20001', 'ERR-20999'];
                         for (var i = 0; i < messages.length; i++) {

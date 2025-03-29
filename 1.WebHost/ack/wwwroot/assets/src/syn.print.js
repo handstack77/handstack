@@ -277,7 +277,7 @@
         },
 
         async renderViewer(templateID, el, options) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
+            el = syn.$l.getElement(el);
             if (el) {
                 if (parent.syn && parent.syn.$w.progressMessage) {
                     parent.syn.$w.progressMessage();
@@ -401,8 +401,8 @@
             return result;
         },
 
-        requestReportValue(moduleID, dataMapInterface, pdfOption, callback) {
-            var defaultPdfOption = {
+        requestReportValue(moduleID, pdfOptions, transactionOptions, callback) {
+            var defaultPdfOptions = {
                 REPORT_ID: '',
                 COMPANY_NO: '',
                 DOCUMENT_FORM_ID: '',
@@ -413,24 +413,19 @@
             };
 
             if (syn.Config && syn.Config.Environment) {
-                defaultPdfOption.ENV = syn.Config.Environment.substring(0, 1);
+                defaultPdfOptions.ENV = syn.Config.Environment.substring(0, 1);
             }
 
-            pdfOption = syn.$w.argumentsExtend(defaultPdfOption, pdfOption);
+            pdfOptions = syn.$w.argumentsExtend(defaultPdfOptions, pdfOptions);
 
-            var directObject = {
-                programID: 'HDS',
-                businessID: 'RPT',
-                systemID: 'BP01',
-                transactionID: pdfOption.REPORT_ID,
-                functionID: 'PD01',
-                dataMapInterface: dataMapInterface || 'Row|Form',
-                inputObjects: []
+            const directObject = {
+                programID: syn.Config.ApplicationID,
+                businessID: transactionOptions.businessID || syn.Config.ProjectID || 'RPT',
+                transactionID: transactionOptions.transactionID || pdfOptions.REPORT_ID,
+                functionID: transactionOptions.functionID || 'PD01',
+                dataMapInterface: transactionOptions.dataMapInterface || 'Row|Form',
+                inputObjects: Object.entries(pdfOptions).map(([key, val]) => ({ prop: key, val }))
             };
-
-            for (var key in pdfOption) {
-                directObject.inputObjects.push({ prop: key, val: pdfOption[key] });
-            }
 
             try {
                 syn.$w.transactionDirect(directObject, function (response) {

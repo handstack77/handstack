@@ -1,217 +1,211 @@
-﻿/// <reference path='syn.core.js' />
-/// <reference path='syn.library.js' />
-
-(function (context) {
+﻿(function (context) {
     'use strict';
-    var $dimension = context.$dimension || new syn.module();
-    var document = context.document;
+    const $dimension = context.$dimension || new syn.module();
+    const doc = context.document;
 
     $dimension.extend({
-        getDocumentSize(isTopWindow) {
-            isTopWindow = $string.toBoolean(isTopWindow);
-            var currentDocument = isTopWindow == true ? top.document : context.document;
+        getDocumentSize(isTopWindow = false) {
+            const currentDoc = $string.toBoolean(isTopWindow) ? top.document : doc;
+            if (!currentDoc?.body || !currentDoc?.documentElement) return { width: 0, height: 0, frameWidth: 0, frameHeight: 0 };
+
             return {
                 width: Math.max(
-                    currentDocument.body.scrollWidth, currentDocument.documentElement.scrollWidth,
-                    currentDocument.body.offsetWidth, currentDocument.documentElement.offsetWidth,
-                    currentDocument.body.clientWidth, currentDocument.documentElement.clientWidth
+                    currentDoc.body.scrollWidth, currentDoc.documentElement.scrollWidth,
+                    currentDoc.body.offsetWidth, currentDoc.documentElement.offsetWidth,
+                    currentDoc.body.clientWidth, currentDoc.documentElement.clientWidth
                 ),
                 height: Math.max(
-                    currentDocument.body.scrollHeight, currentDocument.documentElement.scrollHeight,
-                    currentDocument.body.offsetHeight, currentDocument.documentElement.offsetHeight,
-                    currentDocument.body.clientHeight, currentDocument.documentElement.clientHeight
+                    currentDoc.body.scrollHeight, currentDoc.documentElement.scrollHeight,
+                    currentDoc.body.offsetHeight, currentDoc.documentElement.offsetHeight,
+                    currentDoc.body.clientHeight, currentDoc.documentElement.clientHeight
                 ),
-                frameWidth: currentDocument.documentElement.clientWidth || currentDocument.body.clientWidth || 0,
-                frameHeight: currentDocument.documentElement.clientHeight || currentDocument.body.clientHeight || 0
+                frameWidth: currentDoc.documentElement.clientWidth || currentDoc.body.clientWidth || 0,
+                frameHeight: currentDoc.documentElement.clientHeight || currentDoc.body.clientHeight || 0
             };
         },
 
-        getWindowSize(isTopWindow) {
-            isTopWindow = $string.toBoolean(isTopWindow);
-            var currentWindow = isTopWindow == true ? top.window : context;
+        getWindowSize(isTopWindow = false) {
+            const currentWindow = $string.toBoolean(isTopWindow) ? top.window : context;
             return {
-                width: currentWindow.innerWidth,
-                height: currentWindow.innerHeight
+                width: currentWindow?.innerWidth ?? 0,
+                height: currentWindow?.innerHeight ?? 0
             };
         },
 
         getScrollPosition(el) {
-            var result = null;
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                result = {
-                    left: document.documentElement.scrollLeft || document.body.scrollLeft || 0,
-                    top: document.documentElement.scrollTop || document.body.scrollTop || 0
+            el = syn.$l.getElement(el);
+            if (el) {
+                return {
+                    left: el.pageXOffset ?? el.scrollLeft ?? 0,
+                    top: el.pageYOffset ?? el.scrollTop ?? 0
+                };
+            } else if (doc) {
+                return {
+                    left: doc.documentElement?.scrollLeft ?? doc.body?.scrollLeft ?? 0,
+                    top: doc.documentElement?.scrollTop ?? doc.body?.scrollTop ?? 0
                 };
             }
-            else {
-                result = {
-                    left: el.pageXOffset || el.scrollLeft || 0,
-                    top: el.pageYOffset || el.scrollTop || 0
-                };
-            }
-
-            return result;
+            return { left: 0, top: 0 };
         },
 
+
         getMousePosition(evt) {
-            evt = evt || context.event || top.context.event;
-            var scroll = syn.$d.getScrollPosition();
+            const event = evt || context.event || top?.event;
+            if (!event) return { x: 0, y: 0, relativeX: 0, relativeY: 0 };
+
+            const scroll = this.getScrollPosition();
             return {
-                x: evt.pageX || evt.clientX + scroll.left || 0,
-                y: evt.pageY || evt.clientY + scroll.top || 0,
-                relativeX: evt.layerX || evt.offsetX || 0,
-                relativeY: evt.layerY || evt.offsetY || 0
+                x: event.pageX ?? (event.clientX + scroll.left) ?? 0,
+                y: event.pageY ?? (event.clientY + scroll.top) ?? 0,
+                relativeX: event.layerX ?? event.offsetX ?? 0,
+                relativeY: event.layerY ?? event.offsetY ?? 0
             };
         },
 
         offset(el) {
-            var result = null;
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == false) {
-                var rect = el.getBoundingClientRect();
-                var scrollLeft = context.pageXOffset || document.documentElement.scrollLeft;
-                var scrollTop = context.pageYOffset || document.documentElement.scrollTop;
-                result = {
-                    top: rect.top + scrollTop,
-                    left: rect.left + scrollLeft
-                };
-            }
+            el = syn.$l.getElement(el);
+            if (!el?.getBoundingClientRect) return null;
 
-            return result;
+            const rect = el.getBoundingClientRect();
+            const scrollLeft = context.pageXOffset || doc?.documentElement?.scrollLeft || 0;
+            const scrollTop = context.pageYOffset || doc?.documentElement?.scrollTop || 0;
+
+            return {
+                top: rect.top + scrollTop,
+                left: rect.left + scrollLeft
+            };
         },
 
         offsetLeft(el) {
-            var result = 0;
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == false) {
-                while (typeof el !== 'undefined' && el && el.parentElement !== context) {
-                    if (el.offsetLeft) {
-                        result += el.offsetLeft;
-                    }
-                    el = el.parentElement;
-                }
+            el = syn.$l.getElement(el);
+            let result = 0;
+            while (el && el.offsetParent) {
+                result += el.offsetLeft;
+                el = el.offsetParent;
             }
-
             return result;
         },
 
         parentOffsetLeft(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            el = el || top.document.documentElement || top.document.body;
-            return el.parentElement === el.offsetParent ? el.offsetLeft : (syn.$d.offsetLeft(el) - syn.$d.offsetLeft(el.parentElement));
+            el = getElement(el) || doc?.documentElement || doc?.body;
+            if (!el?.parentElement) return 0;
+            return el.parentElement === el.offsetParent
+                ? el.offsetLeft
+                : (this.offsetLeft(el) - this.offsetLeft(el.parentElement));
         },
 
         offsetTop(el) {
-            var result = 0;
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == false) {
-                while (typeof el !== 'undefined' && el && el.parentElement !== context) {
-                    if (el.offsetTop) {
-                        result += el.offsetTop;
-                    }
-                    el = el.parentElement;
-                }
+            el = syn.$l.getElement(el);
+            let result = 0;
+            while (el && el.offsetParent) {
+                result += el.offsetTop;
+                el = el.offsetParent;
             }
-
             return result;
         },
 
         parentOffsetTop(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            el = el || top.document.documentElement || top.document.body;
-            return el.parentElement === el.offsetParent ? el.offsetTop : (syn.$d.offsetTop(el) - syn.$d.offsetTop(el.parentElement));
+            el = getElement(el) || doc?.documentElement || doc?.body;
+            if (!el?.parentElement) return 0;
+            return el.parentElement === el.offsetParent
+                ? el.offsetTop
+                : (this.offsetTop(el) - this.offsetTop(el.parentElement));
         },
 
         getSize(el) {
-            var result = null;
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == false) {
-                var styles = context.getComputedStyle(el);
-                result = {
-                    width: el.clientWidth - parseFloat(styles.paddingLeft) - parseFloat(styles.paddingRight),
-                    height: el.clientHeight - parseFloat(styles.paddingTop) - parseFloat(styles.paddingBottom),
-                    clientWidth: el.clientWidth,
-                    clientHeight: el.clientHeight,
-                    offsetWidth: el.offsetWidth,
-                    offsetHeight: el.offsetHeight,
-                    marginWidth: el.offsetWidth + parseFloat(styles.marginLeft) + parseFloat(styles.marginRight),
-                    marginHeight: el.offsetHeight + parseFloat(styles.marginTop) + parseFloat(styles.marginBottom),
-                };
-            }
+            el = syn.$l.getElement(el);
+            if (!el || !context.getComputedStyle) return null;
 
-            return result;
+            const styles = context.getComputedStyle(el);
+            const paddingLeft = parseFloat(styles.paddingLeft) || 0;
+            const paddingRight = parseFloat(styles.paddingRight) || 0;
+            const paddingTop = parseFloat(styles.paddingTop) || 0;
+            const paddingBottom = parseFloat(styles.paddingBottom) || 0;
+            const marginLeft = parseFloat(styles.marginLeft) || 0;
+            const marginRight = parseFloat(styles.marginRight) || 0;
+            const marginTop = parseFloat(styles.marginTop) || 0;
+            const marginBottom = parseFloat(styles.marginBottom) || 0;
+
+            return {
+                width: el.clientWidth - paddingLeft - paddingRight,
+                height: el.clientHeight - paddingTop - paddingBottom,
+                clientWidth: el.clientWidth,
+                clientHeight: el.clientHeight,
+                offsetWidth: el.offsetWidth,
+                offsetHeight: el.offsetHeight,
+                marginWidth: el.offsetWidth + marginLeft + marginRight,
+                marginHeight: el.offsetHeight + marginTop + marginBottom,
+            };
         },
 
         measureWidth(text, fontSize) {
-            var el = document.createElement('div');
+            if (!doc?.body) return '0px';
+            const el = doc.createElement('div');
+            Object.assign(el.style, {
+                position: 'absolute',
+                visibility: 'hidden',
+                whiteSpace: 'nowrap',
+                left: '-9999px',
+                fontSize: fontSize || 'inherit'
+            });
+            el.textContent = text;
 
-            el.style.position = 'absolute';
-            el.style.visibility = 'hidden';
-            el.style.whiteSpace = 'nowrap';
-            el.style.left = '-9999px';
-
-            if (fontSize) {
-                el.style.fontSize = fontSize;
-            }
-            el.innerText = text;
-
-            document.body.appendChild(el);
-            var width = context.getComputedStyle(el).width;
-            document.body.removeChild(el);
+            doc.body.appendChild(el);
+            const width = context.getComputedStyle(el).width;
+            doc.body.removeChild(el);
             return width;
         },
 
         measureHeight(text, width, fontSize) {
-            var el = document.createElement('div');
+            if (!doc?.body) return '0px';
+            const el = doc.createElement('div');
+            Object.assign(el.style, {
+                position: 'absolute',
+                visibility: 'hidden',
+                width: width || 'auto',
+                left: '-9999px',
+                fontSize: fontSize || 'inherit',
+                wordWrap: 'break-word'
+            });
+            el.textContent = text;
 
-            el.style.position = 'absolute';
-            el.style.visibility = 'hidden';
-            el.style.width = width;
-            el.style.left = '-9999px';
-
-            if (fontSize) {
-                el.style.fontSize = fontSize;
-            }
-            el.innerText = text;
-
-            document.body.appendChild(el);
-            var height = context.getComputedStyle(el).height;
-            document.body.removeChild(el);
+            doc.body.appendChild(el);
+            const height = context.getComputedStyle(el).height;
+            doc.body.removeChild(el);
             return height;
         },
 
-        measureSize(text, fontSize, maxWidth) {
-            maxWidth = maxWidth || '800px';
-            if ($object.isNumber(maxWidth) == true) {
-                maxWidth = maxWidth.toString() + 'px';
+        measureSize(text, fontSize, maxWidth = '800px') {
+            if (text === undefined || text === null) return null;
+
+            let effectiveMaxWidth = maxWidth;
+            if ($object.isNumber(maxWidth)) {
+                effectiveMaxWidth = `${maxWidth} px`;
             }
 
-            if ($object.isNullOrUndefined(text) == true) {
-                return null;
+            let measuredWidth = this.measureWidth(text, fontSize);
+            let numericWidth = 0;
+            let numericMaxWidth = Infinity;
+
+            if (measuredWidth.endsWith('px')) {
+                numericWidth = $string.toNumber(measuredWidth.slice(0, -2));
             }
 
-            var width = syn.$d.measureWidth(text, fontSize);
-            if (width.endsWith('px') == true && $string.isNullOrEmpty(maxWidth) == false) {
-                var calcWidth = $string.toNumber(width.substring(0, width.indexOf('px')));
-
-                if (maxWidth.endsWith('px') == true) {
-                    maxWidth = $string.toNumber(maxWidth.substring(0, maxWidth.indexOf('px')));
-                }
-                else {
-                    maxWidth = $string.toNumber(maxWidth);
-                }
-
-                if (isNaN(maxWidth) == false) {
-                    if (calcWidth > maxWidth) {
-                        width = maxWidth.toString() + 'px';
-                    }
-                }
+            if (effectiveMaxWidth.endsWith('px')) {
+                numericMaxWidth = $string.toNumber(effectiveMaxWidth.slice(0, -2));
+            } else {
+                numericMaxWidth = $string.toNumber(effectiveMaxWidth);
             }
+
+            if (!isNaN(numericMaxWidth) && numericWidth > numericMaxWidth) {
+                measuredWidth = `${numericMaxWidth} px`;
+            }
+
+            const measuredHeight = this.measureHeight(text, measuredWidth, fontSize);
 
             return {
-                width: width,
-                height: syn.$d.measureHeight(text, width, fontSize)
+                width: measuredWidth,
+                height: measuredHeight
             };
         }
     });

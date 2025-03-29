@@ -1,443 +1,363 @@
-﻿/// <reference path='syn.library.js' />
-/// <reference path='syn.browser.js' />
-
-(function (context) {
+﻿(function (context) {
     'use strict';
-    var $request = context.$request || new syn.module();
-    var document = null;
-    if (globalRoot.devicePlatform === 'node') {
-    }
-    else {
-        document = context.document;
+    const $request = context.$request || new syn.module();
+    let doc = null;
+    let currentPath = '';
+    let currentHref = '';
+
+    const $s = context.$string;
+    const $l = context.$library;
+    const $w = context.$webform;
+
+    if (globalRoot.devicePlatform !== 'node') {
+        doc = context.document;
+        currentPath = context.location?.pathname ?? '';
+        currentHref = context.location?.href ?? '';
     }
 
     $request.extend({
         params: {},
-        path: (globalRoot.devicePlatform === 'node') ? '' : location.pathname,
+        path: currentPath,
 
         query(param, url) {
-            url = url || location.href;
-
-            return function (url) {
-                var url = url.split('?');
-                var query = ((url.length == 1) ? url[0] : url[1]).split('&');
-                for (var i = 0; i < query.length; i++) {
-                    var splitIndex = query[i].indexOf('=');
-                    var key = query[i].substring(0, splitIndex);
-                    var value = query[i].substring(splitIndex + 1);
-                    syn.$r.params[key] = value;
+            const targetUrl = url || currentHref;
+            if (!this.params[targetUrl]) {
+                this.params[targetUrl] = {};
+                try {
+                    const searchParams = new URL(targetUrl).searchParams;
+                    searchParams.forEach((value, key) => {
+                        this.params[targetUrl][key] = value;
+                    });
+                } catch (e) {
+                    const queryString = targetUrl.split('?')[1] || '';
+                    queryString.split('&').forEach(pair => {
+                        const parts = pair.split('=');
+                        if (parts.length === 2) {
+                            const key = decodeURIComponent(parts[0].replace(/\+/g, ' '));
+                            const value = decodeURIComponent(parts[1].replace(/\+/g, ' '));
+                            if (key) this.params[targetUrl][key] = value;
+                        }
+                    });
                 }
-                return syn.$r.params;
-            }(url)[param];
+            }
+            return this.params[targetUrl][param];
         },
 
         url() {
-            var url = syn.$r.path.split('?');
-            var param = '';
+            let baseUrl = this.path;
+            const currentParams = { ...this.params[currentHref] };
 
-            param = syn.$r.path + ((syn.$r.path.length > 0 && url.length > 1) ? '&' : '?');
-            for (var key in $request.params) {
-                if (typeof (syn.$r.params[key]) == 'string') {
-                    param += key + '=' + syn.$r.params[key] + '&';
-                }
+            if (syn.Config?.IsClientCaching === false) {
+                currentParams.noCache = Date.now();
             }
 
-            if (syn.Config && $string.toBoolean(syn.Config.IsClientCaching) == false) {
-                param += '&noCache=' + (new Date()).getTime();
-            }
-
-            return encodeURI(param.substring(0, param.length - 1));
+            const queryString = this.toQueryString(currentParams, true);
+            return encodeURI(baseUrl + queryString);
         },
 
-        toQueryString(jsonObject, isQuestion) {
-            var result = jsonObject ? Object.entries(jsonObject).reduce((queryString, ref, index) => {
-                var key = ref[0];
-                var val = ref[1];
-                queryString += `&${key}=${$string.toValue(val, '')}`;
-                return queryString;
-            }, '') : '';
-
-            if ($string.isNullOrEmpty(result) == false && $string.toBoolean(isQuestion) == true) {
-                result = '?' + result.substring(1);
+        toQueryString(jsonObject, includeQuestionMark = false) {
+            if (!jsonObject || typeof jsonObject !== 'object') return '';
+            const params = new URLSearchParams();
+            Object.entries(jsonObject).forEach(([key, val]) => {
+                if (val !== undefined && val !== null) {
+                    params.append(key, $s.toValue(val, ''));
+                }
+            });
+            const queryString = params.toString();
+            if (queryString && includeQuestionMark) {
+                return `?${queryString}`;
             }
-
-            return result;
+            return queryString ? `&${queryString}` : '';
         },
 
         toUrlObject(url) {
-            url = url || location.href;
-            return (url.match(/([^?=&]+)(=([^&]*))/g) || []).reduce(function (a, v) {
-                return a[v.slice(0, v.indexOf('='))] = v.slice(v.indexOf('=') + 1), a;
-            }, {});
+            const targetUrl = url || currentHref;
+            const params = {};
+            try {
+                const urlObj = new URL(targetUrl);
+                urlObj.searchParams.forEach((value, key) => {
+                    params[key] = value;
+                });
+            } catch (e) {
+                const queryString = targetUrl.split('?')[1] || '';
+                queryString.split('&').forEach(pair => {
+                    const parts = pair.split('=');
+                    if (parts.length === 2) {
+                        const key = decodeURIComponent(parts[0].replace(/\+/g, ' '));
+                        const value = decodeURIComponent(parts[1].replace(/\+/g, ' '));
+                        if (key) params[key] = value;
+                    }
+                });
+            }
+            return params;
         },
 
         async isCorsEnabled(url) {
-            var result = false;
+            if (!url || globalRoot.devicePlatform === 'node') return true;
             try {
-                var response = await fetch(url, { method: 'HEAD', timeout: 200 });
-                result = (response.status >= 200 && response.status <= 299);
-
-                if (result == false) {
-                    syn.$l.eventLog('$w.isCorsEnabled', '{0}, {1}:{2}'.format(url, response.status, response.statusText), 'Warning');
+                const response = await fetch(url, { method: 'HEAD', mode: 'cors', cache: 'no-cache', signal: AbortSignal.timeout(2000) });
+                const corsOk = response.ok;
+                if (!corsOk) {
+                    $l.eventLog('$r.isCorsEnabled', `${url}, Status: ${response.status} ${response.statusText}`, 'Warning');
                 }
+                return corsOk;
             } catch (error) {
-                syn.$l.eventLog('$w.isCorsEnabled', error.message, 'Error');
+                $l.eventLog('$r.isCorsEnabled', `${url}, Error: ${error.message}`, (error.name === 'AbortError' ? 'Warning' : 'Error'));
+                return false;
             }
-
-            return result;
         },
 
         httpFetch(url) {
-            return new Proxy({}, {
-                get(target, action) {
-                    return async function (raw, options) {
-                        if (['send'].indexOf(action) == -1) {
-                            return Promise.resolve({ error: `${action} 메서드 확인 필요` });
-                        }
+            if (!url) return Promise.reject(new Error("URL is required for httpFetch"));
 
-                        options = syn.$w.argumentsExtend({
-                            method: 'GET'
-                        }, options);
+            return {
+                send: async (rawData, options = {}) => {
+                    const { method = 'GET', timeout, contentType, ...restOptions } = options;
+                    const effectiveMethod = (rawData !== null && rawData !== undefined && method === 'GET') ? 'POST' : method;
+                    const headers = new Headers(restOptions.headers || {});
 
-                        var requestTimeoutID = null;
-                        if ($object.isNullOrUndefined(raw) == false && $object.isString(raw) == false) {
-                            options.method = options.method || 'POST';
-
-                            if ($object.isNullOrUndefined(options.headers) == true) {
-                                options.headers = new Headers();
-                                if (raw instanceof FormData) {
-                                }
-                                else {
-                                    options.headers.append('Content-Type', options.contentType || 'application/json');
-                                }
-                            }
-
-                            if (syn.Environment) {
-                                var environment = syn.Environment;
-                                if (environment.Header) {
-                                    for (var item in environment.Header) {
-                                        if (options.headers.has(item) == false) {
-                                            options.headers.append(item, environment.Header[item]);
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (options.headers.has('OffsetMinutes') == false) {
-                                options.headers.append('OffsetMinutes', syn.$w.timezoneOffsetMinutes);
-                            }
-
-                            var data = {
-                                method: options.method,
-                                headers: options.headers,
-                                body: raw instanceof FormData ? raw : JSON.stringify(raw),
-                                redirect: 'follow'
-                            };
-
-                            if ($object.isNullOrUndefined(options.timeout) == false) {
-                                var controller = new AbortController();
-                                requestTimeoutID = setTimeout(() => controller.abort(), options.timeout);
-                                data.signal = controller.signal;
-                            }
-
-                            var response = await fetch(url, data);
-
-                            if (requestTimeoutID) {
-                                clearTimeout(requestTimeoutID);
-                            }
-                        }
-                        else {
-                            if ($object.isNullOrUndefined(options.headers) == true) {
-                                options.headers = new Headers();
-                                options.headers.append('Content-Type', options.contentType || 'application/json');
-                            }
-
-                            if (syn.Environment) {
-                                var environment = syn.Environment;
-                                if (environment.Header) {
-                                    for (var item in environment.Header) {
-                                        if (options.headers.has(item) == false) {
-                                            options.headers.append(item, environment.Header[item]);
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (options.headers.has('OffsetMinutes') == false) {
-                                options.headers.append('OffsetMinutes', syn.$w.timezoneOffsetMinutes);
-                            }
-
-                            var data = {
-                                method: options.method,
-                                headers: options.headers,
-                                redirect: 'follow'
-                            };
-
-                            if ($object.isNullOrUndefined(options.timeout) == false) {
-                                var controller = new AbortController();
-                                requestTimeoutID = setTimeout(() => controller.abort(), options.timeout);
-                                data.signal = controller.signal;
-                            }
-
-                            var response = await fetch(url, data);
-
-                            if (requestTimeoutID) {
-                                clearTimeout(requestTimeoutID);
-                            }
-                        }
-
-                        var result = { error: '요청 정보 확인 필요' };
-                        if (response.ok == true) {
-                            var contentType = response.headers.get('Content-Type') || '';
-                            if (contentType.includes('application/json') == true) {
-                                result = await response.json();
-                            }
-                            else if (contentType.includes('text/') == true) {
-                                result = await response.text();
-                            }
-                            else {
-                                result = await response.blob();
-                            }
-                            return Promise.resolve(result);
-                        }
-                        else {
-                            result = { error: `status: ${response.status}, text: ${await response.text()}` }
-                            syn.$l.eventLog('$r.httpFetch', `${result.error}`, 'Error');
-                        }
-
-                        return Promise.resolve(result);
-                    };
-                }
-            });
-        },
-
-        // var result = await syn.$r.httpRequest('GET', '/index');
-        httpRequest(method, url, data, callback, options) {
-            options = syn.$w.argumentsExtend({
-                timeout: 0,
-                responseType: 'text'
-            }, options);
-
-            if ($object.isNullOrUndefined(data) == true) {
-                data = {};
-            }
-
-            var xhr = syn.$w.xmlHttp();
-            xhr.open(method, url, true);
-            xhr.timeout = options.timeout;
-            xhr.responseType = options.responseType;
-            xhr.setRequestHeader('OffsetMinutes', syn.$w.timezoneOffsetMinutes);
-
-            var formData = null;
-            if ($object.isNullOrUndefined(data.body) == false) {
-                var params = data.body;
-                if (method.toUpperCase() == 'GET') {
-                    var paramUrl = url + ((url.split('?').length > 1) ? '&' : '?');
-
-                    for (var key in params) {
-                        paramUrl += key + '=' + params[key].toString() + '&';
+                    if (!(rawData instanceof FormData) && !headers.has('Content-Type')) {
+                        headers.set('Content-Type', contentType || 'application/json');
                     }
 
-                    url = encodeURI(paramUrl.substring(0, paramUrl.length - 1));
-                }
-                else {
-                    formData = new FormData();
-
-                    for (var key in params) {
-                        formData.append(key, params[key].toString());
-                    }
-                }
-            }
-            else {
-                xhr.setRequestHeader('Content-Type', options.contentType || 'application/json');
-            }
-
-            if (syn.$w.setServiceClientHeader) {
-                if (syn.$w.setServiceClientHeader(xhr) == false) {
-                    return;
-                }
-            }
-
-            if (callback) {
-                xhr.onreadystatechange = function () {
-                    if (xhr.readyState === 4) {
-                        if (xhr.status !== 200) {
-                            if (xhr.status == 0) {
-                                syn.$l.eventLog('$r.httpRequest', 'X-Requested transport error', 'Fatal');
-                            }
-                            else {
-                                syn.$l.eventLog('$r.httpRequest', 'response status - {0}'.format(xhr.statusText) + xhr.response, 'Error');
-                            }
-                            return;
-                        }
-
-                        if (callback) {
-                            callback({
-                                status: xhr.status,
-                                response: xhr.response
-                            });
-                        }
-                    }
-                }
-
-                if (formData == null) {
-                    if (data != {}) {
-                        xhr.send(JSON.stringify(data));
-                    } else {
-                        xhr.send();
-                    }
-                }
-                else {
-                    xhr.send(formData);
-                }
-            }
-            else if (globalRoot.Promise) {
-                return new Promise(function (resolve) {
-                    xhr.onload = function () {
-                        return resolve({
-                            status: xhr.status,
-                            response: xhr.response
+                    if (syn.Environment?.Header) {
+                        Object.entries(syn.Environment.Header).forEach(([key, value]) => {
+                            if (!headers.has(key)) headers.append(key, value);
                         });
-                    };
-                    xhr.onerror = function () {
-                        return resolve({
-                            status: xhr.status,
-                            response: xhr.response
-                        });
+                    }
+
+                    if (!headers.has('OffsetMinutes')) {
+                        headers.append('OffsetMinutes', String($w?.timezoneOffsetMinutes ?? -(new Date().getTimezoneOffset())));
+                    }
+
+                    const fetchOptions = {
+                        method: effectiveMethod,
+                        headers: headers,
+                        redirect: 'follow',
+                        body: (rawData instanceof FormData) ? rawData : (rawData !== null && rawData !== undefined ? JSON.stringify(rawData) : null),
+                        ...restOptions
                     };
 
-                    if (formData == null) {
-                        if (data != {}) {
-                            xhr.send(JSON.stringify(data));
+                    let timeoutId = null;
+                    if (typeof timeout === 'number' && timeout > 0) {
+                        const controller = new AbortController();
+                        fetchOptions.signal = controller.signal;
+                        timeoutId = setTimeout(() => controller.abort(), timeout);
+                    }
+
+                    try {
+                        const response = await fetch(url, fetchOptions);
+
+                        if (timeoutId) clearTimeout(timeoutId);
+
+                        if (!response.ok) {
+                            const errorText = await response.text().catch(() => 'Failed to read error response body');
+                            const errorMsg = `HTTP error! status: ${response.status}, text: ${errorText}`;
+                            $l.eventLog('$r.httpFetch', errorMsg, 'Error');
+                            return { error: errorMsg };
+                        }
+
+                        const responseContentType = response.headers.get('Content-Type') || '';
+                        if (responseContentType.includes('application/json')) {
+                            return await response.json();
+                        } else if (responseContentType.includes('text/')) {
+                            return await response.text();
                         } else {
-                            xhr.send();
+                            return await response.blob();
                         }
+
+                    } catch (error) {
+                        if (timeoutId) clearTimeout(timeoutId);
+                        $l.eventLog('$r.httpFetch', `Fetch error: ${error.message}`, 'Error');
+                        return { error: `Fetch error: ${error.message}` };
                     }
-                    else {
-                        xhr.send(formData);
+                }
+            };
+        },
+
+        httpRequest(method, url, data = {}, callback, options = {}) {
+            const { timeout = 0, responseType = 'text', contentType } = options;
+            const effectiveMethod = String(method).toUpperCase();
+            let requestUrl = url;
+            let requestBody = null;
+            const headers = {};
+
+            headers['OffsetMinutes'] = String($w?.timezoneOffsetMinutes ?? -(new Date().getTimezoneOffset()));
+
+            if (data && Object.keys(data).length > 0) {
+                if (effectiveMethod === 'GET') {
+                    const queryString = $r.toQueryString(data, !url.includes('?'));
+                    requestUrl += queryString;
+                } else {
+                    if (data instanceof FormData) {
+                        requestBody = data;
+                    } else if (typeof data === 'object') {
+                        if (contentType === 'application/x-www-form-urlencoded') {
+                            requestBody = $r.toQueryString(data, false).substring(1);
+                            headers['Content-Type'] = 'application/x-www-form-urlencoded';
+                        } else {
+                            try {
+                                requestBody = JSON.stringify(data);
+                                headers['Content-Type'] = contentType || 'application/json';
+                            } catch (e) {
+                                const errorMsg = 'Failed to stringify data for request body';
+                                $l.eventLog('$r.httpRequest', errorMsg, 'Error');
+                                if (callback) return callback({ status: -1, response: errorMsg });
+                                return Promise.resolve({ status: -1, response: errorMsg });
+                            }
+                        }
+                    } else {
+                        requestBody = String(data);
+                        headers['Content-Type'] = contentType || 'text/plain';
                     }
-                });
+                }
+            } else if (!headers['Content-Type'] && effectiveMethod !== 'GET' && effectiveMethod !== 'HEAD') {
+                headers['Content-Type'] = contentType || 'application/json';
             }
-            else {
-                syn.$l.eventLog('$w.httpRequest', '지원하지 않는 기능. 매개변수 확인 필요', 'Error');
+
+            if (!callback && typeof Promise !== 'undefined') {
+                const fetchOptions = {
+                    method: effectiveMethod,
+                    headers: { ...headers },
+                    body: requestBody,
+                    signal: timeout > 0 ? AbortSignal.timeout(timeout) : undefined
+                };
+                if ($w?.setServiceClientHeader) {
+                    const tempHeaders = new Headers(fetchOptions.headers);
+                    if ($w.setServiceClientHeader(tempHeaders) === false) {
+                        return Promise.resolve({ status: -1, response: 'ServiceClientHeader check failed' });
+                    }
+                    fetchOptions.headers = tempHeaders;
+                }
+
+                return fetch(requestUrl, fetchOptions)
+                    .then(async response => ({
+                        status: response.status,
+                        response: responseType === 'blob' ? await response.blob()
+                            : responseType === 'json' ? await response.json()
+                                : await response.text()
+                    }))
+                    .catch(error => {
+                        const errorMsg = error.name === 'AbortError' ? 'Request timed out' : `Fetch error: ${error.message}`;
+                        $l.eventLog('$r.httpRequest', errorMsg, 'Error');
+                        return { status: -1, response: errorMsg };
+                    });
+            }
+
+            if (!context.XMLHttpRequest) {
+                const errorMsg = 'XMLHttpRequest not supported';
+                $l.eventLog('$r.httpRequest', errorMsg, 'Error');
+                if (callback) return callback({ status: -1, response: errorMsg });
+                return;
+            }
+
+            const xhr = new context.XMLHttpRequest();
+            xhr.open(effectiveMethod, requestUrl, true);
+            xhr.timeout = timeout;
+            try {
+                xhr.responseType = responseType;
+            } catch {
+                $l.eventLog('$r.httpRequest', `XHR responseType '${responseType}' not supported`, 'Warning');
+            }
+
+            Object.entries(headers).forEach(([key, value]) => xhr.setRequestHeader(key, value));
+
+            if ($w?.setServiceClientHeader && $w.setServiceClientHeader(xhr) === false) {
+                if (callback) callback({ status: -1, response: 'ServiceClientHeader check failed' });
+                return;
+            }
+
+            xhr.onreadystatechange = () => {
+                if (xhr.readyState === 4 && callback) {
+                    if (xhr.status === 0 && !xhr.response) {
+                        $l.eventLog('$r.httpRequest', 'XHR Request failed (Network error or CORS)', 'Fatal');
+                        callback({ status: xhr.status, response: 'XHR Request failed (Network error or CORS)' });
+                    } else if (xhr.status < 200 || xhr.status >= 300) {
+                        $l.eventLog('$r.httpRequest', `XHR response status - ${xhr.status} ${xhr.statusText}: ${xhr.response}`, 'Error');
+                        callback({ status: xhr.status, response: xhr.response || xhr.statusText });
+                    } else {
+                        callback({ status: xhr.status, response: xhr.response });
+                    }
+                }
+            };
+
+            xhr.onerror = () => {
+                if (callback) {
+                    $l.eventLog('$r.httpRequest', 'XHR Network Error', 'Error');
+                    callback({ status: -1, response: 'XHR Network Error' });
+                }
+            };
+            xhr.ontimeout = () => {
+                if (callback) {
+                    $l.eventLog('$r.httpRequest', 'XHR Request Timed Out', 'Error');
+                    callback({ status: -1, response: 'XHR Request Timed Out' });
+                }
+            };
+
+            try {
+                xhr.send(requestBody);
+            } catch (e) {
+                if (callback) {
+                    $l.eventLog('$r.httpRequest', `XHR send error: ${e}`, 'Error');
+                    callback({ status: -1, response: `XHR send error: ${e.message}` });
+                }
             }
         },
 
-        httpSubmit(url, formID, method) {
-            if (document.forms.length == 0) {
-                return false;
-            }
-            else if (document.forms.length > 0 && $object.isNullOrUndefined(formID) == true) {
-                formID = document.forms[0].id;
-            }
+        httpSubmit(url, formID, method = 'POST') {
+            if (globalRoot.devicePlatform === 'node' || !doc?.forms) return false;
 
-            var form = document.forms[formID];
-            if (form) {
-                form.method = method || 'POST';
+            const form = formID ? doc.forms[formID] : doc.forms[0];
+            if (form instanceof HTMLFormElement) {
+                form.method = method;
                 form.action = url;
                 form.submit();
+                return true;
             }
-            else {
-                return false;
-            }
+            return false;
         },
 
-        httpDataSubmit(formData, url, callback, options) {
-            options = syn.$w.argumentsExtend({
-                timeout: 0,
-                responseType: 'text'
-            }, options);
-
-            var xhr = syn.$w.xmlHttp();
-            xhr.open('POST', url, true);
-            xhr.timeout = options.timeout;
-            xhr.responseType = options.responseType;
-            xhr.setRequestHeader('OffsetMinutes', syn.$w.timezoneOffsetMinutes);
-
-            if (syn.$w.setServiceClientHeader) {
-                if (syn.$w.setServiceClientHeader(xhr) == false) {
-                    return;
-                }
-            }
-
-            if (callback) {
-                xhr.onreadystatechange = function () {
-                    if (xhr.readyState === 4) {
-                        if (xhr.status !== 200) {
-                            if (xhr.status == 0) {
-                                syn.$l.eventLog('$r.httpDataSubmit', 'X-Requested transfort error', 'Fatal');
-                            }
-                            else {
-                                syn.$l.eventLog('$r.httpDataSubmit', 'response status - {0}'.format(xhr.statusText) + xhr.response, 'Error');
-                            }
-                            return;
-                        }
-
-                        if (callback) {
-                            callback({
-                                status: xhr.status,
-                                response: xhr.response
-                            });
-                        }
-                    }
-                }
-                xhr.send(formData);
-            }
-            else if (globalThis.Promise) {
-                return new Promise(function (resolve) {
-                    xhr.onload = function () {
-                        return resolve({
-                            status: xhr.status,
-                            response: xhr.response
-                        });
-                    };
-                    xhr.onerror = function () {
-                        return resolve({
-                            status: xhr.status,
-                            response: xhr.response
-                        });
-                    };
-
-                    xhr.send(formData);
-                });
-            }
-            else {
-                syn.$l.eventLog('$r.httpDataSubmit', '지원하지 않는 기능. 매개변수 확인 필요', 'Error');
-            }
+        httpDataSubmit(formData, url, callback, options = {}) {
+            return this.httpRequest('POST', url, formData, callback, options);
         },
 
-        createBlobUrl: (globalRoot.URL && URL.createObjectURL && URL.createObjectURL.bind(URL)) || (globalRoot.webkitURL && webkitURL.createObjectURL && webkitURL.createObjectURL.bind(webkitURL)) || globalRoot.createObjectURL,
-        revokeBlobUrl: (globalRoot.URL && URL.revokeObjectURL && URL.revokeObjectURL.bind(URL)) || (globalRoot.webkitURL && webkitURL.revokeObjectURL && webkitURL.revokeObjectURL.bind(webkitURL)) || globalRoot.revokeObjectURL,
+        createBlobUrl: context.URL?.createObjectURL?.bind(context.URL) ?? context.webkitURL?.createObjectURL?.bind(context.webkitURL),
+        revokeBlobUrl: context.URL?.revokeObjectURL?.bind(context.URL) ?? context.webkitURL?.revokeObjectURL?.bind(context.webkitURL),
 
         getCookie(id) {
-            var matches = document.cookie.match(
-                new RegExp(
-                    '(?:^|; )' +
-                    id.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') +
-                    '=([^;]*)'
-                )
-            );
-            return matches ? decodeURIComponent(matches[1]) : undefined;
+            if (globalRoot.devicePlatform === 'node' || !doc?.cookie) return undefined;
+            const cookies = doc.cookie.split('; ');
+            for (const cookie of cookies) {
+                const [name, ...valueParts] = cookie.split('=');
+                if (name === id) {
+                    return decodeURIComponent(valueParts.join('='));
+                }
+            }
+            return undefined;
         },
 
-        setCookie(id, val, expires, path, domain, secure) {
-            if ($object.isNullOrUndefined(expires) == true) {
-                expires = new Date((new Date()).getTime() + (1000 * 60 * 60 * 24));
+        setCookie(id, val, expires, path = '/', domain, secure = false) {
+            if (globalRoot.devicePlatform === 'node' || !doc) return this;
+            let cookieString = `${id}=${encodeURIComponent(val)}`;
+
+            if (expires instanceof Date) {
+                cookieString += `; expires=${expires.toUTCString()}`;
+            } else if (typeof expires === 'number') {
+                cookieString += `; max-age=${expires}`;
             }
 
-            if ($object.isNullOrUndefined(path) == true) {
-                path = '/';
-            }
+            cookieString += `; path=${path}`;
+            if (domain) cookieString += `; domain=${domain}`;
+            if (secure) cookieString += `; secure`;
+            cookieString += `; SameSite=Lax`;
 
-            document.cookie = id + '=' + encodeURI(val) + ((expires) ? ';expires=' + expires.toUTCString() : '') + ((path) ? ';path=' + path : '') + ((domain) ? ';domain=' + domain : '') + ((secure) ? ';secure' : '');
-            return $request;
+            doc.cookie = cookieString;
+            return this;
         },
 
-        deleteCookie(id, path, domain) {
-            if (syn.$r.getCookie(id)) {
-                document.cookie = id + '=' + ((path) ? ';path=' + path : '') + ((domain) ? ';domain=' + domain : '') + ';expires=Thu, 01-Jan-1970 00:00:01 GMT';
-            }
-            return $request;
+        deleteCookie(id, path = '/', domain) {
+            this.setCookie(id, '', new Date(0), path, domain);
+            return this;
         }
     });
     context.$request = syn.$r = $request;

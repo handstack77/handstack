@@ -1,504 +1,456 @@
-﻿/// <reference path='syn.core.js' />
-
-(function (context) {
+﻿(function (context) {
     'use strict';
-    var $cryptography = context.$cryptography || new syn.module();
+    const $cryptography = context.$cryptography || new syn.module();
+    const $l = context.$library;
+
+    const defaultKeyLength = 256;
+    const defaultAlgorithm = 'AES-CBC';
+
+    const encoder = new TextEncoder();
+    const decoder = new TextDecoder();
 
     $cryptography.extend({
         base64Encode(val) {
             if (globalRoot.devicePlatform === 'node') {
-                return Buffer.from(val).toString('base64');
-            }
-            else {
-                return btoa(encodeURIComponent(val).replace(/%([0-9A-F]{2})/g, function (match, p1) {
-                    return String.fromCharCode(parseInt(p1, 16));
-                }));
+                return Buffer.from(val, 'utf8').toString('base64');
+            } else {
+                try {
+                    const bytes = encoder.encode(String(val));
+                    return btoa(String.fromCharCode(...bytes));
+                } catch (e) {
+                    console.error("Base64 encoding failed:", e);
+                    return null;
+                }
             }
         },
 
         base64Decode(val) {
             if (globalRoot.devicePlatform === 'node') {
-                return Buffer.from(val, 'base64').toString();
-            }
-            else {
-                return decodeURIComponent(atob(val).split('').map(function (c) {
-                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                }).join(''));
+                return Buffer.from(val, 'base64').toString('utf8');
+            } else {
+                try {
+                    const binaryString = atob(String(val));
+                    const bytes = new Uint8Array([...binaryString].map(c => c.charCodeAt(0)));
+                    return decoder.decode(bytes);
+                } catch (e) {
+                    console.error("Base64 decoding failed:", e);
+                    return null;
+                }
             }
         },
 
         utf8Encode(plainString) {
-            if (typeof plainString != 'string') {
+            if (typeof plainString !== 'string') {
                 throw new TypeError('parameter is not a plain string');
             }
-
-            var utf8String = plainString.replace(/[\u0080-\u07ff]/g, function (c) {
-                var cc = c.charCodeAt(0);
-                return String.fromCharCode(0xc0 | cc >> 6, 0x80 | cc & 0x3f);
-            }).replace(/[\u0800-\uffff]/g,
-                function (c) {
-                    var cc = c.charCodeAt(0);
-                    return String.fromCharCode(0xe0 | cc >> 12, 0x80 | cc >> 6 & 0x3F, 0x80 | cc & 0x3f);
-                });
-            return utf8String;
+            try {
+                return decoder.decode(encoder.encode(plainString));
+            } catch (e) {
+                console.error("UTF-8 encoding failed:", e);
+                return plainString;
+            }
         },
 
         utf8Decode(utf8String) {
-            if (typeof utf8String != 'string') {
+            if (typeof utf8String !== 'string') {
                 throw new TypeError('parameter is not a utf8 string');
             }
-
-            var plainString = utf8String.replace(/[\u00e0-\u00ef][\u0080-\u00bf][\u0080-\u00bf]/g,
-                function (c) {
-                    var cc = (c.charCodeAt(0) & 0x0f) << 12 | (c.charCodeAt(1) & 0x3f) << 6 | c.charCodeAt(2) & 0x3f;
-                    return String.fromCharCode(cc);
-                }).replace(/[\u00c0-\u00df][\u0080-\u00bf]/g,
-                    function (c) {
-                        var cc = (c.charCodeAt(0) & 0x1f) << 6 | c.charCodeAt(1) & 0x3f;
-                        return String.fromCharCode(cc);
-                    });
-            return plainString;
+            try {
+                return decoder.decode(encoder.encode(utf8String));
+            } catch (e) {
+                console.warn("UTF-8 decoding failed:", e);
+                return utf8String;
+            }
         },
 
         isWebCryptoSupported() {
-            return (typeof window.crypto !== 'undefined' && typeof window.crypto.subtle !== 'undefined');
+            return !!(context.crypto?.subtle);
         },
 
         padKey(key, length) {
-            var result = null;
-            if (typeof key === 'string') {
-                key = new TextEncoder().encode(key);
+            if (typeof key !== 'string') return null;
+            
+            let encodedKey = encoder.encode(key);
 
-                if (key.length >= length) {
-                    return key.slice(0, length);
+            if (encodedKey.length >= length) {
+                return encodedKey.slice(0, length);
+            }
+
+            const paddedKey = new Uint8Array(length);
+            paddedKey.set(encodedKey);
+            return paddedKey;
+        },
+
+        async generateHMAC(key, message) {
+            if (!this.isWebCryptoSupported()) return null;
+            
+            const keyData = encoder.encode(key);
+            const messageData = encoder.encode(message);
+
+            try {
+                const cryptoKey = await crypto.subtle.importKey(
+                    'raw', keyData, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
+                );
+                const signature = await crypto.subtle.sign('HMAC', cryptoKey, messageData);
+                return Array.from(new Uint8Array(signature)).map(b => b.toString(16).padStart(2, '0')).join('');
+            } catch (error) {
+                $l.eventLog('$c.generateHMAC', error, 'Error');
+                return null;
+            }
+        },
+
+        async verifyHMAC(key, message, signature) {
+            const generatedSignature = await this.generateHMAC(key, message);
+            return generatedSignature === signature;
+        },
+
+        async generateRSAKey(hash = "SHA-256", modulusLength = 2048) {
+            if (!this.isWebCryptoSupported()) return null;
+            try {
+                return await crypto.subtle.generateKey(
+                    {
+                        name: "RSA-OAEP",
+                        modulusLength: modulusLength,
+                        publicExponent: new Uint8Array([1, 0, 1]),
+                        hash: hash
+                    },
+                    true,
+                    ['encrypt', 'decrypt']
+                );
+            } catch (error) {
+                $l.eventLog('$c.generateRSAKey', error, 'Error');
+                return null;
+            }
+        },
+
+        async exportCryptoKey(cryptoKey, isPublic = true) {
+            if (!this.isWebCryptoSupported() || !cryptoKey) return '';
+            const format = isPublic ? 'spki' : 'pkcs8';
+            const typeLabel = isPublic ? 'PUBLIC' : 'PRIVATE';
+
+            try {
+                const exported = await crypto.subtle.exportKey(format, cryptoKey);
+                const exportedAsString = String.fromCharCode(...new Uint8Array(exported));
+                const exportedAsBase64 = btoa(exportedAsString);
+                const pemFormatted = exportedAsBase64.match(/.{1,64}/g)?.join('\n') || '';
+
+                return `----- BEGIN ${typeLabel} KEY-----\n${pemFormatted} \n----- END ${typeLabel} KEY----- `;
+            } catch (error) {
+                $l.eventLog('$c.exportCryptoKey', error, 'Error');
+                return '';
+            }
+        },
+
+        async importCryptoKey(pem, isPublic = true) {
+            if (!this.isWebCryptoSupported() || !pem) return null;
+            const typeLabel = isPublic ? 'PUBLIC' : 'PRIVATE';
+            const pemHeader = `----- BEGIN ${typeLabel} KEY----- `;
+            const pemFooter = `----- END ${typeLabel} KEY----- `;
+
+            try {
+                const pemContents = pem.substring(pemHeader.length, pem.length - pemFooter.length).replace(/\s+/g, '');
+                const binaryDerString = atob(pemContents);
+                const binaryDer = new Uint8Array(binaryDerString.length).map((_, i) => binaryDerString.charCodeAt(i));
+
+                const format = isPublic ? 'spki' : 'pkcs8';
+                const usage = isPublic ? ['encrypt'] : ['decrypt'];
+
+                return await crypto.subtle.importKey(
+                    format,
+                    binaryDer.buffer,
+                    { name: 'RSA-OAEP', hash: 'SHA-256' },
+                    true,
+                    usage
+                );
+            } catch (error) {
+                $l.eventLog('$c.importCryptoKey', error, 'Error');
+                return null;
+            }
+        },
+
+        async rsaEncode(text, publicKey) {
+            if (!this.isWebCryptoSupported() || !publicKey) return null;
+            
+            const data = encoder.encode(text);
+            try {
+                const encrypted = await crypto.subtle.encrypt({ name: 'RSA-OAEP' }, publicKey, data);
+                const base64String = this.base64Encode(String.fromCharCode(...new Uint8Array(encrypted)));
+                return base64String;
+            } catch (error) {
+                $l.eventLog('$c.rsaEncode', error, 'Error');
+                return null;
+            }
+        },
+
+        async rsaDecode(encryptedBase64, privateKey) {
+            if (!this.isWebCryptoSupported() || !privateKey || !encryptedBase64) return null;
+            try {
+                const encryptedString = this.base64Decode(encryptedBase64);
+                if (encryptedString === null) throw new Error("Base64 decoding failed");
+                const encryptedBuffer = new Uint8Array(encryptedString.length).map((_, i) => encryptedString.charCodeAt(i)).buffer;
+
+                const decrypted = await crypto.subtle.decrypt({ name: 'RSA-OAEP' }, privateKey, encryptedBuffer);
+                
+                return decoder.decode(decrypted);
+            } catch (error) {
+                $l.eventLog('$c.rsaDecode', error, 'Error');
+                return null;
+            }
+        },
+
+
+        generateIV(key, ivLength = 16) {
+            if (key && key.toUpperCase() === '$RANDOM$') {
+                if (context.crypto?.getRandomValues) {
+                    return context.crypto.getRandomValues(new Uint8Array(ivLength));
+                } else {
+                    console.warn("crypto.getRandomValues not available, using less secure random IV generation.");
+                    const randomBytes = new Uint8Array(ivLength);
+                    for (let i = 0; i < ivLength; i++) {
+                        randomBytes[i] = Math.floor(Math.random() * 256);
+                    }
+                    return randomBytes;
+                }
+            }
+
+            return this.padKey(key || '', ivLength);
+        },
+
+        async aesEncode(text, key = '', algorithm = defaultAlgorithm, keyLength = defaultKeyLength) {
+            if (!this.isWebCryptoSupported()) return null;
+            const ivLength = algorithm === 'AES-GCM' ? 12 : 16;
+            const iv = this.generateIV(key, ivLength);
+            
+            const data = encoder.encode(text);
+            const paddedKey = this.padKey(key, keyLength / 8);
+
+            try {
+                const cryptoKey = await crypto.subtle.importKey(
+                    'raw', paddedKey, { name: algorithm }, false, ['encrypt']
+                );
+                const encrypted = await crypto.subtle.encrypt(
+                    { name: algorithm, iv: iv }, cryptoKey, data
+                );
+
+                const ivBase64 = this.base64Encode(String.fromCharCode(...iv));
+                const encryptedBase64 = this.base64Encode(String.fromCharCode(...new Uint8Array(encrypted)));
+
+                return { iv: ivBase64, encrypted: encryptedBase64 };
+            } catch (error) {
+                $l.eventLog('$c.aesEncode', error, 'Error');
+                return null;
+            }
+        },
+
+        async aesDecode(encryptedData, key = '', algorithm = defaultAlgorithm, keyLength = defaultKeyLength) {
+            if (!this.isWebCryptoSupported() || !encryptedData?.iv || !encryptedData?.encrypted) return null;
+
+            try {
+                const ivString = this.base64Decode(encryptedData.iv);
+                const encryptedString = this.base64Decode(encryptedData.encrypted);
+
+                if (ivString === null || encryptedString === null) {
+                    throw new Error("Base64 decoding failed for IV or encrypted data.");
                 }
 
-                result = new Uint8Array(length);
-                result.set(key);
-            }
-            return result;
-        },
+                const iv = new Uint8Array(ivString.length).map((_, i) => ivString.charCodeAt(i));
+                const encrypted = new Uint8Array(encryptedString.length).map((_, i) => encryptedString.charCodeAt(i));
 
-        // syn.$c.generateHMAC().then((signature) => { debugger; });
-        async generateHMAC(key, message) {
-            var result = null;
-            var encoder = new TextEncoder();
-            var keyData = encoder.encode(key);
-            var messageData = encoder.encode(message);
-            var cryptoKey = await crypto.subtle.importKey(
-                'raw',
-                keyData,
-                { name: 'HMAC', hash: 'SHA-256' },
-                false,
-                ['sign']
-            );
 
-            var signature = await crypto.subtle.sign('HMAC', cryptoKey, messageData);
-            result = Array.from(new Uint8Array(signature)).map(b => b.toString(16).padStart(2, '0')).join('');
-            return result;
-        },
-
-        // syn.$c.verifyHMAC('handstack', 'hello world', '25a00a2d55bbb313329c8abba5aebc8b282615876544c5be236d75d1418fc612').then((result) => { debugger; });
-        async verifyHMAC(key, message, signature) {
-            return await $cryptography.generateHMAC(key, message) === signature;
-        },
-
-        // syn.$c.generateRSAKey().then((cryptoKey) => { debugger; });
-        async generateRSAKey() {
-            var result = null;
-            result = await window.crypto.subtle.generateKey(
-                {
-                    name: "RSA-OAEP",
-                    modulusLength: 2048,
-                    publicExponent: new Uint8Array([1, 0, 1]),
-                    hash: "SHA-256"
-                },
-                true,
-                ['encrypt', 'decrypt']
-            );
-            return result;
-        },
-
-        // syn.$c.exportCryptoKey(cryptoKey.publicKey, true).then((result) => { debugger; });
-        async exportCryptoKey(cryptoKey, isPublic) {
-            var result = '';
-            isPublic = $string.toBoolean(isPublic);
-            var exportLabel = isPublic == true ? 'PUBLIC' : 'PRIVATE';
-            var exported = await window.crypto.subtle.exportKey(
-                (isPublic == true ? 'spki' : 'pkcs8'),
-                cryptoKey
-            );
-            var exportedAsString = String.fromCharCode.apply(null, new Uint8Array(exported));
-            var exportedAsBase64 = window.btoa(exportedAsString);
-            result = `-----BEGIN ${exportLabel} KEY-----\n${exportedAsBase64}\n-----END ${exportLabel} KEY-----`;
-
-            var lines = result.split('\n');
-            result = lines.map(line => {
-                return line.match(/.{1,64}/g).join('\n');
-            });
-            return result.join('\n');
-        },
-
-        // syn.$c.importCryptoKey('-----BEGIN PUBLIC KEY-----...-----END PUBLIC KEY-----', true).then((result) => { debugger; });
-        async importCryptoKey(pem, isPublic) {
-            var result = null;
-            isPublic = $string.toBoolean(isPublic);
-            var exportLabel = isPublic == true ? 'PUBLIC' : 'PRIVATE';
-            var pemHeader = `-----BEGIN ${exportLabel} KEY-----`;
-            var pemFooter = `-----END ${exportLabel} KEY-----`;
-            var pemContents = pem.substring(pemHeader.length, pem.length - pemFooter.length).replaceAll('\n', '');
-            var binaryDerString = window.atob(pemContents);
-            var binaryDer = syn.$l.stringToArrayBuffer(binaryDerString);
-            var importMode = isPublic == true ? ['encrypt'] : ['decrypt'];
-
-            result = await crypto.subtle.importKey(
-                (isPublic == true ? 'spki' : 'pkcs8'),
-                binaryDer,
-                {
-                    name: 'RSA-OAEP',
-                    hash: 'SHA-256'
-                },
-                true,
-                importMode
-            );
-            return result;
-        },
-
-        // syn.$c.rsaEncode('hello world', result).then((result) => { debugger; });
-        async rsaEncode(text, publicKey) {
-            var result = null;
-            var encoder = new TextEncoder();
-            var data = encoder.encode(text);
-            var encrypted = await crypto.subtle.encrypt(
-                {
-                    name: 'RSA-OAEP'
-                },
-                publicKey,
-                data
-            );
-
-            result = $cryptography.base64Encode(new Uint8Array(encrypted));
-            return result;
-        },
-
-        // syn.$c.rsaDecode(encryptData, result).then((result) => { debugger; });
-        async rsaDecode(encryptedData, privateKey) {
-            var result = null;
-            var encrypted = new Uint8Array($cryptography.base64Decode(encryptedData).split(',').map(Number));
-            var decrypted = await crypto.subtle.decrypt(
-                {
-                    name: 'RSA-OAEP'
-                },
-                privateKey,
-                encrypted
-            );
-
-            var decoder = new TextDecoder();
-            result = decoder.decode(decrypted);
-            return result;
-        },
-
-        generateIV(key, ivLength) {
-            var result;
-            ivLength = ivLength || 16;
-            if (key && key.toUpperCase() == '$RANDOM$') {
-                result = window.crypto.getRandomValues(new Uint8Array(ivLength));
-            }
-            else {
-                key = key || '';
-                result = $cryptography.padKey(key, ivLength);
-            }
-
-            return result;
-        },
-
-        async aesEncode(text, key, algorithm, keyLength) {
-            var result = null;
-            key = key || '';
-            algorithm = algorithm || 'AES-CBC'; // AES-CBC, AES-GCM
-            keyLength = keyLength || 256; // 128, 256
-            var ivLength = algorithm === 'AES-GCM' ? 12 : 16;
-            var iv = $cryptography.generateIV(key, ivLength);
-            var encoder = new TextEncoder();
-            var data = encoder.encode(text);
-
-            var cryptoKey = await window.crypto.subtle.importKey(
-                'raw',
-                $cryptography.padKey(key, keyLength / 8),
-                { name: algorithm },
-                false,
-                ['encrypt']
-            );
-
-            var encrypted = await window.crypto.subtle.encrypt(
-                {
-                    name: algorithm,
-                    iv: iv
-                },
-                cryptoKey,
-                data
-            );
-
-            result = {
-                iv: $cryptography.base64Encode(iv),
-                encrypted: $cryptography.base64Encode(new Uint8Array(encrypted))
-            };
-
-            return result;
-        },
-
-        async aesDecode(encryptedData, key, algorithm, keyLength) {
-            var result = null;
-            key = key || '';
-            algorithm = algorithm || 'AES-CBC'; // AES-CBC, AES-GCM
-            keyLength = keyLength || 256; // 128, 256
-            if (encryptedData && encryptedData.iv && encryptedData.encrypted) {
-                var iv = new Uint8Array($cryptography.base64Decode(encryptedData.iv).split(',').map(Number));
-                var encrypted = new Uint8Array($cryptography.base64Decode(encryptedData.encrypted).split(',').map(Number));
-                var cryptoKey = await window.crypto.subtle.importKey(
-                    'raw',
-                    $cryptography.padKey(key, keyLength / 8),
-                    { name: algorithm },
-                    false,
-                    ['decrypt']
+                const paddedKey = this.padKey(key, keyLength / 8);
+                const cryptoKey = await crypto.subtle.importKey(
+                    'raw', paddedKey, { name: algorithm }, false, ['decrypt']
+                );
+                const decrypted = await crypto.subtle.decrypt(
+                    { name: algorithm, iv: iv }, cryptoKey, encrypted
                 );
 
-                const decrypted = await window.crypto.subtle.decrypt(
-                    {
-                        name: algorithm,
-                        iv: iv
-                    },
-                    cryptoKey,
-                    encrypted
-                );
-
-                const decoder = new TextDecoder();
-                result = decoder.decode(decrypted);
+                
+                return decoder.decode(decrypted);
+            } catch (error) {
+                $l.eventLog('$c.aesDecode', error, 'Error');
+                return null;
             }
-
-            return result;
         },
 
-        async sha(message, algorithms) {
-            var result = '';
-            algorithms = algorithms || 'SHA-1'; // SHA-1,SHA-2,SHA-224,SHA-256,SHA-384,SHA-512,SHA3-224,SHA3-256,SHA3-384,SHA3-512,SHAKE128,SHAKE256
-            var encoder = new TextEncoder();
-            var data = encoder.encode(message);
-            var hash = await crypto.subtle.digest(algorithms, data);
-            result = Array.from(new Uint8Array(hash))
-                .map(b => b.toString(16).padStart(2, '0'))
-                .join('');
-            return result;
+        async sha(message, algorithm = 'SHA-256') {
+            const webCryptoAlgorithm = algorithm.toUpperCase().replace('SHA-2', 'SHA-').replace('SHA3-', 'SHA-');
+            if (!this.isWebCryptoSupported()) return '';
+            
+            const data = encoder.encode(message);
+            try {
+                const hashBuffer = await crypto.subtle.digest(webCryptoAlgorithm, data);
+                return Array.from(new Uint8Array(hashBuffer))
+                    .map(b => b.toString(16).padStart(2, '0'))
+                    .join('');
+            } catch (error) {
+                if (error.name === 'OperationError' || error.name === 'SyntaxError') {
+                    console.warn(`SHA algorithm '${webCryptoAlgorithm}' not supported by Web Crypto API.Falling back if possible or returning empty.`);
+                    return '';
+                }
+                $l.eventLog('$c.sha', error, 'Error');
+                return '';
+            }
         },
 
         sha256(s) {
-            var chrsz = 8;
-            var hexcase = 0;
+            const chrsz = 8;
+            const hexcase = 0;
 
-            function safe_add(x, y) {
-                var lsw = (x & 0xFFFF) + (y & 0xFFFF);
-                var msw = (x >> 16) + (y >> 16) + (lsw >> 16);
+            const safe_add = (x, y) => {
+                const lsw = (x & 0xFFFF) + (y & 0xFFFF);
+                const msw = (x >> 16) + (y >> 16) + (lsw >> 16);
                 return (msw << 16) | (lsw & 0xFFFF);
-            }
+            };
 
-            function S(X, n) { return (X >>> n) | (X << (32 - n)); }
-            function R(X, n) { return (X >>> n); }
-            function Ch(x, y, z) { return ((x & y) ^ ((~x) & z)); }
-            function Maj(x, y, z) { return ((x & y) ^ (x & z) ^ (y & z)); }
-            function Sigma0256(x) { return (S(x, 2) ^ S(x, 13) ^ S(x, 22)); }
-            function Sigma1256(x) { return (S(x, 6) ^ S(x, 11) ^ S(x, 25)); }
-            function Gamma0256(x) { return (S(x, 7) ^ S(x, 18) ^ R(x, 3)); }
-            function Gamma1256(x) { return (S(x, 17) ^ S(x, 19) ^ R(x, 10)); }
+            const S = (X, n) => (X >>> n) | (X << (32 - n));
+            const R = (X, n) => (X >>> n);
+            const Ch = (x, y, z) => ((x & y) ^ ((~x) & z));
+            const Maj = (x, y, z) => ((x & y) ^ (x & z) ^ (y & z));
+            const Sigma0256 = (x) => (S(x, 2) ^ S(x, 13) ^ S(x, 22));
+            const Sigma1256 = (x) => (S(x, 6) ^ S(x, 11) ^ S(x, 25));
+            const Gamma0256 = (x) => (S(x, 7) ^ S(x, 18) ^ R(x, 3));
+            const Gamma1256 = (x) => (S(x, 17) ^ S(x, 19) ^ R(x, 10));
 
-            function core_sha256(m, l) {
-
-                var K = new Array(0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5, 0x3956C25B, 0x59F111F1,
-                    0x923F82A4, 0xAB1C5ED5, 0xD807AA98, 0x12835B01, 0x243185BE, 0x550C7DC3,
-                    0x72BE5D74, 0x80DEB1FE, 0x9BDC06A7, 0xC19BF174, 0xE49B69C1, 0xEFBE4786,
-                    0xFC19DC6, 0x240CA1CC, 0x2DE92C6F, 0x4A7484AA, 0x5CB0A9DC, 0x76F988DA,
-                    0x983E5152, 0xA831C66D, 0xB00327C8, 0xBF597FC7, 0xC6E00BF3, 0xD5A79147,
-                    0x6CA6351, 0x14292967, 0x27B70A85, 0x2E1B2138, 0x4D2C6DFC, 0x53380D13,
-                    0x650A7354, 0x766A0ABB, 0x81C2C92E, 0x92722C85, 0xA2BFE8A1, 0xA81A664B,
-                    0xC24B8B70, 0xC76C51A3, 0xD192E819, 0xD6990624, 0xF40E3585, 0x106AA070,
-                    0x19A4C116, 0x1E376C08, 0x2748774C, 0x34B0BCB5, 0x391C0CB3, 0x4ED8AA4A,
-                    0x5B9CCA4F, 0x682E6FF3, 0x748F82EE, 0x78A5636F, 0x84C87814, 0x8CC70208,
-                    0x90BEFFFA, 0xA4506CEB, 0xBEF9A3F7, 0xC67178F2);
-
-                var HASH = new Array(0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A, 0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19);
-
-                var W = new Array(64);
-                var a, b, c, d, e, f, g, h, i, j;
-                var T1, T2;
+            const core_sha256 = (m, l) => {
+                const K = [
+                    0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5, 0x3956C25B, 0x59F111F1, 0x923F82A4, 0xAB1C5ED5,
+                    0xD807AA98, 0x12835B01, 0x243185BE, 0x550C7DC3, 0x72BE5D74, 0x80DEB1FE, 0x9BDC06A7, 0xC19BF174,
+                    0xE49B69C1, 0xEFBE4786, 0x0FC19DC6, 0x240CA1CC, 0x2DE92C6F, 0x4A7484AA, 0x5CB0A9DC, 0x76F988DA,
+                    0x983E5152, 0xA831C66D, 0xB00327C8, 0xBF597FC7, 0xC6E00BF3, 0xD5A79147, 0x06CA6351, 0x14292967,
+                    0x27B70A85, 0x2E1B2138, 0x4D2C6DFC, 0x53380D13, 0x650A7354, 0x766A0ABB, 0x81C2C92E, 0x92722C85,
+                    0xA2BFE8A1, 0xA81A664B, 0xC24B8B70, 0xC76C51A3, 0xD192E819, 0xD6990624, 0xF40E3585, 0x106AA070,
+                    0x19A4C116, 0x1E376C08, 0x2748774C, 0x34B0BCB5, 0x391C0CB3, 0x4ED8AA4A, 0x5B9CCA4F, 0x682E6FF3,
+                    0x748F82EE, 0x78A5636F, 0x84C87814, 0x8CC70208, 0x90BEFFFA, 0xA4506CEB, 0xBEF9A3F7, 0xC67178F2
+                ];
+                const HASH = [
+                    0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A, 0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19
+                ];
+                const W = new Array(64);
+                let a, b, c, d, e, f, g, h, T1, T2;
 
                 m[l >> 5] |= 0x80 << (24 - l % 32);
                 m[((l + 64 >> 9) << 4) + 15] = l;
 
-                for (var i = 0; i < m.length; i += 16) {
-                    a = HASH[0];
-                    b = HASH[1];
-                    c = HASH[2];
-                    d = HASH[3];
-                    e = HASH[4];
-                    f = HASH[5];
-                    g = HASH[6];
-                    h = HASH[7];
+                for (let i = 0; i < m.length; i += 16) {
+                    a = HASH[0]; b = HASH[1]; c = HASH[2]; d = HASH[3];
+                    e = HASH[4]; f = HASH[5]; g = HASH[6]; h = HASH[7];
 
-                    for (var j = 0; j < 64; j++) {
+                    for (let j = 0; j < 64; j++) {
                         if (j < 16) W[j] = m[j + i];
                         else W[j] = safe_add(safe_add(safe_add(Gamma1256(W[j - 2]), W[j - 7]), Gamma0256(W[j - 15])), W[j - 16]);
 
                         T1 = safe_add(safe_add(safe_add(safe_add(h, Sigma1256(e)), Ch(e, f, g)), K[j]), W[j]);
                         T2 = safe_add(Sigma0256(a), Maj(a, b, c));
 
-                        h = g;
-                        g = f;
-                        f = e;
-                        e = safe_add(d, T1);
-                        d = c;
-                        c = b;
-                        b = a;
-                        a = safe_add(T1, T2);
+                        h = g; g = f; f = e; e = safe_add(d, T1);
+                        d = c; c = b; b = a; a = safe_add(T1, T2);
                     }
-
-                    HASH[0] = safe_add(a, HASH[0]);
-                    HASH[1] = safe_add(b, HASH[1]);
-                    HASH[2] = safe_add(c, HASH[2]);
-                    HASH[3] = safe_add(d, HASH[3]);
-                    HASH[4] = safe_add(e, HASH[4]);
-                    HASH[5] = safe_add(f, HASH[5]);
-                    HASH[6] = safe_add(g, HASH[6]);
-                    HASH[7] = safe_add(h, HASH[7]);
+                    HASH[0] = safe_add(a, HASH[0]); HASH[1] = safe_add(b, HASH[1]); HASH[2] = safe_add(c, HASH[2]); HASH[3] = safe_add(d, HASH[3]);
+                    HASH[4] = safe_add(e, HASH[4]); HASH[5] = safe_add(f, HASH[5]); HASH[6] = safe_add(g, HASH[6]); HASH[7] = safe_add(h, HASH[7]);
                 }
                 return HASH;
-            }
+            };
 
-            function str2binb(str) {
-                var bin = Array();
-                var mask = (1 << chrsz) - 1;
-                for (var i = 0; i < str.length * chrsz; i += chrsz) {
+            const str2binb = (str) => {
+                const bin = [];
+                const mask = (1 << chrsz) - 1;
+                for (let i = 0; i < str.length * chrsz; i += chrsz) {
                     bin[i >> 5] |= (str.charCodeAt(i / chrsz) & mask) << (24 - i % 32);
                 }
                 return bin;
-            }
+            };
 
-            function binb2hex(binarray) {
-                var hex_tab = hexcase ? "0123456789ABCDEF" : "0123456789abcdef";
-                var str = "";
-                for (var i = 0; i < binarray.length * 4; i++) {
+            const binb2hex = (binarray) => {
+                const hex_tab = hexcase ? "0123456789ABCDEF" : "0123456789abcdef";
+                let str = "";
+                for (let i = 0; i < binarray.length * 4; i++) {
                     str += hex_tab.charAt((binarray[i >> 2] >> ((3 - i % 4) * 8 + 4)) & 0xF) +
                         hex_tab.charAt((binarray[i >> 2] >> ((3 - i % 4) * 8)) & 0xF);
                 }
                 return str;
-            }
+            };
 
-            s = syn.$c.utf8Encode(s);
-            return binb2hex(core_sha256(str2binb(s), s.length * chrsz));
+            const utf8String = this.utf8Encode(s);
+            return binb2hex(core_sha256(str2binb(utf8String), utf8String.length * chrsz));
         },
 
         encrypt(value, key) {
-            if ($object.isNullOrUndefined(value) == true) {
-                return null;
-            }
+            if (value === undefined || value === null) return null;
 
-            var keyLength = 6;
-            if ($string.isNullOrEmpty(key) == true) {
-                key = '';
-                key = syn.$c.sha256(key).substring(0, keyLength);
-            }
-            else {
-                keyLength = key.length;
-            }
+            const keyLength = key ? key.length : 6;
+            const effectiveKey = this.sha256(key || '').substring(0, keyLength);
 
-            key = syn.$c.sha256(key).substring(0, keyLength);
-
-            var encrypt = function (content, passcode) {
-                var result = [];
-                var passLen = passcode.length;
-                for (var i = 0; i < content.length; i++) {
-                    var passOffset = i % passLen;
-                    var calAscii = (content.charCodeAt(i) + passcode.charCodeAt(passOffset));
+            const encryptFunc = (content, passcode) => {
+                const result = [];
+                const passLen = passcode.length;
+                for (let i = 0; i < content.length; i++) {
+                    const passOffset = i % passLen;
+                    const calAscii = (content.charCodeAt(i) + passcode.charCodeAt(passOffset));
                     result.push(calAscii);
                 }
                 return JSON.stringify(result);
             };
 
-            return encodeURIComponent(syn.$c.base64Encode(encrypt(value, key) + '.' + key));
+            const encryptedContent = encryptFunc(String(value), effectiveKey);
+            const combined = `${encryptedContent}.${effectiveKey}`;
+            return encodeURIComponent(this.base64Encode(combined));
         },
 
         decrypt(value, key) {
-            var result = null;
-
-            if ($object.isNullOrUndefined(value) == true) {
-                return result;
-            }
+            if (value === undefined || value === null) return null;
 
             try {
-                value = syn.$c.base64Decode(decodeURIComponent(value));
+                const decodedValue = this.base64Decode(decodeURIComponent(value));
+                if (!decodedValue || decodedValue.indexOf('.') === -1) return null;
 
-                if (value.indexOf('.') === -1) {
-                    return result;
-                }
+                const [content, passcodeFromFile] = decodedValue.split('.');
 
-                var source = value.split('.');
-                var decrypt = function (content, passcode) {
-                    var str = '';
+                const decryptFunc = (encryptedContent, providedPasscode) => {
+                    const keyLength = key ? key.length : 6;
+                    const expectedPasscode = this.sha256(key || '').substring(0, keyLength);
 
-                    var keyLength = 6;
-                    if ($string.isNullOrEmpty(key) == true) {
-                        key = '';
-                        key = syn.$c.sha256(key).substring(0, keyLength);
+                    if (providedPasscode !== expectedPasscode) return '';
+
+                    const codesArr = JSON.parse(encryptedContent);
+                    const passLen = providedPasscode.length;
+                    let decryptedString = '';
+                    for (let i = 0; i < codesArr.length; i++) {
+                        const passOffset = i % passLen;
+                        const calAscii = (codesArr[i] - providedPasscode.charCodeAt(passOffset));
+                        decryptedString += String.fromCharCode(calAscii);
                     }
-                    else {
-                        keyLength = key.length;
-                    }
+                    return decryptedString;
+                };
 
-                    if (passcode == syn.$c.sha256(key).substring(0, keyLength)) {
-                        var result = [];
-                        var codesArr = JSON.parse(content);
-                        var passLen = passcode.length;
-                        for (var i = 0; i < codesArr.length; i++) {
-                            var passOffset = i % passLen;
-                            var calAscii = (codesArr[i] - passcode.charCodeAt(passOffset));
-                            result.push(calAscii);
-                        }
-                        for (var i = 0; i < result.length; i++) {
-                            var ch = String.fromCharCode(result[i]);
-                            str += ch;
-                        }
-                    }
-
-                    return str;
-                }
-
-                result = decrypt(source[0], source[1]);
+                return decryptFunc(content, passcodeFromFile);
             } catch (error) {
-                syn.$l.eventLog('$c.decrypt', error, 'Error');
+                $l.eventLog('$c.decrypt', error, 'Error');
+                return null;
             }
-            return result;
         },
 
         LZString: (function () {
-            var f = String.fromCharCode;
-            var keyStrBase64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
-            var keyStrUriSafe = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$';
-            var baseReverseDic = {};
+            const f = String.fromCharCode;
+            const keyStrBase64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+            const keyStrUriSafe = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$';
+            const baseReverseDic = {};
 
             function getBaseValue(alphabet, character) {
                 if (!baseReverseDic[alphabet]) {
                     baseReverseDic[alphabet] = {};
-                    for (var i = 0; i < alphabet.length; i++) {
+                    for (let i = 0; i < alphabet.length; i++) {
                         baseReverseDic[alphabet][alphabet.charAt(i)] = i;
                     }
                 }
                 return baseReverseDic[alphabet][character];
             }
 
-            var LZString = {
+            const LZStringInternal = {
                 compressToBase64(input) {
                     if (input == null) return '';
-                    var res = LZString._compress(input, 6, function (a) { return keyStrBase64.charAt(a); });
+                    let res = LZStringInternal._compress(input, 6, (a) => keyStrBase64.charAt(a));
                     switch (res.length % 4) {
-                        default:
                         case 0: return res;
                         case 1: return res + '===';
                         case 2: return res + '==';
@@ -509,26 +461,26 @@
                 decompressFromBase64(input) {
                     if (input == null) return '';
                     if (input == '') return null;
-                    return LZString._decompress(input.length, 32, function (index) { return getBaseValue(keyStrBase64, input.charAt(index)); });
+                    return LZStringInternal._decompress(input.length, 32, (index) => getBaseValue(keyStrBase64, input.charAt(index)));
                 },
 
                 compressToUTF16(input) {
                     if (input == null) return '';
-                    return LZString._compress(input, 15, function (a) { return f(a + 32); }) + ' ';
+                    return LZStringInternal._compress(input, 15, (a) => f(a + 32)) + ' ';
                 },
 
                 decompressFromUTF16(compressed) {
                     if (compressed == null) return '';
                     if (compressed == '') return null;
-                    return LZString._decompress(compressed.length, 16384, function (index) { return compressed.charCodeAt(index) - 32; });
+                    return LZStringInternal._decompress(compressed.length, 16384, (index) => compressed.charCodeAt(index) - 32);
                 },
 
                 compressToUint8Array(uncompressed) {
-                    var compressed = LZString.compress(uncompressed);
-                    var buf = new Uint8Array(compressed.length * 2);
+                    const compressed = LZStringInternal.compress(uncompressed);
+                    const buf = new Uint8Array(compressed.length * 2);
 
-                    for (var i = 0, TotalLen = compressed.length; i < TotalLen; i++) {
-                        var current_value = compressed.charCodeAt(i);
+                    for (let i = 0, TotalLen = compressed.length; i < TotalLen; i++) {
+                        const current_value = compressed.charCodeAt(i);
                         buf[i * 2] = current_value >>> 8;
                         buf[i * 2 + 1] = current_value % 256;
                     }
@@ -536,41 +488,41 @@
                 },
 
                 decompressFromUint8Array(compressed) {
-                    if ($object.isNullOrUndefined(compressed) == true) {
-                        return LZString.decompress(compressed);
-                    } else {
-                        var buf = new Array(compressed.length / 2);
-                        for (var i = 0, TotalLen = buf.length; i < TotalLen; i++) {
-                            buf[i] = compressed[i * 2] * 256 + compressed[i * 2 + 1];
-                        }
-
-                        var result = [];
-                        buf.forEach(function (c) {
-                            result.push(f(c));
-                        });
-                        return LZString.decompress(result.join(''));
+                    if (compressed == null) {
+                        return LZStringInternal.decompress(null);
                     }
+                    if (!compressed?.length) {
+                        return LZStringInternal.decompress('');
+                    }
+
+                    const buf = new Array(compressed.length / 2);
+                    for (let i = 0, TotalLen = buf.length; i < TotalLen; i++) {
+                        buf[i] = compressed[i * 2] * 256 + compressed[i * 2 + 1];
+                    }
+
+                    const result = buf.map(c => f(c));
+                    return LZStringInternal.decompress(result.join(''));
                 },
 
                 compressToEncodedURIComponent(input) {
                     if (input == null) return '';
-                    return LZString._compress(input, 6, function (a) { return keyStrUriSafe.charAt(a); });
+                    return LZStringInternal._compress(input, 6, (a) => keyStrUriSafe.charAt(a));
                 },
 
                 decompressFromEncodedURIComponent(input) {
-                    if (input == null) return '';
-                    if (input == '') return null;
-                    input = input.replace(/ /g, '+');
-                    return LZString._decompress(input.length, 32, function (index) { return getBaseValue(keyStrUriSafe, input.charAt(index)); });
+                    if (input == null) return "";
+                    if (input == "") return null;
+                    input = input.replace(/ /g, "+");
+                    return LZStringInternal._decompress(input.length, 32, (index) => getBaseValue(keyStrUriSafe, input.charAt(index)));
                 },
 
                 compress(uncompressed) {
-                    return LZString._compress(uncompressed, 16, function (a) { return f(a); });
+                    return LZStringInternal._compress(uncompressed, 16, (a) => f(a));
                 },
 
                 _compress(uncompressed, bitsPerChar, getCharFromInt) {
                     if (uncompressed == null) return '';
-                    var i, value,
+                    let i, value,
                         context_dictionary = {},
                         context_dictionaryToCreate = {},
                         context_c = '',
@@ -664,15 +616,12 @@
                                     }
                                     value = value >> 1;
                                 }
-
-
                             }
                             context_enlargeIn--;
                             if (context_enlargeIn == 0) {
                                 context_enlargeIn = Math.pow(2, context_numBits);
                                 context_numBits++;
                             }
-
                             context_dictionary[context_wc] = context_dictSize++;
                             context_w = String(context_c);
                         }
@@ -748,8 +697,6 @@
                                 }
                                 value = value >> 1;
                             }
-
-
                         }
                         context_enlargeIn--;
                         if (context_enlargeIn == 0) {
@@ -782,27 +729,19 @@
                     return context_data.join('');
                 },
 
-                decompress(compressed) {
-                    if (compressed == null) return '';
-                    if (compressed == '') return null;
-                    return LZString._decompress(compressed.length, 32768, function (index) { return compressed.charCodeAt(index); });
-                },
-
                 _decompress(length, resetValue, getNextValue) {
-                    var dictionary = [],
-                        next,
-                        enlargeIn = 4,
+                    const dictionary = [];
+                    let enlargeIn = 4,
                         dictSize = 4,
                         numBits = 3,
                         entry = '',
                         result = [],
-                        i,
                         w,
                         bits, resb, maxpower, power,
-                        c,
-                        data = { val: getNextValue(0), position: resetValue, index: 1 };
+                        c;
+                    const data = { val: getNextValue(0), position: resetValue, index: 1 };
 
-                    for (i = 0; i < 3; i += 1) {
+                    for (let i = 0; i < 3; i += 1) {
                         dictionary[i] = i;
                     }
 
@@ -820,7 +759,7 @@
                         power <<= 1;
                     }
 
-                    switch (next = bits) {
+                    switch (bits) {
                         case 0:
                             bits = 0;
                             maxpower = Math.pow(2, 8);
@@ -945,11 +884,10 @@
                             enlargeIn = Math.pow(2, numBits);
                             numBits++;
                         }
-
                     }
                 }
             };
-            return LZString;
+            return LZStringInternal;
         })()
     });
     context.$cryptography = syn.$c = $cryptography;

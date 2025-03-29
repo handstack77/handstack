@@ -1,626 +1,413 @@
-﻿/// <reference path='syn.core.js' />
-
-(function (context) {
+﻿(function (context) {
     'use strict';
-    var $manipulation = context.$manipulation || new syn.module();
-    var document = context.document;
+    const $manipulation = context.$manipulation || new syn.module();
+    const doc = context.document;
 
     $manipulation.extend({
         body() {
-            return document;
+            return doc;
         },
 
         documentElement() {
-            return document.documentElement;
+            return doc?.documentElement;
         },
 
         childNodes(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            return el.childNodes;
+            el = syn.$l.getElement(el);
+            return el ? el.childNodes : null;
         },
 
         children(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            return el.children;
+            el = syn.$l.getElement(el);
+            return el ? el.children : null;
         },
 
         firstChild(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            return el.firstChild;
+            el = syn.$l.getElement(el);
+            return el ? el.firstChild : null;
         },
 
         firstElementChild(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            return el.firstElementChild;
+            el = syn.$l.getElement(el);
+            return el ? el.firstElementChild : null;
         },
 
         lastChild(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            return el.lastChild;
+            el = syn.$l.getElement(el);
+            return el ? el.lastChild : null;
         },
 
         lastElementChild(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            return el.lastElementChild;
+            el = syn.$l.getElement(el);
+            return el ? el.lastElementChild : null;
         },
 
         nextSibling(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            return el.nextSibling;
+            el = syn.$l.getElement(el);
+            return el ? el.nextSibling : null;
         },
 
         nextElementSibling(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            return el.nextElementSibling;
+            el = syn.$l.getElement(el);
+            return el ? el.nextElementSibling : null;
         },
 
         previousSibling(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            return el.previousSibling;
+            el = syn.$l.getElement(el);
+            return el ? el.previousSibling : null;
         },
 
         previousElementSibling(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            return el.previousElementSibling;
+            el = syn.$l.getElement(el);
+            return el ? el.previousElementSibling : null;
         },
 
         siblings(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            return [].slice.call(el.parentElement.children).filter(function (child) {
-                return child !== el;
-            });
+            el = syn.$l.getElement(el);
+            if (!el?.parentElement?.children) return null;
+            return Array.from(el.parentElement.children).filter(child => child !== el);
         },
 
         parentNode(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            return el.parentNode;
+            el = syn.$l.getElement(el);
+            return el ? el.parentNode : null;
         },
 
         parentElement(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            return el.parentElement;
+            el = syn.$l.getElement(el);
+            return el ? el.parentElement : null;
         },
 
         value(el, value) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            else {
+            el = syn.$l.getElement(el);
+            if (!el) return null;
+            if (value !== undefined) {
                 el.value = $string.toValue(value);
             }
             return el.value;
         },
 
         textContent(el, value) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            else {
+            el = syn.$l.getElement(el);
+            if (!el) return null;
+            if (value !== undefined) {
                 el.textContent = $string.toValue(value);
             }
             return el.textContent;
         },
 
         innerText(el, value) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            else {
+            el = syn.$l.getElement(el);
+            if (!el) return null;
+            if (value !== undefined) {
                 el.innerText = $string.toValue(value);
             }
             return el.innerText;
         },
 
         innerHTML(el, value) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            else {
+            el = syn.$l.getElement(el);
+            if (!el) return null;
+            if (value !== undefined) {
                 el.innerHTML = $string.toValue(value);
             }
             return el.innerHTML;
         },
 
         outerHTML(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            return el.outerHTML;
+            el = syn.$l.getElement(el);
+            return el ? el.outerHTML : null;
         },
 
         className(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            return el.className;
+            el = syn.$l.getElement(el);
+            return el ? el.className : null;
         },
 
         removeAttribute(el, prop) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
+            el = syn.$l.getElement(el);
+            if (el && prop) {
+                el.removeAttribute(prop);
             }
-            return el.removeAttribute(prop);
+            return this;
         },
 
         getAttribute(el, prop) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            return el.getAttribute(prop);
+            el = syn.$l.getElement(el);
+            return el && prop ? el.getAttribute(prop) : null;
         },
 
         setAttribute(el, prop, val) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
+            el = syn.$l.getElement(el);
+            if (el && prop) {
+                el.setAttribute(prop, val);
             }
-            return el.setAttribute(prop, val);
+            return this;
         },
 
         appendChild(el, node) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
+            el = syn.$l.getElement(el);
+            if (el && node) {
+                el.appendChild(node);
             }
-            return el.appendChild(node);
+            return this;
         },
 
         setStyle(el, prop, val) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == false) {
+            el = syn.$l.getElement(el);
+            if (el?.style && prop) {
                 el.style[prop] = val;
             }
-            return $manipulation;
+            return this;
         },
 
         addCssText(el, cssText) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == false) {
-                el.style.cssText = cssText;
+            el = syn.$l.getElement(el);
+            if (el?.style) {
+                el.style.cssText += `;${cssText}`;
             }
-            return $manipulation;
+            return this;
         },
 
         addStyle(el, objects) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == false) {
-                for (var prop in objects) {
-                    $manipulation.setStyle(el, prop, objects[prop]);
-                }
+            el = syn.$l.getElement(el);
+            if (el?.style && $object.isObject(objects)) {
+                Object.entries(objects).forEach(([prop, val]) => {
+                    el.style[prop] = val;
+                });
             }
-            return $manipulation;
+            return this;
         },
 
         getStyle(el, prop) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            return el.style[prop];
+            el = syn.$l.getElement(el);
+            return el?.style?.[prop] ?? null;
         },
 
         hasHidden(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            return (el == null || el.offsetParent == null || context.getComputedStyle(el)['display'] == 'none');
+            el = syn.$l.getElement(el);
+            return !el || el.offsetParent === null || context.getComputedStyle(el).display === 'none';
         },
 
         getComputedStyle(el, prop) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
+            el = syn.$l.getElement(el);
+            if (!el || !prop) return null;
+            try {
+                return context.getComputedStyle(el)[prop];
+            } catch {
                 return null;
             }
-            return context.getComputedStyle(el)[prop];
         },
 
         addClass(el, css) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-
-            if ($object.isNullOrUndefined(el) == false) {
-                if ($string.isNullOrEmpty(css) == false) {
-                    if (css.indexOf(' ') > -1) {
-                        var classList = css.split(' ');
-                        for (var i = 0, length = classList.length; i < length; i++) {
-                            var cssItem = classList[i];
-                            if ($string.isNullOrEmpty(cssItem) == false) {
-                                if ($manipulation.hasClass(el, cssItem) == false) {
-                                    if (el.classList && el.classList.add) {
-                                        el.classList.add(cssItem);
-                                    }
-                                    else {
-                                        el.className = (el.className + ' ' + cssItem).replace(/^\s\s*/, '').replace(/\s\s*$/, '');
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    else {
-                        if ($manipulation.hasClass(el, css) == false) {
-                            if (el.classList && el.classList.add) {
-                                el.classList.add(css);
-                            }
-                            else {
-                                el.className = (el.className + ' ' + css).replace(/^\s\s*/, '').replace(/\s\s*$/, '');
-                            }
-                        }
-                    }
-                }
+            el = syn.$l.getElement(el);
+            if (el && css) {
+                css.split(' ').forEach(cls => {
+                    if (cls) el.classList.add(cls);
+                });
             }
-
-            return $manipulation;
+            return this;
         },
 
         hasClass(el, css) {
-            var result = false;
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == false) {
-                if (el.classList && el.classList.contains) {
-                    result = el.classList.contains(css);
-                }
-                else {
-                    result = syn.$m.getClassRegEx(css).test(el.className);
-                }
-            }
-
-            return result;
+            el = syn.$l.getElement(el);
+            return el && css ? el.classList.contains(css) : false;
         },
 
         toggleClass(el, css) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == false) {
-                if (el.classList && el.classList.toggle) {
-                    el.classList.toggle(css);
-                }
+            el = syn.$l.getElement(el);
+            if (el && css) {
+                el.classList.toggle(css);
             }
-
-            return $manipulation;
+            return this;
         },
 
         removeClass(el, css) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == false) {
+            el = syn.$l.getElement(el);
+            if (el) {
                 if (css === undefined) {
                     el.className = '';
-                }
-                else {
-                    if (el.classList && el.classList.remove) {
-                        el.classList.remove(css);
-                    }
-                    else {
-                        var re = syn.$m.getClassRegEx(css);
-                        el.className = el.className.replace(re, '');
-                        re = null;
-                    }
-
+                } else if (css) {
+                    css.split(' ').forEach(cls => {
+                        if (cls) el.classList.remove(cls);
+                    });
                 }
             }
-
-            return $manipulation;
+            return this;
         },
 
-        append(baseEl, tag, elID, options) {
-            var el = null;
-            baseEl = $object.isString(baseEl) == true ? syn.$l.get(baseEl) : baseEl;
-            if ($object.isNullOrUndefined(baseEl) == false && $string.isNullOrEmpty(tag) == false) {
-                el = document.createElement(tag);
+        append(baseEl, tag, elID, options = {}) {
+            const baseElement = syn.$l.getElement(baseEl);
+            if (!baseElement || !tag || !doc) return null;
 
-                if ($string.isNullOrEmpty(elID) == false) {
-                    el.id = elID;
-                }
+            const el = doc.createElement(tag);
 
-                if ($object.isNullOrUndefined(options) == false) {
-                    if ($string.isNullOrEmpty(options.type) == false) {
-                        el.type = options.type;
-                    }
+            if (elID) el.id = elID;
+            if (options.type) el.type = options.type;
+            if (options.styles) this.addStyle(el, options.styles);
+            if (options.classNames) this.addClass(el, options.classNames);
+            if (options.value !== undefined) this.value(el, options.value);
+            if (options.text !== undefined) this.innerText(el, options.text);
+            if (options.content !== undefined) this.textContent(el, options.content);
+            if (options.html !== undefined) this.innerHTML(el, options.html);
 
-                    if ($object.isNullOrUndefined(options.styles) == false) {
-                        $manipulation.addStyle(el, options.styles);
-                    }
-
-                    if ($string.isNullOrEmpty(options.classNames) == false) {
-                        $manipulation.addClass(el, options.classNames);
-                    }
-
-                    if ($object.isNullOrUndefined(options.value) == false) {
-                        $manipulation.value(el, options.value);
-                    }
-
-                    if ($object.isNullOrUndefined(options.text) == false) {
-                        $manipulation.innerText(el, options.text);
-                    }
-
-                    if ($object.isNullOrUndefined(options.content) == false) {
-                        $manipulation.textContent(el, options.content);
-                    }
-
-                    if ($object.isNullOrUndefined(options.html) == false) {
-                        $manipulation.innerHTML(el, options.html);
-                    }
-                }
-
-                baseEl.appendChild(el);
-            }
+            baseElement.appendChild(el);
             return el;
         },
 
         prepend(el, baseEl) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            baseEl = $object.isString(baseEl) == true ? syn.$l.get(baseEl) : baseEl;
-            if ($object.isNullOrUndefined(el) == false && $object.isNullOrUndefined(baseEl) == false) {
-                baseEl.insertBefore(el, baseEl.firstChild);
+            el = syn.$l.getElement(el);
+            const baseElement = syn.$l.getElement(baseEl);
+            if (el && baseElement?.firstChild) {
+                baseElement.insertBefore(el, baseElement.firstChild);
+            } else if (el && baseElement) {
+                baseElement.appendChild(el);
             }
-
-            return $manipulation;
+            return this;
         },
 
         copy(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            return el.cloneNode(true);
+            el = syn.$l.getElement(el);
+            return el ? el.cloneNode(true) : null;
         },
 
         remove(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == false) {
-                syn.$w.purge(el);
-
-                if (el.parentNode) {
-                    el.parentNode.removeChild(el);
-                }
+            el = syn.$l.getElement(el);
+            if (el) {
+                if ($webform?.purge) $webform.purge(el);
+                el.remove();
             }
-
-            return $manipulation;
+            return this;
         },
 
         hasChild(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == false) {
-                return el.hasChildNodes();
-            }
-
-            return false;
+            el = syn.$l.getElement(el);
+            return el ? el.hasChildNodes() : false;
         },
 
         insertAfter(el, targetEL) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            targetEL = $object.isString(targetEL) == true ? syn.$l.get(targetEL) : targetEL;
-            if ($object.isNullOrUndefined(el) == false && $object.isNullOrUndefined(targetEL) == false) {
-                var parent = targetEL.parentNode;
-                if (targetEL.nextElementSibling) {
-                    parent.insertBefore(el, targetEL.nextElementSibling);
-                } else {
-                    if ($object.isNullOrUndefined(parent) == false) {
-                        parent.appendChild(el);
-                    }
-                    else {
-                        $manipulation.appendChild(targetEL, el);
-                    }
-                }
+            el = syn.$l.getElement(el);
+            const targetElement = syn.$l.getElement(targetEL);
+            if (el && targetElement?.parentNode) {
+                targetElement.parentNode.insertBefore(el, targetElement.nextSibling);
             }
-
-            return $manipulation;
+            return this;
         },
 
         display(el, isShow) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == false) {
-                if ($string.toBoolean(isShow) == true) {
-                    el.style.display = 'block';
-                }
-                else {
-                    el.style.display = 'none';
-                }
+            el = syn.$l.getElement(el);
+            if (el?.style) {
+                el.style.display = $string.toBoolean(isShow) ? 'block' : 'none';
             }
-
-            return $manipulation;
+            return this;
         },
 
         toggleDisplay(el) {
-            var result = 'none';
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == false) {
-                if (context.getComputedStyle(el).display === 'block') {
-                    $manipulation.display(el, false);
-                }
-                else {
-                    $manipulation.display(el, true);
-                }
+            el = syn.$l.getElement(el);
+            if (!el?.style) return 'none';
 
-                result = context.getComputedStyle(el).display;
-            }
-
-            return result;
+            const currentDisplay = context.getComputedStyle(el).display;
+            this.display(el, currentDisplay === 'none');
+            return el.style.display || context.getComputedStyle(el).display;
         },
 
         parent(el, id) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == false) {
-                var parent = el.parentElement;
-                if ($string.isNullOrEmpty(id) == false) {
-                    while (parent && ($string.isNullOrEmpty(parent.tagName) == false && parent.tagName != 'HTML')) {
-                        if ($object.isNullOrUndefined(parent) == true) {
-                            break;
-                        }
+            let current = syn.$l.getElement(el);
+            if (!current) return null;
 
-                        if (parent.id == id) {
-                            return parent;
-                        }
+            let parent = current.parentElement;
+            if (!id) return parent;
 
-                        parent = parent.parentElement;
-                    }
-                }
+            while (parent && parent.tagName !== 'HTML') {
+                if (parent.id === id) return parent;
+                parent = parent.parentElement;
             }
-
-            return parent;
+            return null;
         },
 
-        create(options) {
-            var el = document.createElement(options.tag || 'div');
-            if ($string.isNullOrEmpty(options.id) == false) {
-                el.id = options.id;
-            }
+        create(options = {}) {
+            if (!doc) return null;
+            const el = doc.createElement(options.tag || 'div');
 
-            if ($object.isNullOrUndefined(options.styles) == false) {
-                $manipulation.addStyle(el, options.styles);
+            if (options.id) el.id = options.id;
+            if (options.styles) this.addStyle(el, options.styles);
+            if (options.className) el.className = options.className;
+            if (options.classNames) this.addClass(el, options.classNames);
+            if (options.attributes) {
+                Object.entries(options.attributes).forEach(([prop, val]) => el.setAttribute(prop, val));
             }
-
-            if ($string.isNullOrEmpty(options.className) == false) {
-                el.className = options.className;
-            }
-
-            if ($string.isNullOrEmpty(options.classNames) == false) {
-                $manipulation.addClass(el, options.classNames);
-            }
-
-            if ($object.isNullOrUndefined(options.attributes) == false) {
-                for (var prop in options.attributes) {
-                    el.setAttribute(prop, options.attributes[prop]);
-                }
-            }
-
-            if ($object.isNullOrUndefined(options.data) == false) {
-                el.setAttribute('dataset', JSON.stringify(options.data));
-            }
-
-            if ($object.isNullOrUndefined(options.value) == false) {
-                $manipulation.value(el, options.value);
-            }
-
-            if ($object.isNullOrUndefined(options.text) == false) {
-                $manipulation.innerText(el, options.text);
-            }
-
-            if ($object.isNullOrUndefined(options.content) == false) {
-                $manipulation.textContent(el, options.content);
-            }
-
-            if ($object.isNullOrUndefined(options.html) == false) {
-                $manipulation.innerHTML(el, options.html);
-            }
+            if (options.data) el.dataset.data = JSON.stringify(options.data);
+            if (options.value !== undefined) this.value(el, options.value);
+            if (options.text !== undefined) this.innerText(el, options.text);
+            if (options.content !== undefined) this.textContent(el, options.content);
+            if (options.html !== undefined) this.innerHTML(el, options.html);
 
             return el;
         },
 
         each(array, handler) {
-            if ($object.isNullOrUndefined(array) == false) {
-                if ($object.isArray(array) == true && $object.isFunction(handler) == true) {
-                    for (var i = 0, length = array.length; i < length; i++) {
-                        handler(array[i], i);
-                    }
-                }
+            if ($object.isArray(array) && $object.isFunction(handler)) {
+                array.forEach(handler);
             }
         },
 
         setActive(el, value) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == false) {
-                if ($string.toBoolean(value) == true) {
-                    el.classList.add('active');
-                }
-                else {
-                    el.classList.remove('active');
-                }
+            el = syn.$l.getElement(el);
+            if (el?.classList) {
+                el.classList.toggle('active', $string.toBoolean(value));
             }
+            return this;
         },
 
-        setSelected(el, value, multiple) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == false) {
-                if ($string.toBoolean(multiple) == false) {
-                    var siblingELs = $manipulation.siblings(el);
-                    if ($object.isNullOrUndefined(siblingELs) == false) {
-                        $manipulation.each(siblingELs, (itemEL, index) => {
-                            itemEL.selected = false;
-                            itemEL.removeAttribute('selected');
-                        });
-                    }
-                }
+        setSelected(el, value, multiple = false) {
+            el = syn.$l.getElement(el);
+            if (!el) return this;
 
-                if ($string.toBoolean(value) == true) {
-                    el.selected = true;
-                    el.setAttribute('selected', 'selected');
-                }
-                else {
-                    el.selected = false;
-                    el.removeAttribute('selected');
-                }
+            const boolValue = $string.toBoolean(value);
+
+            if (!$string.toBoolean(multiple)) {
+                this.siblings(el)?.forEach(siblingEL => {
+                    siblingEL.selected = false;
+                    siblingEL.removeAttribute('selected');
+                });
             }
+
+            el.selected = boolValue;
+            if (boolValue) {
+                el.setAttribute('selected', 'selected');
+            } else {
+                el.removeAttribute('selected');
+            }
+            return this;
         },
 
-        setChecked(el, value, multiple) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == false) {
-                if ($string.toBoolean(multiple) == false) {
-                    var siblingELs = $manipulation.siblings(el);
-                    if ($object.isNullOrUndefined(siblingELs) == false) {
-                        $manipulation.each(siblingELs, (itemEL, index) => {
-                            itemEL.checked = false;
-                            itemEL.removeAttribute('checked');
-                        });
-                    }
-                }
+        setChecked(el, value, multiple = false) {
+            el = syn.$l.getElement(el);
+            if (!el) return this;
 
-                if ($string.toBoolean(value) == true) {
-                    el.checked = true;
-                    el.setAttribute('checked', 'checked');
-                }
-                else {
-                    el.checked = false;
-                    el.removeAttribute('checked');
-                }
+            const boolValue = $string.toBoolean(value);
+
+            if (!$string.toBoolean(multiple)) {
+                this.siblings(el)?.forEach(siblingEL => {
+                    if (siblingEL.tagName === el.tagName && siblingEL.type === el.type && siblingEL.name === el.name) {
+                        siblingEL.checked = false;
+                        siblingEL.removeAttribute('checked');
+                    }
+                });
             }
+
+            el.checked = boolValue;
+            if (boolValue) {
+                el.setAttribute('checked', 'checked');
+            } else {
+                el.removeAttribute('checked');
+            }
+            return this;
         },
 
         getClassRegEx(css) {
-            return new RegExp('(^|\\s)' + css + '(\\s|$)');
+            const escapedCss = css.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+            return new RegExp(`(^|\\s)${escapedCss} (\\s | $)`);
         }
     });
     context.$manipulation = syn.$m = $manipulation;

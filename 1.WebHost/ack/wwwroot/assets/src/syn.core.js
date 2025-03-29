@@ -1,5 +1,5 @@
 ﻿/*!
-HandStack Javascript Library v2025.3.26
+HandStack Javascript Library v2025.3.30
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -45,10 +45,10 @@ class Module {
             ) {
                 const method = val.valueOf();
 
-                val = function () {
+                val = (...args) => {
                     const previous = this.base || Module.prototype.base;
                     this.base = ancestor;
-                    const returnValue = method.apply(this, arguments);
+                    const returnValue = method.apply(this, args);
                     this.base = previous;
                     return returnValue;
                 };
@@ -75,32 +75,31 @@ class Module {
                 this[source] = val;
             }
         } else if (source) {
-            let extend = Module.prototype.extend;
+            let extendFunc = Module.prototype.extend;
 
             if (!Module.prototyping && typeof this !== 'function') {
-                extend = this.extend || extend;
+                extendFunc = this.extend || extendFunc;
             }
 
             const prototype = { toSource: null };
             const hidden = ['constructor', 'toString', 'valueOf', 'concreate'];
-            let i = Module.prototyping ? 0 : 1;
-            let key;
 
-            while ((key = hidden[i++])) {
-                if (source[key] != prototype[key]) {
-                    extend.call(this, key, source[key]);
+            hidden.forEach((key, index) => {
+                if (!Module.prototyping && index === 0) return;
+                if (source[key] !== prototype[key]) {
+                    extendFunc.call(this, key, source[key]);
                 }
-            }
+            });
 
             for (const key in source) {
-                if (!prototype[key]) {
-                    extend.call(this, key, source[key]);
+                if (!prototype[key] && Object.prototype.hasOwnProperty.call(source, key)) {
+                    extendFunc.call(this, key, source[key]);
                 }
             }
 
-            const concreate = source['concreate'];
-            if (concreate) {
-                concreate(source);
+            const concreateFunc = source['concreate'];
+            if (concreateFunc) {
+                concreateFunc.call(this, source);
             }
         }
         return this;
@@ -113,19 +112,19 @@ class Module {
         const prototype = new this();
 
         prototype.extend(newType);
-        prototype.base = function () { };
+        prototype.base = () => { };
 
         delete Module.prototyping;
 
-        const constructor = prototype.constructor;
-        const object = prototype.constructor = function () {
+        const originalConstructor = prototype.constructor;
+        const object = prototype.constructor = function (...args) {
             if (!Module.prototyping) {
                 if (this.constructing || this.constructor === object) {
                     this.constructing = true;
-                    constructor.apply(this, arguments);
+                    originalConstructor.apply(this, args);
                     delete this.constructing;
-                } else if (arguments[0] != null) {
-                    return (arguments[0].extend || Module.prototype.extend).call(arguments[0], prototype);
+                } else if (args[0] != null) {
+                    return (args[0].extend || Module.prototype.extend).call(args[0], prototype);
                 }
             }
         };
@@ -136,7 +135,7 @@ class Module {
         object.implement = this.implement;
         object.prototype = prototype;
         object.toString = this.toString;
-        object.valueOf = (type) => (type === 'object' ? object : constructor.valueOf());
+        object.valueOf = (type) => (type === 'object' ? object : originalConstructor.valueOf());
 
         object.extend(staticType);
 
@@ -148,25 +147,25 @@ class Module {
     }
 
     static each(elements, func, props) {
-        if (func === undefined || func.length === 0) {
+        if (typeof func !== 'function' || func.length === 0) {
             return;
         }
 
         for (const key in elements) {
-            if (typeof elements[key] === 'object') {
+            if (Object.prototype.hasOwnProperty.call(elements, key) && typeof elements[key] === 'object' && elements[key] !== null) {
                 func.apply(elements[key], props);
             }
         }
     }
 
     static implement(...args) {
-        for (let i = 0; i < args.length; i++) {
-            if (typeof args[i] === 'function') {
-                args[i](this.prototype);
+        args.forEach(arg => {
+            if (typeof arg === 'function') {
+                arg(this.prototype);
             } else {
-                this.prototype.extend(args[i]);
+                this.prototype.extend(arg);
             }
-        }
+        });
         return this;
     }
 

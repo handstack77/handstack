@@ -1,9 +1,10 @@
-﻿/// <reference path='syn.core.js' />
-/// <reference path='syn.library.js' />
-
-(function (context) {
+﻿(function (context) {
     'use strict';
-    var $validation = context.$validation || new syn.module();
+    const $validation = context.$validation || new syn.module();
+    const $o = context.$object;
+    const $s = context.$string;
+    const $l = context.$library;
+    const $this = context.$this;
 
     $validation.extend({
         isContinue: true,
@@ -12,333 +13,280 @@
         elements: {},
 
         initializeValidObject(el) {
-            var validObject = $validation.elements[el.id];
-            if ($object.isNullOrUndefined(validObject) == true) {
-                validObject = {};
-                validObject['pattern'] = {};
-                validObject['range'] = {};
-                validObject['custom'] = {};
-
-                $validation.elements[el.id] = validObject;
+            if (!this.elements[el.id]) {
+                this.elements[el.id] = {
+                    pattern: {},
+                    range: {},
+                    custom: {}
+                };
             }
+            return this.elements[el.id];
         },
 
         setElement(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == false && $string.isNullOrEmpty(el.id) == false) {
-                $validation.initializeValidObject(el);
-                $validation.targetEL = el;
+            const element = $o.isString(el) ? $l.get(el) : el;
+            if (element?.id) {
+                this.initializeValidObject(element);
+                this.targetEL = element;
+            } else {
+                this.targetEL = null;
             }
-
-            return $validation;
+            return this;
         },
 
-        required(el, isRequired, message) {
-            if ($string.isNullOrEmpty(message) == false) {
-                el = $object.isString(el) == true ? syn.$l.get(el) : el;
-                $validation.setElement(el);
-                if ($object.isNullOrUndefined(el) == false) {
-                    el.required = $string.toBoolean(isRequired);
-                    el.message = message;
-                }
+        required(el, isRequired = true, message) {
+            if ($s.isNullOrEmpty(message)) {
+                $l.eventLog('$v.required', 'message 확인 필요', 'Information');
+                return this;
             }
-            else {
-                syn.$l.eventLog('$v.required', 'message 확인 필요', 'Information');
+            const element = $o.isString(el) ? $l.get(el) : el;
+            if (element) {
+                this.setElement(element);
+                element.required = $s.toBoolean(isRequired);
+                element.message = message;
             }
-            return $validation;
+            return this;
         },
 
-        pattern(el, validID, options) {
-            if ($object.isNullOrUndefined(options) == false) {
-                if ($object.isNullOrUndefined(options.expr) == false && $string.isNullOrEmpty(options.message) == false) {
-                    el = $object.isString(el) == true ? syn.$l.get(el) : el;
-                    $validation.setElement(el);
-                    if ($object.isNullOrUndefined(el) == false && $string.isNullOrEmpty(el.id) == false) {
-                        var validObject = $validation.elements[el.id];
-                        validObject['pattern'][validID] = options;
-                    }
-                }
-                else {
-                    syn.$l.eventLog('$v.pattern', 'options.expr, options.message 확인 필요', 'Information');
-                }
+        pattern(el, validID, options = {}) {
+            if (!options.expr || $s.isNullOrEmpty(options.message)) {
+                $l.eventLog('$v.pattern', 'options.expr, options.message 확인 필요', 'Information');
+                return this;
             }
-            else {
-                syn.$l.eventLog('$v.pattern', 'options 확인 필요', 'Information');
+            this.setElement(el);
+            if (this.targetEL?.id && validID) {
+                const validObject = this.elements[this.targetEL.id];
+                validObject.pattern[validID] = options;
             }
-            return $validation;
+            return this;
         },
 
-        range(el, validID, options) {
-            if ($object.isNullOrUndefined(options) == false) {
-                if ($string.isNumber(options.min) == true
-                    && $string.isNumber(options.max) == true
-                    && $string.isNullOrEmpty(options.minOperator) == false
-                    && $string.isNullOrEmpty(options.maxOperator) == false
-                    && $string.isNullOrEmpty(options.message) == false
-                ) {
-                    el = $object.isString(el) == true ? syn.$l.get(el) : el;
-                    $validation.setElement(el);
-                    if ($object.isNullOrUndefined(el) == false && $string.isNullOrEmpty(el.id) == false) {
-                        var validObject = $validation.elements[el.id];
-                        validObject['range'][validID] = options;
-                    }
-                }
-                else {
-                    syn.$l.eventLog('$v.pattern', 'options.min, options.minOperator, options.max, options.maxOperator, options.message 확인 필요', 'Information');
-                }
+        range(el, validID, options = {}) {
+            if (!$s.isNumber(options.min) || !$s.isNumber(options.max) ||
+                $s.isNullOrEmpty(options.minOperator) || $s.isNullOrEmpty(options.maxOperator) ||
+                $s.isNullOrEmpty(options.message)) {
+                $l.eventLog('$v.range', 'options.min, options.minOperator, options.max, options.maxOperator, options.message 확인 필요', 'Information');
+                return this;
             }
-            else {
-                syn.$l.eventLog('$v.range', 'options 확인 필요', 'Information');
+            this.setElement(el);
+            if (this.targetEL?.id && validID) {
+                const validObject = this.elements[this.targetEL.id];
+                validObject.range[validID] = options;
             }
-            return $validation;
+            return this;
         },
 
-        custom(el, validID, options) {
-            if ($object.isNullOrUndefined(options) == false) {
-                if ($object.isNullOrUndefined(options.functionName) == false && $string.isNullOrEmpty(options.message) == false) {
-                    el = $object.isString(el) == true ? syn.$l.get(el) : el;
-                    $validation.setElement(el);
-                    if ($object.isNullOrUndefined(el) == false && $string.isNullOrEmpty(el.id) == false) {
-                        var validObject = $validation.elements[el.id];
-                        validObject['custom'][validID] = options;
-                    }
-                }
-                else {
-                    syn.$l.eventLog('$v.custom', 'options.functionName, options.message 확인 필요', 'Information');
-                }
+        custom(el, validID, options = {}) {
+            if (!options.functionName || $s.isNullOrEmpty(options.message)) {
+                $l.eventLog('$v.custom', 'options.functionName, options.message 확인 필요', 'Information');
+                return this;
             }
-            else {
-                syn.$l.eventLog('$v.custom', 'options 확인 필요', 'Information');
+            this.setElement(el);
+            if (this.targetEL?.id && validID) {
+                const validObject = this.elements[this.targetEL.id];
+                validObject.custom[validID] = options;
             }
-            return $validation;
+            return this;
         },
 
         removeValidate(validType, validID) {
-            if ($validation.targetEL) {
-                $validation.initializeValidObject($validation.targetEL);
-                var validObject = $validation.elements[$validation.targetEL.id];
-
+            if (this.targetEL?.id && this.elements[this.targetEL.id]?.[validType]?.[validID]) {
                 try {
-                    validObject[validType][validID] = null;
-                    delete validObject[validType][validID];
-                } catch {
+                    delete this.elements[this.targetEL.id][validType][validID];
+                } catch (e) {
+                    $l.eventLog('$v.removeValidate', `Failed to delete validation: ${validType}.${validID} `, 'Warning');
                 }
             }
-            return $validation;
+            return this;
         },
 
         remove(validID) {
-            if ($validation.targetEL) {
-                var validObject = $validation.elements[$validation.targetEL.id];
-                if ($object.isNullOrUndefined(validObject) == false) {
-                    validObject['pattern'][validID] = null;
-                    delete validObject['pattern'][validID];
-                    validObject['range'][validID] = null;
-                    delete validObject['range'][validID];
-                    validObject['custom'][validID] = null;
-                    delete validObject['custom'][validID];
-                }
+            if (this.targetEL?.id && this.elements[this.targetEL.id]) {
+                delete this.elements[this.targetEL.id].pattern?.[validID];
+                delete this.elements[this.targetEL.id].range?.[validID];
+                delete this.elements[this.targetEL.id].custom?.[validID];
             }
-            return $validation;
+            return this;
         },
 
         clear() {
-            $validation.isContinue = false;
-            $validation.messages = [];
-            $validation.targetEL = null;
-            $validation.elements = {};
-
-            return $validation;
+            this.isContinue = true;
+            this.messages = [];
+            this.targetEL = null;
+            this.elements = {};
+            return this;
         },
 
         validateControl(el) {
-            var result = false;
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            $validation.setElement(el);
-            if ($object.isNullOrUndefined(el) == false && $string.isNullOrEmpty(el.id) == false) {
-                if ($string.toBoolean(el.required) == true) {
-                    if (el.value.length > 0) {
-                        result = true;
-                    }
-                    else {
-                        result = false;
-                        $validation.messages.push(el.message);
+            const element = $o.isString(el) ? $l.get(el) : el;
+            if (!element?.id) return true;
 
-                        if ($validation.isContinue == false) {
-                            return result;
-                        }
+            this.setElement(element);
+
+            let isValid = true;
+            const value = element.value?.trim() ?? '';
+
+            if ($s.toBoolean(element.required) && value.length === 0) {
+                isValid = false;
+                this.messages.push(element.message);
+                if (!this.isContinue) return false;
+            }
+
+            if (!isValid && !this.isContinue) return false;
+            if (!$s.toBoolean(element.required) && value.length === 0) return true;
+
+            const validObject = this.elements[element.id];
+            if (!validObject) return isValid;
+
+            for (const [validID, patternRule] of Object.entries(validObject.pattern)) {
+                if (!patternRule.expr.test(value)) {
+                    isValid = false;
+                    this.messages.push(patternRule.message);
+                    if (!this.isContinue) return false;
+                }
+            }
+            if (!isValid && !this.isContinue) return false;
+
+            for (const [validID, rangeRule] of Object.entries(validObject.range)) {
+                let rangeResult = false;
+                if ($s.isNumber(value)) {
+                    try {
+                        const numValue = $s.toNumber(value);
+                        const min = $s.toNumber(rangeRule.min);
+                        const max = $s.toNumber(rangeRule.max);
+
+                        const checkMin = (op, val, limit) => {
+                            switch (op) {
+                                case '>': return val > limit;
+                                case '>=': return val >= limit;
+                                case '<': return val < limit;
+                                case '<=': return val <= limit;
+                                case '==': return val == limit;
+                                case '!=': return val != limit;
+                                default: return false;
+                            }
+                        };
+                        const checkMax = (op, val, limit) => {
+                            switch (op) {
+                                case '<': return val < limit;
+                                case '<=': return val <= limit;
+                                case '>': return val > limit;
+                                case '>=': return val >= limit;
+                                case '==': return val == limit;
+                                case '!=': return val != limit;
+                                default: return false;
+                            }
+                        };
+                        rangeResult = checkMin(rangeRule.minOperator, numValue, min) && checkMax(rangeRule.maxOperator, numValue, max);
+
+                    } catch (error) {
+                        $l.eventLog('$v.validateControl', `elID: "${element.id}" 유효성 range 검사 오류 ${error.message} `, 'Warning');
+                        rangeResult = false;
                     }
+                } else {
+                    rangeResult = false;
                 }
 
-                var validObject = $validation.elements[el.id];
-                if ($object.isNullOrUndefined(validObject) == false) {
-                    for (var validType in validObject) {
-                        if (validType === 'pattern') {
-                            var pattern = null;
-                            var expr = null;
+                if (!rangeResult) {
+                    isValid = false;
+                    this.messages.push(rangeRule.message);
+                    if (!this.isContinue) return false;
+                }
+            }
+            if (!isValid && !this.isContinue) return false;
 
-                            for (var validID in validObject[validType]) {
-                                var pattern = validObject[validType][validID];
-                                var expr = pattern.expr;
-                                result = expr.test(el.value);
+            for (const [validID, customRule] of Object.entries(validObject.custom)) {
+                let customResult = false;
+                const functionName = customRule.functionName;
+                const parameters = { ...customRule };
+                delete parameters.functionName;
+                delete parameters.message;
 
-                                if (result == false) {
-                                    $validation.messages.push(pattern.message);
-
-                                    if ($validation.isContinue == false) {
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                        else if (validType === 'range') {
-                            var range = null;
-                            var min = null;
-                            var max = null;
-                            var minOperator = null;
-                            var maxOperator = null;
-
-                            for (var validID in validObject[validType]) {
-                                range = validObject[validType][validID];
-                                min = range.min;
-                                max = range.max;
-                                minOperator = range.minOperator;
-                                maxOperator = range.maxOperator;
-
-                                try {
-                                    var value = el.value.trim();
-                                    if ($string.isNumber(value) == true) {
-                                        result = eval(`${min} ${minOperator} ${value} && ${max} ${maxOperator} ${value}`);
-                                    }
-                                    else {
-                                        result = false;
-                                    }
-                                } catch (error) {
-                                    syn.$l.eventLog('$v.validateControl', 'elID: "{0}" 유효성 range 검사 오류 '.format(el.id) + error.message, 'Warning');
-                                }
-
-                                if (result == false) {
-                                    $validation.messages.push(range.message);
-
-                                    if ($validation.isContinue == false) {
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                        else if (validType === 'custom') {
-                            var custom = null;
-                            var functionName = null;
-                            var parameters = null;
-
-                            for (var validID in validObject[validType]) {
-                                custom = validObject[validType][validID];
-                                functionName = custom.functionName;
-                                parameters = [];
-
-                                for (var parameterName in custom) {
-                                    if (parameterName !== 'functionName') {
-                                        parameters[parameterName] = custom[parameterName];
-                                    }
-                                }
-
-                                try {
-                                    if ($this) {
-                                        result = eval('window[syn.$w.pageScript]["method"]["' + functionName + '"]').call($this, parameters);
-                                    }
-                                    else {
-                                        result = eval(functionName).call(globalRoot, parameters);
-                                    }
-                                } catch (error) {
-                                    syn.$l.eventLog('$v.validateControl', 'elID: "{0}" 유효성 custom 검사 오류 '.format(el.id) + error.message, 'Warning');
-                                }
-
-                                if (result == false) {
-                                    $validation.messages.push(custom.message);
-
-                                    if ($validation.isContinue == false) {
-                                        break;
-                                    }
-                                }
-                            }
-                        }
+                try {
+                    let funcToCall = null;
+                    if ($this?.method && typeof $this.method[functionName] === 'function') {
+                        funcToCall = $this.method[functionName];
+                        customResult = funcToCall.call($this, parameters);
                     }
+                    else if (typeof context[functionName] === 'function') {
+                        funcToCall = context[functionName];
+                        customResult = funcToCall.call(context, parameters);
+                    } else {
+                        throw new Error(`Custom validation function "${functionName}" not found.`);
+                    }
+                } catch (error) {
+                    $l.eventLog('$v.validateControl', `elID: "${element.id}" 유효성 custom 검사 오류 ${error.message} `, 'Warning');
+                    customResult = false;
+                }
+
+                if (!customResult) {
+                    isValid = false;
+                    this.messages.push(customRule.message);
+                    if (!this.isContinue) return false;
                 }
             }
 
-            return $validation.messages.length === 0;
+            return isValid;
         },
 
         validateControls(els) {
-            var result = true;
-            var el = null;
+            let allValid = true;
+            const elements = Array.isArray(els) ? els : (els && els.type ? [els] : []);
 
-            if (els.type) {
-                el = els;
-                result = $validation.validateControl(el);
-            }
-            else if (els.length) {
-                for (var i = 0, len = els.length; i < len; i++) {
-                    el = els[i];
-                    result = $validation.validateControl(el);
+            for (const el of elements) {
+                const isValid = this.validateControl(el);
+                if (!isValid) {
+                    allValid = false;
+                    if (!this.isContinue) break;
                 }
             }
-
-            return result;
+            return allValid;
         },
 
         validateForm() {
-            var result = false;
-            for (var elID in $validation.elements) {
-                result = $validation.validateControl(elID);
+            let allValid = true;
+            for (const elID in this.elements) {
+                if (Object.prototype.hasOwnProperty.call(this.elements, elID)) {
+                    const isValid = this.validateControl(elID);
+                    if (!isValid) {
+                        allValid = false;
+                        if (!this.isContinue) break;
+                    }
+                }
             }
-
-            return result;
+            return allValid;
         },
 
         toMessages() {
-            var result = [];
-            for (var i = 0; i < $validation.messages.length; i++) {
-                result.push($validation.messages[i]);
-            }
-
-            $validation.messages = [];
-            return result.join('\n');
+            const messageString = this.messages.join('\n');
+            this.messages = [];
+            return messageString;
         },
 
-        valueType: new function () {
-            this.valid = 0;
-            this.valueMissing = 1;
-            this.typeMismatch = 2;
-            this.patternMismatch = 3;
-            this.tooLong = 4;
-            this.rangeUnderflow = 5;
-            this.rangeOverflow = 6;
-            this.stepMismatch = 7;
-        },
+        valueType: Object.freeze({
+            valid: 0, valueMissing: 1, typeMismatch: 2, patternMismatch: 3, tooLong: 4,
+            rangeUnderflow: 5, rangeOverflow: 6, stepMismatch: 7
+        }),
 
-        validType: new function () {
-            this.required = 0;
-            this.pattern = 1;
-            this.range = 2;
-            this.custom = 3;
-        },
+        validType: Object.freeze({
+            required: 0, pattern: 1, range: 2, custom: 3
+        }),
 
-        regexs: new function () {
-            this.alphabet = /^[a-zA-Z0-9]*$/;
-            this.juminNo = /^(?:[0-9]{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[1,2][0-9]|3[0,1]))-?[1-4][0-9]{6}$/;
-            this.numeric = /^-?[0-9]*(\.[0-9]+)?$/;
-            this.email = /^([a-z0-9_\.\-\+]+)@([\da-z\.\-]+)\.([a-z\.]{2,6})$/i;
-            this.url = /^(https?:\/\/)?[\da-z\.\-]+\.[a-z\.]{2,6}[#&+_\?\/\w \.\-=]*$/i;
-            this.ipAddress = /^(?:\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b|null)$/;
-            this.date = /^\d{4}-\d{2}-\d{2}$/;
-            this.mobilePhone = /^01([0|1|6|7|8|9])(\d{7,8})/;
-            this.seoulPhone = /^02(\d{7,8})/;
-            this.areaPhone = /^0([0|3|4|5|6|7|8|])([0|1|2|3|4|5|])(\d{7,8})/;
-            this.onesPhone = /^050([2|5])(\d{7,8})/;
-            this.float = /^\s*-?(\d*\.?\d+|\d+\.?\d*)(e[-+]?\d+)?\s*$/i;
-            this.isoDate = /(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))/;
-        }
+        regexs: Object.freeze({
+            alphabet: /^[a-zA-Z0-9]*$/,
+            juminNo: /^\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])[-]?([1-4]|9)\d{6}$/,
+            numeric: /^-?(\d+|\d{1,3}(,\d{3})*)(\.\d+)?$/,
+            email: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/i,
+            url: /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/i,
+            ipAddress: /^(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.){3}(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)$|^localhost$/i,
+            date: /^\d{4}-\d{2}-\d{2}$/,
+            mobilePhone: /^01[016789]\d{7,8}$/,
+            seoulPhone: /^02\d{7,8}$/,
+            areaPhone: /^0(3[1-3]|4[1-4]|5[1-5]|6[1-4])\d{7,8}$/,
+            onesPhone: /^050([245678])\d{7,8}$/,
+            float: /^\s*-?(\d*\.?\d+|\d+\.?\d*)([eE][-+]?\d+)?\s*$/i,
+            isoDate: /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(\.\d+)?([+-][0-2]\d(:[0-5]\d)?|Z)/i
+        })
     });
     context.$validation = syn.$v = $validation;
 })(globalRoot);

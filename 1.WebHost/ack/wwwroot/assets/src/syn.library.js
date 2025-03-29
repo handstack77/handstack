@@ -1,605 +1,476 @@
-﻿/// <reference path='syn.core.js' />
-
-(function (context) {
+﻿(function (context) {
     'use strict';
-    var $library = context.$library || new syn.module();
-    var document = null;
-    if (globalRoot.devicePlatform === 'node') {
-    }
-    else {
-        document = context.document;
+    const $library = context.$library || new syn.module();
+    let doc = null;
+
+    if (globalRoot.devicePlatform !== 'node') {
+        doc = context.document;
 
         if (typeof context.CustomEvent !== 'function') {
-            var CustomEvent = function (event, params) {
-                params = params || { bubbles: false, cancelable: false, detail: undefined };
-                var evt = document.createEvent('CustomEvent');
-                evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
+            let customEventPolyfill = function (event, params = {}) {
+                const evt = doc.createEvent('CustomEvent');
+                const { bubbles = false, cancelable = false, detail = undefined } = params;
+                evt.initCustomEvent(event, bubbles, cancelable, detail);
                 return evt;
-            }
-
-            CustomEvent.prototype = context.Event.prototype;
-            context.CustomEvent = CustomEvent;
+            };
+            customEventPolyfill.prototype = context.Event.prototype;
+            context.CustomEvent = customEventPolyfill;
         }
     }
 
-    $library.extend({
-        prefixs: ['webkit', 'moz', 'ms', 'o', ''],
+    const eventRegistry = (() => {
+        const items = [];
+        return Object.freeze({
+            add(el, type, handler, capture = false) {
+                if (!el || !type || typeof handler !== 'function') return false;
+                if (!items.some(item => item.el === el && item.type === type && item.handler === handler && item.capture === capture)) {
+                    items.push({ el, type, handler, capture });
+                    return true;
+                }
+                return false;
+            },
+            remove(el, type, handler, capture = false) {
+                const initialLength = items.length;
+                for (let i = items.length - 1; i >= 0; i--) {
+                    const item = items[i];
+                    if (item.el === el && item.type === type && item.handler === handler && item.capture === capture) {
+                        items.splice(i, 1);
+                    }
+                }
+                return items.length < initialLength;
+            },
+            removeAllForElement(el) {
+                for (let i = items.length - 1; i >= 0; i--) {
+                    if (items[i].el === el) {
+                        items.splice(i, 1);
+                    }
+                }
+            },
+            findByArgs(el, type, handler, capture = false) {
+                return items.filter(item =>
+                    item.el === el &&
+                    item.type === type &&
+                    item.handler === handler &&
+                    item.capture === capture
+                );
+            },
+            findAllByArgs(el, type) {
+                return items.filter(item => item.el === el && item.type === type);
+            },
+            getAll() {
+                return [...items];
+            },
+            flush() {
+                this.getAll().forEach(({ el, type, handler, capture }) => {
+                    if (el.removeEventListener) {
+                        el.removeEventListener(type, handler, capture);
+                    }
+                });
+                items.length = 0;
+            }
+        });
+    })();
 
-        eventMap: {
+    $library.extend({
+        prefixs: Object.freeze(['webkit', 'moz', 'ms', 'o', '']),
+        eventMap: Object.freeze({
             'mousedown': 'touchstart',
             'mouseup': 'touchend',
             'mousemove': 'touchmove'
-        },
+        }),
 
-        events: function () {
-            var items = [];
+        events: eventRegistry,
 
-            return {
-                items: items,
-                add(el, eventName, handler) {
-                    var result = false;
-                    if (el && eventName && handler) {
-                        items.push(arguments);
-                        result = true;
-                    }
-
-                    return result;
-                },
-                remove(el, eventName, handler) {
-                    var index = -1;
-                    if (el && eventName && handler) {
-                        index = items.findIndex((item) => { return item[0] == el && item[1] == eventName && item[2] == handler });
-                    }
-                    else if (el && eventName) {
-                        index = items.findIndex((item) => { return item[0] == el && item[1] == eventName });
-                    }
-
-                    if (index > -1) {
-                        items.splice(index, 1);
-                    }
-
-                    return index > -1;
-                },
-                flush() {
-                    var i, item;
-                    for (i = items.length - 1; i >= 0; i = i - 1) {
-                        item = items[i];
-                        if (item[0].removeEventListener) {
-                            item[0].removeEventListener(item[1], item[2], item[3]);
-                        }
-                        if (item[1].substring(0, 2) != 'on') {
-                            item[1] = 'on' + item[1];
-                        }
-                        if (item[0].detachEvent) {
-                            item[0].detachEvent(item[1], item[2]);
-                        }
-                        item[0][item[1]] = null;
-                    }
-
-                    syn.$w.purge(document.body);
-                }
-            }
-        }(),
-
-        concreate($library) {
+        concreate() {
             if (globalRoot.devicePlatform !== 'node') {
-                document.addEventListener('DOMContentLoaded', () => {
-                    $library.addEvent(context, 'unload', $library.events.flush);
-                });
+                doc.addEventListener('DOMContentLoaded', () => {
+                    this.addEvent(context, 'unload', () => this.events.flush());
+                }, { once: true });
             }
         },
 
         guid() {
-            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            if (context.crypto?.randomUUID) {
+                return context.crypto.randomUUID();
+            }
+
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+                const r = Math.random() * 16 | 0;
+                const v = c === 'x' ? r : (r & 0x3 | 0x8);
                 return v.toString(16);
             });
         },
 
-        stringToArrayBuffer(value, isTwoByte) {
-            var bufferCount = 1;
-            if ($string.toBoolean(isTwoByte) == true) {
-                bufferCount = 2;
-            }
+        getElement(el) {
+            return $object.isString(el) ? this.get(el) : el;
+        },
 
-            var result = new ArrayBuffer(value.length * bufferCount);
-            var bufView = new Uint8Array(result);
-            for (var i = 0, strLen = value.length; i < strLen; i++) {
-                bufView[i] = value.charCodeAt(i);
+        stringToArrayBuffer(value, isTwoByte = false) {
+            const str = String(value);
+            const bufferLength = str.length * (isTwoByte ? 2 : 1);
+            const buffer = new ArrayBuffer(bufferLength);
+            const bufView = isTwoByte ? new Uint16Array(buffer) : new Uint8Array(buffer);
+            for (let i = 0; i < str.length; i++) {
+                bufView[i] = str.charCodeAt(i);
             }
-            return result;
+            return buffer;
         },
 
         arrayBufferToString(buffer) {
-            var arrayBuffer = new Uint8Array(buffer);
-            var s = String.fromCharCode.apply(null, arrayBuffer);
-            return decodeURIComponent(s);
-        },
+            if (!(buffer instanceof ArrayBuffer)) return '';
 
-        random(len, toLower) {
-            var result = '';
-            var len = len || 8;
-            var val = '';
-
-            while (val.length < len) {
-                val += Math.random().toString(36).substring(2);
-            }
-
-            if ($string.toBoolean(toLower) == true) {
-                result = val.substring(0, len);
-            }
-            else {
-                result = val.substring(0, len).toUpperCase();
-            }
-
-            return result;
-        },
-
-        execPrefixFunc(el, func) {
-            var prefixs = syn.$l.prefixs;
-            var i = 0, m, t;
-            while (i < prefixs.length && !el[m]) {
-                m = func;
-                if (prefixs[i] == '') {
-                    m = m.substring(0, 1).toLowerCase() + m.substring(1);
-                }
-                m = prefixs[i] + m;
-                t = typeof el[m];
-                if (t != 'undefined') {
-                    prefixs = [prefixs[i]];
-                    return (t == 'function' ? el[m]() : el[m]);
-                }
-                i++;
-            }
-        },
-
-        dispatchClick(el, options) {
             try {
-                el = $object.isString(el) == true ? syn.$l.get(el) : el;
-                options = syn.$w.argumentsExtend({
-                    canBubble: true,
+                if (typeof TextDecoder !== 'undefined') {
+                    return new TextDecoder().decode(buffer);
+                }
+
+                const uint8Array = new Uint8Array(buffer);
+                let binaryString = '';
+                for (const byte of uint8Array) {
+                    binaryString += String.fromCharCode(byte);
+                }
+
+                return binaryString;
+            } catch (e) {
+                console.error("ArrayBuffer to string conversion failed:", e);
+                return '';
+            }
+        },
+
+        random(len = 8, toLower = false) {
+            let result = '';
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            if (context.crypto?.getRandomValues) {
+                const randomValues = new Uint32Array(len);
+                context.crypto.getRandomValues(randomValues);
+                for (let i = 0; i < len; i++) {
+                    result += chars[randomValues[i] % chars.length];
+                }
+            } else {
+                for (let i = 0; i < len; i++) {
+                    result += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+            }
+            return toLower ? result.toLowerCase() : result.toUpperCase();
+        },
+
+        execPrefixFunc(el, funcName) {
+            if (!el || !funcName) return undefined;
+
+            for (const prefix of this.prefixs) {
+                let methodName = funcName;
+                if (prefix) {
+                    methodName = prefix + funcName.charAt(0).toUpperCase() + funcName.slice(1);
+                } else {
+                    methodName = funcName.charAt(0).toLowerCase() + funcName.slice(1);
+                }
+
+                if (typeof el[methodName] !== 'undefined') {
+                    return typeof el[methodName] === 'function' ? el[methodName]() : el[methodName];
+                }
+            }
+            return undefined;
+        },
+
+        dispatchClick(el, options = {}) {
+            el = this.getElement(el);
+            if (!el || globalRoot.devicePlatform === 'node' || !doc?.createEvent) return;
+
+            try {
+                const defaultOptions = {
+                    bubbles: true,
                     cancelable: true,
                     view: context,
-                    detail: 0,
-                    screenX: 0,
-                    screenY: 0,
-                    clientX: 80,
-                    clientY: 20,
-                    ctrlKey: false,
-                    altKey: false,
-                    shiftKey: false,
-                    metaKey: false,
+                    detail: 1,
+                    screenX: 0, screenY: 0, clientX: 0, clientY: 0,
+                    ctrlKey: false, altKey: false, shiftKey: false, metaKey: false,
                     button: 0,
-                    relatedTarget: null
-                }, options);
+                    relatedTarget: null,
+                    ...options
+                };
 
-                var evt = document.createEvent('MouseEvents');
-
-                // https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/initMouseEvent
-                evt.initMouseEvent('click', options.canBubble, options.cancelable, options.view, options.detail, options.screenX, options.screenY, options.clientX, options.clientY, options.ctrlKey, options.altKey, options.shiftKey, options.metaKey, options.button, options.relatedTarget);
+                const evt = new MouseEvent('click', defaultOptions);
                 el.dispatchEvent(evt);
+
             } catch (error) {
-                syn.$l.eventLog('$l.dispatchClick', error, 'Warning');
+                $l.eventLog('$l.dispatchClick', error, 'Warning');
             }
         },
 
-        // http://www.w3schools.com/html5/html5_ref_eventattributes.asp
-        addEvent(el, type, func) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if (el && func && $object.isFunction(func) == true) {
-                var hasEvent = syn.$l.hasEvent(el, type, func);
-                if (hasEvent == false) {
-                    if (el.addEventListener) {
-                        el.addEventListener(type, func, false);
-                    }
-                    else if (el.attachEvent) {
-                        el.attachEvent('on' + type, func);
-                    }
-                    else {
-                        el['on' + type] = el['e' + type + func];
-                    }
+        addEvent(el, type, handler) {
+            el = this.getElement(el);
+            if (!el || typeof handler !== 'function') return this;
 
-                    syn.$l.events.add(el, type, func);
-
-                    if ($object.isString(type) == true && type.toLowerCase() === 'resize') {
-                        func();
-                    }
+            if (this.events.add(el, type, handler, false)) {
+                if (el.addEventListener) {
+                    el.addEventListener(type, handler, false);
                 }
             }
 
-            return $library;
-        },
-
-        addEvents(query, type, func) {
-            if (func && $object.isFunction(func) == true) {
-                var items = [];
-                if ($object.isString(query) == true && $string.isNullOrEmpty(query) == false) {
-                    items = syn.$l.querySelectorAll(query);
-                }
-                else if ($object.isArray(query) == true && query.length > 0) {
-                    var item = query[0];
-                    if ($object.isString(item) == true) {
-                        for (var i = 0, length = query.length; i < length; i++) {
-                            items = $array.merge(items, syn.$l.querySelectorAll(query[i]));
-                        }
-                    }
-                    else if ($object.isObject(item) == true) {
-                        items = query;
-                    }
-                }
-                else if ($object.isObject(query) == true) {
-                    items = [query];
-                }
-
-                for (var i = 0, length = items.length; i < length; i++) {
-                    var el = items[i];
-                    syn.$l.addEvent(el, type, func);
-                }
+            if ($object.isString(type) && type.toLowerCase() === 'resize') {
+                handler();
             }
 
-            return $library;
+            return this;
         },
 
-        addLive(query, type, fn) {
-            $library.addEvent(document, type, function (evt) {
-                var found;
-                var targetEL = syn.$w.activeControl(evt);
-                while (targetEL && !(found = targetEL.matches(query))) {
-                    targetEL = targetEL.parentElement;
-                }
+        addEvents(query, type, handler) {
+            if (typeof handler !== 'function') return this;
 
-                if (found) {
-                    fn.call(targetEL, evt);
+            let elements = [];
+            if ($object.isString(query)) {
+                elements = this.querySelectorAll(query);
+            } else if (Array.isArray(query)) {
+                query.forEach(item => {
+                    if ($object.isString(item)) {
+                        elements = elements.concat(this.querySelectorAll(item));
+                    } else if ($object.isObject(item)) {
+                        elements.push(item);
+                    }
+                });
+                elements = [...new Set(elements)];
+            } else if ($object.isObject(query)) {
+                elements = [query];
+            }
 
+
+            elements.forEach(el => this.addEvent(el, type, handler));
+
+            return this;
+        },
+
+        addLive(query, type, handler) {
+            if (globalRoot.devicePlatform === 'node') return this;
+
+            this.addEvent(doc, type, (evt) => {
+                const targetElement = evt.target.closest(query);
+                if (targetElement) {
+                    handler.call(targetElement, evt);
                     evt.preventDefault();
                     evt.stopPropagation();
                 }
             });
-
-            return $library;
+            return this;
         },
 
-        removeEvent(el, type, func) {
-            if (func && $object.isFunction(func) == true) {
-                el = $object.isString(el) == true ? syn.$l.get(el) : el;
+        removeEvent(el, type, handler) {
+            el = this.getElement(el);
+            if (!el || typeof handler !== 'function') return this;
+
+            if (this.events.remove(el, type, handler, false)) {
                 if (el.removeEventListener) {
-                    el.removeEventListener(type, func, false);
+                    el.removeEventListener(type, handler, false);
                 }
-                else if (el.detachEvent) {
-                    el.detachEvent('on' + type, func);
-                }
-                else {
-                    el['on' + type] = null;
-                }
-
-                syn.$l.events.remove(el, type, func);
             }
-
-            return $library;
+            return this;
         },
 
-        hasEvent(el, type, func) {
-            var result = false;
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if (func && $object.isFunction(func) == true) {
-                result = syn.$l.events.items.some(item => (item[0] instanceof context.constructor || item[0] instanceof document.constructor || item[0] == el) && item[1] == type && item[2] == func)
+        hasEvent(el, type, handler) {
+            el = this.getElement(el);
+            if (!el) return false;
+
+            if (typeof handler === 'function') {
+                return this.events.findByArgs(el, type, handler, false).length > 0;
+            } else {
+                return this.events.findAllByArgs(el, type).length > 0;
             }
-            else {
-                result = syn.$l.events.items.some(item => (item[0] instanceof context.constructor || item[0] instanceof document.constructor || item[0] == el) && item[1] == type)
-            }
-            return result;
         },
 
         trigger(el, type, value) {
-            var result = false;
-            var item = null;
-            var action = null;
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            for (var i = 0, len = syn.$l.events.items.length; i < len; i++) {
-                item = syn.$l.events.items[i];
+            el = this.getElement(el);
+            if (!el) return false;
 
-                if (el instanceof HTMLElement) {
-                    if (item[0].id == el.id && item[1] == type) {
-                        action = item[2];
-                        break;
-                    }
-                }
-                else if (item[0] instanceof context.constructor || item[0] instanceof document.constructor) {
-                    if (item[1] == type) {
-                        action = item[2];
-                        break;
-                    }
-                }
-            }
+            let triggered = false;
+            const handlers = this.events.findAllByArgs(el, type);
 
-            if (action) {
-                if (value) {
-                    action.call(el, value);
+            handlers.forEach(({ handler }) => {
+                try {
+                    handler.call(el, value);
+                    triggered = true;
+                } catch (e) {
+                    $l.eventLog('$l.trigger', `Error executing handler for ${type}: ${e}`, 'Warning');
                 }
-                else {
-                    action.call(el);
-                }
-                result = true;
-            }
+            });
 
-            return result;
+            return triggered;
         },
 
         triggerEvent(el, type, customData) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if (context.CustomEvent) {
-                if (customData) {
-                    el.dispatchEvent(new CustomEvent(type, { detail: customData }));
-                }
-                else {
-                    el.dispatchEvent(new CustomEvent(type));
-                }
-            }
-            else if (document.createEvent) {
-                var evt = document.createEvent('HTMLEvents');
-                evt.initEvent(type, false, true);
+            el = this.getElement(el);
+            if (!el || globalRoot.devicePlatform === 'node') return this;
 
-                if (customData) {
-                    el.dispatchEvent(evt, customData);
+            try {
+                let event;
+                if (typeof context.CustomEvent === 'function') {
+                    event = new CustomEvent(type, { detail: customData, bubbles: true, cancelable: true });
                 }
-                else {
-                    el.dispatchEvent(evt);
+                else if (doc.createEvent) {
+                    event = doc.createEvent('HTMLEvents');
+                    event.initEvent(type, true, true);
                 }
-            }
-            else if (el.fireEvent) {
-                var evt = document.createEventObject();
-                evt.eventType = type;
-                if (customData) {
-                    el.fireEvent('on' + evt.eventType, customData);
+
+                if (event) {
+                    el.dispatchEvent(event);
                 }
-                else {
-                    el.fireEvent('on' + evt.eventType);
-                }
+            } catch (error) {
+                $l.eventLog('$l.triggerEvent', `Error dispatching ${type}: ${error}`, 'Warning');
             }
 
-            return $library;
+            return this;
         },
 
-        getValue(elID, defaultValue) {
-            var result = defaultValue === undefined ? '' : defaultValue;
-            var synControls = $this.context.synControls;
-            var controlInfo = synControls.find(function (item) {
-                return item.id == elID || item.id == `${elID}_hidden`;
+        getValue(elID, defaultValue = '') {
+            if (!$this?.context?.synControls) return defaultValue;
+
+            const synControls = $this.context.synControls;
+            const controlInfo = synControls.find(item => item.id === elID || item.id === `${elID}_hidden`);
+
+            if (controlInfo?.module) {
+                const controlModule = $webform.getControlModule(controlInfo.module);
+                if (controlModule?.getValue) {
+                    try {
+                        return controlModule.getValue(controlInfo.id.replace('_hidden', ''), controlInfo) ?? defaultValue;
+                    } catch (e) {
+                        $l.eventLog('$l.getValue', `Error getting value for ${elID}: ${e}`, 'Warning');
+                    }
+                }
+            } else if (doc) {
+                const el = this.get(elID);
+                if (el) return el.value ?? defaultValue;
+            }
+
+            return defaultValue;
+        },
+
+        get(...ids) {
+            if (globalRoot.devicePlatform === 'node' || !doc) return ids.length === 1 ? null : [];
+            const results = ids.map(id => $object.isString(id) ? doc.getElementById(id) : null).filter(el => el !== null);
+            return ids.length === 1 ? results[0] || null : results;
+        },
+
+        querySelector(...queries) {
+            if (globalRoot.devicePlatform === 'node' || !doc) return queries.length === 1 ? null : [];
+
+            const results = [];
+            queries.forEach(query => {
+                if ($object.isString(query)) {
+                    try {
+                        if (query.startsWith('//') || query.startsWith('.//')) {
+                            const xpathResult = doc.evaluate(query, doc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+                            for (let i = 0; i < xpathResult.snapshotLength; i++) {
+                                results.push(xpathResult.snapshotItem(i));
+                            }
+                        } else {
+                            const el = doc.querySelector(query);
+                            if (el) results.push(el);
+                        }
+                    } catch (e) {
+                        $l.eventLog('$l.querySelector', `Invalid selector "${query}": ${e}`, 'Warning');
+                    }
+                }
             });
 
-            if (controlInfo != null) {
-                var controlModule = syn.$w.getControlModule(controlInfo.module);
-                if ($object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
-                    if (controlInfo.type.indexOf('grid') > -1 || controlInfo.type.indexOf('chart') > -1) {
-                        var input = {
-                            requestType: inputConfig.type,
-                            dataFieldID: inputConfig.dataFieldID ? inputConfig.dataFieldID : document.forms.length > 0 ? document.forms[0].getAttribute('syn-datafield') : '',
-                            items: {}
-                        }
-
-                        if (controlModule.setTransactionBelongID) {
-                            controlModule.setTransactionBelongID(synControlConfig.id, input);
-                            result = controlModule.getValue(controlInfo.id.replace('_hidden', ''), 'List', input.items);
-                        }
-
-                    }
-                    else {
-                        result = controlModule.getValue(controlInfo.id.replace('_hidden', ''));
-                    }
-                }
-            }
-
-            return result;
+            return queries.length === 1 ? results[0] || null : results;
         },
 
-        get() {
-            var result = [];
-            var find = null;
-            var elID = '';
 
-            for (var i = 0, len = arguments.length; i < len; i++) {
-                elID = arguments[i];
-
-                if ($object.isString(elID) == true) {
-                    find = document.getElementById(elID);
+        getTagName(...tagNames) {
+            if (globalRoot.devicePlatform === 'node' || !doc) return [];
+            let results = [];
+            tagNames.forEach(tagName => {
+                if ($object.isString(tagName)) {
+                    results = results.concat(Array.from(doc.getElementsByTagName(tagName)));
                 }
-
-                result.push(find);
-            }
-
-            if (result.length == 1) {
-                return find;
-            }
-            else {
-                return result;
-            }
+            });
+            return results;
         },
 
-        querySelector() {
-            var result = [];
-            var find = null;
-            var query = '';
-
-            for (var i = 0, len = arguments.length; i < len; i++) {
-                query = arguments[i];
-
-                if ($object.isString(query) == true) {
-                    if (query.startsWith('//') || query.startsWith('.//')) {
-                        var xpathResult = document.evaluate(query, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-                        if (xpathResult.snapshotLength > 0) {
-                            find = xpathResult.snapshotItem(0);
+        querySelectorAll(...queries) {
+            if (globalRoot.devicePlatform === 'node' || !doc) return [];
+            let results = [];
+            queries.forEach(query => {
+                if ($object.isString(query)) {
+                    try {
+                        if (query.startsWith('//') || query.startsWith('.//')) {
+                            const xpathResult = doc.evaluate(query, doc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+                            for (let i = 0; i < xpathResult.snapshotLength; i++) {
+                                results.push(xpathResult.snapshotItem(i));
+                            }
+                        } else {
+                            results = results.concat(Array.from(doc.querySelectorAll(query)));
                         }
-                    } else {
-                        find = document.querySelector(query);
-                    }
-
-                    if (find) {
-                        result.push(find);
+                    } catch (e) {
+                        $l.eventLog('$l.querySelectorAll', `Invalid selector "${query}": ${e}`, 'Warning');
                     }
                 }
-            }
-
-            if (result.length <= 1) {
-                return find;
-            }
-            else {
-                return result;
-            }
-        },
-
-        getTagName() {
-            var result = [];
-            for (var i = 0, len = arguments.length; i < len; i++) {
-                var tagName = arguments[i];
-                if ($object.isString(tagName) == true) {
-                    var els = document.getElementsByTagName(tagName);
-                    for (var j = 0, length = els.length; j < length; j++) {
-                        result.push(els[j]);
-                    }
-                }
-            }
-            return result;
-        },
-
-        querySelectorAll() {
-            var result = [];
-            for (var i = 0, len = arguments.length; i < len; i++) {
-                var query = arguments[i];
-                if ($object.isString(query) == true) {
-                    if (query.startsWith('//') || query.startsWith('.//')) {
-                        var xpathResult = document.evaluate(query, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-                        for (var j = 0; j < xpathResult.snapshotLength; j++) {
-                            result.push(xpathResult.snapshotItem(j));
-                        }
-                    } else {
-                        var els = document.querySelectorAll(query);
-                        for (var k = 0, length = els.length; k < length; k++) {
-                            result.push(els[k]);
-                        }
-                    }
-                }
-            }
-            return result;
+            });
+            return results;
         },
 
         toEnumText(enumObject, value) {
-            var text = null;
-            for (var k in enumObject) {
-                if (enumObject[k] == value) {
-                    text = k;
-                    break;
-                }
-            }
-            return text;
+            if (!$object.isObject(enumObject)) return null;
+            const entry = Object.entries(enumObject).find(([key, val]) => val === value);
+            return entry ? entry[0] : null;
         },
 
-        prettyTSD(tsd, isFormat) {
-            var result = null;
+        prettyTSD(tsd, isFormat = false) {
+            if (typeof tsd !== 'string') return tsd;
             try {
-                var Value = tsd.split('＾');
-                if (Value.length > 1) {
-                    var meta = $string.toParameterObject(Value[0]);
-                    result = $string.toJson(Value[1], { delimeter: '｜', newline: '↵', meta: meta });
-                }
-                else {
-                    result = $string.toJson(Value[0], { delimeter: '｜', newline: '↵' });
+                const parts = tsd.split('＾');
+                let jsonData;
+                const options = { delimiter: '｜', newline: '↵' };
+
+                if (parts.length > 1) {
+                    options.meta = $string.toParameterObject(parts[0]);
+                    jsonData = $string.toJson(parts[1], options);
+                } else {
+                    jsonData = $string.toJson(parts[0], options);
                 }
 
-                return $string.toBoolean(isFormat) == true ? JSON.stringify(result, null, 2) : result;
+                return $string.toBoolean(isFormat) ? JSON.stringify(jsonData, null, 2) : jsonData;
             } catch (error) {
-                result = error.message;
+                $l.eventLog('$l.prettyTSD', error, 'Error');
+                return `Error parsing TSD: ${error.message}`;
             }
-
-            return result;
         },
 
-        text2Json(data, delimiter, newLine) {
-            if (delimiter == undefined) {
-                delimiter = ',';
-            }
+        text2Json(data, delimiter = ',', newLine = '\n') {
+            if (typeof data !== 'string') return [];
+            const lines = data.trim().split(newLine);
+            if (lines.length < 2) return [];
 
-            if (newLine == undefined) {
-                newLine = '\n';
-            }
+            const titles = lines[0].split(delimiter).map(t => t.trim());
 
-            var titles = data.slice(0, data.indexOf(newLine)).split(delimiter);
-            return data
-                .slice(data.indexOf(newLine) + 1)
-                .split(newLine)
-                .map(function (v) {
-                    var values = v.split(delimiter);
-                    return titles.reduce(function (obj, title, index) {
-                        return (obj[title] = values[index]), obj;
-                    }, {});
-                });
+            return lines.slice(1).map(line => {
+                const values = line.split(delimiter);
+                return titles.reduce((obj, title, index) => {
+                    obj[title] = values[index]?.trim() ?? '';
+                    return obj;
+                }, {});
+            }).filter(obj => Object.keys(obj).length > 0);
         },
 
-        json2Text(arr, columns, delimiter, newLine) {
-            function _toConsumableArray(arr) {
-                return (
-                    _arrayWithoutHoles(arr) ||
-                    _iterableToArray(arr) ||
-                    _unsupportedIterableToArray(arr) ||
-                    _nonIterableSpread()
-                );
-            }
+        json2Text(arr, columns, delimiter = ',', newLine = '\n') {
+            if (!Array.isArray(arr) || !Array.isArray(columns)) return '';
 
-            function _nonIterableSpread() {
-                throw new TypeError('유효하지 않은 데이터 타입');
-            }
+            const headerRow = columns.join(delimiter);
 
-            function _unsupportedIterableToArray(o, minLen) {
-                if (!o) return;
-                if (typeof o === 'string') return _arrayLikeToArray(o, minLen);
-                var n = Object.prototype.toString.call(o).slice(8, -1);
-                if (n === 'Object' && o.constructor) n = o.constructor.name;
-                if (n === 'Map' || n === 'Set') return Array.from(o);
-                if (n === 'Arguments' || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n))
-                    return _arrayLikeToArray(o, minLen);
-            }
+            const valueRows = arr.map(obj =>
+                columns.map(key => {
+                    let cellValue = obj[key] ?? '';
+                    cellValue = String(cellValue);
+                    if (cellValue.includes(delimiter) || cellValue.includes(newLine) || cellValue.includes('"')) {
+                        cellValue = `"${cellValue.replace(/"/g, '""')}"`;
+                    }
+                    return cellValue;
+                }).join(delimiter)
+            );
 
-            function _iterableToArray(iter) {
-                if (typeof Symbol !== 'undefined' && Symbol.iterator in Object(iter))
-                    return Array.from(iter);
-            }
-
-            function _arrayWithoutHoles(arr) {
-                if (Array.isArray(arr)) return _arrayLikeToArray(arr);
-            }
-
-            function _arrayLikeToArray(arr, len) {
-                if (len == null || len > arr.length) len = arr.length;
-                for (var i = 0, arr2 = new Array(len); i < len; i++) {
-                    arr2[i] = arr[i];
-                }
-                return arr2;
-            }
-
-            if (delimiter == delimiter) {
-                delimiter = ',';
-            }
-
-            if (newLine == undefined) {
-                newLine = '\n';
-            }
-
-            return [columns.join(delimiter)]
-                .concat(
-                    _toConsumableArray(
-                        arr.map(function (obj) {
-                            return columns.reduce(function (acc, key) {
-                                return ''
-                                    .concat(acc)
-                                    .concat(!acc.length ? '' : delimiter)
-                                    .concat(!obj[key] ? '' : obj[key]);
-                            }, '');
-                        })
-                    )
-                )
-                .join(newLine);
+            return [headerRow, ...valueRows].join(newLine);
         },
 
-        nested2Flat(data, itemID, parentItemID, childrenID) {
+
+        nested2Flat(data, itemID, parentItemID, childrenID = 'items') {
             var result = [];
 
             if (data) {
@@ -621,7 +492,7 @@
             return result;
         },
 
-        parseNested2Flat(data, newData, itemID, parentItemID, childrenID) {
+        parseNested2Flat(data, newData, itemID, parentItemID, childrenID = 'items') {
             var result = null;
 
             if ($object.isNullOrUndefined(childrenID) == true) {
@@ -648,14 +519,10 @@
             return result;
         },
 
-        flat2Nested(data, itemID, parentItemID, childrenID) {
+        flat2Nested(data, itemID, parentItemID, childrenID = 'items') {
             var result = null;
 
             if (data && itemID && parentItemID) {
-                if ($object.isNullOrUndefined(childrenID) == true) {
-                    childrenID = 'items';
-                }
-
                 var root = data.find(function (item) { return item[parentItemID] == null });
                 var json = syn.$l.parseFlat2Nested(data, root, [], itemID, parentItemID, childrenID);
                 root[childrenID] = json[childrenID];
@@ -668,11 +535,7 @@
             return result;
         },
 
-        parseFlat2Nested(data, root, newData, itemID, parentItemID, childrenID) {
-            if ($object.isNullOrUndefined(childrenID) == true) {
-                childrenID = 'items';
-            }
-
+        parseFlat2Nested(data, root, newData, itemID, parentItemID, childrenID = 'items') {
             var child = data.filter(function (item) { return item[parentItemID] == root[itemID] });
             if (child.length > 0) {
                 if (!newData[childrenID]) {
@@ -686,628 +549,566 @@
             return newData;
         },
 
-        findNestedByID(data, findID, itemID, childrenID) {
-            var result = null;
+        findNestedByID(data, findID, itemID, childrenID = 'items') {
+            if (!data || !itemID) return null;
 
-            if ($object.isNullOrUndefined(childrenID) == true) {
-                childrenID = 'items';
-            }
+            const itemsToSearch = Array.isArray(data) ? data : [data];
 
-            var items = data[childrenID];
-            if (data && items) {
-                if (data[itemID] == findID) {
-                    result = data;
-
-                    return result;
+            for (const item of itemsToSearch) {
+                if (item[itemID] == findID) {
+                    return item;
                 }
 
-                for (var i = 0; i < items.length; i++) {
-                    var item = items[i];
-
-                    if (item[itemID] == findID) {
-                        result = item;
-
-                        return result;
-                    }
-                    else if (item[childrenID] && item[childrenID].length > 0) {
-                        result = syn.$l.findNestedByID(item, findID, itemID, childrenID);
-
-                        if (result) {
-                            return result;
-                        }
+                if (Array.isArray(item[childrenID])) {
+                    const foundInChildren = this.findNestedByID(item[childrenID], findID, itemID, childrenID);
+                    if (foundInChildren) {
+                        return foundInChildren;
                     }
                 }
             }
 
-            return result;
+            return null;
         },
 
+
         deepFreeze(object) {
-            var result = null;
-            if (Object.isFrozen(object) == false) {
-                var propNames = Object.getOwnPropertyNames(object);
-                for (var name of propNames) {
-                    if (Object.isFrozen(object[name]) == true) {
-                        continue;
-                    }
+            if (!object || typeof object !== 'object' || Object.isFrozen(object)) {
+                return object;
+            }
 
-                    var value = object[name];
-                    object[name] = value && typeof value === 'object' ? syn.$l.deepFreeze(value) : value;
+            Object.getOwnPropertyNames(object).forEach(name => {
+                const value = object[name];
+                if (typeof value === 'object' && value !== null) {
+                    this.deepFreeze(value);
                 }
+            });
 
-                result = Object.freeze(object);
-            }
-            else {
-                result = object;
-            }
-
-            return result;
+            return Object.freeze(object);
         },
 
         createBlob(data, type) {
             try {
-                return new Blob([data], { type: type });
-            } catch (e) {
-                var BlobBuilder = globalRoot.BlobBuilder || globalRoot.WebKitBlobBuilder || globalRoot.MozBlobBuilder || globalRoot.MSBlobBuilder;
-                var builder = new BlobBuilder();
-                builder.append(data.buffer || data);
-                return builder.getBlob(type);
+                return new Blob([data], { type });
+            } catch {
+                try {
+                    const BlobBuilder = context.BlobBuilder || context.WebKitBlobBuilder || context.MozBlobBuilder || context.MSBlobBuilder;
+                    if (!BlobBuilder) throw new Error("BlobBuilder not supported");
+                    const builder = new BlobBuilder();
+                    builder.append(data.buffer || data);
+                    return builder.getBlob(type);
+                } catch (fallbackError) {
+                    $l.eventLog('$l.createBlob', `Blob creation failed: ${fallbackError}`, 'Error');
+                    return null;
+                }
             }
         },
 
         dataUriToBlob(dataUri) {
-            var result = null;
-
+            if (!dataUri || typeof dataUri !== 'string' || !dataUri.startsWith('data:')) return null;
             try {
-                var byteString = syn.$c.base64Decode(dataUri.split(',')[1]);
-                var mimeString = dataUri.split(',')[0].split(':')[1].split(';')[0];
-                var ab = new ArrayBuffer(byteString.length);
-                var ia = new Uint8Array(ab);
-                for (var i = 0; i < byteString.length; i++) {
-                    ia[i] = byteString.charCodeAt(i);
+                const parts = dataUri.split(',');
+                const meta = parts[0].split(':')[1].split(';');
+                const mimeType = meta[0];
+                const base64 = meta.includes('base64');
+                const dataString = base64 ? atob(parts[1]) : decodeURIComponent(parts[1]);
+
+                const byteNumbers = new Array(dataString.length);
+                for (let i = 0; i < dataString.length; i++) {
+                    byteNumbers[i] = dataString.charCodeAt(i);
                 }
-                result = new Blob([ab], { type: mimeString });
+                const byteArray = new Uint8Array(byteNumbers);
+
+                return new Blob([byteArray], { type: mimeType });
             } catch (error) {
-                syn.$l.eventLog('$w.dataUriToBlob', error, 'Warning');
+                $l.eventLog('$l.dataUriToBlob', error, 'Warning');
+                return null;
             }
-            return result;
         },
 
         dataUriToText(dataUri) {
-            var result = null;
-
+            if (!dataUri || typeof dataUri !== 'string' || !dataUri.startsWith('data:')) return null;
             try {
-                result = {
-                    value: syn.$c.base64Decode(dataUri.split(',')[1]),
-                    mime: dataUri.split(',')[0].split(':')[1].split(';')[0]
-                };
+                const parts = dataUri.split(',');
+                const meta = parts[0].split(':')[1].split(';');
+                const mimeType = meta[0];
+                const base64 = meta.includes('base64');
+                const value = base64 ? $cryptography.base64Decode(parts[1]) : decodeURIComponent(parts[1]);
+
+                return { value, mime: mimeType };
             } catch (error) {
-                syn.$l.eventLog('$w.dataUriToText', error, 'Warning');
+                $l.eventLog('$l.dataUriToText', error, 'Warning');
+                return null;
             }
-            return result;
         },
 
         blobToDataUri(blob, callback) {
-            if ($object.isNullOrUndefined(callback) == true) {
-                syn.$l.eventLog('$l.blobToDataUri', 'blob 결과 callback 확인 필요', 'Warning');
+            if (!(blob instanceof Blob) || typeof callback !== 'function') {
+                $l.eventLog('$l.blobToDataUri', 'Invalid Blob or callback function provided', 'Warning');
+                if (callback) callback(new Error("Invalid input"), null);
                 return;
             }
 
-            var reader = new FileReader();
-            reader.onloadend = function () {
-                var base64data = reader.result;
-                callback(base64data);
-            }
-            reader.onerror = function () {
-                syn.$l.eventLog('$l.blobToDataUri', reader.error, 'Error');
-                reader.abort();
-            }
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                if (reader.error) {
+                    $l.eventLog('$l.blobToDataUri', reader.error, 'Error');
+                    callback(reader.error, null);
+                } else {
+                    callback(null, reader.result);
+                }
+            };
+            reader.onerror = () => {
+                $l.eventLog('$l.blobToDataUri', reader.error || 'Unknown FileReader error', 'Error');
+                callback(reader.error || new Error('Unknown FileReader error'), null);
+            };
             reader.readAsDataURL(blob);
         },
 
+
         blobToDownload(blob, fileName) {
+            if (globalRoot.devicePlatform === 'node') return;
+
+            if (!(blob instanceof Blob) || !fileName) {
+                $l.eventLog('$l.blobToDownload', 'Invalid Blob or fileName provided', 'Warning');
+                return;
+            }
+
             if (context.navigator && context.navigator.msSaveOrOpenBlob) {
-                context.navigator.msSaveOrOpenBlob(blob, fileName);
-            } else {
-                var blobUrl = syn.$r.createBlobUrl(blob);
-                var link = document.createElement('a');
+                try {
+                    context.navigator.msSaveOrOpenBlob(blob, fileName);
+                } catch (e) {
+                    $l.eventLog('$l.blobToDownload', `msSaveOrOpenBlob failed: ${e}`, 'Error');
+                }
+                return;
+            }
+
+            let blobUrl = null;
+            try {
+                blobUrl = URL.createObjectURL(blob);
+                const link = doc.createElement('a');
                 link.href = blobUrl;
                 link.download = fileName;
+                doc.body.appendChild(link);
+                link.click();
+                doc.body.removeChild(link);
 
-                syn.$l.dispatchClick(link);
+                setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
 
-                setTimeout(function () {
-                    syn.$r.revokeBlobUrl(blobUrl);
-                    if (link.remove) {
-                        link.remove();
-                    }
-                }, 100);
+            } catch (e) {
+                $l.eventLog('$l.blobToDownload', `Download failed: ${e}`, 'Error');
+                if (blobUrl) URL.revokeObjectURL(blobUrl);
             }
         },
 
         blobUrlToBlob(url, callback) {
-            if ($object.isNullOrUndefined(callback) == true) {
-                syn.$l.eventLog('$l.blobUrlToBlob', 'blob 결과 callback 확인 필요', 'Warning');
+            if (typeof callback !== 'function') {
+                $l.eventLog('$l.blobUrlToBlob', 'Callback function 확인 필요', 'Warning');
+                if (callback) callback(new Error("Callback function required"), null);
+                return;
+            }
+            if (!url || typeof url !== 'string') {
+                if (callback) callback(new Error("Invalid URL"), null);
                 return;
             }
 
-            var xhr = syn.$w.xmlHttp();
-            xhr.open('GET', url);
-
-            if (syn.$w.setServiceClientHeader) {
-                if (syn.$w.setServiceClientHeader(xhr) == false) {
-                    return;
-                }
-            }
-
-            xhr.responseType = 'blob';
-            xhr.onload = function () {
-                callback(xhr.response);
-            }
-            xhr.onerror = function () {
-                syn.$l.eventLog('$l.blobUrlToBlob', 'url: {0}, status: {1}'.format(url, xhr.statusText), 'Warning');
-            }
-            xhr.send();
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status} ${response.statusText}`);
+                    }
+                    return response.blob();
+                })
+                .then(blob => callback(null, blob))
+                .catch(error => {
+                    $l.eventLog('$l.blobUrlToBlob', `url: ${url}, error: ${error}`, 'Warning');
+                    callback(error, null);
+                });
         },
 
         blobUrlToDataUri(url, callback) {
-            if ($object.isNullOrUndefined(callback) == true) {
-                syn.$l.eventLog('$l.blobUrlToDataUri', 'blob 결과 callback 확인 필요', 'Warning');
+            if (typeof callback !== 'function') {
+                $l.eventLog('$l.blobUrlToDataUri', 'Callback function 확인 필요', 'Warning');
+                if (callback) callback(new Error("Callback function required"), null);
+                return;
+            }
+            if (!url || typeof url !== 'string') {
+                if (callback) callback(new Error("Invalid URL"), null);
                 return;
             }
 
-            var xhr = syn.$w.xmlHttp();
-            xhr.open('GET', url);
-
-            if (syn.$w.setServiceClientHeader) {
-                if (syn.$w.setServiceClientHeader(xhr) == false) {
+            this.blobUrlToBlob(url, (error, blob) => {
+                if (error) {
+                    callback(error, null);
                     return;
                 }
-            }
-
-            xhr.responseType = 'blob';
-            xhr.onload = function () {
-                var reader = new FileReader();
-                reader.onloadend = function () {
-                    var base64data = reader.result;
-                    setTimeout(function () {
-                        syn.$r.revokeBlobUrl(url);
-                    }, 25);
-                    callback(null, base64data);
+                if (blob) {
+                    this.blobToDataUri(blob, callback);
+                } else {
+                    callback(new Error("Failed to retrieve blob from URL"), null);
                 }
-                reader.onerror = function () {
-                    syn.$l.eventLog('$l.blobUrlToDataUri', reader.error, 'Error');
-                    reader.abort();
-                    callback(reader.error.message, null);
-                }
-                reader.readAsDataURL(xhr.response);
-            }
-            xhr.onerror = function () {
-                syn.$l.eventLog('$l.blobUrlToDataUri', 'url: {0}, status: {1}'.format(url, xhr.statusText), 'Warning');
-                callback('url: {0}, status: {1}'.format(url, xhr.statusText), null);
-            }
-            xhr.send();
+            });
         },
 
-        async blobToBase64(blob, base64Only) {
-            base64Only = $string.toBoolean(base64Only);
-            if (globalRoot.devicePlatform === 'node') {
+        async blobToBase64(blob, base64Only = false) {
+            if (!(blob instanceof Blob)) return null;
+
+            if (globalRoot.devicePlatform === 'node' && typeof Buffer !== 'undefined') {
+                try {
+                    const arrayBuffer = await blob.arrayBuffer();
+                    const buffer = Buffer.from(arrayBuffer);
+                    const base64Data = buffer.toString('base64');
+                    if (base64Only) return base64Data;
+
+                    const mimeType = blob.type || 'application/octet-stream';
+                    return `data:${mimeType};base64,${base64Data}`;
+                } catch (error) {
+                    $l.eventLog('$l.blobToBase64 (Node)', error, 'Error');
+                    return null;
+                }
+            } else if (typeof FileReader !== 'undefined') {
                 return new Promise((resolve, reject) => {
-                    blob.arrayBuffer()
-                        .then(arrayBuffer => {
-                            var buffer = Buffer.from(arrayBuffer);
-                            var base64Data = buffer.toString('base64');
-                            if (base64Only == true) {
-                                resolve(base64Data);
-                            } else {
-                                const mimeType = blob.type || 'application/octet-stream';
-                                resolve(`data:${mimeType};base64,${base64Data}`);
-                            }
-                        })
-                        .catch(error => reject(error));
-                });
-            }
-            else {
-                return new Promise((resolve, reject) => {
-                    var reader = new FileReader();
+                    const reader = new FileReader();
                     reader.onloadend = () => {
-                        if (base64Only == true) {
-                            var base64Content = null;
-                            var base64Index = reader.result.indexOf(';base64,');
-                            if (base64Index > -1) {
-                                base64Content = reader.result.substring(base64Index + 8);
-                            }
-                            resolve(base64Content);
+                        if (reader.error) {
+                            reject(reader.error);
                         } else {
-                            resolve(reader.result);
+                            const dataUrl = reader.result;
+                            if (base64Only) {
+                                const base64Content = dataUrl.split(';base64,')[1] || null;
+                                resolve(base64Content);
+                            } else {
+                                resolve(dataUrl);
+                            }
                         }
                     };
-                    reader.onerror = error => reject(error);
+                    reader.onerror = (error) => reject(error);
                     reader.readAsDataURL(blob);
                 });
+            } else {
+                return null;
             }
         },
 
-        base64ToBlob(b64Data, contentType, sliceSize) {
-            if (b64Data === '' || b64Data === undefined) {
-                return;
-            }
+        base64ToBlob(b64Data, contentType = '', sliceSize = 512) {
+            if (!b64Data || typeof b64Data !== 'string') return null;
 
-            if ($string.isNullOrEmpty(contentType) == true) {
-                contentType = '';
-            }
+            try {
+                const byteCharacters = atob(b64Data);
+                const byteArrays = [];
 
-            if ($string.isNullOrEmpty(sliceSize) == true) {
-                sliceSize = 512;
-            }
-
-            var byteCharacters = atob(b64Data);
-            var byteArrays = [];
-
-            for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-                var slice = byteCharacters.slice(offset, offset + sliceSize);
-                var byteNumbers = new Array(slice.length);
-                for (var i = 0; i < slice.length; i++) {
-                    byteNumbers[i] = slice.charCodeAt(i);
+                for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+                    const slice = byteCharacters.slice(offset, offset + sliceSize);
+                    const byteNumbers = new Array(slice.length);
+                    for (let i = 0; i < slice.length; i++) {
+                        byteNumbers[i] = slice.charCodeAt(i);
+                    }
+                    byteArrays.push(new Uint8Array(byteNumbers));
                 }
-                var byteArray = new Uint8Array(byteNumbers);
-                byteArrays.push(byteArray);
-            }
 
-            return new Blob(byteArrays, { type: contentType });
+                return new Blob(byteArrays, { type: contentType });
+            } catch (e) {
+                $l.eventLog('$l.base64ToBlob', `Base64 decoding or Blob creation failed: ${e}`, 'Error');
+                return null;
+            }
         },
 
-        async blobToFile(blob, fileName, mimeType = 'text/plain') {
-            var result = null;
-            if (blob && blob.type && blob.size) {
-                result = new File([blob], fileName, { type: mimeType });
-            }
-
-            return result;
+        async blobToFile(blob, fileName, mimeType) {
+            if (!(blob instanceof Blob) || !fileName) return null;
+            const effectiveMimeType = mimeType || blob.type || 'application/octet-stream';
+            return new File([blob], fileName, { type: effectiveMimeType });
         },
 
         async fileToBase64(file) {
             if (globalRoot.devicePlatform === 'node') {
-                if (file.startsWith('http:') == true || file.startsWith('https:') == true) {
-                    var response = await fetch(file);
-                    var contentType = response.headers.get('Content-Type') || 'application/octet-stream';
-                    var arrayBuffer = await response.arrayBuffer();
-                    var buffer = Buffer.from(arrayBuffer);
-                    var base64Data = buffer.toString('base64');
+                const fs = require('fs').promises;
+                const path = require('path');
+                const fetch = require('node-fetch');
 
-                    return `data:${contentType};base64,${base64Data}`;
-                }
-                else {
-                    var fs = require('fs').promises;
-                    var buffer = await fs.readFile(filePath);
-                    var base64Data = buffer.toString('base64');
+                try {
+                    let buffer;
+                    let mimeType = 'application/octet-stream';
 
-                    var path = require('path');
-                    var extension = path.extname(filePath).toLowerCase();
-                    var mimeType = 'application/octet-stream';
-
-                    var mimeTypes = {
-                        '.jpg': 'image/jpeg',
-                        '.jpeg': 'image/jpeg',
-                        '.png': 'image/png',
-                        '.gif': 'image/gif',
-                        '.pdf': 'application/pdf',
-                        '.txt': 'text/plain',
-                        '.html': 'text/html',
-                        '.json': 'application/json'
-                    };
-
-                    if (mimeTypes[extension]) {
-                        mimeType = mimeTypes[extension];
+                    if (typeof file === 'string' && (file.startsWith('http:') || file.startsWith('https:'))) {
+                        const response = await fetch(file);
+                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                        mimeType = response.headers.get('content-type') || mimeType;
+                        buffer = Buffer.from(await response.arrayBuffer());
+                    } else if (typeof file === 'string') {
+                        const filePath = file;
+                        buffer = await fs.readFile(filePath);
+                        const extension = path.extname(filePath).toLowerCase();
+                        const mimeTypes = {
+                            '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.gif': 'image/gif',
+                            '.pdf': 'application/pdf', '.txt': 'text/plain', '.html': 'text/html', '.json': 'application/json'
+                        };
+                        mimeType = mimeTypes[extension] || mimeType;
+                    } else {
+                        throw new Error("Invalid input type for fileToBase64 in Node.js");
                     }
 
+                    const base64Data = buffer.toString('base64');
                     return `data:${mimeType};base64,${base64Data}`;
+
+                } catch (error) {
+                    $l.eventLog('$l.fileToBase64 (Node)', error, 'Error');
+                    return null;
                 }
-            }
-            else {
+
+            } else if (file instanceof File && typeof FileReader !== 'undefined') {
                 return new Promise((resolve, reject) => {
-                    var reader = new FileReader();
-                    reader.onload = () => resolve(reader.result);
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result);
                     reader.onerror = error => reject(error);
                     reader.readAsDataURL(file);
                 });
+            } else {
+                $l.eventLog('$l.fileToBase64', 'Invalid input or environment', 'Warning');
+                return null;
             }
         },
 
         async fileToBlob(file) {
-            var base64 = await syn.$l.fileToBase64(file);
+            const base64 = await this.fileToBase64(file);
+            if (!base64) return null;
 
-            var mimeType = base64?.match(/[^:]\w+\/[\w-+\d.]+(?=;|,)/)[0];
-            var realData = base64.split(',')[1];
+            const match = base64.match(/^data:(.+?);base64,(.+)$/);
+            if (!match) return null;
 
-            return syn.$l.base64ToBlob(realData, mimeType);
+            const mimeType = match[1];
+            const realData = match[2];
+
+            return this.base64ToBlob(realData, mimeType);
         },
 
         async resizeImage(blob, maxSize) {
-            var reader = new FileReader();
-            var image = new Image();
-            var canvas = document.createElement('canvas');
-            var dataURItoBlob = function (dataURI) {
-                var bytes = dataURI.split(',')[0].indexOf('base64') >= 0 ?
-                    atob(dataURI.split(',')[1]) :
-                    decodeURIComponent(dataURI.split(',')[1]);
-                var mime = dataURI.split(',')[0].split(':')[1].split(';')[0];
-                var max = bytes.length;
-                var ia = new Uint8Array(max);
-                for (var i = 0; i < max; i++)
-                    ia[i] = bytes.charCodeAt(i);
-                return new Blob([ia], { type: mime || 'image/jpeg' });
-            };
-            var resize = function () {
-                var width = image.width;
-                var height = image.height;
-                if (width > height) {
-                    if (maxSize <= 0) {
-                        maxSize = 80;
-                        if (width > maxSize) {
-                            height *= maxSize / width;
-                            width = maxSize;
+            if (globalRoot.devicePlatform === 'node' || !(blob instanceof Blob) || !blob.type.startsWith('image/')) {
+                const errorMsg = globalRoot.devicePlatform === 'node'
+                    ? "Image resizing not supported in Node.js environment."
+                    : "Invalid input: Not an image Blob.";
+                $l.eventLog('$l.resizeImage', errorMsg, 'Warning');
+                return Promise.reject(new Error(errorMsg));
+            }
+
+            const targetSize = (typeof maxSize === 'number' && maxSize > 0) ? maxSize : 80;
+
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                const image = new Image();
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+
+                image.onload = () => {
+                    let { width, height } = image;
+
+                    if (width > height) {
+                        if (width > targetSize) {
+                            height = Math.round(height * (targetSize / width));
+                            width = targetSize;
+                        }
+                    } else {
+                        if (height > targetSize) {
+                            width = Math.round(width * (targetSize / height));
+                            height = targetSize;
                         }
                     }
-                    else {
-                        if (width > maxSize) {
-                            height *= maxSize / width;
-                            width = maxSize;
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(image, 0, 0, width, height);
+
+                    canvas.toBlob(resizedBlob => {
+                        if (resizedBlob) {
+                            resolve({ blob: resizedBlob, width, height });
+                        } else {
+                            reject(new Error("Canvas to Blob conversion failed."));
                         }
-                    }
-                } else {
-                    if (maxSize <= 0) {
-                        maxSize = 80;
-                        if (height > maxSize) {
-                            width *= maxSize / height;
-                            height = maxSize;
-                        }
-                    }
-                    else {
-                        if (height > maxSize) {
-                            width *= maxSize / height;
-                            height = maxSize;
-                        }
-                    }
-                }
-                canvas.width = width;
-                canvas.height = height;
-                canvas.getContext('2d').drawImage(image, 0, 0, width, height);
-                var dataUrl = canvas.toDataURL('image/jpeg');
-                return {
-                    blob: dataURItoBlob(dataUrl),
-                    width: width,
-                    height: height,
+                    }, 'image/jpeg', 0.9);
                 };
-            };
-            return new Promise(function (success, failure) {
-                if (!blob.type.match(/image.*/)) {
-                    failure(new Error("이미지 파일 확인 필요"));
-                    return;
-                }
-                reader.onload = function (readerEvent) {
-                    image.onload = function () { return success(resize()); };
-                    image.src = readerEvent.target.result;
-                };
+
+                image.onerror = () => reject(new Error("Failed to load image"));
+                reader.onload = (e) => image.src = e.target.result;
+                reader.onerror = () => reject(new Error("Failed to read Blob"));
                 reader.readAsDataURL(blob);
             });
         },
 
-        logLevel: new function () {
-            this.Verbose = 0;
-            this.Debug = 1;
-            this.Information = 2;
-            this.Warning = 3;
-            this.Error = 4;
-            this.Fatal = 5;
-        },
 
-        start: (new Date()).getTime(),
+        logLevel: Object.freeze({
+            Verbose: 0, Debug: 1, Information: 2, Warning: 3, Error: 4, Fatal: 5
+        }),
+
+        start: Date.now(),
         eventLogTimer: null,
         eventLogCount: 0,
-        eventLog(event, data, logLevel) {
-            var message = typeof data == 'object' ? data.message : data;
-            var stack = typeof data == 'object' ? data.stack : data;
-            if (logLevel) {
-                if ($object.isString(logLevel) == true) {
-                    logLevel = syn.$l.logLevel[logLevel];
-                }
-            }
-            else {
-                logLevel = 0;
-            }
 
-            if (syn.Config && syn.Config.UIEventLogLevel) {
-                if (syn.$l.logLevel[syn.Config.UIEventLogLevel] > logLevel) {
-                    return;
-                }
+        eventLog(event, data, logLevelInput = 'Verbose') {
+            const message = data instanceof Error ? data.message : String(data);
+            const stack = data instanceof Error ? data.stack : undefined;
+
+            let logLevelNum;
+            if (typeof logLevelInput === 'string' && this.logLevel.hasOwnProperty(logLevelInput)) {
+                logLevelNum = this.logLevel[logLevelInput];
+            } else if (typeof logLevelInput === 'number') {
+                logLevelNum = logLevelInput;
+            } else {
+                logLevelNum = this.logLevel.Verbose;
             }
 
-            var logLevelText = syn.$l.toEnumText(syn.$l.logLevel, logLevel);
-            var now = (new Date()).getTime(),
-                diff = now - syn.$l.start,
-                value, div, text;
+            const configuredLevelName = syn.Config?.UIEventLogLevel || 'Verbose';
+            const configuredLevelNum = this.logLevel[configuredLevelName] ?? this.logLevel.Verbose;
 
-            if (globalRoot.devicePlatform === 'node') {
-                value = syn.$l.eventLogCount.toString() +
-                    '@' + (diff / 1000).toString().format('0.000') +
-                    ' [' + event + '] ' + (message === stack ? message : stack);
-
-                switch (logLevelText) {
-                    case 'Debug':
-                        globalRoot.$logger.debug(value);
-                        break;
-                    case 'Information':
-                        globalRoot.$logger.info(value);
-                        break;
-                    case 'Warning':
-                        globalRoot.$logger.warn(value);
-                        break;
-                    case 'Error':
-                        globalRoot.$logger.error(value);
-                        break;
-                    case 'Fatal':
-                        globalRoot.$logger.fatal(value);
-                        break;
-                    default:
-                        globalRoot.$logger.trace(value);
-                        break;
-                }
-
-                if (globalRoot.console) {
-                    console.log(`${logLevelText}: ${value}`);
-                }
+            if (logLevelNum < configuredLevelNum) {
+                return;
             }
-            else {
-                value = syn.$l.eventLogCount.toString() +
-                    '@' + (diff / 1000).toString().format('0.000') +
-                    ' [' + logLevelText + '] ' +
-                    '[' + event + '] ' + (message === stack ? message : stack);
 
-                if (syn.Config.IsDebugMode == true && syn.Config.Environment == 'Development' && ['Warning', 'Error', 'Fatal'].indexOf(logLevelText) > -1) {
+            const logLevelText = this.toEnumText(this.logLevel, logLevelNum) || 'Unknown';
+            const diff = (Date.now() - this.start) / 1000;
+            const timestamp = diff.toFixed(3);
+            const logMessageBase = `${this.eventLogCount}@${timestamp} [${logLevelText}] [${event}]`;
+            const logDetails = stack ? `${message}\n${stack}` : message;
+            const finalLogMessage = `${logMessageBase} ${logDetails}`;
+
+            if (globalRoot.devicePlatform === 'node' && globalRoot.$logger) {
+                const loggerMethod = logLevelText.toLowerCase();
+                if (typeof globalRoot.$logger[loggerMethod] === 'function') {
+                    globalRoot.$logger[loggerMethod](finalLogMessage);
+                } else {
+                    globalRoot.$logger.trace(finalLogMessage);
+                }
+                if (context.console) console.log(finalLogMessage);
+
+            } else if (context.console) {
+                switch (logLevelNum) {
+                    case this.logLevel.Error:
+                    case this.logLevel.Fatal:
+                        console.error(finalLogMessage); break;
+                    case this.logLevel.Warning:
+                        console.warn(finalLogMessage); break;
+                    case this.logLevel.Information:
+                        console.info(finalLogMessage); break;
+                    case this.logLevel.Debug:
+                        console.debug(finalLogMessage); break;
+                    default: // Verbose
+                        console.log(finalLogMessage); break;
+                }
+
+                if (syn.Config?.IsDebugMode === true && syn.Config?.Environment === 'Development' && logLevelNum >= this.logLevel.Warning) {
                     debugger;
                 }
 
-                if (context.console) {
-                    console.log(value);
-                }
-                else {
-                    div = document.createElement('DIV');
-                    text = document.createTextNode(value);
-
-                    div.appendChild(text);
-
-                    var eventlogs = document.getElementById('eventlogs');
+                if (doc && !context.console) {
+                    const div = doc.createElement('div');
+                    div.textContent = finalLogMessage;
+                    const eventlogs = doc.getElementById('eventlogs');
                     if (eventlogs) {
                         eventlogs.appendChild(div);
-
-                        clearTimeout(syn.$l.eventLogTimer);
-                        syn.$l.eventLogTimer = setTimeout(function () {
+                        clearTimeout(this.eventLogTimer);
+                        this.eventLogTimer = setTimeout(() => {
                             eventlogs.scrollTop = eventlogs.scrollHeight;
                         }, 10);
-                    }
-                    else {
-                        document.body.appendChild(div);
+                    } else {
+                        doc.body?.appendChild(div);
                     }
                 }
 
-                if (context.bound) {
-                    bound.browserEvent('browser', {
-                        ID: 'EventLog',
-                        Data: value
-                    }, function (error, json) {
-                        if (error) {
-                            console.log('browser EventLog - {0}'.format(error));
-                        }
-                    });
+                if (context.bound?.browserEvent) {
+                    try {
+                        context.bound.browserEvent('browser', {
+                            ID: 'EventLog',
+                            Data: finalLogMessage
+                        }, (error, json) => {
+                            if (error) console.log(`browserEvent EventLog callback error: ${error}`);
+                        });
+                    } catch (bridgeError) {
+                        console.log(`Error calling bound.browserEvent: ${bridgeError}`);
+                    }
                 }
             }
 
-            syn.$l.eventLogCount++;
+            this.eventLogCount++;
         },
 
-        getBasePath(basePath, defaultPath) {
+        getBasePath(basePathInput, defaultPath) {
+            if (globalRoot.devicePlatform !== 'node') return basePathInput || defaultPath || '';
+
             const path = require('path');
-            let entryBasePath = process.cwd();
+            const entryBasePath = process.cwd();
+            let resolvedPath = '';
 
-            if (!basePath) {
-                basePath = '';
-            } else if (basePath.startsWith('.')) {
-                basePath = path.resolve(entryBasePath, basePath);
+            if (!basePathInput) {
+                resolvedPath = defaultPath ? path.resolve(entryBasePath, defaultPath) : entryBasePath;
+            } else if (path.isAbsolute(basePathInput)) {
+                resolvedPath = basePathInput;
             } else {
-                basePath = path.resolve(basePath);
+                resolvedPath = path.resolve(entryBasePath, basePathInput);
             }
 
-            if (!basePath && defaultPath) {
-                basePath = defaultPath;
-            }
-
-            return basePath;
+            return resolvedPath;
         },
 
-        moduleEventLog(moduleID, event, data, logLevel) {
-            var message = typeof data == 'object' ? data.message : data;
-            var stack = typeof data == 'object' ? data.stack : data;
-            if (logLevel) {
-                if ($object.isString(logLevel) == true) {
-                    logLevel = syn.$l.logLevel[logLevel];
+        moduleEventLog(moduleID, event, data, logLevelInput = 'Verbose') {
+            if (globalRoot.devicePlatform !== 'node' || !moduleID) return;
+
+            const message = data instanceof Error ? data.message : String(data);
+            const stack = data instanceof Error ? data.stack : undefined;
+
+            let logLevelNum;
+            if (typeof logLevelInput === 'string' && this.logLevel.hasOwnProperty(logLevelInput)) {
+                logLevelNum = this.logLevel[logLevelInput];
+            } else if (typeof logLevelInput === 'number') {
+                logLevelNum = logLevelInput;
+            } else {
+                logLevelNum = this.logLevel.Verbose;
+            }
+
+
+            const configuredLevelName = syn.Config?.UIEventLogLevel || 'Verbose';
+            const configuredLevelNum = this.logLevel[configuredLevelName] ?? this.logLevel.Verbose;
+
+            if (logLevelNum < configuredLevelNum) {
+                return;
+            }
+
+            const logLevelText = this.toEnumText(this.logLevel, logLevelNum) || 'Unknown';
+            const diff = (Date.now() - this.start) / 1000;
+            const timestamp = diff.toFixed(3);
+
+            const logMessageBase = `${this.eventLogCount}@${timestamp} [${event}]`;
+            const logDetails = stack ? `${message}\n${stack}` : message;
+            const finalLogMessage = `${logMessageBase} ${logDetails}`;
+
+            const moduleLibrary = syn.getModuleLibrary ? syn.getModuleLibrary(moduleID) : null;
+            const logger = moduleLibrary?.logger;
+
+            if (logger) {
+                const loggerMethod = logLevelText.toLowerCase();
+                if (typeof logger[loggerMethod] === 'function') {
+                    logger[loggerMethod](finalLogMessage);
+                } else {
+                    logger.trace(finalLogMessage);
                 }
-            }
-            else {
-                logLevel = 0;
-            }
+                if (context.console) console.log(`[${moduleID}] ${logLevelText}: ${finalLogMessage}`);
 
-            if (syn.Config && syn.Config.UIEventLogLevel) {
-                if (syn.$l.logLevel[syn.Config.UIEventLogLevel] > logLevel) {
-                    return;
-                }
+            } else {
+                console.log(`Module Logger Error: Logger for ModuleID "${moduleID}" not found. Message: ${finalLogMessage}`);
             }
 
-            var logLevelText = syn.$l.toEnumText(syn.$l.logLevel, logLevel);
-            var now = (new Date()).getTime(),
-                diff = now - syn.$l.start,
-                value;
-
-            value = syn.$l.eventLogCount.toString() +
-                '@' + (diff / 1000).toString().format('0.000') +
-                ' [' + event + '] ' + (message === stack ? message : stack);
-
-            var moduleLibrary = syn.getModuleLibrary(moduleID);
-            if (moduleLibrary) {
-                var logger = moduleLibrary.logger;
-                switch (logLevelText) {
-                    case 'Debug':
-                        logger.debug(value);
-                        break;
-                    case 'Information':
-                        logger.info(value);
-                        break;
-                    case 'Warning':
-                        logger.warn(value);
-                        break;
-                    case 'Error':
-                        logger.error(value);
-                        break;
-                    case 'Fatal':
-                        logger.fatal(value);
-                        break;
-                    default:
-                        logger.trace(value);
-                        break;
-                }
-
-                if (globalRoot.console) {
-                    console.log(`${logLevelText}: ${value}`);
-                }
-            }
-            else {
-                console.log('ModuleID 확인 필요 - {0}'.format(moduleID));
-            }
-
-            syn.$l.eventLogCount++;
+            this.eventLogCount++;
         }
+
     });
 
-    context.$library = syn.$l = $library;
     if (globalRoot.devicePlatform === 'node') {
-        delete syn.$l.addEvent;
-        delete syn.$l.addLive;
-        delete syn.$l.removeEvent;
-        delete syn.$l.hasEvent;
-        delete syn.$l.trigger;
-        delete syn.$l.triggerEvent;
-        delete syn.$l.addBind;
-        delete syn.$l.getValue;
-        delete syn.$l.get;
-        delete syn.$l.querySelector;
-        delete syn.$l.getName;
-        delete syn.$l.querySelectorAll;
-        delete syn.$l.getElementsById;
-        delete syn.$l.getElementsByClassName;
-        delete syn.$l.getElementsByTagName;
+        const browserOnlyMethods = [
+            'addEvent', 'addEvents', 'addLive', 'removeEvent', 'hasEvent', 'trigger',
+            'triggerEvent', 'getValue', 'get', 'querySelector', 'getTagName',
+            'querySelectorAll', 'dispatchClick'
+        ];
+        browserOnlyMethods.forEach(method => { delete $library[method]; });
+    } else {
+        const nodeOnlyMethods = ['getBasePath', 'moduleEventLog'];
+        nodeOnlyMethods.forEach(method => { delete $library[method]; });
     }
-    else {
-        delete syn.$l.getBasePath;
-        delete syn.$l.moduleEventLog;
-    }
+
+    context.$library = syn.$l = $library;
 })(globalRoot);

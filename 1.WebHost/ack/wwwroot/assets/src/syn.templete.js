@@ -3,8 +3,8 @@
 /// </summary>
 (function (context) {
     'use strict';
-    var $templete = context.$templete || new syn.module();
-    var document = context.document;
+    const $templete = context.$templete || new syn.module();
+    let doc = context.document;
 
     $templete.extend({
         method() {
@@ -26,11 +26,11 @@ if (typeof module === 'object' && module.exports) {
         $templete = new syn.module();
     }
 
-    var document = null;
+    let doc = null;
     if (typeof module === 'object' && module.exports) {
     }
     else {
-        document = window.document;
+        doc = window.document;
     }
 
     $templete.extend({
