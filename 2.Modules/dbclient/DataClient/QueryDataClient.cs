@@ -412,7 +412,7 @@ namespace dbclient.DataClient
 
                             try
                             {
-                                var pretreatmentReader = await pretreatmentConnection.ExecuteReaderAsync(pretreatment.SQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
+                                using var pretreatmentReader = await pretreatmentConnection.ExecuteReaderAsync(pretreatment.SQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
                                 using (DataSet? ds = DataTableHelper.DataReaderToDataSet(pretreatmentReader))
                                 {
                                     var resultTypes = pretreatment.ResultType.Split(",");
@@ -615,7 +615,7 @@ namespace dbclient.DataClient
                         }
 
                         var connection = new ProfilerDbConnection(connectionFactory.Connection, profiler);
-                        var mainReader = connection.ExecuteReader(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
+                        using var mainReader = connection.ExecuteReader(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
                         if (dynamicObject.IgnoreResult == true)
                         {
                             using (DataTable dataTable = new DataTable())
@@ -1161,7 +1161,7 @@ TransactionException:
 
                             try
                             {
-                                var pretreatmentReader = await pretreatmentConnection.ExecuteReaderAsync(pretreatment.SQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
+                                using var pretreatmentReader = await pretreatmentConnection.ExecuteReaderAsync(pretreatment.SQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
                                 using (DataSet? ds = DataTableHelper.DataReaderToDataSet(pretreatmentReader))
                                 {
                                     var resultTypes = pretreatment.ResultType.Split(",");
@@ -1364,7 +1364,7 @@ TransactionException:
                         }
 
                         var connection = new ProfilerDbConnection(connectionFactory.Connection, profiler);
-                        var mainReader = connection.ExecuteReader(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
+                        using var mainReader = connection.ExecuteReader(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
                         if (dynamicObject.IgnoreResult == true)
                         {
                             using (DataTable dataTable = new DataTable())
@@ -1771,7 +1771,7 @@ TransactionException:
 
                             try
                             {
-                                var pretreatmentReader = await pretreatmentConnection.ExecuteReaderAsync(pretreatment.SQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
+                                using var pretreatmentReader = await pretreatmentConnection.ExecuteReaderAsync(pretreatment.SQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
                                 using (DataSet? ds = DataTableHelper.DataReaderToDataSet(pretreatmentReader))
                                 {
                                     var resultTypes = pretreatment.ResultType.Split(",");
@@ -1974,7 +1974,7 @@ TransactionException:
                         }
 
                         var connection = new ProfilerDbConnection(connectionFactory.Connection, profiler);
-                        var mainReader = connection.ExecuteReader(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
+                        using var mainReader = connection.ExecuteReader(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
                         if (dynamicObject.IgnoreResult == true)
                         {
                             using (DataTable dataTable = new DataTable())
@@ -2378,7 +2378,7 @@ TransactionException:
 
                             try
                             {
-                                var pretreatmentReader = await pretreatmentConnection.ExecuteReaderAsync(pretreatment.SQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
+                                using var pretreatmentReader = await pretreatmentConnection.ExecuteReaderAsync(pretreatment.SQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
                                 using (DataSet? ds = DataTableHelper.DataReaderToDataSet(pretreatmentReader))
                                 {
                                     var resultTypes = pretreatment.ResultType.Split(",");
@@ -2581,7 +2581,7 @@ TransactionException:
                         }
 
                         var connection = new ProfilerDbConnection(connectionFactory.Connection, profiler);
-                        var mainReader = connection.ExecuteReader(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
+                        using var mainReader = connection.ExecuteReader(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
                         if (dynamicObject.IgnoreResult == true)
                         {
                             using (DataTable dataTable = new DataTable())
@@ -3344,7 +3344,7 @@ TransactionException:
 
                             try
                             {
-                                var pretreatmentReader = await pretreatmentConnection.ExecuteReaderAsync(pretreatment.SQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
+                                using var pretreatmentReader = await pretreatmentConnection.ExecuteReaderAsync(pretreatment.SQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
                                 using (DataSet? ds = DataTableHelper.DataReaderToDataSet(pretreatmentReader))
                                 {
                                     var resultTypes = pretreatment.ResultType.Split(",");
@@ -3481,131 +3481,149 @@ TransactionException:
 
                     string parseSQL = DatabaseMapper.Find(statementMap, dynamicObject);
                     var connection = new ProfilerDbConnection(connectionFactory.Connection, profiler);
-                    var mainReader = connection.ExecuteReader(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
 
-                    if (dynamicObject.IgnoreResult == true)
+                    IDataReader? mainReader = null;
+                    try
                     {
-                        using (DataTable dataTable = new DataTable())
-                        using (DataTable? schemaTable = mainReader.GetSchemaTable())
+                        mainReader = connection.ExecuteReader(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
+
+                        if (dynamicObject.IgnoreResult == true)
                         {
-                            if (schemaTable == null)
+                            using (DataTable dataTable = new DataTable())
+                            using (DataTable? schemaTable = mainReader.GetSchemaTable())
                             {
-                                continue;
-                            }
-
-                            DataRow row;
-
-                            string columnName;
-                            DataColumn column;
-                            int count = schemaTable.Rows.Count;
-
-                            for (int j = 0; j < count; j++)
-                            {
-                                row = schemaTable.Rows[j];
-                                columnName = (string)row["ColumnName"];
-
-                                column = new DataColumn(columnName, (Type)row["DataType"]);
-                                dataTable.Columns.Add(column);
-                            }
-
-                            object[] values = new object[count];
-
-                            try
-                            {
-                                dataTable.BeginLoadData();
-                                while (mainReader.Read())
+                                if (schemaTable == null)
                                 {
-                                    mainReader.GetValues(values);
-                                    dataTable.LoadDataRow(values, true);
+                                    continue;
+                                }
+
+                                DataRow row;
+
+                                string columnName;
+                                DataColumn column;
+                                int count = schemaTable.Rows.Count;
+
+                                for (int j = 0; j < count; j++)
+                                {
+                                    row = schemaTable.Rows[j];
+                                    columnName = (string)row["ColumnName"];
+
+                                    column = new DataColumn(columnName, (Type)row["DataType"]);
+                                    dataTable.Columns.Add(column);
+                                }
+
+                                object[] values = new object[count];
+
+                                try
+                                {
+                                    dataTable.BeginLoadData();
+                                    while (mainReader.Read())
+                                    {
+                                        mainReader.GetValues(values);
+                                        dataTable.LoadDataRow(values, true);
+                                    }
+                                }
+                                finally
+                                {
+                                    dataTable.EndLoadData();
+                                }
+
+                                if (dataTable.Rows.Count > 0)
+                                {
+                                    dataRow = dataTable.Rows[0];
+                                }
+                                else
+                                {
+                                    dataRow = null;
                                 }
                             }
-                            finally
-                            {
-                                dataTable.EndLoadData();
-                            }
-
-                            if (dataTable.Rows.Count > 0)
-                            {
-                                dataRow = dataTable.Rows[0];
-                            }
-                            else
-                            {
-                                dataRow = null;
-                            }
                         }
-                    }
-                    else
-                    {
-                        using (DataSet? ds = DataTableHelper.DataReaderToSchemeOnly(mainReader, "Table", 1))
+                        else
                         {
-                            JsonObjectType jsonObjectType = JsonObjectType.FormJson;
-
-                            if (ds != null)
+                            using (DataSet? ds = DataTableHelper.DataReaderToSchemeOnly(mainReader, "Table", 1))
                             {
-                                for (int j = 0; j < ds.Tables.Count; j++)
-                                {
-                                    DataTable table = ds.Tables[j];
-                                    if (table.Columns.Count == 0)
-                                    {
-                                        continue;
-                                    }
+                                JsonObjectType jsonObjectType = JsonObjectType.FormJson;
 
-                                    if (dynamicObject.JsonObjects == null || dynamicObject.JsonObjects.Count == 0)
+                                if (ds != null)
+                                {
+                                    for (int j = 0; j < ds.Tables.Count; j++)
                                     {
-                                        jsonObjectType = dynamicObject.JsonObject;
-                                    }
-                                    else
-                                    {
-                                        try
+                                        DataTable table = ds.Tables[j];
+                                        if (table.Columns.Count == 0)
                                         {
-                                            jsonObjectType = dynamicObject.JsonObjects[i];
+                                            continue;
                                         }
-                                        catch
+
+                                        if (dynamicObject.JsonObjects == null || dynamicObject.JsonObjects.Count == 0)
                                         {
                                             jsonObjectType = dynamicObject.JsonObject;
                                         }
-                                    }
+                                        else
+                                        {
+                                            try
+                                            {
+                                                jsonObjectType = dynamicObject.JsonObjects[i];
+                                            }
+                                            catch
+                                            {
+                                                jsonObjectType = dynamicObject.JsonObject;
+                                            }
+                                        }
 
-                                    switch (jsonObjectType)
-                                    {
-                                        case JsonObjectType.FormJson:
-                                            // mergeDatas.Add("FormData" + i.ToString(), table.GetMetaColumns());
-                                            mergeDatas.Add("FormData" + i.ToString(), table.GetDbColumns());
-                                            break;
-                                        case JsonObjectType.jqGridJson:
-                                            // mergeDatas.Add("jqGridData" + i.ToString(), table.GetMetaColumns());
-                                            mergeDatas.Add("jqGridData" + i.ToString(), table.GetDbColumns());
-                                            break;
-                                        case JsonObjectType.GridJson:
-                                            // mergeDatas.Add("GridData" + i.ToString(), table.GetMetaColumns());
-                                            mergeDatas.Add("GridData" + i.ToString(), table.GetDbColumns());
-                                            break;
-                                        case JsonObjectType.ChartJson:
-                                            // mergeDatas.Add("ChartData" + i.ToString(), table.GetMetaColumns());
-                                            mergeDatas.Add("ChartData" + i.ToString(), table.GetDbColumns());
-                                            break;
-                                        case JsonObjectType.DataSetJson:
-                                            // mergeDatas.Add("DataTable" + i.ToString(), table.GetMetaColumns());
-                                            mergeDatas.Add("DataTable" + i.ToString(), table.GetDbColumns());
-                                            break;
-                                    }
+                                        switch (jsonObjectType)
+                                        {
+                                            case JsonObjectType.FormJson:
+                                                // mergeDatas.Add("FormData" + i.ToString(), table.GetMetaColumns());
+                                                mergeDatas.Add("FormData" + i.ToString(), table.GetDbColumns());
+                                                break;
+                                            case JsonObjectType.jqGridJson:
+                                                // mergeDatas.Add("jqGridData" + i.ToString(), table.GetMetaColumns());
+                                                mergeDatas.Add("jqGridData" + i.ToString(), table.GetDbColumns());
+                                                break;
+                                            case JsonObjectType.GridJson:
+                                                // mergeDatas.Add("GridData" + i.ToString(), table.GetMetaColumns());
+                                                mergeDatas.Add("GridData" + i.ToString(), table.GetDbColumns());
+                                                break;
+                                            case JsonObjectType.ChartJson:
+                                                // mergeDatas.Add("ChartData" + i.ToString(), table.GetMetaColumns());
+                                                mergeDatas.Add("ChartData" + i.ToString(), table.GetDbColumns());
+                                                break;
+                                            case JsonObjectType.DataSetJson:
+                                                // mergeDatas.Add("DataTable" + i.ToString(), table.GetMetaColumns());
+                                                mergeDatas.Add("DataTable" + i.ToString(), table.GetDbColumns());
+                                                break;
+                                        }
 
-                                    if (table.Rows.Count > 0)
-                                    {
-                                        dataRow = table.Rows[0];
-                                    }
-                                    else
-                                    {
-                                        dataRow = null;
-                                    }
+                                        if (table.Rows.Count > 0)
+                                        {
+                                            dataRow = table.Rows[0];
+                                        }
+                                        else
+                                        {
+                                            dataRow = null;
+                                        }
 
-                                    i++;
+                                        i++;
+                                    }
                                 }
                             }
                         }
                     }
+                    catch (Exception exception)
+                    {
+                        response.ExceptionText = $"SQLID: {SQLID}, ExceptionText: {exception.ToMessage()}, ExecuteSQL: \n\n{profiler.ExecuteSQL}";
+                        loggerClient.TransactionMessageLogging(request.GlobalID, "N", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, response.ExceptionText, "QueryDataClient/ExecuteSchemeOnlySQLMap", (string error) =>
+                        {
+                            logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + response.ExceptionText, "QueryDataClient/ExecuteSchemeOnlySQLMap");
+                        });
 
-                    mainReader?.Close();
+                        isCommandError = true;
+                        goto TransactionException;
+                    }
+                    finally
+                    {
+                        mainReader?.Close();
+                    }
                 }
 
                 if (request.IsTransaction == true)
@@ -3867,7 +3885,7 @@ TransactionException:
 
                             try
                             {
-                                var pretreatmentReader = await pretreatmentConnection.ExecuteReaderAsync(pretreatment.SQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
+                                using var pretreatmentReader = await pretreatmentConnection.ExecuteReaderAsync(pretreatment.SQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
                                 using (DataSet? ds = DataTableHelper.DataReaderToDataSet(pretreatmentReader))
                                 {
                                     var resultTypes = pretreatment.ResultType.Split(",");
@@ -4033,7 +4051,7 @@ TransactionException:
                         result.Parameters.Add(SQLID, parametersDictionary);
 
                         var connection = new ProfilerDbConnection(connectionFactory.Connection, profiler);
-                        var mainReader = connection.ExecuteReader(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
+                        using var mainReader = connection.ExecuteReader(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
 
                         if (dynamicObject.IgnoreResult == true)
                         {
