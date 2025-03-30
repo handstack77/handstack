@@ -1,5 +1,5 @@
-﻿/*!
-HandStack Javascript Library v2025.3.26
+/*!
+HandStack Javascript Library v2025.3.30
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -45,10 +45,10 @@ class Module {
             ) {
                 const method = val.valueOf();
 
-                val = function () {
+                val = (...args) => {
                     const previous = this.base || Module.prototype.base;
                     this.base = ancestor;
-                    const returnValue = method.apply(this, arguments);
+                    const returnValue = method.apply(this, args);
                     this.base = previous;
                     return returnValue;
                 };
@@ -75,32 +75,31 @@ class Module {
                 this[source] = val;
             }
         } else if (source) {
-            let extend = Module.prototype.extend;
+            let extendFunc = Module.prototype.extend;
 
             if (!Module.prototyping && typeof this !== 'function') {
-                extend = this.extend || extend;
+                extendFunc = this.extend || extendFunc;
             }
 
             const prototype = { toSource: null };
             const hidden = ['constructor', 'toString', 'valueOf', 'concreate'];
-            let i = Module.prototyping ? 0 : 1;
-            let key;
 
-            while ((key = hidden[i++])) {
-                if (source[key] != prototype[key]) {
-                    extend.call(this, key, source[key]);
+            hidden.forEach((key, index) => {
+                if (!Module.prototyping && index === 0) return;
+                if (source[key] !== prototype[key]) {
+                    extendFunc.call(this, key, source[key]);
                 }
-            }
+            });
 
             for (const key in source) {
-                if (!prototype[key]) {
-                    extend.call(this, key, source[key]);
+                if (!prototype[key] && Object.prototype.hasOwnProperty.call(source, key)) {
+                    extendFunc.call(this, key, source[key]);
                 }
             }
 
-            const concreate = source['concreate'];
-            if (concreate) {
-                concreate(source);
+            const concreateFunc = source['concreate'];
+            if (concreateFunc) {
+                concreateFunc.call(this, source);
             }
         }
         return this;
@@ -113,19 +112,19 @@ class Module {
         const prototype = new this();
 
         prototype.extend(newType);
-        prototype.base = function () { };
+        prototype.base = () => { };
 
         delete Module.prototyping;
 
-        const constructor = prototype.constructor;
-        const object = prototype.constructor = function () {
+        const originalConstructor = prototype.constructor;
+        const object = prototype.constructor = function (...args) {
             if (!Module.prototyping) {
                 if (this.constructing || this.constructor === object) {
                     this.constructing = true;
-                    constructor.apply(this, arguments);
+                    originalConstructor.apply(this, args);
                     delete this.constructing;
-                } else if (arguments[0] != null) {
-                    return (arguments[0].extend || Module.prototype.extend).call(arguments[0], prototype);
+                } else if (args[0] != null) {
+                    return (args[0].extend || Module.prototype.extend).call(args[0], prototype);
                 }
             }
         };
@@ -136,7 +135,7 @@ class Module {
         object.implement = this.implement;
         object.prototype = prototype;
         object.toString = this.toString;
-        object.valueOf = (type) => (type === 'object' ? object : constructor.valueOf());
+        object.valueOf = (type) => (type === 'object' ? object : originalConstructor.valueOf());
 
         object.extend(staticType);
 
@@ -148,25 +147,25 @@ class Module {
     }
 
     static each(elements, func, props) {
-        if (func === undefined || func.length === 0) {
+        if (typeof func !== 'function' || func.length === 0) {
             return;
         }
 
         for (const key in elements) {
-            if (typeof elements[key] === 'object') {
+            if (Object.prototype.hasOwnProperty.call(elements, key) && typeof elements[key] === 'object' && elements[key] !== null) {
                 func.apply(elements[key], props);
             }
         }
     }
 
     static implement(...args) {
-        for (let i = 0; i < args.length; i++) {
-            if (typeof args[i] === 'function') {
-                args[i](this.prototype);
+        args.forEach(arg => {
+            if (typeof arg === 'function') {
+                arg(this.prototype);
             } else {
-                this.prototype.extend(args[i]);
+                this.prototype.extend(arg);
             }
-        }
+        });
         return this;
     }
 
@@ -246,71 +245,57 @@ if (typeof module !== 'undefined' && module.exports) {
     module.exports = syn;
 }
 
-/// <reference path='syn.core.js' />
-
 (function (context) {
     'use strict';
-    var $browser = context.$browser || new syn.module();
-    var document = context.document;
+    const $browser = context.$browser || new syn.module();
+    const doc = context.document;
+    const nav = context.navigator;
+    const screen = context.screen;
 
     $browser.extend({
-        appName: navigator.appName,
-        appCodeName: navigator.appCodeName,
-        appVersion: navigator.appVersion,
-        cookieEnabled: navigator.cookieEnabled,
-        pdfViewerEnabled: navigator.pdfViewerEnabled,
-        platform: navigator.platform,
+        appName: nav.appName,
+        appCodeName: nav.appCodeName,
+        appVersion: nav.appVersion,
+        cookieEnabled: nav.cookieEnabled,
+        pdfViewerEnabled: nav.pdfViewerEnabled,
+        platform: nav.platform,
         devicePlatform: context.devicePlatform,
-        userAgent: navigator.userAgent,
+        userAgent: nav.userAgent,
         devicePixelRatio: context.devicePixelRatio,
-        isExtended: screen.isExtended,
-        screenWidth: screen.width,
-        screenHeight: screen.height,
-        language: (navigator.appName == 'Netscape') ? navigator.language : navigator.browserLanguage,
-        isWebkit: navigator.userAgent.indexOf('AppleWebKit/') > -1,
-        isMac: navigator.appVersion.indexOf('Mac') != -1 || navigator.userAgent.indexOf('Macintosh') != -1,
-        isLinux: navigator.appVersion.indexOf('Linux') != -1 || navigator.appVersion.indexOf('X11') != -1,
-        isWindow: navigator.appVersion.indexOf('Win') != -1 || navigator.userAgent.indexOf('Windows') != -1,
-        isOpera: navigator.appName == 'Opera',
-        isIE: !!document.documentMode || (navigator.appName == 'Netscape' && navigator.userAgent.indexOf('trident') != -1) || (navigator.userAgent.indexOf('msie') != -1),
-        isChrome: !!context.chrome && navigator.userAgent.indexOf('Edg') == -1,
-        isEdge: !!context.chrome && navigator.userAgent.indexOf('Edg') > -1,
-        isFF: typeof InstallTrigger !== 'undefined' || navigator.userAgent.indexOf('Firefox') !== -1,
-        isSafari: /constructor/i.test(context.HTMLElement) || (function (p) { return p.toString() === '[object SafariRemoteNotification]'; })(!context['safari'] || (typeof safari !== 'undefined' && context['safari'].pushNotification)),
-        isMobile: () => { return (navigator.userAgentData && navigator.userAgentData.mobile == true) ? true : /Android|webOS|iPhone|iPad|iPod|BlackBerry|Windows Phone/i.test(navigator.userAgent) },
+        isExtended: screen?.isExtended ?? false,
+        screenWidth: screen?.width ?? 0,
+        screenHeight: screen?.height ?? 0,
+        language: nav.language || nav.browserLanguage || nav.userLanguage || 'en',
+        isWebkit: /AppleWebKit\//.test(nav.userAgent),
+        isMac: /Mac|Macintosh/.test(nav.appVersion) || /Macintosh/.test(nav.userAgent),
+        isLinux: /Linux|X11/.test(nav.appVersion),
+        isWindow: /Win|Windows/.test(nav.appVersion) || /Windows/.test(nav.userAgent),
+        isOpera: nav.appName === 'Opera' || /OPR\//.test(nav.userAgent),
+        isIE: !!doc?.documentMode || /Trident|MSIE/i.test(nav.userAgent),
+        isChrome: !!context.chrome && !/Edg\//.test(nav.userAgent),
+        isEdge: !!context.chrome && /Edg\//.test(nav.userAgent),
+        isFF: typeof context.InstallTrigger !== 'undefined' || /Firefox/i.test(nav.userAgent),
+        isSafari: /constructor/i.test(context.HTMLElement) || ((p) => p.toString() === '[object SafariRemoteNotification]')(!context.safari || (typeof safari !== 'undefined' && context.safari.pushNotification)),
+        isMobile: () => (nav.userAgentData?.mobile ?? /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(nav.userAgent)),
+
 
         getSystemFonts() {
-            var fonts = [
-                '-apple-system',
-                'BlinkMacSystemFont',
-                'Cantarell',
-                'Consolas',
-                'Courier New',
-                'Droid Sans',
-                'Fira Sans',
-                'Helvetica Neue',
-                'Menlo',
-                'Monaco',
-                'Oxygen',
-                'Roboto',
-                'source-code-pro',
-                'Segoe UI',
-                'Ubuntu',
+            const fonts = [
+                '-apple-system', 'BlinkMacSystemFont', 'Cantarell', 'Consolas', 'Courier New',
+                'Droid Sans', 'Fira Sans', 'Helvetica Neue', 'Menlo', 'Monaco', 'Oxygen',
+                'Roboto', 'source-code-pro', 'Segoe UI', 'Ubuntu',
             ];
-            return fonts
-                .filter((font) => document.fonts.check('12px ' + font))
-                .join(', ');
+            if (!doc?.fonts?.check) return '';
+            return fonts.filter(font => doc.fonts.check(`12px ${font} `)).join(', ');
         },
 
         getCanvas2dRender() {
-            var canvas = document.createElement('canvas');
+            if (!doc) return null;
+            const canvas = doc.createElement('canvas');
             canvas.width = 200;
             canvas.height = 50;
-
-            var ctx = canvas.getContext('2d');
-            if (!ctx) {
-                return null;
-            }
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return null;
 
             ctx.font = '21.5px Arial';
             ctx.fillText('😉', 0, 20);
@@ -319,7 +304,7 @@ if (typeof module !== 'undefined' && module.exports) {
             ctx.fillText('abcdefghijklmnopqrtsuvwxyz', 0, 40);
 
             ctx.font = '20.5px Arial';
-            var gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
             gradient.addColorStop(0, 'red');
             gradient.addColorStop(0.5, 'green');
             gradient.addColorStop(1.0, 'blue');
@@ -336,51 +321,40 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         getWebglRender() {
-            var canvas = document.createElement('canvas');
+            if (!doc) return null;
+            const canvas = doc.createElement('canvas');
             canvas.width = 50;
             canvas.height = 50;
+            const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+            if (!gl) return null;
 
-            var gl = canvas.getContext('webgl');
-            if (!gl) {
-                return null;
-            }
-
-            var vertices = [
-                [-0.1, 0.8, 0.0],
-                [-0.8, -0.8, 0.0],
-                [0.8, -0.7, 0.0],
-            ].flat();
-            var vertexBuffer = gl.createBuffer();
+            const vertices = [-0.1, 0.8, 0.0, -0.8, -0.8, 0.0, 0.8, -0.7, 0.0];
+            const vertexBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
             gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
 
-            var indices = [0, 1, 2];
-            var indexBuffer = gl.createBuffer();
+            const indices = [0, 1, 2];
+            const indexBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-            gl.bufferData(
-                gl.ELEMENT_ARRAY_BUFFER,
-                new Uint16Array(indices),
-                gl.STATIC_DRAW
-            );
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
 
-            var vertCode = 'attribute vec3 coordinates;void main(void) {gl_Position = vec4(coordinates, 1.0);}';
-            var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+            const vertCode = 'attribute vec3 coordinates;void main(void) {gl_Position = vec4(coordinates, 1.0);}';
+            const vertexShader = gl.createShader(gl.VERTEX_SHADER);
             gl.shaderSource(vertexShader, vertCode);
             gl.compileShader(vertexShader);
 
-            var fragCode = 'void main(void) {gl_FragColor = vec4(0.0, 0.0, 0.0, 0.5);}';
-            var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+            const fragCode = 'void main(void) {gl_FragColor = vec4(0.0, 0.0, 0.0, 0.5);}';
+            const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
             gl.shaderSource(fragmentShader, fragCode);
             gl.compileShader(fragmentShader);
 
-            var program = gl.createProgram();
+            const program = gl.createProgram();
             gl.attachShader(program, vertexShader);
             gl.attachShader(program, fragmentShader);
             gl.linkProgram(program);
             gl.useProgram(program);
 
-            var coordinatesAttribute = gl.getAttribLocation(program, 'coordinates');
-
+            const coordinatesAttribute = gl.getAttribLocation(program, 'coordinates');
             gl.vertexAttribPointer(coordinatesAttribute, 3, gl.FLOAT, false, 0, 0);
             gl.enableVertexAttribArray(coordinatesAttribute);
 
@@ -394,1428 +368,1142 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         getPlugins() {
-            return Array.from(navigator.plugins)
-                .map((plugin) => plugin.name + ': ' + plugin.filename)
+            if (!nav?.plugins) return '';
+            return Array.from(nav.plugins)
+                .map(plugin => `${plugin.name}: ${plugin.filename} `)
                 .join(', ');
         },
 
         async fingerPrint() {
-            var computeComponents = {
-                appName: $browser.appName,
-                appCodeName: $browser.appCodeName,
-                cookieEnabled: $browser.cookieEnabled,
-                pdfViewerEnabled: $browser.pdfViewerEnabled,
-                devicePixelRatio: $browser.devicePixelRatio,
-                isExtended: $browser.isExtended,
-                screenWidth: $browser.screenWidth,
-                screenHeight: $browser.screenHeight,
-                userAgent: $browser.userAgent,
-                platform: $browser.platform,
-                plugins: $browser.getPlugins(),
+            const computeComponents = {
+                appName: this.appName,
+                appCodeName: this.appCodeName,
+                cookieEnabled: this.cookieEnabled,
+                pdfViewerEnabled: this.pdfViewerEnabled,
+                devicePixelRatio: this.devicePixelRatio,
+                isExtended: this.isExtended,
+                screenWidth: this.screenWidth,
+                screenHeight: this.screenHeight,
+                userAgent: this.userAgent,
+                platform: this.platform,
+                plugins: this.getPlugins(),
                 dateFormat: new Date(0).toString(),
-                fonts: $browser.getSystemFonts(),
-                canvas2dRender: $browser.getCanvas2dRender(),
-                webglRender: $browser.getWebglRender(),
-                ipAddress: await $browser.getIpAddress()
+                fonts: this.getSystemFonts(),
+                canvas2dRender: this.getCanvas2dRender(),
+                webglRender: this.getWebglRender(),
+                ipAddress: await this.getIpAddress()
             };
 
             return syn.$c.sha256(JSON.stringify(computeComponents));
         },
 
         windowWidth() {
-            var ret = null;
-            if (context.innerWidth) {
-                ret = context.innerWidth;
-            }
-            else if (document.documentElement && document.documentElement.clientWidth) {
-                ret = document.documentElement.clientWidth;
-            }
-            else if (document.body) {
-                ret = document.body.offsetWidth;
-            }
-
-            return ret;
+            return context.innerWidth || doc?.documentElement?.clientWidth || doc?.body?.offsetWidth || 0;
         },
 
         windowHeight() {
-            var ret = null;
-            if (context.innerHeight) {
-                ret = context.innerHeight;
-            }
-            else if (document.documentElement && document.documentElement.clientHeight) {
-                ret = document.documentElement.clientHeight;
-            }
-            else if (document.body) {
-                ret = document.body.clientHeight;
-            }
-
-            return ret;
+            return context.innerHeight || doc?.documentElement?.clientHeight || doc?.body?.clientHeight || 0;
         },
 
         async getIpAddress() {
-            var result = '';
-
+            let ipAddress = '127.0.0.1';
+            const ipServerUrl = syn.Config.FindClientIPServer || '/checkip';
             try {
-                var value = await syn.$r.httpFetch(syn.Config.FindClientIPServer || '/checkip').send(null, { timeout: 3000 });
-                result = ($string.isNullOrEmpty(value) == true || syn.$v.regexs.ipAddress.test(value) == false) ? '127.0.0.1' : value;
+                const value = await syn.$r.httpFetch(ipServerUrl).send(null, { timeout: 3000 });
+                if (value && syn.$v.regexs.ipAddress.test(value)) {
+                    ipAddress = value;
+                }
             } catch (error) {
                 syn.$l.eventLog('$b.getIpAddress', error, 'Error');
             }
-            return result;
+            return ipAddress;
         }
     });
     context.$browser = syn.$b = $browser;
 })(globalRoot);
 
-/// <reference path='syn.core.js' />
-
 (function (context) {
     'use strict';
-    var $manipulation = context.$manipulation || new syn.module();
-    var document = context.document;
+    const $manipulation = context.$manipulation || new syn.module();
+    const doc = context.document;
 
     $manipulation.extend({
         body() {
-            return document;
+            return doc;
         },
 
         documentElement() {
-            return document.documentElement;
+            return doc?.documentElement;
         },
 
         childNodes(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            return el.childNodes;
+            el = syn.$l.getElement(el);
+            return el ? el.childNodes : null;
         },
 
         children(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            return el.children;
+            el = syn.$l.getElement(el);
+            return el ? el.children : null;
         },
 
         firstChild(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            return el.firstChild;
+            el = syn.$l.getElement(el);
+            return el ? el.firstChild : null;
         },
 
         firstElementChild(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            return el.firstElementChild;
+            el = syn.$l.getElement(el);
+            return el ? el.firstElementChild : null;
         },
 
         lastChild(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            return el.lastChild;
+            el = syn.$l.getElement(el);
+            return el ? el.lastChild : null;
         },
 
         lastElementChild(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            return el.lastElementChild;
+            el = syn.$l.getElement(el);
+            return el ? el.lastElementChild : null;
         },
 
         nextSibling(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            return el.nextSibling;
+            el = syn.$l.getElement(el);
+            return el ? el.nextSibling : null;
         },
 
         nextElementSibling(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            return el.nextElementSibling;
+            el = syn.$l.getElement(el);
+            return el ? el.nextElementSibling : null;
         },
 
         previousSibling(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            return el.previousSibling;
+            el = syn.$l.getElement(el);
+            return el ? el.previousSibling : null;
         },
 
         previousElementSibling(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            return el.previousElementSibling;
+            el = syn.$l.getElement(el);
+            return el ? el.previousElementSibling : null;
         },
 
         siblings(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            return [].slice.call(el.parentElement.children).filter(function (child) {
-                return child !== el;
-            });
+            el = syn.$l.getElement(el);
+            if (!el?.parentElement?.children) return null;
+            return Array.from(el.parentElement.children).filter(child => child !== el);
         },
 
         parentNode(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            return el.parentNode;
+            el = syn.$l.getElement(el);
+            return el ? el.parentNode : null;
         },
 
         parentElement(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            return el.parentElement;
+            el = syn.$l.getElement(el);
+            return el ? el.parentElement : null;
         },
 
         value(el, value) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            else {
+            el = syn.$l.getElement(el);
+            if (!el) return null;
+            if (value !== undefined) {
                 el.value = $string.toValue(value);
             }
             return el.value;
         },
 
         textContent(el, value) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            else {
+            el = syn.$l.getElement(el);
+            if (!el) return null;
+            if (value !== undefined) {
                 el.textContent = $string.toValue(value);
             }
             return el.textContent;
         },
 
         innerText(el, value) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            else {
+            el = syn.$l.getElement(el);
+            if (!el) return null;
+            if (value !== undefined) {
                 el.innerText = $string.toValue(value);
             }
             return el.innerText;
         },
 
         innerHTML(el, value) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            else {
+            el = syn.$l.getElement(el);
+            if (!el) return null;
+            if (value !== undefined) {
                 el.innerHTML = $string.toValue(value);
             }
             return el.innerHTML;
         },
 
         outerHTML(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            return el.outerHTML;
+            el = syn.$l.getElement(el);
+            return el ? el.outerHTML : null;
         },
 
         className(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            return el.className;
+            el = syn.$l.getElement(el);
+            return el ? el.className : null;
         },
 
         removeAttribute(el, prop) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
+            el = syn.$l.getElement(el);
+            if (el && prop) {
+                el.removeAttribute(prop);
             }
-            return el.removeAttribute(prop);
+            return this;
         },
 
         getAttribute(el, prop) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            return el.getAttribute(prop);
+            el = syn.$l.getElement(el);
+            return el && prop ? el.getAttribute(prop) : null;
         },
 
         setAttribute(el, prop, val) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
+            el = syn.$l.getElement(el);
+            if (el && prop) {
+                el.setAttribute(prop, val);
             }
-            return el.setAttribute(prop, val);
+            return this;
         },
 
         appendChild(el, node) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
+            el = syn.$l.getElement(el);
+            if (el && node) {
+                el.appendChild(node);
             }
-            return el.appendChild(node);
+            return this;
         },
 
         setStyle(el, prop, val) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == false) {
+            el = syn.$l.getElement(el);
+            if (el?.style && prop) {
                 el.style[prop] = val;
             }
-            return $manipulation;
+            return this;
         },
 
         addCssText(el, cssText) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == false) {
-                el.style.cssText = cssText;
+            el = syn.$l.getElement(el);
+            if (el?.style) {
+                el.style.cssText += `;${cssText}`;
             }
-            return $manipulation;
+            return this;
         },
 
         addStyle(el, objects) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == false) {
-                for (var prop in objects) {
-                    $manipulation.setStyle(el, prop, objects[prop]);
-                }
+            el = syn.$l.getElement(el);
+            if (el?.style && $object.isObject(objects)) {
+                Object.entries(objects).forEach(([prop, val]) => {
+                    el.style[prop] = val;
+                });
             }
-            return $manipulation;
+            return this;
         },
 
         getStyle(el, prop) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            return el.style[prop];
+            el = syn.$l.getElement(el);
+            return el?.style?.[prop] ?? null;
         },
 
         hasHidden(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            return (el == null || el.offsetParent == null || context.getComputedStyle(el)['display'] == 'none');
+            el = syn.$l.getElement(el);
+            return !el || el.offsetParent === null || context.getComputedStyle(el).display === 'none';
         },
 
         getComputedStyle(el, prop) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
+            el = syn.$l.getElement(el);
+            if (!el || !prop) return null;
+            try {
+                return context.getComputedStyle(el)[prop];
+            } catch {
                 return null;
             }
-            return context.getComputedStyle(el)[prop];
         },
 
         addClass(el, css) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-
-            if ($object.isNullOrUndefined(el) == false) {
-                if ($string.isNullOrEmpty(css) == false) {
-                    if (css.indexOf(' ') > -1) {
-                        var classList = css.split(' ');
-                        for (var i = 0, length = classList.length; i < length; i++) {
-                            var cssItem = classList[i];
-                            if ($string.isNullOrEmpty(cssItem) == false) {
-                                if ($manipulation.hasClass(el, cssItem) == false) {
-                                    if (el.classList && el.classList.add) {
-                                        el.classList.add(cssItem);
-                                    }
-                                    else {
-                                        el.className = (el.className + ' ' + cssItem).replace(/^\s\s*/, '').replace(/\s\s*$/, '');
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    else {
-                        if ($manipulation.hasClass(el, css) == false) {
-                            if (el.classList && el.classList.add) {
-                                el.classList.add(css);
-                            }
-                            else {
-                                el.className = (el.className + ' ' + css).replace(/^\s\s*/, '').replace(/\s\s*$/, '');
-                            }
-                        }
-                    }
-                }
+            el = syn.$l.getElement(el);
+            if (el && css) {
+                css.split(' ').forEach(cls => {
+                    if (cls) el.classList.add(cls);
+                });
             }
-
-            return $manipulation;
+            return this;
         },
 
         hasClass(el, css) {
-            var result = false;
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == false) {
-                if (el.classList && el.classList.contains) {
-                    result = el.classList.contains(css);
-                }
-                else {
-                    result = syn.$m.getClassRegEx(css).test(el.className);
-                }
-            }
-
-            return result;
+            el = syn.$l.getElement(el);
+            return el && css ? el.classList.contains(css) : false;
         },
 
         toggleClass(el, css) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == false) {
-                if (el.classList && el.classList.toggle) {
-                    el.classList.toggle(css);
-                }
+            el = syn.$l.getElement(el);
+            if (el && css) {
+                el.classList.toggle(css);
             }
-
-            return $manipulation;
+            return this;
         },
 
         removeClass(el, css) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == false) {
+            el = syn.$l.getElement(el);
+            if (el) {
                 if (css === undefined) {
                     el.className = '';
-                }
-                else {
-                    if (el.classList && el.classList.remove) {
-                        el.classList.remove(css);
-                    }
-                    else {
-                        var re = syn.$m.getClassRegEx(css);
-                        el.className = el.className.replace(re, '');
-                        re = null;
-                    }
-
+                } else if (css) {
+                    css.split(' ').forEach(cls => {
+                        if (cls) el.classList.remove(cls);
+                    });
                 }
             }
-
-            return $manipulation;
+            return this;
         },
 
-        append(baseEl, tag, elID, options) {
-            var el = null;
-            baseEl = $object.isString(baseEl) == true ? syn.$l.get(baseEl) : baseEl;
-            if ($object.isNullOrUndefined(baseEl) == false && $string.isNullOrEmpty(tag) == false) {
-                el = document.createElement(tag);
+        append(baseEl, tag, elID, options = {}) {
+            const baseElement = syn.$l.getElement(baseEl);
+            if (!baseElement || !tag || !doc) return null;
 
-                if ($string.isNullOrEmpty(elID) == false) {
-                    el.id = elID;
-                }
+            const el = doc.createElement(tag);
 
-                if ($object.isNullOrUndefined(options) == false) {
-                    if ($string.isNullOrEmpty(options.type) == false) {
-                        el.type = options.type;
-                    }
+            if (elID) el.id = elID;
+            if (options.type) el.type = options.type;
+            if (options.styles) this.addStyle(el, options.styles);
+            if (options.classNames) this.addClass(el, options.classNames);
+            if (options.value !== undefined) this.value(el, options.value);
+            if (options.text !== undefined) this.innerText(el, options.text);
+            if (options.content !== undefined) this.textContent(el, options.content);
+            if (options.html !== undefined) this.innerHTML(el, options.html);
 
-                    if ($object.isNullOrUndefined(options.styles) == false) {
-                        $manipulation.addStyle(el, options.styles);
-                    }
-
-                    if ($string.isNullOrEmpty(options.classNames) == false) {
-                        $manipulation.addClass(el, options.classNames);
-                    }
-
-                    if ($object.isNullOrUndefined(options.value) == false) {
-                        $manipulation.value(el, options.value);
-                    }
-
-                    if ($object.isNullOrUndefined(options.text) == false) {
-                        $manipulation.innerText(el, options.text);
-                    }
-
-                    if ($object.isNullOrUndefined(options.content) == false) {
-                        $manipulation.textContent(el, options.content);
-                    }
-
-                    if ($object.isNullOrUndefined(options.html) == false) {
-                        $manipulation.innerHTML(el, options.html);
-                    }
-                }
-
-                baseEl.appendChild(el);
-            }
+            baseElement.appendChild(el);
             return el;
         },
 
         prepend(el, baseEl) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            baseEl = $object.isString(baseEl) == true ? syn.$l.get(baseEl) : baseEl;
-            if ($object.isNullOrUndefined(el) == false && $object.isNullOrUndefined(baseEl) == false) {
-                baseEl.insertBefore(el, baseEl.firstChild);
+            el = syn.$l.getElement(el);
+            const baseElement = syn.$l.getElement(baseEl);
+            if (el && baseElement?.firstChild) {
+                baseElement.insertBefore(el, baseElement.firstChild);
+            } else if (el && baseElement) {
+                baseElement.appendChild(el);
             }
-
-            return $manipulation;
+            return this;
         },
 
         copy(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                return null;
-            }
-            return el.cloneNode(true);
+            el = syn.$l.getElement(el);
+            return el ? el.cloneNode(true) : null;
         },
 
         remove(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == false) {
-                syn.$w.purge(el);
-
-                if (el.parentNode) {
-                    el.parentNode.removeChild(el);
-                }
+            el = syn.$l.getElement(el);
+            if (el) {
+                if ($webform?.purge) $webform.purge(el);
+                el.remove();
             }
-
-            return $manipulation;
+            return this;
         },
 
         hasChild(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == false) {
-                return el.hasChildNodes();
-            }
-
-            return false;
+            el = syn.$l.getElement(el);
+            return el ? el.hasChildNodes() : false;
         },
 
         insertAfter(el, targetEL) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            targetEL = $object.isString(targetEL) == true ? syn.$l.get(targetEL) : targetEL;
-            if ($object.isNullOrUndefined(el) == false && $object.isNullOrUndefined(targetEL) == false) {
-                var parent = targetEL.parentNode;
-                if (targetEL.nextElementSibling) {
-                    parent.insertBefore(el, targetEL.nextElementSibling);
-                } else {
-                    if ($object.isNullOrUndefined(parent) == false) {
-                        parent.appendChild(el);
-                    }
-                    else {
-                        $manipulation.appendChild(targetEL, el);
-                    }
-                }
+            el = syn.$l.getElement(el);
+            const targetElement = syn.$l.getElement(targetEL);
+            if (el && targetElement?.parentNode) {
+                targetElement.parentNode.insertBefore(el, targetElement.nextSibling);
             }
-
-            return $manipulation;
+            return this;
         },
 
         display(el, isShow) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == false) {
-                if ($string.toBoolean(isShow) == true) {
-                    el.style.display = 'block';
-                }
-                else {
-                    el.style.display = 'none';
-                }
+            el = syn.$l.getElement(el);
+            if (el?.style) {
+                el.style.display = $string.toBoolean(isShow) ? 'block' : 'none';
             }
-
-            return $manipulation;
+            return this;
         },
 
         toggleDisplay(el) {
-            var result = 'none';
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == false) {
-                if (context.getComputedStyle(el).display === 'block') {
-                    $manipulation.display(el, false);
-                }
-                else {
-                    $manipulation.display(el, true);
-                }
+            el = syn.$l.getElement(el);
+            if (!el?.style) return 'none';
 
-                result = context.getComputedStyle(el).display;
-            }
-
-            return result;
+            const currentDisplay = context.getComputedStyle(el).display;
+            this.display(el, currentDisplay === 'none');
+            return el.style.display || context.getComputedStyle(el).display;
         },
 
         parent(el, id) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == false) {
-                var parent = el.parentElement;
-                if ($string.isNullOrEmpty(id) == false) {
-                    while (parent && ($string.isNullOrEmpty(parent.tagName) == false && parent.tagName != 'HTML')) {
-                        if ($object.isNullOrUndefined(parent) == true) {
-                            break;
-                        }
+            let current = syn.$l.getElement(el);
+            if (!current) return null;
 
-                        if (parent.id == id) {
-                            return parent;
-                        }
+            let parent = current.parentElement;
+            if (!id) return parent;
 
-                        parent = parent.parentElement;
-                    }
-                }
+            while (parent && parent.tagName !== 'HTML') {
+                if (parent.id === id) return parent;
+                parent = parent.parentElement;
             }
-
-            return parent;
+            return null;
         },
 
-        create(options) {
-            var el = document.createElement(options.tag || 'div');
-            if ($string.isNullOrEmpty(options.id) == false) {
-                el.id = options.id;
-            }
+        create(options = {}) {
+            if (!doc) return null;
+            const el = doc.createElement(options.tag || 'div');
 
-            if ($object.isNullOrUndefined(options.styles) == false) {
-                $manipulation.addStyle(el, options.styles);
+            if (options.id) el.id = options.id;
+            if (options.styles) this.addStyle(el, options.styles);
+            if (options.className) el.className = options.className;
+            if (options.classNames) this.addClass(el, options.classNames);
+            if (options.attributes) {
+                Object.entries(options.attributes).forEach(([prop, val]) => el.setAttribute(prop, val));
             }
-
-            if ($string.isNullOrEmpty(options.className) == false) {
-                el.className = options.className;
-            }
-
-            if ($string.isNullOrEmpty(options.classNames) == false) {
-                $manipulation.addClass(el, options.classNames);
-            }
-
-            if ($object.isNullOrUndefined(options.attributes) == false) {
-                for (var prop in options.attributes) {
-                    el.setAttribute(prop, options.attributes[prop]);
-                }
-            }
-
-            if ($object.isNullOrUndefined(options.data) == false) {
-                el.setAttribute('dataset', JSON.stringify(options.data));
-            }
-
-            if ($object.isNullOrUndefined(options.value) == false) {
-                $manipulation.value(el, options.value);
-            }
-
-            if ($object.isNullOrUndefined(options.text) == false) {
-                $manipulation.innerText(el, options.text);
-            }
-
-            if ($object.isNullOrUndefined(options.content) == false) {
-                $manipulation.textContent(el, options.content);
-            }
-
-            if ($object.isNullOrUndefined(options.html) == false) {
-                $manipulation.innerHTML(el, options.html);
-            }
+            if (options.data) el.dataset.data = JSON.stringify(options.data);
+            if (options.value !== undefined) this.value(el, options.value);
+            if (options.text !== undefined) this.innerText(el, options.text);
+            if (options.content !== undefined) this.textContent(el, options.content);
+            if (options.html !== undefined) this.innerHTML(el, options.html);
 
             return el;
         },
 
         each(array, handler) {
-            if ($object.isNullOrUndefined(array) == false) {
-                if ($object.isArray(array) == true && $object.isFunction(handler) == true) {
-                    for (var i = 0, length = array.length; i < length; i++) {
-                        handler(array[i], i);
-                    }
-                }
+            if ($object.isArray(array) && $object.isFunction(handler)) {
+                array.forEach(handler);
             }
         },
 
         setActive(el, value) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == false) {
-                if ($string.toBoolean(value) == true) {
-                    el.classList.add('active');
-                }
-                else {
-                    el.classList.remove('active');
-                }
+            el = syn.$l.getElement(el);
+            if (el?.classList) {
+                el.classList.toggle('active', $string.toBoolean(value));
             }
+            return this;
         },
 
-        setSelected(el, value, multiple) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == false) {
-                if ($string.toBoolean(multiple) == false) {
-                    var siblingELs = $manipulation.siblings(el);
-                    if ($object.isNullOrUndefined(siblingELs) == false) {
-                        $manipulation.each(siblingELs, (itemEL, index) => {
-                            itemEL.selected = false;
-                            itemEL.removeAttribute('selected');
-                        });
-                    }
-                }
+        setSelected(el, value, multiple = false) {
+            el = syn.$l.getElement(el);
+            if (!el) return this;
 
-                if ($string.toBoolean(value) == true) {
-                    el.selected = true;
-                    el.setAttribute('selected', 'selected');
-                }
-                else {
-                    el.selected = false;
-                    el.removeAttribute('selected');
-                }
+            const boolValue = $string.toBoolean(value);
+
+            if (!$string.toBoolean(multiple)) {
+                this.siblings(el)?.forEach(siblingEL => {
+                    siblingEL.selected = false;
+                    siblingEL.removeAttribute('selected');
+                });
             }
+
+            el.selected = boolValue;
+            if (boolValue) {
+                el.setAttribute('selected', 'selected');
+            } else {
+                el.removeAttribute('selected');
+            }
+            return this;
         },
 
-        setChecked(el, value, multiple) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == false) {
-                if ($string.toBoolean(multiple) == false) {
-                    var siblingELs = $manipulation.siblings(el);
-                    if ($object.isNullOrUndefined(siblingELs) == false) {
-                        $manipulation.each(siblingELs, (itemEL, index) => {
-                            itemEL.checked = false;
-                            itemEL.removeAttribute('checked');
-                        });
-                    }
-                }
+        setChecked(el, value, multiple = false) {
+            el = syn.$l.getElement(el);
+            if (!el) return this;
 
-                if ($string.toBoolean(value) == true) {
-                    el.checked = true;
-                    el.setAttribute('checked', 'checked');
-                }
-                else {
-                    el.checked = false;
-                    el.removeAttribute('checked');
-                }
+            const boolValue = $string.toBoolean(value);
+
+            if (!$string.toBoolean(multiple)) {
+                this.siblings(el)?.forEach(siblingEL => {
+                    if (siblingEL.tagName === el.tagName && siblingEL.type === el.type && siblingEL.name === el.name) {
+                        siblingEL.checked = false;
+                        siblingEL.removeAttribute('checked');
+                    }
+                });
             }
+
+            el.checked = boolValue;
+            if (boolValue) {
+                el.setAttribute('checked', 'checked');
+            } else {
+                el.removeAttribute('checked');
+            }
+            return this;
         },
 
         getClassRegEx(css) {
-            return new RegExp('(^|\\s)' + css + '(\\s|$)');
+            const escapedCss = css.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+            return new RegExp(`(^|\\s)${escapedCss} (\\s | $)`);
         }
     });
     context.$manipulation = syn.$m = $manipulation;
 })(globalRoot);
 
-/// <reference path='syn.core.js' />
-/// <reference path='syn.library.js' />
-
 (function (context) {
     'use strict';
-    var $dimension = context.$dimension || new syn.module();
-    var document = context.document;
+    const $dimension = context.$dimension || new syn.module();
+    const doc = context.document;
 
     $dimension.extend({
-        getDocumentSize(isTopWindow) {
-            isTopWindow = $string.toBoolean(isTopWindow);
-            var currentDocument = isTopWindow == true ? top.document : context.document;
+        getDocumentSize(isTopWindow = false) {
+            const currentDoc = $string.toBoolean(isTopWindow) ? top.document : doc;
+            if (!currentDoc?.body || !currentDoc?.documentElement) return { width: 0, height: 0, frameWidth: 0, frameHeight: 0 };
+
             return {
                 width: Math.max(
-                    currentDocument.body.scrollWidth, currentDocument.documentElement.scrollWidth,
-                    currentDocument.body.offsetWidth, currentDocument.documentElement.offsetWidth,
-                    currentDocument.body.clientWidth, currentDocument.documentElement.clientWidth
+                    currentDoc.body.scrollWidth, currentDoc.documentElement.scrollWidth,
+                    currentDoc.body.offsetWidth, currentDoc.documentElement.offsetWidth,
+                    currentDoc.body.clientWidth, currentDoc.documentElement.clientWidth
                 ),
                 height: Math.max(
-                    currentDocument.body.scrollHeight, currentDocument.documentElement.scrollHeight,
-                    currentDocument.body.offsetHeight, currentDocument.documentElement.offsetHeight,
-                    currentDocument.body.clientHeight, currentDocument.documentElement.clientHeight
+                    currentDoc.body.scrollHeight, currentDoc.documentElement.scrollHeight,
+                    currentDoc.body.offsetHeight, currentDoc.documentElement.offsetHeight,
+                    currentDoc.body.clientHeight, currentDoc.documentElement.clientHeight
                 ),
-                frameWidth: currentDocument.documentElement.clientWidth || currentDocument.body.clientWidth || 0,
-                frameHeight: currentDocument.documentElement.clientHeight || currentDocument.body.clientHeight || 0
+                frameWidth: currentDoc.documentElement.clientWidth || currentDoc.body.clientWidth || 0,
+                frameHeight: currentDoc.documentElement.clientHeight || currentDoc.body.clientHeight || 0
             };
         },
 
-        getWindowSize(isTopWindow) {
-            isTopWindow = $string.toBoolean(isTopWindow);
-            var currentWindow = isTopWindow == true ? top.window : context;
+        getWindowSize(isTopWindow = false) {
+            const currentWindow = $string.toBoolean(isTopWindow) ? top.window : context;
             return {
-                width: currentWindow.innerWidth,
-                height: currentWindow.innerHeight
+                width: currentWindow?.innerWidth ?? 0,
+                height: currentWindow?.innerHeight ?? 0
             };
         },
 
         getScrollPosition(el) {
-            var result = null;
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == true) {
-                result = {
-                    left: document.documentElement.scrollLeft || document.body.scrollLeft || 0,
-                    top: document.documentElement.scrollTop || document.body.scrollTop || 0
+            el = syn.$l.getElement(el);
+            if (el) {
+                return {
+                    left: el.pageXOffset ?? el.scrollLeft ?? 0,
+                    top: el.pageYOffset ?? el.scrollTop ?? 0
+                };
+            } else if (doc) {
+                return {
+                    left: doc.documentElement?.scrollLeft ?? doc.body?.scrollLeft ?? 0,
+                    top: doc.documentElement?.scrollTop ?? doc.body?.scrollTop ?? 0
                 };
             }
-            else {
-                result = {
-                    left: el.pageXOffset || el.scrollLeft || 0,
-                    top: el.pageYOffset || el.scrollTop || 0
-                };
-            }
-
-            return result;
+            return { left: 0, top: 0 };
         },
 
+
         getMousePosition(evt) {
-            evt = evt || context.event || top.context.event;
-            var scroll = syn.$d.getScrollPosition();
+            const event = evt || context.event || top?.event;
+            if (!event) return { x: 0, y: 0, relativeX: 0, relativeY: 0 };
+
+            const scroll = this.getScrollPosition();
             return {
-                x: evt.pageX || evt.clientX + scroll.left || 0,
-                y: evt.pageY || evt.clientY + scroll.top || 0,
-                relativeX: evt.layerX || evt.offsetX || 0,
-                relativeY: evt.layerY || evt.offsetY || 0
+                x: event.pageX ?? (event.clientX + scroll.left) ?? 0,
+                y: event.pageY ?? (event.clientY + scroll.top) ?? 0,
+                relativeX: event.layerX ?? event.offsetX ?? 0,
+                relativeY: event.layerY ?? event.offsetY ?? 0
             };
         },
 
         offset(el) {
-            var result = null;
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == false) {
-                var rect = el.getBoundingClientRect();
-                var scrollLeft = context.pageXOffset || document.documentElement.scrollLeft;
-                var scrollTop = context.pageYOffset || document.documentElement.scrollTop;
-                result = {
-                    top: rect.top + scrollTop,
-                    left: rect.left + scrollLeft
-                };
-            }
+            el = syn.$l.getElement(el);
+            if (!el?.getBoundingClientRect) return null;
 
-            return result;
+            const rect = el.getBoundingClientRect();
+            const scrollLeft = context.pageXOffset || doc?.documentElement?.scrollLeft || 0;
+            const scrollTop = context.pageYOffset || doc?.documentElement?.scrollTop || 0;
+
+            return {
+                top: rect.top + scrollTop,
+                left: rect.left + scrollLeft
+            };
         },
 
         offsetLeft(el) {
-            var result = 0;
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == false) {
-                while (typeof el !== 'undefined' && el && el.parentElement !== context) {
-                    if (el.offsetLeft) {
-                        result += el.offsetLeft;
-                    }
-                    el = el.parentElement;
-                }
+            el = syn.$l.getElement(el);
+            let result = 0;
+            while (el && el.offsetParent) {
+                result += el.offsetLeft;
+                el = el.offsetParent;
             }
-
             return result;
         },
 
         parentOffsetLeft(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            el = el || top.document.documentElement || top.document.body;
-            return el.parentElement === el.offsetParent ? el.offsetLeft : (syn.$d.offsetLeft(el) - syn.$d.offsetLeft(el.parentElement));
+            el = getElement(el) || doc?.documentElement || doc?.body;
+            if (!el?.parentElement) return 0;
+            return el.parentElement === el.offsetParent
+                ? el.offsetLeft
+                : (this.offsetLeft(el) - this.offsetLeft(el.parentElement));
         },
 
         offsetTop(el) {
-            var result = 0;
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == false) {
-                while (typeof el !== 'undefined' && el && el.parentElement !== context) {
-                    if (el.offsetTop) {
-                        result += el.offsetTop;
-                    }
-                    el = el.parentElement;
-                }
+            el = syn.$l.getElement(el);
+            let result = 0;
+            while (el && el.offsetParent) {
+                result += el.offsetTop;
+                el = el.offsetParent;
             }
-
             return result;
         },
 
         parentOffsetTop(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            el = el || top.document.documentElement || top.document.body;
-            return el.parentElement === el.offsetParent ? el.offsetTop : (syn.$d.offsetTop(el) - syn.$d.offsetTop(el.parentElement));
+            el = getElement(el) || doc?.documentElement || doc?.body;
+            if (!el?.parentElement) return 0;
+            return el.parentElement === el.offsetParent
+                ? el.offsetTop
+                : (this.offsetTop(el) - this.offsetTop(el.parentElement));
         },
 
         getSize(el) {
-            var result = null;
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == false) {
-                var styles = context.getComputedStyle(el);
-                result = {
-                    width: el.clientWidth - parseFloat(styles.paddingLeft) - parseFloat(styles.paddingRight),
-                    height: el.clientHeight - parseFloat(styles.paddingTop) - parseFloat(styles.paddingBottom),
-                    clientWidth: el.clientWidth,
-                    clientHeight: el.clientHeight,
-                    offsetWidth: el.offsetWidth,
-                    offsetHeight: el.offsetHeight,
-                    marginWidth: el.offsetWidth + parseFloat(styles.marginLeft) + parseFloat(styles.marginRight),
-                    marginHeight: el.offsetHeight + parseFloat(styles.marginTop) + parseFloat(styles.marginBottom),
-                };
-            }
+            el = syn.$l.getElement(el);
+            if (!el || !context.getComputedStyle) return null;
 
-            return result;
+            const styles = context.getComputedStyle(el);
+            const paddingLeft = parseFloat(styles.paddingLeft) || 0;
+            const paddingRight = parseFloat(styles.paddingRight) || 0;
+            const paddingTop = parseFloat(styles.paddingTop) || 0;
+            const paddingBottom = parseFloat(styles.paddingBottom) || 0;
+            const marginLeft = parseFloat(styles.marginLeft) || 0;
+            const marginRight = parseFloat(styles.marginRight) || 0;
+            const marginTop = parseFloat(styles.marginTop) || 0;
+            const marginBottom = parseFloat(styles.marginBottom) || 0;
+
+            return {
+                width: el.clientWidth - paddingLeft - paddingRight,
+                height: el.clientHeight - paddingTop - paddingBottom,
+                clientWidth: el.clientWidth,
+                clientHeight: el.clientHeight,
+                offsetWidth: el.offsetWidth,
+                offsetHeight: el.offsetHeight,
+                marginWidth: el.offsetWidth + marginLeft + marginRight,
+                marginHeight: el.offsetHeight + marginTop + marginBottom,
+            };
         },
 
         measureWidth(text, fontSize) {
-            var el = document.createElement('div');
+            if (!doc?.body) return '0px';
+            const el = doc.createElement('div');
+            Object.assign(el.style, {
+                position: 'absolute',
+                visibility: 'hidden',
+                whiteSpace: 'nowrap',
+                left: '-9999px',
+                fontSize: fontSize || 'inherit'
+            });
+            el.textContent = text;
 
-            el.style.position = 'absolute';
-            el.style.visibility = 'hidden';
-            el.style.whiteSpace = 'nowrap';
-            el.style.left = '-9999px';
-
-            if (fontSize) {
-                el.style.fontSize = fontSize;
-            }
-            el.innerText = text;
-
-            document.body.appendChild(el);
-            var width = context.getComputedStyle(el).width;
-            document.body.removeChild(el);
+            doc.body.appendChild(el);
+            const width = context.getComputedStyle(el).width;
+            doc.body.removeChild(el);
             return width;
         },
 
         measureHeight(text, width, fontSize) {
-            var el = document.createElement('div');
+            if (!doc?.body) return '0px';
+            const el = doc.createElement('div');
+            Object.assign(el.style, {
+                position: 'absolute',
+                visibility: 'hidden',
+                width: width || 'auto',
+                left: '-9999px',
+                fontSize: fontSize || 'inherit',
+                wordWrap: 'break-word'
+            });
+            el.textContent = text;
 
-            el.style.position = 'absolute';
-            el.style.visibility = 'hidden';
-            el.style.width = width;
-            el.style.left = '-9999px';
-
-            if (fontSize) {
-                el.style.fontSize = fontSize;
-            }
-            el.innerText = text;
-
-            document.body.appendChild(el);
-            var height = context.getComputedStyle(el).height;
-            document.body.removeChild(el);
+            doc.body.appendChild(el);
+            const height = context.getComputedStyle(el).height;
+            doc.body.removeChild(el);
             return height;
         },
 
-        measureSize(text, fontSize, maxWidth) {
-            maxWidth = maxWidth || '800px';
-            if ($object.isNumber(maxWidth) == true) {
-                maxWidth = maxWidth.toString() + 'px';
+        measureSize(text, fontSize, maxWidth = '800px') {
+            if (text === undefined || text === null) return null;
+
+            let effectiveMaxWidth = maxWidth;
+            if ($object.isNumber(maxWidth)) {
+                effectiveMaxWidth = `${maxWidth} px`;
             }
 
-            if ($object.isNullOrUndefined(text) == true) {
-                return null;
+            let measuredWidth = this.measureWidth(text, fontSize);
+            let numericWidth = 0;
+            let numericMaxWidth = Infinity;
+
+            if (measuredWidth.endsWith('px')) {
+                numericWidth = $string.toNumber(measuredWidth.slice(0, -2));
             }
 
-            var width = syn.$d.measureWidth(text, fontSize);
-            if (width.endsWith('px') == true && $string.isNullOrEmpty(maxWidth) == false) {
-                var calcWidth = $string.toNumber(width.substring(0, width.indexOf('px')));
-
-                if (maxWidth.endsWith('px') == true) {
-                    maxWidth = $string.toNumber(maxWidth.substring(0, maxWidth.indexOf('px')));
-                }
-                else {
-                    maxWidth = $string.toNumber(maxWidth);
-                }
-
-                if (isNaN(maxWidth) == false) {
-                    if (calcWidth > maxWidth) {
-                        width = maxWidth.toString() + 'px';
-                    }
-                }
+            if (effectiveMaxWidth.endsWith('px')) {
+                numericMaxWidth = $string.toNumber(effectiveMaxWidth.slice(0, -2));
+            } else {
+                numericMaxWidth = $string.toNumber(effectiveMaxWidth);
             }
+
+            if (!isNaN(numericMaxWidth) && numericWidth > numericMaxWidth) {
+                measuredWidth = `${numericMaxWidth} px`;
+            }
+
+            const measuredHeight = this.measureHeight(text, measuredWidth, fontSize);
 
             return {
-                width: width,
-                height: syn.$d.measureHeight(text, width, fontSize)
+                width: measuredWidth,
+                height: measuredHeight
             };
         }
     });
     context.$dimension = syn.$d = $dimension;
 })(globalRoot);
 
-/// <reference path='syn.core.js' />
-
 (function (context) {
     'use strict';
-    var $cryptography = context.$cryptography || new syn.module();
+    const $cryptography = context.$cryptography || new syn.module();
+    const $l = context.$library;
+
+    const defaultKeyLength = 256;
+    const defaultAlgorithm = 'AES-CBC';
+
+    const encoder = new TextEncoder();
+    const decoder = new TextDecoder();
 
     $cryptography.extend({
         base64Encode(val) {
             if (globalRoot.devicePlatform === 'node') {
-                return Buffer.from(val).toString('base64');
-            }
-            else {
-                return btoa(encodeURIComponent(val).replace(/%([0-9A-F]{2})/g, function (match, p1) {
-                    return String.fromCharCode(parseInt(p1, 16));
-                }));
+                return Buffer.from(val, 'utf8').toString('base64');
+            } else {
+                try {
+                    const bytes = encoder.encode(String(val));
+                    return btoa(String.fromCharCode(...bytes));
+                } catch (e) {
+                    console.error("Base64 encoding failed:", e);
+                    return null;
+                }
             }
         },
 
         base64Decode(val) {
             if (globalRoot.devicePlatform === 'node') {
-                return Buffer.from(val, 'base64').toString();
-            }
-            else {
-                return decodeURIComponent(atob(val).split('').map(function (c) {
-                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                }).join(''));
+                return Buffer.from(val, 'base64').toString('utf8');
+            } else {
+                try {
+                    const binaryString = atob(String(val));
+                    const bytes = new Uint8Array([...binaryString].map(c => c.charCodeAt(0)));
+                    return decoder.decode(bytes);
+                } catch (e) {
+                    console.error("Base64 decoding failed:", e);
+                    return null;
+                }
             }
         },
 
         utf8Encode(plainString) {
-            if (typeof plainString != 'string') {
+            if (typeof plainString !== 'string') {
                 throw new TypeError('parameter is not a plain string');
             }
-
-            var utf8String = plainString.replace(/[\u0080-\u07ff]/g, function (c) {
-                var cc = c.charCodeAt(0);
-                return String.fromCharCode(0xc0 | cc >> 6, 0x80 | cc & 0x3f);
-            }).replace(/[\u0800-\uffff]/g,
-                function (c) {
-                    var cc = c.charCodeAt(0);
-                    return String.fromCharCode(0xe0 | cc >> 12, 0x80 | cc >> 6 & 0x3F, 0x80 | cc & 0x3f);
-                });
-            return utf8String;
+            try {
+                return decoder.decode(encoder.encode(plainString));
+            } catch (e) {
+                console.error("UTF-8 encoding failed:", e);
+                return plainString;
+            }
         },
 
         utf8Decode(utf8String) {
-            if (typeof utf8String != 'string') {
+            if (typeof utf8String !== 'string') {
                 throw new TypeError('parameter is not a utf8 string');
             }
-
-            var plainString = utf8String.replace(/[\u00e0-\u00ef][\u0080-\u00bf][\u0080-\u00bf]/g,
-                function (c) {
-                    var cc = (c.charCodeAt(0) & 0x0f) << 12 | (c.charCodeAt(1) & 0x3f) << 6 | c.charCodeAt(2) & 0x3f;
-                    return String.fromCharCode(cc);
-                }).replace(/[\u00c0-\u00df][\u0080-\u00bf]/g,
-                    function (c) {
-                        var cc = (c.charCodeAt(0) & 0x1f) << 6 | c.charCodeAt(1) & 0x3f;
-                        return String.fromCharCode(cc);
-                    });
-            return plainString;
+            try {
+                return decoder.decode(encoder.encode(utf8String));
+            } catch (e) {
+                console.warn("UTF-8 decoding failed:", e);
+                return utf8String;
+            }
         },
 
         isWebCryptoSupported() {
-            return (typeof window.crypto !== 'undefined' && typeof window.crypto.subtle !== 'undefined');
+            return !!(context.crypto?.subtle);
         },
 
         padKey(key, length) {
-            var result = null;
-            if (typeof key === 'string') {
-                key = new TextEncoder().encode(key);
+            if (typeof key !== 'string') return null;
+            
+            let encodedKey = encoder.encode(key);
 
-                if (key.length >= length) {
-                    return key.slice(0, length);
+            if (encodedKey.length >= length) {
+                return encodedKey.slice(0, length);
+            }
+
+            const paddedKey = new Uint8Array(length);
+            paddedKey.set(encodedKey);
+            return paddedKey;
+        },
+
+        async generateHMAC(key, message) {
+            if (!this.isWebCryptoSupported()) return null;
+            
+            const keyData = encoder.encode(key);
+            const messageData = encoder.encode(message);
+
+            try {
+                const cryptoKey = await crypto.subtle.importKey(
+                    'raw', keyData, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
+                );
+                const signature = await crypto.subtle.sign('HMAC', cryptoKey, messageData);
+                return Array.from(new Uint8Array(signature)).map(b => b.toString(16).padStart(2, '0')).join('');
+            } catch (error) {
+                $l.eventLog('$c.generateHMAC', error, 'Error');
+                return null;
+            }
+        },
+
+        async verifyHMAC(key, message, signature) {
+            const generatedSignature = await this.generateHMAC(key, message);
+            return generatedSignature === signature;
+        },
+
+        async generateRSAKey(hash = "SHA-256", modulusLength = 2048) {
+            if (!this.isWebCryptoSupported()) return null;
+            try {
+                return await crypto.subtle.generateKey(
+                    {
+                        name: "RSA-OAEP",
+                        modulusLength: modulusLength,
+                        publicExponent: new Uint8Array([1, 0, 1]),
+                        hash: hash
+                    },
+                    true,
+                    ['encrypt', 'decrypt']
+                );
+            } catch (error) {
+                $l.eventLog('$c.generateRSAKey', error, 'Error');
+                return null;
+            }
+        },
+
+        async exportCryptoKey(cryptoKey, isPublic = true) {
+            if (!this.isWebCryptoSupported() || !cryptoKey) return '';
+            const format = isPublic ? 'spki' : 'pkcs8';
+            const typeLabel = isPublic ? 'PUBLIC' : 'PRIVATE';
+
+            try {
+                const exported = await crypto.subtle.exportKey(format, cryptoKey);
+                const exportedAsString = String.fromCharCode(...new Uint8Array(exported));
+                const exportedAsBase64 = btoa(exportedAsString);
+                const pemFormatted = exportedAsBase64.match(/.{1,64}/g)?.join('\n') || '';
+
+                return `----- BEGIN ${typeLabel} KEY-----\n${pemFormatted} \n----- END ${typeLabel} KEY----- `;
+            } catch (error) {
+                $l.eventLog('$c.exportCryptoKey', error, 'Error');
+                return '';
+            }
+        },
+
+        async importCryptoKey(pem, isPublic = true) {
+            if (!this.isWebCryptoSupported() || !pem) return null;
+            const typeLabel = isPublic ? 'PUBLIC' : 'PRIVATE';
+            const pemHeader = `----- BEGIN ${typeLabel} KEY----- `;
+            const pemFooter = `----- END ${typeLabel} KEY----- `;
+
+            try {
+                const pemContents = pem.substring(pemHeader.length, pem.length - pemFooter.length).replace(/\s+/g, '');
+                const binaryDerString = atob(pemContents);
+                const binaryDer = new Uint8Array(binaryDerString.length).map((_, i) => binaryDerString.charCodeAt(i));
+
+                const format = isPublic ? 'spki' : 'pkcs8';
+                const usage = isPublic ? ['encrypt'] : ['decrypt'];
+
+                return await crypto.subtle.importKey(
+                    format,
+                    binaryDer.buffer,
+                    { name: 'RSA-OAEP', hash: 'SHA-256' },
+                    true,
+                    usage
+                );
+            } catch (error) {
+                $l.eventLog('$c.importCryptoKey', error, 'Error');
+                return null;
+            }
+        },
+
+        async rsaEncode(text, publicKey) {
+            if (!this.isWebCryptoSupported() || !publicKey) return null;
+            
+            const data = encoder.encode(text);
+            try {
+                const encrypted = await crypto.subtle.encrypt({ name: 'RSA-OAEP' }, publicKey, data);
+                const base64String = this.base64Encode(String.fromCharCode(...new Uint8Array(encrypted)));
+                return base64String;
+            } catch (error) {
+                $l.eventLog('$c.rsaEncode', error, 'Error');
+                return null;
+            }
+        },
+
+        async rsaDecode(encryptedBase64, privateKey) {
+            if (!this.isWebCryptoSupported() || !privateKey || !encryptedBase64) return null;
+            try {
+                const encryptedString = this.base64Decode(encryptedBase64);
+                if (encryptedString === null) throw new Error("Base64 decoding failed");
+                const encryptedBuffer = new Uint8Array(encryptedString.length).map((_, i) => encryptedString.charCodeAt(i)).buffer;
+
+                const decrypted = await crypto.subtle.decrypt({ name: 'RSA-OAEP' }, privateKey, encryptedBuffer);
+                
+                return decoder.decode(decrypted);
+            } catch (error) {
+                $l.eventLog('$c.rsaDecode', error, 'Error');
+                return null;
+            }
+        },
+
+
+        generateIV(key, ivLength = 16) {
+            if (key && key.toUpperCase() === '$RANDOM$') {
+                if (context.crypto?.getRandomValues) {
+                    return context.crypto.getRandomValues(new Uint8Array(ivLength));
+                } else {
+                    console.warn("crypto.getRandomValues not available, using less secure random IV generation.");
+                    const randomBytes = new Uint8Array(ivLength);
+                    for (let i = 0; i < ivLength; i++) {
+                        randomBytes[i] = Math.floor(Math.random() * 256);
+                    }
+                    return randomBytes;
+                }
+            }
+
+            return this.padKey(key || '', ivLength);
+        },
+
+        async aesEncode(text, key = '', algorithm = defaultAlgorithm, keyLength = defaultKeyLength) {
+            if (!this.isWebCryptoSupported()) return null;
+            const ivLength = algorithm === 'AES-GCM' ? 12 : 16;
+            const iv = this.generateIV(key, ivLength);
+            
+            const data = encoder.encode(text);
+            const paddedKey = this.padKey(key, keyLength / 8);
+
+            try {
+                const cryptoKey = await crypto.subtle.importKey(
+                    'raw', paddedKey, { name: algorithm }, false, ['encrypt']
+                );
+                const encrypted = await crypto.subtle.encrypt(
+                    { name: algorithm, iv: iv }, cryptoKey, data
+                );
+
+                const ivBase64 = this.base64Encode(String.fromCharCode(...iv));
+                const encryptedBase64 = this.base64Encode(String.fromCharCode(...new Uint8Array(encrypted)));
+
+                return { iv: ivBase64, encrypted: encryptedBase64 };
+            } catch (error) {
+                $l.eventLog('$c.aesEncode', error, 'Error');
+                return null;
+            }
+        },
+
+        async aesDecode(encryptedData, key = '', algorithm = defaultAlgorithm, keyLength = defaultKeyLength) {
+            if (!this.isWebCryptoSupported() || !encryptedData?.iv || !encryptedData?.encrypted) return null;
+
+            try {
+                const ivString = this.base64Decode(encryptedData.iv);
+                const encryptedString = this.base64Decode(encryptedData.encrypted);
+
+                if (ivString === null || encryptedString === null) {
+                    throw new Error("Base64 decoding failed for IV or encrypted data.");
                 }
 
-                result = new Uint8Array(length);
-                result.set(key);
-            }
-            return result;
-        },
+                const iv = new Uint8Array(ivString.length).map((_, i) => ivString.charCodeAt(i));
+                const encrypted = new Uint8Array(encryptedString.length).map((_, i) => encryptedString.charCodeAt(i));
 
-        // syn.$c.generateHMAC().then((signature) => { debugger; });
-        async generateHMAC(key, message) {
-            var result = null;
-            var encoder = new TextEncoder();
-            var keyData = encoder.encode(key);
-            var messageData = encoder.encode(message);
-            var cryptoKey = await crypto.subtle.importKey(
-                'raw',
-                keyData,
-                { name: 'HMAC', hash: 'SHA-256' },
-                false,
-                ['sign']
-            );
 
-            var signature = await crypto.subtle.sign('HMAC', cryptoKey, messageData);
-            result = Array.from(new Uint8Array(signature)).map(b => b.toString(16).padStart(2, '0')).join('');
-            return result;
-        },
-
-        // syn.$c.verifyHMAC('handstack', 'hello world', '25a00a2d55bbb313329c8abba5aebc8b282615876544c5be236d75d1418fc612').then((result) => { debugger; });
-        async verifyHMAC(key, message, signature) {
-            return await $cryptography.generateHMAC(key, message) === signature;
-        },
-
-        // syn.$c.generateRSAKey().then((cryptoKey) => { debugger; });
-        async generateRSAKey() {
-            var result = null;
-            result = await window.crypto.subtle.generateKey(
-                {
-                    name: "RSA-OAEP",
-                    modulusLength: 2048,
-                    publicExponent: new Uint8Array([1, 0, 1]),
-                    hash: "SHA-256"
-                },
-                true,
-                ['encrypt', 'decrypt']
-            );
-            return result;
-        },
-
-        // syn.$c.exportCryptoKey(cryptoKey.publicKey, true).then((result) => { debugger; });
-        async exportCryptoKey(cryptoKey, isPublic) {
-            var result = '';
-            isPublic = $string.toBoolean(isPublic);
-            var exportLabel = isPublic == true ? 'PUBLIC' : 'PRIVATE';
-            var exported = await window.crypto.subtle.exportKey(
-                (isPublic == true ? 'spki' : 'pkcs8'),
-                cryptoKey
-            );
-            var exportedAsString = String.fromCharCode.apply(null, new Uint8Array(exported));
-            var exportedAsBase64 = window.btoa(exportedAsString);
-            result = `-----BEGIN ${exportLabel} KEY-----\n${exportedAsBase64}\n-----END ${exportLabel} KEY-----`;
-
-            var lines = result.split('\n');
-            result = lines.map(line => {
-                return line.match(/.{1,64}/g).join('\n');
-            });
-            return result.join('\n');
-        },
-
-        // syn.$c.importCryptoKey('-----BEGIN PUBLIC KEY-----...-----END PUBLIC KEY-----', true).then((result) => { debugger; });
-        async importCryptoKey(pem, isPublic) {
-            var result = null;
-            isPublic = $string.toBoolean(isPublic);
-            var exportLabel = isPublic == true ? 'PUBLIC' : 'PRIVATE';
-            var pemHeader = `-----BEGIN ${exportLabel} KEY-----`;
-            var pemFooter = `-----END ${exportLabel} KEY-----`;
-            var pemContents = pem.substring(pemHeader.length, pem.length - pemFooter.length).replaceAll('\n', '');
-            var binaryDerString = window.atob(pemContents);
-            var binaryDer = syn.$l.stringToArrayBuffer(binaryDerString);
-            var importMode = isPublic == true ? ['encrypt'] : ['decrypt'];
-
-            result = await crypto.subtle.importKey(
-                (isPublic == true ? 'spki' : 'pkcs8'),
-                binaryDer,
-                {
-                    name: 'RSA-OAEP',
-                    hash: 'SHA-256'
-                },
-                true,
-                importMode
-            );
-            return result;
-        },
-
-        // syn.$c.rsaEncode('hello world', result).then((result) => { debugger; });
-        async rsaEncode(text, publicKey) {
-            var result = null;
-            var encoder = new TextEncoder();
-            var data = encoder.encode(text);
-            var encrypted = await crypto.subtle.encrypt(
-                {
-                    name: 'RSA-OAEP'
-                },
-                publicKey,
-                data
-            );
-
-            result = $cryptography.base64Encode(new Uint8Array(encrypted));
-            return result;
-        },
-
-        // syn.$c.rsaDecode(encryptData, result).then((result) => { debugger; });
-        async rsaDecode(encryptedData, privateKey) {
-            var result = null;
-            var encrypted = new Uint8Array($cryptography.base64Decode(encryptedData).split(',').map(Number));
-            var decrypted = await crypto.subtle.decrypt(
-                {
-                    name: 'RSA-OAEP'
-                },
-                privateKey,
-                encrypted
-            );
-
-            var decoder = new TextDecoder();
-            result = decoder.decode(decrypted);
-            return result;
-        },
-
-        generateIV(key, ivLength) {
-            var result;
-            ivLength = ivLength || 16;
-            if (key && key.toUpperCase() == '$RANDOM$') {
-                result = window.crypto.getRandomValues(new Uint8Array(ivLength));
-            }
-            else {
-                key = key || '';
-                result = $cryptography.padKey(key, ivLength);
-            }
-
-            return result;
-        },
-
-        async aesEncode(text, key, algorithm, keyLength) {
-            var result = null;
-            key = key || '';
-            algorithm = algorithm || 'AES-CBC'; // AES-CBC, AES-GCM
-            keyLength = keyLength || 256; // 128, 256
-            var ivLength = algorithm === 'AES-GCM' ? 12 : 16;
-            var iv = $cryptography.generateIV(key, ivLength);
-            var encoder = new TextEncoder();
-            var data = encoder.encode(text);
-
-            var cryptoKey = await window.crypto.subtle.importKey(
-                'raw',
-                $cryptography.padKey(key, keyLength / 8),
-                { name: algorithm },
-                false,
-                ['encrypt']
-            );
-
-            var encrypted = await window.crypto.subtle.encrypt(
-                {
-                    name: algorithm,
-                    iv: iv
-                },
-                cryptoKey,
-                data
-            );
-
-            result = {
-                iv: $cryptography.base64Encode(iv),
-                encrypted: $cryptography.base64Encode(new Uint8Array(encrypted))
-            };
-
-            return result;
-        },
-
-        async aesDecode(encryptedData, key, algorithm, keyLength) {
-            var result = null;
-            key = key || '';
-            algorithm = algorithm || 'AES-CBC'; // AES-CBC, AES-GCM
-            keyLength = keyLength || 256; // 128, 256
-            if (encryptedData && encryptedData.iv && encryptedData.encrypted) {
-                var iv = new Uint8Array($cryptography.base64Decode(encryptedData.iv).split(',').map(Number));
-                var encrypted = new Uint8Array($cryptography.base64Decode(encryptedData.encrypted).split(',').map(Number));
-                var cryptoKey = await window.crypto.subtle.importKey(
-                    'raw',
-                    $cryptography.padKey(key, keyLength / 8),
-                    { name: algorithm },
-                    false,
-                    ['decrypt']
+                const paddedKey = this.padKey(key, keyLength / 8);
+                const cryptoKey = await crypto.subtle.importKey(
+                    'raw', paddedKey, { name: algorithm }, false, ['decrypt']
+                );
+                const decrypted = await crypto.subtle.decrypt(
+                    { name: algorithm, iv: iv }, cryptoKey, encrypted
                 );
 
-                const decrypted = await window.crypto.subtle.decrypt(
-                    {
-                        name: algorithm,
-                        iv: iv
-                    },
-                    cryptoKey,
-                    encrypted
-                );
-
-                const decoder = new TextDecoder();
-                result = decoder.decode(decrypted);
+                
+                return decoder.decode(decrypted);
+            } catch (error) {
+                $l.eventLog('$c.aesDecode', error, 'Error');
+                return null;
             }
-
-            return result;
         },
 
-        async sha(message, algorithms) {
-            var result = '';
-            algorithms = algorithms || 'SHA-1'; // SHA-1,SHA-2,SHA-224,SHA-256,SHA-384,SHA-512,SHA3-224,SHA3-256,SHA3-384,SHA3-512,SHAKE128,SHAKE256
-            var encoder = new TextEncoder();
-            var data = encoder.encode(message);
-            var hash = await crypto.subtle.digest(algorithms, data);
-            result = Array.from(new Uint8Array(hash))
-                .map(b => b.toString(16).padStart(2, '0'))
-                .join('');
-            return result;
+        async sha(message, algorithm = 'SHA-256') {
+            const webCryptoAlgorithm = algorithm.toUpperCase().replace('SHA-2', 'SHA-').replace('SHA3-', 'SHA-');
+            if (!this.isWebCryptoSupported()) return '';
+            
+            const data = encoder.encode(message);
+            try {
+                const hashBuffer = await crypto.subtle.digest(webCryptoAlgorithm, data);
+                return Array.from(new Uint8Array(hashBuffer))
+                    .map(b => b.toString(16).padStart(2, '0'))
+                    .join('');
+            } catch (error) {
+                if (error.name === 'OperationError' || error.name === 'SyntaxError') {
+                    console.warn(`SHA algorithm '${webCryptoAlgorithm}' not supported by Web Crypto API.Falling back if possible or returning empty.`);
+                    return '';
+                }
+                $l.eventLog('$c.sha', error, 'Error');
+                return '';
+            }
         },
 
         sha256(s) {
-            var chrsz = 8;
-            var hexcase = 0;
+            const chrsz = 8;
+            const hexcase = 0;
 
-            function safe_add(x, y) {
-                var lsw = (x & 0xFFFF) + (y & 0xFFFF);
-                var msw = (x >> 16) + (y >> 16) + (lsw >> 16);
+            const safe_add = (x, y) => {
+                const lsw = (x & 0xFFFF) + (y & 0xFFFF);
+                const msw = (x >> 16) + (y >> 16) + (lsw >> 16);
                 return (msw << 16) | (lsw & 0xFFFF);
-            }
+            };
 
-            function S(X, n) { return (X >>> n) | (X << (32 - n)); }
-            function R(X, n) { return (X >>> n); }
-            function Ch(x, y, z) { return ((x & y) ^ ((~x) & z)); }
-            function Maj(x, y, z) { return ((x & y) ^ (x & z) ^ (y & z)); }
-            function Sigma0256(x) { return (S(x, 2) ^ S(x, 13) ^ S(x, 22)); }
-            function Sigma1256(x) { return (S(x, 6) ^ S(x, 11) ^ S(x, 25)); }
-            function Gamma0256(x) { return (S(x, 7) ^ S(x, 18) ^ R(x, 3)); }
-            function Gamma1256(x) { return (S(x, 17) ^ S(x, 19) ^ R(x, 10)); }
+            const S = (X, n) => (X >>> n) | (X << (32 - n));
+            const R = (X, n) => (X >>> n);
+            const Ch = (x, y, z) => ((x & y) ^ ((~x) & z));
+            const Maj = (x, y, z) => ((x & y) ^ (x & z) ^ (y & z));
+            const Sigma0256 = (x) => (S(x, 2) ^ S(x, 13) ^ S(x, 22));
+            const Sigma1256 = (x) => (S(x, 6) ^ S(x, 11) ^ S(x, 25));
+            const Gamma0256 = (x) => (S(x, 7) ^ S(x, 18) ^ R(x, 3));
+            const Gamma1256 = (x) => (S(x, 17) ^ S(x, 19) ^ R(x, 10));
 
-            function core_sha256(m, l) {
-
-                var K = new Array(0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5, 0x3956C25B, 0x59F111F1,
-                    0x923F82A4, 0xAB1C5ED5, 0xD807AA98, 0x12835B01, 0x243185BE, 0x550C7DC3,
-                    0x72BE5D74, 0x80DEB1FE, 0x9BDC06A7, 0xC19BF174, 0xE49B69C1, 0xEFBE4786,
-                    0xFC19DC6, 0x240CA1CC, 0x2DE92C6F, 0x4A7484AA, 0x5CB0A9DC, 0x76F988DA,
-                    0x983E5152, 0xA831C66D, 0xB00327C8, 0xBF597FC7, 0xC6E00BF3, 0xD5A79147,
-                    0x6CA6351, 0x14292967, 0x27B70A85, 0x2E1B2138, 0x4D2C6DFC, 0x53380D13,
-                    0x650A7354, 0x766A0ABB, 0x81C2C92E, 0x92722C85, 0xA2BFE8A1, 0xA81A664B,
-                    0xC24B8B70, 0xC76C51A3, 0xD192E819, 0xD6990624, 0xF40E3585, 0x106AA070,
-                    0x19A4C116, 0x1E376C08, 0x2748774C, 0x34B0BCB5, 0x391C0CB3, 0x4ED8AA4A,
-                    0x5B9CCA4F, 0x682E6FF3, 0x748F82EE, 0x78A5636F, 0x84C87814, 0x8CC70208,
-                    0x90BEFFFA, 0xA4506CEB, 0xBEF9A3F7, 0xC67178F2);
-
-                var HASH = new Array(0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A, 0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19);
-
-                var W = new Array(64);
-                var a, b, c, d, e, f, g, h, i, j;
-                var T1, T2;
+            const core_sha256 = (m, l) => {
+                const K = [
+                    0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5, 0x3956C25B, 0x59F111F1, 0x923F82A4, 0xAB1C5ED5,
+                    0xD807AA98, 0x12835B01, 0x243185BE, 0x550C7DC3, 0x72BE5D74, 0x80DEB1FE, 0x9BDC06A7, 0xC19BF174,
+                    0xE49B69C1, 0xEFBE4786, 0x0FC19DC6, 0x240CA1CC, 0x2DE92C6F, 0x4A7484AA, 0x5CB0A9DC, 0x76F988DA,
+                    0x983E5152, 0xA831C66D, 0xB00327C8, 0xBF597FC7, 0xC6E00BF3, 0xD5A79147, 0x06CA6351, 0x14292967,
+                    0x27B70A85, 0x2E1B2138, 0x4D2C6DFC, 0x53380D13, 0x650A7354, 0x766A0ABB, 0x81C2C92E, 0x92722C85,
+                    0xA2BFE8A1, 0xA81A664B, 0xC24B8B70, 0xC76C51A3, 0xD192E819, 0xD6990624, 0xF40E3585, 0x106AA070,
+                    0x19A4C116, 0x1E376C08, 0x2748774C, 0x34B0BCB5, 0x391C0CB3, 0x4ED8AA4A, 0x5B9CCA4F, 0x682E6FF3,
+                    0x748F82EE, 0x78A5636F, 0x84C87814, 0x8CC70208, 0x90BEFFFA, 0xA4506CEB, 0xBEF9A3F7, 0xC67178F2
+                ];
+                const HASH = [
+                    0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A, 0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19
+                ];
+                const W = new Array(64);
+                let a, b, c, d, e, f, g, h, T1, T2;
 
                 m[l >> 5] |= 0x80 << (24 - l % 32);
                 m[((l + 64 >> 9) << 4) + 15] = l;
 
-                for (var i = 0; i < m.length; i += 16) {
-                    a = HASH[0];
-                    b = HASH[1];
-                    c = HASH[2];
-                    d = HASH[3];
-                    e = HASH[4];
-                    f = HASH[5];
-                    g = HASH[6];
-                    h = HASH[7];
+                for (let i = 0; i < m.length; i += 16) {
+                    a = HASH[0]; b = HASH[1]; c = HASH[2]; d = HASH[3];
+                    e = HASH[4]; f = HASH[5]; g = HASH[6]; h = HASH[7];
 
-                    for (var j = 0; j < 64; j++) {
+                    for (let j = 0; j < 64; j++) {
                         if (j < 16) W[j] = m[j + i];
                         else W[j] = safe_add(safe_add(safe_add(Gamma1256(W[j - 2]), W[j - 7]), Gamma0256(W[j - 15])), W[j - 16]);
 
                         T1 = safe_add(safe_add(safe_add(safe_add(h, Sigma1256(e)), Ch(e, f, g)), K[j]), W[j]);
                         T2 = safe_add(Sigma0256(a), Maj(a, b, c));
 
-                        h = g;
-                        g = f;
-                        f = e;
-                        e = safe_add(d, T1);
-                        d = c;
-                        c = b;
-                        b = a;
-                        a = safe_add(T1, T2);
+                        h = g; g = f; f = e; e = safe_add(d, T1);
+                        d = c; c = b; b = a; a = safe_add(T1, T2);
                     }
-
-                    HASH[0] = safe_add(a, HASH[0]);
-                    HASH[1] = safe_add(b, HASH[1]);
-                    HASH[2] = safe_add(c, HASH[2]);
-                    HASH[3] = safe_add(d, HASH[3]);
-                    HASH[4] = safe_add(e, HASH[4]);
-                    HASH[5] = safe_add(f, HASH[5]);
-                    HASH[6] = safe_add(g, HASH[6]);
-                    HASH[7] = safe_add(h, HASH[7]);
+                    HASH[0] = safe_add(a, HASH[0]); HASH[1] = safe_add(b, HASH[1]); HASH[2] = safe_add(c, HASH[2]); HASH[3] = safe_add(d, HASH[3]);
+                    HASH[4] = safe_add(e, HASH[4]); HASH[5] = safe_add(f, HASH[5]); HASH[6] = safe_add(g, HASH[6]); HASH[7] = safe_add(h, HASH[7]);
                 }
                 return HASH;
-            }
+            };
 
-            function str2binb(str) {
-                var bin = Array();
-                var mask = (1 << chrsz) - 1;
-                for (var i = 0; i < str.length * chrsz; i += chrsz) {
+            const str2binb = (str) => {
+                const bin = [];
+                const mask = (1 << chrsz) - 1;
+                for (let i = 0; i < str.length * chrsz; i += chrsz) {
                     bin[i >> 5] |= (str.charCodeAt(i / chrsz) & mask) << (24 - i % 32);
                 }
                 return bin;
-            }
+            };
 
-            function binb2hex(binarray) {
-                var hex_tab = hexcase ? "0123456789ABCDEF" : "0123456789abcdef";
-                var str = "";
-                for (var i = 0; i < binarray.length * 4; i++) {
+            const binb2hex = (binarray) => {
+                const hex_tab = hexcase ? "0123456789ABCDEF" : "0123456789abcdef";
+                let str = "";
+                for (let i = 0; i < binarray.length * 4; i++) {
                     str += hex_tab.charAt((binarray[i >> 2] >> ((3 - i % 4) * 8 + 4)) & 0xF) +
                         hex_tab.charAt((binarray[i >> 2] >> ((3 - i % 4) * 8)) & 0xF);
                 }
                 return str;
-            }
+            };
 
-            s = syn.$c.utf8Encode(s);
-            return binb2hex(core_sha256(str2binb(s), s.length * chrsz));
+            const utf8String = this.utf8Encode(s);
+            return binb2hex(core_sha256(str2binb(utf8String), utf8String.length * chrsz));
         },
 
         encrypt(value, key) {
-            if ($object.isNullOrUndefined(value) == true) {
-                return null;
-            }
+            if (value === undefined || value === null) return null;
 
-            var keyLength = 6;
-            if ($string.isNullOrEmpty(key) == true) {
-                key = '';
-                key = syn.$c.sha256(key).substring(0, keyLength);
-            }
-            else {
-                keyLength = key.length;
-            }
+            const keyLength = key ? key.length : 6;
+            const effectiveKey = this.sha256(key || '').substring(0, keyLength);
 
-            key = syn.$c.sha256(key).substring(0, keyLength);
-
-            var encrypt = function (content, passcode) {
-                var result = [];
-                var passLen = passcode.length;
-                for (var i = 0; i < content.length; i++) {
-                    var passOffset = i % passLen;
-                    var calAscii = (content.charCodeAt(i) + passcode.charCodeAt(passOffset));
+            const encryptFunc = (content, passcode) => {
+                const result = [];
+                const passLen = passcode.length;
+                for (let i = 0; i < content.length; i++) {
+                    const passOffset = i % passLen;
+                    const calAscii = (content.charCodeAt(i) + passcode.charCodeAt(passOffset));
                     result.push(calAscii);
                 }
                 return JSON.stringify(result);
             };
 
-            return encodeURIComponent(syn.$c.base64Encode(encrypt(value, key) + '.' + key));
+            const encryptedContent = encryptFunc(String(value), effectiveKey);
+            const combined = `${encryptedContent}.${effectiveKey}`;
+            return encodeURIComponent(this.base64Encode(combined));
         },
 
         decrypt(value, key) {
-            var result = null;
-
-            if ($object.isNullOrUndefined(value) == true) {
-                return result;
-            }
+            if (value === undefined || value === null) return null;
 
             try {
-                value = syn.$c.base64Decode(decodeURIComponent(value));
+                const decodedValue = this.base64Decode(decodeURIComponent(value));
+                if (!decodedValue || decodedValue.indexOf('.') === -1) return null;
 
-                if (value.indexOf('.') === -1) {
-                    return result;
-                }
+                const [content, passcodeFromFile] = decodedValue.split('.');
 
-                var source = value.split('.');
-                var decrypt = function (content, passcode) {
-                    var str = '';
+                const decryptFunc = (encryptedContent, providedPasscode) => {
+                    const keyLength = key ? key.length : 6;
+                    const expectedPasscode = this.sha256(key || '').substring(0, keyLength);
 
-                    var keyLength = 6;
-                    if ($string.isNullOrEmpty(key) == true) {
-                        key = '';
-                        key = syn.$c.sha256(key).substring(0, keyLength);
+                    if (providedPasscode !== expectedPasscode) return '';
+
+                    const codesArr = JSON.parse(encryptedContent);
+                    const passLen = providedPasscode.length;
+                    let decryptedString = '';
+                    for (let i = 0; i < codesArr.length; i++) {
+                        const passOffset = i % passLen;
+                        const calAscii = (codesArr[i] - providedPasscode.charCodeAt(passOffset));
+                        decryptedString += String.fromCharCode(calAscii);
                     }
-                    else {
-                        keyLength = key.length;
-                    }
+                    return decryptedString;
+                };
 
-                    if (passcode == syn.$c.sha256(key).substring(0, keyLength)) {
-                        var result = [];
-                        var codesArr = JSON.parse(content);
-                        var passLen = passcode.length;
-                        for (var i = 0; i < codesArr.length; i++) {
-                            var passOffset = i % passLen;
-                            var calAscii = (codesArr[i] - passcode.charCodeAt(passOffset));
-                            result.push(calAscii);
-                        }
-                        for (var i = 0; i < result.length; i++) {
-                            var ch = String.fromCharCode(result[i]);
-                            str += ch;
-                        }
-                    }
-
-                    return str;
-                }
-
-                result = decrypt(source[0], source[1]);
+                return decryptFunc(content, passcodeFromFile);
             } catch (error) {
-                syn.$l.eventLog('$c.decrypt', error, 'Error');
+                $l.eventLog('$c.decrypt', error, 'Error');
+                return null;
             }
-            return result;
         },
 
         LZString: (function () {
-            var f = String.fromCharCode;
-            var keyStrBase64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
-            var keyStrUriSafe = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$';
-            var baseReverseDic = {};
+            const f = String.fromCharCode;
+            const keyStrBase64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+            const keyStrUriSafe = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$';
+            const baseReverseDic = {};
 
             function getBaseValue(alphabet, character) {
                 if (!baseReverseDic[alphabet]) {
                     baseReverseDic[alphabet] = {};
-                    for (var i = 0; i < alphabet.length; i++) {
+                    for (let i = 0; i < alphabet.length; i++) {
                         baseReverseDic[alphabet][alphabet.charAt(i)] = i;
                     }
                 }
                 return baseReverseDic[alphabet][character];
             }
 
-            var LZString = {
+            const LZStringInternal = {
                 compressToBase64(input) {
                     if (input == null) return '';
-                    var res = LZString._compress(input, 6, function (a) { return keyStrBase64.charAt(a); });
+                    let res = LZStringInternal._compress(input, 6, (a) => keyStrBase64.charAt(a));
                     switch (res.length % 4) {
-                        default:
                         case 0: return res;
                         case 1: return res + '===';
                         case 2: return res + '==';
@@ -1826,26 +1514,26 @@ if (typeof module !== 'undefined' && module.exports) {
                 decompressFromBase64(input) {
                     if (input == null) return '';
                     if (input == '') return null;
-                    return LZString._decompress(input.length, 32, function (index) { return getBaseValue(keyStrBase64, input.charAt(index)); });
+                    return LZStringInternal._decompress(input.length, 32, (index) => getBaseValue(keyStrBase64, input.charAt(index)));
                 },
 
                 compressToUTF16(input) {
                     if (input == null) return '';
-                    return LZString._compress(input, 15, function (a) { return f(a + 32); }) + ' ';
+                    return LZStringInternal._compress(input, 15, (a) => f(a + 32)) + ' ';
                 },
 
                 decompressFromUTF16(compressed) {
                     if (compressed == null) return '';
                     if (compressed == '') return null;
-                    return LZString._decompress(compressed.length, 16384, function (index) { return compressed.charCodeAt(index) - 32; });
+                    return LZStringInternal._decompress(compressed.length, 16384, (index) => compressed.charCodeAt(index) - 32);
                 },
 
                 compressToUint8Array(uncompressed) {
-                    var compressed = LZString.compress(uncompressed);
-                    var buf = new Uint8Array(compressed.length * 2);
+                    const compressed = LZStringInternal.compress(uncompressed);
+                    const buf = new Uint8Array(compressed.length * 2);
 
-                    for (var i = 0, TotalLen = compressed.length; i < TotalLen; i++) {
-                        var current_value = compressed.charCodeAt(i);
+                    for (let i = 0, TotalLen = compressed.length; i < TotalLen; i++) {
+                        const current_value = compressed.charCodeAt(i);
                         buf[i * 2] = current_value >>> 8;
                         buf[i * 2 + 1] = current_value % 256;
                     }
@@ -1853,41 +1541,41 @@ if (typeof module !== 'undefined' && module.exports) {
                 },
 
                 decompressFromUint8Array(compressed) {
-                    if ($object.isNullOrUndefined(compressed) == true) {
-                        return LZString.decompress(compressed);
-                    } else {
-                        var buf = new Array(compressed.length / 2);
-                        for (var i = 0, TotalLen = buf.length; i < TotalLen; i++) {
-                            buf[i] = compressed[i * 2] * 256 + compressed[i * 2 + 1];
-                        }
-
-                        var result = [];
-                        buf.forEach(function (c) {
-                            result.push(f(c));
-                        });
-                        return LZString.decompress(result.join(''));
+                    if (compressed == null) {
+                        return LZStringInternal.decompress(null);
                     }
+                    if (!compressed?.length) {
+                        return LZStringInternal.decompress('');
+                    }
+
+                    const buf = new Array(compressed.length / 2);
+                    for (let i = 0, TotalLen = buf.length; i < TotalLen; i++) {
+                        buf[i] = compressed[i * 2] * 256 + compressed[i * 2 + 1];
+                    }
+
+                    const result = buf.map(c => f(c));
+                    return LZStringInternal.decompress(result.join(''));
                 },
 
                 compressToEncodedURIComponent(input) {
                     if (input == null) return '';
-                    return LZString._compress(input, 6, function (a) { return keyStrUriSafe.charAt(a); });
+                    return LZStringInternal._compress(input, 6, (a) => keyStrUriSafe.charAt(a));
                 },
 
                 decompressFromEncodedURIComponent(input) {
-                    if (input == null) return '';
-                    if (input == '') return null;
-                    input = input.replace(/ /g, '+');
-                    return LZString._decompress(input.length, 32, function (index) { return getBaseValue(keyStrUriSafe, input.charAt(index)); });
+                    if (input == null) return "";
+                    if (input == "") return null;
+                    input = input.replace(/ /g, "+");
+                    return LZStringInternal._decompress(input.length, 32, (index) => getBaseValue(keyStrUriSafe, input.charAt(index)));
                 },
 
                 compress(uncompressed) {
-                    return LZString._compress(uncompressed, 16, function (a) { return f(a); });
+                    return LZStringInternal._compress(uncompressed, 16, (a) => f(a));
                 },
 
                 _compress(uncompressed, bitsPerChar, getCharFromInt) {
                     if (uncompressed == null) return '';
-                    var i, value,
+                    let i, value,
                         context_dictionary = {},
                         context_dictionaryToCreate = {},
                         context_c = '',
@@ -1981,15 +1669,12 @@ if (typeof module !== 'undefined' && module.exports) {
                                     }
                                     value = value >> 1;
                                 }
-
-
                             }
                             context_enlargeIn--;
                             if (context_enlargeIn == 0) {
                                 context_enlargeIn = Math.pow(2, context_numBits);
                                 context_numBits++;
                             }
-
                             context_dictionary[context_wc] = context_dictSize++;
                             context_w = String(context_c);
                         }
@@ -2065,8 +1750,6 @@ if (typeof module !== 'undefined' && module.exports) {
                                 }
                                 value = value >> 1;
                             }
-
-
                         }
                         context_enlargeIn--;
                         if (context_enlargeIn == 0) {
@@ -2099,27 +1782,19 @@ if (typeof module !== 'undefined' && module.exports) {
                     return context_data.join('');
                 },
 
-                decompress(compressed) {
-                    if (compressed == null) return '';
-                    if (compressed == '') return null;
-                    return LZString._decompress(compressed.length, 32768, function (index) { return compressed.charCodeAt(index); });
-                },
-
                 _decompress(length, resetValue, getNextValue) {
-                    var dictionary = [],
-                        next,
-                        enlargeIn = 4,
+                    const dictionary = [];
+                    let enlargeIn = 4,
                         dictSize = 4,
                         numBits = 3,
                         entry = '',
                         result = [],
-                        i,
                         w,
                         bits, resb, maxpower, power,
-                        c,
-                        data = { val: getNextValue(0), position: resetValue, index: 1 };
+                        c;
+                    const data = { val: getNextValue(0), position: resetValue, index: 1 };
 
-                    for (i = 0; i < 3; i += 1) {
+                    for (let i = 0; i < 3; i += 1) {
                         dictionary[i] = i;
                     }
 
@@ -2137,7 +1812,7 @@ if (typeof module !== 'undefined' && module.exports) {
                         power <<= 1;
                     }
 
-                    switch (next = bits) {
+                    switch (bits) {
                         case 0:
                             bits = 0;
                             maxpower = Math.pow(2, 8);
@@ -2262,211 +1937,110 @@ if (typeof module !== 'undefined' && module.exports) {
                             enlargeIn = Math.pow(2, numBits);
                             numBits++;
                         }
-
                     }
                 }
             };
-            return LZString;
+            return LZStringInternal;
         })()
     });
     context.$cryptography = syn.$c = $cryptography;
 })(globalRoot);
 
-/// <reference path='syn.core.js' />
-/// <reference path='syn.library.js' />
-
 (function (context) {
     'use strict';
-    var $keyboard = context.$keyboard || new syn.module();
+    const $keyboard = context.$keyboard || new syn.module();
+    const $o = context.$object;
+    const $l = context.$library;
 
     $keyboard.extend({
-        keyCodes: {
-            'backspace': 8,
-            'tab': 9,
-            'enter': 13,
-            'shift': 16,
-            'control': 17,
-            'alt': 18,
-            'capslock': 20,
-            'escape': 27,
-            'space': 32,
-            'pageup': 33,
-            'pagedown': 34,
-            'end': 35,
-            'home': 36,
-            'left': 37,
-            'up': 38,
-            'right': 39,
-            'down': 40,
-            'delete': 46,
-            'semicolon': 186,
-            'colon': 186,
-            'equal': 187,
-            'plus': 187,
-            'comma': 188,
-            'less': 188,
-            'minus': 189,
-            'underscore': 189,
-            'period': 190,
-            'greater': 190,
-            'slash': 191,
-            'questionmark': 191,
-            'backtick': 192,
-            'tilde': 192,
-            'openingsquarebracket': 219,
-            'openingcurlybracket': 219,
-            'backslash': 220,
-            'pipe': 220,
-            'closingsquarebracket': 221,
-            'closingcurlybracket': 221,
-            'singlequote': 222,
-            'doublequote': 222,
-            'clear': 12,
-            'meta': 91,
-            'contextmenu': 93,
-            'numpad0': 96,
-            'numpad1': 97,
-            'numpad2': 98,
-            'numpad3': 99,
-            'numpad4': 100,
-            'numpad5': 101,
-            'numpad6': 102,
-            'numpad7': 103,
-            'numpad8': 104,
-            'numpad9': 105,
-            'multiply': 106,
-            'add': 107,
-            'subtract': 109,
-            'decimal': 110,
-            'divide': 111,
-            '0': 48,
-            '1': 49,
-            '2': 50,
-            '3': 51,
-            '4': 52,
-            '5': 53,
-            '6': 54,
-            '7': 55,
-            '8': 56,
-            '9': 57,
-            'a': 65,
-            'b': 66,
-            'c': 67,
-            'd': 68,
-            'e': 69,
-            'f': 70,
-            'g': 71,
-            'h': 72,
-            'i': 73,
-            'j': 74,
-            'k': 75,
-            'l': 76,
-            'm': 77,
-            'n': 78,
-            'o': 79,
-            'p': 80,
-            'q': 81,
-            'r': 82,
-            's': 83,
-            't': 84,
-            'u': 85,
-            'v': 86,
-            'w': 87,
-            'x': 88,
-            'y': 89,
-            'z': 90,
-            'f1': 112,
-            'f2': 113,
-            'f3': 114,
-            'f4': 115,
-            'f5': 116,
-            'f6': 117,
-            'f7': 118,
-            'f8': 119,
-            'f9': 120,
-            'f10': 121,
-            'f11': 122,
-            'f12': 123
-        },
+        keyCodes: Object.freeze({
+            'backspace': 8, 'tab': 9, 'enter': 13, 'shift': 16, 'control': 17, 'alt': 18, 'capslock': 20,
+            'escape': 27, 'space': 32, 'pageup': 33, 'pagedown': 34, 'end': 35, 'home': 36,
+            'left': 37, 'up': 38, 'right': 39, 'down': 40, 'delete': 46,
+            'semicolon': 186, 'colon': 186, 'equal': 187, 'plus': 187, 'comma': 188, 'less': 188,
+            'minus': 189, 'underscore': 189, 'period': 190, 'greater': 190, 'slash': 191, 'questionmark': 191,
+            'backtick': 192, 'tilde': 192, 'openingsquarebracket': 219, 'openingcurlybracket': 219,
+            'backslash': 220, 'pipe': 220, 'closingsquarebracket': 221, 'closingcurlybracket': 221,
+            'singlequote': 222, 'doublequote': 222,
+            'clear': 12, 'meta': 91, 'contextmenu': 93,
+            'numpad0': 96, 'numpad1': 97, 'numpad2': 98, 'numpad3': 99, 'numpad4': 100, 'numpad5': 101,
+            'numpad6': 102, 'numpad7': 103, 'numpad8': 104, 'numpad9': 105,
+            'multiply': 106, 'add': 107, 'subtract': 109, 'decimal': 110, 'divide': 111,
+            '0': 48, '1': 49, '2': 50, '3': 51, '4': 52, '5': 53, '6': 54, '7': 55, '8': 56, '9': 57,
+            'a': 65, 'b': 66, 'c': 67, 'd': 68, 'e': 69, 'f': 70, 'g': 71, 'h': 72, 'i': 73, 'j': 74,
+            'k': 75, 'l': 76, 'm': 77, 'n': 78, 'o': 79, 'p': 80, 'q': 81, 'r': 82, 's': 83, 't': 84,
+            'u': 85, 'v': 86, 'w': 87, 'x': 88, 'y': 89, 'z': 90,
+            'f1': 112, 'f2': 113, 'f3': 114, 'f4': 115, 'f5': 116, 'f6': 117, 'f7': 118, 'f8': 119,
+            'f9': 120, 'f10': 121, 'f11': 122, 'f12': 123
+        }),
 
         targetEL: null,
         elements: {},
 
         setElement(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == false) {
-                el.eventID = el.id || el.nodeName || typeof el;
-                var keyObject = $keyboard.elements[el.eventID];
-                if ($object.isNullOrUndefined(keyObject) == true) {
-                    keyObject = {};
-                    keyObject['keydown'] = {};
-                    keyObject['keyup'] = {};
+            el = syn.$l.getElement(el);
+            if (!el) return this;
 
-                    function handler(evt) {
-                        var eventType = evt.type;
-                        var keyCode = evt.keyCode;
-                        window.keyboardEvent = arguments[0];
-                        window.documentEvent = evt;
+            const eventID = el.id || el.nodeName || `el_${$l.random()}`;
+            el.eventID = eventID;
 
-                        if (keyObject[eventType][keyCode] != null) {
-                            var val = keyObject[eventType][keyCode](evt);
-                            if (val === false) {
-                                evt.returnValue = false;
-                                evt.cancel = true;
-                                if (evt.preventDefault) {
-                                    evt.preventDefault();
-                                }
+            if (!this.elements[eventID]) {
+                const keyObject = {
+                    keydown: {},
+                    keyup: {}
+                };
 
-                                if (evt.stopPropagation) {
-                                    evt.stopPropagation();
-                                }
-                                return false;
-                            }
+                const handler = (evt) => {
+                    const eventType = evt.type;
+                    const keyCode = evt.keyCode || evt.key;
+                    const callback = keyObject[eventType]?.[keyCode];
+
+                    if (typeof callback === 'function') {
+                        context.keyboardEvent = evt;
+                        context.documentEvent = evt;
+
+                        const result = callback(evt);
+                        if (result === false) {
+                            evt.preventDefault();
+                            evt.stopPropagation();
+                            return false;
                         }
-                    };
+                    }
+                };
 
-                    syn.$l.addEvent(el, 'keydown', handler);
-                    syn.$l.addEvent(el, 'keyup', handler);
-
-                    $keyboard.elements[el.eventID] = keyObject;
-                }
-
-                $keyboard.targetEL = el;
+                syn.$l.addEvent(el, 'keydown', handler);
+                syn.$l.addEvent(el, 'keyup', handler);
+                this.elements[eventID] = keyObject;
             }
 
-            return $keyboard;
+            this.targetEL = el;
+            return this;
         },
 
         addKeyCode(keyType, keyCode, func) {
-            if ($keyboard.targetEL) {
-                var keyObject = $keyboard.elements[$keyboard.targetEL.eventID];
-                if ($object.isNullOrUndefined(keyObject) == false) {
-                    keyObject[keyType][keyCode] = func;
-                }
+            if (this.targetEL?.eventID && this.elements[this.targetEL.eventID]?.[keyType] && typeof func === 'function') {
+                this.elements[this.targetEL.eventID][keyType][keyCode] = func;
             }
-            return $keyboard;
+            return this;
         },
 
         removeKeyCode(keyType, keyCode) {
-            if ($keyboard.targetEL) {
-                var keyObject = $keyboard.elements[$keyboard.targetEL.eventID];
-                if ($object.isNullOrUndefined(keyObject) == false) {
-                    keyObject[keyType][keyCode] = null;
-                    delete keyObject[keyType][keyCode];
-                }
+            if (this.targetEL?.eventID && this.elements[this.targetEL.eventID]?.[keyType]?.[keyCode]) {
+                delete this.elements[this.targetEL.eventID][keyType][keyCode];
             }
-            return $keyboard;
+            return this;
         }
     });
     context.$keyboard = syn.$k = $keyboard;
 })(globalRoot);
 
-/// <reference path='syn.core.js' />
-/// <reference path='syn.library.js' />
-
 (function (context) {
     'use strict';
-    var $validation = context.$validation || new syn.module();
+    const $validation = context.$validation || new syn.module();
+    const $o = context.$object;
+    const $s = context.$string;
+    const $l = context.$library;
+    const $this = context.$this;
 
     $validation.extend({
         isContinue: true,
@@ -2475,333 +2049,280 @@ if (typeof module !== 'undefined' && module.exports) {
         elements: {},
 
         initializeValidObject(el) {
-            var validObject = $validation.elements[el.id];
-            if ($object.isNullOrUndefined(validObject) == true) {
-                validObject = {};
-                validObject['pattern'] = {};
-                validObject['range'] = {};
-                validObject['custom'] = {};
-
-                $validation.elements[el.id] = validObject;
+            if (!this.elements[el.id]) {
+                this.elements[el.id] = {
+                    pattern: {},
+                    range: {},
+                    custom: {}
+                };
             }
+            return this.elements[el.id];
         },
 
         setElement(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if ($object.isNullOrUndefined(el) == false && $string.isNullOrEmpty(el.id) == false) {
-                $validation.initializeValidObject(el);
-                $validation.targetEL = el;
+            const element = $o.isString(el) ? $l.get(el) : el;
+            if (element?.id) {
+                this.initializeValidObject(element);
+                this.targetEL = element;
+            } else {
+                this.targetEL = null;
             }
-
-            return $validation;
+            return this;
         },
 
-        required(el, isRequired, message) {
-            if ($string.isNullOrEmpty(message) == false) {
-                el = $object.isString(el) == true ? syn.$l.get(el) : el;
-                $validation.setElement(el);
-                if ($object.isNullOrUndefined(el) == false) {
-                    el.required = $string.toBoolean(isRequired);
-                    el.message = message;
-                }
+        required(el, isRequired = true, message) {
+            if ($s.isNullOrEmpty(message)) {
+                $l.eventLog('$v.required', 'message 확인 필요', 'Information');
+                return this;
             }
-            else {
-                syn.$l.eventLog('$v.required', 'message 확인 필요', 'Information');
+            const element = $o.isString(el) ? $l.get(el) : el;
+            if (element) {
+                this.setElement(element);
+                element.required = $s.toBoolean(isRequired);
+                element.message = message;
             }
-            return $validation;
+            return this;
         },
 
-        pattern(el, validID, options) {
-            if ($object.isNullOrUndefined(options) == false) {
-                if ($object.isNullOrUndefined(options.expr) == false && $string.isNullOrEmpty(options.message) == false) {
-                    el = $object.isString(el) == true ? syn.$l.get(el) : el;
-                    $validation.setElement(el);
-                    if ($object.isNullOrUndefined(el) == false && $string.isNullOrEmpty(el.id) == false) {
-                        var validObject = $validation.elements[el.id];
-                        validObject['pattern'][validID] = options;
-                    }
-                }
-                else {
-                    syn.$l.eventLog('$v.pattern', 'options.expr, options.message 확인 필요', 'Information');
-                }
+        pattern(el, validID, options = {}) {
+            if (!options.expr || $s.isNullOrEmpty(options.message)) {
+                $l.eventLog('$v.pattern', 'options.expr, options.message 확인 필요', 'Information');
+                return this;
             }
-            else {
-                syn.$l.eventLog('$v.pattern', 'options 확인 필요', 'Information');
+            this.setElement(el);
+            if (this.targetEL?.id && validID) {
+                const validObject = this.elements[this.targetEL.id];
+                validObject.pattern[validID] = options;
             }
-            return $validation;
+            return this;
         },
 
-        range(el, validID, options) {
-            if ($object.isNullOrUndefined(options) == false) {
-                if ($string.isNumber(options.min) == true
-                    && $string.isNumber(options.max) == true
-                    && $string.isNullOrEmpty(options.minOperator) == false
-                    && $string.isNullOrEmpty(options.maxOperator) == false
-                    && $string.isNullOrEmpty(options.message) == false
-                ) {
-                    el = $object.isString(el) == true ? syn.$l.get(el) : el;
-                    $validation.setElement(el);
-                    if ($object.isNullOrUndefined(el) == false && $string.isNullOrEmpty(el.id) == false) {
-                        var validObject = $validation.elements[el.id];
-                        validObject['range'][validID] = options;
-                    }
-                }
-                else {
-                    syn.$l.eventLog('$v.pattern', 'options.min, options.minOperator, options.max, options.maxOperator, options.message 확인 필요', 'Information');
-                }
+        range(el, validID, options = {}) {
+            if (!$s.isNumber(options.min) || !$s.isNumber(options.max) ||
+                $s.isNullOrEmpty(options.minOperator) || $s.isNullOrEmpty(options.maxOperator) ||
+                $s.isNullOrEmpty(options.message)) {
+                $l.eventLog('$v.range', 'options.min, options.minOperator, options.max, options.maxOperator, options.message 확인 필요', 'Information');
+                return this;
             }
-            else {
-                syn.$l.eventLog('$v.range', 'options 확인 필요', 'Information');
+            this.setElement(el);
+            if (this.targetEL?.id && validID) {
+                const validObject = this.elements[this.targetEL.id];
+                validObject.range[validID] = options;
             }
-            return $validation;
+            return this;
         },
 
-        custom(el, validID, options) {
-            if ($object.isNullOrUndefined(options) == false) {
-                if ($object.isNullOrUndefined(options.functionName) == false && $string.isNullOrEmpty(options.message) == false) {
-                    el = $object.isString(el) == true ? syn.$l.get(el) : el;
-                    $validation.setElement(el);
-                    if ($object.isNullOrUndefined(el) == false && $string.isNullOrEmpty(el.id) == false) {
-                        var validObject = $validation.elements[el.id];
-                        validObject['custom'][validID] = options;
-                    }
-                }
-                else {
-                    syn.$l.eventLog('$v.custom', 'options.functionName, options.message 확인 필요', 'Information');
-                }
+        custom(el, validID, options = {}) {
+            if (!options.functionName || $s.isNullOrEmpty(options.message)) {
+                $l.eventLog('$v.custom', 'options.functionName, options.message 확인 필요', 'Information');
+                return this;
             }
-            else {
-                syn.$l.eventLog('$v.custom', 'options 확인 필요', 'Information');
+            this.setElement(el);
+            if (this.targetEL?.id && validID) {
+                const validObject = this.elements[this.targetEL.id];
+                validObject.custom[validID] = options;
             }
-            return $validation;
+            return this;
         },
 
         removeValidate(validType, validID) {
-            if ($validation.targetEL) {
-                $validation.initializeValidObject($validation.targetEL);
-                var validObject = $validation.elements[$validation.targetEL.id];
-
+            if (this.targetEL?.id && this.elements[this.targetEL.id]?.[validType]?.[validID]) {
                 try {
-                    validObject[validType][validID] = null;
-                    delete validObject[validType][validID];
-                } catch {
+                    delete this.elements[this.targetEL.id][validType][validID];
+                } catch (e) {
+                    $l.eventLog('$v.removeValidate', `Failed to delete validation: ${validType}.${validID} `, 'Warning');
                 }
             }
-            return $validation;
+            return this;
         },
 
         remove(validID) {
-            if ($validation.targetEL) {
-                var validObject = $validation.elements[$validation.targetEL.id];
-                if ($object.isNullOrUndefined(validObject) == false) {
-                    validObject['pattern'][validID] = null;
-                    delete validObject['pattern'][validID];
-                    validObject['range'][validID] = null;
-                    delete validObject['range'][validID];
-                    validObject['custom'][validID] = null;
-                    delete validObject['custom'][validID];
-                }
+            if (this.targetEL?.id && this.elements[this.targetEL.id]) {
+                delete this.elements[this.targetEL.id].pattern?.[validID];
+                delete this.elements[this.targetEL.id].range?.[validID];
+                delete this.elements[this.targetEL.id].custom?.[validID];
             }
-            return $validation;
+            return this;
         },
 
         clear() {
-            $validation.isContinue = false;
-            $validation.messages = [];
-            $validation.targetEL = null;
-            $validation.elements = {};
-
-            return $validation;
+            this.isContinue = true;
+            this.messages = [];
+            this.targetEL = null;
+            this.elements = {};
+            return this;
         },
 
         validateControl(el) {
-            var result = false;
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            $validation.setElement(el);
-            if ($object.isNullOrUndefined(el) == false && $string.isNullOrEmpty(el.id) == false) {
-                if ($string.toBoolean(el.required) == true) {
-                    if (el.value.length > 0) {
-                        result = true;
-                    }
-                    else {
-                        result = false;
-                        $validation.messages.push(el.message);
+            const element = $o.isString(el) ? $l.get(el) : el;
+            if (!element?.id) return true;
 
-                        if ($validation.isContinue == false) {
-                            return result;
-                        }
+            this.setElement(element);
+
+            let isValid = true;
+            const value = element.value?.trim() ?? '';
+
+            if ($s.toBoolean(element.required) && value.length === 0) {
+                isValid = false;
+                this.messages.push(element.message);
+                if (!this.isContinue) return false;
+            }
+
+            if (!isValid && !this.isContinue) return false;
+            if (!$s.toBoolean(element.required) && value.length === 0) return true;
+
+            const validObject = this.elements[element.id];
+            if (!validObject) return isValid;
+
+            for (const [validID, patternRule] of Object.entries(validObject.pattern)) {
+                if (!patternRule.expr.test(value)) {
+                    isValid = false;
+                    this.messages.push(patternRule.message);
+                    if (!this.isContinue) return false;
+                }
+            }
+            if (!isValid && !this.isContinue) return false;
+
+            for (const [validID, rangeRule] of Object.entries(validObject.range)) {
+                let rangeResult = false;
+                if ($s.isNumber(value)) {
+                    try {
+                        const numValue = $s.toNumber(value);
+                        const min = $s.toNumber(rangeRule.min);
+                        const max = $s.toNumber(rangeRule.max);
+
+                        const checkMin = (op, val, limit) => {
+                            switch (op) {
+                                case '>': return val > limit;
+                                case '>=': return val >= limit;
+                                case '<': return val < limit;
+                                case '<=': return val <= limit;
+                                case '==': return val == limit;
+                                case '!=': return val != limit;
+                                default: return false;
+                            }
+                        };
+                        const checkMax = (op, val, limit) => {
+                            switch (op) {
+                                case '<': return val < limit;
+                                case '<=': return val <= limit;
+                                case '>': return val > limit;
+                                case '>=': return val >= limit;
+                                case '==': return val == limit;
+                                case '!=': return val != limit;
+                                default: return false;
+                            }
+                        };
+                        rangeResult = checkMin(rangeRule.minOperator, numValue, min) && checkMax(rangeRule.maxOperator, numValue, max);
+
+                    } catch (error) {
+                        $l.eventLog('$v.validateControl', `elID: "${element.id}" 유효성 range 검사 오류 ${error.message} `, 'Warning');
+                        rangeResult = false;
                     }
+                } else {
+                    rangeResult = false;
                 }
 
-                var validObject = $validation.elements[el.id];
-                if ($object.isNullOrUndefined(validObject) == false) {
-                    for (var validType in validObject) {
-                        if (validType === 'pattern') {
-                            var pattern = null;
-                            var expr = null;
+                if (!rangeResult) {
+                    isValid = false;
+                    this.messages.push(rangeRule.message);
+                    if (!this.isContinue) return false;
+                }
+            }
+            if (!isValid && !this.isContinue) return false;
 
-                            for (var validID in validObject[validType]) {
-                                var pattern = validObject[validType][validID];
-                                var expr = pattern.expr;
-                                result = expr.test(el.value);
+            for (const [validID, customRule] of Object.entries(validObject.custom)) {
+                let customResult = false;
+                const functionName = customRule.functionName;
+                const parameters = { ...customRule };
+                delete parameters.functionName;
+                delete parameters.message;
 
-                                if (result == false) {
-                                    $validation.messages.push(pattern.message);
-
-                                    if ($validation.isContinue == false) {
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                        else if (validType === 'range') {
-                            var range = null;
-                            var min = null;
-                            var max = null;
-                            var minOperator = null;
-                            var maxOperator = null;
-
-                            for (var validID in validObject[validType]) {
-                                range = validObject[validType][validID];
-                                min = range.min;
-                                max = range.max;
-                                minOperator = range.minOperator;
-                                maxOperator = range.maxOperator;
-
-                                try {
-                                    var value = el.value.trim();
-                                    if ($string.isNumber(value) == true) {
-                                        result = eval(`${min} ${minOperator} ${value} && ${max} ${maxOperator} ${value}`);
-                                    }
-                                    else {
-                                        result = false;
-                                    }
-                                } catch (error) {
-                                    syn.$l.eventLog('$v.validateControl', 'elID: "{0}" 유효성 range 검사 오류 '.format(el.id) + error.message, 'Warning');
-                                }
-
-                                if (result == false) {
-                                    $validation.messages.push(range.message);
-
-                                    if ($validation.isContinue == false) {
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                        else if (validType === 'custom') {
-                            var custom = null;
-                            var functionName = null;
-                            var parameters = null;
-
-                            for (var validID in validObject[validType]) {
-                                custom = validObject[validType][validID];
-                                functionName = custom.functionName;
-                                parameters = [];
-
-                                for (var parameterName in custom) {
-                                    if (parameterName !== 'functionName') {
-                                        parameters[parameterName] = custom[parameterName];
-                                    }
-                                }
-
-                                try {
-                                    if ($this) {
-                                        result = eval('window[syn.$w.pageScript]["method"]["' + functionName + '"]').call($this, parameters);
-                                    }
-                                    else {
-                                        result = eval(functionName).call(globalRoot, parameters);
-                                    }
-                                } catch (error) {
-                                    syn.$l.eventLog('$v.validateControl', 'elID: "{0}" 유효성 custom 검사 오류 '.format(el.id) + error.message, 'Warning');
-                                }
-
-                                if (result == false) {
-                                    $validation.messages.push(custom.message);
-
-                                    if ($validation.isContinue == false) {
-                                        break;
-                                    }
-                                }
-                            }
-                        }
+                try {
+                    let funcToCall = null;
+                    if ($this?.method && typeof $this.method[functionName] === 'function') {
+                        funcToCall = $this.method[functionName];
+                        customResult = funcToCall.call($this, parameters);
                     }
+                    else if (typeof context[functionName] === 'function') {
+                        funcToCall = context[functionName];
+                        customResult = funcToCall.call(context, parameters);
+                    } else {
+                        throw new Error(`Custom validation function "${functionName}" not found.`);
+                    }
+                } catch (error) {
+                    $l.eventLog('$v.validateControl', `elID: "${element.id}" 유효성 custom 검사 오류 ${error.message} `, 'Warning');
+                    customResult = false;
+                }
+
+                if (!customResult) {
+                    isValid = false;
+                    this.messages.push(customRule.message);
+                    if (!this.isContinue) return false;
                 }
             }
 
-            return $validation.messages.length === 0;
+            return isValid;
         },
 
         validateControls(els) {
-            var result = true;
-            var el = null;
+            let allValid = true;
+            const elements = Array.isArray(els) ? els : (els && els.type ? [els] : []);
 
-            if (els.type) {
-                el = els;
-                result = $validation.validateControl(el);
-            }
-            else if (els.length) {
-                for (var i = 0, len = els.length; i < len; i++) {
-                    el = els[i];
-                    result = $validation.validateControl(el);
+            for (const el of elements) {
+                const isValid = this.validateControl(el);
+                if (!isValid) {
+                    allValid = false;
+                    if (!this.isContinue) break;
                 }
             }
-
-            return result;
+            return allValid;
         },
 
         validateForm() {
-            var result = false;
-            for (var elID in $validation.elements) {
-                result = $validation.validateControl(elID);
+            let allValid = true;
+            for (const elID in this.elements) {
+                if (Object.prototype.hasOwnProperty.call(this.elements, elID)) {
+                    const isValid = this.validateControl(elID);
+                    if (!isValid) {
+                        allValid = false;
+                        if (!this.isContinue) break;
+                    }
+                }
             }
-
-            return result;
+            return allValid;
         },
 
         toMessages() {
-            var result = [];
-            for (var i = 0; i < $validation.messages.length; i++) {
-                result.push($validation.messages[i]);
-            }
-
-            $validation.messages = [];
-            return result.join('\n');
+            const messageString = this.messages.join('\n');
+            this.messages = [];
+            return messageString;
         },
 
-        valueType: new function () {
-            this.valid = 0;
-            this.valueMissing = 1;
-            this.typeMismatch = 2;
-            this.patternMismatch = 3;
-            this.tooLong = 4;
-            this.rangeUnderflow = 5;
-            this.rangeOverflow = 6;
-            this.stepMismatch = 7;
-        },
+        valueType: Object.freeze({
+            valid: 0, valueMissing: 1, typeMismatch: 2, patternMismatch: 3, tooLong: 4,
+            rangeUnderflow: 5, rangeOverflow: 6, stepMismatch: 7
+        }),
 
-        validType: new function () {
-            this.required = 0;
-            this.pattern = 1;
-            this.range = 2;
-            this.custom = 3;
-        },
+        validType: Object.freeze({
+            required: 0, pattern: 1, range: 2, custom: 3
+        }),
 
-        regexs: new function () {
-            this.alphabet = /^[a-zA-Z0-9]*$/;
-            this.juminNo = /^(?:[0-9]{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[1,2][0-9]|3[0,1]))-?[1-4][0-9]{6}$/;
-            this.numeric = /^-?[0-9]*(\.[0-9]+)?$/;
-            this.email = /^([a-z0-9_\.\-\+]+)@([\da-z\.\-]+)\.([a-z\.]{2,6})$/i;
-            this.url = /^(https?:\/\/)?[\da-z\.\-]+\.[a-z\.]{2,6}[#&+_\?\/\w \.\-=]*$/i;
-            this.ipAddress = /^(?:\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b|null)$/;
-            this.date = /^\d{4}-\d{2}-\d{2}$/;
-            this.mobilePhone = /^01([0|1|6|7|8|9])(\d{7,8})/;
-            this.seoulPhone = /^02(\d{7,8})/;
-            this.areaPhone = /^0([0|3|4|5|6|7|8|])([0|1|2|3|4|5|])(\d{7,8})/;
-            this.onesPhone = /^050([2|5])(\d{7,8})/;
-            this.float = /^\s*-?(\d*\.?\d+|\d+\.?\d*)(e[-+]?\d+)?\s*$/i;
-            this.isoDate = /(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))/;
-        }
+        regexs: Object.freeze({
+            alphabet: /^[a-zA-Z0-9]*$/,
+            juminNo: /^\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])[-]?([1-4]|9)\d{6}$/,
+            numeric: /^-?(\d+|\d{1,3}(,\d{3})*)(\.\d+)?$/,
+            email: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/i,
+            url: /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/i,
+            ipAddress: /^(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.){3}(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)$|^localhost$/i,
+            date: /^\d{4}-\d{2}-\d{2}$/,
+            mobilePhone: /^01[016789]\d{7,8}$/,
+            seoulPhone: /^02\d{7,8}$/,
+            areaPhone: /^0(3[1-3]|4[1-4]|5[1-5]|6[1-4])\d{7,8}$/,
+            onesPhone: /^050([245678])\d{7,8}$/,
+            float: /^\s*-?(\d*\.?\d+|\d+\.?\d*)([eE][-+]?\d+)?\s*$/i,
+            isoDate: /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d(\.\d+)?([+-][0-2]\d(:[0-5]\d)?|Z)/i
+        })
     });
     context.$validation = syn.$v = $validation;
 })(globalRoot);
@@ -2918,336 +2439,243 @@ if (typeof module !== 'undefined' && module.exports) {
     })();
 
     $date.extend({
-        interval: {
-            year: 1000 * 60 * 60 * 24 * 365,
-            week: 1000 * 60 * 60 * 24 * 7,
-            day: 1000 * 60 * 60 * 24,
-            hour: 60000 * 60,
+        interval: Object.freeze({
+            year: 31536000000,
+            week: 604800000,
+            day: 86400000,
+            hour: 3600000,
             minute: 60000,
             second: 1000,
-        },
+        }),
 
         now() {
             return new Date();
         },
 
         clone(date) {
-            var result = null;
             if (date instanceof Date) {
-                result = new Date(date.getTime());
+                return new Date(date.getTime());
+            } else if ($object.isString(date)) {
+                try {
+                    return new Date(date);
+                } catch {
+                    return null;
+                }
             }
-            else if ($object.isString(date) == true) {
-                result = new Date(date);
-            }
-            return result;
+            return null;
         },
 
         isBetween(date, start, end) {
-            var result = false;
-            if (date instanceof Date && start instanceof Date && end instanceof Date) {
-                result = date.getTime() >= start.getTime() && date.getTime() <= end.getTime();
-            }
-
-            return result;
+            if (!(date instanceof Date && start instanceof Date && end instanceof Date)) return false;
+            const time = date.getTime();
+            return time >= start.getTime() && time <= end.getTime();
         },
 
         equals(date, targetDate) {
-            var result = false;
-            if (date instanceof Date && targetDate instanceof Date) {
-                result = (date.getTime() == targetDate.getTime());
-            }
-
-            return result;
+            return date instanceof Date && targetDate instanceof Date && date.getTime() === targetDate.getTime();
         },
 
         equalDay(date, targetDate) {
-            var result = false;
-            if (date instanceof Date && targetDate instanceof Date) {
-                result = date.toDateString() == targetDate.toDateString();
-            }
-
-            return result;
+            return date instanceof Date && targetDate instanceof Date && date.toDateString() === targetDate.toDateString();
         },
 
         isToday(date) {
-            var result = false;
-            if (date instanceof Date) {
-                result = $date.equalDay(date, new Date());
-            }
-            return result;
+            return date instanceof Date && this.equalDay(date, new Date());
         },
 
-        toString(date, format, options) {
-            var result = '';
-            if ($object.isString(date) == true && $date.isDate(date) == true) {
-                date = new Date(date);
+        toString(date, format, options = {}) {
+            let dateObj = date;
+            if ($object.isString(date) && this.isDate(date)) {
+                dateObj = new Date(date);
             }
 
-            if ($object.isDate(date) == false) {
-                return result;
+            if (!($object.isDate(dateObj) && !isNaN(dateObj))) {
+                return '';
             }
 
-            var year = date.getFullYear();
-            var month = date.getMonth() + 1;
-            var day = date.getDate().toString().length == 1 ? '0' + date.getDate().toString() : date.getDate().toString();
-            var hours = date.getHours().toString().length == 1 ? '0' + date.getHours().toString() : date.getHours().toString();
-            var minutes = date.getMinutes().toString().length == 1 ? '0' + date.getMinutes().toString() : date.getMinutes().toString();
-            var seconds = date.getSeconds().toString().length == 1 ? '0' + date.getSeconds().toString() : date.getSeconds().toString();
-            var milliseconds = date.getMilliseconds().toString().padStart(3, '0');
-            var weekNames = ['일', '월', '화', '수', '목', '금', '토'];
+            const year = dateObj.getFullYear();
+            const month = dateObj.getMonth() + 1;
+            const day = dateObj.getDate();
+            const hours = dateObj.getHours();
+            const minutes = dateObj.getMinutes();
+            const seconds = dateObj.getSeconds();
+            const milliseconds = dateObj.getMilliseconds();
+            const weekNames = ['일', '월', '화', '수', '목', '금', '토'];
+            const dayOfWeek = weekNames[dateObj.getDay()];
 
-            month = month.toString().length == 1 ? '0' + month.toString() : month.toString();
+            const pad = (num, len = 2) => String(num).padStart(len, '0');
 
             switch (format) {
-                case 'd':
-                    result = year.toString().concat('-', month, '-', day);
-                    break;
-                case 't':
-                    result = hours.toString().concat(':', minutes, ':', seconds);
-                    break;
-                case 'a':
-                    result = year.toString().concat('-', month, '-', day, ' ', hours, ':', minutes, ':', seconds);
-                    break;
-                case 'i':
-                    result = year.toString().concat('-', month, '-', day, 'T', hours, ':', minutes, ':', seconds, '.', milliseconds);
-                    break;
-                case 'f':
-                    result = year.toString().concat(month, day, hours, minutes, seconds, milliseconds);
-                    break;
-                case 's':
-                    result = hours.toString().concat(minutes, seconds, milliseconds);
-                    break;
-                case 'n':
-                    var dayOfWeek = weekNames[date.getDay()];
-                    result = year.toString().concat('년 ', month, '월 ', day, '일 ', '(', dayOfWeek, ')');
-                    break;
-                case 'nt':
-                    var dayOfWeek = weekNames[date.getDay()];
-                    result = year.toString().concat('년 ', month, '월 ', day, '일 ', '(', dayOfWeek, ')') + ', ' + hours.toString().concat(':', minutes, ':', seconds);
-                    break;
-                case 'mdn':
-                    var dayOfWeek = weekNames[date.getDay()];
-                    result = month.toString().concat('월 ', day, '일');
-                    break;
+                case 'd': return `${year}-${pad(month)}-${pad(day)}`;
+                case 't': return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+                case 'a': return `${year}-${pad(month)}-${pad(day)} ${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+                case 'i': return `${year}-${pad(month)}-${pad(day)}T${pad(hours)}:${pad(minutes)}:${pad(seconds)}.${pad(milliseconds, 3)} Z`; // Assuming UTC for ISO
+                case 'f': return `${year}${pad(month)}${pad(day)}${pad(hours)}${pad(minutes)}${pad(seconds)}${pad(milliseconds, 3)}`;
+                case 's': return `${pad(hours)}${pad(minutes)}${pad(seconds)}${pad(milliseconds, 3)}`;
+                case 'n': return `${year}년 ${pad(month)}월 ${pad(day)} 일(${dayOfWeek})`;
+                case 'nt': return `${year}년 ${pad(month)}월 ${pad(day)} 일(${dayOfWeek}), ${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+                case 'mdn': return `${pad(month)}월 ${pad(day)} 일`;
                 case 'w':
-                    options = syn.$w.argumentsExtend({
-                        weekStartSunday: true
-                    }, options);
-                    var weekNumber = 1;
-                    var weekOfMonths = $date.weekOfMonth(year, month, options.weekStartSunday);
-                    var currentDate = Number($date.toString(date, 'd').replace(/-/g, ''));
-                    for (var i = 0; i < weekOfMonths.length; i++) {
-                        var weekOfMonth = weekOfMonths[i];
-                        var startDate = Number(weekOfMonth.weekStartDate.replace(/-/g, ''));
-                        var endDate = Number(weekOfMonth.weekEndDate.replace(/-/g, ''));
+                    const opts = { weekStartSunday: true, ...options };
+                    const yearNum = dateObj.getFullYear();
+                    const monthNum = dateObj.getMonth() + 1;
+                    const weeksInMonth = this.weekOfMonth(yearNum, monthNum, opts.weekStartSunday);
+                    const currentDateNum = parseInt(`${yearNum}${pad(monthNum)}${pad(day)} `, 10);
 
-                        if (currentDate >= startDate && currentDate <= endDate) {
-                            weekNumber = (i + 1);
-                            break;
+                    for (let i = 0; i < weeksInMonth.length; i++) {
+                        const week = weeksInMonth[i];
+                        const start = parseInt(week.weekStartDate.replace(/-/g, ''), 10);
+                        const end = parseInt(week.weekEndDate.replace(/-/g, ''), 10);
+                        if (currentDateNum >= start && currentDateNum <= end) {
+                            return i + 1;
                         }
                     }
-
-                    result = weekNumber;
-                    break;
-                case 'wn':
-                    result = weekNames[date.getDay()];
-                    break;
-                case 'm':
-                    result = month;
-                    break;
-                case 'y':
-                    result = year.toString();
-                    break;
-                case 'ym':
-                    result = year.toString().concat('-', month);
-                    break;
-                default:
-                    result = date.getDate().toString().padStart(2, '0');
+                    return 1;
+                case 'wn': return dayOfWeek;
+                case 'm': return pad(month);
+                case 'y': return String(year);
+                case 'ym': return `${year}-${pad(month)}`;
+                default: return pad(day);
             }
-
-            return result;
         },
 
+
         addSecond(date, val) {
-            var result = null;
-            if (date instanceof Date) {
-                result = new Date(date.getTime() + (val * $date.interval.second));
-            }
-            return result;
+            if (!(date instanceof Date) || isNaN(val)) return null;
+            return new Date(date.getTime() + val * this.interval.second);
         },
 
         addMinute(date, val) {
-            var result = null;
-            if (date instanceof Date) {
-                result = new Date(date.getTime() + (val * $date.interval.minute));
-            }
-            return result;
+            if (!(date instanceof Date) || isNaN(val)) return null;
+            return new Date(date.getTime() + val * this.interval.minute);
         },
 
         addHour(date, val) {
-            var result = null;
-            if (date instanceof Date) {
-                result = new Date(date.getTime() + (val * $date.interval.hour));
-            }
-            return result;
+            if (!(date instanceof Date) || isNaN(val)) return null;
+            return new Date(date.getTime() + val * this.interval.hour);
         },
 
         addDay(date, val) {
-            var result = null;
-            if (date instanceof Date) {
-                var cloneDate = new Date(date.getTime());
-                result = new Date(cloneDate.setDate(date.getDate() + val));
-            }
-            return result;
+            if (!(date instanceof Date) || isNaN(val)) return null;
+            const newDate = new Date(date.getTime());
+            newDate.setDate(date.getDate() + val);
+            return newDate;
         },
 
         addWeek(date, val) {
-            var result = null;
-            if (date instanceof Date) {
-                var cloneDate = new Date(date.getTime());
-                result = new Date(cloneDate.setDate(date.getDate() + (val * 7)));
-            }
-            return result;
+            return this.addDay(date, val * 7);
         },
 
         addMonth(date, val) {
-            var result = null;
-            if (date instanceof Date) {
-                var cloneDate = new Date(date.getTime());
-                result = new Date(cloneDate.setMonth(date.getMonth() + val));
+            if (!(date instanceof Date) || isNaN(val)) return null;
+            const newDate = new Date(date.getTime());
+            const targetMonth = date.getMonth() + val;
+            newDate.setMonth(targetMonth);
+            if (newDate.getMonth() !== (targetMonth % 12 + 12) % 12) {
+                newDate.setDate(0);
             }
-            return result;
+            return newDate;
         },
 
         addYear(date, val) {
-            var result = null;
-            if (date instanceof Date) {
-                var cloneDate = new Date(date.getTime());
-                result = new Date(cloneDate.setFullYear(date.getFullYear() + val));
+            if (!(date instanceof Date) || isNaN(val)) return null;
+            const newDate = new Date(date.getTime());
+            newDate.setFullYear(date.getFullYear() + val);
+            if (date.getMonth() === 1 && date.getDate() === 29 && newDate.getDate() !== 29) {
+                newDate.setDate(0);
             }
-            return result;
+            return newDate;
         },
 
+
         getFirstDate(date) {
-            var result = null;
-            if (date instanceof Date) {
-                result = new Date(date.setDate(1));
-            }
-            return result;
+            if (!(date instanceof Date)) return null;
+            return new Date(date.getFullYear(), date.getMonth(), 1);
         },
 
         getLastDate(date) {
-            var result = null;
-            if (date instanceof Date) {
-                date = $date.addMonth(date, 1);
-                return $date.addDay(new Date(date.setDate(1)), -1);
-            }
-            return result;
+            if (!(date instanceof Date)) return null;
+            return new Date(date.getFullYear(), date.getMonth() + 1, 0);
         },
 
-        diff(start, end, interval) {
-            var result = 0;
-            if (start instanceof Date && end instanceof Date) {
-                interval = interval || 'day';
+        diff(start, end, interval = 'day') {
+            if (!(start instanceof Date && end instanceof Date)) return 0;
 
-                if (interval == 'month') {
-                    result = end.getMonth() - start.getMonth() + 12 * (end.getFullYear() - start.getFullYear());
-                }
-                else if ($object.isNullOrUndefined($date.interval[interval]) == false) {
-                    var diff = end - start;
-                    result = Math.floor(diff / $date.interval[interval]);
-                }
+            if (interval === 'month') {
+                return (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+            } else if (this.interval[interval]) {
+                const diffMs = end.getTime() - start.getTime();
+                return Math.floor(diffMs / this.interval[interval]);
             }
-
-            return result;
+            return 0;
         },
 
         toTicks(date) {
-            return ((date.getTime() * 10000) + 621355968000000000);
+            if (!(date instanceof Date)) return 0;
+            return date.getTime() * 10000 + 621355968000000000;
         },
 
         isDate(val) {
-            var result = false;
-            var scratch = null;
-            if ($object.isString(val) == true) {
-                scratch = new Date(val);
-                if (scratch.toString() == 'NaN' || scratch.toString() == 'Invalid Date') {
-                    if (syn.$b.isSafari == true && syn.$b.isChrome == false) {
-                        var parts = val.match(/(\d+)/g);
-                        scratch = new Date(parts[0], parts[1] - 1, parts[2]);
-                        if (scratch.toString() == 'NaN' || scratch.toString() == 'Invalid Date') {
-                            result = false;
-                        }
-                        else {
-                            result = true;
-                        }
-                    }
-                    else {
-                        result = false;
-                    }
-                }
-                else {
-                    result = true;
+            if (val instanceof Date && !isNaN(val)) return true;
+            if (!$object.isString(val)) return false;
+
+            const parsedDate = new Date(val);
+            if (!isNaN(parsedDate)) return true;
+
+            if (/^\d{4}-\d{2}-\d{2}$/.test(val)) {
+                const parts = val.split('-');
+                if (parts[1] >= 1 && parts[1] <= 12 && parts[2] >= 1 && parts[2] <= 31) {
+                    const specificDate = new Date(parts[0], parts[1] - 1, parts[2]);
+                    return !isNaN(specificDate);
                 }
             }
 
-            return result;
+            return false;
         },
 
         isISOString(val) {
-            var result = false;
-            if ($date.isDate(val) == true) {
-                var date = new Date(val);
-                result = $date.toString(date, 'i').indexOf(val) > -1;
-            }
-
-            return result;
+            return $object.isString(val) && $validation.regexs.isoDate.test(val);
         },
 
-        weekOfMonth(year, month, weekStartSunday) {
-            var result = [];
-            weekStartSunday = $object.isNullOrUndefined(weekStartSunday) == true ? true : $string.toBoolean(weekStartSunday);
-            month = month || new Date().getMonth() + 1;
-            var weekStand = weekStartSunday == true ? 7 : 8;
-            var date = new Date(year, month);
+        weekOfMonth(year, month, weekStartSunday = true) {
+            const result = [];
+            const normalizedWeekStartSunday = typeof weekStartSunday === 'boolean'
+                ? weekStartSunday
+                : weekStartSunday === 'true';
+            const currentMonth = month || new Date().getMonth() + 1;
+            const weekStand = normalizedWeekStartSunday ? 7 : 8;
 
-            var firstDay = new Date(date.getFullYear(), date.getMonth() - 1, 1);
-            var lastDay = new Date(date.getFullYear(), date.getMonth(), 0);
-            var week = null;
+            const date = new Date(year, currentMonth - 1);
+            const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+            const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
 
-            var firstWeekEndDate = true;
-            var thisMonthFirstWeek = firstDay.getDay();
-            var numberPad = function (num, width) {
-                num = String(num);
-                return num.length >= width ? num : new Array(width - num.length + 1).join('0') + num;
-            }
+            const numberPad = (num, width) =>
+                String(num).padStart(width, '0');
 
-            for (var num = 1; num <= 6; num++) {
-                if (lastDay.getMonth() != firstDay.getMonth()) {
+            let firstWeekEndDate = true;
+            const thisMonthFirstWeek = firstDay.getDay();
+
+            for (let num = 1; num <= 6; num++) {
+                if (lastDay.getMonth() !== firstDay.getMonth()) {
                     break;
                 }
 
-                week = {};
+                const week = {};
                 if (firstDay.getDay() <= 1) {
-                    if (firstDay.getDay() == 0) {
-                        if (weekStartSunday == false) {
-                            firstDay.setDate(firstDay.getDate() + 1);
-                        }
+                    if (firstDay.getDay() === 0 && !normalizedWeekStartSunday) {
+                        firstDay.setDate(firstDay.getDate() + 1);
                     }
 
-                    week.weekStartDate = firstDay.getFullYear().toString() + '-' + numberPad((firstDay.getMonth() + 1).toString(), 2) + '-' + numberPad(firstDay.getDate().toString(), 2);
+                    week.weekStartDate = `${firstDay.getFullYear()}-${numberPad(firstDay.getMonth() + 1, 2)}-${numberPad(firstDay.getDate(), 2)}`;
                 }
 
                 if (weekStand > thisMonthFirstWeek) {
                     if (firstWeekEndDate) {
-                        if (weekStand - firstDay.getDay() == 1) {
+                        if (weekStand - firstDay.getDay() === 1) {
+                            firstDay.setDate(firstDay.getDate() + (weekStand - firstDay.getDay()) - 1);
+                        } else if (weekStand - firstDay.getDay() > 1) {
                             firstDay.setDate(firstDay.getDate() + (weekStand - firstDay.getDay()) - 1);
                         }
-
-                        if (weekStand - firstDay.getDay() > 1) {
-                            firstDay.setDate(firstDay.getDate() + (weekStand - firstDay.getDay()) - 1);
-                        }
-
                         firstWeekEndDate = false;
                     } else {
                         firstDay.setDate(firstDay.getDate() + 6);
@@ -3256,8 +2684,8 @@ if (typeof module !== 'undefined' && module.exports) {
                     firstDay.setDate(firstDay.getDate() + (6 - firstDay.getDay()) + weekStand);
                 }
 
-                if (typeof week.weekStartDate !== 'undefined') {
-                    week.weekEndDate = firstDay.getFullYear().toString() + '-' + numberPad((firstDay.getMonth() + 1).toString(), 2) + '-' + numberPad(firstDay.getDate().toString(), 2);
+                if (week.weekStartDate) {
+                    week.weekEndDate = `${firstDay.getFullYear()}-${numberPad(firstDay.getMonth() + 1, 2)}-${numberPad(firstDay.getDate(), 2)}`;
                     result.push(week);
                 }
 
@@ -3267,200 +2695,156 @@ if (typeof module !== 'undefined' && module.exports) {
             return result;
         },
 
-        timeAgo(date) {
-            if ($date.isISOString(date) == true) {
-                var seconds = Math.floor((new Date() - new Date(date)) / 1000);
-                var interval = Math.floor(seconds / 31536000);
-
-                if (interval > 1) {
-                    return interval + " 년전";
-                }
-                interval = Math.floor(seconds / 2592000);
-                if (interval > 1) {
-                    return interval + " 달전";
-                }
-                interval = Math.floor(seconds / 604800);
-                if (interval > 1) {
-                    return interval + " 주전";
-                }
-                interval = Math.floor(seconds / 86400);
-                if (interval > 1) {
-                    return interval + " 일전";
-                }
-                interval = Math.floor(seconds / 3600);
-                if (interval > 1) {
-                    return interval + " 시간전";
-                }
-                interval = Math.floor(seconds / 60);
-                if (interval > 1) {
-                    return interval + " 분전";
-                }
-                return Math.floor(seconds) + " 초전";
+        timeAgo(dateInput) {
+            let date;
+            if ($object.isString(dateInput) && this.isDate(dateInput)) {
+                date = new Date(dateInput);
+            } else if (dateInput instanceof Date) {
+                date = dateInput;
+            } else {
+                return '';
             }
 
-            return '';
+            const seconds = Math.floor((new Date() - date) / 1000);
+            if (seconds < 0) return 'in the future';
+
+            const intervals = [
+                { label: '년', seconds: 31536000 },
+                { label: '달', seconds: 2592000 },
+                { label: '주', seconds: 604800 },
+                { label: '일', seconds: 86400 },
+                { label: '시간', seconds: 3600 },
+                { label: '분', seconds: 60 },
+                { label: '초', seconds: 1 }
+            ];
+
+            for (const interval of intervals) {
+                const count = Math.floor(seconds / interval.seconds);
+                if (count >= 1) {
+                    return `${count}${interval.label} 전`;
+                }
+            }
+            return '방금 전';
         }
+
     });
     context.$date = $date;
 
     $string.extend({
-        toValue(value, defaultValue) {
-            var result = '';
-            if ($object.isNullOrUndefined(value) == true) {
-                if ($string.isNullOrEmpty(defaultValue) == false) {
-                    result = defaultValue.toString();
-                }
-            }
-            else {
-                result = value.toString();
-            }
-
-            return result;
+        toValue(value, defaultValue = '') {
+            return (value === undefined || value === null) ? String(defaultValue) : String(value);
         },
 
         br(val) {
-            return val.replace(/(\r\n|\r|\n)/g, '<br />');
+            return String(val).replace(/(\r\n|\r|\n)/g, '<br />');
         },
 
-        interpolate(text, json, options = null) {
-            var result = null;
+        interpolate(text, json, options = {}) {
+            if (json === null || json === undefined || typeof text !== 'string') return text;
 
-            if (json != null) {
-                options = syn.$w.argumentsExtend({
-                    defaultValue: null,
-                    separator: '\n',
-                }, options);
+            const { defaultValue = null, separator = '\n' } = options;
 
-                var replaceFunc = function (text, item) {
-                    return text.replace(/\#{([^{}]*)}/g,
-                        function (pattern, key) {
-                            var value = item[key];
-                            var result = pattern;
-                            if (typeof value === 'string' || typeof value === 'number') {
-                                result = value;
-                            }
-                            else if ($object.isNullOrUndefined(value) == false) {
-                                if ($object.isArray(value) == true) {
-                                    result = value.join(', ');
-                                }
-                                else if ($object.isDate(value) == true) {
-                                    result = $date.toString(value, 'a');
-                                }
-                                else if ($object.isBoolean(value) == true) {
-                                    result = value.toString();
-                                }
-                            }
-                            else {
-                                result = options.defaultValue == null ? pattern : options.defaultValue;
-                            }
-                            return result;
-                        }
-                    )
-                };
-
-                if ($object.isArray(json) == false) {
-                    result = replaceFunc(text, json);
-                }
-                else {
-                    var values = [];
-                    for (var key in json) {
-                        var item = json[key];
-                        values.push(replaceFunc(text, item));
+            const replaceFunc = (template, item) => {
+                return template.replace(/#\{([^{}]*)\}/g, (match, key) => {
+                    const value = item[key];
+                    if (value !== undefined && value !== null) {
+                        if (Array.isArray(value)) return value.join(', ');
+                        if (value instanceof Date) return $date.toString(value, 'a');
+                        return String(value);
                     }
+                    return defaultValue !== null ? defaultValue : match;
+                });
+            };
 
-                    result = values.join(options.separator);
-                }
+            if (Array.isArray(json)) {
+                return json.map(item => replaceFunc(text, item)).join(separator);
+            } else if (typeof json === 'object') {
+                return replaceFunc(text, json);
             }
 
-            return result;
+            return text;
         },
 
         isNullOrEmpty(val) {
-            if (val === undefined || val === null || val === '') {
-                return true;
-            }
-            else {
-                return false;
-            }
+            return val === undefined || val === null || String(val).trim() === '';
         },
 
-        sanitizeHTML(val, hasSpecialChar) {
-            var result = '';
-            hasSpecialChar = hasSpecialChar || true;
-
-            if (hasSpecialChar == true) {
-                result = val.replace(/<.[^<>]*?>/g, '')
-                    .replace(/&nbsp;|&#160;/gi, ' ');
+        sanitizeHTML(val, removeSpecialChars = false) {
+            if (typeof val !== 'string') return '';
+            let result = val.replace(/<[^>]*>/g, '').replace(/&nbsp;|&#160;/gi, ' ');
+            if (removeSpecialChars) {
+                result = result.replace(/[.,;:'"!?%#$*_+=\-\\/()[\]{}<>~`“”’]/g, '');
             }
-            else {
-                result = val.replace(/<.[^<>]*?>/g, '')
-                    .replace(/&nbsp;|&#160;/gi, ' ')
-                    .replace(/[.(),;:!?%#$'\"_+=\/\-“”’]*/g, '');
-            }
-
             return result.trim();
         },
 
         cleanHTML(val) {
-            var el = document.createElement('div');
-            el.innerHTML = val.replace(/\<br\s*\/\>/gim, '\n');
-            return el.innerText.trim();
+            if (typeof val !== 'string' || globalRoot.devicePlatform === 'node') return val;
+            try {
+                const el = document.createElement('div');
+                el.innerHTML = val.replace(/<br\s*\/?>/gi, '\n');
+                return el.textContent || el.innerText || '';
+            } catch {
+                return val;
+            }
         },
 
-        // 참조(http://www.ascii.cl/htmlcodes.htm)
-        toHtmlChar(val, charStrings) {
-            charStrings = charStrings || `&'<>!"#%()*+,./;=@[\]^\`{|}~`;
-            var charMap = {
-                '&': '&amp;', '\'': '&apos;', '<': '&lt;', '>': '&gt;', '"': '&quot;', '!': '&excl;', '#': '&num;', '%': '&percnt;',
-                '(': '&lpar;', ')': '&rpar;', '*': '&ast;', '+': '&plus;', ',': '&comma;', '.': '&period;', '/': '&sol;', ';': '&semi;',
-                '=': '&equals;', '@': '&commat;', '[': '&lsqb;', '\\': '&bsol;', ']': '&rsqb;', '^': '&Hat;', '`': '&grave;', '{': '&lcub;',
-                '|': '&verbar;', '}': '&rcub;', '~': '&tilde;'
+        toHtmlChar(val, charStrings = `&'<>!"#%()*+,./;=@[\]^\`{|}~`) {
+            if (typeof val !== 'string') return '';
+            const charMap = {
+                '&': '&amp;', '\'': '&#39;', '<': '&lt;', '>': '&gt;', '"': '&quot;', '!': '&#33;', '#': '&#35;', '%': '&#37;',
+                '(': '&#40;', ')': '&#41;', '*': '&#42;', '+': '&#43;', ',': '&#44;', '.': '&#46;', '/': '&#47;', ';': '&#59;',
+                '=': '&#61;', '@': '&#64;', '[': '&#91;', '\\': '&#92;', ']': '&#93;', '^': '&#94;', '`': '&#96;', '{': '&#123;',
+                '|': '&#124;', '}': '&#125;', '~': '&#126;'
             };
-            return val.replace(new RegExp(`[${charStrings.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}]`, 'g'), char => charMap[char] || char);
+            const escapedChars = charStrings.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+            const regex = new RegExp(`[${escapedChars}]`, 'g');
+            return val.replace(regex, char => charMap[char] || char);
         },
 
-        toCharHtml(val, htmlStrings) {
-            htmlStrings = htmlStrings || '&amp|&apos|&lt|&gt|&quot|&excl|&num|&percnt|&lpar|&rpar|&ast|&plus|&comma|&period|&sol|&semi|&equals|&commat|&lsqb|&bsol|&rsqb|&Hat|&grave|&lcub|&verbar|&rcub|&tilde';
-            var charMap = {
-                '&amp;': '&', '&apos;': '\'', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&excl;': '!', '&num;': '#', '&percnt;': '%',
-                '&lpar;': '(', '&rpar;': ')', '&ast;': '*', '&plus;': '+', '&comma;': ',', '&period;': '.', '&sol;': '/', '&semi;': ';',
-                '&equals;': '=', '&commat;': '@', '&lsqb;': '[', '&bsol;': '\\', '&rsqb;': ']', '&Hat;': '^', '&grave;': '`', '&lcub;': '{',
-                '&verbar;': '|', '&rcub;': '}', '&tilde;': '~'
+        toCharHtml(val, escapedChars = '&(amp|#39|lt|gt|quot|#33|#35|#37|#40|#41|#42|#43|#44|#46|#47|#59|#61|#64|#91|#92|#93|#94|#96|#123|#124|#125|#126);') {
+            if (typeof val !== 'string') return '';
+            const entityMap = {
+                '&amp;': '&', '&#39;': '\'', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&#33;': '!', '&#35;': '#', '&#37;': '%',
+                '&#40;': '(', '&#41;': ')', '&#42;': '*', '&#43;': '+', '&#44;': ',', '&#46;': '.', '&#47;': '/', '&#59;': ';',
+                '&#61;': '=', '&#64;': '@', '&#91;': '[', '&#92;': '\\', '&#93;': ']', '&#94;': '^', '&#96;': '`', '&#123;': '{',
+                '&#124;': '|', '&#125;': '}', '&#126;': '~'
             };
-            return val.replace(/&(\w+);/g, function (match, entity) {
-                return charMap[match] || match;
-            });
+            const regex = new RegExp(escapedChars, 'g');
+            return val.replace(regex, match => entityMap[match] || match);
         },
 
         length(val) {
-            var result = 0;
-            for (var i = 0, len = val.length; i < len; i++) {
-                if (val.charCodeAt(i) > 127) {
-                    result += 2;
-                }
-                else {
-                    result++;
+            if (typeof val !== 'string') return 0;
+            let byteLength = 0;
+            for (let i = 0; i < val.length; i++) {
+                const charCode = val.charCodeAt(i);
+                if (charCode <= 0x7F) {
+                    byteLength += 1;
+                } else if (charCode <= 0x7FF) {
+                    byteLength += 2;
+                } else if (charCode <= 0xFFFF) {
+                    byteLength += 3;
+                } else {
+                    byteLength += 4;
                 }
             }
-
-            return result;
+            return byteLength;
         },
 
-        split(val, char) {
-            char = char || ',';
-            return $string.isNullOrEmpty(val) == true ? [] : val.split(char).filter(p => p);
+        split(val, char = ',') {
+            return typeof val === 'string' ? val.split(char).filter(p => p.trim() !== '') : [];
         },
 
         isNumber(num) {
-            num = String(num).replace(/^\s+|\s+$/g, '');
-            var regex = /^[\-]?(([1-9][0-9]{0,2}(,[0-9]{3})*)|[0-9]+){1}(\.[0-9]+)?$/g;
-
-            if (regex.test(num)) {
-                num = num.replace(/,/g, '');
-                return isNaN(num) ? false : true;
-            } else {
-                return false;
+            if (num === null || num === undefined || String(num).trim() === '') return false;
+            const regex = /^-?(\d+|\d{1,3}(,\d{3})*)(\.\d+)?$/;
+            const strNum = String(num).trim();
+            if (regex.test(strNum)) {
+                const cleanedNum = strNum.replace(/,/g, '');
+                return !isNaN(parseFloat(cleanedNum));
             }
+            return false;
         },
 
         toNumber(val) {
@@ -3475,44 +2859,38 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         capitalize(val) {
-            return val.replace(/\b([a-z])/g, function (val) {
-                return val.toUpperCase()
-            });
+            return typeof val === 'string'
+                ? val.replace(/\b([a-z])/g, match => match.toUpperCase())
+                : '';
         },
 
-        toJson(val, option) {
-            option = option || {};
-            var delimeter = option.delimeter || ',';
-            var newline = option.newline || '\n';
-            var meta = option.meta || {};
-            var i, row, lines = val.split(RegExp('{0}'.format(newline), 'g'));
-            var headers = lines[0].split(delimeter);
-            for (i = 0; i < headers.length; i++) {
-                headers[i] = headers[i].replace(/(^[\s"]+|[\s"]+$)/g, '');
-            }
-            var result = [];
-            var lineLength = lines.length;
-            var headerLength = headers.length;
-            if ($object.isEmpty(meta) == true) {
-                for (i = 1; i < lineLength; i++) {
-                    row = lines[i].split(delimeter);
-                    var item = {};
-                    for (var j = 0; j < headerLength; j++) {
-                        item[headers[j]] = $string.toDynamic(row[j]);
-                    }
-                    result.push(item);
+        toJson(val, options = {}) {
+            if (typeof val !== 'string') return [];
+
+            const { delimiter = ',', newline = '\n', meta = {} } = options;
+            const lines = val.split(newline);
+            if (lines.length < 1) return [];
+
+            const headers = lines[0].split(delimiter).map(header => header.trim().replace(/^"|"$/g, ''));
+            const headerLength = headers.length;
+            const result = [];
+
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i];
+                if (!line.trim()) continue;
+
+                const row = line.split(delimiter);
+                const item = {};
+
+                for (let j = 0; j < headerLength; j++) {
+                    const columnName = headers[j];
+                    const cellValue = row[j]?.trim() ?? '';
+
+                    item[columnName] = meta[columnName]
+                        ? this.toParseType(cellValue, meta[columnName])
+                        : this.toDynamic(cellValue);
                 }
-            }
-            else {
-                for (i = 1; i < lineLength; i++) {
-                    row = lines[i].split(delimeter);
-                    var item = {};
-                    for (var j = 0; j < headerLength; j++) {
-                        var columnName = headers[j];
-                        item[columnName] = $string.toParseType(row[j], meta[columnName]);
-                    }
-                    result.push(item);
-                }
+                result.push(item);
             }
             return result;
         },
@@ -3534,298 +2912,202 @@ if (typeof module !== 'undefined' && module.exports) {
             return (val === 'true' || val === 'True' || val === 'TRUE' || val === 'Y' || val == '1');
         },
 
-        toDynamic(val, emptyIsNull) {
-            var result;
-            emptyIsNull = $string.toBoolean(emptyIsNull);
+        toDynamic(val, emptyIsNull = false) {
+            const strVal = String(val).trim();
 
-            if (emptyIsNull == true && val === '') {
-                result = null;
-            }
-            else {
-                if (val === 'true' || val === 'True' || val === 'TRUE') {
-                    result = true;
-                }
-                else if (val === 'false' || val === 'False' || val === 'FALSE') {
-                    result = false;
-                }
-                else if ($validation.regexs.float.test(val)) {
-                    result = $string.toNumber(val);
-                }
-                else if ($validation.regexs.isoDate.test(val)) {
-                    result = new Date(val);
-                }
-                else {
-                    result = val;
-                }
+            if (emptyIsNull && strVal === '') return null;
+            if (strVal === '') return '';
+
+            if (/^(true|y|1)$/i.test(strVal)) return true;
+            if (/^(false|n|0)$/i.test(strVal)) return false;
+
+            const numStr = strVal.replace(/,/g, '');
+            if ($validation.regexs.float.test(numStr)) {
+                const num = parseFloat(numStr);
+                if (!isNaN(num)) return num;
             }
 
-            return result;
+            if ($validation.regexs.isoDate.test(strVal)) {
+                const date = new Date(strVal);
+                if (!isNaN(date)) return date;
+            }
+
+            return val;
         },
 
-        toParseType(val, metaType, emptyIsNull) {
-            var result;
-            metaType = metaType || 'string';
-            emptyIsNull = $string.toBoolean(emptyIsNull);
+        toParseType(val, metaType = 'string', emptyIsNull = false) {
+            const strVal = String(val).trim();
 
-            if (emptyIsNull == true && val === '') {
-                result = null;
-            }
-            else {
-                switch (metaType) {
-                    case 'string':
-                        result = val;
-                        break;
-                    case 'bool':
-                        result = $string.toBoolean(val);
-                        break;
-                    case 'number':
-                    case 'numeric':
-                        result = $object.isNullOrUndefined(val) == true ? null : $string.isNumber(val) == true ? $string.toNumber(val) : null;
-                        break;
-                    case 'date':
-                        if ($validation.regexs.isoDate.test(val)) {
-                            result = new Date(val);
-                        }
-                        break;
-                    default:
-                        result = val;
-                        break;
-                }
-            }
+            if (emptyIsNull && strVal === '') return null;
 
-            return result;
+            switch (String(metaType).toLowerCase()) {
+                case 'string':
+                    return strVal;
+                case 'bool':
+                case 'boolean':
+                    return this.toBoolean(strVal);
+                case 'number':
+                case 'numeric':
+                case 'int':
+                    const numStr = strVal.replace(/,/g, '');
+                    if ($validation.regexs.float.test(numStr)) {
+                        const num = parseFloat(numStr);
+                        return isNaN(num) ? (emptyIsNull ? null : 0) : num;
+                    }
+                    return emptyIsNull ? null : 0;
+                case 'date':
+                case 'datetime':
+                    if ($validation.regexs.isoDate.test(strVal)) {
+                        const date = new Date(strVal);
+                        return isNaN(date) ? null : date;
+                    } else if ($date.isDate(strVal)) {
+                        const date = new Date(strVal);
+                        return isNaN(date) ? null : date;
+                    }
+                    return null;
+                default:
+                    return strVal;
+            }
         },
 
         toNumberString(val) {
-            return val.trim().replace(/[^0-9\-\.]/g, '');
+            return typeof val === 'string' ? val.trim().replace(/[^\d.-]/g, '') : '';
         },
 
-        toCurrency(val, localeID, options) {
-            var result = null;
-            if ($string.isNumber(val) == false) {
-                return result;
-            }
+        toCurrency(val, localeID, options = {}) {
+            const num = this.toNumber(val);
+            if (isNaN(num)) return null;
 
-            if ($object.isNullOrUndefined(localeID) == true) {
-                var x = val.toString().split('.');
-                var x1 = x[0];
-
-                var x2 = x.length > 1 ? '.' + x[1] : '';
-                var expr = /(\d+)(\d{3})/;
-
-                while (expr.test(x1)) {
-                    x1 = x1.replace(expr, '$1' + ',' + '$2');
-                }
-
-                result = x1 + x2;
-            }
-            else {
-                // https://ko.wikipedia.org/wiki/ISO_4217
-                var formatOptions = syn.$w.argumentsExtend({
+            if (localeID && typeof Intl !== 'undefined' && Intl.NumberFormat) {
+                const formatOptions = {
                     style: 'currency',
-                    currency: 'KRW'
-                }, options);
-
-                result = Intl.NumberFormat(localeID, formatOptions).format(val);
+                    currency: 'KRW',
+                    ...options
+                };
+                try {
+                    return new Intl.NumberFormat(localeID, formatOptions).format(num);
+                } catch (e) {
+                    $l.eventLog('$string.toCurrency', `Intl formatting error for locale ${localeID}: ${e}`, 'Warning');
+                }
             }
 
-            return result;
+            const [integerPart, decimalPart] = String(num).split('.');
+            const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            return decimalPart ? `${formattedInteger}.${decimalPart}` : formattedInteger;
         },
 
-        pad(val, length, fix, isLeft) {
-            fix = fix || '0';
-            if ($object.isNullOrUndefined(isLeft) == true) {
-                isLeft = true;
-            }
-            else {
-                isLeft = $string.toBoolean(isLeft);
-            }
-            val = val.toString();
-            var padding = fix.repeat(Math.max(0, length - val.length));
 
-            return isLeft ? padding + val : val + padding;
+        pad(val, length, fix = '0', isLeft = true) {
+            const strVal = String(val);
+            const padLength = Math.max(0, length - strVal.length);
+            const padding = String(fix).repeat(padLength);
+            return $string.toBoolean(isLeft) ? padding + strVal : strVal + padding;
         }
+
     });
     context.$string = $string;
 
     $array.extend({
         distinct(arr) {
-            var derived = [];
-            for (var i = 0, len = arr.length; i < len; i++) {
-                if ($array.contains(derived, arr[i]) == false) {
-                    derived.push(arr[i])
-                }
-            }
-
-            return derived;
+            return Array.isArray(arr) ? [...new Set(arr)] : [];
         },
 
-        sort(arr, order) {
-            var temp = null;
-            order = order || true;
-            if (order == true) {
-                for (var i = 0, ilen = arr.length; i < ilen; i++) {
-                    for (var j = 0, jlen = arr.length; j < jlen; j++) {
-                        if (arr[i] < arr[j]) {
-                            temp = arr[i];
-                            arr[i] = arr[j];
-                            arr[j] = temp;
-                        }
-                    }
-                }
-            }
-            else {
-                for (var i = 0, ilen = arr.length; i < ilen; i++) {
-                    for (var j = 0, jlen = arr.length; j < jlen; j++) {
-                        if (arr[i] > arr[j]) {
-                            temp = arr[i];
-                            arr[i] = arr[j];
-                            arr[j] = temp;
-                        }
-                    }
-                }
-            }
-            return arr;
+        sort(arr, ascending = true) {
+            if (!Array.isArray(arr)) return [];
+            return [...arr].sort((a, b) => {
+                if (a < b) return ascending ? -1 : 1;
+                if (a > b) return ascending ? 1 : -1;
+                return 0;
+            });
         },
 
-        objectSort(arr, prop, order) {
-            order = order || true;
-            if (order == true) {
-                arr.sort(
-                    function (v1, v2) {
-                        var prop1 = v1[prop];
-                        var prop2 = v2[prop];
-
-                        if (prop1 < prop2) {
-                            return -1;
-                        }
-
-                        if (prop1 > prop2) {
-                            return 1;
-                        }
-
-                        return 0;
-                    }
-                );
-            }
-            else {
-                arr.sort(
-                    function (v1, v2) {
-                        var prop1 = v1[prop];
-                        var prop2 = v2[prop];
-
-                        if (prop1 < prop2) {
-                            return 1;
-                        }
-
-                        if (prop1 > prop2) {
-                            return -1;
-                        }
-
-                        return 0;
-                    }
-                );
-            }
-            return arr;
+        objectSort(arr, prop, ascending = true) {
+            if (!Array.isArray(arr) || !prop) return [];
+            return [...arr].sort((v1, v2) => {
+                const prop1 = v1[prop];
+                const prop2 = v2[prop];
+                if (prop1 < prop2) return ascending ? -1 : 1;
+                if (prop1 > prop2) return ascending ? 1 : -1;
+                return 0;
+            });
         },
 
         groupBy(data, predicate) {
+            if (!Array.isArray(data)) return {};
+            const keySelector = typeof predicate === 'function' ? predicate : (item => item[predicate]);
             return data.reduce((result, value) => {
-                var group = value[predicate];
-
-                if ('function' === typeof predicate) {
-                    group = predicate(value);
-                }
-
-                if (result[group] === undefined) {
-                    result[group] = [];
-                }
-
-                result[group].push(value);
+                const groupKey = keySelector(value);
+                (result[groupKey] = result[groupKey] || []).push(value);
                 return result;
             }, {});
         },
 
         shuffle(arr) {
-            var i = arr.length, j;
-            var temp = null;
-            while (i--) {
-                j = Math.floor((i + 1) * Math.random());
-                temp = arr[i];
-                arr[i] = arr[j];
-                arr[j] = temp;
+            if (!Array.isArray(arr)) return [];
+            const shuffled = [...arr];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
             }
-            return arr;
+            return shuffled;
         },
 
         addAt(arr, index, val) {
-            if (index <= arr.length - 1) {
-                arr.splice(index, 0, val);
-            }
-            else {
-                arr.push(val);
-            }
-            return arr;
+            if (!Array.isArray(arr)) return [];
+            const copy = [...arr];
+            const effectiveIndex = Math.max(0, Math.min(index, copy.length));
+            copy.splice(effectiveIndex, 0, val);
+            return copy;
         },
 
         removeAt(arr, index) {
-            if (index <= (arr.length - 1)) {
-                arr.splice(index, 1);
+            if (!Array.isArray(arr)) return [];
+            const copy = [...arr];
+            if (index >= 0 && index < copy.length) {
+                copy.splice(index, 1);
             }
-            return arr;
+            return copy;
         },
 
         contains(arr, val) {
-            for (var i = 0, len = arr.length; i < len; i++) {
-                if (arr[i] === val) {
-                    return true;
-                }
-            }
-
-            return false;
+            return Array.isArray(arr) && arr.includes(val);
         },
 
-        merge(arr, brr, predicate = (arr, brr) => arr === brr) {
+        merge(arr, brr, predicate = (a, b) => a === b) {
+            if (!Array.isArray(arr) || !Array.isArray(brr)) return arr || [];
             const crr = [...arr];
-            brr.forEach((bItem) => (crr.some((cItem) => predicate(bItem, cItem)) ? null : crr.push(bItem)));
+            brr.forEach(bItem => {
+                if (!crr.some(cItem => predicate(bItem, cItem))) {
+                    crr.push(bItem);
+                }
+            });
             return crr;
         },
 
         union(sourceArray, targetArray) {
-            var result = [];
-            var temp = {}
-            for (var i = 0; i < sourceArray.length; i++) {
-                temp[sourceArray[i]] = 1;
-            }
-
-            for (var i = 0; i < targetArray.length; i++) {
-                temp[targetArray[i]] = 1;
-            }
-
-            for (var k in temp) {
-                result.push(k)
-            };
-            return result;
+            if (!Array.isArray(sourceArray) || !Array.isArray(targetArray)) return [];
+            return [...new Set([...sourceArray, ...targetArray])];
         },
 
         difference(sourceArray, targetArray) {
-            return sourceArray.filter(function (x) {
-                return !targetArray.includes(x);
-            });
+            if (!Array.isArray(sourceArray) || !Array.isArray(targetArray)) return [];
+            const targetSet = new Set(targetArray);
+            return sourceArray.filter(x => !targetSet.has(x));
         },
 
         intersect(sourceArray, targetArray) {
-            return sourceArray.filter(function (x) {
-                return targetArray.includes(x);
-            });
+            if (!Array.isArray(sourceArray) || !Array.isArray(targetArray)) return [];
+            const targetSet = new Set(targetArray);
+            return sourceArray.filter(x => targetSet.has(x));
         },
 
         symmetryDifference(sourceArray, targetArray) {
-            return sourceArray.filter(function (x) {
-                return !targetArray.includes(x);
-            }).concat(targetArray.filter(function (x) {
-                return !sourceArray.includes(x);
-            }));
+            if (!Array.isArray(sourceArray) || !Array.isArray(targetArray)) return [];
+            const sourceSet = new Set(sourceArray);
+            const targetSet = new Set(targetArray);
+            const diff1 = sourceArray.filter(x => !targetSet.has(x));
+            const diff2 = targetArray.filter(x => !sourceSet.has(x));
+            return [...diff1, ...diff2];
         },
 
         getValue(items, parameterName, defaultValue, parameterProperty, valueProperty) {
@@ -3848,243 +3130,194 @@ if (typeof module !== 'undefined' && module.exports) {
                         result = parseParameter.Value || parseParameter.value;
                     }
                 }
+            }
+
+            if (result == null) {
+                if (defaultValue === undefined) {
+                    result = '';
+                }
                 else {
-                    if (defaultValue === undefined) {
-                        result = '';
-                    }
-                    else {
-                        result = defaultValue;
-                    }
+                    result = defaultValue;
                 }
             }
 
             return result;
         },
 
-        ranks(value, asc) {
-            var result = [];
-            if ($object.isNullOrUndefined(value) == false && $object.isArray(value) == true) {
-                if ($object.isNullOrUndefined(asc) == true) {
-                    asc = false;
-                }
-                else {
-                    asc = $string.toBoolean(asc);
-                }
+        ranks(values, asc = false) {
+            if (!Array.isArray(values)) return [];
 
-                if (asc == true) {
-                    for (var i = 0; i < value.length; i++) {
-                        value[i] = - + value[i];
-                    }
-                }
+            const indexedValues = values.map((value, index) => ({ value: $string.toNumber(value), index }));
 
-                var sorted = value.slice().sort(function (a, b) {
-                    return b - a;
-                });
-                result = value.map(function (v) {
-                    return sorted.indexOf(v) + 1;
-                });
+            indexedValues.sort((a, b) => asc ? a.value - b.value : b.value - a.value);
+
+            const ranks = new Array(values.length);
+            let currentRank = 1;
+            for (let i = 0; i < indexedValues.length; i++) {
+                if (i > 0 && indexedValues[i].value !== indexedValues[i - 1].value) {
+                    currentRank = i + 1;
+                }
+                ranks[indexedValues[i].index] = currentRank;
             }
 
-            return result;
+            return ranks;
         },
 
-        split(value, flag) {
-            var result = [];
-            if ($object.isNullOrUndefined(value) == false && $object.isString(value) == true) {
-                flag = flag || ',';
-                result = value.split(flag).map(item => item.trim()).filter(item => item.length > 0);
-            }
-
-            return result;
+        split(value, flag = ',') {
+            if (typeof value !== 'string') return [];
+            return value.split(flag).map(item => item.trim()).filter(item => item.length > 0);
         }
     });
     context.$array = $array;
 
     $number.extend({
         duration(ms) {
-            if (ms < 0) ms = -ms;
-            var time = {
-                year: 0,
-                week: 0,
-                day: Math.floor(ms / 86400000),
-                hour: Math.floor(ms / 3600000) % 24,
-                minute: Math.floor(ms / 60000) % 60,
-                second: Math.floor(ms / 1000) % 60,
-                millisecond: Math.floor(ms) % 1000
+            if (typeof ms !== 'number' || isNaN(ms)) return {};
+            const absMs = Math.abs(ms);
+            const seconds = Math.floor(absMs / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+            const years = Math.floor(days / 365);
+            const weeks = Math.floor((days % 365) / 7);
+
+            return {
+                year: years,
+                week: weeks,
+                day: days,
+                hour: hours % 24,
+                minute: minutes % 60,
+                second: seconds % 60,
+                millisecond: absMs % 1000
             };
-
-            if (time.day > 365) {
-                time.year = time.day % 365;
-                time.day = Math.floor(time.day / 365);
-            }
-
-            if (time.day > 7) {
-                time.week = time.day % 7;
-                time.day = Math.floor(time.day / 7);
-            }
-
-            return time;
         },
 
-        toByteString(num, precision, addSpace) {
-            if (precision === void 0) {
-                precision = 3;
-            }
+        toByteString(num, precision = 3, addSpace = true) {
+            if (typeof num !== 'number' || isNaN(num)) return `0${addSpace ? ' ' : ''}B`;
 
-            if (addSpace === void 0) {
-                addSpace = true;
-            }
+            const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+            const absNum = Math.abs(num);
 
-            var units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-            if (Math.abs(num) < 1) return num + (addSpace ? ' ' : '') + units[0];
-            var exponent = Math.min(Math.floor(Math.log10(num < 0 ? -num : num) / 3), units.length - 1);
-            var n = Number(((num < 0 ? -num : num) / Math.pow(1024, exponent)).toPrecision(precision));
-            return (num < 0 ? '-' : '') + n + (addSpace ? ' ' : '') + units[exponent];
+            if (absNum < 1) return `${num}${addSpace ? ' ' : ''}${units[0]}`;
+
+            const exponent = Math.min(
+                Math.floor(Math.log(absNum) / Math.log(1024)),
+                units.length - 1
+            );
+
+            const scaledNum = absNum / Math.pow(1024, exponent);
+            const formattedNum = Number(scaledNum.toPrecision(precision));
+
+            return `${num < 0 ? '-' : ''}${formattedNum}${addSpace ? ' ' : ''}${units[exponent]}`;
         },
 
-        random(start, end) {
-            if ($string.isNullOrEmpty(start) == true) {
-                start = 0;
-            }
 
-            if ($string.isNullOrEmpty(end) == true) {
-                end = 10;
-            }
-
-            return Math.floor((Math.random() * (end - start + 1)) + start);
+        random(start = 0, end = 10) {
+            const min = Math.ceil(Math.min(start, end));
+            const max = Math.floor(Math.max(start, end));
+            return Math.floor(Math.random() * (max - min + 1)) + min;
         },
 
         isRange(num, low, high) {
-            return num >= low && num <= high;
+            return typeof num === 'number' && num >= low && num <= high;
         },
 
         limit(num, low, high) {
-            return num < low ? low : (num > high ? high : num);
+            return typeof num === 'number' ? Math.max(low, Math.min(num, high)) : low;
         },
 
-        percent(num, total, precision) {
-            var precision = precision || 0;
-            var result = Math.pow(10, precision);
-
-            return Math.round((num * 100 / total) * result) / result;
+        percent(num, total, precision = 0) {
+            if (typeof num !== 'number' || typeof total !== 'number' || total === 0) return 0;
+            const factor = Math.pow(10, precision);
+            return Math.round((num * 100 / total) * factor) / factor;
         }
     });
     context.$number = $number;
 
     $object.extend({
         isNullOrUndefined(val) {
-            if (val === undefined || val === null) {
-                return true;
-            }
-            else {
-                return false;
-            }
+            return val === undefined || val === null;
         },
 
-        toCSV(obj, option) {
-            if (typeof obj !== 'object') return null;
-            option = option || {};
-            var scopechar = option.scopechar || '/';
-            var delimeter = option.delimeter || ',';
-            var newline = option.newline || '\n';
-            if (Array.isArray(obj) === false) obj = [obj];
-            var curs, name, i, key, queue, values = [], rows = [], headers = {}, headersArr = [];
-            for (i = 0; i < obj.length; i++) {
-                queue = [obj[i], ''];
-                rows[i] = {};
-                while (queue.length > 0) {
-                    name = queue.pop();
-                    curs = queue.pop();
-                    if (curs !== null && typeof curs === 'object') {
-                        for (key in curs) {
-                            if (curs.hasOwnProperty(key)) {
-                                queue.push(curs[key]);
-                                queue.push(name + (name ? scopechar : '') + key);
-                            }
-                        }
-                    } else {
-                        if (headers[name] === undefined) headers[name] = true;
-                        rows[i][name] = curs;
-                    }
-                }
-                values[i] = [];
-            }
+        toCSV(obj, options = {}) {
+            if (typeof obj !== 'object' || obj === null) return null;
 
-            for (key in headers) {
-                if (headers.hasOwnProperty(key)) {
-                    headersArr.push(key);
-                    for (i = 0; i < obj.length; i++) {
-                        values[i].push(rows[i][key] === undefined
-                            ? ''
-                            : rows[i][key]);
+            const { scopechar = '/', delimiter = ',', newline = '\n' } = options;
+            const dataArray = Array.isArray(obj) ? obj : [obj];
+            if (dataArray.length === 0) return '';
+
+            const rowsData = [];
+            const headersSet = new Set();
+
+            dataArray.forEach(item => {
+                const flatRow = {};
+                const queue = [[item, '']];
+
+                while (queue.length > 0) {
+                    const [currentObj, prefix] = queue.pop();
+
+                    if (currentObj !== null && typeof currentObj === 'object' && !Array.isArray(currentObj) && !(currentObj instanceof Date)) {
+                        Object.entries(currentObj).forEach(([key, value]) => {
+                            queue.push([value, prefix ? `${prefix}${scopechar}${key}` : key]);
+                        });
+                    } else {
+                        const headerName = prefix || 'value';
+                        headersSet.add(headerName);
+                        flatRow[headerName] = (Array.isArray(currentObj) || currentObj instanceof Date)
+                            ? JSON.stringify(currentObj)
+                            : (currentObj ?? '');
                     }
                 }
-            }
-            for (i = 0; i < obj.length; i++) {
-                values[i] = values[i].join(delimeter);
-            }
-            return headersArr.join(delimeter) + newline + values.join(newline);
+                rowsData.push(flatRow);
+            });
+
+            const headersArray = Array.from(headersSet).sort();
+            const headerRow = headersArray.join(delimiter);
+
+            const valueRows = rowsData.map(row =>
+                headersArray.map(header => {
+                    let cellValue = String(row[header] ?? '');
+                    if (cellValue.includes(delimiter) || cellValue.includes(newline) || cellValue.includes('"')) {
+                        cellValue = `"${cellValue.replace(/"/g, '""')}"`;
+                    }
+                    return cellValue;
+                }).join(delimiter)
+            );
+
+            return [headerRow, ...valueRows].join(newline);
         },
 
         toParameterString(jsonObject) {
-            return jsonObject ? Object.entries(jsonObject).reduce(function (queryString, ref, index) {
-                var key = ref[0];
-                var val = ref[1];
-                queryString += `@${key}:${$string.toValue($string.toDynamic(val), '')};`;
-                return queryString;
-            }, '') : '';
+            if (!jsonObject || typeof jsonObject !== 'object') return '';
+            return Object.entries(jsonObject)
+                .map(([key, val]) => `@${key}:${$string.toValue($string.toDynamic(val), '')}`)
+                .join(';');
         },
 
         getType(val) {
-            var result = typeof val;
-            if (result == 'object') {
-                if (val) {
-                    if (val instanceof Array || (!(val instanceof Object) && (Object.prototype.toString.call((val)) == '[object Array]') || typeof val.length == 'number' && typeof val.splice != 'undefined' && typeof val.propertyIsEnumerable != 'undefined' && !val.propertyIsEnumerable('splice'))) {
-                        return 'array';
-                    }
-
-                    if (!(val instanceof Object) && (Object.prototype.toString.call((val)) == '[object Function]' || typeof val.call != 'undefined' && typeof val.propertyIsEnumerable != 'undefined' && !val.propertyIsEnumerable('call'))) {
-                        return 'function';
-                    }
-
-                    if (val instanceof Date) {
-                        return 'date';
-                    }
-
-                    if (val instanceof HTMLElement) {
-                        return 'element';
-                    }
-                }
-                else {
-                    return 'null';
-                }
-            }
-            else if (result == 'function' && typeof val.call == 'undefined') {
+            const type = typeof val;
+            if (type === 'object') {
+                if (val === null) return 'null';
+                if (Array.isArray(val)) return 'array';
+                if (val instanceof Date) return 'date';
+                if (globalRoot.devicePlatform !== 'node' && val instanceof HTMLElement) return 'element';
                 return 'object';
             }
-
-            return result;
+            return type;
         },
 
         defaultValue(type) {
-            if (typeof type !== 'string') {
-                return '';
-            }
-
-            switch (type) {
-                case 'bool':
-                case 'boolean':
-                    return false;
-                case 'function': return function () { };
+            switch (String(type).toLowerCase()) {
+                case 'boolean': return false;
+                case 'function': return () => { };
                 case 'null': return null;
-                case 'numeric':
-                case 'number':
-                    return 0;
+                case 'number': case 'numeric': case 'int': return 0;
                 case 'object': return {};
-                case 'date': return new Date();
+                case 'date': case 'datetime': return new Date();
                 case 'string': return '';
                 case 'symbol': return Symbol();
-                case 'undefined': return void 0;
+                case 'undefined': return undefined;
+                case 'array': return [];
                 default: return '';
             }
         },
@@ -4098,780 +3331,576 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         isArray(val) {
-            return this.getType(val) == 'array';
+            return Array.isArray(val);
         },
 
         isDate(val) {
-            var result = false;
-            try {
-                if (Object.prototype.toString.call(val) === '[object Date]') {
-                    result = true;
-                }
-                else if (typeof val == 'string') {
-                    if (val.includes('T') == true) {
-                        var date = val.parseISOString();
-                        result = typeof date.getFullYear == 'function';
-                    }
-                    else if ($date.isDate(val) == true) {
-                        result = true;
-                    }
-                }
-            } catch (e) {
-            }
-
-            return result;
+            return val instanceof Date && !isNaN(val.getTime());
         },
 
         isString(val) {
-            return typeof val == 'string';
+            return typeof val === 'string';
         },
 
         isNumber(val) {
-            return typeof val == 'number';
+            return typeof val === 'number' && !isNaN(val);
         },
 
         isFunction(val) {
-            return this.getType(val) == 'function';
+            return typeof val === 'function';
         },
 
         isObject(val) {
-            return typeof val == 'object';
+            return typeof val === 'object' && val !== null;
         },
 
         isObjectEmpty(val) {
-            if (typeof val == 'object') {
-                for (var key in val) {
-                    if (val.hasOwnProperty(key) == true) {
-                        return false;
-                    }
-                }
-            }
-            return true;
+            return typeof val === 'object' && val !== null && Object.keys(val).length === 0 && val.constructor === Object;
         },
 
         isBoolean(val) {
-            if ($object.isNullOrUndefined(val) == true) {
-                return false;
-            }
-
-            if (typeof val == 'boolean') {
-                return true;
-            }
-            else if (typeof val == 'string' || typeof val == 'number') {
-                val = val.toString();
-                return (val.toUpperCase() === 'TRUE' ||
-                    val.toUpperCase() === 'FALSE' ||
-                    val === 'Y' ||
-                    val === 'N' ||
-                    val == '1' ||
-                    val == '0');
-            }
-
-            return false;
+            if (typeof val === 'boolean') return true;
+            if (val === undefined || val === null) return false;
+            const strVal = String(val).toUpperCase();
+            return ['TRUE', 'FALSE', 'Y', 'N', '1', '0'].includes(strVal);
         },
 
         isEmpty(val) {
-            var result = false;
-            if (typeof val == 'number' || typeof val == 'boolean' || typeof val == 'function' || (typeof val === 'object' && val instanceof Date)) {
-                result = false;
-            }
-            else {
-                result = (val == null || !(Object.keys(val) || val).length);
-            }
-            return result;
+            if (val === undefined || val === null) return true;
+            if (typeof val === 'number' && isNaN(val)) return true;
+            if (typeof val === 'string' && val.trim() === '') return true;
+            if (Array.isArray(val) && val.length === 0) return true;
+            if (typeof val === 'object' && !(val instanceof Date) && Object.keys(val).length === 0 && val.constructor === Object) return true;
+            return false;
         },
 
-        clone(val, isNested) {
-            var result = null;
-
-            if ($object.isNullOrUndefined(isNested) == true) {
-                isNested = true;
+        clone(val, isNested = true) {
+            if (typeof val !== 'object' || val === null) {
+                return val;
             }
 
-            if ($object.isArray(val) == true) {
-                result = JSON.parse(JSON.stringify(val));
+            if (val instanceof Date) {
+                return new Date(val.getTime());
             }
-            else if ($object.isObject(val) == true) {
-                if (val) {
-                    var types = [Number, String, Boolean], result;
-                    types.forEach(function (type) {
-                        if (val instanceof type) {
-                            result = type(val);
-                        }
+
+            if (Array.isArray(val)) {
+                return isNested ? val.map(item => this.clone(item, true)) : [...val];
+            }
+
+            if (val instanceof HTMLElement && typeof val.cloneNode === 'function') {
+                return val.cloneNode(isNested);
+            }
+
+            if (typeof val === 'object') {
+                const clonedObj = Object.create(Object.getPrototypeOf(val));
+                if (isNested) {
+                    Object.keys(val).forEach(key => {
+                        clonedObj[key] = this.clone(val[key], true);
                     });
-
-                    if (isNested == true && Object.prototype.toString.call(val) === '[object Array]') {
-                        result = [];
-                        val.forEach(function (child, index, array) {
-                            result[index] = $object.clone(child);
-                        });
-                    }
-                    else if (typeof val == 'object') {
-                        if (val.nodeType && typeof val.cloneNode == 'function') {
-                            result = val.cloneNode(true);
-                        }
-                        else if (!val.prototype) {
-                            result = {};
-                            for (var i in val) {
-                                result[i] = $object.clone(val[i]);
-                            }
-                        }
-                        else {
-                            if (val.constructor) {
-                                result = new val.constructor();
-                            }
-                            else {
-                                result = val;
-                            }
-                        }
-                    }
-                    else {
-                        result = val;
-                    }
+                } else {
+                    Object.assign(clonedObj, val);
                 }
-                else {
-                    result = val;
-                }
-            }
-            else if ($object.isFunction(val) == true) {
-                result = val.clone();
-            }
-            else {
-                result = val;
+                return clonedObj;
             }
 
-            return result;
+            return val;
         },
 
-        extend(to, from, overwrite) {
-            var prop, hasProp;
-            for (prop in from) {
-                hasProp = to[prop] !== undefined;
-                if (hasProp && typeof from[prop] === 'object' && from[prop] !== null && from[prop].nodeName === undefined) {
-                    if ($object.isDate(from[prop])) {
-                        if (overwrite) {
-                            to[prop] = new Date(from[prop].getTime());
-                        }
+        extend(to, from, overwrite = true) {
+            if (!from || typeof from !== 'object') return to;
+
+            Object.entries(from).forEach(([prop, fromVal]) => {
+                const toVal = to[prop];
+                const hasProp = Object.prototype.hasOwnProperty.call(to, prop);
+
+                if (this.isObject(fromVal) && fromVal !== null && !this.isDate(fromVal) && !Array.isArray(fromVal) && !(fromVal instanceof HTMLElement)) {
+                    if (!hasProp || !this.isObject(toVal)) {
+                        to[prop] = {};
                     }
-                    else if ($object.isArray(from[prop])) {
-                        if (overwrite) {
-                            to[prop] = from[prop].slice(0);
-                        }
-                    } else {
-                        to[prop] = $object.extend({}, from[prop], overwrite);
-                    }
+                    this.extend(to[prop], fromVal, overwrite);
                 } else if (overwrite || !hasProp) {
-                    to[prop] = from[prop];
+                    to[prop] = this.clone(fromVal, false);
                 }
-            }
+            });
             return to;
         }
     });
     context.$object = $object;
 })(globalRoot);
 
-/// <reference path='syn.core.js' />
-
 (function (context) {
     'use strict';
-    var $library = context.$library || new syn.module();
-    var document = null;
-    if (globalRoot.devicePlatform === 'node') {
-    }
-    else {
-        document = context.document;
+    const $library = context.$library || new syn.module();
+    let doc = null;
+
+    if (globalRoot.devicePlatform !== 'node') {
+        doc = context.document;
 
         if (typeof context.CustomEvent !== 'function') {
-            var CustomEvent = function (event, params) {
-                params = params || { bubbles: false, cancelable: false, detail: undefined };
-                var evt = document.createEvent('CustomEvent');
-                evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
+            let customEventPolyfill = function (event, params = {}) {
+                const evt = doc.createEvent('CustomEvent');
+                const { bubbles = false, cancelable = false, detail = undefined } = params;
+                evt.initCustomEvent(event, bubbles, cancelable, detail);
                 return evt;
-            }
-
-            CustomEvent.prototype = context.Event.prototype;
-            context.CustomEvent = CustomEvent;
+            };
+            customEventPolyfill.prototype = context.Event.prototype;
+            context.CustomEvent = customEventPolyfill;
         }
     }
 
-    $library.extend({
-        prefixs: ['webkit', 'moz', 'ms', 'o', ''],
+    const eventRegistry = (() => {
+        const items = [];
+        return Object.freeze({
+            add(el, type, handler, capture = false) {
+                if (!el || !type || typeof handler !== 'function') return false;
+                if (!items.some(item => item.el === el && item.type === type && item.handler === handler && item.capture === capture)) {
+                    items.push({ el, type, handler, capture });
+                    return true;
+                }
+                return false;
+            },
+            remove(el, type, handler, capture = false) {
+                const initialLength = items.length;
+                for (let i = items.length - 1; i >= 0; i--) {
+                    const item = items[i];
+                    if (item.el === el && item.type === type && item.handler === handler && item.capture === capture) {
+                        items.splice(i, 1);
+                    }
+                }
+                return items.length < initialLength;
+            },
+            removeAllForElement(el) {
+                for (let i = items.length - 1; i >= 0; i--) {
+                    if (items[i].el === el) {
+                        items.splice(i, 1);
+                    }
+                }
+            },
+            findByArgs(el, type, handler, capture = false) {
+                return items.filter(item =>
+                    item.el === el &&
+                    item.type === type &&
+                    item.handler === handler &&
+                    item.capture === capture
+                );
+            },
+            findAllByArgs(el, type) {
+                return items.filter(item => item.el === el && item.type === type);
+            },
+            getAll() {
+                return [...items];
+            },
+            flush() {
+                this.getAll().forEach(({ el, type, handler, capture }) => {
+                    if (el.removeEventListener) {
+                        el.removeEventListener(type, handler, capture);
+                    }
+                });
+                items.length = 0;
+            }
+        });
+    })();
 
-        eventMap: {
+    $library.extend({
+        prefixs: Object.freeze(['webkit', 'moz', 'ms', 'o', '']),
+        eventMap: Object.freeze({
             'mousedown': 'touchstart',
             'mouseup': 'touchend',
             'mousemove': 'touchmove'
-        },
+        }),
 
-        events: function () {
-            var items = [];
+        events: eventRegistry,
 
-            return {
-                items: items,
-                add(el, eventName, handler) {
-                    var result = false;
-                    if (el && eventName && handler) {
-                        items.push(arguments);
-                        result = true;
-                    }
-
-                    return result;
-                },
-                remove(el, eventName, handler) {
-                    var index = -1;
-                    if (el && eventName && handler) {
-                        index = items.findIndex((item) => { return item[0] == el && item[1] == eventName && item[2] == handler });
-                    }
-                    else if (el && eventName) {
-                        index = items.findIndex((item) => { return item[0] == el && item[1] == eventName });
-                    }
-
-                    if (index > -1) {
-                        items.splice(index, 1);
-                    }
-
-                    return index > -1;
-                },
-                flush() {
-                    var i, item;
-                    for (i = items.length - 1; i >= 0; i = i - 1) {
-                        item = items[i];
-                        if (item[0].removeEventListener) {
-                            item[0].removeEventListener(item[1], item[2], item[3]);
-                        }
-                        if (item[1].substring(0, 2) != 'on') {
-                            item[1] = 'on' + item[1];
-                        }
-                        if (item[0].detachEvent) {
-                            item[0].detachEvent(item[1], item[2]);
-                        }
-                        item[0][item[1]] = null;
-                    }
-
-                    syn.$w.purge(document.body);
-                }
-            }
-        }(),
-
-        concreate($library) {
+        concreate() {
             if (globalRoot.devicePlatform !== 'node') {
-                document.addEventListener('DOMContentLoaded', () => {
-                    $library.addEvent(context, 'unload', $library.events.flush);
-                });
+                doc.addEventListener('DOMContentLoaded', () => {
+                    this.addEvent(context, 'unload', () => this.events.flush());
+                }, { once: true });
             }
         },
 
         guid() {
-            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            if (context.crypto?.randomUUID) {
+                return context.crypto.randomUUID();
+            }
+
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+                const r = Math.random() * 16 | 0;
+                const v = c === 'x' ? r : (r & 0x3 | 0x8);
                 return v.toString(16);
             });
         },
 
-        stringToArrayBuffer(value, isTwoByte) {
-            var bufferCount = 1;
-            if ($string.toBoolean(isTwoByte) == true) {
-                bufferCount = 2;
-            }
+        getElement(el) {
+            return $object.isString(el) ? this.get(el) : el;
+        },
 
-            var result = new ArrayBuffer(value.length * bufferCount);
-            var bufView = new Uint8Array(result);
-            for (var i = 0, strLen = value.length; i < strLen; i++) {
-                bufView[i] = value.charCodeAt(i);
+        stringToArrayBuffer(value, isTwoByte = false) {
+            const str = String(value);
+            const bufferLength = str.length * (isTwoByte ? 2 : 1);
+            const buffer = new ArrayBuffer(bufferLength);
+            const bufView = isTwoByte ? new Uint16Array(buffer) : new Uint8Array(buffer);
+            for (let i = 0; i < str.length; i++) {
+                bufView[i] = str.charCodeAt(i);
             }
-            return result;
+            return buffer;
         },
 
         arrayBufferToString(buffer) {
-            var arrayBuffer = new Uint8Array(buffer);
-            var s = String.fromCharCode.apply(null, arrayBuffer);
-            return decodeURIComponent(s);
-        },
+            if (!(buffer instanceof ArrayBuffer)) return '';
 
-        random(len, toLower) {
-            var result = '';
-            var len = len || 8;
-            var val = '';
-
-            while (val.length < len) {
-                val += Math.random().toString(36).substring(2);
-            }
-
-            if ($string.toBoolean(toLower) == true) {
-                result = val.substring(0, len);
-            }
-            else {
-                result = val.substring(0, len).toUpperCase();
-            }
-
-            return result;
-        },
-
-        execPrefixFunc(el, func) {
-            var prefixs = syn.$l.prefixs;
-            var i = 0, m, t;
-            while (i < prefixs.length && !el[m]) {
-                m = func;
-                if (prefixs[i] == '') {
-                    m = m.substring(0, 1).toLowerCase() + m.substring(1);
-                }
-                m = prefixs[i] + m;
-                t = typeof el[m];
-                if (t != 'undefined') {
-                    prefixs = [prefixs[i]];
-                    return (t == 'function' ? el[m]() : el[m]);
-                }
-                i++;
-            }
-        },
-
-        dispatchClick(el, options) {
             try {
-                el = $object.isString(el) == true ? syn.$l.get(el) : el;
-                options = syn.$w.argumentsExtend({
-                    canBubble: true,
+                if (typeof TextDecoder !== 'undefined') {
+                    return new TextDecoder().decode(buffer);
+                }
+
+                const uint8Array = new Uint8Array(buffer);
+                let binaryString = '';
+                for (const byte of uint8Array) {
+                    binaryString += String.fromCharCode(byte);
+                }
+
+                return binaryString;
+            } catch (e) {
+                console.error("ArrayBuffer to string conversion failed:", e);
+                return '';
+            }
+        },
+
+        random(len = 8, toLower = false) {
+            let result = '';
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            if (context.crypto?.getRandomValues) {
+                const randomValues = new Uint32Array(len);
+                context.crypto.getRandomValues(randomValues);
+                for (let i = 0; i < len; i++) {
+                    result += chars[randomValues[i] % chars.length];
+                }
+            } else {
+                for (let i = 0; i < len; i++) {
+                    result += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+            }
+            return toLower ? result.toLowerCase() : result.toUpperCase();
+        },
+
+        execPrefixFunc(el, funcName) {
+            if (!el || !funcName) return undefined;
+
+            for (const prefix of this.prefixs) {
+                let methodName = funcName;
+                if (prefix) {
+                    methodName = prefix + funcName.charAt(0).toUpperCase() + funcName.slice(1);
+                } else {
+                    methodName = funcName.charAt(0).toLowerCase() + funcName.slice(1);
+                }
+
+                if (typeof el[methodName] !== 'undefined') {
+                    return typeof el[methodName] === 'function' ? el[methodName]() : el[methodName];
+                }
+            }
+            return undefined;
+        },
+
+        dispatchClick(el, options = {}) {
+            el = this.getElement(el);
+            if (!el || globalRoot.devicePlatform === 'node' || !doc?.createEvent) return;
+
+            try {
+                const defaultOptions = {
+                    bubbles: true,
                     cancelable: true,
                     view: context,
-                    detail: 0,
-                    screenX: 0,
-                    screenY: 0,
-                    clientX: 80,
-                    clientY: 20,
-                    ctrlKey: false,
-                    altKey: false,
-                    shiftKey: false,
-                    metaKey: false,
+                    detail: 1,
+                    screenX: 0, screenY: 0, clientX: 0, clientY: 0,
+                    ctrlKey: false, altKey: false, shiftKey: false, metaKey: false,
                     button: 0,
-                    relatedTarget: null
-                }, options);
+                    relatedTarget: null,
+                    ...options
+                };
 
-                var evt = document.createEvent('MouseEvents');
-
-                // https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/initMouseEvent
-                evt.initMouseEvent('click', options.canBubble, options.cancelable, options.view, options.detail, options.screenX, options.screenY, options.clientX, options.clientY, options.ctrlKey, options.altKey, options.shiftKey, options.metaKey, options.button, options.relatedTarget);
+                const evt = new MouseEvent('click', defaultOptions);
                 el.dispatchEvent(evt);
+
             } catch (error) {
-                syn.$l.eventLog('$l.dispatchClick', error, 'Warning');
+                $l.eventLog('$l.dispatchClick', error, 'Warning');
             }
         },
 
-        // http://www.w3schools.com/html5/html5_ref_eventattributes.asp
-        addEvent(el, type, func) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if (el && func && $object.isFunction(func) == true) {
-                var hasEvent = syn.$l.hasEvent(el, type, func);
-                if (hasEvent == false) {
-                    if (el.addEventListener) {
-                        el.addEventListener(type, func, false);
-                    }
-                    else if (el.attachEvent) {
-                        el.attachEvent('on' + type, func);
-                    }
-                    else {
-                        el['on' + type] = el['e' + type + func];
-                    }
+        addEvent(el, type, handler) {
+            el = this.getElement(el);
+            if (!el || typeof handler !== 'function') return this;
 
-                    syn.$l.events.add(el, type, func);
-
-                    if ($object.isString(type) == true && type.toLowerCase() === 'resize') {
-                        func();
-                    }
+            if (this.events.add(el, type, handler, false)) {
+                if (el.addEventListener) {
+                    el.addEventListener(type, handler, false);
                 }
             }
 
-            return $library;
-        },
-
-        addEvents(query, type, func) {
-            if (func && $object.isFunction(func) == true) {
-                var items = [];
-                if ($object.isString(query) == true && $string.isNullOrEmpty(query) == false) {
-                    items = syn.$l.querySelectorAll(query);
-                }
-                else if ($object.isArray(query) == true && query.length > 0) {
-                    var item = query[0];
-                    if ($object.isString(item) == true) {
-                        for (var i = 0, length = query.length; i < length; i++) {
-                            items = $array.merge(items, syn.$l.querySelectorAll(query[i]));
-                        }
-                    }
-                    else if ($object.isObject(item) == true) {
-                        items = query;
-                    }
-                }
-                else if ($object.isObject(query) == true) {
-                    items = [query];
-                }
-
-                for (var i = 0, length = items.length; i < length; i++) {
-                    var el = items[i];
-                    syn.$l.addEvent(el, type, func);
-                }
+            if ($object.isString(type) && type.toLowerCase() === 'resize') {
+                handler();
             }
 
-            return $library;
+            return this;
         },
 
-        addLive(query, type, fn) {
-            $library.addEvent(document, type, function (evt) {
-                var found;
-                var targetEL = syn.$w.activeControl(evt);
-                while (targetEL && !(found = targetEL.matches(query))) {
-                    targetEL = targetEL.parentElement;
-                }
+        addEvents(query, type, handler) {
+            if (typeof handler !== 'function') return this;
 
-                if (found) {
-                    fn.call(targetEL, evt);
+            let elements = [];
+            if ($object.isString(query)) {
+                elements = this.querySelectorAll(query);
+            } else if (Array.isArray(query)) {
+                query.forEach(item => {
+                    if ($object.isString(item)) {
+                        elements = elements.concat(this.querySelectorAll(item));
+                    } else if ($object.isObject(item)) {
+                        elements.push(item);
+                    }
+                });
+                elements = [...new Set(elements)];
+            } else if ($object.isObject(query)) {
+                elements = [query];
+            }
 
+
+            elements.forEach(el => this.addEvent(el, type, handler));
+
+            return this;
+        },
+
+        addLive(query, type, handler) {
+            if (globalRoot.devicePlatform === 'node') return this;
+
+            this.addEvent(doc, type, (evt) => {
+                const targetElement = evt.target.closest(query);
+                if (targetElement) {
+                    handler.call(targetElement, evt);
                     evt.preventDefault();
                     evt.stopPropagation();
                 }
             });
-
-            return $library;
+            return this;
         },
 
-        removeEvent(el, type, func) {
-            if (func && $object.isFunction(func) == true) {
-                el = $object.isString(el) == true ? syn.$l.get(el) : el;
+        removeEvent(el, type, handler) {
+            el = this.getElement(el);
+            if (!el || typeof handler !== 'function') return this;
+
+            if (this.events.remove(el, type, handler, false)) {
                 if (el.removeEventListener) {
-                    el.removeEventListener(type, func, false);
+                    el.removeEventListener(type, handler, false);
                 }
-                else if (el.detachEvent) {
-                    el.detachEvent('on' + type, func);
-                }
-                else {
-                    el['on' + type] = null;
-                }
-
-                syn.$l.events.remove(el, type, func);
             }
-
-            return $library;
+            return this;
         },
 
-        hasEvent(el, type, func) {
-            var result = false;
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if (func && $object.isFunction(func) == true) {
-                result = syn.$l.events.items.some(item => (item[0] instanceof context.constructor || item[0] instanceof document.constructor || item[0] == el) && item[1] == type && item[2] == func)
+        hasEvent(el, type, handler) {
+            el = this.getElement(el);
+            if (!el) return false;
+
+            if (typeof handler === 'function') {
+                return this.events.findByArgs(el, type, handler, false).length > 0;
+            } else {
+                return this.events.findAllByArgs(el, type).length > 0;
             }
-            else {
-                result = syn.$l.events.items.some(item => (item[0] instanceof context.constructor || item[0] instanceof document.constructor || item[0] == el) && item[1] == type)
-            }
-            return result;
         },
 
         trigger(el, type, value) {
-            var result = false;
-            var item = null;
-            var action = null;
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            for (var i = 0, len = syn.$l.events.items.length; i < len; i++) {
-                item = syn.$l.events.items[i];
+            el = this.getElement(el);
+            if (!el) return false;
 
-                if (el instanceof HTMLElement) {
-                    if (item[0].id == el.id && item[1] == type) {
-                        action = item[2];
-                        break;
-                    }
-                }
-                else if (item[0] instanceof context.constructor || item[0] instanceof document.constructor) {
-                    if (item[1] == type) {
-                        action = item[2];
-                        break;
-                    }
-                }
-            }
+            let triggered = false;
+            const handlers = this.events.findAllByArgs(el, type);
 
-            if (action) {
-                if (value) {
-                    action.call(el, value);
+            handlers.forEach(({ handler }) => {
+                try {
+                    handler.call(el, value);
+                    triggered = true;
+                } catch (e) {
+                    $l.eventLog('$l.trigger', `Error executing handler for ${type}: ${e}`, 'Warning');
                 }
-                else {
-                    action.call(el);
-                }
-                result = true;
-            }
+            });
 
-            return result;
+            return triggered;
         },
 
         triggerEvent(el, type, customData) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if (context.CustomEvent) {
-                if (customData) {
-                    el.dispatchEvent(new CustomEvent(type, { detail: customData }));
-                }
-                else {
-                    el.dispatchEvent(new CustomEvent(type));
-                }
-            }
-            else if (document.createEvent) {
-                var evt = document.createEvent('HTMLEvents');
-                evt.initEvent(type, false, true);
+            el = this.getElement(el);
+            if (!el || globalRoot.devicePlatform === 'node') return this;
 
-                if (customData) {
-                    el.dispatchEvent(evt, customData);
+            try {
+                let event;
+                if (typeof context.CustomEvent === 'function') {
+                    event = new CustomEvent(type, { detail: customData, bubbles: true, cancelable: true });
                 }
-                else {
-                    el.dispatchEvent(evt);
+                else if (doc.createEvent) {
+                    event = doc.createEvent('HTMLEvents');
+                    event.initEvent(type, true, true);
                 }
-            }
-            else if (el.fireEvent) {
-                var evt = document.createEventObject();
-                evt.eventType = type;
-                if (customData) {
-                    el.fireEvent('on' + evt.eventType, customData);
+
+                if (event) {
+                    el.dispatchEvent(event);
                 }
-                else {
-                    el.fireEvent('on' + evt.eventType);
-                }
+            } catch (error) {
+                $l.eventLog('$l.triggerEvent', `Error dispatching ${type}: ${error}`, 'Warning');
             }
 
-            return $library;
+            return this;
         },
 
-        getValue(elID, defaultValue) {
-            var result = defaultValue === undefined ? '' : defaultValue;
-            var synControls = $this.context.synControls;
-            var controlInfo = synControls.find(function (item) {
-                return item.id == elID || item.id == `${elID}_hidden`;
+        getValue(elID, defaultValue = '') {
+            if (!$this?.context?.synControls) return defaultValue;
+
+            const synControls = $this.context.synControls;
+            const controlInfo = synControls.find(item => item.id === elID || item.id === `${elID}_hidden`);
+
+            if (controlInfo?.module) {
+                const controlModule = $webform.getControlModule(controlInfo.module);
+                if (controlModule?.getValue) {
+                    try {
+                        return controlModule.getValue(controlInfo.id.replace('_hidden', ''), controlInfo) ?? defaultValue;
+                    } catch (e) {
+                        $l.eventLog('$l.getValue', `Error getting value for ${elID}: ${e}`, 'Warning');
+                    }
+                }
+            } else if (doc) {
+                const el = this.get(elID);
+                if (el) return el.value ?? defaultValue;
+            }
+
+            return defaultValue;
+        },
+
+        get(...ids) {
+            if (globalRoot.devicePlatform === 'node' || !doc) return ids.length === 1 ? null : [];
+            const results = ids.map(id => $object.isString(id) ? doc.getElementById(id) : null).filter(el => el !== null);
+            return ids.length === 1 ? results[0] || null : results;
+        },
+
+        querySelector(...queries) {
+            if (globalRoot.devicePlatform === 'node' || !doc) return queries.length === 1 ? null : [];
+
+            const results = [];
+            queries.forEach(query => {
+                if ($object.isString(query)) {
+                    try {
+                        if (query.startsWith('//') || query.startsWith('.//')) {
+                            const xpathResult = doc.evaluate(query, doc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+                            for (let i = 0; i < xpathResult.snapshotLength; i++) {
+                                results.push(xpathResult.snapshotItem(i));
+                            }
+                        } else {
+                            const el = doc.querySelector(query);
+                            if (el) results.push(el);
+                        }
+                    } catch (e) {
+                        $l.eventLog('$l.querySelector', `Invalid selector "${query}": ${e}`, 'Warning');
+                    }
+                }
             });
 
-            if (controlInfo != null) {
-                var controlModule = syn.$w.getControlModule(controlInfo.module);
-                if ($object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
-                    if (controlInfo.type.indexOf('grid') > -1 || controlInfo.type.indexOf('chart') > -1) {
-                        var input = {
-                            requestType: inputConfig.type,
-                            dataFieldID: inputConfig.dataFieldID ? inputConfig.dataFieldID : document.forms.length > 0 ? document.forms[0].getAttribute('syn-datafield') : '',
-                            items: {}
-                        }
-
-                        if (controlModule.setTransactionBelongID) {
-                            controlModule.setTransactionBelongID(synControlConfig.id, input);
-                            result = controlModule.getValue(controlInfo.id.replace('_hidden', ''), 'List', input.items);
-                        }
-
-                    }
-                    else {
-                        result = controlModule.getValue(controlInfo.id.replace('_hidden', ''));
-                    }
-                }
-            }
-
-            return result;
+            return queries.length === 1 ? results[0] || null : results;
         },
 
-        get() {
-            var result = [];
-            var find = null;
-            var elID = '';
 
-            for (var i = 0, len = arguments.length; i < len; i++) {
-                elID = arguments[i];
-
-                if ($object.isString(elID) == true) {
-                    find = document.getElementById(elID);
+        getTagName(...tagNames) {
+            if (globalRoot.devicePlatform === 'node' || !doc) return [];
+            let results = [];
+            tagNames.forEach(tagName => {
+                if ($object.isString(tagName)) {
+                    results = results.concat(Array.from(doc.getElementsByTagName(tagName)));
                 }
-
-                result.push(find);
-            }
-
-            if (result.length == 1) {
-                return find;
-            }
-            else {
-                return result;
-            }
+            });
+            return results;
         },
 
-        querySelector() {
-            var result = [];
-            var find = null;
-            var query = '';
-
-            for (var i = 0, len = arguments.length; i < len; i++) {
-                query = arguments[i];
-
-                if ($object.isString(query) == true) {
-                    if (query.startsWith('//') || query.startsWith('.//')) {
-                        var xpathResult = document.evaluate(query, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-                        if (xpathResult.snapshotLength > 0) {
-                            find = xpathResult.snapshotItem(0);
+        querySelectorAll(...queries) {
+            if (globalRoot.devicePlatform === 'node' || !doc) return [];
+            let results = [];
+            queries.forEach(query => {
+                if ($object.isString(query)) {
+                    try {
+                        if (query.startsWith('//') || query.startsWith('.//')) {
+                            const xpathResult = doc.evaluate(query, doc, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+                            for (let i = 0; i < xpathResult.snapshotLength; i++) {
+                                results.push(xpathResult.snapshotItem(i));
+                            }
+                        } else {
+                            results = results.concat(Array.from(doc.querySelectorAll(query)));
                         }
-                    } else {
-                        find = document.querySelector(query);
-                    }
-
-                    if (find) {
-                        result.push(find);
+                    } catch (e) {
+                        $l.eventLog('$l.querySelectorAll', `Invalid selector "${query}": ${e}`, 'Warning');
                     }
                 }
-            }
-
-            if (result.length <= 1) {
-                return find;
-            }
-            else {
-                return result;
-            }
-        },
-
-        getTagName() {
-            var result = [];
-            for (var i = 0, len = arguments.length; i < len; i++) {
-                var tagName = arguments[i];
-                if ($object.isString(tagName) == true) {
-                    var els = document.getElementsByTagName(tagName);
-                    for (var j = 0, length = els.length; j < length; j++) {
-                        result.push(els[j]);
-                    }
-                }
-            }
-            return result;
-        },
-
-        querySelectorAll() {
-            var result = [];
-            for (var i = 0, len = arguments.length; i < len; i++) {
-                var query = arguments[i];
-                if ($object.isString(query) == true) {
-                    if (query.startsWith('//') || query.startsWith('.//')) {
-                        var xpathResult = document.evaluate(query, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-                        for (var j = 0; j < xpathResult.snapshotLength; j++) {
-                            result.push(xpathResult.snapshotItem(j));
-                        }
-                    } else {
-                        var els = document.querySelectorAll(query);
-                        for (var k = 0, length = els.length; k < length; k++) {
-                            result.push(els[k]);
-                        }
-                    }
-                }
-            }
-            return result;
+            });
+            return results;
         },
 
         toEnumText(enumObject, value) {
-            var text = null;
-            for (var k in enumObject) {
-                if (enumObject[k] == value) {
-                    text = k;
-                    break;
-                }
-            }
-            return text;
+            if (!$object.isObject(enumObject)) return null;
+            const entry = Object.entries(enumObject).find(([key, val]) => val === value);
+            return entry ? entry[0] : null;
         },
 
-        prettyTSD(tsd, isFormat) {
-            var result = null;
+        prettyTSD(tsd, isFormat = false) {
+            if (typeof tsd !== 'string') return tsd;
             try {
-                var Value = tsd.split('＾');
-                if (Value.length > 1) {
-                    var meta = $string.toParameterObject(Value[0]);
-                    result = $string.toJson(Value[1], { delimeter: '｜', newline: '↵', meta: meta });
-                }
-                else {
-                    result = $string.toJson(Value[0], { delimeter: '｜', newline: '↵' });
+                const parts = tsd.split('＾');
+                let jsonData;
+                const options = { delimiter: '｜', newline: '↵' };
+
+                if (parts.length > 1) {
+                    options.meta = $string.toParameterObject(parts[0]);
+                    jsonData = $string.toJson(parts[1], options);
+                } else {
+                    jsonData = $string.toJson(parts[0], options);
                 }
 
-                return $string.toBoolean(isFormat) == true ? JSON.stringify(result, null, 2) : result;
+                return $string.toBoolean(isFormat) ? JSON.stringify(jsonData, null, 2) : jsonData;
             } catch (error) {
-                result = error.message;
+                $l.eventLog('$l.prettyTSD', error, 'Error');
+                return `Error parsing TSD: ${error.message}`;
             }
-
-            return result;
         },
 
-        text2Json(data, delimiter, newLine) {
-            if (delimiter == undefined) {
-                delimiter = ',';
-            }
+        text2Json(data, delimiter = ',', newLine = '\n') {
+            if (typeof data !== 'string') return [];
+            const lines = data.trim().split(newLine);
+            if (lines.length < 2) return [];
 
-            if (newLine == undefined) {
-                newLine = '\n';
-            }
+            const titles = lines[0].split(delimiter).map(t => t.trim());
 
-            var titles = data.slice(0, data.indexOf(newLine)).split(delimiter);
-            return data
-                .slice(data.indexOf(newLine) + 1)
-                .split(newLine)
-                .map(function (v) {
-                    var values = v.split(delimiter);
-                    return titles.reduce(function (obj, title, index) {
-                        return (obj[title] = values[index]), obj;
-                    }, {});
-                });
+            return lines.slice(1).map(line => {
+                const values = line.split(delimiter);
+                return titles.reduce((obj, title, index) => {
+                    obj[title] = values[index]?.trim() ?? '';
+                    return obj;
+                }, {});
+            }).filter(obj => Object.keys(obj).length > 0);
         },
 
-        json2Text(arr, columns, delimiter, newLine) {
-            function _toConsumableArray(arr) {
-                return (
-                    _arrayWithoutHoles(arr) ||
-                    _iterableToArray(arr) ||
-                    _unsupportedIterableToArray(arr) ||
-                    _nonIterableSpread()
-                );
-            }
+        json2Text(arr, columns, delimiter = ',', newLine = '\n') {
+            if (!Array.isArray(arr) || !Array.isArray(columns)) return '';
 
-            function _nonIterableSpread() {
-                throw new TypeError('유효하지 않은 데이터 타입');
-            }
+            const headerRow = columns.join(delimiter);
 
-            function _unsupportedIterableToArray(o, minLen) {
-                if (!o) return;
-                if (typeof o === 'string') return _arrayLikeToArray(o, minLen);
-                var n = Object.prototype.toString.call(o).slice(8, -1);
-                if (n === 'Object' && o.constructor) n = o.constructor.name;
-                if (n === 'Map' || n === 'Set') return Array.from(o);
-                if (n === 'Arguments' || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n))
-                    return _arrayLikeToArray(o, minLen);
-            }
+            const valueRows = arr.map(obj =>
+                columns.map(key => {
+                    let cellValue = obj[key] ?? '';
+                    cellValue = String(cellValue);
+                    if (cellValue.includes(delimiter) || cellValue.includes(newLine) || cellValue.includes('"')) {
+                        cellValue = `"${cellValue.replace(/"/g, '""')}"`;
+                    }
+                    return cellValue;
+                }).join(delimiter)
+            );
 
-            function _iterableToArray(iter) {
-                if (typeof Symbol !== 'undefined' && Symbol.iterator in Object(iter))
-                    return Array.from(iter);
-            }
-
-            function _arrayWithoutHoles(arr) {
-                if (Array.isArray(arr)) return _arrayLikeToArray(arr);
-            }
-
-            function _arrayLikeToArray(arr, len) {
-                if (len == null || len > arr.length) len = arr.length;
-                for (var i = 0, arr2 = new Array(len); i < len; i++) {
-                    arr2[i] = arr[i];
-                }
-                return arr2;
-            }
-
-            if (delimiter == delimiter) {
-                delimiter = ',';
-            }
-
-            if (newLine == undefined) {
-                newLine = '\n';
-            }
-
-            return [columns.join(delimiter)]
-                .concat(
-                    _toConsumableArray(
-                        arr.map(function (obj) {
-                            return columns.reduce(function (acc, key) {
-                                return ''
-                                    .concat(acc)
-                                    .concat(!acc.length ? '' : delimiter)
-                                    .concat(!obj[key] ? '' : obj[key]);
-                            }, '');
-                        })
-                    )
-                )
-                .join(newLine);
+            return [headerRow, ...valueRows].join(newLine);
         },
 
-        nested2Flat(data, itemID, parentItemID, childrenID) {
+
+        nested2Flat(data, itemID, parentItemID, childrenID = 'items') {
             var result = [];
 
             if (data) {
@@ -4893,7 +3922,7 @@ if (typeof module !== 'undefined' && module.exports) {
             return result;
         },
 
-        parseNested2Flat(data, newData, itemID, parentItemID, childrenID) {
+        parseNested2Flat(data, newData, itemID, parentItemID, childrenID = 'items') {
             var result = null;
 
             if ($object.isNullOrUndefined(childrenID) == true) {
@@ -4920,14 +3949,10 @@ if (typeof module !== 'undefined' && module.exports) {
             return result;
         },
 
-        flat2Nested(data, itemID, parentItemID, childrenID) {
+        flat2Nested(data, itemID, parentItemID, childrenID = 'items') {
             var result = null;
 
             if (data && itemID && parentItemID) {
-                if ($object.isNullOrUndefined(childrenID) == true) {
-                    childrenID = 'items';
-                }
-
                 var root = data.find(function (item) { return item[parentItemID] == null });
                 var json = syn.$l.parseFlat2Nested(data, root, [], itemID, parentItemID, childrenID);
                 root[childrenID] = json[childrenID];
@@ -4940,11 +3965,7 @@ if (typeof module !== 'undefined' && module.exports) {
             return result;
         },
 
-        parseFlat2Nested(data, root, newData, itemID, parentItemID, childrenID) {
-            if ($object.isNullOrUndefined(childrenID) == true) {
-                childrenID = 'items';
-            }
-
+        parseFlat2Nested(data, root, newData, itemID, parentItemID, childrenID = 'items') {
             var child = data.filter(function (item) { return item[parentItemID] == root[itemID] });
             if (child.length > 0) {
                 if (!newData[childrenID]) {
@@ -4958,1083 +3979,938 @@ if (typeof module !== 'undefined' && module.exports) {
             return newData;
         },
 
-        findNestedByID(data, findID, itemID, childrenID) {
-            var result = null;
+        findNestedByID(data, findID, itemID, childrenID = 'items') {
+            if (!data || !itemID) return null;
 
-            if ($object.isNullOrUndefined(childrenID) == true) {
-                childrenID = 'items';
-            }
+            const itemsToSearch = Array.isArray(data) ? data : [data];
 
-            var items = data[childrenID];
-            if (data && items) {
-                if (data[itemID] == findID) {
-                    result = data;
-
-                    return result;
+            for (const item of itemsToSearch) {
+                if (item[itemID] == findID) {
+                    return item;
                 }
 
-                for (var i = 0; i < items.length; i++) {
-                    var item = items[i];
-
-                    if (item[itemID] == findID) {
-                        result = item;
-
-                        return result;
-                    }
-                    else if (item[childrenID] && item[childrenID].length > 0) {
-                        result = syn.$l.findNestedByID(item, findID, itemID, childrenID);
-
-                        if (result) {
-                            return result;
-                        }
+                if (Array.isArray(item[childrenID])) {
+                    const foundInChildren = this.findNestedByID(item[childrenID], findID, itemID, childrenID);
+                    if (foundInChildren) {
+                        return foundInChildren;
                     }
                 }
             }
 
-            return result;
+            return null;
         },
 
+
         deepFreeze(object) {
-            var result = null;
-            if (Object.isFrozen(object) == false) {
-                var propNames = Object.getOwnPropertyNames(object);
-                for (var name of propNames) {
-                    if (Object.isFrozen(object[name]) == true) {
-                        continue;
-                    }
+            if (!object || typeof object !== 'object' || Object.isFrozen(object)) {
+                return object;
+            }
 
-                    var value = object[name];
-                    object[name] = value && typeof value === 'object' ? syn.$l.deepFreeze(value) : value;
+            Object.getOwnPropertyNames(object).forEach(name => {
+                const value = object[name];
+                if (typeof value === 'object' && value !== null) {
+                    this.deepFreeze(value);
                 }
+            });
 
-                result = Object.freeze(object);
-            }
-            else {
-                result = object;
-            }
-
-            return result;
+            return Object.freeze(object);
         },
 
         createBlob(data, type) {
             try {
-                return new Blob([data], { type: type });
-            } catch (e) {
-                var BlobBuilder = globalRoot.BlobBuilder || globalRoot.WebKitBlobBuilder || globalRoot.MozBlobBuilder || globalRoot.MSBlobBuilder;
-                var builder = new BlobBuilder();
-                builder.append(data.buffer || data);
-                return builder.getBlob(type);
+                return new Blob([data], { type });
+            } catch {
+                try {
+                    const BlobBuilder = context.BlobBuilder || context.WebKitBlobBuilder || context.MozBlobBuilder || context.MSBlobBuilder;
+                    if (!BlobBuilder) throw new Error("BlobBuilder not supported");
+                    const builder = new BlobBuilder();
+                    builder.append(data.buffer || data);
+                    return builder.getBlob(type);
+                } catch (fallbackError) {
+                    $l.eventLog('$l.createBlob', `Blob creation failed: ${fallbackError}`, 'Error');
+                    return null;
+                }
             }
         },
 
         dataUriToBlob(dataUri) {
-            var result = null;
-
+            if (!dataUri || typeof dataUri !== 'string' || !dataUri.startsWith('data:')) return null;
             try {
-                var byteString = syn.$c.base64Decode(dataUri.split(',')[1]);
-                var mimeString = dataUri.split(',')[0].split(':')[1].split(';')[0];
-                var ab = new ArrayBuffer(byteString.length);
-                var ia = new Uint8Array(ab);
-                for (var i = 0; i < byteString.length; i++) {
-                    ia[i] = byteString.charCodeAt(i);
+                const parts = dataUri.split(',');
+                const meta = parts[0].split(':')[1].split(';');
+                const mimeType = meta[0];
+                const base64 = meta.includes('base64');
+                const dataString = base64 ? atob(parts[1]) : decodeURIComponent(parts[1]);
+
+                const byteNumbers = new Array(dataString.length);
+                for (let i = 0; i < dataString.length; i++) {
+                    byteNumbers[i] = dataString.charCodeAt(i);
                 }
-                result = new Blob([ab], { type: mimeString });
+                const byteArray = new Uint8Array(byteNumbers);
+
+                return new Blob([byteArray], { type: mimeType });
             } catch (error) {
-                syn.$l.eventLog('$w.dataUriToBlob', error, 'Warning');
+                $l.eventLog('$l.dataUriToBlob', error, 'Warning');
+                return null;
             }
-            return result;
         },
 
         dataUriToText(dataUri) {
-            var result = null;
-
+            if (!dataUri || typeof dataUri !== 'string' || !dataUri.startsWith('data:')) return null;
             try {
-                result = {
-                    value: syn.$c.base64Decode(dataUri.split(',')[1]),
-                    mime: dataUri.split(',')[0].split(':')[1].split(';')[0]
-                };
+                const parts = dataUri.split(',');
+                const meta = parts[0].split(':')[1].split(';');
+                const mimeType = meta[0];
+                const base64 = meta.includes('base64');
+                const value = base64 ? $cryptography.base64Decode(parts[1]) : decodeURIComponent(parts[1]);
+
+                return { value, mime: mimeType };
             } catch (error) {
-                syn.$l.eventLog('$w.dataUriToText', error, 'Warning');
+                $l.eventLog('$l.dataUriToText', error, 'Warning');
+                return null;
             }
-            return result;
         },
 
         blobToDataUri(blob, callback) {
-            if ($object.isNullOrUndefined(callback) == true) {
-                syn.$l.eventLog('$l.blobToDataUri', 'blob 결과 callback 확인 필요', 'Warning');
+            if (!(blob instanceof Blob) || typeof callback !== 'function') {
+                $l.eventLog('$l.blobToDataUri', 'Invalid Blob or callback function provided', 'Warning');
+                if (callback) callback(new Error("Invalid input"), null);
                 return;
             }
 
-            var reader = new FileReader();
-            reader.onloadend = function () {
-                var base64data = reader.result;
-                callback(base64data);
-            }
-            reader.onerror = function () {
-                syn.$l.eventLog('$l.blobToDataUri', reader.error, 'Error');
-                reader.abort();
-            }
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                if (reader.error) {
+                    $l.eventLog('$l.blobToDataUri', reader.error, 'Error');
+                    callback(reader.error, null);
+                } else {
+                    callback(null, reader.result);
+                }
+            };
+            reader.onerror = () => {
+                $l.eventLog('$l.blobToDataUri', reader.error || 'Unknown FileReader error', 'Error');
+                callback(reader.error || new Error('Unknown FileReader error'), null);
+            };
             reader.readAsDataURL(blob);
         },
 
+
         blobToDownload(blob, fileName) {
+            if (globalRoot.devicePlatform === 'node') return;
+
+            if (!(blob instanceof Blob) || !fileName) {
+                $l.eventLog('$l.blobToDownload', 'Invalid Blob or fileName provided', 'Warning');
+                return;
+            }
+
             if (context.navigator && context.navigator.msSaveOrOpenBlob) {
-                context.navigator.msSaveOrOpenBlob(blob, fileName);
-            } else {
-                var blobUrl = syn.$r.createBlobUrl(blob);
-                var link = document.createElement('a');
+                try {
+                    context.navigator.msSaveOrOpenBlob(blob, fileName);
+                } catch (e) {
+                    $l.eventLog('$l.blobToDownload', `msSaveOrOpenBlob failed: ${e}`, 'Error');
+                }
+                return;
+            }
+
+            let blobUrl = null;
+            try {
+                blobUrl = URL.createObjectURL(blob);
+                const link = doc.createElement('a');
                 link.href = blobUrl;
                 link.download = fileName;
+                doc.body.appendChild(link);
+                link.click();
+                doc.body.removeChild(link);
 
-                syn.$l.dispatchClick(link);
+                setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
 
-                setTimeout(function () {
-                    syn.$r.revokeBlobUrl(blobUrl);
-                    if (link.remove) {
-                        link.remove();
-                    }
-                }, 100);
+            } catch (e) {
+                $l.eventLog('$l.blobToDownload', `Download failed: ${e}`, 'Error');
+                if (blobUrl) URL.revokeObjectURL(blobUrl);
             }
         },
 
         blobUrlToBlob(url, callback) {
-            if ($object.isNullOrUndefined(callback) == true) {
-                syn.$l.eventLog('$l.blobUrlToBlob', 'blob 결과 callback 확인 필요', 'Warning');
+            if (typeof callback !== 'function') {
+                $l.eventLog('$l.blobUrlToBlob', 'Callback function 확인 필요', 'Warning');
+                if (callback) callback(new Error("Callback function required"), null);
+                return;
+            }
+            if (!url || typeof url !== 'string') {
+                if (callback) callback(new Error("Invalid URL"), null);
                 return;
             }
 
-            var xhr = syn.$w.xmlHttp();
-            xhr.open('GET', url);
-
-            if (syn.$w.setServiceClientHeader) {
-                if (syn.$w.setServiceClientHeader(xhr) == false) {
-                    return;
-                }
-            }
-
-            xhr.responseType = 'blob';
-            xhr.onload = function () {
-                callback(xhr.response);
-            }
-            xhr.onerror = function () {
-                syn.$l.eventLog('$l.blobUrlToBlob', 'url: {0}, status: {1}'.format(url, xhr.statusText), 'Warning');
-            }
-            xhr.send();
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status} ${response.statusText}`);
+                    }
+                    return response.blob();
+                })
+                .then(blob => callback(null, blob))
+                .catch(error => {
+                    $l.eventLog('$l.blobUrlToBlob', `url: ${url}, error: ${error}`, 'Warning');
+                    callback(error, null);
+                });
         },
 
         blobUrlToDataUri(url, callback) {
-            if ($object.isNullOrUndefined(callback) == true) {
-                syn.$l.eventLog('$l.blobUrlToDataUri', 'blob 결과 callback 확인 필요', 'Warning');
+            if (typeof callback !== 'function') {
+                $l.eventLog('$l.blobUrlToDataUri', 'Callback function 확인 필요', 'Warning');
+                if (callback) callback(new Error("Callback function required"), null);
+                return;
+            }
+            if (!url || typeof url !== 'string') {
+                if (callback) callback(new Error("Invalid URL"), null);
                 return;
             }
 
-            var xhr = syn.$w.xmlHttp();
-            xhr.open('GET', url);
-
-            if (syn.$w.setServiceClientHeader) {
-                if (syn.$w.setServiceClientHeader(xhr) == false) {
+            this.blobUrlToBlob(url, (error, blob) => {
+                if (error) {
+                    callback(error, null);
                     return;
                 }
-            }
-
-            xhr.responseType = 'blob';
-            xhr.onload = function () {
-                var reader = new FileReader();
-                reader.onloadend = function () {
-                    var base64data = reader.result;
-                    setTimeout(function () {
-                        syn.$r.revokeBlobUrl(url);
-                    }, 25);
-                    callback(null, base64data);
+                if (blob) {
+                    this.blobToDataUri(blob, callback);
+                } else {
+                    callback(new Error("Failed to retrieve blob from URL"), null);
                 }
-                reader.onerror = function () {
-                    syn.$l.eventLog('$l.blobUrlToDataUri', reader.error, 'Error');
-                    reader.abort();
-                    callback(reader.error.message, null);
-                }
-                reader.readAsDataURL(xhr.response);
-            }
-            xhr.onerror = function () {
-                syn.$l.eventLog('$l.blobUrlToDataUri', 'url: {0}, status: {1}'.format(url, xhr.statusText), 'Warning');
-                callback('url: {0}, status: {1}'.format(url, xhr.statusText), null);
-            }
-            xhr.send();
+            });
         },
 
-        async blobToBase64(blob, base64Only) {
-            base64Only = $string.toBoolean(base64Only);
-            if (globalRoot.devicePlatform === 'node') {
+        async blobToBase64(blob, base64Only = false) {
+            if (!(blob instanceof Blob)) return null;
+
+            if (globalRoot.devicePlatform === 'node' && typeof Buffer !== 'undefined') {
+                try {
+                    const arrayBuffer = await blob.arrayBuffer();
+                    const buffer = Buffer.from(arrayBuffer);
+                    const base64Data = buffer.toString('base64');
+                    if (base64Only) return base64Data;
+
+                    const mimeType = blob.type || 'application/octet-stream';
+                    return `data:${mimeType};base64,${base64Data}`;
+                } catch (error) {
+                    $l.eventLog('$l.blobToBase64 (Node)', error, 'Error');
+                    return null;
+                }
+            } else if (typeof FileReader !== 'undefined') {
                 return new Promise((resolve, reject) => {
-                    blob.arrayBuffer()
-                        .then(arrayBuffer => {
-                            var buffer = Buffer.from(arrayBuffer);
-                            var base64Data = buffer.toString('base64');
-                            if (base64Only == true) {
-                                resolve(base64Data);
-                            } else {
-                                const mimeType = blob.type || 'application/octet-stream';
-                                resolve(`data:${mimeType};base64,${base64Data}`);
-                            }
-                        })
-                        .catch(error => reject(error));
-                });
-            }
-            else {
-                return new Promise((resolve, reject) => {
-                    var reader = new FileReader();
+                    const reader = new FileReader();
                     reader.onloadend = () => {
-                        if (base64Only == true) {
-                            var base64Content = null;
-                            var base64Index = reader.result.indexOf(';base64,');
-                            if (base64Index > -1) {
-                                base64Content = reader.result.substring(base64Index + 8);
-                            }
-                            resolve(base64Content);
+                        if (reader.error) {
+                            reject(reader.error);
                         } else {
-                            resolve(reader.result);
+                            const dataUrl = reader.result;
+                            if (base64Only) {
+                                const base64Content = dataUrl.split(';base64,')[1] || null;
+                                resolve(base64Content);
+                            } else {
+                                resolve(dataUrl);
+                            }
                         }
                     };
-                    reader.onerror = error => reject(error);
+                    reader.onerror = (error) => reject(error);
                     reader.readAsDataURL(blob);
                 });
+            } else {
+                return null;
             }
         },
 
-        base64ToBlob(b64Data, contentType, sliceSize) {
-            if (b64Data === '' || b64Data === undefined) {
-                return;
-            }
+        base64ToBlob(b64Data, contentType = '', sliceSize = 512) {
+            if (!b64Data || typeof b64Data !== 'string') return null;
 
-            if ($string.isNullOrEmpty(contentType) == true) {
-                contentType = '';
-            }
+            try {
+                const byteCharacters = atob(b64Data);
+                const byteArrays = [];
 
-            if ($string.isNullOrEmpty(sliceSize) == true) {
-                sliceSize = 512;
-            }
-
-            var byteCharacters = atob(b64Data);
-            var byteArrays = [];
-
-            for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-                var slice = byteCharacters.slice(offset, offset + sliceSize);
-                var byteNumbers = new Array(slice.length);
-                for (var i = 0; i < slice.length; i++) {
-                    byteNumbers[i] = slice.charCodeAt(i);
+                for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+                    const slice = byteCharacters.slice(offset, offset + sliceSize);
+                    const byteNumbers = new Array(slice.length);
+                    for (let i = 0; i < slice.length; i++) {
+                        byteNumbers[i] = slice.charCodeAt(i);
+                    }
+                    byteArrays.push(new Uint8Array(byteNumbers));
                 }
-                var byteArray = new Uint8Array(byteNumbers);
-                byteArrays.push(byteArray);
-            }
 
-            return new Blob(byteArrays, { type: contentType });
+                return new Blob(byteArrays, { type: contentType });
+            } catch (e) {
+                $l.eventLog('$l.base64ToBlob', `Base64 decoding or Blob creation failed: ${e}`, 'Error');
+                return null;
+            }
         },
 
-        async blobToFile(blob, fileName, mimeType = 'text/plain') {
-            var result = null;
-            if (blob && blob.type && blob.size) {
-                result = new File([blob], fileName, { type: mimeType });
-            }
-
-            return result;
+        async blobToFile(blob, fileName, mimeType) {
+            if (!(blob instanceof Blob) || !fileName) return null;
+            const effectiveMimeType = mimeType || blob.type || 'application/octet-stream';
+            return new File([blob], fileName, { type: effectiveMimeType });
         },
 
         async fileToBase64(file) {
             if (globalRoot.devicePlatform === 'node') {
-                if (file.startsWith('http:') == true || file.startsWith('https:') == true) {
-                    var response = await fetch(file);
-                    var contentType = response.headers.get('Content-Type') || 'application/octet-stream';
-                    var arrayBuffer = await response.arrayBuffer();
-                    var buffer = Buffer.from(arrayBuffer);
-                    var base64Data = buffer.toString('base64');
+                const fs = require('fs').promises;
+                const path = require('path');
+                const fetch = require('node-fetch');
 
-                    return `data:${contentType};base64,${base64Data}`;
-                }
-                else {
-                    var fs = require('fs').promises;
-                    var buffer = await fs.readFile(filePath);
-                    var base64Data = buffer.toString('base64');
+                try {
+                    let buffer;
+                    let mimeType = 'application/octet-stream';
 
-                    var path = require('path');
-                    var extension = path.extname(filePath).toLowerCase();
-                    var mimeType = 'application/octet-stream';
-
-                    var mimeTypes = {
-                        '.jpg': 'image/jpeg',
-                        '.jpeg': 'image/jpeg',
-                        '.png': 'image/png',
-                        '.gif': 'image/gif',
-                        '.pdf': 'application/pdf',
-                        '.txt': 'text/plain',
-                        '.html': 'text/html',
-                        '.json': 'application/json'
-                    };
-
-                    if (mimeTypes[extension]) {
-                        mimeType = mimeTypes[extension];
+                    if (typeof file === 'string' && (file.startsWith('http:') || file.startsWith('https:'))) {
+                        const response = await fetch(file);
+                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                        mimeType = response.headers.get('content-type') || mimeType;
+                        buffer = Buffer.from(await response.arrayBuffer());
+                    } else if (typeof file === 'string') {
+                        const filePath = file;
+                        buffer = await fs.readFile(filePath);
+                        const extension = path.extname(filePath).toLowerCase();
+                        const mimeTypes = {
+                            '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.gif': 'image/gif',
+                            '.pdf': 'application/pdf', '.txt': 'text/plain', '.html': 'text/html', '.json': 'application/json'
+                        };
+                        mimeType = mimeTypes[extension] || mimeType;
+                    } else {
+                        throw new Error("Invalid input type for fileToBase64 in Node.js");
                     }
 
+                    const base64Data = buffer.toString('base64');
                     return `data:${mimeType};base64,${base64Data}`;
+
+                } catch (error) {
+                    $l.eventLog('$l.fileToBase64 (Node)', error, 'Error');
+                    return null;
                 }
-            }
-            else {
+
+            } else if (file instanceof File && typeof FileReader !== 'undefined') {
                 return new Promise((resolve, reject) => {
-                    var reader = new FileReader();
-                    reader.onload = () => resolve(reader.result);
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result);
                     reader.onerror = error => reject(error);
                     reader.readAsDataURL(file);
                 });
+            } else {
+                $l.eventLog('$l.fileToBase64', 'Invalid input or environment', 'Warning');
+                return null;
             }
         },
 
         async fileToBlob(file) {
-            var base64 = await syn.$l.fileToBase64(file);
+            const base64 = await this.fileToBase64(file);
+            if (!base64) return null;
 
-            var mimeType = base64?.match(/[^:]\w+\/[\w-+\d.]+(?=;|,)/)[0];
-            var realData = base64.split(',')[1];
+            const match = base64.match(/^data:(.+?);base64,(.+)$/);
+            if (!match) return null;
 
-            return syn.$l.base64ToBlob(realData, mimeType);
+            const mimeType = match[1];
+            const realData = match[2];
+
+            return this.base64ToBlob(realData, mimeType);
         },
 
         async resizeImage(blob, maxSize) {
-            var reader = new FileReader();
-            var image = new Image();
-            var canvas = document.createElement('canvas');
-            var dataURItoBlob = function (dataURI) {
-                var bytes = dataURI.split(',')[0].indexOf('base64') >= 0 ?
-                    atob(dataURI.split(',')[1]) :
-                    decodeURIComponent(dataURI.split(',')[1]);
-                var mime = dataURI.split(',')[0].split(':')[1].split(';')[0];
-                var max = bytes.length;
-                var ia = new Uint8Array(max);
-                for (var i = 0; i < max; i++)
-                    ia[i] = bytes.charCodeAt(i);
-                return new Blob([ia], { type: mime || 'image/jpeg' });
-            };
-            var resize = function () {
-                var width = image.width;
-                var height = image.height;
-                if (width > height) {
-                    if (maxSize <= 0) {
-                        maxSize = 80;
-                        if (width > maxSize) {
-                            height *= maxSize / width;
-                            width = maxSize;
+            if (globalRoot.devicePlatform === 'node' || !(blob instanceof Blob) || !blob.type.startsWith('image/')) {
+                const errorMsg = globalRoot.devicePlatform === 'node'
+                    ? "Image resizing not supported in Node.js environment."
+                    : "Invalid input: Not an image Blob.";
+                $l.eventLog('$l.resizeImage', errorMsg, 'Warning');
+                return Promise.reject(new Error(errorMsg));
+            }
+
+            const targetSize = (typeof maxSize === 'number' && maxSize > 0) ? maxSize : 80;
+
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                const image = new Image();
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+
+                image.onload = () => {
+                    let { width, height } = image;
+
+                    if (width > height) {
+                        if (width > targetSize) {
+                            height = Math.round(height * (targetSize / width));
+                            width = targetSize;
+                        }
+                    } else {
+                        if (height > targetSize) {
+                            width = Math.round(width * (targetSize / height));
+                            height = targetSize;
                         }
                     }
-                    else {
-                        if (width > maxSize) {
-                            height *= maxSize / width;
-                            width = maxSize;
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(image, 0, 0, width, height);
+
+                    canvas.toBlob(resizedBlob => {
+                        if (resizedBlob) {
+                            resolve({ blob: resizedBlob, width, height });
+                        } else {
+                            reject(new Error("Canvas to Blob conversion failed."));
                         }
-                    }
-                } else {
-                    if (maxSize <= 0) {
-                        maxSize = 80;
-                        if (height > maxSize) {
-                            width *= maxSize / height;
-                            height = maxSize;
-                        }
-                    }
-                    else {
-                        if (height > maxSize) {
-                            width *= maxSize / height;
-                            height = maxSize;
-                        }
-                    }
-                }
-                canvas.width = width;
-                canvas.height = height;
-                canvas.getContext('2d').drawImage(image, 0, 0, width, height);
-                var dataUrl = canvas.toDataURL('image/jpeg');
-                return {
-                    blob: dataURItoBlob(dataUrl),
-                    width: width,
-                    height: height,
+                    }, 'image/jpeg', 0.9);
                 };
-            };
-            return new Promise(function (success, failure) {
-                if (!blob.type.match(/image.*/)) {
-                    failure(new Error("이미지 파일 확인 필요"));
-                    return;
-                }
-                reader.onload = function (readerEvent) {
-                    image.onload = function () { return success(resize()); };
-                    image.src = readerEvent.target.result;
-                };
+
+                image.onerror = () => reject(new Error("Failed to load image"));
+                reader.onload = (e) => image.src = e.target.result;
+                reader.onerror = () => reject(new Error("Failed to read Blob"));
                 reader.readAsDataURL(blob);
             });
         },
 
-        logLevel: new function () {
-            this.Verbose = 0;
-            this.Debug = 1;
-            this.Information = 2;
-            this.Warning = 3;
-            this.Error = 4;
-            this.Fatal = 5;
-        },
 
-        start: (new Date()).getTime(),
+        logLevel: Object.freeze({
+            Verbose: 0, Debug: 1, Information: 2, Warning: 3, Error: 4, Fatal: 5
+        }),
+
+        start: Date.now(),
         eventLogTimer: null,
         eventLogCount: 0,
-        eventLog(event, data, logLevel) {
-            var message = typeof data == 'object' ? data.message : data;
-            var stack = typeof data == 'object' ? data.stack : data;
-            if (logLevel) {
-                if ($object.isString(logLevel) == true) {
-                    logLevel = syn.$l.logLevel[logLevel];
-                }
-            }
-            else {
-                logLevel = 0;
-            }
 
-            if (syn.Config && syn.Config.UIEventLogLevel) {
-                if (syn.$l.logLevel[syn.Config.UIEventLogLevel] > logLevel) {
-                    return;
-                }
+        eventLog(event, data, logLevelInput = 'Verbose') {
+            const message = data instanceof Error ? data.message : String(data);
+            const stack = data instanceof Error ? data.stack : undefined;
+
+            let logLevelNum;
+            if (typeof logLevelInput === 'string' && this.logLevel.hasOwnProperty(logLevelInput)) {
+                logLevelNum = this.logLevel[logLevelInput];
+            } else if (typeof logLevelInput === 'number') {
+                logLevelNum = logLevelInput;
+            } else {
+                logLevelNum = this.logLevel.Verbose;
             }
 
-            var logLevelText = syn.$l.toEnumText(syn.$l.logLevel, logLevel);
-            var now = (new Date()).getTime(),
-                diff = now - syn.$l.start,
-                value, div, text;
+            const configuredLevelName = syn.Config?.UIEventLogLevel || 'Verbose';
+            const configuredLevelNum = this.logLevel[configuredLevelName] ?? this.logLevel.Verbose;
 
-            if (globalRoot.devicePlatform === 'node') {
-                value = syn.$l.eventLogCount.toString() +
-                    '@' + (diff / 1000).toString().format('0.000') +
-                    ' [' + event + '] ' + (message === stack ? message : stack);
-
-                switch (logLevelText) {
-                    case 'Debug':
-                        globalRoot.$logger.debug(value);
-                        break;
-                    case 'Information':
-                        globalRoot.$logger.info(value);
-                        break;
-                    case 'Warning':
-                        globalRoot.$logger.warn(value);
-                        break;
-                    case 'Error':
-                        globalRoot.$logger.error(value);
-                        break;
-                    case 'Fatal':
-                        globalRoot.$logger.fatal(value);
-                        break;
-                    default:
-                        globalRoot.$logger.trace(value);
-                        break;
-                }
-
-                if (globalRoot.console) {
-                    console.log(`${logLevelText}: ${value}`);
-                }
+            if (logLevelNum < configuredLevelNum) {
+                return;
             }
-            else {
-                value = syn.$l.eventLogCount.toString() +
-                    '@' + (diff / 1000).toString().format('0.000') +
-                    ' [' + logLevelText + '] ' +
-                    '[' + event + '] ' + (message === stack ? message : stack);
 
-                if (syn.Config.IsDebugMode == true && syn.Config.Environment == 'Development' && ['Warning', 'Error', 'Fatal'].indexOf(logLevelText) > -1) {
+            const logLevelText = this.toEnumText(this.logLevel, logLevelNum) || 'Unknown';
+            const diff = (Date.now() - this.start) / 1000;
+            const timestamp = diff.toFixed(3);
+            const logMessageBase = `${this.eventLogCount}@${timestamp} [${logLevelText}] [${event}]`;
+            const logDetails = stack ? `${message}\n${stack}` : message;
+            const finalLogMessage = `${logMessageBase} ${logDetails}`;
+
+            if (globalRoot.devicePlatform === 'node' && globalRoot.$logger) {
+                const loggerMethod = logLevelText.toLowerCase();
+                if (typeof globalRoot.$logger[loggerMethod] === 'function') {
+                    globalRoot.$logger[loggerMethod](finalLogMessage);
+                } else {
+                    globalRoot.$logger.trace(finalLogMessage);
+                }
+                if (context.console) console.log(finalLogMessage);
+
+            } else if (context.console) {
+                switch (logLevelNum) {
+                    case this.logLevel.Error:
+                    case this.logLevel.Fatal:
+                        console.error(finalLogMessage); break;
+                    case this.logLevel.Warning:
+                        console.warn(finalLogMessage); break;
+                    case this.logLevel.Information:
+                        console.info(finalLogMessage); break;
+                    case this.logLevel.Debug:
+                        console.debug(finalLogMessage); break;
+                    default: // Verbose
+                        console.log(finalLogMessage); break;
+                }
+
+                if (syn.Config?.IsDebugMode === true && syn.Config?.Environment === 'Development' && logLevelNum >= this.logLevel.Warning) {
                     debugger;
                 }
 
-                if (context.console) {
-                    console.log(value);
-                }
-                else {
-                    div = document.createElement('DIV');
-                    text = document.createTextNode(value);
-
-                    div.appendChild(text);
-
-                    var eventlogs = document.getElementById('eventlogs');
+                if (doc && !context.console) {
+                    const div = doc.createElement('div');
+                    div.textContent = finalLogMessage;
+                    const eventlogs = doc.getElementById('eventlogs');
                     if (eventlogs) {
                         eventlogs.appendChild(div);
-
-                        clearTimeout(syn.$l.eventLogTimer);
-                        syn.$l.eventLogTimer = setTimeout(function () {
+                        clearTimeout(this.eventLogTimer);
+                        this.eventLogTimer = setTimeout(() => {
                             eventlogs.scrollTop = eventlogs.scrollHeight;
                         }, 10);
-                    }
-                    else {
-                        document.body.appendChild(div);
+                    } else {
+                        doc.body?.appendChild(div);
                     }
                 }
 
-                if (context.bound) {
-                    bound.browserEvent('browser', {
-                        ID: 'EventLog',
-                        Data: value
-                    }, function (error, json) {
-                        if (error) {
-                            console.log('browser EventLog - {0}'.format(error));
-                        }
-                    });
+                if (context.bound?.browserEvent) {
+                    try {
+                        context.bound.browserEvent('browser', {
+                            ID: 'EventLog',
+                            Data: finalLogMessage
+                        }, (error, json) => {
+                            if (error) console.log(`browserEvent EventLog callback error: ${error}`);
+                        });
+                    } catch (bridgeError) {
+                        console.log(`Error calling bound.browserEvent: ${bridgeError}`);
+                    }
                 }
             }
 
-            syn.$l.eventLogCount++;
+            this.eventLogCount++;
         },
 
-        getBasePath(basePath, defaultPath) {
+        getBasePath(basePathInput, defaultPath) {
+            if (globalRoot.devicePlatform !== 'node') return basePathInput || defaultPath || '';
+
             const path = require('path');
-            let entryBasePath = process.cwd();
+            const entryBasePath = process.cwd();
+            let resolvedPath = '';
 
-            if (!basePath) {
-                basePath = '';
-            } else if (basePath.startsWith('.')) {
-                basePath = path.resolve(entryBasePath, basePath);
+            if (!basePathInput) {
+                resolvedPath = defaultPath ? path.resolve(entryBasePath, defaultPath) : entryBasePath;
+            } else if (path.isAbsolute(basePathInput)) {
+                resolvedPath = basePathInput;
             } else {
-                basePath = path.resolve(basePath);
+                resolvedPath = path.resolve(entryBasePath, basePathInput);
             }
 
-            if (!basePath && defaultPath) {
-                basePath = defaultPath;
-            }
-
-            return basePath;
+            return resolvedPath;
         },
 
-        moduleEventLog(moduleID, event, data, logLevel) {
-            var message = typeof data == 'object' ? data.message : data;
-            var stack = typeof data == 'object' ? data.stack : data;
-            if (logLevel) {
-                if ($object.isString(logLevel) == true) {
-                    logLevel = syn.$l.logLevel[logLevel];
+        moduleEventLog(moduleID, event, data, logLevelInput = 'Verbose') {
+            if (globalRoot.devicePlatform !== 'node' || !moduleID) return;
+
+            const message = data instanceof Error ? data.message : String(data);
+            const stack = data instanceof Error ? data.stack : undefined;
+
+            let logLevelNum;
+            if (typeof logLevelInput === 'string' && this.logLevel.hasOwnProperty(logLevelInput)) {
+                logLevelNum = this.logLevel[logLevelInput];
+            } else if (typeof logLevelInput === 'number') {
+                logLevelNum = logLevelInput;
+            } else {
+                logLevelNum = this.logLevel.Verbose;
+            }
+
+
+            const configuredLevelName = syn.Config?.UIEventLogLevel || 'Verbose';
+            const configuredLevelNum = this.logLevel[configuredLevelName] ?? this.logLevel.Verbose;
+
+            if (logLevelNum < configuredLevelNum) {
+                return;
+            }
+
+            const logLevelText = this.toEnumText(this.logLevel, logLevelNum) || 'Unknown';
+            const diff = (Date.now() - this.start) / 1000;
+            const timestamp = diff.toFixed(3);
+
+            const logMessageBase = `${this.eventLogCount}@${timestamp} [${event}]`;
+            const logDetails = stack ? `${message}\n${stack}` : message;
+            const finalLogMessage = `${logMessageBase} ${logDetails}`;
+
+            const moduleLibrary = syn.getModuleLibrary ? syn.getModuleLibrary(moduleID) : null;
+            const logger = moduleLibrary?.logger;
+
+            if (logger) {
+                const loggerMethod = logLevelText.toLowerCase();
+                if (typeof logger[loggerMethod] === 'function') {
+                    logger[loggerMethod](finalLogMessage);
+                } else {
+                    logger.trace(finalLogMessage);
                 }
-            }
-            else {
-                logLevel = 0;
-            }
+                if (context.console) console.log(`[${moduleID}] ${logLevelText}: ${finalLogMessage}`);
 
-            if (syn.Config && syn.Config.UIEventLogLevel) {
-                if (syn.$l.logLevel[syn.Config.UIEventLogLevel] > logLevel) {
-                    return;
-                }
+            } else {
+                console.log(`Module Logger Error: Logger for ModuleID "${moduleID}" not found. Message: ${finalLogMessage}`);
             }
 
-            var logLevelText = syn.$l.toEnumText(syn.$l.logLevel, logLevel);
-            var now = (new Date()).getTime(),
-                diff = now - syn.$l.start,
-                value;
-
-            value = syn.$l.eventLogCount.toString() +
-                '@' + (diff / 1000).toString().format('0.000') +
-                ' [' + event + '] ' + (message === stack ? message : stack);
-
-            var moduleLibrary = syn.getModuleLibrary(moduleID);
-            if (moduleLibrary) {
-                var logger = moduleLibrary.logger;
-                switch (logLevelText) {
-                    case 'Debug':
-                        logger.debug(value);
-                        break;
-                    case 'Information':
-                        logger.info(value);
-                        break;
-                    case 'Warning':
-                        logger.warn(value);
-                        break;
-                    case 'Error':
-                        logger.error(value);
-                        break;
-                    case 'Fatal':
-                        logger.fatal(value);
-                        break;
-                    default:
-                        logger.trace(value);
-                        break;
-                }
-
-                if (globalRoot.console) {
-                    console.log(`${logLevelText}: ${value}`);
-                }
-            }
-            else {
-                console.log('ModuleID 확인 필요 - {0}'.format(moduleID));
-            }
-
-            syn.$l.eventLogCount++;
+            this.eventLogCount++;
         }
+
     });
 
-    context.$library = syn.$l = $library;
     if (globalRoot.devicePlatform === 'node') {
-        delete syn.$l.addEvent;
-        delete syn.$l.addLive;
-        delete syn.$l.removeEvent;
-        delete syn.$l.hasEvent;
-        delete syn.$l.trigger;
-        delete syn.$l.triggerEvent;
-        delete syn.$l.addBind;
-        delete syn.$l.getValue;
-        delete syn.$l.get;
-        delete syn.$l.querySelector;
-        delete syn.$l.getName;
-        delete syn.$l.querySelectorAll;
-        delete syn.$l.getElementsById;
-        delete syn.$l.getElementsByClassName;
-        delete syn.$l.getElementsByTagName;
+        const browserOnlyMethods = [
+            'addEvent', 'addEvents', 'addLive', 'removeEvent', 'hasEvent', 'trigger',
+            'triggerEvent', 'getValue', 'get', 'querySelector', 'getTagName',
+            'querySelectorAll', 'dispatchClick'
+        ];
+        browserOnlyMethods.forEach(method => { delete $library[method]; });
+    } else {
+        const nodeOnlyMethods = ['getBasePath', 'moduleEventLog'];
+        nodeOnlyMethods.forEach(method => { delete $library[method]; });
     }
-    else {
-        delete syn.$l.getBasePath;
-        delete syn.$l.moduleEventLog;
-    }
-})(globalRoot);
 
-/// <reference path='syn.library.js' />
-/// <reference path='syn.browser.js' />
+    context.$library = syn.$l = $library;
+})(globalRoot);
 
 (function (context) {
     'use strict';
-    var $request = context.$request || new syn.module();
-    var document = null;
-    if (globalRoot.devicePlatform === 'node') {
-    }
-    else {
-        document = context.document;
+    const $request = context.$request || new syn.module();
+    let doc = null;
+    let currentPath = '';
+    let currentHref = '';
+
+    const $s = context.$string;
+    const $l = context.$library;
+    const $w = context.$webform;
+
+    if (globalRoot.devicePlatform !== 'node') {
+        doc = context.document;
+        currentPath = context.location?.pathname ?? '';
+        currentHref = context.location?.href ?? '';
     }
 
     $request.extend({
         params: {},
-        path: (globalRoot.devicePlatform === 'node') ? '' : location.pathname,
+        path: currentPath,
 
         query(param, url) {
-            url = url || location.href;
-
-            return function (url) {
-                var url = url.split('?');
-                var query = ((url.length == 1) ? url[0] : url[1]).split('&');
-                for (var i = 0; i < query.length; i++) {
-                    var splitIndex = query[i].indexOf('=');
-                    var key = query[i].substring(0, splitIndex);
-                    var value = query[i].substring(splitIndex + 1);
-                    syn.$r.params[key] = value;
+            const targetUrl = url || currentHref;
+            if (!this.params[targetUrl]) {
+                this.params[targetUrl] = {};
+                try {
+                    const searchParams = new URL(targetUrl).searchParams;
+                    searchParams.forEach((value, key) => {
+                        this.params[targetUrl][key] = value;
+                    });
+                } catch (e) {
+                    const queryString = targetUrl.split('?')[1] || '';
+                    queryString.split('&').forEach(pair => {
+                        const parts = pair.split('=');
+                        if (parts.length === 2) {
+                            const key = decodeURIComponent(parts[0].replace(/\+/g, ' '));
+                            const value = decodeURIComponent(parts[1].replace(/\+/g, ' '));
+                            if (key) this.params[targetUrl][key] = value;
+                        }
+                    });
                 }
-                return syn.$r.params;
-            }(url)[param];
+            }
+            return this.params[targetUrl][param];
         },
 
         url() {
-            var url = syn.$r.path.split('?');
-            var param = '';
+            let baseUrl = this.path;
+            const currentParams = { ...this.params[currentHref] };
 
-            param = syn.$r.path + ((syn.$r.path.length > 0 && url.length > 1) ? '&' : '?');
-            for (var key in $request.params) {
-                if (typeof (syn.$r.params[key]) == 'string') {
-                    param += key + '=' + syn.$r.params[key] + '&';
-                }
+            if (syn.Config?.IsClientCaching === false) {
+                currentParams.noCache = Date.now();
             }
 
-            if (syn.Config && $string.toBoolean(syn.Config.IsClientCaching) == false) {
-                param += '&noCache=' + (new Date()).getTime();
-            }
-
-            return encodeURI(param.substring(0, param.length - 1));
+            const queryString = this.toQueryString(currentParams, true);
+            return encodeURI(baseUrl + queryString);
         },
 
-        toQueryString(jsonObject, isQuestion) {
-            var result = jsonObject ? Object.entries(jsonObject).reduce((queryString, ref, index) => {
-                var key = ref[0];
-                var val = ref[1];
-                queryString += `&${key}=${$string.toValue(val, '')}`;
-                return queryString;
-            }, '') : '';
-
-            if ($string.isNullOrEmpty(result) == false && $string.toBoolean(isQuestion) == true) {
-                result = '?' + result.substring(1);
+        toQueryString(jsonObject, includeQuestionMark = false) {
+            if (!jsonObject || typeof jsonObject !== 'object') return '';
+            const params = new URLSearchParams();
+            Object.entries(jsonObject).forEach(([key, val]) => {
+                if (val !== undefined && val !== null) {
+                    params.append(key, $s.toValue(val, ''));
+                }
+            });
+            const queryString = params.toString();
+            if (queryString && includeQuestionMark) {
+                return `?${queryString}`;
             }
-
-            return result;
+            return queryString ? `&${queryString}` : '';
         },
 
         toUrlObject(url) {
-            url = url || location.href;
-            return (url.match(/([^?=&]+)(=([^&]*))/g) || []).reduce(function (a, v) {
-                return a[v.slice(0, v.indexOf('='))] = v.slice(v.indexOf('=') + 1), a;
-            }, {});
+            const targetUrl = url || currentHref;
+            const params = {};
+            try {
+                const urlObj = new URL(targetUrl);
+                urlObj.searchParams.forEach((value, key) => {
+                    params[key] = value;
+                });
+            } catch (e) {
+                const queryString = targetUrl.split('?')[1] || '';
+                queryString.split('&').forEach(pair => {
+                    const parts = pair.split('=');
+                    if (parts.length === 2) {
+                        const key = decodeURIComponent(parts[0].replace(/\+/g, ' '));
+                        const value = decodeURIComponent(parts[1].replace(/\+/g, ' '));
+                        if (key) params[key] = value;
+                    }
+                });
+            }
+            return params;
         },
 
         async isCorsEnabled(url) {
-            var result = false;
+            if (!url || globalRoot.devicePlatform === 'node') return true;
             try {
-                var response = await fetch(url, { method: 'HEAD', timeout: 200 });
-                result = (response.status >= 200 && response.status <= 299);
-
-                if (result == false) {
-                    syn.$l.eventLog('$w.isCorsEnabled', '{0}, {1}:{2}'.format(url, response.status, response.statusText), 'Warning');
+                const response = await fetch(url, { method: 'HEAD', mode: 'cors', cache: 'no-cache', signal: AbortSignal.timeout(2000) });
+                const corsOk = response.ok;
+                if (!corsOk) {
+                    $l.eventLog('$r.isCorsEnabled', `${url}, Status: ${response.status} ${response.statusText}`, 'Warning');
                 }
+                return corsOk;
             } catch (error) {
-                syn.$l.eventLog('$w.isCorsEnabled', error.message, 'Error');
+                $l.eventLog('$r.isCorsEnabled', `${url}, Error: ${error.message}`, (error.name === 'AbortError' ? 'Warning' : 'Error'));
+                return false;
             }
-
-            return result;
         },
 
         httpFetch(url) {
-            return new Proxy({}, {
-                get(target, action) {
-                    return async function (raw, options) {
-                        if (['send'].indexOf(action) == -1) {
-                            return Promise.resolve({ error: `${action} 메서드 확인 필요` });
-                        }
+            if (!url) return Promise.reject(new Error("URL is required for httpFetch"));
 
-                        options = syn.$w.argumentsExtend({
-                            method: 'GET'
-                        }, options);
+            return {
+                send: async (rawData, options = {}) => {
+                    const { method = 'GET', timeout, contentType, ...restOptions } = options;
+                    const effectiveMethod = (rawData !== null && rawData !== undefined && method === 'GET') ? 'POST' : method;
+                    const headers = new Headers(restOptions.headers || {});
 
-                        var requestTimeoutID = null;
-                        if ($object.isNullOrUndefined(raw) == false && $object.isString(raw) == false) {
-                            options.method = options.method || 'POST';
-
-                            if ($object.isNullOrUndefined(options.headers) == true) {
-                                options.headers = new Headers();
-                                if (raw instanceof FormData) {
-                                }
-                                else {
-                                    options.headers.append('Content-Type', options.contentType || 'application/json');
-                                }
-                            }
-
-                            if (syn.Environment) {
-                                var environment = syn.Environment;
-                                if (environment.Header) {
-                                    for (var item in environment.Header) {
-                                        if (options.headers.has(item) == false) {
-                                            options.headers.append(item, environment.Header[item]);
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (options.headers.has('OffsetMinutes') == false) {
-                                options.headers.append('OffsetMinutes', syn.$w.timezoneOffsetMinutes);
-                            }
-
-                            var data = {
-                                method: options.method,
-                                headers: options.headers,
-                                body: raw instanceof FormData ? raw : JSON.stringify(raw),
-                                redirect: 'follow'
-                            };
-
-                            if ($object.isNullOrUndefined(options.timeout) == false) {
-                                var controller = new AbortController();
-                                requestTimeoutID = setTimeout(() => controller.abort(), options.timeout);
-                                data.signal = controller.signal;
-                            }
-
-                            var response = await fetch(url, data);
-
-                            if (requestTimeoutID) {
-                                clearTimeout(requestTimeoutID);
-                            }
-                        }
-                        else {
-                            if ($object.isNullOrUndefined(options.headers) == true) {
-                                options.headers = new Headers();
-                                options.headers.append('Content-Type', options.contentType || 'application/json');
-                            }
-
-                            if (syn.Environment) {
-                                var environment = syn.Environment;
-                                if (environment.Header) {
-                                    for (var item in environment.Header) {
-                                        if (options.headers.has(item) == false) {
-                                            options.headers.append(item, environment.Header[item]);
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (options.headers.has('OffsetMinutes') == false) {
-                                options.headers.append('OffsetMinutes', syn.$w.timezoneOffsetMinutes);
-                            }
-
-                            var data = {
-                                method: options.method,
-                                headers: options.headers,
-                                redirect: 'follow'
-                            };
-
-                            if ($object.isNullOrUndefined(options.timeout) == false) {
-                                var controller = new AbortController();
-                                requestTimeoutID = setTimeout(() => controller.abort(), options.timeout);
-                                data.signal = controller.signal;
-                            }
-
-                            var response = await fetch(url, data);
-
-                            if (requestTimeoutID) {
-                                clearTimeout(requestTimeoutID);
-                            }
-                        }
-
-                        var result = { error: '요청 정보 확인 필요' };
-                        if (response.ok == true) {
-                            var contentType = response.headers.get('Content-Type') || '';
-                            if (contentType.includes('application/json') == true) {
-                                result = await response.json();
-                            }
-                            else if (contentType.includes('text/') == true) {
-                                result = await response.text();
-                            }
-                            else {
-                                result = await response.blob();
-                            }
-                            return Promise.resolve(result);
-                        }
-                        else {
-                            result = { error: `status: ${response.status}, text: ${await response.text()}` }
-                            syn.$l.eventLog('$r.httpFetch', `${result.error}`, 'Error');
-                        }
-
-                        return Promise.resolve(result);
-                    };
-                }
-            });
-        },
-
-        // var result = await syn.$r.httpRequest('GET', '/index');
-        httpRequest(method, url, data, callback, options) {
-            options = syn.$w.argumentsExtend({
-                timeout: 0,
-                responseType: 'text'
-            }, options);
-
-            if ($object.isNullOrUndefined(data) == true) {
-                data = {};
-            }
-
-            var xhr = syn.$w.xmlHttp();
-            xhr.open(method, url, true);
-            xhr.timeout = options.timeout;
-            xhr.responseType = options.responseType;
-            xhr.setRequestHeader('OffsetMinutes', syn.$w.timezoneOffsetMinutes);
-
-            var formData = null;
-            if ($object.isNullOrUndefined(data.body) == false) {
-                var params = data.body;
-                if (method.toUpperCase() == 'GET') {
-                    var paramUrl = url + ((url.split('?').length > 1) ? '&' : '?');
-
-                    for (var key in params) {
-                        paramUrl += key + '=' + params[key].toString() + '&';
+                    if (!(rawData instanceof FormData) && !headers.has('Content-Type')) {
+                        headers.set('Content-Type', contentType || 'application/json');
                     }
 
-                    url = encodeURI(paramUrl.substring(0, paramUrl.length - 1));
-                }
-                else {
-                    formData = new FormData();
-
-                    for (var key in params) {
-                        formData.append(key, params[key].toString());
-                    }
-                }
-            }
-            else {
-                xhr.setRequestHeader('Content-Type', options.contentType || 'application/json');
-            }
-
-            if (syn.$w.setServiceClientHeader) {
-                if (syn.$w.setServiceClientHeader(xhr) == false) {
-                    return;
-                }
-            }
-
-            if (callback) {
-                xhr.onreadystatechange = function () {
-                    if (xhr.readyState === 4) {
-                        if (xhr.status !== 200) {
-                            if (xhr.status == 0) {
-                                syn.$l.eventLog('$r.httpRequest', 'X-Requested transport error', 'Fatal');
-                            }
-                            else {
-                                syn.$l.eventLog('$r.httpRequest', 'response status - {0}'.format(xhr.statusText) + xhr.response, 'Error');
-                            }
-                            return;
-                        }
-
-                        if (callback) {
-                            callback({
-                                status: xhr.status,
-                                response: xhr.response
-                            });
-                        }
-                    }
-                }
-
-                if (formData == null) {
-                    if (data != {}) {
-                        xhr.send(JSON.stringify(data));
-                    } else {
-                        xhr.send();
-                    }
-                }
-                else {
-                    xhr.send(formData);
-                }
-            }
-            else if (globalRoot.Promise) {
-                return new Promise(function (resolve) {
-                    xhr.onload = function () {
-                        return resolve({
-                            status: xhr.status,
-                            response: xhr.response
+                    if (syn.Environment?.Header) {
+                        Object.entries(syn.Environment.Header).forEach(([key, value]) => {
+                            if (!headers.has(key)) headers.append(key, value);
                         });
-                    };
-                    xhr.onerror = function () {
-                        return resolve({
-                            status: xhr.status,
-                            response: xhr.response
-                        });
+                    }
+
+                    if (!headers.has('OffsetMinutes')) {
+                        headers.append('OffsetMinutes', String($w?.timezoneOffsetMinutes ?? -(new Date().getTimezoneOffset())));
+                    }
+
+                    const fetchOptions = {
+                        method: effectiveMethod,
+                        headers: headers,
+                        redirect: 'follow',
+                        body: (rawData instanceof FormData) ? rawData : (rawData !== null && rawData !== undefined ? JSON.stringify(rawData) : null),
+                        ...restOptions
                     };
 
-                    if (formData == null) {
-                        if (data != {}) {
-                            xhr.send(JSON.stringify(data));
+                    let timeoutId = null;
+                    if (typeof timeout === 'number' && timeout > 0) {
+                        const controller = new AbortController();
+                        fetchOptions.signal = controller.signal;
+                        timeoutId = setTimeout(() => controller.abort(), timeout);
+                    }
+
+                    try {
+                        const response = await fetch(url, fetchOptions);
+
+                        if (timeoutId) clearTimeout(timeoutId);
+
+                        if (!response.ok) {
+                            const errorText = await response.text().catch(() => 'Failed to read error response body');
+                            const errorMsg = `HTTP error! status: ${response.status}, text: ${errorText}`;
+                            $l.eventLog('$r.httpFetch', errorMsg, 'Error');
+                            return { error: errorMsg };
+                        }
+
+                        const responseContentType = response.headers.get('Content-Type') || '';
+                        if (responseContentType.includes('application/json')) {
+                            return await response.json();
+                        } else if (responseContentType.includes('text/')) {
+                            return await response.text();
                         } else {
-                            xhr.send();
+                            return await response.blob();
                         }
+
+                    } catch (error) {
+                        if (timeoutId) clearTimeout(timeoutId);
+                        $l.eventLog('$r.httpFetch', `Fetch error: ${error.message}`, 'Error');
+                        return { error: `Fetch error: ${error.message}` };
                     }
-                    else {
-                        xhr.send(formData);
+                }
+            };
+        },
+
+        httpRequest(method, url, data = {}, callback, options = {}) {
+            const { timeout = 0, responseType = 'text', contentType } = options;
+            const effectiveMethod = String(method).toUpperCase();
+            let requestUrl = url;
+            let requestBody = null;
+            const headers = {};
+
+            headers['OffsetMinutes'] = String($w?.timezoneOffsetMinutes ?? -(new Date().getTimezoneOffset()));
+
+            if (data && Object.keys(data).length > 0) {
+                if (effectiveMethod === 'GET') {
+                    const queryString = $r.toQueryString(data, !url.includes('?'));
+                    requestUrl += queryString;
+                } else {
+                    if (data instanceof FormData) {
+                        requestBody = data;
+                    } else if (typeof data === 'object') {
+                        if (contentType === 'application/x-www-form-urlencoded') {
+                            requestBody = $r.toQueryString(data, false).substring(1);
+                            headers['Content-Type'] = 'application/x-www-form-urlencoded';
+                        } else {
+                            try {
+                                requestBody = JSON.stringify(data);
+                                headers['Content-Type'] = contentType || 'application/json';
+                            } catch (e) {
+                                const errorMsg = 'Failed to stringify data for request body';
+                                $l.eventLog('$r.httpRequest', errorMsg, 'Error');
+                                if (callback) return callback({ status: -1, response: errorMsg });
+                                return Promise.resolve({ status: -1, response: errorMsg });
+                            }
+                        }
+                    } else {
+                        requestBody = String(data);
+                        headers['Content-Type'] = contentType || 'text/plain';
                     }
-                });
+                }
+            } else if (!headers['Content-Type'] && effectiveMethod !== 'GET' && effectiveMethod !== 'HEAD') {
+                headers['Content-Type'] = contentType || 'application/json';
             }
-            else {
-                syn.$l.eventLog('$w.httpRequest', '지원하지 않는 기능. 매개변수 확인 필요', 'Error');
+
+            if (!callback && typeof Promise !== 'undefined') {
+                const fetchOptions = {
+                    method: effectiveMethod,
+                    headers: { ...headers },
+                    body: requestBody,
+                    signal: timeout > 0 ? AbortSignal.timeout(timeout) : undefined
+                };
+                if ($w?.setServiceClientHeader) {
+                    const tempHeaders = new Headers(fetchOptions.headers);
+                    if ($w.setServiceClientHeader(tempHeaders) === false) {
+                        return Promise.resolve({ status: -1, response: 'ServiceClientHeader check failed' });
+                    }
+                    fetchOptions.headers = tempHeaders;
+                }
+
+                return fetch(requestUrl, fetchOptions)
+                    .then(async response => ({
+                        status: response.status,
+                        response: responseType === 'blob' ? await response.blob()
+                            : responseType === 'json' ? await response.json()
+                                : await response.text()
+                    }))
+                    .catch(error => {
+                        const errorMsg = error.name === 'AbortError' ? 'Request timed out' : `Fetch error: ${error.message}`;
+                        $l.eventLog('$r.httpRequest', errorMsg, 'Error');
+                        return { status: -1, response: errorMsg };
+                    });
+            }
+
+            if (!context.XMLHttpRequest) {
+                const errorMsg = 'XMLHttpRequest not supported';
+                $l.eventLog('$r.httpRequest', errorMsg, 'Error');
+                if (callback) return callback({ status: -1, response: errorMsg });
+                return;
+            }
+
+            const xhr = new context.XMLHttpRequest();
+            xhr.open(effectiveMethod, requestUrl, true);
+            xhr.timeout = timeout;
+            try {
+                xhr.responseType = responseType;
+            } catch {
+                $l.eventLog('$r.httpRequest', `XHR responseType '${responseType}' not supported`, 'Warning');
+            }
+
+            Object.entries(headers).forEach(([key, value]) => xhr.setRequestHeader(key, value));
+
+            if ($w?.setServiceClientHeader && $w.setServiceClientHeader(xhr) === false) {
+                if (callback) callback({ status: -1, response: 'ServiceClientHeader check failed' });
+                return;
+            }
+
+            xhr.onreadystatechange = () => {
+                if (xhr.readyState === 4 && callback) {
+                    if (xhr.status === 0 && !xhr.response) {
+                        $l.eventLog('$r.httpRequest', 'XHR Request failed (Network error or CORS)', 'Fatal');
+                        callback({ status: xhr.status, response: 'XHR Request failed (Network error or CORS)' });
+                    } else if (xhr.status < 200 || xhr.status >= 300) {
+                        $l.eventLog('$r.httpRequest', `XHR response status - ${xhr.status} ${xhr.statusText}: ${xhr.response}`, 'Error');
+                        callback({ status: xhr.status, response: xhr.response || xhr.statusText });
+                    } else {
+                        callback({ status: xhr.status, response: xhr.response });
+                    }
+                }
+            };
+
+            xhr.onerror = () => {
+                if (callback) {
+                    $l.eventLog('$r.httpRequest', 'XHR Network Error', 'Error');
+                    callback({ status: -1, response: 'XHR Network Error' });
+                }
+            };
+            xhr.ontimeout = () => {
+                if (callback) {
+                    $l.eventLog('$r.httpRequest', 'XHR Request Timed Out', 'Error');
+                    callback({ status: -1, response: 'XHR Request Timed Out' });
+                }
+            };
+
+            try {
+                xhr.send(requestBody);
+            } catch (e) {
+                if (callback) {
+                    $l.eventLog('$r.httpRequest', `XHR send error: ${e}`, 'Error');
+                    callback({ status: -1, response: `XHR send error: ${e.message}` });
+                }
             }
         },
 
-        httpSubmit(url, formID, method) {
-            if (document.forms.length == 0) {
-                return false;
-            }
-            else if (document.forms.length > 0 && $object.isNullOrUndefined(formID) == true) {
-                formID = document.forms[0].id;
-            }
+        httpSubmit(url, formID, method = 'POST') {
+            if (globalRoot.devicePlatform === 'node' || !doc?.forms) return false;
 
-            var form = document.forms[formID];
-            if (form) {
-                form.method = method || 'POST';
+            const form = formID ? doc.forms[formID] : doc.forms[0];
+            if (form instanceof HTMLFormElement) {
+                form.method = method;
                 form.action = url;
                 form.submit();
+                return true;
             }
-            else {
-                return false;
-            }
+            return false;
         },
 
-        httpDataSubmit(formData, url, callback, options) {
-            options = syn.$w.argumentsExtend({
-                timeout: 0,
-                responseType: 'text'
-            }, options);
-
-            var xhr = syn.$w.xmlHttp();
-            xhr.open('POST', url, true);
-            xhr.timeout = options.timeout;
-            xhr.responseType = options.responseType;
-            xhr.setRequestHeader('OffsetMinutes', syn.$w.timezoneOffsetMinutes);
-
-            if (syn.$w.setServiceClientHeader) {
-                if (syn.$w.setServiceClientHeader(xhr) == false) {
-                    return;
-                }
-            }
-
-            if (callback) {
-                xhr.onreadystatechange = function () {
-                    if (xhr.readyState === 4) {
-                        if (xhr.status !== 200) {
-                            if (xhr.status == 0) {
-                                syn.$l.eventLog('$r.httpDataSubmit', 'X-Requested transfort error', 'Fatal');
-                            }
-                            else {
-                                syn.$l.eventLog('$r.httpDataSubmit', 'response status - {0}'.format(xhr.statusText) + xhr.response, 'Error');
-                            }
-                            return;
-                        }
-
-                        if (callback) {
-                            callback({
-                                status: xhr.status,
-                                response: xhr.response
-                            });
-                        }
-                    }
-                }
-                xhr.send(formData);
-            }
-            else if (globalThis.Promise) {
-                return new Promise(function (resolve) {
-                    xhr.onload = function () {
-                        return resolve({
-                            status: xhr.status,
-                            response: xhr.response
-                        });
-                    };
-                    xhr.onerror = function () {
-                        return resolve({
-                            status: xhr.status,
-                            response: xhr.response
-                        });
-                    };
-
-                    xhr.send(formData);
-                });
-            }
-            else {
-                syn.$l.eventLog('$r.httpDataSubmit', '지원하지 않는 기능. 매개변수 확인 필요', 'Error');
-            }
+        httpDataSubmit(formData, url, callback, options = {}) {
+            return this.httpRequest('POST', url, formData, callback, options);
         },
 
-        createBlobUrl: (globalRoot.URL && URL.createObjectURL && URL.createObjectURL.bind(URL)) || (globalRoot.webkitURL && webkitURL.createObjectURL && webkitURL.createObjectURL.bind(webkitURL)) || globalRoot.createObjectURL,
-        revokeBlobUrl: (globalRoot.URL && URL.revokeObjectURL && URL.revokeObjectURL.bind(URL)) || (globalRoot.webkitURL && webkitURL.revokeObjectURL && webkitURL.revokeObjectURL.bind(webkitURL)) || globalRoot.revokeObjectURL,
+        createBlobUrl: context.URL?.createObjectURL?.bind(context.URL) ?? context.webkitURL?.createObjectURL?.bind(context.webkitURL),
+        revokeBlobUrl: context.URL?.revokeObjectURL?.bind(context.URL) ?? context.webkitURL?.revokeObjectURL?.bind(context.webkitURL),
 
         getCookie(id) {
-            var matches = document.cookie.match(
-                new RegExp(
-                    '(?:^|; )' +
-                    id.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') +
-                    '=([^;]*)'
-                )
-            );
-            return matches ? decodeURIComponent(matches[1]) : undefined;
+            if (globalRoot.devicePlatform === 'node' || !doc?.cookie) return undefined;
+            const cookies = doc.cookie.split('; ');
+            for (const cookie of cookies) {
+                const [name, ...valueParts] = cookie.split('=');
+                if (name === id) {
+                    return decodeURIComponent(valueParts.join('='));
+                }
+            }
+            return undefined;
         },
 
-        setCookie(id, val, expires, path, domain, secure) {
-            if ($object.isNullOrUndefined(expires) == true) {
-                expires = new Date((new Date()).getTime() + (1000 * 60 * 60 * 24));
+        setCookie(id, val, expires, path = '/', domain, secure = false) {
+            if (globalRoot.devicePlatform === 'node' || !doc) return this;
+            let cookieString = `${id}=${encodeURIComponent(val)}`;
+
+            if (expires instanceof Date) {
+                cookieString += `; expires=${expires.toUTCString()}`;
+            } else if (typeof expires === 'number') {
+                cookieString += `; max-age=${expires}`;
             }
 
-            if ($object.isNullOrUndefined(path) == true) {
-                path = '/';
-            }
+            cookieString += `; path=${path}`;
+            if (domain) cookieString += `; domain=${domain}`;
+            if (secure) cookieString += `; secure`;
+            cookieString += `; SameSite=Lax`;
 
-            document.cookie = id + '=' + encodeURI(val) + ((expires) ? ';expires=' + expires.toUTCString() : '') + ((path) ? ';path=' + path : '') + ((domain) ? ';domain=' + domain : '') + ((secure) ? ';secure' : '');
-            return $request;
+            doc.cookie = cookieString;
+            return this;
         },
 
-        deleteCookie(id, path, domain) {
-            if (syn.$r.getCookie(id)) {
-                document.cookie = id + '=' + ((path) ? ';path=' + path : '') + ((domain) ? ';domain=' + domain : '') + ';expires=Thu, 01-Jan-1970 00:00:01 GMT';
-            }
-            return $request;
+        deleteCookie(id, path = '/', domain) {
+            this.setCookie(id, '', new Date(0), path, domain);
+            return this;
         }
     });
     context.$request = syn.$r = $request;
 })(globalRoot);
 
-/// <reference path='syn.core.js' />
-
 (function (context) {
     'use strict';
-    var $network = context.$network || new syn.module();
-    var document = context.document;
+    const $network = context.$network || new syn.module();
 
     $network.extend({
         myChannelID: null,
@@ -6044,218 +4920,158 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         rooms: (function () {
-            var currentTransactionID = Math.floor(Math.random() * 1000001);
-            var boundChannels = {};
+            let currentTransactionID = Math.floor(Math.random() * 1000001);
+            const boundChannels = {};
 
-            function addChannel(channelWindow, origin, scope, handler) {
-                function hasWin(arr) {
-                    for (var i = 0; i < arr.length; i++) {
-                        if (arr[i].channelWindow === channelWindow) {
-                            return true;
-                        }
-                    }
-                    return false;
-                }
+            const addChannel = (channelWindow, origin, scope, handler) => {
+                const hasWin = (arr) => arr.some(item => item.channelWindow === channelWindow);
 
-                var exists = false;
+                let exists = false;
 
                 if (origin === '*') {
-                    for (var k in boundChannels) {
-                        if (!boundChannels.hasOwnProperty(k)) {
-                            continue;
-                        }
-
-                        if (k === '*') {
-                            continue;
-                        }
-
+                    for (const k in boundChannels) {
+                        if (!boundChannels.hasOwnProperty(k) || k === '*') continue;
                         if (typeof boundChannels[k][scope] === 'object') {
                             exists = hasWin(boundChannels[k][scope]);
-                            if (exists) {
-                                break;
-                            }
+                            if (exists) break;
                         }
                     }
                 } else {
-                    if ((boundChannels['*'] && boundChannels['*'][scope])) {
+                    if (boundChannels['*']?.[scope]) {
                         exists = hasWin(boundChannels['*'][scope]);
                     }
-                    if (!exists && boundChannels[origin] && boundChannels[origin][scope]) {
+                    if (!exists && boundChannels[origin]?.[scope]) {
                         exists = hasWin(boundChannels[origin][scope]);
                     }
                 }
 
                 if (exists) {
-                    syn.$l.eventLog('$network.addChannel', 'origin: ' + origin + ', scope: ' + scope + '에 해당하는 채널이 이미 있습니다', 'Warning');
+                    syn.$l.eventLog('$network.addChannel', `origin: ${origin}, scope: ${scope}에 해당하는 채널이 이미 있습니다`, 'Warning');
                     return;
                 }
 
-                if (typeof boundChannels[origin] != 'object') {
+                if (typeof boundChannels[origin] !== 'object') {
                     boundChannels[origin] = {};
                 }
-
-                if (typeof boundChannels[origin][scope] != 'object') {
+                if (typeof boundChannels[origin][scope] !== 'object') {
                     boundChannels[origin][scope] = [];
                 }
 
-                boundChannels[origin][scope].push({
-                    channelWindow: channelWindow,
-                    handler: handler
-                });
-            }
+                boundChannels[origin][scope].push({ channelWindow, handler });
+            };
 
-            function removeChannel(channelWindow, origin, scope) {
-                var arr = boundChannels[origin][scope];
-                for (var i = 0; i < arr.length; i++) {
-                    if (arr[i].channelWindow === channelWindow) {
-                        arr.splice(i, 1);
-                    }
-                }
+            const removeChannel = (channelWindow, origin, scope) => {
+                const arr = boundChannels[origin]?.[scope];
+                if (!arr) return;
+
+                boundChannels[origin][scope] = arr.filter(item => item.channelWindow !== channelWindow);
 
                 if (boundChannels[origin][scope].length === 0) {
                     delete boundChannels[origin][scope];
+                    if (Object.keys(boundChannels[origin]).length === 0) {
+                        delete boundChannels[origin];
+                    }
                 }
 
-                var idx = $network.connections.findIndex((item) => { return item.options.origin == origin && item.options.scope == scope });
+                const idx = $network.connections.findIndex(item => item.options.origin === origin && item.options.scope === scope);
                 if (idx > -1) {
                     $network.connections.splice(idx, 1);
                 }
-            }
+            };
 
-            function isArray(obj) {
-                if (Array.isArray) {
-                    return Array.isArray(obj);
-                }
-                else {
-                    return (obj.constructor.toString().indexOf('Array') != -1);
-                }
-            }
+            const transactionMessages = {};
 
-            var transactionMessages = {};
-
-            var onPostMessage = function (evt) {
+            const onPostMessage = (evt) => {
+                let parsedMessage;
                 try {
-                    if ($string.isNullOrEmpty(evt.data) == true) {
-                        return;
-                    }
-
-                    var parsedMessage = JSON.parse(evt.data);
+                    if (!evt.data) return;
+                    parsedMessage = JSON.parse(evt.data);
                     if (typeof parsedMessage !== 'object' || parsedMessage === null) {
-                        syn.$l.eventLog('$network.onPostMessage', 'postMessage data 확인 필요', 'Warning');
+                        syn.$l.eventLog('$network.onPostMessage', 'postMessage data 확인 필요 (non-object)', 'Verbose');
                         return;
                     }
                 } catch (error) {
+                    syn.$l.eventLog('$network.onPostMessage', `JSON parse error: ${error.message}`, 'Verbose');
                     return;
                 }
 
-                var sourceWindow = evt.source;
-                var channelOrigin = evt.origin;
-                var channelScope = null;
-                var messageID = null;
-                var methodName = null;
+                const sourceWindow = evt.source;
+                const channelOrigin = evt.origin;
+                let channelScope = null;
+                let methodName = null;
+                let messageID = parsedMessage.id;
 
                 if (typeof parsedMessage.method === 'string') {
-                    var ar = parsedMessage.method.split('::');
-                    if (ar.length == 2) {
-                        channelScope = ar[0];
-                        methodName = ar[1];
+                    const parts = parsedMessage.method.split('::');
+                    if (parts.length === 2) {
+                        [channelScope, methodName] = parts;
                     } else {
                         methodName = parsedMessage.method;
                     }
                 }
 
-                if (typeof parsedMessage.id !== 'undefined') {
-                    messageID = parsedMessage.id;
-                }
-
-                if (typeof methodName === 'string') {
-                    var delivered = false;
-                    if (boundChannels[channelOrigin] && boundChannels[channelOrigin][channelScope]) {
-                        for (var j = 0; j < boundChannels[channelOrigin][channelScope].length; j++) {
-                            if (boundChannels[channelOrigin][channelScope][j].channelWindow === sourceWindow) {
-                                boundChannels[channelOrigin][channelScope][j].handler(channelOrigin, methodName, parsedMessage);
-                                delivered = true;
-                                break;
+                if (methodName) {
+                    let delivered = false;
+                    const deliver = (originToCheck) => {
+                        const handlers = boundChannels[originToCheck]?.[channelScope];
+                        if (handlers) {
+                            for (const handlerObj of handlers) {
+                                if (handlerObj.channelWindow === sourceWindow) {
+                                    handlerObj.handler(channelOrigin, methodName, parsedMessage);
+                                    return true;
+                                }
                             }
                         }
+                        return false;
+                    };
+
+                    if (deliver(channelOrigin)) {
+                        delivered = true;
+                    }
+                    if (!delivered) {
+                        deliver('*');
                     }
 
-                    if (!delivered && boundChannels['*'] && boundChannels['*'][channelScope]) {
-                        for (var j = 0; j < boundChannels['*'][channelScope].length; j++) {
-                            if (boundChannels['*'][channelScope][j].channelWindow === sourceWindow) {
-                                boundChannels['*'][channelScope][j].handler(channelOrigin, methodName, parsedMessage);
-                                break;
-                            }
-                        }
-                    }
-                }
-                else if (typeof messageID != 'undefined') {
-                    if (transactionMessages[messageID]) {
-                        transactionMessages[messageID](channelOrigin, methodName, parsedMessage);
+                } else if (messageID !== undefined) {
+                    const callback = transactionMessages[messageID];
+                    if (callback) {
+                        callback(channelOrigin, methodName, parsedMessage);
                     }
                 }
             };
 
             if (context.addEventListener) {
                 context.addEventListener('message', onPostMessage, false);
-            }
-            else if (context.attachEvent) {
+            } else if (context.attachEvent) {
                 context.attachEvent('onmessage', onPostMessage);
             }
 
-            var connectChannel = {
+            const connectChannel = {
                 connect(options) {
-                    var channelID = options.scope || syn.$l.random();
-
-                    var channel = $network.findChannel(channelID);
-                    if (channel) {
-                        syn.$l.eventLog('$network.connect', 'channelID: {0} 중복 확인 필요'.format(channelID), 'Warning');
-                        return;
-                    }
-
-                    var debug = function (message) {
-                        if (options.debugOutput) {
-                            try {
-                                if (typeof message !== 'string') {
-                                    message = JSON.stringify(message);
-                                }
-                            }
-                            catch (error) {
-                                syn.$l.eventLog('$network.debug', 'channelID: {0}, message: {1}'.format(channelID, error.message), 'Error');
-                            }
-
-                            syn.$l.eventLog('$network.debug', 'channelID: {0}, message: {1}'.format(channelID, message), 'Information');
-                        }
-                    };
-
-                    if (typeof options != 'object') {
+                    if (typeof options !== 'object') {
                         syn.$l.eventLog('$network.options', '유효한 매개변수 없이 호출된 채널 빌드', 'Error');
                         return;
                     }
-
                     if (!options.window || !options.window.postMessage) {
-                        syn.$l.eventLog('$network.context', '필수 매개변수 없이 호출된 채널 빌드', 'Error');
+                        syn.$l.eventLog('$network.context', '필수 매개변수 없이 호출된 채널 빌드 (window)', 'Error');
                         return;
                     }
-
                     if (context === options.window) {
                         syn.$l.eventLog('$network.context', '동일한 화면에서 거래되는 채널 생성은 허용되지 않음', 'Error');
                         return;
                     }
 
-                    if (!options.origin) {
-                        options.origin = '*';
-                    }
-
-                    var validOrigin = false;
+                    options.origin = options.origin || '*';
+                    let validOrigin = false;
                     if (typeof options.origin === 'string') {
-                        var oMatch;
                         if (options.origin === '*') {
                             validOrigin = true;
-                        }
-                        else if (null !== (oMatch = options.origin.match(/^https?:\/\/(?:[-a-zA-Z0-9_\.])+(?::\d+)?/))) {
-                            options.origin = oMatch[0].toLowerCase();
-                            validOrigin = true;
+                        } else {
+                            const oMatch = options.origin.match(/^https?:\/\/(?:[-a-zA-Z0-9_\.])+(?::\d+)?/);
+                            if (oMatch) {
+                                options.origin = oMatch[0].toLowerCase();
+                                validOrigin = true;
+                            }
                         }
                     }
 
@@ -6264,192 +5080,191 @@ if (typeof module !== 'undefined' && module.exports) {
                         return;
                     }
 
+                    let channelID = options.scope || syn.$l.random();
+
                     if (typeof options.scope !== 'undefined') {
                         if (typeof options.scope !== 'string') {
                             syn.$l.eventLog('$network.scope', 'scope는 문자열이어야 함', 'Error');
                             return;
                         }
-
-                        if (options.scope.split('::').length > 1) {
+                        if (options.scope.includes('::')) {
                             syn.$l.eventLog('$network.scope', 'scope에는 이중 콜론 ("::")이 포함될 수 없음', 'Error');
                             return;
                         }
+                    } else {
+                        options.scope = '';
                     }
 
-                    var registrationMappingMethods = {};
-                    var sendRequests = {};
-                    var receivedRequests = {};
-                    var ready = false;
-                    var pendingQueue = [];
 
-                    var createTransaction = function (id, origin, callbacks) {
-                        var shouldDelayReturn = false;
-                        var completed = false;
+                    const channel = $network.findChannel(channelID);
+                    if (channel && channelID !== '') {
+                        syn.$l.eventLog('$network.connect', `channelID: ${channelID} 중복 확인 필요`, 'Warning');
+                        return;
+                    }
+
+                    const debug = (message) => {
+                        if (options.debugOutput) {
+                            try {
+                                const msgString = typeof message !== 'string' ? JSON.stringify(message) : message;
+                                syn.$l.eventLog('$network.debug', `channelID: ${channelID}, message: ${msgString}`, 'Information');
+                            } catch (error) {
+                                syn.$l.eventLog('$network.debug', `channelID: ${channelID}, message stringify error: ${error.message}`, 'Error');
+                            }
+                        }
+                    };
+
+                    const registrationMappingMethods = {};
+                    const sendRequests = {};
+                    const receivedRequests = {};
+                    let ready = false;
+                    const pendingQueue = [];
+
+                    const createTransaction = (id, origin, callbacks) => {
+                        let shouldDelayReturn = false;
+                        let completed = false;
 
                         return {
-                            origin: origin,
-                            invoke(callbackName, v) {
+                            origin,
+                            invoke: (callbackName, v) => {
                                 if (!receivedRequests[id]) {
-                                    syn.$l.eventLog('$network.invoke', '존재하지 않는 트랜잭션의 콜백 호출 시도: ' + id, 'Warning');
+                                    debug(`존재하지 않는 트랜잭션의 콜백 호출 시도: ${id}`);
                                     return;
                                 }
-
-                                var valid = false;
-                                for (var i = 0; i < callbacks.length; i++) {
-                                    if (callbackName === callbacks[i]) {
-                                        valid = true;
-                                        break;
-                                    }
-                                }
-                                if (!valid) {
-                                    syn.$l.eventLog('$network.invoke', '존재하지 않는 콜백 호출 시도: ' + callbackName, 'Warning');
+                                if (!callbacks.includes(callbackName)) {
+                                    debug(`존재하지 않는 콜백 호출 시도: ${callbackName}`);
                                     return;
                                 }
-
-                                postMessage({ id: id, callback: callbackName, params: v });
+                                postMessage({ id, callback: callbackName, params: v });
                             },
-                            error(error, message) {
+                            error: (error, message) => {
+                                if (completed) return;
                                 completed = true;
                                 if (!receivedRequests[id]) {
-                                    syn.$l.eventLog('$network.error', '존재하지 않는 메시지의 호출 시도: ' + id, 'Warning');
+                                    debug(`존재하지 않는 메시지의 에러 호출 시도: ${id}`);
                                     return;
                                 }
-
                                 delete receivedRequests[id];
-
-                                postMessage({ id: id, error: error, message: message });
+                                postMessage({ id, error, message });
                             },
-                            complete(v) {
+                            complete: (v) => {
+                                if (completed) return;
                                 completed = true;
                                 if (!receivedRequests[id]) {
-                                    syn.$l.eventLog('$network.complete', '존재하지 않는 메시지의 호출 시도: ' + id, 'Warning');
+                                    debug(`존재하지 않는 메시지의 완료 호출 시도: ${id}`);
                                     return;
                                 }
-
                                 delete receivedRequests[id];
-                                postMessage({ id: id, result: v });
+                                postMessage({ id, result: v });
                             },
-                            delayReturn(delay) {
+                            delayReturn: (delay) => {
                                 if (typeof delay === 'boolean') {
-                                    shouldDelayReturn = (delay === true);
+                                    shouldDelayReturn = delay;
                                 }
                                 return shouldDelayReturn;
                             },
-                            completed() {
-                                return completed;
-                            }
+                            completed: () => completed,
                         };
                     };
 
-                    var setTransactionTimeout = function (transactionID, timeout, method) {
-                        return setTimeout(function () {
-                            if (sendRequests[transactionID]) {
-                                var message = '"' + method + '" 타임아웃 (' + timeout + 'ms) ';
-                                (1, sendRequests[transactionID].error)('timeout_error', message);
+                    const setTransactionTimeout = (transactionID, timeout, method) => {
+                        return setTimeout(() => {
+                            const request = sendRequests[transactionID];
+                            if (request) {
+                                const message = `"${method}" 타임아웃 (${timeout}ms) `;
+                                request.error('timeout_error', message);
                                 delete sendRequests[transactionID];
                                 delete transactionMessages[transactionID];
                             }
                         }, timeout);
                     };
 
-                    var onMessage = function (origin, method, data) {
+                    const onMessage = (origin, method, data) => {
                         if (typeof options.gotMessageObserver === 'function') {
                             try {
                                 options.gotMessageObserver(origin, data);
                             } catch (error) {
-                                debug('gotMessageObserver() 오류: ' + error.toString());
+                                debug(`gotMessageObserver() 오류: ${error.toString()}`);
                             }
                         }
 
-                        if (data.id && method) {
-                            if (registrationMappingMethods[method]) {
-                                var transaction = createTransaction(data.id, origin, data.callbacks ? data.callbacks : []);
-                                receivedRequests[data.id] = {};
+                        const { id, callback: callbackName, params, error: errorName, message: errorMessage, result } = data;
+
+                        if (id !== undefined && method) {
+                            const targetMethod = registrationMappingMethods[method];
+                            if (targetMethod) {
+                                const transaction = createTransaction(id, origin, data.callbacks || []);
+                                receivedRequests[id] = {};
                                 try {
-                                    if (data.callbacks && isArray(data.callbacks) && data.callbacks.length > 0) {
-                                        for (var i = 0; i < data.callbacks.length; i++) {
-                                            var path = data.callbacks[i];
-                                            var params = data.params;
-                                            var pathItems = path.split('/');
-                                            for (var j = 0; j < pathItems.length - 1; j++) {
-                                                var cp = pathItems[j];
-                                                if (typeof params[cp] !== 'object') {
-                                                    params[cp] = {};
+                                    const processedParams = params;
+                                    if (Array.isArray(data.callbacks)) {
+                                        data.callbacks.forEach(path => {
+                                            const pathItems = path.split('/');
+                                            let currentParamLevel = processedParams;
+                                            for (let j = 0; j < pathItems.length - 1; j++) {
+                                                const cp = pathItems[j];
+                                                if (typeof currentParamLevel[cp] !== 'object' || currentParamLevel[cp] === null) {
+                                                    currentParamLevel[cp] = {};
                                                 }
-                                                params = params[cp];
+                                                currentParamLevel = currentParamLevel[cp];
                                             }
-                                            params[pathItems[pathItems.length - 1]] = (function () {
-                                                var callbackName = path;
-                                                return function (data) {
-                                                    return transaction.invoke(callbackName, data);
-                                                };
-                                            })();
-                                        }
-                                    }
-                                    var resp = registrationMappingMethods[method](transaction, data.params);
-                                    if (!transaction.delayReturn() && !transaction.completed()) {
-                                        transaction.complete(resp);
-                                    }
-                                }
-                                catch (error) {
-                                    var name = 'runtime_error';
-                                    var message = null;
-                                    if (typeof error === 'string') {
-                                        message = error;
-                                    } else if (typeof error === 'object') {
-                                        name = error.name;
-                                        message = error.stack || error.message;
+                                            const finalKey = pathItems[pathItems.length - 1];
+                                            currentParamLevel[finalKey] = (callbackData) => transaction.invoke(path, callbackData);
+                                        });
                                     }
 
-                                    syn.$l.eventLog('$network.onMessage', `name: ${name}, message: ${message}`, 'Error');
-                                    transaction.error(name, message);
+                                    const response = targetMethod(transaction, processedParams);
+                                    if (!transaction.delayReturn() && !transaction.completed()) {
+                                        transaction.complete(response);
+                                    }
+                                } catch (e) {
+                                    const errName = e.name || 'runtime_error';
+                                    const errMessage = e.stack || e.message || String(e);
+                                    syn.$l.eventLog('$network.onMessage', `Request handler error: name: ${errName}, message: ${errMessage}`, 'Error');
+                                    transaction.error(errName, errMessage);
                                 }
                             }
-                        } else if (data.id && data.callback) {
-                            if (!sendRequests[data.id] || !sendRequests[data.id].callbacks || !sendRequests[data.id].callbacks[data.callback]) {
-                                debug('유효하지 않는 콜백, id:' + data.id + ' (' + data.callback + ')');
+                        } else if (id !== undefined && callbackName) {
+                            const request = sendRequests[id];
+                            if (request?.callbacks?.[callbackName]) {
+                                request.callbacks[callbackName](params);
                             } else {
-                                sendRequests[data.id].callbacks[data.callback](data.params);
+                                debug(`유효하지 않는 콜백, id: ${id} (${callbackName})`);
                             }
-                        } else if (data.id) {
-                            if (!sendRequests[data.id]) {
-                                debug('유효하지 않는 응답: ' + data.id);
+                        } else if (id !== undefined) {
+                            const request = sendRequests[id];
+                            if (!request) {
+                                debug(`유효하지 않는 응답: ${id}`);
                             } else {
-                                if (data.error) {
-                                    (1, sendRequests[data.id].error)(data.error, data.message);
+                                clearTimeout(request.timeoutId);
+                                if (errorName) {
+                                    request.error(errorName, errorMessage);
                                 } else {
-                                    if (data.result !== undefined) {
-                                        (1, sendRequests[data.id].success)(data.result);
-                                    }
-                                    else {
-                                        (1, sendRequests[data.id].success)();
-                                    }
+                                    request.success(result);
                                 }
-                                delete sendRequests[data.id];
-                                delete transactionMessages[data.id];
+                                delete sendRequests[id];
+                                delete transactionMessages[id];
                             }
                         } else if (method) {
-                            if (registrationMappingMethods[method]) {
-                                registrationMappingMethods[method]({ origin: origin }, data.params);
+                            const targetMethod = registrationMappingMethods[method];
+                            if (targetMethod) {
+                                targetMethod({ origin }, params);
                             }
                         }
                     };
 
-                    addChannel(options.window, options.origin, ((typeof options.scope === 'string') ? options.scope : ''), onMessage);
+                    addChannel(options.window, options.origin, options.scope, onMessage);
 
-                    var scopeMethod = function (data) {
-                        if (typeof options.scope === 'string' && options.scope.length) data = [options.scope, data].join('::');
-                        return data;
-                    };
+                    const scopeMethod = (data) => (options.scope ? `${options.scope}::${data}` : data);
 
-                    var postMessage = function (message, force) {
+                    const postMessage = (message, force = false) => {
                         if (!message) {
-                            syn.$l.eventLog('$network.postMessage', 'null 메시지로 postMessage 호출', 'Error');
+                            syn.$l.eventLog('$network.postMessage', 'null 메시지로 postMessage 호출 시도', 'Error');
                             return;
                         }
+                        const verb = ready ? 'post ' : 'queue ';
+                        debug(`${verb} message (type: ${message.method || message.id || 'response'})`);
 
-                        var verb = (ready ? 'post ' : 'queue ');
-                        debug(verb + ' message: ' + JSON.stringify(message));
+
                         if (!force && !ready) {
                             pendingQueue.push(message);
                         } else {
@@ -6457,26 +5272,26 @@ if (typeof module !== 'undefined' && module.exports) {
                                 try {
                                     options.postMessageObserver(options.origin, message);
                                 } catch (e) {
-                                    debug('postMessageObserver() 확인 필요: ' + e.toString());
+                                    debug(`postMessageObserver() 확인 필요: ${e.toString()}`);
                                 }
                             }
-
-                            options.window.postMessage(JSON.stringify(message), options.origin);
+                            try {
+                                options.window.postMessage(JSON.stringify(message), options.origin);
+                            } catch (error) {
+                                debug(`postMessage failed: ${error.message}`);
+                                syn.$l.eventLog('$network.postMessage', `postMessage failed: ${error.message}`, 'Error');
+                            }
                         }
                     };
 
-                    var onReady = function (transaction, type) {
+                    const onReady = (transaction, type) => {
                         debug('ready message received');
                         if (ready) {
-                            syn.$l.eventLog('$network.onReady', 'ready 메시지 확인 필요', 'Warning');
+                            syn.$l.eventLog('$network.onReady', '중복 ready 메시지 수신', 'Warning');
                             return;
                         }
 
-                        if (type === 'T') {
-                            channelID += '-R';
-                        } else {
-                            channelID += '-L';
-                        }
+                        channelID = type === 'T' ? `${channelID}-R` : `${channelID}-L`;
 
                         boundMessage.unbind('__ready');
                         ready = true;
@@ -6486,144 +5301,137 @@ if (typeof module !== 'undefined' && module.exports) {
                             boundMessage.emit({ method: '__ready', params: 'A' });
                         }
 
-                        while (pendingQueue.length) {
-                            postMessage(pendingQueue.pop());
+                        while (pendingQueue.length > 0) {
+                            postMessage(pendingQueue.shift());
                         }
 
                         if (typeof options.onReady === 'function') {
-                            options.onReady(boundMessage);
+                            try {
+                                options.onReady(boundMessage);
+                            } catch (e) {
+                                debug(`onReady handler failed: ${e.message}`);
+                            }
                         }
                     };
 
-                    var boundMessage = {
+                    const boundMessage = {
                         unbind(method) {
-                            if (registrationMappingMethods[method]) {
-                                if (!(delete registrationMappingMethods[method])) {
-                                    syn.$l.eventLog('$network.unbind', 'registrationMappingMethods 삭제 확인 필요: ' + method, 'Warning');
-                                    return;
-                                }
-
-                                return true;
-                            }
-                            return false;
+                            if (!registrationMappingMethods[method]) return false;
+                            delete registrationMappingMethods[method];
+                            return true;
                         },
                         bind(method, callback) {
                             if (!method || typeof method !== 'string') {
-                                syn.$l.eventLog('$network.bind', 'method 매개변수 확인 필요', 'Warning');
-                                return;
+                                syn.$l.eventLog('$network.bind', 'method 매개변수 확인 필요 (유효하지 않음)', 'Warning');
+                                return this;
                             }
-
                             if (!callback || typeof callback !== 'function') {
-                                syn.$l.eventLog('$network.bind', 'callback 매개변수 확인 필요', 'Warning');
-                                return;
+                                syn.$l.eventLog('$network.bind', 'callback 매개변수 확인 필요 (유효하지 않음)', 'Warning');
+                                return this;
                             }
-
                             if (registrationMappingMethods[method]) {
-                                syn.$l.eventLog('$network.bind', method + ' method 중복 확인 필요', 'Warning');
-                                return;
+                                syn.$l.eventLog('$network.bind', `${method} method 중복 확인 필요`, 'Warning');
+                                return this;
                             }
-
                             registrationMappingMethods[method] = callback;
-                            return $network;
+                            return this;
                         },
                         call(data) {
-                            if (!data) {
-                                syn.$l.eventLog('$network.call', '매개변수 확인 필요', 'Warning');
+                            if (!data || !data.method || typeof data.method !== 'string' || !data.success || typeof data.success !== 'function') {
+                                syn.$l.eventLog('$network.call', '필수 매개변수 확인 필요 (method, success)', 'Warning');
                                 return;
                             }
 
-                            if (!data.method || typeof data.method !== 'string') {
-                                syn.$l.eventLog('$network.call', 'method 매개변수 확인 필요', 'Warning');
-                                return;
-                            }
+                            const callbacks = {};
+                            const callbackNames = [];
+                            const seen = new Set();
 
-                            if (!data.success || typeof data.success !== 'function') {
-                                syn.$l.eventLog('$network.call', 'callback 매개변수 확인 필요', 'Warning');
-                                return;
-                            }
+                            const pruneFunctions = (path, params) => {
+                                if (params !== null && typeof params === 'object') {
+                                    if (seen.has(params)) {
+                                        debug('순환 참조 감지됨, 함수 제거 건너뛰기: ' + path);
+                                        return;
+                                    }
+                                    seen.add(params);
 
-                            var callbacks = {};
-                            var callbackNames = [];
-                            var seen = [];
-
-                            var pruneFunctions = function (path, params) {
-                                if (seen.indexOf(params) >= 0) {
-                                    syn.$l.eventLog('$network.pruneFunctions', 'recursive params 데이터 없음', 'Warning');
-                                    return;
-                                }
-                                seen.push(params);
-
-                                if (typeof params === 'object') {
-                                    for (var k in params) {
-                                        if (!params.hasOwnProperty(k)) {
-                                            continue;
-                                        }
-
-                                        var np = path + (path.length ? '/' : '') + k;
-                                        if (typeof params[k] === 'function') {
-                                            callbacks[np] = params[k];
-                                            callbackNames.push(np);
-                                            delete params[k];
-                                        } else if (typeof params[k] === 'object') {
-                                            pruneFunctions(np, params[k]);
+                                    for (const k in params) {
+                                        if (params.hasOwnProperty(k)) {
+                                            const value = params[k];
+                                            const np = path ? `${path}/${k}` : k;
+                                            if (typeof value === 'function') {
+                                                callbacks[np] = value;
+                                                callbackNames.push(np);
+                                                delete params[k];
+                                            } else if (value !== null && typeof value === 'object') {
+                                                pruneFunctions(np, value);
+                                            }
                                         }
                                     }
                                 }
                             };
-                            pruneFunctions('', data.params);
 
-                            var message = { id: currentTransactionID, method: scopeMethod(data.method), params: data.params };
-                            if (callbackNames.length) {
+                            const paramsClone = data.params ? JSON.parse(JSON.stringify(data.params)) : {};
+                            pruneFunctions('', paramsClone);
+
+                            const message = {
+                                id: currentTransactionID,
+                                method: scopeMethod(data.method),
+                                params: paramsClone
+                            };
+                            if (callbackNames.length > 0) {
                                 message.callbacks = callbackNames;
                             }
 
+                            const errorCallback = data.error || ((errName, errMessage) => debug(`Default error handler: ${errName}- ${errMessage}`)); // Default error handler
+
+                            const requestInfo = {
+                                callbacks,
+                                error: errorCallback,
+                                success: data.success,
+                                timeoutId: null
+                            };
+
                             if (data.timeout) {
-                                setTransactionTimeout(currentTransactionID, data.timeout, scopeMethod(data.method));
+                                requestInfo.timeoutId = setTransactionTimeout(currentTransactionID, data.timeout, scopeMethod(data.method));
                             }
 
-                            sendRequests[currentTransactionID] = { callbacks: callbacks, error: data.error, success: data.success };
+                            sendRequests[currentTransactionID] = requestInfo;
                             transactionMessages[currentTransactionID] = onMessage;
 
                             currentTransactionID++;
-
                             postMessage(message);
                         },
                         emit(data) {
-                            if (!data) {
-                                throw 'missing arguments to emit function';
-                                syn.$l.eventLog('$network.emit', 'emit params 데이터 없음', 'Warning');
+                            if (!data || !data.method || typeof data.method !== 'string') {
+                                syn.$l.eventLog('$network.emit', '필수 매개변수 확인 필요 (method)', 'Warning');
                                 return;
                             }
-
-                            if (!data.method || typeof data.method !== 'string') {
-                                syn.$l.eventLog('$network.emit', 'method 매개변수 확인 필요', 'Warning');
-                                return;
-                            }
-
                             postMessage({ method: scopeMethod(data.method), params: data.params });
                         },
                         destroy() {
-                            removeChannel(options.window, options.origin, ((typeof options.scope === 'string') ? options.scope : ''));
-                            if (context.removeEventListener) {
-                                context.removeEventListener('message', onMessage, false);
-                            }
-                            else if (context.detachEvent) {
-                                context.detachEvent('onmessage', onMessage);
-                            }
-
+                            removeChannel(options.window, options.origin, options.scope);
                             ready = false;
-                            registrationMappingMethods = {};
-                            receivedRequests = {};
-                            sendRequests = {};
+                            Object.keys(registrationMappingMethods).forEach(key => delete registrationMappingMethods[key]);
+                            Object.keys(receivedRequests).forEach(key => delete receivedRequests[key]);
+                            Object.keys(sendRequests).forEach(key => {
+                                clearTimeout(sendRequests[key].timeoutId);
+                                delete sendRequests[key];
+                                delete transactionMessages[key];
+                            });
                             options.origin = null;
-                            pendingQueue = [];
+                            pendingQueue.length = 0;
                             channelID = '';
-                            debug('채널 삭제');
+                            debug('채널 삭제됨');
+
+                            const idx = $network.connections.indexOf(boundMessage);
+                            if (idx > -1) {
+                                $network.connections.splice(idx, 1);
+                            }
                         }
                     };
 
                     boundMessage.bind('__ready', onReady);
-                    setTimeout(function () {
+                    setTimeout(() => {
                         postMessage({ method: scopeMethod('__ready'), params: 'T' }, true);
                     }, 0);
 
@@ -6632,91 +5440,79 @@ if (typeof module !== 'undefined' && module.exports) {
                     return boundMessage;
                 }
             };
-
             return connectChannel;
         })(),
 
         findChannel(channelID) {
-            return $network.connections.find((item) => { return item.options.scope == channelID });
+            if (!channelID) return undefined;
+            return $network.connections.find(item => item.options.scope === channelID);
         },
 
-        // syn.$n.call('local-channelID', 'pageLoad', '?')
         call(channelID, evt, params) {
-            var connection = $network.findChannel(channelID);
-            if (connection) {
-                var val = {
+            const connection = this.findChannel(channelID);
+            if (!connection) {
+                syn.$l.eventLog('$network.call', `Channel not found: ${channelID}`, 'Warning');
+                return;
+            }
+
+            const val = {
+                method: evt,
+                params: params,
+                success: (res) => {
+                    if (connection.options.debugOutput) {
+                        syn.$l.eventLog('$network.call.success', `"${evt}" call success, channelID: ${connection.options.scope}`, 'Information'); // Avoid logging potentially large 'res'
+                    }
+                },
+                error: (error, message) => {
+                    if (connection.options.debugOutput) {
+                        syn.$l.eventLog('$network.call.error', `"${evt}" call error: ${error}, message: ${message || ''}, channelID: ${connection.options.scope}`, 'Information');
+                    }
+                }
+            };
+            connection.call(val);
+        },
+
+        broadCast(evt, params) {
+            this.connections.forEach(connection => {
+                const val = {
                     method: evt,
                     params: params,
-                    error: (error, message) => { },
-                    success: (val) => { }
+                    success: (res) => {
+                        if (connection.options.debugOutput) {
+                            syn.$l.eventLog('$network.broadcast.success', `"${evt}" broadcast success, channelID: ${connection.options.scope}`, 'Information');
+                        }
+                    },
+                    error: (error, message) => {
+                        if (connection.options.debugOutput) {
+                            syn.$l.eventLog('$network.broadcast.error', `"${evt}" broadcast error: ${error}, message: ${message || ''}, channelID: ${connection.options.scope}`, 'Information');
+                        }
+                    }
                 };
-
-                if (connection.options.debugOutput === true) {
-                    val.error = (error, message) => {
-                        syn.$l.eventLog('$network.call.error', '"{0}" call error: {1}, message: {2}, channelID: {3}'.format(evt, error, message, connection.options.scope), 'Information');
-                    };
-
-                    val.success = (val) => {
-                        syn.$l.eventLog('$network.call.success', '"{0}" call returns: {1}, channelID: {2}'.format(evt, val, connection.options.scope), 'Information');
-                    };
-                }
-
                 connection.call(val);
-            }
+            });
         },
 
-        // syn.$n.broadCast('pageLoad', '?')
-        broadCast(evt, params) {
-            for (var i = 0; i < connections.length; i++) {
-                var connection = connections[i];
-                if (connection) {
-                    var val = {
-                        method: evt,
-                        params: params,
-                        error: (error, message) => { },
-                        success: (val) => { }
-                    };
-
-                    if (connection.options.debugOutput === true) {
-                        val.error = (error, message) => {
-                            syn.$l.eventLog('$network.call.error', '"{0}" call error: {1}, message: {2}, channelID: {3}'.format(evt, error, message, connection.options.scope), 'Information');
-                        };
-
-                        val.success = (val) => {
-                            syn.$l.eventLog('$network.call.success', '"{0}" call returns: {1}, channelID: {2}'.format(evt, val, connection.options.scope), 'Information');
-                        };
-                    }
-
-                    connection.call(val);
-                }
-            }
-        },
-
-        // syn.$n.emit('pageLoad', '?')
         emit(evt, params) {
-            if ($string.isNullOrEmpty($network.myChannelID) == false) {
-                var connection = $network.findChannel($network.myChannelID);
-                if (connection) {
-                    var val = {
-                        method: evt,
-                        params: params,
-                        error: (error, message) => { },
-                        success: (val) => { }
-                    };
-
-                    if (connection.options.debugOutput === true) {
-                        val.error = (error, message) => {
-                            syn.$l.eventLog('$network.emit.error', '"{0}" emit error: {1}, message: {2}'.format(evt, error, message), 'Information');
-                        };
-
-                        val.success = (val) => {
-                            syn.$l.eventLog('$network.emit.success', '"{0}" emit returns: {1}'.format(evt, val), 'Information');
-                        };
-                    }
-
-                    connection.emit(val);
-                }
+            if (!this.myChannelID) {
+                syn.$l.eventLog('$network.emit', 'Cannot emit: myChannelID is not set.', 'Warning');
+                return;
             }
+            const connection = this.findChannel(this.myChannelID);
+            if (!connection) {
+                syn.$l.eventLog('$network.emit', `Emit failed: Own channel not found or ready: ${this.myChannelID}`, 'Warning');
+                return;
+            }
+
+            const val = {
+                method: evt,
+                params: params,
+            };
+
+            if (connection.options.debugOutput) {
+                syn.$l.eventLog('$network.emit', `Emitting "${evt}", channelID: ${connection.options.scope}`, 'Information');
+            }
+
+            connection.emit(val);
         }
     });
 
@@ -6724,19 +5520,14 @@ if (typeof module !== 'undefined' && module.exports) {
     context.$network = syn.$n = $network;
 })(globalRoot);
 
-/// <reference path='syn.core.js' />
-/// <reference path='syn.library.js' />
-
 (function (context) {
     'use strict';
-    var $webform = context.$webform || new syn.module();
-    var document = null;
-    if (globalRoot.devicePlatform === 'node') {
-    }
-    else {
+    const $webform = context.$webform || new syn.module();
+    let doc = null;
+    if (globalRoot.devicePlatform !== 'node') {
         $webform.context = context;
         $webform.document = context.document;
-        document = context.document;
+        doc = context.document;
     }
 
     $webform.extend({
@@ -6756,7 +5547,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
         defaultControlOptions: {
             value: '',
-            dataType: 'string', // string, bool, number, int, date
+            dataType: 'string',
             belongID: null,
             controlText: null,
             validators: ['require', 'unique', 'numeric', 'ipaddress', 'email', 'date', 'url'],
@@ -6771,123 +5562,103 @@ if (typeof module !== 'undefined' && module.exports) {
             tooltip: ''
         },
 
-        setStorage(prop, val, isLocal, ttl) {
-            if (isLocal == undefined || isLocal == null) {
-                isLocal = false;
-            }
+        setStorage(prop, val, isLocal = false, ttl) {
+            const storageKey = prop;
+            const storageValue = JSON.stringify(val);
 
             if (globalRoot.devicePlatform === 'node') {
-                if (isLocal == true) {
-                    localStorage.setItem(prop, JSON.stringify(val));
-                }
-                else {
-                    if (ttl == undefined || ttl == null) {
-                        ttl = 1200000;
-                    }
-
-                    var now = new Date();
-                    var item = {
+                if (isLocal) {
+                    localStorage.setItem(storageKey, storageValue);
+                } else {
+                    const effectiveTTL = ttl ?? 1200000;
+                    const now = Date.now();
+                    const item = {
                         value: val,
-                        expiry: now.getTime() + ttl,
-                        ttl: ttl
+                        expiry: now + effectiveTTL,
+                        ttl: effectiveTTL
                     };
-                    localStorage.setItem(prop, JSON.stringify(item));
+                    localStorage.setItem(storageKey, JSON.stringify(item));
                 }
-            }
-            else {
-                if (isLocal == true) {
-                    localStorage.setItem(prop, JSON.stringify(val));
-                }
-                else {
-                    sessionStorage.setItem(prop, JSON.stringify(val));
-                }
+            } else {
+                const storage = isLocal ? localStorage : sessionStorage;
+                storage.setItem(storageKey, storageValue);
             }
 
-            return $webform;
+            return this;
         },
 
-        getStorage(prop, isLocal) {
-            var result = null;
-            var val = null;
-
-            if (isLocal == undefined || isLocal == null) {
-                isLocal = false;
-            }
+        getStorage(prop, isLocal = false) {
+            const storageKey = prop;
 
             if (globalRoot.devicePlatform === 'node') {
-                if (isLocal == true) {
-                    val = localStorage.getItem(prop);
-                }
-                else {
-                    var itemStr = localStorage.getItem(prop)
-                    if (!itemStr) {
+                if (isLocal) {
+                    const val = localStorage.getItem(storageKey);
+                    return val ? JSON.parse(val) : null;
+                } else {
+                    const itemStr = localStorage.getItem(storageKey);
+                    if (!itemStr) return null;
+
+                    try {
+                        const item = JSON.parse(itemStr);
+                        const now = Date.now();
+
+                        if (now > item.expiry) {
+                            localStorage.removeItem(storageKey);
+                            return null;
+                        }
+
+                        const refreshedItem = {
+                            ...item,
+                            expiry: now + item.ttl,
+                        };
+                        localStorage.setItem(storageKey, JSON.stringify(refreshedItem));
+                        return item.value;
+
+                    } catch (e) {
+                        syn.$l.eventLog('$w.getStorage (Node)', `Error parsing storage item for key "${storageKey}": ${e}`, 'Error');
+                        localStorage.removeItem(storageKey);
                         return null;
                     }
-                    var item = JSON.parse(itemStr)
-                    var now = new Date()
-                    if (now.getTime() > item.expiry) {
-                        localStorage.removeItem(prop);
-                        return null;
-                    }
-
-                    result = item.value;
-
-                    var ttl = item.ttl;
-                    var now = new Date();
-                    var item = {
-                        value: result,
-                        expiry: now.getTime() + ttl,
-                        ttl: ttl
-                    };
-                    localStorage.setItem(prop, JSON.stringify(item));
+                }
+            } else {
+                const storage = isLocal ? localStorage : sessionStorage;
+                const val = storage.getItem(storageKey);
+                try {
+                    return val ? JSON.parse(val) : null;
+                } catch (e) {
+                    syn.$l.eventLog('$w.getStorage (Browser)', `Error parsing storage item for key "${storageKey}": ${e}`, 'Error');
+                    storage.removeItem(storageKey);
+                    return null;
                 }
             }
-            else {
-                if (isLocal == true) {
-                    result = JSON.parse(localStorage.getItem(prop));
-                }
-                else {
-                    result = JSON.parse(sessionStorage.getItem(prop));
-                }
-            }
-
-            return result;
         },
 
-        removeStorage(prop, isLocal) {
-            if (isLocal == undefined || isLocal == null) {
-                isLocal = false;
-            }
-
+        removeStorage(prop, isLocal = false) {
+            const storageKey = prop;
             if (globalRoot.devicePlatform === 'node') {
-                localStorage.removeItem(prop);
+                localStorage.removeItem(storageKey);
+            } else {
+                const storage = isLocal ? localStorage : sessionStorage;
+                storage.removeItem(storageKey);
             }
-            else {
-                if (isLocal == true) {
-                    localStorage.removeItem(prop);
-                }
-                else {
-                    sessionStorage.removeItem(prop);
-                }
-            }
+            return this;
         },
 
         activeControl(evt) {
-            var result = null;
-            evt = evt || context.event || null;
-            if (evt) {
-                result = evt.target || evt.srcElement || evt || null;
-            }
-            else {
-                result = document.activeElement || null;
+            const event = evt || context.event || null;
+            let result = null;
+
+            if (event) {
+                result = event.target || event.srcElement || event || null;
+            } else if (doc) {
+                result = doc.activeElement || null;
             }
 
-            if (result == null) {
-                if (globalRoot.$this) {
-                    result = $this.context.focusControl || null;
-                }
+            if (!result && globalRoot.$this?.context) {
+                result = $this.context.focusControl || null;
             }
-            else {
+
+            if (result && globalRoot.$this?.context) {
                 $this.context.focusControl = result;
             }
 
@@ -7672,780 +6443,522 @@ if (typeof module !== 'undefined' && module.exports) {
 
         addReadyCount() {
             if (syn.$w.eventAddReady && syn.$w.isPageLoad == false) {
-                document.dispatchEvent(syn.$w.eventAddReady);
+                doc.dispatchEvent(syn.$w.eventAddReady);
             }
         },
 
         removeReadyCount() {
             if (syn.$w.eventRemoveReady && syn.$w.isPageLoad == false) {
-                document.dispatchEvent(syn.$w.eventRemoveReady);
+                doc.dispatchEvent(syn.$w.eventRemoveReady);
             }
         },
 
         createSelection(el, start, end) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            if (el.createTextRange) {
-                var newend = end - start;
-                var selRange = el.createTextRange();
-                selRange.collapse(true);
-                selRange.moveStart('character', start);
-                selRange.moveEnd('character', newend);
-                selRange.select();
-                newend = null;
-                selRange = null;
-            }
-            else if (el.type != 'email' && el.setSelectionRange) {
-                el.setSelectionRange(start, end);
-            }
+            const element = syn.$l.getElement(el);
+            if (!element) return;
 
-            el.focus();
-        },
-
-        argumentsExtend() {
-            var extended = {};
-
-            for (var key in arguments) {
-                var argument = arguments[key];
-                for (var prop in argument) {
-                    if (Object.prototype.hasOwnProperty.call(argument, prop)) {
-                        extended[prop] = argument[prop];
-                    }
+            try {
+                if (element.setSelectionRange && element.type !== 'email') {
+                    element.setSelectionRange(start, end);
+                } else if (element.createTextRange) { // IE
+                    const range = element.createTextRange();
+                    range.collapse(true);
+                    range.moveStart('character', start);
+                    range.moveEnd('character', end - start);
+                    range.select();
                 }
+                element.focus();
+            } catch (e) {
+                syn.$l.eventLog('$w.createSelection', `Error setting selection for element ${element.id}: ${e}`, 'Warning');
             }
-
-            return extended;
         },
 
-        loadJson(url, setting, success, callback, async, isForceCallback) {
-            if (async == undefined || async == null) {
-                async = true;
+        argumentsExtend(...args) {
+            return Object.assign({}, ...args);
+        },
+
+        loadJson(url, setting, success, callback, async = true, isForceCallback = false) {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', url, async);
+
+            if (syn.$w.setServiceClientHeader && !this.setServiceClientHeader(xhr)) {
+                syn.$l.eventLog('$w.loadJson', `setServiceClientHeader failed for URL: ${url}`, 'Error');
+                if (callback && isForceCallback) callback();
+                return;
             }
 
-            if (isForceCallback == undefined || isForceCallback == null) {
-                isForceCallback = false;
-            }
+            const handleResponse = () => {
+                if (xhr.status === 200) {
+                    try {
+                        const responseData = JSON.parse(xhr.responseText);
+                        if (success) success(setting, responseData);
+                    } catch (e) {
+                        syn.$l.eventLog('$w.loadJson', `JSON parse error for URL: ${url}, status: ${xhr.status}, error: ${e}`, 'Error');
+                    } finally {
+                        if (callback) callback();
+                    }
+                } else {
+                    syn.$l.eventLog('$w.loadJson', `HTTP error for URL: ${url}, status: ${xhr.status}, responseText: ${xhr.responseText}`, 'Error');
+                    if (callback && isForceCallback) callback();
+                }
+            };
 
-            var xhr = new XMLHttpRequest();
-            if (async === true) {
-                xhr.onreadystatechange = function () {
+            if (async) {
+                xhr.onreadystatechange = () => {
                     if (xhr.readyState === XMLHttpRequest.DONE) {
-                        if (xhr.status === 200) {
-                            if (success) {
-                                success(setting, JSON.parse(xhr.responseText));
-                            }
-
-                            if (callback) {
-                                callback();
-                            }
-                        }
-                        else {
-                            syn.$l.eventLog('$w.loadJson', 'async url: ' + url + ', status: ' + xhr.status.toString() + ', responseText: ' + xhr.responseText, 'Error');
-                        }
-
-                        if (xhr.status !== 200 && callback && isForceCallback == true) {
-                            callback();
-                        }
+                        handleResponse();
                     }
                 };
-                xhr.open('GET', url, true);
-
-                if (syn.$w.setServiceClientHeader) {
-                    if (syn.$w.setServiceClientHeader(xhr) == false) {
-                        return;
-                    }
-                }
-
+                xhr.onerror = () => {
+                    syn.$l.eventLog('$w.loadJson', `Network error for URL: ${url}`, 'Error');
+                    if (callback && isForceCallback) callback();
+                };
                 xhr.send();
-            }
-            else {
-                xhr.open('GET', url, false);
-
-                if (syn.$w.setServiceClientHeader) {
-                    if (syn.$w.setServiceClientHeader(xhr) == false) {
-                        return;
-                    }
-                }
-
-                xhr.send();
-
-                if (xhr.status === 200) {
-                    if (success) {
-                        success(setting, JSON.parse(xhr.responseText));
-                    }
-
-                    if (callback) {
-                        callback();
-                    }
-                }
-                else {
-                    syn.$l.eventLog('$w.loadJson', 'sync url: ' + url + ', status: ' + xhr.status.toString() + ', responseText: ' + xhr.responseText, 'Error');
-                }
-
-                if (callback && isForceCallback == true) {
-                    callback();
+            } else {
+                try {
+                    xhr.send();
+                    handleResponse();
+                } catch (e) {
+                    syn.$l.eventLog('$w.loadJson', `Error during synchronous request for URL: ${url}, error: ${e}`, 'Error');
+                    if (callback && isForceCallback) callback();
                 }
             }
         },
 
         getTriggerOptions(el) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
-            return JSON.parse(el.getAttribute('triggerOptions'));
+            const element = syn.$l.getElement(el);
+            const optionsAttr = element?.getAttribute('triggerOptions');
+            if (!optionsAttr) return null;
+            try {
+                return JSON.parse(optionsAttr);
+            } catch (e) {
+                syn.$l.eventLog('$w.getTriggerOptions', `Failed to parse triggerOptions for element ${element?.id}: ${e}`, 'Warning');
+                return null;
+            }
         },
 
         triggerAction(triggerConfig) {
-            if ($this) {
-                var isContinue = true;
+            if (!$this) return;
 
-                var defaultParams = {
-                    arguments: [],
-                    options: {}
-                };
+            let isContinue = true;
+            const defaults = { arguments: [], options: {} };
+            const configParams = syn.$w.argumentsExtend(defaults, triggerConfig.params);
 
-                triggerConfig.params = syn.$w.argumentsExtend(defaultParams, triggerConfig.params);
+            if ($this.hook?.beforeTrigger) {
+                isContinue = $this.hook.beforeTrigger(triggerConfig.triggerID, triggerConfig.action, configParams);
+            }
 
-                if ($this.hook.beforeTrigger) {
-                    isContinue = $this.hook.beforeTrigger(triggerConfig.triggerID, triggerConfig.action, triggerConfig.params);
-                }
+            if (isContinue ?? true) {
+                const el = syn.$l.get(triggerConfig.triggerID);
+                let triggerResult = null;
+                let trigger = null;
 
-                if ($object.isNullOrUndefined(isContinue) == true || isContinue == true) {
-                    var el = syn.$l.get(triggerConfig.triggerID);
-                    var triggerResult = null;
-                    var trigger = null;
-
-                    if (triggerConfig.action && triggerConfig.action.startsWith('syn.uicontrols.$') == true) {
-                        trigger = syn.uicontrols;
-                        var currings = triggerConfig.action.split('.');
-                        if (currings.length > 3) {
-                            for (var i = 2; i < currings.length; i++) {
-                                var curring = currings[i];
-                                if (trigger) {
-                                    trigger = trigger[curring];
-                                }
-                                else {
-                                    trigger = context[curring];
-                                }
-                            }
-                        }
-                        else {
-                            trigger = context[triggerConfig.action];
-                        }
-                    }
-                    else if (triggerConfig.triggerID && triggerConfig.action) {
-                        trigger = $this.event ? $this.event['{0}_{1}'.format(triggerConfig.triggerID, triggerConfig.action)] : null;
+                try {
+                    if (triggerConfig.action?.startsWith('syn.uicontrols.$')) {
+                        trigger = triggerConfig.action.split('.').slice(1).reduce((obj, prop) => obj?.[prop], syn);
+                    } else if (triggerConfig.triggerID && triggerConfig.action && $this.event) {
+                        trigger = $this.event[`${triggerConfig.triggerID}_${triggerConfig.action}`];
+                    } else if (triggerConfig.method) {
+                        trigger = new Function(`return (${triggerConfig.method})`)();
                     }
 
-                    if (el && trigger) {
-                        el.setAttribute('triggerOptions', JSON.stringify(triggerConfig.params.options));
-
-                        if (triggerConfig.action.indexOf('$') > -1) {
-                            $array.addAt(triggerConfig.params.arguments, 0, triggerConfig.triggerID);
+                    if (typeof trigger === 'function') {
+                        if (el && triggerConfig.action?.startsWith('syn.uicontrols.$')) {
+                            el.setAttribute('triggerOptions', JSON.stringify(configParams.options || {}));
+                            configParams.arguments.unshift(triggerConfig.triggerID);
+                            triggerResult = trigger.apply(el, configParams.arguments);
+                        } else if (el && triggerConfig.triggerID && triggerConfig.action && $this.event) {
+                            triggerResult = trigger.apply(el, configParams.arguments);
+                        }
+                        else if (triggerConfig.method) {
+                            triggerResult = trigger.apply($this, configParams.arguments);
+                        } else {
+                            throw new Error("Trigger context mismatch or invalid configuration.");
                         }
 
-                        triggerResult = trigger.apply(el, triggerConfig.params.arguments);
-                        if ($this.hook.afterTrigger) {
-                            $this.hook.afterTrigger(null, triggerConfig.action, {
-                                elID: triggerConfig.triggerID,
-                                result: triggerResult
-                            });
+                        if ($this.hook?.afterTrigger) {
+                            $this.hook.afterTrigger(null, triggerConfig.action, { elID: triggerConfig.triggerID, result: triggerResult });
                         }
+                    } else {
+                        throw new Error(`Trigger function not found or invalid for action: ${triggerConfig.action || triggerConfig.method}`);
                     }
-                    else if (triggerConfig.method) {
-                        var func = eval(triggerConfig.method);
-                        if (typeof func === 'function') {
-                            trigger = func;
-
-                            triggerResult = trigger.apply($this, triggerConfig.params.arguments);
-                            if ($this.hook.afterTrigger) {
-                                $this.hook.afterTrigger(null, triggerConfig.action, {
-                                    elID: triggerConfig.triggerID,
-                                    result: triggerResult
-                                });
-                            }
-                        }
-                    }
-                    else {
-                        if ($this.hook.afterTrigger) {
-                            $this.hook.afterTrigger('{0} trigger 확인 필요'.format(JSON.stringify(triggerConfig)), triggerConfig.action, null);
-                        }
+                } catch (error) {
+                    const errorMessage = `Trigger execution failed: ${error.message}`;
+                    syn.$l.eventLog('$w.triggerAction', errorMessage, 'Error');
+                    if ($this.hook?.afterTrigger) {
+                        $this.hook.afterTrigger(errorMessage, triggerConfig.action, null);
                     }
                 }
-                else {
-                    if ($this.hook.afterTrigger) {
-                        $this.hook.afterTrigger('hook.beforeTrigger continue false', triggerConfig.action, null);
-                    }
+            } else {
+                if ($this.hook?.afterTrigger) {
+                    $this.hook.afterTrigger('hook.beforeTrigger returned false', triggerConfig.action, null);
                 }
             }
         },
 
-        getControlModule(module) {
-            var result = null;
-            var currings = module.split('.');
-            if (currings.length > 0) {
-                for (var i = 0; i < currings.length; i++) {
-                    var curring = currings[i];
-                    if (result) {
-                        result = result[curring];
-                    }
-                    else {
-                        result = context[curring];
-                    }
-                }
+        getControlModule(modulePath) {
+            if (!modulePath) return null;
+            try {
+                return modulePath.split('.').reduce((obj, prop) => obj?.[prop], context);
+            } catch (e) {
+                syn.$l.eventLog('$w.getControlModule', `Error accessing module path "${modulePath}": ${e}`, 'Warning');
+                return null;
             }
-            else {
-                result = context[controlInfo.module];
-            }
-
-            return result;
         },
 
         tryAddFunction(transactConfig) {
-            if (transactConfig && $this && $this.config) {
-                if ($object.isNullOrUndefined(transactConfig.noProgress) == true) {
-                    transactConfig.noProgress = false;
-                }
-
-                try {
-                    if ($object.isNullOrUndefined($this.config.transactions) == true) {
-                        $this.config.transactions = [];
-                    }
-
-                    var transactions = $this.config.transactions;
-                    for (var i = 0; i < transactions.length; i++) {
-                        if (transactConfig.functionID == transactions[i].functionID) {
-                            transactions.splice(i, 1);
-                            break;
-                        }
-                    }
-
-                    var synControlList = $this.context.synControls;
-                    var transactionObject = {};
-                    transactionObject.functionID = transactConfig.functionID;
-                    transactionObject.transactionResult = $object.isNullOrUndefined(transactConfig.transactionResult) == true ? true : transactConfig.transactionResult === true;
-                    transactionObject.inputs = [];
-                    transactionObject.outputs = [];
-
-                    if (transactConfig.inputs) {
-                        var inputs = transactConfig.inputs;
-                        var inputsLength = inputs.length;
-                        for (var i = 0; i < inputsLength; i++) {
-                            var inputConfig = inputs[i];
-                            var input = {
-                                requestType: inputConfig.type,
-                                dataFieldID: inputConfig.dataFieldID ? inputConfig.dataFieldID : document.forms.length > 0 ? document.forms[0].getAttribute('syn-datafield') : '',
-                                items: {}
-                            };
-
-                            var synControlConfigs = null;
-                            if (inputConfig.type == 'Row') {
-                                var synControlConfigs = synControlList.filter(function (item) {
-                                    return item.formDataFieldID == input.dataFieldID && (item.type.indexOf('grid') > -1 || item.type.indexOf('chart') > -1 || item.type.indexOf('data') > -1) == false;
-                                });
-
-                                if (synControlConfigs && synControlConfigs.length > 0) {
-                                    for (var k = 0; k < synControlConfigs.length; k++) {
-                                        var synControlConfig = synControlConfigs[k];
-
-                                        var el = syn.$l.get(synControlConfig.id + '_hidden') || syn.$l.get(synControlConfig.id);
-                                        var options = el && el.getAttribute('syn-options');
-                                        if (options == null) {
-                                            continue;
-                                        }
-
-                                        var synOptions = null;
-
-                                        try {
-                                            synOptions = JSON.parse(options);
-                                        } catch (e) {
-                                            synOptions = eval('(' + options + ')');
-                                        }
-
-                                        if (synOptions == null || $string.isNullOrEmpty(synControlConfig.field) == true) {
-                                            continue;
-                                        }
-
-                                        var isBelong = false;
-                                        if (synOptions.belongID) {
-                                            if ($object.isString(synOptions.belongID) == true) {
-                                                isBelong = transactConfig.functionID == synOptions.belongID;
-                                            }
-                                            else if ($object.isArray(synOptions.belongID) == true) {
-                                                isBelong = synOptions.belongID.indexOf(transactConfig.functionID) > -1;
-                                            }
-                                        }
-
-                                        if (isBelong == true) {
-                                            input.items[synControlConfig.field] = {
-                                                fieldID: synControlConfig.field,
-                                                dataType: synOptions.dataType || 'string'
-                                            };
-                                        }
-                                    }
-                                }
-                                else {
-                                    var synControlConfig = synControlList.find(function (item) {
-                                        return item.field == input.dataFieldID && (item.type.indexOf('grid') > -1 || item.type.indexOf('chart') > -1) == true;
-                                    });
-
-                                    var controlModule = $object.isNullOrUndefined(synControlConfig) == true ? null : syn.$w.getControlModule(synControlConfig.module);
-                                    if ($object.isNullOrUndefined(controlModule) == false && controlModule.setTransactionBelongID) {
-                                        controlModule.setTransactionBelongID(synControlConfig.id, input, transactConfig);
-                                    }
-                                    else {
-                                        if (syn.uicontrols.$data && syn.uicontrols.$data.storeList.length > 0) {
-                                            for (var k = 0; k < syn.uicontrols.$data.storeList.length; k++) {
-                                                var store = syn.uicontrols.$data.storeList[k];
-                                                if (store.storeType == 'Form' && store.dataSourceID == input.dataFieldID) {
-                                                    for (var l = 0; l < store.columns.length; l++) {
-                                                        var column = store.columns[l];
-                                                        var isBelong = false;
-                                                        if ($object.isString(column.belongID) == true) {
-                                                            isBelong = transactConfig.functionID == column.belongID;
-                                                        }
-                                                        else if ($object.isArray(column.belongID) == true) {
-                                                            isBelong = column.belongID.indexOf(transactConfig.functionID) > -1;
-                                                        }
-
-                                                        if (isBelong == true) {
-                                                            input.items[column.data] = {
-                                                                fieldID: column.data,
-                                                                dataType: column.dataType || 'string'
-                                                            };
-                                                        }
-                                                    }
-
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            else if (inputConfig.type == 'List') {
-                                var synControlConfig = synControlList.find(function (item) {
-                                    return item.field == input.dataFieldID && (item.type.indexOf('grid') > -1 || item.type.indexOf('chart') > -1) == true;
-                                });
-
-                                var controlModule = $object.isNullOrUndefined(synControlConfig) == true ? null : syn.$w.getControlModule(synControlConfig.module);
-                                if ($object.isNullOrUndefined(controlModule) == false && controlModule.setTransactionBelongID) {
-                                    controlModule.setTransactionBelongID(synControlConfig.id, input, transactConfig);
-                                }
-                                else {
-                                    if (syn.uicontrols.$data && syn.uicontrols.$data.storeList.length > 0) {
-                                        for (var k = 0; k < syn.uicontrols.$data.storeList.length; k++) {
-                                            var store = syn.uicontrols.$data.storeList[k];
-                                            if (store.storeType == 'Grid' && store.dataSourceID == input.dataFieldID) {
-                                                for (var l = 0; l < store.columns.length; l++) {
-                                                    var column = store.columns[l];
-                                                    var isBelong = false;
-                                                    if ($object.isString(column.belongID) == true) {
-                                                        isBelong = transactConfig.functionID == column.belongID;
-                                                    }
-                                                    else if ($object.isArray(column.belongID) == true) {
-                                                        isBelong = column.belongID.indexOf(transactConfig.functionID) > -1;
-                                                    }
-
-                                                    if (isBelong == true) {
-                                                        input.items[column.data] = {
-                                                            fieldID: column.data,
-                                                            dataType: column.dataType || 'string'
-                                                        };
-                                                    }
-                                                }
-
-                                                break;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            transactionObject.inputs.push(input);
-                        }
-                    }
-
-                    if (transactConfig.outputs) {
-                        var outputs = transactConfig.outputs;
-                        var outputsLength = outputs.length;
-                        var synControls = $this.context.synControls;
-                        for (var i = 0; i < outputsLength; i++) {
-                            var outputConfig = outputs[i];
-                            var output = {
-                                responseType: outputConfig.type,
-                                dataFieldID: outputConfig.dataFieldID ? outputConfig.dataFieldID : '',
-                                items: {}
-                            };
-
-                            var synControlConfigs = null;
-                            if (outputConfig.type == 'Form') {
-                                var synControlConfigs = synControlList.filter(function (item) {
-                                    return item.formDataFieldID == output.dataFieldID && (item.type.indexOf('grid') > -1 || item.type.indexOf('chart') > -1 || item.type.indexOf('data') > -1) == false;
-                                });
-
-                                if (synControlConfigs && synControlConfigs.length > 0) {
-                                    for (var k = 0; k < synControlConfigs.length; k++) {
-                                        var synControlConfig = synControlConfigs[k];
-
-                                        var el = syn.$l.get(synControlConfig.id + '_hidden') || syn.$l.get(synControlConfig.id);
-                                        var options = el && el.getAttribute('syn-options');
-                                        if (options == null) {
-                                            continue;
-                                        }
-
-                                        var synOptions = null;
-
-                                        try {
-                                            synOptions = JSON.parse(options);
-                                        } catch (e) {
-                                            synOptions = eval('(' + options + ')');
-                                        }
-
-                                        if (synOptions == null || $string.isNullOrEmpty(synControlConfig.field) == true) {
-                                            continue;
-                                        }
-
-                                        output.items[synControlConfig.field] = {
-                                            fieldID: synControlConfig.field,
-                                            dataType: synOptions.dataType
-                                        };
-
-                                        if (outputConfig.clear == true) {
-                                            if (synControls && synControls.length > 0) {
-                                                var controlInfo = synControls.find(function (item) {
-                                                    return item.field == outputConfig.dataFieldID;
-                                                });
-
-                                                if ($string.isNullOrEmpty(controlInfo.module) == true) {
-                                                    continue;
-                                                }
-
-                                                var controlModule = syn.$w.getControlModule(controlInfo.module);
-                                                if ($object.isNullOrUndefined(controlModule) == false && controlModule.clear) {
-                                                    controlModule.clear(controlInfo.id);
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                else {
-                                    if (syn.uicontrols.$data && syn.uicontrols.$data.storeList.length > 0) {
-                                        for (var k = 0; k < syn.uicontrols.$data.storeList.length; k++) {
-                                            var store = syn.uicontrols.$data.storeList[k];
-                                            if (store.storeType == 'Form' && store.dataSourceID == output.dataFieldID) {
-                                                for (var l = 0; l < store.columns.length; l++) {
-                                                    var column = store.columns[l];
-
-                                                    output.items[column.data] = {
-                                                        fieldID: column.data,
-                                                        dataType: column.dataType || 'string'
-                                                    };
-                                                }
-
-                                                if (outputConfig.clear == true) {
-                                                    var dataStore = $this.store[store.dataSourceID];
-                                                    if (dataStore) {
-                                                        dataStore.length = 0;
-                                                    }
-                                                }
-
-                                                break;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            else if (outputConfig.type == 'Grid') {
-                                var synControlConfig = synControlList.find(function (item) {
-                                    return item.field == output.dataFieldID && (item.type.indexOf('grid') > -1 || item.type.indexOf('chart') > -1) == true;
-                                });
-
-                                var controlModule = $object.isNullOrUndefined(synControlConfig) == true ? null : syn.$w.getControlModule(synControlConfig.module);
-                                if ($object.isNullOrUndefined(controlModule) == false && controlModule.setTransactionBelongID) {
-                                    controlModule.setTransactionBelongID(synControlConfig.id, output);
-
-                                    if (outputConfig.clear == true) {
-                                        if (synControls && synControls.length > 0) {
-                                            var controlInfo = synControls.find(function (item) {
-                                                return item.field == output.dataFieldID;
-                                            });
-
-                                            var controlModule = syn.$w.getControlModule(controlInfo.module);
-                                            if ($object.isNullOrUndefined(controlModule) == false && controlModule.clear) {
-                                                controlModule.clear(controlInfo.id);
-                                            }
-                                        }
-                                    }
-                                }
-                                else {
-                                    synControlConfigs = synControlList.filter(function (item) {
-                                        return item.field == output.dataFieldID && ['chart', 'chartjs'].indexOf(item.type) > -1;
-                                    });
-
-                                    if (synControlConfigs && synControlConfigs.length == 1) {
-                                        var synControlConfig = synControlConfigs[0];
-
-                                        var el = syn.$l.get(synControlConfig.id + '_hidden') || syn.$l.get(synControlConfig.id);
-                                        var synOptions = JSON.parse(el.getAttribute('syn-options'));
-
-                                        if (synOptions == null) {
-                                            continue;
-                                        }
-
-                                        for (var k = 0; k < synOptions.series.length; k++) {
-                                            var column = synOptions.series[k];
-                                            output.items[column.columnID] = {
-                                                fieldID: column.columnID,
-                                                dataType: column.dataType ? column.dataType : 'string'
-                                            };
-                                        }
-
-                                        if (outputConfig.clear == true) {
-                                            if (synControls && synControls.length > 0) {
-                                                var controlInfo = synControls.find(function (item) {
-                                                    return item.field == outputConfig.dataFieldID;
-                                                });
-
-                                                if ($string.isNullOrEmpty(controlInfo.module) == true) {
-                                                    continue;
-                                                }
-
-                                                var controlModule = syn.$w.getControlModule(controlInfo.module);
-                                                if ($object.isNullOrUndefined(controlModule) == false && controlModule.clear) {
-                                                    controlModule.clear(controlInfo.id);
-                                                }
-                                            }
-                                        }
-                                    }
-                                    else {
-                                        if (syn.uicontrols.$data && syn.uicontrols.$data.storeList.length > 0) {
-                                            for (var k = 0; k < syn.uicontrols.$data.storeList.length; k++) {
-                                                var store = syn.uicontrols.$data.storeList[k];
-                                                if (store.storeType == 'Grid' && store.dataSourceID == output.dataFieldID) {
-                                                    for (var l = 0; l < store.columns.length; l++) {
-                                                        var column = store.columns[l];
-
-                                                        output.items[column.data] = {
-                                                            fieldID: column.data,
-                                                            dataType: column.dataType || 'string'
-                                                        };
-                                                    }
-
-                                                    if (outputConfig.clear == true) {
-                                                        var dataStore = $this.store[store.dataSourceID];
-                                                        if (dataStore) {
-                                                            dataStore.length = 0;
-                                                        }
-                                                    }
-
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            transactionObject.outputs.push(output);
-                        }
-                    }
-
-                    $this.config.transactions.push(transactionObject);
-                } catch (error) {
-                    syn.$l.eventLog('$w.tryAddFunction', error, 'Error');
-                }
+            if (!transactConfig || !$this?.config) {
+                syn.$l.eventLog('$w.tryAddFunction', `Invalid transactConfig or $this.config missing for functionID: ${transactConfig?.functionID}`, 'Warning');
+                return;
             }
-            else {
-                syn.$l.eventLog('$w.tryAddFunction', '{0} 거래 ID 또는 설정 확인 필요'.format(transactConfig), 'Warning');
+
+            try {
+                transactConfig.noProgress = transactConfig.noProgress ?? false;
+                $this.config.transactions = $this.config.transactions || [];
+
+                const transactions = $this.config.transactions;
+                const existingIndex = transactions.findIndex(t => t.functionID === transactConfig.functionID);
+                if (existingIndex > -1) {
+                    transactions.splice(existingIndex, 1);
+                }
+
+                const synControlList = $this.context?.synControls ?? [];
+                const defaultFormId = doc?.forms?.[0]?.getAttribute('syn-datafield') ?? '';
+
+                const transactionObject = {
+                    functionID: transactConfig.functionID,
+                    transactionResult: transactConfig.transactionResult ?? true,
+                    inputs: [],
+                    outputs: []
+                };
+
+                (transactConfig.inputs || []).forEach(inputConfig => {
+                    const input = {
+                        requestType: inputConfig.type,
+                        dataFieldID: inputConfig.dataFieldID || defaultFormId,
+                        items: {}
+                    };
+
+                    const isBelong = (belongID) => {
+                        if (!belongID) return false;
+                        return Array.isArray(belongID)
+                            ? belongID.includes(transactConfig.functionID)
+                            : transactConfig.functionID === belongID;
+                    };
+
+                    const processControlOptions = (controlConfig) => {
+                        const el = syn.$l.get(`${controlConfig.id}_hidden`) || syn.$l.get(controlConfig.id);
+                        const optionsStr = el?.getAttribute('syn-options') || '{}';
+                        try {
+                            const synOptions = new Function(`return (${optionsStr})`)();
+                            if (synOptions && controlConfig.field && isBelong(synOptions.belongID)) {
+                                input.items[controlConfig.field] = {
+                                    fieldID: controlConfig.field,
+                                    dataType: synOptions.dataType || 'string'
+                                };
+                            }
+                        } catch (e) {
+                            syn.$l.eventLog('$w.tryAddFunction.input', `Error parsing syn-options for ${controlConfig.id}: ${e}`, 'Warning');
+                        }
+                    };
+
+                    const processStoreColumns = (store, type) => {
+                        if (store?.storeType === type && store.dataSourceID === input.dataFieldID) {
+                            (store.columns || []).forEach(column => {
+                                if (isBelong(column.belongID)) {
+                                    input.items[column.data] = {
+                                        fieldID: column.data,
+                                        dataType: column.dataType || 'string'
+                                    };
+                                }
+                            });
+                            return true;
+                        }
+                        return false;
+                    };
+
+                    if (inputConfig.type === 'Row') {
+                        const formControls = synControlList.filter(item =>
+                            item.formDataFieldID === input.dataFieldID &&
+                            !item.type?.includes('grid') && !item.type?.includes('chart') && !item.type?.includes('data')
+                        );
+
+                        if (formControls.length > 0) {
+                            formControls.forEach(processControlOptions);
+                        } else {
+                            let storeProcessed = false;
+                            if (syn.uicontrols?.$data?.storeList) {
+                                for (const store of syn.uicontrols.$data.storeList) {
+                                    if (processStoreColumns(store, 'Form')) {
+                                        storeProcessed = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (!storeProcessed) {
+                                const specificControlConfig = synControlList.find(item => item.field === input.dataFieldID && (item.type?.includes('grid') || item.type?.includes('chart')));
+                                const controlModule = specificControlConfig ? syn.$w.getControlModule(specificControlConfig.module) : null;
+                                controlModule?.setTransactionBelongID?.(specificControlConfig.id, input, transactConfig);
+                            }
+                        }
+                    } else if (inputConfig.type === 'List') {
+                        const listControlConfig = synControlList.find(item => item.field === input.dataFieldID && (item.type?.includes('grid') || item.type?.includes('chart')));
+                        const controlModule = listControlConfig ? syn.$w.getControlModule(listControlConfig.module) : null;
+
+                        if (controlModule?.setTransactionBelongID) {
+                            controlModule.setTransactionBelongID(listControlConfig.id, input, transactConfig);
+                        } else if (syn.uicontrols?.$data?.storeList) {
+                            let storeProcessed = false;
+                            for (const store of syn.uicontrols.$data.storeList) {
+                                if (processStoreColumns(store, 'Grid')) {
+                                    storeProcessed = true;
+                                    break;
+                                }
+                            }
+                            if (!storeProcessed) {
+                                syn.$l.eventLog('$w.tryAddFunction.input', `No list source found for dataFieldID "${input.dataFieldID}"`, 'Warning');
+                            }
+                        }
+                    }
+                    transactionObject.inputs.push(input);
+                });
+
+                (transactConfig.outputs || []).forEach(outputConfig => {
+                    const output = {
+                        responseType: outputConfig.type,
+                        dataFieldID: outputConfig.dataFieldID || '',
+                        items: {}
+                    };
+
+                    const processControlOutput = (controlConfig) => {
+                        const el = syn.$l.get(`${controlConfig.id}_hidden`) || syn.$l.get(controlConfig.id);
+                        const optionsStr = el?.getAttribute('syn-options') || '{}';
+                        try {
+                            const synOptions = new Function(`return (${optionsStr})`)();
+                            if (synOptions && controlConfig.field) {
+                                output.items[controlConfig.field] = {
+                                    fieldID: controlConfig.field,
+                                    dataType: synOptions.dataType || 'string'
+                                };
+                            }
+                        } catch (e) {
+                            syn.$l.eventLog('$w.tryAddFunction.output', `Error parsing syn-options for ${controlConfig.id}: ${e}`, 'Warning');
+                        }
+
+                        if (outputConfig.clear) {
+                            const controlModule = syn.$w.getControlModule(controlConfig.module);
+                            controlModule?.clear?.(controlConfig.id);
+                        }
+                    };
+
+                    const processStoreOutput = (store, type) => {
+                        if (store?.storeType === type && store.dataSourceID === output.dataFieldID) {
+                            (store.columns || []).forEach(column => {
+                                output.items[column.data] = {
+                                    fieldID: column.data,
+                                    dataType: column.dataType || 'string'
+                                };
+                            });
+                            if (outputConfig.clear && $this?.store?.[store.dataSourceID]) {
+                                if (Array.isArray($this.store[store.dataSourceID])) {
+                                    $this.store[store.dataSourceID].length = 0;
+                                } else {
+                                    $this.store[store.dataSourceID] = {};
+                                }
+                            }
+                            return true;
+                        }
+                        return false;
+                    };
+
+                    if (outputConfig.type === 'Form') {
+                        const formControls = synControlList.filter(item =>
+                            item.formDataFieldID === output.dataFieldID &&
+                            !item.type?.includes('grid') && !item.type?.includes('chart') && !item.type?.includes('data')
+                        );
+                        if (formControls.length > 0) {
+                            formControls.forEach(processControlOutput);
+                        } else if (syn.uicontrols?.$data?.storeList) {
+                            let storeProcessed = false;
+                            for (const store of syn.uicontrols.$data.storeList) {
+                                if (processStoreOutput(store, 'Form')) {
+                                    storeProcessed = true;
+                                    break;
+                                }
+                            }
+                            if (!storeProcessed) {
+                                syn.$l.eventLog('$w.tryAddFunction.output', `No form source found for dataFieldID "${output.dataFieldID}"`, 'Warning');
+                            }
+                        }
+                    } else if (outputConfig.type === 'Grid') {
+                        const listControlConfig = synControlList.find(item => item.field === output.dataFieldID && (item.type?.includes('grid') || item.type?.includes('chart'))); // Allow chart as grid output sometimes
+                        const controlModule = listControlConfig ? syn.$w.getControlModule(listControlConfig.module) : null;
+
+                        if (controlModule?.setTransactionBelongID) {
+                            controlModule.setTransactionBelongID(listControlConfig.id, output);
+                            if (outputConfig.clear) controlModule.clear?.(listControlConfig.id);
+                        } else if (syn.uicontrols?.$data?.storeList) {
+                            let storeProcessed = false;
+                            for (const store of syn.uicontrols.$data.storeList) {
+                                if (processStoreOutput(store, 'Grid')) {
+                                    storeProcessed = true;
+                                    break;
+                                }
+                            }
+                            if (!storeProcessed) {
+                                syn.$l.eventLog('$w.tryAddFunction.output', `No grid source found for dataFieldID "${output.dataFieldID}"`, 'Warning');
+                            }
+                        }
+                    }
+                    transactionObject.outputs.push(output);
+                });
+
+                transactions.push(transactionObject);
+            } catch (error) {
+                syn.$l.eventLog('$w.tryAddFunction', `Error processing function ${transactConfig.functionID}: ${error}`, 'Error');
             }
         },
 
-        transactionAction(transactConfig, options) {
-            if ($object.isString(transactConfig) == true) {
-                var functionID = transactConfig;
-                transactConfig = $this.transaction[transactConfig];
-
-                if ($object.isNullOrUndefined(transactConfig) == true) {
-                    syn.$l.eventLog('$w.transactionAction', 'functionID "{0}" 확인 필요'.format(functionID), 'Warning');
+        transactionAction(transactConfigInput, options) {
+            let transactConfig = transactConfigInput;
+            if (typeof transactConfigInput === 'string') {
+                const functionID = transactConfigInput;
+                transactConfig = $this?.transaction?.[functionID];
+                if (!transactConfig) {
+                    syn.$l.eventLog('$w.transactionAction', `Transaction config not found for functionID "${functionID}"`, 'Warning');
                     return;
                 }
 
-                if ($string.isNullOrEmpty(transactConfig.functionID) == true) {
-                    transactConfig.functionID = functionID;
-                }
+                transactConfig.functionID = transactConfig.functionID || functionID;
             }
 
-            if (transactConfig && $this && $this.config) {
-                try {
-                    if ($object.isNullOrUndefined($this.config.transactions) == true) {
-                        $this.config.transactions = [];
+            if (!transactConfig || !$this?.config) {
+                syn.$l.eventLog('$w.transactionAction', 'Invalid transaction config or $this context missing.', 'Warning');
+                return;
+            }
+
+
+            try {
+                let isContinue = true;
+                if ($this.hook?.beforeTransaction) {
+                    isContinue = $this.hook.beforeTransaction(transactConfig);
+                }
+
+                if (isContinue ?? true) {
+                    const mergedOptions = syn.$w.argumentsExtend({
+                        message: '', dynamic: 'Y', authorize: 'N', commandType: 'D',
+                        returnType: 'Json', transactionScope: 'N', transactionLog: 'Y'
+                    }, options);
+
+                    transactConfig.noProgress = transactConfig.noProgress ?? false;
+
+                    if (syn.$w.progressMessage && !transactConfig.noProgress) {
+                        syn.$w.progressMessage(mergedOptions.message);
                     }
 
-                    var isContinue = true;
-                    if ($this.hook.beforeTransaction) {
-                        isContinue = $this.hook.beforeTransaction(transactConfig);
-                    }
+                    syn.$w.tryAddFunction(transactConfig);
 
-                    if ($object.isNullOrUndefined(isContinue) == true || isContinue == true) {
-                        options = syn.$w.argumentsExtend({
-                            message: '',
-                            dynamic: 'Y',
-                            authorize: 'N',
-                            commandType: 'D',
-                            returnType: 'Json',
-                            transactionScope: 'N',
-                            transactionLog: 'Y'
-                        }, options);
-
-                        if ($object.isNullOrUndefined(transactConfig.noProgress) == true) {
-                            transactConfig.noProgress = false;
+                    syn.$w.transaction(transactConfig.functionID, (result, additionalData, correlationID) => {
+                        let error = null;
+                        if (result?.errorText?.length > 0) {
+                            error = result.errorText[0];
+                            syn.$l.eventLog('$w.transactionAction.callback', `Transaction error: ${error}`, 'Error');
                         }
 
-                        if (syn.$w.progressMessage && $string.toBoolean(transactConfig.noProgress) == false) {
-                            syn.$w.progressMessage();
+                        let callbackResult = null;
+                        if (typeof transactConfig.callback === 'function') {
+                            try {
+                                callbackResult = transactConfig.callback(error, result, additionalData, correlationID);
+                            } catch (e) {
+                                syn.$l.eventLog('$w.transactionAction.callbackExec', `Error executing callback: ${e}`, 'Error');
+                            }
+                        } else if (Array.isArray(transactConfig.callback) && transactConfig.callback.length === 2) {
+                            setTimeout(() => {
+                                syn.$l.trigger(transactConfig.callback[0], transactConfig.callback[1], { error, result, additionalData, correlationID });
+                            }, 0);
                         }
 
-                        syn.$w.tryAddFunction(transactConfig);
-                        syn.$w.transaction(transactConfig.functionID, function (result, addtionalData, correlationID) {
-                            var error = null;
-                            if (result && result.errorText.length > 0) {
-                                error = result.errorText[0];
-                                syn.$l.eventLog('$w.transaction.callback', error, 'Error');
+                        if (callbackResult === null || callbackResult === true || Array.isArray(transactConfig.callback)) {
+                            if ($this.hook?.afterTransaction) {
+                                $this.hook.afterTransaction(null, transactConfig.functionID, result, additionalData, correlationID);
                             }
-
-                            var callbackResult = null;
-                            if (transactConfig.callback && $object.isFunction(transactConfig.callback) == true) {
-                                callbackResult = transactConfig.callback(error, result, addtionalData, correlationID);
+                        } else if (callbackResult === false) {
+                            if ($this.hook?.afterTransaction) {
+                                $this.hook.afterTransaction('callbackResult returned false', transactConfig.functionID, null, null, correlationID);
                             }
-
-                            if (callbackResult == null || callbackResult === true) {
-                                if ($this.hook.afterTransaction) {
-                                    $this.hook.afterTransaction(null, transactConfig.functionID, result, addtionalData, correlationID);
-                                }
-                            }
-                            else if (callbackResult === false) {
-                                if ($this.hook.afterTransaction) {
-                                    $this.hook.afterTransaction('callbackResult continue false', transactConfig.functionID, null, null, correlationID);
-                                }
-                            }
-
-                            if (transactConfig.callback && $object.isArray(transactConfig.callback) == true) {
-                                setTimeout(function () {
-                                    var eventData = {
-                                        error: error,
-                                        result: result,
-                                        addtionalData: addtionalData,
-                                        correlationID: correlationID
-                                    }
-                                    syn.$l.trigger(transactConfig.callback[0], transactConfig.callback[1], eventData);
-                                });
-                            }
-                        }, options);
-                    }
-                    else {
-                        if (syn.$w.closeProgressMessage) {
-                            syn.$w.closeProgressMessage();
                         }
+                    }, mergedOptions);
 
-                        if ($this.hook.afterTransaction) {
-                            $this.hook.afterTransaction('beforeTransaction continue false', transactConfig.functionID, null, null);
-                        }
-                    }
-                } catch (error) {
-                    syn.$l.eventLog('$w.transactionAction', error, 'Error');
-
-                    if (syn.$w.closeProgressMessage) {
-                        syn.$w.closeProgressMessage();
+                } else {
+                    if (syn.$w.closeProgressMessage) syn.$w.closeProgressMessage();
+                    if ($this.hook?.afterTransaction) {
+                        $this.hook.afterTransaction('beforeTransaction returned false', transactConfig.functionID, null, null);
                     }
                 }
-            }
-            else {
-                syn.$l.eventLog('$w.transactionAction', '{0} 거래 ID 또는 설정 확인 필요'.format(transactConfig), 'Warning');
+            } catch (error) {
+                syn.$l.eventLog('$w.transactionAction', `Error executing transaction action: ${error}`, 'Error');
+                if (syn.$w.closeProgressMessage) syn.$w.closeProgressMessage();
             }
         },
 
-        /*
-        var directObject = {
-            programID: 'SVU',
-            businessID: 'ZZW',
-            systemID: 'BP01',
-            transactionID: 'ZZA010',
-            functionID: 'L01',
-            dataMapInterface: 'Row|Form',
-            transactionResult: true,
-            inputObjects: [
-                { prop: 'ApplicationID', val: '' },
-                { prop: 'ProjectID', val: '' },
-                { prop: 'TransactionID', val: '' }
-            ]
-        };
-
-        syn.$w.transactionDirect(directObject, function (responseData, addtionalData) {
-            debugger;
-        });
-        */
         transactionDirect(directObject, callback, options) {
-            if (syn.$w.progressMessage && directObject && $string.toBoolean(directObject.noProgress) == false) {
+            if (!directObject) {
+                syn.$l.eventLog('$w.transactionDirect', 'directObject parameter is required.', 'Error');
+                return;
+            }
+
+            if (syn.$w.progressMessage && !(directObject.noProgress === true)) {
                 syn.$w.progressMessage();
             }
 
-            directObject.transactionResult = $object.isNullOrUndefined(directObject.transactionResult) == true ? true : directObject.transactionResult === true;
-            directObject.systemID = directObject.systemID || (globalRoot.devicePlatform == 'browser' ? $this.config.systemID : '');
+            const transactionObj = syn.$w.transactionObject(directObject.functionID, 'Json');
 
-            var transactionObject = syn.$w.transactionObject(directObject.functionID, 'Json');
+            transactionObj.programID = directObject.programID || syn.Config.ApplicationID;
+            transactionObj.moduleID = directObject.moduleID || (globalRoot.devicePlatform === 'browser' ? location.pathname.split('/').filter(Boolean)[0] : undefined) || syn.Config.ModuleID;
+            transactionObj.businessID = directObject.businessID || syn.Config.ProjectID;
+            transactionObj.systemID = directObject.systemID || globalRoot.$this?.config?.systemID || syn.Config.SystemID;
+            transactionObj.transactionID = directObject.transactionID;
+            transactionObj.dataMapInterface = directObject.dataMapInterface || 'Row|Form';
+            transactionObj.transactionResult = directObject.transactionResult ?? true;
+            transactionObj.screenID = globalRoot.devicePlatform === 'node'
+                ? (directObject.screenID || directObject.transactionID)
+                : (syn.$w.pageScript?.replace('$', '') ?? '');
+            transactionObj.startTraceID = directObject.startTraceID || options?.startTraceID || '';
 
-            transactionObject.programID = directObject.programID;
-            transactionObject.moduleID = directObject.moduleID || (globalRoot.devicePlatform == 'browser' ? location.pathname.split('/').filter(Boolean)[0] : undefined) || syn.Config.ModuleID;
-            transactionObject.businessID = directObject.businessID;
-            transactionObject.systemID = directObject.systemID;
-            transactionObject.transactionID = directObject.transactionID;
-            transactionObject.dataMapInterface = directObject.dataMapInterface || 'Row|Form';
-            transactionObject.transactionResult = $object.isNullOrUndefined(directObject.transactionResult) == true ? true : directObject.transactionResult === true;
-
-            options = syn.$w.argumentsExtend({
-                message: '',
-                dynamic: 'Y',
-                authorize: 'N',
-                commandType: 'D',
-                returnType: 'Json',
-                transactionScope: 'N',
-                transactionLog: 'Y'
+            const mergedOptions = syn.$w.argumentsExtend({
+                message: '', dynamic: 'Y', authorize: 'N', commandType: 'D',
+                returnType: 'Json', transactionScope: 'N', transactionLog: 'Y'
             }, options);
+            transactionObj.options = mergedOptions;
 
-            transactionObject.options = options;
 
-            if (globalRoot.devicePlatform === 'node') {
-                transactionObject.screenID = directObject.screenID || directObject.transactionID;
-            }
-            else {
-                transactionObject.screenID = syn.$w.pageScript.replace('$', '');
-            }
-            transactionObject.startTraceID = directObject.startTraceID || options.startTraceID || '';
-
-            if (directObject.inputLists && directObject.inputLists.length > 0) {
-                for (var key in directObject.inputLists) {
-                    transactionObject.inputs.push(directObject.inputLists[key]);
-                }
-                transactionObject.inputsItemCount.push(directObject.inputLists.length);
-            }
-            else {
-                transactionObject.inputs.push(directObject.inputObjects);
-                transactionObject.inputsItemCount.push(1);
+            if (directObject.inputLists?.length > 0) {
+                transactionObj.inputs.push(...directObject.inputLists);
+                transactionObj.inputsItemCount.push(directObject.inputLists.length);
+            } else if (directObject.inputObjects) {
+                transactionObj.inputs.push(directObject.inputObjects);
+                transactionObj.inputsItemCount.push(1);
             }
 
-            syn.$w.executeTransaction(directObject, transactionObject, function (responseData, addtionalData) {
+            syn.$w.executeTransaction(directObject, transactionObj, (responseData, additionalData) => {
                 if (callback) {
-                    callback(responseData, addtionalData);
+                    try {
+                        callback(responseData, additionalData);
+                    } catch (e) {
+                        syn.$l.eventLog('$w.transactionDirect.callback', `Error in callback: ${e}`, 'Error');
+                    }
                 }
             });
         },
 
         transaction(functionID, callback, options) {
-            var errorText = '';
-            try {
-                if (syn.$w.domainTransactionLoaderStart) {
-                    syn.$w.domainTransactionLoaderStart();
-                }
+            let errorText = '';
+            const result = { errorText: [], outputStat: [] };
 
-                options = syn.$w.argumentsExtend({
+            try {
+                if (syn.$w.domainTransactionLoaderStart) syn.$w.domainTransactionLoaderStart();
+
+                const mergedOptions = syn.$w.argumentsExtend({
                     message: '',
                     dynamic: 'Y',
                     authorize: 'N',
@@ -8455,1100 +6968,559 @@ if (typeof module !== 'undefined' && module.exports) {
                     transactionLog: 'Y'
                 }, options);
 
-                if (options) {
+                if (syn.$w.progressMessage) syn.$w.progressMessage(mergedOptions.message);
 
-                    if (syn.$w.progressMessage) {
-                        syn.$w.progressMessage(options.message);
-                    }
+                if (!$this?.config?.transactions) {
+                    throw new Error('Transaction configuration ($this.config.transactions) is missing.');
                 }
 
-                var result = {
-                    errorText: [],
-                    outputStat: []
-                };
+                const transactions = $this.config.transactions.filter(item => item.functionID === functionID);
 
-                if ($this && $this.config && $this.config.transactions) {
-                    var transactions = $this.config.transactions.filter(function (item) {
-                        return item.functionID == functionID;
-                    });
+                if (transactions.length !== 1) {
+                    throw new Error(`Transaction definition for functionID "${functionID}" not found or is duplicated.`);
+                }
 
-                    if (transactions.length == 1) {
-                        var transaction = transactions[0];
-                        var transactionObject = syn.$w.transactionObject(transaction.functionID, 'Json');
+                const transaction = transactions[0];
+                const transactionObject = syn.$w.transactionObject(transaction.functionID, 'Json');
 
-                        transactionObject.programID = $this.config.programID;
-                        transactionObject.businessID = $this.config.businessID;
-                        transactionObject.systemID = $this.config.systemID;
-                        transactionObject.transactionID = $this.config.transactionID;
-                        transactionObject.screenID = syn.$w.pageScript.replace('$', '');
-                        transactionObject.startTraceID = options.startTraceID || '';
-                        transactionObject.options = options;
+                transactionObject.programID = $this.config.programID;
+                transactionObject.businessID = $this.config.businessID;
+                transactionObject.systemID = $this.config.systemID;
+                transactionObject.transactionID = $this.config.transactionID;
+                transactionObject.screenID = syn.$w.pageScript?.replace('$', '') ?? '';
+                transactionObject.startTraceID = mergedOptions.startTraceID || '';
+                transactionObject.options = mergedOptions;
 
-                        // synControls 컨트롤 목록
-                        var synControls = $this.context.synControls;
+                const synControls = $this.context?.synControls ?? [];
 
-                        // Input Mapping
-                        var inputLength = transaction.inputs.length;
-                        for (var inputIndex = 0; inputIndex < inputLength; inputIndex++) {
-                            var inputMapping = transaction.inputs[inputIndex];
-                            var inputObjects = [];
+                transaction.inputs.forEach(inputMapping => {
+                    let inputObjects = [];
+                    const dataFieldID = inputMapping.dataFieldID;
 
-                            if (inputMapping.requestType == 'Row') {
-                                var bindingControlInfos = synControls.filter(function (item) {
-                                    return item.field == inputMapping.dataFieldID;
+                    const getControlValue = (controlInfo, meta) => {
+                        if (!controlInfo) return meta?.dataType?.includes('num') ? 0 : '';
+                        const controlModule = syn.$w.getControlModule(controlInfo.module);
+                        let value = controlModule?.getValue?.(controlInfo.id.replace('_hidden', ''), meta);
+
+                        if (value === undefined || value === null) {
+                            value = meta?.dataType?.includes('num') ? 0 : '';
+                        }
+                        return value;
+                    };
+
+                    const validateControl = (controlInfo, options, type) => {
+                        if (options?.validators && $validation?.transactionValidate) {
+                            const controlModule = syn.$w.getControlModule(controlInfo.module);
+                            return $validation.transactionValidate(controlModule, controlInfo, options, type);
+                        }
+                        return true;
+                    };
+
+                    if (inputMapping.requestType === 'Row') {
+                        const rowData = [];
+                        const formControls = synControls.filter(item => item.field === dataFieldID || item.formDataFieldID === dataFieldID);
+
+                        if (formControls.length > 0) {
+                            const gridChartControl = formControls.find(c => c.type?.includes('grid') || c.type?.includes('chart'));
+                            if (gridChartControl && gridChartControl.field === dataFieldID) {
+                                const controlModule = syn.$w.getControlModule(gridChartControl.module);
+                                const values = controlModule?.getValue?.(gridChartControl.id.replace('_hidden', ''), 'Row', inputMapping.items);
+                                inputObjects = values?.[0] ?? [];
+                            } else {
+                                Object.entries(inputMapping.items).forEach(([itemDataField, meta]) => {
+                                    const controlInfo = formControls.find(c => c.field === itemDataField && c.formDataFieldID === dataFieldID);
+                                    const el = controlInfo ? (syn.$l.get(`${controlInfo.id}_hidden`) || syn.$l.get(controlInfo.id)) : null;
+                                    const synOptionsStr = el?.getAttribute('syn-options') || '{}';
+                                    try {
+                                        const synOptions = new Function(`return (${synOptionsStr})`)();
+                                        if (!validateControl(controlInfo, synOptions, 'Row')) {
+                                            throw new Error(`Validation failed for control: ${controlInfo?.id}`);
+                                        }
+                                        const controlValue = getControlValue(controlInfo, meta);
+                                        rowData.push({ prop: meta.fieldID, val: controlValue });
+                                    } catch (e) {
+                                        throw new Error(`Error processing row control ${itemDataField}: ${e.message}`);
+                                    }
                                 });
-
-                                if (bindingControlInfos.length == 1) {
-                                    var controlInfo = bindingControlInfos[0];
-
-                                    if (controlInfo.type.indexOf('grid') > -1 || controlInfo.type.indexOf('chart') > -1) {
-                                        var dataFieldID = inputMapping.dataFieldID;
-
-                                        var controlValue = '';
-                                        if (synControls && synControls.length > 0) {
-                                            bindingControlInfos = synControls.filter(function (item) {
-                                                return item.field == dataFieldID;
-                                            });
-
-                                            if (bindingControlInfos.length == 1) {
-                                                var controlInfo = bindingControlInfos[0];
-                                                var controlModule = syn.$w.getControlModule(controlInfo.module);
-
-                                                var el = syn.$l.get(controlInfo.id + '_hidden') || syn.$l.get(controlInfo.id);
-                                                var synOptions = JSON.parse(el.getAttribute('syn-options'));
-
-                                                for (var k = 0; k < synOptions.columns.length; k++) {
-                                                    var column = synOptions.columns[k];
-                                                    if (column.validators && $validation.transactionValidate) {
-                                                        column.controlText = synOptions.controlText || '';
-                                                        var isValidate = $validation.transactionValidate(controlModule, controlInfo, column, inputMapping.requestType);
-
-                                                        if (isValidate == false) {
-                                                            if ($this.hook.afterTransaction) {
-                                                                $this.hook.afterTransaction('validators continue false', functionID, column, null);
-                                                            }
-
-                                                            if (syn.$w.domainTransactionLoaderEnd) {
-                                                                syn.$w.domainTransactionLoaderEnd();
-                                                            }
-
-                                                            return false;
-                                                        }
-                                                    }
-                                                }
-
-                                                if ($object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
-                                                    inputObjects = controlModule.getValue(controlInfo.id.replace('_hidden', ''), 'Row', inputMapping.items)[0];
-                                                }
-                                            }
-                                            else {
-                                                syn.$l.eventLog('$w.transaction', '"{0}" Row List Input Mapping 확인 필요'.format(dataFieldID), 'Warning');
-                                            }
-                                        }
-                                    }
-                                    else {
-                                        for (var key in inputMapping.items) {
-                                            var meta = inputMapping.items[key];
-                                            var dataFieldID = key; // syn-datafield
-                                            var fieldID = meta.fieldID; // DbColumnID
-                                            var dataType = meta.dataType;
-                                            var serviceObject = { prop: fieldID, val: '' };
-
-                                            var controlValue = '';
-                                            if (synControls.length > 0) {
-                                                bindingControlInfos = synControls.filter(function (item) {
-                                                    return item.field == dataFieldID && item.formDataFieldID == inputMapping.dataFieldID;
-                                                });
-
-                                                if (bindingControlInfos.length == 1) {
-                                                    var controlInfo = bindingControlInfos[0];
-                                                    if ($object.isNullOrUndefined(controlInfo.module) == true) {
-                                                        controlValue = syn.$l.get(controlInfo.id).value;
-                                                    }
-                                                    else {
-                                                        var controlModule = syn.$w.getControlModule(controlInfo.module);
-
-                                                        var el = syn.$l.get(controlInfo.id + '_hidden') || syn.$l.get(controlInfo.id);
-                                                        var synOptions = JSON.parse(el.getAttribute('syn-options'));
-
-                                                        if (synOptions.validators && $validation.transactionValidate) {
-                                                            var isValidate = $validation.transactionValidate(controlModule, controlInfo, synOptions, inputMapping.requestType);
-
-                                                            if (isValidate == false) {
-                                                                if ($this.hook.afterTransaction) {
-                                                                    $this.hook.afterTransaction('validators continue false', functionID, synOptions, null);
-                                                                }
-
-                                                                if (syn.$w.domainTransactionLoaderEnd) {
-                                                                    syn.$w.domainTransactionLoaderEnd();
-                                                                }
-
-                                                                return false;
-                                                            }
-                                                        }
-
-                                                        if ($object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
-                                                            controlValue = controlModule.getValue(controlInfo.id.replace('_hidden', ''), meta);
-                                                        }
-
-                                                        if ($object.isNullOrUndefined(controlValue) == true && (dataType == 'number' || dataType == 'numeric')) {
-                                                            controlValue = 0;
-                                                        }
-                                                    }
-                                                }
-                                                else {
-                                                    syn.$l.eventLog('$w.transaction', '"{0}" Row Control Input Mapping 확인 필요'.format(dataFieldID), 'Warning');
-                                                    continue;
-                                                }
-                                            }
-
-                                            serviceObject.val = controlValue;
-                                            inputObjects.push(serviceObject);
-                                        }
-                                    }
-                                }
-                                else {
-                                    if (syn.uicontrols.$data && syn.uicontrols.$data.storeList.length > 0) {
-                                        for (var key in inputMapping.items) {
-                                            var isMapping = false;
-                                            var meta = inputMapping.items[key];
-                                            var dataFieldID = key; // syn-datafield
-                                            var fieldID = meta.fieldID; // DbColumnID
-                                            var dataType = meta.dataType;
-                                            var serviceObject = { prop: fieldID, val: '' };
-
-                                            var controlValue = '';
-                                            for (var k = 0; k < syn.uicontrols.$data.storeList.length; k++) {
-                                                var store = syn.uicontrols.$data.storeList[k];
-                                                if (store.storeType == 'Form' && store.dataSourceID == inputMapping.dataFieldID) {
-                                                    isMapping = true;
-                                                    bindingControlInfos = store.columns.filter(function (item) {
-                                                        return item.data == dataFieldID;
-                                                    });
-
-                                                    if (bindingControlInfos.length == 1) {
-                                                        var controlInfo = bindingControlInfos[0];
-                                                        controlValue = $this.store[store.dataSourceID][controlInfo.data];
-
-                                                        if ($object.isNullOrUndefined(controlValue) == true && (dataType == 'number' || dataType == 'numeric')) {
-                                                            controlValue = 0;
-                                                        }
-
-                                                        if ($object.isNullOrUndefined(controlValue) == true) {
-                                                            controlValue = '';
-                                                        }
-                                                    }
-                                                    else {
-                                                        syn.$l.eventLog('$w.transaction', '"{0}" Row Input Mapping 확인 필요'.format(dataFieldID), 'Warning');
-                                                    }
-
-                                                    break;
-                                                }
-                                            }
-
-                                            if (isMapping == true) {
-                                                serviceObject.val = controlValue;
-                                                inputObjects.push(serviceObject);
-                                            }
-                                            else {
-                                                syn.$l.eventLog('$w.transaction', '{0} Row 컨트롤 ID 중복 또는 존재여부 확인 필요'.format(inputMapping.dataFieldID), 'Warning');
-                                            }
-                                        }
-                                    }
-                                }
-
-                                transactionObject.inputs.push(inputObjects); // transactionObject.inputs.push($object.clone(inputObjects));
-                                transactionObject.inputsItemCount.push(1);
+                                inputObjects = rowData;
                             }
-                            else if (inputMapping.requestType == 'List') {
-                                var dataFieldID = inputMapping.dataFieldID; // syn-datafield
-
-                                var controlValue = '';
-                                if (synControls && synControls.length > 0) {
-                                    var bindingControlInfos = synControls.filter(function (item) {
-                                        return item.field == dataFieldID;
+                        } else {
+                            if (syn.uicontrols?.$data?.storeList) {
+                                const store = syn.uicontrols.$data.storeList.find(s => s.storeType === 'Form' && s.dataSourceID === dataFieldID);
+                                if (store && $this.store?.[store.dataSourceID]) {
+                                    Object.entries(inputMapping.items).forEach(([itemDataField, meta]) => {
+                                        const storeData = $this.store[store.dataSourceID];
+                                        const controlValue = storeData?.[itemDataField] ?? (meta.dataType?.includes('num') ? 0 : '');
+                                        rowData.push({ prop: meta.fieldID, val: controlValue });
                                     });
-
-                                    if (bindingControlInfos.length == 1) {
-                                        var controlInfo = bindingControlInfos[0];
-                                        var controlModule = syn.$w.getControlModule(controlInfo.module);
-
-                                        var el = syn.$l.get(controlInfo.id + '_hidden') || syn.$l.get(controlInfo.id);
-                                        var synOptions = JSON.parse(el.getAttribute('syn-options'));
-
-                                        for (var k = 0; k < synOptions.columns.length; k++) {
-                                            var column = synOptions.columns[k];
-                                            column.controlText = synOptions.controlText || '';
-                                            if (column.validators && $validation.transactionValidate) {
-                                                var isValidate = $validation.transactionValidate(controlModule, controlInfo, column, inputMapping.requestType);
-
-                                                if (isValidate == false) {
-                                                    if ($this.hook.afterTransaction) {
-                                                        $this.hook.afterTransaction('validators continue false', functionID, column, null);
-                                                    }
-
-                                                    if (syn.$w.domainTransactionLoaderEnd) {
-                                                        syn.$w.domainTransactionLoaderEnd();
-                                                    }
-
-                                                    return false;
-                                                }
-                                            }
-                                        }
-
-                                        if ($object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
-                                            inputObjects = controlModule.getValue(controlInfo.id.replace('_hidden', ''), 'List', inputMapping.items);
-                                        }
-                                    }
-                                    else {
-                                        var isMapping = false;
-                                        if (syn.uicontrols.$data && syn.uicontrols.$data.storeList.length > 0) {
-                                            for (var k = 0; k < syn.uicontrols.$data.storeList.length; k++) {
-                                                var store = syn.uicontrols.$data.storeList[k];
-                                                if (store.storeType == 'Grid' && store.dataSourceID == dataFieldID) {
-                                                    isMapping = true;
-                                                    var bindingInfo = syn.uicontrols.$data.bindingList.find(function (item) {
-                                                        return (item.dataSourceID == store.dataSourceID && item.controlType == 'grid');
-                                                    });
-
-                                                    if (bindingInfo) {
-                                                        inputObjects = $this.store[store.dataSourceID][bindingInfo.dataFieldID];
-                                                    }
-                                                    else {
-                                                        var controlValue = [];
-                                                        var items = $this.store[store.dataSourceID];
-                                                        var length = items.length;
-                                                        for (var i = 0; i < length; i++) {
-                                                            var item = items[i];
-
-                                                            var row = [];
-                                                            for (var key in item) {
-                                                                var serviceObject = { prop: key, val: item[key] };
-                                                                row.push(serviceObject);
-                                                            }
-                                                            controlValue.push(row);
-                                                        }
-
-                                                        inputObjects = controlValue;
-                                                    }
-
-                                                    break;
-                                                }
-                                            }
-                                        }
-
-                                        if (isMapping == false) {
-                                            syn.$l.eventLog('$w.transaction', '"{0}" List Input Mapping 확인 필요'.format(dataFieldID), 'Warning');
-                                        }
-                                    }
+                                    inputObjects = rowData;
+                                } else {
+                                    syn.$l.eventLog('$w.transaction', `No Row source found for dataFieldID "${dataFieldID}"`, 'Warning');
                                 }
-
-                                for (var key in inputObjects) {
-                                    transactionObject.inputs.push(inputObjects[key]);
-                                }
-                                transactionObject.inputsItemCount.push(inputObjects.length);
+                            } else {
+                                syn.$l.eventLog('$w.transaction', `No Row source found for dataFieldID "${dataFieldID}"`, 'Warning');
                             }
                         }
+                        transactionObject.inputs.push(inputObjects);
+                        transactionObject.inputsItemCount.push(1);
 
-                        syn.$w.executeTransaction($this.config, transactionObject, function (responseData, addtionalData, correlationID) {
-                            var isDynamicOutput = false;
-                            for (var i = 0; i < transaction.outputs.length; i++) {
-                                if (transaction.outputs[i].responseType == 'Dynamic') {
-                                    isDynamicOutput = true;
-                                    break;
-                                }
-                            }
+                    } else if (inputMapping.requestType === 'List') {
+                        let listData = [];
+                        const listControl = synControls.find(item => item.field === dataFieldID);
 
-                            if (isDynamicOutput == true) {
-                                result.outputStat.push({
-                                    fieldID: 'Dynamic',
-                                    count: 1,
-                                    dynamicData: responseData
+                        if (listControl) {
+                            const controlModule = syn.$w.getControlModule(listControl.module);
+                            const el = syn.$l.get(`${listControl.id}_hidden`) || syn.$l.get(listControl.id);
+                            const synOptionsStr = el?.getAttribute('syn-options') || '{}';
+                            try {
+                                const synOptions = new Function(`return (${synOptionsStr})`)();
+                                (synOptions?.columns || []).forEach(column => {
+                                    column.controlText = synOptions.controlText || '';
+                                    if (!validateControl(listControl, column, 'List')) {
+                                        throw new Error(`Validation failed for list control column: ${column.data}`);
+                                    }
                                 });
+
+                                listData = controlModule?.getValue?.(listControl.id.replace('_hidden', ''), 'List', inputMapping.items) ?? [];
+
+                            } catch (e) {
+                                throw new Error(`Error processing list control ${dataFieldID}: ${e.message}`);
                             }
-                            else {
-                                if (responseData.length == transaction.outputs.length) {
-                                    // synControls 컨트롤 목록
-                                    var synControls = $this.context.synControls;
+                        } else {
+                            if (syn.uicontrols?.$data?.storeList) {
+                                const store = syn.uicontrols.$data.storeList.find(s => s.storeType === 'Grid' && s.dataSourceID === dataFieldID);
+                                if (store && $this.store?.[store.dataSourceID]) {
+                                    const storeItems = $this.store[store.dataSourceID];
+                                    listData = storeItems.map(item =>
+                                        Object.entries(inputMapping.items).map(([df, meta]) => ({
+                                            prop: meta.fieldID,
+                                            val: item[df] ?? (meta.dataType?.includes('num') ? 0 : '')
+                                        }))
+                                    );
+                                } else {
+                                    syn.$l.eventLog('$w.transaction', `No List source found for dataFieldID "${dataFieldID}"`, 'Warning');
+                                }
+                            } else {
+                                syn.$l.eventLog('$w.transaction', `No List source found for dataFieldID "${dataFieldID}"`, 'Warning');
+                            }
+                        }
+                        transactionObject.inputs.push(...listData);
+                        transactionObject.inputsItemCount.push(listData.length);
+                    }
+                });
 
-                                    // Output Mapping을 설정
-                                    var outputLength = transaction.outputs.length;
-                                    for (var outputIndex = 0; outputIndex < outputLength; outputIndex++) {
-                                        var outputMapping = transaction.outputs[outputIndex];
-                                        var dataMapItem = responseData[outputIndex];
-                                        var responseFieldID = dataMapItem['id'];
-                                        var outputData = dataMapItem['value'];
+                syn.$w.executeTransaction($this.config, transactionObject, (responseData, additionalData, correlationID) => {
+                    try {
+                        const isDynamicOutput = transaction.outputs.some(o => o.responseType === 'Dynamic');
 
-                                        if ($this.hook.outputDataBinding) {
-                                            $this.hook.outputDataBinding(functionID, responseFieldID, outputData);
-                                        }
+                        if (isDynamicOutput) {
+                            result.outputStat.push({ fieldID: 'Dynamic', count: 1, dynamicData: responseData });
+                        } else if (responseData?.length === transaction.outputs.length) {
+                            transaction.outputs.forEach((outputMapping, outputIndex) => {
+                                const dataMapItem = responseData[outputIndex];
+                                const responseFieldID = dataMapItem?.id;
+                                const outputData = dataMapItem?.value;
 
-                                        if (outputMapping.responseType == 'Form') {
-                                            if ($object.isNullOrUndefined(outputData) == true || $object.isObjectEmpty(outputData) == true) {
-                                                result.outputStat.push({
-                                                    fieldID: responseFieldID,
-                                                    Count: 0
+                                if ($this.hook?.outputDataBinding) {
+                                    $this.hook.outputDataBinding(functionID, responseFieldID, outputData);
+                                }
+
+                                const mapOutputData = (targetType, dataFieldID, data) => {
+                                    const controls = synControls.filter(item => item.field === dataFieldID || (targetType === 'Form' && item.formDataFieldID === dataFieldID));
+
+                                    if (controls.length > 0) {
+                                        const targetControl = controls.find(c => c.field === dataFieldID) || controls[0];
+                                        const controlModule = syn.$w.getControlModule(targetControl.module);
+                                        if (controlModule?.setValue) {
+                                            if (targetType === 'Form') {
+                                                Object.entries(outputMapping.items).forEach(([itemDataField, meta]) => {
+                                                    const formControlInfo = controls.find(c => c.field === itemDataField && c.formDataFieldID === dataFieldID);
+                                                    if (formControlInfo && data?.[meta.fieldID] !== undefined) {
+                                                        const formModule = syn.$w.getControlModule(formControlInfo.module);
+                                                        formModule?.setValue?.(formControlInfo.id.replace('_hidden', ''), data[meta.fieldID], meta);
+                                                    }
                                                 });
+                                            } else {
+                                                controlModule.setValue(targetControl.id.replace('_hidden', ''), data, outputMapping.items);
                                             }
-                                            else {
-                                                result.outputStat.push({
-                                                    fieldID: responseFieldID,
-                                                    Count: 1
-                                                });
-
-                                                for (var key in outputMapping.items) {
-                                                    var meta = outputMapping.items[key];
-                                                    var dataFieldID = key; // syn-datafield
-                                                    var fieldID = meta.fieldID; // DbColumnID
-
-                                                    var controlValue = outputData[fieldID];
-                                                    if (controlValue != undefined && synControls && synControls.length > 0) {
-                                                        var bindingControlInfos = synControls.filter(function (item) {
-                                                            return item.field == dataFieldID && item.formDataFieldID == outputMapping.dataFieldID;
-                                                        });
-
-                                                        if (bindingControlInfos.length == 1) {
-                                                            var controlInfo = bindingControlInfos[0];
-                                                            var controlModule = syn.$w.getControlModule(controlInfo.module);
-                                                            if ($object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
-                                                                controlModule.setValue(controlInfo.id.replace('_hidden', ''), controlValue, meta);
-                                                            }
-                                                        }
-                                                        else {
-                                                            var isMapping = false;
-                                                            if (syn.uicontrols.$data && syn.uicontrols.$data.storeList.length > 0) {
-                                                                for (var k = 0; k < syn.uicontrols.$data.storeList.length; k++) {
-                                                                    var store = syn.uicontrols.$data.storeList[k];
-                                                                    if ($object.isNullOrUndefined($this.store[store.dataSourceID]) == true) {
-                                                                        $this.store[store.dataSourceID] = {};
-                                                                    }
-
-                                                                    if (store.storeType == 'Form' && store.dataSourceID == outputMapping.dataFieldID) {
-                                                                        isMapping = true;
-                                                                        bindingControlInfos = store.columns.filter(function (item) {
-                                                                            return item.data == dataFieldID;
-                                                                        });
-
-                                                                        if (bindingControlInfos.length == 1) {
-                                                                            $this.store[store.dataSourceID][dataFieldID] = controlValue;
-                                                                        }
-
-                                                                        break;
-                                                                    }
-                                                                }
-                                                            }
-
-                                                            if (isMapping == false) {
-                                                                errorText = '"{0}" Form Output Mapping 확인 필요'.format(dataFieldID);
-                                                                result.errorText.push(errorText);
-                                                                syn.$l.eventLog('$w.transaction', errorText, 'Error');
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
+                                            return true;
                                         }
-                                        else if (outputMapping.responseType == 'Grid') {
-                                            result.outputStat.push({
-                                                fieldID: responseFieldID,
-                                                Count: outputData.length
-                                            });
-                                            var dataFieldID = outputMapping.dataFieldID; // syn-datafield
-                                            if (synControls && synControls.length > 0) {
-                                                var bindingControlInfos = synControls.filter(function (item) {
-                                                    return item.field == dataFieldID;
+                                    }
+                                    return false;
+                                };
+
+                                const mapOutputToStore = (targetType, dataFieldID, data) => {
+                                    if (syn.uicontrols?.$data?.storeList) {
+                                        const store = syn.uicontrols.$data.storeList.find(s => s.storeType === targetType && s.dataSourceID === dataFieldID);
+                                        if (store && $this?.store) {
+                                            if (targetType === 'Form') {
+                                                $this.store[store.dataSourceID] = $this.store[store.dataSourceID] ?? {};
+                                                Object.entries(outputMapping.items).forEach(([itemDataField, meta]) => {
+                                                    if (data?.[meta.fieldID] !== undefined) {
+                                                        $this.store[store.dataSourceID][itemDataField] = data[meta.fieldID];
+                                                    }
                                                 });
+                                            } else {
+                                                $this.store[store.dataSourceID] = (data || []).map(item => ({ ...item, Flag: 'R' }));
+                                            }
+                                            return true;
+                                        }
+                                    }
+                                    return false;
+                                };
 
-                                                if (bindingControlInfos.length == 1) {
-                                                    var controlInfo = bindingControlInfos[0];
-                                                    var controlModule = syn.$w.getControlModule(controlInfo.module);
-                                                    if ($object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
-                                                        controlModule.setValue(controlInfo.id.replace('_hidden', ''), outputData, outputMapping.items);
-                                                    }
-                                                }
-                                                else {
-                                                    var isMapping = false;
-                                                    if (syn.uicontrols.$data && syn.uicontrols.$data.storeList.length > 0) {
-                                                        for (var k = 0; k < syn.uicontrols.$data.storeList.length; k++) {
-                                                            var store = syn.uicontrols.$data.storeList[k];
-                                                            if ($object.isNullOrUndefined($this.store[store.dataSourceID]) == true) {
-                                                                $this.store[store.dataSourceID] = [];
-                                                            }
-
-                                                            if (store.storeType == 'Grid' && store.dataSourceID == outputMapping.dataFieldID) {
-                                                                isMapping = true;
-                                                                var bindingInfos = syn.uicontrols.$data.bindingList.filter(function (item) {
-                                                                    return (item.dataSourceID == store.dataSourceID && item.controlType == 'grid');
-                                                                });
-
-                                                                var length = outputData.length;
-                                                                for (var i = 0; i < length; i++) {
-                                                                    outputData[i].Flag = 'R';
-                                                                }
-
-                                                                if (bindingInfos.length > 0) {
-                                                                    for (var binding_i = 0; binding_i < bindingInfos.length; binding_i++) {
-                                                                        var bindingInfo = bindingInfos[binding_i];
-                                                                        $this.store[store.dataSourceID][bindingInfo.dataFieldID] = outputData;
-                                                                    }
-                                                                }
-                                                                else {
-                                                                    $this.store[store.dataSourceID] = outputData;
-                                                                }
-                                                                break;
-                                                            }
-                                                        }
-                                                    }
-
-                                                    if (isMapping == false) {
-                                                        errorText = '"{0}" Grid Output Mapping 확인 필요'.format(dataFieldID);
-                                                        result.errorText.push(errorText);
-                                                        syn.$l.eventLog('$w.transaction', errorText, 'Error');
-                                                    }
-                                                }
+                                if (outputMapping.responseType === 'Form') {
+                                    const count = (outputData && Object.keys(outputData).length > 0) ? 1 : 0;
+                                    result.outputStat.push({ fieldID: responseFieldID, Count: count });
+                                    if (count > 0) {
+                                        if (!mapOutputData('Form', outputMapping.dataFieldID, outputData)) {
+                                            if (!mapOutputToStore('Form', outputMapping.dataFieldID, outputData)) {
+                                                result.errorText.push(`"${outputMapping.dataFieldID}" Form Output Mapping target not found.`);
+                                                syn.$l.eventLog('$w.transaction', `"${outputMapping.dataFieldID}" Form Output Mapping target not found.`, 'Error');
                                             }
                                         }
-                                        else if (outputMapping.responseType == 'Chart') {
-                                            result.outputStat.push({
-                                                fieldID: responseFieldID,
-                                                Count: outputData.length
-                                            });
-                                            var dataFieldID = outputMapping.dataFieldID; // syn-datafield
-
-                                            if (synControls && synControls.length > 0) {
-                                                var bindingControlInfos = synControls.filter(function (item) {
-                                                    return item.field == dataFieldID;
-                                                });
-
-                                                if (bindingControlInfos.length == 1) {
-                                                    var controlInfo = bindingControlInfos[0];
-                                                    var controlModule = syn.$w.getControlModule(controlInfo.module);
-                                                    if ($object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
-                                                        controlModule.setValue(controlInfo.id.replace('_hidden', ''), outputData, outputMapping.items);
-                                                    }
-                                                }
-                                                else {
-                                                    errorText = '"{0}" Chart Output Mapping 확인 필요'.format(dataFieldID);
-                                                    result.errorText.push(errorText);
-                                                    syn.$l.eventLog('$w.transaction', errorText, 'Error');
-                                                }
+                                    }
+                                } else if (outputMapping.responseType === 'Grid' || outputMapping.responseType === 'Chart') {
+                                    const count = outputData?.length ?? 0;
+                                    result.outputStat.push({ fieldID: responseFieldID, Count: count });
+                                    if (count > 0) {
+                                        if (!mapOutputData(outputMapping.responseType, outputMapping.dataFieldID, outputData)) {
+                                            if (!mapOutputToStore(outputMapping.responseType, outputMapping.dataFieldID, outputData)) { // Try store mapping
+                                                const targetDesc = outputMapping.responseType === 'Grid' ? 'Grid' : 'Chart';
+                                                result.errorText.push(`"${outputMapping.dataFieldID}" ${targetDesc} Output Mapping target not found.`);
+                                                syn.$l.eventLog('$w.transaction', `"${outputMapping.dataFieldID}" ${targetDesc} Output Mapping target not found.`, 'Error');
                                             }
                                         }
                                     }
                                 }
-                                else {
-                                    errorText = '"{0}" 기능의 거래 응답 정의와 데이터 갯수가 다릅니다'.format(transaction.functionID);
-                                    result.errorText.push(errorText);
-                                    syn.$l.eventLog('$w.transaction', errorText, 'Error');
-                                }
-                            }
-
-                            if (callback) {
-                                callback(result, addtionalData, correlationID);
-                            }
-
-                            if (syn.$w.domainTransactionLoaderEnd) {
-                                syn.$w.domainTransactionLoaderEnd();
-                            }
-                        });
-                    }
-                    else {
-                        errorText = '"{0}" 거래 중복 또는 존재여부 확인 필요'.format(functionID);
-                        result.errorText.push(errorText);
-                        syn.$l.eventLog('$w.transaction', errorText, 'Error');
-
-                        if (callback) {
-                            callback(result);
+                            });
+                        } else {
+                            throw new Error(`Mismatch between output definitions (${transaction.outputs.length}) and response data (${responseData?.length ?? 0}).`);
                         }
 
-                        if (syn.$w.domainTransactionLoaderEnd) {
-                            syn.$w.domainTransactionLoaderEnd();
-                        }
-                    }
-                }
-                else {
-                    errorText = '화면 매핑 정의 데이터가 없습니다';
-                    result.errorText.push(errorText);
-                    syn.$l.eventLog('$w.transaction', errorText, 'Error');
+                        if (callback) callback(result, additionalData, correlationID);
 
-                    if (callback) {
-                        callback(result);
+                    } catch (mappingError) {
+                        result.errorText.push(`Output mapping error: ${mappingError.message}`);
+                        syn.$l.eventLog('$w.transaction.outputMap', `Output mapping error: ${mappingError}`, 'Error');
+                        if (callback) callback(result, additionalData, correlationID);
+                    } finally {
+                        if (syn.$w.domainTransactionLoaderEnd) syn.$w.domainTransactionLoaderEnd();
                     }
+                });
 
-                    if (syn.$w.domainTransactionLoaderEnd) {
-                        syn.$w.domainTransactionLoaderEnd();
-                    }
-                }
             } catch (error) {
-                syn.$l.eventLog('$w.transaction', error, 'Error');
-
-                if (syn.$w.domainTransactionLoaderEnd) {
-                    syn.$w.domainTransactionLoaderEnd();
-                }
+                errorText = `Transaction setup error: ${error.message}`;
+                result.errorText.push(errorText);
+                syn.$l.eventLog('$w.transaction', errorText, 'Error');
+                if (callback) callback(result, null, null);
+                if (syn.$w.domainTransactionLoaderEnd) syn.$w.domainTransactionLoaderEnd();
             }
         },
 
-        getterValue(functionID) {
-            try {
-                var transactConfig = $this.transaction[functionID];
-                if ($object.isNullOrUndefined(transactConfig) == true) {
-                    syn.$l.eventLog('$w.getterValue', 'functionID "{0}" 확인 필요'.format(functionID), 'Warning');
+        getterValue(transactConfigInput) {
+            const result = { errors: [], inputs: [] };
+            let transactConfig = transactConfigInput;
+            if (typeof transactConfigInput === 'string') {
+                transactConfig = $this?.transaction?.[transactConfigInput];
+                if (!transactConfig) {
+                    syn.$l.eventLog('$w.transactionAction', `Transaction config not found for functionID "${transactConfigInput}"`, 'Warning');
                     return;
                 }
+            }
 
-                if ($string.isNullOrEmpty(transactConfig.functionID) == true) {
-                    transactConfig.functionID = functionID;
-                }
-
+            try {
                 syn.$w.tryAddFunction(transactConfig);
 
-                var errorText = '';
-                var result = {
-                    errors: [],
-                    inputs: [],
-                };
+                if (!$this?.config?.transactions) {
+                    throw new Error('Transaction configuration ($this.config.transactions) is missing.');
+                }
 
-                if ($this && $this.config && $this.config.transactions) {
-                    var transactions = $this.config.transactions.filter(function (item) {
-                        return item.functionID == functionID;
-                    });
+                const transactions = $this.config.transactions.filter(item => item.functionID === transactConfig.functionID);
+                if (transactions.length !== 1) {
+                    throw new Error(`Transaction definition for functionID "${transactConfig.functionID}" not found or is duplicated.`);
+                }
+                const transaction = transactions[0];
+                const synControls = $this.context?.synControls ?? [];
 
-                    if (transactions.length == 1) {
-                        var transaction = transactions[0];
+                transaction.inputs.forEach(inputMapping => {
+                    let inputObjects = [];
+                    const dataFieldID = inputMapping.dataFieldID;
 
-                        var synControls = context[syn.$w.pageScript].context.synControls;
+                    const getControlValue = (controlInfo, meta) => {
+                        if (!controlInfo) return meta?.dataType?.includes('num') ? 0 : '';
+                        const controlModule = syn.$w.getControlModule(controlInfo.module);
+                        let value = controlModule?.getValue?.(controlInfo.id.replace('_hidden', ''), meta);
+                        return value ?? (meta?.dataType?.includes('num') ? 0 : '');
+                    };
 
-                        var inputLength = transaction.inputs.length;
-                        for (var inputIndex = 0; inputIndex < inputLength; inputIndex++) {
-                            var inputMapping = transaction.inputs[inputIndex];
-                            var inputObjects = [];
 
-                            if (inputMapping.requestType == 'Row') {
-                                var bindingControlInfos = synControls.filter(function (item) {
-                                    return item.field == inputMapping.dataFieldID;
+                    if (inputMapping.requestType === 'Row') {
+                        const rowData = {};
+                        const formControls = synControls.filter(item => item.field === dataFieldID || item.formDataFieldID === dataFieldID);
+
+                        if (formControls.length > 0) {
+                            const gridChartControl = formControls.find(c => c.type?.includes('grid') || c.type?.includes('chart'));
+                            if (gridChartControl && gridChartControl.field === dataFieldID) {
+                                const controlModule = syn.$w.getControlModule(gridChartControl.module);
+                                const values = controlModule?.getValue?.(gridChartControl.id.replace('_hidden', ''), 'Row', inputMapping.items);
+                                inputObjects = values?.[0] ?? [];
+                                inputObjects.forEach(item => { rowData[item.prop] = item.val; });
+
+                            } else {
+                                Object.entries(inputMapping.items).forEach(([itemDataField, meta]) => {
+                                    const controlInfo = formControls.find(c => c.field === itemDataField && c.formDataFieldID === dataFieldID);
+                                    rowData[meta.fieldID] = getControlValue(controlInfo, meta);
                                 });
-
-                                if (bindingControlInfos.length == 1) {
-                                    var controlInfo = bindingControlInfos[0];
-
-                                    if (controlInfo.type.indexOf('grid') > -1 || controlInfo.type.indexOf('chart') > -1) {
-                                        var dataFieldID = inputMapping.dataFieldID;
-
-                                        var controlValue = '';
-                                        if (synControls && synControls.length > 0) {
-                                            bindingControlInfos = synControls.filter(function (item) {
-                                                return item.field == dataFieldID;
-                                            });
-
-                                            if (bindingControlInfos.length == 1) {
-                                                var controlInfo = bindingControlInfos[0];
-                                                var controlModule = syn.$w.getControlModule(controlInfo.module);
-                                                if ($object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
-                                                    inputObjects = controlModule.getValue(controlInfo.id.replace('_hidden', ''), 'Row', inputMapping.items)[0];
-                                                }
-                                            }
-                                            else {
-                                                syn.$l.eventLog('$w.getterValue', '"{0}" Row List Input Mapping 확인 필요'.format(dataFieldID), 'Warning');
-                                            }
-                                        }
-                                    }
-                                    else {
-                                        for (var key in inputMapping.items) {
-                                            var meta = inputMapping.items[key];
-                                            var dataFieldID = key;
-                                            var fieldID = meta.fieldID;
-                                            var dataType = meta.dataType;
-                                            var serviceObject = { prop: fieldID, val: '' };
-
-                                            var controlValue = '';
-                                            if (synControls.length > 0) {
-                                                bindingControlInfos = synControls.filter(function (item) {
-                                                    return item.field == dataFieldID && item.formDataFieldID == inputMapping.dataFieldID;
-                                                });
-
-                                                if (bindingControlInfos.length == 1) {
-                                                    var controlInfo = bindingControlInfos[0];
-                                                    var controlModule = syn.$w.getControlModule(controlInfo.module);
-                                                    if ($object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
-                                                        controlValue = controlModule.getValue(controlInfo.id.replace('_hidden', ''), meta);
-                                                    }
-
-                                                    if ($object.isNullOrUndefined(controlValue) == true && (dataType == 'number' || dataType == 'numeric')) {
-                                                        controlValue = 0;
-                                                    }
-                                                }
-                                                else {
-                                                    syn.$l.eventLog('$w.getterValue', '"{0}" Row Control Input Mapping 확인 필요'.format(dataFieldID), 'Warning');
-                                                    continue;
-                                                }
-                                            }
-
-                                            serviceObject.val = controlValue;
-                                            inputObjects.push(serviceObject);
-                                        }
-                                    }
-                                }
-                                else {
-                                    if (syn.uicontrols.$data && syn.uicontrols.$data.storeList.length > 0) {
-                                        for (var key in inputMapping.items) {
-                                            var isMapping = false;
-                                            var meta = inputMapping.items[key];
-                                            var dataFieldID = key;
-                                            var fieldID = meta.fieldID;
-                                            var dataType = meta.dataType;
-                                            var serviceObject = { prop: fieldID, val: '' };
-
-                                            var controlValue = '';
-                                            for (var k = 0; k < syn.uicontrols.$data.storeList.length; k++) {
-                                                var store = syn.uicontrols.$data.storeList[k];
-                                                if (store.storeType == 'Form' && store.dataSourceID == inputMapping.dataFieldID) {
-                                                    isMapping = true;
-                                                    bindingControlInfos = store.columns.filter(function (item) {
-                                                        return item.data == dataFieldID;
-                                                    });
-
-                                                    if (bindingControlInfos.length == 1) {
-                                                        var controlInfo = bindingControlInfos[0];
-                                                        controlValue = $this.store[store.dataSourceID][controlInfo.data];
-
-                                                        if ($object.isNullOrUndefined(controlValue) == true && (dataType == 'number' || dataType == 'numeric')) {
-                                                            controlValue = 0;
-                                                        }
-
-                                                        if ($object.isNullOrUndefined(controlValue) == true) {
-                                                            controlValue = '';
-                                                        }
-                                                    }
-                                                    else {
-                                                        syn.$l.eventLog('$w.getterValue', '"{0}" Row Input Mapping 확인 필요'.format(dataFieldID), 'Warning');
-                                                    }
-
-                                                    break;
-                                                }
-                                            }
-
-                                            if (isMapping == true) {
-                                                serviceObject.val = controlValue;
-                                                inputObjects.push(serviceObject);
-                                            }
-                                            else {
-                                                syn.$l.eventLog('$w.getterValue', '{0} Row 컨트롤 ID 중복 또는 존재여부 확인 필요'.format(inputMapping.dataFieldID), 'Warning');
-                                            }
-                                        }
-                                    }
-                                }
-
-                                var input = {};
-                                for (var i = 0; i < inputObjects.length; i++) {
-                                    var inputObject = inputObjects[i];
-                                    input[inputObject.prop] = inputObject.val;
-                                }
-                                result.inputs.push(input);
                             }
-                            else if (inputMapping.requestType == 'List') {
-                                var dataFieldID = inputMapping.dataFieldID;
-
-                                var controlValue = '';
-                                if (synControls && synControls.length > 0) {
-                                    var bindingControlInfos = synControls.filter(function (item) {
-                                        return item.field == dataFieldID;
-                                    });
-
-                                    if (bindingControlInfos.length == 1) {
-                                        var controlInfo = bindingControlInfos[0];
-                                        var controlModule = syn.$w.getControlModule(controlInfo.module);
-                                        if ($object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
-                                            inputObjects = controlModule.getValue(controlInfo.id.replace('_hidden', ''), 'List', inputMapping.items);
-                                        }
-                                    }
-                                    else {
-                                        var isMapping = false;
-                                        if (syn.uicontrols.$data && syn.uicontrols.$data.storeList.length > 0) {
-                                            for (var k = 0; k < syn.uicontrols.$data.storeList.length; k++) {
-                                                var store = syn.uicontrols.$data.storeList[k];
-                                                if (store.storeType == 'Grid' && store.dataSourceID == dataFieldID) {
-                                                    isMapping = true;
-                                                    var bindingInfo = syn.uicontrols.$data.bindingList.find(function (item) {
-                                                        return (item.dataSourceID == store.dataSourceID && item.controlType == 'grid');
-                                                    });
-
-                                                    if (bindingInfo) {
-                                                        inputObjects = $this.store[store.dataSourceID][bindingInfo.dataFieldID];
-                                                    }
-                                                    else {
-                                                        var controlValue = [];
-                                                        var items = $this.store[store.dataSourceID];
-                                                        var length = items.length;
-                                                        for (var i = 0; i < length; i++) {
-                                                            var item = items[i];
-
-                                                            var row = [];
-                                                            for (var key in item) {
-                                                                var serviceObject = { prop: key, val: item[key] };
-                                                                row.push(serviceObject);
-                                                            }
-                                                            controlValue.push(row);
-                                                        }
-
-                                                        inputObjects = controlValue;
-                                                    }
-
-                                                    break;
-                                                }
-                                            }
-                                        }
-
-                                        if (isMapping == false) {
-                                            syn.$l.eventLog('$w.getterValue', '"{0}" List Input Mapping 확인 필요'.format(dataFieldID), 'Warning');
-                                        }
-                                    }
-                                }
-
-                                for (var key in inputObjects) {
-                                    var input = {};
-                                    var inputList = inputObjects[key];
-                                    for (var i = 0; i < inputList.length; i++) {
-                                        var inputObject = inputList[i];
-                                        input[inputObject.prop] = inputObject.val;
-                                    }
-                                    result.inputs.push(input);
-                                }
+                        } else if (syn.uicontrols?.$data?.storeList) {
+                            const store = syn.uicontrols.$data.storeList.find(s => s.storeType === 'Form' && s.dataSourceID === dataFieldID);
+                            if (store && $this.store?.[store.dataSourceID]) {
+                                Object.entries(inputMapping.items).forEach(([itemDataField, meta]) => {
+                                    const storeData = $this.store[store.dataSourceID];
+                                    rowData[meta.fieldID] = storeData?.[itemDataField] ?? (meta.dataType?.includes('num') ? 0 : '');
+                                });
+                            } else {
+                                syn.$l.eventLog('$w.getterValue', `No Row source found for dataFieldID "${dataFieldID}"`, 'Warning');
                             }
+                        } else {
+                            syn.$l.eventLog('$w.getterValue', `No Row source found for dataFieldID "${dataFieldID}"`, 'Warning');
                         }
+                        result.inputs.push(rowData);
 
-                        return result;
+                    } else if (inputMapping.requestType === 'List') {
+                        let listData = [];
+                        const listControl = synControls.find(item => item.field === dataFieldID);
+
+                        if (listControl) {
+                            const controlModule = syn.$w.getControlModule(listControl.module);
+                            const rawListData = controlModule?.getValue?.(listControl.id.replace('_hidden', ''), 'List', inputMapping.items) ?? [];
+                            listData = rawListData.map(rowItems =>
+                                rowItems.reduce((obj, item) => {
+                                    obj[item.prop] = item.val;
+                                    return obj;
+                                }, {})
+                            );
+                        } else if (syn.uicontrols?.$data?.storeList) {
+                            const store = syn.uicontrols.$data.storeList.find(s => s.storeType === 'Grid' && s.dataSourceID === dataFieldID);
+                            if (store && $this.store?.[store.dataSourceID]) {
+                                const storeItems = $this.store[store.dataSourceID];
+                                listData = storeItems.map(item =>
+                                    Object.entries(inputMapping.items).reduce((obj, [df, meta]) => {
+                                        obj[meta.fieldID] = item[df] ?? (meta.dataType?.includes('num') ? 0 : '');
+                                        return obj;
+                                    }, {})
+                                );
+                            } else {
+                                syn.$l.eventLog('$w.getterValue', `No List source found for dataFieldID "${dataFieldID}"`, 'Warning');
+                            }
+                        } else {
+                            syn.$l.eventLog('$w.getterValue', `No List source found for dataFieldID "${dataFieldID}"`, 'Warning');
+                        }
+                        result.inputs.push(...listData);
                     }
-                    else {
-                        errorText = '"{0}" 거래 중복 또는 존재여부 확인 필요'.format(functionID);
-                        result.errors.push(errorText);
-                        syn.$l.eventLog('$w.getterValue', errorText, 'Error');
+                });
 
-                        return result;
-                    }
-                }
-                else {
-                    errorText = '화면 매핑 정의 데이터가 없습니다';
-                    result.errors.push(errorText);
-                    syn.$l.eventLog('$w.getterValue', errorText, 'Error');
-
-                    return result;
-                }
             } catch (error) {
-                syn.$l.eventLog('$w.getterValue', error, 'Error');
-
-                result.errors.push(error.message);
-                return result;
+                result.errors.push(`Getter error: ${error.message}`);
+                syn.$l.eventLog('$w.getterValue', `Getter error: ${error}`, 'Error');
             }
+            return result;
         },
 
-        setterValue(functionID, responseData) {
-            try {
-                var transactConfig = $this.transaction[functionID];
-                if ($object.isNullOrUndefined(transactConfig) == true) {
-                    syn.$l.eventLog('$w.setterValue', 'functionID "{0}" 확인 필요'.format(functionID), 'Warning');
+        setterValue(transactConfigInput, responseData) {
+            const result = { errors: [], outputs: [] };
+            let transactConfig = transactConfigInput;
+            if (typeof transactConfigInput === 'string') {
+                transactConfig = $this?.transaction?.[transactConfigInput];
+                if (!transactConfig) {
+                    syn.$l.eventLog('$w.transactionAction', `Transaction config not found for functionID "${transactConfigInput}"`, 'Warning');
                     return;
                 }
+            }
 
-                if ($string.isNullOrEmpty(transactConfig.functionID) == true) {
-                    transactConfig.functionID = functionID;
-                }
-
+            try {
                 syn.$w.tryAddFunction(transactConfig);
 
-                var errorText = '';
-                var result = {
-                    errors: [],
-                    outputs: [],
-                };
+                if (!$this?.config?.transactions) {
+                    throw new Error('Transaction configuration ($this.config.transactions) is missing.');
+                }
+                const transactions = $this.config.transactions.filter(item => item.functionID === transactConfig.functionID);
+                if (transactions.length !== 1) {
+                    throw new Error(`Transaction definition for functionID "${transactConfig.functionID}" not found or is duplicated.`);
+                }
+                const transaction = transactions[0];
+                const synControls = $this.context?.synControls ?? [];
 
-                if ($this && $this.config && $this.config.transactions) {
-                    var transactions = $this.config.transactions.filter(function (item) {
-                        return item.functionID == functionID;
-                    });
+                if (responseData?.length !== transaction.outputs.length) {
+                    throw new Error(`Mismatch between output definitions (${transaction.outputs.length}) and response data (${responseData?.length ?? 0}).`);
+                }
 
-                    if (transactions.length == 1) {
-                        var transaction = transactions[0];
-                        var synControls = context[syn.$w.pageScript].context.synControls;
-                        var outputLength = transaction.outputs.length;
-                        for (var outputIndex = 0; outputIndex < outputLength; outputIndex++) {
-                            var outputMapping = transaction.outputs[outputIndex];
-                            var responseFieldID = outputMapping.responseType + 'Data' + outputIndex.toString();
-                            var outputData = responseData[outputIndex];
+                transaction.outputs.forEach((outputMapping, outputIndex) => {
+                    const outputData = responseData[outputIndex];
+                    const responseFieldID = outputMapping.responseType + 'Data' + outputIndex;
 
-                            if (outputMapping.responseType == 'Form') {
-                                if ($object.isNullOrUndefined(outputData) == true || $object.isObjectEmpty(outputData) == true) {
-                                    result.outputs.push({
-                                        fieldID: responseFieldID,
-                                        Count: 0
-                                    });
-                                }
-                                else {
-                                    result.outputs.push({
-                                        fieldID: responseFieldID,
-                                        Count: 1
-                                    });
+                    const mapOutputData = (targetType, dataFieldID, data) => {
+                        const controls = synControls.filter(item => item.field === dataFieldID || (targetType === 'Form' && item.formDataFieldID === dataFieldID));
+                        if (controls.length === 0) return false;
 
-                                    for (var key in outputMapping.items) {
-                                        var meta = outputMapping.items[key];
-                                        var dataFieldID = key;
-                                        var fieldID = meta.fieldID;
-
-                                        var controlValue = outputData[fieldID];
-                                        if (controlValue != undefined && synControls && synControls.length > 0) {
-                                            var bindingControlInfos = synControls.filter(function (item) {
-                                                return item.field == dataFieldID && item.formDataFieldID == outputMapping.dataFieldID;
-                                            });
-
-                                            if (bindingControlInfos.length == 1) {
-                                                var controlInfo = bindingControlInfos[0];
-                                                var controlModule = syn.$w.getControlModule(controlInfo.module);
-                                                if ($object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
-                                                    controlModule.setValue(controlInfo.id.replace('_hidden', ''), controlValue, meta);
-                                                }
-                                            }
-                                            else {
-                                                var isMapping = false;
-                                                if (syn.uicontrols.$data && syn.uicontrols.$data.storeList.length > 0) {
-                                                    for (var k = 0; k < syn.uicontrols.$data.storeList.length; k++) {
-                                                        var store = syn.uicontrols.$data.storeList[k];
-                                                        if ($object.isNullOrUndefined($this.store[store.dataSourceID]) == true) {
-                                                            $this.store[store.dataSourceID] = {};
-                                                        }
-
-                                                        if (store.storeType == 'Form' && store.dataSourceID == outputMapping.dataFieldID) {
-                                                            isMapping = true;
-                                                            bindingControlInfos = store.columns.filter(function (item) {
-                                                                return item.data == dataFieldID;
-                                                            });
-
-                                                            if (bindingControlInfos.length == 1) {
-                                                                $this.store[store.dataSourceID][dataFieldID] = controlValue;
-                                                            }
-
-                                                            break;
-                                                        }
-                                                    }
-                                                }
-
-                                                if (isMapping == false) {
-                                                    errorText = '"{0}" Form Output Mapping 확인 필요'.format(dataFieldID);
-                                                    result.errors.push(errorText);
-                                                    syn.$l.eventLog('$w.setterValue', errorText, 'Error');
-                                                }
-                                            }
-                                        }
+                        const targetControl = controls.find(c => c.field === dataFieldID) || controls[0];
+                        const controlModule = syn.$w.getControlModule(targetControl.module);
+                        if (controlModule?.setValue) {
+                            if (targetType === 'Form') {
+                                Object.entries(outputMapping.items).forEach(([itemDataField, meta]) => {
+                                    const formControlInfo = controls.find(c => c.field === itemDataField && c.formDataFieldID === dataFieldID);
+                                    if (formControlInfo && data?.[meta.fieldID] !== undefined) {
+                                        const formModule = syn.$w.getControlModule(formControlInfo.module);
+                                        formModule?.setValue?.(formControlInfo.id.replace('_hidden', ''), data[meta.fieldID], meta);
                                     }
-                                }
+                                });
+                            } else {
+                                controlModule.setValue(targetControl.id.replace('_hidden', ''), data, outputMapping.items);
                             }
-                            else if (outputMapping.responseType == 'Grid') {
-                                if (outputData.length && outputData.length > 0) {
-                                    result.outputs.push({
-                                        fieldID: responseFieldID,
-                                        Count: outputData.length
-                                    });
-                                    var dataFieldID = outputMapping.dataFieldID;
-                                    if (synControls && synControls.length > 0) {
-                                        var bindingControlInfos = synControls.filter(function (item) {
-                                            return item.field == dataFieldID;
-                                        });
+                            return true;
+                        }
+                        return false;
+                    };
 
-                                        if (bindingControlInfos.length == 1) {
-                                            var controlInfo = bindingControlInfos[0];
-                                            var controlModule = syn.$w.getControlModule(controlInfo.module);
-                                            if ($object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
-                                                controlModule.setValue(controlInfo.id.replace('_hidden', ''), outputData, outputMapping.items);
-                                            }
+                    const mapOutputToStore = (targetType, dataFieldID, data) => {
+                        if (syn.uicontrols?.$data?.storeList) {
+                            const store = syn.uicontrols.$data.storeList.find(s => s.storeType === targetType && s.dataSourceID === dataFieldID);
+                            if (store && $this?.store) {
+                                if (targetType === 'Form') {
+                                    $this.store[store.dataSourceID] = $this.store[store.dataSourceID] ?? {};
+                                    Object.entries(outputMapping.items).forEach(([itemDataField, meta]) => {
+                                        if (data?.[meta.fieldID] !== undefined) {
+                                            $this.store[store.dataSourceID][itemDataField] = data[meta.fieldID];
                                         }
-                                        else {
-                                            var isMapping = false;
-                                            if (syn.uicontrols.$data && syn.uicontrols.$data.storeList.length > 0) {
-                                                for (var k = 0; k < syn.uicontrols.$data.storeList.length; k++) {
-                                                    var store = syn.uicontrols.$data.storeList[k];
-                                                    if ($object.isNullOrUndefined($this.store[store.dataSourceID]) == true) {
-                                                        $this.store[store.dataSourceID] = [];
-                                                    }
-
-                                                    if (store.storeType == 'Grid' && store.dataSourceID == outputMapping.dataFieldID) {
-                                                        isMapping = true;
-                                                        var bindingInfos = syn.uicontrols.$data.bindingList.filter(function (item) {
-                                                            return (item.dataSourceID == store.dataSourceID && item.controlType == 'grid');
-                                                        });
-
-                                                        var length = outputData.length;
-                                                        for (var i = 0; i < length; i++) {
-                                                            outputData[i].Flag = 'R';
-                                                        }
-
-                                                        if (bindingInfos.length > 0) {
-                                                            for (var binding_i = 0; binding_i < bindingInfos.length; binding_i++) {
-                                                                var bindingInfo = bindingInfos[binding_i];
-                                                                $this.store[store.dataSourceID][bindingInfo.dataFieldID] = outputData;
-                                                            }
-                                                        }
-                                                        else {
-                                                            $this.store[store.dataSourceID] = outputData;
-                                                        }
-                                                        break;
-                                                    }
-                                                }
-                                            }
-
-                                            if (isMapping == false) {
-                                                errorText = '"{0}" Grid Output Mapping 확인 필요'.format(dataFieldID);
-                                                result.errors.push(errorText);
-                                                syn.$l.eventLog('$w.setterValue', errorText, 'Error');
-                                            }
-                                        }
-                                    }
-                                }
-                                else {
-                                    result.outputs.push({
-                                        fieldID: responseFieldID,
-                                        Count: 0
                                     });
+                                } else {
+                                    $this.store[store.dataSourceID] = (data || []).map(item => ({ ...item, Flag: 'R' }));
                                 }
+                                return true;
                             }
-                            else if (outputMapping.responseType == 'Chart') {
-                                if (outputData.length && outputData.length > 0) {
-                                    result.outputs.push({
-                                        fieldID: responseFieldID,
-                                        Count: outputData.length
-                                    });
-                                    var dataFieldID = outputMapping.dataFieldID;
+                        }
+                        return false;
+                    };
 
-                                    if (synControls && synControls.length > 0) {
-                                        var bindingControlInfos = synControls.filter(function (item) {
-                                            return item.field == dataFieldID;
-                                        });
 
-                                        if (bindingControlInfos.length == 1) {
-                                            var controlInfo = bindingControlInfos[0];
-                                            var controlModule = syn.$w.getControlModule(controlInfo.module);
-                                            if ($object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
-                                                controlModule.setValue(controlInfo.id.replace('_hidden', ''), outputData, outputMapping.items);
-                                            }
-                                        }
-                                        else {
-                                            errorText = '"{0}" Chart Output Mapping 확인 필요'.format(dataFieldID);
-                                            result.errors.push(errorText);
-                                            syn.$l.eventLog('$w.setterValue', errorText, 'Error');
-                                        }
-                                    }
-                                }
-                                else {
-                                    result.outputs.push({
-                                        fieldID: responseFieldID,
-                                        Count: 0
-                                    });
+                    if (outputMapping.responseType === 'Form') {
+                        const count = (outputData && Object.keys(outputData).length > 0) ? 1 : 0;
+                        result.outputs.push({ fieldID: responseFieldID, Count: count });
+                        if (count > 0) {
+                            if (!mapOutputData('Form', outputMapping.dataFieldID, outputData)) {
+                                if (!mapOutputToStore('Form', outputMapping.dataFieldID, outputData)) {
+                                    result.errors.push(`"${outputMapping.dataFieldID}" Form Output Mapping target not found.`);
+                                    syn.$l.eventLog('$w.setterValue', `"${outputMapping.dataFieldID}" Form Output Mapping target not found.`, 'Error');
                                 }
                             }
                         }
-
-                        return result;
+                    } else if (outputMapping.responseType === 'Grid' || outputMapping.responseType === 'Chart') {
+                        const count = outputData?.length ?? 0;
+                        result.outputs.push({ fieldID: responseFieldID, Count: count });
+                        if (count > 0) {
+                            if (!mapOutputData(outputMapping.responseType, outputMapping.dataFieldID, outputData)) {
+                                if (!mapOutputToStore(outputMapping.responseType, outputMapping.dataFieldID, outputData)) {
+                                    const targetDesc = outputMapping.responseType === 'Grid' ? 'Grid' : 'Chart';
+                                    result.errors.push(`"${outputMapping.dataFieldID}" ${targetDesc} Output Mapping target not found.`);
+                                    syn.$l.eventLog('$w.setterValue', `"${outputMapping.dataFieldID}" ${targetDesc} Output Mapping target not found.`, 'Error');
+                                }
+                            }
+                        }
                     }
-                    else {
-                        errorText = '"{0}" 거래 중복 또는 존재여부 확인 필요'.format(functionID);
-                        result.errors.push(errorText);
-                        syn.$l.eventLog('$w.setterValue', errorText, 'Error');
+                });
 
-                        return result;
-                    }
-                }
-                else {
-                    errorText = '화면 매핑 정의 데이터가 없습니다';
-                    result.errors.push(errorText);
-                    syn.$l.eventLog('$w.setterValue', errorText, 'Error');
-
-                    return result;
-                }
             } catch (error) {
-                syn.$l.eventLog('$w.setterValue', error, 'Error');
-                result.errors.push(error.message);
-                return result;
+                result.errors.push(`Setter error: ${error.message}`);
+                syn.$l.eventLog('$w.setterValue', `Setter error: ${error}`, 'Error');
             }
+            return result;
         },
 
         scrollToTop() {
-            var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+            if (!doc?.documentElement || !context.requestAnimationFrame || !context.scrollTo) return;
 
-            if (scrollTop > 0) {
-                context.requestAnimationFrame(syn.$w.scrollToTop);
-                context.scrollTo(0, scrollTop - scrollTop / 8);
-            }
+            const scrollStep = () => {
+                const scrollTop = doc.documentElement.scrollTop || doc.body.scrollTop;
+                if (scrollTop > 0) {
+                    context.requestAnimationFrame(scrollStep);
+                    context.scrollTo(0, scrollTop - scrollTop / 8);
+                }
+            };
+            context.requestAnimationFrame(scrollStep);
         },
 
         setFavicon(url) {
-            var favicon = document.querySelector('link[rel="icon"]');
-
+            if (!doc) return;
+            let favicon = doc.querySelector('link[rel="icon"]');
             if (favicon) {
                 favicon.href = url;
             } else {
-                var link = document.createElement('link');
-                link.rel = 'icon';
-                link.href = url;
-
-                document.head.appendChild(link);
+                favicon = doc.createElement('link');
+                favicon.rel = 'icon';
+                favicon.href = url;
+                doc.head?.appendChild(favicon);
             }
         },
 
         fileDownload(url, fileName) {
-            var downloadFileName = '';
-            if (fileName) {
-                downloadFileName = fileName;
-            }
-            else {
-                var match = url.toString().match(/.*\/(.+?)\./);
-                if (match && match.length > 1) {
-                    downloadFileName = match[1];
-                }
-            }
+            if (!doc || !url) return;
 
-            var link = document.createElement('a');
-            link.setAttribute('href', url);
-            link.setAttribute('download', downloadFileName);
+            const downloadFileName = fileName || url.substring(url.lastIndexOf('/') + 1).split('.')[0] || 'download';
+            const link = doc.createElement('a');
+            link.href = url;
+            link.download = downloadFileName;
+            link.style.display = 'none';
 
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            doc.body.appendChild(link);
+            try {
+                link.click();
+            } catch (e) {
+                syn.$l.eventLog('$w.fileDownload', `Error triggering download for ${url}: ${e}`, 'Error');
+            } finally {
+                setTimeout(() => doc.body.removeChild(link), 100);
+            }
         },
 
         sleep(ms, callback) {
-            if (callback) {
-                setTimeout(callback, ms);
-            }
-            else if (globalRoot.Promise) {
-                return new Promise(function (resolve) {
-                    return setTimeout(resolve, ms);
-                });
-            }
-            else {
-                syn.$l.eventLog('$w.sleep', '지원하지 않는 기능. 매개변수 확인 필요', 'Debug');
+            if (typeof callback === 'function') {
+                return setTimeout(callback, ms);
+            } else if (typeof Promise !== 'undefined') {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            } else {
+                syn.$l.eventLog('$w.sleep', 'Callback or Promise support required.', 'Debug');
+                const start = Date.now();
+                while (Date.now() < start + ms) { }
+                return undefined;
             }
         },
 
         purge(el) {
-            var a = el.attributes, i, l, n;
-            if (a) {
-                for (i = a.length - 1; i >= 0; i -= 1) {
-                    n = a[i].name;
-                    if (typeof el[n] === 'function') {
-                        el[n] = null;
+            if (!el) return;
+            const attributes = el.attributes;
+            if (attributes) {
+                for (let i = attributes.length - 1; i >= 0; i--) {
+                    const name = attributes[i].name;
+                    if (name.startsWith('on') && typeof el[name] === 'function') {
+                        try { el[name] = null; } catch (e) { }
                     }
                 }
             }
-            a = el.childNodes;
-            if (a) {
-                l = a.length;
-                for (i = 0; i < l; i += 1) {
-                    syn.$w.purge(el.childNodes[i]);
-                }
+
+            let child = el.firstChild;
+            while (child) {
+                syn.$w.purge(child);
+                child = child.nextSibling;
+            }
+
+            if (syn.$l?.events?.removeAllForElement) {
+                syn.$l.events.removeAllForElement(el);
             }
         },
 
         setServiceObject(value) {
-            var message = typeof value == 'string' ? value : JSON.stringify(value);
-
-            return $webform;
+            syn.$w.serviceObject = typeof value === 'string' ? value : JSON.stringify(value);
+            return this;
         },
 
         setServiceClientHeader(xhr) {
@@ -9556,9 +7528,18 @@ if (typeof module !== 'undefined' && module.exports) {
             return true;
         },
 
-        xmlParser(xml) {
-            var parser = new globalRoot.DOMParser();
-            return parser.parseFromString(xml, 'text/xml');
+        xmlParser(xmlString) {
+            if (typeof DOMParser === 'undefined') {
+                syn.$l.eventLog('$w.xmlParser', 'DOMParser not supported in this environment.', 'Error');
+                return null;
+            }
+            try {
+                const parser = new DOMParser();
+                return parser.parseFromString(xmlString, 'text/xml');
+            } catch (e) {
+                syn.$l.eventLog('$w.xmlParser', `Error parsing XML: ${e}`, 'Error');
+                return null;
+            }
         },
 
         apiHttp(url) {
@@ -9885,127 +7866,98 @@ if (typeof module !== 'undefined' && module.exports) {
             return result;
         },
 
-        fetchText(url) {
-            var fetchOptions = {};
-            if (syn.$w.getFetchClientOptions) {
-                fetchOptions = syn.$w.getFetchClientOptions(fetchOptions);
-            }
-            else {
-                fetchOptions = {
-                    method: 'GET',
-                    mode: 'cors',
-                    cache: 'default',
-                    credentials: 'same-origin',
-                    headers: {
-                        'Content-Type': 'text/plain'
-                    },
-                    redirect: 'follow',
-                    referrerPolicy: 'no-referrer-when-downgrade'
-                };
-            }
+        async fetchText(url) {
+            const defaultOptions = {
+                method: 'GET',
+                mode: 'cors',
+                cache: 'default',
+                credentials: 'same-origin',
+                headers: { 'Content-Type': 'text/plain' },
+                redirect: 'follow',
+                referrerPolicy: 'no-referrer-when-downgrade'
+            };
+            const fetchOptions = syn.$w.getFetchClientOptions ? syn.$w.getFetchClientOptions(defaultOptions) : defaultOptions;
+            const cacheBust = (syn.Config?.IsClientCaching === false) ? `${url.includes('?') ? '&' : '?'}tick=${Date.now()}` : '';
+            const finalUrl = url + cacheBust;
 
-            if (syn.Config && $string.toBoolean(syn.Config.IsClientCaching) == true) {
-                url = url + (url.indexOf('?') > -1 ? '&' : '?') + 'tick=' + new Date().getTime();
+            try {
+                const response = await fetch(finalUrl, fetchOptions);
+                if (!response.ok) {
+                    const errorText = await response.text().catch(() => `HTTP ${response.status} ${response.statusText}`);
+                    syn.$l.eventLog('$w.fetchText', `Fetch failed for ${finalUrl}: status ${response.status}, text: ${errorText}`, 'Warning');
+                    return null;
+                }
+                return await response.text();
+            } catch (error) {
+                syn.$l.eventLog('$w.fetchText', `Fetch error for ${finalUrl}: ${error}`, 'Error');
+                throw error;
             }
-
-            return new Promise(function (resolve, reject) {
-                fetch(url, fetchOptions).then(async function (response) {
-                    var statusHead = response.status?.toString().substring(0, 1);
-                    if (statusHead == '2') {
-                        return resolve(response.text());
-                    }
-
-                    syn.$l.eventLog('$w.fetchText', `status: ${response.status}, text: ${await response.text()}`, 'Warning');
-                    return resolve(null);
-                }).catch(function (error) {
-                    syn.$l.eventLog('$w.fetchText', error, 'Error');
-                    return reject(error);
-                });
-            });
         },
 
-        fetchJson(url) {
-            var fetchOptions = {};
-            if (syn.$w.getFetchClientOptions) {
-                fetchOptions = syn.$w.getFetchClientOptions(fetchOptions);
+        async fetchJson(url) {
+            const defaultOptions = {
+                method: 'GET',
+                mode: 'cors',
+                cache: 'default',
+                credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                redirect: 'follow',
+                referrerPolicy: 'no-referrer-when-downgrade'
+            };
+            const fetchOptions = syn.$w.getFetchClientOptions ? syn.$w.getFetchClientOptions(defaultOptions) : defaultOptions;
+            const cacheBust = (syn.Config?.IsClientCaching === false) ? `${url.includes('?') ? '&' : '?'}tick=${Date.now()}` : '';
+            const finalUrl = url + cacheBust;
+
+            try {
+                const response = await fetch(finalUrl, fetchOptions);
+                if (!response.ok) {
+                    const errorText = await response.text().catch(() => `HTTP ${response.status} ${response.statusText}`);
+                    syn.$l.eventLog('$w.fetchJson', `Fetch failed for ${finalUrl}: status ${response.status}, text: ${errorText}`, 'Warning');
+                    return null;
+                }
+
+                const contentType = response.headers.get('Content-Type') || '';
+                if (!contentType.includes('application/json')) {
+                    syn.$l.eventLog('$w.fetchJson', `Expected JSON but received Content-Type: ${contentType} for ${finalUrl}`, 'Warning');
+                }
+
+                return await response.json();
+            } catch (error) {
+                if (error instanceof SyntaxError) {
+                    syn.$l.eventLog('$w.fetchJson', `JSON parse error for ${finalUrl}: ${error}`, 'Error');
+                } else {
+                    syn.$l.eventLog('$w.fetchJson', `Fetch error for ${finalUrl}: ${error}`, 'Error');
+                }
+                return null;
             }
-            else {
-                fetchOptions = {
-                    method: 'GET',
-                    mode: 'cors',
-                    cache: 'default',
-                    credentials: 'same-origin',
-                    headers: {
-                        'Content-Type': 'text/plain'
-                    },
-                    redirect: 'follow',
-                    referrerPolicy: 'no-referrer-when-downgrade'
-                };
-            }
-
-            fetchOptions.headers['Content-Type'] = 'application/json';
-
-            if (syn.Config && $string.toBoolean(syn.Config.IsClientCaching) == true) {
-                url = url + (url.indexOf('?') > -1 ? '&' : '?') + 'tick=' + new Date().getTime();
-            }
-
-            return new Promise(function (resolve, reject) {
-                fetch(url, fetchOptions).then(function (response) {
-                    var statusHead = response.status?.toString().substring(0, 1);
-                    if (statusHead == '2') {
-                        return resolve(response.json());
-                    }
-
-                    syn.$l.eventLog('$w.fetchJson', `status: ${response.status}, text: ${response.text()}`, 'Warning');
-                    return resolve(null);
-                }).catch(function (error) {
-                    syn.$l.eventLog('$w.fetchJson', error, 'Error');
-                    return reject(null);
-                });
-
-            });
         },
 
-        transactionObject(functionID, returnType) {
-            var dataType = 'Json';
-            if (returnType) {
-                dataType = returnType;
-            }
+        transactionObject(functionID, returnType = 'Json') {
+            const jsonObject = {
+                programID: '',
+                businessID: '',
+                systemID: '',
+                transactionID: '',
+                dataMapInterface: null,
+                transactionResult: true,
+                functionID: functionID,
+                screenID: '',
+                startTraceID: '',
+                requestID: null,
+                returnType: returnType,
+                resultAlias: [],
+                inputsItemCount: [],
+                inputs: []
+            };
 
-            var jsonObject = {};
-            jsonObject.programID = '';
-            jsonObject.businessID = '';
-            jsonObject.systemID = '';
-            jsonObject.transactionID = '';
-            jsonObject.dataMapInterface = null;
-            jsonObject.transactionResult = true;
-            jsonObject.functionID = functionID;
-            jsonObject.screenID = '';
-            jsonObject.startTraceID = '';
-            jsonObject.requestID = null;
-            jsonObject.returnType = dataType;
-            jsonObject.resultAlias = [];
-            jsonObject.inputsItemCount = [];
-            jsonObject.inputs = [];
-
-            if (syn.$w.setServiceObject) {
-                syn.$w.setServiceObject(jsonObject);
-            }
-
+            if (syn.$w.setServiceObject) syn.$w.setServiceObject(jsonObject);
             return jsonObject;
         },
 
-        dynamicType: new function () {
-            this.DataSet = '0';
-            this.Json = '1';
-            this.Scalar = '2';
-            this.NonQuery = '3';
-            this.SQLText = '4';
-            this.SchemeOnly = '5';
-            this.CodeHelp = '6';
-            this.Xml = '7';
-            this.DynamicJson = '8';
-        },
+        dynamicType: Object.freeze({
+            DataSet: '0', Json: '1', Scalar: '2', NonQuery: '3',
+            SQLText: '4', SchemeOnly: '5', CodeHelp: '6', Xml: '7', DynamicJson: '8'
+        }),
 
         async executeTransaction(config, transactionObject, callback, async, token) {
             if ($object.isNullOrUndefined(config) == true || $object.isNullOrUndefined(transactionObject) == true) {
@@ -10695,44 +8647,27 @@ if (typeof module !== 'undefined' && module.exports) {
             syn.Config.DataSourceFilePath = path.join(process.cwd(), '..', 'modules', 'dbclient', 'module.json');
         }
 
-        delete syn.$w.isPageLoad;
-        delete syn.$w.pageReadyTimeout;
-        delete syn.$w.eventAddReady;
-        delete syn.$w.eventRemoveReady;
-        delete syn.$w.moduleReadyIntervalID;
-        delete syn.$w.remainingReadyIntervalID;
-        delete syn.$w.remainingReadyCount;
-        delete syn.$w.defaultControlOptions;
-        delete syn.$w.initializeScript;
-        delete syn.$w.activeControl;
-        delete syn.$w.contentLoaded;
-        delete syn.$w.addReadyCount;
-        delete syn.$w.removeReadyCount;
-        delete syn.$w.createSelection;
-        delete syn.$w.getTriggerOptions;
-        delete syn.$w.triggerAction;
-        delete syn.$w.transactionAction;
-        delete syn.$w.transaction;
-        delete syn.$w.scrollToTop;
-        delete syn.$w.setFavicon;
-        delete syn.$w.fileDownload;
-        delete syn.$w.pseudoStyle;
+        const browserOnlyMethods = [
+            'activeControl', 'contentLoaded', 'addReadyCount', 'removeReadyCount', 'createSelection',
+            'getTriggerOptions', 'scrollToTop', 'setFavicon', 'fileDownload', 'pseudoStyle', 'pseudoStyles',
+            'isPageLoad', 'pageReadyTimeout', 'eventAddReady', 'eventRemoveReady', 'moduleReadyIntervalID',
+            'remainingReadyIntervalID', 'remainingReadyCount', 'defaultControlOptions', 'mappingModule'
+        ];
+        browserOnlyMethods.forEach(method => { delete $webform[method]; });
     }
     else {
-        var pathname = location.pathname;
-        if (pathname.split('/').length > 0) {
-            var filename = pathname.split('/')[pathname.split('/').length - 1];
-            $webform.extend({
-                pageProject: pathname.split('/')[pathname.split('/').length - 2],
-                pageScript: '$' + (filename.indexOf('.') > -1 ? filename.substring(0, filename.indexOf('.')) : filename)
-            });
+        const pathname = location.pathname;
+        const pathSegments = pathname.split('/').filter(Boolean);
+        if (pathSegments.length > 0) {
+            const filename = pathSegments[pathSegments.length - 1];
+            const pageProject = pathSegments[pathSegments.length - 2] || '';
+            const pageScript = '$' + (filename.includes('.') ? filename.substring(0, filename.indexOf('.')) : filename);
+            $webform.extend({ pageProject, pageScript });
         }
 
-        syn.$l.addEvent(context, 'load', function () {
-            var mod = context[syn.$w.pageScript];
-            if (mod && mod.hook.windowLoad) {
-                mod.hook.windowLoad();
-            }
+        syn.$l.addEvent(context, 'load', () => {
+            const mod = context[$webform.pageScript];
+            mod?.hook?.windowLoad?.();
         });
 
         var urlArgs = syn.$r.getCookie('syn.iscache') == 'true' ? '' : '?tick=' + new Date().getTime();
@@ -11063,7 +8998,7 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         async renderViewer(templateID, el, options) {
-            el = $object.isString(el) == true ? syn.$l.get(el) : el;
+            el = syn.$l.getElement(el);
             if (el) {
                 if (parent.syn && parent.syn.$w.progressMessage) {
                     parent.syn.$w.progressMessage();
@@ -11187,8 +9122,8 @@ if (typeof module !== 'undefined' && module.exports) {
             return result;
         },
 
-        requestReportValue(moduleID, dataMapInterface, pdfOption, callback) {
-            var defaultPdfOption = {
+        requestReportValue(moduleID, pdfOptions, transactionOptions, callback) {
+            var defaultPdfOptions = {
                 REPORT_ID: '',
                 COMPANY_NO: '',
                 DOCUMENT_FORM_ID: '',
@@ -11199,24 +9134,19 @@ if (typeof module !== 'undefined' && module.exports) {
             };
 
             if (syn.Config && syn.Config.Environment) {
-                defaultPdfOption.ENV = syn.Config.Environment.substring(0, 1);
+                defaultPdfOptions.ENV = syn.Config.Environment.substring(0, 1);
             }
 
-            pdfOption = syn.$w.argumentsExtend(defaultPdfOption, pdfOption);
+            pdfOptions = syn.$w.argumentsExtend(defaultPdfOptions, pdfOptions);
 
-            var directObject = {
-                programID: 'HDS',
-                businessID: 'RPT',
-                systemID: 'BP01',
-                transactionID: pdfOption.REPORT_ID,
-                functionID: 'PD01',
-                dataMapInterface: dataMapInterface || 'Row|Form',
-                inputObjects: []
+            const directObject = {
+                programID: syn.Config.ApplicationID,
+                businessID: transactionOptions.businessID || syn.Config.ProjectID || 'RPT',
+                transactionID: transactionOptions.transactionID || pdfOptions.REPORT_ID,
+                functionID: transactionOptions.functionID || 'PD01',
+                dataMapInterface: transactionOptions.dataMapInterface || 'Row|Form',
+                inputObjects: Object.entries(pdfOptions).map(([key, val]) => ({ prop: key, val }))
             };
-
-            for (var key in pdfOption) {
-                directObject.inputObjects.push({ prop: key, val: pdfOption[key] });
-            }
 
             try {
                 syn.$w.transactionDirect(directObject, function (response) {

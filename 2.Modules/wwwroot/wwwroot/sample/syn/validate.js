@@ -38,15 +38,15 @@ let $validate = {
         },
 
         btn_pattern_numeric_click() {
-            syn.$v.pattern('txt_pattern', 'numeric', { 'expr': syn.$v.regexs.numeric, 'message': '숫자를 입력 해야 합니다.' });
+            syn.$v.pattern('txt_pattern', 'numeric', { 'expr': syn.$v.regexs.numeric, 'message': '숫자를 입력 해야합니다.' });
         },
 
         btn_pattern_email_click() {
-            syn.$v.pattern('txt_pattern', 'email', { 'expr': syn.$v.regexs.email, 'message': '이메일을 입력 해야 합니다.' });
+            syn.$v.pattern('txt_pattern', 'email', { 'expr': syn.$v.regexs.email, 'message': '이메일을 입력 해야합니다.' });
         },
 
         btn_pattern_juminNo_click() {
-            syn.$v.pattern('txt_pattern', 'juminNo', { 'expr': syn.$v.regexs.juminNo, 'message': '주민등록번호를 입력 해야 합니다.' });
+            syn.$v.pattern('txt_pattern', 'juminNo', { 'expr': syn.$v.regexs.juminNo, 'message': '주민등록번호를 입력 해야합니다.' });
         },
 
         btn_pattern_validateControl_click() {
@@ -60,8 +60,8 @@ let $validate = {
         },
 
         btn_range_click() {
-            syn.$v.pattern('txt_range', 'numeric', { 'expr': syn.$v.regexs.numeric, 'message': '숫자를 입력 해야 합니다.' });
-            syn.$v.range('txt_range', 'overflow', { 'min': 0, 'max': 100, 'minOperator': '<', 'maxOperator': '>', 'message': '1 ~ 100 이내 값을 입력 해야 합니다.' });
+            syn.$v.pattern('txt_range', 'numeric', { 'expr': syn.$v.regexs.numeric, 'message': '숫자를 입력 해야합니다.' });
+            syn.$v.range('txt_range', 'overflow', { 'min': 0, 'max': 100, 'minOperator': '<', 'maxOperator': '>', 'message': '1 ~ 100 이내 값을 입력 해야합니다.' });
         },
 
         btn_range_validateControl_click() {

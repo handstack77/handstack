@@ -1341,6 +1341,7 @@
                         if (result?.errorText?.length > 0) {
                             error = result.errorText[0];
                             syn.$l.eventLog('$w.transactionAction.callback', `Transaction error: ${error}`, 'Error');
+                            return;
                         }
 
                         let callbackResult = null;
@@ -1696,24 +1697,27 @@
             }
         },
 
-        getterValue(functionID) {
+        getterValue(transactConfigInput) {
             const result = { errors: [], inputs: [] };
-            try {
-                const transactConfig = $this?.transaction?.[functionID];
+            let transactConfig = transactConfigInput;
+            if (typeof transactConfigInput === 'string') {
+                transactConfig = $this?.transaction?.[transactConfigInput];
                 if (!transactConfig) {
-                    throw new Error(`Transaction config not found for functionID "${functionID}"`);
+                    syn.$l.eventLog('$w.transactionAction', `Transaction config not found for functionID "${transactConfigInput}"`, 'Warning');
+                    return;
                 }
-                transactConfig.functionID = transactConfig.functionID || functionID;
+            }
 
+            try {
                 syn.$w.tryAddFunction(transactConfig);
 
                 if (!$this?.config?.transactions) {
                     throw new Error('Transaction configuration ($this.config.transactions) is missing.');
                 }
 
-                const transactions = $this.config.transactions.filter(item => item.functionID === functionID);
+                const transactions = $this.config.transactions.filter(item => item.functionID === transactConfig.functionID);
                 if (transactions.length !== 1) {
-                    throw new Error(`Transaction definition for functionID "${functionID}" not found or is duplicated.`);
+                    throw new Error(`Transaction definition for functionID "${transactConfig.functionID}" not found or is duplicated.`);
                 }
                 const transaction = transactions[0];
                 const synControls = $this.context?.synControls ?? [];
@@ -1803,23 +1807,26 @@
             return result;
         },
 
-        setterValue(functionID, responseData) {
+        setterValue(transactConfigInput, responseData) {
             const result = { errors: [], outputs: [] };
-            try {
-                const transactConfig = $this?.transaction?.[functionID];
+            let transactConfig = transactConfigInput;
+            if (typeof transactConfigInput === 'string') {
+                transactConfig = $this?.transaction?.[transactConfigInput];
                 if (!transactConfig) {
-                    throw new Error(`Transaction config not found for functionID "${functionID}"`);
+                    syn.$l.eventLog('$w.transactionAction', `Transaction config not found for functionID "${transactConfigInput}"`, 'Warning');
+                    return;
                 }
-                transactConfig.functionID = transactConfig.functionID || functionID;
+            }
 
+            try {
                 syn.$w.tryAddFunction(transactConfig);
 
                 if (!$this?.config?.transactions) {
                     throw new Error('Transaction configuration ($this.config.transactions) is missing.');
                 }
-                const transactions = $this.config.transactions.filter(item => item.functionID === functionID);
+                const transactions = $this.config.transactions.filter(item => item.functionID === transactConfig.functionID);
                 if (transactions.length !== 1) {
-                    throw new Error(`Transaction definition for functionID "${functionID}" not found or is duplicated.`);
+                    throw new Error(`Transaction definition for functionID "${transactConfig.functionID}" not found or is duplicated.`);
                 }
                 const transaction = transactions[0];
                 const synControls = $this.context?.synControls ?? [];
