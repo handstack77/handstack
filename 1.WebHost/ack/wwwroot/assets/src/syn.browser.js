@@ -31,15 +31,69 @@
         isSafari: /constructor/i.test(context.HTMLElement) || ((p) => p.toString() === '[object SafariRemoteNotification]')(!context.safari || (typeof safari !== 'undefined' && context.safari.pushNotification)),
         isMobile: () => (nav.userAgentData?.mobile ?? /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(nav.userAgent)),
 
-
-        getSystemFonts() {
-            const fonts = [
-                '-apple-system', 'BlinkMacSystemFont', 'Cantarell', 'Consolas', 'Courier New',
-                'Droid Sans', 'Fira Sans', 'Helvetica Neue', 'Menlo', 'Monaco', 'Oxygen',
-                'Roboto', 'source-code-pro', 'Segoe UI', 'Ubuntu',
+        getSystemFonts(fontListToCheck = []) {
+            const defaultFonts = [
+                // Serif
+                'Georgia', 'Times New Roman', 'Palatino Linotype', 'Book Antiqua',
+                'Garamond', 'Constantia', 'Cambria', 'Didot', 'Hoefler Text',
+                // Sans-serif
+                'Arial', 'Helvetica', 'Verdana', 'Tahoma', 'Geneva',
+                'Lucida Grande', 'Segoe UI', 'Roboto', 'Open Sans', 'Lato',
+                'Calibri', 'Optima', 'Candara', 'Trebuchet MS',
+                // Monospace
+                'Courier New', 'Lucida Console', 'Monaco', 'Consolas', 'Menlo', 'Inconsolata',
+                // 한국어 폰트
+                'Malgun Gothic', '맑은 고딕', 'Dotum', '돋움', 'Gulim', '굴림',
+                'Batang', '바탕', 'Gungsuh', '궁서',
+                'Noto Sans KR', 'Pretendard',
+                'Nanum Gothic', '나눔 고딕',
+                'Nanum Myeongjo', '나눔 명조',
+                'Nanum Brush Script', '나눔 손글씨 붓'
             ];
-            if (!doc?.fonts?.check) return '';
-            return fonts.filter(font => doc.fonts.check(`12px ${font} `)).join(', ');
+
+            const fontsToCheck = fontListToCheck.length > 0 ? fontListToCheck : defaultFonts;
+            const availableFonts = [];
+
+            const baseFonts = ['serif', 'sans-serif', 'monospace'];
+            const testString = "abcdefghijklmnopqrstuvwxyz0123456789";
+            const testFontSize = '72px';
+
+            const baseWidths = {};
+            const testElement = document.createElement('span');
+            testElement.style.position = 'absolute';
+            testElement.style.visibility = 'hidden';
+            testElement.style.top = '-9999px';
+            testElement.style.left = '-9999px';
+            testElement.style.fontSize = testFontSize;
+            testElement.textContent = testString;
+            document.body.appendChild(testElement);
+
+            baseFonts.forEach(baseFont => {
+                testElement.style.fontFamily = baseFont;
+                baseWidths[baseFont] = testElement.offsetWidth;
+            });
+
+            for (const font of fontsToCheck) {
+                let detected = false;
+                for (const baseFont of baseFonts) {
+                    testElement.style.fontFamily = `"${font}", ${baseFont}`;
+                    const currentWidth = testElement.offsetWidth;
+                    if (currentWidth !== baseWidths[baseFont]) {
+                        detected = true;
+                        break;
+                    }
+                }
+
+                if (detected) {
+                    availableFonts.push(font);
+                }
+            }
+
+            document.body.removeChild(testElement);
+
+            const uniqueFonts = [...new Set(availableFonts)];
+            uniqueFonts.sort();
+            return uniqueFonts;
         },
 
         getCanvas2dRender() {
@@ -123,8 +177,7 @@
         getPlugins() {
             if (!nav?.plugins) return '';
             return Array.from(nav.plugins)
-                .map(plugin => `${plugin.name}: ${plugin.filename} `)
-                .join(', ');
+                .map(plugin => `${plugin.name}: ${plugin.filename}`);
         },
 
         async fingerPrint() {

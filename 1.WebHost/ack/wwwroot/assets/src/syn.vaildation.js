@@ -94,7 +94,7 @@
                 try {
                     delete this.elements[this.targetEL.id][validType][validID];
                 } catch (e) {
-                    $l.eventLog('$v.removeValidate', `Failed to delete validation: ${validType}.${validID} `, 'Warning');
+                    $l.eventLog('$v.removeValidate', `Failed to delete validation: ${validType}.${validID}`, 'Warning');
                 }
             }
             return this;
@@ -180,7 +180,7 @@
                         rangeResult = checkMin(rangeRule.minOperator, numValue, min) && checkMax(rangeRule.maxOperator, numValue, max);
 
                     } catch (error) {
-                        $l.eventLog('$v.validateControl', `elID: "${element.id}" 유효성 range 검사 오류 ${error.message} `, 'Warning');
+                        $l.eventLog('$v.validateControl', `elID: "${element.id}" 유효성 range 검사 오류 ${error.message}`, 'Warning');
                         rangeResult = false;
                     }
                 } else {
@@ -215,7 +215,7 @@
                         throw new Error(`Custom validation function "${functionName}" not found.`);
                     }
                 } catch (error) {
-                    $l.eventLog('$v.validateControl', `elID: "${element.id}" 유효성 custom 검사 오류 ${error.message} `, 'Warning');
+                    $l.eventLog('$v.validateControl', `elID: "${element.id}" 유효성 custom 검사 오류 ${error.message}`, 'Warning');
                     customResult = false;
                 }
 

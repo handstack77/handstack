@@ -191,7 +191,7 @@
                     const yearNum = dateObj.getFullYear();
                     const monthNum = dateObj.getMonth() + 1;
                     const weeksInMonth = this.weekOfMonth(yearNum, monthNum, opts.weekStartSunday);
-                    const currentDateNum = parseInt(`${yearNum}${pad(monthNum)}${pad(day)} `, 10);
+                    const currentDateNum = parseInt(`${yearNum}${pad(monthNum)}${pad(day)}`, 10);
 
                     for (let i = 0; i < weeksInMonth.length; i++) {
                         const week = weeksInMonth[i];
