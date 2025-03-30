@@ -217,7 +217,7 @@
                             origin,
                             invoke: (callbackName, v) => {
                                 if (!receivedRequests[id]) {
-                                    debug(`존재하지 않는 트랜잭션의 콜백 호출 시도: ${id}`);
+                                    debug(`존재하지 않는 거래의 콜백 호출 시도: ${id}`);
                                     return;
                                 }
                                 if (!callbacks.includes(callbackName)) {

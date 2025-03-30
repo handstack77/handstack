@@ -93,7 +93,7 @@
                         return item.value;
 
                     } catch (e) {
-                        syn.$l.eventLog('$w.getStorage (Node)', `Error parsing storage item for key "${storageKey}": ${e}`, 'Error');
+                        syn.$l.eventLog('$w.getStorage (Node)', `키 "${storageKey}"에 대한 스토리지 항목 파싱 오류: ${e} `, 'Error');
                         localStorage.removeItem(storageKey);
                         return null;
                     }
@@ -104,7 +104,7 @@
                 try {
                     return val ? JSON.parse(val) : null;
                 } catch (e) {
-                    syn.$l.eventLog('$w.getStorage (Browser)', `Error parsing storage item for key "${storageKey}": ${e}`, 'Error');
+                    syn.$l.eventLog('$w.getStorage (Browser)', `키 "${storageKey}"에 대한 스토리지 항목 파싱 오류: ${e} `, 'Error');
                     storage.removeItem(storageKey);
                     return null;
                 }
@@ -618,7 +618,7 @@
                             try {
                                 controlOptions = eval('(' + controlOptions + ')');
                             } catch (error) {
-                                syn.$l.eventLog('$w.contentLoaded', 'elID: "{0}" syn-options 확인 필요 '.format(elementID) + error.message, 'Warning');
+                                syn.$l.eventLog('$w.contentLoaded', 'elID: "{0}" syn-options 확인 필요: '.format(elementID) + error.message, 'Warning');
                             }
                         }
                         else {
@@ -651,7 +651,7 @@
                             try {
                                 controlOptions = eval('(' + controlOptions + ')');
                             } catch (error) {
-                                syn.$l.eventLog('$w.contentLoaded', 'elID: "{0}" syn-options 확인 필요 '.format(elementID) + error.message, 'Warning');
+                                syn.$l.eventLog('$w.contentLoaded', 'elID: "{0}" syn-options 확인 필요: '.format(elementID) + error.message, 'Warning');
                             }
                         }
                         else {
@@ -696,7 +696,7 @@
                     try {
                         elEvents = eval('(' + synControl.getAttribute('syn-events') + ')');
                     } catch (error) {
-                        syn.$l.eventLog('$w.contentLoaded', 'elID: "{0}" syn-events 확인 필요 '.format(synControl.id) + error.message, 'Warning');
+                        syn.$l.eventLog('$w.contentLoaded', 'elID: "{0}" syn-events 확인 필요: '.format(synControl.id) + error.message, 'Warning');
                     }
 
                     if (elEvents && $this.event) {
@@ -725,7 +725,7 @@
                             options = eval('(' + synOptions + ')');
                         }
                     } catch (error) {
-                        syn.$l.eventLog('$w.contentLoaded', 'elID: "{0}" syn-options 확인 필요'.format(synControl.id) + error.message, 'Warning');
+                         syn.$l.eventLog('$w.contentLoaded', 'elID: "{0}" syn-options 확인 필요: '.format(synControl.id) + error.message, 'Warning');
                     }
 
                     if (options && options.transactConfig && options.transactConfig.triggerEvent) {
@@ -947,7 +947,7 @@
                 }
                 element.focus();
             } catch (e) {
-                syn.$l.eventLog('$w.createSelection', `Error setting selection for element ${element.id}: ${e}`, 'Warning');
+                syn.$l.eventLog('$w.createSelection', `${element.id}의 선택 영역 설정 오류: ${e} `, 'Warning');
             }
         },
 
@@ -960,7 +960,7 @@
             xhr.open('GET', url, async);
 
             if (syn.$w.setServiceClientHeader && !this.setServiceClientHeader(xhr)) {
-                syn.$l.eventLog('$w.loadJson', `setServiceClientHeader failed for URL: ${url}`, 'Error');
+                syn.$l.eventLog('$w.loadJson', `URL ${url}에 대한 setServiceClientHeader 실패`, 'Error');
                 if (callback && isForceCallback) callback();
                 return;
             }
@@ -971,12 +971,12 @@
                         const responseData = JSON.parse(xhr.responseText);
                         if (success) success(setting, responseData);
                     } catch (e) {
-                        syn.$l.eventLog('$w.loadJson', `JSON parse error for URL: ${url}, status: ${xhr.status}, error: ${e}`, 'Error');
+                        syn.$l.eventLog('$w.loadJson', `URL: ${url}, 상태: ${xhr.status}, 오류: ${e}에 대한 JSON 파싱 오류`, 'Error');
                     } finally {
                         if (callback) callback();
                     }
                 } else {
-                    syn.$l.eventLog('$w.loadJson', `HTTP error for URL: ${url}, status: ${xhr.status}, responseText: ${xhr.responseText}`, 'Error');
+                    syn.$l.eventLog('$w.loadJson', `URL: ${url}, 상태: ${xhr.status}, 응답 텍스트: ${xhr.responseText} HTTP 오류`, 'Error');
                     if (callback && isForceCallback) callback();
                 }
             };
@@ -988,7 +988,7 @@
                     }
                 };
                 xhr.onerror = () => {
-                    syn.$l.eventLog('$w.loadJson', `Network error for URL: ${url}`, 'Error');
+                    syn.$l.eventLog('$w.loadJson', `URL ${url} 네트워크 오류`, 'Error');
                     if (callback && isForceCallback) callback();
                 };
                 xhr.send();
@@ -997,7 +997,7 @@
                     xhr.send();
                     handleResponse();
                 } catch (e) {
-                    syn.$l.eventLog('$w.loadJson', `Error during synchronous request for URL: ${url}, error: ${e}`, 'Error');
+                    syn.$l.eventLog('$w.loadJson', `URL: ${url}, 오류: ${e}에 대한 동기 요청 중 오류 발생`, 'Error');
                     if (callback && isForceCallback) callback();
                 }
             }
@@ -1010,7 +1010,7 @@
             try {
                 return JSON.parse(optionsAttr);
             } catch (e) {
-                syn.$l.eventLog('$w.getTriggerOptions', `Failed to parse triggerOptions for element ${element?.id}: ${e}`, 'Warning');
+                syn.$l.eventLog('$w.getTriggerOptions', `엘리먼트 ${element?.id}의 triggerOptions 파싱 실패: ${e} `, 'Warning');
                 return null;
             }
         },
@@ -1035,7 +1035,7 @@
                     if (triggerConfig.action?.startsWith('syn.uicontrols.$')) {
                         trigger = triggerConfig.action.split('.').slice(1).reduce((obj, prop) => obj?.[prop], syn);
                     } else if (triggerConfig.triggerID && triggerConfig.action && $this.event) {
-                        trigger = $this.event[`${triggerConfig.triggerID}_${triggerConfig.action}`];
+                        trigger = $this.event[`${triggerConfig.triggerID}_${triggerConfig.action} `];
                     } else if (triggerConfig.method) {
                         trigger = new Function(`return (${triggerConfig.method})`)();
                     }
@@ -1051,17 +1051,17 @@
                         else if (triggerConfig.method) {
                             triggerResult = trigger.apply($this, configParams.arguments);
                         } else {
-                            throw new Error("Trigger context mismatch or invalid configuration.");
+                            throw new Error("트리거 컨텍스트 불일치 또는 잘못된 설정입니다.");
                         }
 
                         if ($this.hook?.afterTrigger) {
                             $this.hook.afterTrigger(null, triggerConfig.action, { elID: triggerConfig.triggerID, result: triggerResult });
                         }
                     } else {
-                        throw new Error(`Trigger function not found or invalid for action: ${triggerConfig.action || triggerConfig.method}`);
+                        throw new Error(`액션: ${triggerConfig.action || triggerConfig.method}에 대한 트리거 함수를 찾을 수 없거나 유효하지 않습니다.`);
                     }
                 } catch (error) {
-                    const errorMessage = `Trigger execution failed: ${error.message}`;
+                    const errorMessage = `트리거 실행 실패: ${error.message} `;
                     syn.$l.eventLog('$w.triggerAction', errorMessage, 'Error');
                     if ($this.hook?.afterTrigger) {
                         $this.hook.afterTrigger(errorMessage, triggerConfig.action, null);
@@ -1069,7 +1069,7 @@
                 }
             } else {
                 if ($this.hook?.afterTrigger) {
-                    $this.hook.afterTrigger('hook.beforeTrigger returned false', triggerConfig.action, null);
+                    $this.hook.afterTrigger('hook.beforeTrigger가 false를 반환했습니다', triggerConfig.action, null);
                 }
             }
         },
@@ -1079,14 +1079,14 @@
             try {
                 return modulePath.split('.').reduce((obj, prop) => obj?.[prop], context);
             } catch (e) {
-                syn.$l.eventLog('$w.getControlModule', `Error accessing module path "${modulePath}": ${e}`, 'Warning');
+                syn.$l.eventLog('$w.getControlModule', `모듈 경로 "${modulePath}" 접근 오류: ${e} `, 'Warning');
                 return null;
             }
         },
 
         tryAddFunction(transactConfig) {
             if (!transactConfig || !$this?.config) {
-                syn.$l.eventLog('$w.tryAddFunction', `Invalid transactConfig or $this.config missing for functionID: ${transactConfig?.functionID}`, 'Warning');
+                syn.$l.eventLog('$w.tryAddFunction', `functionID: ${transactConfig?.functionID}에 대해 transactConfig가 유효하지 않거나 $this.config가 없습니다.`, 'Warning');
                 return;
             }
 
@@ -1125,7 +1125,7 @@
                     };
 
                     const processControlOptions = (controlConfig) => {
-                        const el = syn.$l.get(`${controlConfig.id}_hidden`) || syn.$l.get(controlConfig.id);
+                        const el = syn.$l.get(`${controlConfig.id} _hidden`) || syn.$l.get(controlConfig.id);
                         const optionsStr = el?.getAttribute('syn-options') || '{}';
                         try {
                             const synOptions = new Function(`return (${optionsStr})`)();
@@ -1136,7 +1136,7 @@
                                 };
                             }
                         } catch (e) {
-                            syn.$l.eventLog('$w.tryAddFunction.input', `Error parsing syn-options for ${controlConfig.id}: ${e}`, 'Warning');
+                            syn.$l.eventLog('$w.tryAddFunction.input', `${controlConfig.id}의 syn - options 파싱 오류: ${e} `, 'Warning');
                         }
                     };
 
@@ -1194,7 +1194,7 @@
                                 }
                             }
                             if (!storeProcessed) {
-                                syn.$l.eventLog('$w.tryAddFunction.input', `No list source found for dataFieldID "${input.dataFieldID}"`, 'Warning');
+                                syn.$l.eventLog('$w.tryAddFunction.input', `dataFieldID "${input.dataFieldID}"에 대한 목록(List) 소스를 찾을 수 없습니다.`, 'Warning');
                             }
                         }
                     }
@@ -1209,7 +1209,7 @@
                     };
 
                     const processControlOutput = (controlConfig) => {
-                        const el = syn.$l.get(`${controlConfig.id}_hidden`) || syn.$l.get(controlConfig.id);
+                        const el = syn.$l.get(`${controlConfig.id} _hidden`) || syn.$l.get(controlConfig.id);
                         const optionsStr = el?.getAttribute('syn-options') || '{}';
                         try {
                             const synOptions = new Function(`return (${optionsStr})`)();
@@ -1220,7 +1220,7 @@
                                 };
                             }
                         } catch (e) {
-                            syn.$l.eventLog('$w.tryAddFunction.output', `Error parsing syn-options for ${controlConfig.id}: ${e}`, 'Warning');
+                            syn.$l.eventLog('$w.tryAddFunction.output', `${controlConfig.id}의 syn - options 파싱 오류: ${e} `, 'Warning');
                         }
 
                         if (outputConfig.clear) {
@@ -1265,7 +1265,7 @@
                                 }
                             }
                             if (!storeProcessed) {
-                                syn.$l.eventLog('$w.tryAddFunction.output', `No form source found for dataFieldID "${output.dataFieldID}"`, 'Warning');
+                                syn.$l.eventLog('$w.tryAddFunction.output', `dataFieldID "${output.dataFieldID}"에 대한 폼(Form) 소스를 찾을 수 없습니다.`, 'Warning');
                             }
                         }
                     } else if (outputConfig.type === 'Grid') {
@@ -1284,7 +1284,7 @@
                                 }
                             }
                             if (!storeProcessed) {
-                                syn.$l.eventLog('$w.tryAddFunction.output', `No grid source found for dataFieldID "${output.dataFieldID}"`, 'Warning');
+                                syn.$l.eventLog('$w.tryAddFunction.output', `dataFieldID "${output.dataFieldID}"에 대한 그리드(Grid) 소스를 찾을 수 없습니다.`, 'Warning');
                             }
                         }
                     }
@@ -1293,7 +1293,7 @@
 
                 transactions.push(transactionObject);
             } catch (error) {
-                syn.$l.eventLog('$w.tryAddFunction', `Error processing function ${transactConfig.functionID}: ${error}`, 'Error');
+                syn.$l.eventLog('$w.tryAddFunction', `함수 ${transactConfig.functionID} 처리 중 오류 발생: ${error} `, 'Error');
             }
         },
 
@@ -1303,7 +1303,7 @@
                 const functionID = transactConfigInput;
                 transactConfig = $this?.transaction?.[functionID];
                 if (!transactConfig) {
-                    syn.$l.eventLog('$w.transactionAction', `Transaction config not found for functionID "${functionID}"`, 'Warning');
+                    syn.$l.eventLog('$w.transactionAction', `functionID "${functionID}"에 대한 거래 설정을 찾을 수 없습니다.`, 'Warning');
                     return;
                 }
 
@@ -1311,7 +1311,7 @@
             }
 
             if (!transactConfig || !$this?.config) {
-                syn.$l.eventLog('$w.transactionAction', 'Invalid transaction config or $this context missing.', 'Warning');
+                syn.$l.eventLog('$w.transactionAction', '거래 설정이 유효하지 않거나 $this 컨텍스트가 없습니다.', 'Warning');
                 return;
             }
 
@@ -1340,7 +1340,7 @@
                         let error = null;
                         if (result?.errorText?.length > 0) {
                             error = result.errorText[0];
-                            syn.$l.eventLog('$w.transactionAction.callback', `Transaction error: ${error}`, 'Error');
+                            syn.$l.eventLog('$w.transactionAction.callback', `거래 오류: ${error} `, 'Error');
                             return;
                         }
 
@@ -1349,7 +1349,7 @@
                             try {
                                 callbackResult = transactConfig.callback(error, result, additionalData, correlationID);
                             } catch (e) {
-                                syn.$l.eventLog('$w.transactionAction.callbackExec', `Error executing callback: ${e}`, 'Error');
+                                syn.$l.eventLog('$w.transactionAction.callbackExec', `콜백 실행 오류: ${e} `, 'Error');
                             }
                         } else if (Array.isArray(transactConfig.callback) && transactConfig.callback.length === 2) {
                             setTimeout(() => {
@@ -1363,7 +1363,7 @@
                             }
                         } else if (callbackResult === false) {
                             if ($this.hook?.afterTransaction) {
-                                $this.hook.afterTransaction('callbackResult returned false', transactConfig.functionID, null, null, correlationID);
+                                $this.hook.afterTransaction('callbackResult가 false를 반환했습니다', transactConfig.functionID, null, null, correlationID);
                             }
                         }
                     }, mergedOptions);
@@ -1371,18 +1371,18 @@
                 } else {
                     if (syn.$w.closeProgressMessage) syn.$w.closeProgressMessage();
                     if ($this.hook?.afterTransaction) {
-                        $this.hook.afterTransaction('beforeTransaction returned false', transactConfig.functionID, null, null);
+                        $this.hook.afterTransaction('beforeTransaction이 false를 반환했습니다', transactConfig.functionID, null, null);
                     }
                 }
             } catch (error) {
-                syn.$l.eventLog('$w.transactionAction', `Error executing transaction action: ${error}`, 'Error');
+                syn.$l.eventLog('$w.transactionAction', `거래 액션 실행 중 오류 발생: ${error} `, 'Error');
                 if (syn.$w.closeProgressMessage) syn.$w.closeProgressMessage();
             }
         },
 
         transactionDirect(directObject, callback, options) {
             if (!directObject) {
-                syn.$l.eventLog('$w.transactionDirect', 'directObject parameter is required.', 'Error');
+                syn.$l.eventLog('$w.transactionDirect', 'directObject 파라미터가 필요합니다.', 'Error');
                 return;
             }
 
@@ -1424,7 +1424,7 @@
                     try {
                         callback(responseData, additionalData);
                     } catch (e) {
-                        syn.$l.eventLog('$w.transactionDirect.callback', `Error in callback: ${e}`, 'Error');
+                        syn.$l.eventLog('$w.transactionDirect.callback', `콜백 오류: ${e} `, 'Error');
                     }
                 }
             });
@@ -1450,13 +1450,13 @@
                 if (syn.$w.progressMessage) syn.$w.progressMessage(mergedOptions.message);
 
                 if (!$this?.config?.transactions) {
-                    throw new Error('Transaction configuration ($this.config.transactions) is missing.');
+                    throw new Error('거래 설정($this.config.transactions)이 없습니다.');
                 }
 
                 const transactions = $this.config.transactions.filter(item => item.functionID === functionID);
 
                 if (transactions.length !== 1) {
-                    throw new Error(`Transaction definition for functionID "${functionID}" not found or is duplicated.`);
+                    throw new Error(`functionID "${functionID}"에 대한 거래 정의를 찾을 수 없거나 중복됩니다.`);
                 }
 
                 const transaction = transactions[0];
@@ -1508,17 +1508,17 @@
                             } else {
                                 Object.entries(inputMapping.items).forEach(([itemDataField, meta]) => {
                                     const controlInfo = formControls.find(c => c.field === itemDataField && c.formDataFieldID === dataFieldID);
-                                    const el = controlInfo ? (syn.$l.get(`${controlInfo.id}_hidden`) || syn.$l.get(controlInfo.id)) : null;
+                                    const el = controlInfo ? (syn.$l.get(`${controlInfo.id} _hidden`) || syn.$l.get(controlInfo.id)) : null;
                                     const synOptionsStr = el?.getAttribute('syn-options') || '{}';
                                     try {
                                         const synOptions = new Function(`return (${synOptionsStr})`)();
                                         if (!validateControl(controlInfo, synOptions, 'Row')) {
-                                            throw new Error(`Validation failed for control: ${controlInfo?.id}`);
+                                            throw new Error(`컨트롤 유효성 검사 실패: ${controlInfo?.id} `);
                                         }
                                         const controlValue = getControlValue(controlInfo, meta);
                                         rowData.push({ prop: meta.fieldID, val: controlValue });
                                     } catch (e) {
-                                        throw new Error(`Error processing row control ${itemDataField}: ${e.message}`);
+                                        throw new Error(`행(Row) 컨트롤 ${itemDataField} 처리 오류: ${e.message} `);
                                     }
                                 });
                                 inputObjects = rowData;
@@ -1534,10 +1534,10 @@
                                     });
                                     inputObjects = rowData;
                                 } else {
-                                    syn.$l.eventLog('$w.transaction', `No Row source found for dataFieldID "${dataFieldID}"`, 'Warning');
+                                    syn.$l.eventLog('$w.transaction', `dataFieldID "${dataFieldID}"에 대한 행(Row) 소스를 찾을 수 없습니다.`, 'Warning');
                                 }
                             } else {
-                                syn.$l.eventLog('$w.transaction', `No Row source found for dataFieldID "${dataFieldID}"`, 'Warning');
+                                syn.$l.eventLog('$w.transaction', `dataFieldID "${dataFieldID}"에 대한 행(Row) 소스를 찾을 수 없습니다.`, 'Warning');
                             }
                         }
                         transactionObject.inputs.push(inputObjects);
@@ -1549,21 +1549,21 @@
 
                         if (listControl) {
                             const controlModule = syn.$w.getControlModule(listControl.module);
-                            const el = syn.$l.get(`${listControl.id}_hidden`) || syn.$l.get(listControl.id);
+                            const el = syn.$l.get(`${listControl.id} _hidden`) || syn.$l.get(listControl.id);
                             const synOptionsStr = el?.getAttribute('syn-options') || '{}';
                             try {
                                 const synOptions = new Function(`return (${synOptionsStr})`)();
                                 (synOptions?.columns || []).forEach(column => {
                                     column.controlText = synOptions.controlText || '';
                                     if (!validateControl(listControl, column, 'List')) {
-                                        throw new Error(`Validation failed for list control column: ${column.data}`);
+                                        throw new Error(`목록(List) 컨트롤 컬럼 유효성 검사 실패: ${column.data} `);
                                     }
                                 });
 
                                 listData = controlModule?.getValue?.(listControl.id.replace('_hidden', ''), 'List', inputMapping.items) ?? [];
 
                             } catch (e) {
-                                throw new Error(`Error processing list control ${dataFieldID}: ${e.message}`);
+                                throw new Error(`목록(List) 컨트롤 ${dataFieldID} 처리 오류: ${e.message} `);
                             }
                         } else {
                             if (syn.uicontrols?.$data?.storeList) {
@@ -1577,10 +1577,10 @@
                                         }))
                                     );
                                 } else {
-                                    syn.$l.eventLog('$w.transaction', `No List source found for dataFieldID "${dataFieldID}"`, 'Warning');
+                                    syn.$l.eventLog('$w.transaction', `dataFieldID "${dataFieldID}"에 대한 목록(List) 소스를 찾을 수 없습니다.`, 'Warning');
                                 }
                             } else {
-                                syn.$l.eventLog('$w.transaction', `No List source found for dataFieldID "${dataFieldID}"`, 'Warning');
+                                syn.$l.eventLog('$w.transaction', `dataFieldID "${dataFieldID}"에 대한 목록(List) 소스를 찾을 수 없습니다.`, 'Warning');
                             }
                         }
                         transactionObject.inputs.push(...listData);
@@ -1654,8 +1654,8 @@
                                     if (count > 0) {
                                         if (!mapOutputData('Form', outputMapping.dataFieldID, outputData)) {
                                             if (!mapOutputToStore('Form', outputMapping.dataFieldID, outputData)) {
-                                                result.errorText.push(`"${outputMapping.dataFieldID}" Form Output Mapping target not found.`);
-                                                syn.$l.eventLog('$w.transaction', `"${outputMapping.dataFieldID}" Form Output Mapping target not found.`, 'Error');
+                                                result.errorText.push(`"${outputMapping.dataFieldID}" 폼(Form) 출력 매핑 대상을 찾을 수 없습니다.`);
+                                                syn.$l.eventLog('$w.transaction', `"${outputMapping.dataFieldID}" 폼(Form) 출력 매핑 대상을 찾을 수 없습니다.`, 'Error');
                                             }
                                         }
                                     }
@@ -1665,23 +1665,23 @@
                                     if (count > 0) {
                                         if (!mapOutputData(outputMapping.responseType, outputMapping.dataFieldID, outputData)) {
                                             if (!mapOutputToStore(outputMapping.responseType, outputMapping.dataFieldID, outputData)) { // Try store mapping
-                                                const targetDesc = outputMapping.responseType === 'Grid' ? 'Grid' : 'Chart';
-                                                result.errorText.push(`"${outputMapping.dataFieldID}" ${targetDesc} Output Mapping target not found.`);
-                                                syn.$l.eventLog('$w.transaction', `"${outputMapping.dataFieldID}" ${targetDesc} Output Mapping target not found.`, 'Error');
+                                                const targetDesc = outputMapping.responseType === 'Grid' ? '그리드(Grid)' : '차트(Chart)';
+                                                result.errorText.push(`"${outputMapping.dataFieldID}" ${targetDesc} 출력 매핑 대상을 찾을 수 없습니다.`);
+                                                syn.$l.eventLog('$w.transaction', `"${outputMapping.dataFieldID}" ${targetDesc} 출력 매핑 대상을 찾을 수 없습니다.`, 'Error');
                                             }
                                         }
                                     }
                                 }
                             });
                         } else {
-                            throw new Error(`Mismatch between output definitions (${transaction.outputs.length}) and response data (${responseData?.length ?? 0}).`);
+                            throw new Error(`출력 정의(${transaction.outputs.length})와 응답 데이터(${responseData?.length ?? 0}) 수가 일치하지 않습니다.`);
                         }
 
                         if (callback) callback(result, additionalData, correlationID);
 
                     } catch (mappingError) {
-                        result.errorText.push(`Output mapping error: ${mappingError.message}`);
-                        syn.$l.eventLog('$w.transaction.outputMap', `Output mapping error: ${mappingError}`, 'Error');
+                        result.errorText.push(`출력 매핑 오류: ${mappingError.message} `);
+                        syn.$l.eventLog('$w.transaction.outputMap', `출력 매핑 오류: ${mappingError} `, 'Error');
                         if (callback) callback(result, additionalData, correlationID);
                     } finally {
                         if (syn.$w.domainTransactionLoaderEnd) syn.$w.domainTransactionLoaderEnd();
@@ -1689,7 +1689,7 @@
                 });
 
             } catch (error) {
-                errorText = `Transaction setup error: ${error.message}`;
+                errorText = `거래 설정 오류: ${error.message} `;
                 result.errorText.push(errorText);
                 syn.$l.eventLog('$w.transaction', errorText, 'Error');
                 if (callback) callback(result, null, null);
@@ -1703,7 +1703,7 @@
             if (typeof transactConfigInput === 'string') {
                 transactConfig = $this?.transaction?.[transactConfigInput];
                 if (!transactConfig) {
-                    syn.$l.eventLog('$w.transactionAction', `Transaction config not found for functionID "${transactConfigInput}"`, 'Warning');
+                    syn.$l.eventLog('$w.getterValue', `functionID "${transactConfigInput}"에 대한 거래 설정을 찾을 수 없습니다.`, 'Warning');
                     return;
                 }
             }
@@ -1712,12 +1712,12 @@
                 syn.$w.tryAddFunction(transactConfig);
 
                 if (!$this?.config?.transactions) {
-                    throw new Error('Transaction configuration ($this.config.transactions) is missing.');
+                    throw new Error('거래 설정($this.config.transactions)이 없습니다.');
                 }
 
                 const transactions = $this.config.transactions.filter(item => item.functionID === transactConfig.functionID);
                 if (transactions.length !== 1) {
-                    throw new Error(`Transaction definition for functionID "${transactConfig.functionID}" not found or is duplicated.`);
+                    throw new Error(`functionID "${transactConfig.functionID}"에 대한 거래 정의를 찾을 수 없거나 중복됩니다.`);
                 }
                 const transaction = transactions[0];
                 const synControls = $this.context?.synControls ?? [];
@@ -1760,10 +1760,10 @@
                                     rowData[meta.fieldID] = storeData?.[itemDataField] ?? (meta.dataType?.includes('num') ? 0 : '');
                                 });
                             } else {
-                                syn.$l.eventLog('$w.getterValue', `No Row source found for dataFieldID "${dataFieldID}"`, 'Warning');
+                                syn.$l.eventLog('$w.getterValue', `dataFieldID "${dataFieldID}"에 대한 행(Row) 소스를 찾을 수 없습니다.`, 'Warning');
                             }
                         } else {
-                            syn.$l.eventLog('$w.getterValue', `No Row source found for dataFieldID "${dataFieldID}"`, 'Warning');
+                            syn.$l.eventLog('$w.getterValue', `dataFieldID "${dataFieldID}"에 대한 행(Row) 소스를 찾을 수 없습니다.`, 'Warning');
                         }
                         result.inputs.push(rowData);
 
@@ -1791,18 +1791,18 @@
                                     }, {})
                                 );
                             } else {
-                                syn.$l.eventLog('$w.getterValue', `No List source found for dataFieldID "${dataFieldID}"`, 'Warning');
+                                syn.$l.eventLog('$w.getterValue', `dataFieldID "${dataFieldID}"에 대한 목록(List) 소스를 찾을 수 없습니다.`, 'Warning');
                             }
                         } else {
-                            syn.$l.eventLog('$w.getterValue', `No List source found for dataFieldID "${dataFieldID}"`, 'Warning');
+                            syn.$l.eventLog('$w.getterValue', `dataFieldID "${dataFieldID}"에 대한 목록(List) 소스를 찾을 수 없습니다.`, 'Warning');
                         }
                         result.inputs.push(...listData);
                     }
                 });
 
             } catch (error) {
-                result.errors.push(`Getter error: ${error.message}`);
-                syn.$l.eventLog('$w.getterValue', `Getter error: ${error}`, 'Error');
+                result.errors.push(`Getter 오류: ${error.message} `);
+                syn.$l.eventLog('$w.getterValue', `Getter 오류: ${error} `, 'Error');
             }
             return result;
         },
@@ -1813,7 +1813,7 @@
             if (typeof transactConfigInput === 'string') {
                 transactConfig = $this?.transaction?.[transactConfigInput];
                 if (!transactConfig) {
-                    syn.$l.eventLog('$w.transactionAction', `Transaction config not found for functionID "${transactConfigInput}"`, 'Warning');
+                    syn.$l.eventLog('$w.setterValue', `functionID "${transactConfigInput}"에 대한 거래 설정을 찾을 수 없습니다.`, 'Warning');
                     return;
                 }
             }
@@ -1822,17 +1822,17 @@
                 syn.$w.tryAddFunction(transactConfig);
 
                 if (!$this?.config?.transactions) {
-                    throw new Error('Transaction configuration ($this.config.transactions) is missing.');
+                    throw new Error('거래 설정($this.config.transactions)이 없습니다.');
                 }
                 const transactions = $this.config.transactions.filter(item => item.functionID === transactConfig.functionID);
                 if (transactions.length !== 1) {
-                    throw new Error(`Transaction definition for functionID "${transactConfig.functionID}" not found or is duplicated.`);
+                    throw new Error(`functionID "${transactConfig.functionID}"에 대한 거래 정의를 찾을 수 없거나 중복됩니다.`);
                 }
                 const transaction = transactions[0];
                 const synControls = $this.context?.synControls ?? [];
 
                 if (responseData?.length !== transaction.outputs.length) {
-                    throw new Error(`Mismatch between output definitions (${transaction.outputs.length}) and response data (${responseData?.length ?? 0}).`);
+                    throw new Error(`출력 정의(${transaction.outputs.length})와 응답 데이터(${responseData?.length ?? 0}) 수가 일치하지 않습니다.`);
                 }
 
                 transaction.outputs.forEach((outputMapping, outputIndex) => {
@@ -1889,8 +1889,8 @@
                         if (count > 0) {
                             if (!mapOutputData('Form', outputMapping.dataFieldID, outputData)) {
                                 if (!mapOutputToStore('Form', outputMapping.dataFieldID, outputData)) {
-                                    result.errors.push(`"${outputMapping.dataFieldID}" Form Output Mapping target not found.`);
-                                    syn.$l.eventLog('$w.setterValue', `"${outputMapping.dataFieldID}" Form Output Mapping target not found.`, 'Error');
+                                    result.errors.push(`"${outputMapping.dataFieldID}" 폼(Form) 출력 매핑 대상을 찾을 수 없습니다.`);
+                                    syn.$l.eventLog('$w.setterValue', `"${outputMapping.dataFieldID}" 폼(Form) 출력 매핑 대상을 찾을 수 없습니다.`, 'Error');
                                 }
                             }
                         }
@@ -1900,9 +1900,9 @@
                         if (count > 0) {
                             if (!mapOutputData(outputMapping.responseType, outputMapping.dataFieldID, outputData)) {
                                 if (!mapOutputToStore(outputMapping.responseType, outputMapping.dataFieldID, outputData)) {
-                                    const targetDesc = outputMapping.responseType === 'Grid' ? 'Grid' : 'Chart';
-                                    result.errors.push(`"${outputMapping.dataFieldID}" ${targetDesc} Output Mapping target not found.`);
-                                    syn.$l.eventLog('$w.setterValue', `"${outputMapping.dataFieldID}" ${targetDesc} Output Mapping target not found.`, 'Error');
+                                    const targetDesc = outputMapping.responseType === 'Grid' ? '그리드(Grid)' : '차트(Chart)';
+                                    result.errors.push(`"${outputMapping.dataFieldID}" ${targetDesc} 출력 매핑 대상을 찾을 수 없습니다.`);
+                                    syn.$l.eventLog('$w.setterValue', `"${outputMapping.dataFieldID}" ${targetDesc} 출력 매핑 대상을 찾을 수 없습니다.`, 'Error');
                                 }
                             }
                         }
@@ -1910,8 +1910,8 @@
                 });
 
             } catch (error) {
-                result.errors.push(`Setter error: ${error.message}`);
-                syn.$l.eventLog('$w.setterValue', `Setter error: ${error}`, 'Error');
+                result.errors.push(`Setter 오류: ${error.message} `);
+                syn.$l.eventLog('$w.setterValue', `Setter 오류: ${error} `, 'Error');
             }
             return result;
         },
@@ -1955,7 +1955,7 @@
             try {
                 link.click();
             } catch (e) {
-                syn.$l.eventLog('$w.fileDownload', `Error triggering download for ${url}: ${e}`, 'Error');
+                syn.$l.eventLog('$w.fileDownload', `${url} 다운로드 실행 오류: ${e} `, 'Error');
             } finally {
                 setTimeout(() => doc.body.removeChild(link), 100);
             }
@@ -1967,7 +1967,7 @@
             } else if (typeof Promise !== 'undefined') {
                 return new Promise(resolve => setTimeout(resolve, ms));
             } else {
-                syn.$l.eventLog('$w.sleep', 'Callback or Promise support required.', 'Debug');
+                syn.$l.eventLog('$w.sleep', '콜백 또는 Promise 지원이 필요합니다.', 'Debug');
                 const start = Date.now();
                 while (Date.now() < start + ms) { }
                 return undefined;
@@ -2009,14 +2009,14 @@
 
         xmlParser(xmlString) {
             if (typeof DOMParser === 'undefined') {
-                syn.$l.eventLog('$w.xmlParser', 'DOMParser not supported in this environment.', 'Error');
+                syn.$l.eventLog('$w.xmlParser', '이 환경에서는 DOMParser가 지원되지 않습니다.', 'Error');
                 return null;
             }
             try {
                 const parser = new DOMParser();
                 return parser.parseFromString(xmlString, 'text/xml');
             } catch (e) {
-                syn.$l.eventLog('$w.xmlParser', `Error parsing XML: ${e}`, 'Error');
+                syn.$l.eventLog('$w.xmlParser', `XML 파싱 오류: ${e} `, 'Error');
                 return null;
             }
         },
@@ -2119,7 +2119,6 @@
                                 clearTimeout(requestTimeoutID);
                             }
                         }
-
                         var result = { error: '요청 정보 확인 필요' };
                         if (response.ok == true) {
                             var contentType = response.headers.get('Content-Type') || '';
@@ -2135,8 +2134,8 @@
                             return Promise.resolve(result);
                         }
                         else {
-                            result = { error: `status: ${response.status}, text: ${await response.text()}` }
-                            syn.$l.eventLog('$w.apiHttp', `${result.error}`, 'Error');
+                            result = { error: `상태: ${response.status}, 텍스트: ${await response.text()} ` }
+                            syn.$l.eventLog('$w.apiHttp', `API HTTP 오류: ${result.error} `, 'Error');
                         }
 
                         return Promise.resolve(result);
@@ -2290,7 +2289,7 @@
                             }
 
                             if (decodeError) {
-                                syn.$l.eventLog('$w.fetchScript', `${decodeError}, <script src="${moduleUrl}.js"></script> 문법 확인 필요`, 'Error');
+                                syn.$l.eventLog('$w.fetchScript', `${decodeError} 오류, <script src="${moduleUrl}.js"></script> 문법 확인이 필요합니다`, 'Error');
                             }
                             else {
                                 moduleScript = decodeScript;
@@ -2335,9 +2334,9 @@
                     result = module;
                 }
                 catch (error) {
-                    syn.$l.eventLog('$w.fetchScript', error, 'Warning');
+                    syn.$l.eventLog('$w.fetchScript', `스크립트 로드 오류: ${error} `, 'Warning');
                     if (moduleScript) {
-                        syn.$l.eventLog('$w.fetchScript', '<script src="{0}.js"></script> 문법 확인 필요'.format(moduleUrl), 'Error');
+                        syn.$l.eventLog('$w.fetchScript', '<script src="{0}.js"></script> 문법 확인이 필요합니다'.format(moduleUrl), 'Error');
                     }
                 }
             }
@@ -2356,19 +2355,19 @@
                 referrerPolicy: 'no-referrer-when-downgrade'
             };
             const fetchOptions = syn.$w.getFetchClientOptions ? syn.$w.getFetchClientOptions(defaultOptions) : defaultOptions;
-            const cacheBust = (syn.Config?.IsClientCaching === false) ? `${url.includes('?') ? '&' : '?'}tick=${Date.now()}` : '';
+            const cacheBust = (syn.Config?.IsClientCaching === false) ? `${url.includes('?') ? '&' : '?'} tick = ${Date.now()} ` : '';
             const finalUrl = url + cacheBust;
 
             try {
                 const response = await fetch(finalUrl, fetchOptions);
                 if (!response.ok) {
-                    const errorText = await response.text().catch(() => `HTTP ${response.status} ${response.statusText}`);
-                    syn.$l.eventLog('$w.fetchText', `Fetch failed for ${finalUrl}: status ${response.status}, text: ${errorText}`, 'Warning');
+                    const errorText = await response.text().catch(() => `HTTP ${response.status} ${response.statusText} `);
+                    syn.$l.eventLog('$w.fetchText', `${finalUrl} Fetch 실패: 상태 ${response.status}, 텍스트: ${errorText} `, 'Warning');
                     return null;
                 }
                 return await response.text();
             } catch (error) {
-                syn.$l.eventLog('$w.fetchText', `Fetch error for ${finalUrl}: ${error}`, 'Error');
+                syn.$l.eventLog('$w.fetchText', `${finalUrl} Fetch 오류: ${error} `, 'Error');
                 throw error;
             }
         },
@@ -2384,28 +2383,28 @@
                 referrerPolicy: 'no-referrer-when-downgrade'
             };
             const fetchOptions = syn.$w.getFetchClientOptions ? syn.$w.getFetchClientOptions(defaultOptions) : defaultOptions;
-            const cacheBust = (syn.Config?.IsClientCaching === false) ? `${url.includes('?') ? '&' : '?'}tick=${Date.now()}` : '';
+            const cacheBust = (syn.Config?.IsClientCaching === false) ? `${url.includes('?') ? '&' : '?'} tick = ${Date.now()} ` : '';
             const finalUrl = url + cacheBust;
 
             try {
                 const response = await fetch(finalUrl, fetchOptions);
                 if (!response.ok) {
-                    const errorText = await response.text().catch(() => `HTTP ${response.status} ${response.statusText}`);
-                    syn.$l.eventLog('$w.fetchJson', `Fetch failed for ${finalUrl}: status ${response.status}, text: ${errorText}`, 'Warning');
+                    const errorText = await response.text().catch(() => `HTTP ${response.status} ${response.statusText} `);
+                    syn.$l.eventLog('$w.fetchJson', `${finalUrl} Fetch 실패: 상태 ${response.status}, 텍스트: ${errorText} `, 'Warning');
                     return null;
                 }
 
                 const contentType = response.headers.get('Content-Type') || '';
                 if (!contentType.includes('application/json')) {
-                    syn.$l.eventLog('$w.fetchJson', `Expected JSON but received Content-Type: ${contentType} for ${finalUrl}`, 'Warning');
+                    syn.$l.eventLog('$w.fetchJson', `${finalUrl}에서 JSON을 예상했지만 Content - Type: ${contentType}을 받았습니다.`, 'Warning');
                 }
 
                 return await response.json();
             } catch (error) {
                 if (error instanceof SyntaxError) {
-                    syn.$l.eventLog('$w.fetchJson', `JSON parse error for ${finalUrl}: ${error}`, 'Error');
+                    syn.$l.eventLog('$w.fetchJson', `${finalUrl} JSON 파싱 오류: ${error} `, 'Error');
                 } else {
-                    syn.$l.eventLog('$w.fetchJson', `Fetch error for ${finalUrl}: ${error}`, 'Error');
+                    syn.$l.eventLog('$w.fetchJson', `${finalUrl} Fetch 오류: ${error} `, 'Error');
                 }
                 return null;
             }
@@ -2443,7 +2442,6 @@
                 if (globalRoot.devicePlatform === 'browser') {
                     alert('서비스 호출에 필요한 거래 정보가 구성되지 않았습니다');
                 }
-
                 syn.$l.eventLog('$w.executeTransaction', '서비스 호출에 필요한 거래 정보 확인 필요', 'Error');
                 return;
             }
@@ -2470,7 +2468,7 @@
                         syn.$w.setStorage('apiServices', apiServices, false);
                     }
                     else {
-                        syn.$l.eventLog('$w.executeTransaction', '서비스 호출에 필요한 DomainAPIServer 정보가 구성되지 확인 필요', 'Error');
+                        syn.$l.eventLog('$w.executeTransaction', '서비스 호출에 필요한 DomainAPIServer 정보 확인 필요', 'Error');
                     }
                 }
                 else {
@@ -2484,7 +2482,7 @@
                         syn.$w.setStorage('apiServices', apiServices, false);
                     }
                     else {
-                        syn.$l.eventLog('$w.executeTransaction', '서비스 호출에 필요한 DomainAPIServer 정보가 구성되지 확인 필요', 'Error');
+                        syn.$l.eventLog('$w.executeTransaction', '서비스 호출에 필요한 DomainAPIServer 정보 확인 필요', 'Error');
                     }
                 }
             }
@@ -2507,7 +2505,7 @@
                         syn.$w.setStorage('apiServices', apiServices, false);
                     }
                     else {
-                        syn.$l.eventLog('$w.executeTransaction', '서비스 호출에 필요한 DomainAPIServer 정보가 구성되지 확인 필요', 'Error');
+                        syn.$l.eventLog('$w.executeTransaction', '서비스 호출에 필요한 DomainAPIServer 정보 확인 필요', 'Error');
                     }
                 }
                 else {
@@ -2521,7 +2519,7 @@
                         syn.$w.setStorage('apiServices', apiServices, false);
                     }
                     else {
-                        syn.$l.eventLog('$w.executeTransaction', '서비스 호출에 필요한 DomainAPIServer 정보가 구성되지 확인 필요', 'Error');
+                        syn.$l.eventLog('$w.executeTransaction', '서비스 호출에 필요한 DomainAPIServer 정보 확인 필요', 'Error');
                     }
                 }
             }
@@ -2573,7 +2571,7 @@
                 var tokenID = (syn.$w.User && syn.$w.User.TokenID ? syn.$w.User.TokenID : syn.$l.random(6)).padStart(6, '0').substring(0, 6);
                 var requestTime = $date.toString(new Date(), 's').substring(0, 6);
                 // -- 36바이트 = 설치구분 1자리(L: Local, C: Cloud, O: Onpremise) + 환경 ID 1자리 + 애플리케이션 ID 8자리 + 프로젝트 ID 3자리 + 거래 ID 6자리 + 기능 ID 4자리 + 시스템 구분 1자리 (W: WEB, P: Program, S: SVR, E: EXT) + ClientTokenID 6자리 + Timestamp (HHmmss) 6자리
-                var requestID = `${installType}${environment}${programID}${businessID}${transactionID}${functionID}${machineTypeID}${tokenID}${requestTime}`.toUpperCase();
+                var requestID = `${installType}${environment}${programID}${businessID}${transactionID}${functionID}${machineTypeID}${tokenID}${requestTime} `.toUpperCase();
                 var globalID = '';
 
                 if ($string.isNullOrEmpty(syn.Config.FindGlobalIDServer) == false) {
@@ -2817,10 +2815,10 @@
                         if (xhr.readyState === 4) {
                             if (xhr.status !== 200) {
                                 if (xhr.status == 0) {
-                                    syn.$l.eventLog('$w.executeTransaction', 'X-Requested transfort error', 'Fatal');
+                                    syn.$l.eventLog('$w.executeTransaction', 'X-Requested 전송 오류', 'Fatal');
                                 }
                                 else {
-                                    syn.$l.eventLog('$w.executeTransaction', 'response status - {0}'.format(xhr.statusText) + xhr.responseText, 'Error');
+                                    syn.$l.eventLog('$w.executeTransaction', '응답 상태 - {0}: '.format(xhr.statusText) + xhr.responseText, 'Error');
                                 }
 
                                 if (syn.$w.domainTransactionLoaderEnd) {
@@ -2948,7 +2946,7 @@
                                             try {
                                                 callback(jsonResult, addtionalData, transactionResponse.correlationID);
                                             } catch (error) {
-                                                syn.$l.eventLog('$w.executeTransaction callback', error, 'Error');
+                                                syn.$l.eventLog('$w.executeTransaction callback', `executeTransaction 콜백 오류: ${error} `, 'Error');
                                             }
                                         }
                                     }
@@ -2958,8 +2956,7 @@
                                         if (syn.$w.serviceClientException) {
                                             syn.$w.serviceClientException('요청오류', errorMessage, errorText);
                                         }
-
-                                        syn.$l.eventLog('$w.executeTransaction', errorText, 'Warning');
+                                        syn.$l.eventLog('$w.executeTransaction', `거래 실행 오류: ${errorText} `, 'Warning');
 
                                         if (globalRoot.devicePlatform === 'browser') {
                                             if ($this && $this.hook && $this.hook.frameEvent) {
@@ -2974,9 +2971,9 @@
                                         else {
                                             if (callback) {
                                                 try {
-                                                    callback([], null), transactionResponse.correlationID;
+                                                    callback([], null, transactionResponse.correlationID); // Pass correlationID even on error
                                                 } catch (error) {
-                                                    syn.$l.eventLog('$w.executeTransaction callback', error, 'Error');
+                                                    syn.$l.eventLog('$w.executeTransaction callback', `executeTransaction 콜백 오류: ${error} `, 'Error');
                                                 }
                                             }
                                         }
@@ -3002,14 +2999,14 @@
                                                     }
                                                 }
                                             } catch (error) {
-                                                syn.$l.eventLog('$w.executeTransaction', error, 'Error');
+                                                syn.$l.eventLog('$w.executeTransaction', `executeTransaction 오류: ${error} `, 'Error');
                                             }
                                         }
 
                                         try {
                                             callback(transactionResponse, null, transactionResponse.correlationID);
                                         } catch (error) {
-                                            syn.$l.eventLog('$w.executeTransaction callback', error, 'Error');
+                                            syn.$l.eventLog('$w.executeTransaction callback', `executeTransaction 콜백 오류: ${error} `, 'Error');
                                         }
                                     }
                                 }
@@ -3019,8 +3016,7 @@
                                 if (syn.$w.serviceClientException) {
                                     syn.$w.serviceClientException('요청오류', errorMessage, error.stack);
                                 }
-
-                                syn.$l.eventLog('$w.executeTransaction', error, 'Error');
+                                syn.$l.eventLog('$w.executeTransaction', `executeTransaction 오류: ${error} `, 'Error');
 
                                 if (globalRoot.devicePlatform === 'browser') {
                                     if ($this && $this.hook && $this.hook.frameEvent) {
@@ -3037,7 +3033,7 @@
                                         try {
                                             callback([], null);
                                         } catch (error) {
-                                            syn.$l.eventLog('$w.executeTransaction callback', error, 'Error');
+                                            syn.$l.eventLog('$w.executeTransaction callback', `executeTransaction 콜백 오류: ${error} `, 'Error');
                                         }
                                     }
                                 }
@@ -3048,8 +3044,7 @@
                             }
                         }
                     }
-
-                    syn.$l.eventLog('$w.executeTransaction', transactionRequest.transaction.globalID, 'Verbose');
+                    syn.$l.eventLog('$w.executeTransaction', `거래 GlobalID: ${transactionRequest.transaction.globalID} `, 'Verbose');
 
                     xhr.setRequestHeader('X-Requested-With', 'HandStack ServiceClient');
                     xhr.setRequestHeader('Content-Type', 'application/json');
@@ -3059,7 +3054,6 @@
             }
         },
 
-        // syn.$w.pseudoStyle('styGrid1', '.handsontable tbody tr td:nth-of-type(3)', `color: red;text-decoration: underline;font-weight: 600;cursor: pointer;`)
         pseudoStyle(elID, selector, cssText) {
             var head = document.head || (document.getElementsByTagName('head').length == 0 ? null : document.getElementsByTagName('head')[0]);
             if (head) {
@@ -3073,7 +3067,6 @@
             }
         },
 
-        // syn.$w.pseudoStyles('styGrid1', [{selector: '.handsontable tbody tr td:nth-of-type(3)', cssText: `color: red;text-decoration: underline;font-weight: 600;cursor: pointer;`}])
         pseudoStyles(elID, styles) {
             var head = document.head || (document.getElementsByTagName('head').length == 0 ? null : document.getElementsByTagName('head')[0]);
             if (head && $object.isArray(styles) == true && styles.length > 0) {
@@ -3118,7 +3111,7 @@
                 process.env.SYN_LocalStoragePath = syn.Config.LocalStoragePath || path.join(process.cwd(), '..', 'cache', 'function');
             }
             else {
-                console.error('Node.js 환경설정 파일이 존재하지 않습니다. 파일경로: {0}'.format(filePath));
+                console.error('Node.js 환경설정 파일이 존재하지 않습니다. 파일 경로: {0}'.format(filePath));
             }
         }
 
