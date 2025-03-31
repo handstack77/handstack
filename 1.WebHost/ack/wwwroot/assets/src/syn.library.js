@@ -94,45 +94,40 @@
                 return context.crypto.randomUUID();
             }
 
-            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-                const r = Math.random() * 16 | 0;
-                const v = c === 'x' ? r : (r & 0x3 | 0x8);
-                return v.toString(16);
-            });
+            if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+                const buffer = new Uint8Array(16);
+                crypto.getRandomValues(buffer);
+
+                buffer[6] = (buffer[6] & 0x0f) | 0x40;
+                buffer[8] = (buffer[8] & 0x3f) | 0x80;
+
+                const hex = Array.from(buffer, byte => byte.toString(16).padStart(2, '0'));
+                return `${hex.slice(0, 4).join('')}-${hex.slice(4, 6).join('')}-${hex.slice(6, 8).join('')}-${hex.slice(8, 10).join('')}-${hex.slice(10, 16).join('')}`;
+            } else {
+                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                    const r = Math.random() * 16 | 0;
+                    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                    return v.toString(16);
+                });
+            }
         },
 
         getElement(el) {
             return $object.isString(el) ? this.get(el) : el;
         },
 
-        stringToArrayBuffer(value, isTwoByte = false) {
-            const str = String(value);
-            const bufferLength = str.length * (isTwoByte ? 2 : 1);
-            const buffer = new ArrayBuffer(bufferLength);
-            const bufView = isTwoByte ? new Uint16Array(buffer) : new Uint8Array(buffer);
-            for (let i = 0; i < str.length; i++) {
-                bufView[i] = str.charCodeAt(i);
-            }
-            return buffer;
+        stringToArrayBuffer(value) {
+            const uint8Array = encoder.encode(value);
+            return uint8Array.buffer;
         },
 
         arrayBufferToString(buffer) {
             if (!(buffer instanceof ArrayBuffer)) return '';
 
             try {
-                if (typeof TextDecoder !== 'undefined') {
-                    return new TextDecoder().decode(buffer);
-                }
-
-                const uint8Array = new Uint8Array(buffer);
-                let binaryString = '';
-                for (const byte of uint8Array) {
-                    binaryString += String.fromCharCode(byte);
-                }
-
-                return binaryString;
+                return decoder.decode(buffer);
             } catch (e) {
-                console.error("ArrayBuffer 문자열 변환 실패:", e);
+                syn.$l.eventLog('$c.base64Encode', `ArrayBuffer 에서 문자열 변환 실패: ${e}`, 'Error');
                 return '';
             }
         },
@@ -193,7 +188,7 @@
                 el.dispatchEvent(evt);
 
             } catch (error) {
-                $l.eventLog('$l.dispatchClick', `클릭 디스패치 오류: ${error}`, 'Warning');
+                syn.$l.eventLog('$l.dispatchClick', `클릭 디스패치 오류: ${error}`, 'Warning');
             }
         },
 
@@ -288,7 +283,7 @@
                     handler.call(el, value);
                     triggered = true;
                 } catch (e) {
-                    $l.eventLog('$l.trigger', `"${type}" 이벤트 핸들러 실행 오류: ${e}`, 'Warning');
+                    syn.$l.eventLog('$l.trigger', `"${type}" 이벤트 핸들러 실행 오류: ${e}`, 'Warning');
                 }
             });
 
@@ -313,7 +308,7 @@
                     el.dispatchEvent(event);
                 }
             } catch (error) {
-                $l.eventLog('$l.triggerEvent', `"${type}" 이벤트 디스패치 오류: ${error}`, 'Warning');
+                syn.$l.eventLog('$l.triggerEvent', `"${type}" 이벤트 디스패치 오류: ${error}`, 'Warning');
             }
 
             return this;
@@ -331,7 +326,7 @@
                     try {
                         return controlModule.getValue(controlInfo.id.replace('_hidden', ''), controlInfo) ?? defaultValue;
                     } catch (e) {
-                        $l.eventLog('$l.getValue', `"${elID}" 값 가져오기 오류: ${e}`, 'Warning');
+                        syn.$l.eventLog('$l.getValue', `"${elID}" 값 가져오기 오류: ${e}`, 'Warning');
                     }
                 }
             } else if (doc) {
@@ -365,7 +360,7 @@
                             if (el) results.push(el);
                         }
                     } catch (e) {
-                        $l.eventLog('$l.querySelector', `잘못된 셀렉터 "${query}": ${e}`, 'Warning');
+                        syn.$l.eventLog('$l.querySelector', `잘못된 셀렉터 "${query}": ${e}`, 'Warning');
                     }
                 }
             });
@@ -400,11 +395,17 @@
                             results = results.concat(Array.from(doc.querySelectorAll(query)));
                         }
                     } catch (e) {
-                        $l.eventLog('$l.querySelectorAll', `잘못된 셀렉터 "${query}": ${e}`, 'Warning');
+                        syn.$l.eventLog('$l.querySelectorAll', `잘못된 셀렉터 "${query}": ${e}`, 'Warning');
                     }
                 }
             });
             return results;
+        },
+
+        toEnumValue(enumObject, value) {
+            if (!$object.isObject(enumObject)) return null;
+            const entry = Object.entries(enumObject).find(([key, val]) => key === value);
+            return entry ? entry[1] : null;
         },
 
         toEnumText(enumObject, value) {
@@ -429,7 +430,7 @@
 
                 return $string.toBoolean(isFormat) ? JSON.stringify(jsonData, null, 2) : jsonData;
             } catch (error) {
-                $l.eventLog('$l.prettyTSD', `TSD 파싱 오류: ${error}`, 'Error');
+                syn.$l.eventLog('$l.prettyTSD', `TSD 파싱 오류: ${error}`, 'Error');
                 return `TSD 파싱 오류: ${error.message}`;
             }
         },
@@ -468,7 +469,6 @@
 
             return [headerRow, ...valueRows].join(newLine);
         },
-
 
         nested2Flat(data, itemID, parentItemID, childrenID = 'items') {
             var result = [];
@@ -570,7 +570,6 @@
             return null;
         },
 
-
         deepFreeze(object) {
             if (!object || typeof object !== 'object' || Object.isFrozen(object)) {
                 return object;
@@ -597,7 +596,7 @@
                     builder.append(data.buffer || data);
                     return builder.getBlob(type);
                 } catch (fallbackError) {
-                    $l.eventLog('$l.createBlob', `Blob 생성 실패: ${fallbackError}`, 'Error');
+                    syn.$l.eventLog('$l.createBlob', `Blob 생성 실패: ${fallbackError}`, 'Error');
                     return null;
                 }
             }
@@ -620,7 +619,7 @@
 
                 return new Blob([byteArray], { type: mimeType });
             } catch (error) {
-                $l.eventLog('$l.dataUriToBlob', `Data URI -> Blob 변환 오류: ${error}`, 'Warning');
+                syn.$l.eventLog('$l.dataUriToBlob', `Data URI -> Blob 변환 오류: ${error}`, 'Warning');
                 return null;
             }
         },
@@ -636,14 +635,14 @@
 
                 return { value, mime: mimeType };
             } catch (error) {
-                $l.eventLog('$l.dataUriToText', `Data URI -> Text 변환 오류: ${error}`, 'Warning');
+                syn.$l.eventLog('$l.dataUriToText', `Data URI -> Text 변환 오류: ${error}`, 'Warning');
                 return null;
             }
         },
 
         blobToDataUri(blob, callback) {
             if (!(blob instanceof Blob) || typeof callback !== 'function') {
-                $l.eventLog('$l.blobToDataUri', '잘못된 Blob 또는 콜백 함수가 제공되었습니다.', 'Warning');
+                syn.$l.eventLog('$l.blobToDataUri', '잘못된 Blob 또는 콜백 함수가 제공되었습니다.', 'Warning');
                 if (callback) callback(new Error("잘못된 입력값"), null);
                 return;
             }
@@ -651,26 +650,23 @@
             const reader = new FileReader();
             reader.onloadend = () => {
                 if (reader.error) {
-                    $l.eventLog('$l.blobToDataUri', `FileReader 오류: ${reader.error}`, 'Error');
-                    callback(reader.error, null);
+                    syn.$l.eventLog('$l.blobToDataUri', `FileReader 오류: ${reader.error}`, 'Error');
                 } else {
-                    callback(null, reader.result);
+                    callback(reader.result);
                 }
             };
             reader.onerror = () => {
                 const error = reader.error || new Error('알 수 없는 FileReader 오류');
-                $l.eventLog('$l.blobToDataUri', `FileReader 오류: ${error}`, 'Error');
-                callback(error, null);
+                syn.$l.eventLog('$l.blobToDataUri', `FileReader 오류: ${error}`, 'Error');
             };
             reader.readAsDataURL(blob);
         },
-
 
         blobToDownload(blob, fileName) {
             if (globalRoot.devicePlatform === 'node') return;
 
             if (!(blob instanceof Blob) || !fileName) {
-                $l.eventLog('$l.blobToDownload', '잘못된 Blob 또는 파일 이름이 제공되었습니다.', 'Warning');
+                syn.$l.eventLog('$l.blobToDownload', '잘못된 Blob 또는 파일 이름이 제공되었습니다.', 'Warning');
                 return;
             }
 
@@ -678,7 +674,7 @@
                 try {
                     context.navigator.msSaveOrOpenBlob(blob, fileName);
                 } catch (e) {
-                    $l.eventLog('$l.blobToDownload', `msSaveOrOpenBlob 실패: ${e}`, 'Error');
+                    syn.$l.eventLog('$l.blobToDownload', `msSaveOrOpenBlob 실패: ${e}`, 'Error');
                 }
                 return;
             }
@@ -696,19 +692,18 @@
                 setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
 
             } catch (e) {
-                $l.eventLog('$l.blobToDownload', `다운로드 실패: ${e}`, 'Error');
+                syn.$l.eventLog('$l.blobToDownload', `다운로드 실패: ${e}`, 'Error');
                 if (blobUrl) URL.revokeObjectURL(blobUrl);
             }
         },
 
         blobUrlToBlob(url, callback) {
             if (typeof callback !== 'function') {
-                $l.eventLog('$l.blobUrlToBlob', '콜백 함수 확인 필요', 'Warning');
-                if (callback) callback(new Error("콜백 함수가 필요합니다."), null);
+                syn.$l.eventLog('$l.blobUrlToBlob', '콜백 함수 확인 필요', 'Warning');
                 return;
             }
             if (!url || typeof url !== 'string') {
-                if (callback) callback(new Error("잘못된 URL"), null);
+                syn.$l.eventLog('$l.blobUrlToBlob', 'URL 확인 필요', 'Warning');
                 return;
             }
 
@@ -719,33 +714,27 @@
                     }
                     return response.blob();
                 })
-                .then(blob => callback(null, blob))
+                .then(blob => callback(blob))
                 .catch(error => {
-                    $l.eventLog('$l.blobUrlToBlob', `url: ${url}, 오류: ${error}`, 'Warning');
-                    callback(error, null);
+                    syn.$l.eventLog('$l.blobUrlToBlob', `url: ${url}, 오류: ${error}`, 'Warning');
                 });
         },
 
         blobUrlToDataUri(url, callback) {
             if (typeof callback !== 'function') {
-                $l.eventLog('$l.blobUrlToDataUri', '콜백 함수 확인 필요', 'Warning');
-                if (callback) callback(new Error("콜백 함수가 필요합니다."), null);
+                syn.$l.eventLog('$l.blobUrlToDataUri', '콜백 함수 확인 필요', 'Warning');
                 return;
             }
             if (!url || typeof url !== 'string') {
-                if (callback) callback(new Error("잘못된 URL"), null);
+                syn.$l.eventLog('$l.blobUrlToDataUri', 'URL 확인 필요', 'Warning');
                 return;
             }
 
-            this.blobUrlToBlob(url, (error, blob) => {
-                if (error) {
-                    callback(error, null);
-                    return;
-                }
+            this.blobUrlToBlob(url, (blob) => {
                 if (blob) {
                     this.blobToDataUri(blob, callback);
                 } else {
-                    callback(new Error("URL에서 Blob 가져오기 실패"), null);
+                    syn.$l.eventLog('$l.blobUrlToDataUri', 'URL에서 Blob 가져오기 실패', 'Warning');
                 }
             });
         },
@@ -763,7 +752,7 @@
                     const mimeType = blob.type || 'application/octet-stream';
                     return `data:${mimeType};base64,${base64Data}`;
                 } catch (error) {
-                    $l.eventLog('$l.blobToBase64 (Node)', `Blob -> Base64 변환 오류(Node): ${error}`, 'Error');
+                    syn.$l.eventLog('$l.blobToBase64 (Node)', `Blob -> Base64 변환 오류(Node): ${error}`, 'Error');
                     return null;
                 }
             } else if (typeof FileReader !== 'undefined') {
@@ -808,15 +797,15 @@
 
                 return new Blob(byteArrays, { type: contentType });
             } catch (e) {
-                $l.eventLog('$l.base64ToBlob', `Base64 디코딩 또는 Blob 생성 실패: ${e}`, 'Error');
+                syn.$l.eventLog('$l.base64ToBlob', `Base64 디코딩 또는 Blob 생성 실패: ${e}`, 'Error');
                 return null;
             }
         },
 
         async blobToFile(blob, fileName, mimeType) {
-            if (!(blob instanceof Blob) || !fileName) return null;
+            if (!(blob instanceof Blob)) return null;
             const effectiveMimeType = mimeType || blob.type || 'application/octet-stream';
-            return new File([blob], fileName, { type: effectiveMimeType });
+            return new File([blob], fileName || `blob-${$date.toString(new Date(), 'f')}`, { type: effectiveMimeType });
         },
 
         async fileToBase64(file) {
@@ -851,7 +840,7 @@
                     return `data:${mimeType};base64,${base64Data}`;
 
                 } catch (error) {
-                    $l.eventLog('$l.fileToBase64 (Node)', `파일 -> Base64 변환 오류(Node): ${error}`, 'Error');
+                    syn.$l.eventLog('$l.fileToBase64 (Node)', `파일 -> Base64 변환 오류(Node): ${error}`, 'Error');
                     return null;
                 }
 
@@ -863,7 +852,7 @@
                     reader.readAsDataURL(file);
                 });
             } else {
-                $l.eventLog('$l.fileToBase64', '잘못된 입력 또는 환경입니다.', 'Warning');
+                syn.$l.eventLog('$l.fileToBase64', '잘못된 입력 또는 환경입니다.', 'Warning');
                 return null;
             }
         },
@@ -886,7 +875,7 @@
                 const errorMsg = globalRoot.devicePlatform === 'node'
                     ? "Node.js 환경에서는 이미지 크기 조정을 지원하지 않습니다."
                     : "잘못된 입력: 이미지 Blob이 아닙니다.";
-                $l.eventLog('$l.resizeImage', errorMsg, 'Warning');
+                syn.$l.eventLog('$l.resizeImage', errorMsg, 'Warning');
                 return Promise.reject(new Error(errorMsg));
             }
 

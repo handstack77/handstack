@@ -460,15 +460,25 @@ if (typeof module !== 'undefined' && module.exports) {
 
         async getIpAddress() {
             let ipAddress = '127.0.0.1';
-            const ipServerUrl = syn.Config.FindClientIPServer || '/checkip';
-            try {
-                const value = await syn.$r.httpFetch(ipServerUrl).send(null, { timeout: 3000 });
-                if (value && syn.$v.regexs.ipAddress.test(value)) {
-                    ipAddress = value;
+            const urls = [
+                { url: 'https://api.ipify.org?format=json', json: true },
+                { url: syn.Config.FindClientIPServer || '/checkip', json: false }
+            ];
+
+            for (const { url, json } of urls) {
+                try {
+                    const response = await fetch(url);
+                    if (response.ok) {
+                        const data = json ? await response.json() : await response.text();
+                        ipAddress = json ? data.ip : data.trim();
+                        break;
+                    }
+
+                } catch (error) {
+                    console.warn(`'${url}' 에서 IP 를 가져오지 못했습니다:`, error);
                 }
-            } catch (error) {
-                syn.$l.eventLog('$b.getIpAddress', error, 'Error');
             }
+
             return ipAddress;
         }
     });
@@ -979,7 +989,7 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         parentOffsetLeft(el) {
-            el = getElement(el) || doc?.documentElement || doc?.body;
+            el = syn.$l.getElement(el) || doc?.documentElement || doc?.body;
             if (!el?.parentElement) return 0;
             return el.parentElement === el.offsetParent
                 ? el.offsetLeft
@@ -997,7 +1007,7 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         parentOffsetTop(el) {
-            el = getElement(el) || doc?.documentElement || doc?.body;
+            el = syn.$l.getElement(el) || doc?.documentElement || doc?.body;
             if (!el?.parentElement) return 0;
             return el.parentElement === el.offsetParent
                 ? el.offsetTop
@@ -1107,11 +1117,6 @@ if (typeof module !== 'undefined' && module.exports) {
 (function (context) {
     'use strict';
     const $cryptography = context.$cryptography || new syn.module();
-    const $l = context.$library;
-
-    const defaultKeyLength = 256;
-    const defaultAlgorithm = 'AES-CBC';
-
     const encoder = new TextEncoder();
     const decoder = new TextDecoder();
 
@@ -1124,7 +1129,7 @@ if (typeof module !== 'undefined' && module.exports) {
                     const bytes = encoder.encode(String(val));
                     return btoa(String.fromCharCode(...bytes));
                 } catch (e) {
-                    console.error("Base64 encoding failed:", e);
+                    syn.$l.eventLog('$c.base64Encode', `Base64 인코딩 실패: ${e}`, 'Error');
                     return null;
                 }
             }
@@ -1139,7 +1144,7 @@ if (typeof module !== 'undefined' && module.exports) {
                     const bytes = new Uint8Array([...binaryString].map(c => c.charCodeAt(0)));
                     return decoder.decode(bytes);
                 } catch (e) {
-                    console.error("Base64 decoding failed:", e);
+                    syn.$l.eventLog('$c.base64Encode', `Base64 디코딩 실패: ${e}`, 'Error');
                     return null;
                 }
             }
@@ -1147,26 +1152,37 @@ if (typeof module !== 'undefined' && module.exports) {
 
         utf8Encode(plainString) {
             if (typeof plainString !== 'string') {
-                throw new TypeError('parameter is not a plain string');
+                throw new TypeError('매개변수가 문자열이 아닙니다.');
             }
+
             try {
-                return decoder.decode(encoder.encode(plainString));
+                return encoder.encode(plainString);
             } catch (e) {
-                console.error("UTF-8 encoding failed:", e);
-                return plainString;
+                syn.$l.eventLog('$c.base64Encode', `UTF-8 인코딩 실패: ${e}`, 'Error');
             }
+            return null;
         },
 
-        utf8Decode(utf8String) {
-            if (typeof utf8String !== 'string') {
-                throw new TypeError('parameter is not a utf8 string');
+        utf8Decode(encodeString) {
+            if (typeof encodeString !== 'string') {
+                throw new TypeError('매개변수가 UTF-8 문자열이 아닙니다.');
             }
+
             try {
-                return decoder.decode(encoder.encode(utf8String));
+                return decoder.decode(this.convertToBuffer(encodeString.split(',').map(Number)));
             } catch (e) {
-                console.warn("UTF-8 decoding failed:", e);
-                return utf8String;
+                syn.$l.eventLog('$c.base64Encode', `UTF-8 디코딩 실패: ${e}`, 'Error');
             }
+            return null;
+        },
+
+        convertToBuffer(values) {
+            let buffer = new ArrayBuffer(values.length);
+            let view = new Uint8Array(buffer);
+            for (let i = 0; i < values.length; i++) {
+                view[i] = values[i];
+            }
+            return buffer;
         },
 
         isWebCryptoSupported() {
@@ -1175,7 +1191,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
         padKey(key, length) {
             if (typeof key !== 'string') return null;
-            
+
             let encodedKey = encoder.encode(key);
 
             if (encodedKey.length >= length) {
@@ -1187,216 +1203,214 @@ if (typeof module !== 'undefined' && module.exports) {
             return paddedKey;
         },
 
+        // syn.$c.generateHMAC().then((signature) => { debugger; });
         async generateHMAC(key, message) {
-            if (!this.isWebCryptoSupported()) return null;
-            
+            let result = null;
+
             const keyData = encoder.encode(key);
             const messageData = encoder.encode(message);
+            const cryptoKey = await crypto.subtle.importKey(
+                'raw',
+                keyData,
+                { name: 'HMAC', hash: 'SHA-256' },
+                false,
+                ['sign']
+            );
 
-            try {
-                const cryptoKey = await crypto.subtle.importKey(
-                    'raw', keyData, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
-                );
-                const signature = await crypto.subtle.sign('HMAC', cryptoKey, messageData);
-                return Array.from(new Uint8Array(signature)).map(b => b.toString(16).padStart(2, '0')).join('');
-            } catch (error) {
-                $l.eventLog('$c.generateHMAC', error, 'Error');
-                return null;
-            }
+            const signature = await crypto.subtle.sign('HMAC', cryptoKey, messageData);
+            result = Array.from(new Uint8Array(signature)).map(b => b.toString(16).padStart(2, '0')).join('');
+            return result;
         },
 
+        // syn.$c.verifyHMAC('handstack', 'hello world', '25a00a2d55bbb313329c8abba5aebc8b282615876544c5be236d75d1418fc612').then((result) => { debugger; });
         async verifyHMAC(key, message, signature) {
-            const generatedSignature = await this.generateHMAC(key, message);
-            return generatedSignature === signature;
+            return await $cryptography.generateHMAC(key, message) === signature;
         },
 
-        async generateRSAKey(hash = "SHA-256", modulusLength = 2048) {
-            if (!this.isWebCryptoSupported()) return null;
-            try {
-                return await crypto.subtle.generateKey(
-                    {
-                        name: "RSA-OAEP",
-                        modulusLength: modulusLength,
-                        publicExponent: new Uint8Array([1, 0, 1]),
-                        hash: hash
-                    },
-                    true,
-                    ['encrypt', 'decrypt']
-                );
-            } catch (error) {
-                $l.eventLog('$c.generateRSAKey', error, 'Error');
-                return null;
-            }
+        // syn.$c.generateRSAKey().then((cryptoKey) => { debugger; });
+        async generateRSAKey() {
+            let result = null;
+            result = await window.crypto.subtle.generateKey(
+                {
+                    name: "RSA-OAEP",
+                    modulusLength: 2048,
+                    publicExponent: new Uint8Array([1, 0, 1]),
+                    hash: "SHA-256"
+                },
+                true,
+                ['encrypt', 'decrypt']
+            );
+            return result;
         },
 
-        async exportCryptoKey(cryptoKey, isPublic = true) {
-            if (!this.isWebCryptoSupported() || !cryptoKey) return '';
-            const format = isPublic ? 'spki' : 'pkcs8';
-            const typeLabel = isPublic ? 'PUBLIC' : 'PRIVATE';
+        // syn.$c.exportCryptoKey(cryptoKey.publicKey, true).then((result) => { debugger; });
+        async exportCryptoKey(cryptoKey, isPublic) {
+            let result = '';
+            isPublic = $string.toBoolean(isPublic);
+            const exportLabel = isPublic == true ? 'PUBLIC' : 'PRIVATE';
+            const exported = await window.crypto.subtle.exportKey(
+                (isPublic == true ? 'spki' : 'pkcs8'),
+                cryptoKey
+            );
+            const exportedAsString = String.fromCharCode.apply(null, new Uint8Array(exported));
+            const exportedAsBase64 = window.btoa(exportedAsString);
+            result = `-----BEGIN ${exportLabel} KEY-----\n${exportedAsBase64}\n-----END ${exportLabel} KEY-----`;
 
-            try {
-                const exported = await crypto.subtle.exportKey(format, cryptoKey);
-                const exportedAsString = String.fromCharCode(...new Uint8Array(exported));
-                const exportedAsBase64 = btoa(exportedAsString);
-                const pemFormatted = exportedAsBase64.match(/.{1,64}/g)?.join('\n') || '';
-
-                return `----- BEGIN ${typeLabel} KEY-----\n${pemFormatted} \n----- END ${typeLabel} KEY----- `;
-            } catch (error) {
-                $l.eventLog('$c.exportCryptoKey', error, 'Error');
-                return '';
-            }
+            const lines = result.split('\n');
+            result = lines.map(line => {
+                return line.match(/.{1,64}/g).join('\n');
+            });
+            return result.join('\n');
         },
 
-        async importCryptoKey(pem, isPublic = true) {
-            if (!this.isWebCryptoSupported() || !pem) return null;
-            const typeLabel = isPublic ? 'PUBLIC' : 'PRIVATE';
-            const pemHeader = `----- BEGIN ${typeLabel} KEY----- `;
-            const pemFooter = `----- END ${typeLabel} KEY----- `;
+        // syn.$c.importCryptoKey('-----BEGIN PUBLIC KEY-----...-----END PUBLIC KEY-----', true).then((result) => { debugger; });
+        async importCryptoKey(pem, isPublic) {
+            let result = null;
+            isPublic = $string.toBoolean(isPublic);
+            const exportLabel = isPublic == true ? 'PUBLIC' : 'PRIVATE';
+            const pemHeader = `-----BEGIN ${exportLabel} KEY-----`;
+            const pemFooter = `-----END ${exportLabel} KEY-----`;
+            const pemContents = pem.substring(pemHeader.length, pem.length - pemFooter.length).replaceAll('\n', '');
+            const binaryDerString = window.atob(pemContents);
+            const binaryDer = syn.$l.stringToArrayBuffer(binaryDerString);
+            const importMode = isPublic == true ? ['encrypt'] : ['decrypt'];
 
-            try {
-                const pemContents = pem.substring(pemHeader.length, pem.length - pemFooter.length).replace(/\s+/g, '');
-                const binaryDerString = atob(pemContents);
-                const binaryDer = new Uint8Array(binaryDerString.length).map((_, i) => binaryDerString.charCodeAt(i));
-
-                const format = isPublic ? 'spki' : 'pkcs8';
-                const usage = isPublic ? ['encrypt'] : ['decrypt'];
-
-                return await crypto.subtle.importKey(
-                    format,
-                    binaryDer.buffer,
-                    { name: 'RSA-OAEP', hash: 'SHA-256' },
-                    true,
-                    usage
-                );
-            } catch (error) {
-                $l.eventLog('$c.importCryptoKey', error, 'Error');
-                return null;
-            }
+            result = await crypto.subtle.importKey(
+                (isPublic == true ? 'spki' : 'pkcs8'),
+                binaryDer,
+                {
+                    name: 'RSA-OAEP',
+                    hash: 'SHA-256'
+                },
+                true,
+                importMode
+            );
+            return result;
         },
 
+        // syn.$c.rsaEncode('hello world', result).then((result) => { debugger; });
         async rsaEncode(text, publicKey) {
-            if (!this.isWebCryptoSupported() || !publicKey) return null;
-            
+            let result = null;
+
             const data = encoder.encode(text);
-            try {
-                const encrypted = await crypto.subtle.encrypt({ name: 'RSA-OAEP' }, publicKey, data);
-                const base64String = this.base64Encode(String.fromCharCode(...new Uint8Array(encrypted)));
-                return base64String;
-            } catch (error) {
-                $l.eventLog('$c.rsaEncode', error, 'Error');
-                return null;
-            }
+            const encrypted = await crypto.subtle.encrypt(
+                {
+                    name: 'RSA-OAEP'
+                },
+                publicKey,
+                data
+            );
+
+            result = $cryptography.base64Encode(new Uint8Array(encrypted));
+            return result;
         },
 
-        async rsaDecode(encryptedBase64, privateKey) {
-            if (!this.isWebCryptoSupported() || !privateKey || !encryptedBase64) return null;
-            try {
-                const encryptedString = this.base64Decode(encryptedBase64);
-                if (encryptedString === null) throw new Error("Base64 decoding failed");
-                const encryptedBuffer = new Uint8Array(encryptedString.length).map((_, i) => encryptedString.charCodeAt(i)).buffer;
+        // syn.$c.rsaDecode(encryptData, result).then((result) => { debugger; });
+        async rsaDecode(encryptedData, privateKey) {
+            let result = null;
+            const encrypted = new Uint8Array($cryptography.base64Decode(encryptedData).split(',').map(Number));
+            const decrypted = await crypto.subtle.decrypt(
+                {
+                    name: 'RSA-OAEP'
+                },
+                privateKey,
+                encrypted
+            );
 
-                const decrypted = await crypto.subtle.decrypt({ name: 'RSA-OAEP' }, privateKey, encryptedBuffer);
-                
-                return decoder.decode(decrypted);
-            } catch (error) {
-                $l.eventLog('$c.rsaDecode', error, 'Error');
-                return null;
-            }
+            result = decoder.decode(decrypted);
+            return result;
         },
 
-
-        generateIV(key, ivLength = 16) {
-            if (key && key.toUpperCase() === '$RANDOM$') {
-                if (context.crypto?.getRandomValues) {
-                    return context.crypto.getRandomValues(new Uint8Array(ivLength));
-                } else {
-                    console.warn("crypto.getRandomValues not available, using less secure random IV generation.");
-                    const randomBytes = new Uint8Array(ivLength);
-                    for (let i = 0; i < ivLength; i++) {
-                        randomBytes[i] = Math.floor(Math.random() * 256);
-                    }
-                    return randomBytes;
-                }
+        generateIV(key, ivLength) {
+            let result;
+            ivLength = ivLength || 16;
+            if (key && key.toUpperCase() == '$RANDOM$') {
+                result = window.crypto.getRandomValues(new Uint8Array(ivLength));
+            }
+            else {
+                key = key || '';
+                result = $cryptography.padKey(key, ivLength);
             }
 
-            return this.padKey(key || '', ivLength);
+            return result;
         },
 
-        async aesEncode(text, key = '', algorithm = defaultAlgorithm, keyLength = defaultKeyLength) {
-            if (!this.isWebCryptoSupported()) return null;
+        async aesEncode(text, key, algorithm, keyLength) {
+            let result = null;
+            key = key || '';
+            algorithm = algorithm || 'AES-CBC'; // AES-CBC, AES-GCM
+            keyLength = keyLength || 256; // 128, 256
             const ivLength = algorithm === 'AES-GCM' ? 12 : 16;
-            const iv = this.generateIV(key, ivLength);
-            
+            const iv = $cryptography.generateIV(key, ivLength);
+
             const data = encoder.encode(text);
-            const paddedKey = this.padKey(key, keyLength / 8);
 
-            try {
-                const cryptoKey = await crypto.subtle.importKey(
-                    'raw', paddedKey, { name: algorithm }, false, ['encrypt']
-                );
-                const encrypted = await crypto.subtle.encrypt(
-                    { name: algorithm, iv: iv }, cryptoKey, data
-                );
+            const cryptoKey = await window.crypto.subtle.importKey(
+                'raw',
+                $cryptography.padKey(key, keyLength / 8),
+                { name: algorithm },
+                false,
+                ['encrypt']
+            );
 
-                const ivBase64 = this.base64Encode(String.fromCharCode(...iv));
-                const encryptedBase64 = this.base64Encode(String.fromCharCode(...new Uint8Array(encrypted)));
+            const encrypted = await window.crypto.subtle.encrypt(
+                {
+                    name: algorithm,
+                    iv: iv
+                },
+                cryptoKey,
+                data
+            );
 
-                return { iv: ivBase64, encrypted: encryptedBase64 };
-            } catch (error) {
-                $l.eventLog('$c.aesEncode', error, 'Error');
-                return null;
-            }
+            result = {
+                iv: $cryptography.base64Encode(iv),
+                encrypted: $cryptography.base64Encode(new Uint8Array(encrypted))
+            };
+
+            return result;
         },
 
-        async aesDecode(encryptedData, key = '', algorithm = defaultAlgorithm, keyLength = defaultKeyLength) {
-            if (!this.isWebCryptoSupported() || !encryptedData?.iv || !encryptedData?.encrypted) return null;
-
-            try {
-                const ivString = this.base64Decode(encryptedData.iv);
-                const encryptedString = this.base64Decode(encryptedData.encrypted);
-
-                if (ivString === null || encryptedString === null) {
-                    throw new Error("Base64 decoding failed for IV or encrypted data.");
-                }
-
-                const iv = new Uint8Array(ivString.length).map((_, i) => ivString.charCodeAt(i));
-                const encrypted = new Uint8Array(encryptedString.length).map((_, i) => encryptedString.charCodeAt(i));
-
-
-                const paddedKey = this.padKey(key, keyLength / 8);
-                const cryptoKey = await crypto.subtle.importKey(
-                    'raw', paddedKey, { name: algorithm }, false, ['decrypt']
-                );
-                const decrypted = await crypto.subtle.decrypt(
-                    { name: algorithm, iv: iv }, cryptoKey, encrypted
+        async aesDecode(encryptedData, key, algorithm, keyLength) {
+            let result = null;
+            key = key || '';
+            algorithm = algorithm || 'AES-CBC'; // AES-CBC, AES-GCM
+            keyLength = keyLength || 256; // 128, 256
+            if (encryptedData && encryptedData.iv && encryptedData.encrypted) {
+                const iv = new Uint8Array($cryptography.base64Decode(encryptedData.iv).split(',').map(Number));
+                const encrypted = new Uint8Array($cryptography.base64Decode(encryptedData.encrypted).split(',').map(Number));
+                const cryptoKey = await window.crypto.subtle.importKey(
+                    'raw',
+                    $cryptography.padKey(key, keyLength / 8),
+                    { name: algorithm },
+                    false,
+                    ['decrypt']
                 );
 
-                
-                return decoder.decode(decrypted);
-            } catch (error) {
-                $l.eventLog('$c.aesDecode', error, 'Error');
-                return null;
+                const decrypted = await window.crypto.subtle.decrypt(
+                    {
+                        name: algorithm,
+                        iv: iv
+                    },
+                    cryptoKey,
+                    encrypted
+                );
+
+                result = decoder.decode(decrypted);
             }
+
+            return result;
         },
 
-        async sha(message, algorithm = 'SHA-256') {
-            const webCryptoAlgorithm = algorithm.toUpperCase().replace('SHA-2', 'SHA-').replace('SHA3-', 'SHA-');
-            if (!this.isWebCryptoSupported()) return '';
-            
+        async sha(message, algorithms) {
+            let result = '';
+            algorithms = algorithms || 'SHA-1'; // SHA-1,SHA-2,SHA-224,SHA-256,SHA-384,SHA-512,SHA3-224,SHA3-256,SHA3-384,SHA3-512,SHAKE128,SHAKE256
+
             const data = encoder.encode(message);
-            try {
-                const hashBuffer = await crypto.subtle.digest(webCryptoAlgorithm, data);
-                return Array.from(new Uint8Array(hashBuffer))
-                    .map(b => b.toString(16).padStart(2, '0'))
-                    .join('');
-            } catch (error) {
-                if (error.name === 'OperationError' || error.name === 'SyntaxError') {
-                    console.warn(`SHA algorithm '${webCryptoAlgorithm}' not supported by Web Crypto API.Falling back if possible or returning empty.`);
-                    return '';
-                }
-                $l.eventLog('$c.sha', error, 'Error');
-                return '';
-            }
+            const hash = await crypto.subtle.digest(algorithms, data);
+            result = Array.from(new Uint8Array(hash))
+                .map(b => b.toString(16).padStart(2, '0'))
+                .join('');
+            return result;
         },
 
         sha256(s) {
@@ -1468,8 +1482,8 @@ if (typeof module !== 'undefined' && module.exports) {
             };
 
             const binb2hex = (binarray) => {
-                const hex_tab = hexcase ? "0123456789ABCDEF" : "0123456789abcdef";
-                let str = "";
+                const hex_tab = hexcase ? '0123456789ABCDEF' : '0123456789abcdef';
+                let str = '';
                 for (let i = 0; i < binarray.length * 4; i++) {
                     str += hex_tab.charAt((binarray[i >> 2] >> ((3 - i % 4) * 8 + 4)) & 0xF) +
                         hex_tab.charAt((binarray[i >> 2] >> ((3 - i % 4) * 8)) & 0xF);
@@ -1477,8 +1491,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 return str;
             };
 
-            const utf8String = this.utf8Encode(s);
-            return binb2hex(core_sha256(str2binb(utf8String), utf8String.length * chrsz));
+            return binb2hex(core_sha256(str2binb(s), s.length * chrsz));
         },
 
         encrypt(value, key) {
@@ -1531,7 +1544,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
                 return decryptFunc(content, passcodeFromFile);
             } catch (error) {
-                $l.eventLog('$c.decrypt', error, 'Error');
+                syn.$l.eventLog('$c.decrypt', error, 'Error');
                 return null;
             }
         },
@@ -1616,9 +1629,9 @@ if (typeof module !== 'undefined' && module.exports) {
                 },
 
                 decompressFromEncodedURIComponent(input) {
-                    if (input == null) return "";
-                    if (input == "") return null;
-                    input = input.replace(/ /g, "+");
+                    if (input == null) return '';
+                    if (input == '') return null;
+                    input = input.replace(/ /g, '+');
                     return LZStringInternal._decompress(input.length, 32, (index) => getBaseValue(keyStrUriSafe, input.charAt(index)));
                 },
 
@@ -2113,10 +2126,10 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         setElement(el) {
-            const element = $o.isString(el) ? $l.get(el) : el;
-            if (element?.id) {
-                this.initializeValidObject(element);
-                this.targetEL = element;
+            el = syn.$l.getElement(el);
+            if (el?.id) {
+                this.initializeValidObject(el);
+                this.targetEL = el;
             } else {
                 this.targetEL = null;
             }
@@ -2124,22 +2137,22 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         required(el, isRequired = true, message) {
-            if ($s.isNullOrEmpty(message)) {
-                $l.eventLog('$v.required', 'message 확인 필요', 'Information');
+            if ($string.isNullOrEmpty(message)) {
+                syn.$l.eventLog('$v.required', 'message 확인 필요', 'Information');
                 return this;
             }
-            const element = $o.isString(el) ? $l.get(el) : el;
-            if (element) {
-                this.setElement(element);
-                element.required = $s.toBoolean(isRequired);
-                element.message = message;
+            el = syn.$l.getElement(el);
+            if (el) {
+                this.setElement(el);
+                el.required = $string.toBoolean(isRequired);
+                el.message = message;
             }
             return this;
         },
 
         pattern(el, validID, options = {}) {
-            if (!options.expr || $s.isNullOrEmpty(options.message)) {
-                $l.eventLog('$v.pattern', 'options.expr, options.message 확인 필요', 'Information');
+            if (!options.expr || $string.isNullOrEmpty(options.message)) {
+                syn.$l.eventLog('$v.pattern', 'options.expr, options.message 확인 필요', 'Information');
                 return this;
             }
             this.setElement(el);
@@ -2151,10 +2164,10 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         range(el, validID, options = {}) {
-            if (!$s.isNumber(options.min) || !$s.isNumber(options.max) ||
-                $s.isNullOrEmpty(options.minOperator) || $s.isNullOrEmpty(options.maxOperator) ||
-                $s.isNullOrEmpty(options.message)) {
-                $l.eventLog('$v.range', 'options.min, options.minOperator, options.max, options.maxOperator, options.message 확인 필요', 'Information');
+            if (!$string.isNumber(options.min) || !$string.isNumber(options.max) ||
+                $string.isNullOrEmpty(options.minOperator) || $string.isNullOrEmpty(options.maxOperator) ||
+                $string.isNullOrEmpty(options.message)) {
+                syn.$l.eventLog('$v.range', 'options.min, options.minOperator, options.max, options.maxOperator, options.message 확인 필요', 'Information');
                 return this;
             }
             this.setElement(el);
@@ -2166,8 +2179,8 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         custom(el, validID, options = {}) {
-            if (!options.functionName || $s.isNullOrEmpty(options.message)) {
-                $l.eventLog('$v.custom', 'options.functionName, options.message 확인 필요', 'Information');
+            if (!options.functionName || $string.isNullOrEmpty(options.message)) {
+                syn.$l.eventLog('$v.custom', 'options.functionName, options.message 확인 필요', 'Information');
                 return this;
             }
             this.setElement(el);
@@ -2183,7 +2196,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 try {
                     delete this.elements[this.targetEL.id][validType][validID];
                 } catch (e) {
-                    $l.eventLog('$v.removeValidate', `Failed to delete validation: ${validType}.${validID}`, 'Warning');
+                    syn.$l.eventLog('$v.removeValidate', `Failed to delete validation: ${validType}.${validID}`, 'Warning');
                 }
             }
             return this;
@@ -2207,24 +2220,24 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         validateControl(el) {
-            const element = $o.isString(el) ? $l.get(el) : el;
-            if (!element?.id) return true;
+            el = syn.$l.getElement(el);
+            if (!el?.id) return true;
 
-            this.setElement(element);
+            this.setElement(el);
 
             let isValid = true;
-            const value = element.value?.trim() ?? '';
+            const value = el.value?.trim() ?? '';
 
-            if ($s.toBoolean(element.required) && value.length === 0) {
+            if ($string.toBoolean(el.required) && value.length === 0) {
                 isValid = false;
-                this.messages.push(element.message);
+                this.messages.push(el.message);
                 if (!this.isContinue) return false;
             }
 
             if (!isValid && !this.isContinue) return false;
-            if (!$s.toBoolean(element.required) && value.length === 0) return true;
+            if (!$string.toBoolean(el.required) && value.length === 0) return true;
 
-            const validObject = this.elements[element.id];
+            const validObject = this.elements[el.id];
             if (!validObject) return isValid;
 
             for (const [validID, patternRule] of Object.entries(validObject.pattern)) {
@@ -2238,38 +2251,38 @@ if (typeof module !== 'undefined' && module.exports) {
 
             for (const [validID, rangeRule] of Object.entries(validObject.range)) {
                 let rangeResult = false;
-                if ($s.isNumber(value)) {
+                if ($string.isNumber(value)) {
                     try {
-                        const numValue = $s.toNumber(value);
-                        const min = $s.toNumber(rangeRule.min);
-                        const max = $s.toNumber(rangeRule.max);
+                        const numValue = $string.toNumber(value);
+                        const min = $string.toNumber(rangeRule.min);
+                        const max = $string.toNumber(rangeRule.max);
 
                         const checkMin = (op, val, limit) => {
                             switch (op) {
-                                case '>': return val > limit;
-                                case '>=': return val >= limit;
-                                case '<': return val < limit;
-                                case '<=': return val <= limit;
-                                case '==': return val == limit;
-                                case '!=': return val != limit;
+                                case '>': return limit > val;
+                                case '>=': return limit >= val;
+                                case '<': return limit < val;
+                                case '<=': return limit <= val;
+                                case '==': return limit == val;
+                                case '!=': return limit != val;
                                 default: return false;
                             }
                         };
                         const checkMax = (op, val, limit) => {
                             switch (op) {
-                                case '<': return val < limit;
-                                case '<=': return val <= limit;
-                                case '>': return val > limit;
-                                case '>=': return val >= limit;
-                                case '==': return val == limit;
-                                case '!=': return val != limit;
+                                case '<': return limit < val;
+                                case '<=': return limit <= val;
+                                case '>': return limit > val;
+                                case '>=': return limit >= val;
+                                case '==': return limit == val;
+                                case '!=': return limit != val;
                                 default: return false;
                             }
                         };
                         rangeResult = checkMin(rangeRule.minOperator, numValue, min) && checkMax(rangeRule.maxOperator, numValue, max);
 
                     } catch (error) {
-                        $l.eventLog('$v.validateControl', `elID: "${element.id}" 유효성 range 검사 오류 ${error.message}`, 'Warning');
+                        syn.$l.eventLog('$v.validateControl', `elID: "${el.id}" 유효성 range 검사 오류 ${error.message}`, 'Warning');
                         rangeResult = false;
                     }
                 } else {
@@ -2304,7 +2317,7 @@ if (typeof module !== 'undefined' && module.exports) {
                         throw new Error(`Custom validation function "${functionName}" not found.`);
                     }
                 } catch (error) {
-                    $l.eventLog('$v.validateControl', `elID: "${element.id}" 유효성 custom 검사 오류 ${error.message}`, 'Warning');
+                    syn.$l.eventLog('$v.validateControl', `elID: "${el.id}" 유효성 custom 검사 오류 ${error.message}`, 'Warning');
                     customResult = false;
                 }
 
@@ -2380,15 +2393,13 @@ if (typeof module !== 'undefined' && module.exports) {
     context.$validation = syn.$v = $validation;
 })(globalRoot);
 
-/// <reference path='syn.core.js' />
-
 (function (context) {
     'use strict';
-    var $date = context.$date || new syn.module();
-    var $array = context.$array || new syn.module();
-    var $string = context.$string || new syn.module();
-    var $number = context.$number || new syn.module();
-    var $object = context.$object || new syn.module();
+    const $date = context.$date || new syn.module();
+    const $array = context.$array || new syn.module();
+    const $string = context.$string || new syn.module();
+    const $number = context.$number || new syn.module();
+    const $object = context.$object || new syn.module();
 
     (function () {
         if (!Function.prototype.clone) {
@@ -3040,7 +3051,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 try {
                     return new Intl.NumberFormat(localeID, formatOptions).format(num);
                 } catch (e) {
-                    $l.eventLog('$string.toCurrency', `Intl formatting error for locale ${localeID}: ${e}`, 'Warning');
+                    syn.$l.eventLog('$string.toCurrency', `Intl formatting error for locale ${localeID}: ${e}`, 'Warning');
                 }
             }
 
@@ -3577,45 +3588,40 @@ if (typeof module !== 'undefined' && module.exports) {
                 return context.crypto.randomUUID();
             }
 
-            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-                const r = Math.random() * 16 | 0;
-                const v = c === 'x' ? r : (r & 0x3 | 0x8);
-                return v.toString(16);
-            });
+            if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+                const buffer = new Uint8Array(16);
+                crypto.getRandomValues(buffer);
+
+                buffer[6] = (buffer[6] & 0x0f) | 0x40;
+                buffer[8] = (buffer[8] & 0x3f) | 0x80;
+
+                const hex = Array.from(buffer, byte => byte.toString(16).padStart(2, '0'));
+                return `${hex.slice(0, 4).join('')}-${hex.slice(4, 6).join('')}-${hex.slice(6, 8).join('')}-${hex.slice(8, 10).join('')}-${hex.slice(10, 16).join('')}`;
+            } else {
+                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                    const r = Math.random() * 16 | 0;
+                    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                    return v.toString(16);
+                });
+            }
         },
 
         getElement(el) {
             return $object.isString(el) ? this.get(el) : el;
         },
 
-        stringToArrayBuffer(value, isTwoByte = false) {
-            const str = String(value);
-            const bufferLength = str.length * (isTwoByte ? 2 : 1);
-            const buffer = new ArrayBuffer(bufferLength);
-            const bufView = isTwoByte ? new Uint16Array(buffer) : new Uint8Array(buffer);
-            for (let i = 0; i < str.length; i++) {
-                bufView[i] = str.charCodeAt(i);
-            }
-            return buffer;
+        stringToArrayBuffer(value) {
+            const uint8Array = encoder.encode(value);
+            return uint8Array.buffer;
         },
 
         arrayBufferToString(buffer) {
             if (!(buffer instanceof ArrayBuffer)) return '';
 
             try {
-                if (typeof TextDecoder !== 'undefined') {
-                    return new TextDecoder().decode(buffer);
-                }
-
-                const uint8Array = new Uint8Array(buffer);
-                let binaryString = '';
-                for (const byte of uint8Array) {
-                    binaryString += String.fromCharCode(byte);
-                }
-
-                return binaryString;
+                return decoder.decode(buffer);
             } catch (e) {
-                console.error("ArrayBuffer 문자열 변환 실패:", e);
+                syn.$l.eventLog('$c.base64Encode', `ArrayBuffer 에서 문자열 변환 실패: ${e}`, 'Error');
                 return '';
             }
         },
@@ -3676,7 +3682,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 el.dispatchEvent(evt);
 
             } catch (error) {
-                $l.eventLog('$l.dispatchClick', `클릭 디스패치 오류: ${error}`, 'Warning');
+                syn.$l.eventLog('$l.dispatchClick', `클릭 디스패치 오류: ${error}`, 'Warning');
             }
         },
 
@@ -3771,7 +3777,7 @@ if (typeof module !== 'undefined' && module.exports) {
                     handler.call(el, value);
                     triggered = true;
                 } catch (e) {
-                    $l.eventLog('$l.trigger', `"${type}" 이벤트 핸들러 실행 오류: ${e}`, 'Warning');
+                    syn.$l.eventLog('$l.trigger', `"${type}" 이벤트 핸들러 실행 오류: ${e}`, 'Warning');
                 }
             });
 
@@ -3796,7 +3802,7 @@ if (typeof module !== 'undefined' && module.exports) {
                     el.dispatchEvent(event);
                 }
             } catch (error) {
-                $l.eventLog('$l.triggerEvent', `"${type}" 이벤트 디스패치 오류: ${error}`, 'Warning');
+                syn.$l.eventLog('$l.triggerEvent', `"${type}" 이벤트 디스패치 오류: ${error}`, 'Warning');
             }
 
             return this;
@@ -3814,7 +3820,7 @@ if (typeof module !== 'undefined' && module.exports) {
                     try {
                         return controlModule.getValue(controlInfo.id.replace('_hidden', ''), controlInfo) ?? defaultValue;
                     } catch (e) {
-                        $l.eventLog('$l.getValue', `"${elID}" 값 가져오기 오류: ${e}`, 'Warning');
+                        syn.$l.eventLog('$l.getValue', `"${elID}" 값 가져오기 오류: ${e}`, 'Warning');
                     }
                 }
             } else if (doc) {
@@ -3848,7 +3854,7 @@ if (typeof module !== 'undefined' && module.exports) {
                             if (el) results.push(el);
                         }
                     } catch (e) {
-                        $l.eventLog('$l.querySelector', `잘못된 셀렉터 "${query}": ${e}`, 'Warning');
+                        syn.$l.eventLog('$l.querySelector', `잘못된 셀렉터 "${query}": ${e}`, 'Warning');
                     }
                 }
             });
@@ -3883,11 +3889,17 @@ if (typeof module !== 'undefined' && module.exports) {
                             results = results.concat(Array.from(doc.querySelectorAll(query)));
                         }
                     } catch (e) {
-                        $l.eventLog('$l.querySelectorAll', `잘못된 셀렉터 "${query}": ${e}`, 'Warning');
+                        syn.$l.eventLog('$l.querySelectorAll', `잘못된 셀렉터 "${query}": ${e}`, 'Warning');
                     }
                 }
             });
             return results;
+        },
+
+        toEnumValue(enumObject, value) {
+            if (!$object.isObject(enumObject)) return null;
+            const entry = Object.entries(enumObject).find(([key, val]) => key === value);
+            return entry ? entry[1] : null;
         },
 
         toEnumText(enumObject, value) {
@@ -3912,7 +3924,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
                 return $string.toBoolean(isFormat) ? JSON.stringify(jsonData, null, 2) : jsonData;
             } catch (error) {
-                $l.eventLog('$l.prettyTSD', `TSD 파싱 오류: ${error}`, 'Error');
+                syn.$l.eventLog('$l.prettyTSD', `TSD 파싱 오류: ${error}`, 'Error');
                 return `TSD 파싱 오류: ${error.message}`;
             }
         },
@@ -3951,7 +3963,6 @@ if (typeof module !== 'undefined' && module.exports) {
 
             return [headerRow, ...valueRows].join(newLine);
         },
-
 
         nested2Flat(data, itemID, parentItemID, childrenID = 'items') {
             var result = [];
@@ -4053,7 +4064,6 @@ if (typeof module !== 'undefined' && module.exports) {
             return null;
         },
 
-
         deepFreeze(object) {
             if (!object || typeof object !== 'object' || Object.isFrozen(object)) {
                 return object;
@@ -4080,7 +4090,7 @@ if (typeof module !== 'undefined' && module.exports) {
                     builder.append(data.buffer || data);
                     return builder.getBlob(type);
                 } catch (fallbackError) {
-                    $l.eventLog('$l.createBlob', `Blob 생성 실패: ${fallbackError}`, 'Error');
+                    syn.$l.eventLog('$l.createBlob', `Blob 생성 실패: ${fallbackError}`, 'Error');
                     return null;
                 }
             }
@@ -4103,7 +4113,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
                 return new Blob([byteArray], { type: mimeType });
             } catch (error) {
-                $l.eventLog('$l.dataUriToBlob', `Data URI -> Blob 변환 오류: ${error}`, 'Warning');
+                syn.$l.eventLog('$l.dataUriToBlob', `Data URI -> Blob 변환 오류: ${error}`, 'Warning');
                 return null;
             }
         },
@@ -4119,14 +4129,14 @@ if (typeof module !== 'undefined' && module.exports) {
 
                 return { value, mime: mimeType };
             } catch (error) {
-                $l.eventLog('$l.dataUriToText', `Data URI -> Text 변환 오류: ${error}`, 'Warning');
+                syn.$l.eventLog('$l.dataUriToText', `Data URI -> Text 변환 오류: ${error}`, 'Warning');
                 return null;
             }
         },
 
         blobToDataUri(blob, callback) {
             if (!(blob instanceof Blob) || typeof callback !== 'function') {
-                $l.eventLog('$l.blobToDataUri', '잘못된 Blob 또는 콜백 함수가 제공되었습니다.', 'Warning');
+                syn.$l.eventLog('$l.blobToDataUri', '잘못된 Blob 또는 콜백 함수가 제공되었습니다.', 'Warning');
                 if (callback) callback(new Error("잘못된 입력값"), null);
                 return;
             }
@@ -4134,26 +4144,23 @@ if (typeof module !== 'undefined' && module.exports) {
             const reader = new FileReader();
             reader.onloadend = () => {
                 if (reader.error) {
-                    $l.eventLog('$l.blobToDataUri', `FileReader 오류: ${reader.error}`, 'Error');
-                    callback(reader.error, null);
+                    syn.$l.eventLog('$l.blobToDataUri', `FileReader 오류: ${reader.error}`, 'Error');
                 } else {
-                    callback(null, reader.result);
+                    callback(reader.result);
                 }
             };
             reader.onerror = () => {
                 const error = reader.error || new Error('알 수 없는 FileReader 오류');
-                $l.eventLog('$l.blobToDataUri', `FileReader 오류: ${error}`, 'Error');
-                callback(error, null);
+                syn.$l.eventLog('$l.blobToDataUri', `FileReader 오류: ${error}`, 'Error');
             };
             reader.readAsDataURL(blob);
         },
-
 
         blobToDownload(blob, fileName) {
             if (globalRoot.devicePlatform === 'node') return;
 
             if (!(blob instanceof Blob) || !fileName) {
-                $l.eventLog('$l.blobToDownload', '잘못된 Blob 또는 파일 이름이 제공되었습니다.', 'Warning');
+                syn.$l.eventLog('$l.blobToDownload', '잘못된 Blob 또는 파일 이름이 제공되었습니다.', 'Warning');
                 return;
             }
 
@@ -4161,7 +4168,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 try {
                     context.navigator.msSaveOrOpenBlob(blob, fileName);
                 } catch (e) {
-                    $l.eventLog('$l.blobToDownload', `msSaveOrOpenBlob 실패: ${e}`, 'Error');
+                    syn.$l.eventLog('$l.blobToDownload', `msSaveOrOpenBlob 실패: ${e}`, 'Error');
                 }
                 return;
             }
@@ -4179,19 +4186,18 @@ if (typeof module !== 'undefined' && module.exports) {
                 setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
 
             } catch (e) {
-                $l.eventLog('$l.blobToDownload', `다운로드 실패: ${e}`, 'Error');
+                syn.$l.eventLog('$l.blobToDownload', `다운로드 실패: ${e}`, 'Error');
                 if (blobUrl) URL.revokeObjectURL(blobUrl);
             }
         },
 
         blobUrlToBlob(url, callback) {
             if (typeof callback !== 'function') {
-                $l.eventLog('$l.blobUrlToBlob', '콜백 함수 확인 필요', 'Warning');
-                if (callback) callback(new Error("콜백 함수가 필요합니다."), null);
+                syn.$l.eventLog('$l.blobUrlToBlob', '콜백 함수 확인 필요', 'Warning');
                 return;
             }
             if (!url || typeof url !== 'string') {
-                if (callback) callback(new Error("잘못된 URL"), null);
+                syn.$l.eventLog('$l.blobUrlToBlob', 'URL 확인 필요', 'Warning');
                 return;
             }
 
@@ -4202,33 +4208,27 @@ if (typeof module !== 'undefined' && module.exports) {
                     }
                     return response.blob();
                 })
-                .then(blob => callback(null, blob))
+                .then(blob => callback(blob))
                 .catch(error => {
-                    $l.eventLog('$l.blobUrlToBlob', `url: ${url}, 오류: ${error}`, 'Warning');
-                    callback(error, null);
+                    syn.$l.eventLog('$l.blobUrlToBlob', `url: ${url}, 오류: ${error}`, 'Warning');
                 });
         },
 
         blobUrlToDataUri(url, callback) {
             if (typeof callback !== 'function') {
-                $l.eventLog('$l.blobUrlToDataUri', '콜백 함수 확인 필요', 'Warning');
-                if (callback) callback(new Error("콜백 함수가 필요합니다."), null);
+                syn.$l.eventLog('$l.blobUrlToDataUri', '콜백 함수 확인 필요', 'Warning');
                 return;
             }
             if (!url || typeof url !== 'string') {
-                if (callback) callback(new Error("잘못된 URL"), null);
+                syn.$l.eventLog('$l.blobUrlToDataUri', 'URL 확인 필요', 'Warning');
                 return;
             }
 
-            this.blobUrlToBlob(url, (error, blob) => {
-                if (error) {
-                    callback(error, null);
-                    return;
-                }
+            this.blobUrlToBlob(url, (blob) => {
                 if (blob) {
                     this.blobToDataUri(blob, callback);
                 } else {
-                    callback(new Error("URL에서 Blob 가져오기 실패"), null);
+                    syn.$l.eventLog('$l.blobUrlToDataUri', 'URL에서 Blob 가져오기 실패', 'Warning');
                 }
             });
         },
@@ -4246,7 +4246,7 @@ if (typeof module !== 'undefined' && module.exports) {
                     const mimeType = blob.type || 'application/octet-stream';
                     return `data:${mimeType};base64,${base64Data}`;
                 } catch (error) {
-                    $l.eventLog('$l.blobToBase64 (Node)', `Blob -> Base64 변환 오류(Node): ${error}`, 'Error');
+                    syn.$l.eventLog('$l.blobToBase64 (Node)', `Blob -> Base64 변환 오류(Node): ${error}`, 'Error');
                     return null;
                 }
             } else if (typeof FileReader !== 'undefined') {
@@ -4291,15 +4291,15 @@ if (typeof module !== 'undefined' && module.exports) {
 
                 return new Blob(byteArrays, { type: contentType });
             } catch (e) {
-                $l.eventLog('$l.base64ToBlob', `Base64 디코딩 또는 Blob 생성 실패: ${e}`, 'Error');
+                syn.$l.eventLog('$l.base64ToBlob', `Base64 디코딩 또는 Blob 생성 실패: ${e}`, 'Error');
                 return null;
             }
         },
 
         async blobToFile(blob, fileName, mimeType) {
-            if (!(blob instanceof Blob) || !fileName) return null;
+            if (!(blob instanceof Blob)) return null;
             const effectiveMimeType = mimeType || blob.type || 'application/octet-stream';
-            return new File([blob], fileName, { type: effectiveMimeType });
+            return new File([blob], fileName || `blob-${$date.toString(new Date(), 'f')}`, { type: effectiveMimeType });
         },
 
         async fileToBase64(file) {
@@ -4334,7 +4334,7 @@ if (typeof module !== 'undefined' && module.exports) {
                     return `data:${mimeType};base64,${base64Data}`;
 
                 } catch (error) {
-                    $l.eventLog('$l.fileToBase64 (Node)', `파일 -> Base64 변환 오류(Node): ${error}`, 'Error');
+                    syn.$l.eventLog('$l.fileToBase64 (Node)', `파일 -> Base64 변환 오류(Node): ${error}`, 'Error');
                     return null;
                 }
 
@@ -4346,7 +4346,7 @@ if (typeof module !== 'undefined' && module.exports) {
                     reader.readAsDataURL(file);
                 });
             } else {
-                $l.eventLog('$l.fileToBase64', '잘못된 입력 또는 환경입니다.', 'Warning');
+                syn.$l.eventLog('$l.fileToBase64', '잘못된 입력 또는 환경입니다.', 'Warning');
                 return null;
             }
         },
@@ -4369,7 +4369,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 const errorMsg = globalRoot.devicePlatform === 'node'
                     ? "Node.js 환경에서는 이미지 크기 조정을 지원하지 않습니다."
                     : "잘못된 입력: 이미지 Blob이 아닙니다.";
-                $l.eventLog('$l.resizeImage', errorMsg, 'Warning');
+                syn.$l.eventLog('$l.resizeImage', errorMsg, 'Warning');
                 return Promise.reject(new Error(errorMsg));
             }
 
@@ -4659,7 +4659,7 @@ if (typeof module !== 'undefined' && module.exports) {
             const params = new URLSearchParams();
             Object.entries(jsonObject).forEach(([key, val]) => {
                 if (val !== undefined && val !== null) {
-                    params.append(key, $s.toValue(val, ''));
+                    params.append(key, $string.toValue(val, ''));
                 }
             });
             const queryString = params.toString();
@@ -4697,11 +4697,11 @@ if (typeof module !== 'undefined' && module.exports) {
                 const response = await fetch(url, { method: 'HEAD', mode: 'cors', cache: 'no-cache', signal: AbortSignal.timeout(2000) });
                 const corsOk = response.ok;
                 if (!corsOk) {
-                    $l.eventLog('$r.isCorsEnabled', `${url}, Status: ${response.status} ${response.statusText}`, 'Warning');
+                    syn.$l.eventLog('$r.isCorsEnabled', `${url}, Status: ${response.status} ${response.statusText}`, 'Warning');
                 }
                 return corsOk;
             } catch (error) {
-                $l.eventLog('$r.isCorsEnabled', `${url}, Error: ${error.message}`, (error.name === 'AbortError' ? 'Warning' : 'Error'));
+                syn.$l.eventLog('$r.isCorsEnabled', `${url}, Error: ${error.message}`, (error.name === 'AbortError' ? 'Warning' : 'Error'));
                 return false;
             }
         },
@@ -4752,7 +4752,7 @@ if (typeof module !== 'undefined' && module.exports) {
                         if (!response.ok) {
                             const errorText = await response.text().catch(() => 'Failed to read error response body');
                             const errorMsg = `HTTP error! status: ${response.status}, text: ${errorText}`;
-                            $l.eventLog('$r.httpFetch', errorMsg, 'Error');
+                            syn.$l.eventLog('$r.httpFetch', errorMsg, 'Error');
                             return { error: errorMsg };
                         }
 
@@ -4767,7 +4767,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
                     } catch (error) {
                         if (timeoutId) clearTimeout(timeoutId);
-                        $l.eventLog('$r.httpFetch', `Fetch error: ${error.message}`, 'Error');
+                        syn.$l.eventLog('$r.httpFetch', `Fetch error: ${error.message}`, 'Error');
                         return { error: `Fetch error: ${error.message}` };
                     }
                 }
@@ -4800,7 +4800,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                 headers['Content-Type'] = contentType || 'application/json';
                             } catch (e) {
                                 const errorMsg = 'Failed to stringify data for request body';
-                                $l.eventLog('$r.httpRequest', errorMsg, 'Error');
+                                syn.$l.eventLog('$r.httpRequest', errorMsg, 'Error');
                                 if (callback) return callback({ status: -1, response: errorMsg });
                                 return Promise.resolve({ status: -1, response: errorMsg });
                             }
@@ -4838,14 +4838,14 @@ if (typeof module !== 'undefined' && module.exports) {
                     }))
                     .catch(error => {
                         const errorMsg = error.name === 'AbortError' ? 'Request timed out' : `Fetch error: ${error.message}`;
-                        $l.eventLog('$r.httpRequest', errorMsg, 'Error');
+                        syn.$l.eventLog('$r.httpRequest', errorMsg, 'Error');
                         return { status: -1, response: errorMsg };
                     });
             }
 
             if (!context.XMLHttpRequest) {
                 const errorMsg = 'XMLHttpRequest not supported';
-                $l.eventLog('$r.httpRequest', errorMsg, 'Error');
+                syn.$l.eventLog('$r.httpRequest', errorMsg, 'Error');
                 if (callback) return callback({ status: -1, response: errorMsg });
                 return;
             }
@@ -4856,7 +4856,7 @@ if (typeof module !== 'undefined' && module.exports) {
             try {
                 xhr.responseType = responseType;
             } catch {
-                $l.eventLog('$r.httpRequest', `XHR responseType '${responseType}' not supported`, 'Warning');
+                syn.$l.eventLog('$r.httpRequest', `XHR responseType '${responseType}' not supported`, 'Warning');
             }
 
             Object.entries(headers).forEach(([key, value]) => xhr.setRequestHeader(key, value));
@@ -4869,10 +4869,10 @@ if (typeof module !== 'undefined' && module.exports) {
             xhr.onreadystatechange = () => {
                 if (xhr.readyState === 4 && callback) {
                     if (xhr.status === 0 && !xhr.response) {
-                        $l.eventLog('$r.httpRequest', 'XHR Request failed (Network error or CORS)', 'Fatal');
+                        syn.$l.eventLog('$r.httpRequest', 'XHR Request failed (Network error or CORS)', 'Fatal');
                         callback({ status: xhr.status, response: 'XHR Request failed (Network error or CORS)' });
                     } else if (xhr.status < 200 || xhr.status >= 300) {
-                        $l.eventLog('$r.httpRequest', `XHR response status - ${xhr.status} ${xhr.statusText}: ${xhr.response}`, 'Error');
+                        syn.$l.eventLog('$r.httpRequest', `XHR response status - ${xhr.status} ${xhr.statusText}: ${xhr.response}`, 'Error');
                         callback({ status: xhr.status, response: xhr.response || xhr.statusText });
                     } else {
                         callback({ status: xhr.status, response: xhr.response });
@@ -4882,13 +4882,13 @@ if (typeof module !== 'undefined' && module.exports) {
 
             xhr.onerror = () => {
                 if (callback) {
-                    $l.eventLog('$r.httpRequest', 'XHR Network Error', 'Error');
+                    syn.$l.eventLog('$r.httpRequest', 'XHR Network Error', 'Error');
                     callback({ status: -1, response: 'XHR Network Error' });
                 }
             };
             xhr.ontimeout = () => {
                 if (callback) {
-                    $l.eventLog('$r.httpRequest', 'XHR Request Timed Out', 'Error');
+                    syn.$l.eventLog('$r.httpRequest', 'XHR Request Timed Out', 'Error');
                     callback({ status: -1, response: 'XHR Request Timed Out' });
                 }
             };
@@ -4897,7 +4897,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 xhr.send(requestBody);
             } catch (e) {
                 if (callback) {
-                    $l.eventLog('$r.httpRequest', `XHR send error: ${e}`, 'Error');
+                    syn.$l.eventLog('$r.httpRequest', `XHR send error: ${e}`, 'Error');
                     callback({ status: -1, response: `XHR send error: ${e.message}` });
                 }
             }
@@ -4913,6 +4913,10 @@ if (typeof module !== 'undefined' && module.exports) {
                 form.submit();
                 return true;
             }
+            else {
+                syn.$l.eventLog('$w.httpSubmit', `${formID} 매개변수 확인 필요`, 'Warning');
+            }
+
             return false;
         },
 
@@ -7611,7 +7615,12 @@ if (typeof module !== 'undefined' && module.exports) {
 
                         var requestTimeoutID = null;
                         if ($object.isNullOrUndefined(raw) == false && $object.isString(raw) == false) {
-                            options.method = options.method || 'POST';
+                            if (options.method == 'GET' || options.method == 'HEAD') {
+                                options.method = 'POST';
+                            }
+                            else {
+                                options.method = options.method || 'POST';
+                            }
 
                             if ($object.isNullOrUndefined(options.headers) == true) {
                                 options.headers = new Headers();
@@ -9225,8 +9234,6 @@ if (typeof module !== 'undefined' && module.exports) {
         delete syn.$p.getSchemeText;
     }
 })(globalRoot);
-
-/// <reference path='syn.core.js' />
 
 (function (context) {
     'use strict';

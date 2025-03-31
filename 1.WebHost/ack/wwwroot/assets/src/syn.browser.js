@@ -213,15 +213,25 @@
 
         async getIpAddress() {
             let ipAddress = '127.0.0.1';
-            const ipServerUrl = syn.Config.FindClientIPServer || '/checkip';
-            try {
-                const value = await syn.$r.httpFetch(ipServerUrl).send(null, { timeout: 3000 });
-                if (value && syn.$v.regexs.ipAddress.test(value)) {
-                    ipAddress = value;
+            const urls = [
+                { url: 'https://api.ipify.org?format=json', json: true },
+                { url: syn.Config.FindClientIPServer || '/checkip', json: false }
+            ];
+
+            for (const { url, json } of urls) {
+                try {
+                    const response = await fetch(url);
+                    if (response.ok) {
+                        const data = json ? await response.json() : await response.text();
+                        ipAddress = json ? data.ip : data.trim();
+                        break;
+                    }
+
+                } catch (error) {
+                    console.warn(`'${url}' 에서 IP 를 가져오지 못했습니다:`, error);
                 }
-            } catch (error) {
-                syn.$l.eventLog('$b.getIpAddress', error, 'Error');
             }
+
             return ipAddress;
         }
     });

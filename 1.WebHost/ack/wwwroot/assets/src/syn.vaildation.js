@@ -24,10 +24,10 @@
         },
 
         setElement(el) {
-            const element = $o.isString(el) ? $l.get(el) : el;
-            if (element?.id) {
-                this.initializeValidObject(element);
-                this.targetEL = element;
+            el = syn.$l.getElement(el);
+            if (el?.id) {
+                this.initializeValidObject(el);
+                this.targetEL = el;
             } else {
                 this.targetEL = null;
             }
@@ -35,22 +35,22 @@
         },
 
         required(el, isRequired = true, message) {
-            if ($s.isNullOrEmpty(message)) {
-                $l.eventLog('$v.required', 'message 확인 필요', 'Information');
+            if ($string.isNullOrEmpty(message)) {
+                syn.$l.eventLog('$v.required', 'message 확인 필요', 'Information');
                 return this;
             }
-            const element = $o.isString(el) ? $l.get(el) : el;
-            if (element) {
-                this.setElement(element);
-                element.required = $s.toBoolean(isRequired);
-                element.message = message;
+            el = syn.$l.getElement(el);
+            if (el) {
+                this.setElement(el);
+                el.required = $string.toBoolean(isRequired);
+                el.message = message;
             }
             return this;
         },
 
         pattern(el, validID, options = {}) {
-            if (!options.expr || $s.isNullOrEmpty(options.message)) {
-                $l.eventLog('$v.pattern', 'options.expr, options.message 확인 필요', 'Information');
+            if (!options.expr || $string.isNullOrEmpty(options.message)) {
+                syn.$l.eventLog('$v.pattern', 'options.expr, options.message 확인 필요', 'Information');
                 return this;
             }
             this.setElement(el);
@@ -62,10 +62,10 @@
         },
 
         range(el, validID, options = {}) {
-            if (!$s.isNumber(options.min) || !$s.isNumber(options.max) ||
-                $s.isNullOrEmpty(options.minOperator) || $s.isNullOrEmpty(options.maxOperator) ||
-                $s.isNullOrEmpty(options.message)) {
-                $l.eventLog('$v.range', 'options.min, options.minOperator, options.max, options.maxOperator, options.message 확인 필요', 'Information');
+            if (!$string.isNumber(options.min) || !$string.isNumber(options.max) ||
+                $string.isNullOrEmpty(options.minOperator) || $string.isNullOrEmpty(options.maxOperator) ||
+                $string.isNullOrEmpty(options.message)) {
+                syn.$l.eventLog('$v.range', 'options.min, options.minOperator, options.max, options.maxOperator, options.message 확인 필요', 'Information');
                 return this;
             }
             this.setElement(el);
@@ -77,8 +77,8 @@
         },
 
         custom(el, validID, options = {}) {
-            if (!options.functionName || $s.isNullOrEmpty(options.message)) {
-                $l.eventLog('$v.custom', 'options.functionName, options.message 확인 필요', 'Information');
+            if (!options.functionName || $string.isNullOrEmpty(options.message)) {
+                syn.$l.eventLog('$v.custom', 'options.functionName, options.message 확인 필요', 'Information');
                 return this;
             }
             this.setElement(el);
@@ -94,7 +94,7 @@
                 try {
                     delete this.elements[this.targetEL.id][validType][validID];
                 } catch (e) {
-                    $l.eventLog('$v.removeValidate', `Failed to delete validation: ${validType}.${validID}`, 'Warning');
+                    syn.$l.eventLog('$v.removeValidate', `Failed to delete validation: ${validType}.${validID}`, 'Warning');
                 }
             }
             return this;
@@ -118,24 +118,24 @@
         },
 
         validateControl(el) {
-            const element = $o.isString(el) ? $l.get(el) : el;
-            if (!element?.id) return true;
+            el = syn.$l.getElement(el);
+            if (!el?.id) return true;
 
-            this.setElement(element);
+            this.setElement(el);
 
             let isValid = true;
-            const value = element.value?.trim() ?? '';
+            const value = el.value?.trim() ?? '';
 
-            if ($s.toBoolean(element.required) && value.length === 0) {
+            if ($string.toBoolean(el.required) && value.length === 0) {
                 isValid = false;
-                this.messages.push(element.message);
+                this.messages.push(el.message);
                 if (!this.isContinue) return false;
             }
 
             if (!isValid && !this.isContinue) return false;
-            if (!$s.toBoolean(element.required) && value.length === 0) return true;
+            if (!$string.toBoolean(el.required) && value.length === 0) return true;
 
-            const validObject = this.elements[element.id];
+            const validObject = this.elements[el.id];
             if (!validObject) return isValid;
 
             for (const [validID, patternRule] of Object.entries(validObject.pattern)) {
@@ -149,38 +149,38 @@
 
             for (const [validID, rangeRule] of Object.entries(validObject.range)) {
                 let rangeResult = false;
-                if ($s.isNumber(value)) {
+                if ($string.isNumber(value)) {
                     try {
-                        const numValue = $s.toNumber(value);
-                        const min = $s.toNumber(rangeRule.min);
-                        const max = $s.toNumber(rangeRule.max);
+                        const numValue = $string.toNumber(value);
+                        const min = $string.toNumber(rangeRule.min);
+                        const max = $string.toNumber(rangeRule.max);
 
                         const checkMin = (op, val, limit) => {
                             switch (op) {
-                                case '>': return val > limit;
-                                case '>=': return val >= limit;
-                                case '<': return val < limit;
-                                case '<=': return val <= limit;
-                                case '==': return val == limit;
-                                case '!=': return val != limit;
+                                case '>': return limit > val;
+                                case '>=': return limit >= val;
+                                case '<': return limit < val;
+                                case '<=': return limit <= val;
+                                case '==': return limit == val;
+                                case '!=': return limit != val;
                                 default: return false;
                             }
                         };
                         const checkMax = (op, val, limit) => {
                             switch (op) {
-                                case '<': return val < limit;
-                                case '<=': return val <= limit;
-                                case '>': return val > limit;
-                                case '>=': return val >= limit;
-                                case '==': return val == limit;
-                                case '!=': return val != limit;
+                                case '<': return limit < val;
+                                case '<=': return limit <= val;
+                                case '>': return limit > val;
+                                case '>=': return limit >= val;
+                                case '==': return limit == val;
+                                case '!=': return limit != val;
                                 default: return false;
                             }
                         };
                         rangeResult = checkMin(rangeRule.minOperator, numValue, min) && checkMax(rangeRule.maxOperator, numValue, max);
 
                     } catch (error) {
-                        $l.eventLog('$v.validateControl', `elID: "${element.id}" 유효성 range 검사 오류 ${error.message}`, 'Warning');
+                        syn.$l.eventLog('$v.validateControl', `elID: "${el.id}" 유효성 range 검사 오류 ${error.message}`, 'Warning');
                         rangeResult = false;
                     }
                 } else {
@@ -215,7 +215,7 @@
                         throw new Error(`Custom validation function "${functionName}" not found.`);
                     }
                 } catch (error) {
-                    $l.eventLog('$v.validateControl', `elID: "${element.id}" 유효성 custom 검사 오류 ${error.message}`, 'Warning');
+                    syn.$l.eventLog('$v.validateControl', `elID: "${el.id}" 유효성 custom 검사 오류 ${error.message}`, 'Warning');
                     customResult = false;
                 }
 

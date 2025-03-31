@@ -60,7 +60,7 @@
             const params = new URLSearchParams();
             Object.entries(jsonObject).forEach(([key, val]) => {
                 if (val !== undefined && val !== null) {
-                    params.append(key, $s.toValue(val, ''));
+                    params.append(key, $string.toValue(val, ''));
                 }
             });
             const queryString = params.toString();
@@ -98,11 +98,11 @@
                 const response = await fetch(url, { method: 'HEAD', mode: 'cors', cache: 'no-cache', signal: AbortSignal.timeout(2000) });
                 const corsOk = response.ok;
                 if (!corsOk) {
-                    $l.eventLog('$r.isCorsEnabled', `${url}, Status: ${response.status} ${response.statusText}`, 'Warning');
+                    syn.$l.eventLog('$r.isCorsEnabled', `${url}, Status: ${response.status} ${response.statusText}`, 'Warning');
                 }
                 return corsOk;
             } catch (error) {
-                $l.eventLog('$r.isCorsEnabled', `${url}, Error: ${error.message}`, (error.name === 'AbortError' ? 'Warning' : 'Error'));
+                syn.$l.eventLog('$r.isCorsEnabled', `${url}, Error: ${error.message}`, (error.name === 'AbortError' ? 'Warning' : 'Error'));
                 return false;
             }
         },
@@ -153,7 +153,7 @@
                         if (!response.ok) {
                             const errorText = await response.text().catch(() => 'Failed to read error response body');
                             const errorMsg = `HTTP error! status: ${response.status}, text: ${errorText}`;
-                            $l.eventLog('$r.httpFetch', errorMsg, 'Error');
+                            syn.$l.eventLog('$r.httpFetch', errorMsg, 'Error');
                             return { error: errorMsg };
                         }
 
@@ -168,7 +168,7 @@
 
                     } catch (error) {
                         if (timeoutId) clearTimeout(timeoutId);
-                        $l.eventLog('$r.httpFetch', `Fetch error: ${error.message}`, 'Error');
+                        syn.$l.eventLog('$r.httpFetch', `Fetch error: ${error.message}`, 'Error');
                         return { error: `Fetch error: ${error.message}` };
                     }
                 }
@@ -201,7 +201,7 @@
                                 headers['Content-Type'] = contentType || 'application/json';
                             } catch (e) {
                                 const errorMsg = 'Failed to stringify data for request body';
-                                $l.eventLog('$r.httpRequest', errorMsg, 'Error');
+                                syn.$l.eventLog('$r.httpRequest', errorMsg, 'Error');
                                 if (callback) return callback({ status: -1, response: errorMsg });
                                 return Promise.resolve({ status: -1, response: errorMsg });
                             }
@@ -239,14 +239,14 @@
                     }))
                     .catch(error => {
                         const errorMsg = error.name === 'AbortError' ? 'Request timed out' : `Fetch error: ${error.message}`;
-                        $l.eventLog('$r.httpRequest', errorMsg, 'Error');
+                        syn.$l.eventLog('$r.httpRequest', errorMsg, 'Error');
                         return { status: -1, response: errorMsg };
                     });
             }
 
             if (!context.XMLHttpRequest) {
                 const errorMsg = 'XMLHttpRequest not supported';
-                $l.eventLog('$r.httpRequest', errorMsg, 'Error');
+                syn.$l.eventLog('$r.httpRequest', errorMsg, 'Error');
                 if (callback) return callback({ status: -1, response: errorMsg });
                 return;
             }
@@ -257,7 +257,7 @@
             try {
                 xhr.responseType = responseType;
             } catch {
-                $l.eventLog('$r.httpRequest', `XHR responseType '${responseType}' not supported`, 'Warning');
+                syn.$l.eventLog('$r.httpRequest', `XHR responseType '${responseType}' not supported`, 'Warning');
             }
 
             Object.entries(headers).forEach(([key, value]) => xhr.setRequestHeader(key, value));
@@ -270,10 +270,10 @@
             xhr.onreadystatechange = () => {
                 if (xhr.readyState === 4 && callback) {
                     if (xhr.status === 0 && !xhr.response) {
-                        $l.eventLog('$r.httpRequest', 'XHR Request failed (Network error or CORS)', 'Fatal');
+                        syn.$l.eventLog('$r.httpRequest', 'XHR Request failed (Network error or CORS)', 'Fatal');
                         callback({ status: xhr.status, response: 'XHR Request failed (Network error or CORS)' });
                     } else if (xhr.status < 200 || xhr.status >= 300) {
-                        $l.eventLog('$r.httpRequest', `XHR response status - ${xhr.status} ${xhr.statusText}: ${xhr.response}`, 'Error');
+                        syn.$l.eventLog('$r.httpRequest', `XHR response status - ${xhr.status} ${xhr.statusText}: ${xhr.response}`, 'Error');
                         callback({ status: xhr.status, response: xhr.response || xhr.statusText });
                     } else {
                         callback({ status: xhr.status, response: xhr.response });
@@ -283,13 +283,13 @@
 
             xhr.onerror = () => {
                 if (callback) {
-                    $l.eventLog('$r.httpRequest', 'XHR Network Error', 'Error');
+                    syn.$l.eventLog('$r.httpRequest', 'XHR Network Error', 'Error');
                     callback({ status: -1, response: 'XHR Network Error' });
                 }
             };
             xhr.ontimeout = () => {
                 if (callback) {
-                    $l.eventLog('$r.httpRequest', 'XHR Request Timed Out', 'Error');
+                    syn.$l.eventLog('$r.httpRequest', 'XHR Request Timed Out', 'Error');
                     callback({ status: -1, response: 'XHR Request Timed Out' });
                 }
             };
@@ -298,7 +298,7 @@
                 xhr.send(requestBody);
             } catch (e) {
                 if (callback) {
-                    $l.eventLog('$r.httpRequest', `XHR send error: ${e}`, 'Error');
+                    syn.$l.eventLog('$r.httpRequest', `XHR send error: ${e}`, 'Error');
                     callback({ status: -1, response: `XHR send error: ${e.message}` });
                 }
             }
@@ -314,6 +314,10 @@
                 form.submit();
                 return true;
             }
+            else {
+                syn.$l.eventLog('$w.httpSubmit', `${formID} 매개변수 확인 필요`, 'Warning');
+            }
+
             return false;
         },
 

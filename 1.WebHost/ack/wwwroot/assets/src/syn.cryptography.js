@@ -1,11 +1,6 @@
 ﻿(function (context) {
     'use strict';
     const $cryptography = context.$cryptography || new syn.module();
-    const $l = context.$library;
-
-    const defaultKeyLength = 256;
-    const defaultAlgorithm = 'AES-CBC';
-
     const encoder = new TextEncoder();
     const decoder = new TextDecoder();
 
@@ -18,7 +13,7 @@
                     const bytes = encoder.encode(String(val));
                     return btoa(String.fromCharCode(...bytes));
                 } catch (e) {
-                    console.error("Base64 encoding failed:", e);
+                    syn.$l.eventLog('$c.base64Encode', `Base64 인코딩 실패: ${e}`, 'Error');
                     return null;
                 }
             }
@@ -33,7 +28,7 @@
                     const bytes = new Uint8Array([...binaryString].map(c => c.charCodeAt(0)));
                     return decoder.decode(bytes);
                 } catch (e) {
-                    console.error("Base64 decoding failed:", e);
+                    syn.$l.eventLog('$c.base64Encode', `Base64 디코딩 실패: ${e}`, 'Error');
                     return null;
                 }
             }
@@ -41,26 +36,37 @@
 
         utf8Encode(plainString) {
             if (typeof plainString !== 'string') {
-                throw new TypeError('parameter is not a plain string');
+                throw new TypeError('매개변수가 문자열이 아닙니다.');
             }
+
             try {
-                return decoder.decode(encoder.encode(plainString));
+                return encoder.encode(plainString);
             } catch (e) {
-                console.error("UTF-8 encoding failed:", e);
-                return plainString;
+                syn.$l.eventLog('$c.base64Encode', `UTF-8 인코딩 실패: ${e}`, 'Error');
             }
+            return null;
         },
 
-        utf8Decode(utf8String) {
-            if (typeof utf8String !== 'string') {
-                throw new TypeError('parameter is not a utf8 string');
+        utf8Decode(encodeString) {
+            if (typeof encodeString !== 'string') {
+                throw new TypeError('매개변수가 UTF-8 문자열이 아닙니다.');
             }
+
             try {
-                return decoder.decode(encoder.encode(utf8String));
+                return decoder.decode(this.convertToBuffer(encodeString.split(',').map(Number)));
             } catch (e) {
-                console.warn("UTF-8 decoding failed:", e);
-                return utf8String;
+                syn.$l.eventLog('$c.base64Encode', `UTF-8 디코딩 실패: ${e}`, 'Error');
             }
+            return null;
+        },
+
+        convertToBuffer(values) {
+            let buffer = new ArrayBuffer(values.length);
+            let view = new Uint8Array(buffer);
+            for (let i = 0; i < values.length; i++) {
+                view[i] = values[i];
+            }
+            return buffer;
         },
 
         isWebCryptoSupported() {
@@ -69,7 +75,7 @@
 
         padKey(key, length) {
             if (typeof key !== 'string') return null;
-            
+
             let encodedKey = encoder.encode(key);
 
             if (encodedKey.length >= length) {
@@ -81,216 +87,214 @@
             return paddedKey;
         },
 
+        // syn.$c.generateHMAC().then((signature) => { debugger; });
         async generateHMAC(key, message) {
-            if (!this.isWebCryptoSupported()) return null;
-            
+            let result = null;
+
             const keyData = encoder.encode(key);
             const messageData = encoder.encode(message);
+            const cryptoKey = await crypto.subtle.importKey(
+                'raw',
+                keyData,
+                { name: 'HMAC', hash: 'SHA-256' },
+                false,
+                ['sign']
+            );
 
-            try {
-                const cryptoKey = await crypto.subtle.importKey(
-                    'raw', keyData, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
-                );
-                const signature = await crypto.subtle.sign('HMAC', cryptoKey, messageData);
-                return Array.from(new Uint8Array(signature)).map(b => b.toString(16).padStart(2, '0')).join('');
-            } catch (error) {
-                $l.eventLog('$c.generateHMAC', error, 'Error');
-                return null;
-            }
+            const signature = await crypto.subtle.sign('HMAC', cryptoKey, messageData);
+            result = Array.from(new Uint8Array(signature)).map(b => b.toString(16).padStart(2, '0')).join('');
+            return result;
         },
 
+        // syn.$c.verifyHMAC('handstack', 'hello world', '25a00a2d55bbb313329c8abba5aebc8b282615876544c5be236d75d1418fc612').then((result) => { debugger; });
         async verifyHMAC(key, message, signature) {
-            const generatedSignature = await this.generateHMAC(key, message);
-            return generatedSignature === signature;
+            return await $cryptography.generateHMAC(key, message) === signature;
         },
 
-        async generateRSAKey(hash = "SHA-256", modulusLength = 2048) {
-            if (!this.isWebCryptoSupported()) return null;
-            try {
-                return await crypto.subtle.generateKey(
-                    {
-                        name: "RSA-OAEP",
-                        modulusLength: modulusLength,
-                        publicExponent: new Uint8Array([1, 0, 1]),
-                        hash: hash
-                    },
-                    true,
-                    ['encrypt', 'decrypt']
-                );
-            } catch (error) {
-                $l.eventLog('$c.generateRSAKey', error, 'Error');
-                return null;
-            }
+        // syn.$c.generateRSAKey().then((cryptoKey) => { debugger; });
+        async generateRSAKey() {
+            let result = null;
+            result = await window.crypto.subtle.generateKey(
+                {
+                    name: "RSA-OAEP",
+                    modulusLength: 2048,
+                    publicExponent: new Uint8Array([1, 0, 1]),
+                    hash: "SHA-256"
+                },
+                true,
+                ['encrypt', 'decrypt']
+            );
+            return result;
         },
 
-        async exportCryptoKey(cryptoKey, isPublic = true) {
-            if (!this.isWebCryptoSupported() || !cryptoKey) return '';
-            const format = isPublic ? 'spki' : 'pkcs8';
-            const typeLabel = isPublic ? 'PUBLIC' : 'PRIVATE';
+        // syn.$c.exportCryptoKey(cryptoKey.publicKey, true).then((result) => { debugger; });
+        async exportCryptoKey(cryptoKey, isPublic) {
+            let result = '';
+            isPublic = $string.toBoolean(isPublic);
+            const exportLabel = isPublic == true ? 'PUBLIC' : 'PRIVATE';
+            const exported = await window.crypto.subtle.exportKey(
+                (isPublic == true ? 'spki' : 'pkcs8'),
+                cryptoKey
+            );
+            const exportedAsString = String.fromCharCode.apply(null, new Uint8Array(exported));
+            const exportedAsBase64 = window.btoa(exportedAsString);
+            result = `-----BEGIN ${exportLabel} KEY-----\n${exportedAsBase64}\n-----END ${exportLabel} KEY-----`;
 
-            try {
-                const exported = await crypto.subtle.exportKey(format, cryptoKey);
-                const exportedAsString = String.fromCharCode(...new Uint8Array(exported));
-                const exportedAsBase64 = btoa(exportedAsString);
-                const pemFormatted = exportedAsBase64.match(/.{1,64}/g)?.join('\n') || '';
-
-                return `----- BEGIN ${typeLabel} KEY-----\n${pemFormatted} \n----- END ${typeLabel} KEY----- `;
-            } catch (error) {
-                $l.eventLog('$c.exportCryptoKey', error, 'Error');
-                return '';
-            }
+            const lines = result.split('\n');
+            result = lines.map(line => {
+                return line.match(/.{1,64}/g).join('\n');
+            });
+            return result.join('\n');
         },
 
-        async importCryptoKey(pem, isPublic = true) {
-            if (!this.isWebCryptoSupported() || !pem) return null;
-            const typeLabel = isPublic ? 'PUBLIC' : 'PRIVATE';
-            const pemHeader = `----- BEGIN ${typeLabel} KEY----- `;
-            const pemFooter = `----- END ${typeLabel} KEY----- `;
+        // syn.$c.importCryptoKey('-----BEGIN PUBLIC KEY-----...-----END PUBLIC KEY-----', true).then((result) => { debugger; });
+        async importCryptoKey(pem, isPublic) {
+            let result = null;
+            isPublic = $string.toBoolean(isPublic);
+            const exportLabel = isPublic == true ? 'PUBLIC' : 'PRIVATE';
+            const pemHeader = `-----BEGIN ${exportLabel} KEY-----`;
+            const pemFooter = `-----END ${exportLabel} KEY-----`;
+            const pemContents = pem.substring(pemHeader.length, pem.length - pemFooter.length).replaceAll('\n', '');
+            const binaryDerString = window.atob(pemContents);
+            const binaryDer = syn.$l.stringToArrayBuffer(binaryDerString);
+            const importMode = isPublic == true ? ['encrypt'] : ['decrypt'];
 
-            try {
-                const pemContents = pem.substring(pemHeader.length, pem.length - pemFooter.length).replace(/\s+/g, '');
-                const binaryDerString = atob(pemContents);
-                const binaryDer = new Uint8Array(binaryDerString.length).map((_, i) => binaryDerString.charCodeAt(i));
-
-                const format = isPublic ? 'spki' : 'pkcs8';
-                const usage = isPublic ? ['encrypt'] : ['decrypt'];
-
-                return await crypto.subtle.importKey(
-                    format,
-                    binaryDer.buffer,
-                    { name: 'RSA-OAEP', hash: 'SHA-256' },
-                    true,
-                    usage
-                );
-            } catch (error) {
-                $l.eventLog('$c.importCryptoKey', error, 'Error');
-                return null;
-            }
+            result = await crypto.subtle.importKey(
+                (isPublic == true ? 'spki' : 'pkcs8'),
+                binaryDer,
+                {
+                    name: 'RSA-OAEP',
+                    hash: 'SHA-256'
+                },
+                true,
+                importMode
+            );
+            return result;
         },
 
+        // syn.$c.rsaEncode('hello world', result).then((result) => { debugger; });
         async rsaEncode(text, publicKey) {
-            if (!this.isWebCryptoSupported() || !publicKey) return null;
-            
+            let result = null;
+
             const data = encoder.encode(text);
-            try {
-                const encrypted = await crypto.subtle.encrypt({ name: 'RSA-OAEP' }, publicKey, data);
-                const base64String = this.base64Encode(String.fromCharCode(...new Uint8Array(encrypted)));
-                return base64String;
-            } catch (error) {
-                $l.eventLog('$c.rsaEncode', error, 'Error');
-                return null;
-            }
+            const encrypted = await crypto.subtle.encrypt(
+                {
+                    name: 'RSA-OAEP'
+                },
+                publicKey,
+                data
+            );
+
+            result = $cryptography.base64Encode(new Uint8Array(encrypted));
+            return result;
         },
 
-        async rsaDecode(encryptedBase64, privateKey) {
-            if (!this.isWebCryptoSupported() || !privateKey || !encryptedBase64) return null;
-            try {
-                const encryptedString = this.base64Decode(encryptedBase64);
-                if (encryptedString === null) throw new Error("Base64 decoding failed");
-                const encryptedBuffer = new Uint8Array(encryptedString.length).map((_, i) => encryptedString.charCodeAt(i)).buffer;
+        // syn.$c.rsaDecode(encryptData, result).then((result) => { debugger; });
+        async rsaDecode(encryptedData, privateKey) {
+            let result = null;
+            const encrypted = new Uint8Array($cryptography.base64Decode(encryptedData).split(',').map(Number));
+            const decrypted = await crypto.subtle.decrypt(
+                {
+                    name: 'RSA-OAEP'
+                },
+                privateKey,
+                encrypted
+            );
 
-                const decrypted = await crypto.subtle.decrypt({ name: 'RSA-OAEP' }, privateKey, encryptedBuffer);
-                
-                return decoder.decode(decrypted);
-            } catch (error) {
-                $l.eventLog('$c.rsaDecode', error, 'Error');
-                return null;
-            }
+            result = decoder.decode(decrypted);
+            return result;
         },
 
-
-        generateIV(key, ivLength = 16) {
-            if (key && key.toUpperCase() === '$RANDOM$') {
-                if (context.crypto?.getRandomValues) {
-                    return context.crypto.getRandomValues(new Uint8Array(ivLength));
-                } else {
-                    console.warn("crypto.getRandomValues not available, using less secure random IV generation.");
-                    const randomBytes = new Uint8Array(ivLength);
-                    for (let i = 0; i < ivLength; i++) {
-                        randomBytes[i] = Math.floor(Math.random() * 256);
-                    }
-                    return randomBytes;
-                }
+        generateIV(key, ivLength) {
+            let result;
+            ivLength = ivLength || 16;
+            if (key && key.toUpperCase() == '$RANDOM$') {
+                result = window.crypto.getRandomValues(new Uint8Array(ivLength));
+            }
+            else {
+                key = key || '';
+                result = $cryptography.padKey(key, ivLength);
             }
 
-            return this.padKey(key || '', ivLength);
+            return result;
         },
 
-        async aesEncode(text, key = '', algorithm = defaultAlgorithm, keyLength = defaultKeyLength) {
-            if (!this.isWebCryptoSupported()) return null;
+        async aesEncode(text, key, algorithm, keyLength) {
+            let result = null;
+            key = key || '';
+            algorithm = algorithm || 'AES-CBC'; // AES-CBC, AES-GCM
+            keyLength = keyLength || 256; // 128, 256
             const ivLength = algorithm === 'AES-GCM' ? 12 : 16;
-            const iv = this.generateIV(key, ivLength);
-            
+            const iv = $cryptography.generateIV(key, ivLength);
+
             const data = encoder.encode(text);
-            const paddedKey = this.padKey(key, keyLength / 8);
 
-            try {
-                const cryptoKey = await crypto.subtle.importKey(
-                    'raw', paddedKey, { name: algorithm }, false, ['encrypt']
-                );
-                const encrypted = await crypto.subtle.encrypt(
-                    { name: algorithm, iv: iv }, cryptoKey, data
-                );
+            const cryptoKey = await window.crypto.subtle.importKey(
+                'raw',
+                $cryptography.padKey(key, keyLength / 8),
+                { name: algorithm },
+                false,
+                ['encrypt']
+            );
 
-                const ivBase64 = this.base64Encode(String.fromCharCode(...iv));
-                const encryptedBase64 = this.base64Encode(String.fromCharCode(...new Uint8Array(encrypted)));
+            const encrypted = await window.crypto.subtle.encrypt(
+                {
+                    name: algorithm,
+                    iv: iv
+                },
+                cryptoKey,
+                data
+            );
 
-                return { iv: ivBase64, encrypted: encryptedBase64 };
-            } catch (error) {
-                $l.eventLog('$c.aesEncode', error, 'Error');
-                return null;
-            }
+            result = {
+                iv: $cryptography.base64Encode(iv),
+                encrypted: $cryptography.base64Encode(new Uint8Array(encrypted))
+            };
+
+            return result;
         },
 
-        async aesDecode(encryptedData, key = '', algorithm = defaultAlgorithm, keyLength = defaultKeyLength) {
-            if (!this.isWebCryptoSupported() || !encryptedData?.iv || !encryptedData?.encrypted) return null;
-
-            try {
-                const ivString = this.base64Decode(encryptedData.iv);
-                const encryptedString = this.base64Decode(encryptedData.encrypted);
-
-                if (ivString === null || encryptedString === null) {
-                    throw new Error("Base64 decoding failed for IV or encrypted data.");
-                }
-
-                const iv = new Uint8Array(ivString.length).map((_, i) => ivString.charCodeAt(i));
-                const encrypted = new Uint8Array(encryptedString.length).map((_, i) => encryptedString.charCodeAt(i));
-
-
-                const paddedKey = this.padKey(key, keyLength / 8);
-                const cryptoKey = await crypto.subtle.importKey(
-                    'raw', paddedKey, { name: algorithm }, false, ['decrypt']
-                );
-                const decrypted = await crypto.subtle.decrypt(
-                    { name: algorithm, iv: iv }, cryptoKey, encrypted
+        async aesDecode(encryptedData, key, algorithm, keyLength) {
+            let result = null;
+            key = key || '';
+            algorithm = algorithm || 'AES-CBC'; // AES-CBC, AES-GCM
+            keyLength = keyLength || 256; // 128, 256
+            if (encryptedData && encryptedData.iv && encryptedData.encrypted) {
+                const iv = new Uint8Array($cryptography.base64Decode(encryptedData.iv).split(',').map(Number));
+                const encrypted = new Uint8Array($cryptography.base64Decode(encryptedData.encrypted).split(',').map(Number));
+                const cryptoKey = await window.crypto.subtle.importKey(
+                    'raw',
+                    $cryptography.padKey(key, keyLength / 8),
+                    { name: algorithm },
+                    false,
+                    ['decrypt']
                 );
 
-                
-                return decoder.decode(decrypted);
-            } catch (error) {
-                $l.eventLog('$c.aesDecode', error, 'Error');
-                return null;
+                const decrypted = await window.crypto.subtle.decrypt(
+                    {
+                        name: algorithm,
+                        iv: iv
+                    },
+                    cryptoKey,
+                    encrypted
+                );
+
+                result = decoder.decode(decrypted);
             }
+
+            return result;
         },
 
-        async sha(message, algorithm = 'SHA-256') {
-            const webCryptoAlgorithm = algorithm.toUpperCase().replace('SHA-2', 'SHA-').replace('SHA3-', 'SHA-');
-            if (!this.isWebCryptoSupported()) return '';
-            
+        async sha(message, algorithms) {
+            let result = '';
+            algorithms = algorithms || 'SHA-1'; // SHA-1,SHA-2,SHA-224,SHA-256,SHA-384,SHA-512,SHA3-224,SHA3-256,SHA3-384,SHA3-512,SHAKE128,SHAKE256
+
             const data = encoder.encode(message);
-            try {
-                const hashBuffer = await crypto.subtle.digest(webCryptoAlgorithm, data);
-                return Array.from(new Uint8Array(hashBuffer))
-                    .map(b => b.toString(16).padStart(2, '0'))
-                    .join('');
-            } catch (error) {
-                if (error.name === 'OperationError' || error.name === 'SyntaxError') {
-                    console.warn(`SHA algorithm '${webCryptoAlgorithm}' not supported by Web Crypto API.Falling back if possible or returning empty.`);
-                    return '';
-                }
-                $l.eventLog('$c.sha', error, 'Error');
-                return '';
-            }
+            const hash = await crypto.subtle.digest(algorithms, data);
+            result = Array.from(new Uint8Array(hash))
+                .map(b => b.toString(16).padStart(2, '0'))
+                .join('');
+            return result;
         },
 
         sha256(s) {
@@ -362,8 +366,8 @@
             };
 
             const binb2hex = (binarray) => {
-                const hex_tab = hexcase ? "0123456789ABCDEF" : "0123456789abcdef";
-                let str = "";
+                const hex_tab = hexcase ? '0123456789ABCDEF' : '0123456789abcdef';
+                let str = '';
                 for (let i = 0; i < binarray.length * 4; i++) {
                     str += hex_tab.charAt((binarray[i >> 2] >> ((3 - i % 4) * 8 + 4)) & 0xF) +
                         hex_tab.charAt((binarray[i >> 2] >> ((3 - i % 4) * 8)) & 0xF);
@@ -371,8 +375,7 @@
                 return str;
             };
 
-            const utf8String = this.utf8Encode(s);
-            return binb2hex(core_sha256(str2binb(utf8String), utf8String.length * chrsz));
+            return binb2hex(core_sha256(str2binb(s), s.length * chrsz));
         },
 
         encrypt(value, key) {
@@ -425,7 +428,7 @@
 
                 return decryptFunc(content, passcodeFromFile);
             } catch (error) {
-                $l.eventLog('$c.decrypt', error, 'Error');
+                syn.$l.eventLog('$c.decrypt', error, 'Error');
                 return null;
             }
         },
@@ -510,9 +513,9 @@
                 },
 
                 decompressFromEncodedURIComponent(input) {
-                    if (input == null) return "";
-                    if (input == "") return null;
-                    input = input.replace(/ /g, "+");
+                    if (input == null) return '';
+                    if (input == '') return null;
+                    input = input.replace(/ /g, '+');
                     return LZStringInternal._decompress(input.length, 32, (index) => getBaseValue(keyStrUriSafe, input.charAt(index)));
                 },
 

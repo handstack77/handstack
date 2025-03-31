@@ -1,12 +1,10 @@
-﻿/// <reference path='syn.core.js' />
-
-(function (context) {
+﻿(function (context) {
     'use strict';
-    var $date = context.$date || new syn.module();
-    var $array = context.$array || new syn.module();
-    var $string = context.$string || new syn.module();
-    var $number = context.$number || new syn.module();
-    var $object = context.$object || new syn.module();
+    const $date = context.$date || new syn.module();
+    const $array = context.$array || new syn.module();
+    const $string = context.$string || new syn.module();
+    const $number = context.$number || new syn.module();
+    const $object = context.$object || new syn.module();
 
     (function () {
         if (!Function.prototype.clone) {
@@ -658,7 +656,7 @@
                 try {
                     return new Intl.NumberFormat(localeID, formatOptions).format(num);
                 } catch (e) {
-                    $l.eventLog('$string.toCurrency', `Intl formatting error for locale ${localeID}: ${e}`, 'Warning');
+                    syn.$l.eventLog('$string.toCurrency', `Intl formatting error for locale ${localeID}: ${e}`, 'Warning');
                 }
             }
 

@@ -2035,7 +2035,12 @@
 
                         var requestTimeoutID = null;
                         if ($object.isNullOrUndefined(raw) == false && $object.isString(raw) == false) {
-                            options.method = options.method || 'POST';
+                            if (options.method == 'GET' || options.method == 'HEAD') {
+                                options.method = 'POST';
+                            }
+                            else {
+                                options.method = options.method || 'POST';
+                            }
 
                             if ($object.isNullOrUndefined(options.headers) == true) {
                                 options.headers = new Headers();

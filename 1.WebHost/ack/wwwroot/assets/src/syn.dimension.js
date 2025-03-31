@@ -87,7 +87,7 @@
         },
 
         parentOffsetLeft(el) {
-            el = getElement(el) || doc?.documentElement || doc?.body;
+            el = syn.$l.getElement(el) || doc?.documentElement || doc?.body;
             if (!el?.parentElement) return 0;
             return el.parentElement === el.offsetParent
                 ? el.offsetLeft
@@ -105,7 +105,7 @@
         },
 
         parentOffsetTop(el) {
-            el = getElement(el) || doc?.documentElement || doc?.body;
+            el = syn.$l.getElement(el) || doc?.documentElement || doc?.body;
             if (!el?.parentElement) return 0;
             return el.parentElement === el.offsetParent
                 ? el.offsetTop

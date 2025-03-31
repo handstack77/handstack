@@ -1,6 +1,4 @@
-﻿/// <reference path='syn.core.js' />
-
-(function (context) {
+﻿(function (context) {
     'use strict';
     var $resource = context.$resource || new syn.module();
     var document = context.document;
