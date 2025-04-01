@@ -5,10 +5,6 @@
     let currentPath = '';
     let currentHref = '';
 
-    const $s = context.$string;
-    const $l = context.$library;
-    const $w = context.$webform;
-
     if (globalRoot.devicePlatform !== 'node') {
         doc = context.document;
         currentPath = context.location?.pathname ?? '';
@@ -20,76 +16,59 @@
         path: currentPath,
 
         query(param, url) {
-            const targetUrl = url || currentHref;
-            if (!this.params[targetUrl]) {
-                this.params[targetUrl] = {};
-                try {
-                    const searchParams = new URL(targetUrl).searchParams;
-                    searchParams.forEach((value, key) => {
-                        this.params[targetUrl][key] = value;
-                    });
-                } catch (e) {
-                    const queryString = targetUrl.split('?')[1] || '';
-                    queryString.split('&').forEach(pair => {
-                        const parts = pair.split('=');
-                        if (parts.length === 2) {
-                            const key = decodeURIComponent(parts[0].replace(/\+/g, ' '));
-                            const value = decodeURIComponent(parts[1].replace(/\+/g, ' '));
-                            if (key) this.params[targetUrl][key] = value;
-                        }
-                    });
+            url = url || currentHref;
+
+            return function (url) {
+                url = url.split('?');
+                let query = ((url.length == 1) ? url[0] : url[1]).split('&');
+                for (let i = 0; i < query.length; i++) {
+                    let splitIndex = query[i].indexOf('=');
+                    let key = query[i].substring(0, splitIndex);
+                    let value = query[i].substring(splitIndex + 1);
+                    syn.$r.params[key] = value;
                 }
-            }
-            return this.params[targetUrl][param];
+                return syn.$r.params;
+            }(url)[param];
         },
 
         url() {
-            let baseUrl = this.path;
-            const currentParams = { ...this.params[currentHref] };
+            const url = syn.$r.path.split('?');
+            let param = '';
 
-            if (syn.Config?.IsClientCaching === false) {
-                currentParams.noCache = Date.now();
+            param = syn.$r.path + ((syn.$r.path.length > 0 && url.length > 1) ? '&' : '?');
+            for (let key in $request.params) {
+                if (typeof (syn.$r.params[key]) == 'string') {
+                    param += key + '=' + syn.$r.params[key] + '&';
+                }
             }
 
-            const queryString = this.toQueryString(currentParams, true);
-            return encodeURI(baseUrl + queryString);
+            if (syn.Config && $string.toBoolean(syn.Config.IsClientCaching) == false) {
+                param += '&noCache=' + (new Date()).getTime();
+            }
+
+            return encodeURI(param.substring(0, param.length - 1));
         },
 
-        toQueryString(jsonObject, includeQuestionMark = false) {
-            if (!jsonObject || typeof jsonObject !== 'object') return '';
-            const params = new URLSearchParams();
-            Object.entries(jsonObject).forEach(([key, val]) => {
-                if (val !== undefined && val !== null) {
-                    params.append(key, $string.toValue(val, ''));
-                }
-            });
-            const queryString = params.toString();
-            if (queryString && includeQuestionMark) {
-                return `?${queryString}`;
+        toQueryString(jsonObject, isQuestion) {
+            const result = jsonObject ? Object.entries(jsonObject).reduce((queryString, ref, index) => {
+                let key = ref[0];
+                let val = ref[1];
+                queryString += `&${key}=${$string.toValue(val, '')}`;
+                return queryString;
+            }, '') : '';
+
+            if ($string.isNullOrEmpty(result) == false && $string.toBoolean(isQuestion) == true) {
+                result = '?' + result.substring(1);
             }
-            return queryString ? `&${queryString}` : '';
+
+            return result;
         },
 
         toUrlObject(url) {
-            const targetUrl = url || currentHref;
-            const params = {};
-            try {
-                const urlObj = new URL(targetUrl);
-                urlObj.searchParams.forEach((value, key) => {
-                    params[key] = value;
-                });
-            } catch (e) {
-                const queryString = targetUrl.split('?')[1] || '';
-                queryString.split('&').forEach(pair => {
-                    const parts = pair.split('=');
-                    if (parts.length === 2) {
-                        const key = decodeURIComponent(parts[0].replace(/\+/g, ' '));
-                        const value = decodeURIComponent(parts[1].replace(/\+/g, ' '));
-                        if (key) params[key] = value;
-                    }
-                });
-            }
-            return params;
+            url = url || location.href;
+            return (url.match(/([^?=&]+)(=([^&]*))/g) || []).reduce((a, v) => {
+                return a[v.slice(0, v.indexOf('='))] = v.slice(v.indexOf('=') + 1), a;
+            }, {});
         },
 
         async isCorsEnabled(url) {
@@ -127,7 +106,7 @@
                     }
 
                     if (!headers.has('OffsetMinutes')) {
-                        headers.append('OffsetMinutes', String($w?.timezoneOffsetMinutes ?? -(new Date().getTimezoneOffset())));
+                        headers.append('OffsetMinutes', String(syn.$w?.timezoneOffsetMinutes ?? -(new Date().getTimezoneOffset())));
                     }
 
                     const fetchOptions = {
@@ -182,7 +161,7 @@
             let requestBody = null;
             const headers = {};
 
-            headers['OffsetMinutes'] = String($w?.timezoneOffsetMinutes ?? -(new Date().getTimezoneOffset()));
+            headers['OffsetMinutes'] = String(syn.$w?.timezoneOffsetMinutes ?? -(new Date().getTimezoneOffset()));
 
             if (data && Object.keys(data).length > 0) {
                 if (effectiveMethod === 'GET') {
@@ -222,9 +201,9 @@
                     body: requestBody,
                     signal: timeout > 0 ? AbortSignal.timeout(timeout) : undefined
                 };
-                if ($w?.setServiceClientHeader) {
+                if (syn.$w?.setServiceClientHeader) {
                     const tempHeaders = new Headers(fetchOptions.headers);
-                    if ($w.setServiceClientHeader(tempHeaders) === false) {
+                    if (syn.$w.setServiceClientHeader(tempHeaders) === false) {
                         return Promise.resolve({ status: -1, response: 'ServiceClientHeader check failed' });
                     }
                     fetchOptions.headers = tempHeaders;
@@ -262,7 +241,7 @@
 
             Object.entries(headers).forEach(([key, value]) => xhr.setRequestHeader(key, value));
 
-            if ($w?.setServiceClientHeader && $w.setServiceClientHeader(xhr) === false) {
+            if (syn.$w?.setServiceClientHeader && syn.$w.setServiceClientHeader(xhr) === false) {
                 if (callback) callback({ status: -1, response: 'ServiceClientHeader check failed' });
                 return;
             }
@@ -315,7 +294,7 @@
                 return true;
             }
             else {
-                syn.$l.eventLog('$w.httpSubmit', `${formID} 매개변수 확인 필요`, 'Warning');
+                syn.$l.eventLog('syn.$w.httpSubmit', `${formID} 매개변수 확인 필요`, 'Warning');
             }
 
             return false;
