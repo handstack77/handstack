@@ -75,7 +75,7 @@ namespace transact.Extensions
                                         businessContract.TransactionID = string.IsNullOrEmpty(businessContract.TransactionID) == true ? fileInfo.Name.Replace(fileInfo.Extension, "") : businessContract.TransactionID;
                                         businessContract.TransactionProjectID = string.IsNullOrEmpty(businessContract.TransactionProjectID) == true ? businessContract.ProjectID : businessContract.TransactionProjectID;
 
-                                        BusinessMappings.Add(filePath, businessContract);
+                                        BusinessMappings.Add(PathExtensions.Combine(filePath), businessContract);
                                     }
                                 }
 
@@ -306,7 +306,7 @@ namespace transact.Extensions
                             BusinessMappings.Remove(key);
                         }
 
-                        BusinessMappings.Add(key, businessContract, expiryDuration);
+                        BusinessMappings.Add(PathExtensions.Combine(key), businessContract, expiryDuration);
                         result = true;
                     }
                     else
@@ -405,7 +405,7 @@ namespace transact.Extensions
 
                                     if (BusinessMappings.ContainsKey(businessFile) == false && HasCount(businessContract.ApplicationID, businessContract.ProjectID, businessContract.TransactionID) == 0)
                                     {
-                                        BusinessMappings.Add(businessFile, businessContract, TimeSpan.FromDays(36500));
+                                        BusinessMappings.Add(PathExtensions.Combine(businessFile), businessContract, TimeSpan.FromDays(36500));
                                     }
                                     else
                                     {
