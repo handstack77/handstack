@@ -4686,221 +4686,321 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         httpFetch(url) {
-            if (!url) return Promise.reject(new Error("URL is required for httpFetch"));
-
-            return {
-                send: async (rawData, options = {}) => {
-                    const { method = 'GET', timeout, contentType, ...restOptions } = options;
-                    const effectiveMethod = (rawData !== null && rawData !== undefined && method === 'GET') ? 'POST' : method;
-                    const headers = new Headers(restOptions.headers || {});
-
-                    if (!(rawData instanceof FormData) && !headers.has('Content-Type')) {
-                        headers.set('Content-Type', contentType || 'application/json');
-                    }
-
-                    if (syn.Environment?.Header) {
-                        Object.entries(syn.Environment.Header).forEach(([key, value]) => {
-                            if (!headers.has(key)) headers.append(key, value);
-                        });
-                    }
-
-                    if (!headers.has('OffsetMinutes')) {
-                        headers.append('OffsetMinutes', String(syn.$w?.timezoneOffsetMinutes ?? -(new Date().getTimezoneOffset())));
-                    }
-
-                    const fetchOptions = {
-                        method: effectiveMethod,
-                        headers: headers,
-                        redirect: 'follow',
-                        body: (rawData instanceof FormData) ? rawData : (rawData !== null && rawData !== undefined ? JSON.stringify(rawData) : null),
-                        ...restOptions
-                    };
-
-                    let timeoutId = null;
-                    if (typeof timeout === 'number' && timeout > 0) {
-                        const controller = new AbortController();
-                        fetchOptions.signal = controller.signal;
-                        timeoutId = setTimeout(() => controller.abort(), timeout);
-                    }
-
-                    try {
-                        const response = await fetch(url, fetchOptions);
-
-                        if (timeoutId) clearTimeout(timeoutId);
-
-                        if (!response.ok) {
-                            const errorText = await response.text().catch(() => 'Failed to read error response body');
-                            const errorMsg = `HTTP error! status: ${response.status}, text: ${errorText}`;
-                            syn.$l.eventLog('$r.httpFetch', errorMsg, 'Error');
-                            return { error: errorMsg };
+            return new Proxy({}, {
+                get(target, action) {
+                    return async function (raw, options) {
+                        if (['send'].indexOf(action) == -1) {
+                            return Promise.resolve({ error: `${action} 메서드 확인 필요` });
                         }
 
-                        const responseContentType = response.headers.get('Content-Type') || '';
-                        if (responseContentType.includes('application/json')) {
-                            return await response.json();
-                        } else if (responseContentType.includes('text/')) {
-                            return await response.text();
-                        } else {
-                            return await response.blob();
-                        }
+                        options = syn.$w.argumentsExtend({
+                            method: 'GET'
+                        }, options);
 
-                    } catch (error) {
-                        if (timeoutId) clearTimeout(timeoutId);
-                        syn.$l.eventLog('$r.httpFetch', `Fetch error: ${error.message}`, 'Error');
-                        return { error: `Fetch error: ${error.message}` };
-                    }
-                }
-            };
-        },
+                        let response = null;
+                        let requestTimeoutID = null;
+                        if ($object.isNullOrUndefined(raw) == false && $object.isString(raw) == false) {
+                            options.method = options.method || 'POST';
 
-        httpRequest(method, url, data = {}, callback, options = {}) {
-            const { timeout = 0, responseType = 'text', contentType } = options;
-            const effectiveMethod = String(method).toUpperCase();
-            let requestUrl = url;
-            let requestBody = null;
-            const headers = {};
+                            if ($object.isNullOrUndefined(options.headers) == true) {
+                                options.headers = new Headers();
+                                if (raw instanceof FormData) {
+                                }
+                                else {
+                                    options.headers.append('Content-Type', options.contentType || 'application/json');
+                                }
+                            }
 
-            headers['OffsetMinutes'] = String(syn.$w?.timezoneOffsetMinutes ?? -(new Date().getTimezoneOffset()));
+                            if (syn.Environment) {
+                                let environment = syn.Environment;
+                                if (environment.Header) {
+                                    for (let item in environment.Header) {
+                                        if (options.headers.has(item) == false) {
+                                            options.headers.append(item, environment.Header[item]);
+                                        }
+                                    }
+                                }
+                            }
 
-            if (data && Object.keys(data).length > 0) {
-                if (effectiveMethod === 'GET') {
-                    const queryString = $r.toQueryString(data, !url.includes('?'));
-                    requestUrl += queryString;
-                } else {
-                    if (data instanceof FormData) {
-                        requestBody = data;
-                    } else if (typeof data === 'object') {
-                        if (contentType === 'application/x-www-form-urlencoded') {
-                            requestBody = $r.toQueryString(data, false).substring(1);
-                            headers['Content-Type'] = 'application/x-www-form-urlencoded';
-                        } else {
-                            try {
-                                requestBody = JSON.stringify(data);
-                                headers['Content-Type'] = contentType || 'application/json';
-                            } catch (e) {
-                                const errorMsg = 'Failed to stringify data for request body';
-                                syn.$l.eventLog('$r.httpRequest', errorMsg, 'Error');
-                                if (callback) return callback({ status: -1, response: errorMsg });
-                                return Promise.resolve({ status: -1, response: errorMsg });
+                            if (options.headers.has('OffsetMinutes') == false) {
+                                options.headers.append('OffsetMinutes', syn.$w.timezoneOffsetMinutes);
+                            }
+
+                            let data = {
+                                method: options.method,
+                                headers: options.headers,
+                                body: raw instanceof FormData ? raw : JSON.stringify(raw),
+                                redirect: 'follow'
+                            };
+
+                            if ($object.isNullOrUndefined(options.timeout) == false) {
+                                let controller = new AbortController();
+                                requestTimeoutID = setTimeout(() => controller.abort(), options.timeout);
+                                data.signal = controller.signal;
+                            }
+
+                            response = await fetch(url, data);
+                            if (requestTimeoutID) {
+                                clearTimeout(requestTimeoutID);
                             }
                         }
-                    } else {
-                        requestBody = String(data);
-                        headers['Content-Type'] = contentType || 'text/plain';
-                    }
+                        else {
+                            if ($object.isNullOrUndefined(options.headers) == true) {
+                                options.headers = new Headers();
+                                options.headers.append('Content-Type', options.contentType || 'application/json');
+                            }
+
+                            if (syn.Environment) {
+                                let environment = syn.Environment;
+                                if (environment.Header) {
+                                    for (let item in environment.Header) {
+                                        if (options.headers.has(item) == false) {
+                                            options.headers.append(item, environment.Header[item]);
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (options.headers.has('OffsetMinutes') == false) {
+                                options.headers.append('OffsetMinutes', syn.$w.timezoneOffsetMinutes);
+                            }
+
+                            let data = {
+                                method: options.method,
+                                headers: options.headers,
+                                redirect: 'follow'
+                            };
+
+                            if ($object.isNullOrUndefined(options.timeout) == false) {
+                                let controller = new AbortController();
+                                requestTimeoutID = setTimeout(() => controller.abort(), options.timeout);
+                                data.signal = controller.signal;
+                            }
+
+                            response = await fetch(url, data);
+                            if (requestTimeoutID) {
+                                clearTimeout(requestTimeoutID);
+                            }
+                        }
+
+                        let result = { error: '요청 정보 확인 필요' };
+                        if (response.ok == true) {
+                            let contentType = response.headers.get('Content-Type') || '';
+                            if (contentType.includes('application/json') == true) {
+                                result = await response.json();
+                            }
+                            else if (contentType.includes('text/') == true) {
+                                result = await response.text();
+                            }
+                            else {
+                                result = await response.blob();
+                            }
+                            return Promise.resolve(result);
+                        }
+                        else {
+                            result = { error: `status: ${response.status}, text: ${await response.text()}` }
+                            syn.$l.eventLog('$r.httpFetch', `${result.error}`, 'Error');
+                        }
+
+                        return Promise.resolve(result);
+                    };
                 }
-            } else if (!headers['Content-Type'] && effectiveMethod !== 'GET' && effectiveMethod !== 'HEAD') {
-                headers['Content-Type'] = contentType || 'application/json';
-            }
-
-            if (!callback && typeof Promise !== 'undefined') {
-                const fetchOptions = {
-                    method: effectiveMethod,
-                    headers: { ...headers },
-                    body: requestBody,
-                    signal: timeout > 0 ? AbortSignal.timeout(timeout) : undefined
-                };
-                if (syn.$w?.setServiceClientHeader) {
-                    const tempHeaders = new Headers(fetchOptions.headers);
-                    if (syn.$w.setServiceClientHeader(tempHeaders) === false) {
-                        return Promise.resolve({ status: -1, response: 'ServiceClientHeader check failed' });
-                    }
-                    fetchOptions.headers = tempHeaders;
-                }
-
-                return fetch(requestUrl, fetchOptions)
-                    .then(async response => ({
-                        status: response.status,
-                        response: responseType === 'blob' ? await response.blob()
-                            : responseType === 'json' ? await response.json()
-                                : await response.text()
-                    }))
-                    .catch(error => {
-                        const errorMsg = error.name === 'AbortError' ? 'Request timed out' : `Fetch error: ${error.message}`;
-                        syn.$l.eventLog('$r.httpRequest', errorMsg, 'Error');
-                        return { status: -1, response: errorMsg };
-                    });
-            }
-
-            if (!context.XMLHttpRequest) {
-                const errorMsg = 'XMLHttpRequest not supported';
-                syn.$l.eventLog('$r.httpRequest', errorMsg, 'Error');
-                if (callback) return callback({ status: -1, response: errorMsg });
-                return;
-            }
-
-            const xhr = new context.XMLHttpRequest();
-            xhr.open(effectiveMethod, requestUrl, true);
-            xhr.timeout = timeout;
-            try {
-                xhr.responseType = responseType;
-            } catch {
-                syn.$l.eventLog('$r.httpRequest', `XHR responseType '${responseType}' not supported`, 'Warning');
-            }
-
-            Object.entries(headers).forEach(([key, value]) => xhr.setRequestHeader(key, value));
-
-            if (syn.$w?.setServiceClientHeader && syn.$w.setServiceClientHeader(xhr) === false) {
-                if (callback) callback({ status: -1, response: 'ServiceClientHeader check failed' });
-                return;
-            }
-
-            xhr.onreadystatechange = () => {
-                if (xhr.readyState === 4 && callback) {
-                    if (xhr.status === 0 && !xhr.response) {
-                        syn.$l.eventLog('$r.httpRequest', 'XHR Request failed (Network error or CORS)', 'Fatal');
-                        callback({ status: xhr.status, response: 'XHR Request failed (Network error or CORS)' });
-                    } else if (xhr.status < 200 || xhr.status >= 300) {
-                        syn.$l.eventLog('$r.httpRequest', `XHR response status - ${xhr.status} ${xhr.statusText}: ${xhr.response}`, 'Error');
-                        callback({ status: xhr.status, response: xhr.response || xhr.statusText });
-                    } else {
-                        callback({ status: xhr.status, response: xhr.response });
-                    }
-                }
-            };
-
-            xhr.onerror = () => {
-                if (callback) {
-                    syn.$l.eventLog('$r.httpRequest', 'XHR Network Error', 'Error');
-                    callback({ status: -1, response: 'XHR Network Error' });
-                }
-            };
-            xhr.ontimeout = () => {
-                if (callback) {
-                    syn.$l.eventLog('$r.httpRequest', 'XHR Request Timed Out', 'Error');
-                    callback({ status: -1, response: 'XHR Request Timed Out' });
-                }
-            };
-
-            try {
-                xhr.send(requestBody);
-            } catch (e) {
-                if (callback) {
-                    syn.$l.eventLog('$r.httpRequest', `XHR send error: ${e}`, 'Error');
-                    callback({ status: -1, response: `XHR send error: ${e.message}` });
-                }
-            }
+            });
         },
 
-        httpSubmit(url, formID, method = 'POST') {
-            if (globalRoot.devicePlatform === 'node' || !doc?.forms) return false;
+        // let result = await syn.$r.httpRequest('GET', '/index');
+        httpRequest(method, url, data, callback, options) {
+            options = syn.$w.argumentsExtend({
+                timeout: 0,
+                responseType: 'text'
+            }, options);
 
-            const form = formID ? doc.forms[formID] : doc.forms[0];
-            if (form instanceof HTMLFormElement) {
-                form.method = method;
-                form.action = url;
-                form.submit();
-                return true;
+            if ($object.isNullOrUndefined(data) == true) {
+                data = {};
+            }
+
+            let xhr = syn.$w.xmlHttp();
+            xhr.open(method, url, true);
+            xhr.timeout = options.timeout;
+            xhr.responseType = options.responseType;
+            xhr.setRequestHeader('OffsetMinutes', syn.$w.timezoneOffsetMinutes);
+
+            let formData = null;
+            if ($object.isNullOrUndefined(data.body) == false) {
+                let params = data.body;
+                if (method.toUpperCase() == 'GET') {
+                    let paramUrl = url + ((url.split('?').length > 1) ? '&' : '?');
+
+                    for (let key in params) {
+                        paramUrl += key + '=' + params[key].toString() + '&';
+                    }
+
+                    url = encodeURI(paramUrl.substring(0, paramUrl.length - 1));
+                }
+                else {
+                    formData = new FormData();
+
+                    for (let key in params) {
+                        formData.append(key, params[key].toString());
+                    }
+                }
             }
             else {
-                syn.$l.eventLog('syn.$w.httpSubmit', `${formID} 매개변수 확인 필요`, 'Warning');
+                xhr.setRequestHeader('Content-Type', options.contentType || 'application/json');
             }
 
-            return false;
+            if (syn.$w.setServiceClientHeader) {
+                if (syn.$w.setServiceClientHeader(xhr) == false) {
+                    return;
+                }
+            }
+
+            if (callback) {
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4) {
+                        if (xhr.status !== 200) {
+                            if (xhr.status == 0) {
+                                syn.$l.eventLog('$r.httpRequest', 'X-Requested transport error', 'Fatal');
+                            }
+                            else {
+                                syn.$l.eventLog('$r.httpRequest', 'response status - {0}'.format(xhr.statusText) + xhr.response, 'Error');
+                            }
+                            return;
+                        }
+
+                        if (callback) {
+                            callback({
+                                status: xhr.status,
+                                response: xhr.response
+                            });
+                        }
+                    }
+                }
+
+                if (formData == null) {
+                    if (data != {}) {
+                        xhr.send(JSON.stringify(data));
+                    } else {
+                        xhr.send();
+                    }
+                }
+                else {
+                    xhr.send(formData);
+                }
+            }
+            else if (globalRoot.Promise) {
+                return new Promise(function (resolve) {
+                    xhr.onload = function () {
+                        return resolve({
+                            status: xhr.status,
+                            response: xhr.response
+                        });
+                    };
+                    xhr.onerror = function () {
+                        return resolve({
+                            status: xhr.status,
+                            response: xhr.response
+                        });
+                    };
+
+                    if (formData == null) {
+                        if (data != {}) {
+                            xhr.send(JSON.stringify(data));
+                        } else {
+                            xhr.send();
+                        }
+                    }
+                    else {
+                        xhr.send(formData);
+                    }
+                });
+            }
+            else {
+                syn.$l.eventLog('$w.httpRequest', '지원하지 않는 기능. 매개변수 확인 필요', 'Error');
+            }
         },
 
-        httpDataSubmit(formData, url, callback, options = {}) {
-            return this.httpRequest('POST', url, formData, callback, options);
+        httpSubmit(url, formID, method) {
+            if (document.forms.length == 0) {
+                return false;
+            }
+            else if (document.forms.length > 0 && $object.isNullOrUndefined(formID) == true) {
+                formID = document.forms[0].id;
+            }
+
+            let form = document.forms[formID];
+            if (form) {
+                form.method = method || 'POST';
+                form.action = url;
+                form.submit();
+            }
+            else {
+                return false;
+            }
+        },
+
+        httpDataSubmit(formData, url, callback, options) {
+            options = syn.$w.argumentsExtend({
+                timeout: 0,
+                responseType: 'text'
+            }, options);
+
+            let xhr = syn.$w.xmlHttp();
+            xhr.open('POST', url, true);
+            xhr.timeout = options.timeout;
+            xhr.responseType = options.responseType;
+            xhr.setRequestHeader('OffsetMinutes', syn.$w.timezoneOffsetMinutes);
+
+            if (syn.$w.setServiceClientHeader) {
+                if (syn.$w.setServiceClientHeader(xhr) == false) {
+                    return;
+                }
+            }
+
+            if (callback) {
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4) {
+                        if (xhr.status !== 200) {
+                            if (xhr.status == 0) {
+                                syn.$l.eventLog('$r.httpDataSubmit', 'X-Requested transfort error', 'Fatal');
+                            }
+                            else {
+                                syn.$l.eventLog('$r.httpDataSubmit', 'response status - {0}'.format(xhr.statusText) + xhr.response, 'Error');
+                            }
+                            return;
+                        }
+
+                        if (callback) {
+                            callback({
+                                status: xhr.status,
+                                response: xhr.response
+                            });
+                        }
+                    }
+                }
+                xhr.send(formData);
+            }
+            else if (globalThis.Promise) {
+                return new Promise(function (resolve) {
+                    xhr.onload = function () {
+                        return resolve({
+                            status: xhr.status,
+                            response: xhr.response
+                        });
+                    };
+                    xhr.onerror = function () {
+                        return resolve({
+                            status: xhr.status,
+                            response: xhr.response
+                        });
+                    };
+
+                    xhr.send(formData);
+                });
+            }
+            else {
+                syn.$l.eventLog('$r.httpDataSubmit', '지원하지 않는 기능. 매개변수 확인 필요', 'Error');
+            }
         },
 
         createBlobUrl: context.URL?.createObjectURL?.bind(context.URL) ?? context.webkitURL?.createObjectURL?.bind(context.webkitURL),
@@ -8765,7 +8865,8 @@ if (typeof module !== 'undefined' && module.exports) {
         datetimeFormat: 'yyyy-MM-dd',
         boolTrue: '○',
         boolFalse: '×',
-        workitems: [],
+        workItems: [],
+        workActions: [],
         workData: null,
         reportifyServer: '',
         reportifyPath: '/reportify/api/brief',
@@ -8839,7 +8940,8 @@ if (typeof module !== 'undefined' && module.exports) {
                 datetimeFormat: $print.datetimeFormat,
                 boolTrue: $print.boolTrue,
                 boolFalse: $print.boolFalse,
-                workitems: $print.workitems
+                workItems: $print.workItems,
+                workActions: $print.workActions
             };
 
             if ($string.isNullOrEmpty(excelUrl) == false) {
@@ -8853,17 +8955,24 @@ if (typeof module !== 'undefined' && module.exports) {
                 result.base64ExcelFile = $print.base64ExcelFile;
             }
 
-            for (var i = 0, length = result.workitems.length; i < length; i++) {
-                var workitem = result.workitems[i];
+            for (var i = 0, length = result.workItems.length; i < length; i++) {
+                var workitem = result.workItems[i];
                 if (workitem.options && $object.isObject(workitem.options) == true) {
                     workitem.options = JSON.stringify(workitem.options);
+                }
+            }
+
+            for (var i = 0, length = result.workActions.length; i < length; i++) {
+                var workAction = result.workActions[i];
+                if (workAction.options && $object.isObject(workAction.options) == true) {
+                    workAction.options = JSON.stringify(workAction.options);
                 }
             }
 
             return result;
         },
 
-        addWorkItem(document, worksheet, bind, row, col, type, data, overtake, step) {
+        addWorkItem(sourceName = 'workItems', document, worksheet, bind, row, col, type, data, overtake, step) {
             if ($object.isNumber(document) == true) {
                 if (document || worksheet || bind || row || col) {
                     syn.$l.eventLog('addWorkItem', 'document, worksheet, bind, row, col 필수 항목 필요', 'Warning');
@@ -8873,7 +8982,7 @@ if (typeof module !== 'undefined' && module.exports) {
                     if (overtake) {
                         workItem.overtake = overtake;
                     }
-                    $print.workitems.push(workItem);
+                    $print[sourceName].push(workItem);
                 }
             }
             else if ($object.isObject(document) == true) {
@@ -8895,15 +9004,15 @@ if (typeof module !== 'undefined' && module.exports) {
                     if (workObject.overtake) {
                         workItem.overtake = workObject.overtake;
                     }
-                    $print.workitems.push(workItem);
+                    $print[sourceName].push(workItem);
                 }
             }
         },
 
-        addAtWorkItem(document, worksheet, datafield, target, nextDirection) {
+        addAtWorkItem(sourceName = 'workItems', document, worksheet, datafield, target, nextDirection) {
             nextDirection = nextDirection || true;
 
-            var index = $print.workitems.findIndex(item =>
+            var index = $print[sourceName].findIndex(item =>
                 item.document === document &&
                 item.worksheet === worksheet &&
                 item.datafield === datafield
@@ -8914,7 +9023,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 return;
             }
 
-            index = $print.workitems.findIndex(item =>
+            index = $print[sourceName].findIndex(item =>
                 item.document === target.document &&
                 item.worksheet === target.worksheet &&
                 ($string.isNullOrEmpty(target.datafield) == false && item.datafield === target.datafield)
@@ -8941,29 +9050,29 @@ if (typeof module !== 'undefined' && module.exports) {
             }
 
             if ($string.toBoolean(nextDirection) == true) {
-                $print.workitems.splice(index + 1, 0, newItem);
+                $print[sourceName].splice(index + 1, 0, newItem);
             } else {
-                $print.workitems.splice(index, 0, newItem);
+                $print[sourceName].splice(index, 0, newItem);
             }
         },
 
-        removeWorkItem(document, worksheet, datafield) {
-            var index = $print.workitems.findIndex(item =>
+        removeWorkItem(sourceName = 'workItems', document, worksheet, datafield) {
+            var index = $print[sourceName].findIndex(item =>
                 item.document === document &&
                 item.worksheet === worksheet &&
                 item.datafield === datafield
             );
 
             if (index > -1) {
-                $print.workitems.splice(index, 1);
+                $print[sourceName].splice(index, 1);
             }
             else {
                 syn.$l.eventLog('removeWorkItem', `document: ${document}, worksheet: ${worksheet}, datafield: ${datafield} 항목 확인 필요`, 'Warning');
             }
         },
 
-        updateWorkItem(document, worksheet, datafield, updates) {
-            var item = $print.workitems.find(item =>
+        updateWorkItem(sourceName = 'workItems', document, worksheet, datafield, updates) {
+            var item = $print[sourceName].find(item =>
                 item.document === document &&
                 item.worksheet === worksheet &&
                 item.datafield === datafield
@@ -8977,7 +9086,7 @@ if (typeof module !== 'undefined' && module.exports) {
             }
         },
 
-        bindingWorkItems(workItems, dataSource) {
+        bindingWorkItems(sourceName = 'workItems', workItems, dataSource) {
             var reportWorkItems = JSON.parse(JSON.stringify(workItems));
             for (var key in dataSource) {
                 var dataItem = dataSource[key];
@@ -9007,8 +9116,48 @@ if (typeof module !== 'undefined' && module.exports) {
                     }
                 }
             }
-            $print.workitems = reportWorkItems;
+            $print[sourceName] = reportWorkItems;
             return reportWorkItems;
+        },
+
+        addItem(document, worksheet, bind, row, col, type, data, overtake, step) {
+            $print.addWorkItem('workItems', document, worksheet, bind, row, col, type, data, overtake, step);
+        },
+
+        addAtItem(document, worksheet, datafield, target, nextDirection) {
+            $print.addAtWorkItem('workItems', document, worksheet, datafield, target, nextDirection);
+        },
+
+        removeItem(document, worksheet, datafield) {
+            $print.removeWorkItem('workItems', document, worksheet, datafield);
+        },
+
+        updateItem(document, worksheet, datafield, updates) {
+            $print.updateWorkItem('workItems', document, worksheet, datafield, updates);
+        },
+
+        bindingItems(workItems, dataSource) {
+            $print.bindingWorkItems('workItems', workItems, dataSource);
+        },
+
+        addAction(document, worksheet, bind, row, col, type, data, overtake, step) {
+            $print.addWorkItem('workActions', document, worksheet, bind, row, col, type, data, overtake, step);
+        },
+
+        addAtAction(document, worksheet, datafield, target, nextDirection) {
+            $print.addAtWorkItem('workActions', document, worksheet, datafield, target, nextDirection);
+        },
+
+        removeAction(document, worksheet, datafield) {
+            $print.removeWorkItem('workActions', document, worksheet, datafield);
+        },
+
+        updateAction(document, worksheet, datafield, updates) {
+            $print.updateWorkItem('workActions', document, worksheet, datafield, updates);
+        },
+
+        bindingActions(workActions, dataSource) {
+            $print.bindingWorkItems('workActions', workActions, dataSource);
         },
 
         // var workData = syn.$p.transformWorkData(data, ['DETAIL_CONTENTS', 'RESULTS']);
@@ -9057,9 +9206,18 @@ if (typeof module !== 'undefined' && module.exports) {
                 }, options);
 
                 var payLoad = await $print.generate(templateID, options.excelUrl);
+                if (options.workItems != null) {
+                    payLoad.workItems = options.workItems;
+                }
+
+                if (options.workActions != null) {
+                    payLoad.workActions = options.workActions;
+                }
+
                 if (options.workData != null) {
                     payLoad.workData = options.workData;
                 }
+
                 var pdfResult = await syn.$r.httpRequest('POST', $print.getReportifyUrl($print.pageExcelToPdf), payLoad, null, { responseType: 'blob' });
                 if (pdfResult && pdfResult.status == 200) {
                     var pdfFileUrl = syn.$r.createBlobUrl(pdfResult.response);
@@ -9083,9 +9241,18 @@ if (typeof module !== 'undefined' && module.exports) {
             }, options);
 
             var payLoad = await $print.generate(templateID, options.excelUrl);
+            if (options.workItems != null) {
+                payLoad.workItems = options.workItems;
+            }
+
+            if (options.workActions != null) {
+                payLoad.workActions = options.workActions;
+            }
+
             if (options.workData != null) {
                 payLoad.workData = options.workData;
             }
+
             var pdfResult = await syn.$r.httpRequest('POST', $print.getReportifyUrl($print.pageExcelToPdf), payLoad, null, { responseType: 'blob' });
             if (pdfResult && pdfResult.status == 200) {
                 var pdfFileUrl = syn.$r.createBlobUrl(pdfResult.response);

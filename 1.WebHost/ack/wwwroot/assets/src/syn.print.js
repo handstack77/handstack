@@ -8,7 +8,8 @@
         datetimeFormat: 'yyyy-MM-dd',
         boolTrue: '○',
         boolFalse: '×',
-        workitems: [],
+        workItems: [],
+        workActions: [],
         workData: null,
         reportifyServer: '',
         reportifyPath: '/reportify/api/brief',
@@ -82,7 +83,8 @@
                 datetimeFormat: $print.datetimeFormat,
                 boolTrue: $print.boolTrue,
                 boolFalse: $print.boolFalse,
-                workitems: $print.workitems
+                workItems: $print.workItems,
+                workActions: $print.workActions
             };
 
             if ($string.isNullOrEmpty(excelUrl) == false) {
@@ -96,17 +98,24 @@
                 result.base64ExcelFile = $print.base64ExcelFile;
             }
 
-            for (var i = 0, length = result.workitems.length; i < length; i++) {
-                var workitem = result.workitems[i];
+            for (var i = 0, length = result.workItems.length; i < length; i++) {
+                var workitem = result.workItems[i];
                 if (workitem.options && $object.isObject(workitem.options) == true) {
                     workitem.options = JSON.stringify(workitem.options);
+                }
+            }
+
+            for (var i = 0, length = result.workActions.length; i < length; i++) {
+                var workAction = result.workActions[i];
+                if (workAction.options && $object.isObject(workAction.options) == true) {
+                    workAction.options = JSON.stringify(workAction.options);
                 }
             }
 
             return result;
         },
 
-        addWorkItem(document, worksheet, bind, row, col, type, data, overtake, step) {
+        addWorkItem(sourceName = 'workItems', document, worksheet, bind, row, col, type, data, overtake, step) {
             if ($object.isNumber(document) == true) {
                 if (document || worksheet || bind || row || col) {
                     syn.$l.eventLog('addWorkItem', 'document, worksheet, bind, row, col 필수 항목 필요', 'Warning');
@@ -116,7 +125,7 @@
                     if (overtake) {
                         workItem.overtake = overtake;
                     }
-                    $print.workitems.push(workItem);
+                    $print[sourceName].push(workItem);
                 }
             }
             else if ($object.isObject(document) == true) {
@@ -138,15 +147,15 @@
                     if (workObject.overtake) {
                         workItem.overtake = workObject.overtake;
                     }
-                    $print.workitems.push(workItem);
+                    $print[sourceName].push(workItem);
                 }
             }
         },
 
-        addAtWorkItem(document, worksheet, datafield, target, nextDirection) {
+        addAtWorkItem(sourceName = 'workItems', document, worksheet, datafield, target, nextDirection) {
             nextDirection = nextDirection || true;
 
-            var index = $print.workitems.findIndex(item =>
+            var index = $print[sourceName].findIndex(item =>
                 item.document === document &&
                 item.worksheet === worksheet &&
                 item.datafield === datafield
@@ -157,7 +166,7 @@
                 return;
             }
 
-            index = $print.workitems.findIndex(item =>
+            index = $print[sourceName].findIndex(item =>
                 item.document === target.document &&
                 item.worksheet === target.worksheet &&
                 ($string.isNullOrEmpty(target.datafield) == false && item.datafield === target.datafield)
@@ -184,29 +193,29 @@
             }
 
             if ($string.toBoolean(nextDirection) == true) {
-                $print.workitems.splice(index + 1, 0, newItem);
+                $print[sourceName].splice(index + 1, 0, newItem);
             } else {
-                $print.workitems.splice(index, 0, newItem);
+                $print[sourceName].splice(index, 0, newItem);
             }
         },
 
-        removeWorkItem(document, worksheet, datafield) {
-            var index = $print.workitems.findIndex(item =>
+        removeWorkItem(sourceName = 'workItems', document, worksheet, datafield) {
+            var index = $print[sourceName].findIndex(item =>
                 item.document === document &&
                 item.worksheet === worksheet &&
                 item.datafield === datafield
             );
 
             if (index > -1) {
-                $print.workitems.splice(index, 1);
+                $print[sourceName].splice(index, 1);
             }
             else {
                 syn.$l.eventLog('removeWorkItem', `document: ${document}, worksheet: ${worksheet}, datafield: ${datafield} 항목 확인 필요`, 'Warning');
             }
         },
 
-        updateWorkItem(document, worksheet, datafield, updates) {
-            var item = $print.workitems.find(item =>
+        updateWorkItem(sourceName = 'workItems', document, worksheet, datafield, updates) {
+            var item = $print[sourceName].find(item =>
                 item.document === document &&
                 item.worksheet === worksheet &&
                 item.datafield === datafield
@@ -220,7 +229,7 @@
             }
         },
 
-        bindingWorkItems(workItems, dataSource) {
+        bindingWorkItems(sourceName = 'workItems', workItems, dataSource) {
             var reportWorkItems = JSON.parse(JSON.stringify(workItems));
             for (var key in dataSource) {
                 var dataItem = dataSource[key];
@@ -250,8 +259,48 @@
                     }
                 }
             }
-            $print.workitems = reportWorkItems;
+            $print[sourceName] = reportWorkItems;
             return reportWorkItems;
+        },
+
+        addItem(document, worksheet, bind, row, col, type, data, overtake, step) {
+            $print.addWorkItem('workItems', document, worksheet, bind, row, col, type, data, overtake, step);
+        },
+
+        addAtItem(document, worksheet, datafield, target, nextDirection) {
+            $print.addAtWorkItem('workItems', document, worksheet, datafield, target, nextDirection);
+        },
+
+        removeItem(document, worksheet, datafield) {
+            $print.removeWorkItem('workItems', document, worksheet, datafield);
+        },
+
+        updateItem(document, worksheet, datafield, updates) {
+            $print.updateWorkItem('workItems', document, worksheet, datafield, updates);
+        },
+
+        bindingItems(workItems, dataSource) {
+            $print.bindingWorkItems('workItems', workItems, dataSource);
+        },
+
+        addAction(document, worksheet, bind, row, col, type, data, overtake, step) {
+            $print.addWorkItem('workActions', document, worksheet, bind, row, col, type, data, overtake, step);
+        },
+
+        addAtAction(document, worksheet, datafield, target, nextDirection) {
+            $print.addAtWorkItem('workActions', document, worksheet, datafield, target, nextDirection);
+        },
+
+        removeAction(document, worksheet, datafield) {
+            $print.removeWorkItem('workActions', document, worksheet, datafield);
+        },
+
+        updateAction(document, worksheet, datafield, updates) {
+            $print.updateWorkItem('workActions', document, worksheet, datafield, updates);
+        },
+
+        bindingActions(workActions, dataSource) {
+            $print.bindingWorkItems('workActions', workActions, dataSource);
         },
 
         // var workData = syn.$p.transformWorkData(data, ['DETAIL_CONTENTS', 'RESULTS']);
@@ -300,9 +349,18 @@
                 }, options);
 
                 var payLoad = await $print.generate(templateID, options.excelUrl);
+                if (options.workItems != null) {
+                    payLoad.workItems = options.workItems;
+                }
+
+                if (options.workActions != null) {
+                    payLoad.workActions = options.workActions;
+                }
+
                 if (options.workData != null) {
                     payLoad.workData = options.workData;
                 }
+
                 var pdfResult = await syn.$r.httpRequest('POST', $print.getReportifyUrl($print.pageExcelToPdf), payLoad, null, { responseType: 'blob' });
                 if (pdfResult && pdfResult.status == 200) {
                     var pdfFileUrl = syn.$r.createBlobUrl(pdfResult.response);
@@ -326,9 +384,18 @@
             }, options);
 
             var payLoad = await $print.generate(templateID, options.excelUrl);
+            if (options.workItems != null) {
+                payLoad.workItems = options.workItems;
+            }
+
+            if (options.workActions != null) {
+                payLoad.workActions = options.workActions;
+            }
+
             if (options.workData != null) {
                 payLoad.workData = options.workData;
             }
+
             var pdfResult = await syn.$r.httpRequest('POST', $print.getReportifyUrl($print.pageExcelToPdf), payLoad, null, { responseType: 'blob' });
             if (pdfResult && pdfResult.status == 200) {
                 var pdfFileUrl = syn.$r.createBlobUrl(pdfResult.response);
