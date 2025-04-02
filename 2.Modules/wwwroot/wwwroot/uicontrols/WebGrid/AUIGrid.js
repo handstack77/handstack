@@ -326,8 +326,8 @@
                             });
                         }
 
-                        if (gridHookEvents.includes('afterSelectionEnd') == true && gridHookEvents.indexOf('selectionChange') == -1) {
-                            AUIGrid.bind(gridID, 'selectionChange', function (evt) {
+                        if (gridHookEvents.includes('afterSelectionEnd') == true && gridHookEvents.indexOf('cellClick') == -1) {
+                            AUIGrid.bind(gridID, 'cellClick', function (evt) {
                                 var mod = window[syn.$w.pageScript];
                                 var eventHandler = mod.event ? mod.event['{0}_{1}'.format(elID, 'afterSelectionEnd')] : null;
                                 if (eventHandler) {
