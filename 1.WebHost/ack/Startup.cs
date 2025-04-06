@@ -385,7 +385,15 @@ namespace ack
 
             services.AddProblemDetails();
             services.AddHttpContextAccessor();
-            services.AddAntiforgery(options => options.HeaderName = "X-XSRF-Token");
+            services.AddAntiforgery(options =>
+            {
+                options.Cookie.Name = "X-CSRF-TOKEN";
+                options.Cookie.HttpOnly = true;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict;
+                options.HeaderName = "X-CSRF-TOKEN";
+                options.FormFieldName = "__RequestVerificationToken";
+            });
             services.AddRouting(options =>
             {
                 options.LowercaseUrls = true;

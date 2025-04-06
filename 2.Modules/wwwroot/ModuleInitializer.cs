@@ -8,6 +8,7 @@ using HandStack.Web.Entity;
 using HandStack.Web.Extensions;
 using HandStack.Web.Modules;
 
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
@@ -141,7 +142,26 @@ namespace wwwroot
             {
                 app.Use(async (context, next) =>
                 {
-                    // 요청 경로 확인
+                    string requestPath = context.Request.Path.Value.ToStringSafe();
+                    if ((requestPath.IndexOf("/view/") > -1 || requestPath.IndexOf("/api/") > -1) && requestPath.EndsWith(".html") == true || requestPath == "/")
+                    {
+                        var antiforgery = context.RequestServices.GetRequiredService<IAntiforgery>();
+                        if (antiforgery != null)
+                        {
+                            var tokens = antiforgery.GetAndStoreTokens(context);
+                            if (string.IsNullOrEmpty(tokens.RequestToken) == false)
+                            {
+                                context.Response.Cookies.Append("XSRF-TOKEN", tokens.RequestToken,
+                                    new CookieOptions
+                                    {
+                                        HttpOnly = false,
+                                        Secure = false,
+                                        SameSite = SameSiteMode.Strict
+                                    });
+                            }
+                        }
+                    }
+
                     await next.Invoke();
                 });
 

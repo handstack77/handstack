@@ -13,6 +13,7 @@ using HandStack.Web.Extensions;
 
 using MediatR;
 
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
@@ -37,14 +38,16 @@ namespace wwwroot.Areas.wwwroot.Controllers
         private readonly IDistributedCache distributedCache;
         private readonly ISequentialIdGenerator sequentialIdGenerator;
         private readonly SqidsEncoder<int> sqids;
+        private readonly IAntiforgery antiforgery;
 
-        public IndexController(IMediator mediator, ILogger logger, IDistributedCache distributedCache, ISequentialIdGenerator sequentialIdGenerator, SqidsEncoder<int> sqids)
+        public IndexController(IMediator mediator, ILogger logger, IDistributedCache distributedCache, ISequentialIdGenerator sequentialIdGenerator, SqidsEncoder<int> sqids, IAntiforgery antiforgery)
         {
             this.mediator = mediator;
             this.logger = logger;
             this.distributedCache = distributedCache;
             this.sequentialIdGenerator = sequentialIdGenerator;
             this.sqids = sqids;
+            this.antiforgery = antiforgery;
         }
 
         // http://localhost:8000/wwwroot/api/index
@@ -52,6 +55,30 @@ namespace wwwroot.Areas.wwwroot.Controllers
         public string Get()
         {
             return "wwwroot IndexController";
+        }
+
+        // http://localhost:8000/wwwroot/api/index/get-anti-forgery-token
+        [HttpGet("[action]")]
+        public IActionResult GetAntiForgeryToken()
+        {
+            var tokens = antiforgery.GetAndStoreTokens(HttpContext);
+            return new JsonResult(new { token = tokens.RequestToken });
+        }
+
+        // http://localhost:8000/wwwroot/api/index/validate-token
+        [HttpGet("[action]")]
+        public async Task<IActionResult> ValidateToken()
+        {
+            try
+            {
+                // 쿠키 이름, 헤더 이름 X-CSRF-TOKEN 또는 폼 필드 "__RequestVerificationToken" 검증
+                await antiforgery.ValidateRequestAsync(HttpContext);
+                return Ok();
+            }
+            catch
+            {
+                return BadRequest();
+            }
         }
 
         // http://localhost:8000/wwwroot/api/index/create-id?applicationID=HDS&projectID=SYS&transactionID=SYS010&serviceID=LD01&screenID=web&tokenID=123456
@@ -135,6 +162,18 @@ namespace wwwroot.Areas.wwwroot.Controllers
                         var options = new DistributedCacheEntryOptions()
                         .SetAbsoluteExpiration(TimeSpan.FromMinutes(fromMinutes == null ? 10 : (int)fromMinutes));
                         distributedCache.Set(requestID, "".ToByte(Encoding.UTF8), options);
+
+                        var tokens = antiforgery.GetAndStoreTokens(HttpContext);
+                        if (string.IsNullOrEmpty(tokens.RequestToken) == false)
+                        {
+                            Response.Cookies.Append("XSRF-TOKEN", tokens.RequestToken,
+                                new CookieOptions
+                                {
+                                    HttpOnly = false,
+                                    Secure = false,
+                                    SameSite = SameSiteMode.Strict
+                                });
+                        }
 
                         result = Ok(requestID);
                     }
