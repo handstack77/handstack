@@ -1,5 +1,5 @@
 /*!
-HandStack Javascript Library v2025.3.30
+HandStack Javascript Library v2025.4.7
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -5127,7 +5127,7 @@ if (typeof module !== 'undefined' && module.exports) {
             const onPostMessage = (evt) => {
                 let parsedMessage;
                 try {
-                    if (!evt.data) return;
+                    if (!evt.data && location.origin != evt.origin) return;
                     parsedMessage = JSON.parse(evt.data);
                     if (typeof parsedMessage !== 'object' || parsedMessage === null) {
                         syn.$l.eventLog('$network.onPostMessage', 'postMessage data 확인 필요 (non-object)', 'Verbose');
@@ -9574,11 +9574,11 @@ if (typeof module !== 'undefined' && module.exports) {
         concreate() {
             if (globalRoot.devicePlatform == 'browser') {
                 if (!window.PDFObject) {
-                    syn.$w.loadScript('/reportify/lib/pdfobject/pdfobject.min.js');
+                    syn.$w.loadScript('/lib/pdfobject/pdfobject.min.js');
                 }
 
                 if (!window.printJS) {
-                    syn.$w.loadScript('/reportify/lib/print-js/print.min.js');
+                    syn.$w.loadScript('/lib/print-js/print.min.js');
                 }
             }
             else if (globalRoot.devicePlatform == 'node') {

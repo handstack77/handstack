@@ -20,11 +20,11 @@
         concreate() {
             if (globalRoot.devicePlatform == 'browser') {
                 if (!window.PDFObject) {
-                    syn.$w.loadScript('/reportify/lib/pdfobject/pdfobject.min.js');
+                    syn.$w.loadScript('/lib/pdfobject/pdfobject.min.js');
                 }
 
                 if (!window.printJS) {
-                    syn.$w.loadScript('/reportify/lib/print-js/print.min.js');
+                    syn.$w.loadScript('/lib/print-js/print.min.js');
                 }
             }
             else if (globalRoot.devicePlatform == 'node') {

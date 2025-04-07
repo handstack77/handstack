@@ -1,5 +1,5 @@
 /*!
-HandStack Javascript Library v2025.3.30
+HandStack Javascript Library v2025.4.7
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -7712,11 +7712,11 @@ if (typeof module !== 'undefined' && module.exports) {
         concreate() {
             if (globalRoot.devicePlatform == 'browser') {
                 if (!window.PDFObject) {
-                    syn.$w.loadScript('/reportify/lib/pdfobject/pdfobject.min.js');
+                    syn.$w.loadScript('/lib/pdfobject/pdfobject.min.js');
                 }
 
                 if (!window.printJS) {
-                    syn.$w.loadScript('/reportify/lib/print-js/print.min.js');
+                    syn.$w.loadScript('/lib/print-js/print.min.js');
                 }
             }
             else if (globalRoot.devicePlatform == 'node') {
