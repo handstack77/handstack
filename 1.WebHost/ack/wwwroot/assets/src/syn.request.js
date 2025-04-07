@@ -1,30 +1,27 @@
 ﻿(function (context) {
     'use strict';
     const $request = context.$request || new syn.module();
-    let doc = null;
-    let currentPath = '';
-    let currentHref = '';
-
-    if (globalRoot.devicePlatform !== 'node') {
-        doc = context.document;
-        currentPath = context.location?.pathname ?? '';
-        currentHref = context.location?.href ?? '';
+    let document = null;
+    if (globalRoot.devicePlatform === 'node') {
+    }
+    else {
+        document = context.document;
     }
 
     $request.extend({
         params: {},
-        path: currentPath,
+        path: (globalRoot.devicePlatform === 'node') ? '' : location.pathname,
 
         query(param, url) {
-            url = url || currentHref;
+            url = url || location.href;
 
             return function (url) {
-                url = url.split('?');
-                let query = ((url.length == 1) ? url[0] : url[1]).split('&');
+                let urlArray = url.split('?');
+                let query = ((urlArray.length == 1) ? urlArray[0] : urlArray[1]).split('&');
                 for (let i = 0; i < query.length; i++) {
                     let splitIndex = query[i].indexOf('=');
-                    let key = query[i].substring(0, splitIndex);
-                    let value = query[i].substring(splitIndex + 1);
+                    const key = query[i].substring(0, splitIndex);
+                    const value = query[i].substring(splitIndex + 1);
                     syn.$r.params[key] = value;
                 }
                 return syn.$r.params;
@@ -32,11 +29,11 @@
         },
 
         url() {
-            const url = syn.$r.path.split('?');
+            let urlArray = syn.$r.path.split('?');
             let param = '';
 
-            param = syn.$r.path + ((syn.$r.path.length > 0 && url.length > 1) ? '&' : '?');
-            for (let key in $request.params) {
+            param = syn.$r.path + ((syn.$r.path.length > 0 && urlArray.length > 1) ? '&' : '?');
+            for (const key in $request.params) {
                 if (typeof (syn.$r.params[key]) == 'string') {
                     param += key + '=' + syn.$r.params[key] + '&';
                 }
@@ -50,9 +47,9 @@
         },
 
         toQueryString(jsonObject, isQuestion) {
-            const result = jsonObject ? Object.entries(jsonObject).reduce((queryString, ref, index) => {
-                let key = ref[0];
-                let val = ref[1];
+            let result = jsonObject ? Object.entries(jsonObject).reduce((queryString, ref, index) => {
+                const key = ref[0];
+                const val = ref[1];
                 queryString += `&${key}=${$string.toValue(val, '')}`;
                 return queryString;
             }, '') : '';
@@ -66,24 +63,25 @@
 
         toUrlObject(url) {
             url = url || location.href;
-            return (url.match(/([^?=&]+)(=([^&]*))/g) || []).reduce((a, v) => {
+            return (url.match(/([^?=&]+)(=([^&]*))/g) || []).reduce(function (a, v) {
                 return a[v.slice(0, v.indexOf('='))] = v.slice(v.indexOf('=') + 1), a;
             }, {});
         },
 
         async isCorsEnabled(url) {
-            if (!url || globalRoot.devicePlatform === 'node') return true;
+            let result = false;
             try {
-                const response = await fetch(url, { method: 'HEAD', mode: 'cors', cache: 'no-cache', signal: AbortSignal.timeout(2000) });
-                const corsOk = response.ok;
-                if (!corsOk) {
-                    syn.$l.eventLog('$r.isCorsEnabled', `${url}, Status: ${response.status} ${response.statusText}`, 'Warning');
+                const response = await fetch(url, { method: 'HEAD', timeout: 200 });
+                result = (response.status >= 200 && response.status <= 299);
+
+                if (result == false) {
+                    syn.$l.eventLog('$w.isCorsEnabled', '{0}, {1}:{2}'.format(url, response.status, response.statusText), 'Warning');
                 }
-                return corsOk;
             } catch (error) {
-                syn.$l.eventLog('$r.isCorsEnabled', `${url}, Error: ${error.message}`, (error.name === 'AbortError' ? 'Warning' : 'Error'));
-                return false;
+                syn.$l.eventLog('$w.isCorsEnabled', error.message, 'Error');
             }
+
+            return result;
         },
 
         httpFetch(url) {
@@ -113,9 +111,9 @@
                             }
 
                             if (syn.Environment) {
-                                let environment = syn.Environment;
+                                const environment = syn.Environment;
                                 if (environment.Header) {
-                                    for (let item in environment.Header) {
+                                    for (const item in environment.Header) {
                                         if (options.headers.has(item) == false) {
                                             options.headers.append(item, environment.Header[item]);
                                         }
@@ -127,7 +125,7 @@
                                 options.headers.append('OffsetMinutes', syn.$w.timezoneOffsetMinutes);
                             }
 
-                            let data = {
+                            const data = {
                                 method: options.method,
                                 headers: options.headers,
                                 body: raw instanceof FormData ? raw : JSON.stringify(raw),
@@ -135,12 +133,13 @@
                             };
 
                             if ($object.isNullOrUndefined(options.timeout) == false) {
-                                let controller = new AbortController();
+                                const controller = new AbortController();
                                 requestTimeoutID = setTimeout(() => controller.abort(), options.timeout);
                                 data.signal = controller.signal;
                             }
 
                             response = await fetch(url, data);
+
                             if (requestTimeoutID) {
                                 clearTimeout(requestTimeoutID);
                             }
@@ -152,9 +151,9 @@
                             }
 
                             if (syn.Environment) {
-                                let environment = syn.Environment;
+                                const environment = syn.Environment;
                                 if (environment.Header) {
-                                    for (let item in environment.Header) {
+                                    for (const item in environment.Header) {
                                         if (options.headers.has(item) == false) {
                                             options.headers.append(item, environment.Header[item]);
                                         }
@@ -166,19 +165,20 @@
                                 options.headers.append('OffsetMinutes', syn.$w.timezoneOffsetMinutes);
                             }
 
-                            let data = {
+                            const data = {
                                 method: options.method,
                                 headers: options.headers,
                                 redirect: 'follow'
                             };
 
                             if ($object.isNullOrUndefined(options.timeout) == false) {
-                                let controller = new AbortController();
+                                const controller = new AbortController();
                                 requestTimeoutID = setTimeout(() => controller.abort(), options.timeout);
                                 data.signal = controller.signal;
                             }
 
                             response = await fetch(url, data);
+
                             if (requestTimeoutID) {
                                 clearTimeout(requestTimeoutID);
                             }
@@ -186,7 +186,7 @@
 
                         let result = { error: '요청 정보 확인 필요' };
                         if (response.ok == true) {
-                            let contentType = response.headers.get('Content-Type') || '';
+                            const contentType = response.headers.get('Content-Type') || '';
                             if (contentType.includes('application/json') == true) {
                                 result = await response.json();
                             }
@@ -209,7 +209,7 @@
             });
         },
 
-        // let result = await syn.$r.httpRequest('GET', '/index');
+        // var result = await syn.$r.httpRequest('GET', '/index');
         httpRequest(method, url, data, callback, options) {
             options = syn.$w.argumentsExtend({
                 timeout: 0,
@@ -220,7 +220,7 @@
                 data = {};
             }
 
-            let xhr = syn.$w.xmlHttp();
+            const xhr = syn.$w.xmlHttp();
             xhr.open(method, url, true);
             xhr.timeout = options.timeout;
             xhr.responseType = options.responseType;
@@ -228,11 +228,11 @@
 
             let formData = null;
             if ($object.isNullOrUndefined(data.body) == false) {
-                let params = data.body;
+                const params = data.body;
                 if (method.toUpperCase() == 'GET') {
                     let paramUrl = url + ((url.split('?').length > 1) ? '&' : '?');
 
-                    for (let key in params) {
+                    for (const key in params) {
                         paramUrl += key + '=' + params[key].toString() + '&';
                     }
 
@@ -241,7 +241,7 @@
                 else {
                     formData = new FormData();
 
-                    for (let key in params) {
+                    for (const key in params) {
                         formData.append(key, params[key].toString());
                     }
                 }
@@ -329,7 +329,7 @@
                 formID = document.forms[0].id;
             }
 
-            let form = document.forms[formID];
+            const form = document.forms[formID];
             if (form) {
                 form.method = method || 'POST';
                 form.action = url;
@@ -346,7 +346,7 @@
                 responseType: 'text'
             }, options);
 
-            let xhr = syn.$w.xmlHttp();
+            const xhr = syn.$w.xmlHttp();
             xhr.open('POST', url, true);
             xhr.timeout = options.timeout;
             xhr.responseType = options.responseType;
@@ -404,43 +404,38 @@
             }
         },
 
-        createBlobUrl: context.URL?.createObjectURL?.bind(context.URL) ?? context.webkitURL?.createObjectURL?.bind(context.webkitURL),
-        revokeBlobUrl: context.URL?.revokeObjectURL?.bind(context.URL) ?? context.webkitURL?.revokeObjectURL?.bind(context.webkitURL),
+        createBlobUrl: (globalRoot.URL && URL.createObjectURL && URL.createObjectURL.bind(URL)) || (globalRoot.webkitURL && webkitURL.createObjectURL && webkitURL.createObjectURL.bind(webkitURL)) || globalRoot.createObjectURL,
+        revokeBlobUrl: (globalRoot.URL && URL.revokeObjectURL && URL.revokeObjectURL.bind(webkitURL)) || globalRoot.revokeObjectURL,
 
         getCookie(id) {
-            if (globalRoot.devicePlatform === 'node' || !doc?.cookie) return undefined;
-            const cookies = doc.cookie.split('; ');
-            for (const cookie of cookies) {
-                const [name, ...valueParts] = cookie.split('=');
-                if (name === id) {
-                    return decodeURIComponent(valueParts.join('='));
-                }
-            }
-            return undefined;
+            const matches = document.cookie.match(
+                new RegExp(
+                    '(?:^|; )' +
+                    id.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') +
+                    '=([^;]*)'
+                )
+            );
+            return matches ? decodeURIComponent(matches[1]) : undefined;
         },
 
-        setCookie(id, val, expires, path = '/', domain, secure = false) {
-            if (globalRoot.devicePlatform === 'node' || !doc) return this;
-            let cookieString = `${id}=${encodeURIComponent(val)}`;
-
-            if (expires instanceof Date) {
-                cookieString += `; expires=${expires.toUTCString()}`;
-            } else if (typeof expires === 'number') {
-                cookieString += `; max-age=${expires}`;
+        setCookie(id, val, expires, path, domain, secure) {
+            if ($object.isNullOrUndefined(expires) == true) {
+                expires = new Date((new Date()).getTime() + (1000 * 60 * 60 * 24));
             }
 
-            cookieString += `; path=${path}`;
-            if (domain) cookieString += `; domain=${domain}`;
-            if (secure) cookieString += `; secure`;
-            cookieString += `; SameSite=Lax`;
+            if ($object.isNullOrUndefined(path) == true) {
+                path = '/';
+            }
 
-            doc.cookie = cookieString;
-            return this;
+            document.cookie = id + '=' + encodeURI(val) + ((expires) ? ';expires=' + expires.toUTCString() : '') + ((path) ? ';path=' + path : '') + ((domain) ? ';domain=' + domain : '') + ((secure) ? ';secure' : '');
+            return $request;
         },
 
-        deleteCookie(id, path = '/', domain) {
-            this.setCookie(id, '', new Date(0), path, domain);
-            return this;
+        deleteCookie(id, path, domain) {
+            if (syn.$r.getCookie(id)) {
+                document.cookie = id + '=' + ((path) ? ';path=' + path : '') + ((domain) ? ';domain=' + domain : '') + ';expires=Thu, 01-Jan-1970 00:00:01 GMT';
+            }
+            return $request;
         }
     });
     context.$request = syn.$r = $request;

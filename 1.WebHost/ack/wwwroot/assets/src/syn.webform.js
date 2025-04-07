@@ -1085,215 +1085,362 @@
         },
 
         tryAddFunction(transactConfig) {
-            if (!transactConfig || !$this?.config) {
-                syn.$l.eventLog('$w.tryAddFunction', `functionID: ${transactConfig?.functionID}에 대해 transactConfig가 유효하지 않거나 $this.config가 없습니다.`, 'Warning');
-                return;
-            }
-
-            try {
-                transactConfig.noProgress = transactConfig.noProgress ?? false;
-                $this.config.transactions = $this.config.transactions || [];
-
-                const transactions = $this.config.transactions;
-                const existingIndex = transactions.findIndex(t => t.functionID === transactConfig.functionID);
-                if (existingIndex > -1) {
-                    transactions.splice(existingIndex, 1);
+            if (transactConfig && $this && $this.config) {
+                if ($object.isNullOrUndefined(transactConfig.noProgress) == true) {
+                    transactConfig.noProgress = false;
                 }
 
-                const synControlList = $this.context?.synControls ?? [];
-                const defaultFormId = doc?.forms?.[0]?.getAttribute('syn-datafield') ?? '';
+                try {
+                    if ($object.isNullOrUndefined($this.config.transactions) == true) {
+                        $this.config.transactions = [];
+                    }
 
-                const transactionObject = {
-                    functionID: transactConfig.functionID,
-                    transactionResult: transactConfig.transactionResult ?? true,
-                    inputs: [],
-                    outputs: []
-                };
-
-                (transactConfig.inputs || []).forEach(inputConfig => {
-                    const input = {
-                        requestType: inputConfig.type,
-                        dataFieldID: inputConfig.dataFieldID || defaultFormId,
-                        items: {}
-                    };
-
-                    const isBelong = (belongID) => {
-                        if (!belongID) return false;
-                        return Array.isArray(belongID)
-                            ? belongID.includes(transactConfig.functionID)
-                            : transactConfig.functionID === belongID;
-                    };
-
-                    const processControlOptions = (controlConfig) => {
-                        const el = syn.$l.get(`${controlConfig.id} _hidden`) || syn.$l.get(controlConfig.id);
-                        const optionsStr = el?.getAttribute('syn-options') || '{}';
-                        try {
-                            const synOptions = new Function(`return (${optionsStr})`)();
-                            if (synOptions && controlConfig.field && isBelong(synOptions.belongID)) {
-                                input.items[controlConfig.field] = {
-                                    fieldID: controlConfig.field,
-                                    dataType: synOptions.dataType || 'string'
-                                };
-                            }
-                        } catch (e) {
-                            syn.$l.eventLog('$w.tryAddFunction.input', `${controlConfig.id}의 syn - options 파싱 오류: ${e}`, 'Warning');
+                    const transactions = $this.config.transactions;
+                    for (let i = 0; i < transactions.length; i++) {
+                        if (transactConfig.functionID == transactions[i].functionID) {
+                            transactions.splice(i, 1);
+                            break;
                         }
-                    };
+                    }
 
-                    const processStoreColumns = (store, type) => {
-                        if (store?.storeType === type && store.dataSourceID === input.dataFieldID) {
-                            (store.columns || []).forEach(column => {
-                                if (isBelong(column.belongID)) {
-                                    input.items[column.data] = {
-                                        fieldID: column.data,
-                                        dataType: column.dataType || 'string'
-                                    };
+                    const synControlList = $this.context.synControls;
+                    const transactionObject = {};
+                    transactionObject.functionID = transactConfig.functionID;
+                    transactionObject.transactionResult = $object.isNullOrUndefined(transactConfig.transactionResult) == true ? true : transactConfig.transactionResult === true;
+                    transactionObject.inputs = [];
+                    transactionObject.outputs = [];
+
+                    if (transactConfig.inputs) {
+                        const inputs = transactConfig.inputs;
+                        const inputsLength = inputs.length;
+                        for (let i = 0; i < inputsLength; i++) {
+                            const inputConfig = inputs[i];
+                            const input = {
+                                requestType: inputConfig.type,
+                                dataFieldID: inputConfig.dataFieldID ? inputConfig.dataFieldID : document.forms.length > 0 ? document.forms[0].getAttribute('syn-datafield') : '',
+                                items: {}
+                            };
+
+                            let synControlConfigs = null;
+                            if (inputConfig.type == 'Row') {
+                                synControlConfigs = synControlList.filter(function (item) {
+                                    return item.formDataFieldID == input.dataFieldID && (item.type.indexOf('grid') > -1 || item.type.indexOf('chart') > -1 || item.type.indexOf('data') > -1) == false;
+                                });
+
+                                if (synControlConfigs && synControlConfigs.length > 0) {
+                                    for (let k = 0; k < synControlConfigs.length; k++) {
+                                        const synControlConfig = synControlConfigs[k];
+
+                                        const el = syn.$l.get(synControlConfig.id + '_hidden') || syn.$l.get(synControlConfig.id);
+                                        const options = el && el.getAttribute('syn-options');
+                                        if (options == null) {
+                                            continue;
+                                        }
+
+                                        let synOptions = null;
+
+                                        try {
+                                            synOptions = JSON.parse(options);
+                                        } catch (e) {
+                                            synOptions = eval('(' + options + ')');
+                                        }
+
+                                        if (synOptions == null || $string.isNullOrEmpty(synControlConfig.field) == true) {
+                                            continue;
+                                        }
+
+                                        let isBelong = false;
+                                        if (synOptions.belongID) {
+                                            if ($object.isString(synOptions.belongID) == true) {
+                                                isBelong = transactConfig.functionID == synOptions.belongID;
+                                            }
+                                            else if ($object.isArray(synOptions.belongID) == true) {
+                                                isBelong = synOptions.belongID.indexOf(transactConfig.functionID) > -1;
+                                            }
+                                        }
+
+                                        if (isBelong == true) {
+                                            input.items[synControlConfig.field] = {
+                                                fieldID: synControlConfig.field,
+                                                dataType: synOptions.dataType || 'string'
+                                            };
+                                        }
+                                    }
                                 }
-                            });
-                            return true;
-                        }
-                        return false;
-                    };
+                                else {
+                                    const synControlConfig = synControlList.find(function (item) {
+                                        return item.field == input.dataFieldID && (item.type.indexOf('grid') > -1 || item.type.indexOf('chart') > -1) == true;
+                                    });
 
-                    if (inputConfig.type === 'Row') {
-                        const formControls = synControlList.filter(item =>
-                            item.formDataFieldID === input.dataFieldID &&
-                            !item.type?.includes('grid') && !item.type?.includes('chart') && !item.type?.includes('data')
-                        );
+                                    const controlModule = $object.isNullOrUndefined(synControlConfig) == true ? null : syn.$w.getControlModule(synControlConfig.module);
+                                    if ($object.isNullOrUndefined(controlModule) == false && controlModule.setTransactionBelongID) {
+                                        controlModule.setTransactionBelongID(synControlConfig.id, input, transactConfig);
+                                    }
+                                    else {
+                                        if (syn.uicontrols.$data && syn.uicontrols.$data.storeList.length > 0) {
+                                            for (let k = 0; k < syn.uicontrols.$data.storeList.length; k++) {
+                                                const store = syn.uicontrols.$data.storeList[k];
+                                                if (store.storeType == 'Form' && store.dataSourceID == input.dataFieldID) {
+                                                    for (let l = 0; l < store.columns.length; l++) {
+                                                        const column = store.columns[l];
+                                                        let isBelong = false;
+                                                        if ($object.isString(column.belongID) == true) {
+                                                            isBelong = transactConfig.functionID == column.belongID;
+                                                        }
+                                                        else if ($object.isArray(column.belongID) == true) {
+                                                            isBelong = column.belongID.indexOf(transactConfig.functionID) > -1;
+                                                        }
 
-                        if (formControls.length > 0) {
-                            formControls.forEach(processControlOptions);
-                        } else {
-                            let storeProcessed = false;
-                            if (syn.uicontrols?.$data?.storeList) {
-                                for (const store of syn.uicontrols.$data.storeList) {
-                                    if (processStoreColumns(store, 'Form')) {
-                                        storeProcessed = true;
-                                        break;
+                                                        if (isBelong == true) {
+                                                            input.items[column.data] = {
+                                                                fieldID: column.data,
+                                                                dataType: column.dataType || 'string'
+                                                            };
+                                                        }
+                                                    }
+
+                                                    break;
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
-                            if (!storeProcessed) {
-                                const specificControlConfig = synControlList.find(item => item.field === input.dataFieldID && (item.type?.includes('grid') || item.type?.includes('chart')));
-                                const controlModule = specificControlConfig ? syn.$w.getControlModule(specificControlConfig.module) : null;
-                                controlModule?.setTransactionBelongID?.(specificControlConfig.id, input, transactConfig);
-                            }
-                        }
-                    } else if (inputConfig.type === 'List') {
-                        const listControlConfig = synControlList.find(item => item.field === input.dataFieldID && (item.type?.includes('grid') || item.type?.includes('chart')));
-                        const controlModule = listControlConfig ? syn.$w.getControlModule(listControlConfig.module) : null;
+                            else if (inputConfig.type == 'List') {
+                                const synControlConfig = synControlList.find(function (item) {
+                                    return item.field == input.dataFieldID && (item.type.indexOf('grid') > -1 || item.type.indexOf('chart') > -1) == true;
+                                });
 
-                        if (controlModule?.setTransactionBelongID) {
-                            controlModule.setTransactionBelongID(listControlConfig.id, input, transactConfig);
-                        } else if (syn.uicontrols?.$data?.storeList) {
-                            let storeProcessed = false;
-                            for (const store of syn.uicontrols.$data.storeList) {
-                                if (processStoreColumns(store, 'Grid')) {
-                                    storeProcessed = true;
-                                    break;
+                                const controlModule = $object.isNullOrUndefined(synControlConfig) == true ? null : syn.$w.getControlModule(synControlConfig.module);
+                                if ($object.isNullOrUndefined(controlModule) == false && controlModule.setTransactionBelongID) {
+                                    controlModule.setTransactionBelongID(synControlConfig.id, input, transactConfig);
+                                }
+                                else {
+                                    if (syn.uicontrols.$data && syn.uicontrols.$data.storeList.length > 0) {
+                                        for (let k = 0; k < syn.uicontrols.$data.storeList.length; k++) {
+                                            const store = syn.uicontrols.$data.storeList[k];
+                                            if (store.storeType == 'Grid' && store.dataSourceID == input.dataFieldID) {
+                                                for (let l = 0; l < store.columns.length; l++) {
+                                                    const column = store.columns[l];
+                                                    let isBelong = false;
+                                                    if ($object.isString(column.belongID) == true) {
+                                                        isBelong = transactConfig.functionID == column.belongID;
+                                                    }
+                                                    else if ($object.isArray(column.belongID) == true) {
+                                                        isBelong = column.belongID.indexOf(transactConfig.functionID) > -1;
+                                                    }
+
+                                                    if (isBelong == true) {
+                                                        input.items[column.data] = {
+                                                            fieldID: column.data,
+                                                            dataType: column.dataType || 'string'
+                                                        };
+                                                    }
+                                                }
+
+                                                break;
+                                            }
+                                        }
+                                    }
                                 }
                             }
-                            if (!storeProcessed) {
-                                syn.$l.eventLog('$w.tryAddFunction.input', `dataFieldID "${input.dataFieldID}"에 대한 목록(List) 소스를 찾을 수 없습니다.`, 'Warning');
-                            }
+
+                            transactionObject.inputs.push(input);
                         }
                     }
-                    transactionObject.inputs.push(input);
-                });
 
-                (transactConfig.outputs || []).forEach(outputConfig => {
-                    const output = {
-                        responseType: outputConfig.type,
-                        dataFieldID: outputConfig.dataFieldID || '',
-                        items: {}
-                    };
+                    if (transactConfig.outputs) {
+                        const outputs = transactConfig.outputs;
+                        const outputsLength = outputs.length;
+                        const synControls = $this.context.synControls;
+                        for (let i = 0; i < outputsLength; i++) {
+                            const outputConfig = outputs[i];
+                            const output = {
+                                responseType: outputConfig.type,
+                                dataFieldID: outputConfig.dataFieldID ? outputConfig.dataFieldID : '',
+                                items: {}
+                            };
 
-                    const processControlOutput = (controlConfig) => {
-                        const el = syn.$l.get(`${controlConfig.id} _hidden`) || syn.$l.get(controlConfig.id);
-                        const optionsStr = el?.getAttribute('syn-options') || '{}';
-                        try {
-                            const synOptions = new Function(`return (${optionsStr})`)();
-                            if (synOptions && controlConfig.field) {
-                                output.items[controlConfig.field] = {
-                                    fieldID: controlConfig.field,
-                                    dataType: synOptions.dataType || 'string'
-                                };
-                            }
-                        } catch (e) {
-                            syn.$l.eventLog('$w.tryAddFunction.output', `${controlConfig.id}의 syn - options 파싱 오류: ${e}`, 'Warning');
-                        }
+                            let synControlConfigs = null;
+                            if (outputConfig.type == 'Form') {
+                                synControlConfigs = synControlList.filter(function (item) {
+                                    return item.formDataFieldID == output.dataFieldID && (item.type.indexOf('grid') > -1 || item.type.indexOf('chart') > -1 || item.type.indexOf('data') > -1) == false;
+                                });
 
-                        if (outputConfig.clear) {
-                            const controlModule = syn.$w.getControlModule(controlConfig.module);
-                            controlModule?.clear?.(controlConfig.id);
-                        }
-                    };
+                                if (synControlConfigs && synControlConfigs.length > 0) {
+                                    for (let k = 0; k < synControlConfigs.length; k++) {
+                                        const synControlConfig = synControlConfigs[k];
 
-                    const processStoreOutput = (store, type) => {
-                        if (store?.storeType === type && store.dataSourceID === output.dataFieldID) {
-                            (store.columns || []).forEach(column => {
-                                output.items[column.data] = {
-                                    fieldID: column.data,
-                                    dataType: column.dataType || 'string'
-                                };
-                            });
-                            if (outputConfig.clear && $this?.store?.[store.dataSourceID]) {
-                                if (Array.isArray($this.store[store.dataSourceID])) {
-                                    $this.store[store.dataSourceID].length = 0;
-                                } else {
-                                    $this.store[store.dataSourceID] = {};
+                                        const el = syn.$l.get(synControlConfig.id + '_hidden') || syn.$l.get(synControlConfig.id);
+                                        const options = el && el.getAttribute('syn-options');
+                                        if (options == null) {
+                                            continue;
+                                        }
+
+                                        let synOptions = null;
+
+                                        try {
+                                            synOptions = JSON.parse(options);
+                                        } catch (e) {
+                                            synOptions = eval('(' + options + ')');
+                                        }
+
+                                        if (synOptions == null || $string.isNullOrEmpty(synControlConfig.field) == true) {
+                                            continue;
+                                        }
+
+                                        output.items[synControlConfig.field] = {
+                                            fieldID: synControlConfig.field,
+                                            dataType: synOptions.dataType
+                                        };
+
+                                        if (outputConfig.clear == true) {
+                                            if (synControls && synControls.length > 0) {
+                                                const controlInfo = synControls.find(function (item) {
+                                                    return item.field == outputConfig.dataFieldID;
+                                                });
+
+                                                if ($string.isNullOrEmpty(controlInfo.module) == true) {
+                                                    continue;
+                                                }
+
+                                                const controlModule = syn.$w.getControlModule(controlInfo.module);
+                                                if ($object.isNullOrUndefined(controlModule) == false && controlModule.clear) {
+                                                    controlModule.clear(controlInfo.id);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                else {
+                                    if (syn.uicontrols.$data && syn.uicontrols.$data.storeList.length > 0) {
+                                        for (let k = 0; k < syn.uicontrols.$data.storeList.length; k++) {
+                                            const store = syn.uicontrols.$data.storeList[k];
+                                            if (store.storeType == 'Form' && store.dataSourceID == output.dataFieldID) {
+                                                for (let l = 0; l < store.columns.length; l++) {
+                                                    const column = store.columns[l];
+
+                                                    output.items[column.data] = {
+                                                        fieldID: column.data,
+                                                        dataType: column.dataType || 'string'
+                                                    };
+                                                }
+
+                                                if (outputConfig.clear == true) {
+                                                    const dataStore = $this.store[store.dataSourceID];
+                                                    if (dataStore) {
+                                                        dataStore.length = 0;
+                                                    }
+                                                }
+
+                                                break;
+                                            }
+                                        }
+                                    }
                                 }
                             }
-                            return true;
-                        }
-                        return false;
-                    };
+                            else if (outputConfig.type == 'Grid') {
+                                const synControlConfig = synControlList.find(function (item) {
+                                    return item.field == output.dataFieldID && (item.type.indexOf('grid') > -1 || item.type.indexOf('chart') > -1) == true;
+                                });
 
-                    if (outputConfig.type === 'Form') {
-                        const formControls = synControlList.filter(item =>
-                            item.formDataFieldID === output.dataFieldID &&
-                            !item.type?.includes('grid') && !item.type?.includes('chart') && !item.type?.includes('data')
-                        );
-                        if (formControls.length > 0) {
-                            formControls.forEach(processControlOutput);
-                        } else if (syn.uicontrols?.$data?.storeList) {
-                            let storeProcessed = false;
-                            for (const store of syn.uicontrols.$data.storeList) {
-                                if (processStoreOutput(store, 'Form')) {
-                                    storeProcessed = true;
-                                    break;
+                                const controlModule = $object.isNullOrUndefined(synControlConfig) == true ? null : syn.$w.getControlModule(synControlConfig.module);
+                                if ($object.isNullOrUndefined(controlModule) == false && controlModule.setTransactionBelongID) {
+                                    controlModule.setTransactionBelongID(synControlConfig.id, output);
+
+                                    if (outputConfig.clear == true) {
+                                        if (synControls && synControls.length > 0) {
+                                            const controlInfo = synControls.find(function (item) {
+                                                return item.field == output.dataFieldID;
+                                            });
+
+                                            const controlModule = syn.$w.getControlModule(controlInfo.module);
+                                            if ($object.isNullOrUndefined(controlModule) == false && controlModule.clear) {
+                                                controlModule.clear(controlInfo.id);
+                                            }
+                                        }
+                                    }
+                                }
+                                else {
+                                    synControlConfigs = synControlList.filter(function (item) {
+                                        return item.field == output.dataFieldID && ['chart', 'chartjs'].indexOf(item.type) > -1;
+                                    });
+
+                                    if (synControlConfigs && synControlConfigs.length == 1) {
+                                        const synControlConfig = synControlConfigs[0];
+
+                                        const el = syn.$l.get(synControlConfig.id + '_hidden') || syn.$l.get(synControlConfig.id);
+                                        const synOptions = JSON.parse(el.getAttribute('syn-options'));
+
+                                        if (synOptions == null) {
+                                            continue;
+                                        }
+
+                                        for (let k = 0; k < synOptions.series.length; k++) {
+                                            const column = synOptions.series[k];
+                                            output.items[column.columnID] = {
+                                                fieldID: column.columnID,
+                                                dataType: column.dataType ? column.dataType : 'string'
+                                            };
+                                        }
+
+                                        if (outputConfig.clear == true) {
+                                            if (synControls && synControls.length > 0) {
+                                                const controlInfo = synControls.find(function (item) {
+                                                    return item.field == outputConfig.dataFieldID;
+                                                });
+
+                                                if ($string.isNullOrEmpty(controlInfo.module) == true) {
+                                                    continue;
+                                                }
+
+                                                const controlModule = syn.$w.getControlModule(controlInfo.module);
+                                                if ($object.isNullOrUndefined(controlModule) == false && controlModule.clear) {
+                                                    controlModule.clear(controlInfo.id);
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else {
+                                        if (syn.uicontrols.$data && syn.uicontrols.$data.storeList.length > 0) {
+                                            for (let k = 0; k < syn.uicontrols.$data.storeList.length; k++) {
+                                                const store = syn.uicontrols.$data.storeList[k];
+                                                if (store.storeType == 'Grid' && store.dataSourceID == output.dataFieldID) {
+                                                    for (let l = 0; l < store.columns.length; l++) {
+                                                        const column = store.columns[l];
+
+                                                        output.items[column.data] = {
+                                                            fieldID: column.data,
+                                                            dataType: column.dataType || 'string'
+                                                        };
+                                                    }
+
+                                                    if (outputConfig.clear == true) {
+                                                        const dataStore = $this.store[store.dataSourceID];
+                                                        if (dataStore) {
+                                                            dataStore.length = 0;
+                                                        }
+                                                    }
+
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
-                            if (!storeProcessed) {
-                                syn.$l.eventLog('$w.tryAddFunction.output', `dataFieldID "${output.dataFieldID}"에 대한 폼(Form) 소스를 찾을 수 없습니다.`, 'Warning');
-                            }
-                        }
-                    } else if (outputConfig.type === 'Grid') {
-                        const listControlConfig = synControlList.find(item => item.field === output.dataFieldID && (item.type?.includes('grid') || item.type?.includes('chart'))); // Allow chart as grid output sometimes
-                        const controlModule = listControlConfig ? syn.$w.getControlModule(listControlConfig.module) : null;
 
-                        if (controlModule?.setTransactionBelongID) {
-                            controlModule.setTransactionBelongID(listControlConfig.id, output);
-                            if (outputConfig.clear) controlModule.clear?.(listControlConfig.id);
-                        } else if (syn.uicontrols?.$data?.storeList) {
-                            let storeProcessed = false;
-                            for (const store of syn.uicontrols.$data.storeList) {
-                                if (processStoreOutput(store, 'Grid')) {
-                                    storeProcessed = true;
-                                    break;
-                                }
-                            }
-                            if (!storeProcessed) {
-                                syn.$l.eventLog('$w.tryAddFunction.output', `dataFieldID "${output.dataFieldID}"에 대한 그리드(Grid) 소스를 찾을 수 없습니다.`, 'Warning');
-                            }
+                            transactionObject.outputs.push(output);
                         }
                     }
-                    transactionObject.outputs.push(output);
-                });
 
-                transactions.push(transactionObject);
-            } catch (error) {
-                syn.$l.eventLog('$w.tryAddFunction', `함수 ${transactConfig.functionID} 처리 중 오류 발생: ${error}`, 'Error');
+                    $this.config.transactions.push(transactionObject);
+                } catch (error) {
+                    syn.$l.eventLog('$w.tryAddFunction', error, 'Error');
+                }
+            }
+            else {
+                syn.$l.eventLog('$w.tryAddFunction', '{0} 거래 ID 또는 설정 확인 필요'.format(transactConfig), 'Warning');
             }
         },
 
@@ -1432,12 +1579,12 @@
 
         transaction(functionID, callback, options) {
             let errorText = '';
-            const result = { errorText: [], outputStat: [] };
-
             try {
-                if (syn.$w.domainTransactionLoaderStart) syn.$w.domainTransactionLoaderStart();
+                if (syn.$w.domainTransactionLoaderStart) {
+                    syn.$w.domainTransactionLoaderStart();
+                }
 
-                const mergedOptions = syn.$w.argumentsExtend({
+                options = syn.$w.argumentsExtend({
                     message: '',
                     dynamic: 'Y',
                     authorize: 'N',
@@ -1447,473 +1594,1017 @@
                     transactionLog: 'Y'
                 }, options);
 
-                if (syn.$w.progressMessage) syn.$w.progressMessage(mergedOptions.message);
+                if (options) {
 
-                if (!$this?.config?.transactions) {
-                    throw new Error('거래 설정($this.config.transactions)이 없습니다.');
+                    if (syn.$w.progressMessage) {
+                        syn.$w.progressMessage(options.message);
+                    }
                 }
 
-                const transactions = $this.config.transactions.filter(item => item.functionID === functionID);
+                const result = {
+                    errorText: [],
+                    outputStat: []
+                };
 
-                if (transactions.length !== 1) {
-                    throw new Error(`functionID "${functionID}"에 대한 거래 정의를 찾을 수 없거나 중복됩니다.`);
-                }
+                if ($this && $this.config && $this.config.transactions) {
+                    const transactions = $this.config.transactions.filter(function (item) {
+                        return item.functionID == functionID;
+                    });
 
-                const transaction = transactions[0];
-                const transactionObject = syn.$w.transactionObject(transaction.functionID, 'Json');
+                    if (transactions.length == 1) {
+                        const transaction = transactions[0];
+                        const transactionObject = syn.$w.transactionObject(transaction.functionID, 'Json');
 
-                transactionObject.programID = $this.config.programID;
-                transactionObject.businessID = $this.config.businessID;
-                transactionObject.systemID = $this.config.systemID;
-                transactionObject.transactionID = $this.config.transactionID;
-                transactionObject.screenID = syn.$w.pageScript?.replace('$', '') ?? '';
-                transactionObject.startTraceID = mergedOptions.startTraceID || '';
-                transactionObject.options = mergedOptions;
+                        transactionObject.programID = $this.config.programID;
+                        transactionObject.businessID = $this.config.businessID;
+                        transactionObject.systemID = $this.config.systemID;
+                        transactionObject.transactionID = $this.config.transactionID;
+                        transactionObject.screenID = syn.$w.pageScript.replace('$', '');
+                        transactionObject.startTraceID = options.startTraceID || '';
+                        transactionObject.options = options;
 
-                const synControls = $this.context?.synControls ?? [];
+                        // synControls 컨트롤 목록
+                        const synControls = $this.context.synControls;
 
-                transaction.inputs.forEach(inputMapping => {
-                    let inputObjects = [];
-                    const dataFieldID = inputMapping.dataFieldID;
+                        // Input Mapping
+                        const inputLength = transaction.inputs.length;
+                        for (let inputIndex = 0; inputIndex < inputLength; inputIndex++) {
+                            const inputMapping = transaction.inputs[inputIndex];
+                            let inputObjects = [];
 
-                    const getControlValue = (controlInfo, meta) => {
-                        if (!controlInfo) return meta?.dataType?.includes('num') ? 0 : '';
-                        const controlModule = syn.$w.getControlModule(controlInfo.module);
-                        let value = controlModule?.getValue?.(controlInfo.id.replace('_hidden', ''), meta);
-
-                        if (value === undefined || value === null) {
-                            value = meta?.dataType?.includes('num') ? 0 : '';
-                        }
-                        return value;
-                    };
-
-                    const validateControl = (controlInfo, options, type) => {
-                        if (options?.validators && $validation?.transactionValidate) {
-                            const controlModule = syn.$w.getControlModule(controlInfo.module);
-                            return $validation.transactionValidate(controlModule, controlInfo, options, type);
-                        }
-                        return true;
-                    };
-
-                    if (inputMapping.requestType === 'Row') {
-                        const rowData = [];
-                        const formControls = synControls.filter(item => item.field === dataFieldID || item.formDataFieldID === dataFieldID);
-
-                        if (formControls.length > 0) {
-                            const gridChartControl = formControls.find(c => c.type?.includes('grid') || c.type?.includes('chart'));
-                            if (gridChartControl && gridChartControl.field === dataFieldID) {
-                                const controlModule = syn.$w.getControlModule(gridChartControl.module);
-                                const values = controlModule?.getValue?.(gridChartControl.id.replace('_hidden', ''), 'Row', inputMapping.items);
-                                inputObjects = values?.[0] ?? [];
-                            } else {
-                                Object.entries(inputMapping.items).forEach(([itemDataField, meta]) => {
-                                    const controlInfo = formControls.find(c => c.field === itemDataField && c.formDataFieldID === dataFieldID);
-                                    const el = controlInfo ? (syn.$l.get(`${controlInfo.id} _hidden`) || syn.$l.get(controlInfo.id)) : null;
-                                    const synOptionsStr = el?.getAttribute('syn-options') || '{}';
-                                    try {
-                                        const synOptions = new Function(`return (${synOptionsStr})`)();
-                                        if (!validateControl(controlInfo, synOptions, 'Row')) {
-                                            throw new Error(`컨트롤 유효성 검사 실패: ${controlInfo?.id}`);
-                                        }
-                                        const controlValue = getControlValue(controlInfo, meta);
-                                        rowData.push({ prop: meta.fieldID, val: controlValue });
-                                    } catch (e) {
-                                        throw new Error(`행(Row) 컨트롤 ${itemDataField} 처리 오류: ${e.message}`);
-                                    }
+                            if (inputMapping.requestType == 'Row') {
+                                let bindingControlInfos = synControls.filter(function (item) {
+                                    return item.field == inputMapping.dataFieldID;
                                 });
-                                inputObjects = rowData;
+
+                                if (bindingControlInfos.length == 1) {
+                                    const controlInfo = bindingControlInfos[0];
+
+                                    if (controlInfo.type.indexOf('grid') > -1 || controlInfo.type.indexOf('chart') > -1) {
+                                        const dataFieldID = inputMapping.dataFieldID;
+
+                                        let controlValue = '';
+                                        if (synControls && synControls.length > 0) {
+                                            bindingControlInfos = synControls.filter(function (item) {
+                                                return item.field == dataFieldID;
+                                            });
+
+                                            if (bindingControlInfos.length == 1) {
+                                                const controlInfo = bindingControlInfos[0];
+                                                const controlModule = syn.$w.getControlModule(controlInfo.module);
+
+                                                const el = syn.$l.get(controlInfo.id + '_hidden') || syn.$l.get(controlInfo.id);
+                                                const synOptions = JSON.parse(el.getAttribute('syn-options'));
+
+                                                for (let k = 0; k < synOptions.columns.length; k++) {
+                                                    const column = synOptions.columns[k];
+                                                    if (column.validators && $validation.transactionValidate) {
+                                                        column.controlText = synOptions.controlText || '';
+                                                        const isValidate = $validation.transactionValidate(controlModule, controlInfo, column, inputMapping.requestType);
+
+                                                        if (isValidate == false) {
+                                                            if ($this.hook.afterTransaction) {
+                                                                $this.hook.afterTransaction('validators continue false', functionID, column, null);
+                                                            }
+
+                                                            if (syn.$w.domainTransactionLoaderEnd) {
+                                                                syn.$w.domainTransactionLoaderEnd();
+                                                            }
+
+                                                            return false;
+                                                        }
+                                                    }
+                                                }
+
+                                                if ($object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
+                                                    inputObjects = controlModule.getValue(controlInfo.id.replace('_hidden', ''), 'Row', inputMapping.items)[0];
+                                                }
+                                            }
+                                            else {
+                                                syn.$l.eventLog('$w.transaction', '"{0}" Row List Input Mapping 확인 필요'.format(dataFieldID), 'Warning');
+                                            }
+                                        }
+                                    }
+                                    else {
+                                        for (const key in inputMapping.items) {
+                                            const meta = inputMapping.items[key];
+                                            const dataFieldID = key; // syn-datafield
+                                            const fieldID = meta.fieldID; // DbColumnID
+                                            const dataType = meta.dataType;
+                                            const serviceObject = { prop: fieldID, val: '' };
+
+                                            let controlValue = '';
+                                            if (synControls.length > 0) {
+                                                bindingControlInfos = synControls.filter(function (item) {
+                                                    return item.field == dataFieldID && item.formDataFieldID == inputMapping.dataFieldID;
+                                                });
+
+                                                if (bindingControlInfos.length == 1) {
+                                                    const controlInfo = bindingControlInfos[0];
+                                                    if ($object.isNullOrUndefined(controlInfo.module) == true) {
+                                                        controlValue = syn.$l.get(controlInfo.id).value;
+                                                    }
+                                                    else {
+                                                        const controlModule = syn.$w.getControlModule(controlInfo.module);
+
+                                                        const el = syn.$l.get(controlInfo.id + '_hidden') || syn.$l.get(controlInfo.id);
+                                                        const synOptions = JSON.parse(el.getAttribute('syn-options'));
+
+                                                        if (synOptions.validators && $validation.transactionValidate) {
+                                                            const isValidate = $validation.transactionValidate(controlModule, controlInfo, synOptions, inputMapping.requestType);
+
+                                                            if (isValidate == false) {
+                                                                if ($this.hook.afterTransaction) {
+                                                                    $this.hook.afterTransaction('validators continue false', functionID, synOptions, null);
+                                                                }
+
+                                                                if (syn.$w.domainTransactionLoaderEnd) {
+                                                                    syn.$w.domainTransactionLoaderEnd();
+                                                                }
+
+                                                                return false;
+                                                            }
+                                                        }
+
+                                                        if ($object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
+                                                            controlValue = controlModule.getValue(controlInfo.id.replace('_hidden', ''), meta);
+                                                        }
+
+                                                        if ($object.isNullOrUndefined(controlValue) == true && (dataType == 'number' || dataType == 'numeric')) {
+                                                            controlValue = 0;
+                                                        }
+                                                    }
+                                                }
+                                                else {
+                                                    syn.$l.eventLog('$w.transaction', '"{0}" Row Control Input Mapping 확인 필요'.format(dataFieldID), 'Warning');
+                                                    continue;
+                                                }
+                                            }
+
+                                            serviceObject.val = controlValue;
+                                            inputObjects.push(serviceObject);
+                                        }
+                                    }
+                                }
+                                else {
+                                    if (syn.uicontrols.$data && syn.uicontrols.$data.storeList.length > 0) {
+                                        for (const key in inputMapping.items) {
+                                            let isMapping = false;
+                                            const meta = inputMapping.items[key];
+                                            const dataFieldID = key; // syn-datafield
+                                            const fieldID = meta.fieldID; // DbColumnID
+                                            const dataType = meta.dataType;
+                                            const serviceObject = { prop: fieldID, val: '' };
+
+                                            let controlValue = '';
+                                            for (let k = 0; k < syn.uicontrols.$data.storeList.length; k++) {
+                                                const store = syn.uicontrols.$data.storeList[k];
+                                                if (store.storeType == 'Form' && store.dataSourceID == inputMapping.dataFieldID) {
+                                                    isMapping = true;
+                                                    bindingControlInfos = store.columns.filter(function (item) {
+                                                        return item.data == dataFieldID;
+                                                    });
+
+                                                    if (bindingControlInfos.length == 1) {
+                                                        const controlInfo = bindingControlInfos[0];
+                                                        controlValue = $this.store[store.dataSourceID][controlInfo.data];
+
+                                                        if ($object.isNullOrUndefined(controlValue) == true && (dataType == 'number' || dataType == 'numeric')) {
+                                                            controlValue = 0;
+                                                        }
+
+                                                        if ($object.isNullOrUndefined(controlValue) == true) {
+                                                            controlValue = '';
+                                                        }
+                                                    }
+                                                    else {
+                                                        syn.$l.eventLog('$w.transaction', '"{0}" Row Input Mapping 확인 필요'.format(dataFieldID), 'Warning');
+                                                    }
+
+                                                    break;
+                                                }
+                                            }
+
+                                            if (isMapping == true) {
+                                                serviceObject.val = controlValue;
+                                                inputObjects.push(serviceObject);
+                                            }
+                                            else {
+                                                syn.$l.eventLog('$w.transaction', '{0} Row 컨트롤 ID 중복 또는 존재여부 확인 필요'.format(inputMapping.dataFieldID), 'Warning');
+                                            }
+                                        }
+                                    }
+                                }
+
+                                transactionObject.inputs.push(inputObjects); // transactionObject.inputs.push($object.clone(inputObjects));
+                                transactionObject.inputsItemCount.push(1);
                             }
-                        } else {
-                            if (syn.uicontrols?.$data?.storeList) {
-                                const store = syn.uicontrols.$data.storeList.find(s => s.storeType === 'Form' && s.dataSourceID === dataFieldID);
-                                if (store && $this.store?.[store.dataSourceID]) {
-                                    Object.entries(inputMapping.items).forEach(([itemDataField, meta]) => {
-                                        const storeData = $this.store[store.dataSourceID];
-                                        const controlValue = storeData?.[itemDataField] ?? (meta.dataType?.includes('num') ? 0 : '');
-                                        rowData.push({ prop: meta.fieldID, val: controlValue });
+                            else if (inputMapping.requestType == 'List') {
+                                const dataFieldID = inputMapping.dataFieldID; // syn-datafield
+
+                                let controlValue = '';
+                                if (synControls && synControls.length > 0) {
+                                    let bindingControlInfos = synControls.filter(function (item) {
+                                        return item.field == dataFieldID;
                                     });
-                                    inputObjects = rowData;
-                                } else {
-                                    syn.$l.eventLog('$w.transaction', `dataFieldID "${dataFieldID}"에 대한 행(Row) 소스를 찾을 수 없습니다.`, 'Warning');
+
+                                    if (bindingControlInfos.length == 1) {
+                                        const controlInfo = bindingControlInfos[0];
+                                        const controlModule = syn.$w.getControlModule(controlInfo.module);
+
+                                        const el = syn.$l.get(controlInfo.id + '_hidden') || syn.$l.get(controlInfo.id);
+                                        const synOptions = JSON.parse(el.getAttribute('syn-options'));
+
+                                        for (let k = 0; k < synOptions.columns.length; k++) {
+                                            const column = synOptions.columns[k];
+                                            column.controlText = synOptions.controlText || '';
+                                            if (column.validators && $validation.transactionValidate) {
+                                                const isValidate = $validation.transactionValidate(controlModule, controlInfo, column, inputMapping.requestType);
+
+                                                if (isValidate == false) {
+                                                    if ($this.hook.afterTransaction) {
+                                                        $this.hook.afterTransaction('validators continue false', functionID, column, null);
+                                                    }
+
+                                                    if (syn.$w.domainTransactionLoaderEnd) {
+                                                        syn.$w.domainTransactionLoaderEnd();
+                                                    }
+
+                                                    return false;
+                                                }
+                                            }
+                                        }
+
+                                        if ($object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
+                                            inputObjects = controlModule.getValue(controlInfo.id.replace('_hidden', ''), 'List', inputMapping.items);
+                                        }
+                                    }
+                                    else {
+                                        let isMapping = false;
+                                        if (syn.uicontrols.$data && syn.uicontrols.$data.storeList.length > 0) {
+                                            for (let k = 0; k < syn.uicontrols.$data.storeList.length; k++) {
+                                                const store = syn.uicontrols.$data.storeList[k];
+                                                if (store.storeType == 'Grid' && store.dataSourceID == dataFieldID) {
+                                                    isMapping = true;
+                                                    const bindingInfo = syn.uicontrols.$data.bindingList.find(function (item) {
+                                                        return (item.dataSourceID == store.dataSourceID && item.controlType == 'grid');
+                                                    });
+
+                                                    if (bindingInfo) {
+                                                        inputObjects = $this.store[store.dataSourceID][bindingInfo.dataFieldID];
+                                                    }
+                                                    else {
+                                                        let controlValue = [];
+                                                        const items = $this.store[store.dataSourceID];
+                                                        const length = items.length;
+                                                        for (let i = 0; i < length; i++) {
+                                                            const item = items[i];
+
+                                                            const row = [];
+                                                            for (const key in item) {
+                                                                const serviceObject = { prop: key, val: item[key] };
+                                                                row.push(serviceObject);
+                                                            }
+                                                            controlValue.push(row);
+                                                        }
+
+                                                        inputObjects = controlValue;
+                                                    }
+
+                                                    break;
+                                                }
+                                            }
+                                        }
+
+                                        if (isMapping == false) {
+                                            syn.$l.eventLog('$w.transaction', '"{0}" List Input Mapping 확인 필요'.format(dataFieldID), 'Warning');
+                                        }
+                                    }
                                 }
-                            } else {
-                                syn.$l.eventLog('$w.transaction', `dataFieldID "${dataFieldID}"에 대한 행(Row) 소스를 찾을 수 없습니다.`, 'Warning');
+
+                                for (const key in inputObjects) {
+                                    transactionObject.inputs.push(inputObjects[key]);
+                                }
+                                transactionObject.inputsItemCount.push(inputObjects.length);
                             }
                         }
-                        transactionObject.inputs.push(inputObjects);
-                        transactionObject.inputsItemCount.push(1);
 
-                    } else if (inputMapping.requestType === 'List') {
-                        let listData = [];
-                        const listControl = synControls.find(item => item.field === dataFieldID);
+                        syn.$w.executeTransaction($this.config, transactionObject, function (responseData, addtionalData, correlationID) {
+                            let isDynamicOutput = false;
+                            for (let i = 0; i < transaction.outputs.length; i++) {
+                                if (transaction.outputs[i].responseType == 'Dynamic') {
+                                    isDynamicOutput = true;
+                                    break;
+                                }
+                            }
 
-                        if (listControl) {
-                            const controlModule = syn.$w.getControlModule(listControl.module);
-                            const el = syn.$l.get(`${listControl.id} _hidden`) || syn.$l.get(listControl.id);
-                            const synOptionsStr = el?.getAttribute('syn-options') || '{}';
-                            try {
-                                const synOptions = new Function(`return (${synOptionsStr})`)();
-                                (synOptions?.columns || []).forEach(column => {
-                                    column.controlText = synOptions.controlText || '';
-                                    if (!validateControl(listControl, column, 'List')) {
-                                        throw new Error(`목록(List) 컨트롤 컬럼 유효성 검사 실패: ${column.data}`);
-                                    }
+                            if (isDynamicOutput == true) {
+                                result.outputStat.push({
+                                    fieldID: 'Dynamic',
+                                    count: 1,
+                                    dynamicData: responseData
                                 });
-
-                                listData = controlModule?.getValue?.(listControl.id.replace('_hidden', ''), 'List', inputMapping.items) ?? [];
-
-                            } catch (e) {
-                                throw new Error(`목록(List) 컨트롤 ${dataFieldID} 처리 오류: ${e.message}`);
                             }
-                        } else {
-                            if (syn.uicontrols?.$data?.storeList) {
-                                const store = syn.uicontrols.$data.storeList.find(s => s.storeType === 'Grid' && s.dataSourceID === dataFieldID);
-                                if (store && $this.store?.[store.dataSourceID]) {
-                                    const storeItems = $this.store[store.dataSourceID];
-                                    listData = storeItems.map(item =>
-                                        Object.entries(inputMapping.items).map(([df, meta]) => ({
-                                            prop: meta.fieldID,
-                                            val: item[df] ?? (meta.dataType?.includes('num') ? 0 : '')
-                                        }))
-                                    );
-                                } else {
-                                    syn.$l.eventLog('$w.transaction', `dataFieldID "${dataFieldID}"에 대한 목록(List) 소스를 찾을 수 없습니다.`, 'Warning');
+                            else {
+                                if (responseData.length == transaction.outputs.length) {
+                                    // synControls 컨트롤 목록
+                                    const synControls = $this.context.synControls;
+
+                                    // Output Mapping을 설정
+                                    const outputLength = transaction.outputs.length;
+                                    for (let outputIndex = 0; outputIndex < outputLength; outputIndex++) {
+                                        const outputMapping = transaction.outputs[outputIndex];
+                                        const dataMapItem = responseData[outputIndex];
+                                        const responseFieldID = dataMapItem['id'];
+                                        const outputData = dataMapItem['value'];
+
+                                        if ($this.hook.outputDataBinding) {
+                                            $this.hook.outputDataBinding(functionID, responseFieldID, outputData);
+                                        }
+
+                                        if (outputMapping.responseType == 'Form') {
+                                            if ($object.isNullOrUndefined(outputData) == true || $object.isObjectEmpty(outputData) == true) {
+                                                result.outputStat.push({
+                                                    fieldID: responseFieldID,
+                                                    Count: 0
+                                                });
+                                            }
+                                            else {
+                                                result.outputStat.push({
+                                                    fieldID: responseFieldID,
+                                                    Count: 1
+                                                });
+
+                                                for (const key in outputMapping.items) {
+                                                    const meta = outputMapping.items[key];
+                                                    const dataFieldID = key; // syn-datafield
+                                                    const fieldID = meta.fieldID; // DbColumnID
+
+                                                    const controlValue = outputData[fieldID];
+                                                    if (controlValue != undefined && synControls && synControls.length > 0) {
+                                                        let bindingControlInfos = synControls.filter(function (item) {
+                                                            return item.field == dataFieldID && item.formDataFieldID == outputMapping.dataFieldID;
+                                                        });
+
+                                                        if (bindingControlInfos.length == 1) {
+                                                            const controlInfo = bindingControlInfos[0];
+                                                            const controlModule = syn.$w.getControlModule(controlInfo.module);
+                                                            if ($object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
+                                                                controlModule.setValue(controlInfo.id.replace('_hidden', ''), controlValue, meta);
+                                                            }
+                                                        }
+                                                        else {
+                                                            let isMapping = false;
+                                                            if (syn.uicontrols.$data && syn.uicontrols.$data.storeList.length > 0) {
+                                                                for (let k = 0; k < syn.uicontrols.$data.storeList.length; k++) {
+                                                                    const store = syn.uicontrols.$data.storeList[k];
+                                                                    if ($object.isNullOrUndefined($this.store[store.dataSourceID]) == true) {
+                                                                        $this.store[store.dataSourceID] = {};
+                                                                    }
+
+                                                                    if (store.storeType == 'Form' && store.dataSourceID == outputMapping.dataFieldID) {
+                                                                        isMapping = true;
+                                                                        bindingControlInfos = store.columns.filter(function (item) {
+                                                                            return item.data == dataFieldID;
+                                                                        });
+
+                                                                        if (bindingControlInfos.length == 1) {
+                                                                            $this.store[store.dataSourceID][dataFieldID] = controlValue;
+                                                                        }
+
+                                                                        break;
+                                                                    }
+                                                                }
+                                                            }
+
+                                                            if (isMapping == false) {
+                                                                errorText = '"{0}" Form Output Mapping 확인 필요'.format(dataFieldID);
+                                                                result.errorText.push(errorText);
+                                                                syn.$l.eventLog('$w.transaction', errorText, 'Error');
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        else if (outputMapping.responseType == 'Grid') {
+                                            result.outputStat.push({
+                                                fieldID: responseFieldID,
+                                                Count: outputData.length
+                                            });
+                                            const dataFieldID = outputMapping.dataFieldID; // syn-datafield
+                                            if (synControls && synControls.length > 0) {
+                                                let bindingControlInfos = synControls.filter(function (item) {
+                                                    return item.field == dataFieldID;
+                                                });
+
+                                                if (bindingControlInfos.length == 1) {
+                                                    const controlInfo = bindingControlInfos[0];
+                                                    const controlModule = syn.$w.getControlModule(controlInfo.module);
+                                                    if ($object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
+                                                        controlModule.setValue(controlInfo.id.replace('_hidden', ''), outputData, outputMapping.items);
+                                                    }
+                                                }
+                                                else {
+                                                    let isMapping = false;
+                                                    if (syn.uicontrols.$data && syn.uicontrols.$data.storeList.length > 0) {
+                                                        for (let k = 0; k < syn.uicontrols.$data.storeList.length; k++) {
+                                                            const store = syn.uicontrols.$data.storeList[k];
+                                                            if ($object.isNullOrUndefined($this.store[store.dataSourceID]) == true) {
+                                                                $this.store[store.dataSourceID] = [];
+                                                            }
+
+                                                            if (store.storeType == 'Grid' && store.dataSourceID == outputMapping.dataFieldID) {
+                                                                isMapping = true;
+                                                                const bindingInfos = syn.uicontrols.$data.bindingList.filter(function (item) {
+                                                                    return (item.dataSourceID == store.dataSourceID && item.controlType == 'grid');
+                                                                });
+
+                                                                const length = outputData.length;
+                                                                for (let i = 0; i < length; i++) {
+                                                                    outputData[i].Flag = 'R';
+                                                                }
+
+                                                                if (bindingInfos.length > 0) {
+                                                                    for (let binding_i = 0; binding_i < bindingInfos.length; binding_i++) {
+                                                                        const bindingInfo = bindingInfos[binding_i];
+                                                                        $this.store[store.dataSourceID][bindingInfo.dataFieldID] = outputData;
+                                                                    }
+                                                                }
+                                                                else {
+                                                                    $this.store[store.dataSourceID] = outputData;
+                                                                }
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+
+                                                    if (isMapping == false) {
+                                                        errorText = '"{0}" Grid Output Mapping 확인 필요'.format(dataFieldID);
+                                                        result.errorText.push(errorText);
+                                                        syn.$l.eventLog('$w.transaction', errorText, 'Error');
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        else if (outputMapping.responseType == 'Chart') {
+                                            result.outputStat.push({
+                                                fieldID: responseFieldID,
+                                                Count: outputData.length
+                                            });
+                                            const dataFieldID = outputMapping.dataFieldID; // syn-datafield
+
+                                            if (synControls && synControls.length > 0) {
+                                                let bindingControlInfos = synControls.filter(function (item) {
+                                                    return item.field == dataFieldID;
+                                                });
+
+                                                if (bindingControlInfos.length == 1) {
+                                                    const controlInfo = bindingControlInfos[0];
+                                                    const controlModule = syn.$w.getControlModule(controlInfo.module);
+                                                    if ($object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
+                                                        controlModule.setValue(controlInfo.id.replace('_hidden', ''), outputData, outputMapping.items);
+                                                    }
+                                                }
+                                                else {
+                                                    errorText = '"{0}" Chart Output Mapping 확인 필요'.format(dataFieldID);
+                                                    result.errorText.push(errorText);
+                                                    syn.$l.eventLog('$w.transaction', errorText, 'Error');
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
-                            } else {
-                                syn.$l.eventLog('$w.transaction', `dataFieldID "${dataFieldID}"에 대한 목록(List) 소스를 찾을 수 없습니다.`, 'Warning');
+                                else {
+                                    errorText = '"{0}" 기능의 거래 응답 정의와 데이터 갯수가 다릅니다'.format(transaction.functionID);
+                                    result.errorText.push(errorText);
+                                    syn.$l.eventLog('$w.transaction', errorText, 'Error');
+                                }
                             }
-                        }
-                        transactionObject.inputs.push(...listData);
-                        transactionObject.inputsItemCount.push(listData.length);
+
+                            if (callback) {
+                                callback(result, addtionalData, correlationID);
+                            }
+
+                            if (syn.$w.domainTransactionLoaderEnd) {
+                                syn.$w.domainTransactionLoaderEnd();
+                            }
+                        });
                     }
-                });
+                    else {
+                        errorText = '"{0}" 거래 중복 또는 존재여부 확인 필요'.format(functionID);
+                        result.errorText.push(errorText);
+                        syn.$l.eventLog('$w.transaction', errorText, 'Error');
 
-                syn.$w.executeTransaction($this.config, transactionObject, (responseData, additionalData, correlationID) => {
-                    try {
-                        const isDynamicOutput = transaction.outputs.some(o => o.responseType === 'Dynamic');
-
-                        if (isDynamicOutput) {
-                            result.outputStat.push({ fieldID: 'Dynamic', count: 1, dynamicData: responseData });
-                        } else if (responseData?.length === transaction.outputs.length) {
-                            transaction.outputs.forEach((outputMapping, outputIndex) => {
-                                const dataMapItem = responseData[outputIndex];
-                                const responseFieldID = dataMapItem?.id;
-                                const outputData = dataMapItem?.value;
-
-                                if ($this.hook?.outputDataBinding) {
-                                    $this.hook.outputDataBinding(functionID, responseFieldID, outputData);
-                                }
-
-                                const mapOutputData = (targetType, dataFieldID, data) => {
-                                    const controls = synControls.filter(item => item.field === dataFieldID || (targetType === 'Form' && item.formDataFieldID === dataFieldID));
-
-                                    if (controls.length > 0) {
-                                        const targetControl = controls.find(c => c.field === dataFieldID) || controls[0];
-                                        const controlModule = syn.$w.getControlModule(targetControl.module);
-                                        if (controlModule?.setValue) {
-                                            if (targetType === 'Form') {
-                                                Object.entries(outputMapping.items).forEach(([itemDataField, meta]) => {
-                                                    const formControlInfo = controls.find(c => c.field === itemDataField && c.formDataFieldID === dataFieldID);
-                                                    if (formControlInfo && data?.[meta.fieldID] !== undefined) {
-                                                        const formModule = syn.$w.getControlModule(formControlInfo.module);
-                                                        formModule?.setValue?.(formControlInfo.id.replace('_hidden', ''), data[meta.fieldID], meta);
-                                                    }
-                                                });
-                                            } else {
-                                                controlModule.setValue(targetControl.id.replace('_hidden', ''), data, outputMapping.items);
-                                            }
-                                            return true;
-                                        }
-                                    }
-                                    return false;
-                                };
-
-                                const mapOutputToStore = (targetType, dataFieldID, data) => {
-                                    if (syn.uicontrols?.$data?.storeList) {
-                                        const store = syn.uicontrols.$data.storeList.find(s => s.storeType === targetType && s.dataSourceID === dataFieldID);
-                                        if (store && $this?.store) {
-                                            if (targetType === 'Form') {
-                                                $this.store[store.dataSourceID] = $this.store[store.dataSourceID] ?? {};
-                                                Object.entries(outputMapping.items).forEach(([itemDataField, meta]) => {
-                                                    if (data?.[meta.fieldID] !== undefined) {
-                                                        $this.store[store.dataSourceID][itemDataField] = data[meta.fieldID];
-                                                    }
-                                                });
-                                            } else {
-                                                $this.store[store.dataSourceID] = (data || []).map(item => ({ ...item, Flag: 'R' }));
-                                            }
-                                            return true;
-                                        }
-                                    }
-                                    return false;
-                                };
-
-                                if (outputMapping.responseType === 'Form') {
-                                    const count = (outputData && Object.keys(outputData).length > 0) ? 1 : 0;
-                                    result.outputStat.push({ fieldID: responseFieldID, Count: count });
-                                    if (count > 0) {
-                                        if (!mapOutputData('Form', outputMapping.dataFieldID, outputData)) {
-                                            if (!mapOutputToStore('Form', outputMapping.dataFieldID, outputData)) {
-                                                result.errorText.push(`"${outputMapping.dataFieldID}" 폼(Form) 출력 매핑 대상을 찾을 수 없습니다.`);
-                                                syn.$l.eventLog('$w.transaction', `"${outputMapping.dataFieldID}" 폼(Form) 출력 매핑 대상을 찾을 수 없습니다.`, 'Error');
-                                            }
-                                        }
-                                    }
-                                } else if (outputMapping.responseType === 'Grid' || outputMapping.responseType === 'Chart') {
-                                    const count = outputData?.length ?? 0;
-                                    result.outputStat.push({ fieldID: responseFieldID, Count: count });
-                                    if (count > 0) {
-                                        if (!mapOutputData(outputMapping.responseType, outputMapping.dataFieldID, outputData)) {
-                                            if (!mapOutputToStore(outputMapping.responseType, outputMapping.dataFieldID, outputData)) { // Try store mapping
-                                                const targetDesc = outputMapping.responseType === 'Grid' ? '그리드(Grid)' : '차트(Chart)';
-                                                result.errorText.push(`"${outputMapping.dataFieldID}" ${targetDesc} 출력 매핑 대상을 찾을 수 없습니다.`);
-                                                syn.$l.eventLog('$w.transaction', `"${outputMapping.dataFieldID}" ${targetDesc} 출력 매핑 대상을 찾을 수 없습니다.`, 'Error');
-                                            }
-                                        }
-                                    }
-                                }
-                            });
-                        } else {
-                            throw new Error(`출력 정의(${transaction.outputs.length})와 응답 데이터(${responseData?.length ?? 0}) 수가 일치하지 않습니다.`);
+                        if (callback) {
+                            callback(result);
                         }
 
-                        if (callback) callback(result, additionalData, correlationID);
-
-                    } catch (mappingError) {
-                        result.errorText.push(`출력 매핑 오류: ${mappingError.message}`);
-                        syn.$l.eventLog('$w.transaction.outputMap', `출력 매핑 오류: ${mappingError}`, 'Error');
-                        if (callback) callback(result, additionalData, correlationID);
-                    } finally {
-                        if (syn.$w.domainTransactionLoaderEnd) syn.$w.domainTransactionLoaderEnd();
+                        if (syn.$w.domainTransactionLoaderEnd) {
+                            syn.$w.domainTransactionLoaderEnd();
+                        }
                     }
-                });
+                }
+                else {
+                    errorText = '화면 매핑 정의 데이터가 없습니다';
+                    result.errorText.push(errorText);
+                    syn.$l.eventLog('$w.transaction', errorText, 'Error');
 
+                    if (callback) {
+                        callback(result);
+                    }
+
+                    if (syn.$w.domainTransactionLoaderEnd) {
+                        syn.$w.domainTransactionLoaderEnd();
+                    }
+                }
             } catch (error) {
-                errorText = `거래 설정 오류: ${error.message}`;
-                result.errorText.push(errorText);
-                syn.$l.eventLog('$w.transaction', errorText, 'Error');
-                if (callback) callback(result, null, null);
-                if (syn.$w.domainTransactionLoaderEnd) syn.$w.domainTransactionLoaderEnd();
+                syn.$l.eventLog('$w.transaction', error, 'Error');
+
+                if (syn.$w.domainTransactionLoaderEnd) {
+                    syn.$w.domainTransactionLoaderEnd();
+                }
             }
         },
 
-        getterValue(transactConfigInput) {
-            const result = { errors: [], inputs: [] };
-            let transactConfig = transactConfigInput;
-            if (typeof transactConfigInput === 'string') {
-                transactConfig = $this?.transaction?.[transactConfigInput];
-                if (!transactConfig) {
-                    syn.$l.eventLog('$w.getterValue', `functionID "${transactConfigInput}"에 대한 거래 설정을 찾을 수 없습니다.`, 'Warning');
+        getterValue(functionID) {
+            try {
+                const transactConfig = $this.transaction[functionID];
+                if ($object.isNullOrUndefined(transactConfig) == true) {
+                    syn.$l.eventLog('$w.getterValue', 'functionID "{0}" 확인 필요'.format(functionID), 'Warning');
                     return;
                 }
-            }
 
-            try {
+                if ($string.isNullOrEmpty(transactConfig.functionID) == true) {
+                    transactConfig.functionID = functionID;
+                }
+
                 syn.$w.tryAddFunction(transactConfig);
 
-                if (!$this?.config?.transactions) {
-                    throw new Error('거래 설정($this.config.transactions)이 없습니다.');
-                }
+                let errorText = '';
+                const result = {
+                    errors: [],
+                    inputs: [],
+                };
 
-                const transactions = $this.config.transactions.filter(item => item.functionID === transactConfig.functionID);
-                if (transactions.length !== 1) {
-                    throw new Error(`functionID "${transactConfig.functionID}"에 대한 거래 정의를 찾을 수 없거나 중복됩니다.`);
-                }
-                const transaction = transactions[0];
-                const synControls = $this.context?.synControls ?? [];
+                if ($this && $this.config && $this.config.transactions) {
+                    const transactions = $this.config.transactions.filter(function (item) {
+                        return item.functionID == functionID;
+                    });
 
-                transaction.inputs.forEach(inputMapping => {
-                    let inputObjects = [];
-                    const dataFieldID = inputMapping.dataFieldID;
+                    if (transactions.length == 1) {
+                        const transaction = transactions[0];
 
-                    const getControlValue = (controlInfo, meta) => {
-                        if (!controlInfo) return meta?.dataType?.includes('num') ? 0 : '';
-                        const controlModule = syn.$w.getControlModule(controlInfo.module);
-                        let value = controlModule?.getValue?.(controlInfo.id.replace('_hidden', ''), meta);
-                        return value ?? (meta?.dataType?.includes('num') ? 0 : '');
-                    };
+                        const synControls = context[syn.$w.pageScript].context.synControls;
 
+                        const inputLength = transaction.inputs.length;
+                        for (let inputIndex = 0; inputIndex < inputLength; inputIndex++) {
+                            const inputMapping = transaction.inputs[inputIndex];
+                            let inputObjects = [];
 
-                    if (inputMapping.requestType === 'Row') {
-                        const rowData = {};
-                        const formControls = synControls.filter(item => item.field === dataFieldID || item.formDataFieldID === dataFieldID);
-
-                        if (formControls.length > 0) {
-                            const gridChartControl = formControls.find(c => c.type?.includes('grid') || c.type?.includes('chart'));
-                            if (gridChartControl && gridChartControl.field === dataFieldID) {
-                                const controlModule = syn.$w.getControlModule(gridChartControl.module);
-                                const values = controlModule?.getValue?.(gridChartControl.id.replace('_hidden', ''), 'Row', inputMapping.items);
-                                inputObjects = values?.[0] ?? [];
-                                inputObjects.forEach(item => { rowData[item.prop] = item.val; });
-
-                            } else {
-                                Object.entries(inputMapping.items).forEach(([itemDataField, meta]) => {
-                                    const controlInfo = formControls.find(c => c.field === itemDataField && c.formDataFieldID === dataFieldID);
-                                    rowData[meta.fieldID] = getControlValue(controlInfo, meta);
+                            if (inputMapping.requestType == 'Row') {
+                                let bindingControlInfos = synControls.filter(function (item) {
+                                    return item.field == inputMapping.dataFieldID;
                                 });
-                            }
-                        } else if (syn.uicontrols?.$data?.storeList) {
-                            const store = syn.uicontrols.$data.storeList.find(s => s.storeType === 'Form' && s.dataSourceID === dataFieldID);
-                            if (store && $this.store?.[store.dataSourceID]) {
-                                Object.entries(inputMapping.items).forEach(([itemDataField, meta]) => {
-                                    const storeData = $this.store[store.dataSourceID];
-                                    rowData[meta.fieldID] = storeData?.[itemDataField] ?? (meta.dataType?.includes('num') ? 0 : '');
-                                });
-                            } else {
-                                syn.$l.eventLog('$w.getterValue', `dataFieldID "${dataFieldID}"에 대한 행(Row) 소스를 찾을 수 없습니다.`, 'Warning');
-                            }
-                        } else {
-                            syn.$l.eventLog('$w.getterValue', `dataFieldID "${dataFieldID}"에 대한 행(Row) 소스를 찾을 수 없습니다.`, 'Warning');
-                        }
-                        result.inputs.push(rowData);
 
-                    } else if (inputMapping.requestType === 'List') {
-                        let listData = [];
-                        const listControl = synControls.find(item => item.field === dataFieldID);
+                                if (bindingControlInfos.length == 1) {
+                                    const controlInfo = bindingControlInfos[0];
 
-                        if (listControl) {
-                            const controlModule = syn.$w.getControlModule(listControl.module);
-                            const rawListData = controlModule?.getValue?.(listControl.id.replace('_hidden', ''), 'List', inputMapping.items) ?? [];
-                            listData = rawListData.map(rowItems =>
-                                rowItems.reduce((obj, item) => {
-                                    obj[item.prop] = item.val;
-                                    return obj;
-                                }, {})
-                            );
-                        } else if (syn.uicontrols?.$data?.storeList) {
-                            const store = syn.uicontrols.$data.storeList.find(s => s.storeType === 'Grid' && s.dataSourceID === dataFieldID);
-                            if (store && $this.store?.[store.dataSourceID]) {
-                                const storeItems = $this.store[store.dataSourceID];
-                                listData = storeItems.map(item =>
-                                    Object.entries(inputMapping.items).reduce((obj, [df, meta]) => {
-                                        obj[meta.fieldID] = item[df] ?? (meta.dataType?.includes('num') ? 0 : '');
-                                        return obj;
-                                    }, {})
-                                );
-                            } else {
-                                syn.$l.eventLog('$w.getterValue', `dataFieldID "${dataFieldID}"에 대한 목록(List) 소스를 찾을 수 없습니다.`, 'Warning');
+                                    if (controlInfo.type.indexOf('grid') > -1 || controlInfo.type.indexOf('chart') > -1) {
+                                        const dataFieldID = inputMapping.dataFieldID;
+
+                                        let controlValue = '';
+                                        if (synControls && synControls.length > 0) {
+                                            bindingControlInfos = synControls.filter(function (item) {
+                                                return item.field == dataFieldID;
+                                            });
+
+                                            if (bindingControlInfos.length == 1) {
+                                                const controlInfo = bindingControlInfos[0];
+                                                const controlModule = syn.$w.getControlModule(controlInfo.module);
+                                                if ($object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
+                                                    inputObjects = controlModule.getValue(controlInfo.id.replace('_hidden', ''), 'Row', inputMapping.items)[0];
+                                                }
+                                            }
+                                            else {
+                                                syn.$l.eventLog('$w.getterValue', '"{0}" Row List Input Mapping 확인 필요'.format(dataFieldID), 'Warning');
+                                            }
+                                        }
+                                    }
+                                    else {
+                                        for (const key in inputMapping.items) {
+                                            const meta = inputMapping.items[key];
+                                            const dataFieldID = key;
+                                            const fieldID = meta.fieldID;
+                                            const dataType = meta.dataType;
+                                            const serviceObject = { prop: fieldID, val: '' };
+
+                                            let controlValue = '';
+                                            if (synControls.length > 0) {
+                                                bindingControlInfos = synControls.filter(function (item) {
+                                                    return item.field == dataFieldID && item.formDataFieldID == inputMapping.dataFieldID;
+                                                });
+
+                                                if (bindingControlInfos.length == 1) {
+                                                    const controlInfo = bindingControlInfos[0];
+                                                    const controlModule = syn.$w.getControlModule(controlInfo.module);
+                                                    if ($object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
+                                                        controlValue = controlModule.getValue(controlInfo.id.replace('_hidden', ''), meta);
+                                                    }
+
+                                                    if ($object.isNullOrUndefined(controlValue) == true && (dataType == 'number' || dataType == 'numeric')) {
+                                                        controlValue = 0;
+                                                    }
+                                                }
+                                                else {
+                                                    syn.$l.eventLog('$w.getterValue', '"{0}" Row Control Input Mapping 확인 필요'.format(dataFieldID), 'Warning');
+                                                    continue;
+                                                }
+                                            }
+
+                                            serviceObject.val = controlValue;
+                                            inputObjects.push(serviceObject);
+                                        }
+                                    }
+                                }
+                                else {
+                                    if (syn.uicontrols.$data && syn.uicontrols.$data.storeList.length > 0) {
+                                        for (const key in inputMapping.items) {
+                                            let isMapping = false;
+                                            const meta = inputMapping.items[key];
+                                            const dataFieldID = key;
+                                            const fieldID = meta.fieldID;
+                                            const dataType = meta.dataType;
+                                            const serviceObject = { prop: fieldID, val: '' };
+
+                                            let controlValue = '';
+                                            for (let k = 0; k < syn.uicontrols.$data.storeList.length; k++) {
+                                                const store = syn.uicontrols.$data.storeList[k];
+                                                if (store.storeType == 'Form' && store.dataSourceID == inputMapping.dataFieldID) {
+                                                    isMapping = true;
+                                                    bindingControlInfos = store.columns.filter(function (item) {
+                                                        return item.data == dataFieldID;
+                                                    });
+
+                                                    if (bindingControlInfos.length == 1) {
+                                                        const controlInfo = bindingControlInfos[0];
+                                                        controlValue = $this.store[store.dataSourceID][controlInfo.data];
+
+                                                        if ($object.isNullOrUndefined(controlValue) == true && (dataType == 'number' || dataType == 'numeric')) {
+                                                            controlValue = 0;
+                                                        }
+
+                                                        if ($object.isNullOrUndefined(controlValue) == true) {
+                                                            controlValue = '';
+                                                        }
+                                                    }
+                                                    else {
+                                                        syn.$l.eventLog('$w.getterValue', '"{0}" Row Input Mapping 확인 필요'.format(dataFieldID), 'Warning');
+                                                    }
+
+                                                    break;
+                                                }
+                                            }
+
+                                            if (isMapping == true) {
+                                                serviceObject.val = controlValue;
+                                                inputObjects.push(serviceObject);
+                                            }
+                                            else {
+                                                syn.$l.eventLog('$w.getterValue', '{0} Row 컨트롤 ID 중복 또는 존재여부 확인 필요'.format(inputMapping.dataFieldID), 'Warning');
+                                            }
+                                        }
+                                    }
+                                }
+
+                                const input = {};
+                                for (let i = 0; i < inputObjects.length; i++) {
+                                    const inputObject = inputObjects[i];
+                                    input[inputObject.prop] = inputObject.val;
+                                }
+                                result.inputs.push(input);
                             }
-                        } else {
-                            syn.$l.eventLog('$w.getterValue', `dataFieldID "${dataFieldID}"에 대한 목록(List) 소스를 찾을 수 없습니다.`, 'Warning');
+                            else if (inputMapping.requestType == 'List') {
+                                const dataFieldID = inputMapping.dataFieldID;
+
+                                let controlValue = '';
+                                if (synControls && synControls.length > 0) {
+                                    let bindingControlInfos = synControls.filter(function (item) {
+                                        return item.field == dataFieldID;
+                                    });
+
+                                    if (bindingControlInfos.length == 1) {
+                                        const controlInfo = bindingControlInfos[0];
+                                        const controlModule = syn.$w.getControlModule(controlInfo.module);
+                                        if ($object.isNullOrUndefined(controlModule) == false && controlModule.getValue) {
+                                            inputObjects = controlModule.getValue(controlInfo.id.replace('_hidden', ''), 'List', inputMapping.items);
+                                        }
+                                    }
+                                    else {
+                                        let isMapping = false;
+                                        if (syn.uicontrols.$data && syn.uicontrols.$data.storeList.length > 0) {
+                                            for (let k = 0; k < syn.uicontrols.$data.storeList.length; k++) {
+                                                const store = syn.uicontrols.$data.storeList[k];
+                                                if (store.storeType == 'Grid' && store.dataSourceID == dataFieldID) {
+                                                    isMapping = true;
+                                                    const bindingInfo = syn.uicontrols.$data.bindingList.find(function (item) {
+                                                        return (item.dataSourceID == store.dataSourceID && item.controlType == 'grid');
+                                                    });
+
+                                                    if (bindingInfo) {
+                                                        inputObjects = $this.store[store.dataSourceID][bindingInfo.dataFieldID];
+                                                    }
+                                                    else {
+                                                        let controlValue = [];
+                                                        const items = $this.store[store.dataSourceID];
+                                                        const length = items.length;
+                                                        for (let i = 0; i < length; i++) {
+                                                            const item = items[i];
+
+                                                            const row = [];
+                                                            for (const key in item) {
+                                                                const serviceObject = { prop: key, val: item[key] };
+                                                                row.push(serviceObject);
+                                                            }
+                                                            controlValue.push(row);
+                                                        }
+
+                                                        inputObjects = controlValue;
+                                                    }
+
+                                                    break;
+                                                }
+                                            }
+                                        }
+
+                                        if (isMapping == false) {
+                                            syn.$l.eventLog('$w.getterValue', '"{0}" List Input Mapping 확인 필요'.format(dataFieldID), 'Warning');
+                                        }
+                                    }
+                                }
+
+                                for (const key in inputObjects) {
+                                    const input = {};
+                                    const inputList = inputObjects[key];
+                                    for (let i = 0; i < inputList.length; i++) {
+                                        const inputObject = inputList[i];
+                                        input[inputObject.prop] = inputObject.val;
+                                    }
+                                    result.inputs.push(input);
+                                }
+                            }
                         }
-                        result.inputs.push(...listData);
+
+                        return result;
                     }
-                });
+                    else {
+                        errorText = '"{0}" 거래 중복 또는 존재여부 확인 필요'.format(functionID);
+                        result.errors.push(errorText);
+                        syn.$l.eventLog('$w.getterValue', errorText, 'Error');
 
+                        return result;
+                    }
+                }
+                else {
+                    errorText = '화면 매핑 정의 데이터가 없습니다';
+                    result.errors.push(errorText);
+                    syn.$l.eventLog('$w.getterValue', errorText, 'Error');
+
+                    return result;
+                }
             } catch (error) {
-                result.errors.push(`Getter 오류: ${error.message}`);
-                syn.$l.eventLog('$w.getterValue', `Getter 오류: ${error}`, 'Error');
+                syn.$l.eventLog('$w.getterValue', error, 'Error');
+
+                result.errors.push(error.message);
+                return result;
             }
-            return result;
         },
 
-        setterValue(transactConfigInput, responseData) {
-            const result = { errors: [], outputs: [] };
-            let transactConfig = transactConfigInput;
-            if (typeof transactConfigInput === 'string') {
-                transactConfig = $this?.transaction?.[transactConfigInput];
-                if (!transactConfig) {
-                    syn.$l.eventLog('$w.setterValue', `functionID "${transactConfigInput}"에 대한 거래 설정을 찾을 수 없습니다.`, 'Warning');
+        setterValue(functionID, responseData) {
+            try {
+                const transactConfig = $this.transaction[functionID];
+                if ($object.isNullOrUndefined(transactConfig) == true) {
+                    syn.$l.eventLog('$w.setterValue', 'functionID "{0}" 확인 필요'.format(functionID), 'Warning');
                     return;
                 }
-            }
 
-            try {
+                if ($string.isNullOrEmpty(transactConfig.functionID) == true) {
+                    transactConfig.functionID = functionID;
+                }
+
                 syn.$w.tryAddFunction(transactConfig);
 
-                if (!$this?.config?.transactions) {
-                    throw new Error('거래 설정($this.config.transactions)이 없습니다.');
-                }
-                const transactions = $this.config.transactions.filter(item => item.functionID === transactConfig.functionID);
-                if (transactions.length !== 1) {
-                    throw new Error(`functionID "${transactConfig.functionID}"에 대한 거래 정의를 찾을 수 없거나 중복됩니다.`);
-                }
-                const transaction = transactions[0];
-                const synControls = $this.context?.synControls ?? [];
+                let errorText = '';
+                const result = {
+                    errors: [],
+                    outputs: [],
+                };
 
-                if (responseData?.length !== transaction.outputs.length) {
-                    throw new Error(`출력 정의(${transaction.outputs.length})와 응답 데이터(${responseData?.length ?? 0}) 수가 일치하지 않습니다.`);
-                }
+                if ($this && $this.config && $this.config.transactions) {
+                    const transactions = $this.config.transactions.filter(function (item) {
+                        return item.functionID == functionID;
+                    });
 
-                transaction.outputs.forEach((outputMapping, outputIndex) => {
-                    const outputData = responseData[outputIndex];
-                    const responseFieldID = outputMapping.responseType + 'Data' + outputIndex;
+                    if (transactions.length == 1) {
+                        const transaction = transactions[0];
+                        const synControls = context[syn.$w.pageScript].context.synControls;
+                        const outputLength = transaction.outputs.length;
+                        for (let outputIndex = 0; outputIndex < outputLength; outputIndex++) {
+                            const outputMapping = transaction.outputs[outputIndex];
+                            const responseFieldID = outputMapping.responseType + 'Data' + outputIndex.toString();
+                            const outputData = responseData[outputIndex];
 
-                    const mapOutputData = (targetType, dataFieldID, data) => {
-                        const controls = synControls.filter(item => item.field === dataFieldID || (targetType === 'Form' && item.formDataFieldID === dataFieldID));
-                        if (controls.length === 0) return false;
-
-                        const targetControl = controls.find(c => c.field === dataFieldID) || controls[0];
-                        const controlModule = syn.$w.getControlModule(targetControl.module);
-                        if (controlModule?.setValue) {
-                            if (targetType === 'Form') {
-                                Object.entries(outputMapping.items).forEach(([itemDataField, meta]) => {
-                                    const formControlInfo = controls.find(c => c.field === itemDataField && c.formDataFieldID === dataFieldID);
-                                    if (formControlInfo && data?.[meta.fieldID] !== undefined) {
-                                        const formModule = syn.$w.getControlModule(formControlInfo.module);
-                                        formModule?.setValue?.(formControlInfo.id.replace('_hidden', ''), data[meta.fieldID], meta);
-                                    }
-                                });
-                            } else {
-                                controlModule.setValue(targetControl.id.replace('_hidden', ''), data, outputMapping.items);
-                            }
-                            return true;
-                        }
-                        return false;
-                    };
-
-                    const mapOutputToStore = (targetType, dataFieldID, data) => {
-                        if (syn.uicontrols?.$data?.storeList) {
-                            const store = syn.uicontrols.$data.storeList.find(s => s.storeType === targetType && s.dataSourceID === dataFieldID);
-                            if (store && $this?.store) {
-                                if (targetType === 'Form') {
-                                    $this.store[store.dataSourceID] = $this.store[store.dataSourceID] ?? {};
-                                    Object.entries(outputMapping.items).forEach(([itemDataField, meta]) => {
-                                        if (data?.[meta.fieldID] !== undefined) {
-                                            $this.store[store.dataSourceID][itemDataField] = data[meta.fieldID];
-                                        }
+                            if (outputMapping.responseType == 'Form') {
+                                if ($object.isNullOrUndefined(outputData) == true || $object.isObjectEmpty(outputData) == true) {
+                                    result.outputs.push({
+                                        fieldID: responseFieldID,
+                                        Count: 0
                                     });
-                                } else {
-                                    $this.store[store.dataSourceID] = (data || []).map(item => ({ ...item, Flag: 'R' }));
                                 }
-                                return true;
-                            }
-                        }
-                        return false;
-                    };
+                                else {
+                                    result.outputs.push({
+                                        fieldID: responseFieldID,
+                                        Count: 1
+                                    });
 
+                                    for (const key in outputMapping.items) {
+                                        const meta = outputMapping.items[key];
+                                        const dataFieldID = key;
+                                        const fieldID = meta.fieldID;
 
-                    if (outputMapping.responseType === 'Form') {
-                        const count = (outputData && Object.keys(outputData).length > 0) ? 1 : 0;
-                        result.outputs.push({ fieldID: responseFieldID, Count: count });
-                        if (count > 0) {
-                            if (!mapOutputData('Form', outputMapping.dataFieldID, outputData)) {
-                                if (!mapOutputToStore('Form', outputMapping.dataFieldID, outputData)) {
-                                    result.errors.push(`"${outputMapping.dataFieldID}" 폼(Form) 출력 매핑 대상을 찾을 수 없습니다.`);
-                                    syn.$l.eventLog('$w.setterValue', `"${outputMapping.dataFieldID}" 폼(Form) 출력 매핑 대상을 찾을 수 없습니다.`, 'Error');
+                                        const controlValue = outputData[fieldID];
+                                        if (controlValue != undefined && synControls && synControls.length > 0) {
+                                            let bindingControlInfos = synControls.filter(function (item) {
+                                                return item.field == dataFieldID && item.formDataFieldID == outputMapping.dataFieldID;
+                                            });
+
+                                            if (bindingControlInfos.length == 1) {
+                                                const controlInfo = bindingControlInfos[0];
+                                                const controlModule = syn.$w.getControlModule(controlInfo.module);
+                                                if ($object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
+                                                    controlModule.setValue(controlInfo.id.replace('_hidden', ''), controlValue, meta);
+                                                }
+                                            }
+                                            else {
+                                                let isMapping = false;
+                                                if (syn.uicontrols.$data && syn.uicontrols.$data.storeList.length > 0) {
+                                                    for (let k = 0; k < syn.uicontrols.$data.storeList.length; k++) {
+                                                        const store = syn.uicontrols.$data.storeList[k];
+                                                        if ($object.isNullOrUndefined($this.store[store.dataSourceID]) == true) {
+                                                            $this.store[store.dataSourceID] = {};
+                                                        }
+
+                                                        if (store.storeType == 'Form' && store.dataSourceID == outputMapping.dataFieldID) {
+                                                            isMapping = true;
+                                                            bindingControlInfos = store.columns.filter(function (item) {
+                                                                return item.data == dataFieldID;
+                                                            });
+
+                                                            if (bindingControlInfos.length == 1) {
+                                                                $this.store[store.dataSourceID][dataFieldID] = controlValue;
+                                                            }
+
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+
+                                                if (isMapping == false) {
+                                                    errorText = '"{0}" Form Output Mapping 확인 필요'.format(dataFieldID);
+                                                    result.errors.push(errorText);
+                                                    syn.$l.eventLog('$w.setterValue', errorText, 'Error');
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            else if (outputMapping.responseType == 'Grid') {
+                                if (outputData.length && outputData.length > 0) {
+                                    result.outputs.push({
+                                        fieldID: responseFieldID,
+                                        Count: outputData.length
+                                    });
+                                    const dataFieldID = outputMapping.dataFieldID;
+                                    if (synControls && synControls.length > 0) {
+                                        let bindingControlInfos = synControls.filter(function (item) {
+                                            return item.field == dataFieldID;
+                                        });
+
+                                        if (bindingControlInfos.length == 1) {
+                                            const controlInfo = bindingControlInfos[0];
+                                            const controlModule = syn.$w.getControlModule(controlInfo.module);
+                                            if ($object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
+                                                controlModule.setValue(controlInfo.id.replace('_hidden', ''), outputData, outputMapping.items);
+                                            }
+                                        }
+                                        else {
+                                            let isMapping = false;
+                                            if (syn.uicontrols.$data && syn.uicontrols.$data.storeList.length > 0) {
+                                                for (let k = 0; k < syn.uicontrols.$data.storeList.length; k++) {
+                                                    const store = syn.uicontrols.$data.storeList[k];
+                                                    if ($object.isNullOrUndefined($this.store[store.dataSourceID]) == true) {
+                                                        $this.store[store.dataSourceID] = [];
+                                                    }
+
+                                                    if (store.storeType == 'Grid' && store.dataSourceID == outputMapping.dataFieldID) {
+                                                        isMapping = true;
+                                                        const bindingInfos = syn.uicontrols.$data.bindingList.filter(function (item) {
+                                                            return (item.dataSourceID == store.dataSourceID && item.controlType == 'grid');
+                                                        });
+
+                                                        const length = outputData.length;
+                                                        for (let i = 0; i < length; i++) {
+                                                            outputData[i].Flag = 'R';
+                                                        }
+
+                                                        if (bindingInfos.length > 0) {
+                                                            for (let binding_i = 0; binding_i < bindingInfos.length; binding_i++) {
+                                                                const bindingInfo = bindingInfos[binding_i];
+                                                                $this.store[store.dataSourceID][bindingInfo.dataFieldID] = outputData;
+                                                            }
+                                                        }
+                                                        else {
+                                                            $this.store[store.dataSourceID] = outputData;
+                                                        }
+                                                        break;
+                                                    }
+                                                }
+                                            }
+
+                                            if (isMapping == false) {
+                                                errorText = '"{0}" Grid Output Mapping 확인 필요'.format(dataFieldID);
+                                                result.errors.push(errorText);
+                                                syn.$l.eventLog('$w.setterValue', errorText, 'Error');
+                                            }
+                                        }
+                                    }
+                                }
+                                else {
+                                    result.outputs.push({
+                                        fieldID: responseFieldID,
+                                        Count: 0
+                                    });
+                                }
+                            }
+                            else if (outputMapping.responseType == 'Chart') {
+                                if (outputData.length && outputData.length > 0) {
+                                    result.outputs.push({
+                                        fieldID: responseFieldID,
+                                        Count: outputData.length
+                                    });
+                                    const dataFieldID = outputMapping.dataFieldID;
+
+                                    if (synControls && synControls.length > 0) {
+                                        let bindingControlInfos = synControls.filter(function (item) {
+                                            return item.field == dataFieldID;
+                                        });
+
+                                        if (bindingControlInfos.length == 1) {
+                                            const controlInfo = bindingControlInfos[0];
+                                            const controlModule = syn.$w.getControlModule(controlInfo.module);
+                                            if ($object.isNullOrUndefined(controlModule) == false && controlModule.setValue) {
+                                                controlModule.setValue(controlInfo.id.replace('_hidden', ''), outputData, outputMapping.items);
+                                            }
+                                        }
+                                        else {
+                                            errorText = '"{0}" Chart Output Mapping 확인 필요'.format(dataFieldID);
+                                            result.errors.push(errorText);
+                                            syn.$l.eventLog('$w.setterValue', errorText, 'Error');
+                                        }
+                                    }
+                                }
+                                else {
+                                    result.outputs.push({
+                                        fieldID: responseFieldID,
+                                        Count: 0
+                                    });
                                 }
                             }
                         }
-                    } else if (outputMapping.responseType === 'Grid' || outputMapping.responseType === 'Chart') {
-                        const count = outputData?.length ?? 0;
-                        result.outputs.push({ fieldID: responseFieldID, Count: count });
-                        if (count > 0) {
-                            if (!mapOutputData(outputMapping.responseType, outputMapping.dataFieldID, outputData)) {
-                                if (!mapOutputToStore(outputMapping.responseType, outputMapping.dataFieldID, outputData)) {
-                                    const targetDesc = outputMapping.responseType === 'Grid' ? '그리드(Grid)' : '차트(Chart)';
-                                    result.errors.push(`"${outputMapping.dataFieldID}" ${targetDesc} 출력 매핑 대상을 찾을 수 없습니다.`);
-                                    syn.$l.eventLog('$w.setterValue', `"${outputMapping.dataFieldID}" ${targetDesc} 출력 매핑 대상을 찾을 수 없습니다.`, 'Error');
-                                }
-                            }
-                        }
+
+                        return result;
                     }
-                });
+                    else {
+                        errorText = '"{0}" 거래 중복 또는 존재여부 확인 필요'.format(functionID);
+                        result.errors.push(errorText);
+                        syn.$l.eventLog('$w.setterValue', errorText, 'Error');
 
+                        return result;
+                    }
+                }
+                else {
+                    errorText = '화면 매핑 정의 데이터가 없습니다';
+                    result.errors.push(errorText);
+                    syn.$l.eventLog('$w.setterValue', errorText, 'Error');
+
+                    return result;
+                }
             } catch (error) {
-                result.errors.push(`Setter 오류: ${error.message}`);
-                syn.$l.eventLog('$w.setterValue', `Setter 오류: ${error}`, 'Error');
+                syn.$l.eventLog('$w.setterValue', error, 'Error');
+                result.errors.push(error.message);
+                return result;
             }
-            return result;
         },
 
         scrollToTop() {
@@ -2451,9 +3142,9 @@
                 return;
             }
 
-            var serviceID = syn.Config.SystemID + syn.Config.Environment.substring(0, 1) + ($string.isNullOrEmpty(syn.Config.LoadModuleID) == true ? '' : syn.Config.LoadModuleID);
-            var apiService = null;
-            var apiServices = syn.$w.getStorage('apiServices', false);
+            const serviceID = syn.Config.SystemID + syn.Config.Environment.substring(0, 1) + ($string.isNullOrEmpty(syn.Config.LoadModuleID) == true ? '' : syn.Config.LoadModuleID);
+            let apiService = null;
+            let apiServices = syn.$w.getStorage('apiServices', false);
             if (globalRoot.devicePlatform === 'node') {
                 if (apiServices) {
                     apiService = apiServices[serviceID];
@@ -2529,7 +3220,7 @@
                 }
             }
 
-            var apiServices = syn.$w.getStorage('apiServices', false);
+            apiServices = syn.$w.getStorage('apiServices', false);
             if (apiServices) {
                 apiService = apiServices[serviceID];
             }
@@ -2543,7 +3234,7 @@
                     return;
                 }
 
-                var ipAddress = syn.$w.getStorage('ipAddress', false);
+                let ipAddress = syn.$w.getStorage('ipAddress', false);
                 if ($object.isNullOrUndefined(ipAddress) == true && $string.isNullOrEmpty(syn.Config.FindClientIPServer) == false) {
                     ipAddress = await syn.$r.httpFetch(syn.Config.FindClientIPServer || '/checkip').send(null, {
                         method: 'GET',
@@ -2558,7 +3249,7 @@
 
                 syn.$w.setStorage('ipAddress', ipAddress, false);
 
-                var url = '';
+                let url = '';
                 if (apiService.Port && apiService.Port != '') {
                     url = '{0}://{1}:{2}{3}'.format(apiService.Protocol, apiService.IP, apiService.Port, apiService.Path);
                 }
@@ -2566,18 +3257,18 @@
                     url = '{0}://{1}{2}'.format(apiService.Protocol, apiService.IP, apiService.Path);
                 }
 
-                var installType = syn.$w.Variable && syn.$w.Variable.InstallType ? syn.$w.Variable.InstallType : 'L';
-                var environment = syn.Config && syn.Config.Environment ? syn.Config.Environment.substring(0, 1) : 'D';
-                var machineTypeID = syn.Config && syn.Config.Transaction ? syn.Config.Transaction.MachineTypeID.substring(0, 1) : 'W';
-                var programID = (syn.$w.Variable && syn.$w.Variable.ProgramID ? syn.$w.Variable.ProgramID : config.programID).padStart(8, '0');
-                var businessID = config.businessID.padStart(3, '0').substring(0, 3);
-                var transactionID = transactionObject.transactionID.padStart(6, '0').substring(0, 6);
-                var functionID = transactionObject.functionID.padStart(4, '0').substring(0, 4);
-                var tokenID = (syn.$w.User && syn.$w.User.TokenID ? syn.$w.User.TokenID : syn.$l.random(6)).padStart(6, '0').substring(0, 6);
-                var requestTime = $date.toString(new Date(), 's').substring(0, 6);
+                const installType = syn.$w.Variable && syn.$w.Variable.InstallType ? syn.$w.Variable.InstallType : 'L';
+                const environment = syn.Config && syn.Config.Environment ? syn.Config.Environment.substring(0, 1) : 'D';
+                const machineTypeID = syn.Config && syn.Config.Transaction ? syn.Config.Transaction.MachineTypeID.substring(0, 1) : 'W';
+                const programID = (syn.$w.Variable && syn.$w.Variable.ProgramID ? syn.$w.Variable.ProgramID : config.programID).padStart(8, '0');
+                const businessID = config.businessID.padStart(3, '0').substring(0, 3);
+                const transactionID = transactionObject.transactionID.padStart(6, '0').substring(0, 6);
+                const functionID = transactionObject.functionID.padStart(4, '0').substring(0, 4);
+                const tokenID = (syn.$w.User && syn.$w.User.TokenID ? syn.$w.User.TokenID : syn.$l.random(6)).padStart(6, '0').substring(0, 6);
+                const requestTime = $date.toString(new Date(), 's').substring(0, 6);
                 // -- 36바이트 = 설치구분 1자리(L: Local, C: Cloud, O: Onpremise) + 환경 ID 1자리 + 애플리케이션 ID 8자리 + 프로젝트 ID 3자리 + 거래 ID 6자리 + 기능 ID 4자리 + 시스템 구분 1자리 (W: WEB, P: Program, S: SVR, E: EXT) + ClientTokenID 6자리 + Timestamp (HHmmss) 6자리
-                var requestID = `${installType}${environment}${programID}${businessID}${transactionID}${functionID}${machineTypeID}${tokenID}${requestTime}`.toUpperCase();
-                var globalID = '';
+                const requestID = `${installType}${environment}${programID}${businessID}${transactionID}${functionID}${machineTypeID}${tokenID}${requestTime}`.toUpperCase();
+                let globalID = '';
 
                 if ($string.isNullOrEmpty(syn.Config.FindGlobalIDServer) == false) {
                     apiService.GlobalID = await syn.$r.httpFetch(syn.Config.FindGlobalIDServer).send({
@@ -2601,7 +3292,7 @@
                     globalID = requestID;
                 }
 
-                var transactionRequest = {
+                const transactionRequest = {
                     accessToken: token || globalRoot.bearerToken || apiServices.BearerToken,
                     action: 'SYN', // "SYN: Request/Response, PSH: Execute/None, ACK: Subscribe",
                     kind: 'BIZ', // "DBG: Debug, BIZ: Business, URG: Urgent, FIN: Finish",
@@ -2664,8 +3355,8 @@
                 }
 
                 if ($object.isNullOrUndefined(transactionObject.options) == false) {
-                    for (var key in transactionObject.options) {
-                        var item = transactionObject.options[key];
+                    for (const key in transactionObject.options) {
+                        const item = transactionObject.options[key];
 
                         if (key == 'encryptionType' || key == 'encryptionKey' || key == 'platform') {
                             throw new Error('{0} 옵션 사용 불가'.format(key));
@@ -2675,7 +3366,7 @@
                         }
                     }
 
-                    var dynamic = transactionRequest.loadOptions['dynamic'];
+                    const dynamic = transactionRequest.loadOptions['dynamic'];
                     if ($string.isNullOrEmpty(dynamic) == false && $string.toBoolean(dynamic) == false) {
                         delete transactionRequest.loadOptions['dynamic'];
                         delete transactionRequest.loadOptions['authorize'];
@@ -2685,13 +3376,13 @@
                         delete transactionRequest.loadOptions['transactionLog'];
                     }
 
-                    var action = transactionRequest.loadOptions['action'];
+                    const action = transactionRequest.loadOptions['action'];
                     if ($string.isNullOrEmpty(action) == false) {
                         transactionRequest.action = action;
                         delete transactionRequest.loadOptions['action'];
                     }
 
-                    var kind = transactionRequest.loadOptions['kind'];
+                    const kind = transactionRequest.loadOptions['kind'];
                     if ($string.isNullOrEmpty(kind) == false) {
                         transactionRequest.kind = kind;
                         delete transactionRequest.loadOptions['kind'];
@@ -2700,9 +3391,9 @@
                     delete transactionRequest.loadOptions['message'];
                 }
 
-                var mod = context[syn.$w.pageScript];
+                const mod = context[syn.$w.pageScript];
                 if (mod && mod.hook.payLoadProperty) {
-                    var property = {};
+                    let property = {};
                     property = mod.hook.payLoadProperty(transactionObject.transactionID, transactionObject.functionID);
                     if ($object.isNullOrUndefined(property) == true) {
                         property = {};
@@ -2712,15 +3403,15 @@
                 }
 
                 if (config.transactions) {
-                    var transactions = config.transactions.filter(function (item) {
+                    const transactions = config.transactions.filter(function (item) {
                         return item.functionID == transactionObject.functionID;
                     });
 
                     if (transactions.length == 1) {
-                        var transaction = transactions[0];
+                        const transaction = transactions[0];
 
-                        var inputs = transaction.inputs.map(function (item) { return item.requestType; }).join(',');
-                        var outputs = transaction.outputs.map(function (item) { return item.responseType; }).join(',');
+                        const inputs = transaction.inputs.map(function (item) { return item.requestType; }).join(',');
+                        const outputs = transaction.outputs.map(function (item) { return item.responseType; }).join(',');
                         transactionRequest.payLoad.dataMapInterface = '{0}|{1}'.format(inputs, outputs);
                     }
                 }
@@ -2737,14 +3428,14 @@
                 transactionRequest.payLoad.dataMapCount = transactionObject.inputsItemCount;
                 transactionRequest.payLoad.dataMapSet = [];
                 transactionRequest.payLoad.dataMapSetRaw = [];
-                var length = transactionObject.inputs.length;
+                const length = transactionObject.inputs.length;
 
-                for (var i = 0; i < length; i++) {
-                    var inputs = transactionObject.inputs[i];
+                for (let i = 0; i < length; i++) {
+                    const inputs = transactionObject.inputs[i];
 
-                    var reqInputs = [];
-                    for (var j = 0; j < inputs.length; j++) {
-                        var item = inputs[j];
+                    const reqInputs = [];
+                    for (let j = 0; j < inputs.length; j++) {
+                        const item = inputs[j];
 
                         reqInputs.push({
                             id: item.prop,
@@ -2771,7 +3462,7 @@
                 }
 
                 if (globalThis.devicePlatform != 'node' && transactionRequest.action == 'PSH') {
-                    var blob = new Blob([JSON.stringify(transactionRequest)], { type: 'application/json; charset=UTF-8' });
+                    const blob = new Blob([JSON.stringify(transactionRequest)], { type: 'application/json; charset=UTF-8' });
                     navigator.sendBeacon(url, blob);
 
                     if (syn.$w.domainTransactionLoaderEnd) {
@@ -2783,16 +3474,16 @@
                     }
                 }
                 else {
-                    var xhr = syn.$w.xmlHttp();
+                    const xhr = syn.$w.xmlHttp();
                     xhr.open(syn.$w.method, url, true);
                     xhr.setRequestHeader('Accept-Language', syn.$w.localeID);
                     xhr.setRequestHeader('Server-SystemID', config.systemID || syn.Config.SystemID);
                     xhr.setRequestHeader('Server-BusinessID', config.businessID);
 
                     if (syn.Environment) {
-                        var environment = syn.Environment;
+                        const environment = syn.Environment;
                         if (environment.Header) {
-                            for (var item in environment.Header) {
+                            for (const item in environment.Header) {
                                 xhr.setRequestHeader(item, environment.Header[item]);
                             }
                         }
@@ -2839,16 +3530,16 @@
                             }
 
                             try {
-                                var transactionResponse = JSON.parse(xhr.responseText);
+                                const transactionResponse = JSON.parse(xhr.responseText);
                                 if (transactionObject.transactionResult == true) {
                                     if (transactionResponse.acknowledge == 1) {
-                                        var jsonResult = [];
-                                        var message = transactionResponse.message;
+                                        const jsonResult = [];
+                                        const message = transactionResponse.message;
                                         if (transactionResponse.result.dataSet != null && transactionResponse.result.dataSet.length > 0) {
-                                            var dataMapItem = transactionResponse.result.dataSet;
-                                            var length = dataMapItem.length;
-                                            for (var i = 0; i < length; i++) {
-                                                var item = dataMapItem[i];
+                                            const dataMapItem = transactionResponse.result.dataSet;
+                                            const length = dataMapItem.length;
+                                            for (let i = 0; i < length; i++) {
+                                                const item = dataMapItem[i];
 
                                                 if (transactionResponse.transaction.simulationType == syn.$w.dynamicType.CodeHelp) {
                                                     jsonResult.push({
@@ -2874,18 +3565,18 @@
                                                 }
                                                 else {
                                                     if (config.transactions) {
-                                                        var transaction = config.transactions.find(function (item) {
+                                                        const transaction = config.transactions.find(function (item) {
                                                             return item.functionID == transactionObject.functionID;
                                                         });
 
                                                         if (transaction) {
-                                                            var value = null;
+                                                            let value = null;
                                                             if ($object.isEmpty(item.value) == false) {
                                                                 value = transactionResponse.transaction.compressionYN == 'Y' ? syn.$c.LZString.decompressFromBase64(item.value).split('＾') : item.value.split('＾');
-                                                                var meta = $string.toParameterObject(value[0]);
+                                                                const meta = $string.toParameterObject(value[0]);
                                                                 value = $string.toJson(value[1], { delimeter: '｜', newline: '↵', meta: meta });
 
-                                                                var outputMapping = transaction.outputs[i];
+                                                                const outputMapping = transaction.outputs[i];
                                                                 if (outputMapping.responseType == 'Form') {
                                                                     value = value[0];
                                                                     if ($object.isNullOrUndefined(value) == true) {
@@ -2906,8 +3597,8 @@
                                                         }
                                                     }
                                                     else {
-                                                        var value = transactionResponse.transaction.compressionYN == 'Y' ? syn.$c.LZString.decompressFromBase64(item.value).split('＾') : item.value.split('＾');
-                                                        var meta = $string.toParameterObject(value[0]);
+                                                        let value = transactionResponse.transaction.compressionYN == 'Y' ? syn.$c.LZString.decompressFromBase64(item.value).split('＾') : item.value.split('＾');
+                                                        const meta = $string.toParameterObject(value[0]);
                                                         value = $string.toJson(value[1], { delimeter: '｜', newline: '↵', meta: meta });
                                                         if (item.id.startsWith('Form') == true) {
                                                             value = value[0];
@@ -2931,10 +3622,10 @@
                                         }
 
                                         if (callback) {
-                                            var addtionalData = {};
+                                            const addtionalData = {};
                                             if (message.additions && message.additions.length > 0) {
-                                                for (var i = 0; i < message.additions.length; i++) {
-                                                    var addition = message.additions[i];
+                                                for (let i = 0; i < message.additions.length; i++) {
+                                                    const addition = message.additions[i];
 
                                                     if (addition.code == 'F' && $object.isNullOrUndefined(addtionalData[addition.code]) == true) {
                                                         addtionalData[addition.code] = addition.text;
@@ -2956,8 +3647,8 @@
                                         }
                                     }
                                     else {
-                                        var errorText = transactionResponse.exceptionText;
-                                        var errorMessage = '거래: {0}, 기능: {1} 수행중 오류가 발생하였습니다\nGlobalID: {2}'.format(transactionRequest.transaction.transactionID, transactionRequest.transaction.functionID, transactionRequest.transaction.globalID);
+                                        const errorText = transactionResponse.exceptionText;
+                                        const errorMessage = '거래: {0}, 기능: {1} 수행중 오류가 발생하였습니다\nGlobalID: {2}'.format(transactionRequest.transaction.transactionID, transactionRequest.transaction.functionID, transactionRequest.transaction.globalID);
                                         if (syn.$w.serviceClientException) {
                                             syn.$w.serviceClientException('요청오류', errorMessage, errorText);
                                         }
@@ -2989,10 +3680,10 @@
                                         if (transactionResponse && transactionResponse.acknowledge && transactionResponse.acknowledge == 1) {
                                             try {
                                                 if (transactionResponse.result.dataSet != null && transactionResponse.result.dataSet.length > 0) {
-                                                    var dataMapItem = transactionResponse.result.dataSet;
-                                                    var length = dataMapItem.length;
-                                                    for (var i = 0; i < length; i++) {
-                                                        var item = dataMapItem[i];
+                                                    const dataMapItem = transactionResponse.result.dataSet;
+                                                    const length = dataMapItem.length;
+                                                    for (let i = 0; i < length; i++) {
+                                                        const item = dataMapItem[i];
                                                         if (transactionResponse.transaction.dataFormat == 'J') {
                                                             if (transactionResponse.transaction.compressionYN == 'Y') {
                                                                 item.value = JSON.parse(syn.$c.LZString.decompressFromBase64(item.value));
@@ -3017,7 +3708,7 @@
                                 }
                             }
                             catch (error) {
-                                var errorMessage = '거래: {0}, 기능: {1} 수행중 오류가 발생하였습니다\nGlobalID: {2}'.format(transactionRequest.transaction.transactionID, transactionRequest.transaction.functionID, transactionRequest.transaction.globalID);
+                                const errorMessage = '거래: {0}, 기능: {1} 수행중 오류가 발생하였습니다\nGlobalID: {2}'.format(transactionRequest.transaction.transactionID, transactionRequest.transaction.functionID, transactionRequest.transaction.globalID);
                                 if (syn.$w.serviceClientException) {
                                     syn.$w.serviceClientException('요청오류', errorMessage, error.stack);
                                 }

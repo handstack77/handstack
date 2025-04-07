@@ -1039,53 +1039,64 @@
         moduleEventLog(moduleID, event, data, logLevelInput = 'Verbose') {
             if (globalRoot.devicePlatform !== 'node' || !moduleID) return;
 
-            const message = data instanceof Error ? data.message : String(data);
-            const stack = data instanceof Error ? data.stack : undefined;
+            const message = typeof data === 'object' ? data.message : data;
+            const stack = typeof data === 'object' ? data.stack || JSON.stringify(data) : data;
 
-            let logLevelNum;
-            if (typeof logLevelInput === 'string' && this.logLevel.hasOwnProperty(logLevelInput)) {
-                logLevelNum = this.logLevel[logLevelInput];
-            } else if (typeof logLevelInput === 'number') {
-                logLevelNum = logLevelInput;
-            } else {
-                logLevelNum = this.logLevel.Verbose;
-            }
-
-
-            const configuredLevelName = syn.Config?.UIEventLogLevel || 'Verbose';
-            const configuredLevelNum = this.logLevel[configuredLevelName] ?? this.logLevel.Verbose;
-
-            if (logLevelNum < configuredLevelNum) {
-                return;
-            }
-
-            const logLevelText = this.toEnumText(this.logLevel, logLevelNum) || 'Unknown';
-            const diff = (Date.now() - this.start) / 1000;
-            const timestamp = diff.toFixed(3);
-
-            const logMessageBase = `${this.eventLogCount}@${timestamp} [${event}]`;
-            const logDetails = stack ? `${message}\n${stack}` : message;
-            const finalLogMessage = `${logMessageBase} ${logDetails}`;
-
-            const moduleLibrary = syn.getModuleLibrary ? syn.getModuleLibrary(moduleID) : null;
-            const logger = moduleLibrary?.logger;
-
-            if (logger) {
-                const loggerMethod = logLevelText.toLowerCase();
-                if (typeof logger[loggerMethod] === 'function') {
-                    logger[loggerMethod](finalLogMessage);
-                } else {
-                    logger.trace(finalLogMessage);
+            let logLevel = 0;
+            if (logLevelInput) {
+                if ($object.isString(logLevelInput) === true) {
+                    logLevel = syn.$l.logLevel[logLevelInput];
                 }
-                if (context.console) console.log(`[${moduleID}] ${logLevelText}: ${finalLogMessage}`);
-
-            } else {
-                console.log(`모듈 로거 오류: ModuleID "${moduleID}"에 대한 로거를 찾을 수 없습니다. 메시지: ${finalLogMessage}`);
             }
 
-            this.eventLogCount++;
-        }
+            if (syn.Config && syn.Config.UIEventLogLevel) {
+                if (syn.$l.logLevel[syn.Config.UIEventLogLevel] > logLevel) {
+                    return;
+                }
+            }
 
+            const logLevelText = syn.$l.toEnumText(syn.$l.logLevel, logLevel);
+            const now = new Date().getTime();
+            const diff = now - syn.$l.start;
+
+            const value =
+                syn.$l.eventLogCount.toString() +
+                '@' + (diff / 1000).toString().format('0.000') +
+                ' [' + event + '] ' + (message === stack ? message : stack);
+
+            const moduleLibrary = syn.getModuleLibrary(moduleID);
+            if (moduleLibrary) {
+                const logger = moduleLibrary.logger;
+                switch (logLevelText) {
+                    case 'Debug':
+                        logger.debug(value);
+                        break;
+                    case 'Information':
+                        logger.info(value);
+                        break;
+                    case 'Warning':
+                        logger.warn(value);
+                        break;
+                    case 'Error':
+                        logger.error(value);
+                        break;
+                    case 'Fatal':
+                        logger.fatal(value);
+                        break;
+                    default:
+                        logger.trace(value);
+                        break;
+                }
+
+                if (globalRoot.console) {
+                    console.log(`${logLevelText}: ${value}`);
+                }
+            } else {
+                console.log('ModuleID 확인 필요 - {0}'.format(moduleID));
+            }
+
+            syn.$l.eventLogCount++;
+        }
     });
 
     if (globalRoot.devicePlatform === 'node') {
