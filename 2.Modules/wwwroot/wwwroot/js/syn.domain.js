@@ -348,6 +348,7 @@
                 syn.$w.domainTransactionLoaderEnd();
             }
 
+            let transactionResponse = JSON.parse(xhr.responseText);
             if (clientTag == "ROQKFWKTLFGODZNJFL") {
                 syn.$l.eventLog('serviceClientInterceptor', transactionResponse.Result.replace(/↓/g, '\n\n'), 'Information');
                 return false;

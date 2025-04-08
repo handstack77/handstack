@@ -5127,7 +5127,7 @@ if (typeof module !== 'undefined' && module.exports) {
             const onPostMessage = (evt) => {
                 let parsedMessage;
                 try {
-                    if (!evt.data && location.origin != evt.origin) return;
+                    if (!evt.data || location.origin != evt.origin) return;
                     parsedMessage = JSON.parse(evt.data);
                     if (typeof parsedMessage !== 'object' || parsedMessage === null) {
                         syn.$l.eventLog('$network.onPostMessage', 'postMessage data 확인 필요 (non-object)', 'Verbose');
@@ -9508,7 +9508,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
         globalRoot.isLoadConfig = false;
         if (context.synConfig) {
-            syn.Config = syn.$w.argumentsExtend(synConfig, syn.Config);
+            syn.Config = syn.$w.argumentsExtend(syn.Config, synConfig);
             context.synConfig = undefined;
 
             globalRoot.isLoadConfig = true;
@@ -9518,7 +9518,7 @@ if (typeof module !== 'undefined' && module.exports) {
         }
         else {
             $webform.loadJson('/' + (context.synConfigName || 'syn.config.json') + urlArgs, null, function (setting, json) {
-                syn.Config = syn.$w.argumentsExtend(json, syn.Config);
+                syn.Config = syn.$w.argumentsExtend(syn.Config, json);
 
                 globalRoot.isLoadConfig = true;
                 setTimeout(async function () {

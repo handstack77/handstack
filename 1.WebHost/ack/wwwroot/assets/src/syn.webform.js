@@ -3843,7 +3843,7 @@
 
         globalRoot.isLoadConfig = false;
         if (context.synConfig) {
-            syn.Config = syn.$w.argumentsExtend(synConfig, syn.Config);
+            syn.Config = syn.$w.argumentsExtend(syn.Config, synConfig);
             context.synConfig = undefined;
 
             globalRoot.isLoadConfig = true;
@@ -3853,7 +3853,7 @@
         }
         else {
             $webform.loadJson('/' + (context.synConfigName || 'syn.config.json') + urlArgs, null, function (setting, json) {
-                syn.Config = syn.$w.argumentsExtend(json, syn.Config);
+                syn.Config = syn.$w.argumentsExtend(syn.Config, json);
 
                 globalRoot.isLoadConfig = true;
                 setTimeout(async function () {
