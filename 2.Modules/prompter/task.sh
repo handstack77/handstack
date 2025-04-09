@@ -32,7 +32,7 @@ if [ -z "$HANDSTACK_PATH" ]; then
 fi
 
 if [ -z "$HANDSTACK_ACK" ]; then
-    $HANDSTACK_ACK="$HANDSTACK_PATH/1.WebHost/build/handstack/app/ack"
+    HANDSTACK_ACK="$HANDSTACK_PATH/1.WebHost/build/handstack/app/ack"
 fi
 
 if [ -z "$HANDSTACK_CLI" ]; then
