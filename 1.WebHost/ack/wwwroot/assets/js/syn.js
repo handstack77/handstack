@@ -1,5 +1,5 @@
 /*!
-HandStack Javascript Library v2025.4.7
+HandStack Javascript Library v2025.4.9
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -5014,8 +5014,8 @@ if (typeof module !== 'undefined' && module.exports) {
             }
         },
 
-        createBlobUrl: (globalRoot.URL && URL.createObjectURL && URL.createObjectURL.bind(URL)) || (globalRoot.webkitURL && webkitURL.createObjectURL && webkitURL.createObjectURL.bind(webkitURL)) || globalRoot.createObjectURL,
-        revokeBlobUrl: (globalRoot.URL && URL.revokeObjectURL && URL.revokeObjectURL.bind(webkitURL)) || globalRoot.revokeObjectURL,
+        createBlobUrl: (globalRoot.URL && typeof globalRoot.URL.createObjectURL === 'function' && globalRoot.URL.createObjectURL.bind(globalRoot.URL)) || (typeof globalRoot.webkitURL !== 'undefined' && typeof globalRoot.webkitURL.createObjectURL === 'function' && globalRoot.webkitURL.createObjectURL.bind(globalRoot.webkitURL)) || globalRoot.createObjectURL,
+        revokeBlobUrl: (globalRoot.URL && typeof globalRoot.URL.revokeObjectURL === 'function' && globalRoot.URL.revokeObjectURL.bind(globalRoot.URL)) || (typeof globalRoot.webkitURL !== 'undefined' && typeof globalRoot.webkitURL.revokeObjectURL === 'function' && globalRoot.webkitURL.revokeObjectURL.bind(globalRoot.webkitURL)) || globalRoot.revokeObjectURL,
 
         getCookie(id) {
             const matches = document.cookie.match(
@@ -9573,11 +9573,11 @@ if (typeof module !== 'undefined' && module.exports) {
 
         concreate() {
             if (globalRoot.devicePlatform == 'browser') {
-                if (!window.PDFObject) {
+                if ($string.toBoolean(syn.Config.IsReportifyModule) == true && !window.PDFObject) {
                     syn.$w.loadScript('/lib/pdfobject/pdfobject.min.js');
                 }
 
-                if (!window.printJS) {
+                if ($string.toBoolean(syn.Config.IsReportifyModule) == true && !window.printJS) {
                     syn.$w.loadScript('/lib/print-js/print.min.js');
                 }
             }

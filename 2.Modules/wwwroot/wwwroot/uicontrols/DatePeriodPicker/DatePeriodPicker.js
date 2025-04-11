@@ -313,7 +313,7 @@
 
                 syn.$l.addEvent(document.body, 'click', (evt) => {
                     var popup = syn.$l.get('divPeriodPicker');
-                    if (syn.$m.hasClass(popup, 'hidden') == false) {
+                    if (popup && syn.$m.hasClass(popup, 'hidden') == false) {
                         var elID = popup.getAttribute('elID');
                         if (popup.contains(evt.target) == false) {
                             var button = evt.target.closest('button');
@@ -321,18 +321,18 @@
                                 $dateperiodpicker.hidePopup();
                             }
                         }
-                    }
 
-                    evt.returnValue = false;
-                    evt.cancel = true;
-                    if (evt.preventDefault) {
-                        evt.preventDefault();
-                    }
+                        evt.returnValue = false;
+                        evt.cancel = true;
+                        if (evt.preventDefault) {
+                            evt.preventDefault();
+                        }
 
-                    if (evt.stopPropagation) {
-                        evt.stopPropagation();
+                        if (evt.stopPropagation) {
+                            evt.stopPropagation();
+                        }
+                        return false;
                     }
-                    return false;
                 });
             }
 
