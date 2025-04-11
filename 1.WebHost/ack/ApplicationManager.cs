@@ -95,8 +95,7 @@ namespace ack
 
             _ = Task.Run(async () =>
             {
-                await Task.Delay(1000);
-                BackgroundTaskAsync();
+                await BackgroundTaskAsync();
             });
 
             GlobalConfiguration.IsRunning = true;
@@ -171,7 +170,7 @@ namespace ack
                 .UseSystemd();
         }
 
-        private static async void BackgroundTaskAsync()
+        private static async Task BackgroundTaskAsync()
         {
             string moduleConfigurationUrl = "";
             try
