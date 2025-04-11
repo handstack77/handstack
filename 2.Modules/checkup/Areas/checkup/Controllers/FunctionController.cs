@@ -12,15 +12,12 @@ using HandStack.Core.ExtensionMethod;
 using HandStack.Core.Helpers;
 using HandStack.Web;
 using HandStack.Web.Common;
-using HandStack.Web.Entity;
 using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.DataObject;
-using HandStack.Web.Modules;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 using Serilog;
@@ -36,14 +33,12 @@ namespace checkup.Areas.checkup.Controllers
         protected ILogger logger { get; }
         protected Extensions.ModuleApiClient moduleApiClient { get; }
         protected readonly IHttpContextAccessor httpContextAccessor;
-        protected readonly HttpContext? httpContext;
 
         public FunctionController(ILogger logger, Extensions.ModuleApiClient moduleApiClient, IHttpContextAccessor httpContextAccessor)
         {
             this.logger = logger;
             this.moduleApiClient = moduleApiClient;
             this.httpContextAccessor = httpContextAccessor;
-            httpContext = httpContextAccessor.HttpContext;
         }
 
         // http://localhost:8000/checkup/api/function/execute?functionID=HAC.HAC040.UF01&accessToken=test&loadOptions[option1]=value1&featureMeta.Timeout=0
@@ -52,6 +47,7 @@ namespace checkup.Areas.checkup.Controllers
         public async Task<DataSet?> Execute([FromBody] List<DynamicParameter>? dynamicParameters, [FromQuery] DataContext? dataContext)
         {
             using DataSet? result = new DataSet();
+            var httpContext = httpContextAccessor.HttpContext;
             string functionID = (httpContext?.Request.Query["functionID"]).ToStringSafe();
             if (string.IsNullOrEmpty(functionID) == true)
             {

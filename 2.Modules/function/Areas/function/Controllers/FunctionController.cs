@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -32,13 +31,11 @@ namespace function.Areas.function.Controllers
     {
         private ILogger? logger { get; }
         private readonly IHttpContextAccessor httpContextAccessor;
-        private readonly HttpContext? httpContext;
 
         public FunctionController(ILogger logger, IHttpContextAccessor httpContextAccessor)
         {
             this.logger = logger;
             this.httpContextAccessor = httpContextAccessor;
-            httpContext = httpContextAccessor.HttpContext;
         }
 
         // http://localhost:8000/function/api/function/execute?accessToken=test&loadOptions[option1]=value1&featureMeta.Timeout=0
@@ -47,6 +44,7 @@ namespace function.Areas.function.Controllers
         public async Task<DataSet?> Execute([FromBody] List<DynamicParameter>? dynamicParameters, [FromQuery] DataContext? dataContext)
         {
             using DataSet? result = new DataSet();
+            httpContext = httpContextAccessor.HttpContext;
             string functionID = (httpContext?.Request.Query["functionID"]).ToStringSafe();
             if (string.IsNullOrEmpty(functionID) == true)
             {
