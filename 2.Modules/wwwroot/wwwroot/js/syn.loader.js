@@ -992,6 +992,7 @@
             if (response.status === 200) {
                 window.modConfig = await response.json();
                 if (window.modConfig.SynConfigPath) {
+                    window.modConfig.SynConfigPath = window.modConfig.SynConfigPath.indexOf('{hostname}') > -1 ? window.modConfig.SynConfigPath.replace('{hostname}', location.hostname) : window.modConfig.SynConfigPath;
                     var configResponse = await fetch(window.modConfig.SynConfigPath, { cache: 'no-cache' });
                     if (configResponse.status === 200) {
                         window.synConfig = await configResponse.json();
