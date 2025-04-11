@@ -9573,11 +9573,11 @@ if (typeof module !== 'undefined' && module.exports) {
 
         concreate() {
             if (globalRoot.devicePlatform == 'browser') {
-                if (!window.PDFObject) {
+                if ($string.toBoolean(syn.Config.IsReportifyModule) == true && !window.PDFObject) {
                     syn.$w.loadScript('/lib/pdfobject/pdfobject.min.js');
                 }
 
-                if (!window.printJS) {
+                if ($string.toBoolean(syn.Config.IsReportifyModule) == true && !window.printJS) {
                     syn.$w.loadScript('/lib/print-js/print.min.js');
                 }
             }
