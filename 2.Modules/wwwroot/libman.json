@@ -346,6 +346,22 @@
                 "dist/renderers/AUIGrid.MyInputRenderer.js",
                 "dist/renderers/AUIGrid.MyStockRenderer.js"
             ]
+        },
+        {
+            "library": "knockout@3.5.1",
+            "destination": "wwwroot/lib/knockout/"
+        },
+        {
+            "library": "navigo@8.11.1",
+            "destination": "wwwroot/lib/navigo/"
+        },
+        {
+            "library": "htmx@2.0.4",
+            "destination": "wwwroot/lib/htmx/"
+        },
+        {
+            "library": "alpinejs@3.14.9",
+            "destination": "wwwroot/lib/alpinejs/"
         }
     ]
 }
