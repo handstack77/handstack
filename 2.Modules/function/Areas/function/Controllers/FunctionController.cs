@@ -44,7 +44,7 @@ namespace function.Areas.function.Controllers
         public async Task<DataSet?> Execute([FromBody] List<DynamicParameter>? dynamicParameters, [FromQuery] DataContext? dataContext)
         {
             using DataSet? result = new DataSet();
-            httpContext = httpContextAccessor.HttpContext;
+            var httpContext = httpContextAccessor.HttpContext;
             string functionID = (httpContext?.Request.Query["functionID"]).ToStringSafe();
             if (string.IsNullOrEmpty(functionID) == true)
             {
