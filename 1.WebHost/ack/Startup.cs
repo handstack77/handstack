@@ -945,6 +945,7 @@ namespace ack
                 });
             }
 
+            app.UseMiddleware<HtmxTokenInjectionMiddleware>();
             var moduleInitializers = app.ApplicationServices.GetServices<IModuleInitializer>();
             foreach (var moduleInitializer in moduleInitializers)
             {

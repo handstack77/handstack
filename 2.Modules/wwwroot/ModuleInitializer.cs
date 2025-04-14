@@ -140,31 +140,6 @@ namespace wwwroot
             ModuleInfo? module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == typeof(ModuleInitializer).Assembly.GetName().Name);
             if (string.IsNullOrEmpty(ModuleID) == false && module != null)
             {
-                app.Use(async (context, next) =>
-                {
-                    string requestPath = context.Request.Path.Value.ToStringSafe();
-                    if ((requestPath.IndexOf("/view/") > -1 || requestPath.IndexOf("/api/") > -1) && requestPath.EndsWith(".html") == true || requestPath == "/")
-                    {
-                        var antiforgery = context.RequestServices.GetRequiredService<IAntiforgery>();
-                        if (antiforgery != null)
-                        {
-                            var tokens = antiforgery.GetAndStoreTokens(context);
-                            if (string.IsNullOrEmpty(tokens.RequestToken) == false)
-                            {
-                                context.Response.Cookies.Append("XSRF-TOKEN", tokens.RequestToken,
-                                    new CookieOptions
-                                    {
-                                        HttpOnly = false,
-                                        Secure = false,
-                                        SameSite = SameSiteMode.Strict
-                                    });
-                            }
-                        }
-                    }
-
-                    await next.Invoke();
-                });
-
                 string wwwrootContractBasePath = PathExtensions.Combine(ModuleConfiguration.ContractBasePath, GlobalConfiguration.ApplicationID);
                 if (string.IsNullOrEmpty(ModuleConfiguration.ContractBasePath) == false && Directory.Exists(wwwrootContractBasePath) == true)
                 {
