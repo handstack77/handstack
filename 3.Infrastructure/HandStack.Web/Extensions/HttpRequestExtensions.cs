@@ -248,15 +248,5 @@ namespace HandStack.Web.Extensions
             }
             return default(T);
         }
-
-        public static bool IsHtmxRequest(this HttpRequest request, string? requestKey = null)
-        {
-            requestKey = string.IsNullOrEmpty(requestKey) == true ? "HX-Request" : requestKey;
-            return request.Query.ContainsKey(requestKey) ||
-                (request.HasFormContentType && request.Form.ContainsKey(requestKey)) ||
-                request.RouteValues.ContainsKey(requestKey) ||
-                request.Headers.ContainsKey(requestKey);
-
-        }
     }
 }

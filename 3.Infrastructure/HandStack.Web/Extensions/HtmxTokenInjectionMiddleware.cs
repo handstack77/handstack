@@ -21,6 +21,48 @@ namespace HandStack.Web.Extensions
 
         public async Task InvokeAsync(HttpContext context)
         {
+            bool isHtmxRequest = context.Request.Headers.ContainsKey("HX-Request");
+
+            if (isHtmxRequest)
+            {
+                context.Items["IsHtmxRequest"] = true;
+
+                if (context.Request.Headers.TryGetValue("HX-Boosted", out var boosted))
+                {
+                    context.Items["IsHtmxBoosted"] = true;
+                }
+
+                if (context.Request.Headers.TryGetValue("HX-Current-URL", out var currentUrl))
+                {
+                    context.Items["HtmxCurrentUrl"] = currentUrl.ToString();
+                }
+
+                if (context.Request.Headers.TryGetValue("HX-History-Restore-Request", out var historyRestore))
+                {
+                    context.Items["IsHistoryRestoreRequest"] = historyRestore == "true";
+                }
+
+                if (context.Request.Headers.TryGetValue("HX-Target", out var target))
+                {
+                    context.Items["HtmxTarget"] = target.ToString();
+                }
+
+                if (context.Request.Headers.TryGetValue("HX-Trigger", out var trigger))
+                {
+                    context.Items["HtmxTrigger"] = trigger.ToString();
+                }
+
+                if (context.Request.Headers.TryGetValue("HX-Trigger-Name", out var triggerName))
+                {
+                    context.Items["HtmxTriggerName"] = triggerName.ToString();
+                }
+
+                if (context.Request.Headers.TryGetValue("HX-Prompt", out var prompt))
+                {
+                    context.Items["HtmxPrompt"] = prompt.ToString();
+                }
+            }
+
             var requestPath = context.Request.Path.Value ?? string.Empty;
 
             if (requestPath.Contains("/api/", StringComparison.OrdinalIgnoreCase))
