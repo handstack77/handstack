@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 using Newtonsoft.Json;
 
@@ -13,6 +14,26 @@ namespace HandStack.Web.Extensions
         public static bool IsHtmxRequest(this HttpRequest request)
         {
             return request.Headers.ContainsKey("HX-Request");
+        }
+
+        public static bool IsHtmxRequest(this HttpContext context)
+        {
+            return context.Request.IsHtmxRequest();
+        }
+
+        public static bool IsHtmxRequest(this ActionContext context)
+        {
+            return context.HttpContext.Request.IsHtmxRequest();
+        }
+
+        public static bool IsHtmxRequest(this Controller controller)
+        {
+            return controller.HttpContext.Request.IsHtmxRequest();
+        }
+
+        public static bool IsHtmxRequest(this IHtmlHelper htmlHelper)
+        {
+            return htmlHelper.ViewContext.HttpContext.Request.IsHtmxRequest();
         }
 
         public static bool IsHtmxBoosted(this HttpRequest request)
@@ -52,88 +73,102 @@ namespace HandStack.Web.Extensions
             return request.Headers.TryGetValue("HX-Trigger-Name", out var value) ? value.ToString() : string.Empty;
         }
 
-        public static IActionResult WithPushUrl(this IActionResult result, HttpResponse response, string url)
+        public static void HtmxPushUrl(this HttpResponse response, string url)
         {
             response.Headers.Append("HX-Push-Url", url);
-            return result;
         }
 
-        public static IActionResult WithReplaceUrl(this IActionResult result, HttpResponse response, string url)
+        public static void HtmxReplaceUrl(this HttpResponse response, string url)
         {
             response.Headers.Append("HX-Replace-Url", url);
-            return result;
         }
 
-        public static IActionResult WithScroll(this IActionResult result, HttpResponse response, string selector = "top")
+        public static void HtmxScroll(this HttpResponse response, string selector = "top")
         {
             response.Headers.Append("HX-Scroll", selector);
-            return result;
         }
 
-        public static IActionResult WithTriggerEvent(this IActionResult result, HttpResponse response, string eventName)
+        public static void HtmxTriggerEvent(this HttpResponse response, string eventName)
         {
             response.Headers.Append("HX-Trigger", eventName);
-            return result;
         }
 
-        public static IActionResult WithTriggerEvent(this IActionResult result, HttpResponse response, string eventName, string value)
+        public static void HtmxTriggerEvent(this HttpResponse response, string eventName, string value)
         {
             var triggerData = new Dictionary<string, string>
             {
                 { eventName, value }
             };
             response.Headers.Append("HX-Trigger", JsonConvert.SerializeObject(triggerData));
-            return result;
         }
 
-        public static IActionResult WithTriggerEvents(this IActionResult result, HttpResponse response, Dictionary<string, object> events)
+        public static void HtmxTriggerEvents(this HttpResponse response, Dictionary<string, object> events)
         {
             response.Headers.Append("HX-Trigger", JsonConvert.SerializeObject(events));
-            return result;
         }
 
-        public static IActionResult WithRedirect(this IActionResult result, HttpResponse response, string url, int delay = 0)
+        public static void HtmxTriggerAfterSwap(this HttpResponse response, string eventName)
+        {
+            response.Headers.Append("HX-Trigger-After-Swap", eventName);
+        }
+
+        public static void HtmxTriggerAfterSwap(this HttpResponse response, Dictionary<string, object> events)
+        {
+            response.Headers.Append("HX-Trigger-After-Swap", JsonConvert.SerializeObject(events));
+        }
+
+        public static void HtmxTriggerAfterSettle(this HttpResponse response, string eventName)
+        {
+            response.Headers.Append("HX-Trigger-After-Settle", eventName);
+        }
+
+        public static void HtmxTriggerAfterSettle(this HttpResponse response, Dictionary<string, object> events)
+        {
+            response.Headers.Append("HX-Trigger-After-Settle", JsonConvert.SerializeObject(events));
+        }
+
+        public static void HtmxRedirect(this HttpResponse response, string url, int delay = 0)
         {
             response.Headers.Append("HX-Redirect", url);
             if (delay > 0)
             {
                 response.Headers.Append("HX-Redirect-Delay", delay.ToString());
             }
-            return result;
         }
 
-        public static IActionResult WithRefresh(this IActionResult result, HttpResponse response, bool refresh = true)
+        public static void HtmxRefresh(this HttpResponse response)
         {
-            if (refresh)
-            {
-                response.Headers.Append("HX-Refresh", "true");
-            }
-            return result;
+            response.Headers.Append("HX-Refresh", "true");
         }
 
-        public static IActionResult WithLocation(this IActionResult result, HttpResponse response, string path)
+        public static void HtmxLocation(this HttpResponse response, string path, string? source = null, string? @event = null, string? handler = null, string? target = null, string? swap = null, object? values = null, object? headers = null)
         {
-            response.Headers.Append("HX-Location", JsonConvert.SerializeObject(new { path }));
-            return result;
+            var locationData = new Dictionary<string, object> { { "path", path } };
+            if (source != null) locationData["source"] = source;
+            if (@event != null) locationData["event"] = @event;
+            if (handler != null) locationData["handler"] = handler;
+            if (target != null) locationData["target"] = target;
+            if (swap != null) locationData["swap"] = swap;
+            if (values != null) locationData["values"] = values;
+            if (headers != null) locationData["headers"] = headers;
+
+            response.Headers.Append("HX-Location", JsonConvert.SerializeObject(locationData));
         }
 
         // 교체 방식을 지정 (innerHTML, outerHTML, beforebegin, afterbegin, beforeend, afterend)
-        public static IActionResult WithSwap(this IActionResult result, HttpResponse response, string swapMode)
+        public static void HtmxSwap(this HttpResponse response, string swapMode)
         {
             response.Headers.Append("HX-Reswap", swapMode);
-            return result;
         }
 
-        public static IActionResult WithRetarget(this IActionResult result, HttpResponse response, string cssSelector)
+        public static void HtmxRetarget(this HttpResponse response, string cssSelector)
         {
             response.Headers.Append("HX-Retarget", cssSelector);
-            return result;
         }
 
-        public static IActionResult WithReselect(this IActionResult result, HttpResponse response, string cssSelector)
+        public static void HtmxReselect(this HttpResponse response, string cssSelector)
         {
             response.Headers.Append("HX-Reselect", cssSelector);
-            return result;
         }
 
         public static HtmxResult HtmxPartial<T>(this Controller controller, string viewName, T model)

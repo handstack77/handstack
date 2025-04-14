@@ -64,9 +64,9 @@ namespace wwwroot.Areas.wwwroot.Controllers
             }
 
             DeleteContact(id);
-
-            return Content("<div id='notification' class='alert alert-success'>연락처가 삭제되었습니다.</div>")
-                .WithTriggerEvent(Response, "showNotification", "연락처가 삭제되었습니다.");
+            Response.HtmxTriggerEvent("showNotification", "연락처가 삭제되었습니다.");
+            return Content("<div id='notification' class='alert alert-success'>연락처가 삭제되었습니다.</div>");
+                
         }
 
         [HttpPut("contacts/{id}")]
@@ -107,7 +107,8 @@ namespace wwwroot.Areas.wwwroot.Controllers
 
             if (moreContacts.Count == 0)
             {
-                return Content("").WithTriggerEvent(Response, "noMoreContacts", "true");
+                Response.HtmxTriggerEvent("noMoreContacts", "true");
+                return Content("");
             }
 
             bool hasMorePages = HasMorePages(page + 1);
