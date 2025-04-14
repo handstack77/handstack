@@ -945,14 +945,6 @@ namespace ack
                 });
             }
 
-            app.UseMiddleware<HtmxTokenInjectionMiddleware>();
-            var moduleInitializers = app.ApplicationServices.GetServices<IModuleInitializer>();
-            foreach (var moduleInitializer in moduleInitializers)
-            {
-                Log.Information("[{LogCategory}] " + $"module: {moduleInitializer.ToString()} Configure", "Startup/Configure");
-                moduleInitializer.Configure(app, environment, corsService, corsPolicyProvider);
-            }
-
             if (environment != null && environment.IsDevelopment() == true)
             {
                 app.UseSwagger();
@@ -1027,15 +1019,8 @@ namespace ack
                 });
             });
 
+            app.UseMiddleware<HtmxTokenInjectionMiddleware>();
             app.UseRouting();
-
-            if (string.IsNullOrEmpty(GlobalConfiguration.SessionCookieName) == false)
-            {
-                app.UseSession();
-                app.UseMiddleware<UserSessionMiddleware>();
-            }
-
-            app.UseMiddleware<UserSignMiddleware>();
 
             if (GlobalConfiguration.WithOrigins.Count > 0)
             {
@@ -1060,6 +1045,21 @@ namespace ack
                 app.UseCors("PublicCorsPolicy");
             }
 
+            var moduleInitializers = app.ApplicationServices.GetServices<IModuleInitializer>();
+            foreach (var moduleInitializer in moduleInitializers)
+            {
+                Log.Information("[{LogCategory}] " + $"module: {moduleInitializer.ToString()} Configure", "Startup/Configure");
+                moduleInitializer.Configure(app, environment, corsService, corsPolicyProvider);
+            }
+
+
+            if (string.IsNullOrEmpty(GlobalConfiguration.SessionCookieName) == false)
+            {
+                app.UseSession();
+                app.UseMiddleware<UserSessionMiddleware>();
+            }
+
+            app.UseMiddleware<UserSignMiddleware>();
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseCookiePolicy();

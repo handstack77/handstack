@@ -9,15 +9,6 @@
             "applicationUrl": "http://localhost:8000",
             "dotnetRunMessages": true
         },
-        "https": {
-            "commandName": "Project",
-            "launchBrowser": true,
-            "environmentVariables": {
-                "ASPNETCORE_ENVIRONMENT": "Development"
-            },
-            "applicationUrl": "https://localhost:8443;http://localhost:8000",
-            "dotnetRunMessages": true
-        },
         "IIS": {
             "commandName": "IIS",
             "ancmHostingModel": "OutOfProcess"
