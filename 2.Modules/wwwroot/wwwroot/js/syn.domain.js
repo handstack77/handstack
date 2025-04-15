@@ -2060,6 +2060,121 @@
             };
             xhr.open('GET', url, true);
             xhr.send();
+        },
+
+        simulateHtmxResponse(sourceElement, targetElement, renderedHtml, options = {}) {
+            if (!targetElement && !(sourceElement?.getAttribute('hx-swap') === 'delete')) {
+                syn.$l.eventLog('$w.simulateHtmxResponse', `삭제되지 않은 스왑에 대한 대상 요소를 찾을 수 없습니다.`, 'Error');
+                return;
+            }
+
+            const swapStyle = sourceElement?.getAttribute('hx-swap') || 'innerHTML';
+            let effectiveTargetElement = targetElement;
+            let elementToProcess = null;
+
+            try {
+                switch (swapStyle) {
+                    case 'outerHTML':
+                        if (targetElement) {
+                            const tempContainer = document.createElement('div');
+                            tempContainer.innerHTML = renderedHtml;
+                            const newElement = tempContainer.firstElementChild;
+
+                            if (newElement) {
+                                targetElement.replaceWith(newElement);
+                                effectiveTargetElement = newElement;
+                                elementToProcess = effectiveTargetElement;
+                            } else {
+                                targetElement.remove();
+                                effectiveTargetElement = null;
+                                elementToProcess = null;
+                            }
+                        } else {
+                            syn.$l.eventLog('$w.simulateHtmxResponse', `outerHTML 스왑에는 유효한 대상 요소가 필요합니다.`, 'Error');
+                        }
+                        break;
+
+                    case 'beforebegin':
+                        targetElement.insertAdjacentHTML('beforebegin', renderedHtml);
+                        effectiveTargetElement = targetElement.previousElementSibling;
+                        elementToProcess = effectiveTargetElement;
+                        break;
+
+                    case 'afterbegin':
+                        targetElement.insertAdjacentHTML('afterbegin', renderedHtml);
+                        effectiveTargetElement = targetElement.firstElementChild;
+                        elementToProcess = effectiveTargetElement;
+                        break;
+
+                    case 'beforeend':
+                        targetElement.insertAdjacentHTML('beforeend', renderedHtml);
+                        effectiveTargetElement = targetElement.lastElementChild;
+                        elementToProcess = effectiveTargetElement;
+                        break;
+
+                    case 'afterend':
+                        targetElement.insertAdjacentHTML('afterend', renderedHtml);
+                        effectiveTargetElement = targetElement.nextElementSibling;
+                        elementToProcess = effectiveTargetElement;
+                        break;
+
+                    case 'delete':
+                        if (targetElement) {
+                            targetElement.remove();
+                        }
+                        effectiveTargetElement = null;
+                        elementToProcess = null;
+                        break;
+
+                    case 'none':
+                        effectiveTargetElement = targetElement;
+                        elementToProcess = null;
+                        break;
+
+                    case 'innerHTML':
+                    default:
+                        targetElement.innerHTML = renderedHtml;
+                        effectiveTargetElement = targetElement;
+                        elementToProcess = effectiveTargetElement;
+                        break;
+                }
+
+                if (elementToProcess) {
+                    htmx.process(elementToProcess);
+                }
+
+                const state = {};
+                const title = '';
+                if (options.pushUrl) {
+                    syn.$l.eventLog('$w.simulateHtmxResponse', `Simulating HX-Push-Url: ${options.pushUrl}`, 'Debug');
+                    if (window.location.pathname + window.location.search + window.location.hash !== options.pushUrl) {
+                        history.pushState(state, title, options.pushUrl);
+                        htmx.trigger(window, "htmx:pushedIntoHistory", { path: options.pushUrl });
+                    }
+                } else if (options.replaceUrl) {
+                    syn.$l.eventLog('$w.simulateHtmxResponse', `Simulating HX-Replace-Url: ${options.replaceUrl}`, 'Debug');
+                    history.replaceState(state, title, options.replaceUrl);
+                    htmx.trigger(window, "htmx:replacedInHistory", { path: options.replaceUrl });
+                }
+
+                if (options.triggerEvents) {
+                    if (effectiveTargetElement) {
+                        for (const eventName in options.triggerEvents) {
+                            if (Object.hasOwnProperty.call(options.triggerEvents, eventName)) {
+                                const eventDetail = options.triggerEvents[eventName];
+                                syn.$l.eventLog('$w.simulateHtmxResponse', `Simulating HX-Trigger: "${eventName}" on`, 'Debug');
+                                htmx.trigger(effectiveTargetElement, eventName, eventDetail);
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                syn.$l.eventLog('$w.simulateHtmxResponse', `HTMX 응답 시뮬레이션 중 오류: ${error}`, 'Error');
+                const errorTarget = effectiveTargetElement || targetElement || document.body;
+                htmx.trigger(errorTarget, 'htmx:responseError', {
+                    error: error
+                });
+            }
         }
     });
 })(syn.$w);
@@ -2502,6 +2617,44 @@ function domainPageLoad() {
                     brightness: 100,
                     contrast: 100,
                     sepia: 0
+                });
+            }
+
+            if (window.htmx) {
+                document.body.addEventListener('htmx:configRequest', function (evt) {
+                    const path = evt.detail.path;
+                    const sourceElement = evt.detail.elt;
+                    const targetElement = htmx.find(evt.detail.target);
+
+                    var mod = context[syn.$w.pageScript];
+                    if (path.startsWith('csr:') == true && mod && mod.hook.htmxRender) {
+                        /*
+                        <div id="content">
+                            <button hx-get="csr:/user-detail?id=456" hx-target="#content" hx-swap="innerHTML">CSR 스왑</button>
+                        </div>
+                        */
+                        evt.preventDefault();
+
+                        const templatePath = path.substring(4);
+                        const parameters = evt.detail.parameters;
+                        /*
+                        htmxRender: (templatePath, sourceElement, targetElement, parameters) => {
+                            const data = JSON.parse(parameters);
+                            const renderedHtml = Mustache.render(template, data);
+
+                            return {
+                                html: renderedHtml,
+                                options: {
+                                    ...
+                                }
+                            };
+                        }
+                        */
+                        const renderdResult = mod.hook.htmxRender(templatePath, sourceElement, targetElement, parameters);
+                        if ($object.isNullOrUndefined(renderdResult) == true && $string.isNullOrEmpty(renderdResult.html) == false) {
+                            syn.$w.simulateHtmxResponse(sourceElement, targetElement, renderdResult.html, renderdResult.options);
+                        }
+                    }
                 });
             }
         }
