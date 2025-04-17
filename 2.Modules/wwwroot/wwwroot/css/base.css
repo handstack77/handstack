@@ -4076,7 +4076,7 @@
 
 .input-group .form-control,
 .input-group .btn {
-    box-shadow: var(--tblr-box-shadow-input);
+    box-shadow: var(--tblr-shadow-input) !important;
 }
 
 .row {

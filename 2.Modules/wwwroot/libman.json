@@ -27,7 +27,7 @@
             "destination": "wwwroot/lib/contextmenu/"
         },
         {
-            "library": "darkreader@4.9.89",
+            "library": "darkreader@4.9.92",
             "destination": "wwwroot/lib/darkreader/"
         },
         {
@@ -57,7 +57,7 @@
         },
         {
             "provider": "jsdelivr",
-            "library": "signature_pad@5.0.3",
+            "library": "signature_pad@5.0.7",
             "destination": "wwwroot/lib/signature_pad/"
         },
         {
@@ -75,7 +75,7 @@
             "destination": "wwwroot/lib/handsontable/"
         },
         {
-            "library": "highlight.js@11.10.0",
+            "library": "highlight.js@11.11.0",
             "destination": "wwwroot/lib/highlight.js/"
         },
         {
@@ -100,7 +100,7 @@
             "destination": "wwwroot/lib/jquery/"
         },
         {
-            "library": "jsoneditor@10.1.0",
+            "library": "jsoneditor@10.1.1",
             "destination": "wwwroot/lib/jsoneditor/"
         },
         {
@@ -188,7 +188,7 @@
         },
         {
             "provider": "jsdelivr",
-            "library": "@tabler/core@1.0.0",
+            "library": "@tabler/core@1.2.0",
             "destination": "wwwroot/lib/tabler-core/"
         },
         {
@@ -218,7 +218,7 @@
         },
         {
             "provider": "jsdelivr",
-            "library": "winbox@0.2.82",
+            "library": "winbox@0.2.731",
             "destination": "wwwroot/lib/winbox/"
         },
         {
