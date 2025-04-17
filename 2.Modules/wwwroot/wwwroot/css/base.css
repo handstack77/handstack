@@ -4074,9 +4074,8 @@
     border-left: 1px solid var(--tblr-border-color);
 }
 
-.input-group .form-control,
-.input-group .btn {
-    box-shadow: var(--tblr-shadow-input) !important;
+.input-group .form-control:focus {
+    box-shadow: var(--tblr-shadow-input), 0 0 0 0.25rem rgba(var(--tblr-primary-rgb), 0.25);
 }
 
 .row {
@@ -4099,8 +4098,16 @@
     background-color: rgba(var(--tblr-secondary-rgb),.08)
 }
 
-.center-centent {
+.center-content {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+a[href="#"] {
+    text-decoration: none;
+}
+
+a[href="#"]:hover {
+    text-decoration: none;
 }
