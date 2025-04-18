@@ -4489,6 +4489,7 @@ TransactionException:
                 return;
             }
 
+            ISequentialIdGenerator sequentialIdGenerator = new SequentialIdGenerator();
             List<DbParameterMap> dbParameterMaps = statementMap.DbParameters;
             foreach (DbParameterMap dbParameterMap in dbParameterMaps)
             {
@@ -4496,9 +4497,48 @@ TransactionException:
                 {
                     DynamicParameter? dynamicParameter = GetDbParameterMap(dbParameterMap.Name, queryObject.Parameters);
 
-                    if (dynamicParameter == null)
+                    if (dynamicParameter == null && dbParameterMap.DefaultValue.ToUpper() == "NULL")
                     {
                         continue;
+                    }
+                    else
+                    {
+                        if (dynamicParameter == null)
+                        {
+                            dynamicParameter = new DynamicParameter();
+                            dynamicParameter.ParameterName = GetParameterName(dbParameterMap.Name);
+                            dynamicParameter.Length = dbParameterMap.Length;
+                            dynamicParameter.DbType = dbParameterMap.DbType;
+
+                            if (dbParameterMap.DefaultValue == "@SUID")
+                            {
+                                dynamicParameter.Value = sequentialIdGenerator.NewId().ToString("N");
+                            }
+                            else if (dbParameterMap.DefaultValue == "@GUID")
+                            {
+                                dynamicParameter.Value = Guid.NewGuid();
+                            }
+                            else if (dbParameterMap.DefaultValue == "@NOW")
+                            {
+                                dynamicParameter.Value = DateTime.Now;
+                            }
+                            else if (dbParameterMap.DefaultValue == "@UTCNOW")
+                            {
+                                dynamicParameter.Value = DateTime.UtcNow;
+                            }
+                            else if (dbParameterMap.DefaultValue == "@TRUE")
+                            {
+                                dynamicParameter.Value = true;
+                            }
+                            else if (dbParameterMap.DefaultValue == "@FALSE")
+                            {
+                                dynamicParameter.Value = false;
+                            }
+                            else
+                            {
+                                dynamicParameter.Value = dbParameterMap.DefaultValue;
+                            }
+                        }
                     }
 
                     if (statementMap.NativeDataClient == true)

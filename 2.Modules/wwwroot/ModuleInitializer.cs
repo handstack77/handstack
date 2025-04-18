@@ -132,6 +132,7 @@ namespace wwwroot
                 }
 
                 services.AddScoped<ModuleApiClient>();
+                services.AddTransient<ISequentialIdGenerator, SequentialIdGenerator>();
             }
         }
 
