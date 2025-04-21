@@ -460,23 +460,15 @@ if (typeof module !== 'undefined' && module.exports) {
 
         async getIpAddress() {
             let ipAddress = '127.0.0.1';
-            const urls = [
-                { url: 'https://api.ipify.org?format=json', json: true },
-                { url: syn.Config.FindClientIPServer || '/checkip', json: false }
-            ];
-
-            for (const { url, json } of urls) {
-                try {
-                    const response = await fetch(url);
-                    if (response.ok) {
-                        const data = json ? await response.json() : await response.text();
-                        ipAddress = json ? data.ip : data.trim();
-                        break;
-                    }
-
-                } catch (error) {
-                    console.warn(`'${url}' 에서 IP 를 가져오지 못했습니다:`, error);
+            try {
+                let url = syn.Config?.FindClientIPServer || 'https://api.ipify.org';
+                const response = await fetch(url);
+                if (response.ok) {
+                    ipAddress = await response.text();
                 }
+
+            } catch (error) {
+                console.warn(`'${url}' 에서 IP 를 가져오지 못했습니다:`, error);
             }
 
             return ipAddress;
