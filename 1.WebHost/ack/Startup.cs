@@ -956,7 +956,6 @@ namespace ack
             if (string.IsNullOrEmpty(GlobalConfiguration.ServerDevCertFilePath) == false && File.Exists(GlobalConfiguration.ServerDevCertFilePath) == true && string.IsNullOrEmpty(GlobalConfiguration.ServerDevCertPassword) == false)
             {
                 app.UseHsts();
-                app.UseHttpsRedirection();
             }
 
             app.UseExceptionHandler(exceptionHandlerApp =>

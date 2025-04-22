@@ -1550,6 +1550,7 @@
                 ? (directObject.screenID || directObject.transactionID)
                 : (syn.$w.pageScript?.replace('$', '') ?? '');
             transactionObj.startTraceID = directObject.startTraceID || options?.startTraceID || '';
+            transactionObj.inputObjects = directObject.inputObjects || [];
 
             const mergedOptions = syn.$w.argumentsExtend({
                 message: '', dynamic: 'Y', authorize: 'N', commandType: 'D',
