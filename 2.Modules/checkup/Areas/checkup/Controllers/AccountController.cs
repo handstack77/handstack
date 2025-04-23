@@ -426,7 +426,7 @@ namespace checkup.Areas.checkup.Controllers
                                 WriteCookie($"{GlobalConfiguration.CookiePrefixName}.ExpireTicks", expireTicks.ToString(), cookieOptions);
                                 WriteCookie($"{GlobalConfiguration.CookiePrefixName}.Member", jsonAcount.EncodeBase64(), cookieOptions);
                                 WriteCookie($"{GlobalConfiguration.CookiePrefixName}.Variable", JsonConvert.SerializeObject(variable).EncodeBase64(), cookieOptions);
-                                WriteCookie($"{GlobalConfiguration.CookiePrefixName}.BearerToken", userAccount.UserID.EncodeBase64() + "." + JsonConvert.SerializeObject(bearerToken).EncryptAES(userAccount.UserID.PadRight(32, ' ')), cookieOptions);
+                                WriteCookie($"{GlobalConfiguration.CookiePrefixName}.BearerToken", userAccount.UserID.EncodeBase64() + "." + JsonConvert.SerializeObject(bearerToken).EncryptAES(userAccount.UserID.PadRight(32, ' ').Substring(0, 32)) + "." + GlobalConfiguration.HostAccessID.ToSHA256(), cookieOptions);
 
                                 await HttpContext.AuthenticateAsync();
                                 await HttpContext.SignInAsync(new ClaimsPrincipal(claimsIdentity), authenticationProperties);

@@ -998,11 +998,12 @@ namespace transact.Areas.transact.Controllers
                         {
                             string[] tokenArray = token.Split(".");
                             string userID = tokenArray[0].DecodeBase64();
+                            string signature = tokenArray.Length > 2 ? (tokenArray[2] == GlobalConfiguration.HostAccessID.ToSHA256() ? GlobalConfiguration.HostAccessID.PadRight(32, ' ').Substring(0, 32) : "") : request.Transaction.OperatorID.PadRight(32, ' ');
 
                             token = tokenArray[1];
                             try
                             {
-                                bearerToken = JsonConvert.DeserializeObject<BearerToken>(token.DecryptAES(request.Transaction.OperatorID.PadRight(32, ' ')));
+                                bearerToken = JsonConvert.DeserializeObject<BearerToken>(token.DecryptAES(signature));
                             }
                             catch
                             {
@@ -1082,9 +1083,11 @@ namespace transact.Areas.transact.Controllers
                             }
 
                             token = tokenArray[1];
+                            string signature = tokenArray.Length > 2 ? (tokenArray[2] == GlobalConfiguration.HostAccessID.ToSHA256() ? GlobalConfiguration.HostAccessID.PadRight(32, ' ').Substring(0, 32) : "") : request.Transaction.OperatorID.PadRight(32, ' ');
+
                             try
                             {
-                                bearerToken = JsonConvert.DeserializeObject<BearerToken>(token.DecryptAES(request.Transaction.OperatorID.PadRight(32, ' ')));
+                                bearerToken = JsonConvert.DeserializeObject<BearerToken>(token.DecryptAES(signature));
                             }
                             catch
                             {
@@ -1155,9 +1158,11 @@ namespace transact.Areas.transact.Controllers
                                     if (userID == request.Transaction.OperatorID)
                                     {
                                         token = tokenArray[1];
+                                        string signature = tokenArray.Length > 2 ? (tokenArray[2] == GlobalConfiguration.HostAccessID.ToSHA256() ? GlobalConfiguration.HostAccessID.PadRight(32, ' ').Substring(0, 32) : "") : request.Transaction.OperatorID.PadRight(32, ' ');
+
                                         try
                                         {
-                                            bearerToken = JsonConvert.DeserializeObject<BearerToken>(token.DecryptAES(request.Transaction.OperatorID.PadRight(32, ' ')));
+                                            bearerToken = JsonConvert.DeserializeObject<BearerToken>(token.DecryptAES(signature));
                                         }
                                         catch
                                         {
@@ -1168,9 +1173,10 @@ namespace transact.Areas.transact.Controllers
                                     else
                                     {
                                         token = tokenArray[1];
+                                        string signature = tokenArray.Length > 2 ? (tokenArray[2] == GlobalConfiguration.HostAccessID.ToSHA256() ? GlobalConfiguration.HostAccessID.PadRight(32, ' ').Substring(0, 32) : "") : userID.PadRight(32, ' ');
                                         try
                                         {
-                                            bearerToken = JsonConvert.DeserializeObject<BearerToken>(token.DecryptAES(userID.PadRight(32, ' ')));
+                                            bearerToken = JsonConvert.DeserializeObject<BearerToken>(token.DecryptAES(signature));
                                         }
                                         catch
                                         {

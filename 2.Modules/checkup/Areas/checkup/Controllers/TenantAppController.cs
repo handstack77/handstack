@@ -273,7 +273,7 @@ namespace checkup.Areas.checkup.Controllers
                                     WriteCookie($"{applicationID}.TokenID", bearerToken.TokenID, cookieOptions);
                                     WriteCookie($"{applicationID}.Member", JsonConvert.SerializeObject(userAccount).EncodeBase64(), cookieOptions);
                                     WriteCookie($"{applicationID}.Variable", JsonConvert.SerializeObject(variable).EncodeBase64(), cookieOptions);
-                                    WriteCookie($"{applicationID}.BearerToken", userAccount.UserID.EncodeBase64() + "." + JsonConvert.SerializeObject(bearerToken).EncryptAES(userAccount.UserID.PadRight(32, ' ')), cookieOptions);
+                                    WriteCookie($"{applicationID}.BearerToken", userAccount.UserID.EncodeBase64() + "." + JsonConvert.SerializeObject(bearerToken).EncryptAES(userAccount.UserID.PadRight(32, ' ').Substring(0, 32)) + "." + GlobalConfiguration.HostAccessID.ToSHA256(), cookieOptions);
                                 }
                             }
                         }
@@ -407,7 +407,7 @@ namespace checkup.Areas.checkup.Controllers
                                 WriteCookie($"{applicationID}.TokenID", bearerToken.TokenID, cookieOptions);
                                 WriteCookie($"{applicationID}.Member", JsonConvert.SerializeObject(userAccount).EncodeBase64(), cookieOptions);
                                 WriteCookie($"{applicationID}.Variable", JsonConvert.SerializeObject(variable).EncodeBase64(), cookieOptions);
-                                WriteCookie($"{applicationID}.BearerToken", userAccount.UserID.EncodeBase64() + "." + JsonConvert.SerializeObject(bearerToken).EncryptAES(userAccount.UserID.PadRight(32, ' ')), cookieOptions);
+                                WriteCookie($"{applicationID}.BearerToken", userAccount.UserID.EncodeBase64() + "." + JsonConvert.SerializeObject(bearerToken).EncryptAES(userAccount.UserID.PadRight(32, ' ').Substring(0, 32)) + "." + GlobalConfiguration.HostAccessID.ToSHA256(), cookieOptions);
                             }
                         }
                         else
