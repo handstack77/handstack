@@ -1155,42 +1155,16 @@ namespace transact.Areas.transact.Controllers
                                     string[] tokenArray = token.Split(".");
                                     string userID = tokenArray[0].DecodeBase64();
 
-                                    if (userID == request.Transaction.OperatorID)
+                                    token = tokenArray[1];
+                                    string signature = tokenArray.Length > 2 ? (tokenArray[2] == GlobalConfiguration.HostAccessID.ToSHA256() ? userID.PaddingRight(32) : "") : userID.PaddingRight(32);
+                                    try
                                     {
-                                        token = tokenArray[1];
-                                        string signature = tokenArray.Length > 2 ? (tokenArray[2] == GlobalConfiguration.HostAccessID.ToSHA256() ? request.Transaction.OperatorID.PaddingRight(32) : "") : request.Transaction.OperatorID.PaddingRight(32);
-
-                                        try
-                                        {
-                                            bearerToken = JsonConvert.DeserializeObject<BearerToken>(token.DecryptAES(signature));
-                                        }
-                                        catch
-                                        {
-                                            response.ExceptionText = $"{request.Transaction.OperatorID}: BearerToken 정보가 훼손되거나 확인 할 수 없습니다. 다시 로그인 해야 합니다.";
-                                            return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
-                                        }
+                                        bearerToken = JsonConvert.DeserializeObject<BearerToken>(token.DecryptAES(signature));
                                     }
-                                    else
+                                    catch
                                     {
-                                        if (ModuleConfiguration.IsValidationRequest == true)
-                                        {
-                                            response.ExceptionText = "BearerToken 검증 정책 확인 필요";
-                                            return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
-                                        }
-                                        else
-                                        {
-                                            token = tokenArray[1];
-                                            string signature = tokenArray.Length > 2 ? (tokenArray[2] == GlobalConfiguration.HostAccessID.ToSHA256() ? userID.PaddingRight(32) : "") : userID.PaddingRight(32);
-                                            try
-                                            {
-                                                bearerToken = JsonConvert.DeserializeObject<BearerToken>(token.DecryptAES(signature));
-                                            }
-                                            catch
-                                            {
-                                                response.ExceptionText = $"{userID}: BearerToken 정보가 훼손되거나 확인 할 수 없습니다. 다시 로그인 해야 합니다.";
-                                                return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
-                                            }
-                                        }
+                                        response.ExceptionText = $"{userID}: BearerToken 정보가 훼손되거나 확인 할 수 없습니다. 다시 로그인 해야 합니다.";
+                                        return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                                     }
                                 }
                             }

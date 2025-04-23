@@ -5,54 +5,35 @@ namespace HandStack.Web.MessageContract.DataObject
 {
     public partial class BearerToken
     {
-        public BearerToken()
-        {
-            TokenID = string.Empty;
-            IssuerName = string.Empty;
-            ClientIP = string.Empty;
-            Policy = new Policy();
-            Variable = null;
-            CreatedAt = null;
-            ExpiredAt = null;
-        }
+        public string TokenID { get; set; } = string.Empty;
 
-        public string TokenID { get; set; }
+        public string IssuerName { get; set; } = string.Empty;
 
-        public string IssuerName { get; set; }
-
-        public string ClientIP { get; set; }
+        public string ClientIP { get; set; } = string.Empty;
 
         public DateTime? CreatedAt { get; set; }
 
         public DateTime? ExpiredAt { get; set; }
 
-        public Policy Policy { get; set; }
+        public Policy Policy { get; set; } = new Policy();
 
         public dynamic? Variable { get; set; }
     }
 
     public partial class Policy
     {
-        public Policy()
-        {
-            UserID = "";
-            UserName = "";
-            Email = "";
-            VerifyTokenID = "";
-            Roles = new List<string>();
-            Claims = new Dictionary<string, string>();
-        }
+        public string UserNo { get; set; } = string.Empty;
 
-        public string UserID { get; set; }
+        public string UserID { get; set; } = string.Empty;
 
-        public string UserName { get; set; }
+        public string UserName { get; set; } = string.Empty;
 
-        public string Email { get; set; }
+        public string Email { get; set; } = string.Empty;
 
-        public string VerifyTokenID { get; set; }
+        public string VerifyTokenID { get; set; } = string.Empty;
 
-        public List<string> Roles { get; set; }
+        public List<string> Roles { get; set; } = new List<string>();
 
-        public Dictionary<string, string> Claims { get; set; }
+        public Dictionary<string, string> Claims { get; set; } = new Dictionary<string, string>();
     }
 }

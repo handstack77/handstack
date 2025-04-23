@@ -33,6 +33,7 @@ namespace HandStack.Web.Helper
                 }
 
                 string userID = tokenArray[0].DecodeBase64();
+                token = tokenArray[1];
                 string signature = tokenArray.Length > 2 ? (tokenArray[2] == GlobalConfiguration.HostAccessID.ToSHA256() ? userID.PaddingRight(32) : "") : userID.PaddingRight(32);
                 if (string.IsNullOrEmpty(signature) == true)
                 {
