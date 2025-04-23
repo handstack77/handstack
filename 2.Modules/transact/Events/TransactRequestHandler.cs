@@ -486,7 +486,7 @@ namespace transact.Events
                             string userID = tokenArray[0].DecodeBase64();
 
                             token = tokenArray[1];
-                            bearerToken = JsonConvert.DeserializeObject<BearerToken>(token.DecryptAES(request.Transaction.OperatorID.PadRight(32, ' ')));
+                            bearerToken = JsonConvert.DeserializeObject<BearerToken>(token.DecryptAES(request.Transaction.OperatorID.PaddingRight(32)));
                         }
                     }
                     else
@@ -522,7 +522,7 @@ namespace transact.Events
                             }
 
                             token = tokenArray[1];
-                            bearerToken = JsonConvert.DeserializeObject<BearerToken>(token.DecryptAES(request.Transaction.OperatorID.PadRight(32, ' ')));
+                            bearerToken = JsonConvert.DeserializeObject<BearerToken>(token.DecryptAES(request.Transaction.OperatorID.PaddingRight(32)));
 
                             if (bearerToken == null)
                             {

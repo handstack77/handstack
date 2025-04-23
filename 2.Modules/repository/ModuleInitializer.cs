@@ -211,7 +211,7 @@ namespace repository
                                                     string userID = tokenArray[0].DecodeBase64();
 
                                                     token = tokenArray[1];
-                                                    bearerToken = JsonConvert.DeserializeObject<BearerToken>(token.DecryptAES(userID.PadRight(32, ' ')));
+                                                    bearerToken = JsonConvert.DeserializeObject<BearerToken>(token.DecryptAES(userID.PaddingRight(32)));
                                                 }
                                                 catch (Exception exception)
                                                 {

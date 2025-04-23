@@ -16,6 +16,7 @@ using HandStack.Web.ApiClient;
 using HandStack.Web.Common;
 using HandStack.Web.Entity;
 using HandStack.Web.Extensions;
+using HandStack.Web.Helper;
 using HandStack.Web.MessageContract.DataObject;
 
 using MediatR;
@@ -426,7 +427,7 @@ namespace checkup.Areas.checkup.Controllers
                                 WriteCookie($"{GlobalConfiguration.CookiePrefixName}.ExpireTicks", expireTicks.ToString(), cookieOptions);
                                 WriteCookie($"{GlobalConfiguration.CookiePrefixName}.Member", jsonAcount.EncodeBase64(), cookieOptions);
                                 WriteCookie($"{GlobalConfiguration.CookiePrefixName}.Variable", JsonConvert.SerializeObject(variable).EncodeBase64(), cookieOptions);
-                                WriteCookie($"{GlobalConfiguration.CookiePrefixName}.BearerToken", userAccount.UserID.EncodeBase64() + "." + JsonConvert.SerializeObject(bearerToken).EncryptAES(userAccount.UserID.PadRight(32, ' ').Substring(0, 32)) + "." + GlobalConfiguration.HostAccessID.ToSHA256(), cookieOptions);
+                                WriteCookie($"{GlobalConfiguration.CookiePrefixName}.BearerToken", TokenHelper.CreateBearerToken(userAccount.UserID, bearerToken), cookieOptions);
 
                                 await HttpContext.AuthenticateAsync();
                                 await HttpContext.SignInAsync(new ClaimsPrincipal(claimsIdentity), authenticationProperties);

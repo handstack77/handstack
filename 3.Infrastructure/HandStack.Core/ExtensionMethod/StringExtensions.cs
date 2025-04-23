@@ -796,5 +796,23 @@ namespace HandStack.Core.ExtensionMethod
 
             return result.ToString();
         }
+
+        public static string PaddingLeft(this string @this, int totalWidth, char paddingChar = ' ')
+        {
+            if (totalWidth <= 0)
+            {
+                return @this;
+            }
+            return @this.PadLeft(totalWidth, paddingChar).Substring(0, totalWidth);
+        }
+
+        public static string PaddingRight(this string @this, int totalWidth, char paddingChar = ' ')
+        {
+            if (totalWidth <= 0)
+            {
+                return @this;
+            }
+            return @this.PadRight(totalWidth, paddingChar).Substring(0, totalWidth);
+        }
     }
 }

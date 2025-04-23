@@ -13,9 +13,9 @@ using YamlDotNet.Serialization;
 
 namespace HandStack.Web.Helper
 {
-    internal static class JsonHelper
+    public static class JsonHelper
     {
-        internal static bool IsValid(string? input)
+        public static bool IsValid(string? input)
         {
             input = input?.Trim();
 
@@ -44,7 +44,7 @@ namespace HandStack.Web.Helper
             }
         }
 
-        internal static string Format(string? input, Indentation indentationMode, bool sortProperties)
+        public static string Format(string? input, Indentation indentationMode, bool sortProperties)
         {
             if (input == null || !IsValid(input))
             {
@@ -127,7 +127,7 @@ namespace HandStack.Web.Helper
             }
         }
 
-        internal static string? ConvertFromYaml(string? input, Indentation indentationMode)
+        public static string? ConvertFromYaml(string? input, Indentation indentationMode)
         {
             if (string.IsNullOrWhiteSpace(input))
             {

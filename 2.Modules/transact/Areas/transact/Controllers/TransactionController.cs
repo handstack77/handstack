@@ -998,7 +998,7 @@ namespace transact.Areas.transact.Controllers
                         {
                             string[] tokenArray = token.Split(".");
                             string userID = tokenArray[0].DecodeBase64();
-                            string signature = tokenArray.Length > 2 ? (tokenArray[2] == GlobalConfiguration.HostAccessID.ToSHA256() ? GlobalConfiguration.HostAccessID.PadRight(32, ' ').Substring(0, 32) : "") : request.Transaction.OperatorID.PadRight(32, ' ');
+                            string signature = tokenArray.Length > 2 ? (tokenArray[2] == GlobalConfiguration.HostAccessID.ToSHA256() ? request.Transaction.OperatorID.PaddingRight(32) : "") : request.Transaction.OperatorID.PaddingRight(32);
 
                             token = tokenArray[1];
                             try
@@ -1083,7 +1083,7 @@ namespace transact.Areas.transact.Controllers
                             }
 
                             token = tokenArray[1];
-                            string signature = tokenArray.Length > 2 ? (tokenArray[2] == GlobalConfiguration.HostAccessID.ToSHA256() ? GlobalConfiguration.HostAccessID.PadRight(32, ' ').Substring(0, 32) : "") : request.Transaction.OperatorID.PadRight(32, ' ');
+                            string signature = tokenArray.Length > 2 ? (tokenArray[2] == GlobalConfiguration.HostAccessID.ToSHA256() ? request.Transaction.OperatorID.PaddingRight(32) : "") : request.Transaction.OperatorID.PaddingRight(32);
 
                             try
                             {
@@ -1158,7 +1158,7 @@ namespace transact.Areas.transact.Controllers
                                     if (userID == request.Transaction.OperatorID)
                                     {
                                         token = tokenArray[1];
-                                        string signature = tokenArray.Length > 2 ? (tokenArray[2] == GlobalConfiguration.HostAccessID.ToSHA256() ? GlobalConfiguration.HostAccessID.PadRight(32, ' ').Substring(0, 32) : "") : request.Transaction.OperatorID.PadRight(32, ' ');
+                                        string signature = tokenArray.Length > 2 ? (tokenArray[2] == GlobalConfiguration.HostAccessID.ToSHA256() ? request.Transaction.OperatorID.PaddingRight(32) : "") : request.Transaction.OperatorID.PaddingRight(32);
 
                                         try
                                         {
@@ -1180,7 +1180,7 @@ namespace transact.Areas.transact.Controllers
                                         else
                                         {
                                             token = tokenArray[1];
-                                            string signature = tokenArray.Length > 2 ? (tokenArray[2] == GlobalConfiguration.HostAccessID.ToSHA256() ? GlobalConfiguration.HostAccessID.PadRight(32, ' ').Substring(0, 32) : "") : userID.PadRight(32, ' ');
+                                            string signature = tokenArray.Length > 2 ? (tokenArray[2] == GlobalConfiguration.HostAccessID.ToSHA256() ? userID.PaddingRight(32) : "") : userID.PaddingRight(32);
                                             try
                                             {
                                                 bearerToken = JsonConvert.DeserializeObject<BearerToken>(token.DecryptAES(signature));
