@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 
 using HandStack.Web.Entity;
 
@@ -14,6 +15,14 @@ namespace HandStack.Web.Extensions
         {
             parameters.Add(new ServiceParameter() { prop = parameterName, val = value });
         }
+
+
+        public static List<ServiceParameter> ToServiceParameters(this object parameters)
+        {
+            var properties = parameters.GetType().GetProperties();
+            return properties.Select(p => new ServiceParameter(p.Name, p.GetValue(parameters)?.ToString())).ToList();
+        }
+
 
         public static DataSet? ToDataSet(this Dictionary<string, JToken>? transactionResult)
         {
