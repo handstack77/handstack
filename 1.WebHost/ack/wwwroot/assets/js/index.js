@@ -1,4 +1,4 @@
-/*!
+﻿/*!
 HandStack Javascript Library v2025.4.9
 https://handshake.kr
 
@@ -1323,12 +1323,12 @@ if (typeof module !== 'undefined' && module.exports) {
                 case 'd': return `${year}-${pad(month)}-${pad(day)}`;
                 case 't': return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
                 case 'a': return `${year}-${pad(month)}-${pad(day)} ${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
-                case 'i': return `${year}-${pad(month)}-${pad(day)}T${pad(hours)}:${pad(minutes)}:${pad(seconds)}.${pad(milliseconds, 3)} Z`; // Assuming UTC for ISO
+                case 'i': return `${year}-${pad(month)}-${pad(day)}T${pad(hours)}:${pad(minutes)}:${pad(seconds)}.${pad(milliseconds, 3)} Z`;
                 case 'f': return `${year}${pad(month)}${pad(day)}${pad(hours)}${pad(minutes)}${pad(seconds)}${pad(milliseconds, 3)}`;
                 case 's': return `${pad(hours)}${pad(minutes)}${pad(seconds)}${pad(milliseconds, 3)}`;
-                case 'n': return `${year}년 ${pad(month)}월 ${pad(day)} 일(${dayOfWeek})`;
-                case 'nt': return `${year}년 ${pad(month)}월 ${pad(day)} 일(${dayOfWeek}), ${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
-                case 'mdn': return `${pad(month)}월 ${pad(day)} 일`;
+                case 'n': return `${year}년 ${pad(month)}월 ${pad(day)}일 (${dayOfWeek})`;
+                case 'nt': return `${year}년 ${pad(month)}월 ${pad(day)}일 (${dayOfWeek}), ${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+                case 'mdn': return `${pad(month)}월 ${pad(day)}일`;
                 case 'w':
                     const opts = { weekStartSunday: true, ...options };
                     const yearNum = dateObj.getFullYear();
