@@ -1,11 +1,13 @@
 #!/bin/bash
 
+# Node.js 설치 확인
 if ! command -v node 2> ~/null; then
     echo "Node.js v20.12.2 LTS 이상 버전을 설치 해야 합니다."
     echo "참고: https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#homebrew-를-이용한-nodejs-설치"
     exit
 fi
 
+# Gulp 설치 확인
 if ! command -v gulp 2> ~/null; then
     echo "Node.js 기반 gulp CLI 도구를 설치 해야 합니다."
     if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -16,6 +18,7 @@ if ! command -v gulp 2> ~/null; then
     exit
 fi
 
+# Curl 설치 확인
 if ! command -v curl 2> ~/null; then
     echo "curl CLI 를 설치 해야 합니다."
     if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -27,7 +30,10 @@ if ! command -v curl 2> ~/null; then
 fi
 
 current_path=$(pwd)
+
+# 개발 환경 설정 (ack.csproj 존재 시)
 if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
+    # .NET Core 설치 및 버전 확인
     dotnet --version > /dev/null 2>&1
     if [ $? -ne 0 ]; then
         echo ".NET Core 8.0 버전을 설치 해야 합니다."
@@ -49,7 +55,8 @@ if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
         fi
         exit
     fi
-
+    
+    # 환경 변수 설정
     sudo sed -i '/export HANDSTACK_SRC=/d' /etc/profile
     echo "export HANDSTACK_SRC=\"$current_path\"" | sudo tee -a /etc/profile
     export HANDSTACK_SRC="$current_path"
@@ -61,7 +68,8 @@ if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
     source /etc/profile
 
     mkdir -p $current_path/1.WebHost/build/handstack
-
+    
+    # syn.js 번들링 (ack 프로젝트)
     echo "current_path: $current_path 개발 환경 설치 확인 중..."
     if [ ! -d "$current_path/1.WebHost/ack/node_modules" ]; then
         echo "syn.js 번들링 $current_path/package.json 설치를 시작합니다..."
@@ -71,11 +79,25 @@ if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
     fi
     
     cd $current_path
+    # lib.zip 압축 해제
     if [ ! -d "$current_path/2.Modules/wwwroot/wwwroot/lib" ]; then
         echo "lib.zip 파일을 해제합니다..."
         unzip -q -o $current_path/lib.zip -d $current_path/2.Modules/wwwroot/wwwroot/lib
     fi
+    
+    # libman 확인 및 자동 설치, 라이브러리 복원
+    cd $current_path/2.Modules/wwwroot/wwwroot
 
+    if ! command -v libman &> /dev/null; then
+        echo "libman 설치를 시도합니다..."
+        dotnet tool install --global Microsoft.Web.LibraryManager.Cli
+    fi
+    
+    # libman 확인 및 자동 설치, 라이브러리 복원
+    echo "$current_path/2.Modules/wwwroot/wwwroot 디렉토리에서 libman restore를 실행합니다..."
+    libman restore
+    
+    # wwwroot 모듈 node_modules 설치 및 gulp 실행
     if [ ! -d "$current_path/2.Modules/wwwroot/node_modules" ]; then
         echo "syn.bundle.js 모듈 $current_path/2.Modules/wwwroot/package.json 설치를 시작합니다..."
         cd $current_path/2.Modules/wwwroot
@@ -86,6 +108,7 @@ if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
         gulp
     fi
     
+    # 솔루션 빌드 및 Function 모듈 설치
     cd $current_path
     echo "current_path: $current_path"
     build_path=$current_path/1.WebHost/build/handstack
@@ -120,25 +143,31 @@ if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
     exit
 fi
 
+# 실행 환경 설정 (ack.dll 존재 시)
 if [ -f "$current_path/app/ack.dll" ]; then
     echo "current_path: $current_path ack 실행 환경 설치 확인 중..."
+    
+    # 환경 변수 설정
     sudo sed -i '/export HANDSTACK_HOME=/d' /etc/profile
     echo "export HANDSTACK_HOME=\"$current_path\"" | sudo tee -a /etc/profile
     export HANDSTACK_HOME="$current_path"
     source /etc/profile
-
+    
+    # 루트 node_modules 설치
     if [ ! -d "$current_path/node_modules" ]; then
         echo "function 모듈 $current_path/package.json 설치를 시작합니다..."
         npm install
         cp $current_path/app/wwwroot/assets/js node_modules/syn/index.js
     fi
-
+    
+    # app/node_modules 설치
     if [ ! -d "$current_path/app/node_modules" ]; then
         echo "syn.js 번들링 모듈 $current_path/app/package.json 설치를 시작합니다..."
         cd $current_path/app
         npm install
     fi
-
+    
+    # lib.zip 다운로드 및 해제
     if [ ! -d "$current_path/modules/wwwroot/wwwroot/lib" ]; then
         echo "클라이언트 라이브러리 $current_path/modules/wwwroot/wwwroot/lib 설치를 시작합니다..."
         cd $current_path/modules/wwwroot/wwwroot
@@ -149,21 +178,29 @@ if [ -f "$current_path/app/ack.dll" ]; then
         echo "lib.zip 파일을 해제합니다..."
         unzip -q -o lib.zip -d lib
     fi
+    
+    # libman 확인 및 자동 설치, 라이브러리 복원
+    cd $current_path/modules/wwwroot/wwwroot
 
+    if ! command -v libman &> /dev/null; then
+        echo "libman 설치를 시도합니다..."
+        dotnet tool install --global Microsoft.Web.LibraryManager.Cli
+    fi
+    
+    # libman 확인 및 자동 설치, 라이브러리 복원
+    echo "$current_path/modules/wwwroot/wwwroot 디렉토리에서 libman restore를 실행합니다..."
+    libman restore
+    
+    # modules/wwwroot/node_modules 설치 및 gulp 실행
     if [ ! -d "$current_path/modules/wwwroot/node_modules" ]; then
         echo "syn.bundle.js 모듈 $current_path/modules/wwwroot/package.json 설치를 시작합니다..."
         cd $current_path/modules/wwwroot
         npm install
         gulp
     fi
-
+    
+    # 완료 메시지
     cd $current_path
     echo "ack 실행 환경 설치가 완료되었습니다. 터미널에서 다음 경로의 프로그램을 실행하세요. $current_path/app/ack"
-    exit
-fi
-
-if [ ! -f "$current_path/app/ack.dll" ]; then
-    echo "ack 실행 환경 설치 경로 확인이 필요합니다. current_path: $current_path"
-    echo "참고: https://handstack.kr/docs/startup/빠른-시작"
     exit
 fi

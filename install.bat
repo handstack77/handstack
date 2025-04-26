@@ -1,6 +1,7 @@
 @echo off
 chcp 65001
 
+REM 필수 프로그램 설치 확인
 where winget >nul 2>nul
 if %errorlevel% neq 0 (
     echo winget 패키지 관리자를 설치 해야 합니다.
@@ -30,7 +31,10 @@ if %errorlevel% neq 0 (
 )
 
 set current_path=%cd%
+
+REM 개발 환경 설정 (ack.csproj 존재 시)
 if exist %current_path%\1.WebHost\ack\ack.csproj (
+    REM .NET Core 8.0 확인
 	where dotnet >nul 2>nul
 	if %errorlevel% neq 0 (
         echo .NET Core 8.0 버전을 설치 해야 합니다.
@@ -45,6 +49,7 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
 		goto :EOF
 	)
 
+    REM 환경 변수 설정
     setx HANDSTACK_SRC %current_path%
     set HANDSTACK_SRC=%current_path%
 
@@ -53,13 +58,16 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
     set HANDSTACK_HOME=%current_path%\1.WebHost\build\handstack
 
     echo current_path: %current_path% HandStack 개발 환경 설치 확인 중...
+
+    REM ack 프로젝트 node_modules 설치 및 gulp 실행
     if not exist %current_path%\1.WebHost\ack\node_modules (
         echo syn.js 번들링 %current_path%\package.json 설치를 시작합니다...
         cd %current_path%\1.WebHost\ack
         call npm install
         gulp
     )
-    
+
+    REM CLI 빌드 및 lib.zip 해제
     cd %current_path%
     if not exist %current_path%\2.Modules\wwwroot\wwwroot\lib (
         echo handstack CLI 도구를 빌드합니다...
@@ -69,6 +77,24 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
         ..\publish\win-x64\app\cli\handstack extract --file=%current_path%\lib.zip --directory=%current_path%\2.Modules\wwwroot\wwwroot\lib
     )
 
+    REM libman 확인 및 자동 설치, 라이브러리 복원
+    echo libman 도구 확인 및 라이브러리 복원을 시작합니다...
+    cd %current_path%\2.Modules\wwwroot\wwwroot
+
+    REM libman 명령어가 PATH에 있는지 확인합니다.
+    where libman >nul 2>nul
+    REM %errorlevel%가 0이 아니면 libman이 설치되지 않은 것입니다.
+    if %errorlevel% neq 0 (
+        echo libman CLI 도구가 설치되어 있지 않습니다. 지금 .NET 전역 도구로 설치합니다...
+        REM dotnet tool install 명령을 실행하여 libman을 전역으로 설치합니다.
+        call dotnet tool install --global Microsoft.Web.LibraryManager.Cli
+    )
+
+    REM libman이 설치되어 있거나 방금 설치가 완료되었으므로 restore 명령을 실행합니다.
+    echo libman restore 명령을 실행합니다 (%cd%)...
+    call libman restore
+
+    REM wwwroot 모듈 node_modules 설치 및 gulp 실행
     if not exist %current_path%\2.Modules\wwwroot\node_modules (
         echo syn.bundle.js 모듈 %current_path%\2.Modules\wwwroot\package.json 설치를 시작합니다...
         cd %current_path%\2.Modules\wwwroot
@@ -77,7 +103,8 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
         echo syn.controls, syn.scripts, syn.bundle 번들링을 시작합니다...
         gulp
     )
-    
+
+    REM 솔루션 빌드 및 Function 모듈 설치
     cd %current_path%
 	echo current_path: %current_path%
 
@@ -91,32 +118,38 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
         call npm install
         robocopy %current_path%\1.WebHost\ack\wwwroot\assets\js %current_path%\1.WebHost\build\handstack\node_modules\syn index.js /copy:dat
     )
-    
+
     cd %current_path%
     robocopy %current_path%\1.WebHost\ack\wwwroot\assets\js %current_path%\1.WebHost\build\handstack\node_modules\syn index.js /copy:dat
 
     echo HandStack 개발 환경 설치가 완료되었습니다. Visual Studio 개발 도구로 handstack.sln 를 실행하세요. 자세한 정보는 https://handstack.kr 를 참고하세요.
 )
 
+REM 실행 환경 설정 (ack.exe 존재 시)
 if exist %current_path%\app\ack.exe (
     echo current_path: %current_path% ack 실행 환경 설치 확인 중...
+
+    REM 환경 변수 설정
     if "%HANDSTACK_HOME%" == "" (
         setx HANDSTACK_HOME %current_path%
         set HANDSTACK_HOME=%current_path%
     )
 
+    REM 루트 node_modules 설치
     if not exist %current_path%\node_modules (
         echo function 모듈 %current_path%\package.json 설치를 시작합니다...
         call npm install
         robocopy %current_path%\app\wwwroot\assets\js node_modules\syn index.js /copy:dat
     )
 
+    REM app/node_modules 설치
     if not exist %current_path%\app\node_modules (
         echo syn.js 번들링 모듈 %current_path%\app\package.json 설치를 시작합니다...
         cd %current_path%\app
         call npm install
     )
 
+    REM lib.zip 다운로드 및 해제
     if not exist %current_path%\modules\wwwroot\wwwroot\lib (
         echo 클라이언트 라이브러리 %current_path%\modules\wwwroot\wwwroot\lib 설치를 시작합니다...
         cd %current_path%\modules\wwwroot\wwwroot
@@ -128,16 +161,32 @@ if exist %current_path%\app\ack.exe (
         %current_path%\app\cli\handstack extract --file=%current_path%\modules\wwwroot\wwwroot\lib.zip --directory=%current_path%\modules\wwwroot\wwwroot\lib
     )
 
+    REM libman 확인 및 자동 설치, 라이브러리 복원
+    echo libman 도구 확인 및 라이브러리 복원을 시작합니다...
+    cd %current_path%\modules\wwwroot\wwwroot
+
+    REM libman 명령어가 PATH에 있는지 확인합니다.
+    where libman >nul 2>nul
+    REM %errorlevel%가 0이 아니면 libman이 설치되지 않은 것입니다.
+    if %errorlevel% neq 0 (
+        echo libman CLI 도구가 설치되어 있지 않습니다. 지금 .NET 전역 도구로 설치합니다...
+        REM dotnet tool install 명령을 실행하여 libman을 전역으로 설치합니다.
+        call dotnet tool install --global Microsoft.Web.LibraryManager.Cli
+    )
+
+    REM libman이 설치되어 있거나 방금 설치가 완료되었으므로 restore 명령을 실행합니다.
+    echo libman restore 명령을 실행합니다 (%cd%)...
+    call libman restore
+
+    REM modules/wwwroot/node_modules 설치 및 gulp 실행
     if not exist %current_path%\modules\wwwroot\node_modules (
         echo syn.bundle.js 모듈 %current_path%\modules\wwwroot\package.json 설치를 시작합니다...
         cd %current_path%\modules\wwwroot
         call npm install
         gulp
     )
-    
+
+    REM 완료 메시지
     cd %current_path%
     echo ack 실행 환경 설치가 완료되었습니다. 터미널에서 다음 경로의 프로그램을 실행하세요. %current_path%\app\ack.exe
 )
-
-:EOF
-echo 배치 스크립트가 완료 되었습니다.
