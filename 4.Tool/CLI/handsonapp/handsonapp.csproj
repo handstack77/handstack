@@ -34,14 +34,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="contracts\dbclient\HDS\" />
-        <Folder Include="contracts\function\csharp\HDS\" />
-        <Folder Include="contracts\function\javascript\HDS\" />
-        <Folder Include="contracts\transact\HDS\" />
-        <Folder Include="wwwroot\checkup\wwwroot\view\" />
-    </ItemGroup>
-
-    <ItemGroup>
         <Reference Include="HandStack.Core">
             <HintPath>../../../3.Infrastructure/Assemblies/HandStack.Core.dll</HintPath>
         </Reference>

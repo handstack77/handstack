@@ -152,14 +152,14 @@ namespace handstack
                         }
 
                         string commandLine = "";
-                        string commandLineScript = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true ? $"wmic process where processid={process.Id} get CommandLine" : $"ps -fp {process.Id} | awk '{{print $NF}}'";
+                        string commandLineScript = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true ? $"powershell -NoProfile -Command \"Get-CimInstance Win32_Process | Where-Object {{ $_.ProcessId -eq {process.Id} }} | Select-Object -ExpandProperty CommandLine\"" : $"ps -fp {process.Id} | awk '{{print $NF}}'";
                         var commandLineResult = CommandHelper.RunScript($"{commandLineScript}", false, true, true);
                         if (commandLineResult.Count > 0 && commandLineResult[0].Item1 == 0)
                         {
                             string commandLineOutput = commandLineResult[0].Item2.ToStringSafe();
                             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true)
                             {
-                                commandLine = commandLineOutput.Replace("CommandLine", "").Replace("\n", "").Replace("\r", "").Trim();
+                                commandLine = commandLineOutput.Replace("\\", "/").Replace("CommandLine", "").Replace("\n", "").Replace("\r", "").Trim();
                             }
                             else
                             {
