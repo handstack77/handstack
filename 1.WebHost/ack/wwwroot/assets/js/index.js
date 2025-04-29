@@ -5333,51 +5333,61 @@ if (typeof module !== 'undefined' && module.exports) {
         transactionDirect(directObject, callback, options) {
             if (!directObject) {
                 syn.$l.eventLog('$w.transactionDirect', 'directObject 파라미터가 필요합니다.', 'Error');
-                return;
+                return Promise.reject(new Error('directObject 파라미터가 필요합니다.'));
             }
 
-            if (syn.$w.progressMessage && !(directObject.noProgress === true)) {
-                syn.$w.progressMessage();
-            }
-
-            const transactionObj = syn.$w.transactionObject(directObject.functionID, 'Json');
-
-            transactionObj.programID = directObject.programID || syn.Config.ApplicationID;
-            transactionObj.moduleID = directObject.moduleID || (globalRoot.devicePlatform === 'browser' ? location.pathname.split('/').filter(Boolean)[0] : undefined) || syn.Config.ModuleID;
-            transactionObj.businessID = directObject.businessID || syn.Config.ProjectID;
-            transactionObj.systemID = directObject.systemID || globalRoot.$this?.config?.systemID || syn.Config.SystemID;
-            transactionObj.transactionID = directObject.transactionID;
-            transactionObj.dataMapInterface = directObject.dataMapInterface || 'Row|Form';
-            transactionObj.transactionResult = directObject.transactionResult ?? true;
-            transactionObj.screenID = globalRoot.devicePlatform === 'node'
-                ? (directObject.screenID || directObject.transactionID)
-                : (syn.$w.pageScript?.replace('$', '') ?? '');
-            transactionObj.startTraceID = directObject.startTraceID || options?.startTraceID || '';
-            transactionObj.inputObjects = directObject.inputObjects || [];
-
-            const mergedOptions = syn.$w.argumentsExtend({
-                message: '', dynamic: 'Y', authorize: 'N', commandType: 'D',
-                returnType: 'Json', transactionScope: 'N', transactionLog: 'Y'
-            }, options);
-            transactionObj.options = mergedOptions;
-
-
-            if (directObject.inputLists?.length > 0) {
-                transactionObj.inputs.push(...directObject.inputLists);
-                transactionObj.inputsItemCount.push(directObject.inputLists.length);
-            } else if (directObject.inputObjects) {
-                transactionObj.inputs.push(directObject.inputObjects);
-                transactionObj.inputsItemCount.push(1);
-            }
-
-            syn.$w.executeTransaction(directObject, transactionObj, (responseData, additionalData) => {
-                if (callback) {
-                    try {
-                        callback(responseData, additionalData);
-                    } catch (e) {
-                        syn.$l.eventLog('$w.transactionDirect.callback', `콜백 오류: ${e}`, 'Error');
-                    }
+            return new Promise((resolve, reject) => {
+                if (syn.$w.progressMessage && !(directObject.noProgress === true)) {
+                    syn.$w.progressMessage();
                 }
+
+                const transactionObj = syn.$w.transactionObject(directObject.functionID, 'Json');
+
+                transactionObj.programID = directObject.programID || syn.Config.ApplicationID;
+                transactionObj.moduleID = directObject.moduleID || (globalRoot.devicePlatform === 'browser' ? location.pathname.split('/').filter(Boolean)[0] : undefined) || syn.Config.ModuleID;
+                transactionObj.businessID = directObject.businessID || syn.Config.ProjectID;
+                transactionObj.systemID = directObject.systemID || globalRoot.$this?.config?.systemID || syn.Config.SystemID;
+                transactionObj.transactionID = directObject.transactionID;
+                transactionObj.dataMapInterface = directObject.dataMapInterface || 'Row|Form';
+                transactionObj.transactionResult = directObject.transactionResult ?? true;
+                transactionObj.screenID = globalRoot.devicePlatform === 'node'
+                    ? (directObject.screenID || directObject.transactionID)
+                    : (syn.$w.pageScript?.replace('$', '') ?? '');
+                transactionObj.startTraceID = directObject.startTraceID || options?.startTraceID || '';
+                transactionObj.inputObjects = directObject.inputObjects || [];
+
+                const mergedOptions = syn.$w.argumentsExtend({
+                    message: '', dynamic: 'Y', authorize: 'N', commandType: 'D',
+                    returnType: 'Json', transactionScope: 'N', transactionLog: 'Y'
+                }, options);
+                transactionObj.options = mergedOptions;
+
+                if (directObject.inputLists?.length > 0) {
+                    transactionObj.inputs.push(...directObject.inputLists);
+                    transactionObj.inputsItemCount.push(directObject.inputLists.length);
+                } else if (directObject.inputObjects) {
+                    transactionObj.inputs.push(directObject.inputObjects);
+                    transactionObj.inputsItemCount.push(1);
+                }
+
+                syn.$w.executeTransaction(directObject, transactionObj, (responseData, additionalData) => {
+                    if (callback) {
+                        try {
+                            callback(responseData, additionalData);
+                        } catch (e) {
+                            const error = new Error(`콜백 오류: ${e}`);
+                            syn.$l.eventLog('$w.transactionDirect.callback', error.message, 'Error');
+                            reject(error);
+                            return;
+                        }
+                    }
+
+                    if (responseData && responseData.errorText) {
+                        reject(new Error(responseData.errorText));
+                    } else {
+                        resolve({ responseData, additionalData });
+                    }
+                });
             });
         },
 
@@ -7137,7 +7147,7 @@ if (typeof module !== 'undefined' && module.exports) {
                         sourceIP: ipAddress,
                         sourcePort: 0,
                         sourceMAC: '',
-                        connectionType: globalRoot.devicePlatform == 'node' ? 'unknown' : navigator.connection.effectiveType,
+                        connectionType: globalRoot.devicePlatform == 'node' ? 'unknown' : navigator.connection?.effectiveType,
                         timeout: syn.Config.TransactionTimeout
                     },
                     transaction: {
