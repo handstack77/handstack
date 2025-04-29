@@ -1,5 +1,5 @@
 ﻿/*!
-HandStack Javascript Library v2025.4.9
+HandStack Javascript Library v2025.4.29
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -7207,6 +7207,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 ? (directObject.screenID || directObject.transactionID)
                 : (syn.$w.pageScript?.replace('$', '') ?? '');
             transactionObj.startTraceID = directObject.startTraceID || options?.startTraceID || '';
+            transactionObj.inputObjects = directObject.inputObjects || [];
 
             const mergedOptions = syn.$w.argumentsExtend({
                 message: '', dynamic: 'Y', authorize: 'N', commandType: 'D',
@@ -8791,11 +8792,13 @@ if (typeof module !== 'undefined' && module.exports) {
         }),
 
         async executeTransaction(config, transactionObject, callback, async, token) {
+            const fallback = transactionObject?.fallback || function () { };
             if ($object.isNullOrUndefined(config) == true || $object.isNullOrUndefined(transactionObject) == true) {
                 if (globalRoot.devicePlatform === 'browser') {
                     alert('서비스 호출에 필요한 거래 정보가 구성되지 않았습니다');
                 }
                 syn.$l.eventLog('$w.executeTransaction', '서비스 호출에 필요한 거래 정보 확인 필요', 'Error');
+                fallback(config, transactionObject);
                 return;
             }
 
@@ -8822,6 +8825,7 @@ if (typeof module !== 'undefined' && module.exports) {
                     }
                     else {
                         syn.$l.eventLog('$w.executeTransaction', '서비스 호출에 필요한 DomainAPIServer 정보 확인 필요', 'Error');
+                        fallback(config, transactionObject);
                     }
                 }
                 else {
@@ -8836,6 +8840,7 @@ if (typeof module !== 'undefined' && module.exports) {
                     }
                     else {
                         syn.$l.eventLog('$w.executeTransaction', '서비스 호출에 필요한 DomainAPIServer 정보 확인 필요', 'Error');
+                        fallback(config, transactionObject);
                     }
                 }
             }
@@ -8859,6 +8864,7 @@ if (typeof module !== 'undefined' && module.exports) {
                     }
                     else {
                         syn.$l.eventLog('$w.executeTransaction', '서비스 호출에 필요한 DomainAPIServer 정보 확인 필요', 'Error');
+                        fallback(config, transactionObject);
                     }
                 }
                 else {
@@ -8873,6 +8879,7 @@ if (typeof module !== 'undefined' && module.exports) {
                     }
                     else {
                         syn.$l.eventLog('$w.executeTransaction', '서비스 호출에 필요한 DomainAPIServer 정보 확인 필요', 'Error');
+                        fallback(config, transactionObject);
                     }
                 }
             }
@@ -8884,10 +8891,12 @@ if (typeof module !== 'undefined' && module.exports) {
 
             if (apiService == null) {
                 syn.$l.eventLog('$w.executeTransaction', 'apiService 확인 필요', 'Fatal');
+                fallback(config, transactionObject);
             }
             else {
                 if (apiService.exceptionText) {
                     syn.$l.eventLog('$w.executeTransaction', 'apiService 확인 필요 SystemID: {0}, ServerType: {1}, Message: {2}'.format(config.systemID, syn.Config.Environment.substring(0, 1), apiService.exceptionText), 'Fatal');
+                    fallback(config, transactionObject);
                     return;
                 }
 
@@ -8896,7 +8905,7 @@ if (typeof module !== 'undefined' && module.exports) {
                     ipAddress = await syn.$r.httpFetch(syn.Config.FindClientIPServer || '/checkip').send(null, {
                         method: 'GET',
                         redirect: 'follow',
-                        timeout: 1000
+                        timeout: 3000
                     });
                 }
 
@@ -8938,7 +8947,7 @@ if (typeof module !== 'undefined' && module.exports) {
                     }, {
                         method: 'POST',
                         redirect: 'follow',
-                        timeout: 1000
+                        timeout: 3000
                     });
                 }
 
@@ -9016,6 +9025,7 @@ if (typeof module !== 'undefined' && module.exports) {
                         const item = transactionObject.options[key];
 
                         if (key == 'encryptionType' || key == 'encryptionKey' || key == 'platform') {
+                            fallback(config, transactionObject);
                             throw new Error('{0} 옵션 사용 불가'.format(key));
                         }
                         else {
@@ -9079,6 +9089,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 if (transactionRequest.transaction.dataFormat == 'J' || transactionRequest.transaction.dataFormat == 'T') {
                 }
                 else {
+                    fallback(config, transactionObject);
                     throw new Error('transaction.dataFormat 확인 필요: {0}'.format(transactionRequest.transaction.dataFormat));
                 }
 
@@ -9148,6 +9159,8 @@ if (typeof module !== 'undefined' && module.exports) {
 
                     if (syn.$w.setServiceClientHeader) {
                         if (syn.$w.setServiceClientHeader(xhr) == false) {
+                            syn.$l.eventLog('$w.executeTransaction', 'setServiceClientHeader 전송 안함', 'Warning');
+                            fallback(config, transactionObject);
                             return;
                         }
                     }
@@ -9177,11 +9190,14 @@ if (typeof module !== 'undefined' && module.exports) {
                                 if (syn.$w.domainTransactionLoaderEnd) {
                                     syn.$w.domainTransactionLoaderEnd();
                                 }
+                                fallback(config, transactionObject);
                                 return;
                             }
 
                             if (syn.$w.clientTag && syn.$w.serviceClientInterceptor) {
                                 if (syn.$w.serviceClientInterceptor(syn.$w.clientTag, xhr) === false) {
+                                    syn.$l.eventLog('$w.executeTransaction', 'serviceClientInterceptor 전송 안함', 'Warning');
+                                    fallback(config, transactionObject);
                                     return;
                                 }
                             }
@@ -9300,6 +9316,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                                 callback(jsonResult, addtionalData, transactionResponse.correlationID);
                                             } catch (error) {
                                                 syn.$l.eventLog('$w.executeTransaction callback', `executeTransaction 콜백 오류: ${error}`, 'Error');
+                                                fallback(config, transactionObject);
                                             }
                                         }
                                     }
@@ -9310,6 +9327,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                             syn.$w.serviceClientException('요청오류', errorMessage, errorText);
                                         }
                                         syn.$l.eventLog('$w.executeTransaction', `거래 실행 오류: ${errorText}`, 'Warning');
+                                        fallback(config, transactionObject);
 
                                         if (globalRoot.devicePlatform === 'browser') {
                                             if ($this && $this.hook && $this.hook.frameEvent) {
@@ -9353,6 +9371,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                                 }
                                             } catch (error) {
                                                 syn.$l.eventLog('$w.executeTransaction', `executeTransaction 오류: ${error}`, 'Error');
+                                                fallback(config, transactionObject);
                                             }
                                         }
 
@@ -9360,6 +9379,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                             callback(transactionResponse, null, transactionResponse.correlationID);
                                         } catch (error) {
                                             syn.$l.eventLog('$w.executeTransaction callback', `executeTransaction 콜백 오류: ${error}`, 'Error');
+                                            fallback(config, transactionObject);
                                         }
                                     }
                                 }
@@ -9370,6 +9390,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                     syn.$w.serviceClientException('요청오류', errorMessage, error.stack);
                                 }
                                 syn.$l.eventLog('$w.executeTransaction', `executeTransaction 오류: ${error}`, 'Error');
+                                fallback(config, transactionObject);
 
                                 if (globalRoot.devicePlatform === 'browser') {
                                     if ($this && $this.hook && $this.hook.frameEvent) {
@@ -9387,6 +9408,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                             callback([], null);
                                         } catch (error) {
                                             syn.$l.eventLog('$w.executeTransaction callback', `executeTransaction 콜백 오류: ${error}`, 'Error');
+                                            fallback(config, transactionObject);
                                         }
                                     }
                                 }

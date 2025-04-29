@@ -61,3 +61,15 @@ if "%TASK_COMMAND%"=="start" (
 if "%TASK_COMMAND%"=="stop" (
     call pm2 stop ack
 )
+
+if "%TASK_COMMAND%"=="build" (
+    for /f "tokens=*" %%i in ('pm2 id ack 2^>nul') do (
+        if not "%%i"=="[]" (
+            call pm2 stop ack
+        )
+    )
+    
+    dotnet clean
+    dotnet build
+    pm2 start %HANDSTACK_ACK% --name ack --no-autorestart -e utf-8
+)

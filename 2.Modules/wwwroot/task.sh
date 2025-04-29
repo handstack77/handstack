@@ -72,3 +72,13 @@ fi
 if [ "$TASK_COMMAND" == "stop" ]; then
     pm2 stop ack
 fi
+
+if [ "$TASK_COMMAND" == "build" ]; then
+    if [ "$(pm2 id ack 2>/dev/null)" != "[]" ]; then
+        pm2 stop ack
+    fi
+    
+    dotnet clean
+    dotnet build
+    pm2 start $HANDSTACK_ACK --name ack --no-autorestart -e utf-8
+fi
