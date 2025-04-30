@@ -20,7 +20,7 @@ namespace HandStack.Web.Entity
                     {
                         if (formData.Value.ContainsKey(dataTable.Columns[colIndex].ColumnName) == false)
                         {
-                            formData.Value.Add(dataTable.Columns[colIndex].ColumnName, item?.ToString());
+                            formData.Value.Add(dataTable.Columns[colIndex].ColumnName, item);
                         }
                         colIndex++;
                     }
@@ -45,7 +45,7 @@ namespace HandStack.Web.Entity
                 {
                     if (formData.Value.ContainsKey(source.Columns[colIndex].ColumnName) == false)
                     {
-                        formData.Value.Add(source.Columns[colIndex].ColumnName, item?.ToString());
+                        formData.Value.Add(source.Columns[colIndex].ColumnName, item);
                     }
                     colIndex++;
                 }
@@ -79,7 +79,7 @@ namespace HandStack.Web.Entity
                     {
                         if (formData.Value.ContainsKey(source.GetName(i)) == false)
                         {
-                            formData.Value.Add(source.GetName(i), source[i].ToString());
+                            formData.Value.Add(source.GetName(i), source[i]);
                         }
                     }
                 }
