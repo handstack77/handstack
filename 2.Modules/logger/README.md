@@ -6,6 +6,17 @@
 
 ```powershell
 Get-Content -Path "$env:HANDSTACK_HOME\log\app$(Get-Date -Format 'yyyyMMdd').log" -Encoding UTF8 -Wait -Tail 300
+Get-Content -Path "$env:HANDSTACK_HOME\log\dbclient\module$(Get-Date -Format 'yyyyMMdd').log" -Encoding UTF8 -Wait -Tail 300
+Get-Content -Path "$env:HANDSTACK_HOME\log\dbclient\profile$(Get-Date -Format 'yyyyMMdd').log" -Encoding UTF8 -Wait -Tail 300
+Get-Content -Path "$env:HANDSTACK_HOME\log\transact\module$(Get-Date -Format 'yyyyMMdd').log" -Encoding UTF8 -Wait -Tail 300
+```
+
+### 일반 터미널에서 실행
+```batch
+powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "Get-Content -Path \"$env:HANDSTACK_HOME\log\app$(Get-Date -Format 'yyyyMMdd').log\" -Encoding UTF8 -Wait -Tail 300"
+powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "Get-Content -Path \"$env:HANDSTACK_HOME\log\dbclient\module$(Get-Date -Format 'yyyyMMdd').log\" -Encoding UTF8 -Wait -Tail 300"
+powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "Get-Content -Path \"$env:HANDSTACK_HOME\log\dbclient\profile$(Get-Date -Format 'yyyyMMdd').log\" -Encoding UTF8 -Wait -Tail 300"
+powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "Get-Content -Path \"$env:HANDSTACK_HOME\log\transact\module$(Get-Date -Format 'yyyyMMdd').log\" -Encoding UTF8 -Wait -Tail 300"
 ```
 
 ### 주요 매개변수 설명
@@ -21,6 +32,9 @@ Get-Content -Path "$env:HANDSTACK_HOME\log\app$(Get-Date -Format 'yyyyMMdd').log
 
 ```bash
 tail -n 300 -f "$HANDSTACK_HOME/log/app$(date +%Y%m%d).log"
+tail -n 300 -f "$HANDSTACK_HOME/log/dbclient/module$(date +%Y%m%d).log"
+tail -n 300 -f "$HANDSTACK_HOME/log/dbclient/profile$(date +%Y%m%d).log"
+tail -n 300 -f "$HANDSTACK_HOME/log//transact/module$(date +%Y%m%d).log"
 ```
 
 ### 주요 매개변수 설명
