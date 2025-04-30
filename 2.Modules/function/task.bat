@@ -61,6 +61,6 @@ if "%TASK_COMMAND%"=="build" (
     )
     
     dotnet clean
-    dotnet build
+    dotnet build --no-restore --no-incremental
     pm2 start %HANDSTACK_ACK% --name ack --no-autorestart
 )

@@ -66,7 +66,7 @@ if [ "$TASK_COMMAND" == "www" ]; then
 fi
 
 if [ "$TASK_COMMAND" == "start" ]; then
-    pm2 start $HANDSTACK_ACK --name ack
+    pm2 start $HANDSTACK_ACK --name ack --no-autorestart
 fi
 
 if [ "$TASK_COMMAND" == "stop" ]; then
@@ -79,6 +79,6 @@ if [ "$TASK_COMMAND" == "build" ]; then
     fi
     
     dotnet clean
-    dotnet build
+    dotnet build --no-restore --no-incremental
     pm2 start $HANDSTACK_ACK --name ack --no-autorestart
 fi
