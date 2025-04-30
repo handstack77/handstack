@@ -71,5 +71,5 @@ if "%TASK_COMMAND%"=="build" (
     
     dotnet clean
     dotnet build
-    pm2 start %HANDSTACK_ACK% --name ack --no-autorestart -e utf-8
+    pm2 start %HANDSTACK_ACK% --name ack --no-autorestart
 )
