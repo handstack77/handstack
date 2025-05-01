@@ -94,8 +94,8 @@ if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
     fi
     
     # libman 확인 및 자동 설치, 라이브러리 복원
-    echo "$current_path/2.Modules/wwwroot 디렉토리에서 libman restore를 실행합니다..."
-    libman restore
+    # echo "$current_path/2.Modules/wwwroot 디렉토리에서 libman restore를 실행합니다..."
+    # libman restore
     
     # wwwroot 모듈 node_modules 설치 및 gulp 실행
     if [ ! -d "$current_path/2.Modules/wwwroot/node_modules" ]; then
@@ -188,8 +188,8 @@ if [ -f "$current_path/app/ack.dll" ]; then
     fi
     
     # libman 확인 및 자동 설치, 라이브러리 복원
-    echo "$current_path/modules/wwwroot 디렉토리에서 libman restore를 실행합니다..."
-    libman restore
+    # echo "$current_path/modules/wwwroot 디렉토리에서 libman restore를 실행합니다..."
+    # libman restore
     
     # modules/wwwroot/node_modules 설치 및 gulp 실행
     if [ ! -d "$current_path/modules/wwwroot/node_modules" ]; then

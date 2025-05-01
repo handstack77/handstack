@@ -91,8 +91,8 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
     )
 
     REM libman이 설치되어 있거나 방금 설치가 완료되었으므로 restore 명령을 실행합니다.
-    echo "libman restore 명령을 실행합니다 (%cd%)..."
-    call libman restore
+    REM echo "libman restore 명령을 실행합니다 (%cd%)..."
+    REM call libman restore
 
     REM wwwroot 모듈 node_modules 설치 및 gulp 실행
     if not exist %current_path%\2.Modules\wwwroot\node_modules (
@@ -175,8 +175,8 @@ if exist %current_path%\app\ack.exe (
     )
 
     REM libman이 설치되어 있거나 방금 설치가 완료되었으므로 restore 명령을 실행합니다.
-    echo "libman restore 명령을 실행합니다 (%cd%)..."
-    call libman restore
+    REM echo "libman restore 명령을 실행합니다 (%cd%)..."
+    REM call libman restore
 
     REM modules/wwwroot/node_modules 설치 및 gulp 실행
     if not exist %current_path%\modules\wwwroot\node_modules (
