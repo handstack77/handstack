@@ -79,7 +79,7 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
 
     REM libman 확인 및 자동 설치, 라이브러리 복원
     echo libman 도구 확인 및 라이브러리 복원을 시작합니다...
-    cd %current_path%\2.Modules\wwwroot\wwwroot
+    cd %current_path%\2.Modules\wwwroot
 
     REM libman 명령어가 PATH에 있는지 확인합니다.
     where libman >nul 2>nul
@@ -91,7 +91,7 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
     )
 
     REM libman이 설치되어 있거나 방금 설치가 완료되었으므로 restore 명령을 실행합니다.
-    echo libman restore 명령을 실행합니다 (%cd%)...
+    echo "libman restore 명령을 실행합니다 (%cd%)..."
     call libman restore
 
     REM wwwroot 모듈 node_modules 설치 및 gulp 실행
@@ -163,7 +163,7 @@ if exist %current_path%\app\ack.exe (
 
     REM libman 확인 및 자동 설치, 라이브러리 복원
     echo libman 도구 확인 및 라이브러리 복원을 시작합니다...
-    cd %current_path%\modules\wwwroot\wwwroot
+    cd %current_path%\modules\wwwroot
 
     REM libman 명령어가 PATH에 있는지 확인합니다.
     where libman >nul 2>nul
@@ -175,7 +175,7 @@ if exist %current_path%\app\ack.exe (
     )
 
     REM libman이 설치되어 있거나 방금 설치가 완료되었으므로 restore 명령을 실행합니다.
-    echo libman restore 명령을 실행합니다 (%cd%)...
+    echo "libman restore 명령을 실행합니다 (%cd%)..."
     call libman restore
 
     REM modules/wwwroot/node_modules 설치 및 gulp 실행

@@ -13,7 +13,7 @@ os_mode=${1:-linux}
 action_mode=${2:-build}
 
 # Debug, Release
-configuration_mode=${3:-Debug}
+configuration_mode=${3:-Release}
 
 # x64, x86, arm64
 arch_mode=${4:-x64}
@@ -53,10 +53,10 @@ chmod +x 2.Modules/wwwroot/post-build.sh
 tr -d '\r' < 4.Tool/CLI/handstack/post-build.sh > 4.Tool/CLI/handstack/post-build_fixed.sh && mv 4.Tool/CLI/handstack/post-build_fixed.sh 4.Tool/CLI/handstack/post-build.sh
 chmod +x 4.Tool/CLI/handstack/post-build.sh
 
-dotnet $action_mode 1.WebHost/ack/ack.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/app
-dotnet $action_mode 1.WebHost/forbes/forbes.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/forbes
-dotnet publish 4.Tool/CLI/handstack/handstack.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/app/cli
-dotnet publish 4.Tool/CLI/edgeproxy/edgeproxy.csproj --configuration Release --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/app/cli
+dotnet $action_mode -p:Optimize=true 1.WebHost/ack/ack.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/app
+dotnet $action_mode -p:Optimize=true 1.WebHost/forbes/forbes.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/forbes
+dotnet $action_mode -p:Optimize=true 4.Tool/CLI/handstack/handstack.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/app/cli
+dotnet $action_mode -p:Optimize=true 4.Tool/CLI/edgeproxy/edgeproxy.csproj --configuration Release --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/app/cli
 
 forbes_path=../publish/$os_mode-$arch_mode/handstack/forbes
 mv $forbes_path/wwwroot/* $forbes_path
@@ -68,15 +68,15 @@ if [ -d "$contracts_path" ]; then
     rm -rf $contracts_path/*
 fi
 
-dotnet build 2.Modules/dbclient/dbclient.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/modules/dbclient
-dotnet build 2.Modules/function/function.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/modules/function
-dotnet build 2.Modules/logger/logger.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/modules/logger
-dotnet build 2.Modules/repository/repository.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/modules/repository
-dotnet build 2.Modules/transact/transact.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/modules/transact
-dotnet build 2.Modules/wwwroot/wwwroot.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/modules/wwwroot
-dotnet build 2.Modules/checkup/checkup.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/modules/checkup
-dotnet build 2.Modules/openapi/openapi.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/modules/openapi
-dotnet build 2.Modules/prompter/prompter.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/modules/prompter
+dotnet $action_mode -p:Optimize=true 2.Modules/dbclient/dbclient.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/modules/dbclient
+dotnet $action_mode -p:Optimize=true 2.Modules/function/function.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/modules/function
+dotnet $action_mode -p:Optimize=true 2.Modules/logger/logger.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/modules/logger
+dotnet $action_mode -p:Optimize=true 2.Modules/repository/repository.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/modules/repository
+dotnet $action_mode -p:Optimize=true 2.Modules/transact/transact.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/modules/transact
+dotnet $action_mode -p:Optimize=true 2.Modules/wwwroot/wwwroot.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/modules/wwwroot
+dotnet $action_mode -p:Optimize=true 2.Modules/checkup/checkup.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/modules/checkup
+dotnet $action_mode -p:Optimize=true 2.Modules/openapi/openapi.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/modules/openapi
+dotnet $action_mode -p:Optimize=true 2.Modules/prompter/prompter.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../publish/$os_mode-$arch_mode/handstack/modules/prompter
 
 rsync -avq 1.WebHost/build/handstack/contracts/ ../publish/$os_mode-$arch_mode/handstack/contracts
 rsync -av --progress ./install.* ../publish/$os_mode-$arch_mode/handstack
