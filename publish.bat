@@ -1,6 +1,10 @@
 @echo off
 chcp 65001
 
+REM publish.bat win build Debug x64
+REM publish.bat linux build Debug x64
+REM publish.bat osx build Debug x64
+REM publish.bat osx build Debug arm64
 REM publish.bat win build Debug x64 ..\custom-path
 
 REM win, linux, osx

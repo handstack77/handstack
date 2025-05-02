@@ -186,7 +186,7 @@ namespace checkup
                 }
                 catch (Exception exception)
                 {
-                    Log.Logger.Error("[{LogCategory}] " + $"{JsonConvert.SerializeObject(connectionString)} 확인 필요: " + exception.ToMessage(), "DatabaseMapper/DecryptConnectionString");
+                    Log.Logger.Error("[{LogCategory}] " + $"{JsonConvert.SerializeObject(connectionString)} 확인 필요: " + exception.ToMessage(), "ModuleInitializer/DecryptConnectionString");
                 }
             }
 

@@ -68,7 +68,7 @@ namespace ack
 
             if (Array.Exists(args, p => p == "--showenv") == true)
             {
-                Log.Information($"Bootstrapping IConfigurationRoot... {GlobalConfiguration.BootstrappingVariables(configuration)}");
+                Log.Information($"Bootstrapping IConfigurationRoot.... {GlobalConfiguration.BootstrappingVariables(configuration)}");
             }
 
             host = CreateWebHostBuilder(port, args).Build();
@@ -92,11 +92,6 @@ namespace ack
             {
                 Log.Information($"ack Port: {port}, SslPort: {GlobalConfiguration.ServerDevCertSslPort} Start...");
             }
-
-            _ = Task.Run(async () =>
-            {
-                await BackgroundTaskAsync();
-            });
 
             GlobalConfiguration.IsRunning = true;
             await host.RunAsync(cancellationTokenSource.Token);
@@ -168,46 +163,6 @@ namespace ack
                 })
                 .UseWindowsService()
                 .UseSystemd();
-        }
-
-        private static async Task BackgroundTaskAsync()
-        {
-            string moduleConfigurationUrl = "";
-            try
-            {
-                var client = new RestClient();
-                foreach (var item in GlobalConfiguration.ModuleConfigurationUrl)
-                {
-                    moduleConfigurationUrl = item;
-                    if (Uri.TryCreate(moduleConfigurationUrl, UriKind.Absolute, out var uriResult) && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps) == true)
-                    {
-                        Log.Information($"ModuleConfigurationUrl: {item} 요청");
-
-                        Uri baseUri = new Uri(item);
-                        var request = new RestRequest(baseUri, Method.Get);
-                        request.AddHeader("ApplicationName", GlobalConfiguration.ApplicationName);
-                        request.AddHeader("SystemID", GlobalConfiguration.SystemID);
-                        request.AddHeader("HostName", GlobalConfiguration.HostName);
-                        request.AddHeader("RunningEnvironment", GlobalConfiguration.RunningEnvironment);
-                        request.AddHeader("ApplicationRuntimeID", GlobalConfiguration.ApplicationRuntimeID);
-                        request.AddHeader("AuthorizationKey", GlobalConfiguration.SystemID + GlobalConfiguration.RunningEnvironment + GlobalConfiguration.HostName);
-
-                        var response = await client.ExecuteAsync(request);
-                        if (response.StatusCode != HttpStatusCode.OK)
-                        {
-                            Log.Error($"ModuleConfigurationUrl: {item}, StatusCode: {response.StatusCode}, ErrorMessage: {response.ErrorMessage} 응답 확인 필요");
-                        }
-                    }
-                    else
-                    {
-                        Log.Error($"ModuleConfigurationUrl: {item} 경로 확인 필요");
-                    }
-                }
-            }
-            catch (Exception exception)
-            {
-                Log.Error(exception, $"BackgroundTaskAsync 오류: {moduleConfigurationUrl}");
-            }
         }
     }
 }

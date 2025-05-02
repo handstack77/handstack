@@ -733,6 +733,8 @@ namespace ack
             }
 
             services.AddHostedService<NamePipeService>();
+            services.AddSingleton<ModuleConfigurationService>();
+            services.AddHostedService<DelayedStartService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment environment, ICorsService corsService, ICorsPolicyProvider corsPolicyProvider)
