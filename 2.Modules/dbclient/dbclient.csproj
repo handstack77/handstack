@@ -17,8 +17,13 @@
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-        <DebugType>none</DebugType>
-        <Optimize>true</Optimize>
+        <DebugType>portable</DebugType>
+        <Optimize>True</Optimize>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+        <DebugType>portable</DebugType>
+        <Optimize>False</Optimize>
     </PropertyGroup>
 
     <ItemGroup>
