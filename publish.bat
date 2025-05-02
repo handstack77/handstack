@@ -1,13 +1,7 @@
-`-p:Optimize=true` 옵션을 `configuration_mode`가 `Debug`일 때는 `false`로 설정되게 하려면, 스크립트 중간에 `Optimize` 값을 조건문으로 지정해주면 됩니다. 아래는 수정된 `publish.bat`입니다:
-
-```bat
 @echo off
 chcp 65001
 
-REM publish.bat win build Debug x64
-REM publish.bat linux build Debug x64
-REM publish.bat osx build Debug x64
-REM publish.bat osx build Debug arm64
+REM publish.bat win build Debug x64 ..\custom-path
 
 REM win, linux, osx
 set os_mode=%1
@@ -25,6 +19,10 @@ REM x64, x86, arm64
 set arch_mode=%4
 if "%arch_mode%" == "" set arch_mode=x64
 
+REM 사용자 지정 publish 경로
+set publish_path=%5
+if "%publish_path%" == "" set publish_path=..\publish\%os_mode%-%arch_mode%
+
 REM 설정에 따라 Optimize 옵션 설정
 if "%configuration_mode%" == "Debug" (
     set optimize_flag=false
@@ -32,16 +30,16 @@ if "%configuration_mode%" == "Debug" (
     set optimize_flag=true
 )
 
-echo os_mode: %os_mode%, action_mode: %action_mode%, configuration_mode: %configuration_mode%, arch_mode: %arch_mode%, optimize: %optimize_flag%
+echo os_mode: %os_mode%, action_mode: %action_mode%, configuration_mode: %configuration_mode%, arch_mode: %arch_mode%, optimize: %optimize_flag%, publish_path: %publish_path%
 
-rmdir /s /q ..\publish\%os_mode%-%arch_mode%
-dotnet %action_mode% -p:Optimize=%optimize_flag% 1.WebHost/ack/ack.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/app
-dotnet %action_mode% -p:Optimize=%optimize_flag% 1.WebHost/forbes/forbes.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/forbes
-dotnet %action_mode% -p:Optimize=%optimize_flag% 4.Tool/CLI/handstack/handstack.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/app/cli
-dotnet %action_mode% -p:Optimize=%optimize_flag% 4.Tool/CLI/edgeproxy/edgeproxy.csproj --configuration Release --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/app/cli
+rmdir /s /q %publish_path%
+dotnet %action_mode% -p:Optimize=%optimize_flag% 1.WebHost\ack\ack.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output %publish_path%\handstack\app
+dotnet %action_mode% -p:Optimize=%optimize_flag% 1.WebHost\forbes\forbes.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output %publish_path%\handstack\forbes
+dotnet %action_mode% -p:Optimize=%optimize_flag% 4.Tool\CLI\handstack\handstack.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output %publish_path%\handstack\app\cli
+dotnet %action_mode% -p:Optimize=%optimize_flag% 4.Tool\CLI\edgeproxy\edgeproxy.csproj --configuration Release --arch %arch_mode% --os %os_mode% --output %publish_path%\handstack\app\cli
 
-set forbes_path=..\publish\%os_mode%-%arch_mode%\handstack\forbes
-robocopy %forbes_path%/wwwroot %forbes_path% /E /MOVE
+set forbes_path=%publish_path%\handstack\forbes
+robocopy %forbes_path%\wwwroot %forbes_path% /E /MOVE
 del /F /Q "%forbes_path%\*"
 
 set contracts_path=1.WebHost\build\handstack\contracts
@@ -49,21 +47,21 @@ if exist "%contracts_path%" (
     rd /S /Q "%contracts_path%"
 )
 
-dotnet %action_mode% -p:Optimize=%optimize_flag% 2.Modules/dbclient/dbclient.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/dbclient
-dotnet %action_mode% -p:Optimize=%optimize_flag% 2.Modules/function/function.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/function
-dotnet %action_mode% -p:Optimize=%optimize_flag% 2.Modules/logger/logger.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/logger
-dotnet %action_mode% -p:Optimize=%optimize_flag% 2.Modules/repository/repository.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/repository
-dotnet %action_mode% -p:Optimize=%optimize_flag% 2.Modules/transact/transact.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/transact
-dotnet %action_mode% -p:Optimize=%optimize_flag% 2.Modules/wwwroot/wwwroot.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/wwwroot
-dotnet %action_mode% -p:Optimize=%optimize_flag% 2.Modules/checkup/checkup.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/checkup
-dotnet %action_mode% -p:Optimize=%optimize_flag% 2.Modules/openapi/openapi.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/openapi
-dotnet %action_mode% -p:Optimize=%optimize_flag% 2.Modules/prompter/prompter.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/prompter
+dotnet %action_mode% -p:Optimize=%optimize_flag% 2.Modules\dbclient\dbclient.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output %publish_path%\handstack\modules\dbclient
+dotnet %action_mode% -p:Optimize=%optimize_flag% 2.Modules\function\function.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output %publish_path%\handstack\modules\function
+dotnet %action_mode% -p:Optimize=%optimize_flag% 2.Modules\logger\logger.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output %publish_path%\handstack\modules\logger
+dotnet %action_mode% -p:Optimize=%optimize_flag% 2.Modules\repository\repository.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output %publish_path%\handstack\modules\repository
+dotnet %action_mode% -p:Optimize=%optimize_flag% 2.Modules\transact\transact.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output %publish_path%\handstack\modules\transact
+dotnet %action_mode% -p:Optimize=%optimize_flag% 2.Modules\wwwroot\wwwroot.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output %publish_path%\handstack\modules\wwwroot
+dotnet %action_mode% -p:Optimize=%optimize_flag% 2.Modules\checkup\checkup.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output %publish_path%\handstack\modules\checkup
+dotnet %action_mode% -p:Optimize=%optimize_flag% 2.Modules\openapi\openapi.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output %publish_path%\handstack\modules\openapi
+dotnet %action_mode% -p:Optimize=%optimize_flag% 2.Modules\prompter\prompter.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output %publish_path%\handstack\modules\prompter
 
-robocopy 1.WebHost/build/handstack/contracts ../publish/%os_mode%-%arch_mode%/handstack/contracts /s /e /copy:dat
-robocopy . ../publish/%os_mode%-%arch_mode%/handstack install.* /copy:dat
-robocopy 2.Modules/function ../publish/%os_mode%-%arch_mode%/handstack package*.* /copy:dat
+robocopy 1.WebHost\build\handstack\contracts %publish_path%\handstack\contracts /s /e /copy:dat
+robocopy . %publish_path%\handstack install.* /copy:dat
+robocopy 2.Modules\function %publish_path%\handstack package*.* /copy:dat
 
-set wwwroot_js_path=../publish/%os_mode%-%arch_mode%/handstack/modules/wwwroot/wwwroot
+set wwwroot_js_path=%publish_path%\handstack\modules\wwwroot\wwwroot
 
 rd /S /Q "%wwwroot_js_path%\lib"
 del /F /Q "%wwwroot_js_path%\js\syn.bundle.js"
@@ -75,5 +73,4 @@ del /F /Q "%wwwroot_js_path%\js\syn.scripts.base.min.js"
 del /F /Q "%wwwroot_js_path%\js\syn.scripts.js"
 del /F /Q "%wwwroot_js_path%\js\syn.scripts.min.js"
 
-REM git archive --format zip --output ../publish/handstack-src.zip master
-```
+REM git archive --format zip --output ..\publish\handstack-src.zip master

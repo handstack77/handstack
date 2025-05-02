@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# tr -d '\r' < install.sh > install_fixed.sh && mv install_fixed.sh install.sh && chmod +x install.sh
+
 # Node.js 설치 확인
 if ! command -v node 2> ~/null; then
     echo "Node.js v20.12.2 LTS 이상 버전을 설치 해야 합니다."
