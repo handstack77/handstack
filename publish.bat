@@ -1,3 +1,6 @@
+`-p:Optimize=true` 옵션을 `configuration_mode`가 `Debug`일 때는 `false`로 설정되게 하려면, 스크립트 중간에 `Optimize` 값을 조건문으로 지정해주면 됩니다. 아래는 수정된 `publish.bat`입니다:
+
+```bat
 @echo off
 chcp 65001
 
@@ -22,13 +25,20 @@ REM x64, x86, arm64
 set arch_mode=%4
 if "%arch_mode%" == "" set arch_mode=x64
 
-echo os_mode: %os_mode%, action_mode: %action_mode%, configuration_mode: %configuration_mode%, arch_mode: %arch_mode%
+REM 설정에 따라 Optimize 옵션 설정
+if "%configuration_mode%" == "Debug" (
+    set optimize_flag=false
+) else (
+    set optimize_flag=true
+)
+
+echo os_mode: %os_mode%, action_mode: %action_mode%, configuration_mode: %configuration_mode%, arch_mode: %arch_mode%, optimize: %optimize_flag%
 
 rmdir /s /q ..\publish\%os_mode%-%arch_mode%
-dotnet %action_mode% -p:Optimize=true 1.WebHost/ack/ack.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/app
-dotnet %action_mode% -p:Optimize=true 1.WebHost/forbes/forbes.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/forbes
-dotnet %action_mode% -p:Optimize=true 4.Tool/CLI/handstack/handstack.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/app/cli
-dotnet %action_mode% -p:Optimize=true 4.Tool/CLI/edgeproxy/edgeproxy.csproj --configuration Release --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/app/cli
+dotnet %action_mode% -p:Optimize=%optimize_flag% 1.WebHost/ack/ack.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/app
+dotnet %action_mode% -p:Optimize=%optimize_flag% 1.WebHost/forbes/forbes.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/forbes
+dotnet %action_mode% -p:Optimize=%optimize_flag% 4.Tool/CLI/handstack/handstack.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/app/cli
+dotnet %action_mode% -p:Optimize=%optimize_flag% 4.Tool/CLI/edgeproxy/edgeproxy.csproj --configuration Release --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/app/cli
 
 set forbes_path=..\publish\%os_mode%-%arch_mode%\handstack\forbes
 robocopy %forbes_path%/wwwroot %forbes_path% /E /MOVE
@@ -39,15 +49,15 @@ if exist "%contracts_path%" (
     rd /S /Q "%contracts_path%"
 )
 
-dotnet %action_mode% -p:Optimize=true 2.Modules/dbclient/dbclient.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/dbclient
-dotnet %action_mode% -p:Optimize=true 2.Modules/function/function.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/function
-dotnet %action_mode% -p:Optimize=true 2.Modules/logger/logger.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/logger
-dotnet %action_mode% -p:Optimize=true 2.Modules/repository/repository.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/repository
-dotnet %action_mode% -p:Optimize=true 2.Modules/transact/transact.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/transact
-dotnet %action_mode% -p:Optimize=true 2.Modules/wwwroot/wwwroot.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/wwwroot
-dotnet %action_mode% -p:Optimize=true 2.Modules/checkup/checkup.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/checkup
-dotnet %action_mode% -p:Optimize=true 2.Modules/openapi/openapi.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/openapi
-dotnet %action_mode% -p:Optimize=true 2.Modules/prompter/prompter.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/prompter
+dotnet %action_mode% -p:Optimize=%optimize_flag% 2.Modules/dbclient/dbclient.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/dbclient
+dotnet %action_mode% -p:Optimize=%optimize_flag% 2.Modules/function/function.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/function
+dotnet %action_mode% -p:Optimize=%optimize_flag% 2.Modules/logger/logger.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/logger
+dotnet %action_mode% -p:Optimize=%optimize_flag% 2.Modules/repository/repository.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/repository
+dotnet %action_mode% -p:Optimize=%optimize_flag% 2.Modules/transact/transact.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/transact
+dotnet %action_mode% -p:Optimize=%optimize_flag% 2.Modules/wwwroot/wwwroot.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/wwwroot
+dotnet %action_mode% -p:Optimize=%optimize_flag% 2.Modules/checkup/checkup.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/checkup
+dotnet %action_mode% -p:Optimize=%optimize_flag% 2.Modules/openapi/openapi.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/openapi
+dotnet %action_mode% -p:Optimize=%optimize_flag% 2.Modules/prompter/prompter.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output ../publish/%os_mode%-%arch_mode%/handstack/modules/prompter
 
 robocopy 1.WebHost/build/handstack/contracts ../publish/%os_mode%-%arch_mode%/handstack/contracts /s /e /copy:dat
 robocopy . ../publish/%os_mode%-%arch_mode%/handstack install.* /copy:dat
@@ -66,3 +76,4 @@ del /F /Q "%wwwroot_js_path%\js\syn.scripts.js"
 del /F /Q "%wwwroot_js_path%\js\syn.scripts.min.js"
 
 REM git archive --format zip --output ../publish/handstack-src.zip master
+```
