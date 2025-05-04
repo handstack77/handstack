@@ -25,6 +25,7 @@
         "CodeDataCacheTimeout": 20,
         "ModuleBasePath": "../modules/transact",
         "TransactionLogBasePath": "../sqlite/aggregate",
+        "TrustedProxyIP": "1.1.1.1",
         "UseApiAuthorize": false,
         "BypassAuthorizeIP": [
             "localhost",

@@ -1,4 +1,4 @@
-﻿/*!
+/*!
 HandStack Javascript Library v2025.4.29
 https://handshake.kr
 

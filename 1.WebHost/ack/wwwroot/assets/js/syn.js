@@ -1,4 +1,4 @@
-﻿/*!
+/*!
 HandStack Javascript Library v2025.4.29
 https://handshake.kr
 
@@ -460,15 +460,21 @@ if (typeof module !== 'undefined' && module.exports) {
 
         async getIpAddress() {
             let ipAddress = '127.0.0.1';
-            try {
-                let url = syn.Config?.FindClientIPServer || 'https://api.ipify.org';
-                const response = await fetch(url);
-                if (response.ok) {
-                    ipAddress = await response.text();
-                }
+            const urls = [
+                { url: 'https://api.ipify.org' },
+                { url: syn.Config.FindClientIPServer || '/checkip' }
+            ];
 
-            } catch (error) {
-                console.warn(`'${url}' 에서 IP 를 가져오지 못했습니다:`, error);
+            for (const item of urls) {
+                try {
+                    const response = await fetch(item.url);
+                    if (response.ok) {
+                        ipAddress = await response.text();
+                        break;
+                    }
+                } catch (error) {
+                    console.warn(`'${item.url}' 에서 IP 를 가져오지 못했습니다:`, error);
+                }
             }
 
             return ipAddress;

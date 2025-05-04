@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 
 using HandStack.Core.ExtensionMethod;
 using HandStack.Web;
-using HandStack.Web.Entity;
 using HandStack.Web.Modules;
 
 using MediatR;
@@ -14,7 +12,6 @@ using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
@@ -65,6 +62,7 @@ namespace transact
                         ModuleConfiguration.SystemID = moduleConfig.SystemID;
                         ModuleConfiguration.AvailableEnvironment = moduleConfig.AvailableEnvironment;
                         ModuleConfiguration.UseApiAuthorize = moduleConfig.UseApiAuthorize;
+                        ModuleConfiguration.TrustedProxyIP = string.IsNullOrEmpty(moduleConfig.TrustedProxyIP) == true ? "1.1.1.1" : moduleConfig.TrustedProxyIP;
                         ModuleConfiguration.BypassAuthorizeIP = moduleConfig.BypassAuthorizeIP;
                         ModuleConfiguration.IsValidationRequest = moduleConfig.IsValidationRequest;
                         ModuleConfiguration.IsAllowDynamicRequest = moduleConfig.IsAllowDynamicRequest;

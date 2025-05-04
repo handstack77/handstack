@@ -33,6 +33,7 @@ namespace transact.Entity
         public static char MaskingChar = '*';
         public static string MaskingMethod = "Syn";
         public static string LogServerUrl = "";
+        public static string TrustedProxyIP = "";
         public static bool UseApiAuthorize = false;
         public static List<string> BypassAuthorizeIP = new List<string>();
         public static string SystemID = "";

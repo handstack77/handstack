@@ -227,6 +227,21 @@ namespace HandStack.Web.Extensions
             return ip;
         }
 
+        public static string? GetRemoteIpAddress(this HttpContext httpContext, string reportedClientIP, string trustedProxyIP, bool tryUseXForwardHeader = true)
+        {
+            var ip = GetRemoteIpAddress(httpContext, tryUseXForwardHeader);
+            if (string.IsNullOrEmpty(ip) == true)
+            {
+                return ip;
+            }
+            else if (ip == trustedProxyIP)
+            {
+                ip = reportedClientIP;
+            }
+
+            return ip;
+        }
+
         public static T? GetHeaderValueAs<T>(this HttpRequest request, string headerName)
         {
             StringValues values = "";
