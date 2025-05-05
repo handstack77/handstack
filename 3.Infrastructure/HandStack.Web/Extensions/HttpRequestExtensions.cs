@@ -229,12 +229,39 @@ namespace HandStack.Web.Extensions
 
         public static string? GetRemoteIpAddress(this HttpContext httpContext, string reportedClientIP, string trustedProxyIP, bool tryUseXForwardHeader = true)
         {
-            var ip = GetRemoteIpAddress(httpContext, tryUseXForwardHeader);
+            string? ip = "0.0.0.0";
+
+            if (tryUseXForwardHeader == true)
+            {
+                ip = httpContext.Request.GetHeaderValueAs<string>("X-Forwarded-For")?.SplitCsv()?.FirstOrDefault();
+            }
+
+            if (string.IsNullOrEmpty(ip) == true && httpContext?.GetServerVariable("HTTP_X_FORWARDED_FOR") != null)
+            {
+                ip = httpContext?.GetServerVariable("HTTP_X_FORWARDED_FOR")?.ToString();
+            }
+
+            if (ip == trustedProxyIP)
+            {
+                return reportedClientIP;
+            }
+
+            if (string.IsNullOrEmpty(ip) == true && httpContext?.Connection?.RemoteIpAddress != null)
+            {
+                ip = httpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();
+            }
+
             if (string.IsNullOrEmpty(ip) == true)
             {
-                return ip;
+                ip = httpContext?.Request.GetHeaderValueAs<string>("REMOTE_ADDR");
             }
-            else if (ip == trustedProxyIP)
+
+            if (string.IsNullOrEmpty(ip) == false && ip.Length > 7 && ip.Substring(0, 7) == "::ffff:")
+            {
+                ip = ip.Substring(7);
+            }
+
+            if (ip == "::1" || ip == "0.0.0.1" || ip == "127.0.0.1")
             {
                 ip = reportedClientIP;
             }

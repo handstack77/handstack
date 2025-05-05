@@ -11,6 +11,18 @@
         messages: [],
         targetEL: null,
         elements: {},
+        roles: Object.freeze({
+            Root: 0,
+            Administrator: 100,
+            Master: 200,
+            Architect: 300,
+            Manager: 400,
+            BusinessOwner: 500,
+            Operator: 600,
+            Developer: 700,
+            Designer: 800,
+            User: 900
+        }),
 
         initializeValidObject(el) {
             if (!this.elements[el.id]) {
@@ -261,6 +273,20 @@
             const messageString = this.messages.join('\n');
             this.messages = [];
             return messageString;
+        },
+
+        getRoleValue(roleNames) {
+            return Math.min(...roleNames.map(name => this.roles[name]).filter(v => v !== undefined));
+        },
+
+        getRoleName(roleValues) {
+            const numbers = roleValues
+                .map(v => parseInt(v, 10))
+                .filter(v => !isNaN(v) && Object.values(this.roles).includes(v));
+
+            const minValue = Math.min(...numbers);
+
+            return Object.keys(this.roles).find(key => this.roles[key] === minValue) || null;
         },
 
         valueType: Object.freeze({
