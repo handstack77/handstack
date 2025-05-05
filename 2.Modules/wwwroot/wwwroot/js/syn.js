@@ -2375,18 +2375,32 @@ if (typeof module !== 'undefined' && module.exports) {
             return messageString;
         },
 
-        getRoleValue(roleNames) {
-            return Math.min(...roleNames.map(name => this.roles[name]).filter(v => v !== undefined));
+
+        getRoleValue(roleNames, isHighLow = true) {
+            const namesArray = Array.isArray(roleNames) ? roleNames : [roleNames];
+            const values = namesArray
+                .map(name => this.roles[name])
+                .filter(v => v !== undefined);
+
+            if (values.length === 0) {
+                return -1;
+            }
+
+            return isHighLow ? Math.min(...values) : Math.max(...values);
         },
 
-        getRoleName(roleValues) {
-            const numbers = roleValues
+        getRoleName(roleValues, isHighLow = true) {
+            const valuesArray = Array.isArray(roleValues) ? roleValues : [roleValues];
+            const numbers = valuesArray
                 .map(v => parseInt(v, 10))
                 .filter(v => !isNaN(v) && Object.values(this.roles).includes(v));
 
-            const minValue = Math.min(...numbers);
+            if (numbers.length === 0) {
+                return null;
+            }
 
-            return Object.keys(this.roles).find(key => this.roles[key] === minValue) || null;
+            const roleValue = isHighLow ? Math.min(...numbers) : Math.max(...numbers);
+            return Object.keys(this.roles).find(key => this.roles[key] === roleValue) || null;
         },
 
         valueType: Object.freeze({
