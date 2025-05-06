@@ -1045,12 +1045,17 @@ namespace transact.Areas.transact.Controllers
                                                 var roles = principal.FindFirst("Roles")?.Value;
                                                 if (roles != null && transactionInfo.Roles != null && transactionInfo.Roles.Count > 0)
                                                 {
-                                                    foreach (var role in roles.SplitComma())
+                                                    var transactionMinRoleValue = Role.User.GetRoleValue(transactionInfo.Roles, true);
+                                                    foreach (var userRole in roles.SplitComma())
                                                     {
-                                                        if (transactionInfo.Roles.IndexOf(role) > -1)
+                                                        if (Enum.TryParse<Role>(userRole, out Role parsedUserRole) == true)
                                                         {
-                                                            isRoleYN = true;
-                                                            break;
+                                                            int userRoleValue = (int)parsedUserRole;
+                                                            if (userRoleValue <= transactionMinRoleValue)
+                                                            {
+                                                                isRoleYN = true;
+                                                                break;
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -1111,12 +1116,17 @@ namespace transact.Areas.transact.Controllers
                                 if (transactionInfo.Roles != null && transactionInfo.Roles.Count > 0)
                                 {
                                     bool isRoleYN = false;
-                                    foreach (var role in bearerToken.Policy.Roles)
+                                    var transactionMinRoleValue = Role.User.GetRoleValue(transactionInfo.Roles, true);
+                                    foreach (var userRole in bearerToken.Policy.Roles)
                                     {
-                                        if (transactionInfo.Roles.IndexOf(role) > -1)
+                                        if (Enum.TryParse<Role>(userRole, out Role parsedUserRole) == true)
                                         {
-                                            isRoleYN = true;
-                                            break;
+                                            int userRoleValue = (int)parsedUserRole;
+                                            if (userRoleValue <= transactionMinRoleValue)
+                                            {
+                                                isRoleYN = true;
+                                                break;
+                                            }
                                         }
                                     }
 
