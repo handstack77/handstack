@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.NetworkInformation;
+using System.Net.Sockets;
 
 namespace HandStack.Web.ApiClient
 {
@@ -42,28 +43,72 @@ namespace HandStack.Web.ApiClient
 
         public static string GetIPAddress()
         {
-            string ip = "127.0.0.1";
-            IPAddress[] host = Dns.GetHostAddresses(Dns.GetHostName());
-            foreach (var item in host)
+            foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
             {
-                if (item.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                if (ni.OperationalStatus != OperationalStatus.Up)
+                    continue;
+
+                if (ni.NetworkInterfaceType == NetworkInterfaceType.Loopback ||
+                    ni.Description.ToLower().Contains("virtual") ||
+                    ni.Description.ToLower().Contains("docker") ||
+                    ni.Description.ToLower().Contains("vmware") ||
+                    ni.Name.ToLower().Contains("vethernet") ||
+                    ni.Description.ToLower().Contains("hyper-v"))
+                    continue;
+
+                IPInterfaceProperties ipProps = ni.GetIPProperties();
+                foreach (UnicastIPAddressInformation ip in ipProps.UnicastAddresses)
                 {
-                    ip = item.ToString();
+                    if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
+                    {
+                        return ip.Address.ToString();
+                    }
                 }
             }
-            return ip;
+
+            return "127.0.0.1";
         }
 
         public static string GetMacAddress()
         {
-            NetworkInterface[] NetworkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
-            return NetworkInterfaces.Length > 0 ? NetworkInterfaces[0].GetPhysicalAddress().ToString() : "";
+            foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
+            {
+                if (ni.OperationalStatus != OperationalStatus.Up)
+                    continue;
+
+                if (ni.NetworkInterfaceType == NetworkInterfaceType.Loopback ||
+                    ni.Description.ToLower().Contains("virtual") ||
+                    ni.Description.ToLower().Contains("docker") ||
+                    ni.Description.ToLower().Contains("vmware") ||
+                    ni.Name.ToLower().Contains("vethernet") ||
+                    ni.Description.ToLower().Contains("hyper-v"))
+                    continue;
+
+                return ni.GetPhysicalAddress().ToString();
+            }
+
+            return "";
         }
 
         public static string GetNetworkInterfaceType()
         {
-            NetworkInterface[] NetworkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
-            return NetworkInterfaces.Length > 0 ? ((int)NetworkInterfaces[0].NetworkInterfaceType).ToString().PadLeft(3, '0') : "001";
+            foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
+            {
+                if (ni.OperationalStatus != OperationalStatus.Up)
+                    continue;
+
+                if (ni.NetworkInterfaceType == NetworkInterfaceType.Loopback ||
+                    ni.Description.ToLower().Contains("virtual") ||
+                    ni.Description.ToLower().Contains("docker") ||
+                    ni.Description.ToLower().Contains("vmware") ||
+                    ni.Name.ToLower().Contains("vethernet") ||
+                    ni.Description.ToLower().Contains("hyper-v"))
+                    continue;
+
+                return ((int)ni.NetworkInterfaceType).ToString().PadLeft(3, '0');
+            }
+
+            return "001";
         }
     }
 }

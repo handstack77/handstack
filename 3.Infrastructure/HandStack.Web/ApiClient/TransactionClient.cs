@@ -118,7 +118,7 @@ namespace HandStack.Web.ApiClient
             return result;
         }
 
-        public async Task<Dictionary<string, JToken>> TransactionDirect(string businessServerUrl, TransactionClientObject transactionObject)
+        public async Task<Dictionary<string, JToken>> TransactionDirect(string businessServerUrl, TransactionClientObject transactionObject, string moduleID = "", string pathName = "")
         {
             dynamic hasException = new ExpandoObject();
             Dictionary<string, JToken> result = new Dictionary<string, JToken>();
@@ -136,7 +136,7 @@ namespace HandStack.Web.ApiClient
                 requestID = GetRequestID(transactionObject);
                 transactionObject.RequestID = requestID;
 
-                TransactionRequest transactionRequest = CreateTransactionRequest("SYN", transactionObject);
+                TransactionRequest transactionRequest = CreateTransactionRequest("SYN", transactionObject, moduleID, pathName);
 
                 RestClient client = new RestClient();
 
@@ -332,7 +332,7 @@ namespace HandStack.Web.ApiClient
             return requestID;
         }
 
-        private TransactionRequest CreateTransactionRequest(string action, TransactionClientObject transactionObject)
+        private TransactionRequest CreateTransactionRequest(string action, TransactionClientObject transactionObject, string moduleID = "", string pathName = "")
         {
             TransactionRequest transactionRequest = new TransactionRequest();
             transactionRequest.AccessToken = "";
@@ -351,6 +351,8 @@ namespace HandStack.Web.ApiClient
             transactionRequest.System.Version = TransactionConfig.Program.ProgramVersion;
             transactionRequest.System.LocaleID = TransactionConfig.Program.LanguageID;
             transactionRequest.System.HostName = TransactionConfig.Transaction.MachineName;
+            transactionRequest.System.ModuleID = moduleID;
+            transactionRequest.System.PathName = pathName;
             transactionRequest.System.Routes.Add(new Route()
             {
                 SystemID = TransactionConfig.Transaction.SystemID,

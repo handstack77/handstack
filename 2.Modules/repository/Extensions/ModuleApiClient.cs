@@ -51,7 +51,7 @@ namespace repository.Extensions
                 inputs.Add("ApplicationID", applicationIDs);
                 transactionObject.Inputs.Add(inputs);
 
-                var transactionResult = await transactionClient.TransactionDirect(ModuleConfiguration.BusinessServerUrl, transactionObject);
+                var transactionResult = await transactionClient.TransactionDirect(ModuleConfiguration.BusinessServerUrl, transactionObject, ModuleConfiguration.ModuleID);
 
                 if (transactionResult.ContainsKey("HasException") == true)
                 {
@@ -218,7 +218,7 @@ namespace repository.Extensions
                     inputs.Add("BusinessID", businessID);
                     transactionObject.Inputs.Add(inputs);
 
-                    var transactionResult = await transactionClient.TransactionDirect(ModuleConfiguration.BusinessServerUrl, transactionObject);
+                    var transactionResult = await transactionClient.TransactionDirect(ModuleConfiguration.BusinessServerUrl, transactionObject, ModuleConfiguration.ModuleID);
                     if (transactionResult.ContainsKey("HasException") == true)
                     {
                         logger.Error("[{LogCategory}] " + $"ErrorMessage: {transactionResult?["HasException"]?["ErrorMessage"]?.ToString()}", "ModuleApiClient/GetRepositoryItem");
@@ -281,7 +281,7 @@ namespace repository.Extensions
                     inputs.Add("BusinessID", businessID);
                     transactionObject.Inputs.Add(inputs);
 
-                    var transactionResult = await transactionClient.TransactionDirect(ModuleConfiguration.BusinessServerUrl, transactionObject);
+                    var transactionResult = await transactionClient.TransactionDirect(ModuleConfiguration.BusinessServerUrl, transactionObject, ModuleConfiguration.ModuleID);
                     if (transactionResult.ContainsKey("HasException") == true)
                     {
                         logger.Error("[{LogCategory}] " + $"ErrorMessage: {transactionResult?["HasException"]?["ErrorMessage"]?.ToString()}", "ModuleApiClient/GetRepositoryItems");
@@ -341,7 +341,7 @@ namespace repository.Extensions
                     inputs.Add("BusinessID", businessID);
                     transactionObject.Inputs.Add(inputs);
 
-                    var transactionResult = await transactionClient.TransactionDirect(ModuleConfiguration.BusinessServerUrl, transactionObject);
+                    var transactionResult = await transactionClient.TransactionDirect(ModuleConfiguration.BusinessServerUrl, transactionObject, ModuleConfiguration.ModuleID);
                     if (transactionResult.ContainsKey("HasException") == true)
                     {
                         logger.Error("[{LogCategory}] " + $"ErrorMessage: {transactionResult?["HasException"]?["ErrorMessage"]?.ToString()}", "ModuleApiClient/DeleteRepositoryItem");
@@ -419,7 +419,7 @@ namespace repository.Extensions
                     inputs.Add("CreatedMemberNo", repositoryItem.CreatedMemberNo);
                     transactionObject.Inputs.Add(inputs);
 
-                    var transactionResult = await transactionClient.TransactionDirect(ModuleConfiguration.BusinessServerUrl, transactionObject);
+                    var transactionResult = await transactionClient.TransactionDirect(ModuleConfiguration.BusinessServerUrl, transactionObject, ModuleConfiguration.ModuleID);
 
                     if (transactionResult.ContainsKey("HasException") == true)
                     {
@@ -482,7 +482,7 @@ namespace repository.Extensions
                     inputs.Add("TargetDependencyID", targetDependencyID);
                     transactionObject.Inputs.Add(inputs);
 
-                    var transactionResult = await transactionClient.TransactionDirect(ModuleConfiguration.BusinessServerUrl, transactionObject);
+                    var transactionResult = await transactionClient.TransactionDirect(ModuleConfiguration.BusinessServerUrl, transactionObject, ModuleConfiguration.ModuleID);
                     if (transactionResult.ContainsKey("HasException") == true)
                     {
                         logger.Error("[{LogCategory}] " + $"ErrorMessage: {transactionResult?["HasException"]?["ErrorMessage"]?.ToString()}", "ModuleApiClient/UpdateDependencyID");
@@ -543,7 +543,7 @@ namespace repository.Extensions
                     inputs.Add("FileName", repositoryItem.FileName);
                     transactionObject.Inputs.Add(inputs);
 
-                    var transactionResult = await transactionClient.TransactionDirect(ModuleConfiguration.BusinessServerUrl, transactionObject);
+                    var transactionResult = await transactionClient.TransactionDirect(ModuleConfiguration.BusinessServerUrl, transactionObject, ModuleConfiguration.ModuleID);
                     if (transactionResult.ContainsKey("HasException") == true)
                     {
                         logger.Error("[{LogCategory}] " + $"ErrorMessage: {transactionResult?["HasException"]?["ErrorMessage"]?.ToString()}", "ModuleApiClient/UpdateFileName");

@@ -53,7 +53,7 @@ namespace wwwroot.Extensions
                         transactionObject.Inputs.Add(serviceParameters);
                     }
 
-                    var transactionResult = await transactionClient.TransactionDirect(ModuleConfiguration.BusinessServerUrl, transactionObject);
+                    var transactionResult = await transactionClient.TransactionDirect(ModuleConfiguration.BusinessServerUrl, transactionObject, ModuleConfiguration.ModuleID);
 
                     if (transactionResult.ContainsKey("HasException") == true)
                     {
