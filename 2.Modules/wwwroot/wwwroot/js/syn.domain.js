@@ -2430,7 +2430,7 @@
     });
     window.$validation = syn.$v || window.$validation || $validation;
 })(window);
-function domainLibraryLoad() {
+async function domainLibraryLoad() {
     syn.$l.addEvent(window, 'error', (evt) => {
         var stack = evt.error ? evt.error.stack : '';
         console.log(`unhandle error - source(${evt.lineno}, ${evt.colno}): ${evt.filename}, message: ${evt.message}, stack: ${stack}`);
@@ -2522,7 +2522,7 @@ function domainLibraryLoad() {
 
     var mod = window[syn.$w.pageScript];
     if (mod && mod.hook.pageInit) {
-        var isContinue = mod.hook.pageInit();
+        var isContinue = await mod.hook.pageInit();
         if ($object.isNullOrUndefined(isContinue) == false && isContinue === false) {
             return false;
         }

@@ -527,7 +527,7 @@
                 }
 
                 if (context.domainLibraryLoad) {
-                    var isContinue = domainLibraryLoad();
+                    var isContinue = await domainLibraryLoad();
                     if ($object.isNullOrUndefined(isContinue) == false && isContinue === false) {
                         return false;
                     }

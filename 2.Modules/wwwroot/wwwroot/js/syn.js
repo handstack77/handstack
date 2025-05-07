@@ -1,5 +1,5 @@
 /*!
-HandStack Javascript Library v2025.5.5
+HandStack Javascript Library v2025.5.7
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -6230,7 +6230,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 }
 
                 if (context.domainLibraryLoad) {
-                    var isContinue = domainLibraryLoad();
+                    var isContinue = await domainLibraryLoad();
                     if ($object.isNullOrUndefined(isContinue) == false && isContinue === false) {
                         return false;
                     }
