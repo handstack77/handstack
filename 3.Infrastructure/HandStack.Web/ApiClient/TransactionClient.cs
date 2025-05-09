@@ -314,6 +314,204 @@ namespace HandStack.Web.ApiClient
             return result;
         }
 
+        public async Task<Dictionary<string, JToken>> TransactionDirect(string businessServerUrl, TransactionClientObject transactionObject, Action<TransactionRequest> requestAction)
+        {
+            dynamic hasException = new ExpandoObject();
+            Dictionary<string, JToken> result = new Dictionary<string, JToken>();
+            string requestID = string.Empty;
+
+            try
+            {
+                transactionObject.ReturnType = string.IsNullOrEmpty(transactionObject.ReturnType) == true ? "Json" : transactionObject.ReturnType;
+
+                if (transactionObject.InputsItemCount.Count == 0)
+                {
+                    transactionObject.InputsItemCount.Add(transactionObject.Inputs.Count);
+                }
+
+                requestID = GetRequestID(transactionObject);
+                transactionObject.RequestID = requestID;
+
+                TransactionRequest transactionRequest = CreateTransactionRequest("SYN", transactionObject);
+
+                requestAction.Invoke(transactionRequest);
+
+                RestClient client = new RestClient();
+
+                if (string.IsNullOrEmpty(GlobalConfiguration.FindGlobalIDServer) == false)
+                {
+                    var idRequest = new RestRequest(GlobalConfiguration.FindGlobalIDServer, Method.Post);
+                    idRequest.AddStringBody(JsonConvert.SerializeObject(new
+                    {
+                        applicationID = transactionObject.ProgramID,
+                        projectID = transactionObject.BusinessID,
+                        transactionID = transactionObject.TransactionID,
+                        serviceID = transactionObject.FunctionID,
+                        screenID = transactionObject.ScreenID,
+                        tokenID = TransactionConfig.Program.ClientTokenID.Substring(0, 6).PadLeft(6, '0')
+                    }), DataFormat.Json);
+                    idRequest.AddHeader("Content-Type", "application/json");
+                    idRequest.AddHeader("cache-control", "no-cache");
+                    var idResponse = await client.ExecuteAsync<string>(idRequest);
+                    var globalID = idResponse.Data;
+                    if (string.IsNullOrEmpty(globalID) == false)
+                    {
+                        transactionRequest.Transaction.GlobalID = globalID;
+                    }
+                }
+
+                if (businessServerUrl.IndexOf("event://") > -1)
+                {
+                    TransactionResponse? transactionResponse = null;
+                    string moduleEventName = businessServerUrl.Replace("event://", "");
+                    Type? type = Assembly.Load(moduleEventName.Split(".")[0])?.GetType(moduleEventName);
+                    if (type != null)
+                    {
+                        object? instance = Activator.CreateInstance(type, transactionRequest);
+                        if (instance == null)
+                        {
+                            transactionResponse = new TransactionResponse();
+                            transactionResponse.ExceptionText = $"moduleEventName: {moduleEventName} 확인 필요";
+                        }
+                        else
+                        {
+                            object? eventResponse = await mediator.Send(instance);
+                            if (eventResponse != null)
+                            {
+                                transactionResponse = JsonConvert.DeserializeObject<TransactionResponse>(JsonConvert.SerializeObject(eventResponse));
+                            }
+                            else
+                            {
+                                transactionResponse = new TransactionResponse();
+                                transactionResponse.ExceptionText = $"moduleEventName: {moduleEventName} 확인 필요";
+                            }
+                        }
+                    }
+                    else
+                    {
+                        transactionResponse = new TransactionResponse();
+                        transactionResponse.ExceptionText = $"moduleEventName: {moduleEventName} 확인 필요";
+                    }
+
+                    if (transactionResponse != null && transactionResponse.Acknowledge == AcknowledgeType.Success)
+                    {
+                        if (transactionResponse.Result.DataSet != null && transactionResponse.Result.DataSet.Count > 0)
+                        {
+                            foreach (var item in transactionResponse.Result.DataSet)
+                            {
+                                try
+                                {
+                                    if (item.Value is JToken)
+                                    {
+                                        result.Add(item.FieldID, (JToken)item.Value);
+                                    }
+                                    else if (item.Value != null)
+                                    {
+                                        result.Add(item.FieldID, JToken.FromObject(item.Value));
+                                    }
+                                    else
+                                    {
+                                        result.Add(item.FieldID, JToken.FromObject(""));
+                                    }
+                                }
+                                catch (Exception exception)
+                                {
+                                    result.Clear();
+                                    hasException.ErrorMessage = $"Ok|Completed|{string.Concat(item.FieldID, " ", exception.Message)}";
+                                    result.Add("HasException", JObject.FromObject(hasException));
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        hasException.ErrorMessage = $"Ok|Completed|{string.Concat("응답 오류 - ", moduleEventName)}";
+                        result.Add("HasException", JObject.FromObject(hasException));
+                    }
+                }
+                else
+                {
+                    var restRequest = new RestRequest(businessServerUrl, Method.Post);
+                    restRequest.AddStringBody(JsonConvert.SerializeObject(transactionRequest), DataFormat.Json);
+
+                    restRequest.AddHeader("Content-Type", "application/json");
+                    restRequest.AddHeader("cache-control", "no-cache");
+                    restRequest.AddHeader("ClientTag", TransactionConfig.ClientTag);
+
+                    var restResponse = await client.ExecuteAsync(restRequest);
+                    if (restResponse != null && restResponse.StatusCode != HttpStatusCode.NotFound && restResponse.ResponseStatus == ResponseStatus.Completed)
+                    {
+                        var content = restResponse.Content;
+                        if (content != null)
+                        {
+                            TransactionResponse? transactionResponse = JsonConvert.DeserializeObject<TransactionResponse>(content);
+
+                            if (transactionResponse != null && transactionResponse.Acknowledge == AcknowledgeType.Success)
+                            {
+                                if (transactionResponse.Result.DataSet != null && transactionResponse.Result.DataSet.Count > 0)
+                                {
+                                    foreach (var item in transactionResponse.Result.DataSet)
+                                    {
+                                        try
+                                        {
+                                            if (item.Value is JToken)
+                                            {
+                                                result.Add(item.FieldID, (JToken)item.Value);
+                                            }
+                                            else if (item.Value != null)
+                                            {
+                                                result.Add(item.FieldID, JToken.FromObject(item.Value));
+                                            }
+                                            else
+                                            {
+                                                result.Add(item.FieldID, JToken.FromObject(""));
+                                            }
+                                        }
+                                        catch (Exception exception)
+                                        {
+                                            result.Clear();
+                                            hasException.ErrorMessage = $"Ok|Completed|{string.Concat(item.FieldID, " ", exception.Message)}";
+                                            result.Add("HasException", JObject.FromObject(hasException));
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                hasException.ErrorMessage = $"Ok|Completed|{string.Concat("응답 오류 - ", content)}";
+                                result.Add("HasException", JObject.FromObject(hasException));
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (restResponse != null)
+                        {
+                            ResponseStatus responseStatus = restResponse.ResponseStatus;
+                            HttpStatusCode statusCode = restResponse.StatusCode;
+
+                            hasException.ErrorMessage = $"{statusCode}|{responseStatus}|{restResponse.ErrorMessage}";
+                        }
+                        else
+                        {
+                            hasException.ErrorMessage = $"{HttpStatusCode.Gone}|None|연결 오류";
+                        }
+
+                        result.Add("HasException", JObject.FromObject(hasException));
+                    }
+                }
+            }
+            catch (Exception exception)
+            {
+                hasException.ErrorMessage = $"{HttpStatusCode.Gone}|None|{exception.Message}";
+                result.Add("HasException", JObject.FromObject(hasException));
+            }
+
+            return result;
+        }
+
         private static string GetRequestID(TransactionClientObject transactionObject)
         {
             string requestID;
