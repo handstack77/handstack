@@ -17,7 +17,7 @@ namespace openapi.Enumeration
 
         public static string ToEnumString(this DataProviders key, string category = "base")
         {
-            string result = string.Empty;
+            var result = string.Empty;
             switch (category)
             {
                 default:

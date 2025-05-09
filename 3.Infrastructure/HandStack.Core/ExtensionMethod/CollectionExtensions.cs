@@ -29,9 +29,9 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string CharArrayToString(this char[] @this)
         {
-            string result = "";
+            var result = "";
             Array.Sort(@this);
-            foreach (char c in @this)
+            foreach (var c in @this)
             {
                 if (char.IsLetter(c))
                 {
@@ -48,7 +48,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static bool IsContains(this char[] @this, char character)
         {
-            foreach (char c in @this)
+            foreach (var c in @this)
             {
                 if (c.Equals(character))
                 {

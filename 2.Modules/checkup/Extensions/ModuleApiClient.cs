@@ -2,15 +2,16 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
+using checkup.Entity;
+
 using HandStack.Core.ExtensionMethod;
-using HandStack.Web.Extensions;
 using HandStack.Web.ApiClient;
 using HandStack.Web.Entity;
+using HandStack.Web.Extensions;
 
 using Newtonsoft.Json.Linq;
 
 using Serilog;
-using checkup.Entity;
 
 namespace checkup.Extensions
 {
@@ -37,7 +38,7 @@ namespace checkup.Extensions
                 try
                 {
                     var transactionInfo = transactionCommandID.Split("|");
-                    TransactionClientObject transactionObject = new TransactionClientObject();
+                    var transactionObject = new TransactionClientObject();
                     transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
                     transactionObject.ProgramID = transactionInfo[0];
                     transactionObject.BusinessID = transactionInfo[1];
@@ -55,7 +56,7 @@ namespace checkup.Extensions
 
                     if (transactionResult.ContainsKey("HasException") == true)
                     {
-                        string message = (transactionResult?["HasException"]?["ErrorMessage"]).ToStringSafe();
+                        var message = (transactionResult?["HasException"]?["ErrorMessage"]).ToStringSafe();
                         logger.Error("[{LogCategory}] " + $"ErrorMessage: {message}", "ModuleApiClient/TransactionDirect");
                     }
 

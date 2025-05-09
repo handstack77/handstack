@@ -1,7 +1,4 @@
 ﻿using System;
-using System.IO;
-
-using YamlDotNet.Core.Tokens;
 
 namespace HandStack.Web.MessageContract.Message
 {

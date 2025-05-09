@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using HandStack.Web;
 using HandStack.Web.MessageContract.DataObject;
 using HandStack.Web.Model;
 
@@ -12,14 +11,14 @@ namespace HandStack.Web.Extensions
     {
         public static void Add(this List<DynamicParameter> parameters, string parameterName, object value, string dbType = "String")
         {
-            DynamicParameter dynamicParameter = new DynamicParameter() { ParameterName = parameterName, Value = value, DbType = dbType };
+            var dynamicParameter = new DynamicParameter() { ParameterName = parameterName, Value = value, DbType = dbType };
             parameters.Add(dynamicParameter);
         }
 
         public static object? Value(this List<DynamicParameter> parameters, string parameterName)
         {
             object? result = null;
-            foreach (DynamicParameter item in parameters)
+            foreach (var item in parameters)
             {
                 if (item.ParameterName == parameterName)
                 {

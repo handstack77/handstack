@@ -39,7 +39,7 @@ namespace HandStack.Core
             }
 
             var matchedParameters = new object[parameterInfos.Length];
-            for (int i = 0; i < parameterInfos.Length; i++)
+            for (var i = 0; i < parameterInfos.Length; i++)
             {
                 matchedParameters[i] = Convert.ChangeType(parameters[i], parameterInfos[i].ParameterType);
             }
@@ -65,7 +65,7 @@ namespace HandStack.Core
             }
 
             var matchedParameters = new object[parameterInfos.Length];
-            for (int i = 0; i < parameterInfos.Length; i++)
+            for (var i = 0; i < parameterInfos.Length; i++)
             {
                 matchedParameters[i] = Convert.ChangeType(parameters[i], parameterInfos[i].ParameterType);
             }
@@ -92,7 +92,7 @@ namespace HandStack.Core
             }
 
             var matchedParameters = new object[parameterInfos.Length];
-            for (int i = 0; i < parameterInfos.Length; i++)
+            for (var i = 0; i < parameterInfos.Length; i++)
             {
                 matchedParameters[i] = Convert.ChangeType(parameters[i], parameterInfos[i].ParameterType);
             }
@@ -119,7 +119,7 @@ namespace HandStack.Core
             }
 
             var matchedParameters = new object[parameterInfos.Length];
-            for (int i = 0; i < parameterInfos.Length; i++)
+            for (var i = 0; i < parameterInfos.Length; i++)
             {
                 matchedParameters[i] = Convert.ChangeType(parameters[i], parameterInfos[i].ParameterType);
             }
@@ -129,12 +129,12 @@ namespace HandStack.Core
 
         public List<string> GetTraceMethods()
         {
-            List<string> traceMethods = new List<string>();
+            var traceMethods = new List<string>();
 
-            StackTrace stackTrace = new StackTrace(true);
-            StackFrame[] stackFrames = stackTrace.GetFrames();
+            var stackTrace = new StackTrace(true);
+            var stackFrames = stackTrace.GetFrames();
 
-            foreach (StackFrame stackFrame in stackFrames)
+            foreach (var stackFrame in stackFrames)
             {
                 var methodBase = stackFrame.GetMethod();
                 if (methodBase != null)
@@ -148,7 +148,7 @@ namespace HandStack.Core
 
         public static object? CreateInstance(string typeName)
         {
-            Type? type = FindType(typeName);
+            var type = FindType(typeName);
 
             if (type != null)
             {
@@ -161,7 +161,7 @@ namespace HandStack.Core
         public static object? CreateInstance(Assembly targetAssembly, string typeName)
         {
             Type? type = null;
-            foreach (Type? eachType in targetAssembly.GetTypes())
+            foreach (var eachType in targetAssembly.GetTypes())
             {
                 if (eachType != null && eachType.FullName?.Replace("\\", "/") != null && eachType.FullName.Replace("\\", "/").Equals(typeName, StringComparison.OrdinalIgnoreCase))
                 {
@@ -180,15 +180,15 @@ namespace HandStack.Core
 
         public static string? GetAssemblyDirectory(Assembly targetAssembly)
         {
-            string location = string.IsNullOrEmpty(targetAssembly.Location) == true ? AppContext.BaseDirectory : targetAssembly.Location;
+            var location = string.IsNullOrEmpty(targetAssembly.Location) == true ? AppContext.BaseDirectory : targetAssembly.Location;
             return Path.GetDirectoryName(location);
         }
 
         public static Type? FindType(string typeName)
         {
-            foreach (Assembly targetAssembly in AppDomain.CurrentDomain.GetAssemblies())
+            foreach (var targetAssembly in AppDomain.CurrentDomain.GetAssemblies())
             {
-                foreach (Type? type in targetAssembly.GetTypes())
+                foreach (var type in targetAssembly.GetTypes())
                 {
                     if (type != null && type.FullName?.Replace("\\", "/") != null && type.FullName.Replace("\\", "/").Equals(typeName, StringComparison.OrdinalIgnoreCase))
                     {
@@ -202,7 +202,7 @@ namespace HandStack.Core
 
         public static Type? FindType(Assembly targetAssembly, string typeName)
         {
-            foreach (Type type in targetAssembly.GetTypes())
+            foreach (var type in targetAssembly.GetTypes())
             {
                 if (type != null && type.FullName?.Replace("\\", "/") != null && type.FullName.Replace("\\", "/").Equals(typeName, StringComparison.OrdinalIgnoreCase))
                 {
@@ -231,22 +231,22 @@ namespace HandStack.Core
                 }
             }
 
-            return assemblyList[assemblyKey] as Assembly;
+            return assemblyList[assemblyKey];
         }
 
         public static TypeDescription LoadClassType(string assemblyFile, string assemblyKey, string className, string classKey)
         {
             if (typeList.ContainsKey(classKey) == false)
             {
-                Assembly targetAssembly = LoadAssembly(assemblyFile, assemblyKey);
+                var targetAssembly = LoadAssembly(assemblyFile, assemblyKey);
 
-                foreach (Type type in targetAssembly.GetTypes())
+                foreach (var type in targetAssembly.GetTypes())
                 {
                     if (type != null && type.FullName?.Replace("\\", "/") != null)
                     {
                         if (type.IsClass == true && type.FullName.Replace("\\", "/").EndsWith(className, StringComparison.CurrentCultureIgnoreCase))
                         {
-                            TypeDescription typeDescription = new TypeDescription(type, Activator.CreateInstance(type));
+                            var typeDescription = new TypeDescription(type, Activator.CreateInstance(type));
                             typeList.Add(classKey, typeDescription);
 
                             return typeDescription;
@@ -264,13 +264,13 @@ namespace HandStack.Core
         {
             if (typeList.ContainsKey(classKey) == false)
             {
-                foreach (Type type in loadAssembly.GetTypes())
+                foreach (var type in loadAssembly.GetTypes())
                 {
                     if (type != null && type.FullName?.Replace("\\", "/") != null && type.IsClass == true)
                     {
                         if (type.FullName.Replace("\\", "/").EndsWith(className, StringComparison.CurrentCultureIgnoreCase))
                         {
-                            TypeDescription typeDescription = new TypeDescription(type, Activator.CreateInstance(type));
+                            var typeDescription = new TypeDescription(type, Activator.CreateInstance(type));
                             typeList.Add(classKey, typeDescription);
                             return (typeDescription);
                         }
@@ -287,15 +287,15 @@ namespace HandStack.Core
         {
             if (typeList.ContainsKey(classKey) == false)
             {
-                Assembly targetAssembly = Assembly.GetExecutingAssembly();
+                var targetAssembly = Assembly.GetExecutingAssembly();
 
-                foreach (Type type in targetAssembly.GetTypes())
+                foreach (var type in targetAssembly.GetTypes())
                 {
                     if (type != null && type.FullName?.Replace("\\", "/") != null && type.IsClass == true)
                     {
                         if (type.FullName.Replace("\\", "/").EndsWith(className, StringComparison.CurrentCultureIgnoreCase))
                         {
-                            TypeDescription typeDescription = new TypeDescription(type, Activator.CreateInstance(type));
+                            var typeDescription = new TypeDescription(type, Activator.CreateInstance(type));
                             typeList.Add(classKey, typeDescription);
 
                             return typeDescription;
@@ -342,9 +342,9 @@ namespace HandStack.Core
             }
 
             object? result;
-            string pureProperty = propertyName;
+            var pureProperty = propertyName;
             string? indexes = null;
-            bool isCollection = false;
+            var isCollection = false;
 
             if (propertyName.IndexOf("[") > -1)
             {
@@ -353,7 +353,7 @@ namespace HandStack.Core
                 isCollection = true;
             }
 
-            MemberInfo member = instance.GetType().GetMember(pureProperty, memberAccess)[0];
+            var member = instance.GetType().GetMember(pureProperty, memberAccess)[0];
 
             if (member.MemberType == MemberTypes.Property)
             {
@@ -411,9 +411,9 @@ namespace HandStack.Core
             }
 
             object? result;
-            string pureProperty = propertyName;
+            var pureProperty = propertyName;
             string? indexes = null;
-            bool isCollection = false;
+            var isCollection = false;
 
             if (propertyName.IndexOf("[") > -1)
             {
@@ -424,7 +424,7 @@ namespace HandStack.Core
 
             if (isCollection == false)
             {
-                MemberInfo member = instance.GetType().GetMember(pureProperty, memberAccess)[0];
+                var member = instance.GetType().GetMember(pureProperty, memberAccess)[0];
 
                 if (member.MemberType == MemberTypes.Property)
                 {
@@ -439,7 +439,7 @@ namespace HandStack.Core
             }
             else
             {
-                MemberInfo member = instance.GetType().GetMember(pureProperty, memberAccess)[0];
+                var member = instance.GetType().GetMember(pureProperty, memberAccess)[0];
 
                 if (member.MemberType == MemberTypes.Property)
                 {
@@ -498,23 +498,23 @@ namespace HandStack.Core
                 return null;
             }
 
-            int indexes = propertyName.IndexOf(".");
+            var indexes = propertyName.IndexOf(".");
             if (indexes < 0)
             {
                 return GetPropertyInternal(instance, propertyName);
             }
 
-            string main = propertyName.Substring(0, indexes);
-            string subs = propertyName.Substring(indexes + 1);
+            var main = propertyName.Substring(0, indexes);
+            var subs = propertyName.Substring(indexes + 1);
 
-            object? sub = GetPropertyInternal(instance, main);
+            var sub = GetPropertyInternal(instance, main);
 
             return GetPropertyEx(sub, subs);
         }
 
         public static object? SetPropertyEx(object instance, string propertyName, object value)
         {
-            int indexes = propertyName.IndexOf(".");
+            var indexes = propertyName.IndexOf(".");
 
             if (indexes < 0)
             {
@@ -522,10 +522,10 @@ namespace HandStack.Core
                 return null;
             }
 
-            string main = propertyName.Substring(0, indexes);
-            string subs = propertyName.Substring(indexes + 1);
+            var main = propertyName.Substring(0, indexes);
+            var subs = propertyName.Substring(indexes + 1);
 
-            object? sub = GetPropertyInternal(instance, main);
+            var sub = GetPropertyInternal(instance, main);
             if (sub != null)
             {
                 SetPropertyEx(sub, subs, value);
@@ -555,11 +555,11 @@ namespace HandStack.Core
 
         public static object? CallMethod(object instance, string methodName, params object[]? methodParameters)
         {
-            Type[]? parameterTypes = Array.Empty<Type>();
+            var parameterTypes = Array.Empty<Type>();
             if (methodParameters != null)
             {
                 parameterTypes = new Type[methodParameters.Length];
-                for (int i = 0; i < methodParameters.Length; i++)
+                for (var i = 0; i < methodParameters.Length; i++)
                 {
                     if (methodParameters[i] == null)
                     {
@@ -576,16 +576,16 @@ namespace HandStack.Core
 
         public static object? CallMethodEx(object instance, string methodName, params object[] methodParameters)
         {
-            int indexes = methodName.IndexOf(".");
+            var indexes = methodName.IndexOf(".");
             if (indexes < 0)
             {
                 return CallMethod(instance, methodName, methodParameters);
             }
 
-            string main = methodName.Substring(0, indexes);
-            string subs = methodName.Substring(indexes + 1);
+            var main = methodName.Substring(0, indexes);
+            var subs = methodName.Substring(indexes + 1);
 
-            object? sub = GetPropertyInternal(instance, main);
+            var sub = GetPropertyInternal(instance, main);
             if (sub == null)
             {
                 return null;
@@ -600,7 +600,7 @@ namespace HandStack.Core
         {
             if (arguments == null)
             {
-                Type[] Params = Type.EmptyTypes;
+                var Params = Type.EmptyTypes;
                 return typeToCreate.GetConstructor(Params)?.Invoke(null);
             }
 
@@ -626,7 +626,7 @@ namespace HandStack.Core
         {
             Type? type = null;
 
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
                 type = assembly.GetType(typeName, false);
 
@@ -641,7 +641,7 @@ namespace HandStack.Core
 
         public static string? TypedValueToString(object rawValue, CultureInfo culture)
         {
-            Type type = rawValue.GetType();
+            var type = rawValue.GetType();
             string? result;
 
             if (type == typeof(string))
@@ -681,7 +681,7 @@ namespace HandStack.Core
             }
             else
             {
-                TypeConverter converter = TypeDescriptor.GetConverter(type);
+                var converter = TypeDescriptor.GetConverter(type);
 
                 if (converter != null && converter.CanConvertTo(typeof(string)))
                 {
@@ -704,7 +704,7 @@ namespace HandStack.Core
         public static object? StringToTypedValue(string value, Type targetType, CultureInfo culture)
         {
             object? result = null;
-            bool isEmpty = false;
+            var isEmpty = false;
 
             if (string.IsNullOrEmpty(value) == true)
             {
@@ -854,7 +854,7 @@ namespace HandStack.Core
             }
             else
             {
-                TypeConverter converter = TypeDescriptor.GetConverter(targetType);
+                var converter = TypeDescriptor.GetConverter(targetType);
 
                 if (converter != null && converter.CanConvertFrom(typeof(string)))
                 {
@@ -882,11 +882,11 @@ namespace HandStack.Core
 
         public static Dictionary<string, string> GetEnumList(Type instance)
         {
-            string[] enumStrings = Enum.GetNames(instance);
+            var enumStrings = Enum.GetNames(instance);
 
-            Dictionary<string, string> enumList = new Dictionary<string, string>();
+            var enumList = new Dictionary<string, string>();
 
-            foreach (string enumString in enumStrings)
+            foreach (var enumString in enumStrings)
             {
                 enumList.Add(enumString, enumString);
             }
@@ -896,19 +896,17 @@ namespace HandStack.Core
 
         public static void Serialize<T>(T sourceType, string fileName)
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(T));
-            using (Stream writeStream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None))
-            {
-                serializer.Serialize(writeStream, sourceType);
-            }
+            var serializer = new XmlSerializer(typeof(T));
+            using Stream writeStream = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None);
+            serializer.Serialize(writeStream, sourceType);
         }
 
         public static string? Serialize<T>(T sourceType)
         {
             string? result = null;
-            using (StringWriter writer = new StringWriter())
+            using (var writer = new StringWriter())
             {
-                XmlSerializer serializer = new XmlSerializer(typeof(T));
+                var serializer = new XmlSerializer(typeof(T));
                 serializer.Serialize(writer, sourceType);
                 result = writer.ToString();
             }
@@ -918,15 +916,15 @@ namespace HandStack.Core
 
         public static T? DeSerializeXml<T>(string xml)
         {
-            T? result = default(T);
+            var result = default(T);
             if (string.IsNullOrEmpty(xml) == true)
             {
                 return default(T);
             }
 
-            using (StringReader reader = new StringReader(xml))
+            using (var reader = new StringReader(xml))
             {
-                XmlSerializer serializer = new XmlSerializer(typeof(T));
+                var serializer = new XmlSerializer(typeof(T));
                 result = (T?)serializer.Deserialize(reader);
             }
 
@@ -936,13 +934,13 @@ namespace HandStack.Core
         public static T? Deserialize<T>(string fileName) where T : class, new()
         {
             T? result = null;
-            FileInfo settingFile = new FileInfo(fileName);
+            var settingFile = new FileInfo(fileName);
             if (settingFile.Exists == false)
             {
                 return new T();
             }
 
-            XmlSerializer serializer = new XmlSerializer(typeof(T));
+            var serializer = new XmlSerializer(typeof(T));
             using (Stream readStream = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.None))
             {
                 result = serializer.Deserialize(readStream) as T;
@@ -959,8 +957,8 @@ namespace HandStack.Core
                 return result;
             }
 
-            DataContractJsonSerializer serializer = new DataContractJsonSerializer(sourceType.GetType());
-            using (MemoryStream ms = new MemoryStream())
+            var serializer = new DataContractJsonSerializer(sourceType.GetType());
+            using (var ms = new MemoryStream())
             {
                 serializer.WriteObject(ms, sourceType);
                 result = Encoding.Default.GetString(ms.ToArray());
@@ -971,14 +969,12 @@ namespace HandStack.Core
 
         public static T? JsonDeserialize<T>(string json)
         {
-            T? result = Activator.CreateInstance<T>();
+            var result = Activator.CreateInstance<T>();
             if (result != null)
             {
-                using (MemoryStream ms = new MemoryStream(Encoding.Unicode.GetBytes(json)))
-                {
-                    DataContractJsonSerializer serializer = new DataContractJsonSerializer(result.GetType());
-                    result = (T?)serializer.ReadObject(ms);
-                }
+                using var ms = new MemoryStream(Encoding.Unicode.GetBytes(json));
+                var serializer = new DataContractJsonSerializer(result.GetType());
+                result = (T?)serializer.ReadObject(ms);
             }
 
             return result;
@@ -1006,16 +1002,16 @@ namespace HandStack.Core
                 return;
             }
 
-            string[] excluded = Array.Empty<string>();
+            var excluded = Array.Empty<string>();
             if (excludedProperties.Length > 0)
             {
                 excluded = excludedProperties.Split(new char[1] { ',' }, StringSplitOptions.RemoveEmptyEntries);
             }
 
-            MemberInfo[] memberInfoType = targetType.GetType().GetMembers(memberAccessFlags);
-            foreach (MemberInfo memberInfo in memberInfoType)
+            var memberInfoType = targetType.GetType().GetMembers(memberAccessFlags);
+            foreach (var memberInfo in memberInfoType)
             {
-                string FieldName = memberInfo.Name;
+                var FieldName = memberInfo.Name;
                 if (excludedProperties.Length > 0 && excluded.Contains(FieldName))
                 {
                     continue;
@@ -1023,21 +1019,21 @@ namespace HandStack.Core
 
                 if (memberInfo.MemberType == MemberTypes.Field)
                 {
-                    FieldInfo? sourceField = sourceType.GetType().GetField(FieldName);
+                    var sourceField = sourceType.GetType().GetField(FieldName);
 
                     if (sourceField == null)
                     {
                         continue;
                     }
 
-                    object? SourceValue = sourceField.GetValue(sourceType);
+                    var SourceValue = sourceField.GetValue(sourceType);
 
                     ((FieldInfo)memberInfo).SetValue(targetType, SourceValue);
                 }
                 else if (memberInfo.MemberType == MemberTypes.Property)
                 {
-                    PropertyInfo? targetProperty = memberInfo as PropertyInfo;
-                    PropertyInfo? sourceProperty = sourceType.GetType().GetProperty(FieldName, memberAccessFlags);
+                    var targetProperty = memberInfo as PropertyInfo;
+                    var sourceProperty = sourceType.GetType().GetProperty(FieldName, memberAccessFlags);
 
                     if (sourceProperty == null || targetProperty == null)
                     {
@@ -1046,7 +1042,7 @@ namespace HandStack.Core
 
                     if (targetProperty.CanWrite && sourceProperty.CanRead)
                     {
-                        object? SourceValue = sourceProperty.GetValue(sourceType, null);
+                        var SourceValue = sourceProperty.GetValue(sourceType, null);
                         targetProperty.SetValue(targetType, SourceValue, null);
                     }
                 }
@@ -1060,11 +1056,11 @@ namespace HandStack.Core
                 return;
             }
 
-            MemberInfo[] members = sourceType.GetType().GetMembers(memberAccess);
+            var members = sourceType.GetType().GetMembers(memberAccess);
 
             var queryResults = from m in members.AsParallel() where m.MemberType == MemberTypes.Field select m;
 
-            foreach (MemberInfo member in queryResults)
+            foreach (var member in queryResults)
             {
                 try
                 {

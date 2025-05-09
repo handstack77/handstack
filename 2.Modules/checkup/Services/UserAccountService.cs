@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-using HandStack.Core.ExtensionMethod;
-using HandStack.Web.Extensions;
-using HandStack.Web.Entity;
-
 using checkup.Extensions;
+
+using HandStack.Core.ExtensionMethod;
+using HandStack.Web.Entity;
+using HandStack.Web.Extensions;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -42,7 +42,7 @@ namespace checkup.Services
             {
                 try
                 {
-                    UserAccount userAccount = new UserAccount()
+                    var userAccount = new UserAccount()
                     {
                         ApplicationID = token["ApplicationID"].ToStringSafe(),
                         UserAccountID = token["UserAccountID"].ToStringSafe(),
@@ -105,7 +105,7 @@ namespace checkup.Services
                         foreach (var item in memberClaims)
                         {
                             var claimType = item.Key;
-                            string claimValue = item.Value;
+                            var claimValue = item.Value;
                             if (string.IsNullOrEmpty(claimType) == false)
                             {
                                 var claim = new Claim(claimType, claimValue);
@@ -141,14 +141,14 @@ namespace checkup.Services
         public async Task<JToken?> GetUserAccountByID(string applicationID, string userAccountID)
         {
             JToken? result = null;
-            List<ServiceParameter> serviceParameters = new List<ServiceParameter>();
+            var serviceParameters = new List<ServiceParameter>();
             serviceParameters.Add("ApplicationID", applicationID);
             serviceParameters.Add("UserAccountID", userAccountID);
 
             var transactionResult = await moduleApiClient.TransactionDirect("HDS|JWT|JWT010|GD04", serviceParameters);
             if (transactionResult?.ContainsKey("HasException") == true)
             {
-                string message = (transactionResult?["HasException"]?["ErrorMessage"]).ToStringSafe();
+                var message = (transactionResult?["HasException"]?["ErrorMessage"]).ToStringSafe();
                 logger.Error("[{LogCategory}] " + $"ServiceParameters: {JsonConvert.SerializeObject(serviceParameters)}, ErrorMessage: RefreshToken로 사용자 정보 조회 실패 {message}", "UserAccountService/GetUserAccountByID");
             }
             else
@@ -162,13 +162,13 @@ namespace checkup.Services
         public async Task<JToken?> GetUserResultByRefreshToken(string token)
         {
             JToken? result = null;
-            List<ServiceParameter> serviceParameters = new List<ServiceParameter>();
+            var serviceParameters = new List<ServiceParameter>();
             serviceParameters.Add("RefreshToken", token);
 
             var transactionResult = await moduleApiClient.TransactionDirect("HDS|JWT|JWT010|GD02", serviceParameters);
             if (transactionResult?.ContainsKey("HasException") == true)
             {
-                string message = (transactionResult?["HasException"]?["ErrorMessage"]).ToStringSafe();
+                var message = (transactionResult?["HasException"]?["ErrorMessage"]).ToStringSafe();
                 logger.Error("[{LogCategory}] " + $"ServiceParameters: {JsonConvert.SerializeObject(serviceParameters)}, ErrorMessage: RefreshToken로 사용자 정보 조회 실패 {message}", "UserAccountService/GetUserResultByRefreshToken");
             }
             else
@@ -188,12 +188,12 @@ namespace checkup.Services
 
         public async Task RemoveOldRefreshTokens(UserAccount userAccount)
         {
-            List<ServiceParameter> serviceParameters = new List<ServiceParameter>();
+            var serviceParameters = new List<ServiceParameter>();
             serviceParameters.Add("UserAccountID", userAccount.UserAccountID);
             var transactionResult = await moduleApiClient.TransactionDirect($"HDS|JWT|JWT010|DD01", serviceParameters);
             if (transactionResult?.ContainsKey("HasException") == true)
             {
-                string message = $"Forbes 앱 오래된 사용자 RefreshToken 삭제 실패 {(transactionResult?["HasException"]?["ErrorMessage"]).ToStringSafe()}";
+                var message = $"Forbes 앱 오래된 사용자 RefreshToken 삭제 실패 {(transactionResult?["HasException"]?["ErrorMessage"]).ToStringSafe()}";
                 logger.Error("[{LogCategory}] " + $"ServiceParameters: {JsonConvert.SerializeObject(serviceParameters)}, ErrorMessage: {message}", "UserAccountService/RemoveOldRefreshTokens");
             }
         }
@@ -202,12 +202,12 @@ namespace checkup.Services
         {
             if (string.IsNullOrEmpty(refreshToken.ReplacedByToken) == false)
             {
-                List<ServiceParameter> serviceParameters = new List<ServiceParameter>();
+                var serviceParameters = new List<ServiceParameter>();
                 serviceParameters.Add("RefreshToken", refreshToken.ReplacedByToken);
                 var transactionResult = await moduleApiClient.TransactionDirect("HDS|JWT|JWT010|GD03", serviceParameters);
                 if (transactionResult?.ContainsKey("HasException") == true)
                 {
-                    string message = (transactionResult?["HasException"]?["ErrorMessage"]).ToStringSafe();
+                    var message = (transactionResult?["HasException"]?["ErrorMessage"]).ToStringSafe();
                     logger.Error("[{LogCategory}] " + $"ServiceParameters: {JsonConvert.SerializeObject(serviceParameters)}, ErrorMessage: RefreshToken로 토큰 정보 조회 실패 {message}", "UserAccountService/RevokeDescendantRefreshTokens");
                 }
                 else
@@ -234,7 +234,7 @@ namespace checkup.Services
             token.RevokedByIP = ipAddress;
             token.ReplacedByToken = replacedByToken;
 
-            List<ServiceParameter> serviceParameters = new List<ServiceParameter>();
+            var serviceParameters = new List<ServiceParameter>();
             serviceParameters.Add("RefreshToken", token.Token);
             serviceParameters.Add("RevokedAt", token.RevokedAt?.ToString("yyyy-MM-dd HH:mm:ss.fff"));
             serviceParameters.Add("RevokedByIP", token.RevokedByIP);
@@ -242,7 +242,7 @@ namespace checkup.Services
             var transactionResult = await moduleApiClient.TransactionDirect("HDS|JWT|JWT010|UD01", serviceParameters);
             if (transactionResult?.ContainsKey("HasException") == true)
             {
-                string message = (transactionResult?["HasException"]?["ErrorMessage"]).ToStringSafe();
+                var message = (transactionResult?["HasException"]?["ErrorMessage"]).ToStringSafe();
                 logger.Error("[{LogCategory}] " + $"ServiceParameters: {JsonConvert.SerializeObject(serviceParameters)}, ErrorMessage: RefreshToken 폐기 실패 {message}", "UserAccountService/RevokeRefreshToken");
             }
         }

@@ -32,11 +32,11 @@ namespace HandStack.Core.DataModel
 
         public bool Validate()
         {
-            bool IsValid = true;
+            var IsValid = true;
 
             validationErrors.Clear();
 
-            foreach (BusinessRule Rule in businessRules)
+            foreach (var Rule in businessRules)
             {
                 if (Rule.Validate(this) == false)
                 {

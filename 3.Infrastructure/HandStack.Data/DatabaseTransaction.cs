@@ -21,7 +21,7 @@ namespace HandStack.Data
 
         private bool IsSupportTransaction(DataProviders providers)
         {
-            bool result = false;
+            var result = false;
             switch (providers)
             {
                 case DataProviders.SqlServer:

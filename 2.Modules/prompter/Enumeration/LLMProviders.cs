@@ -18,7 +18,7 @@ namespace prompter.Enumeration
 
         public static string ToEnumString(this LLMProviders key, string category = "base")
         {
-            string result = string.Empty;
+            var result = string.Empty;
             switch (category)
             {
                 default:

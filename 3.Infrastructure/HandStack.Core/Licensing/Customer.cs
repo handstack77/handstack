@@ -16,7 +16,7 @@ namespace HandStack.Core.Licensing
             get { return GetTag("Name").ToStringSafe(); }
             set { SetTag("Name", value); }
         }
-        
+
         public string Company
         {
             get { return GetTag("Company").ToStringSafe(); }

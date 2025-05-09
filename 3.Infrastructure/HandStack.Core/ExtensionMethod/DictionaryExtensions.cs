@@ -9,8 +9,8 @@ namespace HandStack.Core.ExtensionMethod
     {
         public static bool Contains(this IDictionary @this, string sectionName, string key)
         {
-            bool result = false;
-            IDictionary? newDictionary = @this.Section(sectionName);
+            var result = false;
+            var newDictionary = @this.Section(sectionName);
             if (newDictionary == null)
             {
                 return result;
@@ -24,7 +24,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static T? Get<T>(this IDictionary @this, string key)
         {
-            object? input = @this[key];
+            var input = @this[key];
             if (input == null)
             {
                 return default(T);
@@ -34,7 +34,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static T? Get<T>(this IDictionary @this, string section, string key)
         {
-            object? input = @this.Get(section, key);
+            var input = @this.Get(section, key);
             if (input == null)
             {
                 return default(T);
@@ -50,7 +50,7 @@ namespace HandStack.Core.ExtensionMethod
                 return result;
             }
 
-            IDictionary? newDictionary = @this[sectionName] as IDictionary;
+            var newDictionary = @this[sectionName] as IDictionary;
             if (newDictionary != null && newDictionary.Contains(key) == true)
             {
                 result = newDictionary[key];
@@ -106,7 +106,7 @@ namespace HandStack.Core.ExtensionMethod
         {
             return @this.Select(x =>
             {
-                DbParameter parameter = command.CreateParameter();
+                var parameter = command.CreateParameter();
                 parameter.ParameterName = x.Key;
                 parameter.Value = x.Value;
                 return parameter;
@@ -115,11 +115,11 @@ namespace HandStack.Core.ExtensionMethod
 
         public static DbParameter[] ToDbParameters(this IDictionary<string, object> @this, DbConnection connection)
         {
-            DbCommand command = connection.CreateCommand();
+            var command = connection.CreateCommand();
 
             return @this.Select(x =>
             {
-                DbParameter parameter = command.CreateParameter();
+                var parameter = command.CreateParameter();
                 parameter.ParameterName = x.Key;
                 parameter.Value = x.Value;
                 return parameter;

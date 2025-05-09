@@ -4,13 +4,14 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 
 using HandStack.Core.ExtensionMethod;
-using HandStack.Web.Extensions;
 using HandStack.Web.ApiClient;
 using HandStack.Web.Entity;
+using HandStack.Web.Extensions;
 
 using Newtonsoft.Json.Linq;
 
 using Serilog;
+
 using wwwroot.Entity;
 
 namespace wwwroot.Extensions
@@ -38,7 +39,7 @@ namespace wwwroot.Extensions
                 try
                 {
                     var transactionInfo = transactionCommandID.Split("|");
-                    TransactionClientObject transactionObject = new TransactionClientObject();
+                    var transactionObject = new TransactionClientObject();
                     transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
                     transactionObject.ProgramID = transactionInfo[0];
                     transactionObject.BusinessID = transactionInfo[1];
@@ -46,7 +47,7 @@ namespace wwwroot.Extensions
                     transactionObject.FunctionID = transactionInfo[3];
                     transactionObject.ScreenID = transactionObject.TransactionID;
                     transactionObject.StartTraceID = string.IsNullOrEmpty(startTraceID) == true ? nameof(ModuleApiClient) : startTraceID;
-                    StackTrace stackTrace = new StackTrace();
+                    var stackTrace = new StackTrace();
 
                     if (serviceParameters != null)
                     {
@@ -57,7 +58,7 @@ namespace wwwroot.Extensions
 
                     if (transactionResult.ContainsKey("HasException") == true)
                     {
-                        string message = (transactionResult?["HasException"]?["ErrorMessage"]).ToStringSafe();
+                        var message = (transactionResult?["HasException"]?["ErrorMessage"]).ToStringSafe();
                         logger.Error("[{LogCategory}] " + $"ErrorMessage: {message}", "ModuleApiClient/TransactionDirect");
                     }
 

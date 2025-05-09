@@ -24,7 +24,7 @@ namespace HandStack.Core.ExtensionMethod
         // var result = await (() => GetResultAsync()).Retry(3, TimeSpan.FromSeconds(1));
         public static async Task<TResult?> Retry<TResult>(this Func<Task<TResult>> taskFactory, int maxRetries, TimeSpan delay)
         {
-            for (int i = 0; i < maxRetries; i++)
+            for (var i = 0; i < maxRetries; i++)
             {
                 try
                 {
@@ -86,7 +86,7 @@ namespace HandStack.Core.ExtensionMethod
         public static async Task WithTimeout(this Task[] tasks, TimeSpan timeout)
         {
             var cts = new CancellationTokenSource();
-            Task task = tasks.WhenAllOrAnyFailed();
+            var task = tasks.WhenAllOrAnyFailed();
             if (task == await Task.WhenAny(task, Task.Delay(timeout, cts.Token)).ConfigureAwait(false))
             {
                 cts.Cancel();
@@ -114,7 +114,7 @@ namespace HandStack.Core.ExtensionMethod
                 }
 
                 var exceptions = new List<Exception>();
-                foreach (Task t in tasks)
+                foreach (var t in tasks)
                 {
                     switch (t.Status)
                     {
@@ -124,8 +124,8 @@ namespace HandStack.Core.ExtensionMethod
                                 exceptions.Add(t.Exception);
                             }
                             break;
-                        case TaskStatus.Canceled: 
-                            exceptions.Add(new TaskCanceledException(t)); 
+                        case TaskStatus.Canceled:
+                            exceptions.Add(new TaskCanceledException(t));
                             break;
                     }
                 }
@@ -141,9 +141,9 @@ namespace HandStack.Core.ExtensionMethod
 
         private static Task WhenAllOrAnyFailedCore(this Task[] tasks)
         {
-            int remaining = tasks.Length;
+            var remaining = tasks.Length;
             var tcs = new TaskCompletionSource<bool>();
-            foreach (Task t in tasks)
+            foreach (var t in tasks)
             {
                 t.ContinueWith(a =>
                 {
@@ -182,18 +182,16 @@ namespace HandStack.Core.ExtensionMethod
         // var result = TaskExtensions.ExecuteWithTimeout(() => LongRunningOperation(), TimeSpan.FromSeconds(5)).Result;
         public static async Task<T> ExecuteWithTimeout<T>(Func<T> func, TimeSpan timeout)
         {
-            using (var cts = new CancellationTokenSource())
+            using var cts = new CancellationTokenSource();
+            var task = Task.Run(func, cts.Token);
+            if (await Task.WhenAny(task, Task.Delay(timeout, cts.Token)) == task)
             {
-                var task = Task.Run(func, cts.Token);
-                if (await Task.WhenAny(task, Task.Delay(timeout, cts.Token)) == task)
-                {
-                    cts.Cancel();
-                    return task.Result;
-                }
-                else
-                {
-                    throw new TimeoutException();
-                }
+                cts.Cancel();
+                return task.Result;
+            }
+            else
+            {
+                throw new TimeoutException();
             }
         }
     }

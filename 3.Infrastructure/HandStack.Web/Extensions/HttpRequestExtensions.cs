@@ -31,10 +31,8 @@ namespace HandStack.Web.Extensions
                 inputStream = request.Body;
             }
 
-            using (StreamReader reader = new StreamReader(inputStream, encoding))
-            {
-                return await reader.ReadToEndAsync();
-            }
+            using var reader = new StreamReader(inputStream, encoding);
+            return await reader.ReadToEndAsync();
         }
 
         public static async Task<byte[]> GetRawBodyBytesAsync(this HttpRequest request, Stream? inputStream = null)
@@ -44,11 +42,9 @@ namespace HandStack.Web.Extensions
                 inputStream = request.Body;
             }
 
-            using (var ms = new MemoryStream(8192))
-            {
-                await inputStream.CopyToAsync(ms);
-                return ms.ToArray();
-            }
+            using var ms = new MemoryStream(8192);
+            await inputStream.CopyToAsync(ms);
+            return ms.ToArray();
         }
 
         public static string GetBaseUrl(this HttpRequest request)
@@ -112,7 +108,7 @@ namespace HandStack.Web.Extensions
 
         public static int GetOffsetMinutes(this HttpRequest request, string offsetKey = "OffsetMinutes")
         {
-            int result = DateTimeOffset.Now.TotalOffsetMinutes;
+            var result = DateTimeOffset.Now.TotalOffsetMinutes;
             var offsetMinutes = GetContainValue(request, "OffsetMinutes");
             var timezoneOffsetMinutes = string.IsNullOrEmpty(offsetMinutes) == true ? result : offsetMinutes.ParseInt(result);
 
@@ -121,7 +117,7 @@ namespace HandStack.Web.Extensions
 
         public static string GetContainValue(this HttpRequest request, string requestKey, string defaultValue = "")
         {
-            string result = "";
+            var result = "";
             if (request.Query.ContainsKey(requestKey) == true)
             {
                 result = request.Query[requestKey].ToString();
@@ -151,10 +147,10 @@ namespace HandStack.Web.Extensions
         {
             ControllerActionDescriptor? result = null;
 
-            bool isApiPath = httpContext.Request.Path.ToString().Contains("/api/");
-            string? areaName = httpContext.Request.RouteValues["area"].ToStringSafe();
-            string? controllerName = httpContext.Request.RouteValues["controller"].ToStringSafe();
-            string? actionName = httpContext.Request.RouteValues["action"].ToStringSafe();
+            var isApiPath = httpContext.Request.Path.ToString().Contains("/api/");
+            var areaName = httpContext.Request.RouteValues["area"].ToStringSafe();
+            var controllerName = httpContext.Request.RouteValues["controller"].ToStringSafe();
+            var actionName = httpContext.Request.RouteValues["action"].ToStringSafe();
 
             if (isApiPath == false || areaName == null || controllerName == null || actionName == null)
             {
@@ -180,7 +176,7 @@ namespace HandStack.Web.Extensions
 
         public static string? GetRemoteIpAddress(this HttpContext httpContext, bool tryUseXForwardHeader = true)
         {
-            string? ip = "0.0.0.0";
+            var ip = "0.0.0.0";
 
             if (tryUseXForwardHeader == true)
             {
@@ -212,8 +208,8 @@ namespace HandStack.Web.Extensions
                 ip = httpContext?.Connection.LocalIpAddress?.MapToIPv4().ToString();
                 if (ip == "::1" || ip == "0.0.0.1" || ip == "127.0.0.1")
                 {
-                    IPHostEntry host = Dns.GetHostEntry(Dns.GetHostName());
-                    foreach (IPAddress ipAddress in host.AddressList)
+                    var host = Dns.GetHostEntry(Dns.GetHostName());
+                    foreach (var ipAddress in host.AddressList)
                     {
                         if (ipAddress.AddressFamily == AddressFamily.InterNetwork)
                         {
@@ -229,7 +225,7 @@ namespace HandStack.Web.Extensions
 
         public static string? GetRemoteIpAddress(this HttpContext httpContext, string reportedClientIP, string trustedProxyIP, bool tryUseXForwardHeader = true)
         {
-            string? ip = "0.0.0.0";
+            var ip = "0.0.0.0";
 
             if (tryUseXForwardHeader == true)
             {
@@ -276,7 +272,7 @@ namespace HandStack.Web.Extensions
             {
                 if (request?.Headers?.TryGetValue(headerName, out values) ?? false)
                 {
-                    string rawValues = values.ToString();
+                    var rawValues = values.ToString();
 
                     if (rawValues.IsNullOrWhitespace() == false)
                     {

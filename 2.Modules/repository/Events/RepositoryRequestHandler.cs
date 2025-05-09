@@ -4,8 +4,8 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using HandStack.Core.ExtensionMethod;
-using HandStack.Web.Extensions;
 using HandStack.Data.Enumeration;
+using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.Message;
 
 using MediatR;
@@ -70,10 +70,10 @@ namespace repository.Events
                 {
                     if (repositoryAction.Arguments != null)
                     {
-                        string applicationNo = repositoryAction.Arguments.Get<string>("applicationNo").ToStringSafe();
-                        string logoItemID = repositoryAction.Arguments.Get<string>("logoItemID").ToStringSafe();
-                        string applicationID = repositoryAction.Arguments.Get<string>("applicationID").ToStringSafe();
-                        string repositoryID = repositoryAction.Arguments.Get<string>("repositoryID").ToStringSafe();
+                        var applicationNo = repositoryAction.Arguments.Get<string>("applicationNo").ToStringSafe();
+                        var logoItemID = repositoryAction.Arguments.Get<string>("logoItemID").ToStringSafe();
+                        var applicationID = repositoryAction.Arguments.Get<string>("applicationID").ToStringSafe();
+                        var repositoryID = repositoryAction.Arguments.Get<string>("repositoryID").ToStringSafe();
 
                         var repository = moduleApiClient.GetRepository(applicationID, repositoryID);
                         if (repository == null)

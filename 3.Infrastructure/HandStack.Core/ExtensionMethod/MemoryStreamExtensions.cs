@@ -17,7 +17,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static void WriteString(this MemoryStream @this, string inputString, Encoding encoding)
         {
-            byte[] buffer = encoding.GetBytes(inputString);
+            var buffer = encoding.GetBytes(inputString);
             @this.Write(buffer, 0, buffer.Length);
         }
 

@@ -27,8 +27,8 @@ namespace HandStack.Core.ExpandObjects.DataObject
 
         public override bool TryGetMember(GetMemberBinder binder, out object? output)
         {
-            bool result = false;
-            XElement[] nodes = this.root.Elements(binder.Name).ToArray();
+            var result = false;
+            var nodes = this.root.Elements(binder.Name).ToArray();
             if (nodes.Length > 1)
             {
                 output = nodes.Select(o => new DynamicXml(o)).ToArray();
@@ -50,7 +50,7 @@ namespace HandStack.Core.ExpandObjects.DataObject
 
         public override bool TryConvert(ConvertBinder binder, out object? output)
         {
-            bool result = false;
+            var result = false;
             try
             {
                 output = Convert.ChangeType(this.root.Value, binder.Type);

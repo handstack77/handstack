@@ -69,7 +69,7 @@ namespace function.Areas.function.Controllers
                 }
                 catch (Exception exception)
                 {
-                    string exceptionText = exception.ToMessage();
+                    var exceptionText = exception.ToMessage();
                     logger.Error("[{LogCategory}] " + exceptionText, "Execution/has");
 
                     result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
@@ -90,7 +90,7 @@ namespace function.Areas.function.Controllers
             }
             else
             {
-                bool actionResult = false;
+                var actionResult = false;
 
                 try
                 {
@@ -101,21 +101,21 @@ namespace function.Areas.function.Controllers
 
                     logger.Information("[{LogCategory}] " + $"WatcherChangeTypes: {changeType}, FilePath: {filePath}", "Query/Refresh");
 
-                    FileInfo fileInfo = new FileInfo(filePath);
+                    var fileInfo = new FileInfo(filePath);
 
                     var businessContracts = FunctionMapper.ScriptMappings;
                     lock (businessContracts)
                     {
-                        WatcherChangeTypes watcherChangeTypes = (WatcherChangeTypes)Enum.Parse(typeof(WatcherChangeTypes), changeType);
+                        var watcherChangeTypes = (WatcherChangeTypes)Enum.Parse(typeof(WatcherChangeTypes), changeType);
                         switch (watcherChangeTypes)
                         {
                             case WatcherChangeTypes.Created:
                             case WatcherChangeTypes.Changed:
                                 if (string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false)
                                 {
-                                    string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-                                    string itemPath = PathExtensions.Join(appBasePath, filePath);
-                                    DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
+                                    var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                                    var itemPath = PathExtensions.Join(appBasePath, filePath);
+                                    var directoryInfo = new DirectoryInfo(appBasePath);
                                     if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true && (fileInfo.Name.StartsWith("featureMain.") == true || fileInfo.Name == "featureMeta.json" || fileInfo.Name == "featureSQL.xml") == true)
                                     {
                                         if (fileInfo.Extension != ".json")
@@ -131,8 +131,8 @@ namespace function.Areas.function.Controllers
                                 {
                                     foreach (var basePath in ModuleConfiguration.ContractBasePath)
                                     {
-                                        string itemPath = PathExtensions.Join(basePath, filePath);
-                                        DirectoryInfo directoryInfo = new DirectoryInfo(basePath);
+                                        var itemPath = PathExtensions.Join(basePath, filePath);
+                                        var directoryInfo = new DirectoryInfo(basePath);
                                         if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true && (fileInfo.Name.StartsWith("featureMain.") == true || fileInfo.Name == "featureMeta.json" || fileInfo.Name == "featureSQL.xml") == true)
                                         {
                                             if (fileInfo.Extension != ".json")
@@ -148,11 +148,11 @@ namespace function.Areas.function.Controllers
                                 }
                                 break;
                             case WatcherChangeTypes.Deleted:
-                                List<ModuleScriptMap> existStatementMaps = new List<ModuleScriptMap>();
+                                var existStatementMaps = new List<ModuleScriptMap>();
                                 if (string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false)
                                 {
-                                    string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-                                    DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
+                                    var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                                    var directoryInfo = new DirectoryInfo(appBasePath);
                                     if (directoryInfo.Exists == true)
                                     {
                                         existStatementMaps = FunctionMapper.ScriptMappings.Select(p => p.Value).Where(p =>
@@ -171,14 +171,14 @@ namespace function.Areas.function.Controllers
 
                                 if (existStatementMaps.Count > 0)
                                 {
-                                    List<string> mapStrings = new List<string>();
-                                    for (int i = 0; i < existStatementMaps.Count; i++)
+                                    var mapStrings = new List<string>();
+                                    for (var i = 0; i < existStatementMaps.Count; i++)
                                     {
                                         var item = existStatementMaps[i];
                                         mapStrings.Add($"{item.ApplicationID}|{item.ProjectID}|{item.TransactionID}|{item.ScriptID}");
                                     }
 
-                                    for (int i = 0; i < mapStrings.Count; i++)
+                                    for (var i = 0; i < mapStrings.Count; i++)
                                     {
                                         var item = existStatementMaps[i];
                                         var items = mapStrings[i].SplitAndTrim('|');
@@ -194,7 +194,7 @@ namespace function.Areas.function.Controllers
                 }
                 catch (Exception exception)
                 {
-                    string exceptionText = exception.ToMessage();
+                    var exceptionText = exception.ToMessage();
                     logger.Error("[{LogCategory}] " + exceptionText, "Query/Refresh");
 
                     result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
@@ -247,11 +247,11 @@ namespace function.Areas.function.Controllers
 
                     if (string.IsNullOrEmpty(model.FunctionID) == false)
                     {
-                        string queryFunctionID = model.FunctionID.Substring(0, model.FunctionID.Length - 2);
+                        var queryFunctionID = model.FunctionID.Substring(0, model.FunctionID.Length - 2);
                         queryResults = queryResults.Where(p => p.ScriptID.Substring(0, p.ScriptID.Length - 2) == queryFunctionID);
                     }
 
-                    List<ModuleScriptMap>? scriptMaps = queryResults.ToList();
+                    var scriptMaps = queryResults.ToList();
                     if (scriptMaps != null)
                     {
                         result = Content(JsonConvert.SerializeObject(scriptMaps), "application/json");
@@ -259,7 +259,7 @@ namespace function.Areas.function.Controllers
                 }
                 catch (Exception exception)
                 {
-                    string exceptionText = exception.ToMessage();
+                    var exceptionText = exception.ToMessage();
                     logger.Error("[{LogCategory}] " + exceptionText, "Execution/Retrieve");
 
                     result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
@@ -293,7 +293,7 @@ namespace function.Areas.function.Controllers
                 }
                 catch (Exception exception)
                 {
-                    string exceptionText = exception.ToMessage();
+                    var exceptionText = exception.ToMessage();
                     logger.Error("[{LogCategory}] " + exceptionText, "Execution/Meta");
 
                     result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
@@ -307,7 +307,7 @@ namespace function.Areas.function.Controllers
         public async Task<ActionResult> Execute(DynamicRequest request)
         {
             ActionResult result = NotFound();
-            DynamicResponse response = new DynamicResponse();
+            var response = new DynamicResponse();
             response.Acknowledge = AcknowledgeType.Failure;
 
             if (request == null)
@@ -325,7 +325,7 @@ namespace function.Areas.function.Controllers
             response.CorrelationID = request.GlobalID;
             if (string.IsNullOrEmpty(request.RequestID) == true)
             {
-                request.RequestID = $"SELF_{GlobalConfiguration.SystemID}{GlobalConfiguration.HostName}{GlobalConfiguration.RunningEnvironment}{DateTime.Now.ToString("yyyyMMddHHmmssfff")}";
+                request.RequestID = $"SELF_{GlobalConfiguration.SystemID}{GlobalConfiguration.HostName}{GlobalConfiguration.RunningEnvironment}{DateTime.Now:yyyyMMddHHmmssfff}";
             }
 
             if (string.IsNullOrEmpty(request.GlobalID) == true)
@@ -334,7 +334,7 @@ namespace function.Areas.function.Controllers
             }
 
             string? responseData = null;
-            string acknowledge = "N";
+            var acknowledge = "N";
             try
             {
                 if (ModuleConfiguration.IsTransactionLogging == true)
@@ -348,7 +348,7 @@ namespace function.Areas.function.Controllers
 
                 if (request.LoadOptions != null)
                 {
-                    Dictionary<string, string> loadOptions = request.LoadOptions;
+                    var loadOptions = request.LoadOptions;
                     if (loadOptions.Count > 0)
                     {
                     }

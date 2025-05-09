@@ -19,11 +19,11 @@ namespace transact.Extensions
 
         public static List<MetaColumn> GetMetaColumns(this DataTable schemaTable)
         {
-            List<MetaColumn> result = new List<MetaColumn>();
+            var result = new List<MetaColumn>();
 
             foreach (DataRow dataRow in schemaTable.Rows)
             {
-                MetaColumn metaColumn = new MetaColumn();
+                var metaColumn = new MetaColumn();
                 metaColumn.ColumnName = dataRow.GetStringSafe("ColumnName");
                 metaColumn.BaseColumnName = dataRow.GetStringSafe("BaseColumnName");
                 metaColumn.ColumnOrdinal = dataRow.GetInt32("ColumnOrdinal");
@@ -45,11 +45,11 @@ namespace transact.Extensions
 
         public static List<DatabaseColumn> GetDbColumns(this DataTable schemaTable)
         {
-            List<DatabaseColumn> result = new List<DatabaseColumn>();
+            var result = new List<DatabaseColumn>();
 
             foreach (DataRow dataRow in schemaTable.Rows)
             {
-                DatabaseColumn dbColumn = new DatabaseColumn();
+                var dbColumn = new DatabaseColumn();
                 dbColumn.Name = dataRow.GetStringSafe("ColumnName");
                 dbColumn.Comment = dataRow.GetStringSafe("BaseColumnName");
                 dbColumn.Length = dataRow.GetInt32("ColumnSize");
@@ -65,7 +65,7 @@ namespace transact.Extensions
 
         public static string toMetaDataType(string dataType)
         {
-            string result = "string";
+            var result = "string";
 
             switch (dataType)
             {

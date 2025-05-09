@@ -29,7 +29,7 @@ namespace HandStack.Web.Helper
 
             try
             {
-                object? result = new DeserializerBuilder().Build().Deserialize<object>(input);
+                var result = new DeserializerBuilder().Build().Deserialize<object>(input);
                 return result is not null and not string;
             }
             catch
@@ -71,7 +71,7 @@ namespace HandStack.Web.Helper
 
                 if (jsonObject is not null and not string)
                 {
-                    int indent = 0;
+                    var indent = 0;
                     indent = indentationMode switch
                     {
                         Indentation.TwoSpaces => 2,
@@ -83,7 +83,7 @@ namespace HandStack.Web.Helper
                             new SerializerBuilder().BuildValueSerializer(),
                             EmitterSettings.Default.WithBestIndent(indent).WithIndentedSequences());
 
-                    string? yaml = serializer.Serialize(jsonObject);
+                    var yaml = serializer.Serialize(jsonObject);
                     if (string.IsNullOrWhiteSpace(yaml))
                     {
                         return string.Empty;

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace HandStack.Web.Entity
+﻿namespace HandStack.Web.Entity
 {
     public partial record Repository
     {

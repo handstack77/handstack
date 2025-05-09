@@ -173,14 +173,14 @@ namespace HandStack.Core.ExtensionMethod
 
         public static decimal RoundTo(this decimal @this, int d)
         {
-            decimal n = (decimal)Math.Pow(10, d);
+            var n = (decimal)Math.Pow(10, d);
             @this *= n;
             return (Integer(@this) + Integer(Fraction(@this) * 2m)) / n;
         }
 
         public static double RoundTo(this double @this, int d)
         {
-            double n = Math.Pow(10, d);
+            var n = Math.Pow(10, d);
             @this *= n;
             return (Integer(@this) + Integer(Fraction(@this) * 2d)) / n;
         }

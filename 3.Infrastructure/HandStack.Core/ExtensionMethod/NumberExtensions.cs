@@ -203,7 +203,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string ToByteSize(this int fileSize)
         {
-            int order = 0;
+            var order = 0;
             while (fileSize >= 1024 && order < SizesStrings.Length - 1)
             {
                 order++;
@@ -215,7 +215,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string ToByteSize(this double fileSize)
         {
-            int order = 0;
+            var order = 0;
             while (fileSize >= 1024 && order < SizesStrings.Length - 1)
             {
                 order++;
@@ -227,7 +227,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string ToByteSize(this float fileSize)
         {
-            int order = 0;
+            var order = 0;
             while (fileSize >= 1024 && order < SizesStrings.Length - 1)
             {
                 order++;
@@ -239,7 +239,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string ToByteSize(this long fileSize)
         {
-            int order = 0;
+            var order = 0;
             while (fileSize >= 1024 && order < SizesStrings.Length - 1)
             {
                 order++;

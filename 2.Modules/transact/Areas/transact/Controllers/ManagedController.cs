@@ -61,7 +61,7 @@ namespace transact.Areas.transact.Controllers
                 }
                 catch (Exception exception)
                 {
-                    string exceptionText = exception.ToMessage();
+                    var exceptionText = exception.ToMessage();
                     logger.Error("[{LogCategory}] " + exceptionText, "Managed/ResetContract");
 
                     result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
@@ -90,7 +90,7 @@ namespace transact.Areas.transact.Controllers
                         try
                         {
                             var statementMappings = businessContracts.Where(x => x.Value.ApplicationID == applicationID).ToList();
-                            for (int i = statementMappings.Count(); i > 0; i--)
+                            for (var i = statementMappings.Count(); i > 0; i--)
                             {
                                 var item = statementMappings[i - 1].Key;
                                 businessContracts.Remove(item);
@@ -105,13 +105,13 @@ namespace transact.Areas.transact.Controllers
 
                             logger.Information("[{LogCategory}] ContractBasePath: " + basePath, "ManagedController/ResetAppContract");
 
-                            string[] businessFiles = Directory.GetFiles(basePath, "*.json", SearchOption.AllDirectories);
-                            foreach (string businessFile in businessFiles)
+                            var businessFiles = Directory.GetFiles(basePath, "*.json", SearchOption.AllDirectories);
+                            foreach (var businessFile in businessFiles)
                             {
                                 try
                                 {
-                                    string configData = System.IO.File.ReadAllText(businessFile);
-                                    BusinessContract? businessContract = BusinessContract.FromJson(configData);
+                                    var configData = System.IO.File.ReadAllText(businessFile);
+                                    var businessContract = BusinessContract.FromJson(configData);
                                     if (businessContract == null)
                                     {
                                         logger.Error("[{LogCategory}] " + $"업무 계약 파일 역직렬화 오류 - {businessFile}", "LoadContract");
@@ -120,7 +120,7 @@ namespace transact.Areas.transact.Controllers
                                     {
                                         if (businessFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                                         {
-                                            FileInfo fileInfo = new FileInfo(businessFile);
+                                            var fileInfo = new FileInfo(businessFile);
                                             businessContract.ApplicationID = string.IsNullOrEmpty(businessContract.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : businessContract.ApplicationID;
                                             businessContract.ProjectID = string.IsNullOrEmpty(businessContract.ProjectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : businessContract.ProjectID;
                                             businessContract.TransactionID = string.IsNullOrEmpty(businessContract.TransactionID) == true ? fileInfo.Name.Replace(fileInfo.Extension, "") : businessContract.TransactionID;
@@ -178,14 +178,14 @@ namespace transact.Areas.transact.Controllers
                         var tenants = ModuleConfiguration.BusinessFileSyncManager.Where(pair => pair.Key.Contains($"{userWorkID}{Path.DirectorySeparatorChar}{applicationID}"));
                         if (tenants.Any() == true)
                         {
-                            List<string> tenantsPath = new List<string>();
+                            var tenantsPath = new List<string>();
                             foreach (var tenant in tenants)
                             {
                                 tenantsPath.Add(tenant.Key);
                                 tenant.Value?.Stop();
                             }
 
-                            for (int i = 0; i < tenantsPath.Count; i++)
+                            for (var i = 0; i < tenantsPath.Count; i++)
                             {
                                 ModuleConfiguration.BusinessFileSyncManager.Remove(tenantsPath[i]);
                             }
@@ -221,7 +221,7 @@ namespace transact.Areas.transact.Controllers
                 }
                 catch (Exception exception)
                 {
-                    string exceptionText = exception.ToMessage();
+                    var exceptionText = exception.ToMessage();
                     logger.Error("[{LogCategory}] " + exceptionText, "Managed/StringEncrypt");
 
                     result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
@@ -248,7 +248,7 @@ namespace transact.Areas.transact.Controllers
                 }
                 catch (Exception exception)
                 {
-                    string exceptionText = exception.ToMessage();
+                    var exceptionText = exception.ToMessage();
                     logger.Error("[{LogCategory}] " + exceptionText, "Managed/StringDecrypt");
 
                     result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);

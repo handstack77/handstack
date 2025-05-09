@@ -31,7 +31,7 @@ namespace HandStack.Web.Extensions
                 var httpRequest = httpContext.Request;
                 var httpResponse = httpContext.Response;
 
-                int statusCode = httpResponse.StatusCode;
+                var statusCode = httpResponse.StatusCode;
                 if (statusCode == 400 || statusCode == 404)
                 {
                     logger.Information("[{LogCategory}] " + $"ContentType: {httpResponse.ContentType}, Path: {httpRequest.Path}, StatusCode: {statusCode}", "ErrorHandleMiddleware/InvokeAsync");
@@ -43,7 +43,7 @@ namespace HandStack.Web.Extensions
                 var httpRequest = httpContext.Request;
                 var httpResponse = httpContext.Response;
 
-                int statusCode = httpResponse.StatusCode;
+                var statusCode = httpResponse.StatusCode;
                 if (string.IsNullOrEmpty(httpRequest.ContentType) == false && httpRequest.ContentType.ToLower().IndexOf("application/json") > -1)
                 {
                     httpResponse.ContentType = "application/json";

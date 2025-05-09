@@ -24,7 +24,7 @@ namespace ack.Services
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            string moduleConfigurationUrl = "";
+            var moduleConfigurationUrl = "";
             try
             {
                 var client = new RestClient();
@@ -35,7 +35,7 @@ namespace ack.Services
                     {
                         logger.Information($"ModuleConfigurationUrl: {item} 요청");
 
-                        Uri baseUri = new Uri(item);
+                        var baseUri = new Uri(item);
                         var request = new RestRequest(baseUri, Method.Get);
                         request.AddHeader("ApplicationName", GlobalConfiguration.ApplicationName);
                         request.AddHeader("SystemID", GlobalConfiguration.SystemID);

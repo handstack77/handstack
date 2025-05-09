@@ -35,7 +35,7 @@ namespace edgeproxy
             }
 
             var entryAckFileName = Path.Join(handstackHome, "app", RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true ? "ack.exe" : "ack");
-            FileInfo ackFile = new FileInfo(entryAckFileName);
+            var ackFile = new FileInfo(entryAckFileName);
             if (ackFile.Exists == false)
             {
                 Console.WriteLine($"ACK 파일이 존재하지 않습니다. {ackFile.FullName}");
@@ -45,7 +45,7 @@ namespace edgeproxy
             var processes = Process.GetProcessesByName("ack");
             if (processes.Any() == false)
             {
-                bool isAckProcessRun = true;
+                var isAckProcessRun = true;
                 var ackProcessRun = args.FirstOrDefault(arg => arg.StartsWith("--ackrun="))?.Split('=')[1];
                 if (bool.TryParse(ackProcessRun, out isAckProcessRun) == false)
                 {
@@ -56,7 +56,7 @@ namespace edgeproxy
                 {
                     var arguments = $"{args.FirstOrDefault(arg => arg.StartsWith("--arguments="))?.Replace("--arguments=", "")} --pname=edgeproxy-ack".Trim();
 
-                    string ackFilePath = ackFile.FullName.Replace("\\", "/");
+                    var ackFilePath = ackFile.FullName.Replace("\\", "/");
 
                     var processInfo = new ProcessStartInfo();
                     processInfo.FileName = ackFilePath;
@@ -74,7 +74,7 @@ namespace edgeproxy
                 ackProcess = processes.FirstOrDefault();
             }
 
-            bool isAckProcessExit = true;
+            var isAckProcessExit = true;
             var ackProcessExit = args.FirstOrDefault(arg => arg.StartsWith("--ackexit="))?.Split('=')[1];
             if (bool.TryParse(ackProcessExit, out isAckProcessExit) == false)
             {

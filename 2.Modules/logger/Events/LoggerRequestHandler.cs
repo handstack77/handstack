@@ -140,7 +140,7 @@ namespace logger.Events
 
                 await Task.Run(() =>
                 {
-                    LogMessage logMessage = new LogMessage();
+                    var logMessage = new LogMessage();
                     logMessage.LogNo = loggerRequest.LogNo;
                     logMessage.ServerID = loggerRequest.ServerID;
                     logMessage.RunningEnvironment = loggerRequest.RunningEnvironment;

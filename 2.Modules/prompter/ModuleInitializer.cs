@@ -44,18 +44,18 @@ namespace prompter
 
         public void ConfigureServices(IServiceCollection services, IWebHostEnvironment environment, IConfiguration configuration)
         {
-            ModuleInfo? module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == ModuleID);
+            var module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == ModuleID);
             if (module != null)
             {
-                string moduleSettingFilePath = module.ModuleSettingFilePath;
+                var moduleSettingFilePath = module.ModuleSettingFilePath;
                 if (File.Exists(moduleSettingFilePath) == true)
                 {
-                    string configurationText = File.ReadAllText(moduleSettingFilePath);
-                    ModuleConfigJson? moduleConfigJson = JsonConvert.DeserializeObject<ModuleConfigJson>(configurationText);
+                    var configurationText = File.ReadAllText(moduleSettingFilePath);
+                    var moduleConfigJson = JsonConvert.DeserializeObject<ModuleConfigJson>(configurationText);
 
                     if (moduleConfigJson != null)
                     {
-                        ModuleConfig moduleConfig = moduleConfigJson.ModuleConfig;
+                        var moduleConfig = moduleConfigJson.ModuleConfig;
                         ModuleConfiguration.ModuleID = moduleConfigJson.ModuleID;
                         ModuleConfiguration.Version = moduleConfigJson.Version;
                         ModuleConfiguration.ModuleBasePath = GlobalConfiguration.GetBasePath(moduleConfig.ModuleBasePath, module.BasePath);
@@ -105,14 +105,14 @@ namespace prompter
                     }
                     else
                     {
-                        string message = $"Json Deserialize 오류 module.json 파일 확인 필요: {moduleSettingFilePath}";
+                        var message = $"Json Deserialize 오류 module.json 파일 확인 필요: {moduleSettingFilePath}";
                         Log.Logger.Error("[{LogCategory}] " + message, $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
                         throw new FileLoadException(message);
                     }
                 }
                 else
                 {
-                    string message = $"module.json 파일 확인 필요: {moduleSettingFilePath}";
+                    var message = $"module.json 파일 확인 필요: {moduleSettingFilePath}";
                     Log.Logger.Error("[{LogCategory}] " + message, $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
                     throw new FileNotFoundException(message);
                 }
@@ -130,7 +130,7 @@ namespace prompter
 
         private static LoggerConfiguration CreateLoggerConfiguration(string logFilePath)
         {
-            FileInfo fileInfo = new FileInfo(logFilePath);
+            var fileInfo = new FileInfo(logFilePath);
             if (string.IsNullOrEmpty(fileInfo.DirectoryName) == false)
             {
                 if (fileInfo.Directory == null || fileInfo.Directory.Exists == false)
@@ -168,10 +168,10 @@ namespace prompter
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment? environment, ICorsService corsService, ICorsPolicyProvider corsPolicyProvider)
         {
-            ModuleInfo? module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == ModuleID);
+            var module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == ModuleID);
             if (string.IsNullOrEmpty(ModuleID) == false && module != null)
             {
-                string wwwrootDirectory = PathExtensions.Combine(module.BasePath, "wwwroot", module.ModuleID);
+                var wwwrootDirectory = PathExtensions.Combine(module.BasePath, "wwwroot", module.ModuleID);
                 if (string.IsNullOrEmpty(wwwrootDirectory) == false && Directory.Exists(wwwrootDirectory) == true)
                 {
                     app.UseStaticFiles(new StaticFileOptions
@@ -212,15 +212,15 @@ namespace prompter
                     {
                         if (GlobalConfiguration.IsRunning == true && fileInfo.FullName.Replace("\\", "/").IndexOf(basePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))
                         {
-                            string filePath = fileInfo.FullName.Replace("\\", "/").Replace(basePath, "");
-                            string hostUrl = $"http://localhost:{GlobalConfiguration.ServerPort}/prompter/api/query/refresh?changeType={changeTypes}&filePath={filePath}";
+                            var filePath = fileInfo.FullName.Replace("\\", "/").Replace(basePath, "");
+                            var hostUrl = $"http://localhost:{GlobalConfiguration.ServerPort}/prompter/api/query/refresh?changeType={changeTypes}&filePath={filePath}";
 
                             var request = new RestRequest(hostUrl, Method.Get);
                             request.Timeout = TimeSpan.FromSeconds(3);
                             request.AddHeader("AuthorizationKey", ModuleConfiguration.AuthorizationKey);
                             try
                             {
-                                RestResponse response = await client.ExecuteAsync(request);
+                                var response = await client.ExecuteAsync(request);
                                 if (response.StatusCode != HttpStatusCode.OK)
                                 {
                                     Log.Warning("[{LogCategory}] " + $"{filePath} 파일 갱신 확인 필요. {response.Content.ToStringSafe()}", $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");

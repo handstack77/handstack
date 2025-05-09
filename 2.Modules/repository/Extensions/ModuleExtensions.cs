@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 
 using HandStack.Core.ExtensionMethod;
 using HandStack.Data.Client;
@@ -49,37 +48,35 @@ namespace repository.Extensions
                 {
                     try
                     {
-                        string? parseParameters = parameters == null ? null : JsonConvert.SerializeObject(parameters);
+                        var parseParameters = parameters == null ? null : JsonConvert.SerializeObject(parameters);
                         var sqlMeta = DatabaseExtensions.GetSQLiteMetaSQL(ModuleConfiguration.DatabaseContractPath, GlobalConfiguration.ApplicationID, paths[0], paths[1], paths[2], parseParameters);
                         if (sqlMeta != null)
                         {
-                            string connectionString = repository.SQLiteConnectionString;
+                            var connectionString = repository.SQLiteConnectionString;
                             if (connectionString.IndexOf("{appBasePath}") > -1)
                             {
-                                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, repository.UserWorkID.ToStringSafe(), repository.ApplicationID);
+                                var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, repository.UserWorkID.ToStringSafe(), repository.ApplicationID);
                                 connectionString = connectionString.Replace("{appBasePath}", appBasePath);
                             }
 
-                            using (SQLiteClient sqliteClient = new SQLiteClient(connectionString))
+                            using var sqliteClient = new SQLiteClient(connectionString);
+                            switch (returnType)
                             {
-                                switch (returnType)
-                                {
-                                    case ReturnType.NonQuery:
-                                        result = sqliteClient.ExecuteNonQuery(sqlMeta.Item1, sqlMeta.Item2);
-                                        break;
-                                    case ReturnType.Scalar:
-                                        result = sqliteClient.ExecuteScalar(sqlMeta.Item1, sqlMeta.Item2);
-                                        break;
-                                    case ReturnType.DataSet:
-                                        result = sqliteClient.ExecuteDataSet(sqlMeta.Item1, sqlMeta.Item2);
-                                        break;
-                                    case ReturnType.DataReader:
-                                        result = sqliteClient.ExecuteReader(sqlMeta.Item1, sqlMeta.Item2);
-                                        break;
-                                    case ReturnType.Dynamic:
-                                        result = sqliteClient.ExecuteDynamic(sqlMeta.Item1, sqlMeta.Item2);
-                                        break;
-                                }
+                                case ReturnType.NonQuery:
+                                    result = sqliteClient.ExecuteNonQuery(sqlMeta.Item1, sqlMeta.Item2);
+                                    break;
+                                case ReturnType.Scalar:
+                                    result = sqliteClient.ExecuteScalar(sqlMeta.Item1, sqlMeta.Item2);
+                                    break;
+                                case ReturnType.DataSet:
+                                    result = sqliteClient.ExecuteDataSet(sqlMeta.Item1, sqlMeta.Item2);
+                                    break;
+                                case ReturnType.DataReader:
+                                    result = sqliteClient.ExecuteReader(sqlMeta.Item1, sqlMeta.Item2);
+                                    break;
+                                case ReturnType.Dynamic:
+                                    result = sqliteClient.ExecuteDynamic(sqlMeta.Item1, sqlMeta.Item2);
+                                    break;
                             }
                         }
                     }
@@ -108,21 +105,19 @@ namespace repository.Extensions
                 {
                     try
                     {
-                        string? parseParameters = parameters == null ? null : JsonConvert.SerializeObject(parameters);
+                        var parseParameters = parameters == null ? null : JsonConvert.SerializeObject(parameters);
                         var sqlMeta = DatabaseExtensions.GetSQLiteMetaSQL(ModuleConfiguration.DatabaseContractPath, GlobalConfiguration.ApplicationID, paths[0], paths[1], paths[2], parseParameters);
                         if (sqlMeta != null)
                         {
-                            string connectionString = repository.SQLiteConnectionString;
+                            var connectionString = repository.SQLiteConnectionString;
                             if (connectionString.IndexOf("{appBasePath}") > -1)
                             {
-                                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, repository.UserWorkID.ToStringSafe(), repository.ApplicationID);
+                                var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, repository.UserWorkID.ToStringSafe(), repository.ApplicationID);
                                 connectionString = connectionString.Replace("{appBasePath}", appBasePath);
                             }
 
-                            using (SQLiteClient sqliteClient = new SQLiteClient(connectionString))
-                            {
-                                result = sqliteClient.ExecutePocoMappings<T>(sqlMeta.Item1, sqlMeta.Item2);
-                            }
+                            using var sqliteClient = new SQLiteClient(connectionString);
+                            result = sqliteClient.ExecutePocoMappings<T>(sqlMeta.Item1, sqlMeta.Item2);
                         }
                     }
                     catch (Exception exception)

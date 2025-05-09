@@ -21,7 +21,7 @@ namespace HandStack.Web.Extensions
 
         public async Task InvokeAsync(HttpContext context)
         {
-            bool isHtmxRequest = context.Request.Headers.ContainsKey("HX-Request");
+            var isHtmxRequest = context.Request.Headers.ContainsKey("HX-Request");
 
             if (isHtmxRequest)
             {
@@ -85,7 +85,7 @@ namespace HandStack.Web.Extensions
                 return;
             }
 
-            bool isHtmlPage = (requestPath.Contains("/view/", StringComparison.OrdinalIgnoreCase) &&
+            var isHtmlPage = (requestPath.Contains("/view/", StringComparison.OrdinalIgnoreCase) &&
                                requestPath.EndsWith(".html", StringComparison.OrdinalIgnoreCase)) ||
                                requestPath == "/";
 

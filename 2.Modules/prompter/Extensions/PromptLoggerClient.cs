@@ -113,7 +113,7 @@ namespace prompter.Extensions
 
         private RestResponse RestResponseWithPolicy(RestRequest restRequest, Action<string> fallbackFunction)
         {
-            RestResponse result = new RestResponse
+            var result = new RestResponse
             {
                 Content = "",
                 ErrorMessage = "Equivalent to HTTP status 503",
@@ -141,7 +141,7 @@ namespace prompter.Extensions
                 }
                 else
                 {
-                    fallbackFunction($"CircuitBreaker Error Reason: {circuitBreakerPolicy.CircuitState.ToString()}");
+                    fallbackFunction($"CircuitBreaker Error Reason: {circuitBreakerPolicy.CircuitState}");
                 }
             }
 
@@ -150,7 +150,7 @@ namespace prompter.Extensions
 
         public void ProgramMessageLogging(string globalID, string acknowledge, string applicationID, string message, string properties, Action<string> fallbackFunction)
         {
-            LogMessage logMessage = new LogMessage();
+            var logMessage = new LogMessage();
             logMessage.ServerID = GlobalConfiguration.HostName;
             logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
             logMessage.ProgramName = ModuleConfiguration.ModuleID;
@@ -170,7 +170,7 @@ namespace prompter.Extensions
 
             if (ModuleConfiguration.IsLogServer == true)
             {
-                LogRequest logRequest = new LogRequest();
+                var logRequest = new LogRequest();
                 logRequest.LogMessage = logMessage;
                 logRequest.FallbackFunction = fallbackFunction;
 
@@ -186,7 +186,7 @@ namespace prompter.Extensions
 
         public void TransactionMessageLogging(string globalID, string acknowledge, string applicationID, string projectID, string transactionID, string serviceID, string message, string properties, Action<string> fallbackFunction)
         {
-            LogMessage logMessage = new LogMessage();
+            var logMessage = new LogMessage();
             logMessage.ServerID = GlobalConfiguration.HostName;
             logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
             logMessage.ProgramName = ModuleConfiguration.ModuleID;
@@ -206,7 +206,7 @@ namespace prompter.Extensions
 
             if (ModuleConfiguration.IsLogServer == true)
             {
-                LogRequest logRequest = new LogRequest();
+                var logRequest = new LogRequest();
                 logRequest.LogMessage = logMessage;
                 logRequest.FallbackFunction = fallbackFunction;
 
@@ -222,7 +222,7 @@ namespace prompter.Extensions
 
         public void DynamicResponseLogging(string globalID, string acknowledge, string applicationID, string message, string properties, Action<string> fallbackFunction)
         {
-            LogMessage logMessage = new LogMessage();
+            var logMessage = new LogMessage();
             logMessage.ServerID = GlobalConfiguration.HostName;
             logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
             logMessage.ProgramName = ModuleConfiguration.ModuleID;
@@ -242,7 +242,7 @@ namespace prompter.Extensions
 
             if (ModuleConfiguration.IsLogServer == true)
             {
-                LogRequest logRequest = new LogRequest();
+                var logRequest = new LogRequest();
                 logRequest.LogMessage = logMessage;
                 logRequest.FallbackFunction = fallbackFunction;
 
@@ -256,7 +256,7 @@ namespace prompter.Extensions
 
         public void DynamicRequestLogging(DynamicRequest request, string acknowledge, string applicationID, Action<string> fallbackFunction)
         {
-            LogMessage logMessage = new LogMessage();
+            var logMessage = new LogMessage();
             logMessage.ServerID = GlobalConfiguration.HostName;
             logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
             logMessage.ProgramName = ModuleConfiguration.ModuleID;
@@ -276,7 +276,7 @@ namespace prompter.Extensions
 
             if (ModuleConfiguration.IsLogServer == true)
             {
-                LogRequest logRequest = new LogRequest();
+                var logRequest = new LogRequest();
                 logRequest.LogMessage = logMessage;
                 logRequest.FallbackFunction = fallbackFunction;
 
@@ -292,7 +292,7 @@ namespace prompter.Extensions
         {
             if (state != null)
             {
-                LogRequest? logRequest = state as LogRequest;
+                var logRequest = state as LogRequest;
 
                 if (circuitBreakerPolicy != null && logRequest != null)
                 {

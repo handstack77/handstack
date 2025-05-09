@@ -62,11 +62,11 @@ namespace HandStack.Data.SqlFormatter.Core
         {
             queryBuilder.Clear();
 
-            for (int i = 0; i < tokens!.Count; i++)
+            for (var i = 0; i < tokens!.Count; i++)
             {
                 index = i;
 
-                Token token = TokenOverride(tokens[i], querySpan);
+                var token = TokenOverride(tokens[i], querySpan);
                 switch (token.Type)
                 {
                     case TokenType.LineComment:
@@ -170,7 +170,7 @@ namespace HandStack.Data.SqlFormatter.Core
         {
             if (token.IsAnd(querySpan.Slice(token)))
             {
-                Token? t = TokenLookBehind(2);
+                var t = TokenLookBehind(2);
 
                 if (t != null && t.Value.IsBetween(querySpan.Slice(t.Value)))
                 {
@@ -194,7 +194,7 @@ namespace HandStack.Data.SqlFormatter.Core
         {
             if (token.PrecedingWitespaceLength == 0)
             {
-                Token? behindToken = TokenLookBehind();
+                var behindToken = TokenLookBehind();
 
                 if (behindToken is not { Type: TokenType.OpenParen or TokenType.LineComment or TokenType.Operator })
                 {
@@ -230,7 +230,7 @@ namespace HandStack.Data.SqlFormatter.Core
         private void FormatPlaceholder(Token token, ReadOnlySpan<char> querySpan)
         {
             string? value = null;
-            ReadOnlySpan<char> valueSpan = querySpan.Slice(token);
+            var valueSpan = querySpan.Slice(token);
             if (valueSpan.Length != 0)
             {
                 value = parameters!.Get(valueSpan.Slice(0, 1).ToString());
@@ -285,7 +285,7 @@ namespace HandStack.Data.SqlFormatter.Core
             queryBuilder.TrimSpaceEnd();
             queryBuilder.Append(Show(querySpan.Slice(token), token.Type));
 
-            int times = options.LinesBetweenQueries;
+            var times = options.LinesBetweenQueries;
 
             while (times != 0)
             {

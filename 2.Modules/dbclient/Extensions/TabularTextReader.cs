@@ -91,7 +91,7 @@ namespace dbclient.Extensions
             var toRead = bufferLength - actualBufferLen;
             if (toRead >= bufferLoadThreshold)
             {
-                int freeStart = (lineStartPos + actualBufferLen) % buffer.Length;
+                var freeStart = (lineStartPos + actualBufferLen) % buffer.Length;
                 if (freeStart >= lineStartPos)
                 {
                     actualBufferLen += ReadBlockAndCheckEof(buffer, freeStart, buffer.Length - freeStart, ref eof);
@@ -113,7 +113,7 @@ namespace dbclient.Extensions
 
         private int ReadQuotedFieldToEnd(int start, int maxPos, bool eof, ref int escapedQuotesCount)
         {
-            int pos = start;
+            var pos = start;
             int chIdx;
             char ch;
             for (; pos < maxPos; pos++)
@@ -122,7 +122,7 @@ namespace dbclient.Extensions
                 ch = buffer[chIdx];
                 if (ch == '\"')
                 {
-                    bool hasNextCh = (pos + 1) < maxPos;
+                    var hasNextCh = (pos + 1) < maxPos;
                     if (hasNextCh && buffer[(pos + 1) % bufferLength] == '\"')
                     {
                         pos++;
@@ -145,7 +145,7 @@ namespace dbclient.Extensions
         {
             int pos;
             int idx;
-            int offset = 1;
+            var offset = 1;
             for (; offset < delimLength; offset++)
             {
                 pos = start + offset;
@@ -244,13 +244,13 @@ namespace dbclient.Extensions
             }
             linesRead++;
 
-            int maxPos = lineStartPos + actualBufferLen;
-            int charPos = lineStartPos;
+            var maxPos = lineStartPos + actualBufferLen;
+            var charPos = lineStartPos;
 
             var currentField = GetOrAddField(charPos);
-            bool ignoreQuote = false;
-            char delimFirstChar = Delimiter[0];
-            bool trimFields = TrimFields;
+            var ignoreQuote = false;
+            var delimFirstChar = Delimiter[0];
+            var trimFields = TrimFields;
 
             int charBufIdx;
             char ch;

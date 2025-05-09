@@ -2,14 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 
 using HandStack.Core.ExtensionMethod;
-using HandStack.Web.Extensions;
 using HandStack.Data.Enumeration;
 using HandStack.Web;
-using HandStack.Web.ApiClient;
 using HandStack.Web.Entity;
+using HandStack.Web.Extensions;
 using HandStack.Web.Helper;
 using HandStack.Web.MessageContract.DataObject;
 using HandStack.Web.Modules;
@@ -45,18 +43,18 @@ namespace repository
 
         public void ConfigureServices(IServiceCollection services, IWebHostEnvironment environment, IConfiguration configuration)
         {
-            ModuleInfo? module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == ModuleID);
+            var module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == ModuleID);
             if (module != null)
             {
-                string moduleSettingFilePath = module.ModuleSettingFilePath;
+                var moduleSettingFilePath = module.ModuleSettingFilePath;
                 if (File.Exists(moduleSettingFilePath) == true)
                 {
-                    string configurationText = File.ReadAllText(moduleSettingFilePath);
-                    ModuleConfigJson? moduleConfigJson = JsonConvert.DeserializeObject<ModuleConfigJson>(configurationText);
+                    var configurationText = File.ReadAllText(moduleSettingFilePath);
+                    var moduleConfigJson = JsonConvert.DeserializeObject<ModuleConfigJson>(configurationText);
 
                     if (moduleConfigJson != null)
                     {
-                        ModuleConfig moduleConfig = moduleConfigJson.ModuleConfig;
+                        var moduleConfig = moduleConfigJson.ModuleConfig;
                         ModuleConfiguration.ModuleID = moduleConfigJson.ModuleID;
                         ModuleConfiguration.Version = moduleConfigJson.Version;
                         ModuleConfiguration.AuthorizationKey = string.IsNullOrEmpty(moduleConfig.AuthorizationKey) == false ? moduleConfig.AuthorizationKey : GlobalConfiguration.SystemID + GlobalConfiguration.RunningEnvironment + GlobalConfiguration.HostName;
@@ -82,14 +80,14 @@ namespace repository
                     }
                     else
                     {
-                        string message = $"Json Deserialize 오류 module.json 파일 확인 필요: {moduleSettingFilePath}";
+                        var message = $"Json Deserialize 오류 module.json 파일 확인 필요: {moduleSettingFilePath}";
                         Log.Logger.Error("[{LogCategory}] " + message, $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
                         throw new FileLoadException(message);
                     }
                 }
                 else
                 {
-                    string message = $"module.json 파일 확인 필요: {moduleSettingFilePath}";
+                    var message = $"module.json 파일 확인 필요: {moduleSettingFilePath}";
                     Log.Logger.Error("[{LogCategory}] " + message, $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
                     throw new FileNotFoundException(message);
                 }
@@ -101,7 +99,7 @@ namespace repository
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment? environment, ICorsService corsService, ICorsPolicyProvider corsPolicyProvider)
         {
-            ModuleInfo? module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == typeof(ModuleInitializer).Assembly.GetName().Name);
+            var module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == typeof(ModuleInitializer).Assembly.GetName().Name);
             if (string.IsNullOrEmpty(ModuleID) == false && module != null)
             {
                 app.Use(async (context, next) =>
@@ -110,7 +108,7 @@ namespace repository
                     await next.Invoke();
                 });
 
-                string wwwrootDirectory = PathExtensions.Combine(module.BasePath, "wwwroot", module.ModuleID);
+                var wwwrootDirectory = PathExtensions.Combine(module.BasePath, "wwwroot", module.ModuleID);
                 if (string.IsNullOrEmpty(wwwrootDirectory) == false && Directory.Exists(wwwrootDirectory) == true)
                 {
                     app.UseStaticFiles(new StaticFileOptions
@@ -142,7 +140,7 @@ namespace repository
 
                 LoadContract();
 
-                foreach (Repository item in ModuleConfiguration.FileRepositorys)
+                foreach (var item in ModuleConfiguration.FileRepositorys)
                 {
                     if (item.StorageType == "FileSystem" && item.IsVirtualPath == true)
                     {
@@ -151,7 +149,7 @@ namespace repository
                             continue;
                         }
 
-                        string physicalPath = item.PhysicalPath;
+                        var physicalPath = item.PhysicalPath;
                         if (Directory.Exists(physicalPath) == false)
                         {
                             Directory.CreateDirectory(physicalPath);
@@ -159,7 +157,7 @@ namespace repository
 
                         try
                         {
-                            string virtualPath = $"/{ModuleID}/{item.ApplicationID}/{item.RepositoryID}";
+                            var virtualPath = $"/{ModuleID}/{item.ApplicationID}/{item.RepositoryID}";
                             app.UseStaticFiles(new StaticFileOptions
                             {
                                 ServeUnknownFileTypes = true,
@@ -168,30 +166,30 @@ namespace repository
                                 RequestPath = virtualPath,
                                 OnPrepareResponse = (httpContext) =>
                                 {
-                                    bool isResponse = true;
-                                    string virtualAccessMethod = item.AccessMethod;
+                                    var isResponse = true;
+                                    var virtualAccessMethod = item.AccessMethod;
                                     switch (virtualAccessMethod)
                                     {
                                         case "public":
                                             break;
                                         case "protected":
-                                            string baseUrl = httpContext.Context.Request.GetBaseUrl();
-                                            if (baseUrl.Contains("localhost") == true|| baseUrl.Contains("127.0.0.1") == true)
+                                            var baseUrl = httpContext.Context.Request.GetBaseUrl();
+                                            if (baseUrl.Contains("localhost") == true || baseUrl.Contains("127.0.0.1") == true)
                                             {
                                             }
                                             else
                                             {
-                                                string referer = httpContext.Context.Request.Headers.Referer.ToString();
+                                                var referer = httpContext.Context.Request.Headers.Referer.ToString();
                                                 if (referer.EndsWith("/") == true)
                                                 {
                                                     referer = referer.Substring(0, referer.Length - 1);
                                                 }
-                                                string host = httpContext.Context.Request.Host.ToString();
+                                                var host = httpContext.Context.Request.Host.ToString();
                                                 isResponse = (string.IsNullOrEmpty(referer) == false && (referer.IndexOf(host) > -1 || GlobalConfiguration.WithOrigins.IndexOf(referer) > -1));
                                             }
                                             break;
                                         case "private":
-                                            string? token = httpContext.Context.Request.Cookies["BearerToken"];
+                                            var token = httpContext.Context.Request.Cookies["BearerToken"];
                                             if (string.IsNullOrEmpty(token) == true)
                                             {
                                                 token = httpContext.Context.Request.Headers["BearerToken"];
@@ -207,8 +205,8 @@ namespace repository
                                             {
                                                 try
                                                 {
-                                                    string[] tokenArray = token.Split(".");
-                                                    string userID = tokenArray[0].DecodeBase64();
+                                                    var tokenArray = token.Split(".");
+                                                    var userID = tokenArray[0].DecodeBase64();
 
                                                     token = tokenArray[1];
                                                     bearerToken = JsonConvert.DeserializeObject<BearerToken>(token.DecryptAES(userID.PaddingRight(32)));
@@ -247,10 +245,10 @@ namespace repository
                                         .ConfigureAwait(false)
                                         .GetAwaiter().GetResult();
 
-                                    string extension = httpContext.Context.Request.Query["ext"].ToString();
+                                    var extension = httpContext.Context.Request.Query["ext"].ToString();
                                     if (string.IsNullOrEmpty(extension) == false)
                                     {
-                                        string? mimeType = MimeHelper.GetMimeType("default" + extension);
+                                        var mimeType = MimeHelper.GetMimeType("default" + extension);
                                         if (string.IsNullOrEmpty(mimeType) == true)
                                         {
                                             mimeType = "application/octet-stream";
@@ -307,8 +305,8 @@ namespace repository
 
                     Log.Logger.Information("[{LogCategory}] ContractBasePath: " + basePath, $"{ModuleConfiguration.ModuleID} ModuleInitializer/LoadContract");
 
-                    string[] repositoryFiles = Directory.GetFiles(basePath, "*.json", SearchOption.AllDirectories);
-                    foreach (string repositoryFile in repositoryFiles)
+                    var repositoryFiles = Directory.GetFiles(basePath, "*.json", SearchOption.AllDirectories);
+                    foreach (var repositoryFile in repositoryFiles)
                     {
                         try
                         {
@@ -325,7 +323,7 @@ namespace repository
                                             if (repository.PhysicalPath.IndexOf("{appBasePath}") == -1)
                                             {
                                                 repository.PhysicalPath = GlobalConfiguration.GetBasePath(repository.PhysicalPath);
-                                                DirectoryInfo repositoryDirectoryInfo = new DirectoryInfo(repository.PhysicalPath);
+                                                var repositoryDirectoryInfo = new DirectoryInfo(repository.PhysicalPath);
                                                 if (repositoryDirectoryInfo.Exists == false)
                                                 {
                                                     repositoryDirectoryInfo.Create();
@@ -360,7 +358,7 @@ namespace repository
                                                 if (repository.PhysicalPath.IndexOf("{appBasePath}") == -1)
                                                 {
                                                     repository.PhysicalPath = GlobalConfiguration.GetBasePath(repository.PhysicalPath);
-                                                    DirectoryInfo repositoryDirectoryInfo = new DirectoryInfo(repository.PhysicalPath);
+                                                    var repositoryDirectoryInfo = new DirectoryInfo(repository.PhysicalPath);
                                                     if (repositoryDirectoryInfo.Exists == false)
                                                     {
                                                         repositoryDirectoryInfo.Create();

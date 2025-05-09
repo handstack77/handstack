@@ -2,10 +2,8 @@
 using System.Threading.Tasks;
 
 using HandStack.Core.ExtensionMethod;
-using HandStack.Web;
 using HandStack.Web.Entity;
 
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Session;
@@ -32,20 +30,20 @@ namespace HandStack.Web.Extensions
         {
             if (httpContext.Request.Path.Value != null && httpContext.Session.IsAvailable == true)
             {
-                string? member = httpContext.Request.Cookies[$"{GlobalConfiguration.CookiePrefixName}.Member"];
+                var member = httpContext.Request.Cookies[$"{GlobalConfiguration.CookiePrefixName}.Member"];
                 if (string.IsNullOrEmpty(member) == false)
                 {
                     try
                     {
-                        UserAccount? userAccount = JsonConvert.DeserializeObject<UserAccount>(member.DecodeBase64());
+                        var userAccount = JsonConvert.DeserializeObject<UserAccount>(member.DecodeBase64());
                         if (userAccount != null)
                         {
-                            string userSessionKey = userAccount.SessionKey;
+                            var userSessionKey = userAccount.SessionKey;
                             string? contextSessionKey = null;
 
                             try
                             {
-                                httpContext.Request.Cookies.TryGetValue(GlobalConfiguration.SessionCookieName, out string? cookieValue);
+                                httpContext.Request.Cookies.TryGetValue(GlobalConfiguration.SessionCookieName, out var cookieValue);
                                 if (string.IsNullOrEmpty(cookieValue) == false)
                                 {
                                     var protectedData = Convert.FromBase64String(cookieValue.SessionDecryptPad());
@@ -60,13 +58,13 @@ namespace HandStack.Web.Extensions
                             if (string.IsNullOrEmpty(contextSessionKey) == false && userSessionKey != contextSessionKey)
                             {
                                 userAccount.SessionKey = contextSessionKey;
-                                string jsonAcount = JsonConvert.SerializeObject(userAccount);
+                                var jsonAcount = JsonConvert.SerializeObject(userAccount);
                                 if (httpContext.Session.IsAvailable == true)
                                 {
                                     httpContext.Session.SetString($"{GlobalConfiguration.CookiePrefixName}.Member", jsonAcount);
                                 }
 
-                                CookieOptions cookieOptions = new CookieOptions();
+                                var cookieOptions = new CookieOptions();
                                 cookieOptions.HttpOnly = false;
                                 cookieOptions.SameSite = SameSiteMode.Lax;
 
@@ -76,7 +74,7 @@ namespace HandStack.Web.Extensions
                                 }
                                 else if (GlobalConfiguration.UserSignExpire < 0)
                                 {
-                                    int addDay = DateTime.Now.Day == userAccount.LoginedAt.Day ? 1 : 0;
+                                    var addDay = DateTime.Now.Day == userAccount.LoginedAt.Day ? 1 : 0;
                                     cookieOptions.Expires = DateTime.Parse(DateTime.Now.AddDays(1).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00");
                                 }
                                 else

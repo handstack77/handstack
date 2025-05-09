@@ -13,7 +13,7 @@ namespace HandStack.Web.Modules
     {
         public IEnumerable<ModuleInfo> GetModules()
         {
-            List<ModuleInfo> modules = new List<ModuleInfo>();
+            var modules = new List<ModuleInfo>();
             if (string.IsNullOrEmpty(GlobalConfiguration.LoadModuleBasePath) == true)
             {
                 GlobalConfiguration.LoadModuleBasePath = PathExtensions.Combine(GlobalConfiguration.EntryBasePath, @"modules");
@@ -24,10 +24,10 @@ namespace HandStack.Web.Modules
                 Directory.CreateDirectory(GlobalConfiguration.LoadModuleBasePath);
             }
 
-            string moduleSettingFile = "module.json";
-            foreach (string moduleBasePath in Directory.GetDirectories(GlobalConfiguration.LoadModuleBasePath))
+            var moduleSettingFile = "module.json";
+            foreach (var moduleBasePath in Directory.GetDirectories(GlobalConfiguration.LoadModuleBasePath))
             {
-                DirectoryInfo directoryInfo = new DirectoryInfo(moduleBasePath);
+                var directoryInfo = new DirectoryInfo(moduleBasePath);
                 var moduleID = GlobalConfiguration.ModuleNames.Find((item) =>
                 {
                     return item == directoryInfo.Name;
@@ -35,10 +35,10 @@ namespace HandStack.Web.Modules
 
                 if (string.IsNullOrEmpty(moduleID) == false)
                 {
-                    string moduleSettingFilePath = PathExtensions.Combine(moduleBasePath, moduleSettingFile);
+                    var moduleSettingFilePath = PathExtensions.Combine(moduleBasePath, moduleSettingFile);
                     if (moduleID.IndexOf("|") > -1)
                     {
-                        string passModuleSettingFilePath = moduleID.Substring(moduleID.IndexOf("|") + 1);
+                        var passModuleSettingFilePath = moduleID.Substring(moduleID.IndexOf("|") + 1);
                         if (File.Exists(passModuleSettingFilePath) == true)
                         {
                             moduleSettingFilePath = passModuleSettingFilePath;
@@ -53,7 +53,7 @@ namespace HandStack.Web.Modules
                     if (File.Exists(moduleSettingFilePath) == true)
                     {
                         using var reader = new StreamReader(moduleSettingFilePath);
-                        string content = reader.ReadToEnd();
+                        var content = reader.ReadToEnd();
 
                         var settings = new JsonSerializerSettings();
                         settings.Converters.Add(new StringOrArrayConverter());
@@ -73,7 +73,7 @@ namespace HandStack.Web.Modules
 
                             if (module.ModuleConfig?.ContractBasePath != null)
                             {
-                                List<string> keyValues = new List<string>();
+                                var keyValues = new List<string>();
                                 foreach (var item in module.ModuleConfig.ContractBasePath)
                                 {
                                     keyValues.Add(item.ToString());
@@ -84,7 +84,7 @@ namespace HandStack.Web.Modules
 
                             if (module.ModuleConfig?.EventAction != null)
                             {
-                                List<string> keyValues = new List<string>();
+                                var keyValues = new List<string>();
                                 foreach (var item in module.ModuleConfig.EventAction)
                                 {
                                     keyValues.Add(item.ToString());
@@ -95,7 +95,7 @@ namespace HandStack.Web.Modules
 
                             if (module.ModuleConfig?.SubscribeAction != null)
                             {
-                                List<string> keyValues = new List<string>();
+                                var keyValues = new List<string>();
                                 foreach (var item in module.ModuleConfig.SubscribeAction)
                                 {
                                     keyValues.Add(item.ToString());
@@ -106,7 +106,7 @@ namespace HandStack.Web.Modules
 
                             if (module.LoadPassAssemblyPath != null)
                             {
-                                List<string> keyValues = new List<string>();
+                                var keyValues = new List<string>();
                                 foreach (var item in module.LoadPassAssemblyPath)
                                 {
                                     var passAssemblyPath = PathExtensions.Join(moduleBasePath, item);
@@ -166,7 +166,7 @@ namespace HandStack.Web.Modules
         public override object? ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
 #pragma warning restore CS8765
         {
-            JToken token = JToken.Load(reader);
+            var token = JToken.Load(reader);
             if (token.Type == JTokenType.Array)
             {
                 return token.ToObject<List<string>>();

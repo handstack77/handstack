@@ -58,9 +58,9 @@ namespace prompter.DataClient
 
         public async Task ExecuteDynamicPromptMap(DynamicRequest request, DynamicResponse response)
         {
-            bool isCommandError = false;
+            var isCommandError = false;
             request.RequestID = request.RequestID == null ? "NULL" : request.RequestID;
-            Dictionary<string, TransactionDynamicObjects> transactionDynamicObjects = new Dictionary<string, TransactionDynamicObjects>();
+            var transactionDynamicObjects = new Dictionary<string, TransactionDynamicObjects>();
 
             try
             {
@@ -70,9 +70,9 @@ namespace prompter.DataClient
                     return;
                 }
 
-                List<string> logQuerys = new List<string>();
-                int i = 0;
-                foreach (QueryObject queryObject in request.DynamicObjects)
+                var logQuerys = new List<string>();
+                var i = 0;
+                foreach (var queryObject in request.DynamicObjects)
                 {
                     var promptMap = PromptMapper.GetPromptMap(queryObject.QueryID);
                     if (promptMap == null)
@@ -109,7 +109,7 @@ namespace prompter.DataClient
                 {
                     if (ModuleConfiguration.IsTransactionLogging == true)
                     {
-                        string logData = $"QueryID: {string.Join(", ", logQuerys.ToArray())}";
+                        var logData = $"QueryID: {string.Join(", ", logQuerys.ToArray())}";
                         if (ModuleConfiguration.IsLogServer == true)
                         {
                             loggerClient.ProgramMessageLogging(request.GlobalID, "Y", GlobalConfiguration.ApplicationID, logData, "PromptClient/ExecuteDynamicPromptMap", (string error) =>
@@ -136,16 +136,16 @@ namespace prompter.DataClient
                 i = 0;
 
                 ChatHistory chatHistory = [];
-                Dictionary<int, DataRow?> dataRows = new Dictionary<int, DataRow?>();
-                DataTable additionalData = new DataTable();
+                var dataRows = new Dictionary<int, DataRow?>();
+                var additionalData = new DataTable();
                 additionalData.Columns.Add("MessageCode", typeof(string));
                 additionalData.Columns.Add("MessageText", typeof(string));
-                List<string> mergeMetaDatas = new List<string>();
-                List<object> mergeDatas = new List<object>();
+                var mergeMetaDatas = new List<string>();
+                var mergeDatas = new List<object>();
                 foreach (var transactionDynamicObject in transactionDynamicObjects)
                 {
-                    QueryObject dynamicObject = transactionDynamicObject.Value.DynamicTransaction;
-                    PromptMap promptMap = transactionDynamicObject.Value.Statement;
+                    var dynamicObject = transactionDynamicObject.Value.DynamicTransaction;
+                    var promptMap = transactionDynamicObject.Value.Statement;
 
                     var llmProvider = transactionDynamicObject.Value.LLMProvider;
                     transactionDynamicObject.Value.PromptExecution = GetKernel(transactionDynamicObject.Value);
@@ -156,20 +156,20 @@ namespace prompter.DataClient
                     {
                         if (dynamicObject.BaseFieldMappings != null && dynamicObject.BaseFieldMappings.Count() > 0)
                         {
-                            int baseSequence = promptMap.Seq - 1;
+                            var baseSequence = promptMap.Seq - 1;
                             DataRow? dataRow = null;
                             if (dataRows.Count > 0 && promptMap.Seq > 0)
                             {
                                 dataRow = dataRows.GetValueOrDefault(baseSequence);
                             }
 
-                            for (int baseFieldIndex = 0; baseFieldIndex < dynamicObject.BaseFieldMappings.Count; baseFieldIndex++)
+                            for (var baseFieldIndex = 0; baseFieldIndex < dynamicObject.BaseFieldMappings.Count; baseFieldIndex++)
                             {
-                                BaseFieldMapping baseFieldMapping = dynamicObject.BaseFieldMappings[baseFieldIndex];
+                                var baseFieldMapping = dynamicObject.BaseFieldMappings[baseFieldIndex];
 
                                 if (string.IsNullOrEmpty(baseFieldMapping.BaseSequence) == false)
                                 {
-                                    int baseSequenceMapping = int.Parse(baseFieldMapping.BaseSequence);
+                                    var baseSequenceMapping = int.Parse(baseFieldMapping.BaseSequence);
                                     if (baseSequence != baseSequenceMapping)
                                     {
                                         baseSequence = baseSequenceMapping;
@@ -191,7 +191,7 @@ namespace prompter.DataClient
                                     goto TransactionException;
                                 }
 
-                                DynamicParameter? dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == baseFieldMapping.TargetFieldID).FirstOrDefault();
+                                var dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == baseFieldMapping.TargetFieldID).FirstOrDefault();
 
                                 if (dynamicParameter == null)
                                 {
@@ -211,7 +211,7 @@ namespace prompter.DataClient
                         SetDynamicParameterMapping(dynamicObject, promptMap, dynamicParameters);
                     }
 
-                    string executePromptID = dynamicObject.QueryID + "_" + i.ToString();
+                    var executePromptID = dynamicObject.QueryID + "_" + i.ToString();
 
                     DataSet? dsTransactionResult = null;
                     var transaction = PromptMapper.FindTransaction(promptMap, dynamicObject);
@@ -219,14 +219,14 @@ namespace prompter.DataClient
                     {
                         if (ModuleConfiguration.IsTransactionLogging == true || promptMap.TransactionLog == true)
                         {
-                            string logData = $"ExecutePromptID: {executePromptID + "_transaction"}, Parameters: {transaction.Parameters}";
+                            var logData = $"ExecutePromptID: {executePromptID + "_transaction"}, Parameters: {transaction.Parameters}";
                             loggerClient.TransactionMessageLogging(request.GlobalID, "Y", promptMap.ApplicationID, promptMap.ProjectID, promptMap.TransactionID, promptMap.StatementID, logData, "PromptClient/ExecuteDynamicPromptMap", (string error) =>
                             {
                                 logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "PromptClient/ExecuteDynamicPromptMap");
                             });
                         }
 
-                        List<ServiceParameter> serviceParameters = new List<ServiceParameter>();
+                        var serviceParameters = new List<ServiceParameter>();
 
                         foreach (var parameterName in dynamicParameters.ParameterNames)
                         {
@@ -236,7 +236,7 @@ namespace prompter.DataClient
 
                         if (string.IsNullOrEmpty(transaction.Parameters) == false)
                         {
-                            string input = transaction.Parameters.Trim();
+                            var input = transaction.Parameters.Trim();
                             if (input.StartsWith("{") == true && input.EndsWith("}") == true)
                             {
                                 var jToken = JToken.Parse(input);
@@ -245,8 +245,8 @@ namespace prompter.DataClient
                                     using var dtParameters = JsonConvert.DeserializeObject<DataTable>($"[{jToken}]");
                                     if (dtParameters != null && dtParameters.Columns.Count > 0 && dtParameters.Rows.Count > 0)
                                     {
-                                        DataRow rowItem = dtParameters.Rows[0];
-                                        DataColumnCollection colItems = dtParameters.Columns;
+                                        var rowItem = dtParameters.Rows[0];
+                                        var colItems = dtParameters.Columns;
                                         foreach (DataColumn item in colItems)
                                         {
                                             var parameter = serviceParameters.FirstOrDefault(p => p.prop == item.ColumnName);
@@ -267,7 +267,7 @@ namespace prompter.DataClient
                         var transactionResult = await moduleApiClient.TransactionDirect(transaction.Command, serviceParameters);
                         if (transactionResult?.ContainsKey("HasException") == true)
                         {
-                            string message = (transactionResult?["HasException"]?["ErrorMessage"]).ToStringSafe();
+                            var message = (transactionResult?["HasException"]?["ErrorMessage"]).ToStringSafe();
                             logger.Error("[{LogCategory}] " + $"ExecutePromptID: {executePromptID}, Command: {transaction.Command}, parameters: {JsonConvert.SerializeObject(serviceParameters)}, ErrorMessage: {message}", "PromptClient/ExecuteDynamicPromptMap");
 
                             response.ExceptionText = $"ExecutePromptID: {executePromptID}, Command: {transaction.Command} 거래 확인 필요 - {message}";
@@ -280,7 +280,7 @@ namespace prompter.DataClient
                                 dsTransactionResult = transactionResult.ToDataSet();
                                 var resultTypes = transaction.ResultType.Split(",");
                                 var argumentMaps = transaction.ArgumentMap.Split(",");
-                                int resultCount = (dsTransactionResult == null ? 0 : dsTransactionResult.Tables.Count);
+                                var resultCount = (dsTransactionResult == null ? 0 : dsTransactionResult.Tables.Count);
                                 if (resultTypes.Count() != argumentMaps.Count() || resultTypes.Count() != resultCount)
                                 {
                                     response.ExceptionText = $"Pretransaction - 전처리 거래 설정 및 실행 결과 확인 필요, argumentMaps: {argumentMaps.Length}, resultTypes: {resultTypes.Length}, resultCount: {resultCount}";
@@ -290,11 +290,11 @@ namespace prompter.DataClient
 
                                 if (dsTransactionResult != null)
                                 {
-                                    for (int j = 0; j < dsTransactionResult.Tables.Count; j++)
+                                    for (var j = 0; j < dsTransactionResult.Tables.Count; j++)
                                     {
-                                        string resultType = resultTypes[j].Trim();
-                                        string argumentMap = argumentMaps[j].Trim();
-                                        DataTable table = dsTransactionResult.Tables[j];
+                                        var resultType = resultTypes[j].Trim();
+                                        var argumentMap = argumentMaps[j].Trim();
+                                        var table = dsTransactionResult.Tables[j];
                                         if (argumentMap.ToBoolean() == false || table.Columns.Count == 0)
                                         {
                                             continue;
@@ -302,13 +302,13 @@ namespace prompter.DataClient
 
                                         if (resultType == "Row")
                                         {
-                                            DataRow rowItem = table.Rows[0];
-                                            DataColumnCollection colItems = table.Columns;
+                                            var rowItem = table.Rows[0];
+                                            var colItems = table.Columns;
                                             foreach (DataColumn item in colItems)
                                             {
                                                 PretransactionAddParameter(dynamicParameters, rowItem, item);
 
-                                                DynamicParameter? dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == item.ColumnName).FirstOrDefault();
+                                                var dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == item.ColumnName).FirstOrDefault();
 
                                                 if (dynamicParameter == null)
                                                 {
@@ -327,12 +327,12 @@ namespace prompter.DataClient
                                         }
                                         else if (resultType == "List")
                                         {
-                                            List<object> parameters = new List<object>();
-                                            DataColumnCollection colItems = table.Columns;
+                                            var parameters = new List<object>();
+                                            var colItems = table.Columns;
                                             foreach (DataColumn item in colItems)
                                             {
-                                                DataView dataView = new DataView(table);
-                                                DataTable dataTable = dataView.ToTable(true, item.ColumnName);
+                                                var dataView = new DataView(table);
+                                                var dataTable = dataView.ToTable(true, item.ColumnName);
                                                 foreach (DataRow row in dataTable.Rows)
                                                 {
                                                     parameters.Add(row[0]);
@@ -342,7 +342,7 @@ namespace prompter.DataClient
                                                 {
                                                     dynamicParameters?.Add(item.ColumnName, parameters);
 
-                                                    DynamicParameter? dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == item.ColumnName).FirstOrDefault();
+                                                    var dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == item.ColumnName).FirstOrDefault();
 
                                                     if (dynamicParameter == null)
                                                     {
@@ -363,7 +363,7 @@ namespace prompter.DataClient
                                     }
                                 }
 
-                                string logData = $"ExecutePromptID: {executePromptID}, Command: {transaction.Command}";
+                                var logData = $"ExecutePromptID: {executePromptID}, Command: {transaction.Command}";
                                 if (ModuleConfiguration.IsTransactionLogging == true || promptMap.TransactionLog == true)
                                 {
                                     loggerClient.TransactionMessageLogging(request.GlobalID, "Y", promptMap.ApplicationID, promptMap.ProjectID, promptMap.TransactionID, promptMap.StatementID, logData, "PromptClient/ExecuteDynamicPromptMap", (string error) =>
@@ -390,19 +390,19 @@ namespace prompter.DataClient
                     {
                         if (ModuleConfiguration.IsTransactionLogging == true || promptMap.TransactionLog == true)
                         {
-                            string logData = $"ExecutePromptID: {executePromptID}, ParseSQL Parameters: {JsonConvert.SerializeObject(dynamicObject)}";
+                            var logData = $"ExecutePromptID: {executePromptID}, ParseSQL Parameters: {JsonConvert.SerializeObject(dynamicObject)}";
                             loggerClient.TransactionMessageLogging(request.GlobalID, "Y", promptMap.ApplicationID, promptMap.ProjectID, promptMap.TransactionID, promptMap.StatementID, logData, "PromptClient/ExecuteDynamicPromptMap", (string error) =>
                             {
                                 logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "PromptClient/ExecuteDynamicPromptMap");
                             });
                         }
 
-                        string parsePrompt = PromptMapper.Find(promptMap, dynamicObject);
+                        var parsePrompt = PromptMapper.Find(promptMap, dynamicObject);
                         if (string.IsNullOrEmpty(parsePrompt) == true || parsePrompt.Replace(Environment.NewLine, "").Replace("\t", "").Trim() == "")
                         {
                             if (ModuleConfiguration.IsTransactionLogging == true || promptMap.TransactionLog == true)
                             {
-                                string logData = $"ExecutePromptID: {executePromptID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
+                                var logData = $"ExecutePromptID: {executePromptID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
                                 loggerClient.TransactionMessageLogging(request.GlobalID, "Y", promptMap.ApplicationID, promptMap.ProjectID, promptMap.TransactionID, promptMap.StatementID, logData, "PromptClient/ExecuteDynamicPromptMap", (string error) =>
                                 {
                                     logger.Information("[{LogCategory}] " + "fallback error: " + error + ", empty Prompt passing" + logData, "PromptClient/ExecuteDynamicPromptMap");
@@ -414,7 +414,7 @@ namespace prompter.DataClient
 
                         if (ModuleConfiguration.IsTransactionLogging == true || promptMap.TransactionLog == true)
                         {
-                            string logData = $"ExecutePromptID: {executePromptID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
+                            var logData = $"ExecutePromptID: {executePromptID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
                             loggerClient.TransactionMessageLogging(request.GlobalID, "Y", promptMap.ApplicationID, promptMap.ProjectID, promptMap.TransactionID, promptMap.StatementID, logData, "PromptClient/ExecuteDynamicPromptMap", (string error) =>
                             {
                                 logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "PromptClient/ExecuteDynamicPromptMap");
@@ -435,7 +435,7 @@ namespace prompter.DataClient
 
                         SetInputVariableMapping(dynamicObject, promptMap, kernelArguments);
 
-                        string userMessage = string.Empty;
+                        var userMessage = string.Empty;
                         foreach (var item in kernelArguments)
                         {
                             if (item.Key.ToUpper() == "USERMESSAGE")
@@ -452,7 +452,7 @@ namespace prompter.DataClient
                              kernelArguments
                          );
 
-                        string assistantMessage = promptResult.ToString();
+                        var assistantMessage = promptResult.ToString();
 
                         chatHistory.AddUserMessage(userMessage);
                         chatHistory.AddAssistantMessage(assistantMessage);
@@ -460,7 +460,7 @@ namespace prompter.DataClient
                         if (dsTransactionResult == null)
                         {
                             dsTransactionResult = new DataSet();
-                            DataTableHelper dataTableBuilder = new DataTableHelper("FormData0");
+                            var dataTableBuilder = new DataTableHelper("FormData0");
                             dataTableBuilder.AddColumn("PromptResult", typeof(string));
                             dataTableBuilder.NewRow();
                             dataTableBuilder.SetValue(0, 0, assistantMessage);
@@ -469,7 +469,7 @@ namespace prompter.DataClient
                         }
                         else if (dsTransactionResult != null && dsTransactionResult.Tables["FormData0"] == null)
                         {
-                            DataTableHelper dataTableBuilder = new DataTableHelper("FormData0");
+                            var dataTableBuilder = new DataTableHelper("FormData0");
                             dataTableBuilder.AddColumn("PromptResult", typeof(string));
                             dataTableBuilder.NewRow();
                             dataTableBuilder.SetValue(0, 0, assistantMessage);
@@ -478,9 +478,9 @@ namespace prompter.DataClient
                         }
                         else if (dsTransactionResult != null && dsTransactionResult.Tables["FormData0"] != null)
                         {
-                            DataTableHelper dataTableBuilder = new DataTableHelper("FormData0");
+                            var dataTableBuilder = new DataTableHelper("FormData0");
                             var dataTable = dsTransactionResult.Tables["FormData0"];
-                            if (dataTable!= null)
+                            if (dataTable != null)
                             {
                                 if (dataTable.Columns.Contains("PromptResult") == false)
                                 {
@@ -502,7 +502,7 @@ namespace prompter.DataClient
 
                         if (ModuleConfiguration.IsTransactionLogging == true || promptMap.TransactionLog == true)
                         {
-                            string logData = $"ExecutePromptID: {executePromptID}, Prompt: \n\n{promptMap.Prompt}";
+                            var logData = $"ExecutePromptID: {executePromptID}, Prompt: \n\n{promptMap.Prompt}";
                             loggerClient.TransactionMessageLogging(request.GlobalID, "Y", promptMap.ApplicationID, promptMap.ProjectID, promptMap.TransactionID, promptMap.StatementID, logData, "PromptClient/ExecuteDynamicPromptMap", (string error) =>
                             {
                                 logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "PromptClient/ExecuteDynamicPromptMap");
@@ -511,176 +511,172 @@ namespace prompter.DataClient
 
                         if (dynamicObject.IgnoreResult == true)
                         {
-                            using (var dataTable = dsTransactionResult?.Tables["FormData0"])
+                            using var dataTable = dsTransactionResult?.Tables["FormData0"];
+                            if (dataTable?.Rows.Count > 0)
                             {
-                                if (dataTable?.Rows.Count > 0)
-                                {
-                                    dataRows[promptMap.Seq] = dataTable.Rows[dataTable.Rows.Count - 1];
-                                }
-                                else
-                                {
-                                    dataRows[promptMap.Seq] = null;
-                                }
+                                dataRows[promptMap.Seq] = dataTable.Rows[dataTable.Rows.Count - 1];
+                            }
+                            else
+                            {
+                                dataRows[promptMap.Seq] = null;
                             }
                         }
                         else
                         {
-                            using (DataSet? ds = dsTransactionResult)
+                            using var ds = dsTransactionResult;
+                            var jsonObjectType = JsonObjectType.FormJson;
+
+                            if (ds != null)
                             {
-                                JsonObjectType jsonObjectType = JsonObjectType.FormJson;
-
-                                if (ds != null)
+                                for (var j = 0; j < ds.Tables.Count; j++)
                                 {
-                                    for (int j = 0; j < ds.Tables.Count; j++)
+                                    var table = ds.Tables[j];
+                                    if (table.Columns.Count == 0)
                                     {
-                                        DataTable table = ds.Tables[j];
-                                        if (table.Columns.Count == 0)
-                                        {
-                                            continue;
-                                        }
+                                        continue;
+                                    }
 
-                                        if (dynamicObject.BaseFieldRelations != null && dynamicObject.BaseFieldRelations.Count() > 0)
+                                    if (dynamicObject.BaseFieldRelations != null && dynamicObject.BaseFieldRelations.Count() > 0)
+                                    {
+                                        var baseFieldRelation = dynamicObject.BaseFieldRelations[j];
+                                        if (baseFieldRelation != null && baseFieldRelation.BaseSequence >= 0 && ((ds.Tables.Count - 1) >= baseFieldRelation.BaseSequence))
                                         {
-                                            var baseFieldRelation = dynamicObject.BaseFieldRelations[j];
-                                            if (baseFieldRelation != null && baseFieldRelation.BaseSequence >= 0 && ((ds.Tables.Count - 1) >= baseFieldRelation.BaseSequence))
+                                            var baseTable = ds.Tables[baseFieldRelation.BaseSequence];
+                                            if (baseTable != null)
                                             {
-                                                var baseTable = ds.Tables[baseFieldRelation.BaseSequence];
-                                                if (baseTable != null)
+                                                var baseColumnID = string.IsNullOrEmpty(baseFieldRelation.RelationFieldID) == true ? "_Children" : baseFieldRelation.RelationFieldID;
+                                                if (baseTable.Columns.Contains(baseColumnID) == false && baseFieldRelation.RelationMappings.Count > 0)
                                                 {
-                                                    string baseColumnID = string.IsNullOrEmpty(baseFieldRelation.RelationFieldID) == true ? "_Children" : baseFieldRelation.RelationFieldID;
-                                                    if (baseTable.Columns.Contains(baseColumnID) == false && baseFieldRelation.RelationMappings.Count > 0)
+                                                    baseTable.Columns.Add(baseColumnID, typeof(object));
+
+                                                    var dvChildren = table.AsDataView();
+                                                    foreach (DataRow row in baseTable.Rows)
                                                     {
-                                                        baseTable.Columns.Add(baseColumnID, typeof(object));
-
-                                                        var dvChildren = table.AsDataView();
-                                                        foreach (DataRow row in baseTable.Rows)
+                                                        var rowFilters = new List<string>() { "1<2" };
+                                                        foreach (var item in baseFieldRelation.RelationMappings)
                                                         {
-                                                            List<string> rowFilters = new List<string>() { "1<2" };
-                                                            foreach (var item in baseFieldRelation.RelationMappings)
+                                                            if (baseTable.Columns.Contains(item.BaseFieldID) == true && table.Columns.Contains(item.ChildrenFieldID) == true)
                                                             {
-                                                                if (baseTable.Columns.Contains(item.BaseFieldID) == true && table.Columns.Contains(item.ChildrenFieldID) == true)
+                                                                rowFilters.Add($" AND {item.BaseFieldID} = '{row[item.ChildrenFieldID]}'");
+                                                            }
+                                                        }
+
+                                                        if (rowFilters.Count > 1)
+                                                        {
+                                                            dvChildren.RowFilter = string.Join("", rowFilters);
+
+                                                            DataTable? dtChildren = null;
+                                                            if (baseFieldRelation.ColumnNames.Count > 0)
+                                                            {
+                                                                dtChildren = dvChildren.ToTable(false, baseFieldRelation.ColumnNames.ToArray());
+                                                            }
+                                                            else
+                                                            {
+                                                                dtChildren = dvChildren.ToTable();
+                                                                foreach (var item in baseFieldRelation.RelationMappings)
                                                                 {
-                                                                    rowFilters.Add($" AND {item.BaseFieldID} = '{row[item.ChildrenFieldID]}'");
+                                                                    dtChildren.Columns.Remove(item.ChildrenFieldID);
                                                                 }
                                                             }
 
-                                                            if (rowFilters.Count > 1)
-                                                            {
-                                                                dvChildren.RowFilter = string.Join("", rowFilters);
-
-                                                                DataTable? dtChildren = null;
-                                                                if (baseFieldRelation.ColumnNames.Count > 0)
-                                                                {
-                                                                    dtChildren = dvChildren.ToTable(false, baseFieldRelation.ColumnNames.ToArray());
-                                                                }
-                                                                else
-                                                                {
-                                                                    dtChildren = dvChildren.ToTable();
-                                                                    foreach (var item in baseFieldRelation.RelationMappings)
-                                                                    {
-                                                                        dtChildren.Columns.Remove(item.ChildrenFieldID);
-                                                                    }
-                                                                }
-
-                                                                row[baseColumnID] = dtChildren;
-                                                            }
+                                                            row[baseColumnID] = dtChildren;
                                                         }
                                                     }
                                                 }
                                             }
                                         }
                                     }
+                                }
 
-                                    for (int j = 0; j < ds.Tables.Count; j++)
+                                for (var j = 0; j < ds.Tables.Count; j++)
+                                {
+                                    var table = ds.Tables[j];
+                                    if (table.Columns.Count == 0)
                                     {
-                                        DataTable table = ds.Tables[j];
-                                        if (table.Columns.Count == 0)
-                                        {
-                                            continue;
-                                        }
+                                        continue;
+                                    }
 
-                                        if (dynamicObject.BaseFieldRelations != null && dynamicObject.BaseFieldRelations.Count() > 0)
+                                    if (dynamicObject.BaseFieldRelations != null && dynamicObject.BaseFieldRelations.Count() > 0)
+                                    {
+                                        var baseFieldRelation = dynamicObject.BaseFieldRelations[j];
+                                        if (baseFieldRelation != null)
                                         {
-                                            var baseFieldRelation = dynamicObject.BaseFieldRelations[j];
-                                            if (baseFieldRelation != null)
+                                            if (baseFieldRelation.DisposeResult == true)
                                             {
-                                                if (baseFieldRelation.DisposeResult == true)
-                                                {
-                                                    ds.Tables.Remove(table);
-                                                }
+                                                ds.Tables.Remove(table);
                                             }
                                         }
                                     }
+                                }
 
-                                    for (int j = 0; j < ds.Tables.Count; j++)
+                                for (var j = 0; j < ds.Tables.Count; j++)
+                                {
+                                    var table = ds.Tables[j];
+                                    if (table.Columns.Count == 0)
                                     {
-                                        DataTable table = ds.Tables[j];
-                                        if (table.Columns.Count == 0)
-                                        {
-                                            continue;
-                                        }
+                                        continue;
+                                    }
 
-                                        if (dynamicObject.JsonObjects == null || dynamicObject.JsonObjects.Count == 0)
+                                    if (dynamicObject.JsonObjects == null || dynamicObject.JsonObjects.Count == 0)
+                                    {
+                                        jsonObjectType = dynamicObject.JsonObject;
+                                    }
+                                    else
+                                    {
+                                        try
+                                        {
+                                            jsonObjectType = dynamicObject.JsonObjects[i];
+                                        }
+                                        catch
                                         {
                                             jsonObjectType = dynamicObject.JsonObject;
                                         }
-                                        else
-                                        {
-                                            try
-                                            {
-                                                jsonObjectType = dynamicObject.JsonObjects[i];
-                                            }
-                                            catch
-                                            {
-                                                jsonObjectType = dynamicObject.JsonObject;
-                                            }
-                                        }
-
-                                        StringBuilder sb = new StringBuilder(256);
-                                        for (int k = 0; k < table.Columns.Count; k++)
-                                        {
-                                            var column = table.Columns[k];
-                                            sb.Append($"{column.ColumnName}:{JsonExtensions.toMetaDataType(column.DataType.Name)};");
-                                        }
-
-                                        switch (jsonObjectType)
-                                        {
-                                            case JsonObjectType.FormJson:
-                                                mergeMetaDatas.Add(sb.ToString());
-                                                mergeDatas.Add(FormJson.ToJsonObject("FormData" + i.ToString(), table));
-                                                break;
-                                            case JsonObjectType.jqGridJson:
-                                                mergeMetaDatas.Add(sb.ToString());
-                                                mergeDatas.Add(jqGridJson.ToJsonObject("jqGridData" + i.ToString(), table));
-                                                break;
-                                            case JsonObjectType.GridJson:
-                                                mergeMetaDatas.Add(sb.ToString());
-                                                mergeDatas.Add(GridJson.ToJsonObject("GridData" + i.ToString(), table));
-                                                break;
-                                            case JsonObjectType.ChartJson:
-                                                mergeMetaDatas.Add(sb.ToString());
-                                                mergeDatas.Add(ChartGridJson.ToJsonObject("ChartData" + i.ToString(), table));
-                                                break;
-                                            case JsonObjectType.DataSetJson:
-                                                mergeMetaDatas.Add(sb.ToString());
-                                                mergeDatas.Add(DataTableJson.ToJsonObject("DataSetData" + i.ToString(), table));
-                                                break;
-                                            case JsonObjectType.AdditionJson:
-                                                additionalData.Merge(table);
-                                                break;
-                                        }
-
-                                        if (table.Rows.Count > 0)
-                                        {
-                                            dataRows[promptMap.Seq] = table.Rows[table.Rows.Count - 1];
-                                        }
-                                        else
-                                        {
-                                            dataRows[promptMap.Seq] = null;
-                                        }
-
-                                        i++;
                                     }
+
+                                    var sb = new StringBuilder(256);
+                                    for (var k = 0; k < table.Columns.Count; k++)
+                                    {
+                                        var column = table.Columns[k];
+                                        sb.Append($"{column.ColumnName}:{JsonExtensions.toMetaDataType(column.DataType.Name)};");
+                                    }
+
+                                    switch (jsonObjectType)
+                                    {
+                                        case JsonObjectType.FormJson:
+                                            mergeMetaDatas.Add(sb.ToString());
+                                            mergeDatas.Add(FormJson.ToJsonObject("FormData" + i.ToString(), table));
+                                            break;
+                                        case JsonObjectType.jqGridJson:
+                                            mergeMetaDatas.Add(sb.ToString());
+                                            mergeDatas.Add(jqGridJson.ToJsonObject("jqGridData" + i.ToString(), table));
+                                            break;
+                                        case JsonObjectType.GridJson:
+                                            mergeMetaDatas.Add(sb.ToString());
+                                            mergeDatas.Add(GridJson.ToJsonObject("GridData" + i.ToString(), table));
+                                            break;
+                                        case JsonObjectType.ChartJson:
+                                            mergeMetaDatas.Add(sb.ToString());
+                                            mergeDatas.Add(ChartGridJson.ToJsonObject("ChartData" + i.ToString(), table));
+                                            break;
+                                        case JsonObjectType.DataSetJson:
+                                            mergeMetaDatas.Add(sb.ToString());
+                                            mergeDatas.Add(DataTableJson.ToJsonObject("DataSetData" + i.ToString(), table));
+                                            break;
+                                        case JsonObjectType.AdditionJson:
+                                            additionalData.Merge(table);
+                                            break;
+                                    }
+
+                                    if (table.Rows.Count > 0)
+                                    {
+                                        dataRows[promptMap.Seq] = table.Rows[table.Rows.Count - 1];
+                                    }
+                                    else
+                                    {
+                                        dataRows[promptMap.Seq] = null;
+                                    }
+
+                                    i++;
                                 }
                             }
                         }
@@ -688,7 +684,7 @@ namespace prompter.DataClient
                     catch (Exception exception)
                     {
                         response.ExceptionText = exception.ToMessage();
-                        string logData = $"ExecutePromptID: {executePromptID}, Command: {transaction.Command}, ExceptionText: {response.ExceptionText}";
+                        var logData = $"ExecutePromptID: {executePromptID}, Command: {transaction.Command}, ExceptionText: {response.ExceptionText}";
 
                         loggerClient.TransactionMessageLogging(request.GlobalID, "N", promptMap.ApplicationID, promptMap.ProjectID, promptMap.TransactionID, promptMap.StatementID, logData, "PromptClient/ExecuteDynamicPromptMap", (string error) =>
                         {
@@ -779,17 +775,17 @@ TransactionException:
                 return;
             }
 
-            List<InputVariableMap> inputVariableMaps = promptMap.InputVariables;
-            foreach (InputVariableMap inputVariableMap in inputVariableMaps)
+            var inputVariableMaps = promptMap.InputVariables;
+            foreach (var inputVariableMap in inputVariableMaps)
             {
-                DynamicParameter? dynamicParameter = GetInputVariableMap(inputVariableMap.Name, queryObject.Parameters);
+                var dynamicParameter = GetInputVariableMap(inputVariableMap.Name, queryObject.Parameters);
 
                 if (dynamicParameter == null)
                 {
                     continue;
                 }
 
-                DbType dynamicDbType = (DbType)Enum.Parse(typeof(DbType), string.IsNullOrEmpty(inputVariableMap.DbType) == true ? dynamicParameter.DbType : inputVariableMap.DbType);
+                var dynamicDbType = (DbType)Enum.Parse(typeof(DbType), string.IsNullOrEmpty(inputVariableMap.DbType) == true ? dynamicParameter.DbType : inputVariableMap.DbType);
 
                 if (dynamicDbType == DbType.String)
                 {
@@ -839,17 +835,17 @@ TransactionException:
                 return;
             }
 
-            List<InputVariableMap> inputVariableMaps = promptMap.InputVariables;
-            foreach (InputVariableMap inputVariableMap in inputVariableMaps)
+            var inputVariableMaps = promptMap.InputVariables;
+            foreach (var inputVariableMap in inputVariableMaps)
             {
-                DynamicParameter? dynamicParameter = GetInputVariableMap(inputVariableMap.Name, queryObject.Parameters);
+                var dynamicParameter = GetInputVariableMap(inputVariableMap.Name, queryObject.Parameters);
 
                 if (dynamicParameter == null)
                 {
                     continue;
                 }
 
-                DbType dynamicDbType = (DbType)Enum.Parse(typeof(DbType), string.IsNullOrEmpty(inputVariableMap.DbType) == true ? dynamicParameter.DbType : inputVariableMap.DbType);
+                var dynamicDbType = (DbType)Enum.Parse(typeof(DbType), string.IsNullOrEmpty(inputVariableMap.DbType) == true ? dynamicParameter.DbType : inputVariableMap.DbType);
 
                 if (dynamicDbType == DbType.String)
                 {
@@ -929,7 +925,7 @@ TransactionException:
                 return;
             }
 
-            DbType dynamicDbType = (DbType)Enum.Parse(typeof(DbType), GetProviderDbType(item));
+            var dynamicDbType = (DbType)Enum.Parse(typeof(DbType), GetProviderDbType(item));
 
             dynamicParameters.Add(
                 item.ColumnName,
@@ -942,7 +938,7 @@ TransactionException:
 
         private string GetProviderDbType(DataColumn column)
         {
-            string result = "String";
+            var result = "String";
             switch (column.DataType.Name)
             {
                 case "Int16":
@@ -976,7 +972,7 @@ TransactionException:
             Tuple<string, string, string, string, LLMProviders>? result = null;
             if (string.IsNullOrEmpty(dataSourceID) == false)
             {
-                DataSourceMap? dataSourceMap = PromptMapper.GetDataSourceMap(queryObject, applicationID, projectID, dataSourceID);
+                var dataSourceMap = PromptMapper.GetDataSourceMap(queryObject, applicationID, projectID, dataSourceID);
                 if (dataSourceMap != null)
                 {
                     result = new Tuple<string, string, string, string, LLMProviders>(dataSourceMap.ApiKey, dataSourceMap.ModelID, dataSourceMap.Endpoint.ToStringSafe(), dataSourceMap.ServiceID.ToStringSafe(), dataSourceMap.LLMProvider);

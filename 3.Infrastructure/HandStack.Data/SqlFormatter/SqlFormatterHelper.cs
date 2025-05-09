@@ -47,8 +47,8 @@ namespace HandStack.Data.SqlFormatter
                 return;
             }
 
-            int lastIndex = sb.Length - 1;
-            int i = lastIndex;
+            var lastIndex = sb.Length - 1;
+            var i = lastIndex;
 
             for (; i >= 0; i--)
             {
@@ -57,7 +57,7 @@ namespace HandStack.Data.SqlFormatter
                     break;
                 }
             }
-            int newLen = sb.Length - (lastIndex - i);
+            var newLen = sb.Length - (lastIndex - i);
 
             sb.Length = newLen < 0 ? 0 : newLen;
         }

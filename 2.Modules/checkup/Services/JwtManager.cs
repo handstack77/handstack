@@ -33,11 +33,11 @@ namespace checkup.Services
         public async Task<string?> GenerateJwtToken(UserAccount userAccount)
         {
             string? result = null;
-            string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userAccount.ApplicationID);
-            string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
+            var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userAccount.ApplicationID);
+            var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
             if (File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(userAccount.ApplicationID) == false)
             {
-                string appSettingText = await System.IO.File.ReadAllTextAsync(settingFilePath);
+                var appSettingText = await System.IO.File.ReadAllTextAsync(settingFilePath);
                 var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
                 if (appSetting != null)
                 {
@@ -134,18 +134,18 @@ namespace checkup.Services
 
         public async Task<bool> ValidateJwtToken(string token, string userWorkID, string applicationID)
         {
-            bool result = false;
+            var result = false;
             if (string.IsNullOrEmpty(token) == true)
             {
                 return result;
             }
 
-            string tenantID = $"{userWorkID}|{applicationID}";
-            string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-            string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
+            var tenantID = $"{userWorkID}|{applicationID}";
+            var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+            var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
             if (File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
             {
-                string appSettingText = await System.IO.File.ReadAllTextAsync(settingFilePath);
+                var appSettingText = await System.IO.File.ReadAllTextAsync(settingFilePath);
                 var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
                 if (appSetting != null)
                 {
@@ -163,7 +163,7 @@ namespace checkup.Services
                             ValidIssuer = GlobalConfiguration.SystemID,
                             ValidateAudience = false,
                             ClockSkew = TimeSpan.Zero
-                        }, out SecurityToken validatedToken);
+                        }, out var validatedToken);
 
                         var jwtToken = (JwtSecurityToken)validatedToken;
 
@@ -200,12 +200,12 @@ namespace checkup.Services
                 return result;
             }
 
-            string tenantID = $"{userWorkID}|{applicationID}";
-            string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-            string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
+            var tenantID = $"{userWorkID}|{applicationID}";
+            var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+            var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
             if (File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
             {
-                string appSettingText = await File.ReadAllTextAsync(settingFilePath);
+                var appSettingText = await File.ReadAllTextAsync(settingFilePath);
                 var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
                 if (appSetting != null)
                 {
@@ -223,7 +223,7 @@ namespace checkup.Services
                             ValidIssuer = GlobalConfiguration.SystemID,
                             ValidateAudience = false,
                             ClockSkew = TimeSpan.Zero
-                        }, out SecurityToken validatedToken);
+                        }, out var validatedToken);
 
                         var jwtToken = (JwtSecurityToken)validatedToken;
 
@@ -234,7 +234,7 @@ namespace checkup.Services
                         result.UserName = jwtToken.Claims.First(x => x.Type == "UserName").Value;
                         result.Email = jwtToken.Claims.First(x => x.Type == "Email").Value;
 
-                        if (DateTime.TryParse(jwtToken.Claims.First(x => x.Type == "LoginedAt").Value, out DateTime loginedAt) == true)
+                        if (DateTime.TryParse(jwtToken.Claims.First(x => x.Type == "LoginedAt").Value, out var loginedAt) == true)
                         {
                             result.LoginedAt = loginedAt;
                         }

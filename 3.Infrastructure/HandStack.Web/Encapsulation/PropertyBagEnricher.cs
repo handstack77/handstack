@@ -25,7 +25,7 @@ namespace HandStack.Web.Encapsulation
 
         public void Enrich(LogEvent logEvent, ILogEventPropertyFactory propertyFactory)
         {
-            foreach (KeyValuePair<string, Tuple<object, bool>> prop in properties)
+            foreach (var prop in properties)
             {
                 logEvent.AddPropertyIfAbsent(propertyFactory.CreateProperty(prop.Key, prop.Value.Item1, prop.Value.Item2));
             }

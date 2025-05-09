@@ -151,7 +151,7 @@ namespace HandStack.Core.Helpers
             Func<string, bool> has = value => format.IndexOf(value, StringComparison.CurrentCultureIgnoreCase) != -1;
             Func<double, string> output = n => n.ToString(format, provider);
 
-            string result = "";
+            var result = "";
             if (has("PB") == true)
             {
                 result = output(PetaBytes);
@@ -346,10 +346,10 @@ namespace HandStack.Core.Helpers
             if (found == false)
                 throw new FormatException($"No byte indicator found in value '{value}'.");
 
-            int lastNumber = num;
+            var lastNumber = num;
 
-            string numberPart = value.Substring(0, lastNumber).Trim();
-            string sizePart = value.Substring(lastNumber, value.Length - lastNumber).Trim();
+            var numberPart = value.Substring(0, lastNumber).Trim();
+            var sizePart = value.Substring(lastNumber, value.Length - lastNumber).Trim();
 
             double number;
             if (!double.TryParse(numberPart, NumberStyles.Float | NumberStyles.AllowThousands, NumberFormatInfo.CurrentInfo, out number))

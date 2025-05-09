@@ -52,7 +52,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static DateTime GetStandardDateTime(this DateTime? @this)
         {
-            DateTime result = DateTime.UtcNow;
+            var result = DateTime.UtcNow;
             if (@this == null)
             {
                 @this = DateTime.UtcNow;
@@ -78,7 +78,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static DateTime GetUtcDateTime(this DateTime? @this)
         {
-            DateTime result = DateTime.Now.ToUniversalTime();
+            var result = DateTime.Now.ToUniversalTime();
             if (@this == null)
             {
                 @this = DateTime.Now;
@@ -119,7 +119,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static DateTime AdjustTimeZoneOffset(this DateTime @this, TimeZoneInfo? tzi = null)
         {
-            DateTime result = DateTime.UtcNow;
+            var result = DateTime.UtcNow;
             if (tzi == null)
             {
                 tzi = TimeZoneInstance;
@@ -196,7 +196,7 @@ namespace HandStack.Core.ExtensionMethod
             /// string.Format("{0:r}", @this);  // "Sun, 09 Mar 2008 16:05:07 GMT"   RFC1123
             /// string.Format("{0:s}", @this);  // "2008-03-09T16:05:07"             SortableDateTime
             /// string.Format("{0:u}", @this);  // "2008-03-09 16:05:07Z"            UniversalSortableDateTime
-            return string.Format("{0:"+ format + "}", @this);
+            return string.Format("{0:" + format + "}", @this);
         }
 
         public static string ToDateString(this DateTime @this)
@@ -288,7 +288,7 @@ namespace HandStack.Core.ExtensionMethod
         {
             double Result = 0;
 
-            TimeSpan SubtractDateTime = new TimeSpan(endDate.Ticks - @this.Ticks);
+            var SubtractDateTime = new TimeSpan(endDate.Ticks - @this.Ticks);
 
             switch (datePart)
             {
@@ -409,8 +409,8 @@ namespace HandStack.Core.ExtensionMethod
                 culture = CultureInfo.CurrentCulture;
             }
 
-            CalendarWeekRule weekRule = culture.DateTimeFormat.CalendarWeekRule;
-            DayOfWeek firstDayOfWeek = culture.DateTimeFormat.FirstDayOfWeek;
+            var weekRule = culture.DateTimeFormat.CalendarWeekRule;
+            var firstDayOfWeek = culture.DateTimeFormat.FirstDayOfWeek;
             return culture.Calendar.GetWeekOfYear(@this, weekRule, firstDayOfWeek);
         }
 
@@ -462,8 +462,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static DateTime EndOfWeek(this DateTime @this, DayOfWeek startDayOfWeek = DayOfWeek.Sunday)
         {
-            DateTime end = @this;
-            DayOfWeek endDayOfWeek = startDayOfWeek - 1;
+            var end = @this;
+            var endDayOfWeek = startDayOfWeek - 1;
             if (endDayOfWeek < 0)
             {
                 endDayOfWeek = DayOfWeek.Saturday;
@@ -560,7 +560,7 @@ namespace HandStack.Core.ExtensionMethod
 
             if (start.DayOfWeek != startDayOfWeek)
             {
-                int d = startDayOfWeek - start.DayOfWeek;
+                var d = startDayOfWeek - start.DayOfWeek;
                 if (startDayOfWeek <= start.DayOfWeek)
                 {
                     return start.AddDays(d);

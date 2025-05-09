@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Reflection;
 
 namespace HandStack.Core.Helpers
 {
@@ -22,13 +21,13 @@ namespace HandStack.Core.Helpers
                 result = value.ToString();
                 if (result != null && result.Length > 0)
                 {
-                    FieldInfo? fieldInfo = type.GetField(result);
+                    var fieldInfo = type.GetField(result);
                     if (fieldInfo != null)
                     {
-                        Attribute? attribute = Attribute.GetCustomAttribute(fieldInfo, typeof(DescriptionAttribute));
+                        var attribute = Attribute.GetCustomAttribute(fieldInfo, typeof(DescriptionAttribute));
                         if (attribute != null)
                         {
-                            DescriptionAttribute descriptionAttribute = (DescriptionAttribute)attribute;
+                            var descriptionAttribute = (DescriptionAttribute)attribute;
                             result = descriptionAttribute.Description;
                         }
                     }
@@ -46,7 +45,7 @@ namespace HandStack.Core.Helpers
                 return default(T);
             }
 
-            FieldInfo[] fields = type.GetFields();
+            var fields = type.GetFields();
             var field = fields.SelectMany(f => f.GetCustomAttributes(typeof(DescriptionAttribute), false), (f, a) => new { Field = f, Att = a })
                 .Where(a => ((DescriptionAttribute)a.Att)
                 .Description == description).SingleOrDefault();
@@ -85,7 +84,7 @@ namespace HandStack.Core.Helpers
                 return new List<T>();
             }
 
-            List<T> values = new List<T>();
+            var values = new List<T>();
             foreach (T value in Enum.GetValues(type))
             {
                 values.Add(value);
@@ -102,7 +101,7 @@ namespace HandStack.Core.Helpers
                 return new List<string>();
             }
 
-            List<string> descriptions = new List<string>();
+            var descriptions = new List<string>();
             foreach (T value in Enum.GetValues(type))
             {
                 var description = GetEnumDescriptionFromValue<T>(value);

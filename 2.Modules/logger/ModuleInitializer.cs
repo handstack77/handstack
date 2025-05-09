@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Data;
-using Microsoft.Data.SqlClient;
 using System.IO;
 using System.Linq;
 
@@ -20,6 +19,7 @@ using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
@@ -44,18 +44,18 @@ namespace logger
 
         public void ConfigureServices(IServiceCollection services, IWebHostEnvironment environment, IConfiguration configuration)
         {
-            ModuleInfo? module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == ModuleID);
+            var module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == ModuleID);
             if (module != null)
             {
-                string moduleSettingFilePath = module.ModuleSettingFilePath;
+                var moduleSettingFilePath = module.ModuleSettingFilePath;
                 if (File.Exists(moduleSettingFilePath) == true)
                 {
-                    string configurationText = File.ReadAllText(moduleSettingFilePath);
-                    ModuleConfigJson? moduleConfigJson = JsonConvert.DeserializeObject<ModuleConfigJson>(configurationText);
+                    var configurationText = File.ReadAllText(moduleSettingFilePath);
+                    var moduleConfigJson = JsonConvert.DeserializeObject<ModuleConfigJson>(configurationText);
 
                     if (moduleConfigJson != null)
                     {
-                        ModuleConfig moduleConfig = moduleConfigJson.ModuleConfig;
+                        var moduleConfig = moduleConfigJson.ModuleConfig;
                         ModuleConfiguration.ModuleID = moduleConfigJson.ModuleID;
                         ModuleConfiguration.Version = moduleConfigJson.Version;
                         ModuleConfiguration.IsSQLiteCreateOnNotSettingRequest = moduleConfig.IsSQLiteCreateOnNotSettingRequest;
@@ -87,7 +87,7 @@ namespace logger
 
                             foreach (var item in ModuleConfiguration.DataSource)
                             {
-                                ApplicationCircuitBreakerPolicy applicationCircuitBreakerPolicy = new ApplicationCircuitBreakerPolicy();
+                                var applicationCircuitBreakerPolicy = new ApplicationCircuitBreakerPolicy();
                                 applicationCircuitBreakerPolicy.ApplicationCircuitBreaker = Policy
                                     .Handle<SqlException>()
                                     .Or<Exception>()
@@ -120,14 +120,14 @@ namespace logger
                     }
                     else
                     {
-                        string message = $"Json Deserialize 오류 module.json 파일 확인 필요: {moduleSettingFilePath}";
+                        var message = $"Json Deserialize 오류 module.json 파일 확인 필요: {moduleSettingFilePath}";
                         Log.Logger.Error("[{LogCategory}] " + message, $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
                         throw new FileLoadException(message);
                     }
                 }
                 else
                 {
-                    string message = $"module.json 파일 확인 필요: {moduleSettingFilePath}";
+                    var message = $"module.json 파일 확인 필요: {moduleSettingFilePath}";
                     Log.Logger.Error("[{LogCategory}] " + message, $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
                     throw new FileNotFoundException(message);
                 }
@@ -140,10 +140,10 @@ namespace logger
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment? environment, ICorsService corsService, ICorsPolicyProvider corsPolicyProvider)
         {
-            ModuleInfo? module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == ModuleID);
+            var module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == ModuleID);
             if (string.IsNullOrEmpty(ModuleID) == false && module != null)
             {
-                string wwwrootDirectory = PathExtensions.Combine(module.BasePath, "wwwroot", module.ModuleID);
+                var wwwrootDirectory = PathExtensions.Combine(module.BasePath, "wwwroot", module.ModuleID);
                 if (string.IsNullOrEmpty(wwwrootDirectory) == false && Directory.Exists(wwwrootDirectory) == true)
                 {
                     app.UseStaticFiles(new StaticFileOptions
@@ -177,9 +177,9 @@ namespace logger
 
         private bool CreateNotExistTable(string provider, string connectionString, string tableName)
         {
-            bool result = false;
+            var result = false;
             var dataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), provider);
-            string commandText = string.Empty;
+            var commandText = string.Empty;
 
             switch (dataProvider)
             {
@@ -200,7 +200,7 @@ namespace logger
                     break;
             }
 
-            using (DatabaseFactory databaseFactory = new DatabaseFactory(connectionString, dataProvider))
+            using (var databaseFactory = new DatabaseFactory(connectionString, dataProvider))
             {
                 if (databaseFactory.Connection == null)
                 {
@@ -213,34 +213,32 @@ namespace logger
                         databaseFactory.Connection.Open();
                     }
 
-                    using (var command = databaseFactory.Connection.CreateCommand())
+                    using var command = databaseFactory.Connection.CreateCommand();
+                    command.CommandTimeout = 3000;
+                    command.CommandText = commandText;
+                    command.CommandType = CommandType.Text;
+                    var isExists = command.ExecuteScalar().ToStringSafe().ToBoolean();
+
+                    if (isExists == false)
                     {
-                        command.CommandTimeout = 3000;
-                        command.CommandText = commandText;
-                        command.CommandType = CommandType.Text;
-                        var isExists = command.ExecuteScalar().ToStringSafe().ToBoolean();
-
-                        if (isExists == false)
+                        var sqlFilePath = PathExtensions.Combine(ModuleConfiguration.ModuleBasePath, "SQL", "Create", dataProvider.ToString() + ".txt");
+                        if (File.Exists(sqlFilePath) == true)
                         {
-                            string sqlFilePath = PathExtensions.Combine(ModuleConfiguration.ModuleBasePath, "SQL", "Create", dataProvider.ToString() + ".txt");
-                            if (File.Exists(sqlFilePath) == true)
-                            {
-                                string ddlScript = File.ReadAllText(sqlFilePath).Replace("{TableName}", tableName);
+                            var ddlScript = File.ReadAllText(sqlFilePath).Replace("{TableName}", tableName);
 
-                                command.CommandText = ddlScript;
-                                command.ExecuteNonQuery();
+                            command.CommandText = ddlScript;
+                            command.ExecuteNonQuery();
 
-                                result = true;
-                            }
-                            else
-                            {
-                                Log.Logger.Error("[{LogCategory}] " + $"sqlFilePath: {sqlFilePath} 확인 필요", "ModuleInitializer/CreateNotExistTable");
-                            }
+                            result = true;
                         }
                         else
                         {
-                            result = true;
+                            Log.Logger.Error("[{LogCategory}] " + $"sqlFilePath: {sqlFilePath} 확인 필요", "ModuleInitializer/CreateNotExistTable");
                         }
+                    }
+                    else
+                    {
+                        result = true;
                     }
                 }
             }

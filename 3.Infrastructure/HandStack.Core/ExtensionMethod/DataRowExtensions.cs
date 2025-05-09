@@ -15,16 +15,16 @@ namespace HandStack.Core.ExtensionMethod
                 return;
             }
 
-            DataColumnCollection dataColumns = @this.Table.Columns;
+            var dataColumns = @this.Table.Columns;
 
-            for (int i = 0; i < dataColumns.Count; i++)
+            for (var i = 0; i < dataColumns.Count; i++)
             {
                 if (@this.IsNull(i) == false)
                 {
                     continue;
                 }
 
-                string rowType = dataColumns[i].DataType.Name;
+                var rowType = dataColumns[i].DataType.Name;
 
                 if (rowType.IndexOf("Int") > -1)
                 {
@@ -63,11 +63,11 @@ namespace HandStack.Core.ExtensionMethod
                 return;
             }
 
-            DataColumnCollection dataColumns = target.Table.Columns;
+            var dataColumns = target.Table.Columns;
 
-            for (int i = 0; i < dataColumns.Count; i++)
+            for (var i = 0; i < dataColumns.Count; i++)
             {
-                string columnName = dataColumns[i].ColumnName;
+                var columnName = dataColumns[i].ColumnName;
                 target[columnName] = @this[columnName];
             }
         }
@@ -79,11 +79,11 @@ namespace HandStack.Core.ExtensionMethod
                 return;
             }
 
-            MemberInfo[] memberInfos = target.GetType().FindMembers(MemberTypes.Field | MemberTypes.Property, Reflector.memberAccess, null, null);
+            var memberInfos = target.GetType().FindMembers(MemberTypes.Field | MemberTypes.Property, Reflector.memberAccess, null, null);
 
-            foreach (MemberInfo memberInfo in memberInfos)
+            foreach (var memberInfo in memberInfos)
             {
-                string propertyName = memberInfo.Name;
+                var propertyName = memberInfo.Name;
 
                 if (@this.Table.Columns.Contains(propertyName) == false)
                 {
@@ -377,8 +377,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static DataRow AddDataRow(this DataRow @this, params string[] values)
         {
-            int i = 0;
-            foreach (string value in values)
+            var i = 0;
+            foreach (var value in values)
             {
                 @this[i] = value;
                 i++;

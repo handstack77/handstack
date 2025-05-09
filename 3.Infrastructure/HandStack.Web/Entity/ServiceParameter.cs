@@ -9,10 +9,10 @@ namespace HandStack.Web.Entity
     {
         public ServiceParameter()
         {
-            string id = "";
-            Crc32 crc32 = new Crc32();
-            byte[] computeHash = crc32.ComputeHash(Encoding.Default.GetBytes(Guid.NewGuid().ToString("N")));
-            foreach (byte b in computeHash)
+            var id = "";
+            var crc32 = new Crc32();
+            var computeHash = crc32.ComputeHash(Encoding.Default.GetBytes(Guid.NewGuid().ToString("N")));
+            foreach (var b in computeHash)
             {
                 id += b.ToString("x2").ToLower();
             }

@@ -78,7 +78,7 @@ namespace HandStack.Core.ExtensionMethod
             table = table == null ? new DataTable(typeof(T).Name) : table;
             table = ExtendTable(table, typeof(T));
             table.BeginLoadData();
-            using (IEnumerator<T> e = source.GetEnumerator())
+            using (var e = source.GetEnumerator())
             {
                 while (e.MoveNext())
                 {
@@ -106,9 +106,9 @@ namespace HandStack.Core.ExtensionMethod
             }
 
             table.BeginLoadData();
-            using (IEnumerator<T> enumerator = source.GetEnumerator())
+            using (var enumerator = source.GetEnumerator())
             {
-                object?[] values = new object[table.Columns.Count];
+                var values = new object[table.Columns.Count];
                 while (enumerator.MoveNext())
                 {
                     var column = table.Columns["Value"];
@@ -133,12 +133,12 @@ namespace HandStack.Core.ExtensionMethod
 
         public object?[] ShredObject(DataTable table, T instance)
         {
-            object?[] values = new object[table.Columns.Count];
+            var values = new object[table.Columns.Count];
 
             if (instance != null)
             {
-                FieldInfo[] fieldInfos = fields;
-                PropertyInfo[] ropertyInfos = properties;
+                var fieldInfos = fields;
+                var ropertyInfos = properties;
 
                 if (instance.GetType() != typeof(T))
                 {
@@ -147,12 +147,12 @@ namespace HandStack.Core.ExtensionMethod
                     ropertyInfos = instance.GetType().GetProperties();
                 }
 
-                foreach (FieldInfo f in fieldInfos)
+                foreach (var f in fieldInfos)
                 {
                     values[dictionary[f.Name]] = f.GetValue(instance);
                 }
 
-                foreach (PropertyInfo p in ropertyInfos)
+                foreach (var p in ropertyInfos)
                 {
                     values[dictionary[p.Name]] = p.GetValue(instance, null);
                 }
@@ -163,7 +163,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public DataTable ExtendTable(DataTable table, Type type)
         {
-            foreach (FieldInfo f in type.GetFields())
+            foreach (var f in type.GetFields())
             {
                 if (dictionary.ContainsKey(f.Name) == false)
                 {
@@ -183,7 +183,7 @@ namespace HandStack.Core.ExtensionMethod
                     }
                 }
             }
-            foreach (PropertyInfo p in type.GetProperties())
+            foreach (var p in type.GetProperties())
             {
                 if (dictionary.ContainsKey(p.Name) == false)
                 {

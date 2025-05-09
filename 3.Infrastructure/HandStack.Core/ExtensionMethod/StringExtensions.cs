@@ -49,11 +49,11 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string GenerateUniqueId(int uniqueSize = 8)
         {
-            string chars = "abcdefghijkmnopqrstuvwxyz1234567890";
-            StringBuilder sb = new StringBuilder(uniqueSize);
+            var chars = "abcdefghijkmnopqrstuvwxyz1234567890";
+            var sb = new StringBuilder(uniqueSize);
 
-            int count = 0;
-            foreach (byte b in Guid.NewGuid().ToByteArray())
+            var count = 0;
+            foreach (var b in Guid.NewGuid().ToByteArray())
             {
                 sb.Append(chars[b % (chars.Length - 1)]);
 
@@ -70,19 +70,19 @@ namespace HandStack.Core.ExtensionMethod
 
         public static long GenerateUniqueNumericId()
         {
-            byte[] bytes = Guid.NewGuid().ToByteArray();
+            var bytes = Guid.NewGuid().ToByteArray();
             return BitConverter.ToInt64(bytes, 0);
         }
 
         public static string ToBetween(this string @this, char startChar, char endChar)
         {
-            string Result = "";
-            int StartIndex = @this.IndexOf(startChar);
+            var Result = "";
+            var StartIndex = @this.IndexOf(startChar);
 
             if (StartIndex != -1)
             {
                 ++StartIndex;
-                int EndIndex = @this.IndexOf(endChar, StartIndex);
+                var EndIndex = @this.IndexOf(endChar, StartIndex);
                 if (EndIndex != -1)
                 {
                     Result = @this.Substring(StartIndex, EndIndex - StartIndex);
@@ -94,8 +94,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static int Count(this string @this, char searchChar)
         {
-            int Result = 0;
-            foreach (char CharValue in @this)
+            var Result = 0;
+            foreach (var CharValue in @this)
             {
                 if (CharValue == searchChar)
                 {
@@ -146,8 +146,8 @@ namespace HandStack.Core.ExtensionMethod
             }
             else
             {
-                Byte[] utf8Bytes = Encoding.UTF8.GetBytes(@this);
-                Byte[] convertBytes = Encoding.Convert(Encoding.UTF8, Encoding.Default, utf8Bytes);
+                var utf8Bytes = Encoding.UTF8.GetBytes(@this);
+                var convertBytes = Encoding.Convert(Encoding.UTF8, Encoding.Default, utf8Bytes);
 
                 if (convertBytes.Length < length)
                 {
@@ -193,10 +193,10 @@ namespace HandStack.Core.ExtensionMethod
 
         public static byte[] HexToBytes(this string hex)
         {
-            byte[] bytes = new byte[hex.Length / 2];
-            for (int i = 0; i < hex.Length / 2; i++)
+            var bytes = new byte[hex.Length / 2];
+            for (var i = 0; i < hex.Length / 2; i++)
             {
-                string code = hex.Substring(i * 2, 2);
+                var code = hex.Substring(i * 2, 2);
                 bytes[i] = byte.Parse(code, NumberStyles.HexNumber);
             }
             return bytes;
@@ -204,8 +204,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string BytesToHex(this byte[] bytes)
         {
-            StringBuilder hex = new StringBuilder();
-            for (int i = 0; i < bytes.Length; i++)
+            var hex = new StringBuilder();
+            for (var i = 0; i < bytes.Length; i++)
             {
                 hex.AppendFormat("{0:X2}", bytes[i]);
             }
@@ -214,9 +214,9 @@ namespace HandStack.Core.ExtensionMethod
 
         public static List<string> ToList(this string @this, string separator)
         {
-            List<string> list = new List<string>();
+            var list = new List<string>();
 
-            foreach (string value in @this.Split(separator.ToCharArray()))
+            foreach (var value in @this.Split(separator.ToCharArray()))
             {
                 list.Add(value.Trim());
             }
@@ -270,7 +270,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static bool ParseBool(this string @this, bool defaultValue = false)
         {
-            bool result = false;
+            var result = false;
             if (string.IsNullOrEmpty(@this) == true)
             {
                 result = defaultValue;
@@ -294,7 +294,7 @@ namespace HandStack.Core.ExtensionMethod
             else
             {
                 DateTime dateTime;
-                bool isParse = DateTime.TryParse(@this, out dateTime);
+                var isParse = DateTime.TryParse(@this, out dateTime);
                 if (isParse == true)
                 {
                     result = dateTime;
@@ -315,7 +315,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static int ParseInt(this string @this, int defaultValue, IFormatProvider numberFormat)
         {
-            int result = defaultValue;
+            var result = defaultValue;
             return int.TryParse(@this, NumberStyles.Any, numberFormat, out result) == true ? result : defaultValue;
         }
 
@@ -326,7 +326,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static long ParseLong(this string @this, long defaultValue, IFormatProvider numberFormat)
         {
-            long result = defaultValue;
+            var result = defaultValue;
             return long.TryParse(@this, NumberStyles.Any, numberFormat, out result) == true ? result : defaultValue;
         }
 
@@ -337,7 +337,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static decimal ParseDecimal(this string @this, decimal defaultValue, IFormatProvider numberFormat)
         {
-            decimal result = defaultValue;
+            var result = defaultValue;
             return decimal.TryParse(@this, NumberStyles.Any, numberFormat, out result) == true ? result : defaultValue;
         }
 
@@ -348,7 +348,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static double ParseDouble(this string @this, double defaultValue, IFormatProvider numberFormat)
         {
-            double result = defaultValue;
+            var result = defaultValue;
             return double.TryParse(@this, NumberStyles.Any, numberFormat, out result) == true ? result : defaultValue;
         }
 
@@ -359,7 +359,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static float ParseFloat(this string @this, float defaultValue, IFormatProvider numberFormat)
         {
-            float result = defaultValue;
+            var result = defaultValue;
             return float.TryParse(@this, NumberStyles.Any, numberFormat, out result) == true ? result : defaultValue;
         }
 
@@ -367,10 +367,10 @@ namespace HandStack.Core.ExtensionMethod
         {
             if (string.IsNullOrEmpty(@this) == false)
             {
-                char[] result = new char[@this.Length];
-                int i = 0;
+                var result = new char[@this.Length];
+                var i = 0;
 
-                foreach (char character in @this)
+                foreach (var character in @this)
                 {
                     if (char.IsNumber(character))
                     {
@@ -392,8 +392,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static int ToCount(this string @this, string pattern)
         {
-            int count = 0;
-            int i = 0;
+            var count = 0;
+            var i = 0;
             while ((i = @this.IndexOf(pattern, i)) != -1)
             {
                 i += pattern.Length;
@@ -510,31 +510,27 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string ToSHA256(this string value)
         {
-            using (SHA256 sha256Hash = SHA256.Create())
+            using var sha256Hash = SHA256.Create();
+            var bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(value));
+            var builder = new StringBuilder();
+            for (var i = 0; i < bytes.Length; i++)
             {
-                byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(value));
-                StringBuilder builder = new StringBuilder();
-                for (int i = 0; i < bytes.Length; i++)
-                {
-                    builder.Append(bytes[i].ToString("x2"));
-                }
-                return builder.ToString();
+                builder.Append(bytes[i].ToString("x2"));
             }
+            return builder.ToString();
         }
 
         public static string ToSHA256(this string value, Encoding encoding)
         {
             encoding = (encoding ?? Encoding.UTF8);
-            using (SHA256 sha256Hash = SHA256.Create())
+            using var sha256Hash = SHA256.Create();
+            var bytes = sha256Hash.ComputeHash(encoding.GetBytes(value));
+            var builder = new StringBuilder();
+            for (var i = 0; i < bytes.Length; i++)
             {
-                byte[] bytes = sha256Hash.ComputeHash(encoding.GetBytes(value));
-                StringBuilder builder = new StringBuilder();
-                for (int i = 0; i < bytes.Length; i++)
-                {
-                    builder.Append(bytes[i].ToString("x2"));
-                }
-                return builder.ToString();
+                builder.Append(bytes[i].ToString("x2"));
             }
+            return builder.ToString();
         }
 
         public static string EncryptAES(this string value, string key, int keySize = 256, int blockSize = 128, CipherMode cipherMode = CipherMode.CBC, PaddingMode paddingMode = PaddingMode.PKCS7, int ivLength = 16)
@@ -548,16 +544,14 @@ namespace HandStack.Core.ExtensionMethod
             aes.IV = new byte[ivLength];
 
             var encrypt = aes.CreateEncryptor(aes.Key, aes.IV);
-            using (var ms = new MemoryStream())
+            using var ms = new MemoryStream();
+            using (var cs = new CryptoStream(ms, encrypt, CryptoStreamMode.Write))
             {
-                using (var cs = new CryptoStream(ms, encrypt, CryptoStreamMode.Write))
-                {
-                    byte[] bytes = Encoding.UTF8.GetBytes(value);
-                    cs.Write(bytes, 0, bytes.Length);
-                }
-
-                return Convert.ToBase64String(ms.ToArray());
+                var bytes = Encoding.UTF8.GetBytes(value);
+                cs.Write(bytes, 0, bytes.Length);
             }
+
+            return Convert.ToBase64String(ms.ToArray());
         }
 
         public static string DecryptAES(this string value, string key, int keySize = 256, int blockSize = 128, CipherMode cipherMode = CipherMode.CBC, PaddingMode paddingMode = PaddingMode.PKCS7, int ivLength = 16)
@@ -571,16 +565,14 @@ namespace HandStack.Core.ExtensionMethod
             aes.IV = new byte[ivLength];
 
             var decrypt = aes.CreateDecryptor();
-            using (var ms = new MemoryStream())
+            using var ms = new MemoryStream();
+            using (var cs = new CryptoStream(ms, decrypt, CryptoStreamMode.Write))
             {
-                using (var cs = new CryptoStream(ms, decrypt, CryptoStreamMode.Write))
-                {
-                    byte[] bytes = Convert.FromBase64String(value);
-                    cs.Write(bytes, 0, bytes.Length);
-                }
-
-                return Encoding.UTF8.GetString(ms.ToArray());
+                var bytes = Convert.FromBase64String(value);
+                cs.Write(bytes, 0, bytes.Length);
             }
+
+            return Encoding.UTF8.GetString(ms.ToArray());
         }
 
         public static string? Truncate(this string @this, int maxLength, string suffix = "...")
@@ -590,7 +582,7 @@ namespace HandStack.Core.ExtensionMethod
                 return @this;
             }
 
-            int strLength = maxLength - suffix.Length;
+            var strLength = maxLength - suffix.Length;
             return @this.Substring(0, strLength) + suffix;
         }
 
@@ -663,20 +655,16 @@ namespace HandStack.Core.ExtensionMethod
         {
             var serializer = new DataContractJsonSerializer(typeof(T));
 
-            using (var stream = new MemoryStream(Encoding.Default.GetBytes(@this)))
-            {
-                return (T?)serializer.ReadObject(stream);
-            }
+            using var stream = new MemoryStream(Encoding.Default.GetBytes(@this));
+            return (T?)serializer.ReadObject(stream);
         }
 
         public static T? DeserializeJson<T>(this string @this, Encoding encoding)
         {
             var serializer = new DataContractJsonSerializer(typeof(T));
 
-            using (var stream = new MemoryStream(encoding.GetBytes(@this)))
-            {
-                return (T?)serializer.ReadObject(stream);
-            }
+            using var stream = new MemoryStream(encoding.GetBytes(@this));
+            return (T?)serializer.ReadObject(stream);
         }
 
         public static T? DeserializeXml<T>(this string @this)
@@ -707,13 +695,13 @@ namespace HandStack.Core.ExtensionMethod
 
         public static bool ToBoolean(this object @this, bool defaultValue)
         {
-            bool result = defaultValue;
+            var result = defaultValue;
 
             if (@this != null)
             {
                 try
                 {
-                    string? value = @this.ToString();
+                    var value = @this.ToString();
                     if (string.IsNullOrEmpty(value) == true)
                     {
                         result = false;

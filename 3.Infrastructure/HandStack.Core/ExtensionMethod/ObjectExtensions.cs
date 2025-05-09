@@ -93,7 +93,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static T? ShallowCopy<T>(this T @this)
         {
-            MethodInfo? method = @this?.GetType().GetMethod("MemberwiseClone", BindingFlags.NonPublic | BindingFlags.Instance);
+            var method = @this?.GetType().GetMethod("MemberwiseClone", BindingFlags.NonPublic | BindingFlags.Instance);
             return (T?)method?.Invoke(@this, null);
         }
 
@@ -111,14 +111,14 @@ namespace HandStack.Core.ExtensionMethod
         {
             if (@this != null)
             {
-                Type targetType = type;
+                var targetType = type;
 
                 if (@this.GetType() == targetType)
                 {
                     return @this;
                 }
 
-                TypeConverter converter = TypeDescriptor.GetConverter(@this);
+                var converter = TypeDescriptor.GetConverter(@this);
                 if (converter != null)
                 {
                     if (converter.CanConvertTo(targetType))
@@ -147,13 +147,13 @@ namespace HandStack.Core.ExtensionMethod
 
         public static bool IsAssignableFrom<T>(this object @this)
         {
-            Type type = @this.GetType();
+            var type = @this.GetType();
             return type.IsAssignableFrom(typeof(T));
         }
 
         public static bool IsAssignableFrom(this object @this, Type targetType)
         {
-            Type type = @this.GetType();
+            var type = @this.GetType();
             return type.IsAssignableFrom(targetType);
         }
 
@@ -202,11 +202,9 @@ namespace HandStack.Core.ExtensionMethod
         {
             var serializer = new DataContractJsonSerializer(typeof(T));
 
-            using (var memoryStream = new MemoryStream())
-            {
-                serializer.WriteObject(memoryStream, @this);
-                return Encoding.UTF8.GetString(memoryStream.ToArray());
-            }
+            using var memoryStream = new MemoryStream();
+            serializer.WriteObject(memoryStream, @this);
+            return Encoding.UTF8.GetString(memoryStream.ToArray());
         }
 
         public static string SerializeJson<T>(this T @this, Encoding encoding)
@@ -214,25 +212,19 @@ namespace HandStack.Core.ExtensionMethod
             encoding = (encoding ?? Encoding.UTF8);
             var serializer = new DataContractJsonSerializer(typeof(T));
 
-            using (var memoryStream = new MemoryStream())
-            {
-                serializer.WriteObject(memoryStream, @this);
-                return encoding.GetString(memoryStream.ToArray());
-            }
+            using var memoryStream = new MemoryStream();
+            serializer.WriteObject(memoryStream, @this);
+            return encoding.GetString(memoryStream.ToArray());
         }
 
         public static string SerializeXml(this object @this)
         {
             var xmlSerializer = new XmlSerializer(@this.GetType());
 
-            using (var stringWriter = new StringWriter())
-            {
-                xmlSerializer.Serialize(stringWriter, @this);
-                using (var streamReader = new StringReader(stringWriter.GetStringBuilder().ToString()))
-                {
-                    return streamReader.ReadToEnd();
-                }
-            }
+            using var stringWriter = new StringWriter();
+            xmlSerializer.Serialize(stringWriter, @this);
+            using var streamReader = new StringReader(stringWriter.GetStringBuilder().ToString());
+            return streamReader.ReadToEnd();
         }
     }
 }

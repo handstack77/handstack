@@ -4,16 +4,11 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Runtime.Loader;
 
 using HandStack.Core.ExtensionMethod;
 using HandStack.Web.MessageContract.DataObject;
 
 using Microsoft.AspNetCore.Http;
-
-using Newtonsoft.Json;
-
-using Serilog;
 
 namespace function.Builder
 {
@@ -46,9 +41,9 @@ namespace function.Builder
         {
             object? result = null;
 
-            string typeName = moduleScriptMap.EntryType.ToStringSafe();
-            string methodName = moduleScriptMap.EntryMethod.ToStringSafe();
-            string referenceModuleID = moduleScriptMap.ReferenceModuleID.ToStringSafe();
+            var typeName = moduleScriptMap.EntryType.ToStringSafe();
+            var methodName = moduleScriptMap.EntryMethod.ToStringSafe();
+            var referenceModuleID = moduleScriptMap.ReferenceModuleID.ToStringSafe();
 
             Assembly? entryAssembly = null;
             if (FileAssemblyCache.ContainsKey(sourceFilePath) == true)
@@ -59,19 +54,17 @@ namespace function.Builder
             else
             {
                 var compiler = new Compiler();
-                Tuple<byte[]?, string?>? compiledResult = compiler.CompileFile(sourceFilePath, referenceModuleID);
+                var compiledResult = compiler.CompileFile(sourceFilePath, referenceModuleID);
                 if (compiledResult != null)
                 {
                     var compiledAssembly = compiledResult.Item1;
                     var errorText = compiledResult.Item2;
                     if (string.IsNullOrEmpty(errorText) == true && compiledAssembly != null)
                     {
-                        using (var asm = new MemoryStream(compiledAssembly))
-                        {
-                            var assemblyLoadContext = new UnloadableAssemblyLoadContext();
-                            entryAssembly = assemblyLoadContext.LoadAssembliyFromStream(asm);
-                            FileAssemblyCache.Add(sourceFilePath, assemblyLoadContext);
-                        }
+                        using var asm = new MemoryStream(compiledAssembly);
+                        var assemblyLoadContext = new UnloadableAssemblyLoadContext();
+                        entryAssembly = assemblyLoadContext.LoadAssembliyFromStream(asm);
+                        FileAssemblyCache.Add(sourceFilePath, assemblyLoadContext);
                     }
                     else
                     {
@@ -95,7 +88,7 @@ namespace function.Builder
                         myObject = Activator.CreateInstance(myType, [httpContext]);
                     }
 
-                    MethodInfo? entry = myObject?.GetType().GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+                    var entry = myObject?.GetType().GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
 
                     if (entry != null)
                     {
@@ -129,22 +122,20 @@ namespace function.Builder
             else
             {
                 var compiler = new Compiler();
-                Tuple<byte[]?, string?>? compiledResult = isFileSource == true ? compiler.CompileFile(dataSource) : compiler.CompileText(dataSource);
+                var compiledResult = isFileSource == true ? compiler.CompileFile(dataSource) : compiler.CompileText(dataSource);
                 if (compiledResult != null)
                 {
                     var compiledAssembly = compiledResult.Item1;
                     var errorText = compiledResult.Item2;
                     if (string.IsNullOrEmpty(errorText) == true && compiledAssembly != null)
                     {
-                        using (var asm = new MemoryStream(compiledAssembly))
-                        {
-                            var assemblyLoadContext = new UnloadableAssemblyLoadContext();
-                            entryAssembly = assemblyLoadContext.LoadAssembliyFromStream(asm);
+                        using var asm = new MemoryStream(compiledAssembly);
+                        var assemblyLoadContext = new UnloadableAssemblyLoadContext();
+                        entryAssembly = assemblyLoadContext.LoadAssembliyFromStream(asm);
 
-                            if (isFileSource == true)
-                            {
-                                FileAssemblyCache.Add(dataSource, assemblyLoadContext);
-                            }
+                        if (isFileSource == true)
+                        {
+                            FileAssemblyCache.Add(dataSource, assemblyLoadContext);
                         }
                     }
                     else
@@ -169,7 +160,7 @@ namespace function.Builder
                         myObject = Activator.CreateInstance(myType, [httpContext]);
                     }
 
-                    MethodInfo? entry = myObject?.GetType().GetMethod(methodName);
+                    var entry = myObject?.GetType().GetMethod(methodName);
 
                     if (entry != null)
                     {

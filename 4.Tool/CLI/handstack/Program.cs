@@ -38,8 +38,8 @@ namespace handstack
 
         public static async Task<int> Main(string[] args)
         {
-            int exitCode = 0;
-            string entryBasePath = AppDomain.CurrentDomain.BaseDirectory;
+            var exitCode = 0;
+            var entryBasePath = AppDomain.CurrentDomain.BaseDirectory;
             if (string.IsNullOrEmpty(entryBasePath) == true)
             {
                 entryBasePath = AppDomain.CurrentDomain.BaseDirectory;
@@ -56,9 +56,9 @@ namespace handstack
                 environmentName = "";
             }
 
-            string appSettingsFilePath = PathExtensions.Combine(entryBasePath, "appsettings.json");
+            var appSettingsFilePath = PathExtensions.Combine(entryBasePath, "appsettings.json");
             var configurationBuilder = new ConfigurationBuilder().AddJsonFile(appSettingsFilePath);
-            IConfigurationRoot configuration = configurationBuilder.Build();
+            var configuration = configurationBuilder.Build();
 
             Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(configuration)
@@ -91,17 +91,17 @@ namespace handstack
             subCommandList.SetHandler(() =>
             {
                 var currentId = Process.GetCurrentProcess().Id;
-                List<Process> processes = new List<Process>();
+                var processes = new List<Process>();
                 processes.AddRange(Process.GetProcessesByName("ack"));
                 processes.AddRange(Process.GetProcessesByName("dotnet"));
                 if (processes.Count > 0)
                 {
                     var processPorts = new Dictionary<int, List<int>>();
-                    string netstatScript = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true ? $"netstat -ano | findstr /R /C:\"LISTENING\"" : $"lsof -iTCP -n -P | grep -E '(LISTEN)'";
+                    var netstatScript = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true ? $"netstat -ano | findstr /R /C:\"LISTENING\"" : $"lsof -iTCP -n -P | grep -E '(LISTEN)'";
                     var netstatResult = CommandHelper.RunScript($"{netstatScript}", false, true, true);
                     if (netstatResult.Count > 0 && netstatResult[0].Item1 == 0)
                     {
-                        string netstatOutput = netstatResult[0].Item2.ToStringSafe();
+                        var netstatOutput = netstatResult[0].Item2.ToStringSafe();
 
                         MatchCollection? matches = null;
                         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true)
@@ -119,7 +119,7 @@ namespace handstack
                         {
                             foreach (Match match in matches)
                             {
-                                if (int.TryParse(match.Groups["pid"].Value, out int processID) == true && int.TryParse(match.Groups["port"].Value, out int portNumber) == true)
+                                if (int.TryParse(match.Groups["pid"].Value, out var processID) == true && int.TryParse(match.Groups["port"].Value, out var portNumber) == true)
                                 {
                                     if (processPorts.ContainsKey(processID) == true)
                                     {
@@ -142,7 +142,7 @@ namespace handstack
                         Log.Error($"error: {netstatResult[0].Item3}");
                     }
 
-                    List<string> strings = new List<string>();
+                    var strings = new List<string>();
                     strings.Add($"pname|pid|port|startat|ram|cmd|path");
                     foreach (var process in processes)
                     {
@@ -151,12 +151,12 @@ namespace handstack
                             continue;
                         }
 
-                        string commandLine = "";
-                        string commandLineScript = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true ? $"powershell -NoProfile -Command \"Get-CimInstance Win32_Process | Where-Object {{ $_.ProcessId -eq {process.Id} }} | Select-Object -ExpandProperty CommandLine\"" : $"ps -fp {process.Id} | awk '{{print $NF}}'";
+                        var commandLine = "";
+                        var commandLineScript = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true ? $"powershell -NoProfile -Command \"Get-CimInstance Win32_Process | Where-Object {{ $_.ProcessId -eq {process.Id} }} | Select-Object -ExpandProperty CommandLine\"" : $"ps -fp {process.Id} | awk '{{print $NF}}'";
                         var commandLineResult = CommandHelper.RunScript($"{commandLineScript}", false, true, true);
                         if (commandLineResult.Count > 0 && commandLineResult[0].Item1 == 0)
                         {
-                            string commandLineOutput = commandLineResult[0].Item2.ToStringSafe();
+                            var commandLineOutput = commandLineResult[0].Item2.ToStringSafe();
                             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true)
                             {
                                 commandLine = commandLineOutput.Replace("\\", "/").Replace("CommandLine", "").Replace("\n", "").Replace("\r", "").Trim();
@@ -167,7 +167,7 @@ namespace handstack
                             }
                         }
 
-                        bool isProcessCollect = false;
+                        var isProcessCollect = false;
                         if (commandLine.StartsWith("dotnet") == true)
                         {
                             isProcessCollect = commandLine.IndexOf("ack.dll") > -1 ? true : false;
@@ -181,10 +181,10 @@ namespace handstack
 
                         if (isProcessCollect == true)
                         {
-                            if (processPorts.TryGetValue(process.Id, out List<int>? ports) == true)
+                            if (processPorts.TryGetValue(process.Id, out var ports) == true)
                             {
-                                string port = ports == null ? "" : string.Join(",", ports);
-                                strings.Add($"{process.ProcessName}|{process.Id}|{port}|{process.StartTime.ToString("yyyy-MM-dd HH:mm:dd")}|{process.WorkingSet64.ToByteSize()}|{commandLine}|{process.MainModule?.FileName}");
+                                var port = ports == null ? "" : string.Join(",", ports);
+                                strings.Add($"{process.ProcessName}|{process.Id}|{port}|{process.StartTime:yyyy-MM-dd HH:mm:dd}|{process.WorkingSet64.ToByteSize()}|{commandLine}|{process.MainModule?.FileName}");
                             }
                         }
                     }
@@ -207,13 +207,13 @@ namespace handstack
             {
                 if (ackFile != null && ackFile.Exists == true && settings != null && settings.Exists == true)
                 {
-                    string targetBasePath = ackFile.DirectoryName.ToStringSafe();
-                    string settingDirectoryPath = settings.DirectoryName.ToStringSafe();
-                    string settingFilePath = settings.FullName.Replace("\\", "/");
-                    string settingFileName = settings.Name;
+                    var targetBasePath = ackFile.DirectoryName.ToStringSafe();
+                    var settingDirectoryPath = settings.DirectoryName.ToStringSafe();
+                    var settingFilePath = settings.FullName.Replace("\\", "/");
+                    var settingFileName = settings.Name;
                     try
                     {
-                        string settingText = File.ReadAllText(settingFilePath);
+                        var settingText = File.ReadAllText(settingFilePath);
                         var setting = JObject.Parse(settingText);
                         var moduleBasePath = setting.SelectToken("AppSettings.LoadModuleBasePath").ToStringSafe();
                         if (moduleBasePath.StartsWith(".") == true)
@@ -224,24 +224,24 @@ namespace handstack
                         var loadModules = setting.SelectToken("AppSettings.LoadModules");
                         if (string.IsNullOrEmpty(moduleBasePath) == false && loadModules != null && loadModules.Count() > 0)
                         {
-                            string wwwrootModuleBasePath = string.Empty;
-                            string functionModuleBasePath = string.Empty;
-                            string moduleSettingFile = "module.json";
+                            var wwwrootModuleBasePath = string.Empty;
+                            var functionModuleBasePath = string.Empty;
+                            var moduleSettingFile = "module.json";
                             var modules = (JArray)loadModules;
-                            for (int i = 0; i < modules.Count; i++)
+                            for (var i = 0; i < modules.Count; i++)
                             {
                                 var module = modules[i];
                                 var moduleID = module.ToString();
                                 if (string.IsNullOrEmpty(moduleID) == false)
                                 {
                                     var splits = settingFileName.SplitAndTrim('.');
-                                    string programID = splits[0];
-                                    string environment = splits[1];
+                                    var programID = splits[0];
+                                    var environment = splits[1];
 
-                                    string sourceModuleSettingFilePath = string.Empty;
+                                    var sourceModuleSettingFilePath = string.Empty;
                                     if (moduleID.IndexOf("|") > -1)
                                     {
-                                        int moduleIndex = modules.IndexOf(module);
+                                        var moduleIndex = modules.IndexOf(module);
                                         sourceModuleSettingFilePath = moduleID.Substring(moduleID.IndexOf("|") + 1);
                                         moduleID = moduleID.Substring(0, moduleID.IndexOf("|"));
                                         if (moduleIndex > -1)
@@ -260,7 +260,7 @@ namespace handstack
 
                                     if (File.Exists(sourceModuleSettingFilePath) == true)
                                     {
-                                        DirectoryInfo directoryInfo = new DirectoryInfo(PathExtensions.Combine(moduleBasePath, moduleID));
+                                        var directoryInfo = new DirectoryInfo(PathExtensions.Combine(moduleBasePath, moduleID));
                                         if (directoryInfo.Exists == true)
                                         {
                                             if (moduleID == "wwwroot")
@@ -272,8 +272,8 @@ namespace handstack
                                                 functionModuleBasePath = directoryInfo.FullName.Replace("\\", "/");
                                             }
 
-                                            FileInfo sourceModuleSettingFileInfo = new FileInfo(sourceModuleSettingFilePath);
-                                            string targetModuleSettingFilePath = PathExtensions.Combine(moduleBasePath, moduleID, moduleSettingFile);
+                                            var sourceModuleSettingFileInfo = new FileInfo(sourceModuleSettingFilePath);
+                                            var targetModuleSettingFilePath = PathExtensions.Combine(moduleBasePath, moduleID, moduleSettingFile);
                                             File.Copy(sourceModuleSettingFilePath, targetModuleSettingFilePath, true);
                                             Log.Information($"modules: {targetModuleSettingFilePath}");
                                         }
@@ -285,25 +285,25 @@ namespace handstack
                                 }
                             }
 
-                            string appBasePath = ackFile.DirectoryName.ToStringSafe();
-                            FileInfo appSettingFileInfo = new FileInfo(PathExtensions.Combine(appBasePath, "appsettings.json"));
+                            var appBasePath = ackFile.DirectoryName.ToStringSafe();
+                            var appSettingFileInfo = new FileInfo(PathExtensions.Combine(appBasePath, "appsettings.json"));
                             var appSettingFilePath = appSettingFileInfo.FullName.Replace("\\", "/");
                             File.WriteAllText(appSettingFilePath, setting.ToString());
-                            FileInfo settingFileInfo = new FileInfo(settingFilePath);
+                            var settingFileInfo = new FileInfo(settingFilePath);
                             Log.Information($"appsettings: {appSettingFilePath}");
 
-                            string synConfigFilePath = PathExtensions.Combine(settingDirectoryPath, "synconfigs", settingFileName);
+                            var synConfigFilePath = PathExtensions.Combine(settingDirectoryPath, "synconfigs", settingFileName);
                             if (File.Exists(synConfigFilePath) == true && string.IsNullOrEmpty(wwwrootModuleBasePath) == false)
                             {
-                                FileInfo synConfigFileInfo = new FileInfo(PathExtensions.Combine(wwwrootModuleBasePath, "wwwroot", "syn.config.json"));
+                                var synConfigFileInfo = new FileInfo(PathExtensions.Combine(wwwrootModuleBasePath, "wwwroot", "syn.config.json"));
                                 File.Copy(synConfigFilePath, synConfigFileInfo.FullName.Replace("\\", "/"), true);
                                 Log.Information($"synconfigs: {synConfigFileInfo.FullName.Replace("\\", "/")}");
                             }
 
-                            string nodeConfigFilePath = PathExtensions.Combine(settingDirectoryPath, "nodeconfigs", settingFileName);
+                            var nodeConfigFilePath = PathExtensions.Combine(settingDirectoryPath, "nodeconfigs", settingFileName);
                             if (File.Exists(nodeConfigFilePath) == true && string.IsNullOrEmpty(functionModuleBasePath) == false)
                             {
-                                FileInfo nodeConfigFileInfo = new FileInfo(PathExtensions.Combine(functionModuleBasePath, "node.config.json"));
+                                var nodeConfigFileInfo = new FileInfo(PathExtensions.Combine(functionModuleBasePath, "node.config.json"));
                                 File.Copy(nodeConfigFilePath, nodeConfigFileInfo.FullName.Replace("\\", "/"), true);
                                 Log.Information($"nodeconfigs: {nodeConfigFileInfo.FullName.Replace("\\", "/")}");
                             }
@@ -335,23 +335,23 @@ namespace handstack
             {
                 if (ackFile != null && ackFile.Exists == true && directory != null && directory.Exists == true)
                 {
-                    string appBasePath = ackFile.DirectoryName.ToStringSafe();
-                    string ackHomePath = (ackFile.Directory?.Parent?.FullName.Replace("\\", "/")).ToStringSafe();
-                    string targetContractDir = PathExtensions.Combine(ackHomePath, "contracts");
-                    string baseDir = directory.FullName.Replace("\\", "/");
+                    var appBasePath = ackFile.DirectoryName.ToStringSafe();
+                    var ackHomePath = (ackFile.Directory?.Parent?.FullName.Replace("\\", "/")).ToStringSafe();
+                    var targetContractDir = PathExtensions.Combine(ackHomePath, "contracts");
+                    var baseDir = directory.FullName.Replace("\\", "/");
 
                     try
                     {
                         string[] subDirs = { "dbclient", "transact", "wwwroot", "repository", "function" };
-                        foreach (string subDir in subDirs)
+                        foreach (var subDir in subDirs)
                         {
-                            string dirPath = PathExtensions.Combine(baseDir, subDir);
+                            var dirPath = PathExtensions.Combine(baseDir, subDir);
                             if (Directory.Exists(dirPath))
                             {
-                                string[] files = Directory.GetFiles(dirPath, "*", SearchOption.AllDirectories);
-                                foreach (string baseFile in files)
+                                var files = Directory.GetFiles(dirPath, "*", SearchOption.AllDirectories);
+                                foreach (var baseFile in files)
                                 {
-                                    string targetFile = baseFile.Replace(baseDir, targetContractDir);
+                                    var targetFile = baseFile.Replace(baseDir, targetContractDir);
                                     if (File.Exists(targetFile) == true)
                                     {
                                         File.Delete(targetFile);
@@ -387,14 +387,14 @@ namespace handstack
             {
                 if (ackFile != null && ackFile.Exists == true)
                 {
-                    string targetBasePath = ackFile.DirectoryName.ToStringSafe();
+                    var targetBasePath = ackFile.DirectoryName.ToStringSafe();
                     if (settings != null && settings.Exists == true)
                     {
-                        string settingFilePath = settings.FullName.Replace("\\", "/");
+                        var settingFilePath = settings.FullName.Replace("\\", "/");
                         try
                         {
-                            string settingText = File.ReadAllText(settingFilePath);
-                            string key = settingText.ToSHA256().Substring(0, 32);
+                            var settingText = File.ReadAllText(settingFilePath);
+                            var key = settingText.ToSHA256().Substring(0, 32);
                             arguments = $"{arguments}{(string.IsNullOrEmpty(arguments) == true ? "" : " ")}--key={key} --appsettings={settingText.EncryptAES(key)}";
                         }
                         catch (Exception exception)
@@ -403,7 +403,7 @@ namespace handstack
                         }
                     }
 
-                    string ackFilePath = ackFile.FullName.Replace("\\", "/");
+                    var ackFilePath = ackFile.FullName.Replace("\\", "/");
                     var ackFileName = ackFile.Name == "ack.dll" ? "dotnet" : ackFilePath;
                     arguments = ackFile.Name == "ack.dll" ? $"ack.dll {arguments}" : arguments.ToStringSafe();
 
@@ -430,14 +430,14 @@ namespace handstack
             {
                 if (ackFile != null && ackFile.Exists == true)
                 {
-                    string targetBasePath = ackFile.DirectoryName.ToStringSafe();
+                    var targetBasePath = ackFile.DirectoryName.ToStringSafe();
                     if (settings != null && settings.Exists == true)
                     {
-                        string settingFilePath = settings.FullName.Replace("\\", "/");
+                        var settingFilePath = settings.FullName.Replace("\\", "/");
                         try
                         {
-                            string settingText = File.ReadAllText(settingFilePath);
-                            string key = settingText.ToSHA256().Substring(0, 32);
+                            var settingText = File.ReadAllText(settingFilePath);
+                            var key = settingText.ToSHA256().Substring(0, 32);
                             arguments = $"{arguments}{(string.IsNullOrEmpty(arguments) == true ? "" : " ")}--key={key} --appsettings={settingText.EncryptAES(key)}";
                         }
                         catch (Exception exception)
@@ -446,8 +446,8 @@ namespace handstack
                         }
                     }
 
-                    string ackFilePath = ackFile.FullName.Replace("\\", "/");
-                    Process process = new Process();
+                    var ackFilePath = ackFile.FullName.Replace("\\", "/");
+                    var process = new Process();
                     process.StartInfo = new ProcessStartInfo
                     {
                         FileName = ackFile.Name == "ack.dll" ? "dotnet" : ackFilePath,
@@ -477,13 +477,13 @@ namespace handstack
 
             subCommandStop.SetHandler((pid, port) =>
             {
-                List<Process> processes = new List<Process>();
+                var processes = new List<Process>();
                 processes.AddRange(Process.GetProcessesByName("ack"));
                 processes.AddRange(Process.GetProcessesByName("dotnet"));
 
                 if (pid == 0 && port == null)
                 {
-                    for (int i = 0; i < processes.Count; i++)
+                    for (var i = 0; i < processes.Count; i++)
                     {
                         var process = processes[i];
                         try
@@ -505,7 +505,7 @@ namespace handstack
                 }
                 else if (pid > 0)
                 {
-                    for (int i = 0; i < processes.Count; i++)
+                    for (var i = 0; i < processes.Count; i++)
                     {
                         var process = processes[i];
                         if (process.Id == pid)
@@ -532,11 +532,11 @@ namespace handstack
                 else if (port != null && port > 0)
                 {
                     var processPorts = new Dictionary<int, List<int>>();
-                    string netstatScript = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true ? $"netstat -ano | findstr /R /C:\"LISTENING\"" : $"lsof -iTCP -n -P | grep -E '(LISTEN)'";
+                    var netstatScript = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true ? $"netstat -ano | findstr /R /C:\"LISTENING\"" : $"lsof -iTCP -n -P | grep -E '(LISTEN)'";
                     var netstatResult = CommandHelper.RunScript($"{netstatScript}", false, true, true);
                     if (netstatResult.Count > 0 && netstatResult[0].Item1 == 0)
                     {
-                        string netstatOutput = netstatResult[0].Item2.ToStringSafe();
+                        var netstatOutput = netstatResult[0].Item2.ToStringSafe();
 
                         MatchCollection? matches = null;
                         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true)
@@ -554,7 +554,7 @@ namespace handstack
                         {
                             foreach (Match match in matches)
                             {
-                                if (int.TryParse(match.Groups["pid"].Value, out int processID) == true && int.TryParse(match.Groups["port"].Value, out int portNumber) == true)
+                                if (int.TryParse(match.Groups["pid"].Value, out var processID) == true && int.TryParse(match.Groups["port"].Value, out var portNumber) == true)
                                 {
                                     if (processPorts.ContainsKey(processID) == true)
                                     {
@@ -577,9 +577,9 @@ namespace handstack
                         Log.Error($"error: {netstatResult[0].Item3}");
                     }
 
-                    foreach (int processID in processPorts.Keys)
+                    foreach (var processID in processPorts.Keys)
                     {
-                        if (processPorts.TryGetValue(processID, out List<int>? usagePorts) == true)
+                        if (processPorts.TryGetValue(processID, out var usagePorts) == true)
                         {
                             if (usagePorts.Contains((int)port) == true)
                             {
@@ -633,17 +633,17 @@ namespace handstack
                         }
                         else if (options == "file")
                         {
-                            string inputFilePath = value.ToStringSafe();
-                            FileInfo fileInfo = new FileInfo(inputFilePath);
+                            var inputFilePath = value.ToStringSafe();
+                            var fileInfo = new FileInfo(inputFilePath);
                             if (fileInfo.Exists == false)
                             {
                                 Log.Information($"'{inputFilePath}' 파일 확인이 필요합니다");
                                 return;
                             }
 
-                            string outputFilePath = PathExtensions.Join(fileInfo.DirectoryName!, fileInfo.Name + ".txt");
-                            byte[] fileBytes = File.ReadAllBytes(inputFilePath);
-                            string base64String = Convert.ToBase64String(fileBytes);
+                            var outputFilePath = PathExtensions.Join(fileInfo.DirectoryName!, fileInfo.Name + ".txt");
+                            var fileBytes = File.ReadAllBytes(inputFilePath);
+                            var base64String = Convert.ToBase64String(fileBytes);
                             File.WriteAllText(outputFilePath, base64String);
                             Log.Information(outputFilePath);
                         }
@@ -657,22 +657,22 @@ namespace handstack
                         switch (value)
                         {
                             case "N":
-                                Log.Information($"{sequentialIdGenerator.NewId().ToString("N")}");
+                                Log.Information($"{sequentialIdGenerator.NewId():N}");
                                 break;
                             case "D":
-                                Log.Information($"{sequentialIdGenerator.NewId().ToString("D")}");
+                                Log.Information($"{sequentialIdGenerator.NewId():D}");
                                 break;
                             case "B":
-                                Log.Information($"{sequentialIdGenerator.NewId().ToString("B")}");
+                                Log.Information($"{sequentialIdGenerator.NewId():B}");
                                 break;
                             case "P":
-                                Log.Information($"{sequentialIdGenerator.NewId().ToString("P")}");
+                                Log.Information($"{sequentialIdGenerator.NewId():P}");
                                 break;
                             case "X":
-                                Log.Information($"{sequentialIdGenerator.NewId().ToString("X")}");
+                                Log.Information($"{sequentialIdGenerator.NewId():X}");
                                 break;
                             default:
-                                Log.Information($"{sequentialIdGenerator.NewId().ToString()}");
+                                Log.Information($"{sequentialIdGenerator.NewId()}");
                                 break;
                         }
                         break;
@@ -686,8 +686,8 @@ namespace handstack
 
                         try
                         {
-                            string[] splitNumbers = value.ToStringSafe().Split(',');
-                            int[] numbers = Array.ConvertAll(splitNumbers, int.Parse);
+                            var splitNumbers = value.ToStringSafe().Split(',');
+                            var numbers = Array.ConvertAll(splitNumbers, int.Parse);
 
                             Log.Information($"{sqids.Encode(numbers)}");
                         }
@@ -722,7 +722,7 @@ namespace handstack
                         }
                         key = key.ToStringSafe().PadRight(32, '0').Substring(0, 32);
 
-                        string encrypt = $"{value.ToStringSafe().EncryptAES(key)}.{key.EncodeBase64()}.{Dns.GetHostName().EncodeBase64()}";
+                        var encrypt = $"{value.ToStringSafe().EncryptAES(key)}.{key.EncodeBase64()}.{Dns.GetHostName().EncodeBase64()}";
                         Log.Information($"{encrypt}.{encrypt.ToSHA256()}");
                         break;
                 }
@@ -796,10 +796,10 @@ namespace handstack
                     case "connectionstring":
                         var values = value.ToStringSafe().SplitAndTrim('.');
 
-                        string encrypt = values[0];
-                        string decryptKey = values[1];
-                        string hostName = values[2].DecodeBase64();
-                        string hash = values[3];
+                        var encrypt = values[0];
+                        var decryptKey = values[1];
+                        var hostName = values[2].DecodeBase64();
+                        var hash = values[3];
 
                         if (hostName == Dns.GetHostName() && $"{encrypt}.{decryptKey}.{values[2]}".ToSHA256() == hash)
                         {
@@ -836,7 +836,7 @@ namespace handstack
                             file.Delete();
                         }
 
-                        string zipFileName = (file?.FullName.Replace("\\", "/")).ToStringSafe();
+                        var zipFileName = (file?.FullName.Replace("\\", "/")).ToStringSafe();
                         if (file != null && file.Extension != ".zip")
                         {
                             zipFileName = $"{zipFileName}.zip";
@@ -915,7 +915,7 @@ namespace handstack
             {
                 if (file != null && file.Exists == true && directory != null && directory.Exists == false)
                 {
-                    string targetDirectoryPath = directory.FullName.Replace("\\", "/");
+                    var targetDirectoryPath = directory.FullName.Replace("\\", "/");
                     ZipFile.ExtractToDirectory(file.FullName.Replace("\\", "/"), targetDirectoryPath, true);
 
                     if (string.IsNullOrEmpty(ignored) == false)
@@ -927,8 +927,8 @@ namespace handstack
                     {
                         try
                         {
-                            string findText = find;
-                            string replaceText = replace;
+                            var findText = find;
+                            var replaceText = replace;
 
                             ReplaceInFiles(targetDirectoryPath, findText, replaceText, deleteVsUserSettingsDirectory: true);
 
@@ -968,8 +968,8 @@ namespace handstack
                     {
                         try
                         {
-                            string findText = find;
-                            string replaceText = replace;
+                            var findText = find;
+                            var replaceText = replace;
 
                             ReplaceInFile(file, findText, replaceText);
                         }
@@ -1001,7 +1001,7 @@ namespace handstack
             {
                 if (file != null && file.Exists == true && file.Name == "task.json" && string.IsNullOrEmpty(value) == false)
                 {
-                    string command = value.ToStringSafe();
+                    var command = value.ToStringSafe();
                     if (command.StartsWith("*:") == true)
                     {
                         var tasks = BindTasks(file.FullName.Replace("\\", "/"), command);
@@ -1037,7 +1037,7 @@ namespace handstack
                     {
                         if (item.Key == "$DATE_STRING")
                         {
-                            string dateString = DateTime.Now.ToString(string.IsNullOrEmpty(item.Value) == true ? "yyyy-MM-dd" : item.Value);
+                            var dateString = DateTime.Now.ToString(string.IsNullOrEmpty(item.Value) == true ? "yyyy-MM-dd" : item.Value);
                             CommandHelper.EnvironmentVariables.Add(item.Key.Substring(1).ToUpper(), dateString);
                         }
                         else if (item.Key.StartsWith("$") == true)
@@ -1050,9 +1050,9 @@ namespace handstack
                         }
                     }
 
-                    for (int i = 0; i < task.commands.Count; i++)
+                    for (var i = 0; i < task.commands.Count; i++)
                     {
-                        string command = task.commands[i];
+                        var command = task.commands[i];
                         foreach (var item in task.environments.Where(p => p.Key.StartsWith("$") == true))
                         {
                             task.commands[i] = command.Replace(item.Key, item.Value);
@@ -1064,7 +1064,7 @@ namespace handstack
                     var workingDirectory = string.IsNullOrEmpty(task.basepath) == true ? (file?.DirectoryName).ToStringSafe() : task.basepath;
                     var scriptsResult = CommandHelper.RunScript(scripts, false, true, true, true, workingDirectory, task.ignoreExit);
 
-                    int commandIndex = 1;
+                    var commandIndex = 1;
                     foreach (var item in scriptsResult)
                     {
                         if (item.Item1 != 0)
@@ -1099,14 +1099,14 @@ namespace handstack
                 }
             }, optionDebug, optionPort, rootOptionModules, optionOptions);
 
-            ArgumentHelper arguments = new ArgumentHelper(args);
+            var arguments = new ArgumentHelper(args);
             var argumentOptions = arguments["options"];
             if (argumentOptions != null)
             {
                 commandOptions = new ArgumentHelper(argumentOptions.Split(" "));
             }
 
-            bool debug = false;
+            var debug = false;
             if (arguments["debug"] != null)
             {
                 debug = true;
@@ -1120,15 +1120,15 @@ namespace handstack
 
         public static List<Entity.Tasks>? BindTasks(string taskFilePath, string key)
         {
-            List<Entity.Tasks> result = new List<Entity.Tasks>();
+            var result = new List<Entity.Tasks>();
             try
             {
-                string? taskJson = File.ReadAllText(taskFilePath);
+                var taskJson = File.ReadAllText(taskFilePath);
                 var taskMetas = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, List<Entity.Tasks>>>(taskJson);
 
-                string os = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true ? "windows" : RuntimeInformation.IsOSPlatform(OSPlatform.OSX) == true ? "osx" : "linux";
-                string moduleID = key.Split(":")[0];
-                string taskID = key.Split(":")[1];
+                var os = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true ? "windows" : RuntimeInformation.IsOSPlatform(OSPlatform.OSX) == true ? "osx" : "linux";
+                var moduleID = key.Split(":")[0];
+                var taskID = key.Split(":")[1];
 
                 if (taskMetas == null)
                 {
@@ -1161,12 +1161,12 @@ namespace handstack
             Entity.Tasks? result = null;
             try
             {
-                string? taskJson = File.ReadAllText(taskFilePath);
+                var taskJson = File.ReadAllText(taskFilePath);
                 var taskMetas = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, List<Entity.Tasks>>>(taskJson);
 
-                string os = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true ? "windows" : RuntimeInformation.IsOSPlatform(OSPlatform.OSX) == true ? "osx" : "linux";
-                string moduleID = key.Split(":")[0];
-                string taskID = key.Split(":")[1];
+                var os = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == true ? "windows" : RuntimeInformation.IsOSPlatform(OSPlatform.OSX) == true ? "osx" : "linux";
+                var moduleID = key.Split(":")[0];
+                var taskID = key.Split(":")[1];
 
                 if (taskMetas == null)
                 {
@@ -1200,8 +1200,8 @@ namespace handstack
         {
             if (fileInfo.Exists == true && fileInfo.IsBinary() == false)
             {
-                string fileText = File.ReadAllText(fileInfo.FullName.Replace("\\", "/"));
-                int count = Regex.Matches(fileText, findText, RegexOptions.None).Count;
+                var fileText = File.ReadAllText(fileInfo.FullName.Replace("\\", "/"));
+                var count = Regex.Matches(fileText, findText, RegexOptions.None).Count;
                 if (count > 0)
                 {
                     File.WriteAllText(fileInfo.FullName.Replace("\\", "/"), fileText.Replace(findText, replaceText));
@@ -1218,13 +1218,13 @@ namespace handstack
                 return;
             }
 
-            foreach (string file in Directory.GetFiles(directoryPath))
+            foreach (var file in Directory.GetFiles(directoryPath))
             {
                 var fileInfo = new FileInfo(file);
                 if (fileInfo.IsBinary() == false)
                 {
-                    string fileText = File.ReadAllText(file);
-                    int count = Regex.Matches(fileText, findText, RegexOptions.None).Count;
+                    var fileText = File.ReadAllText(file);
+                    var count = Regex.Matches(fileText, findText, RegexOptions.None).Count;
                     if (count > 0)
                     {
                         File.WriteAllText(file, fileText.Replace(findText, replaceText));
@@ -1233,7 +1233,7 @@ namespace handstack
                 }
             }
 
-            foreach (string directory in Directory.GetDirectories(directoryPath))
+            foreach (var directory in Directory.GetDirectories(directoryPath))
             {
                 ReplaceInFiles(directory, findText, replaceText, deleteVsUserSettingsDirectory);
             }
@@ -1247,26 +1247,26 @@ namespace handstack
                 return;
             }
 
-            foreach (string file in Directory.GetFiles(directoryPath))
+            foreach (var file in Directory.GetFiles(directoryPath))
             {
                 var fileInfo = new FileInfo(file);
-                int count = Regex.Matches(fileInfo.Name, findText, RegexOptions.None).Count;
+                var count = Regex.Matches(fileInfo.Name, findText, RegexOptions.None).Count;
                 if (count > 0)
                 {
-                    string newFileName = fileInfo.Name.Replace(findText, replaceText);
-                    string originalFileName = fileInfo.Name;
+                    var newFileName = fileInfo.Name.Replace(findText, replaceText);
+                    var originalFileName = fileInfo.Name;
 
                     if (newFileName.Equals(originalFileName, StringComparison.InvariantCultureIgnoreCase))
                     {
-                        string tempFileName = $"temp_{originalFileName}_{Guid.NewGuid()}";
-                        string tempFullFileName = fileInfo.FullName.Replace("\\", "/").ReplaceLastOccurrence(fileInfo.Name, tempFileName);
+                        var tempFileName = $"temp_{originalFileName}_{Guid.NewGuid()}";
+                        var tempFullFileName = fileInfo.FullName.Replace("\\", "/").ReplaceLastOccurrence(fileInfo.Name, tempFileName);
                         File.Move(fileInfo.FullName.Replace("\\", "/"), tempFullFileName);
-                        string newFullFileName = fileInfo.FullName.Replace("\\", "/").ReplaceLastOccurrence(fileInfo.Name, newFileName);
+                        var newFullFileName = fileInfo.FullName.Replace("\\", "/").ReplaceLastOccurrence(fileInfo.Name, newFileName);
                         File.Move(tempFullFileName, newFullFileName);
                     }
                     else
                     {
-                        string newFullFileName = fileInfo.FullName.Replace("\\", "/").ReplaceLastOccurrence(fileInfo.Name, newFileName);
+                        var newFullFileName = fileInfo.FullName.Replace("\\", "/").ReplaceLastOccurrence(fileInfo.Name, newFileName);
                         File.Move(fileInfo.FullName.Replace("\\", "/"), newFullFileName);
                     }
 
@@ -1274,7 +1274,7 @@ namespace handstack
                 }
             }
 
-            foreach (string directory in Directory.GetDirectories(directoryPath))
+            foreach (var directory in Directory.GetDirectories(directoryPath))
             {
                 ReplaceInFileNames(directory, findText, replaceText, deleteVsUserSettingsDirectory);
             }
@@ -1288,19 +1288,19 @@ namespace handstack
                 return;
             }
 
-            int count = Regex.Matches(directoryInfo.Name, findText, RegexOptions.None).Count;
-            string directoryInfoFullName = directoryInfo.FullName.Replace("\\", "/");
+            var count = Regex.Matches(directoryInfo.Name, findText, RegexOptions.None).Count;
+            var directoryInfoFullName = directoryInfo.FullName.Replace("\\", "/");
 
             if (count > 0)
             {
-                string newDirectoryName = directoryInfo.Name.Replace(findText, replaceText);
-                string orginalDirectoryName = directoryInfo.Name;
+                var newDirectoryName = directoryInfo.Name.Replace(findText, replaceText);
+                var orginalDirectoryName = directoryInfo.Name;
                 if (newDirectoryName.Equals(orginalDirectoryName, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    string tempDirectoryName = $"temp_{orginalDirectoryName}_{Guid.NewGuid()}";
-                    string tempFullDirectoryName = directoryInfo.FullName.Replace("\\", "/").ReplaceLastOccurrence(directoryInfo.Name, tempDirectoryName);
+                    var tempDirectoryName = $"temp_{orginalDirectoryName}_{Guid.NewGuid()}";
+                    var tempFullDirectoryName = directoryInfo.FullName.Replace("\\", "/").ReplaceLastOccurrence(directoryInfo.Name, tempDirectoryName);
                     Directory.Move(directoryInfo.FullName.Replace("\\", "/"), tempFullDirectoryName);
-                    string newFullDirectoryName = directoryInfo.FullName.Replace("\\", "/").ReplaceLastOccurrence(directoryInfo.Name, newDirectoryName);
+                    var newFullDirectoryName = directoryInfo.FullName.Replace("\\", "/").ReplaceLastOccurrence(directoryInfo.Name, newDirectoryName);
                     Directory.Move(tempFullDirectoryName, newFullDirectoryName);
                 }
                 else
@@ -1312,7 +1312,7 @@ namespace handstack
                 replaceInDirectoryNamesCount += count;
             }
 
-            foreach (string directory in Directory.GetDirectories(directoryInfoFullName))
+            foreach (var directory in Directory.GetDirectories(directoryInfoFullName))
             {
                 ReplaceInDirectoryNames(directory, findText, replaceText, deleteVsUserSettingsDirectory);
             }
@@ -1322,7 +1322,7 @@ namespace handstack
         {
             if (debug == true)
             {
-                int startupAwaitDelay = 10000;
+                var startupAwaitDelay = 10000;
                 startupAwaitTimer = new System.Timers.Timer(1000);
                 startupAwaitTimer.Elapsed += (object? sender, System.Timers.ElapsedEventArgs e) =>
                 {

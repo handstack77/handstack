@@ -50,10 +50,10 @@ namespace HandStack.Web.Extensions
                 if (index >= 0 && index < list.Count)
                 {
                     var entry = list[index];
-                    DateTime now = DateTime.Now;
+                    var now = DateTime.Now;
                     if (entry.ExpiryTime > now)
                     {
-                        TimeSpan remainingTime = entry.ExpiryTime - now;
+                        var remainingTime = entry.ExpiryTime - now;
                         if (remainingTime < defaultExpiryDuration)
                         {
                             list[index] = (entry.Value, DateTime.Now.Add(defaultExpiryDuration));
@@ -160,7 +160,7 @@ namespace HandStack.Web.Extensions
         {
             lock (defaultLock)
             {
-                for (int i = 0; i < list.Count; i++)
+                for (var i = 0; i < list.Count; i++)
                 {
                     if (list[i].Value == item)
                     {
@@ -209,7 +209,7 @@ namespace HandStack.Web.Extensions
         {
             lock (defaultLock)
             {
-                for (int i = 0; i < list.Count; i++)
+                for (var i = 0; i < list.Count; i++)
                 {
                     var entry = list[i];
                     list[i] = (entry.Value, dateTime);

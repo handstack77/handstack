@@ -33,8 +33,8 @@ namespace HandStack.Web.Authorization
                 }
                 else if (Roles.Any() == true)
                 {
-                    bool isAuthorized = false;
-                    for (int i = 0; i < account.Roles.Count; i++)
+                    var isAuthorized = false;
+                    for (var i = 0; i < account.Roles.Count; i++)
                     {
                         var memberRole = account.Roles[i];
                         if (Enum.TryParse<Role>(memberRole, out var role) == true)

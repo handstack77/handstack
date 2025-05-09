@@ -18,15 +18,15 @@ namespace HandStack.Core.DataModel.Rules
 
         public override bool Validate(EntityObject businessObject)
         {
-            bool result = false;
-            object? value = GetPropertyValue(businessObject);
+            var result = false;
+            var value = GetPropertyValue(businessObject);
             if (value == null)
             {
                 result = false;
             }
             else
             {
-                string? text = value.ToString();
+                var text = value.ToString();
                 if (text == null)
                 {
                     result = false;

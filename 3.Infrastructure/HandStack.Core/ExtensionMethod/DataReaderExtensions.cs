@@ -229,11 +229,11 @@ namespace HandStack.Core.ExtensionMethod
 
         public static Type? GetType(this IDataReader @this, string fieldName, Type? defaultValue)
         {
-            string? classType = @this.GetString(fieldName);
+            var classType = @this.GetString(fieldName);
 
             if (classType != null && classType.Length > 0)
             {
-                Type? type = Type.GetType(classType);
+                var type = Type.GetType(classType);
 
                 if (type != null)
                 {
@@ -295,9 +295,9 @@ namespace HandStack.Core.ExtensionMethod
 
         public static void ToObject(this IDataReader @this, List<string> columnNames, object instance)
         {
-            for (int i = 0; i < columnNames.Count; i++)
+            for (var i = 0; i < columnNames.Count; i++)
             {
-                PropertyInfo? propertyInfo = instance.GetType().GetProperty(columnNames[i]);
+                var propertyInfo = instance.GetType().GetProperty(columnNames[i]);
 
                 if (propertyInfo != null)
                 {
@@ -308,8 +308,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static void ToObject(this IDataReader @this, object instance, params string[] fieldsToSkip)
         {
-            PropertyInfo[] propertyInfos = instance.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public);
-            foreach (PropertyInfo propertyInfo in propertyInfos)
+            var propertyInfos = instance.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public);
+            foreach (var propertyInfo in propertyInfos)
             {
                 if (!propertyInfo.CanRead || !propertyInfo.CanWrite)
                 {
@@ -327,7 +327,7 @@ namespace HandStack.Core.ExtensionMethod
 
         private static void SetObjectValue(IDataReader @this, object instance, PropertyInfo propertyInfo)
         {
-            object? value = @this[propertyInfo.Name];
+            var value = @this[propertyInfo.Name];
             if (value == DBNull.Value)
             {
                 value = null;
@@ -356,7 +356,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static bool ColumnExists(this IDataReader reader, string columnName)
         {
-            for (int i = 0; i < reader.FieldCount; i++)
+            for (var i = 0; i < reader.FieldCount; i++)
             {
                 if (reader.GetName(i).Equals(columnName, StringComparison.InvariantCultureIgnoreCase))
                 {
@@ -369,9 +369,9 @@ namespace HandStack.Core.ExtensionMethod
 
         public static List<T> ToObjectList<T>(this IDataReader @this)
         {
-            List<T> result = new List<T>();
-            List<string> columnNames = new List<string>();
-            for (int i = 0; i < @this.FieldCount; i++)
+            var result = new List<T>();
+            var columnNames = new List<string>();
+            for (var i = 0; i < @this.FieldCount; i++)
             {
                 columnNames.Add(@this.GetName(i));
             }
@@ -392,7 +392,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static List<T> ToObjectList<T>(this IDataReader @this, params string[] fieldsToSkip)
         {
-            List<T> result = new List<T>();
+            var result = new List<T>();
             while (@this.Read())
             {
                 var instance = Activator.CreateInstance<T>();
@@ -457,9 +457,9 @@ namespace HandStack.Core.ExtensionMethod
 
         public static IEnumerable<T> ToEntities<T>(this IDataReader @this) where T : new()
         {
-            Type type = typeof(T);
-            PropertyInfo[] properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            FieldInfo[] fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
+            var type = typeof(T);
+            var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
 
             var list = new List<T>();
 
@@ -470,20 +470,20 @@ namespace HandStack.Core.ExtensionMethod
             {
                 var entity = new T();
 
-                foreach (PropertyInfo property in properties)
+                foreach (var property in properties)
                 {
                     if (hash.Contains(property.Name))
                     {
-                        Type valueType = property.PropertyType;
+                        var valueType = property.PropertyType;
                         property.SetValue(entity, @this[property.Name].To(valueType), null);
                     }
                 }
 
-                foreach (FieldInfo field in fields)
+                foreach (var field in fields)
                 {
                     if (hash.Contains(field.Name))
                     {
-                        Type valueType = field.FieldType;
+                        var valueType = field.FieldType;
                         field.SetValue(entity, @this[field.Name].To(valueType));
                     }
                 }
@@ -496,29 +496,29 @@ namespace HandStack.Core.ExtensionMethod
 
         public static T ToEntity<T>(this IDataReader @this) where T : new()
         {
-            Type type = typeof(T);
-            PropertyInfo[] properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            FieldInfo[] fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
+            var type = typeof(T);
+            var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
 
             var entity = new T();
 
             var hash = new HashSet<string>(Enumerable.Range(0, @this.FieldCount)
                 .Select(@this.GetName));
 
-            foreach (PropertyInfo property in properties)
+            foreach (var property in properties)
             {
                 if (hash.Contains(property.Name))
                 {
-                    Type valueType = property.PropertyType;
+                    var valueType = property.PropertyType;
                     property.SetValue(entity, @this[property.Name].To(valueType), null);
                 }
             }
 
-            foreach (FieldInfo field in fields)
+            foreach (var field in fields)
             {
                 if (hash.Contains(field.Name))
                 {
-                    Type valueType = field.FieldType;
+                    var valueType = field.FieldType;
                     field.SetValue(entity, @this[field.Name].To(valueType));
                 }
             }
@@ -528,7 +528,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static dynamic ToExpandoObject(this IDataReader @this)
         {
-            Dictionary<int, KeyValuePair<int, string>> columnNames = Enumerable.Range(0, @this.FieldCount)
+            var columnNames = Enumerable.Range(0, @this.FieldCount)
                 .Select(x => new KeyValuePair<int, string>(x, @this.GetName(x)))
                 .ToDictionary(pair => pair.Key);
 
@@ -544,7 +544,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static IEnumerable<dynamic> ToExpandoObjects(this IDataReader @this)
         {
-            Dictionary<int, KeyValuePair<int, string>> columnNames = Enumerable.Range(0, @this.FieldCount)
+            var columnNames = Enumerable.Range(0, @this.FieldCount)
                 .Select(x => new KeyValuePair<int, string>(x, @this.GetName(x)))
                 .ToDictionary(pair => pair.Key);
 

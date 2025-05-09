@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Data;
-using Microsoft.Data.SqlClient;
 
 using Dapper;
 
 using dbclient.Profiler;
+
+using Microsoft.Data.SqlClient;
 
 namespace dbclient.NativeParameters
 {

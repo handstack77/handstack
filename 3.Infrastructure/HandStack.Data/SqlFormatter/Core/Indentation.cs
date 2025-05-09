@@ -42,7 +42,7 @@ namespace HandStack.Data.SqlFormatter.Core
 
         internal void DecreaseTopLevel()
         {
-            if (indentationTypes.TryPeek(out IndentationType type) && type == IndentationType.TopLevel)
+            if (indentationTypes.TryPeek(out var type) && type == IndentationType.TopLevel)
             {
                 indentationTypes.Pop();
             }
@@ -52,7 +52,7 @@ namespace HandStack.Data.SqlFormatter.Core
         {
             while (indentationTypes.Count > 0)
             {
-                IndentationType type = indentationTypes.Pop();
+                var type = indentationTypes.Pop();
                 if (type != IndentationType.TopLevel)
                 {
                     break;

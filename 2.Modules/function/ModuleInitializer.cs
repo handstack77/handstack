@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using Microsoft.Data.SqlClient;
 using System.Data.SQLite;
 using System.Globalization;
 using System.IO;
@@ -34,6 +33,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
@@ -50,12 +50,13 @@ using NpgsqlTypes;
 
 using Oracle.ManagedDataAccess.Client;
 
+using Python.Runtime;
+
 using RestSharp;
 
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
-using Python.Runtime;
 
 namespace function
 {
@@ -70,18 +71,18 @@ namespace function
 
         public void ConfigureServices(IServiceCollection services, IWebHostEnvironment environment, IConfiguration configuration)
         {
-            ModuleInfo? module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == ModuleID);
+            var module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == ModuleID);
             if (module != null)
             {
-                string moduleSettingFilePath = module.ModuleSettingFilePath;
+                var moduleSettingFilePath = module.ModuleSettingFilePath;
                 if (File.Exists(moduleSettingFilePath) == true)
                 {
-                    string configurationText = File.ReadAllText(moduleSettingFilePath);
-                    ModuleConfigJson? moduleConfigJson = JsonConvert.DeserializeObject<ModuleConfigJson>(configurationText);
+                    var configurationText = File.ReadAllText(moduleSettingFilePath);
+                    var moduleConfigJson = JsonConvert.DeserializeObject<ModuleConfigJson>(configurationText);
 
                     if (moduleConfigJson != null)
                     {
-                        ModuleConfig moduleConfig = moduleConfigJson.ModuleConfig;
+                        var moduleConfig = moduleConfigJson.ModuleConfig;
                         ModuleConfiguration.ModuleID = moduleConfigJson.ModuleID;
                         ModuleConfiguration.Version = moduleConfigJson.Version;
                         ModuleConfiguration.AuthorizationKey = string.IsNullOrEmpty(moduleConfig.AuthorizationKey) == false ? moduleConfig.AuthorizationKey : GlobalConfiguration.SystemID + GlobalConfiguration.RunningEnvironment + GlobalConfiguration.HostName;
@@ -132,7 +133,7 @@ namespace function
                         {
                             if (string.IsNullOrEmpty(ModuleConfiguration.PythonDLLFilePath) == true || File.Exists(ModuleConfiguration.PythonDLLFilePath) == false)
                             {
-                                string message = $"Python DLL 파일 확인 필요: {ModuleConfiguration.PythonDLLFilePath}";
+                                var message = $"Python DLL 파일 확인 필요: {ModuleConfiguration.PythonDLLFilePath}";
                                 Log.Logger.Error("[{LogCategory}] " + message, $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
                                 throw new FileNotFoundException(message);
                             }
@@ -169,14 +170,14 @@ namespace function
                     }
                     else
                     {
-                        string message = $"Json Deserialize 오류 module.json 파일 확인 필요: {moduleSettingFilePath}";
+                        var message = $"Json Deserialize 오류 module.json 파일 확인 필요: {moduleSettingFilePath}";
                         Log.Logger.Error("[{LogCategory}] " + message, $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
                         throw new FileLoadException(message);
                     }
                 }
                 else
                 {
-                    string message = $"module.json 파일 확인 필요: {moduleSettingFilePath}";
+                    var message = $"module.json 파일 확인 필요: {moduleSettingFilePath}";
                     Log.Logger.Error("[{LogCategory}] " + message, $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
                     throw new FileNotFoundException(message);
                 }
@@ -191,11 +192,11 @@ namespace function
                         options.NodeAndV8Options = ModuleConfiguration.NodeAndV8Options;
                     }
 
-                    Dictionary<string, string> nodeEnvironmentVariables = new Dictionary<string, string>();
+                    var nodeEnvironmentVariables = new Dictionary<string, string>();
                     if (string.IsNullOrEmpty(ModuleConfiguration.EnvironmentVariables) == false)
                     {
                         var environmentVariables = ModuleConfiguration.EnvironmentVariables.Split(";");
-                        foreach (string item in environmentVariables)
+                        foreach (var item in environmentVariables)
                         {
                             if (string.IsNullOrEmpty(item) == false)
                             {
@@ -205,9 +206,9 @@ namespace function
                         }
                     }
 
-                    for (int i = 0; i < ModuleConfiguration.ContractBasePath.Count; i++)
+                    for (var i = 0; i < ModuleConfiguration.ContractBasePath.Count; i++)
                     {
-                        string basePath = ModuleConfiguration.ContractBasePath[i];
+                        var basePath = ModuleConfiguration.ContractBasePath[i];
                         nodeEnvironmentVariables.Add($"SYN_ContractBasePath{i}", GlobalConfiguration.GetBasePath(basePath));
                     }
 
@@ -220,14 +221,14 @@ namespace function
                     nodeEnvironmentVariables.Add("SYN_LogMinimumLevel", ModuleConfiguration.LogMinimumLevel);
                     nodeEnvironmentVariables.Add("SYN_LocalStoragePath", GlobalConfiguration.GetBasePath(ModuleConfiguration.LocalStoragePath));
 
-                    string nodeConfigFilePath = PathExtensions.Combine(module.BasePath, "node.config.json");
+                    var nodeConfigFilePath = PathExtensions.Combine(module.BasePath, "node.config.json");
                     if (File.Exists(nodeConfigFilePath) == true)
                     {
                         nodeEnvironmentVariables.Add("SYN_CONFIG", File.ReadAllText(nodeConfigFilePath));
                     }
                     else
                     {
-                        string defaultEnvironmentVariables = """
+                        var defaultEnvironmentVariables = """
                         {
                             "SystemID": "HANDSTACK",
                             "ApplicationID": "HDS",
@@ -301,7 +302,7 @@ namespace function
                         options.EnableFileWatching = false;
                     }
 
-                    string watchPath = ModuleConfiguration.ContractBasePath.Count > 0 ? ModuleConfiguration.ContractBasePath[ModuleConfiguration.ContractBasePath.Count - 1] : "";
+                    var watchPath = ModuleConfiguration.ContractBasePath.Count > 0 ? ModuleConfiguration.ContractBasePath[ModuleConfiguration.ContractBasePath.Count - 1] : "";
                     if (string.IsNullOrEmpty(watchPath) == true)
                     {
                         options.EnableFileWatching = false;
@@ -325,7 +326,7 @@ namespace function
 
         private static LoggerConfiguration CreateLoggerConfiguration(string logFilePath)
         {
-            FileInfo fileInfo = new FileInfo(logFilePath);
+            var fileInfo = new FileInfo(logFilePath);
             if (string.IsNullOrEmpty(fileInfo.DirectoryName) == false)
             {
                 if (fileInfo.Directory == null || fileInfo.Directory.Exists == false)
@@ -363,10 +364,10 @@ namespace function
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment? environment, ICorsService corsService, ICorsPolicyProvider corsPolicyProvider)
         {
-            ModuleInfo? module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == ModuleID);
+            var module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == ModuleID);
             if (string.IsNullOrEmpty(ModuleID) == false && module != null)
             {
-                string wwwrootDirectory = PathExtensions.Combine(module.BasePath, "wwwroot", module.ModuleID);
+                var wwwrootDirectory = PathExtensions.Combine(module.BasePath, "wwwroot", module.ModuleID);
                 if (string.IsNullOrEmpty(wwwrootDirectory) == false && Directory.Exists(wwwrootDirectory) == true)
                 {
                     app.UseStaticFiles(new StaticFileOptions
@@ -402,10 +403,10 @@ namespace function
             {
                 if (Directory.Exists(basePath) == true && basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == false && (ModuleConfiguration.EnableFileWatching == true || ModuleConfiguration.CSharpEnableFileWatching == true || ModuleConfiguration.PythonEnableFileWatching == true))
                 {
-                    string functionContractBasePath = PathExtensions.Combine(basePath);
+                    var functionContractBasePath = PathExtensions.Combine(basePath);
                     if (Directory.Exists(functionContractBasePath) == true)
                     {
-                        List<string> patterns = new List<string>();
+                        var patterns = new List<string>();
 
                         if (ModuleConfiguration.EnableFileWatching == true)
                         {
@@ -425,19 +426,19 @@ namespace function
                         var functionFileSyncManager = new FileSyncManager(functionContractBasePath, $"|{string.Join("|", patterns)}");
                         functionFileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
                         {
-                            if (GlobalConfiguration.IsRunning == true && fileInfo.FullName.Replace("\\", "/").IndexOf(functionContractBasePath) > -1 
-                                && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed) 
+                            if (GlobalConfiguration.IsRunning == true && fileInfo.FullName.Replace("\\", "/").IndexOf(functionContractBasePath) > -1
+                                && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed)
                                 && (fileInfo.Name.StartsWith("featureMain") == true || fileInfo.Name == "featureMeta.json" || fileInfo.Name == "featureSQL.xml") == true)
                             {
-                                string filePath = fileInfo.FullName.Replace("\\", "/").Replace(functionContractBasePath, "");
-                                string hostUrl = $"http://localhost:{GlobalConfiguration.ServerPort}/function/api/execution/refresh?changeType={changeTypes}&filePath={filePath}";
+                                var filePath = fileInfo.FullName.Replace("\\", "/").Replace(functionContractBasePath, "");
+                                var hostUrl = $"http://localhost:{GlobalConfiguration.ServerPort}/function/api/execution/refresh?changeType={changeTypes}&filePath={filePath}";
 
                                 var request = new RestRequest(hostUrl, Method.Get);
                                 request.Timeout = TimeSpan.FromSeconds(3);
                                 request.AddHeader("AuthorizationKey", ModuleConfiguration.AuthorizationKey);
                                 try
                                 {
-                                    RestResponse response = await client.ExecuteAsync(request);
+                                    var response = await client.ExecuteAsync(request);
                                     if (response.StatusCode != HttpStatusCode.OK)
                                     {
                                         Log.Warning("[{LogCategory}] " + $"{filePath} 파일 갱신 확인 필요. {response.Content.ToStringSafe()}", $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
@@ -473,34 +474,32 @@ namespace function
                 }
                 else
                 {
-                    string? parseParameters = parameters == null ? null : JsonConvert.SerializeObject(parameters);
+                    var parseParameters = parameters == null ? null : JsonConvert.SerializeObject(parameters);
                     var sqlMeta = DatabaseExtensions.GetSQLiteMetaSQL(dataContext.featureSQLPath, featureID, parseParameters);
                     if (sqlMeta != null)
                     {
-                        JObject? adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
-                        string commandText = sqlMeta.Item1;
+                        var adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
+                        var commandText = sqlMeta.Item1;
                         commandText = DatabaseExtensions.RecursiveParameters(commandText, adHocParameters, "", false);
 
-                        using (SQLiteClient sqliteClient = new SQLiteClient(dataContext.connectionString))
+                        using var sqliteClient = new SQLiteClient(dataContext.connectionString);
+                        switch (returnType)
                         {
-                            switch (returnType)
-                            {
-                                case ReturnType.NonQuery:
-                                    result = sqliteClient.ExecuteNonQuery(commandText, sqlMeta.Item2);
-                                    break;
-                                case ReturnType.Scalar:
-                                    result = sqliteClient.ExecuteScalar(commandText, sqlMeta.Item2);
-                                    break;
-                                case ReturnType.DataSet:
-                                    result = sqliteClient.ExecuteDataSet(commandText, sqlMeta.Item2);
-                                    break;
-                                case ReturnType.DataReader:
-                                    result = sqliteClient.ExecuteReader(commandText, sqlMeta.Item2);
-                                    break;
-                                case ReturnType.Dynamic:
-                                    result = sqliteClient.ExecuteDynamic(commandText, sqlMeta.Item2);
-                                    break;
-                            }
+                            case ReturnType.NonQuery:
+                                result = sqliteClient.ExecuteNonQuery(commandText, sqlMeta.Item2);
+                                break;
+                            case ReturnType.Scalar:
+                                result = sqliteClient.ExecuteScalar(commandText, sqlMeta.Item2);
+                                break;
+                            case ReturnType.DataSet:
+                                result = sqliteClient.ExecuteDataSet(commandText, sqlMeta.Item2);
+                                break;
+                            case ReturnType.DataReader:
+                                result = sqliteClient.ExecuteReader(commandText, sqlMeta.Item2);
+                                break;
+                            case ReturnType.Dynamic:
+                                result = sqliteClient.ExecuteDynamic(commandText, sqlMeta.Item2);
+                                break;
                         }
                     }
                 }
@@ -521,34 +520,32 @@ namespace function
             {
                 try
                 {
-                    string? parseParameters = parameters == null ? null : JsonConvert.SerializeObject(parameters);
+                    var parseParameters = parameters == null ? null : JsonConvert.SerializeObject(parameters);
                     var sqlMeta = DatabaseExtensions.GetSqlClientTuple("", queryID, parseParameters);
                     if (sqlMeta != null)
                     {
-                        JObject? adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
-                        string commandText = sqlMeta.Item1;
+                        var adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
+                        var commandText = sqlMeta.Item1;
                         commandText = DatabaseExtensions.RecursiveParameters(commandText, adHocParameters, "", false);
 
-                        using (SqlServerClient sqlServerClient = new SqlServerClient(""))
+                        using var sqlServerClient = new SqlServerClient("");
+                        switch (returnType)
                         {
-                            switch (returnType)
-                            {
-                                case ReturnType.NonQuery:
-                                    result = sqlServerClient.ExecuteNonQuery(commandText, sqlMeta.Item2);
-                                    break;
-                                case ReturnType.Scalar:
-                                    result = sqlServerClient.ExecuteScalar(commandText, sqlMeta.Item2);
-                                    break;
-                                case ReturnType.DataSet:
-                                    result = sqlServerClient.ExecuteDataSet(commandText, sqlMeta.Item2);
-                                    break;
-                                case ReturnType.DataReader:
-                                    result = sqlServerClient.ExecuteReader(commandText, sqlMeta.Item2);
-                                    break;
-                                case ReturnType.Dynamic:
-                                    result = sqlServerClient.ExecuteDynamic(commandText, sqlMeta.Item2);
-                                    break;
-                            }
+                            case ReturnType.NonQuery:
+                                result = sqlServerClient.ExecuteNonQuery(commandText, sqlMeta.Item2);
+                                break;
+                            case ReturnType.Scalar:
+                                result = sqlServerClient.ExecuteScalar(commandText, sqlMeta.Item2);
+                                break;
+                            case ReturnType.DataSet:
+                                result = sqlServerClient.ExecuteDataSet(commandText, sqlMeta.Item2);
+                                break;
+                            case ReturnType.DataReader:
+                                result = sqlServerClient.ExecuteReader(commandText, sqlMeta.Item2);
+                                break;
+                            case ReturnType.Dynamic:
+                                result = sqlServerClient.ExecuteDynamic(commandText, sqlMeta.Item2);
+                                break;
                         }
                     }
                 }

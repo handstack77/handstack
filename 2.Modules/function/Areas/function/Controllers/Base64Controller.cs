@@ -20,7 +20,7 @@ namespace function.Areas.function.Controllers
     public class Base64Controller : BaseController
     {
         private FunctionLoggerClient loggerClient { get; }
-        
+
         private Serilog.ILogger logger { get; }
 
         public Base64Controller(Serilog.ILogger logger, FunctionLoggerClient loggerClient)
@@ -47,7 +47,7 @@ namespace function.Areas.function.Controllers
                 }
                 catch (Exception exception)
                 {
-                    string exceptionText = exception.ToMessage();
+                    var exceptionText = exception.ToMessage();
                     logger.Error("[{LogCategory}] " + exceptionText, "Base64/Encode");
 
                     result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
@@ -74,7 +74,7 @@ namespace function.Areas.function.Controllers
                 }
                 catch (Exception exception)
                 {
-                    string exceptionText = exception.ToMessage();
+                    var exceptionText = exception.ToMessage();
                     logger.Error("[{LogCategory}] " + exceptionText, "Base64/Decode");
 
                     result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);

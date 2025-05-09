@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Security.Policy;
 
 using checkup.Entity;
 using checkup.Extensions;
@@ -50,7 +49,7 @@ namespace checkup.Areas.checkup.Controllers
                 {
                     ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, "SYS.SYS010.ZD01");
 
-                    string existUser = "0";
+                    var existUser = "0";
                     var scalarResults = ModuleExtensions.ExecuteMetaSQL(ReturnType.Scalar, "SYS.USR010.GD01", new
                     {
                         PersonID = ModuleConfiguration.AdministratorEmailID
@@ -63,8 +62,8 @@ namespace checkup.Areas.checkup.Controllers
 
                     if (existUser == "0")
                     {
-                        string administratorKey = Guid.NewGuid().ToString("N");
-                        string password = administratorKey.ToSHA256();
+                        var administratorKey = Guid.NewGuid().ToString("N");
+                        var password = administratorKey.ToSHA256();
                         var nonResults = ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, "SYS.SYS010.ZD02", new
                         {
                             MemberNo = sequentialIdGenerator.NewId().ToString("N"),
@@ -86,10 +85,10 @@ namespace checkup.Areas.checkup.Controllers
                     {
                         Console.WriteLine($"Administrator Email ID: {ModuleConfiguration.AdministratorEmailID}");
 
-                        string prefix = "file:";
-                        int startIndex = ModuleConfiguration.ConnectionString.IndexOf(prefix) + prefix.Length;
-                        int endIndex = ModuleConfiguration.ConnectionString.IndexOf(';', startIndex);
-                        string filePath = ModuleConfiguration.ConnectionString.Substring(startIndex, endIndex - startIndex);
+                        var prefix = "file:";
+                        var startIndex = ModuleConfiguration.ConnectionString.IndexOf(prefix) + prefix.Length;
+                        var endIndex = ModuleConfiguration.ConnectionString.IndexOf(';', startIndex);
+                        var filePath = ModuleConfiguration.ConnectionString.Substring(startIndex, endIndex - startIndex);
 
                         Console.WriteLine($"Administrator Key: {filePath} Person 정보 확인 및 키 초기화 방법. http://localhost:{GlobalConfiguration.ServerPort}/checkup/api/managed/reset-administrator-key?oldPasswordKey=[초기화하는 기존 키]");
                     }
@@ -122,9 +121,9 @@ namespace checkup.Areas.checkup.Controllers
                 {
                     ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, "SYS.SYS010.ZD01");
 
-                    string administratorKey = Guid.NewGuid().ToString("N");
-                    string password = administratorKey.ToSHA256();
-                    string rowAffected = "0";
+                    var administratorKey = Guid.NewGuid().ToString("N");
+                    var password = administratorKey.ToSHA256();
+                    var rowAffected = "0";
                     var scalarResults = ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, "SYS.USR010.UD03", new
                     {
                         UserID = ModuleConfiguration.AdministratorEmailID,
@@ -141,10 +140,10 @@ namespace checkup.Areas.checkup.Controllers
                     {
                         Console.WriteLine($"Administrator Email ID: {ModuleConfiguration.AdministratorEmailID}");
 
-                        string prefix = "file:";
-                        int startIndex = ModuleConfiguration.ConnectionString.IndexOf(prefix) + prefix.Length;
-                        int endIndex = ModuleConfiguration.ConnectionString.IndexOf(';', startIndex);
-                        string filePath = ModuleConfiguration.ConnectionString.Substring(startIndex, endIndex - startIndex);
+                        var prefix = "file:";
+                        var startIndex = ModuleConfiguration.ConnectionString.IndexOf(prefix) + prefix.Length;
+                        var endIndex = ModuleConfiguration.ConnectionString.IndexOf(';', startIndex);
+                        var filePath = ModuleConfiguration.ConnectionString.Substring(startIndex, endIndex - startIndex);
 
                         Console.WriteLine($"Administrator Key: {filePath} Person 정보에서 기존 Password Key 확인 필요");
                         administratorKey = "Person 정보에서 기존 Password Key 확인 필요";

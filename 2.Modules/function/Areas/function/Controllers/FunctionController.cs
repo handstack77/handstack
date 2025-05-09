@@ -43,9 +43,9 @@ namespace function.Areas.function.Controllers
         // public async Task<DataSet?> Execute([FromBody] List<DynamicParameter> dynamicParameters, [FromQuery] DataContext dataContext)
         public async Task<DataSet?> Execute([FromBody] List<DynamicParameter>? dynamicParameters, [FromQuery] DataContext? dataContext)
         {
-            using DataSet? result = new DataSet();
+            using var result = new DataSet();
             var httpContext = httpContextAccessor.HttpContext;
-            string functionID = (httpContext?.Request.Query["functionID"]).ToStringSafe();
+            var functionID = (httpContext?.Request.Query["functionID"]).ToStringSafe();
             if (string.IsNullOrEmpty(functionID) == true)
             {
                 result.BuildExceptionData("Y", "Warning", $"functionID 확인 필요");
@@ -83,7 +83,7 @@ namespace function.Areas.function.Controllers
 
             #region DataContext
 
-            DateTime now = DateTime.Now;
+            var now = DateTime.Now;
             if (dataContext == null)
             {
                 dataContext = new DataContext();
@@ -98,13 +98,13 @@ namespace function.Areas.function.Controllers
             dataContext.platform = string.IsNullOrEmpty(dataContext.platform) == false ? dataContext.platform : "Windows"; // Windows, Linux, MacOS
             dataContext.workingDirectoryPath = string.IsNullOrEmpty(dataContext.workingDirectoryPath) == false ? dataContext.workingDirectoryPath : "../tmp/HDS/function/HDS_FN00";
 
-            string commandID = string.Empty;
+            var commandID = string.Empty;
             var scriptMapFile = string.IsNullOrEmpty(ModuleConfiguration.ModuleBasePath) == true ? PathExtensions.Combine(ModuleConfiguration.ModuleBasePath, "featureTest.json") : PathExtensions.Combine(GlobalConfiguration.GetBasePath($"../modules/{ModuleConfiguration.ModuleID}"), "featureTest.json");
             if (System.IO.File.Exists(scriptMapFile) == true)
             {
                 var scriptMapData = System.IO.File.ReadAllText(scriptMapFile);
 
-                FunctionScriptContract? functionScriptContract = FunctionScriptContract.FromJson(scriptMapData);
+                var functionScriptContract = FunctionScriptContract.FromJson(scriptMapData);
 
                 if (functionScriptContract == null)
                 {
@@ -113,7 +113,7 @@ namespace function.Areas.function.Controllers
                     return result;
                 }
 
-                string? fileExtension = functionScriptContract.Header.LanguageType == "csharp" ? "cs" : null;
+                var fileExtension = functionScriptContract.Header.LanguageType == "csharp" ? "cs" : null;
                 if (string.IsNullOrEmpty(fileExtension) == true)
                 {
                     result.BuildExceptionData("Y", "Warning", $"{functionScriptContract.Header.LanguageType} 언어 타입 확인 필요");
@@ -122,7 +122,7 @@ namespace function.Areas.function.Controllers
                 }
 
                 var functionScriptFile = scriptMapFile.Replace("featureMeta.json", $"featureMain.{fileExtension}");
-                FunctionHeader header = functionScriptContract.Header;
+                var header = functionScriptContract.Header;
                 dataContext.functionHeader = header;
 
                 var item = functionScriptContract.Commands.FirstOrDefault(p => p.ID == (functionID.Split('.').ElementAtOrDefault(2) ?? ""));
@@ -133,7 +133,7 @@ namespace function.Areas.function.Controllers
                     return result;
                 }
 
-                ModuleScriptMap moduleScriptMap = new ModuleScriptMap();
+                var moduleScriptMap = new ModuleScriptMap();
                 moduleScriptMap.ApplicationID = header.ApplicationID;
                 moduleScriptMap.ProjectID = header.ProjectID;
                 moduleScriptMap.TransactionID = header.TransactionID;
@@ -173,10 +173,10 @@ namespace function.Areas.function.Controllers
                 moduleScriptMap.Comment = item.Comment;
 
                 moduleScriptMap.ModuleParameters = new List<ModuleParameterMap>();
-                List<FunctionParam> functionParams = item.Params;
+                var functionParams = item.Params;
                 if (functionParams != null && functionParams.Count > 0)
                 {
-                    foreach (FunctionParam functionParam in functionParams)
+                    foreach (var functionParam in functionParams)
                     {
                         moduleScriptMap.ModuleParameters.Add(new ModuleParameterMap()
                         {
@@ -246,18 +246,18 @@ namespace function.Areas.function.Controllers
 
         protected async Task<DataSet?> GF01(List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
-            string typeMember = "TST.CSF010.GF01";
-            string serverDate = dynamicParameters.Value("ServerDate").ToStringSafe();
-            string serverName = dynamicParameters.Value("ServerName").ToStringSafe();
+            var typeMember = "TST.CSF010.GF01";
+            var serverDate = dynamicParameters.Value("ServerDate").ToStringSafe();
+            var serverName = dynamicParameters.Value("ServerName").ToStringSafe();
 
-            DataTableHelper dataTableBuilder = new DataTableHelper();
+            var dataTableBuilder = new DataTableHelper();
             dataTableBuilder.AddColumn("FunctionResult", typeof(string));
 
             dataTableBuilder.NewRow();
             dataTableBuilder.SetValue(0, 0, $"typeMember: {typeMember}, serverDate: {DateTime.Now}, serverName: {serverName}");
 
-            using DataSet result = new DataSet();
-            using (DataTable table = dataTableBuilder.GetDataTable())
+            using var result = new DataSet();
+            using (var table = dataTableBuilder.GetDataTable())
             {
                 result.Tables.Add(table);
             }

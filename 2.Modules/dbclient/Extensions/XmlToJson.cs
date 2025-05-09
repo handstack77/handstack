@@ -10,16 +10,16 @@ namespace dbclient.Extensions
     {
         public static string JSONTransformer(string resultSetXML, string rootNodeName, string elementNodeName)
         {
-            XmlDocument xmlDoc = new XmlDocument();
-            DataSet dataset = new DataSet();
-            StringBuilder result = new StringBuilder();
-            int recordCount = 0;
-            int currentIndex = 0;
+            var xmlDoc = new XmlDocument();
+            var dataset = new DataSet();
+            var result = new StringBuilder();
+            var recordCount = 0;
+            var currentIndex = 0;
 
-            XmlTextReader reader = new XmlTextReader(new StringReader(resultSetXML));
-            XPathDocument xdoc = new XPathDocument(reader);
-            XPathNavigator nav = xdoc.CreateNavigator();
-            XPathNodeIterator iter = nav.Select(rootNodeName + "/" + elementNodeName);
+            var reader = new XmlTextReader(new StringReader(resultSetXML));
+            var xdoc = new XPathDocument(reader);
+            var nav = xdoc.CreateNavigator();
+            var iter = nav.Select(rootNodeName + "/" + elementNodeName);
 
             recordCount = iter.Count;
             currentIndex = 0;
@@ -28,18 +28,18 @@ namespace dbclient.Extensions
 
             while (iter.MoveNext())
             {
-                XPathNavigator? item = iter.Current;
+                var item = iter.Current;
                 result.Append("{ ");
 
                 if (item != null && item.HasAttributes == true)
                 {
                     item.MoveToFirstAttribute();
-                    string line = "";
+                    var line = "";
 
                     do
                     {
-                        string name = item.Name;
-                        string value = item.Value;
+                        var name = item.Name;
+                        var value = item.Value;
 
                         line += "\"" + name + "\": \"" + value.Replace("\"", "\\\"") + "\", ";
                     } while (item.MoveToNextAttribute());

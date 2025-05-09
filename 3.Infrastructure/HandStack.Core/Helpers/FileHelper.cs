@@ -14,43 +14,41 @@ namespace HandStack.Core.Helpers
                 Directory.CreateDirectory(destnationFolder);
             }
 
-            string[] files = Directory.GetFiles(sourceFolder);
-            string[] folders = Directory.GetDirectories(sourceFolder);
+            var files = Directory.GetFiles(sourceFolder);
+            var folders = Directory.GetDirectories(sourceFolder);
 
-            foreach (string file in files)
+            foreach (var file in files)
             {
-                string name = Path.GetFileName(file);
-                string dest = PathExtensions.Combine(destnationFolder, name);
+                var name = Path.GetFileName(file);
+                var dest = PathExtensions.Combine(destnationFolder, name);
                 File.Copy(file, dest);
             }
 
-            foreach (string folder in folders)
+            foreach (var folder in folders)
             {
-                string name = Path.GetFileName(folder);
-                string dest = PathExtensions.Combine(destnationFolder, name);
+                var name = Path.GetFileName(folder);
+                var dest = PathExtensions.Combine(destnationFolder, name);
                 CopyFolder(folder, dest);
             }
         }
 
         public static void EncryptFile(string filePath, string cryptographyKey = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ")
         {
-            string outputFilePath = Path.GetTempFileName();
-            using (Aes encryptor = Aes.Create())
+            var outputFilePath = Path.GetTempFileName();
+            using (var encryptor = Aes.Create())
             {
 #pragma warning disable SYSLIB0041
-                using Rfc2898DeriveBytes pdb = new Rfc2898DeriveBytes(cryptographyKey, new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
+                using var pdb = new Rfc2898DeriveBytes(cryptographyKey, new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
 #pragma warning restore SYSLIB0041
                 encryptor.Key = pdb.GetBytes(32);
                 encryptor.IV = pdb.GetBytes(16);
-                using (FileStream fsOutput = new FileStream(outputFilePath, FileMode.Create))
-                using (CryptoStream cs = new CryptoStream(fsOutput, encryptor.CreateEncryptor(), CryptoStreamMode.Write))
-                using (FileStream fsInput = new FileStream(filePath, FileMode.Open))
+                using var fsOutput = new FileStream(outputFilePath, FileMode.Create);
+                using var cs = new CryptoStream(fsOutput, encryptor.CreateEncryptor(), CryptoStreamMode.Write);
+                using var fsInput = new FileStream(filePath, FileMode.Open);
+                int data;
+                while ((data = fsInput.ReadByte()) != -1)
                 {
-                    int data;
-                    while ((data = fsInput.ReadByte()) != -1)
-                    {
-                        cs.WriteByte((byte)data);
-                    }
+                    cs.WriteByte((byte)data);
                 }
             }
 
@@ -69,23 +67,21 @@ namespace HandStack.Core.Helpers
 
         public static void DecryptFile(string filePath, string cryptographyKey = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ")
         {
-            string outputFilePath = Path.GetTempFileName();
-            using (Aes encryptor = Aes.Create())
+            var outputFilePath = Path.GetTempFileName();
+            using (var encryptor = Aes.Create())
             {
 #pragma warning disable SYSLIB0041
-                Rfc2898DeriveBytes pdb = new Rfc2898DeriveBytes(cryptographyKey, new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
+                var pdb = new Rfc2898DeriveBytes(cryptographyKey, new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
 #pragma warning restore SYSLIB0041
                 encryptor.Key = pdb.GetBytes(32);
                 encryptor.IV = pdb.GetBytes(16);
-                using (FileStream fsInput = new FileStream(filePath, FileMode.Open))
-                using (CryptoStream cs = new CryptoStream(fsInput, encryptor.CreateDecryptor(), CryptoStreamMode.Read))
-                using (FileStream fsOutput = new FileStream(outputFilePath, FileMode.Create))
+                using var fsInput = new FileStream(filePath, FileMode.Open);
+                using var cs = new CryptoStream(fsInput, encryptor.CreateDecryptor(), CryptoStreamMode.Read);
+                using var fsOutput = new FileStream(outputFilePath, FileMode.Create);
+                int data;
+                while ((data = cs.ReadByte()) != -1)
                 {
-                    int data;
-                    while ((data = cs.ReadByte()) != -1)
-                    {
-                        fsOutput.WriteByte((byte)data);
-                    }
+                    fsOutput.WriteByte((byte)data);
                 }
             }
 

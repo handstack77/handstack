@@ -116,16 +116,14 @@ namespace HandStack.Core.ExtensionMethod
         /// </code>
         public static string ToMD5Hash(this FileInfo @this)
         {
-            string result = "";
+            var result = "";
             if (@this != null)
             {
                 if (@this.Exists == true)
                 {
-                    using (var md5 = MD5.Create())
-                    using (var stream = File.OpenRead(@this.FullName.Replace("\\", "/")))
-                    {
-                        return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", string.Empty);
-                    }
+                    using var md5 = MD5.Create();
+                    using var stream = File.OpenRead(@this.FullName.Replace("\\", "/"));
+                    return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", string.Empty);
                 }
             }
 
@@ -140,7 +138,7 @@ namespace HandStack.Core.ExtensionMethod
         {
             if (@this != null)
             {
-                string? directoryName = Path.GetDirectoryName(@this.FullName.Replace("\\", "/"));
+                var directoryName = Path.GetDirectoryName(@this.FullName.Replace("\\", "/"));
                 if (string.IsNullOrEmpty(directoryName) == false)
                 {
                     var filePath = PathExtensions.Combine(directoryName, newName);
@@ -257,28 +255,26 @@ namespace HandStack.Core.ExtensionMethod
                 return false;
             }
 
-            int charsToCheck = 8000;
-            char nulChar = '\0';
+            var charsToCheck = 8000;
+            var nulChar = '\0';
 
-            int nulCount = 0;
-            using (var streamReader = new StreamReader(file.FullName.Replace("\\", "/")))
+            var nulCount = 0;
+            using var streamReader = new StreamReader(file.FullName.Replace("\\", "/"));
+            for (var i = 0; i < charsToCheck; i++)
             {
-                for (var i = 0; i < charsToCheck; i++)
+                if (streamReader.EndOfStream)
+                    return false;
+
+                if ((char)streamReader.Read() == nulChar)
                 {
-                    if (streamReader.EndOfStream)
-                        return false;
+                    nulCount++;
 
-                    if ((char)streamReader.Read() == nulChar)
-                    {
-                        nulCount++;
-
-                        if (nulCount >= requiredConsecutiveNul)
-                            return true;
-                    }
-                    else
-                    {
-                        nulCount = 0;
-                    }
+                    if (nulCount >= requiredConsecutiveNul)
+                        return true;
+                }
+                else
+                {
+                    nulCount = 0;
                 }
             }
 

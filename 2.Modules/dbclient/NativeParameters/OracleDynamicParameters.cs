@@ -80,8 +80,8 @@ namespace dbclient.NativeParameters
                 var bytes = Encoding.Unicode.GetBytes(value);
                 var length = bytes.Length;
 
-                int pos = 0;
-                int chunkSize = 1024;
+                var pos = 0;
+                var chunkSize = 1024;
 
                 while (pos < length)
                 {
@@ -104,8 +104,8 @@ namespace dbclient.NativeParameters
                 var bytes = Encoding.Unicode.GetBytes(value);
                 var length = bytes.Length;
 
-                int pos = 0;
-                int chunkSize = 1024;
+                var pos = 0;
+                var chunkSize = 1024;
 
                 while (pos < length)
                 {

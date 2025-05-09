@@ -23,8 +23,8 @@ namespace HandStack.Core.ExtensionMethod
             }
 
             const StringComparison sc = StringComparison.Ordinal;
-            string name = @this.Name.Substring(0, @this.Name.IndexOf("`", sc));
-            string[] arguments = @this.GetGenericArguments()
+            var name = @this.Name.Substring(0, @this.Name.IndexOf("`", sc));
+            var arguments = @this.GetGenericArguments()
                 .Select(arg => arg.GetFriendlyName())
                 .ToArray();
 
@@ -33,33 +33,33 @@ namespace HandStack.Core.ExtensionMethod
 
         public static DataTable ToDataTable<T>(this T[] @this)
         {
-            Type typeOf = typeof(T);
+            var typeOf = typeof(T);
 
-            PropertyInfo[] properties = typeOf.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            FieldInfo[] fields = typeOf.GetFields(BindingFlags.Public | BindingFlags.Instance);
+            var properties = typeOf.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            var fields = typeOf.GetFields(BindingFlags.Public | BindingFlags.Instance);
 
-            DataTable result = new DataTable();
+            var result = new DataTable();
 
-            foreach (PropertyInfo property in properties)
+            foreach (var property in properties)
             {
                 result.Columns.Add(property.Name, property.PropertyType);
             }
 
-            foreach (FieldInfo field in fields)
+            foreach (var field in fields)
             {
                 result.Columns.Add(field.Name, field.FieldType);
             }
 
-            foreach (T item in @this)
+            foreach (var item in @this)
             {
-                DataRow dr = result.NewRow();
+                var dr = result.NewRow();
 
-                foreach (PropertyInfo property in properties)
+                foreach (var property in properties)
                 {
                     dr[property.Name] = property.GetValue(item, null);
                 }
 
-                foreach (FieldInfo field in fields)
+                foreach (var field in fields)
                 {
                     dr[field.Name] = field.GetValue(item);
                 }
@@ -72,18 +72,18 @@ namespace HandStack.Core.ExtensionMethod
 
         public static DataTable ToDataTable<T>(this IList<T> data)
         {
-            PropertyDescriptorCollection props = TypeDescriptor.GetProperties(typeof(T));
-            DataTable result = new DataTable();
-            for (int i = 0; i < props.Count; i++)
+            var props = TypeDescriptor.GetProperties(typeof(T));
+            var result = new DataTable();
+            for (var i = 0; i < props.Count; i++)
             {
-                PropertyDescriptor prop = props[i];
+                var prop = props[i];
                 result.Columns.Add(prop.Name, prop.PropertyType);
             }
 
-            object?[] values = new object[props.Count];
-            foreach (T item in data)
+            var values = new object[props.Count];
+            foreach (var item in data)
             {
-                for (int i = 0; i < values.Length; i++)
+                for (var i = 0; i < values.Length; i++)
                 {
                     values[i] = props[i].GetValue(item);
                 }
@@ -173,7 +173,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static List<string?> GetEnumDescriptionList<T>(this Type type) where T : Enum
         {
-            List<string?> descriptionList = new List<string?>();
+            var descriptionList = new List<string?>();
             foreach (T value in Enum.GetValues(typeof(T)))
             {
                 descriptionList.Add(value.GetDescriptionFromValue());

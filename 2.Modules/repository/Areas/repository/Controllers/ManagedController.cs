@@ -58,20 +58,20 @@ namespace repository.Areas.repository.Controllers
                     lock (ModuleConfiguration.FileRepositorys)
                     {
                         var appRepositorys = ModuleConfiguration.FileRepositorys.Where(x => x.UserWorkID == userWorkID && x.ApplicationID == applicationID).ToList();
-                        for (int i = appRepositorys.Count(); i > 0; i--)
+                        for (var i = appRepositorys.Count(); i > 0; i--)
                         {
                             var item = appRepositorys[i - 1];
                             ModuleConfiguration.FileRepositorys.Remove(item);
                         }
 
-                        string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                        var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                         if (Directory.Exists(appBasePath) == true)
                         {
-                            string tenantID = $"{userWorkID}|{applicationID}";
-                            string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
+                            var tenantID = $"{userWorkID}|{applicationID}";
+                            var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                             if (System.IO.File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                             {
-                                string appSettingText = System.IO.File.ReadAllText(settingFilePath);
+                                var appSettingText = System.IO.File.ReadAllText(settingFilePath);
                                 var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
                                 if (appSetting != null)
                                 {
@@ -80,7 +80,7 @@ namespace repository.Areas.repository.Controllers
                                     {
                                         foreach (var storage in storages)
                                         {
-                                            Repository repository = new Repository();
+                                            var repository = new Repository();
 
                                             repository.ApplicationID = storage.ApplicationID;
                                             repository.RepositoryID = storage.RepositoryID;
@@ -124,7 +124,7 @@ namespace repository.Areas.repository.Controllers
                                             {
                                                 repository.PhysicalPath = repository.PhysicalPath.Replace("{appBasePath}", appBasePath);
                                                 repository.PhysicalPath = GlobalConfiguration.GetBasePath(repository.PhysicalPath);
-                                                DirectoryInfo repositoryDirectoryInfo = new DirectoryInfo(repository.PhysicalPath);
+                                                var repositoryDirectoryInfo = new DirectoryInfo(repository.PhysicalPath);
                                                 if (repositoryDirectoryInfo.Exists == false)
                                                 {
                                                     repositoryDirectoryInfo.Create();
@@ -161,7 +161,7 @@ namespace repository.Areas.repository.Controllers
                                             {
                                                 repository.PhysicalPath = repository.PhysicalPath.Replace("{appBasePath}", appBasePath);
                                                 repository.PhysicalPath = GlobalConfiguration.GetBasePath(repository.PhysicalPath);
-                                                DirectoryInfo repositoryDirectoryInfo = new DirectoryInfo(repository.PhysicalPath);
+                                                var repositoryDirectoryInfo = new DirectoryInfo(repository.PhysicalPath);
                                                 if (repositoryDirectoryInfo.Exists == false)
                                                 {
                                                     repositoryDirectoryInfo.Create();
@@ -195,7 +195,7 @@ namespace repository.Areas.repository.Controllers
                                                 {
                                                     repository.PhysicalPath = repository.PhysicalPath.Replace("{appBasePath}", appBasePath);
                                                     repository.PhysicalPath = GlobalConfiguration.GetBasePath(repository.PhysicalPath);
-                                                    DirectoryInfo repositoryDirectoryInfo = new DirectoryInfo(repository.PhysicalPath);
+                                                    var repositoryDirectoryInfo = new DirectoryInfo(repository.PhysicalPath);
                                                     if (repositoryDirectoryInfo.Exists == false)
                                                     {
                                                         repositoryDirectoryInfo.Create();
@@ -254,7 +254,7 @@ namespace repository.Areas.repository.Controllers
                     lock (ModuleConfiguration.FileRepositorys)
                     {
                         var appRepositorys = ModuleConfiguration.FileRepositorys.Where(x => x.UserWorkID == userWorkID && x.ApplicationID == applicationID).ToList();
-                        for (int i = appRepositorys.Count(); i > 0; i--)
+                        for (var i = appRepositorys.Count(); i > 0; i--)
                         {
                             var item = appRepositorys[i - 1];
                             ModuleConfiguration.FileRepositorys.Remove(item);

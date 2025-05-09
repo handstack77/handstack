@@ -37,7 +37,7 @@ namespace transact.Areas.transact.Controllers
             ActionResult result = BadRequest();
             try
             {
-                string rollingID = year + weekOfYear.PadLeft(2, '0');
+                var rollingID = year + weekOfYear.PadLeft(2, '0');
                 var isLogDbFile = ModuleExtensions.IsLogDbFile(userWorkID, applicationID, rollingID);
                 if (isLogDbFile == true)
                 {
@@ -45,7 +45,7 @@ namespace transact.Areas.transact.Controllers
                     if (string.IsNullOrEmpty(connectionString) == false)
                     {
                         // resultType - L: List, V: Valid, E: Error
-                        string featureID = resultType == "L" ? "LD01" : resultType == "V" ? "LD02" : "LD03";
+                        var featureID = resultType == "L" ? "LD01" : resultType == "V" ? "LD02" : "LD03";
                         var dsResult = ModuleExtensions.ExecuteMetaSQL(ReturnType.DataSet, connectionString, $"TAG.TAG010.{featureID}", new
                         {
                             CreateDate = requestDate.ToStringSafe(),
@@ -54,7 +54,7 @@ namespace transact.Areas.transact.Controllers
 
                         if (dsResult != null && dsResult.Tables.Count > 0)
                         {
-                            using DataTable dataTable = dsResult.Tables[0];
+                            using var dataTable = dsResult.Tables[0];
                             result = Content(JsonConvert.SerializeObject(dataTable), "application/json");
                         }
                         else
@@ -83,24 +83,24 @@ namespace transact.Areas.transact.Controllers
             ActionResult result = BadRequest();
             try
             {
-                string rollingID = year + weekOfYear.PadLeft(2, '0');
+                var rollingID = year + weekOfYear.PadLeft(2, '0');
                 var isLogDbFile = ModuleExtensions.IsLogDbFile(userWorkID, applicationID, rollingID);
                 if (isLogDbFile == true)
                 {
                     var connectionString = ModuleExtensions.GetLogDbConnectionString(userWorkID, applicationID, rollingID);
                     if (string.IsNullOrEmpty(connectionString) == false)
                     {
-                        string format = "yyyyMMdd";
+                        var format = "yyyyMMdd";
                         DateTime dtRequestDate;
                         if (DateTime.TryParseExact(requestDate, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out dtRequestDate))
                         {
-                            CultureInfo cultureInfo = CultureInfo.InvariantCulture;
-                            DayOfWeek dwFirst = cultureInfo.DateTimeFormat.FirstDayOfWeek;
-                            DayOfWeek dwRequestDate = cultureInfo.Calendar.GetDayOfWeek(dtRequestDate);
+                            var cultureInfo = CultureInfo.InvariantCulture;
+                            var dwFirst = cultureInfo.DateTimeFormat.FirstDayOfWeek;
+                            var dwRequestDate = cultureInfo.Calendar.GetDayOfWeek(dtRequestDate);
 
-                            int iDiff = dwRequestDate - dwFirst;
-                            DateTime dtFirstDayOfWeek = dtRequestDate.AddDays(-iDiff + 1);
-                            DateTime dtLastDayOfWeek = dtFirstDayOfWeek.AddDays(4);
+                            var iDiff = dwRequestDate - dwFirst;
+                            var dtFirstDayOfWeek = dtRequestDate.AddDays(-iDiff + 1);
+                            var dtLastDayOfWeek = dtFirstDayOfWeek.AddDays(4);
 
                             var dsResult = ModuleExtensions.ExecuteMetaSQL(ReturnType.DataSet, connectionString, "TAG.TAG010.GD01", new
                             {
@@ -111,7 +111,7 @@ namespace transact.Areas.transact.Controllers
 
                             if (dsResult != null && dsResult.Tables.Count > 0)
                             {
-                                using DataTable dataTable = dsResult.Tables[0];
+                                using var dataTable = dsResult.Tables[0];
                                 result = Content(JsonConvert.SerializeObject(dataTable), "application/json");
                             }
                             else

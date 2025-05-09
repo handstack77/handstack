@@ -138,12 +138,12 @@ namespace HandStack.Web.Helper
             {
                 using var stringReader = new StringReader(input);
 
-                IDeserializer deserializer = new DeserializerBuilder()
+                var deserializer = new DeserializerBuilder()
                     .WithNodeTypeResolver(new DecimalYamlTypeResolver())
                     .WithNodeTypeResolver(new BooleanYamlTypeResolver())
                     .Build();
 
-                object? yamlObject = deserializer.Deserialize(stringReader);
+                var yamlObject = deserializer.Deserialize(stringReader);
 
                 if (yamlObject is null or string)
                 {
@@ -194,12 +194,12 @@ namespace HandStack.Web.Helper
         private static void SortJsonPropertiesAlphabetically(JObject jObject)
         {
             var properties = jObject.Properties().ToList();
-            foreach (JProperty? property in properties)
+            foreach (var property in properties)
             {
                 property.Remove();
             }
 
-            foreach (JProperty? property in properties.OrderBy(p => p.Name))
+            foreach (var property in properties.OrderBy(p => p.Name))
             {
                 jObject.Add(property);
                 if (property.Value is JObject obj)
@@ -215,7 +215,7 @@ namespace HandStack.Web.Helper
 
         private static void SortJsonPropertiesAlphabetically(JArray jArray)
         {
-            foreach (JToken? arrayItem in jArray)
+            foreach (var arrayItem in jArray)
             {
                 if (arrayItem is JObject arrayObj)
                 {

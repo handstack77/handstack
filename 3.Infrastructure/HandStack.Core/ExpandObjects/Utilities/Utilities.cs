@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 
 namespace HandStack.Core.ExpendObjects
 {
@@ -8,7 +7,7 @@ namespace HandStack.Core.ExpendObjects
         public static Type? GetTypeFromName(string typeName)
         {
             Type? type = null;
-            foreach (Assembly ass in AppDomain.CurrentDomain.GetAssemblies())
+            foreach (var ass in AppDomain.CurrentDomain.GetAssemblies())
             {
                 type = ass.GetType(typeName, false);
 

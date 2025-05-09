@@ -24,9 +24,9 @@ namespace HandStack.Data.SqlFormatter.Core
 
         internal static Regex CreateOperatorRegex(IEnumerable<string> multiLetterOperators)
         {
-            IOrderedEnumerable<string> sortedOperators = SortByLengthDesc(multiLetterOperators);
-            IEnumerable<string> escapedOperators = sortedOperators.Select(item => EscapeSpecialCharacters(item));
-            string operators = string.Join("|", escapedOperators);
+            var sortedOperators = SortByLengthDesc(multiLetterOperators);
+            var escapedOperators = sortedOperators.Select(item => EscapeSpecialCharacters(item));
+            var operators = string.Join("|", escapedOperators);
             return new Regex(@$"^({operators}|.)", RegexOptions.None, DefaultMatchTimeout);
         }
 
@@ -42,7 +42,7 @@ namespace HandStack.Data.SqlFormatter.Core
                 return new Regex(@"^\b$", RegexOptions.None, DefaultMatchTimeout);
             }
 
-            string reservedWordsPattern = string.Join('|', SortByLengthDesc(reservedWords)).Replace(" ", "\\s+");
+            var reservedWordsPattern = string.Join('|', SortByLengthDesc(reservedWords)).Replace(" ", "\\s+");
             return new Regex(@$"^({reservedWordsPattern})\b", RegexOptions.IgnoreCase, DefaultMatchTimeout);
         }
 
@@ -68,7 +68,7 @@ namespace HandStack.Data.SqlFormatter.Core
                 return null;
             }
 
-            string typesRegex = string.Join('|', types.Select(item => EscapeSpecialCharacters(item.ToString())));
+            var typesRegex = string.Join('|', types.Select(item => EscapeSpecialCharacters(item.ToString())));
 
             return new Regex($"^((?:{typesRegex})(?:{pattern}))", RegexOptions.None, DefaultMatchTimeout);
         }

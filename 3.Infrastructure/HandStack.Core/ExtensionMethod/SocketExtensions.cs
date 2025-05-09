@@ -1,5 +1,4 @@
 ﻿using System.Net.NetworkInformation;
-using System.Net;
 using System.Net.Sockets;
 
 namespace HandStack.Core.ExtensionMethod
@@ -8,7 +7,7 @@ namespace HandStack.Core.ExtensionMethod
     {
         public static bool IsConnencted(this Socket @this, int latencyWait = 10)
         {
-            bool result = false;
+            var result = false;
             try
             {
                 result = @this.Poll(latencyWait, SelectMode.SelectRead) == true && @this.Available > 0;
@@ -22,12 +21,12 @@ namespace HandStack.Core.ExtensionMethod
 
         public static bool PortInUse(int port)
         {
-            bool inUse = false;
-            IPGlobalProperties ipProperties = IPGlobalProperties.GetIPGlobalProperties();
-            IPEndPoint[] ipEndPoints = ipProperties.GetActiveTcpListeners();
+            var inUse = false;
+            var ipProperties = IPGlobalProperties.GetIPGlobalProperties();
+            var ipEndPoints = ipProperties.GetActiveTcpListeners();
 
 
-            foreach (IPEndPoint endPoint in ipEndPoints)
+            foreach (var endPoint in ipEndPoints)
             {
                 if (endPoint.Port == port)
                 {

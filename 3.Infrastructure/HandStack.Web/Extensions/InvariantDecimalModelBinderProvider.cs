@@ -13,7 +13,7 @@ namespace HandStack.Web.Extensions
 
             if (!context.Metadata.IsComplexType && (context.Metadata.ModelType == typeof(decimal) || context.Metadata.ModelType == typeof(decimal?)))
             {
-                object? logger = context.Services.GetService(typeof(ILoggerFactory));
+                var logger = context.Services.GetService(typeof(ILoggerFactory));
                 if (logger != null)
                 {
                     var loggerFactory = (ILoggerFactory)logger;

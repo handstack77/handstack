@@ -95,14 +95,14 @@ namespace dbclient.Areas.dbclient.Controllers
                         try
                         {
                             var dataSourceMappings = DatabaseMapper.DataSourceMappings.Where(x => x.Value.ApplicationID == applicationID).ToList();
-                            for (int i = dataSourceMappings.Count(); i > 0; i--)
+                            for (var i = dataSourceMappings.Count(); i > 0; i--)
                             {
                                 var item = dataSourceMappings[i - 1].Key;
                                 DatabaseMapper.DataSourceMappings.Remove(item);
                             }
 
                             var statementMappings = DatabaseMapper.StatementMappings.Where(x => x.Value.ApplicationID == applicationID).ToList();
-                            for (int i = statementMappings.Count(); i > 0; i--)
+                            for (var i = statementMappings.Count(); i > 0; i--)
                             {
                                 var item = statementMappings[i - 1].Key;
                                 DatabaseMapper.StatementMappings.Remove(item);
@@ -114,20 +114,20 @@ namespace dbclient.Areas.dbclient.Controllers
                                 return Ok();
                             }
 
-                            string[] sqlMapFiles = Directory.GetFiles(basePath, "*.xml", SearchOption.AllDirectories);
-                            foreach (string filePath in sqlMapFiles)
+                            var sqlMapFiles = Directory.GetFiles(basePath, "*.xml", SearchOption.AllDirectories);
+                            foreach (var filePath in sqlMapFiles)
                             {
                                 try
                                 {
-                                    FileInfo fileInfo = new FileInfo(filePath);
+                                    var fileInfo = new FileInfo(filePath);
                                     var htmlDocument = new HtmlDocument();
                                     htmlDocument.OptionDefaultStreamEncoding = Encoding.UTF8;
                                     htmlDocument.LoadHtml(ReplaceCData(System.IO.File.ReadAllText(filePath)));
-                                    HtmlNode header = htmlDocument.DocumentNode.SelectSingleNode("//mapper/header");
+                                    var header = htmlDocument.DocumentNode.SelectSingleNode("//mapper/header");
 
                                     applicationID = (header?.Element("application")?.InnerText).ToStringSafe();
-                                    string projectID = (header?.Element("project")?.InnerText).ToStringSafe();
-                                    string transactionID = (header?.Element("transaction")?.InnerText).ToStringSafe();
+                                    var projectID = (header?.Element("project")?.InnerText).ToStringSafe();
+                                    var transactionID = (header?.Element("transaction")?.InnerText).ToStringSafe();
                                     if (filePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                                     {
                                         applicationID = string.IsNullOrEmpty(applicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : applicationID;
@@ -148,7 +148,7 @@ namespace dbclient.Areas.dbclient.Controllers
                                         {
                                             if (header == null || $"{header?.Element("use")?.InnerText}".ToBoolean() == true)
                                             {
-                                                StatementMap statementMap = new StatementMap();
+                                                var statementMap = new StatementMap();
                                                 statementMap.ApplicationID = applicationID;
                                                 statementMap.ProjectID = projectID;
                                                 statementMap.TransactionID = transactionID;
@@ -166,29 +166,29 @@ namespace dbclient.Areas.dbclient.Controllers
                                                 statementMap.Timeout = int.Parse(item.Attributes["timeout"].Value);
                                                 statementMap.SQL = item.InnerHtml;
 
-                                                string? beforetransaction = item.Attributes["before"]?.Value;
+                                                var beforetransaction = item.Attributes["before"]?.Value;
                                                 if (string.IsNullOrEmpty(beforetransaction) == false)
                                                 {
                                                     statementMap.BeforeTransactionCommand = beforetransaction;
                                                 }
 
-                                                string? aftertransaction = item.Attributes["after"]?.Value;
+                                                var aftertransaction = item.Attributes["after"]?.Value;
                                                 if (string.IsNullOrEmpty(aftertransaction) == false)
                                                 {
                                                     statementMap.AfterTransactionCommand = aftertransaction;
                                                 }
 
-                                                string? fallbacktransaction = item.Attributes["fallback"]?.Value;
+                                                var fallbacktransaction = item.Attributes["fallback"]?.Value;
                                                 if (string.IsNullOrEmpty(fallbacktransaction) == false)
                                                 {
                                                     statementMap.FallbackTransactionCommand = fallbacktransaction;
                                                 }
 
                                                 statementMap.DbParameters = new List<DbParameterMap>();
-                                                HtmlNodeCollection htmlNodes = item.SelectNodes("param");
+                                                var htmlNodes = item.SelectNodes("param");
                                                 if (htmlNodes != null && htmlNodes.Count > 0)
                                                 {
-                                                    foreach (HtmlNode paramNode in item.SelectNodes("param"))
+                                                    foreach (var paramNode in item.SelectNodes("param"))
                                                     {
                                                         statementMap.DbParameters.Add(new DbParameterMap()
                                                         {
@@ -207,7 +207,7 @@ namespace dbclient.Areas.dbclient.Controllers
                                                 children.LoadHtml(statementMap.SQL);
                                                 statementMap.Chidren = children;
 
-                                                string queryID = string.Concat(
+                                                var queryID = string.Concat(
                                                     statementMap.ApplicationID, "|",
                                                     statementMap.ProjectID, "|",
                                                     statementMap.TransactionID, "|",
@@ -235,12 +235,12 @@ namespace dbclient.Areas.dbclient.Controllers
                                 }
                             }
 
-                            string tenantID = $"{userWorkID}|{applicationID}";
-                            string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-                            string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
+                            var tenantID = $"{userWorkID}|{applicationID}";
+                            var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                            var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                             if (System.IO.File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                             {
-                                string appSettingText = System.IO.File.ReadAllText(settingFilePath);
+                                var appSettingText = System.IO.File.ReadAllText(settingFilePath);
                                 var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
                                 if (appSetting != null)
                                 {
@@ -255,7 +255,7 @@ namespace dbclient.Areas.dbclient.Controllers
                                                 ModuleConfiguration.DataSource.Add(item);
                                             }
 
-                                            DataSourceTanantKey tanantMap = new DataSourceTanantKey();
+                                            var tanantMap = new DataSourceTanantKey();
                                             tanantMap.ApplicationID = item.ApplicationID;
                                             tanantMap.DataSourceID = item.DataSourceID;
                                             tanantMap.TanantPattern = item.TanantPattern;
@@ -263,7 +263,7 @@ namespace dbclient.Areas.dbclient.Controllers
 
                                             if (DatabaseMapper.DataSourceMappings.ContainsKey(tanantMap) == false)
                                             {
-                                                DataSourceMap dataSourceMap = new DataSourceMap();
+                                                var dataSourceMap = new DataSourceMap();
                                                 dataSourceMap.ApplicationID = item.ApplicationID;
                                                 dataSourceMap.ProjectListID = item.ProjectID.Split(",").Where(s => string.IsNullOrWhiteSpace(s) == false).Distinct().ToList();
                                                 dataSourceMap.DataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), item.DataProvider);
@@ -320,14 +320,14 @@ namespace dbclient.Areas.dbclient.Controllers
                         var tenants = ModuleConfiguration.SQLFileSyncManager.Where(pair => pair.Key.Contains($"{userWorkID}{Path.DirectorySeparatorChar}{applicationID}"));
                         if (tenants.Any() == true)
                         {
-                            List<string> tenantsPath = new List<string>();
+                            var tenantsPath = new List<string>();
                             foreach (var tenant in tenants)
                             {
                                 tenantsPath.Add(tenant.Key);
                                 tenant.Value?.Stop();
                             }
 
-                            for (int i = 0; i < tenantsPath.Count; i++)
+                            for (var i = 0; i < tenantsPath.Count; i++)
                             {
                                 ModuleConfiguration.SQLFileSyncManager.Remove(tenantsPath[i]);
                             }
@@ -348,15 +348,15 @@ namespace dbclient.Areas.dbclient.Controllers
 
         public static string ReplaceCData(string rawText)
         {
-            Regex cdataRegex = new Regex("(<!\\[CDATA\\[)([\\s\\S]*?)(\\]\\]>)");
+            var cdataRegex = new Regex("(<!\\[CDATA\\[)([\\s\\S]*?)(\\]\\]>)");
             var matches = cdataRegex.Matches(rawText);
 
             if (matches != null && matches.Count > 0)
             {
                 foreach (Match match in matches)
                 {
-                    string[] matchSplit = Regex.Split(match.Value, "(<!\\[CDATA\\[)([\\s\\S]*?)(\\]\\]>)");
-                    string cdataText = matchSplit[2];
+                    var matchSplit = Regex.Split(match.Value, "(<!\\[CDATA\\[)([\\s\\S]*?)(\\]\\]>)");
+                    var cdataText = matchSplit[2];
                     cdataText = Regex.Replace(cdataText, "&", "&amp;");
                     cdataText = Regex.Replace(cdataText, "<", "&lt;");
                     cdataText = Regex.Replace(cdataText, ">", "&gt;");

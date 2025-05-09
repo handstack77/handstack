@@ -31,7 +31,7 @@ namespace transact.Areas.transact.Controllers
         [HttpGet("[action]")]
         public string Encode(string value)
         {
-            string result = "";
+            var result = "";
 
             try
             {
@@ -42,7 +42,7 @@ namespace transact.Areas.transact.Controllers
             {
                 result = exception.ToMessage();
 
-                string exceptionText = result;
+                var exceptionText = result;
                 logger.Error("[{LogCategory}] " + exceptionText, "Base64/Encode");
             }
 
@@ -54,7 +54,7 @@ namespace transact.Areas.transact.Controllers
         [HttpGet("[action]")]
         public string Decode(string value)
         {
-            string result = "";
+            var result = "";
 
             try
             {
@@ -64,7 +64,7 @@ namespace transact.Areas.transact.Controllers
             {
                 result = exception.ToMessage();
 
-                string exceptionText = result;
+                var exceptionText = result;
                 logger.Error("[{LogCategory}] " + exceptionText, "Base64/Decode");
             }
 

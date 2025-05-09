@@ -2,9 +2,10 @@
 using System.Collections;
 using System.Data;
 using System.Data.Common;
-using Microsoft.Data.SqlClient;
 using System.Data.SQLite;
 using System.IO;
+
+using Microsoft.Data.SqlClient;
 
 using MySql.Data.MySqlClient;
 
@@ -103,10 +104,10 @@ namespace HandStack.Data
                         {
                             if (item.IndexOf("file:") > -1)
                             {
-                                string key = "file:";
-                                int offset = key.Length;
-                                string databaseFilePath = item.Substring(item.IndexOf(key) + offset, item.Length - item.IndexOf(key) - offset);
-                                FileInfo fileInfo = new FileInfo(databaseFilePath);
+                                var key = "file:";
+                                var offset = key.Length;
+                                var databaseFilePath = item.Substring(item.IndexOf(key) + offset, item.Length - item.IndexOf(key) - offset);
+                                var fileInfo = new FileInfo(databaseFilePath);
                                 if (fileInfo.Directory != null && fileInfo.Directory.Exists == false)
                                 {
                                     Directory.CreateDirectory(fileInfo.Directory.FullName.Replace("\\", "/"));
@@ -464,43 +465,41 @@ namespace HandStack.Data
 
                 dataAdapter.SelectCommand = databaseCommand;
 
-                using (var result = new DataSet())
+                using var result = new DataSet();
+                try
                 {
-                    try
+                    DatabaseReConnection();
+
+                    if (hasSchema == true)
                     {
-                        DatabaseReConnection();
-
-                        if (hasSchema == true)
-                        {
-                            dataAdapter.FillSchema(result, SchemaType.Mapped);
-                        }
-                        else
-                        {
-                            dataAdapter.Fill(result);
-                        }
+                        dataAdapter.FillSchema(result, SchemaType.Mapped);
                     }
-                    catch (Exception exception)
+                    else
                     {
-                        Log.Logger.Error(exception, "[{LogCategory}] 데이터베이스 거래 오류", "DatabaseFactory/ExecuteDataSet");
-                        throw;
+                        dataAdapter.Fill(result);
                     }
-                    finally
-                    {
-                        SetOutputParameter();
-
-                        databaseCommand.Parameters.Clear();
-
-                        if (connectionState == ExecutingConnectionState.CloseOnExit)
-                        {
-                            if (databaseConnection.State == ConnectionState.Open)
-                            {
-                                databaseConnection.Close();
-                            }
-                        }
-                    }
-
-                    return result;
                 }
+                catch (Exception exception)
+                {
+                    Log.Logger.Error(exception, "[{LogCategory}] 데이터베이스 거래 오류", "DatabaseFactory/ExecuteDataSet");
+                    throw;
+                }
+                finally
+                {
+                    SetOutputParameter();
+
+                    databaseCommand.Parameters.Clear();
+
+                    if (connectionState == ExecutingConnectionState.CloseOnExit)
+                    {
+                        if (databaseConnection.State == ConnectionState.Open)
+                        {
+                            databaseConnection.Close();
+                        }
+                    }
+                }
+
+                return result;
             }
             else
             {
@@ -533,43 +532,41 @@ namespace HandStack.Data
 
                 dataAdapter.SelectCommand = databaseCommand;
 
-                using (var result = new DataTable())
+                using var result = new DataTable();
+                try
                 {
-                    try
+                    DatabaseReConnection();
+
+                    if (hasSchema == true)
                     {
-                        DatabaseReConnection();
-
-                        if (hasSchema == true)
-                        {
-                            dataAdapter.FillSchema(result, SchemaType.Mapped);
-                        }
-                        else
-                        {
-                            dataAdapter.Fill(result);
-                        }
+                        dataAdapter.FillSchema(result, SchemaType.Mapped);
                     }
-                    catch (Exception exception)
+                    else
                     {
-                        Log.Logger.Error(exception, "[{LogCategory}] 데이터베이스 거래 오류", "DatabaseFactory/ExecuteDataTable");
-                        throw;
+                        dataAdapter.Fill(result);
                     }
-                    finally
-                    {
-                        SetOutputParameter();
-
-                        databaseCommand.Parameters.Clear();
-
-                        if (connectionState == ExecutingConnectionState.CloseOnExit)
-                        {
-                            if (databaseConnection.State == ConnectionState.Open)
-                            {
-                                databaseConnection.Close();
-                            }
-                        }
-                    }
-
-                    return result;
                 }
+                catch (Exception exception)
+                {
+                    Log.Logger.Error(exception, "[{LogCategory}] 데이터베이스 거래 오류", "DatabaseFactory/ExecuteDataTable");
+                    throw;
+                }
+                finally
+                {
+                    SetOutputParameter();
+
+                    databaseCommand.Parameters.Clear();
+
+                    if (connectionState == ExecutingConnectionState.CloseOnExit)
+                    {
+                        if (databaseConnection.State == ConnectionState.Open)
+                        {
+                            databaseConnection.Close();
+                        }
+                    }
+                }
+
+                return result;
             }
             else
             {

@@ -27,9 +27,9 @@ namespace HandStack.Core.Helpers
                 Dictionary<string, string> timeZoneCollection = new();
                 if (!Regex.IsMatch(systemTimeZone.ElementAt(0).DisplayName, @"^\(UTC.*\).+$"))
                 {
-                    foreach (TimeZoneInfo zone in systemTimeZone)
+                    foreach (var zone in systemTimeZone)
                     {
-                        string displayName = $"(UTC{zone.BaseUtcOffset.Hours:+00;-00;}:{zone.BaseUtcOffset.Minutes:00;00;}) " + zone.DisplayName;
+                        var displayName = $"(UTC{zone.BaseUtcOffset.Hours:+00;-00;}:{zone.BaseUtcOffset.Minutes:00;00;}) " + zone.DisplayName;
                         if (zone.Id == TimeZoneInfo.Utc.Id)
                         {
                             displayName = "(UTC) " + zone.DisplayName;
@@ -44,7 +44,7 @@ namespace HandStack.Core.Helpers
                 }
                 else
                 {
-                    foreach (TimeZoneInfo zone in systemTimeZone)
+                    foreach (var zone in systemTimeZone)
                     {
                         timeZoneCollection.Add(zone.DisplayName, zone.Id);
                     }
@@ -63,8 +63,8 @@ namespace HandStack.Core.Helpers
                 {
                     timezone = TimeZoneInfo.Utc;
                 }
-                DateTimeOffset t1 = TimeZoneInfo.ConvertTime(new DateTimeOffset(10, 1, 1, 0, 0, 0, TimeZoneInfo.Utc.BaseUtcOffset), timezone);
-                DateTimeOffset minValue = DateTimeOffset.MinValue;
+                var t1 = TimeZoneInfo.ConvertTime(new DateTimeOffset(10, 1, 1, 0, 0, 0, TimeZoneInfo.Utc.BaseUtcOffset), timezone);
+                var minValue = DateTimeOffset.MinValue;
                 if (t1.Year < 10)
                 {
                     minValue = minValue.Subtract(t1.Offset);
@@ -78,8 +78,8 @@ namespace HandStack.Core.Helpers
                 {
                     timezone = TimeZoneInfo.Utc;
                 }
-                DateTimeOffset t1 = TimeZoneInfo.ConvertTime(new DateTimeOffset(9990, 12, 31, 23, 59, 59, TimeZoneInfo.Utc.BaseUtcOffset), timezone);
-                DateTimeOffset maxValue = DateTimeOffset.MaxValue;
+                var t1 = TimeZoneInfo.ConvertTime(new DateTimeOffset(9990, 12, 31, 23, 59, 59, TimeZoneInfo.Utc.BaseUtcOffset), timezone);
+                var maxValue = DateTimeOffset.MaxValue;
                 if (t1.Year > 9990)
                 {
                     maxValue = maxValue.Subtract(t1.Offset);

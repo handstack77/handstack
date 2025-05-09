@@ -6,7 +6,6 @@ using System.Reflection;
 
 using HandStack.Core.ExtensionMethod;
 using HandStack.Web;
-using HandStack.Web.Modules;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -26,7 +25,7 @@ namespace function.Builder
 
                 if (emitResult.Success == false)
                 {
-                    List<string> failureMessages = new List<string>();
+                    var failureMessages = new List<string>();
                     var failures = emitResult.Diagnostics.Where(diagnostic => diagnostic.IsWarningAsError || diagnostic.Severity == DiagnosticSeverity.Error);
                     foreach (var diagnostic in failures)
                     {
@@ -48,7 +47,7 @@ namespace function.Builder
             Tuple<byte[]?, string?>? result = null;
             if (File.Exists(sourceFilePath))
             {
-                ModuleInfo? module = GlobalConfiguration.Modules.FirstOrDefault(p => sourceFilePath.IndexOf(p.BasePath) > -1);
+                var module = GlobalConfiguration.Modules.FirstOrDefault(p => sourceFilePath.IndexOf(p.BasePath) > -1);
                 if (string.IsNullOrEmpty(moduleID) == true)
                 {
                     module = GlobalConfiguration.Modules.FirstOrDefault(p => sourceFilePath.IndexOf(p.BasePath) > -1);
@@ -64,26 +63,24 @@ namespace function.Builder
 
                 var targetAssembly = module?.Assembly;
                 var sourceCode = File.ReadAllText(sourceFilePath);
-                using (var memoryStream = new MemoryStream())
+                using var memoryStream = new MemoryStream();
+                var emitResult = GenerateCode(sourceCode, targetAssembly).Emit(memoryStream);
+
+                if (emitResult.Success == false)
                 {
-                    var emitResult = GenerateCode(sourceCode, targetAssembly).Emit(memoryStream);
-
-                    if (emitResult.Success == false)
+                    var failureMessages = new List<string>();
+                    var failures = emitResult.Diagnostics.Where(diagnostic => diagnostic.IsWarningAsError || diagnostic.Severity == DiagnosticSeverity.Error);
+                    foreach (var diagnostic in failures)
                     {
-                        List<string> failureMessages = new List<string>();
-                        var failures = emitResult.Diagnostics.Where(diagnostic => diagnostic.IsWarningAsError || diagnostic.Severity == DiagnosticSeverity.Error);
-                        foreach (var diagnostic in failures)
-                        {
-                            failureMessages.Add(diagnostic.ToString());
-                        }
-
-                        result = new Tuple<byte[]?, string?>(null, string.Join("\n", failureMessages.ToArray()));
-                        return result;
+                        failureMessages.Add(diagnostic.ToString());
                     }
 
-                    memoryStream.Seek(0, SeekOrigin.Begin);
-                    result = new Tuple<byte[]?, string?>(memoryStream.ToArray(), null);
+                    result = new Tuple<byte[]?, string?>(null, string.Join("\n", failureMessages.ToArray()));
+                    return result;
                 }
+
+                memoryStream.Seek(0, SeekOrigin.Begin);
+                result = new Tuple<byte[]?, string?>(memoryStream.ToArray(), null);
             }
 
             return result;
@@ -143,8 +140,8 @@ namespace function.Builder
                 MetadataReference.CreateFromFile(typeof(RuntimeBinderException).Assembly.Location)
             };
 
-            List<string> assemblyPaths = new List<string>();
-            Assembly functionAssembly = typeof(ModuleInitializer).Assembly;
+            var assemblyPaths = new List<string>();
+            var functionAssembly = typeof(ModuleInitializer).Assembly;
             functionAssembly.GetReferencedAssemblies().ToList()
                 .ForEach((AssemblyName assemblyName) =>
                 {

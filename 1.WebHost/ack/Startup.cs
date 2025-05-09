@@ -72,7 +72,7 @@ namespace ack
 
         public Startup(IWebHostEnvironment environment, IConfiguration configuration)
         {
-            Process currentProcess = Process.GetCurrentProcess();
+            var currentProcess = Process.GetCurrentProcess();
             GlobalConfiguration.ProcessID = currentProcess.Id.ToString().PadLeft(6, '0');
             startTime = currentProcess.StartTime.ToString();
 
@@ -112,7 +112,7 @@ namespace ack
             GlobalConfiguration.CookiePrefixName = appSettings["CookiePrefixName"].ToStringSafe("HandStack");
             GlobalConfiguration.UserSignExpire = int.Parse(appSettings["UserSignExpire"].ToStringSafe("1440"));
 
-            string hardwareId = GetHardwareID();
+            var hardwareId = GetHardwareID();
             Console.WriteLine($"Current Hardware ID: {hardwareId}");
 
             switch (GlobalConfiguration.RunningEnvironment)
@@ -162,19 +162,19 @@ namespace ack
             GlobalConfiguration.LoadModuleBasePath = GlobalConfiguration.GetBasePath(appSettings["LoadModuleBasePath"]);
             GlobalConfiguration.LoadContractBasePath = GlobalConfiguration.GetBasePath(PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "..", "contracts"));
 
-            string disposeTenantAppsFilePath = PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "dispose-tenantapps.log");
+            var disposeTenantAppsFilePath = PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "dispose-tenantapps.log");
             if (File.Exists(disposeTenantAppsFilePath) == true)
             {
-                using (StreamReader file = new StreamReader(disposeTenantAppsFilePath))
+                using (var file = new StreamReader(disposeTenantAppsFilePath))
                 {
                     string? line;
                     while ((line = file.ReadLine()) != null)
                     {
                         if (line.Contains("|") == true)
                         {
-                            string userWorkID = line.Split('|')[0];
-                            string tenantID = line.Split('|')[1];
-                            string path = line.Split('|')[2];
+                            var userWorkID = line.Split('|')[0];
+                            var tenantID = line.Split('|')[1];
+                            var path = line.Split('|')[2];
                             try
                             {
                                 if (Directory.Exists(path) == true && path.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
@@ -265,7 +265,7 @@ namespace ack
                     options.Providers.Add<BrotliCompressionProvider>();
                     options.Providers.Add<GzipCompressionProvider>();
 
-                    List<string> mimeTypes = new List<string>();
+                    var mimeTypes = new List<string>();
                     var comressionMimeTypes = appSettings.GetSection("ComressionMimeTypes").AsEnumerable();
                     foreach (var comressionMimeType in comressionMimeTypes)
                     {
@@ -283,7 +283,7 @@ namespace ack
 
             if (string.IsNullOrEmpty(GlobalConfiguration.SessionCookieName) == false)
             {
-                string cacheType = appSettings["SessionState:CacheType"].ToStringSafe();
+                var cacheType = appSettings["SessionState:CacheType"].ToStringSafe();
                 if (cacheType == "Memory")
                 {
                     services.AddDistributedMemoryCache();
@@ -446,20 +446,20 @@ namespace ack
             {
                 foreach (var userWorkPath in Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath))
                 {
-                    DirectoryInfo workDirectoryInfo = new DirectoryInfo(userWorkPath);
-                    string userWorkID = workDirectoryInfo.Name;
+                    var workDirectoryInfo = new DirectoryInfo(userWorkPath);
+                    var userWorkID = workDirectoryInfo.Name;
                     foreach (var appBasePath in Directory.GetDirectories(userWorkPath))
                     {
-                        DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
+                        var directoryInfo = new DirectoryInfo(appBasePath);
                         if (directoryInfo.Exists == true)
                         {
-                            string applicationID = directoryInfo.Name;
-                            string tenantID = $"{userWorkID}|{applicationID}";
+                            var applicationID = directoryInfo.Name;
+                            var tenantID = $"{userWorkID}|{applicationID}";
 
-                            string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
+                            var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                             if (File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                             {
-                                string appSettingText = File.ReadAllText(settingFilePath);
+                                var appSettingText = File.ReadAllText(settingFilePath);
                                 var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
                                 if (appSetting != null)
                                 {
@@ -558,11 +558,11 @@ namespace ack
                         }
                     }
 
-                    bool useSameIPProxy = bool.Parse(appSettings["UseSameIPProxy"].ToStringSafe("false"));
+                    var useSameIPProxy = bool.Parse(appSettings["UseSameIPProxy"].ToStringSafe("false"));
                     if (useSameIPProxy == true)
                     {
-                        IPHostEntry host = Dns.GetHostEntry(Dns.GetHostName());
-                        foreach (IPAddress ipAddress in host.AddressList)
+                        var host = Dns.GetHostEntry(Dns.GetHostName());
+                        foreach (var ipAddress in host.AddressList)
                         {
                             if (ipAddress.AddressFamily == AddressFamily.InterNetwork)
                             {
@@ -581,8 +581,8 @@ namespace ack
                 {
                     try
                     {
-                        License license = License.Load(ackLicenseKey.DecodeBase64());
-                        string currentMachineName = Environment.MachineName;
+                        var license = License.Load(ackLicenseKey.DecodeBase64());
+                        var currentMachineName = Environment.MachineName;
 
                         var validationFailure = license.Validate()
                             .Signature(ackLicenseSignature.ToStringSafe())
@@ -590,7 +590,7 @@ namespace ack
 
                         if (validationFailure != null)
                         {
-                            string errorText = $"ack 프로그램 License 오류: {validationFailure.Message}, {validationFailure.HowToResolve}";
+                            var errorText = $"ack 프로그램 License 오류: {validationFailure.Message}, {validationFailure.HowToResolve}";
                             Log.Error("[{LogCategory}] " + errorText, "Startup/ConfigureServices");
                             throw new UnauthorizedAccessException(errorText);
                         }
@@ -607,17 +607,17 @@ namespace ack
             services.AddCustomizedMvc(GlobalConfiguration.Modules);
 
             var homePath = new DirectoryInfo(GlobalConfiguration.EntryBasePath).Parent?.FullName.Replace("\\", "/");
-            string baseContractPath = PathExtensions.Combine(homePath.ToStringSafe(), "contracts");
+            var baseContractPath = PathExtensions.Combine(homePath.ToStringSafe(), "contracts");
             if (GlobalConfiguration.IsModulePurgeContract == true)
             {
                 if (Directory.Exists(baseContractPath) == true)
                 {
-                    foreach (string file in Directory.GetFiles(baseContractPath))
+                    foreach (var file in Directory.GetFiles(baseContractPath))
                     {
                         File.Delete(file);
                     }
 
-                    foreach (string subdirectory in Directory.GetDirectories(baseContractPath))
+                    foreach (var subdirectory in Directory.GetDirectories(baseContractPath))
                     {
                         Directory.Delete(subdirectory, true);
                     }
@@ -630,7 +630,7 @@ namespace ack
                 {
                     try
                     {
-                        string moduleContractPath = PathExtensions.Combine(module.BasePath, "Contracts");
+                        var moduleContractPath = PathExtensions.Combine(module.BasePath, "Contracts");
                         if (module.IsCopyContract == true && Directory.Exists(moduleContractPath) == true)
                         {
                             DirectoryCopy(moduleContractPath, baseContractPath);
@@ -653,7 +653,7 @@ namespace ack
                     var moduleInitializerType = module.Assembly.GetTypes().FirstOrDefault(t => typeof(IModuleInitializer).IsAssignableFrom(t));
                     if (moduleInitializerType != null && (moduleInitializerType != typeof(IModuleInitializer)))
                     {
-                        object? instance = Activator.CreateInstance(moduleInitializerType);
+                        var instance = Activator.CreateInstance(moduleInitializerType);
                         if (instance != null)
                         {
                             var moduleInitializer = instance as IModuleInitializer;
@@ -665,7 +665,7 @@ namespace ack
                                     {
                                         foreach (var basePath in module.ContractBasePath)
                                         {
-                                            string moduleContractPath = GlobalConfiguration.GetBasePath(basePath);
+                                            var moduleContractPath = GlobalConfiguration.GetBasePath(basePath);
                                             if (moduleContractPath.StartsWith(GlobalConfiguration.LoadContractBasePath) == true)
                                             {
                                                 continue;
@@ -675,19 +675,19 @@ namespace ack
                                             var directory = new DirectoryInfo(moduleContractPath);
                                             if (ackFile != null && ackFile.Exists == true && directory != null && directory.Exists == true)
                                             {
-                                                string appBasePath = ackFile.DirectoryName.ToStringSafe();
-                                                string ackHomePath = (ackFile.Directory?.Parent?.FullName.Replace("\\", "/")).ToStringSafe();
-                                                string sourceContractDirectory = directory.FullName.Replace("\\", "/");
-                                                string targetContractDirectory = PathExtensions.Combine(ackHomePath, "contracts", module.ModuleID);
+                                                var appBasePath = ackFile.DirectoryName.ToStringSafe();
+                                                var ackHomePath = (ackFile.Directory?.Parent?.FullName.Replace("\\", "/")).ToStringSafe();
+                                                var sourceContractDirectory = directory.FullName.Replace("\\", "/");
+                                                var targetContractDirectory = PathExtensions.Combine(ackHomePath, "contracts", module.ModuleID);
 
                                                 try
                                                 {
                                                     if (Directory.Exists(sourceContractDirectory))
                                                     {
-                                                        string[] files = Directory.GetFiles(sourceContractDirectory, "*", SearchOption.AllDirectories);
-                                                        foreach (string baseFile in files)
+                                                        var files = Directory.GetFiles(sourceContractDirectory, "*", SearchOption.AllDirectories);
+                                                        foreach (var baseFile in files)
                                                         {
-                                                            string targetFile = baseFile.Replace(sourceContractDirectory, targetContractDirectory);
+                                                            var targetFile = baseFile.Replace(sourceContractDirectory, targetContractDirectory);
                                                             if (File.Exists(targetFile) == true)
                                                             {
                                                                 File.Delete(targetFile);
@@ -767,7 +767,7 @@ namespace ack
 
             try
             {
-                string contentTypeFilePath = PathExtensions.Combine(GlobalConfiguration.WebRootPath, "contenttype.json");
+                var contentTypeFilePath = PathExtensions.Combine(GlobalConfiguration.WebRootPath, "contenttype.json");
 
                 if (File.Exists(contentTypeFilePath) == true)
                 {
@@ -791,17 +791,17 @@ namespace ack
                 var requestPath = context.Request.Path.ToString();
                 if (GlobalConfiguration.IsPermissionRoles == true && requestPath.IndexOf($"/{GlobalConfiguration.ContractRequestPath}/") > -1)
                 {
-                    bool isAuthorized = false;
+                    var isAuthorized = false;
                     var permissionRoles = GlobalConfiguration.PermissionRoles.Where(x => x.ModuleID == "wwwroot");
                     if (permissionRoles.Any() == true)
                     {
                         var publicRoles = permissionRoles.Where(x => x.RoleID == "Public");
-                        for (int i = 0; i < publicRoles.Count(); i++)
+                        for (var i = 0; i < publicRoles.Count(); i++)
                         {
                             var publicRole = publicRoles.ElementAt(i);
                             if (publicRole != null)
                             {
-                                string pattern = "";
+                                var pattern = "";
                                 if (string.IsNullOrEmpty(publicRole.ApplicationID) == false)
                                 {
                                     pattern = pattern + $"[\\/]{publicRole.ApplicationID}";
@@ -842,7 +842,7 @@ namespace ack
                                             var roles = permissionRole.RoleID.SplitComma();
                                             if (roles.Intersect(userRoles).Any() == true)
                                             {
-                                                string pattern = "";
+                                                var pattern = "";
                                                 if (string.IsNullOrEmpty(permissionRole.ApplicationID) == false)
                                                 {
                                                     pattern = pattern + $"[\\/]{permissionRole.ApplicationID}";
@@ -897,7 +897,7 @@ namespace ack
                 await next(context);
             });
 
-            string physicalPath = PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "wwwroot");
+            var physicalPath = PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "wwwroot");
             if (Directory.Exists(physicalPath) == true)
             {
                 app.UseMiddleware<CaseInsensitiveStaticFileMiddleware>(physicalPath);
@@ -967,14 +967,14 @@ namespace ack
                     var exceptionHandlerFeature = context.Features.Get<IExceptionHandlerFeature>();
                     var exceptionType = exceptionHandlerFeature?.Error;
 
-                    string requestMethod = context.Request.Method;
-                    string absoluteUrl = context.Request.GetAbsoluteUrl();
-                    string clientIP = context.GetRemoteIpAddress().ToStringSafe();
-                    string userAgent = context.Request.Headers["User-Agent"].ToString();
-                    string identityName = (context.User.Identity?.Name).ToStringSafe();
-                    int statusCode = context.Response.StatusCode;
-                    string? message = string.Empty;
-                    string? stackTrace = string.Empty;
+                    var requestMethod = context.Request.Method;
+                    var absoluteUrl = context.Request.GetAbsoluteUrl();
+                    var clientIP = context.GetRemoteIpAddress().ToStringSafe();
+                    var userAgent = context.Request.Headers["User-Agent"].ToString();
+                    var identityName = (context.User.Identity?.Name).ToStringSafe();
+                    var statusCode = context.Response.StatusCode;
+                    var message = string.Empty;
+                    var stackTrace = string.Empty;
 
                     if (exceptionType != null)
                     {
@@ -987,7 +987,7 @@ namespace ack
 
                     if (context.RequestServices.GetService<IProblemDetailsService>() is { } problemDetailsService)
                     {
-                        ProblemDetails problemDetails = new ProblemDetails();
+                        var problemDetails = new ProblemDetails();
                         problemDetails.Status = StatusCodes.Status400BadRequest;
                         problemDetails.Title = "유효하지 않는 요청입니다";
 
@@ -1049,7 +1049,7 @@ namespace ack
             var moduleInitializers = app.ApplicationServices.GetServices<IModuleInitializer>();
             foreach (var moduleInitializer in moduleInitializers)
             {
-                Log.Information("[{LogCategory}] " + $"module: {moduleInitializer.ToString()} Configure", "Startup/Configure");
+                Log.Information("[{LogCategory}] " + $"module: {moduleInitializer} Configure", "Startup/Configure");
                 moduleInitializer.Configure(app, environment, corsService, corsPolicyProvider);
             }
 
@@ -1076,9 +1076,9 @@ namespace ack
 
                     try
                     {
-                        string destModuleBasePath = string.Empty;
-                        string destContractModuleBasePath = string.Empty;
-                        string handstackHomePath = Environment.GetEnvironmentVariable("HANDSTACK_HOME") ?? "";
+                        var destModuleBasePath = string.Empty;
+                        var destContractModuleBasePath = string.Empty;
+                        var handstackHomePath = Environment.GetEnvironmentVariable("HANDSTACK_HOME") ?? "";
                         if (string.IsNullOrEmpty(handstackHomePath) == false)
                         {
                             var hostAccessID = context.Request.GetContainValue("hostAccessID");
@@ -1136,16 +1136,14 @@ namespace ack
                                 {
                                     if (file != null)
                                     {
-                                        using (var fileStream = new MemoryStream())
+                                        using var fileStream = new MemoryStream();
+                                        await file.CopyToAsync(fileStream);
+
+                                        await CopyFileAsync(fileStream, destModuleBasePath + destFilePath);
+
+                                        if (contractType != "wwwroot")
                                         {
-                                            await file.CopyToAsync(fileStream);
-
-                                            await CopyFileAsync(fileStream, destModuleBasePath + destFilePath);
-
-                                            if (contractType != "wwwroot")
-                                            {
-                                                await CopyFileAsync(fileStream, destContractModuleBasePath + destFilePath);
-                                            }
+                                            await CopyFileAsync(fileStream, destContractModuleBasePath + destFilePath);
                                         }
                                     }
                                 }
@@ -1298,9 +1296,9 @@ namespace ack
         {
             Directory.CreateDirectory(destDir);
 
-            foreach (string file in Directory.GetFiles(sourceDir, "*", SearchOption.AllDirectories))
+            foreach (var file in Directory.GetFiles(sourceDir, "*", SearchOption.AllDirectories))
             {
-                string destFile = file.Replace(sourceDir, destDir);
+                var destFile = file.Replace(sourceDir, destDir);
                 Directory.CreateDirectory(Path.GetDirectoryName(destFile).ToStringSafe());
                 File.Copy(file, destFile, true);
             }
@@ -1314,28 +1312,26 @@ namespace ack
                 Directory.CreateDirectory(destDirectory);
             }
 
-            using (FileStream destStream = new FileStream(destAbsoluteFilePath, FileMode.Create, FileAccess.Write, FileShare.None))
-            {
-                string destFileName = Path.GetFileName(destAbsoluteFilePath);
+            using var destStream = new FileStream(destAbsoluteFilePath, FileMode.Create, FileAccess.Write, FileShare.None);
+            var destFileName = Path.GetFileName(destAbsoluteFilePath);
 
-                try
-                {
-                    sourceStream.Position = 0;
-                    await sourceStream.CopyToAsync(destStream);
-                    Log.Information("[{LogCategory}]" + $"{destFileName} 복사 완료", "Startup/contractsync");
-                }
-                catch (Exception exception)
-                {
-                    Log.Error("[{LogCategory}]" + $"{destFileName} 실패. {exception.Message}", "Startup/contractsync");
-                }
+            try
+            {
+                sourceStream.Position = 0;
+                await sourceStream.CopyToAsync(destStream);
+                Log.Information("[{LogCategory}]" + $"{destFileName} 복사 완료", "Startup/contractsync");
+            }
+            catch (Exception exception)
+            {
+                Log.Error("[{LogCategory}]" + $"{destFileName} 실패. {exception.Message}", "Startup/contractsync");
             }
         }
 
         protected string GetHostAccessID(string hostAccessID)
         {
-            string result = "HANDSTACK_HOSTACCESSID";
+            var result = "HANDSTACK_HOSTACCESSID";
 
-            bool isRunningInDocker = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
+            var isRunningInDocker = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
             if (isRunningInDocker == true)
             {
                 result = hostAccessID;
@@ -1375,9 +1371,9 @@ namespace ack
 
         protected string GetHardwareID()
         {
-            string result = "HANDSTACK_HOSTACCESSID";
+            var result = "HANDSTACK_HOSTACCESSID";
 
-            bool isRunningInDocker = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
+            var isRunningInDocker = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
             if (isRunningInDocker == true)
             {
                 result = GlobalConfiguration.HostAccessID;
@@ -1417,7 +1413,7 @@ namespace ack
 
         protected string GetWindowsHardwareID()
         {
-            string result = "";
+            var result = "";
 #pragma warning disable CA1416 // 플랫폼 호환성 유효성 검사
             var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_Processor");
             foreach (ManagementObject obj in searcher.Get())
@@ -1440,8 +1436,8 @@ namespace ack
 
         protected string ExecuteBashCommand(string command)
         {
-            string result = "";
-            ProcessStartInfo psi = new ProcessStartInfo
+            var result = "";
+            var psi = new ProcessStartInfo
             {
                 FileName = "/bin/bash",
                 Arguments = $"-c \"{command}\"",

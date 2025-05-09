@@ -3,11 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using Microsoft.Data.SqlClient;
 using System.Dynamic;
 using System.Linq;
 
 using HandStack.Core.ExtensionMethod;
+
+using Microsoft.Data.SqlClient;
 
 namespace HandStack.Data.Client
 {
@@ -82,7 +83,7 @@ namespace HandStack.Data.Client
 
         public SqlParameter? CreateParameter(SqlDbType toDbType, string parameterName, object value, ParameterDirection direction)
         {
-            SqlParameter? parameter = databaseFactory.Command?.CreateParameter() as SqlParameter;
+            var parameter = databaseFactory.Command?.CreateParameter() as SqlParameter;
             if (parameter != null)
             {
                 parameter.SqlDbType = toDbType;
@@ -96,7 +97,7 @@ namespace HandStack.Data.Client
 
         public string ExecuteCommandText(string procedureName, List<SqlParameter>? parameters)
         {
-            string CommandParameters = "";
+            var CommandParameters = "";
 
             if (parameters == null || parameters.Count == 0)
             {
@@ -105,9 +106,9 @@ namespace HandStack.Data.Client
 
             if (isDeriveParameters == true)
             {
-                SqlParameter[] parameterSet = GetSpParameterSet(procedureName);
+                var parameterSet = GetSpParameterSet(procedureName);
 
-                foreach (SqlParameter parameter in parameterSet)
+                foreach (var parameter in parameterSet)
                 {
                     if (SetDbParameterData(parameter, parameters) == true)
                     {
@@ -117,7 +118,7 @@ namespace HandStack.Data.Client
             }
             else
             {
-                foreach (SqlParameter parameter in parameters)
+                foreach (var parameter in parameters)
                 {
                     if (parameter.ParameterName.IndexOf("@") > -1)
                     {
@@ -152,7 +153,7 @@ namespace HandStack.Data.Client
         {
             if (parameters != null)
             {
-                foreach (SqlParameter parameter in parameters)
+                foreach (var parameter in parameters)
                 {
                     databaseFactory.AddParameter(parameter);
                 }
@@ -165,7 +166,7 @@ namespace HandStack.Data.Client
         {
             if (parameters != null)
             {
-                foreach (SqlParameter parameter in parameters)
+                foreach (var parameter in parameters)
                 {
                     databaseFactory.AddParameter(parameter);
                 }
@@ -178,7 +179,7 @@ namespace HandStack.Data.Client
         {
             SetDbFactoryCommand(procedureName, parameters);
 
-            string parameterText = " ";
+            var parameterText = " ";
             if (databaseFactory.Command != null)
             {
                 foreach (DbParameter parameter in databaseFactory.Command.Parameters)
@@ -212,11 +213,9 @@ namespace HandStack.Data.Client
             SetDbFactoryCommand(procedureName, parameters);
 
             databaseFactory.IsOutputParameter = true;
-            using (DataSet? result = databaseFactory.ExecuteDataSet(procedureName, CommandType.Text, connectionState, hasSchema))
-            {
-                outputDbCommand = databaseFactory.OutputCommand as SqlCommand;
-                return result;
-            }
+            using var result = databaseFactory.ExecuteDataSet(procedureName, CommandType.Text, connectionState, hasSchema);
+            outputDbCommand = databaseFactory.OutputCommand as SqlCommand;
+            return result;
         }
 
         public int ExecuteNonQuery(string commandText, CommandType dbCommandType)
@@ -228,7 +227,7 @@ namespace HandStack.Data.Client
         {
             if (parameters != null)
             {
-                foreach (SqlParameter parameter in parameters)
+                foreach (var parameter in parameters)
                 {
                     databaseFactory.AddParameter(parameter);
                 }
@@ -254,21 +253,21 @@ namespace HandStack.Data.Client
             SetDbFactoryCommand(procedureName, parameters);
 
             databaseFactory.IsOutputParameter = true;
-            int result = databaseFactory.ExecuteNonQuery(procedureName, CommandType.Text, connectionState);
+            var result = databaseFactory.ExecuteNonQuery(procedureName, CommandType.Text, connectionState);
             outputDbCommand = databaseFactory.OutputCommand as SqlCommand;
             return result;
         }
 
         public SqlDataReader? ExecuteReader(string commandText, CommandType dbCommandType)
         {
-            return ExecuteReader(commandText, null, dbCommandType) as SqlDataReader;
+            return ExecuteReader(commandText, null, dbCommandType);
         }
 
         public SqlDataReader? ExecuteReader(string commandText, List<SqlParameter>? parameters, CommandType dbCommandType)
         {
             if (parameters != null)
             {
-                foreach (SqlParameter parameter in parameters)
+                foreach (var parameter in parameters)
                 {
                     databaseFactory.AddParameter(parameter);
                 }
@@ -286,10 +285,10 @@ namespace HandStack.Data.Client
 
         public T? ExecutePocoMapping<T>(string commandText, List<SqlParameter>? parameters, CommandType dbCommandType = CommandType.Text)
         {
-            T? results = default(T);
+            var results = default(T);
             if (parameters != null)
             {
-                foreach (SqlParameter parameter in parameters)
+                foreach (var parameter in parameters)
                 {
                     databaseFactory.AddParameter(parameter);
                 }
@@ -302,8 +301,8 @@ namespace HandStack.Data.Client
                     reader.Read();
                     results = Activator.CreateInstance<T>();
 
-                    List<string> columnNames = new List<string>();
-                    for (int i = 0; i < reader.FieldCount; i++)
+                    var columnNames = new List<string>();
+                    for (var i = 0; i < reader.FieldCount; i++)
                     {
                         columnNames.Add(reader.GetName(i));
                     }
@@ -323,7 +322,7 @@ namespace HandStack.Data.Client
             List<T>? results = null;
             if (parameters != null)
             {
-                foreach (SqlParameter parameter in parameters)
+                foreach (var parameter in parameters)
                 {
                     databaseFactory.AddParameter(parameter);
                 }
@@ -346,10 +345,10 @@ namespace HandStack.Data.Client
 
         public List<dynamic> ExecuteDynamic(string commandText, List<SqlParameter>? parameters, CommandType dbCommandType = CommandType.Text)
         {
-            List<dynamic> results = new List<dynamic>();
+            var results = new List<dynamic>();
             if (parameters != null)
             {
-                foreach (SqlParameter parameter in parameters)
+                foreach (var parameter in parameters)
                 {
                     databaseFactory.AddParameter(parameter);
                 }
@@ -362,7 +361,7 @@ namespace HandStack.Data.Client
                     var schemaTable = reader.GetSchemaTable();
                     if (schemaTable != null)
                     {
-                        List<string> columnNames = new List<string>();
+                        var columnNames = new List<string>();
                         foreach (DataRow row in schemaTable.Rows)
                         {
                             columnNames.Add(row.GetStringSafe("ColumnName"));
@@ -371,7 +370,7 @@ namespace HandStack.Data.Client
                         while (reader.Read())
                         {
                             var data = new ExpandoObject() as IDictionary<string, object?>;
-                            foreach (string columnName in columnNames)
+                            foreach (var columnName in columnNames)
                             {
                                 var val = reader[columnName];
                                 data.Add(columnName, Convert.IsDBNull(val) ? null : val);
@@ -395,7 +394,7 @@ namespace HandStack.Data.Client
         {
             if (parameters != null)
             {
-                foreach (SqlParameter parameter in parameters)
+                foreach (var parameter in parameters)
                 {
                     databaseFactory.AddParameter(parameter);
                 }
@@ -421,18 +420,18 @@ namespace HandStack.Data.Client
             SetDbFactoryCommand(procedureName, parameters);
 
             databaseFactory.IsOutputParameter = true;
-            object? result = databaseFactory.ExecuteScalar(procedureName, CommandType.Text, connectionState);
+            var result = databaseFactory.ExecuteScalar(procedureName, CommandType.Text, connectionState);
             outputDbCommand = databaseFactory.OutputCommand as SqlCommand;
             return result;
         }
 
         private SqlParameter[] GetSpParameterSet(string procedureName)
         {
-            DbParameter[] result = DbParameterCache.GetSpParameterSet(DataProviders.SqlServer, connectionString, procedureName);
+            var result = DbParameterCache.GetSpParameterSet(DataProviders.SqlServer, connectionString, procedureName);
 
-            SqlParameter[] parameters = new SqlParameter[result.Length];
+            var parameters = new SqlParameter[result.Length];
 
-            for (int i = 0; i < result.Length; i++)
+            for (var i = 0; i < result.Length; i++)
             {
                 parameters[i] = (SqlParameter)result[i];
             }
@@ -446,9 +445,9 @@ namespace HandStack.Data.Client
             {
                 if (parameters != null)
                 {
-                    SqlParameter[] parameterSet = GetSpParameterSet(procedureName);
+                    var parameterSet = GetSpParameterSet(procedureName);
 
-                    foreach (SqlParameter parameter in parameterSet)
+                    foreach (var parameter in parameterSet)
                     {
                         if (SetDbParameterData(parameter, parameters) == true)
                         {
@@ -461,7 +460,7 @@ namespace HandStack.Data.Client
             {
                 if (parameters != null)
                 {
-                    foreach (SqlParameter parameter in parameters)
+                    foreach (var parameter in parameters)
                     {
                         databaseFactory.AddParameter(parameter);
                     }
@@ -476,7 +475,7 @@ namespace HandStack.Data.Client
                 return false;
             }
 
-            bool isMatchingParameter = false;
+            var isMatchingParameter = false;
             object? dbValue = null;
 
             var result = from p in ListParameters
@@ -486,7 +485,7 @@ namespace HandStack.Data.Client
             if (result.Count() > 0)
             {
                 SqlParameter? listParameter = null;
-                foreach (SqlParameter nvp in result)
+                foreach (var nvp in result)
                 {
                     listParameter = nvp;
                     break;

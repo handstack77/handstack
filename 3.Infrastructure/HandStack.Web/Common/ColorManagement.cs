@@ -22,9 +22,9 @@ namespace HandStack.Web.Common
                 hexColor = hexColor.Replace("#", "");
             }
 
-            int red = 0;
-            int green = 0;
-            int blue = 0;
+            var red = 0;
+            var green = 0;
+            var blue = 0;
 
             if (hexColor.Length == 6)
             {
@@ -67,20 +67,20 @@ namespace HandStack.Web.Common
         public static Color GetNearestWebColor(Color inputColor)
         {
             webColors = GetWebColors();
-            double inputRed = Convert.ToDouble(inputColor.R);
-            double inputGreen = Convert.ToDouble(inputColor.G);
-            double inputBlue = Convert.ToDouble(inputColor.B);
-            double distance = 500.0;
+            var inputRed = Convert.ToDouble(inputColor.R);
+            var inputGreen = Convert.ToDouble(inputColor.G);
+            var inputBlue = Convert.ToDouble(inputColor.B);
+            var distance = 500.0;
             double temp;
             double testRed;
             double testGreen;
             double testBlue;
-            Color nearestColor = Color.Empty;
+            var nearestColor = Color.Empty;
             foreach (object? webColor in webColors)
             {
                 if (webColor != null)
                 {
-                    Color color = (Color)webColor;
+                    var color = (Color)webColor;
                     testRed = Math.Pow(Convert.ToDouble((color.R)) - inputRed, 2.0);
                     testGreen = Math.Pow(Convert.ToDouble((color.G)) - inputGreen, 2.0);
                     testBlue = Math.Pow(Convert.ToDouble((color.B)) - inputBlue, 2.0);
@@ -98,14 +98,14 @@ namespace HandStack.Web.Common
 
         private static List<Color?> GetWebColors()
         {
-            Type color = (typeof(Color));
-            PropertyInfo[] propertyInfos = color.GetProperties(BindingFlags.Public | BindingFlags.Static);
-            List<Color?> colors = new List<Color?>();
-            foreach (PropertyInfo pi in propertyInfos)
+            var color = (typeof(Color));
+            var propertyInfos = color.GetProperties(BindingFlags.Public | BindingFlags.Static);
+            var colors = new List<Color?>();
+            foreach (var pi in propertyInfos)
             {
                 if (pi.PropertyType.Equals(typeof(Color)))
                 {
-                    Color? c = (Color?)pi.GetValue(typeof(Color), null);
+                    var c = (Color?)pi.GetValue(typeof(Color), null);
                     if (c != null)
                     {
                         colors.Add(c);

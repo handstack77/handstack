@@ -27,7 +27,7 @@ namespace ack
 
         public static async Task<int> Main(string[] args)
         {
-            int exitCode = 0;
+            var exitCode = 0;
 
             var sb = new StringBuilder();
             var version = Assembly.GetEntryAssembly()?
@@ -44,7 +44,7 @@ namespace ack
             GlobalConfiguration.EntryBasePath = AppDomain.CurrentDomain.BaseDirectory;
             if (File.Exists("entrybasepath.txt") == true)
             {
-                string entryBasePath = File.ReadAllText("entrybasepath.txt");
+                var entryBasePath = File.ReadAllText("entrybasepath.txt");
                 if (string.IsNullOrEmpty(entryBasePath) == false)
                 {
                     GlobalConfiguration.EntryBasePath = entryBasePath;
@@ -65,8 +65,8 @@ namespace ack
             {
                 await Task.Run(() =>
                 {
-                    IDictionary userVariables = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.User);
-                    IDictionary machineVariables = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Machine);
+                    var userVariables = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.User);
+                    var machineVariables = Environment.GetEnvironmentVariables(EnvironmentVariableTarget.Machine);
 
                     Parallel.ForEach(userVariables.Cast<DictionaryEntry>().Concat(machineVariables.Cast<DictionaryEntry>()), entry =>
                     {
@@ -113,22 +113,22 @@ namespace ack
                     }
 
                     IConfigurationRoot configuration;
-                    string appSettingsFilePath = PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "appsettings.json");
+                    var appSettingsFilePath = PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "appsettings.json");
                     Console.WriteLine($"appSettings.json FilePath {appSettingsFilePath}");
                     var configurationBuilder = new ConfigurationBuilder().AddJsonFile(appSettingsFilePath);
                     configurationBuilder.AddEnvironmentVariables();
 
                     if (string.IsNullOrEmpty(key) == false && string.IsNullOrEmpty(settings) == false)
                     {
-                        byte[] buffer = Encoding.UTF8.GetBytes(settings.DecryptAES(key));
-                        using MemoryStream stream = new MemoryStream(buffer);
+                        var buffer = Encoding.UTF8.GetBytes(settings.DecryptAES(key));
+                        using var stream = new MemoryStream(buffer);
                         configurationBuilder = configurationBuilder.AddJsonStream(stream);
 
                         configuration = configurationBuilder.Build();
                     }
                     else
                     {
-                        string environmentFileName = $"appsettings.{environmentName}.json";
+                        var environmentFileName = $"appsettings.{environmentName}.json";
                         if (File.Exists(PathExtensions.Combine(GlobalConfiguration.EntryBasePath, environmentFileName)) == true)
                         {
                             configuration = configurationBuilder.AddJsonFile(environmentFileName).Build();
@@ -156,7 +156,7 @@ namespace ack
                                 var sinkFilePath = sinkArgs["path"];
                                 if (string.IsNullOrEmpty(sinkFilePath) == false)
                                 {
-                                    FileInfo fileInfo = new FileInfo(sinkFilePath);
+                                    var fileInfo = new FileInfo(sinkFilePath);
                                     if (string.IsNullOrEmpty(fileInfo.DirectoryName) == false)
                                     {
                                         if (fileInfo.Directory == null || fileInfo.Directory.Exists == false)
@@ -184,7 +184,7 @@ namespace ack
                     GlobalConfiguration.ServerDevCertFilePath = configuration["AppSettings:ServerDevCertFilePath"].ToStringSafe();
                     GlobalConfiguration.ServerDevCertPassword = configuration["AppSettings:ServerDevCertPassword"];
 
-                    int listenPort = GlobalConfiguration.ServerPort;
+                    var listenPort = GlobalConfiguration.ServerPort;
                     if (SocketExtensions.PortInUse(listenPort) == true)
                     {
                         Log.Error($"{listenPort} 포트는 이미 사용중입니다. 참고 명령어) netstat -ano | findstr {listenPort}");
@@ -197,7 +197,7 @@ namespace ack
                         var loadModules = modules.Split(',', StringSplitOptions.RemoveEmptyEntries);
                         foreach (var item in loadModules)
                         {
-                            string module = item.Trim();
+                            var module = item.Trim();
                             if (string.IsNullOrEmpty(module) == false)
                             {
                                 GlobalConfiguration.ModuleNames.Add(module);
@@ -225,7 +225,7 @@ namespace ack
                     {
                         if (File.Exists("bootstraping-ignore.json") == true)
                         {
-                            string ignoreKey = await File.ReadAllTextAsync("bootstraping-ignore.json");
+                            var ignoreKey = await File.ReadAllTextAsync("bootstraping-ignore.json");
                             GlobalConfiguration.ByPassBootstrappingLoggingKey = ignoreKey.Split('\n').ToList();
                         }
                     }
@@ -258,7 +258,7 @@ namespace ack
 
         static void HandleException(object sender, UnhandledExceptionEventArgs e)
         {
-            Exception exception = (Exception)e.ExceptionObject;
+            var exception = (Exception)e.ExceptionObject;
 
             GlobalConfiguration.UnhandledExceptions.Add(exception);
 
@@ -267,10 +267,10 @@ namespace ack
 
         private static async Task DebuggerAttach(string[] args, bool? debug, int? delay)
         {
-            ArgumentHelper arguments = new ArgumentHelper(args);
+            var arguments = new ArgumentHelper(args);
             if (debug != null && debug == true)
             {
-                int startupAwaitDelay = 10000;
+                var startupAwaitDelay = 10000;
                 if (delay != null)
                 {
                     startupAwaitDelay = (int)delay;

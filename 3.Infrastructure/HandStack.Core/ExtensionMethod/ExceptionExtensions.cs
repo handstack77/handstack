@@ -30,7 +30,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static IEnumerable<string> GetAllMessages(this Exception @this)
         {
-            IEnumerable<string> result = Enumerable.Empty<string>();
+            var result = Enumerable.Empty<string>();
             if (@this.InnerException != null)
             {
                 result = new List<string>(@this.InnerException.GetAllMessages()) { @this.Message };

@@ -27,7 +27,7 @@ namespace HandStack.Web.Extensions
                 return "";
             }
 
-            Endpoint? endpoint = httpContext.Features.Get<IEndpointFeature>()?.Endpoint;
+            var endpoint = httpContext.Features.Get<IEndpointFeature>()?.Endpoint;
             return endpoint?.Metadata.GetMetadata<EndpointNameMetadata>()?.EndpointName;
         }
     }

@@ -7,7 +7,7 @@ namespace HandStack.Core.ExtensionMethod
     {
         public static XmlNode CreateChildNode(this XmlNode @this, string nodeName)
         {
-            XmlDocument? document = @this is XmlDocument ? (XmlDocument)@this : @this.OwnerDocument;
+            var document = @this is XmlDocument ? (XmlDocument)@this : @this.OwnerDocument;
 
             if (document == null)
             {
@@ -21,7 +21,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static XmlNode CreateChildNode(this XmlNode @this, string nodeName, string namespaceUri)
         {
-            XmlDocument? document = @this is XmlDocument ? (XmlDocument)@this : @this.OwnerDocument;
+            var document = @this is XmlDocument ? (XmlDocument)@this : @this.OwnerDocument;
 
             if (document == null)
             {
@@ -40,14 +40,14 @@ namespace HandStack.Core.ExtensionMethod
 
         public static XmlCDataSection CreateCDataSection(this XmlNode @this, string nodeData)
         {
-            XmlDocument? document = @this is XmlDocument ? (XmlDocument)@this : @this.OwnerDocument;
+            var document = @this is XmlDocument ? (XmlDocument)@this : @this.OwnerDocument;
 
             if (document == null)
             {
                 throw new ArgumentException("XmlNode 정보 확인 필요");
             }
 
-            XmlCDataSection node = document.CreateCDataSection(nodeData);
+            var node = document.CreateCDataSection(nodeData);
             @this.AppendChild(node);
             return node;
         }
@@ -71,7 +71,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string? GetAttribute(this XmlNode @this, string attributeName, string? defaultValue)
         {
-            XmlAttribute? attribute = @this?.Attributes?[attributeName];
+            var attribute = @this?.Attributes?[attributeName];
             return (attribute != null ? attribute.InnerText : defaultValue);
         }
 

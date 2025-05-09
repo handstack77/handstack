@@ -66,9 +66,9 @@ namespace prompter.KernelPlugin
             [Description("The day name to match")] DayOfWeek input,
             IFormatProvider? formatProvider = null)
         {
-            DateTimeOffset dateTime = DateTimeOffset.Now;
+            var dateTime = DateTimeOffset.Now;
 
-            for (int i = 1; i <= 7; ++i)
+            for (var i = 1; i <= 7; ++i)
             {
                 dateTime = dateTime.AddDays(-1);
                 if (dateTime.DayOfWeek == input)

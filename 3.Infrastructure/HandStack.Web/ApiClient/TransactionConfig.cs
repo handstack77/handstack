@@ -1,5 +1,4 @@
-﻿using System.Net;
-using System.Net.NetworkInformation;
+﻿using System.Net.NetworkInformation;
 using System.Net.Sockets;
 
 namespace HandStack.Web.ApiClient
@@ -43,7 +42,7 @@ namespace HandStack.Web.ApiClient
 
         public static string GetIPAddress()
         {
-            foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
+            foreach (var ni in NetworkInterface.GetAllNetworkInterfaces())
             {
                 if (ni.OperationalStatus != OperationalStatus.Up)
                     continue;
@@ -56,8 +55,8 @@ namespace HandStack.Web.ApiClient
                     ni.Description.ToLower().Contains("hyper-v"))
                     continue;
 
-                IPInterfaceProperties ipProps = ni.GetIPProperties();
-                foreach (UnicastIPAddressInformation ip in ipProps.UnicastAddresses)
+                var ipProps = ni.GetIPProperties();
+                foreach (var ip in ipProps.UnicastAddresses)
                 {
                     if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
                     {
@@ -71,7 +70,7 @@ namespace HandStack.Web.ApiClient
 
         public static string GetMacAddress()
         {
-            foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
+            foreach (var ni in NetworkInterface.GetAllNetworkInterfaces())
             {
                 if (ni.OperationalStatus != OperationalStatus.Up)
                     continue;
@@ -92,7 +91,7 @@ namespace HandStack.Web.ApiClient
 
         public static string GetNetworkInterfaceType()
         {
-            foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
+            foreach (var ni in NetworkInterface.GetAllNetworkInterfaces())
             {
                 if (ni.OperationalStatus != OperationalStatus.Up)
                     continue;

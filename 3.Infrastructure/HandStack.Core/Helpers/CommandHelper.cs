@@ -26,70 +26,68 @@ namespace HandStack.Core.Helpers
         // var scriptsResult = CommandHelper.RunScript(scripts, false, true, true, true, workingDirectory);
         public static List<Tuple<int, string?, string?>> RunScript(string script, bool useShellExecute = false, bool redirectStandardError = false, bool redirectStandardOutput = false, bool createNoWindow = true, string? workingDirectory = null, bool? ignoreExitCode = false, string? echoPrefix = null)
         {
-            List<Tuple<int, string?, string?>> result = new List<Tuple<int, string?, string?>>();
+            var result = new List<Tuple<int, string?, string?>>();
             if (string.IsNullOrEmpty(script) == false)
             {
-                List<string> executeCommands = new List<string>();
-                string[] scripts = script.Split(Environment.NewLine);
-                foreach (string item in scripts)
+                var executeCommands = new List<string>();
+                var scripts = script.Split(Environment.NewLine);
+                foreach (var item in scripts)
                 {
-                    string command = item.Trim();
+                    var command = item.Trim();
                     if (string.IsNullOrEmpty(command) == false)
                     {
                         executeCommands.Add(command);
                     }
                 }
 
-                foreach (string item in executeCommands)
+                foreach (var item in executeCommands)
                 {
-                    using (var process = new Process())
+                    using var process = new Process();
+                    process.StartInfo = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                        ? new ProcessStartInfo
+                        {
+                            FileName = "cmd",
+                            Arguments = $"/c \"{item}\"",
+                            WorkingDirectory = workingDirectory,
+                            UseShellExecute = useShellExecute,
+                            RedirectStandardError = redirectStandardError,
+                            RedirectStandardOutput = redirectStandardOutput,
+                            CreateNoWindow = createNoWindow
+
+                        }
+                        : new ProcessStartInfo
+                        {
+                            FileName = "/bin/bash",
+                            Arguments = $"-c \"{item}\"",
+                            WorkingDirectory = workingDirectory,
+                            UseShellExecute = useShellExecute,
+                            RedirectStandardError = redirectStandardError,
+                            RedirectStandardOutput = redirectStandardOutput,
+                            CreateNoWindow = createNoWindow
+                        };
+
+                    foreach (var variable in EnvironmentVariables)
                     {
-                        process.StartInfo = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                            ? new ProcessStartInfo
-                            {
-                                FileName = "cmd",
-                                Arguments = $"/c \"{item}\"",
-                                WorkingDirectory = workingDirectory,
-                                UseShellExecute = useShellExecute,
-                                RedirectStandardError = redirectStandardError,
-                                RedirectStandardOutput = redirectStandardOutput,
-                                CreateNoWindow = createNoWindow
+                        process.StartInfo.EnvironmentVariables[variable.Key] = variable.Value;
+                    }
 
-                            }
-                            : new ProcessStartInfo
-                            {
-                                FileName = "/bin/bash",
-                                Arguments = $"-c \"{item}\"",
-                                WorkingDirectory = workingDirectory,
-                                UseShellExecute = useShellExecute,
-                                RedirectStandardError = redirectStandardError,
-                                RedirectStandardOutput = redirectStandardOutput,
-                                CreateNoWindow = createNoWindow
-                            };
+                    process.Run(IsShowCommand, echoPrefix ?? DefaultPrefix.Value);
 
-                        foreach (var variable in EnvironmentVariables)
-                        {
-                            process.StartInfo.EnvironmentVariables[variable.Key] = variable.Value;
-                        }
+                    var output = redirectStandardOutput == true ? process.StandardOutput.ReadToEnd() : null;
+                    var error = redirectStandardError == true ? process.StandardError.ReadToEnd() : null;
 
-                        process.Run(IsShowCommand, echoPrefix ?? DefaultPrefix.Value);
+                    process.WaitForExit();
 
-                        string? output = redirectStandardOutput == true ? process.StandardOutput.ReadToEnd() : null;
-                        string? error = redirectStandardError == true ? process.StandardError.ReadToEnd() : null;
+                    var exitCode = process.ExitCode;
 
-                        process.WaitForExit();
+                    result.Add(new Tuple<int, string?, string?>(exitCode
+                        , output
+                        , error
+                    ));
 
-                        int exitCode = process.ExitCode;
-
-                        result.Add(new Tuple<int, string?, string?>(exitCode
-                            , output
-                            , error
-                        ));
-
-                        if (ignoreExitCode == false && exitCode != SuccessExitCode)
-                        {
-                            break;
-                        }
+                    if (ignoreExitCode == false && exitCode != SuccessExitCode)
+                    {
+                        break;
                     }
                 }
             }
@@ -100,69 +98,67 @@ namespace HandStack.Core.Helpers
         // var scriptsResult = CommandHelper.RunScriptToConsole(scripts, false, true, workingDirectory);
         public static List<int> RunScriptToConsole(string script, bool useShellExecute = false, bool createNoWindow = true, string? workingDirectory = null, bool? ignoreExitCode = false, string? echoPrefix = null)
         {
-            List<int> result = new List<int>();
+            var result = new List<int>();
             if (string.IsNullOrEmpty(script) == false)
             {
-                List<string> executeCommands = new List<string>();
-                string[] scripts = script.Split(Environment.NewLine);
-                foreach (string item in scripts)
+                var executeCommands = new List<string>();
+                var scripts = script.Split(Environment.NewLine);
+                foreach (var item in scripts)
                 {
-                    string command = item.Trim();
+                    var command = item.Trim();
                     if (string.IsNullOrEmpty(command) == false)
                     {
                         executeCommands.Add(command);
                     }
                 }
 
-                foreach (string item in executeCommands)
+                foreach (var item in executeCommands)
                 {
-                    using (var process = new Process())
+                    using var process = new Process();
+                    process.StartInfo = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                        ? new ProcessStartInfo
+                        {
+                            FileName = "cmd",
+                            Arguments = $"/c \"{item}\"",
+                            WorkingDirectory = workingDirectory,
+                            UseShellExecute = useShellExecute,
+                            RedirectStandardError = true,
+                            RedirectStandardOutput = true,
+                            CreateNoWindow = createNoWindow
+
+                        }
+                        : new ProcessStartInfo
+                        {
+                            FileName = "/bin/bash",
+                            Arguments = $"-c \"{item}\"",
+                            WorkingDirectory = workingDirectory,
+                            UseShellExecute = useShellExecute,
+                            RedirectStandardError = true,
+                            RedirectStandardOutput = true,
+                            CreateNoWindow = createNoWindow
+                        };
+
+                    foreach (var variable in EnvironmentVariables)
                     {
-                        process.StartInfo = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                            ? new ProcessStartInfo
-                            {
-                                FileName = "cmd",
-                                Arguments = $"/c \"{item}\"",
-                                WorkingDirectory = workingDirectory,
-                                UseShellExecute = useShellExecute,
-                                RedirectStandardError = true,
-                                RedirectStandardOutput = true,
-                                CreateNoWindow = createNoWindow
+                        process.StartInfo.EnvironmentVariables[variable.Key] = variable.Value;
+                    }
 
-                            }
-                            : new ProcessStartInfo
-                            {
-                                FileName = "/bin/bash",
-                                Arguments = $"-c \"{item}\"",
-                                WorkingDirectory = workingDirectory,
-                                UseShellExecute = useShellExecute,
-                                RedirectStandardError = true,
-                                RedirectStandardOutput = true,
-                                CreateNoWindow = createNoWindow
-                            };
+                    process.OutputDataReceived += (sender, e) => Console.WriteLine(e.Data);
+                    process.ErrorDataReceived += (sender, e) => Console.WriteLine(e.Data);
 
-                        foreach (var variable in EnvironmentVariables)
-                        {
-                            process.StartInfo.EnvironmentVariables[variable.Key] = variable.Value;
-                        }
+                    process.Run(IsShowCommand, echoPrefix ?? DefaultPrefix.Value);
 
-                        process.OutputDataReceived += (sender, e) => Console.WriteLine(e.Data);
-                        process.ErrorDataReceived += (sender, e) => Console.WriteLine(e.Data);
+                    process.BeginOutputReadLine();
+                    process.BeginErrorReadLine();
 
-                        process.Run(IsShowCommand, echoPrefix ?? DefaultPrefix.Value);
+                    process.WaitForExit();
 
-                        process.BeginOutputReadLine();
-                        process.BeginErrorReadLine();
+                    var exitCode = process.ExitCode;
 
-                        process.WaitForExit();
-
-                        int exitCode = process.ExitCode;
-
-                        result.Add(exitCode);
-                        if (ignoreExitCode == false && exitCode != 0)
-                        {
-                            break;
-                        }
+                    result.Add(exitCode);
+                    if (ignoreExitCode == false && exitCode != 0)
+                    {
+                        break;
                     }
                 }
             }
@@ -173,92 +169,86 @@ namespace HandStack.Core.Helpers
         // var scriptsResult = CommandHelper.RunScriptToFileLog(scripts, false, true, workingDirectory, "logfile.log");
         public static Tuple<int, string> RunScriptToFileLog(string script, bool useShellExecute = false, bool createNoWindow = true, string? workingDirectory = null, bool? ignoreExitCode = false, string? echoPrefix = null, string? logFilePath = null)
         {
-            Tuple<int, string> result = new Tuple<int, string>(-1, string.Empty);
+            var result = new Tuple<int, string>(-1, string.Empty);
             if (string.IsNullOrEmpty(script) == false)
             {
-                List<string> executeCommands = new List<string>();
-                string[] scripts = script.Split(Environment.NewLine);
-                foreach (string item in scripts)
+                var executeCommands = new List<string>();
+                var scripts = script.Split(Environment.NewLine);
+                foreach (var item in scripts)
                 {
-                    string command = item.Trim();
+                    var command = item.Trim();
                     if (string.IsNullOrEmpty(command) == false)
                     {
                         executeCommands.Add(command);
                     }
                 }
 
-                foreach (string item in executeCommands)
+                foreach (var item in executeCommands)
                 {
-                    using (var process = new Process())
+                    using var process = new Process();
+                    process.StartInfo = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                        ? new ProcessStartInfo
+                        {
+                            FileName = "cmd",
+                            Arguments = $"/c \"{item}\"",
+                            WorkingDirectory = workingDirectory,
+                            UseShellExecute = useShellExecute,
+                            RedirectStandardError = true,
+                            RedirectStandardOutput = true,
+                            CreateNoWindow = createNoWindow
+
+                        }
+                        : new ProcessStartInfo
+                        {
+                            FileName = "/bin/bash",
+                            Arguments = $"-c \"{item}\"",
+                            WorkingDirectory = workingDirectory,
+                            UseShellExecute = useShellExecute,
+                            RedirectStandardError = true,
+                            RedirectStandardOutput = true,
+                            CreateNoWindow = createNoWindow
+                        };
+
+                    foreach (var variable in EnvironmentVariables)
                     {
-                        process.StartInfo = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                            ? new ProcessStartInfo
-                            {
-                                FileName = "cmd",
-                                Arguments = $"/c \"{item}\"",
-                                WorkingDirectory = workingDirectory,
-                                UseShellExecute = useShellExecute,
-                                RedirectStandardError = true,
-                                RedirectStandardOutput = true,
-                                CreateNoWindow = createNoWindow
+                        process.StartInfo.EnvironmentVariables[variable.Key] = variable.Value;
+                    }
 
-                            }
-                            : new ProcessStartInfo
-                            {
-                                FileName = "/bin/bash",
-                                Arguments = $"-c \"{item}\"",
-                                WorkingDirectory = workingDirectory,
-                                UseShellExecute = useShellExecute,
-                                RedirectStandardError = true,
-                                RedirectStandardOutput = true,
-                                CreateNoWindow = createNoWindow
-                            };
+                    var logDirectory = PathExtensions.Combine(workingDirectory ?? Directory.GetCurrentDirectory(), "tasklogs");
+                    logFilePath = logFilePath ?? PathExtensions.Combine(logDirectory, (echoPrefix ?? DefaultPrefix.Value).ToStringSafe() + Guid.NewGuid().ToString("N") + ".log");
+                    var fileInfo = new FileInfo(logFilePath);
+                    if (fileInfo.Directory?.Exists == false)
+                    {
+                        fileInfo.Directory.Create();
+                    }
 
-                        foreach (var variable in EnvironmentVariables)
-                        {
-                            process.StartInfo.EnvironmentVariables[variable.Key] = variable.Value;
-                        }
+                    process.OutputDataReceived += (sender, e) =>
+                    {
+                        using var stream = new FileStream(logFilePath, FileMode.Append, FileAccess.Write, FileShare.Read);
+                        using var writer = new StreamWriter(stream);
+                        writer.WriteLine(e.Data);
+                    };
 
-                        string logDirectory = PathExtensions.Combine(workingDirectory ?? Directory.GetCurrentDirectory(), "tasklogs");
-                        logFilePath = logFilePath ?? PathExtensions.Combine(logDirectory, (echoPrefix ?? DefaultPrefix.Value).ToStringSafe() + Guid.NewGuid().ToString("N") + ".log");
-                        FileInfo fileInfo = new FileInfo(logFilePath);
-                        if (fileInfo.Directory?.Exists == false)
-                        {
-                            fileInfo.Directory.Create();
-                        }
+                    process.ErrorDataReceived += (sender, e) =>
+                    {
+                        using var stream = new FileStream(logFilePath, FileMode.Append, FileAccess.Write, FileShare.Read);
+                        using var writer = new StreamWriter(stream);
+                        writer.WriteLine(e.Data);
+                    };
 
-                        process.OutputDataReceived += (sender, e) =>
-                        {
-                            using (FileStream stream = new FileStream(logFilePath, FileMode.Append, FileAccess.Write, FileShare.Read))
-                            using (StreamWriter writer = new StreamWriter(stream))
-                            {
-                                writer.WriteLine(e.Data);
-                            }
-                        };
+                    process.Run(IsShowCommand, echoPrefix ?? DefaultPrefix.Value);
 
-                        process.ErrorDataReceived += (sender, e) =>
-                        {
-                            using (FileStream stream = new FileStream(logFilePath, FileMode.Append, FileAccess.Write, FileShare.Read))
-                            using (StreamWriter writer = new StreamWriter(stream))
-                            {
-                                writer.WriteLine(e.Data);
-                            }
-                        };
+                    process.BeginOutputReadLine();
+                    process.BeginErrorReadLine();
 
-                        process.Run(IsShowCommand, echoPrefix ?? DefaultPrefix.Value);
+                    process.WaitForExit();
 
-                        process.BeginOutputReadLine();
-                        process.BeginErrorReadLine();
+                    var exitCode = process.ExitCode;
 
-                        process.WaitForExit();
-
-                        int exitCode = process.ExitCode;
-
-                        result = new Tuple<int, string>(exitCode, logFilePath);
-                        if (ignoreExitCode == false && exitCode != 0)
-                        {
-                            break;
-                        }
+                    result = new Tuple<int, string>(exitCode, logFilePath);
+                    if (ignoreExitCode == false && exitCode != 0)
+                    {
+                        break;
                     }
                 }
             }

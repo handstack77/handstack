@@ -26,22 +26,22 @@ namespace HandStack.Web.Helper
 
             try
             {
-                string[] tokenArray = token.Split('.');
+                var tokenArray = token.Split('.');
                 if (tokenArray.Length == 0 || string.IsNullOrEmpty(tokenArray[0]))
                 {
                     return false;
                 }
 
-                string userID = tokenArray[0].DecodeBase64();
+                var userID = tokenArray[0].DecodeBase64();
                 token = tokenArray[1];
-                string signature = tokenArray.Length > 2 ? (tokenArray[2] == GlobalConfiguration.HostAccessID.ToSHA256() ? userID.PaddingRight(32) : "") : userID.PaddingRight(32);
+                var signature = tokenArray.Length > 2 ? (tokenArray[2] == GlobalConfiguration.HostAccessID.ToSHA256() ? userID.PaddingRight(32) : "") : userID.PaddingRight(32);
                 if (string.IsNullOrEmpty(signature) == true)
                 {
                     Console.WriteLine($"토큰 검증 오류");
                     return false;
                 }
 
-                string decryptedText = token.DecryptAES(signature);
+                var decryptedText = token.DecryptAES(signature);
 
                 bearerToken = JsonConvert.DeserializeObject<BearerToken>(decryptedText);
                 if (bearerToken == null)
@@ -53,19 +53,19 @@ namespace HandStack.Web.Helper
             }
             catch (FormatException exception)
             {
-                Console.WriteLine($"토큰 형식 오류: {exception.Message}");
+                Console.WriteLine($"토큰 형식 오류: {exception.Message}");
             }
             catch (JsonException exception)
             {
-                Console.WriteLine($"토큰 JSON 역직렬화 오류: {exception.Message}");
+                Console.WriteLine($"토큰 JSON 역직렬화 오류: {exception.Message}");
             }
             catch (CryptographicException exception)
             {
-                Console.WriteLine($"토큰 복호화 오류: {exception.Message}");
+                Console.WriteLine($"토큰 복호화 오류: {exception.Message}");
             }
             catch (Exception exception)
             {
-                Console.WriteLine($"예상치 못한 오류 발생: {exception.Message}");
+                Console.WriteLine($"예상치 못한 오류 발생: {exception.Message}");
             }
 
             bearerToken = null;

@@ -91,7 +91,7 @@ namespace HandStack.Web.Helpers
 
                 if (xmlDocument.FirstChild != null && xmlDocument.FirstChild.NodeType == XmlNodeType.XmlDeclaration)
                 {
-                    Match match = Regex.Match(xmlDocument.FirstChild.InnerText, @"(?<=encoding\s*=\s*"")[^""]*", RegexOptions.None);
+                    var match = Regex.Match(xmlDocument.FirstChild.InnerText, @"(?<=encoding\s*=\s*"")[^""]*", RegexOptions.None);
                     if (match.Success)
                     {
                         stringBuilder = stringBuilder.Replace("utf-16", match.Value);

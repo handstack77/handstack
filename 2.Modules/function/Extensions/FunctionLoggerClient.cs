@@ -53,7 +53,7 @@ namespace function.Extensions
 
         public RestResponse Send(Method httpVerb, string hostUrl, LogMessage logMessage, Action<string> fallbackFunction, Dictionary<string, string>? headers = null)
         {
-            RestResponse restResponse = new RestResponse
+            var restResponse = new RestResponse
             {
                 Content = "",
                 ErrorMessage = "Equivalent to HTTP status 503",
@@ -114,7 +114,7 @@ namespace function.Extensions
 
         private RestResponse RestResponseWithPolicy(RestRequest restRequest, Action<string> fallbackFunction)
         {
-            RestResponse result = new RestResponse
+            var result = new RestResponse
             {
                 Content = "",
                 ErrorMessage = "Equivalent to HTTP status 503",
@@ -142,7 +142,7 @@ namespace function.Extensions
                 }
                 else
                 {
-                    fallbackFunction($"CircuitBreaker Error Reason: {circuitBreakerPolicy.CircuitState.ToString()}");
+                    fallbackFunction($"CircuitBreaker Error Reason: {circuitBreakerPolicy.CircuitState}");
                 }
             }
 
@@ -151,7 +151,7 @@ namespace function.Extensions
 
         public void ProgramMessageLogging(string globalID, string acknowledge, string applicationID, string message, string properties, Action<string> fallbackFunction)
         {
-            LogMessage logMessage = new LogMessage();
+            var logMessage = new LogMessage();
             logMessage.ServerID = GlobalConfiguration.HostName;
             logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
             logMessage.ProgramName = ModuleConfiguration.ModuleID;
@@ -171,7 +171,7 @@ namespace function.Extensions
 
             if (ModuleConfiguration.IsLogServer == true)
             {
-                LogRequest logRequest = new LogRequest();
+                var logRequest = new LogRequest();
                 logRequest.LogMessage = logMessage;
                 logRequest.FallbackFunction = fallbackFunction;
 
@@ -187,7 +187,7 @@ namespace function.Extensions
 
         public void TransactionMessageLogging(string globalID, string acknowledge, string applicationID, string projectID, string transactionID, string serviceID, string message, string properties, Action<string> fallbackFunction)
         {
-            LogMessage logMessage = new LogMessage();
+            var logMessage = new LogMessage();
             logMessage.ServerID = GlobalConfiguration.HostName;
             logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
             logMessage.ProgramName = ModuleConfiguration.ModuleID;
@@ -207,7 +207,7 @@ namespace function.Extensions
 
             if (ModuleConfiguration.IsLogServer == true)
             {
-                LogRequest logRequest = new LogRequest();
+                var logRequest = new LogRequest();
                 logRequest.LogMessage = logMessage;
                 logRequest.FallbackFunction = fallbackFunction;
 
@@ -223,7 +223,7 @@ namespace function.Extensions
 
         public void DynamicResponseLogging(string globalID, string acknowledge, string applicationID, string message, string properties, Action<string> fallbackFunction)
         {
-            LogMessage logMessage = new LogMessage();
+            var logMessage = new LogMessage();
             logMessage.ServerID = GlobalConfiguration.HostName;
             logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
             logMessage.ProgramName = ModuleConfiguration.ModuleID;
@@ -243,7 +243,7 @@ namespace function.Extensions
 
             if (ModuleConfiguration.IsLogServer == true)
             {
-                LogRequest logRequest = new LogRequest();
+                var logRequest = new LogRequest();
                 logRequest.LogMessage = logMessage;
                 logRequest.FallbackFunction = fallbackFunction;
 
@@ -257,7 +257,7 @@ namespace function.Extensions
 
         public void DynamicRequestLogging(DynamicRequest request, string acknowledge, string applicationID, Action<string> fallbackFunction)
         {
-            LogMessage logMessage = new LogMessage();
+            var logMessage = new LogMessage();
             logMessage.ServerID = GlobalConfiguration.HostName;
             logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
             logMessage.ProgramName = ModuleConfiguration.ModuleID;
@@ -277,7 +277,7 @@ namespace function.Extensions
 
             if (ModuleConfiguration.IsLogServer == true)
             {
-                LogRequest logRequest = new LogRequest();
+                var logRequest = new LogRequest();
                 logRequest.LogMessage = logMessage;
                 logRequest.FallbackFunction = fallbackFunction;
 
@@ -293,7 +293,7 @@ namespace function.Extensions
         {
             if (state != null)
             {
-                LogRequest? logRequest = state as LogRequest;
+                var logRequest = state as LogRequest;
 
                 if (circuitBreakerPolicy != null && logRequest != null)
                 {

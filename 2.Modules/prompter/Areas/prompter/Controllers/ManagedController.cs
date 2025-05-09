@@ -5,12 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-using prompter.Entity;
-using prompter.Extensions;
-
 using HandStack.Core.ExtensionMethod;
-using HandStack.Data;
 using HandStack.Web;
+using HandStack.Web.Common;
 using HandStack.Web.Entity;
 using HandStack.Web.Extensions;
 
@@ -24,9 +21,11 @@ using Microsoft.Extensions.Configuration;
 
 using Newtonsoft.Json;
 
-using Serilog;
+using prompter.Entity;
 using prompter.Enumeration;
-using HandStack.Web.Common;
+using prompter.Extensions;
+
+using Serilog;
 
 namespace prompter.Areas.prompter.Controllers
 {
@@ -96,14 +95,14 @@ namespace prompter.Areas.prompter.Controllers
                         try
                         {
                             var dataSourceMappings = PromptMapper.DataSourceMappings.Where(x => x.Value.ApplicationID == applicationID).ToList();
-                            for (int i = dataSourceMappings.Count(); i > 0; i--)
+                            for (var i = dataSourceMappings.Count(); i > 0; i--)
                             {
                                 var item = dataSourceMappings[i - 1].Key;
                                 PromptMapper.DataSourceMappings.Remove(item);
                             }
 
                             var promptMappings = PromptMapper.PromptMappings.Where(x => x.Value.ApplicationID == applicationID).ToList();
-                            for (int i = promptMappings.Count(); i > 0; i--)
+                            for (var i = promptMappings.Count(); i > 0; i--)
                             {
                                 var item = promptMappings[i - 1].Key;
                                 PromptMapper.PromptMappings.Remove(item);
@@ -115,20 +114,20 @@ namespace prompter.Areas.prompter.Controllers
                                 return Ok();
                             }
 
-                            string[] promptMapFiles = Directory.GetFiles(basePath, "*.xml", SearchOption.AllDirectories);
-                            foreach (string promptMapFile in promptMapFiles)
+                            var promptMapFiles = Directory.GetFiles(basePath, "*.xml", SearchOption.AllDirectories);
+                            foreach (var promptMapFile in promptMapFiles)
                             {
                                 try
                                 {
-                                    FileInfo fileInfo = new FileInfo(promptMapFile);
+                                    var fileInfo = new FileInfo(promptMapFile);
                                     var htmlDocument = new HtmlDocument();
                                     htmlDocument.OptionDefaultStreamEncoding = Encoding.UTF8;
                                     htmlDocument.LoadHtml(ReplaceCData(System.IO.File.ReadAllText(promptMapFile)));
-                                    HtmlNode header = htmlDocument.DocumentNode.SelectSingleNode("//mapper/header");
+                                    var header = htmlDocument.DocumentNode.SelectSingleNode("//mapper/header");
 
                                     applicationID = (header.Element("application")?.InnerText).ToStringSafe();
-                                    string projectID = (header.Element("project")?.InnerText).ToStringSafe();
-                                    string transactionID = (header.Element("transaction")?.InnerText).ToStringSafe();
+                                    var projectID = (header.Element("project")?.InnerText).ToStringSafe();
+                                    var transactionID = (header.Element("transaction")?.InnerText).ToStringSafe();
                                     if (promptMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                                     {
                                         applicationID = string.IsNullOrEmpty(applicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : applicationID;
@@ -143,7 +142,7 @@ namespace prompter.Areas.prompter.Controllers
                                         {
                                             if ($"{header.Element("use")?.InnerText}".ToBoolean() == true)
                                             {
-                                                PromptMap promptMap = new PromptMap();
+                                                var promptMap = new PromptMap();
                                                 promptMap.ApplicationID = applicationID;
                                                 promptMap.ProjectID = projectID;
                                                 promptMap.TransactionID = transactionID;
@@ -160,10 +159,10 @@ namespace prompter.Areas.prompter.Controllers
                                                 promptMap.Prompt = item.InnerHtml;
 
                                                 promptMap.InputVariables = new List<InputVariableMap>();
-                                                HtmlNodeCollection htmlNodes = item.SelectNodes("param");
+                                                var htmlNodes = item.SelectNodes("param");
                                                 if (htmlNodes != null && htmlNodes.Count > 0)
                                                 {
-                                                    foreach (HtmlNode paramNode in item.SelectNodes("param"))
+                                                    foreach (var paramNode in item.SelectNodes("param"))
                                                     {
                                                         promptMap.InputVariables.Add(new InputVariableMap()
                                                         {
@@ -181,7 +180,7 @@ namespace prompter.Areas.prompter.Controllers
                                                 children.LoadHtml(promptMap.Prompt);
                                                 promptMap.Chidren = children;
 
-                                                string queryID = string.Concat(
+                                                var queryID = string.Concat(
                                                     promptMap.ApplicationID, "|",
                                                     promptMap.ProjectID, "|",
                                                     promptMap.TransactionID, "|",
@@ -209,12 +208,12 @@ namespace prompter.Areas.prompter.Controllers
                                 }
                             }
 
-                            string tenantID = $"{userWorkID}|{applicationID}";
-                            string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-                            string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
+                            var tenantID = $"{userWorkID}|{applicationID}";
+                            var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                            var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                             if (System.IO.File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                             {
-                                string appSettingText = System.IO.File.ReadAllText(settingFilePath);
+                                var appSettingText = System.IO.File.ReadAllText(settingFilePath);
                                 var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
                                 if (appSetting != null)
                                 {
@@ -223,7 +222,7 @@ namespace prompter.Areas.prompter.Controllers
                                     {
                                         foreach (var item in dataSourceJson)
                                         {
-                                            DataSourceTanantKey tanantMap = new DataSourceTanantKey();
+                                            var tanantMap = new DataSourceTanantKey();
                                             tanantMap.ApplicationID = item.ApplicationID;
                                             tanantMap.DataSourceID = item.DataSourceID;
                                             tanantMap.TanantPattern = item.TanantPattern;
@@ -231,7 +230,7 @@ namespace prompter.Areas.prompter.Controllers
 
                                             if (PromptMapper.DataSourceMappings.ContainsKey(tanantMap) == false)
                                             {
-                                                DataSourceMap dataSourceMap = new DataSourceMap();
+                                                var dataSourceMap = new DataSourceMap();
                                                 dataSourceMap.ApplicationID = item.ApplicationID;
                                                 dataSourceMap.ProjectListID = item.ProjectID.Split(",").Where(s => string.IsNullOrWhiteSpace(s) == false).Distinct().ToList();
                                                 dataSourceMap.LLMProvider = (LLMProviders)Enum.Parse(typeof(LLMProviders), item.DataProvider);
@@ -289,14 +288,14 @@ namespace prompter.Areas.prompter.Controllers
                         var tenants = ModuleConfiguration.PromptFileSyncManager.Where(pair => pair.Key.Contains($"{userWorkID}{Path.DirectorySeparatorChar}{applicationID}"));
                         if (tenants.Any() == true)
                         {
-                            List<string> tenantsPath = new List<string>();
+                            var tenantsPath = new List<string>();
                             foreach (var tenant in tenants)
                             {
                                 tenantsPath.Add(tenant.Key);
                                 tenant.Value?.Stop();
                             }
 
-                            for (int i = 0; i < tenantsPath.Count; i++)
+                            for (var i = 0; i < tenantsPath.Count; i++)
                             {
                                 ModuleConfiguration.PromptFileSyncManager.Remove(tenantsPath[i]);
                             }
@@ -317,15 +316,15 @@ namespace prompter.Areas.prompter.Controllers
 
         public static string ReplaceCData(string rawText)
         {
-            Regex cdataRegex = new Regex("(<!\\[CDATA\\[)([\\s\\S]*?)(\\]\\]>)");
+            var cdataRegex = new Regex("(<!\\[CDATA\\[)([\\s\\S]*?)(\\]\\]>)");
             var matches = cdataRegex.Matches(rawText);
 
             if (matches != null && matches.Count > 0)
             {
                 foreach (Match match in matches)
                 {
-                    string[] matchSplit = Regex.Split(match.Value, "(<!\\[CDATA\\[)([\\s\\S]*?)(\\]\\]>)");
-                    string cdataText = matchSplit[2];
+                    var matchSplit = Regex.Split(match.Value, "(<!\\[CDATA\\[)([\\s\\S]*?)(\\]\\]>)");
+                    var cdataText = matchSplit[2];
                     cdataText = Regex.Replace(cdataText, "&", "&amp;");
                     cdataText = Regex.Replace(cdataText, "<", "&lt;");
                     cdataText = Regex.Replace(cdataText, ">", "&gt;");

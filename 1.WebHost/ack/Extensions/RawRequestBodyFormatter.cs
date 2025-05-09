@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc.Formatters;
-using System;
+﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Net.Http.Headers;
 
 namespace ack.Extensions
@@ -41,20 +42,16 @@ namespace ack.Extensions
 
             if (string.IsNullOrEmpty(contentType) || contentType == "text/plain")
             {
-                using (var reader = new StreamReader(request.Body))
-                {
-                    var content = await reader.ReadToEndAsync();
-                    return await InputFormatterResult.SuccessAsync(content);
-                }
+                using var reader = new StreamReader(request.Body);
+                var content = await reader.ReadToEndAsync();
+                return await InputFormatterResult.SuccessAsync(content);
             }
             else if (contentType == "application/octet-stream")
             {
-                using (var ms = new MemoryStream(2048))
-                {
-                    await request.Body.CopyToAsync(ms);
-                    var content = ms.ToArray();
-                    return await InputFormatterResult.SuccessAsync(content);
-                }
+                using var ms = new MemoryStream(2048);
+                await request.Body.CopyToAsync(ms);
+                var content = ms.ToArray();
+                return await InputFormatterResult.SuccessAsync(content);
             }
 
             return await InputFormatterResult.FailureAsync();

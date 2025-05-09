@@ -1,19 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Reflection;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
 using HandStack.Core.ExtensionMethod;
-using HandStack.Web;
 using HandStack.Web.Authorization;
 using HandStack.Web.Entity;
-using HandStack.Web.Extensions;
 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -55,16 +51,17 @@ namespace HandStack.Web.Extensions
                         if (controller.MethodInfo.GetCustomAttribute<AllowAnonymousAttribute>() != null)
                         {
                         }
-                        else if (httpContext.User.Identity?.IsAuthenticated == true) {
+                        else if (httpContext.User.Identity?.IsAuthenticated == true)
+                        {
 
-                            UserAccount userAccount = new UserAccount();
+                            var userAccount = new UserAccount();
                             userAccount.ApplicationID = httpContext.User.Claims.First(x => x.Type == "ApplicationID").Value;
                             userAccount.UserAccountID = httpContext.User.Claims.First(x => x.Type == "UserAccountID").Value;
                             userAccount.UserID = httpContext.User.Claims.First(x => x.Type == "UserID").Value;
                             userAccount.UserName = httpContext.User.Claims.First(x => x.Type == "UserName").Value;
                             userAccount.Email = httpContext.User.Claims.First(x => x.Type == "Email").Value;
 
-                            if (DateTime.TryParse(httpContext.User.Claims.First(x => x.Type == "LoginedAt").Value, out DateTime loginedAt) == true)
+                            if (DateTime.TryParse(httpContext.User.Claims.First(x => x.Type == "LoginedAt").Value, out var loginedAt) == true)
                             {
                                 userAccount.LoginedAt = loginedAt;
                             }
@@ -130,7 +127,7 @@ namespace HandStack.Web.Extensions
                             }
                             else
                             {
-                                UserAccount? userAccount = JsonConvert.DeserializeObject<UserAccount>(member.DecodeBase64());
+                                var userAccount = JsonConvert.DeserializeObject<UserAccount>(member.DecodeBase64());
                                 if (userAccount != null)
                                 {
                                     if (authorizeUserAttribute?.Roles != null)
@@ -180,7 +177,7 @@ namespace HandStack.Web.Extensions
                                             foreach (var item in userAccount.Claims)
                                             {
                                                 var claimType = item.Key;
-                                                string claimValue = item.Value;
+                                                var claimValue = item.Value;
                                                 if (string.IsNullOrEmpty(claimType) == false)
                                                 {
                                                     var claim = new Claim(claimType, claimValue);
@@ -206,7 +203,7 @@ namespace HandStack.Web.Extensions
                                             }
                                             else if (GlobalConfiguration.UserSignExpire < 0)
                                             {
-                                                int addDay = DateTime.Now.Day == userAccount.LoginedAt.Day ? 1 : 0;
+                                                var addDay = DateTime.Now.Day == userAccount.LoginedAt.Day ? 1 : 0;
                                                 expiredAt = DateTime.Parse(DateTime.Now.AddDays(1).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00");
                                             }
 
@@ -217,20 +214,20 @@ namespace HandStack.Web.Extensions
 
                                             try
                                             {
-                                                httpContext.Request.Cookies.TryGetValue(GlobalConfiguration.SessionCookieName, out string? cookieValue);
+                                                httpContext.Request.Cookies.TryGetValue(GlobalConfiguration.SessionCookieName, out var cookieValue);
                                                 if (string.IsNullOrEmpty(cookieValue) == false)
                                                 {
                                                     var protectedData = Convert.FromBase64String(cookieValue.SessionDecryptPad());
                                                     var unprotectedData = dataProtector.Unprotect(protectedData);
                                                     userAccount.SessionKey = Encoding.UTF8.GetString(unprotectedData);
 
-                                                    string jsonAcount = JsonConvert.SerializeObject(userAccount);
+                                                    var jsonAcount = JsonConvert.SerializeObject(userAccount);
                                                     if (httpContext.Session.IsAvailable == true)
                                                     {
                                                         httpContext.Session.SetString($"{GlobalConfiguration.CookiePrefixName}.Member", jsonAcount);
                                                     }
 
-                                                    CookieOptions cookieOptions = new CookieOptions();
+                                                    var cookieOptions = new CookieOptions();
                                                     cookieOptions.HttpOnly = false;
                                                     cookieOptions.SameSite = SameSiteMode.Lax;
                                                     cookieOptions.Expires = expiredAt;
@@ -269,21 +266,21 @@ namespace HandStack.Web.Extensions
                     }
                     else
                     {
-                        string unAuthorizedPath = string.Empty;
-                        string requestPath = httpContext.Request.Path.ToString();
-                        string tenantAppRequestPath = $"/{GlobalConfiguration.TenantAppRequestPath}/";
+                        var unAuthorizedPath = string.Empty;
+                        var requestPath = httpContext.Request.Path.ToString();
+                        var tenantAppRequestPath = $"/{GlobalConfiguration.TenantAppRequestPath}/";
                         if (requestPath.StartsWith(tenantAppRequestPath) == true)
                         {
                             var splits = requestPath.Split('/');
-                            string userWorkID = splits.Length > 3 ? splits[2] : "";
-                            string applicationID = splits.Length > 3 ? splits[3] : "";
+                            var userWorkID = splits.Length > 3 ? splits[2] : "";
+                            var applicationID = splits.Length > 3 ? splits[3] : "";
                             if (string.IsNullOrEmpty(applicationID) == false)
                             {
-                                string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-                                DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
+                                var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                                var directoryInfo = new DirectoryInfo(appBasePath);
                                 if (directoryInfo.Exists == true)
                                 {
-                                    string tenantAppBasePath = $"/{GlobalConfiguration.TenantAppRequestPath}/{userWorkID}/{applicationID}/wwwroot";
+                                    var tenantAppBasePath = $"/{GlobalConfiguration.TenantAppRequestPath}/{userWorkID}/{applicationID}/wwwroot";
                                     unAuthorizedPath = $"{tenantAppBasePath}/unauthorized.html";
                                 }
                             }

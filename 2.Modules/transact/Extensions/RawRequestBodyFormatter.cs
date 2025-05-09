@@ -82,12 +82,10 @@ namespace transact.Extensions
                 {
                     if (contentType.IndexOf("application/json") > -1)
                     {
-                        using (var reader = new StreamReader(request.Body))
-                        {
-                            var content = await reader.ReadToEndAsync();
-                            transactionRequest = JsonConvert.DeserializeObject<TransactionRequest>(content);
-                            return await InputFormatterResult.SuccessAsync(transactionRequest);
-                        }
+                        using var reader = new StreamReader(request.Body);
+                        var content = await reader.ReadToEndAsync();
+                        transactionRequest = JsonConvert.DeserializeObject<TransactionRequest>(content);
+                        return await InputFormatterResult.SuccessAsync(transactionRequest);
                     }
                 }
                 catch (Exception exception)

@@ -34,8 +34,8 @@ namespace wwwroot.Areas.wwwroot.Controllers
         [HttpGet("contacts/{id}")]
         public IActionResult Details(int id)
         {
-            string currentUrl = Request.GetCurrentUrl();
-            string targetElement = Request.GetTargetId();
+            var currentUrl = Request.GetCurrentUrl();
+            var targetElement = Request.GetTargetId();
             var contact = GetContactById(id);
 
             if (Request.IsHistoryRestoreRequest())
@@ -56,7 +56,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
         [HttpDelete("contacts/{id}")]
         public IActionResult Delete(int id)
         {
-            string triggerId = Request.GetTriggerId();
+            var triggerId = Request.GetTriggerId();
 
             if (!string.IsNullOrEmpty(triggerId))
             {
@@ -66,20 +66,20 @@ namespace wwwroot.Areas.wwwroot.Controllers
             DeleteContact(id);
             Response.HtmxTriggerEvent("showNotification", "연락처가 삭제되었습니다.");
             return Content("<div id='notification' class='alert alert-success'>연락처가 삭제되었습니다.</div>");
-                
+
         }
 
         [HttpPut("contacts/{id}")]
         public IActionResult Update(int id, [FromForm] ContactModel model)
         {
-            string promptResponse = Request.GetPromptResponse();
+            var promptResponse = Request.GetPromptResponse();
 
             if (!string.IsNullOrEmpty(promptResponse))
             {
                 model.Name = promptResponse;
             }
 
-            string triggerName = Request.GetTriggerName();
+            var triggerName = Request.GetTriggerName();
 
             UpdateContact(id, model);
 
@@ -111,7 +111,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
                 return Content("");
             }
 
-            bool hasMorePages = HasMorePages(page + 1);
+            var hasMorePages = HasMorePages(page + 1);
 
             var result = this.HtmxPartial("_ContactListPartial", moreContacts);
 

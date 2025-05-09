@@ -33,9 +33,9 @@ namespace openapi.Services
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            DateTime now = DateTime.Now;
-            DateTime midnight = DateTime.Today.AddDays(1);
-            TimeSpan dueTime = midnight - now;
+            var now = DateTime.Now;
+            var midnight = DateTime.Today.AddDays(1);
+            var dueTime = midnight - now;
 
             timer = new Timer(Execute, null, dueTime, TimeSpan.FromDays(1));
 
@@ -69,8 +69,8 @@ namespace openapi.Services
                 logger.Error("[{LogCategory}] " + exception.Message, "OpenAPIClient/UsageAPIAggregate");
             }
 
-            List<string> items = GetMemoryCacheKeys();
-            foreach (string item in items)
+            var items = GetMemoryCacheKeys();
+            foreach (var item in items)
             {
                 memoryCache.Remove(item);
             }
@@ -78,7 +78,7 @@ namespace openapi.Services
 
         private List<string> GetMemoryCacheKeys()
         {
-            List<string> result = new List<string>();
+            var result = new List<string>();
             foreach (var cacheKey in ModuleConfiguration.CacheKeys)
             {
                 if (cacheKey.StartsWith($"{ModuleConfiguration.ModuleID}|") == true)

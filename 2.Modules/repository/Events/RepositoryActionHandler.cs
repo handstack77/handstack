@@ -9,8 +9,6 @@ using HandStack.Web.MessageContract.Message;
 
 using MediatR;
 
-using Newtonsoft.Json;
-
 using Serilog;
 
 namespace repository.Events

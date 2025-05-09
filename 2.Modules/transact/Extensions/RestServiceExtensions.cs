@@ -17,7 +17,7 @@ namespace transact.Extensions
         public static bool IsAllowAuthorization(this HttpContext httpContext)
         {
             string? authorizationKey = httpContext.Request.Headers["AuthorizationKey"];
-            bool isAllowClientIP = string.IsNullOrEmpty(ModuleConfiguration.AllowClientIP.FirstOrDefault(p => p == "*" || p == httpContext.GetRemoteIpAddress())) == false;
+            var isAllowClientIP = string.IsNullOrEmpty(ModuleConfiguration.AllowClientIP.FirstOrDefault(p => p == "*" || p == httpContext.GetRemoteIpAddress())) == false;
             return ModuleConfiguration.AuthorizationKey == authorizationKey && isAllowClientIP == true;
         }
 
@@ -29,7 +29,7 @@ namespace transact.Extensions
         public static object? Value(this List<TransactField> parameters, string prop)
         {
             object? val = null;
-            foreach (TransactField item in parameters)
+            foreach (var item in parameters)
             {
                 if (item.FieldID == prop)
                 {

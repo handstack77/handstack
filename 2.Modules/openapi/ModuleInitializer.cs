@@ -41,18 +41,18 @@ namespace openapi
 
         public void ConfigureServices(IServiceCollection services, IWebHostEnvironment environment, IConfiguration configuration)
         {
-            ModuleInfo? module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == ModuleID);
+            var module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == ModuleID);
             if (module != null)
             {
-                string moduleSettingFilePath = module.ModuleSettingFilePath;
+                var moduleSettingFilePath = module.ModuleSettingFilePath;
                 if (File.Exists(moduleSettingFilePath) == true)
                 {
-                    string configurationText = File.ReadAllText(moduleSettingFilePath);
-                    ModuleConfigJson? moduleConfigJson = JsonConvert.DeserializeObject<ModuleConfigJson>(configurationText);
+                    var configurationText = File.ReadAllText(moduleSettingFilePath);
+                    var moduleConfigJson = JsonConvert.DeserializeObject<ModuleConfigJson>(configurationText);
 
                     if (moduleConfigJson != null)
                     {
-                        ModuleConfig moduleConfig = moduleConfigJson.ModuleConfig;
+                        var moduleConfig = moduleConfigJson.ModuleConfig;
                         ModuleConfiguration.ModuleID = moduleConfigJson.ModuleID;
                         ModuleConfiguration.Version = moduleConfigJson.Version;
                         ModuleConfiguration.ModuleBasePath = GlobalConfiguration.GetBasePath(moduleConfig.ModuleBasePath, module.BasePath);
@@ -89,14 +89,14 @@ namespace openapi
                     }
                     else
                     {
-                        string message = $"Json Deserialize 오류 module.json 파일 확인 필요: {moduleSettingFilePath}";
+                        var message = $"Json Deserialize 오류 module.json 파일 확인 필요: {moduleSettingFilePath}";
                         Log.Logger.Error("[{LogCategory}] " + message, $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
                         throw new FileLoadException(message);
                     }
                 }
                 else
                 {
-                    string message = $"module.json 파일 확인 필요: {moduleSettingFilePath}";
+                    var message = $"module.json 파일 확인 필요: {moduleSettingFilePath}";
                     Log.Logger.Error("[{LogCategory}] " + message, $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
                     throw new FileNotFoundException(message);
                 }
@@ -110,7 +110,7 @@ namespace openapi
 
         private static LoggerConfiguration CreateLoggerConfiguration(string logFilePath)
         {
-            FileInfo fileInfo = new FileInfo(logFilePath);
+            var fileInfo = new FileInfo(logFilePath);
             if (string.IsNullOrEmpty(fileInfo.DirectoryName) == false)
             {
                 if (fileInfo.Directory == null || fileInfo.Directory.Exists == false)
@@ -148,10 +148,10 @@ namespace openapi
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment? environment, ICorsService corsService, ICorsPolicyProvider corsPolicyProvider)
         {
-            ModuleInfo? module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == ModuleID);
+            var module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == ModuleID);
             if (string.IsNullOrEmpty(ModuleID) == false && module != null)
             {
-                string wwwrootDirectory = PathExtensions.Combine(module.BasePath, "wwwroot", module.ModuleID);
+                var wwwrootDirectory = PathExtensions.Combine(module.BasePath, "wwwroot", module.ModuleID);
                 if (string.IsNullOrEmpty(wwwrootDirectory) == false && Directory.Exists(wwwrootDirectory) == true)
                 {
                     app.UseStaticFiles(new StaticFileOptions
@@ -185,10 +185,10 @@ namespace openapi
 
         private bool CreateNotExistTable(string tableName)
         {
-            bool result = false;
+            var result = false;
             var dataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), ModuleConfiguration.ModuleDataSource.DataProvider);
-            string commandText = string.Empty;
-            string transactionID = string.Empty;
+            var commandText = string.Empty;
+            var transactionID = string.Empty;
             switch (dataProvider)
             {
                 case DataProviders.SqlServer:
@@ -213,7 +213,7 @@ namespace openapi
                     break;
             }
 
-            using (DatabaseFactory databaseFactory = new DatabaseFactory(ModuleConfiguration.ModuleDataSource.ConnectionString, dataProvider))
+            using (var databaseFactory = new DatabaseFactory(ModuleConfiguration.ModuleDataSource.ConnectionString, dataProvider))
             {
                 if (databaseFactory.Connection == null)
                 {
@@ -226,31 +226,29 @@ namespace openapi
                         databaseFactory.Connection.Open();
                     }
 
-                    using (var command = databaseFactory.Connection.CreateCommand())
+                    using var command = databaseFactory.Connection.CreateCommand();
+                    command.CommandTimeout = 3000;
+                    command.CommandText = commandText;
+                    command.CommandType = CommandType.Text;
+                    var isExists = command.ExecuteScalar().ToStringSafe().ToBoolean();
+
+                    if (isExists == false)
                     {
-                        command.CommandTimeout = 3000;
-                        command.CommandText = commandText;
-                        command.CommandType = CommandType.Text;
-                        var isExists = command.ExecuteScalar().ToStringSafe().ToBoolean();
-
-                        if (isExists == false)
+                        try
                         {
-                            try
-                            {
-                                var affectedResults = ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, dataProvider, GlobalConfiguration.ApplicationID, $"HOA.{transactionID}.ZD01");
-                                Log.Logger.Information("[{LogCategory}] " + $"AffectedResults: {affectedResults}", "ModuleInitializer/CreateNotExistTable");
+                            var affectedResults = ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, dataProvider, GlobalConfiguration.ApplicationID, $"HOA.{transactionID}.ZD01");
+                            Log.Logger.Information("[{LogCategory}] " + $"AffectedResults: {affectedResults}", "ModuleInitializer/CreateNotExistTable");
 
-                                result = true;
-                            }
-                            catch (Exception exception)
-                            {
-                                Log.Logger.Error(exception, "[{LogCategory}] " + $"OpenAPI 서비스 테이블 확인 필요", "ModuleInitializer/CreateNotExistTable");
-                            }
-                        }
-                        else
-                        {
                             result = true;
                         }
+                        catch (Exception exception)
+                        {
+                            Log.Logger.Error(exception, "[{LogCategory}] " + $"OpenAPI 서비스 테이블 확인 필요", "ModuleInitializer/CreateNotExistTable");
+                        }
+                    }
+                    else
+                    {
+                        result = true;
                     }
                 }
             }

@@ -16,7 +16,7 @@ namespace HandStack.Web
             IConfiguration? configuration;
             if (key.Contains("::") == true)
             {
-                string moduleID = key.Split("::")[0];
+                var moduleID = key.Split("::")[0];
                 key = key.Split("::")[1];
                 configuration = GetModuleConfiguration(moduleID);
             }
@@ -99,7 +99,7 @@ namespace HandStack.Web
 
         private static bool BindInstance(IConfiguration? configuration, object instance, string? key)
         {
-            bool result = false;
+            var result = false;
             if (configuration == null)
             {
                 return result;

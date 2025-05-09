@@ -27,9 +27,9 @@ namespace HandStack.Core.ExpendObjects
 
         public void WriteXml(XmlWriter writer)
         {
-            foreach (string key in Keys)
+            foreach (var key in Keys)
             {
-                TValue? value = this[key];
+                var value = this[key];
 
                 Type? type = null;
                 if (value != null)
@@ -49,8 +49,8 @@ namespace HandStack.Core.ExpendObjects
                 writer.WriteEndElement();
 
                 writer.WriteStartElement("value");
-                string? xmlType = Utilities.MapTypeToXmlType(type);
-                bool isCustom = false;
+                var xmlType = Utilities.MapTypeToXmlType(type);
+                var isCustom = false;
 
                 if (value == null)
                 {
@@ -93,7 +93,7 @@ namespace HandStack.Core.ExpendObjects
                     }
                     else
                     {
-                        XmlSerializer ser = new XmlSerializer(value.GetType());
+                        var ser = new XmlSerializer(value.GetType());
                         ser.Serialize(writer, value);
                     }
                 }
@@ -110,7 +110,7 @@ namespace HandStack.Core.ExpendObjects
                 if (reader.NodeType == XmlNodeType.Element && reader.Name == "key")
                 {
                     string? xmlType = null;
-                    string name = reader.ReadElementContentAsString();
+                    var name = reader.ReadElementContentAsString();
 
                     reader.ReadToNextSibling("value");
 
@@ -127,7 +127,7 @@ namespace HandStack.Core.ExpendObjects
                     reader.MoveToContent();
 
                     TValue? value;
-                    string strval = string.Empty;
+                    var strval = string.Empty;
                     if (xmlType == "nil")
                     {
                         value = default(TValue);
@@ -138,20 +138,20 @@ namespace HandStack.Core.ExpendObjects
                         while (reader.Read() && reader.NodeType != XmlNodeType.Element)
                         { }
 
-                        Type? type = Utilities.GetTypeFromName(xmlType.Substring(3));
+                        var type = Utilities.GetTypeFromName(xmlType.Substring(3));
                         if (type == null)
                         {
                             value = default(TValue);
                         }
                         else
                         {
-                            XmlSerializer ser = new XmlSerializer(type);
+                            var ser = new XmlSerializer(type);
                             value = (TValue?)ser.Deserialize(reader);
                         }
                     }
                     else
                     {
-                        Type? type = Utilities.MapXmlTypeToType(xmlType);
+                        var type = Utilities.MapXmlTypeToType(xmlType);
                         if (type == null)
                         {
                             value = default(TValue);

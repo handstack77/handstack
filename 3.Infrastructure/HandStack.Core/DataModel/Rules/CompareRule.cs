@@ -27,8 +27,8 @@ namespace HandStack.Core.DataModel.Rules
         {
             try
             {
-                string? propertyValue1 = businessObject?.GetType()?.GetProperty(PropertyName)?.GetValue(businessObject, null)?.ToString();
-                string? propertyValue2 = businessObject?.GetType()?.GetProperty(otherPropertyName)?.GetValue(businessObject, null)?.ToString();
+                var propertyValue1 = businessObject?.GetType()?.GetProperty(PropertyName)?.GetValue(businessObject, null)?.ToString();
+                var propertyValue2 = businessObject?.GetType()?.GetProperty(otherPropertyName)?.GetValue(businessObject, null)?.ToString();
 
                 switch (validationType)
                 {
@@ -38,8 +38,8 @@ namespace HandStack.Core.DataModel.Rules
                             return false;
                         }
 
-                        int integerValue1 = int.Parse(propertyValue1);
-                        int integerValue2 = int.Parse(propertyValue2);
+                        var integerValue1 = int.Parse(propertyValue1);
+                        var integerValue2 = int.Parse(propertyValue2);
 
                         switch (validationOperator)
                         {
@@ -58,8 +58,8 @@ namespace HandStack.Core.DataModel.Rules
                             return false;
                         }
 
-                        double doubleValue1 = double.Parse(propertyValue1);
-                        double doubleValue2 = double.Parse(propertyValue2);
+                        var doubleValue1 = double.Parse(propertyValue1);
+                        var doubleValue2 = double.Parse(propertyValue2);
 
                         switch (validationOperator)
                         {
@@ -78,8 +78,8 @@ namespace HandStack.Core.DataModel.Rules
                             return false;
                         }
 
-                        decimal decimalValue1 = decimal.Parse(propertyValue1);
-                        decimal decimalValue2 = decimal.Parse(propertyValue2);
+                        var decimalValue1 = decimal.Parse(propertyValue1);
+                        var decimalValue2 = decimal.Parse(propertyValue2);
 
                         switch (validationOperator)
                         {
@@ -98,8 +98,8 @@ namespace HandStack.Core.DataModel.Rules
                             return false;
                         }
 
-                        DateTime dateValue1 = DateTime.Parse(propertyValue1);
-                        DateTime dateValue2 = DateTime.Parse(propertyValue2);
+                        var dateValue1 = DateTime.Parse(propertyValue1);
+                        var dateValue2 = DateTime.Parse(propertyValue2);
 
                         switch (validationOperator)
                         {
@@ -114,7 +114,7 @@ namespace HandStack.Core.DataModel.Rules
 
                     case ValidationType.String:
 
-                        int result = string.Compare(propertyValue1, propertyValue2, StringComparison.CurrentCulture);
+                        var result = string.Compare(propertyValue1, propertyValue2, StringComparison.CurrentCulture);
 
                         switch (validationOperator)
                         {

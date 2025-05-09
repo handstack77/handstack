@@ -2,9 +2,10 @@
 
 namespace repository.Entity
 {
-	public record ClientToken
+    public record ClientToken
     {
-        public ClientToken() {
+        public ClientToken()
+        {
             ClientIP = "";
             LastedDownloadTime = DateTime.Now;
         }

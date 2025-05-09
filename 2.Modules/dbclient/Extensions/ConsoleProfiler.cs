@@ -50,7 +50,7 @@ namespace dbclient.Extensions
 
             if (string.IsNullOrEmpty(logFilePath) != true)
             {
-                FileInfo fileInfo = new FileInfo(logFilePath);
+                var fileInfo = new FileInfo(logFilePath);
                 IsLogger = true;
             }
         }
@@ -147,8 +147,8 @@ namespace dbclient.Extensions
 
         public void OnExecuteReaderStart(DbCommand command)
         {
-            string providerName = "";
-            ProfilerDbConnection? connection = command.Connection as ProfilerDbConnection;
+            var providerName = "";
+            var connection = command.Connection as ProfilerDbConnection;
             if (connection != null)
             {
                 providerName = connection.WrappedConnection.ToString();

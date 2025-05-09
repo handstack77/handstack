@@ -48,10 +48,10 @@ namespace function.Extensions
                 fileSystemWatcher.Deleted += (s, e) => queue.Enqueue("Deleted|" + e.FullPath);
                 fileSystemWatcher.Changed += (s, e) =>
                 {
-                    string key = "Changed|" + e.FullPath;
-                    DateTime now = DateTime.Now;
+                    var key = "Changed|" + e.FullPath;
+                    var now = DateTime.Now;
 
-                    if (lastEventTimes.TryGetValue(key, out DateTime lastEventTime) && (now - lastEventTime).TotalMilliseconds < 100)
+                    if (lastEventTimes.TryGetValue(key, out var lastEventTime) && (now - lastEventTime).TotalMilliseconds < 100)
                     {
                         return;
                     }
@@ -78,12 +78,12 @@ namespace function.Extensions
         {
             while (true)
             {
-                if (queue.TryDequeue(out string? watchFilePath) == true)
+                if (queue.TryDequeue(out var watchFilePath) == true)
                 {
                     if (string.IsNullOrEmpty(watchFilePath) == false)
                     {
-                        WatcherChangeTypes watcherChangeTypes = Enum.Parse<WatcherChangeTypes>(watchFilePath.Split("|")[0]);
-                        string filePath = watchFilePath.Split("|")[1];
+                        var watcherChangeTypes = Enum.Parse<WatcherChangeTypes>(watchFilePath.Split("|")[0]);
+                        var filePath = watchFilePath.Split("|")[1];
 
                         if (watcherChangeTypes == WatcherChangeTypes.Deleted)
                         {
@@ -96,7 +96,7 @@ namespace function.Extensions
 
                         await Task.Delay(200);
 
-                        lastEventTimes.TryRemove(watchFilePath, out DateTime lastEventTime);
+                        lastEventTimes.TryRemove(watchFilePath, out var lastEventTime);
                     }
                 }
                 else

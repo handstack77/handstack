@@ -66,7 +66,7 @@ namespace checkup.Areas.checkup.Controllers
             ActionResult result = BadRequest();
             try
             {
-                bool hasCache = false;
+                var hasCache = false;
                 if (distributedCache.Get(cacheKey) != null)
                 {
                     hasCache = true;
@@ -76,7 +76,7 @@ namespace checkup.Areas.checkup.Controllers
             }
             catch (Exception exception)
             {
-                string exceptionText = exception.ToMessage();
+                var exceptionText = exception.ToMessage();
                 logger.Warning("[{LogCategory}] " + exceptionText, "Index/HasKey");
                 result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
             }
@@ -93,7 +93,7 @@ namespace checkup.Areas.checkup.Controllers
 
             if (Request.Method == "POST")
             {
-                string rawBody = await Request.GetRawBodyStringAsync();
+                var rawBody = await Request.GetRawBodyStringAsync();
                 var rawSetting = JsonConvert.DeserializeAnonymousType(rawBody, new
                 {
                     applicationID = "",
@@ -122,13 +122,13 @@ namespace checkup.Areas.checkup.Controllers
                 && string.IsNullOrEmpty(tokenID) == false
             )
             {
-                bool isWithOrigin = false;
-                string? requestRefererUrl = Request.Headers.Referer.ToString();
+                var isWithOrigin = false;
+                var requestRefererUrl = Request.Headers.Referer.ToString();
                 if (string.IsNullOrEmpty(requestRefererUrl) == false)
                 {
-                    for (int i = 0; i < GlobalConfiguration.WithOrigins.Count; i++)
+                    for (var i = 0; i < GlobalConfiguration.WithOrigins.Count; i++)
                     {
-                        string origin = GlobalConfiguration.WithOrigins[i];
+                        var origin = GlobalConfiguration.WithOrigins[i];
                         if (requestRefererUrl.IndexOf(origin) > -1)
                         {
                             isWithOrigin = true;
@@ -149,7 +149,7 @@ namespace checkup.Areas.checkup.Controllers
                 {
                     try
                     {
-                        TransactionClientObject transactionObject = new TransactionClientObject();
+                        var transactionObject = new TransactionClientObject();
                         transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
                         transactionObject.ProgramID = applicationID;
                         transactionObject.BusinessID = projectID;
@@ -157,7 +157,7 @@ namespace checkup.Areas.checkup.Controllers
                         transactionObject.FunctionID = serviceID;
                         transactionObject.ScreenID = string.IsNullOrEmpty(screenID) == true ? transactionID : screenID;
 
-                        string requestID = GetRequestID(transactionObject, tokenID);
+                        var requestID = GetRequestID(transactionObject, tokenID);
                         if (distributedCache.Get(requestID) == null)
                         {
                             distributedCache.Remove(requestID);
@@ -171,7 +171,7 @@ namespace checkup.Areas.checkup.Controllers
                     }
                     catch (Exception exception)
                     {
-                        string exceptionText = exception.ToMessage();
+                        var exceptionText = exception.ToMessage();
                         logger.Warning("[{LogCategory}] " + exceptionText, "Index/CreateID");
                         result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
                     }
@@ -210,7 +210,7 @@ namespace checkup.Areas.checkup.Controllers
         [HttpGet("[action]")]
         public string GetSession(string key)
         {
-            string? result = HttpContext.Session.GetString(key);
+            var result = HttpContext.Session.GetString(key);
             if (string.IsNullOrEmpty(result) == true)
             {
                 result = "";
@@ -235,11 +235,11 @@ namespace checkup.Areas.checkup.Controllers
         [HttpGet("[action]")]
         public string SessionKey()
         {
-            string result = "";
+            var result = "";
 
             try
             {
-                HttpContext.Request.Cookies.TryGetValue(GlobalConfiguration.SessionCookieName, out string? cookieValue);
+                HttpContext.Request.Cookies.TryGetValue(GlobalConfiguration.SessionCookieName, out var cookieValue);
                 if (cookieValue != null)
                 {
                     var protectedData = Convert.FromBase64String(cookieValue.SessionDecryptPad());
@@ -265,8 +265,8 @@ namespace checkup.Areas.checkup.Controllers
             {
                 if (count != null && count > 0)
                 {
-                    List<string> list = new List<string>();
-                    for (int i = 0; i < count; i++)
+                    var list = new List<string>();
+                    for (var i = 0; i < count; i++)
                     {
                         list.Add(sequentialIdGenerator.NewId().ToString());
                     }
@@ -281,8 +281,8 @@ namespace checkup.Areas.checkup.Controllers
             {
                 if (count != null && count > 0)
                 {
-                    List<string> list = new List<string>();
-                    for (int i = 0; i < count; i++)
+                    var list = new List<string>();
+                    for (var i = 0; i < count; i++)
                     {
                         list.Add(sequentialIdGenerator.NewId().ToString("N"));
                     }

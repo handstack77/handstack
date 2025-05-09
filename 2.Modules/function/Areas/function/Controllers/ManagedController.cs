@@ -88,14 +88,14 @@ namespace function.Areas.function.Controllers
                         try
                         {
                             var functionSourceMappings = FunctionMapper.FunctionSourceMappings.Where(x => x.Key.IndexOf($"{applicationID}|") > -1).ToList();
-                            for (int i = functionSourceMappings.Count(); i > 0; i--)
+                            for (var i = functionSourceMappings.Count(); i > 0; i--)
                             {
                                 var item = functionSourceMappings[i - 1].Key;
                                 FunctionMapper.FunctionSourceMappings.Remove(item);
                             }
 
                             var statementMappings = FunctionMapper.ScriptMappings.Where(x => x.Value.ApplicationID == applicationID).ToList();
-                            for (int i = statementMappings.Count(); i > 0; i--)
+                            for (var i = statementMappings.Count(); i > 0; i--)
                             {
                                 var item = statementMappings[i - 1].Key;
                                 FunctionMapper.ScriptMappings.Remove(item);
@@ -108,9 +108,9 @@ namespace function.Areas.function.Controllers
                                 return Ok();
                             }
 
-                            string[] scriptMapFiles = Directory.GetFiles(basePath, "featureMeta.json", SearchOption.AllDirectories);
+                            var scriptMapFiles = Directory.GetFiles(basePath, "featureMeta.json", SearchOption.AllDirectories);
 
-                            foreach (string scriptMapFile in scriptMapFiles)
+                            foreach (var scriptMapFile in scriptMapFiles)
                             {
                                 string functionScriptFile;
                                 try
@@ -121,7 +121,7 @@ namespace function.Areas.function.Controllers
                                         continue;
                                     }
 
-                                    FunctionScriptContract? functionScriptContract = FunctionScriptContract.FromJson(System.IO.File.ReadAllText(scriptMapFile));
+                                    var functionScriptContract = FunctionScriptContract.FromJson(System.IO.File.ReadAllText(scriptMapFile));
 
                                     if (functionScriptContract == null)
                                     {
@@ -152,8 +152,8 @@ namespace function.Areas.function.Controllers
                                     functionScriptFile = scriptMapFile.Replace("featureMeta.json", $"featureMain.{fileExtension}");
                                     if (System.IO.File.Exists(functionScriptFile) == true)
                                     {
-                                        FileInfo fileInfo = new FileInfo(scriptMapFile);
-                                        FunctionHeader header = functionScriptContract.Header;
+                                        var fileInfo = new FileInfo(scriptMapFile);
+                                        var header = functionScriptContract.Header;
                                         if (scriptMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                                         {
                                             header.ApplicationID = string.IsNullOrEmpty(header.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Parent?.Parent?.Name).ToStringSafe() : header.ApplicationID;
@@ -172,7 +172,7 @@ namespace function.Areas.function.Controllers
                                         {
                                             if (header.Use == true)
                                             {
-                                                ModuleScriptMap moduleScriptMap = new ModuleScriptMap();
+                                                var moduleScriptMap = new ModuleScriptMap();
                                                 moduleScriptMap.ApplicationID = header.ApplicationID;
                                                 moduleScriptMap.ProjectID = header.ProjectID;
                                                 moduleScriptMap.TransactionID = header.TransactionID;
@@ -210,10 +210,10 @@ namespace function.Areas.function.Controllers
                                                 moduleScriptMap.Comment = item.Comment;
 
                                                 moduleScriptMap.ModuleParameters = new List<ModuleParameterMap>();
-                                                List<FunctionParam> functionParams = item.Params;
+                                                var functionParams = item.Params;
                                                 if (functionParams != null && functionParams.Count > 0)
                                                 {
-                                                    foreach (FunctionParam functionParam in functionParams)
+                                                    foreach (var functionParam in functionParams)
                                                     {
                                                         moduleScriptMap.ModuleParameters.Add(new ModuleParameterMap()
                                                         {
@@ -225,7 +225,7 @@ namespace function.Areas.function.Controllers
                                                     }
                                                 }
 
-                                                string queryID = string.Concat(
+                                                var queryID = string.Concat(
                                                     moduleScriptMap.ApplicationID, "|",
                                                     moduleScriptMap.ProjectID, "|",
                                                     moduleScriptMap.TransactionID, "|",
@@ -293,14 +293,14 @@ namespace function.Areas.function.Controllers
                         var tenants = ModuleConfiguration.FunctionFileSyncManager.Where(pair => pair.Key.IndexOf($"{userWorkID}/{applicationID}") > -1);
                         if (tenants.Any() == true)
                         {
-                            List<string> tenantsPath = new List<string>();
+                            var tenantsPath = new List<string>();
                             foreach (var tenant in tenants)
                             {
                                 tenantsPath.Add(tenant.Key);
                                 tenant.Value?.Stop();
                             }
 
-                            for (int i = 0; i < tenantsPath.Count; i++)
+                            for (var i = 0; i < tenantsPath.Count; i++)
                             {
                                 ModuleConfiguration.FunctionFileSyncManager.Remove(tenantsPath[i]);
                             }

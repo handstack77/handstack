@@ -12,7 +12,7 @@ namespace HandStack.Web.Helper
         {
             if (nodeEvent is Scalar scalar)
             {
-                bool couldBeBoolean
+                var couldBeBoolean
                     = scalar.Style is ScalarStyle.Plain
                     && (string.Equals(scalar.Value, bool.FalseString, StringComparison.OrdinalIgnoreCase) || string.Equals(scalar.Value, bool.TrueString, StringComparison.OrdinalIgnoreCase));
 

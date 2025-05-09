@@ -89,8 +89,8 @@ namespace ack.Extensions
         {
             if (eventData.Payload != null && eventData.Payload.Count > 0 && eventData.Payload[0] is IDictionary<string, object> payload)
             {
-                string payloadName = (string)payload["Name"];
-                string eventSourceName = eventData.EventSource.Name;
+                var payloadName = (string)payload["Name"];
+                var eventSourceName = eventData.EventSource.Name;
                 switch (eventSourceName)
                 {
                     case collectionSystemRuntime:
@@ -221,9 +221,9 @@ namespace ack.Extensions
 
             if (result == null || result.ToString() == "0")
             {
-                eventPayload.TryGetValue("CounterType", out object? counterType);
-                string? counterName = counterType?.ToString();
-                string metricKey = "Mean";
+                eventPayload.TryGetValue("CounterType", out var counterType);
+                var counterName = counterType?.ToString();
+                var metricKey = "Mean";
                 if (counterName != null)
                 {
                     metricKey = counterName;

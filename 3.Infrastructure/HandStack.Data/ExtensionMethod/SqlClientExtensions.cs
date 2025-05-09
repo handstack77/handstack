@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using Microsoft.Data.SqlClient;
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
 
 using HandStack.Core.ExtensionMethod;
+
+using Microsoft.Data.SqlClient;
 
 namespace HandStack.Data.ExtensionMethod
 {
@@ -37,41 +38,37 @@ namespace HandStack.Data.ExtensionMethod
 
         public static DataSet ExecuteDataSet(this SqlConnection @this, string cmdText, SqlParameter[]? parameters, CommandType commandType, SqlTransaction? transaction)
         {
-            using (var command = @this.CreateCommand())
+            using var command = @this.CreateCommand();
+            command.CommandText = cmdText;
+            command.CommandType = commandType;
+            command.Transaction = transaction;
+
+            if (parameters != null)
             {
-                command.CommandText = cmdText;
-                command.CommandType = commandType;
-                command.Transaction = transaction;
-
-                if (parameters != null)
-                {
-                    command.Parameters.AddRange(parameters);
-                }
-
-                var ds = new DataSet();
-                using (var dataAdapter = new SqlDataAdapter(command))
-                {
-                    dataAdapter.Fill(ds);
-                }
-
-                return ds;
+                command.Parameters.AddRange(parameters);
             }
+
+            var ds = new DataSet();
+            using (var dataAdapter = new SqlDataAdapter(command))
+            {
+                dataAdapter.Fill(ds);
+            }
+
+            return ds;
         }
 
         public static DataSet ExecuteDataSet(this SqlConnection @this, Action<SqlCommand> commandFactory)
         {
-            using (var command = @this.CreateCommand())
+            using var command = @this.CreateCommand();
+            commandFactory(command);
+
+            var ds = new DataSet();
+            using (var dataAdapter = new SqlDataAdapter(command))
             {
-                commandFactory(command);
-
-                var ds = new DataSet();
-                using (var dataAdapter = new SqlDataAdapter(command))
-                {
-                    dataAdapter.Fill(ds);
-                }
-
-                return ds;
+                dataAdapter.Fill(ds);
             }
+
+            return ds;
         }
 
         public static DataSet ExecuteDataSet(this SqlConnection @this, string cmdText)
@@ -111,41 +108,37 @@ namespace HandStack.Data.ExtensionMethod
 
         public static DataTable ExecuteDataTable(this SqlConnection @this, string cmdText, SqlParameter[]? parameters, CommandType commandType, SqlTransaction? transaction)
         {
-            using (SqlCommand command = @this.CreateCommand())
+            using var command = @this.CreateCommand();
+            command.CommandText = cmdText;
+            command.CommandType = commandType;
+            command.Transaction = transaction;
+
+            if (parameters != null)
             {
-                command.CommandText = cmdText;
-                command.CommandType = commandType;
-                command.Transaction = transaction;
-
-                if (parameters != null)
-                {
-                    command.Parameters.AddRange(parameters);
-                }
-
-                var ds = new DataSet();
-                using (var dataAdapter = new SqlDataAdapter(command))
-                {
-                    dataAdapter.Fill(ds);
-                }
-
-                return ds.Tables[0];
+                command.Parameters.AddRange(parameters);
             }
+
+            var ds = new DataSet();
+            using (var dataAdapter = new SqlDataAdapter(command))
+            {
+                dataAdapter.Fill(ds);
+            }
+
+            return ds.Tables[0];
         }
 
         public static DataTable ExecuteDataTable(this SqlConnection @this, Action<SqlCommand> commandFactory)
         {
-            using (SqlCommand command = @this.CreateCommand())
+            using var command = @this.CreateCommand();
+            commandFactory(command);
+
+            var ds = new DataSet();
+            using (var dataAdapter = new SqlDataAdapter(command))
             {
-                commandFactory(command);
-
-                var ds = new DataSet();
-                using (var dataAdapter = new SqlDataAdapter(command))
-                {
-                    dataAdapter.Fill(ds);
-                }
-
-                return ds.Tables[0];
+                dataAdapter.Fill(ds);
             }
+
+            return ds.Tables[0];
         }
 
         public static DataTable ExecuteDataTable(this SqlConnection @this, string cmdText)
@@ -185,35 +178,27 @@ namespace HandStack.Data.ExtensionMethod
 
         public static IEnumerable<T> ExecuteEntities<T>(this SqlConnection @this, string cmdText, SqlParameter[]? parameters, CommandType commandType, SqlTransaction? transaction) where T : new()
         {
-            using (SqlCommand command = @this.CreateCommand())
+            using var command = @this.CreateCommand();
+            command.CommandText = cmdText;
+            command.CommandType = commandType;
+            command.Transaction = transaction;
+
+            if (parameters != null)
             {
-                command.CommandText = cmdText;
-                command.CommandType = commandType;
-                command.Transaction = transaction;
-
-                if (parameters != null)
-                {
-                    command.Parameters.AddRange(parameters);
-                }
-
-                using (IDataReader reader = command.ExecuteReader())
-                {
-                    return reader.ToEntities<T>();
-                }
+                command.Parameters.AddRange(parameters);
             }
+
+            using IDataReader reader = command.ExecuteReader();
+            return reader.ToEntities<T>();
         }
 
         public static IEnumerable<T> ExecuteEntities<T>(this SqlConnection @this, Action<SqlCommand> commandFactory) where T : new()
         {
-            using (SqlCommand command = @this.CreateCommand())
-            {
-                commandFactory(command);
+            using var command = @this.CreateCommand();
+            commandFactory(command);
 
-                using (IDataReader reader = command.ExecuteReader())
-                {
-                    return reader.ToEntities<T>();
-                }
-            }
+            using IDataReader reader = command.ExecuteReader();
+            return reader.ToEntities<T>();
         }
 
         public static IEnumerable<T> ExecuteEntities<T>(this SqlConnection @this, string cmdText) where T : new()
@@ -253,37 +238,29 @@ namespace HandStack.Data.ExtensionMethod
 
         public static T ExecuteEntity<T>(this SqlConnection @this, string cmdText, SqlParameter[]? parameters, CommandType commandType, SqlTransaction? transaction) where T : new()
         {
-            using (SqlCommand command = @this.CreateCommand())
+            using var command = @this.CreateCommand();
+            command.CommandText = cmdText;
+            command.CommandType = commandType;
+            command.Transaction = transaction;
+
+            if (parameters != null)
             {
-                command.CommandText = cmdText;
-                command.CommandType = commandType;
-                command.Transaction = transaction;
-
-                if (parameters != null)
-                {
-                    command.Parameters.AddRange(parameters);
-                }
-
-                using (IDataReader reader = command.ExecuteReader())
-                {
-                    reader.Read();
-                    return reader.ToEntity<T>();
-                }
+                command.Parameters.AddRange(parameters);
             }
+
+            using IDataReader reader = command.ExecuteReader();
+            reader.Read();
+            return reader.ToEntity<T>();
         }
 
         public static T ExecuteEntity<T>(this SqlConnection @this, Action<SqlCommand> commandFactory) where T : new()
         {
-            using (SqlCommand command = @this.CreateCommand())
-            {
-                commandFactory(command);
+            using var command = @this.CreateCommand();
+            commandFactory(command);
 
-                using (IDataReader reader = command.ExecuteReader())
-                {
-                    reader.Read();
-                    return reader.ToEntity<T>();
-                }
-            }
+            using IDataReader reader = command.ExecuteReader();
+            reader.Read();
+            return reader.ToEntity<T>();
         }
 
         public static T ExecuteEntity<T>(this SqlConnection @this, string cmdText) where T : new()
@@ -323,37 +300,29 @@ namespace HandStack.Data.ExtensionMethod
 
         public static dynamic ExecuteExpandoObject(this SqlConnection @this, string cmdText, SqlParameter[]? parameters, CommandType commandType, SqlTransaction? transaction)
         {
-            using (SqlCommand command = @this.CreateCommand())
+            using var command = @this.CreateCommand();
+            command.CommandText = cmdText;
+            command.CommandType = commandType;
+            command.Transaction = transaction;
+
+            if (parameters != null)
             {
-                command.CommandText = cmdText;
-                command.CommandType = commandType;
-                command.Transaction = transaction;
-
-                if (parameters != null)
-                {
-                    command.Parameters.AddRange(parameters);
-                }
-
-                using (IDataReader reader = command.ExecuteReader())
-                {
-                    reader.Read();
-                    return reader.ToExpandoObject();
-                }
+                command.Parameters.AddRange(parameters);
             }
+
+            using IDataReader reader = command.ExecuteReader();
+            reader.Read();
+            return reader.ToExpandoObject();
         }
 
         public static dynamic ExecuteExpandoObject(this SqlConnection @this, Action<SqlCommand> commandFactory)
         {
-            using (SqlCommand command = @this.CreateCommand())
-            {
-                commandFactory(command);
+            using var command = @this.CreateCommand();
+            commandFactory(command);
 
-                using (IDataReader reader = command.ExecuteReader())
-                {
-                    reader.Read();
-                    return reader.ToExpandoObject();
-                }
-            }
+            using IDataReader reader = command.ExecuteReader();
+            reader.Read();
+            return reader.ToExpandoObject();
         }
 
         public static dynamic ExecuteExpandoObject(this SqlConnection @this, string cmdText)
@@ -393,35 +362,27 @@ namespace HandStack.Data.ExtensionMethod
 
         public static IEnumerable<dynamic> ExecuteExpandoObjects(this SqlConnection @this, string cmdText, SqlParameter[]? parameters, CommandType commandType, SqlTransaction? transaction)
         {
-            using (SqlCommand command = @this.CreateCommand())
+            using var command = @this.CreateCommand();
+            command.CommandText = cmdText;
+            command.CommandType = commandType;
+            command.Transaction = transaction;
+
+            if (parameters != null)
             {
-                command.CommandText = cmdText;
-                command.CommandType = commandType;
-                command.Transaction = transaction;
-
-                if (parameters != null)
-                {
-                    command.Parameters.AddRange(parameters);
-                }
-
-                using (IDataReader reader = command.ExecuteReader())
-                {
-                    return reader.ToExpandoObjects();
-                }
+                command.Parameters.AddRange(parameters);
             }
+
+            using IDataReader reader = command.ExecuteReader();
+            return reader.ToExpandoObjects();
         }
 
         public static IEnumerable<dynamic> ExecuteExpandoObjects(this SqlConnection @this, Action<SqlCommand> commandFactory)
         {
-            using (SqlCommand command = @this.CreateCommand())
-            {
-                commandFactory(command);
+            using var command = @this.CreateCommand();
+            commandFactory(command);
 
-                using (IDataReader reader = command.ExecuteReader())
-                {
-                    return reader.ToExpandoObjects();
-                }
-            }
+            using IDataReader reader = command.ExecuteReader();
+            return reader.ToExpandoObjects();
         }
 
         public static IEnumerable<dynamic> ExecuteExpandoObjects(this SqlConnection @this, string cmdText)
@@ -461,29 +422,25 @@ namespace HandStack.Data.ExtensionMethod
 
         public static XmlReader ExecuteXmlReader(this SqlConnection @this, string cmdText, SqlParameter[]? parameters, CommandType commandType, SqlTransaction? transaction)
         {
-            using (SqlCommand command = @this.CreateCommand())
+            using var command = @this.CreateCommand();
+            command.CommandText = cmdText;
+            command.CommandType = commandType;
+            command.Transaction = transaction;
+
+            if (parameters != null)
             {
-                command.CommandText = cmdText;
-                command.CommandType = commandType;
-                command.Transaction = transaction;
-
-                if (parameters != null)
-                {
-                    command.Parameters.AddRange(parameters);
-                }
-
-                return command.ExecuteXmlReader();
+                command.Parameters.AddRange(parameters);
             }
+
+            return command.ExecuteXmlReader();
         }
 
         public static XmlReader ExecuteXmlReader(this SqlConnection @this, Action<SqlCommand> commandFactory)
         {
-            using (SqlCommand command = @this.CreateCommand())
-            {
-                commandFactory(command);
+            using var command = @this.CreateCommand();
+            commandFactory(command);
 
-                return command.ExecuteXmlReader();
-            }
+            return command.ExecuteXmlReader();
         }
 
         public static XmlReader ExecuteXmlReader(this SqlConnection @this, string cmdText)
@@ -531,7 +488,7 @@ namespace HandStack.Data.ExtensionMethod
 
         public static string ParameterValueForSQL(this SqlParameter @this)
         {
-            object? paramValue = @this.Value;
+            var paramValue = @this.Value;
 
             if (paramValue == null)
             {
@@ -583,7 +540,7 @@ namespace HandStack.Data.ExtensionMethod
 
         private static void CommandAsTSql_Text(this SqlCommand @this, StringBuilder sql)
         {
-            string query = @this.CommandText;
+            var query = @this.CommandText;
 
             foreach (SqlParameter p in @this.Parameters)
             {
@@ -609,7 +566,7 @@ namespace HandStack.Data.ExtensionMethod
 
             sql.Append("exec [").Append(@this.CommandText).AppendLine("]");
 
-            bool FirstParam = true;
+            var FirstParam = true;
             foreach (SqlParameter param in @this.Parameters)
             {
                 if (param.Direction != ParameterDirection.ReturnValue)

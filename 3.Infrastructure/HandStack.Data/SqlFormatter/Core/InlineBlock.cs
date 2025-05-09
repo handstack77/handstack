@@ -37,12 +37,12 @@ namespace HandStack.Data.SqlFormatter.Core
 
         private bool IsInlineBlock(IReadOnlyList<Token> tokens, int index, ReadOnlySpan<char> valueSpan)
         {
-            int length = 0;
-            int level = 0;
+            var length = 0;
+            var level = 0;
 
-            for (int i = index; i < tokens.Count; i++)
+            for (var i = index; i < tokens.Count; i++)
             {
-                Token token = tokens[i];
+                var token = tokens[i];
                 length += token.Length;
 
                 if (length > InlineMaxLength)

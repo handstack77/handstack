@@ -36,19 +36,19 @@ namespace function.Extensions
             ModuleSourceMap? result = null;
             lock (FunctionSourceMappings)
             {
-                string functionSourceMappingsKey = $"{applicationID}|{dataSourceID}";
+                var functionSourceMappingsKey = $"{applicationID}|{dataSourceID}";
                 result = FunctionSourceMappings.FirstOrDefault(item => item.Key == functionSourceMappingsKey
                     && (item.Value.ProjectListID.IndexOf(projectID) > -1 || item.Value.ProjectListID.IndexOf("*") > -1)).Value;
 
                 if (result == null)
                 {
-                    string userWorkID = string.Empty;
-                    string appBasePath = string.Empty;
-                    DirectoryInfo baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
+                    var userWorkID = string.Empty;
+                    var appBasePath = string.Empty;
+                    var baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
                     var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
-                    foreach (string directory in directories)
+                    foreach (var directory in directories)
                     {
-                        DirectoryInfo directoryInfo = new DirectoryInfo(directory);
+                        var directoryInfo = new DirectoryInfo(directory);
                         if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
                         {
                             appBasePath = directoryInfo.FullName.Replace("\\", "/");
@@ -57,13 +57,13 @@ namespace function.Extensions
                         }
                     }
 
-                    string tenantID = $"{userWorkID}|{applicationID}";
+                    var tenantID = $"{userWorkID}|{applicationID}";
                     if (Directory.Exists(appBasePath) == true)
                     {
-                        string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
+                        var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                         if (File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                         {
-                            string appSettingText = File.ReadAllText(settingFilePath);
+                            var appSettingText = File.ReadAllText(settingFilePath);
                             var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
                             if (appSetting != null)
                             {
@@ -74,14 +74,14 @@ namespace function.Extensions
                                     if (items != null && items.Length > 0)
                                     {
                                         var item = items[0];
-                                        List<string> projects = item.GetStringSafe("ProjectID").SplitComma();
-                                        string dataProvider = item.GetStringSafe("DataProvider");
-                                        string connectionString = item.GetStringSafe("ConnectionString");
+                                        var projects = item.GetStringSafe("ProjectID").SplitComma();
+                                        var dataProvider = item.GetStringSafe("DataProvider");
+                                        var connectionString = item.GetStringSafe("ConnectionString");
                                         if (projects.IndexOf(projectID) > -1 || projects.IndexOf("*") > -1)
                                         {
                                             if (FunctionSourceMappings.ContainsKey(functionSourceMappingsKey) == false)
                                             {
-                                                ModuleSourceMap moduleSourceMap = new ModuleSourceMap();
+                                                var moduleSourceMap = new ModuleSourceMap();
                                                 moduleSourceMap.ProjectListID = projects;
                                                 moduleSourceMap.DataSourceID = dataSourceID;
                                                 moduleSourceMap.DataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), dataProvider);
@@ -99,7 +99,7 @@ namespace function.Extensions
                                                     }
                                                 }
 
-                                                string workingDirectoryPath = PathExtensions.Combine(appBasePath, "function", "working", projectID, transactionID);
+                                                var workingDirectoryPath = PathExtensions.Combine(appBasePath, "function", "working", projectID, transactionID);
                                                 if (Directory.Exists(workingDirectoryPath) == false)
                                                 {
                                                     Directory.CreateDirectory(workingDirectoryPath);
@@ -133,11 +133,11 @@ namespace function.Extensions
                 if (result == null)
                 {
                     var itemKeys = queryID.Split("|");
-                    string applicationID = itemKeys[0];
-                    string projectID = itemKeys[1];
-                    string transactionID = itemKeys[2];
+                    var applicationID = itemKeys[0];
+                    var projectID = itemKeys[1];
+                    var transactionID = itemKeys[2];
 
-                    string filePath = string.Empty;
+                    var filePath = string.Empty;
                     foreach (var basePath in ModuleConfiguration.ContractBasePath)
                     {
                         var scriptMapFile = PathExtensions.Combine(basePath, applicationID, projectID, transactionID, "featureMeta.json");
@@ -160,13 +160,13 @@ namespace function.Extensions
 
                     if (result == null)
                     {
-                        string userWorkID = string.Empty;
-                        string appBasePath = string.Empty;
-                        DirectoryInfo baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
+                        var userWorkID = string.Empty;
+                        var appBasePath = string.Empty;
+                        var baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
                         var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
-                        foreach (string directory in directories)
+                        foreach (var directory in directories)
                         {
-                            DirectoryInfo directoryInfo = new DirectoryInfo(directory);
+                            var directoryInfo = new DirectoryInfo(directory);
                             if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
                             {
                                 appBasePath = directoryInfo.FullName.Replace("\\", "/");
@@ -177,7 +177,7 @@ namespace function.Extensions
 
                         if (string.IsNullOrEmpty(appBasePath) == false)
                         {
-                            string tenantID = $"{userWorkID}|{applicationID}";
+                            var tenantID = $"{userWorkID}|{applicationID}";
                             var scriptMapFile = PathExtensions.Combine(appBasePath, "function", projectID, transactionID, "featureMeta.json");
                             if (File.Exists(scriptMapFile) == true)
                             {
@@ -212,7 +212,7 @@ namespace function.Extensions
                         return;
                     }
 
-                    FunctionScriptContract? functionScriptContract = FunctionScriptContract.FromJson(File.ReadAllText(scriptMapFile));
+                    var functionScriptContract = FunctionScriptContract.FromJson(File.ReadAllText(scriptMapFile));
 
                     if (functionScriptContract == null)
                     {
@@ -243,9 +243,9 @@ namespace function.Extensions
                     var functionScriptFile = scriptMapFile.Replace("featureMeta.json", $"featureMain.{fileExtension}");
                     if (File.Exists(functionScriptFile) == true)
                     {
-                        FileInfo fileInfo = new FileInfo(scriptMapFile);
-                        FunctionHeader header = functionScriptContract.Header;
-                        bool isTenantContractFile = false;
+                        var fileInfo = new FileInfo(scriptMapFile);
+                        var header = functionScriptContract.Header;
+                        var isTenantContractFile = false;
                         if (scriptMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                         {
                             isTenantContractFile = true;
@@ -265,7 +265,7 @@ namespace function.Extensions
                         {
                             if (header.Use == true)
                             {
-                                ModuleScriptMap moduleScriptMap = new ModuleScriptMap();
+                                var moduleScriptMap = new ModuleScriptMap();
                                 moduleScriptMap.ApplicationID = header.ApplicationID;
                                 moduleScriptMap.ProjectID = header.ProjectID;
                                 moduleScriptMap.TransactionID = header.TransactionID;
@@ -303,10 +303,10 @@ namespace function.Extensions
                                 moduleScriptMap.Comment = item.Comment;
 
                                 moduleScriptMap.ModuleParameters = new List<ModuleParameterMap>();
-                                List<FunctionParam> functionParams = item.Params;
+                                var functionParams = item.Params;
                                 if (functionParams != null && functionParams.Count > 0)
                                 {
-                                    foreach (FunctionParam functionParam in functionParams)
+                                    foreach (var functionParam in functionParams)
                                     {
                                         moduleScriptMap.ModuleParameters.Add(new ModuleParameterMap()
                                         {
@@ -318,7 +318,7 @@ namespace function.Extensions
                                     }
                                 }
 
-                                string mappingQueryID = string.Concat(
+                                var mappingQueryID = string.Concat(
                                     moduleScriptMap.ApplicationID, "|",
                                     moduleScriptMap.ProjectID, "|",
                                     moduleScriptMap.TransactionID, "|",
@@ -357,10 +357,10 @@ namespace function.Extensions
 
         public static bool HasContractFile(string fileRelativePath)
         {
-            bool result = false;
+            var result = false;
             foreach (var basePath in ModuleConfiguration.ContractBasePath)
             {
-                string filePath = PathExtensions.Join(basePath, fileRelativePath);
+                var filePath = PathExtensions.Join(basePath, fileRelativePath);
                 result = File.Exists(filePath);
                 if (result == true)
                 {
@@ -374,10 +374,10 @@ namespace function.Extensions
 
         public static bool Remove(string projectID, string businessID, string transactionID, string scriptID)
         {
-            bool result = false;
+            var result = false;
             lock (ScriptMappings)
             {
-                string queryID = string.Concat(
+                var queryID = string.Concat(
                     projectID, "|",
                     businessID, "|",
                     transactionID, "|",
@@ -395,8 +395,8 @@ namespace function.Extensions
 
         public static bool HasScript(string applicationID, string projectID, string transactionID, string scriptID)
         {
-            bool result = false;
-            string queryID = string.Concat(
+            var result = false;
+            var queryID = string.Concat(
                 applicationID, "|",
                 projectID, "|",
                 transactionID, "|",
@@ -410,7 +410,7 @@ namespace function.Extensions
 
         public static bool AddScriptMap(string scriptMapFile, bool forceUpdate, ILogger logger)
         {
-            bool result = false;
+            var result = false;
 
             try
             {
@@ -421,8 +421,8 @@ namespace function.Extensions
                         return result;
                     }
 
-                    string filePath = string.Empty;
-                    string scriptMapFilePath = string.Empty;
+                    var filePath = string.Empty;
+                    var scriptMapFilePath = string.Empty;
 
                     scriptMapFilePath = PathExtensions.Combine(basePath, scriptMapFile);
                     if (File.Exists(scriptMapFilePath) == true)
@@ -432,7 +432,7 @@ namespace function.Extensions
 
                     if (File.Exists(filePath) == true)
                     {
-                        FunctionScriptContract? functionScriptContract = FunctionScriptContract.FromJson(File.ReadAllText(filePath));
+                        var functionScriptContract = FunctionScriptContract.FromJson(File.ReadAllText(filePath));
 
                         if (functionScriptContract == null)
                         {
@@ -460,15 +460,15 @@ namespace function.Extensions
                             continue;
                         }
 
-                        string functionScriptFile = filePath.Replace("featureMeta.json", $"featureMain.{fileExtension}");
+                        var functionScriptFile = filePath.Replace("featureMeta.json", $"featureMain.{fileExtension}");
                         if (File.Exists(functionScriptFile) == true)
                         {
-                            FunctionHeader header = functionScriptContract.Header;
-                            bool isTenantContractFile = false;
+                            var header = functionScriptContract.Header;
+                            var isTenantContractFile = false;
                             if (filePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                             {
                                 isTenantContractFile = true;
-                                FileInfo fileInfo = new FileInfo(filePath);
+                                var fileInfo = new FileInfo(filePath);
                                 header.ApplicationID = string.IsNullOrEmpty(header.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Parent?.Parent?.Name).ToStringSafe() : header.ApplicationID;
                                 header.ProjectID = string.IsNullOrEmpty(header.ProjectID) == true ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : header.ProjectID;
                                 header.TransactionID = string.IsNullOrEmpty(header.TransactionID) == true ? (fileInfo.Directory?.Name).ToStringSafe().Replace(fileInfo.Extension, "") : header.TransactionID;
@@ -479,7 +479,7 @@ namespace function.Extensions
                             {
                                 if (header.Use == true)
                                 {
-                                    ModuleScriptMap moduleScriptMap = new ModuleScriptMap();
+                                    var moduleScriptMap = new ModuleScriptMap();
                                     moduleScriptMap.ApplicationID = header.ApplicationID;
                                     moduleScriptMap.ProjectID = header.ProjectID;
                                     moduleScriptMap.TransactionID = header.TransactionID;
@@ -517,10 +517,10 @@ namespace function.Extensions
                                     moduleScriptMap.Comment = item.Comment;
 
                                     moduleScriptMap.ModuleParameters = new List<ModuleParameterMap>();
-                                    List<FunctionParam> functionParams = item.Params;
+                                    var functionParams = item.Params;
                                     if (functionParams != null && functionParams.Count > 0)
                                     {
-                                        foreach (FunctionParam functionParam in functionParams)
+                                        foreach (var functionParam in functionParams)
                                         {
                                             moduleScriptMap.ModuleParameters.Add(new ModuleParameterMap()
                                             {
@@ -532,7 +532,7 @@ namespace function.Extensions
                                         }
                                     }
 
-                                    string queryID = string.Concat(
+                                    var queryID = string.Concat(
                                         moduleScriptMap.ApplicationID, "|",
                                         moduleScriptMap.ProjectID, "|",
                                         moduleScriptMap.TransactionID, "|",
@@ -601,16 +601,16 @@ namespace function.Extensions
 
         private static void deletePythonCache(string functionScriptFile, ModuleScriptMap moduleScriptMap)
         {
-            string functionDirectoryPath = Path.GetDirectoryName(functionScriptFile)!;
-            string transactionID = new DirectoryInfo(functionDirectoryPath).Name;
-            string moduleName = $"{moduleScriptMap.ApplicationID}_{moduleScriptMap.ProjectID}_{moduleScriptMap.TransactionID}";
-            string mainFilePath = functionScriptFile.Replace("featureMain.py", $"{moduleName}.py");
+            var functionDirectoryPath = Path.GetDirectoryName(functionScriptFile)!;
+            var transactionID = new DirectoryInfo(functionDirectoryPath).Name;
+            var moduleName = $"{moduleScriptMap.ApplicationID}_{moduleScriptMap.ProjectID}_{moduleScriptMap.TransactionID}";
+            var mainFilePath = functionScriptFile.Replace("featureMain.py", $"{moduleName}.py");
             if (File.Exists(mainFilePath) == false)
             {
                 File.Delete(mainFilePath);
             }
 
-            string pythonCachePath = PathExtensions.Combine(functionDirectoryPath, "__pycache__");
+            var pythonCachePath = PathExtensions.Combine(functionDirectoryPath, "__pycache__");
             if (Directory.Exists(pythonCachePath) == true)
             {
                 Directory.Delete(pythonCachePath, true);
@@ -635,9 +635,9 @@ namespace function.Extensions
 
                     logger.Information("[{LogCategory}] ContractBasePath: " + basePath, "FunctionMapper/LoadContract");
 
-                    string[] scriptMapFiles = Directory.GetFiles(basePath, "featureMeta.json", SearchOption.AllDirectories);
+                    var scriptMapFiles = Directory.GetFiles(basePath, "featureMeta.json", SearchOption.AllDirectories);
 
-                    foreach (string scriptMapFile in scriptMapFiles)
+                    foreach (var scriptMapFile in scriptMapFiles)
                     {
                         string functionScriptFile;
                         try
@@ -648,7 +648,7 @@ namespace function.Extensions
                                 continue;
                             }
 
-                            FunctionScriptContract? functionScriptContract = FunctionScriptContract.FromJson(File.ReadAllText(scriptMapFile));
+                            var functionScriptContract = FunctionScriptContract.FromJson(File.ReadAllText(scriptMapFile));
 
                             if (functionScriptContract == null)
                             {
@@ -679,14 +679,14 @@ namespace function.Extensions
                             functionScriptFile = scriptMapFile.Replace("featureMeta.json", $"featureMain.{fileExtension}");
                             if (File.Exists(functionScriptFile) == true)
                             {
-                                FunctionHeader header = functionScriptContract.Header;
+                                var header = functionScriptContract.Header;
 
                                 var items = functionScriptContract.Commands;
                                 foreach (var item in items)
                                 {
                                     if (header.Use == true)
                                     {
-                                        ModuleScriptMap moduleScriptMap = new ModuleScriptMap();
+                                        var moduleScriptMap = new ModuleScriptMap();
                                         moduleScriptMap.ApplicationID = header.ApplicationID;
                                         moduleScriptMap.ProjectID = header.ProjectID;
                                         moduleScriptMap.TransactionID = header.TransactionID;
@@ -724,10 +724,10 @@ namespace function.Extensions
                                         moduleScriptMap.Comment = item.Comment;
 
                                         moduleScriptMap.ModuleParameters = new List<ModuleParameterMap>();
-                                        List<FunctionParam> functionParams = item.Params;
+                                        var functionParams = item.Params;
                                         if (functionParams != null && functionParams.Count > 0)
                                         {
-                                            foreach (FunctionParam functionParam in functionParams)
+                                            foreach (var functionParam in functionParams)
                                             {
                                                 moduleScriptMap.ModuleParameters.Add(new ModuleParameterMap()
                                                 {
@@ -739,7 +739,7 @@ namespace function.Extensions
                                             }
                                         }
 
-                                        string queryID = string.Concat(
+                                        var queryID = string.Concat(
                                             moduleScriptMap.ApplicationID, "|",
                                             moduleScriptMap.ProjectID, "|",
                                             moduleScriptMap.TransactionID, "|",
@@ -779,12 +779,12 @@ namespace function.Extensions
 
                 foreach (var item in ModuleConfiguration.FunctionSource)
                 {
-                    string projectIDText = item.ProjectID;
+                    var projectIDText = item.ProjectID;
                     var projectIDList = projectIDText.Split(",").Where(s => string.IsNullOrWhiteSpace(s) == false).Distinct().ToList();
 
                     if (projectIDList.Count > 0)
                     {
-                        string dataSourceID = $"{item.ApplicationID}|{item.DataSourceID}";
+                        var dataSourceID = $"{item.ApplicationID}|{item.DataSourceID}";
                         if (FunctionSourceMappings.ContainsKey(dataSourceID) == false)
                         {
                             var dataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), item.DataProvider);
@@ -832,17 +832,17 @@ namespace function.Extensions
 
         public static string DecryptConnectionString(FunctionSource? functionSource)
         {
-            string result = "";
+            var result = "";
             if (functionSource != null)
             {
                 try
                 {
                     var values = functionSource.ConnectionString.SplitAndTrim('.');
 
-                    string encrypt = values[0];
-                    string decryptKey = values[1];
-                    string hostName = values[2];
-                    string hash = values[3];
+                    var encrypt = values[0];
+                    var decryptKey = values[1];
+                    var hostName = values[2];
+                    var hash = values[3];
 
                     if ($"{encrypt}.{decryptKey}.{hostName}".ToSHA256() == hash)
                     {
@@ -861,17 +861,17 @@ namespace function.Extensions
 
         public static string DecryptConnectionString(ModuleSourceMap? moduleSourceMap)
         {
-            string result = "";
+            var result = "";
             if (moduleSourceMap != null)
             {
                 try
                 {
                     var values = moduleSourceMap.ConnectionString.SplitAndTrim('.');
 
-                    string encrypt = values[0];
-                    string decryptKey = values[1];
-                    string hostName = values[2];
-                    string hash = values[3];
+                    var encrypt = values[0];
+                    var decryptKey = values[1];
+                    var hostName = values[2];
+                    var hash = values[3];
 
                     if ($"{encrypt}.{decryptKey}.{hostName}".ToSHA256() == hash)
                     {

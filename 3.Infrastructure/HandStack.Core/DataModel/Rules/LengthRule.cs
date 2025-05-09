@@ -20,15 +20,15 @@
 
         public override bool Validate(EntityObject businessObject)
         {
-            object? value = GetPropertyValue(businessObject);
-            int length = 0;
+            var value = GetPropertyValue(businessObject);
+            var length = 0;
             if (value == null)
             {
                 return false;
             }
             else
             {
-                string? data = value.ToString();
+                var data = value.ToString();
                 length = data == null ? 0 : data.ToString().Length;
             }
 

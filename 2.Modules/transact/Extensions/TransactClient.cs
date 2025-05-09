@@ -48,10 +48,10 @@ namespace transact.Extensions
         public async Task<(TransactionResponse transactionResponse, string content)> TransactionRoute(TransactionInfo transactionInfo, TransactionRequest transactionRequest)
         {
             (TransactionResponse transactionResponse, string content) result;
-            string transactionContent = "";
-            TransactionResponse transactionResponse = new TransactionResponse();
+            var transactionContent = "";
+            var transactionResponse = new TransactionResponse();
             DefaultResponseHeaderConfiguration(transactionRequest, transactionResponse, -1);
-            string requestID = string.Empty;
+            var requestID = string.Empty;
 
             try
             {
@@ -67,7 +67,7 @@ namespace transact.Extensions
 
                 transactionRequest.RequestID = $"{installType}{environment}{programID}{businessID}{transactionID}{functionID}{machineTypeID}{tokenID}{requestTime}";
 
-                RestClient client = new RestClient();
+                var client = new RestClient();
                 var restRequest = new RestRequest(transactionInfo.RoutingCommandUri, Method.Post);
                 restRequest.AddStringBody(JsonConvert.SerializeObject(transactionRequest), DataFormat.Json);
 
@@ -98,8 +98,8 @@ namespace transact.Extensions
                 {
                     if (restResponse != null)
                     {
-                        ResponseStatus responseStatus = restResponse.ResponseStatus;
-                        HttpStatusCode statusCode = restResponse.StatusCode;
+                        var responseStatus = restResponse.ResponseStatus;
+                        var statusCode = restResponse.StatusCode;
 
                         transactionResponse.ExceptionText = $"TransactionRoute 응답 확인 필요 {statusCode}|{responseStatus}|{restResponse.ErrorMessage}";
                     }
@@ -143,25 +143,25 @@ namespace transact.Extensions
                         applicationResponse = new ApplicationResponse();
                         if (transactionInfo != null)
                         {
-                            string applicationID = request.System.ProgramID;
-                            string projectID = request.Transaction.BusinessID;
-                            string transactionID = request.Transaction.TransactionID;
+                            var applicationID = request.System.ProgramID;
+                            var projectID = request.Transaction.BusinessID;
+                            var transactionID = request.Transaction.TransactionID;
 
-                            string dummyFileDirectory = PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "..", "tmp", GlobalConfiguration.ApplicationID, "dummyfile");
+                            var dummyFileDirectory = PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "..", "tmp", GlobalConfiguration.ApplicationID, "dummyfile");
                             if (Directory.Exists(dummyFileDirectory) == false)
                             {
                                 Directory.CreateDirectory(dummyFileDirectory);
                             }
 
-                            string dummyFile = PathExtensions.Combine(applicationID, projectID, transactionID, transactionInfo.ServiceID + ".dat");
-                            string dummyFilePath = PathExtensions.Combine(dummyFileDirectory, dummyFile);
+                            var dummyFile = PathExtensions.Combine(applicationID, projectID, transactionID, transactionInfo.ServiceID + ".dat");
+                            var dummyFilePath = PathExtensions.Combine(dummyFileDirectory, dummyFile);
                             if (File.Exists(dummyFilePath) == false)
                             {
                                 applicationResponse.ExceptionText = $"DummyFile: {dummyFile} 확인 필요";
                             }
                             else
                             {
-                                string dummyData = File.ReadAllText(dummyFilePath);
+                                var dummyData = File.ReadAllText(dummyFilePath);
                                 switch ((ExecuteDynamicTypeObject)Enum.Parse(typeof(ExecuteDynamicTypeObject), transactionObject.ReturnType))
                                 {
                                     case ExecuteDynamicTypeObject.Json:
@@ -230,7 +230,7 @@ namespace transact.Extensions
 
         public ApplicationResponse SequentialResultContractValidation(ApplicationResponse applicationResponse, TransactionRequest request, TransactionResponse response, TransactionInfo transactionInfo, TransactionObject transactionObject, List<Model> businessModels, List<ModelOutputContract> outputContracts)
         {
-            List<DataMapItem>? outputs = JsonConvert.DeserializeObject<List<DataMapItem>>(applicationResponse.ResultJson);
+            var outputs = JsonConvert.DeserializeObject<List<DataMapItem>>(applicationResponse.ResultJson);
 
             if (outputs != null && outputContracts.Count > 0)
             {
@@ -239,8 +239,8 @@ namespace transact.Extensions
                 }
                 else
                 {
-                    int additionCount = outputContracts.Where(p => p.Type == "Addition").Count();
-                    int disposeCount = outputContracts.Where(p => p.BaseFieldRelation?.DisposeResult == true).Count();
+                    var additionCount = outputContracts.Where(p => p.Type == "Addition").Count();
+                    var disposeCount = outputContracts.Where(p => p.BaseFieldRelation?.DisposeResult == true).Count();
                     if ((outputContracts.Count - disposeCount - additionCount + (additionCount > 0 ? 1 : 0)) != outputs.Count)
                     {
                         applicationResponse.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 출력 모델 개수 및 SequentialResultContractValidation 확인 필요, 계약 건수 - '{outputContracts.Count}', 응답 건수 - '{outputs.Count}'";
@@ -248,11 +248,11 @@ namespace transact.Extensions
                     }
 
                     var lastIndex = outputs.Count - 1;
-                    for (int i = 0; i < outputs.Count; i++)
+                    for (var i = 0; i < outputs.Count; i++)
                     {
-                        DataMapItem output = outputs[i];
-                        ModelOutputContract outputContract = outputContracts[i];
-                        Model? model = businessModels.GetBusinessModel(outputContract.ModelID);
+                        var output = outputs[i];
+                        var outputContract = outputContracts[i];
+                        var model = businessModels.GetBusinessModel(outputContract.ModelID);
 
                         if (model == null && outputContract.ModelID != "Unknown" && outputContract.ModelID != "Dynamic")
                         {
@@ -260,7 +260,7 @@ namespace transact.Extensions
                             return applicationResponse;
                         }
 
-                        DataMapItem responseData = new DataMapItem();
+                        var responseData = new DataMapItem();
                         responseData.FieldID = output.FieldID;
 
                         if (additionCount > 0 && i == lastIndex)
@@ -276,8 +276,8 @@ namespace transact.Extensions
                                 if (outputContract.Type == "Form")
                                 {
                                     tempParseJson = JObject.Parse(output.Value.ToStringSafe());
-                                    JObject jObject = (JObject)tempParseJson;
-                                    foreach (JProperty property in jObject.Properties())
+                                    var jObject = (JObject)tempParseJson;
+                                    foreach (var property in jObject.Properties())
                                     {
                                         if (outputContract.Fields.Contains(property.Name) == false)
                                         {
@@ -291,8 +291,8 @@ namespace transact.Extensions
                                     tempParseJson = JArray.Parse(output.Value.ToStringSafe());
                                     if (tempParseJson.Count > 0)
                                     {
-                                        JObject jObject = (JObject)tempParseJson.First;
-                                        foreach (JProperty property in jObject.Properties())
+                                        var jObject = (JObject)tempParseJson.First;
+                                        foreach (var property in jObject.Properties())
                                         {
                                             if (outputContract.Fields.Contains(property.Name) == false)
                                             {
@@ -340,8 +340,8 @@ namespace transact.Extensions
                             if (outputContract.Type == "Form")
                             {
                                 tempParseJson = JObject.Parse(output.Value.ToStringSafe());
-                                JObject jObject = (JObject)tempParseJson;
-                                foreach (JProperty property in jObject.Properties())
+                                var jObject = (JObject)tempParseJson;
+                                foreach (var property in jObject.Properties())
                                 {
                                     if (model.Columns.IsContain(property.Name) == false)
                                     {
@@ -355,8 +355,8 @@ namespace transact.Extensions
                                 tempParseJson = JArray.Parse(output.Value.ToStringSafe());
                                 if (tempParseJson.Count > 0)
                                 {
-                                    JObject jObject = (JObject)tempParseJson.First;
-                                    foreach (JProperty property in jObject.Properties())
+                                    var jObject = (JObject)tempParseJson.First;
+                                    foreach (var property in jObject.Properties())
                                     {
                                         if (model.Columns.IsContain(property.Name) == false)
                                         {
@@ -384,17 +384,17 @@ namespace transact.Extensions
 
         public async Task<ApplicationResponse> SequentialDataTransactionAsync(TransactionRequest request, TransactionResponse response, TransactionInfo transactionInfo, TransactionObject transactionObject, List<Model> businessModels, List<ModelInputContract> inputContracts, List<ModelOutputContract> outputContracts)
         {
-            ApplicationResponse applicationResponse = new ApplicationResponse();
-            foreach (SequentialOption sequentialOption in transactionInfo.SequentialOptions)
+            var applicationResponse = new ApplicationResponse();
+            foreach (var sequentialOption in transactionInfo.SequentialOptions)
             {
-                List<ModelInputContract> sequentialinputContracts = new List<ModelInputContract>();
-                foreach (int inputIdex in sequentialOption.ServiceInputFields)
+                var sequentialinputContracts = new List<ModelInputContract>();
+                foreach (var inputIdex in sequentialOption.ServiceInputFields)
                 {
                     sequentialinputContracts.Add(inputContracts[inputIdex]);
                 }
 
-                List<ModelOutputContract> sequentialOutputContracts = new List<ModelOutputContract>();
-                foreach (ModelOutputContract modelOutputContract in sequentialOption.ServiceOutputs)
+                var sequentialOutputContracts = new List<ModelOutputContract>();
+                foreach (var modelOutputContract in sequentialOption.ServiceOutputs)
                 {
                     sequentialOutputContracts.Add(modelOutputContract);
                 }
@@ -406,8 +406,8 @@ namespace transact.Extensions
                     return applicationResponse;
                 }
 
-                string transactionID = string.IsNullOrEmpty(sequentialOption.TransactionID) == true ? request.Transaction.TransactionID : sequentialOption.TransactionID;
-                string serviceID = string.IsNullOrEmpty(sequentialOption.ServiceID) == true ? transactionObject.ServiceID : sequentialOption.ServiceID;
+                var transactionID = string.IsNullOrEmpty(sequentialOption.TransactionID) == true ? request.Transaction.TransactionID : sequentialOption.TransactionID;
+                var serviceID = string.IsNullOrEmpty(sequentialOption.ServiceID) == true ? transactionObject.ServiceID : sequentialOption.ServiceID;
 
                 response.Result = new ResultType();
                 response.Result.DataSet = new List<DataMapItem>();
@@ -425,11 +425,11 @@ namespace transact.Extensions
                             {
                                 if (sequentialOutputContracts.Where(p => p.Type == "Dynamic").Count() > 0)
                                 {
-                                    for (int i = 0; i < outputs.Count; i++)
+                                    for (var i = 0; i < outputs.Count; i++)
                                     {
-                                        DataMapItem output = outputs[i];
+                                        var output = outputs[i];
                                         dynamic outputJson = JToken.Parse(output.Value.ToStringSafe());
-                                        DataMapItem responseData = new DataMapItem();
+                                        var responseData = new DataMapItem();
                                         responseData.FieldID = output.FieldID;
                                         responseData.Value = outputJson;
                                         response.Result.DataSet.Add(responseData);
@@ -437,8 +437,8 @@ namespace transact.Extensions
                                 }
                                 else
                                 {
-                                    int additionCount = sequentialOutputContracts.Where(p => p.Type == "Addition").Count();
-                                    int disposeCount = sequentialOutputContracts.Where(p => p.BaseFieldRelation?.DisposeResult == true).Count();
+                                    var additionCount = sequentialOutputContracts.Where(p => p.Type == "Addition").Count();
+                                    var disposeCount = sequentialOutputContracts.Where(p => p.BaseFieldRelation?.DisposeResult == true).Count();
                                     if ((sequentialOutputContracts.Count - disposeCount - additionCount + (additionCount > 0 ? 1 : 0)) != outputs.Count)
                                     {
                                         applicationResponse.ExceptionText = $"'{transactionID}|{serviceID}' 거래 입력에 출력 모델 개수 및 SequentialDataTransactionAsync 확인 필요, 계약 건수 - '{sequentialOutputContracts.Count}', 응답 건수 - '{outputs.Count}'";
@@ -446,11 +446,11 @@ namespace transact.Extensions
                                     }
 
                                     var lastIndex = outputs.Count - 1;
-                                    for (int i = 0; i < outputs.Count; i++)
+                                    for (var i = 0; i < outputs.Count; i++)
                                     {
-                                        DataMapItem output = outputs[i];
-                                        ModelOutputContract outputContract = sequentialOutputContracts[i];
-                                        Model? model = businessModels.GetBusinessModel(outputContract.ModelID);
+                                        var output = outputs[i];
+                                        var outputContract = sequentialOutputContracts[i];
+                                        var model = businessModels.GetBusinessModel(outputContract.ModelID);
                                         if (model == null && outputContract.ModelID != "Unknown" && outputContract.ModelID != "Dynamic")
                                         {
                                             applicationResponse.ExceptionText = $"'{transactionID}|{serviceID}' 거래 입력에 '{outputContract.ModelID}' 출력 모델 ID가 계약에 있는지 확인";
@@ -458,17 +458,17 @@ namespace transact.Extensions
                                         }
 
                                         dynamic? outputJson = null;
-                                        DataMapItem responseData = new DataMapItem();
+                                        var responseData = new DataMapItem();
                                         responseData.FieldID = output.FieldID;
 
                                         if (additionCount > 0 && i == lastIndex)
                                         {
                                             try
                                             {
-                                                JArray messagesJson = JArray.Parse(output.Value.ToStringSafe());
-                                                for (int j = 0; j < messagesJson.Count; j++)
+                                                var messagesJson = JArray.Parse(output.Value.ToStringSafe());
+                                                for (var j = 0; j < messagesJson.Count; j++)
                                                 {
-                                                    Addition adiMessage = new Addition();
+                                                    var adiMessage = new Addition();
                                                     adiMessage.Type = "F"; // S: System, P: Program, F: Feature
                                                     adiMessage.Code = messagesJson[j]["MessageCode"].ToStringSafe();
                                                     adiMessage.Text = messagesJson[j]["MessageText"].ToStringSafe();
@@ -477,7 +477,7 @@ namespace transact.Extensions
                                             }
                                             catch (Exception exception)
                                             {
-                                                Addition adiMessage = new Addition();
+                                                var adiMessage = new Addition();
                                                 adiMessage.Type = "P"; // S: System, P: Program, F: Feature
                                                 adiMessage.Code = "E001";
                                                 adiMessage.Text = exception.ToMessage();
@@ -490,13 +490,13 @@ namespace transact.Extensions
 
                                         if (ModuleConfiguration.IsDataMasking == true && (ModuleConfiguration.MaskingMethod == "Syn" || ModuleConfiguration.MaskingMethod == "Aes"))
                                         {
-                                            string correlationID = response.CorrelationID;
+                                            var correlationID = response.CorrelationID;
                                             foreach (var masking in outputContract.Maskings)
                                             {
                                                 if (outputContract.Type == "Form")
                                                 {
                                                     outputJson = JObject.Parse(output.Value.ToStringSafe());
-                                                    JObject jObject = (JObject)outputJson;
+                                                    var jObject = (JObject)outputJson;
                                                     SetDataMasking(correlationID, masking, jObject);
                                                     output.Value = outputJson;
                                                 }
@@ -522,8 +522,8 @@ namespace transact.Extensions
                                                 if (outputContract.Type == "Form")
                                                 {
                                                     outputJson = JObject.Parse(output.Value.ToStringSafe());
-                                                    JObject jObject = (JObject)outputJson;
-                                                    foreach (JProperty property in jObject.Properties())
+                                                    var jObject = (JObject)outputJson;
+                                                    foreach (var property in jObject.Properties())
                                                     {
                                                         if (outputContract.Fields.Contains(property.Name) == false)
                                                         {
@@ -537,8 +537,8 @@ namespace transact.Extensions
                                                     outputJson = JArray.Parse(output.Value.ToStringSafe());
                                                     if (outputJson.Count > 0)
                                                     {
-                                                        JObject jObject = (JObject)outputJson.First;
-                                                        foreach (JProperty property in jObject.Properties())
+                                                        var jObject = (JObject)outputJson.First;
+                                                        foreach (var property in jObject.Properties())
                                                         {
                                                             if (outputContract.Fields.Contains(property.Name) == false)
                                                             {
@@ -586,8 +586,8 @@ namespace transact.Extensions
                                             if (outputContract.Type == "Form")
                                             {
                                                 outputJson = JObject.Parse(output.Value.ToStringSafe());
-                                                JObject jObject = (JObject)outputJson;
-                                                foreach (JProperty property in jObject.Properties())
+                                                var jObject = (JObject)outputJson;
+                                                foreach (var property in jObject.Properties())
                                                 {
                                                     if (model.Columns.IsContain(property.Name) == false)
                                                     {
@@ -601,8 +601,8 @@ namespace transact.Extensions
                                                 outputJson = JArray.Parse(output.Value.ToStringSafe());
                                                 if (outputJson.Count > 0)
                                                 {
-                                                    JObject jObject = (JObject)outputJson.First;
-                                                    foreach (JProperty property in jObject.Properties())
+                                                    var jObject = (JObject)outputJson.First;
+                                                    foreach (var property in jObject.Properties())
                                                     {
                                                         if (model.Columns.IsContain(property.Name) == false)
                                                         {
@@ -636,9 +636,9 @@ namespace transact.Extensions
 
                             if (outputs.Count() > 0)
                             {
-                                foreach (int inputIdex in sequentialOption.TargetInputFields)
+                                foreach (var inputIdex in sequentialOption.TargetInputFields)
                                 {
-                                    ModelInputContract modelInputContract = inputContracts[inputIdex];
+                                    var modelInputContract = inputContracts[inputIdex];
                                     MappingTransactionInputsValue(transactionObject, inputIdex, modelInputContract, JObject.Parse(outputs[0].Value.ToStringSafe()));
                                 }
                             }
@@ -683,8 +683,8 @@ namespace transact.Extensions
 
                     break;
                 case "CodeHelp":
-                    ResponseCodeObject? responseCodeObject = JsonConvert.DeserializeObject<ResponseCodeObject>(applicationResponse.ResultJson);
-                    DataMapItem? input = request.PayLoad?.DataMapSet?[0].Where(p => p.FieldID == "CodeHelpID").FirstOrDefault();
+                    var responseCodeObject = JsonConvert.DeserializeObject<ResponseCodeObject>(applicationResponse.ResultJson);
+                    var input = request.PayLoad?.DataMapSet?[0].Where(p => p.FieldID == "CodeHelpID").FirstOrDefault();
 
                     response.Result.DataSet.Add(new DataMapItem()
                     {
@@ -694,8 +694,8 @@ namespace transact.Extensions
 
                     break;
                 case "SchemeOnly":
-                    JObject resultJson = JObject.Parse(applicationResponse.ResultJson);
-                    foreach (JProperty property in resultJson.Properties())
+                    var resultJson = JObject.Parse(applicationResponse.ResultJson);
+                    foreach (var property in resultJson.Properties())
                     {
                         response.Result.DataSet.Add(new DataMapItem()
                         {
@@ -706,24 +706,24 @@ namespace transact.Extensions
 
                     break;
                 case "SQLText":
-                    JObject sqlJson = JObject.Parse(applicationResponse.ResultJson);
-                    DataMapItem sqlData = new DataMapItem();
+                    var sqlJson = JObject.Parse(applicationResponse.ResultJson);
+                    var sqlData = new DataMapItem();
                     sqlData.FieldID = "SQLText";
                     sqlData.Value = sqlJson;
                     response.Result.DataSet.Add(sqlData);
 
                     break;
                 case "Json":
-                    List<DataMapItem>? outputs = JsonConvert.DeserializeObject<List<DataMapItem>>(applicationResponse.ResultJson);
+                    var outputs = JsonConvert.DeserializeObject<List<DataMapItem>>(applicationResponse.ResultJson);
                     if (outputs != null && outputContracts.Count > 0)
                     {
                         if (outputContracts.Where(p => p.Type == "Dynamic").Count() > 0)
                         {
-                            for (int i = 0; i < outputs.Count; i++)
+                            for (var i = 0; i < outputs.Count; i++)
                             {
-                                DataMapItem output = outputs[i];
+                                var output = outputs[i];
                                 dynamic outputJson = JToken.Parse(output.Value.ToStringSafe());
-                                DataMapItem responseData = new DataMapItem();
+                                var responseData = new DataMapItem();
                                 responseData.FieldID = output.FieldID;
                                 responseData.Value = outputJson;
                                 response.Result.DataSet.Add(responseData);
@@ -731,8 +731,8 @@ namespace transact.Extensions
                         }
                         else
                         {
-                            int additionCount = outputContracts.Where(p => p.Type == "Addition").Count();
-                            int disposeCount = outputContracts.Where(p => p.BaseFieldRelation?.DisposeResult == true).Count();
+                            var additionCount = outputContracts.Where(p => p.Type == "Addition").Count();
+                            var disposeCount = outputContracts.Where(p => p.BaseFieldRelation?.DisposeResult == true).Count();
                             if ((outputContracts.Count - disposeCount - additionCount + (additionCount > 0 ? 1 : 0)) != outputs.Count)
                             {
                                 applicationResponse.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 출력 모델 개수 및 DataTransactionAsync 확인 필요, 계약 건수 - '{outputContracts.Count}', 응답 건수 - '{outputs.Count}'";
@@ -740,11 +740,11 @@ namespace transact.Extensions
                             }
 
                             var lastIndex = outputs.Count - 1;
-                            for (int i = 0; i < outputs.Count; i++)
+                            for (var i = 0; i < outputs.Count; i++)
                             {
-                                DataMapItem output = outputs[i];
-                                ModelOutputContract outputContract = outputContracts[i];
-                                Model? model = businessModels.GetBusinessModel(outputContract.ModelID);
+                                var output = outputs[i];
+                                var outputContract = outputContracts[i];
+                                var model = businessModels.GetBusinessModel(outputContract.ModelID);
                                 if (model == null && outputContract.ModelID != "Unknown" && outputContract.ModelID != "Dynamic")
                                 {
                                     applicationResponse.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 '{outputContract.ModelID}' 출력 모델 ID가 계약에 있는지 확인";
@@ -752,17 +752,17 @@ namespace transact.Extensions
                                 }
 
                                 dynamic? outputJson = null;
-                                DataMapItem responseData = new DataMapItem();
+                                var responseData = new DataMapItem();
                                 responseData.FieldID = output.FieldID;
 
                                 if (additionCount > 0 && i == lastIndex)
                                 {
                                     try
                                     {
-                                        JArray messagesJson = JArray.Parse(output.Value.ToStringSafe());
-                                        for (int j = 0; j < messagesJson.Count; j++)
+                                        var messagesJson = JArray.Parse(output.Value.ToStringSafe());
+                                        for (var j = 0; j < messagesJson.Count; j++)
                                         {
-                                            Addition adiMessage = new Addition();
+                                            var adiMessage = new Addition();
                                             adiMessage.Code = messagesJson[j]["MessageCode"].ToStringSafe();
                                             adiMessage.Text = messagesJson[j]["MessageText"].ToStringSafe();
                                             response.Message.Additions.Add(adiMessage);
@@ -770,7 +770,7 @@ namespace transact.Extensions
                                     }
                                     catch (Exception exception)
                                     {
-                                        Addition adiMessage = new Addition();
+                                        var adiMessage = new Addition();
                                         adiMessage.Code = "E001";
                                         adiMessage.Text = exception.ToMessage();
                                         logger.Warning("[{LogCategory}] [{GlobalID}] " + adiMessage.Text, "Transaction/ADI_MSG", request.Transaction.GlobalID);
@@ -781,13 +781,13 @@ namespace transact.Extensions
 
                                 if (ModuleConfiguration.IsDataMasking == true && (ModuleConfiguration.MaskingMethod == "Syn" || ModuleConfiguration.MaskingMethod == "Aes"))
                                 {
-                                    string correlationID = response.CorrelationID;
+                                    var correlationID = response.CorrelationID;
                                     foreach (var masking in outputContract.Maskings)
                                     {
                                         if (outputContract.Type == "Form")
                                         {
                                             outputJson = JObject.Parse(output.Value.ToStringSafe());
-                                            JObject jObject = (JObject)outputJson;
+                                            var jObject = (JObject)outputJson;
                                             SetDataMasking(correlationID, masking, jObject);
                                             output.Value = outputJson;
                                         }
@@ -813,8 +813,8 @@ namespace transact.Extensions
                                         if (outputContract.Type == "Form")
                                         {
                                             outputJson = JObject.Parse(output.Value.ToStringSafe());
-                                            JObject jObject = (JObject)outputJson;
-                                            foreach (JProperty property in jObject.Properties())
+                                            var jObject = (JObject)outputJson;
+                                            foreach (var property in jObject.Properties())
                                             {
                                                 if (outputContract.Fields.Contains(property.Name) == false)
                                                 {
@@ -828,8 +828,8 @@ namespace transact.Extensions
                                             outputJson = JArray.Parse(output.Value.ToStringSafe());
                                             if (outputJson.Count > 0)
                                             {
-                                                JObject jObject = (JObject)outputJson.First;
-                                                foreach (JProperty property in jObject.Properties())
+                                                var jObject = (JObject)outputJson.First;
+                                                foreach (var property in jObject.Properties())
                                                 {
                                                     if (outputContract.Fields.Contains(property.Name) == false)
                                                     {
@@ -877,8 +877,8 @@ namespace transact.Extensions
                                     if (outputContract.Type == "Form")
                                     {
                                         outputJson = JObject.Parse(output.Value.ToStringSafe());
-                                        JObject jObject = (JObject)outputJson;
-                                        foreach (JProperty property in jObject.Properties())
+                                        var jObject = (JObject)outputJson;
+                                        foreach (var property in jObject.Properties())
                                         {
                                             if (model.Columns.IsContain(property.Name) == false)
                                             {
@@ -892,8 +892,8 @@ namespace transact.Extensions
                                         outputJson = JArray.Parse(output.Value.ToStringSafe());
                                         if (outputJson.Count > 0)
                                         {
-                                            JObject jObject = (JObject)outputJson.First;
-                                            foreach (JProperty property in jObject.Properties())
+                                            var jObject = (JObject)outputJson.First;
+                                            foreach (var property in jObject.Properties())
                                             {
                                                 if (model.Columns.IsContain(property.Name) == false)
                                                 {
@@ -926,7 +926,7 @@ namespace transact.Extensions
 
         public async Task<ApplicationResponse> DataTransactionAsync(TransactionRequest request, TransactionResponse response, TransactionInfo transactionInfo, TransactionObject transactionObject, List<Model> businessModels, List<ModelInputContract> inputContracts, List<ModelOutputContract> outputContracts)
         {
-            ApplicationResponse applicationResponse = await RequestDataTransactionAsync(request, transactionInfo, transactionObject, inputContracts, outputContracts);
+            var applicationResponse = await RequestDataTransactionAsync(request, transactionInfo, transactionObject, inputContracts, outputContracts);
 
             if (string.IsNullOrEmpty(applicationResponse.ExceptionText) == false)
             {
@@ -947,8 +947,8 @@ namespace transact.Extensions
 
                     break;
                 case "CodeHelp":
-                    ResponseCodeObject? responseCodeObject = JsonConvert.DeserializeObject<ResponseCodeObject>(applicationResponse.ResultJson);
-                    DataMapItem? input = request.PayLoad?.DataMapSet?[0].Where(p => p.FieldID == "CodeHelpID").FirstOrDefault();
+                    var responseCodeObject = JsonConvert.DeserializeObject<ResponseCodeObject>(applicationResponse.ResultJson);
+                    var input = request.PayLoad?.DataMapSet?[0].Where(p => p.FieldID == "CodeHelpID").FirstOrDefault();
 
                     response.Result.DataSet.Add(new DataMapItem()
                     {
@@ -958,8 +958,8 @@ namespace transact.Extensions
 
                     break;
                 case "SchemeOnly":
-                    JObject resultJson = JObject.Parse(applicationResponse.ResultJson);
-                    foreach (JProperty property in resultJson.Properties())
+                    var resultJson = JObject.Parse(applicationResponse.ResultJson);
+                    foreach (var property in resultJson.Properties())
                     {
                         response.Result.DataSet.Add(new DataMapItem()
                         {
@@ -970,24 +970,24 @@ namespace transact.Extensions
 
                     break;
                 case "SQLText":
-                    JObject sqlJson = JObject.Parse(applicationResponse.ResultJson);
-                    DataMapItem sqlData = new DataMapItem();
+                    var sqlJson = JObject.Parse(applicationResponse.ResultJson);
+                    var sqlData = new DataMapItem();
                     sqlData.FieldID = "SQLText";
                     sqlData.Value = sqlJson;
                     response.Result.DataSet.Add(sqlData);
 
                     break;
                 case "Json":
-                    List<DataMapItem>? outputs = JsonConvert.DeserializeObject<List<DataMapItem>>(applicationResponse.ResultJson);
+                    var outputs = JsonConvert.DeserializeObject<List<DataMapItem>>(applicationResponse.ResultJson);
                     if (outputs != null && outputContracts.Count > 0)
                     {
                         if (outputContracts.Where(p => p.Type == "Dynamic").Count() > 0)
                         {
-                            for (int i = 0; i < outputs.Count; i++)
+                            for (var i = 0; i < outputs.Count; i++)
                             {
-                                DataMapItem output = outputs[i];
+                                var output = outputs[i];
                                 dynamic outputJson = JToken.Parse(output.Value.ToStringSafe());
-                                DataMapItem responseData = new DataMapItem();
+                                var responseData = new DataMapItem();
                                 responseData.FieldID = output.FieldID;
                                 responseData.Value = outputJson;
                                 response.Result.DataSet.Add(responseData);
@@ -995,8 +995,8 @@ namespace transact.Extensions
                         }
                         else
                         {
-                            int additionCount = outputContracts.Where(p => p.Type == "Addition").Count();
-                            int disposeCount = outputContracts.Where(p => p.BaseFieldRelation?.DisposeResult == true).Count();
+                            var additionCount = outputContracts.Where(p => p.Type == "Addition").Count();
+                            var disposeCount = outputContracts.Where(p => p.BaseFieldRelation?.DisposeResult == true).Count();
                             if ((outputContracts.Count - disposeCount - additionCount + (additionCount > 0 ? 1 : 0)) != outputs.Count)
                             {
                                 applicationResponse.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 출력 모델 개수 및 DataTransactionAsync 확인 필요, 계약 건수 - '{outputContracts.Count}', 응답 건수 - '{outputs.Count}'";
@@ -1004,11 +1004,11 @@ namespace transact.Extensions
                             }
 
                             var lastIndex = outputs.Count - 1;
-                            for (int i = 0; i < outputs.Count; i++)
+                            for (var i = 0; i < outputs.Count; i++)
                             {
-                                DataMapItem output = outputs[i];
-                                ModelOutputContract outputContract = outputContracts[i];
-                                Model? model = businessModels.GetBusinessModel(outputContract.ModelID);
+                                var output = outputs[i];
+                                var outputContract = outputContracts[i];
+                                var model = businessModels.GetBusinessModel(outputContract.ModelID);
                                 if (model == null && outputContract.ModelID != "Unknown" && outputContract.ModelID != "Dynamic")
                                 {
                                     applicationResponse.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 '{outputContract.ModelID}' 출력 모델 ID가 계약에 있는지 확인";
@@ -1016,17 +1016,17 @@ namespace transact.Extensions
                                 }
 
                                 dynamic? outputJson = null;
-                                DataMapItem responseData = new DataMapItem();
+                                var responseData = new DataMapItem();
                                 responseData.FieldID = output.FieldID;
 
                                 if (additionCount > 0 && i == lastIndex)
                                 {
                                     try
                                     {
-                                        JArray messagesJson = JArray.Parse(output.Value.ToStringSafe());
-                                        for (int j = 0; j < messagesJson.Count; j++)
+                                        var messagesJson = JArray.Parse(output.Value.ToStringSafe());
+                                        for (var j = 0; j < messagesJson.Count; j++)
                                         {
-                                            Addition adiMessage = new Addition();
+                                            var adiMessage = new Addition();
                                             adiMessage.Code = messagesJson[j]["MessageCode"].ToStringSafe();
                                             adiMessage.Text = messagesJson[j]["MessageText"].ToStringSafe();
                                             response.Message.Additions.Add(adiMessage);
@@ -1034,7 +1034,7 @@ namespace transact.Extensions
                                     }
                                     catch (Exception exception)
                                     {
-                                        Addition adiMessage = new Addition();
+                                        var adiMessage = new Addition();
                                         adiMessage.Code = "E001";
                                         adiMessage.Text = exception.ToMessage();
                                         logger.Warning("[{LogCategory}] [{GlobalID}] " + adiMessage.Text, "Transaction/ADI_MSG", request.Transaction.GlobalID);
@@ -1045,13 +1045,13 @@ namespace transact.Extensions
 
                                 if (ModuleConfiguration.IsDataMasking == true && (ModuleConfiguration.MaskingMethod == "Syn" || ModuleConfiguration.MaskingMethod == "Aes"))
                                 {
-                                    string correlationID = response.CorrelationID;
+                                    var correlationID = response.CorrelationID;
                                     foreach (var masking in outputContract.Maskings)
                                     {
                                         if (outputContract.Type == "Form")
                                         {
                                             outputJson = JObject.Parse(output.Value.ToStringSafe());
-                                            JObject jObject = (JObject)outputJson;
+                                            var jObject = (JObject)outputJson;
                                             SetDataMasking(correlationID, masking, jObject);
                                             output.Value = outputJson;
                                         }
@@ -1077,8 +1077,8 @@ namespace transact.Extensions
                                         if (outputContract.Type == "Form")
                                         {
                                             outputJson = JObject.Parse(output.Value.ToStringSafe());
-                                            JObject jObject = (JObject)outputJson;
-                                            foreach (JProperty property in jObject.Properties())
+                                            var jObject = (JObject)outputJson;
+                                            foreach (var property in jObject.Properties())
                                             {
                                                 if (outputContract.Fields.Contains(property.Name) == false)
                                                 {
@@ -1092,8 +1092,8 @@ namespace transact.Extensions
                                             outputJson = JArray.Parse(output.Value.ToStringSafe());
                                             if (outputJson.Count > 0)
                                             {
-                                                JObject jObject = (JObject)outputJson.First;
-                                                foreach (JProperty property in jObject.Properties())
+                                                var jObject = (JObject)outputJson.First;
+                                                foreach (var property in jObject.Properties())
                                                 {
                                                     if (outputContract.Fields.Contains(property.Name) == false)
                                                     {
@@ -1141,8 +1141,8 @@ namespace transact.Extensions
                                     if (outputContract.Type == "Form")
                                     {
                                         outputJson = JObject.Parse(output.Value.ToStringSafe());
-                                        JObject jObject = (JObject)outputJson;
-                                        foreach (JProperty property in jObject.Properties())
+                                        var jObject = (JObject)outputJson;
+                                        foreach (var property in jObject.Properties())
                                         {
                                             if (model.Columns.IsContain(property.Name) == false)
                                             {
@@ -1156,8 +1156,8 @@ namespace transact.Extensions
                                         outputJson = JArray.Parse(output.Value.ToStringSafe());
                                         if (outputJson.Count > 0)
                                         {
-                                            JObject jObject = (JObject)outputJson.First;
-                                            foreach (JProperty property in jObject.Properties())
+                                            var jObject = (JObject)outputJson.First;
+                                            foreach (var property in jObject.Properties())
                                             {
                                                 if (model.Columns.IsContain(property.Name) == false)
                                                 {
@@ -1190,11 +1190,11 @@ namespace transact.Extensions
 
         public void SetDataMasking(string correlationID, Masking masking, JObject jObject)
         {
-            string targetFieldID = masking.TargetFieldID;
+            var targetFieldID = masking.TargetFieldID;
             var targetField = jObject[targetFieldID];
             if (targetField != null)
             {
-                string targetFieldValue = targetField.ToStringSafe();
+                var targetFieldValue = targetField.ToStringSafe();
                 if (ModuleConfiguration.MaskingMethod == "Syn")
                 {
                     jObject[targetFieldID + "_$MASKING"] = SynCryptoHelper.Encrypt(targetFieldValue, correlationID);
@@ -1205,14 +1205,14 @@ namespace transact.Extensions
                     jObject[targetFieldID + "_$MASKING"] = $"{aesResult.iv}|{aesResult.encrypted}";
                 }
 
-                string matchPattern = masking.MatchPattern;
+                var matchPattern = masking.MatchPattern;
                 if (string.IsNullOrEmpty(matchPattern) == true)
                 {
                     jObject[targetFieldID] = targetFieldValue.Replace(0, targetFieldValue.Length, "".PadLeft(targetFieldValue.Length, ModuleConfiguration.MaskingChar));
                 }
                 else
                 {
-                    Regex regex = new Regex(matchPattern);
+                    var regex = new Regex(matchPattern);
                     var matches = regex.Matches(targetFieldValue);
                     foreach (Match match in matches)
                     {
@@ -1263,10 +1263,10 @@ namespace transact.Extensions
 
         public void MappingTransactionInputsValue(TransactionObject transactionObject, int modelInputIndex, ModelInputContract modelInputContract, JObject formOutput)
         {
-            List<List<TransactField>> transactInputs = transactionObject.Inputs;
-            int inputCount = 0;
-            int inputOffset = 0;
-            for (int i = 0; i < transactionObject.InputsItemCount.Count; i++)
+            var transactInputs = transactionObject.Inputs;
+            var inputCount = 0;
+            var inputOffset = 0;
+            for (var i = 0; i < transactionObject.InputsItemCount.Count; i++)
             {
                 inputCount = transactionObject.InputsItemCount[i];
 
@@ -1278,17 +1278,17 @@ namespace transact.Extensions
                 inputOffset = inputOffset + inputCount;
             }
 
-            List<List<TransactField>> inputs = transactInputs.Skip(inputOffset).Take(inputCount).ToList();
+            var inputs = transactInputs.Skip(inputOffset).Take(inputCount).ToList();
 
             if (modelInputContract.Type == "Row")
             {
                 if (inputs.Count > 0)
                 {
-                    List<TransactField> serviceParameters = inputs[0];
+                    var serviceParameters = inputs[0];
 
                     foreach (var item in formOutput)
                     {
-                        TransactField? fieldItem = serviceParameters.Where(p => p.FieldID == item.Key).FirstOrDefault();
+                        var fieldItem = serviceParameters.Where(p => p.FieldID == item.Key).FirstOrDefault();
                         if (fieldItem != null)
                         {
                             if (item.Value == null)
@@ -1307,18 +1307,18 @@ namespace transact.Extensions
             {
                 if (inputs.Count > 0)
                 {
-                    List<TransactField> findParameters = inputs[0];
+                    var findParameters = inputs[0];
 
                     foreach (var item in formOutput)
                     {
-                        TransactField? findItem = findParameters.Where(p => p.FieldID == item.Key).FirstOrDefault();
+                        var findItem = findParameters.Where(p => p.FieldID == item.Key).FirstOrDefault();
                         if (findItem != null)
                         {
-                            for (int i = 0; i < inputs.Count; i++)
+                            for (var i = 0; i < inputs.Count; i++)
                             {
-                                List<TransactField> serviceParameters = inputs[i];
+                                var serviceParameters = inputs[i];
 
-                                TransactField? fieldItem = serviceParameters.Where(p => p.FieldID == item.Key).FirstOrDefault();
+                                var fieldItem = serviceParameters.Where(p => p.FieldID == item.Key).FirstOrDefault();
                                 if (fieldItem != null)
                                 {
                                     if (item.Value == null)
@@ -1339,19 +1339,19 @@ namespace transact.Extensions
 
         public async Task<ApplicationResponse> SequentialRequestDataTransactionAsync(TransactionRequest request, TransactionObject transactionObject, SequentialOption sequentialOption, List<ModelInputContract> inputContracts, List<ModelOutputContract> outputContracts)
         {
-            ApplicationResponse responseObject = new ApplicationResponse();
+            var responseObject = new ApplicationResponse();
             responseObject.Acknowledge = AcknowledgeType.Failure;
 
             try
             {
-                string businessID = string.IsNullOrEmpty(sequentialOption.TransactionProjectID) == true ? request.Transaction.BusinessID : sequentialOption.TransactionProjectID;
-                string transactionID = string.IsNullOrEmpty(sequentialOption.TransactionID) == true ? request.Transaction.TransactionID : sequentialOption.TransactionID;
-                string serviceID = string.IsNullOrEmpty(sequentialOption.ServiceID) == true ? transactionObject.ServiceID : sequentialOption.ServiceID;
+                var businessID = string.IsNullOrEmpty(sequentialOption.TransactionProjectID) == true ? request.Transaction.BusinessID : sequentialOption.TransactionProjectID;
+                var transactionID = string.IsNullOrEmpty(sequentialOption.TransactionID) == true ? request.Transaction.TransactionID : sequentialOption.TransactionID;
+                var serviceID = string.IsNullOrEmpty(sequentialOption.ServiceID) == true ? transactionObject.ServiceID : sequentialOption.ServiceID;
 
-                string transactionApplicationID = transactionObject.TransactionID.Split("|")[0];
-                string transactionProjectID = transactionObject.TransactionID.Split("|")[1];
+                var transactionApplicationID = transactionObject.TransactionID.Split("|")[0];
+                var transactionProjectID = transactionObject.TransactionID.Split("|")[1];
 
-                string routeSegmentID = $"{transactionApplicationID}|{transactionProjectID}|{sequentialOption.CommandType}|{request.Environment}";
+                var routeSegmentID = $"{transactionApplicationID}|{transactionProjectID}|{sequentialOption.CommandType}|{request.Environment}";
 
                 var transactionUserWorkID = request.LoadOptions?.Get<string>("work-id").ToStringSafe();
                 if (string.IsNullOrEmpty(transactionUserWorkID) == false)
@@ -1359,7 +1359,7 @@ namespace transact.Extensions
                     routeSegmentID = transactionUserWorkID + "|" + routeSegmentID;
                 }
 
-                string? messageServerUrl = TransactionMapper.GetRoutingCommandUri(routeSegmentID);
+                var messageServerUrl = TransactionMapper.GetRoutingCommandUri(routeSegmentID);
 
                 if (string.IsNullOrEmpty(messageServerUrl) == true)
                 {
@@ -1367,7 +1367,7 @@ namespace transact.Extensions
                     return responseObject;
                 }
 
-                DynamicRequest dynamicRequest = new DynamicRequest();
+                var dynamicRequest = new DynamicRequest();
                 dynamicRequest.AccessToken = request.AccessToken;
                 dynamicRequest.Action = request.Action;
                 dynamicRequest.ClientTag = request.ClientTag;
@@ -1378,32 +1378,32 @@ namespace transact.Extensions
                 dynamicRequest.LoadOptions = transactionObject.LoadOptions;
                 dynamicRequest.IsTransaction = transactionObject.TransactionScope;
                 dynamicRequest.ReturnType = (ExecuteDynamicTypeObject)Enum.Parse(typeof(ExecuteDynamicTypeObject), transactionObject.ReturnType);
-                List<QueryObject> dynamicObjects = new List<QueryObject>();
+                var dynamicObjects = new List<QueryObject>();
 
-                List<List<TransactField>> transactInputs = transactionObject.Inputs;
+                var transactInputs = transactionObject.Inputs;
 
-                int inputOffset = 0;
-                Dictionary<string, List<List<TransactField>>> requestInputItems = new Dictionary<string, List<List<TransactField>>>();
-                for (int i = 0; i < transactionObject.InputsItemCount.Count; i++)
+                var inputOffset = 0;
+                var requestInputItems = new Dictionary<string, List<List<TransactField>>>();
+                for (var i = 0; i < transactionObject.InputsItemCount.Count; i++)
                 {
-                    int inputCount = transactionObject.InputsItemCount[i];
+                    var inputCount = transactionObject.InputsItemCount[i];
                     if (inputCount > 0 && inputContracts.Count > 0)
                     {
-                        ModelInputContract inputContract = inputContracts[i];
-                        List<List<TransactField>> inputs = transactInputs.Skip(inputOffset).Take(inputCount).ToList();
+                        var inputContract = inputContracts[i];
+                        var inputs = transactInputs.Skip(inputOffset).Take(inputCount).ToList();
 
-                        for (int j = 0; j < inputs.Count; j++)
+                        for (var j = 0; j < inputs.Count; j++)
                         {
-                            List<TransactField> serviceParameters = inputs[j];
+                            var serviceParameters = inputs[j];
 
-                            QueryObject queryObject = new QueryObject();
+                            var queryObject = new QueryObject();
                             queryObject.QueryID = string.Concat(transactionApplicationID, "|", transactionProjectID, "|", transactionID, "|", serviceID, i.ToString().PadLeft(2, '0'));
 
                             var baseFieldRelations = new List<BaseFieldRelation?>();
-                            List<JsonObjectType> jsonObjectTypes = new List<JsonObjectType>();
-                            foreach (ModelOutputContract item in outputContracts)
+                            var jsonObjectTypes = new List<JsonObjectType>();
+                            foreach (var item in outputContracts)
                             {
-                                JsonObjectType jsonObjectType = (JsonObjectType)Enum.Parse(typeof(JsonObjectType), item.Type + "Json");
+                                var jsonObjectType = (JsonObjectType)Enum.Parse(typeof(JsonObjectType), item.Type + "Json");
                                 jsonObjectTypes.Add(jsonObjectType);
 
                                 if (jsonObjectType == JsonObjectType.AdditionJson)
@@ -1418,7 +1418,7 @@ namespace transact.Extensions
                             }
                             queryObject.JsonObjects = jsonObjectTypes;
 
-                            List<DynamicParameter> parameters = new List<DynamicParameter>();
+                            var parameters = new List<DynamicParameter>();
                             foreach (var item in serviceParameters)
                             {
                                 parameters.Append(item.FieldID, (DbType)Enum.Parse(typeof(DbType), item.DataType), item.Value);
@@ -1433,14 +1433,14 @@ namespace transact.Extensions
                     }
                     else
                     {
-                        QueryObject queryObject = new QueryObject();
+                        var queryObject = new QueryObject();
                         queryObject.QueryID = string.Concat(transactionApplicationID, "|", transactionProjectID, "|", transactionID, "|", serviceID, i.ToString().PadLeft(2, '0'));
 
                         var baseFieldRelations = new List<BaseFieldRelation?>();
-                        List<JsonObjectType> jsonObjectTypes = new List<JsonObjectType>();
-                        foreach (ModelOutputContract item in outputContracts)
+                        var jsonObjectTypes = new List<JsonObjectType>();
+                        foreach (var item in outputContracts)
                         {
-                            JsonObjectType jsonObjectType = (JsonObjectType)Enum.Parse(typeof(JsonObjectType), item.Type + "Json");
+                            var jsonObjectType = (JsonObjectType)Enum.Parse(typeof(JsonObjectType), item.Type + "Json");
                             jsonObjectTypes.Add(jsonObjectType);
 
                             if (jsonObjectType == JsonObjectType.AdditionJson)
@@ -1472,11 +1472,11 @@ namespace transact.Extensions
 
                 restRequest.AddHeader("Content-Type", "application/json");
                 restRequest.AddHeader("AuthorizationKey", ModuleConfiguration.AuthorizationKey);
-                string json = JsonConvert.SerializeObject(dynamicRequest);
+                var json = JsonConvert.SerializeObject(dynamicRequest);
                 restRequest.AddParameter("application/json", json, ParameterType.RequestBody);
 
                 DynamicResponse? response;
-                RestResponse restResponse = await restClient.ExecuteAsync(restRequest);
+                var restResponse = await restClient.ExecuteAsync(restRequest);
 
                 if (restResponse.StatusCode == HttpStatusCode.OK)
                 {
@@ -1566,14 +1566,14 @@ namespace transact.Extensions
 
         public async Task<ApplicationResponse> RequestDataTransactionAsync(TransactionRequest request, TransactionInfo transactionInfo, TransactionObject transactionObject, List<ModelInputContract> inputContracts, List<ModelOutputContract> outputContracts)
         {
-            ApplicationResponse responseObject = new ApplicationResponse();
+            var responseObject = new ApplicationResponse();
             responseObject.Acknowledge = AcknowledgeType.Failure;
 
             try
             {
-                string transactionApplicationID = transactionObject.TransactionID.Split("|")[0];
-                string transactionProjectID = transactionObject.TransactionID.Split("|")[1];
-                string routeSegmentID = $"{transactionApplicationID}|{transactionProjectID}|{request.Transaction.CommandType}|{request.Environment}";
+                var transactionApplicationID = transactionObject.TransactionID.Split("|")[0];
+                var transactionProjectID = transactionObject.TransactionID.Split("|")[1];
+                var routeSegmentID = $"{transactionApplicationID}|{transactionProjectID}|{request.Transaction.CommandType}|{request.Environment}";
 
                 var transactionUserWorkID = request.LoadOptions?.Get<string>("work-id").ToStringSafe();
                 if (string.IsNullOrEmpty(transactionUserWorkID) == false)
@@ -1581,7 +1581,7 @@ namespace transact.Extensions
                     routeSegmentID = transactionUserWorkID + "|" + routeSegmentID;
                 }
 
-                string? messageServerUrl = TransactionMapper.GetRoutingCommandUri(routeSegmentID);
+                var messageServerUrl = TransactionMapper.GetRoutingCommandUri(routeSegmentID);
 
                 if (string.IsNullOrEmpty(messageServerUrl) == true)
                 {
@@ -1589,7 +1589,7 @@ namespace transact.Extensions
                     return responseObject;
                 }
 
-                DynamicRequest dynamicRequest = new DynamicRequest();
+                var dynamicRequest = new DynamicRequest();
                 dynamicRequest.AccessToken = request.AccessToken;
                 dynamicRequest.Action = request.Action;
                 dynamicRequest.ClientTag = request.ClientTag;
@@ -1600,32 +1600,32 @@ namespace transact.Extensions
                 dynamicRequest.LoadOptions = transactionObject.LoadOptions;
                 dynamicRequest.IsTransaction = transactionObject.TransactionScope;
                 dynamicRequest.ReturnType = (ExecuteDynamicTypeObject)Enum.Parse(typeof(ExecuteDynamicTypeObject), transactionObject.ReturnType);
-                List<QueryObject> dynamicObjects = new List<QueryObject>();
+                var dynamicObjects = new List<QueryObject>();
 
-                List<List<TransactField>> transactInputs = transactionObject.Inputs;
+                var transactInputs = transactionObject.Inputs;
 
-                int inputOffset = 0;
-                Dictionary<string, List<List<TransactField>>> requestInputItems = new Dictionary<string, List<List<TransactField>>>();
-                for (int i = 0; i < transactionObject.InputsItemCount.Count; i++)
+                var inputOffset = 0;
+                var requestInputItems = new Dictionary<string, List<List<TransactField>>>();
+                for (var i = 0; i < transactionObject.InputsItemCount.Count; i++)
                 {
-                    int inputCount = transactionObject.InputsItemCount[i];
+                    var inputCount = transactionObject.InputsItemCount[i];
                     if (inputCount > 0 && inputContracts.Count > 0)
                     {
-                        ModelInputContract inputContract = inputContracts[i];
-                        List<List<TransactField>> inputs = transactInputs.Skip(inputOffset).Take(inputCount).ToList();
+                        var inputContract = inputContracts[i];
+                        var inputs = transactInputs.Skip(inputOffset).Take(inputCount).ToList();
 
-                        for (int j = 0; j < inputs.Count; j++)
+                        for (var j = 0; j < inputs.Count; j++)
                         {
-                            List<TransactField> serviceParameters = inputs[j];
+                            var serviceParameters = inputs[j];
 
-                            QueryObject queryObject = new QueryObject();
+                            var queryObject = new QueryObject();
                             queryObject.QueryID = string.Concat(transactionObject.TransactionID, "|", transactionObject.ServiceID, i.ToString().PadLeft(2, '0'));
 
                             var baseFieldRelations = new List<BaseFieldRelation?>();
-                            List<JsonObjectType> jsonObjectTypes = new List<JsonObjectType>();
-                            foreach (ModelOutputContract item in outputContracts)
+                            var jsonObjectTypes = new List<JsonObjectType>();
+                            foreach (var item in outputContracts)
                             {
-                                JsonObjectType jsonObjectType = (JsonObjectType)Enum.Parse(typeof(JsonObjectType), item.Type + "Json");
+                                var jsonObjectType = (JsonObjectType)Enum.Parse(typeof(JsonObjectType), item.Type + "Json");
                                 jsonObjectTypes.Add(jsonObjectType);
 
                                 if (jsonObjectType == JsonObjectType.AdditionJson)
@@ -1640,7 +1640,7 @@ namespace transact.Extensions
                             }
                             queryObject.JsonObjects = jsonObjectTypes;
 
-                            List<DynamicParameter> parameters = new List<DynamicParameter>();
+                            var parameters = new List<DynamicParameter>();
                             foreach (var item in serviceParameters)
                             {
                                 parameters.Append(item.FieldID, (DbType)Enum.Parse(typeof(DbType), item.DataType), item.Value);
@@ -1655,14 +1655,14 @@ namespace transact.Extensions
                     }
                     else
                     {
-                        QueryObject queryObject = new QueryObject();
+                        var queryObject = new QueryObject();
                         queryObject.QueryID = string.Concat(transactionObject.TransactionID, "|", transactionObject.ServiceID, i.ToString().PadLeft(2, '0'));
 
                         var baseFieldRelations = new List<BaseFieldRelation?>();
-                        List<JsonObjectType> jsonObjectTypes = new List<JsonObjectType>();
-                        foreach (ModelOutputContract item in outputContracts)
+                        var jsonObjectTypes = new List<JsonObjectType>();
+                        foreach (var item in outputContracts)
                         {
-                            JsonObjectType jsonObjectType = (JsonObjectType)Enum.Parse(typeof(JsonObjectType), item.Type + "Json");
+                            var jsonObjectType = (JsonObjectType)Enum.Parse(typeof(JsonObjectType), item.Type + "Json");
                             jsonObjectTypes.Add(jsonObjectType);
 
                             if (jsonObjectType == JsonObjectType.AdditionJson)
@@ -1693,11 +1693,11 @@ namespace transact.Extensions
 
                 if (messageServerUrl.IndexOf("event://") > -1)
                 {
-                    string moduleEventName = messageServerUrl.Replace("event://", "");
-                    Type? type = Assembly.Load(moduleEventName.Split(".")[0])?.GetType(moduleEventName);
+                    var moduleEventName = messageServerUrl.Replace("event://", "");
+                    var type = Assembly.Load(moduleEventName.Split(".")[0])?.GetType(moduleEventName);
                     if (type != null)
                     {
-                        object? instance = Activator.CreateInstance(type, dynamicRequest);
+                        var instance = Activator.CreateInstance(type, dynamicRequest);
                         if (instance == null)
                         {
                             response = new DynamicResponse();
@@ -1705,7 +1705,7 @@ namespace transact.Extensions
                         }
                         else
                         {
-                            object? eventResponse = await mediator.Send(instance);
+                            var eventResponse = await mediator.Send(instance);
                             if (eventResponse != null)
                             {
                                 response = JsonConvert.DeserializeObject<DynamicResponse>(JsonConvert.SerializeObject(eventResponse));
@@ -1731,10 +1731,10 @@ namespace transact.Extensions
 
                     restRequest.AddHeader("Content-Type", "application/json");
                     restRequest.AddHeader("AuthorizationKey", ModuleConfiguration.AuthorizationKey);
-                    string json = JsonConvert.SerializeObject(dynamicRequest);
+                    var json = JsonConvert.SerializeObject(dynamicRequest);
                     restRequest.AddParameter("application/json", json, ParameterType.RequestBody);
 
-                    RestResponse restResponse = await restClient.ExecuteAsync(restRequest);
+                    var restResponse = await restClient.ExecuteAsync(restRequest);
 
                     if (restResponse.StatusCode == HttpStatusCode.OK)
                     {
@@ -1835,25 +1835,25 @@ namespace transact.Extensions
 
         public JArray ToJson(string? val)
         {
-            JArray result = new JArray();
+            var result = new JArray();
 
             if (val != null)
             {
-                char delimeter = '｜';
-                char newline = '↵';
+                var delimeter = '｜';
+                var newline = '↵';
                 var lines = val.Split(newline);
                 var headers = lines[0].Split(delimeter);
 
-                for (int i = 0; i < headers.Length; i++)
+                for (var i = 0; i < headers.Length; i++)
                 {
                     headers[i] = headers[i].Replace(@"(^[\s""]+|[\s""]+$)", "");
                 }
 
-                int lineLength = lines.Length;
-                for (int i = 1; i < lineLength; i++)
+                var lineLength = lines.Length;
+                for (var i = 1; i < lineLength; i++)
                 {
                     var row = lines[i].Split(delimeter);
-                    JObject item = new JObject();
+                    var item = new JObject();
                     for (var j = 0; j < headers.Length; j++)
                     {
                         item[headers[j]] = ToDynamic(row[j]);
@@ -1883,8 +1883,8 @@ namespace transact.Extensions
             }
             else if (Regex.IsMatch(val, @"^\s*-?(\d*\.?\d+|\d+\.?\d*)(e[-+]?\d+)?\s*$") == true)
             {
-                int intValue = 0;
-                bool isParsable = int.TryParse(val, out intValue);
+                var intValue = 0;
+                var isParsable = int.TryParse(val, out intValue);
                 if (isParsable == true)
                 {
                     result = intValue;

@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
 
-using dbclient.Extensions;
-
 namespace dbclient.Entity
 {
     public record SQLMapMeta

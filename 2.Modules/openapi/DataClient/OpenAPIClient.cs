@@ -49,7 +49,7 @@ namespace openapi.DataClient
 
         public async Task<Tuple<string, DataSet?>> ExecuteSQL(string commandText, ApiDataSource apiDataSource, List<ApiParameter> apiParameters, Dictionary<string, object?> parameters)
         {
-            Tuple<string, DataSet?> result = new Tuple<string, DataSet?>(ResponseApi.I25.ToEnumString(), null);
+            var result = new Tuple<string, DataSet?>(ResponseApi.I25.ToEnumString(), null);
             DatabaseFactory? connectionFactory = null;
 
             try
@@ -63,25 +63,23 @@ namespace openapi.DataClient
                 }
                 */
                 var databaseProvider = (DataProviders)Enum.Parse(typeof(DataProviders), apiDataSource.DataProvider);
-                string parseSQL = DatabaseMapper.Find(commandText, parameters);
+                var parseSQL = DatabaseMapper.Find(commandText, parameters);
                 var dynamicParameters = new DynamicParameters();
                 connectionFactory = new DatabaseFactory(apiDataSource.ConnectionString.ToStringSafe(), databaseProvider);
                 SetDbParameterMapping(apiParameters, parameters, dynamicParameters);
 
                 if (connectionFactory.Connection != null)
                 {
-                    using (IDataReader dataReader = await connectionFactory.Connection.ExecuteReaderAsync(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters))
+                    using IDataReader dataReader = await connectionFactory.Connection.ExecuteReaderAsync(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters);
+                    using var ds = DataTableHelper.DataReaderToDataSet(dataReader);
                     {
-                        using DataSet? ds = DataTableHelper.DataReaderToDataSet(dataReader);
+                        if (ds == null || ds.Tables.Count == 0)
                         {
-                            if (ds == null || ds.Tables.Count == 0)
-                            {
-                                result = new Tuple<string, DataSet?>(ResponseApi.I25.ToEnumString(), null);
-                                goto TransactionException;
-                            }
-
-                            result = new Tuple<string, DataSet?>(string.Empty, ds);
+                            result = new Tuple<string, DataSet?>(ResponseApi.I25.ToEnumString(), null);
+                            goto TransactionException;
                         }
+
+                        result = new Tuple<string, DataSet?>(string.Empty, ds);
                     }
                 }
             }
@@ -203,7 +201,7 @@ TransactionException:
 
         private string GetProviderDbType(DataColumn column, DataProviders? databaseProvider = null)
         {
-            string result = "";
+            var result = "";
 
             if (databaseProvider == null)
             {
@@ -429,8 +427,8 @@ TransactionException:
             {
                 if (parameter.Value != null)
                 {
-                    string replacePrefix = "";
-                    string replacePostfix = "";
+                    var replacePrefix = "";
+                    var replacePostfix = "";
                     Regex paramRegex;
 
                     if (parameter.Value.Type.ToString() == "Object")
@@ -484,16 +482,16 @@ TransactionException:
 
         private void SetDbParameterMapping(List<ApiParameter> apiParameters, Dictionary<string, object?> parameters, dynamic dynamicParameters)
         {
-            foreach (ApiParameter apiParameter in apiParameters)
+            foreach (var apiParameter in apiParameters)
             {
-                object? parameterValue = GetDbParameterMap(apiParameter.ParameterID, parameters);
+                var parameterValue = GetDbParameterMap(apiParameter.ParameterID, parameters);
 
                 if (parameterValue == null)
                 {
                     continue;
                 }
 
-                DbType dbType = (DbType)Enum.Parse(typeof(DbType), string.IsNullOrEmpty(apiParameter.ParameterType) == true ? "String" : apiParameter.ParameterType);
+                var dbType = (DbType)Enum.Parse(typeof(DbType), string.IsNullOrEmpty(apiParameter.ParameterType) == true ? "String" : apiParameter.ParameterType);
 
                 if (dbType == DbType.String)
                 {
@@ -528,7 +526,7 @@ TransactionException:
                     }
                 }
 
-                int.TryParse(apiParameter.Length.ToString(), out int parameterLength);
+                int.TryParse(apiParameter.Length.ToString(), out var parameterLength);
                 dynamicParameters.Add(
                     apiParameter.ParameterID,
                     parameterValue,
@@ -541,7 +539,7 @@ TransactionException:
 
         private string GetModuleTransactionID()
         {
-            string result = string.Empty;
+            var result = string.Empty;
             switch (dataProvider)
             {
                 case DataProviders.SqlServer:

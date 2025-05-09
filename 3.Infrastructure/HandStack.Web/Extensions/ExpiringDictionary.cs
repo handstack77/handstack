@@ -63,10 +63,10 @@ namespace HandStack.Web.Extensions
             {
                 if (dictionary.TryGetValue(key, out var entry))
                 {
-                    DateTime now = DateTime.Now;
+                    var now = DateTime.Now;
                     if (entry.ExpiryTime > now)
                     {
-                        TimeSpan remainingTime = entry.ExpiryTime - now;
+                        var remainingTime = entry.ExpiryTime - now;
                         if (remainingTime < defaultExpiryDuration)
                         {
                             dictionary[key] = (entry.Value, DateTime.Now.Add(defaultExpiryDuration));

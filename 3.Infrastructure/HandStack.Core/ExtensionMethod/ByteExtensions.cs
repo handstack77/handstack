@@ -9,9 +9,9 @@ namespace HandStack.Core.ExtensionMethod
     {
         public static byte[] Combine(params byte[][] @this)
         {
-            byte[] result = new byte[@this.Sum(a => a.Length)];
-            int offset = 0;
-            foreach (byte[] array in @this)
+            var result = new byte[@this.Sum(a => a.Length)];
+            var offset = 0;
+            foreach (var array in @this)
             {
                 Buffer.BlockCopy(array, 0, result, offset, array.Length);
                 offset += array.Length;
@@ -21,7 +21,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static byte[] Combine(this byte[] @this, byte[] bind)
         {
-            byte[] result = new byte[@this.Length + bind.Length];
+            var result = new byte[@this.Length + bind.Length];
             Buffer.BlockCopy(@this, 0, result, 0, @this.Length);
             Buffer.BlockCopy(bind, 0, result, @this.Length, bind.Length);
             return result;
@@ -29,10 +29,10 @@ namespace HandStack.Core.ExtensionMethod
 
         public static int Find(this byte[] @this, byte[] search, int startIndex = 0)
         {
-            int result = -1;
-            int matchIndex = 0;
+            var result = -1;
+            var matchIndex = 0;
 
-            for (int i = startIndex; i < @this.Length; i++)
+            for (var i = startIndex; i < @this.Length; i++)
             {
                 if (@this[i] == search[matchIndex])
                 {
@@ -59,7 +59,7 @@ namespace HandStack.Core.ExtensionMethod
         public static byte[]? Replace(this byte[] @this, byte[] search, byte[] replace)
         {
             byte[]? result = null;
-            int index = Find(@this, search);
+            var index = Find(@this, search);
 
             if (index >= 0)
             {
@@ -81,7 +81,7 @@ namespace HandStack.Core.ExtensionMethod
         public static string ToHex(this byte[] @this)
         {
             var sb = new StringBuilder();
-            for (int i = 0; i < @this.Length; ++i)
+            for (var i = 0; i < @this.Length; ++i)
             {
                 sb.Append(@this[i].ToString("x2"));
             }
@@ -111,7 +111,7 @@ namespace HandStack.Core.ExtensionMethod
                 return false;
             }
 
-            for (int i = 0; i < @this.Length; i++)
+            for (var i = 0; i < @this.Length; i++)
             {
                 if (@this[i] != target[i])
                 {

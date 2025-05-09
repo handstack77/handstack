@@ -53,13 +53,13 @@ namespace openapi.Areas.openapi.Controllers
             {
                 try
                 {
-                    MediatorRequest mediatorRequest = new MediatorRequest()
+                    var mediatorRequest = new MediatorRequest()
                     {
                         ActionModuleID = ModuleConfiguration.ModuleID,
                         SubscribeEventID = "dbclient.Events.ManagedRequest",
                     };
 
-                    Dictionary<string, object> templateParameters = new Dictionary<string, object>();
+                    var templateParameters = new Dictionary<string, object>();
                     templateParameters.Add("applicationID", ModuleConfiguration.ModuleDataSource.ApplicationID);
                     templateParameters.Add("projectID", ModuleConfiguration.ModuleDataSource.ProjectID);
                     templateParameters.Add("dataSourceID", ModuleConfiguration.ModuleDataSource.DataSourceID);
@@ -130,7 +130,7 @@ namespace openapi.Areas.openapi.Controllers
                 }
                 catch (Exception exception)
                 {
-                    string exceptionText = exception.ToMessage();
+                    var exceptionText = exception.ToMessage();
                     logger.Error("[{LogCategory}] " + exceptionText, "Managed/ResetContract");
 
                     result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
@@ -166,7 +166,7 @@ namespace openapi.Areas.openapi.Controllers
                 }
                 catch (Exception exception)
                 {
-                    string exceptionText = exception.ToMessage();
+                    var exceptionText = exception.ToMessage();
                     logger.Error("[{LogCategory}] " + exceptionText, "Managed/ResetContract");
 
                     result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
@@ -189,8 +189,8 @@ namespace openapi.Areas.openapi.Controllers
             {
                 try
                 {
-                    List<string> items = GetMemoryCacheKeys();
-                    foreach (string item in items)
+                    var items = GetMemoryCacheKeys();
+                    foreach (var item in items)
                     {
                         memoryCache.Remove(item);
                     }
@@ -199,7 +199,7 @@ namespace openapi.Areas.openapi.Controllers
                 }
                 catch (Exception exception)
                 {
-                    string exceptionText = exception.ToMessage();
+                    var exceptionText = exception.ToMessage();
                     logger.Warning("[{LogCategory}] " + exceptionText, "Transaction/CacheClear");
                     result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
                 }
@@ -210,7 +210,7 @@ namespace openapi.Areas.openapi.Controllers
 
         private List<string> GetMemoryCacheKeys()
         {
-            List<string> result = new List<string>();
+            var result = new List<string>();
             foreach (var cacheKey in ModuleConfiguration.CacheKeys)
             {
                 if (cacheKey.StartsWith($"{ModuleConfiguration.ModuleID}|") == true)

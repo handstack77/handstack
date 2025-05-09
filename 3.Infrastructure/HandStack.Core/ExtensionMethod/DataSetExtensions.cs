@@ -10,7 +10,7 @@ namespace HandStack.Core.ExtensionMethod
     {
         public static void SaveSchema(this DataSet @this, string schemaPath)
         {
-            FileInfo fileInfo = new FileInfo(schemaPath);
+            var fileInfo = new FileInfo(schemaPath);
             if (fileInfo.Directory == null || fileInfo.Directory.Exists == false)
             {
                 fileInfo.Directory?.Create();
@@ -21,7 +21,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static void SaveFile(this DataSet @this, string filePath)
         {
-            FileInfo fileInfo = new FileInfo(filePath);
+            var fileInfo = new FileInfo(filePath);
             if (fileInfo.Directory == null || fileInfo.Directory.Exists == false)
             {
                 fileInfo.Directory?.Create();
@@ -32,7 +32,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static void LoadSchema(this DataSet @this, string schemaPath)
         {
-            FileInfo fileInfo = new FileInfo(schemaPath);
+            var fileInfo = new FileInfo(schemaPath);
             if (fileInfo.Directory == null || fileInfo.Directory.Exists == false)
             {
                 fileInfo.Directory?.Create();
@@ -43,7 +43,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static void LoadFile(this DataSet @this, string filePath)
         {
-            FileInfo fileInfo = new FileInfo(filePath);
+            var fileInfo = new FileInfo(filePath);
             if (fileInfo.Directory == null || fileInfo.Directory.Exists == false)
             {
                 fileInfo.Directory?.Create();
@@ -56,7 +56,7 @@ namespace HandStack.Core.ExtensionMethod
         {
             @this.Tables.Clear();
 
-            DataTableHelper builder = new DataTableHelper("ExceptionData");
+            var builder = new DataTableHelper("ExceptionData");
             builder.AddColumn("Error", typeof(string));
             builder.AddColumn("Level", typeof(string));
             builder.AddColumn("Message", typeof(string));
@@ -73,17 +73,15 @@ namespace HandStack.Core.ExtensionMethod
                 builder.SetValue(0, "TypeMember", typeMember.ToStringSafe());
             }
 
-            using (DataTable table = builder.GetDataTable())
-            {
-                @this.Tables.Add(table);
-            }
+            using var table = builder.GetDataTable();
+            @this.Tables.Add(table);
         }
 
         public static void BuildExceptionData(this DataSet @this, Exception exception, string? typeMember = "")
         {
             @this.Tables.Clear();
 
-            DataTableHelper builder = new DataTableHelper("ExceptionData");
+            var builder = new DataTableHelper("ExceptionData");
             builder.AddColumn("Error", typeof(string));
             builder.AddColumn("Level", typeof(string));
             builder.AddColumn("Message", typeof(string));
@@ -97,10 +95,8 @@ namespace HandStack.Core.ExtensionMethod
             builder.SetValue(0, "StackTrace", exception.StackTrace.ToStringSafe());
             builder.SetValue(0, "TypeMember", $"{exception.GetType().ToStringSafe()}, typeMember: {typeMember}");
 
-            using (DataTable table = builder.GetDataTable())
-            {
-                @this.Tables.Add(table);
-            }
+            using var table = builder.GetDataTable();
+            @this.Tables.Add(table);
         }
     }
 }

@@ -83,12 +83,10 @@ namespace logger.Extensions
                 {
                     if (contentType.IndexOf("application/json") > -1)
                     {
-                        using (var reader = new StreamReader(request.Body))
-                        {
-                            var content = await reader.ReadToEndAsync();
-                            logMessage = JsonConvert.DeserializeObject<LogMessage>(content);
-                            return await InputFormatterResult.SuccessAsync(logMessage);
-                        }
+                        using var reader = new StreamReader(request.Body);
+                        var content = await reader.ReadToEndAsync();
+                        logMessage = JsonConvert.DeserializeObject<LogMessage>(content);
+                        return await InputFormatterResult.SuccessAsync(logMessage);
                     }
                 }
                 catch (Exception exception)

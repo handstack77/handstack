@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Net;
 
 using checkup.Entity;
 using checkup.Extensions;
@@ -38,18 +37,18 @@ namespace checkup
 
         public void ConfigureServices(IServiceCollection services, IWebHostEnvironment environment, IConfiguration configuration)
         {
-            ModuleInfo? module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == ModuleID);
+            var module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == ModuleID);
             if (module != null)
             {
-                string moduleConfigFilePath = PathExtensions.Combine(module.BasePath, "module.json");
+                var moduleConfigFilePath = PathExtensions.Combine(module.BasePath, "module.json");
                 if (File.Exists(moduleConfigFilePath) == true)
                 {
-                    string configurationText = File.ReadAllText(moduleConfigFilePath);
-                    ModuleConfigJson? moduleConfigJson = JsonConvert.DeserializeObject<ModuleConfigJson>(configurationText);
+                    var configurationText = File.ReadAllText(moduleConfigFilePath);
+                    var moduleConfigJson = JsonConvert.DeserializeObject<ModuleConfigJson>(configurationText);
 
                     if (moduleConfigJson != null)
                     {
-                        ModuleConfig moduleConfig = moduleConfigJson.ModuleConfig;
+                        var moduleConfig = moduleConfigJson.ModuleConfig;
                         ModuleConfiguration.ModuleID = moduleConfigJson.ModuleID;
                         ModuleConfiguration.Version = moduleConfigJson.Version;
                         ModuleConfiguration.ManagedAccessKey = moduleConfig.ManagedAccessKey;
@@ -93,14 +92,14 @@ namespace checkup
                     }
                     else
                     {
-                        string message = $"Json Deserialize 오류 module.json 파일 확인 필요: {moduleConfigFilePath}";
+                        var message = $"Json Deserialize 오류 module.json 파일 확인 필요: {moduleConfigFilePath}";
                         Log.Logger.Error("[{LogCategory}] " + message, $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
                         throw new FileLoadException(message);
                     }
                 }
                 else
                 {
-                    string message = $"module.json 파일 확인 필요: {moduleConfigFilePath}";
+                    var message = $"module.json 파일 확인 필요: {moduleConfigFilePath}";
                     Log.Logger.Error("[{LogCategory}] " + message, $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
                     throw new FileNotFoundException(message);
                 }
@@ -109,18 +108,18 @@ namespace checkup
                 {
                     foreach (var userWorkPath in Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath))
                     {
-                        DirectoryInfo workDirectoryInfo = new DirectoryInfo(userWorkPath);
-                        string userWorkID = workDirectoryInfo.Name;
+                        var workDirectoryInfo = new DirectoryInfo(userWorkPath);
+                        var userWorkID = workDirectoryInfo.Name;
                         foreach (var appBasePath in Directory.GetDirectories(userWorkPath))
                         {
-                            DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
+                            var directoryInfo = new DirectoryInfo(appBasePath);
                             if (directoryInfo.Exists == true)
                             {
-                                string tenantID = $"{userWorkID}|{directoryInfo.Name}";
-                                string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
+                                var tenantID = $"{userWorkID}|{directoryInfo.Name}";
+                                var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                                 if (File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                                 {
-                                    string appSettingText = File.ReadAllText(settingFilePath);
+                                    var appSettingText = File.ReadAllText(settingFilePath);
                                     var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
                                     if (appSetting != null)
                                     {
@@ -166,17 +165,17 @@ namespace checkup
 
         public string DecryptConnectionString(string? connectionString)
         {
-            string result = "";
+            var result = "";
             if (connectionString != null)
             {
                 try
                 {
                     var values = connectionString.SplitAndTrim('.');
 
-                    string encrypt = values[0];
-                    string decryptKey = values[1];
-                    string hostName = values[2];
-                    string hash = values[3];
+                    var encrypt = values[0];
+                    var decryptKey = values[1];
+                    var hostName = values[2];
+                    var hash = values[3];
 
                     if ($"{encrypt}.{decryptKey}.{hostName}".ToSHA256() == hash)
                     {
@@ -195,7 +194,7 @@ namespace checkup
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment? environment, ICorsService corsService, ICorsPolicyProvider corsPolicyProvider)
         {
-            ModuleInfo? module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == typeof(ModuleInitializer).Assembly.GetName().Name);
+            var module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == typeof(ModuleInitializer).Assembly.GetName().Name);
             if (string.IsNullOrEmpty(ModuleID) == false && module != null)
             {
                 app.Use(async (context, next) =>
@@ -207,9 +206,9 @@ namespace checkup
                 app.UseMiddleware<JwtMiddleware>();
                 app.UseMiddleware<TenantUserSignMiddleware>();
 
-                string wwwrootDirectory = string.IsNullOrEmpty(ModuleConfiguration.WWWRootBasePath) == true ? PathExtensions.Combine(module.BasePath, "wwwroot", module.ModuleID) : ModuleConfiguration.WWWRootBasePath;
+                var wwwrootDirectory = string.IsNullOrEmpty(ModuleConfiguration.WWWRootBasePath) == true ? PathExtensions.Combine(module.BasePath, "wwwroot", module.ModuleID) : ModuleConfiguration.WWWRootBasePath;
 
-                string moduleAssets = PathExtensions.Combine(wwwrootDirectory, "assets");
+                var moduleAssets = PathExtensions.Combine(wwwrootDirectory, "assets");
                 if (string.IsNullOrEmpty(moduleAssets) == false && Directory.Exists(moduleAssets) == true)
                 {
                     app.UseStaticFiles(new StaticFileOptions
@@ -249,7 +248,7 @@ namespace checkup
                 if (Directory.Exists(GlobalConfiguration.TenantAppBasePath) == true)
                 {
                     var hostApps = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath);
-                    string tenantAppRequestPath = string.IsNullOrEmpty(GlobalConfiguration.TenantAppRequestPath) == true ? "host" : GlobalConfiguration.TenantAppRequestPath;
+                    var tenantAppRequestPath = string.IsNullOrEmpty(GlobalConfiguration.TenantAppRequestPath) == true ? "host" : GlobalConfiguration.TenantAppRequestPath;
 
                     app.UseStaticFiles(new StaticFileOptions
                     {
@@ -258,23 +257,23 @@ namespace checkup
                         ServeUnknownFileTypes = true,
                         OnPrepareResponse = async httpContext =>
                         {
-                            bool isWithReferer = false;
-                            string requestRefererUrl = httpContext.Context.Request.Headers.Referer.ToStringSafe();
-                            string requestPath = httpContext.Context.Request.Path.ToString();
+                            var isWithReferer = false;
+                            var requestRefererUrl = httpContext.Context.Request.Headers.Referer.ToStringSafe();
+                            var requestPath = httpContext.Context.Request.Path.ToString();
                             var paths = requestPath.SplitAndTrim('/');
 
                             if (paths.Count > 4)
                             {
-                                string userWorkID = paths[1];
-                                string applicationID = paths[2];
-                                string moduleID = paths[3];
+                                var userWorkID = paths[1];
+                                var applicationID = paths[2];
+                                var moduleID = paths[3];
 
                                 if ("wwwroot" == moduleID)
                                 {
-                                    string tenantID = $"{userWorkID}|{applicationID}";
-                                    string physicalPath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID, "wwwroot");
+                                    var tenantID = $"{userWorkID}|{applicationID}";
+                                    var physicalPath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID, "wwwroot");
 
-                                    bool isWithOrigin = false;
+                                    var isWithOrigin = false;
                                     CorsPolicy? policy = null;
                                     if (ModuleConfiguration.TenantAppOrigins.ContainsKey(tenantID) == true)
                                     {
@@ -283,9 +282,9 @@ namespace checkup
                                             var withOriginUris = ModuleConfiguration.TenantAppOrigins[tenantID];
                                             if (withOriginUris != null && withOriginUris.Count > 0)
                                             {
-                                                for (int i = 0; i < withOriginUris.Count; i++)
+                                                for (var i = 0; i < withOriginUris.Count; i++)
                                                 {
-                                                    string withOriginUri = withOriginUris[i];
+                                                    var withOriginUri = withOriginUris[i];
                                                     if (requestRefererUrl.IndexOf(withOriginUri) > -1)
                                                     {
                                                         isWithOrigin = true;
@@ -327,10 +326,10 @@ namespace checkup
 
                                     if (string.IsNullOrEmpty(requestRefererUrl) == true)
                                     {
-                                        string settingFilePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID, "settings.json");
+                                        var settingFilePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID, "settings.json");
                                         if (File.Exists(settingFilePath) == true)
                                         {
-                                            string appSettingText = await File.ReadAllTextAsync(settingFilePath);
+                                            var appSettingText = await File.ReadAllTextAsync(settingFilePath);
                                             var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
                                             if (appSetting != null && appSetting.ApplicationID == applicationID)
                                             {
@@ -340,14 +339,14 @@ namespace checkup
                                                 }
                                                 else
                                                 {
-                                                    string tenantAppBasePath = $"/{GlobalConfiguration.TenantAppRequestPath}/{userWorkID}/{applicationID}/wwwroot";
+                                                    var tenantAppBasePath = $"/{GlobalConfiguration.TenantAppRequestPath}/{userWorkID}/{applicationID}/wwwroot";
                                                     if (appSetting.AllowAnonymousPath?.Contains(requestPath.Replace(new FileInfo(requestPath).Name, "*").Replace(tenantAppBasePath, "")) == true || appSetting.AllowAnonymousPath?.Contains(requestPath.Replace(tenantAppBasePath, "")) == true)
                                                     {
                                                         isWithReferer = true;
                                                     }
                                                     else
                                                     {
-                                                        string requestAbsoluteUrl = httpContext.Context.Request.GetBaseUrl() + tenantAppBasePath;
+                                                        var requestAbsoluteUrl = httpContext.Context.Request.GetBaseUrl() + tenantAppBasePath;
                                                         if (appSetting.AllowAnonymousPath?.Contains(requestPath.Replace(requestAbsoluteUrl, "")) == true)
                                                         {
                                                             isWithReferer = true;
@@ -362,7 +361,7 @@ namespace checkup
                                     {
                                         if (ModuleConfiguration.TenantAppReferers.ContainsKey(tenantID) == true)
                                         {
-                                            string baseUrl = httpContext.Context.Request.GetBaseUrl();
+                                            var baseUrl = httpContext.Context.Request.GetBaseUrl();
                                             if (requestRefererUrl.IndexOf(baseUrl) > -1)
                                             {
                                                 isWithReferer = true;
@@ -372,9 +371,9 @@ namespace checkup
                                                 var withRefererUris = ModuleConfiguration.TenantAppReferers[tenantID];
                                                 if (withRefererUris != null && withRefererUris.Count > 0 && requestRefererUrl != null)
                                                 {
-                                                    for (int i = 0; i < withRefererUris.Count; i++)
+                                                    for (var i = 0; i < withRefererUris.Count; i++)
                                                     {
-                                                        string withRefererUri = withRefererUris[i];
+                                                        var withRefererUri = withRefererUris[i];
                                                         if (requestRefererUrl.IndexOf(withRefererUri) > -1)
                                                         {
                                                             isWithReferer = true;

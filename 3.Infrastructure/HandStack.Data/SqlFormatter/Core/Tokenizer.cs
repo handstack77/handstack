@@ -59,11 +59,11 @@ namespace HandStack.Data.SqlFormatter.Core
         {
             var tokens = new List<Token>();
             Token? token = null;
-            int pointerIndex = 0;
+            var pointerIndex = 0;
 
             while (pointerIndex != input.Length)
             {
-                int precedingWitespaceLenght = GetPrecedingWitespaceLenght(input, pointerIndex);
+                var precedingWitespaceLenght = GetPrecedingWitespaceLenght(input, pointerIndex);
 
                 pointerIndex += precedingWitespaceLenght;
 
@@ -73,7 +73,7 @@ namespace HandStack.Data.SqlFormatter.Core
 
                     if (token is not null)
                     {
-                        Token t = token.Value;
+                        var t = token.Value;
                         pointerIndex += t.Length;
                         t.PrecedingWitespaceLength = precedingWitespaceLenght;
                         tokens.Add(t);
@@ -86,8 +86,8 @@ namespace HandStack.Data.SqlFormatter.Core
 
         private int GetPrecedingWitespaceLenght(string input, int pointerIndex)
         {
-            int i = 0;
-            int len = input.Length - pointerIndex;
+            var i = 0;
+            var len = input.Length - pointerIndex;
             for (; i < len; i++)
             {
                 if (!char.IsWhiteSpace(input[i + pointerIndex]))
@@ -220,7 +220,7 @@ namespace HandStack.Data.SqlFormatter.Core
                 return null;
             }
 
-            Match match = regex.Match(input, pointerIndex, input.Length - pointerIndex);
+            var match = regex.Match(input, pointerIndex, input.Length - pointerIndex);
 
             return match.Success ? new Token(pointerIndex, match.Length, type) : null;
         }

@@ -76,25 +76,25 @@ namespace dbclient.DataClient
 
         public DynamicResult ExecuteDirectSQLMap(string queryID, List<DynamicParameter> parameters, bool paddingParameter = false)
         {
-            DynamicRequest request = new DynamicRequest();
-            DynamicResponse response = new DynamicResponse();
-            List<QueryObject> dynamicObjects = new List<QueryObject>();
+            var request = new DynamicRequest();
+            var response = new DynamicResponse();
+            var dynamicObjects = new List<QueryObject>();
 
             dynamicObjects.Add(new QueryObject() { QueryID = queryID, Parameters = parameters });
 
             request.DynamicObjects = dynamicObjects;
 
-            DynamicResult result = new DynamicResult();
-            Dictionary<string, TransactionDynamicObjects> transactionDynamicObjects = new Dictionary<string, TransactionDynamicObjects>();
+            var result = new DynamicResult();
+            var transactionDynamicObjects = new Dictionary<string, TransactionDynamicObjects>();
             Tuple<string, DataProviders, string>? connectionInfo = null;
 
             try
             {
-                List<string> logQuerys = new List<string>();
-                int i = 0;
-                foreach (QueryObject queryObject in request.DynamicObjects)
+                var logQuerys = new List<string>();
+                var i = 0;
+                foreach (var queryObject in request.DynamicObjects)
                 {
-                    if (request.LoadOptions?.TryGetValue("$tenantID", out string? tenantID) == true)
+                    if (request.LoadOptions?.TryGetValue("$tenantID", out var tenantID) == true)
                     {
                         queryObject.TenantID = tenantID;
                     }
@@ -129,7 +129,7 @@ namespace dbclient.DataClient
                 {
                     if (ModuleConfiguration.IsTransactionLogging == true)
                     {
-                        string logData = $"QueryID: {string.Join(", ", logQuerys.ToArray())}";
+                        var logData = $"QueryID: {string.Join(", ", logQuerys.ToArray())}";
                         if (ModuleConfiguration.IsLogServer == true)
                         {
                             loggerClient.ProgramMessageLogging(request.GlobalID, "Y", GlobalConfiguration.ApplicationID, logData, "QueryDataClient/ExecuteDirectSQLMap", (string error) =>
@@ -153,11 +153,11 @@ namespace dbclient.DataClient
                 var databaseProvider = connectionInfo.Item2;
 
                 i = 0;
-                List<object> mergeDatas = new List<object>();
+                var mergeDatas = new List<object>();
                 foreach (var transactionDynamicObject in transactionDynamicObjects)
                 {
-                    QueryObject? queryObject = transactionDynamicObject.Value.DynamicTransaction;
-                    StatementMap statementMap = transactionDynamicObject.Value.Statement;
+                    var queryObject = transactionDynamicObject.Value.DynamicTransaction;
+                    var statementMap = transactionDynamicObject.Value.Statement;
 
                     if (queryObject == null || statementMap == null)
                     {
@@ -165,15 +165,15 @@ namespace dbclient.DataClient
                         return result;
                     }
 
-                    string parseSQL = DatabaseMapper.Find(statementMap, queryObject);
+                    var parseSQL = DatabaseMapper.Find(statementMap, queryObject);
 
                     dynamic? dynamicParameters = CreateDynamicParameters(databaseProvider, statementMap);
                     if (dynamicParameters != null && queryObject.Parameters != null)
                     {
-                        List<DbParameterMap> dbParameterMaps = statementMap.DbParameters;
-                        foreach (DbParameterMap dbParameterMap in dbParameterMaps)
+                        var dbParameterMaps = statementMap.DbParameters;
+                        foreach (var dbParameterMap in dbParameterMaps)
                         {
-                            DynamicParameter? dynamicParameter = GetDbParameterMap(dbParameterMap.Name, queryObject.Parameters);
+                            var dynamicParameter = GetDbParameterMap(dbParameterMap.Name, queryObject.Parameters);
 
                             if (dynamicParameter == null)
                             {
@@ -222,10 +222,10 @@ namespace dbclient.DataClient
 
         public async Task ExecuteDynamicSQLMap(DynamicRequest request, DynamicResponse response)
         {
-            bool isCommandError = false;
+            var isCommandError = false;
             request.RequestID = request.RequestID == null ? "NULL" : request.RequestID;
-            Dictionary<string, TransactionDynamicObjects> transactionDynamicObjects = new Dictionary<string, TransactionDynamicObjects>();
-            List<DatabaseTransactionObjects> databaseTransactionObjects = new List<DatabaseTransactionObjects>();
+            var transactionDynamicObjects = new Dictionary<string, TransactionDynamicObjects>();
+            var databaseTransactionObjects = new List<DatabaseTransactionObjects>();
 
             try
             {
@@ -235,11 +235,11 @@ namespace dbclient.DataClient
                     return;
                 }
 
-                List<string> logQuerys = new List<string>();
-                int i = 0;
-                foreach (QueryObject queryObject in request.DynamicObjects)
+                var logQuerys = new List<string>();
+                var i = 0;
+                foreach (var queryObject in request.DynamicObjects)
                 {
-                    if (request.LoadOptions?.TryGetValue("$tenantID", out string? tenantID) == true)
+                    if (request.LoadOptions?.TryGetValue("$tenantID", out var tenantID) == true)
                     {
                         queryObject.TenantID = tenantID;
                     }
@@ -277,7 +277,7 @@ namespace dbclient.DataClient
                 {
                     if (ModuleConfiguration.IsTransactionLogging == true)
                     {
-                        string logData = $"QueryID: {string.Join(", ", logQuerys.ToArray())}";
+                        var logData = $"QueryID: {string.Join(", ", logQuerys.ToArray())}";
                         if (ModuleConfiguration.IsLogServer == true)
                         {
                             loggerClient.ProgramMessageLogging(request.GlobalID, "Y", GlobalConfiguration.ApplicationID, logData, "QueryDataClient/ExecuteDynamicSQLMap", (string error) =>
@@ -302,21 +302,21 @@ namespace dbclient.DataClient
                 }
 
                 i = 0;
-                Dictionary<int, DataRow?> dataRows = new Dictionary<int, DataRow?>();
-                DataTable additionalData = new DataTable();
+                var dataRows = new Dictionary<int, DataRow?>();
+                var additionalData = new DataTable();
                 additionalData.Columns.Add("MessageCode", typeof(string));
                 additionalData.Columns.Add("MessageText", typeof(string));
-                List<string> mergeMetaDatas = new List<string>();
-                List<object> mergeDatas = new List<object>();
+                var mergeMetaDatas = new List<string>();
+                var mergeDatas = new List<object>();
                 foreach (var transactionDynamicObject in transactionDynamicObjects)
                 {
-                    QueryObject dynamicObject = transactionDynamicObject.Value.DynamicTransaction;
-                    StatementMap statementMap = transactionDynamicObject.Value.Statement;
+                    var dynamicObject = transactionDynamicObject.Value.DynamicTransaction;
+                    var statementMap = transactionDynamicObject.Value.Statement;
 
                     var databaseProvider = transactionDynamicObject.Value.DataProvider;
                     var databaseTransactionObject = CreateDatabaseTransactionFactory(request, databaseTransactionObjects, transactionDynamicObject, statementMap, databaseProvider);
-                    DatabaseFactory connectionFactory = databaseTransactionObject.ConnectionFactory!;
-                    DbTransaction? databaseTransaction = databaseTransactionObject.DatabaseTransaction;
+                    var connectionFactory = databaseTransactionObject.ConnectionFactory!;
+                    var databaseTransaction = databaseTransactionObject.DatabaseTransaction;
 
                     dynamic? dynamicParameters = CreateDynamicParameters(databaseProvider, statementMap);
 
@@ -324,20 +324,20 @@ namespace dbclient.DataClient
                     {
                         if (dynamicObject.BaseFieldMappings != null && dynamicObject.BaseFieldMappings.Count() > 0)
                         {
-                            int baseSequence = statementMap.Seq - 1;
+                            var baseSequence = statementMap.Seq - 1;
                             DataRow? dataRow = null;
                             if (dataRows.Count > 0 && statementMap.Seq > 0)
                             {
                                 dataRow = dataRows.GetValueOrDefault(baseSequence);
                             }
 
-                            for (int baseFieldIndex = 0; baseFieldIndex < dynamicObject.BaseFieldMappings.Count; baseFieldIndex++)
+                            for (var baseFieldIndex = 0; baseFieldIndex < dynamicObject.BaseFieldMappings.Count; baseFieldIndex++)
                             {
-                                BaseFieldMapping baseFieldMapping = dynamicObject.BaseFieldMappings[baseFieldIndex];
+                                var baseFieldMapping = dynamicObject.BaseFieldMappings[baseFieldIndex];
 
                                 if (string.IsNullOrEmpty(baseFieldMapping.BaseSequence) == false)
                                 {
-                                    int baseSequenceMapping = int.Parse(baseFieldMapping.BaseSequence);
+                                    var baseSequenceMapping = int.Parse(baseFieldMapping.BaseSequence);
                                     if (baseSequence != baseSequenceMapping)
                                     {
                                         baseSequence = baseSequenceMapping;
@@ -359,7 +359,7 @@ namespace dbclient.DataClient
                                     goto TransactionException;
                                 }
 
-                                DynamicParameter? dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == baseFieldMapping.TargetFieldID).FirstOrDefault();
+                                var dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == baseFieldMapping.TargetFieldID).FirstOrDefault();
 
                                 if (dynamicParameter == null)
                                 {
@@ -379,12 +379,12 @@ namespace dbclient.DataClient
                         SetDbParameterMapping(connectionFactory, databaseProvider, dynamicObject, statementMap, dynamicParameters);
                     }
 
-                    string SQLID = "";
-                    string executeDataID = dynamicObject.QueryID + "_" + i.ToString();
+                    var SQLID = "";
+                    var executeDataID = dynamicObject.QueryID + "_" + i.ToString();
 
                     if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                     {
-                        string logData = $"Pretreatment: {executeDataID}, ParseSQL Parameters: {JsonConvert.SerializeObject(dynamicObject)}";
+                        var logData = $"Pretreatment: {executeDataID}, ParseSQL Parameters: {JsonConvert.SerializeObject(dynamicObject)}";
                         loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMap", (string error) =>
                         {
                             logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMap");
@@ -400,20 +400,20 @@ namespace dbclient.DataClient
 
                             if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                             {
-                                string logData = $"SQLID: {SQLID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
+                                var logData = $"SQLID: {SQLID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
                                 loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMap", (string error) =>
                                 {
                                     logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMap");
                                 });
                             }
 
-                            ConsoleProfiler pretreatmentProfiler = new ConsoleProfiler(request.RequestID, SQLID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
+                            var pretreatmentProfiler = new ConsoleProfiler(request.RequestID, SQLID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
                             var pretreatmentConnection = new ProfilerDbConnection(connectionFactory.Connection, pretreatmentProfiler);
 
                             try
                             {
                                 using var pretreatmentReader = await pretreatmentConnection.ExecuteReaderAsync(pretreatment.SQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
-                                using (DataSet? ds = DataTableHelper.DataReaderToDataSet(pretreatmentReader))
+                                using (var ds = DataTableHelper.DataReaderToDataSet(pretreatmentReader))
                                 {
                                     var resultTypes = pretreatment.ResultType.Split(",");
                                     if (resultTypes.Count() != (ds == null ? 0 : ds.Tables.Count))
@@ -425,10 +425,10 @@ namespace dbclient.DataClient
 
                                     if (ds != null)
                                     {
-                                        for (int j = 0; j < ds.Tables.Count; j++)
+                                        for (var j = 0; j < ds.Tables.Count; j++)
                                         {
-                                            string resultType = resultTypes[j].Trim();
-                                            DataTable table = ds.Tables[j];
+                                            var resultType = resultTypes[j].Trim();
+                                            var table = ds.Tables[j];
                                             if (table.Columns.Count == 0)
                                             {
                                                 continue;
@@ -436,13 +436,13 @@ namespace dbclient.DataClient
 
                                             if (resultType == "Row")
                                             {
-                                                DataRow rowItem = table.Rows[0];
-                                                DataColumnCollection colItems = table.Columns;
+                                                var rowItem = table.Rows[0];
+                                                var colItems = table.Columns;
                                                 foreach (DataColumn item in colItems)
                                                 {
                                                     PretreatmentAddParameter(databaseProvider, statementMap, dynamicParameters, rowItem, item);
 
-                                                    DynamicParameter? dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == item.ColumnName).FirstOrDefault();
+                                                    var dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == item.ColumnName).FirstOrDefault();
 
                                                     if (dynamicParameter == null)
                                                     {
@@ -467,12 +467,12 @@ namespace dbclient.DataClient
                                             }
                                             else if (resultType == "List")
                                             {
-                                                List<object> parameters = new List<object>();
-                                                DataColumnCollection colItems = table.Columns;
+                                                var parameters = new List<object>();
+                                                var colItems = table.Columns;
                                                 foreach (DataColumn item in colItems)
                                                 {
-                                                    DataView dataView = new DataView(table);
-                                                    DataTable dataTable = dataView.ToTable(true, item.ColumnName);
+                                                    var dataView = new DataView(table);
+                                                    var dataTable = dataView.ToTable(true, item.ColumnName);
                                                     foreach (DataRow row in dataTable.Rows)
                                                     {
                                                         parameters.Add(row[0]);
@@ -482,7 +482,7 @@ namespace dbclient.DataClient
                                                     {
                                                         dynamicParameters?.Add(item.ColumnName, parameters);
 
-                                                        DynamicParameter? dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == item.ColumnName).FirstOrDefault();
+                                                        var dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == item.ColumnName).FirstOrDefault();
 
                                                         if (dynamicParameter == null)
                                                         {
@@ -511,7 +511,7 @@ namespace dbclient.DataClient
                                 }
                                 pretreatmentReader?.Close();
 
-                                string logData = $"SQLID: {SQLID}, ExecuteSQL: \n\n{pretreatmentProfiler.ExecuteSQL}";
+                                var logData = $"SQLID: {SQLID}, ExecuteSQL: \n\n{pretreatmentProfiler.ExecuteSQL}";
                                 if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                                 {
                                     loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMap", (string error) =>
@@ -536,7 +536,7 @@ namespace dbclient.DataClient
 
                     if (string.IsNullOrEmpty(statementMap.BeforeTransactionCommand) == false)
                     {
-                        string logData = "";
+                        var logData = "";
                         if (ModuleConfiguration.IsTransactionLogging == true)
                         {
                             logData = $"GlobalID={request.GlobalID}, QueryID={dynamicObject.QueryID}, CommandID={statementMap.BeforeTransactionCommand}, , dynamicParameters={JsonConvert.SerializeObject(dynamicParameters)}";
@@ -577,25 +577,25 @@ namespace dbclient.DataClient
                     }
 
                     SQLID = executeDataID + "_statement";
-                    ConsoleProfiler profiler = new ConsoleProfiler(request.RequestID, executeDataID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
+                    var profiler = new ConsoleProfiler(request.RequestID, executeDataID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
 
                     try
                     {
                         if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                         {
-                            string logData = $"SQLID: {SQLID}, ParseSQL Parameters: {JsonConvert.SerializeObject(dynamicObject)}";
+                            var logData = $"SQLID: {SQLID}, ParseSQL Parameters: {JsonConvert.SerializeObject(dynamicObject)}";
                             loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMap", (string error) =>
                             {
                                 logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMap");
                             });
                         }
 
-                        string parseSQL = DatabaseMapper.Find(statementMap, dynamicObject);
+                        var parseSQL = DatabaseMapper.Find(statementMap, dynamicObject);
                         if (string.IsNullOrEmpty(parseSQL) == true || parseSQL.Replace(Environment.NewLine, "").Replace("\t", "").Trim() == "")
                         {
                             if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                             {
-                                string logData = $"SQLID: {SQLID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
+                                var logData = $"SQLID: {SQLID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
                                 loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMap", (string error) =>
                                 {
                                     logger.Information("[{LogCategory}] " + "fallback error: " + error + ", empty SQL passing" + logData, "QueryDataClient/ExecuteDynamicSQLMap");
@@ -607,7 +607,7 @@ namespace dbclient.DataClient
 
                         if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                         {
-                            string logData = $"SQLID: {SQLID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
+                            var logData = $"SQLID: {SQLID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
                             loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMap", (string error) =>
                             {
                                 logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMap");
@@ -618,214 +618,210 @@ namespace dbclient.DataClient
                         using var mainReader = connection.ExecuteReader(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
                         if (dynamicObject.IgnoreResult == true)
                         {
-                            using (DataTable dataTable = new DataTable())
-                            using (DataTable? schemaTable = mainReader.GetSchemaTable())
+                            using var dataTable = new DataTable();
+                            using var schemaTable = mainReader.GetSchemaTable();
+                            if (schemaTable == null)
                             {
-                                if (schemaTable == null)
+                                continue;
+                            }
+
+                            DataRow row;
+
+                            string columnName;
+                            DataColumn column;
+                            var count = schemaTable.Rows.Count;
+
+                            for (var j = 0; j < count; j++)
+                            {
+                                row = schemaTable.Rows[j];
+                                columnName = (string)row["ColumnName"];
+
+                                column = new DataColumn(columnName, (Type)row["DataType"]);
+                                dataTable.Columns.Add(column);
+                            }
+
+                            var values = new object[count];
+
+                            try
+                            {
+                                dataTable.BeginLoadData();
+                                while (mainReader.Read())
                                 {
-                                    continue;
+                                    mainReader.GetValues(values);
+                                    dataTable.LoadDataRow(values, true);
                                 }
+                                dataTable.EndLoadData();
+                            }
+                            finally
+                            {
+                                dataTable.EndLoadData();
+                            }
 
-                                DataRow row;
-
-                                string columnName;
-                                DataColumn column;
-                                int count = schemaTable.Rows.Count;
-
-                                for (int j = 0; j < count; j++)
-                                {
-                                    row = schemaTable.Rows[j];
-                                    columnName = (string)row["ColumnName"];
-
-                                    column = new DataColumn(columnName, (Type)row["DataType"]);
-                                    dataTable.Columns.Add(column);
-                                }
-
-                                object[] values = new object[count];
-
-                                try
-                                {
-                                    dataTable.BeginLoadData();
-                                    while (mainReader.Read())
-                                    {
-                                        mainReader.GetValues(values);
-                                        dataTable.LoadDataRow(values, true);
-                                    }
-                                    dataTable.EndLoadData();
-                                }
-                                finally
-                                {
-                                    dataTable.EndLoadData();
-                                }
-
-                                if (dataTable.Rows.Count > 0)
-                                {
-                                    dataRows[statementMap.Seq] = dataTable.Rows[dataTable.Rows.Count - 1];
-                                }
-                                else
-                                {
-                                    dataRows[statementMap.Seq] = null;
-                                }
+                            if (dataTable.Rows.Count > 0)
+                            {
+                                dataRows[statementMap.Seq] = dataTable.Rows[dataTable.Rows.Count - 1];
+                            }
+                            else
+                            {
+                                dataRows[statementMap.Seq] = null;
                             }
                         }
                         else
                         {
-                            using (DataSet? ds = DataTableHelper.DataReaderToDataSet(mainReader))
+                            using var ds = DataTableHelper.DataReaderToDataSet(mainReader);
+                            var jsonObjectType = JsonObjectType.FormJson;
+
+                            if (ds != null)
                             {
-                                JsonObjectType jsonObjectType = JsonObjectType.FormJson;
-
-                                if (ds != null)
+                                for (var j = 0; j < ds.Tables.Count; j++)
                                 {
-                                    for (int j = 0; j < ds.Tables.Count; j++)
+                                    var table = ds.Tables[j];
+                                    if (table.Columns.Count == 0)
                                     {
-                                        DataTable table = ds.Tables[j];
-                                        if (table.Columns.Count == 0)
-                                        {
-                                            continue;
-                                        }
+                                        continue;
+                                    }
 
-                                        if (dynamicObject.BaseFieldRelations != null && dynamicObject.BaseFieldRelations.Count() > 0)
+                                    if (dynamicObject.BaseFieldRelations != null && dynamicObject.BaseFieldRelations.Count() > 0)
+                                    {
+                                        var baseFieldRelation = dynamicObject.BaseFieldRelations[j];
+                                        if (baseFieldRelation != null && baseFieldRelation.BaseSequence >= 0 && ((ds.Tables.Count - 1) >= baseFieldRelation.BaseSequence))
                                         {
-                                            var baseFieldRelation = dynamicObject.BaseFieldRelations[j];
-                                            if (baseFieldRelation != null && baseFieldRelation.BaseSequence >= 0 && ((ds.Tables.Count - 1) >= baseFieldRelation.BaseSequence))
+                                            var baseTable = ds.Tables[baseFieldRelation.BaseSequence];
+                                            if (baseTable != null)
                                             {
-                                                var baseTable = ds.Tables[baseFieldRelation.BaseSequence];
-                                                if (baseTable != null)
+                                                var baseColumnID = string.IsNullOrEmpty(baseFieldRelation.RelationFieldID) == true ? "_Children" : baseFieldRelation.RelationFieldID;
+                                                if (baseTable.Columns.Contains(baseColumnID) == false && baseFieldRelation.RelationMappings.Count > 0)
                                                 {
-                                                    string baseColumnID = string.IsNullOrEmpty(baseFieldRelation.RelationFieldID) == true ? "_Children" : baseFieldRelation.RelationFieldID;
-                                                    if (baseTable.Columns.Contains(baseColumnID) == false && baseFieldRelation.RelationMappings.Count > 0)
+                                                    baseTable.Columns.Add(baseColumnID, typeof(object));
+
+                                                    var dvChildren = table.AsDataView();
+                                                    foreach (DataRow row in baseTable.Rows)
                                                     {
-                                                        baseTable.Columns.Add(baseColumnID, typeof(object));
-
-                                                        var dvChildren = table.AsDataView();
-                                                        foreach (DataRow row in baseTable.Rows)
+                                                        var rowFilters = new List<string>() { "1<2" };
+                                                        foreach (var item in baseFieldRelation.RelationMappings)
                                                         {
-                                                            List<string> rowFilters = new List<string>() { "1<2" };
-                                                            foreach (var item in baseFieldRelation.RelationMappings)
+                                                            if (baseTable.Columns.Contains(item.BaseFieldID) == true && table.Columns.Contains(item.ChildrenFieldID) == true)
                                                             {
-                                                                if (baseTable.Columns.Contains(item.BaseFieldID) == true && table.Columns.Contains(item.ChildrenFieldID) == true)
+                                                                rowFilters.Add($" AND {item.BaseFieldID} = '{row[item.ChildrenFieldID]}'");
+                                                            }
+                                                        }
+
+                                                        if (rowFilters.Count > 1)
+                                                        {
+                                                            dvChildren.RowFilter = string.Join("", rowFilters);
+
+                                                            DataTable? dtChildren = null;
+                                                            if (baseFieldRelation.ColumnNames.Count > 0)
+                                                            {
+                                                                dtChildren = dvChildren.ToTable(false, baseFieldRelation.ColumnNames.ToArray());
+                                                            }
+                                                            else
+                                                            {
+                                                                dtChildren = dvChildren.ToTable();
+                                                                foreach (var item in baseFieldRelation.RelationMappings)
                                                                 {
-                                                                    rowFilters.Add($" AND {item.BaseFieldID} = '{row[item.ChildrenFieldID]}'");
+                                                                    dtChildren.Columns.Remove(item.ChildrenFieldID);
                                                                 }
                                                             }
 
-                                                            if (rowFilters.Count > 1)
-                                                            {
-                                                                dvChildren.RowFilter = string.Join("", rowFilters);
-
-                                                                DataTable? dtChildren = null;
-                                                                if (baseFieldRelation.ColumnNames.Count > 0)
-                                                                {
-                                                                    dtChildren = dvChildren.ToTable(false, baseFieldRelation.ColumnNames.ToArray());
-                                                                }
-                                                                else
-                                                                {
-                                                                    dtChildren = dvChildren.ToTable();
-                                                                    foreach (var item in baseFieldRelation.RelationMappings)
-                                                                    {
-                                                                        dtChildren.Columns.Remove(item.ChildrenFieldID);
-                                                                    }
-                                                                }
-
-                                                                row[baseColumnID] = dtChildren;
-                                                            }
+                                                            row[baseColumnID] = dtChildren;
                                                         }
                                                     }
                                                 }
                                             }
                                         }
                                     }
+                                }
 
-                                    for (int j = 0; j < ds.Tables.Count; j++)
+                                for (var j = 0; j < ds.Tables.Count; j++)
+                                {
+                                    var table = ds.Tables[j];
+                                    if (table.Columns.Count == 0)
                                     {
-                                        DataTable table = ds.Tables[j];
-                                        if (table.Columns.Count == 0)
-                                        {
-                                            continue;
-                                        }
+                                        continue;
+                                    }
 
-                                        if (dynamicObject.BaseFieldRelations != null && dynamicObject.BaseFieldRelations.Count() > 0)
+                                    if (dynamicObject.BaseFieldRelations != null && dynamicObject.BaseFieldRelations.Count() > 0)
+                                    {
+                                        var baseFieldRelation = dynamicObject.BaseFieldRelations[j];
+                                        if (baseFieldRelation != null)
                                         {
-                                            var baseFieldRelation = dynamicObject.BaseFieldRelations[j];
-                                            if (baseFieldRelation != null)
+                                            if (baseFieldRelation.DisposeResult == true)
                                             {
-                                                if (baseFieldRelation.DisposeResult == true)
-                                                {
-                                                    ds.Tables.Remove(table);
-                                                }
+                                                ds.Tables.Remove(table);
                                             }
                                         }
                                     }
+                                }
 
-                                    for (int j = 0; j < ds.Tables.Count; j++)
+                                for (var j = 0; j < ds.Tables.Count; j++)
+                                {
+                                    var table = ds.Tables[j];
+                                    if (table.Columns.Count == 0)
                                     {
-                                        DataTable table = ds.Tables[j];
-                                        if (table.Columns.Count == 0)
-                                        {
-                                            continue;
-                                        }
+                                        continue;
+                                    }
 
-                                        if (dynamicObject.JsonObjects == null || dynamicObject.JsonObjects.Count == 0)
+                                    if (dynamicObject.JsonObjects == null || dynamicObject.JsonObjects.Count == 0)
+                                    {
+                                        jsonObjectType = dynamicObject.JsonObject;
+                                    }
+                                    else
+                                    {
+                                        try
+                                        {
+                                            jsonObjectType = dynamicObject.JsonObjects[i];
+                                        }
+                                        catch
                                         {
                                             jsonObjectType = dynamicObject.JsonObject;
                                         }
-                                        else
-                                        {
-                                            try
-                                            {
-                                                jsonObjectType = dynamicObject.JsonObjects[i];
-                                            }
-                                            catch
-                                            {
-                                                jsonObjectType = dynamicObject.JsonObject;
-                                            }
-                                        }
-
-                                        StringBuilder sb = new StringBuilder(256);
-                                        for (int k = 0; k < table.Columns.Count; k++)
-                                        {
-                                            var column = table.Columns[k];
-                                            sb.Append($"{column.ColumnName}:{JsonExtensions.toMetaDataType(column.DataType.Name)};");
-                                        }
-
-                                        switch (jsonObjectType)
-                                        {
-                                            case JsonObjectType.FormJson:
-                                                mergeMetaDatas.Add(sb.ToString());
-                                                mergeDatas.Add(FormJson.ToJsonObject("FormData" + i.ToString(), table));
-                                                break;
-                                            case JsonObjectType.jqGridJson:
-                                                mergeMetaDatas.Add(sb.ToString());
-                                                mergeDatas.Add(jqGridJson.ToJsonObject("jqGridData" + i.ToString(), table));
-                                                break;
-                                            case JsonObjectType.GridJson:
-                                                mergeMetaDatas.Add(sb.ToString());
-                                                mergeDatas.Add(GridJson.ToJsonObject("GridData" + i.ToString(), table));
-                                                break;
-                                            case JsonObjectType.ChartJson:
-                                                mergeMetaDatas.Add(sb.ToString());
-                                                mergeDatas.Add(ChartGridJson.ToJsonObject("ChartData" + i.ToString(), table));
-                                                break;
-                                            case JsonObjectType.DataSetJson:
-                                                mergeMetaDatas.Add(sb.ToString());
-                                                mergeDatas.Add(DataTableJson.ToJsonObject("DataSetData" + i.ToString(), table));
-                                                break;
-                                            case JsonObjectType.AdditionJson:
-                                                additionalData.Merge(table);
-                                                break;
-                                        }
-
-                                        if (table.Rows.Count > 0)
-                                        {
-                                            dataRows[statementMap.Seq] = table.Rows[table.Rows.Count - 1];
-                                        }
-                                        else
-                                        {
-                                            dataRows[statementMap.Seq] = null;
-                                        }
-
-                                        i++;
                                     }
+
+                                    var sb = new StringBuilder(256);
+                                    for (var k = 0; k < table.Columns.Count; k++)
+                                    {
+                                        var column = table.Columns[k];
+                                        sb.Append($"{column.ColumnName}:{JsonExtensions.toMetaDataType(column.DataType.Name)};");
+                                    }
+
+                                    switch (jsonObjectType)
+                                    {
+                                        case JsonObjectType.FormJson:
+                                            mergeMetaDatas.Add(sb.ToString());
+                                            mergeDatas.Add(FormJson.ToJsonObject("FormData" + i.ToString(), table));
+                                            break;
+                                        case JsonObjectType.jqGridJson:
+                                            mergeMetaDatas.Add(sb.ToString());
+                                            mergeDatas.Add(jqGridJson.ToJsonObject("jqGridData" + i.ToString(), table));
+                                            break;
+                                        case JsonObjectType.GridJson:
+                                            mergeMetaDatas.Add(sb.ToString());
+                                            mergeDatas.Add(GridJson.ToJsonObject("GridData" + i.ToString(), table));
+                                            break;
+                                        case JsonObjectType.ChartJson:
+                                            mergeMetaDatas.Add(sb.ToString());
+                                            mergeDatas.Add(ChartGridJson.ToJsonObject("ChartData" + i.ToString(), table));
+                                            break;
+                                        case JsonObjectType.DataSetJson:
+                                            mergeMetaDatas.Add(sb.ToString());
+                                            mergeDatas.Add(DataTableJson.ToJsonObject("DataSetData" + i.ToString(), table));
+                                            break;
+                                        case JsonObjectType.AdditionJson:
+                                            additionalData.Merge(table);
+                                            break;
+                                    }
+
+                                    if (table.Rows.Count > 0)
+                                    {
+                                        dataRows[statementMap.Seq] = table.Rows[table.Rows.Count - 1];
+                                    }
+                                    else
+                                    {
+                                        dataRows[statementMap.Seq] = null;
+                                    }
+
+                                    i++;
                                 }
                             }
                         }
@@ -833,7 +829,7 @@ namespace dbclient.DataClient
 
                         if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                         {
-                            string logData = $"SQLID: {SQLID}, ExecuteSQL: \n\n{profiler.ExecuteSQL}";
+                            var logData = $"SQLID: {SQLID}, ExecuteSQL: \n\n{profiler.ExecuteSQL}";
                             loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMap", (string error) =>
                             {
                                 logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMap");
@@ -843,7 +839,7 @@ namespace dbclient.DataClient
                     catch (Exception exception)
                     {
                         response.ExceptionText = exception.ToMessage();
-                        string logData = $"SQLID: {SQLID}, ExceptionText: {response.ExceptionText}, ExecuteSQL: \n\n{profiler.ExecuteSQL}";
+                        var logData = $"SQLID: {SQLID}, ExceptionText: {response.ExceptionText}, ExecuteSQL: \n\n{profiler.ExecuteSQL}";
 
                         loggerClient.TransactionMessageLogging(request.GlobalID, "N", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMap", (string error) =>
                         {
@@ -974,10 +970,10 @@ TransactionException:
 
         public async Task ExecuteDynamicSQLMapToScalar(DynamicRequest request, DynamicResponse response)
         {
-            bool isCommandError = false;
+            var isCommandError = false;
             request.RequestID = request.RequestID == null ? "NULL" : request.RequestID;
-            Dictionary<string, TransactionDynamicObjects> transactionDynamicObjects = new Dictionary<string, TransactionDynamicObjects>();
-            List<DatabaseTransactionObjects> databaseTransactionObjects = new List<DatabaseTransactionObjects>();
+            var transactionDynamicObjects = new Dictionary<string, TransactionDynamicObjects>();
+            var databaseTransactionObjects = new List<DatabaseTransactionObjects>();
 
             try
             {
@@ -987,11 +983,11 @@ TransactionException:
                     return;
                 }
 
-                List<string> logQuerys = new List<string>();
-                int i = 0;
-                foreach (QueryObject queryObject in request.DynamicObjects)
+                var logQuerys = new List<string>();
+                var i = 0;
+                foreach (var queryObject in request.DynamicObjects)
                 {
-                    if (request.LoadOptions?.TryGetValue("$tenantID", out string? tenantID) == true)
+                    if (request.LoadOptions?.TryGetValue("$tenantID", out var tenantID) == true)
                     {
                         queryObject.TenantID = tenantID;
                     }
@@ -1027,7 +1023,7 @@ TransactionException:
                 {
                     if (ModuleConfiguration.IsTransactionLogging == true)
                     {
-                        string logData = $"QueryID: {string.Join(", ", logQuerys.ToArray())}";
+                        var logData = $"QueryID: {string.Join(", ", logQuerys.ToArray())}";
                         if (ModuleConfiguration.IsLogServer == true)
                         {
                             loggerClient.ProgramMessageLogging(request.GlobalID, "Y", GlobalConfiguration.ApplicationID, logData, "QueryDataClient/ExecuteDynamicSQLMapToScalar", (string error) =>
@@ -1052,20 +1048,20 @@ TransactionException:
                 }
 
                 i = 0;
-                Dictionary<int, DataRow?> dataRows = new Dictionary<int, DataRow?>();
-                DataTable additionalData = new DataTable();
+                var dataRows = new Dictionary<int, DataRow?>();
+                var additionalData = new DataTable();
                 additionalData.Columns.Add("MessageCode", typeof(string));
                 additionalData.Columns.Add("MessageText", typeof(string));
                 object? result = null;
                 foreach (var transactionDynamicObject in transactionDynamicObjects)
                 {
-                    QueryObject dynamicObject = transactionDynamicObject.Value.DynamicTransaction;
-                    StatementMap statementMap = transactionDynamicObject.Value.Statement;
+                    var dynamicObject = transactionDynamicObject.Value.DynamicTransaction;
+                    var statementMap = transactionDynamicObject.Value.Statement;
 
                     var databaseProvider = transactionDynamicObject.Value.DataProvider;
                     var databaseTransactionObject = CreateDatabaseTransactionFactory(request, databaseTransactionObjects, transactionDynamicObject, statementMap, databaseProvider);
-                    DatabaseFactory connectionFactory = databaseTransactionObject.ConnectionFactory!;
-                    DbTransaction? databaseTransaction = databaseTransactionObject.DatabaseTransaction;
+                    var connectionFactory = databaseTransactionObject.ConnectionFactory!;
+                    var databaseTransaction = databaseTransactionObject.DatabaseTransaction;
 
                     dynamic? dynamicParameters = CreateDynamicParameters(databaseProvider, statementMap);
 
@@ -1073,20 +1069,20 @@ TransactionException:
                     {
                         if (dynamicObject.BaseFieldMappings != null && dynamicObject.BaseFieldMappings.Count() > 0)
                         {
-                            int baseSequence = statementMap.Seq - 1;
+                            var baseSequence = statementMap.Seq - 1;
                             DataRow? dataRow = null;
                             if (dataRows.Count > 0 && statementMap.Seq > 0)
                             {
                                 dataRow = dataRows.GetValueOrDefault(baseSequence);
                             }
 
-                            for (int baseFieldIndex = 0; baseFieldIndex < dynamicObject.BaseFieldMappings.Count; baseFieldIndex++)
+                            for (var baseFieldIndex = 0; baseFieldIndex < dynamicObject.BaseFieldMappings.Count; baseFieldIndex++)
                             {
-                                BaseFieldMapping baseFieldMapping = dynamicObject.BaseFieldMappings[baseFieldIndex];
+                                var baseFieldMapping = dynamicObject.BaseFieldMappings[baseFieldIndex];
 
                                 if (string.IsNullOrEmpty(baseFieldMapping.BaseSequence) == false)
                                 {
-                                    int baseSequenceMapping = int.Parse(baseFieldMapping.BaseSequence);
+                                    var baseSequenceMapping = int.Parse(baseFieldMapping.BaseSequence);
                                     if (baseSequence != baseSequenceMapping)
                                     {
                                         baseSequence = baseSequenceMapping;
@@ -1108,7 +1104,7 @@ TransactionException:
                                     goto TransactionException;
                                 }
 
-                                DynamicParameter? dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == baseFieldMapping.TargetFieldID).FirstOrDefault();
+                                var dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == baseFieldMapping.TargetFieldID).FirstOrDefault();
 
                                 if (dynamicParameter == null)
                                 {
@@ -1128,12 +1124,12 @@ TransactionException:
                         SetDbParameterMapping(connectionFactory, databaseProvider, dynamicObject, statementMap, dynamicParameters);
                     }
 
-                    string SQLID = "";
-                    string executeDataID = dynamicObject.QueryID + "_" + i.ToString();
+                    var SQLID = "";
+                    var executeDataID = dynamicObject.QueryID + "_" + i.ToString();
 
                     if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                     {
-                        string logData = $"Pretreatment {executeDataID}, ParseSQL Parameters: {JsonConvert.SerializeObject(dynamicObject)}";
+                        var logData = $"Pretreatment {executeDataID}, ParseSQL Parameters: {JsonConvert.SerializeObject(dynamicObject)}";
                         loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLToScalar", (string error) =>
                         {
                             logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLToScalar");
@@ -1149,20 +1145,20 @@ TransactionException:
 
                             if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                             {
-                                string logData = $"SQLID: {SQLID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
+                                var logData = $"SQLID: {SQLID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
                                 loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLToScalar", (string error) =>
                                 {
                                     logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLToScalar");
                                 });
                             }
 
-                            ConsoleProfiler pretreatmentProfiler = new ConsoleProfiler(request.RequestID, SQLID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
+                            var pretreatmentProfiler = new ConsoleProfiler(request.RequestID, SQLID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
                             var pretreatmentConnection = new ProfilerDbConnection(connectionFactory.Connection, pretreatmentProfiler);
 
                             try
                             {
                                 using var pretreatmentReader = await pretreatmentConnection.ExecuteReaderAsync(pretreatment.SQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
-                                using (DataSet? ds = DataTableHelper.DataReaderToDataSet(pretreatmentReader))
+                                using (var ds = DataTableHelper.DataReaderToDataSet(pretreatmentReader))
                                 {
                                     var resultTypes = pretreatment.ResultType.Split(",");
                                     if (resultTypes.Count() != (ds == null ? 0 : ds.Tables.Count))
@@ -1174,10 +1170,10 @@ TransactionException:
 
                                     if (ds != null)
                                     {
-                                        for (int j = 0; j < ds.Tables.Count; j++)
+                                        for (var j = 0; j < ds.Tables.Count; j++)
                                         {
-                                            string resultType = resultTypes[j].Trim();
-                                            DataTable table = ds.Tables[j];
+                                            var resultType = resultTypes[j].Trim();
+                                            var table = ds.Tables[j];
                                             if (table.Columns.Count == 0)
                                             {
                                                 continue;
@@ -1185,13 +1181,13 @@ TransactionException:
 
                                             if (resultType == "Row")
                                             {
-                                                DataRow rowItem = table.Rows[0];
-                                                DataColumnCollection colItems = table.Columns;
+                                                var rowItem = table.Rows[0];
+                                                var colItems = table.Columns;
                                                 foreach (DataColumn item in colItems)
                                                 {
                                                     PretreatmentAddParameter(databaseProvider, statementMap, dynamicParameters, rowItem, item);
 
-                                                    DynamicParameter? dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == item.ColumnName).FirstOrDefault();
+                                                    var dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == item.ColumnName).FirstOrDefault();
 
                                                     if (dynamicParameter == null)
                                                     {
@@ -1216,12 +1212,12 @@ TransactionException:
                                             }
                                             else if (resultType == "List")
                                             {
-                                                List<object> parameters = new List<object>();
-                                                DataColumnCollection colItems = table.Columns;
+                                                var parameters = new List<object>();
+                                                var colItems = table.Columns;
                                                 foreach (DataColumn item in colItems)
                                                 {
-                                                    DataView dataView = new DataView(table);
-                                                    DataTable dataTable = dataView.ToTable(true, item.ColumnName);
+                                                    var dataView = new DataView(table);
+                                                    var dataTable = dataView.ToTable(true, item.ColumnName);
                                                     foreach (DataRow row in dataTable.Rows)
                                                     {
                                                         parameters.Add(row[0]);
@@ -1231,7 +1227,7 @@ TransactionException:
                                                     {
                                                         dynamicParameters?.Add(item.ColumnName, parameters);
 
-                                                        DynamicParameter? dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == item.ColumnName).FirstOrDefault();
+                                                        var dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == item.ColumnName).FirstOrDefault();
 
                                                         if (dynamicParameter == null)
                                                         {
@@ -1260,7 +1256,7 @@ TransactionException:
                                 }
                                 pretreatmentReader?.Close();
 
-                                string logData = $"SQLID: {SQLID}, ExecuteSQL: \n\n{pretreatmentProfiler.ExecuteSQL}";
+                                var logData = $"SQLID: {SQLID}, ExecuteSQL: \n\n{pretreatmentProfiler.ExecuteSQL}";
                                 if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                                 {
                                     loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLToScalar", (string error) =>
@@ -1285,7 +1281,7 @@ TransactionException:
 
                     if (string.IsNullOrEmpty(statementMap.BeforeTransactionCommand) == false)
                     {
-                        string logData = "";
+                        var logData = "";
                         if (ModuleConfiguration.IsTransactionLogging == true)
                         {
                             logData = $"GlobalID={request.GlobalID}, QueryID={dynamicObject.QueryID}, CommandID={statementMap.BeforeTransactionCommand}, , dynamicParameters={JsonConvert.SerializeObject(dynamicParameters)}";
@@ -1326,25 +1322,25 @@ TransactionException:
                     }
 
                     SQLID = executeDataID + "_statement";
-                    ConsoleProfiler profiler = new ConsoleProfiler(request.RequestID, executeDataID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
+                    var profiler = new ConsoleProfiler(request.RequestID, executeDataID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
 
                     try
                     {
                         if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                         {
-                            string logData = $"SQLID: {SQLID}, ParseSQL Parameters: {JsonConvert.SerializeObject(dynamicObject)}";
+                            var logData = $"SQLID: {SQLID}, ParseSQL Parameters: {JsonConvert.SerializeObject(dynamicObject)}";
                             loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMapToScalar", (string error) =>
                             {
                                 logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToScalar");
                             });
                         }
 
-                        string parseSQL = DatabaseMapper.Find(statementMap, dynamicObject);
+                        var parseSQL = DatabaseMapper.Find(statementMap, dynamicObject);
                         if (string.IsNullOrEmpty(parseSQL) == true || parseSQL.Replace(Environment.NewLine, "").Replace("\t", "").Trim() == "")
                         {
                             if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                             {
-                                string logData = $"SQLID: {SQLID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
+                                var logData = $"SQLID: {SQLID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
                                 loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLToScalar", (string error) =>
                                 {
                                     logger.Information("[{LogCategory}] " + "fallback error: " + error + ", empty SQL passing" + logData, "QueryDataClient/ExecuteDynamicSQLMapToScalar");
@@ -1356,7 +1352,7 @@ TransactionException:
 
                         if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                         {
-                            string logData = $"SQLID: {SQLID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
+                            var logData = $"SQLID: {SQLID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
                             loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMapToScalar", (string error) =>
                             {
                                 logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToScalar");
@@ -1367,80 +1363,76 @@ TransactionException:
                         using var mainReader = connection.ExecuteReader(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
                         if (dynamicObject.IgnoreResult == true)
                         {
-                            using (DataTable dataTable = new DataTable())
-                            using (DataTable? schemaTable = mainReader.GetSchemaTable())
+                            using var dataTable = new DataTable();
+                            using var schemaTable = mainReader.GetSchemaTable();
+                            if (schemaTable == null)
                             {
-                                if (schemaTable == null)
+                                continue;
+                            }
+
+                            DataRow row;
+
+                            string columnName;
+                            DataColumn column;
+                            var count = schemaTable.Rows.Count;
+
+                            for (var j = 0; j < count; j++)
+                            {
+                                row = schemaTable.Rows[j];
+                                columnName = (string)row["ColumnName"];
+
+                                column = new DataColumn(columnName, (Type)row["DataType"]);
+                                dataTable.Columns.Add(column);
+                            }
+
+                            var values = new object[count];
+
+                            try
+                            {
+                                dataTable.BeginLoadData();
+                                while (mainReader.Read())
                                 {
-                                    continue;
+                                    mainReader.GetValues(values);
+                                    dataTable.LoadDataRow(values, true);
+                                }
+                            }
+                            finally
+                            {
+                                dataTable.EndLoadData();
+                            }
+
+                            if (dataTable.Rows.Count > 0)
+                            {
+                                dataRows[statementMap.Seq] = dataTable.Rows[dataTable.Rows.Count - 1];
+                            }
+                            else
+                            {
+                                dataRows[statementMap.Seq] = null;
+                            }
+                        }
+                        else
+                        {
+                            using var ds = DataTableHelper.DataReaderToDataSet(mainReader);
+                            if (ds != null && ds.Tables.Count > 0)
+                            {
+                                for (var j = 0; j < ds.Tables.Count; j++)
+                                {
+                                    i++;
                                 }
 
-                                DataRow row;
-
-                                string columnName;
-                                DataColumn column;
-                                int count = schemaTable.Rows.Count;
-
-                                for (int j = 0; j < count; j++)
+                                var table = ds.Tables[ds.Tables.Count - 1];
+                                if (table.Rows.Count > 0)
                                 {
-                                    row = schemaTable.Rows[j];
-                                    columnName = (string)row["ColumnName"];
-
-                                    column = new DataColumn(columnName, (Type)row["DataType"]);
-                                    dataTable.Columns.Add(column);
-                                }
-
-                                object[] values = new object[count];
-
-                                try
-                                {
-                                    dataTable.BeginLoadData();
-                                    while (mainReader.Read())
-                                    {
-                                        mainReader.GetValues(values);
-                                        dataTable.LoadDataRow(values, true);
-                                    }
-                                }
-                                finally
-                                {
-                                    dataTable.EndLoadData();
-                                }
-
-                                if (dataTable.Rows.Count > 0)
-                                {
-                                    dataRows[statementMap.Seq] = dataTable.Rows[dataTable.Rows.Count - 1];
+                                    dataRows[statementMap.Seq] = table.Rows[table.Rows.Count - 1];
                                 }
                                 else
                                 {
                                     dataRows[statementMap.Seq] = null;
                                 }
                             }
-                        }
-                        else
-                        {
-                            using (DataSet? ds = DataTableHelper.DataReaderToDataSet(mainReader))
+                            else
                             {
-                                if (ds != null && ds.Tables.Count > 0)
-                                {
-                                    for (int j = 0; j < ds.Tables.Count; j++)
-                                    {
-                                        i++;
-                                    }
-
-                                    DataTable table = ds.Tables[ds.Tables.Count - 1];
-                                    if (table.Rows.Count > 0)
-                                    {
-                                        dataRows[statementMap.Seq] = table.Rows[table.Rows.Count - 1];
-                                    }
-                                    else
-                                    {
-                                        dataRows[statementMap.Seq] = null;
-                                    }
-                                }
-                                else
-                                {
-                                    dataRows[statementMap.Seq] = null;
-                                }
+                                dataRows[statementMap.Seq] = null;
                             }
                         }
 
@@ -1448,7 +1440,7 @@ TransactionException:
 
                         if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                         {
-                            string logData = $"SQLID: {SQLID}, ExecuteSQL: \n\n{profiler.ExecuteSQL}";
+                            var logData = $"SQLID: {SQLID}, ExecuteSQL: \n\n{profiler.ExecuteSQL}";
                             loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMapToScalar", (string error) =>
                             {
                                 logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToScalar");
@@ -1459,7 +1451,7 @@ TransactionException:
                     catch (Exception exception)
                     {
                         response.ExceptionText = exception.ToMessage();
-                        string logData = $"SQLID: {SQLID}, ExceptionText: {response.ExceptionText}, ExecuteSQL: \n\n{profiler.ExecuteSQL}";
+                        var logData = $"SQLID: {SQLID}, ExceptionText: {response.ExceptionText}, ExecuteSQL: \n\n{profiler.ExecuteSQL}";
                         loggerClient.TransactionMessageLogging(request.GlobalID, "N", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMapToScalar", (string error) =>
                         {
                             logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToScalar");
@@ -1584,10 +1576,10 @@ TransactionException:
 
         public async Task ExecuteDynamicSQLMapToNonQuery(DynamicRequest request, DynamicResponse response)
         {
-            bool isCommandError = false;
+            var isCommandError = false;
             request.RequestID = request.RequestID == null ? "NULL" : request.RequestID;
-            Dictionary<string, TransactionDynamicObjects> transactionDynamicObjects = new Dictionary<string, TransactionDynamicObjects>();
-            List<DatabaseTransactionObjects> databaseTransactionObjects = new List<DatabaseTransactionObjects>();
+            var transactionDynamicObjects = new Dictionary<string, TransactionDynamicObjects>();
+            var databaseTransactionObjects = new List<DatabaseTransactionObjects>();
 
             try
             {
@@ -1597,11 +1589,11 @@ TransactionException:
                     return;
                 }
 
-                List<string> logQuerys = new List<string>();
-                int i = 0;
-                foreach (QueryObject queryObject in request.DynamicObjects)
+                var logQuerys = new List<string>();
+                var i = 0;
+                foreach (var queryObject in request.DynamicObjects)
                 {
-                    if (request.LoadOptions?.TryGetValue("$tenantID", out string? tenantID) == true)
+                    if (request.LoadOptions?.TryGetValue("$tenantID", out var tenantID) == true)
                     {
                         queryObject.TenantID = tenantID;
                     }
@@ -1638,7 +1630,7 @@ TransactionException:
                 {
                     if (ModuleConfiguration.IsTransactionLogging == true)
                     {
-                        string logData = $"QueryID: {string.Join(", ", logQuerys.ToArray())}";
+                        var logData = $"QueryID: {string.Join(", ", logQuerys.ToArray())}";
                         if (ModuleConfiguration.IsLogServer == true)
                         {
                             loggerClient.ProgramMessageLogging(request.GlobalID, "Y", GlobalConfiguration.ApplicationID, logData, "QueryDataClient/ExecuteDynamicSQLMapToNonQuery", (string error) =>
@@ -1663,40 +1655,40 @@ TransactionException:
                 }
 
                 i = 0;
-                Dictionary<int, DataRow?> dataRows = new Dictionary<int, DataRow?>();
-                DataTable additionalData = new DataTable();
+                var dataRows = new Dictionary<int, DataRow?>();
+                var additionalData = new DataTable();
                 additionalData.Columns.Add("MessageCode", typeof(string));
                 additionalData.Columns.Add("MessageText", typeof(string));
-                int result = 0;
+                var result = 0;
                 foreach (var transactionDynamicObject in transactionDynamicObjects)
                 {
-                    QueryObject dynamicObject = transactionDynamicObject.Value.DynamicTransaction;
-                    StatementMap statementMap = transactionDynamicObject.Value.Statement;
+                    var dynamicObject = transactionDynamicObject.Value.DynamicTransaction;
+                    var statementMap = transactionDynamicObject.Value.Statement;
 
                     var databaseProvider = transactionDynamicObject.Value.DataProvider;
                     var databaseTransactionObject = CreateDatabaseTransactionFactory(request, databaseTransactionObjects, transactionDynamicObject, statementMap, databaseProvider);
-                    DatabaseFactory connectionFactory = databaseTransactionObject.ConnectionFactory!;
-                    DbTransaction? databaseTransaction = databaseTransactionObject.DatabaseTransaction;
+                    var connectionFactory = databaseTransactionObject.ConnectionFactory!;
+                    var databaseTransaction = databaseTransactionObject.DatabaseTransaction;
 
                     dynamic? dynamicParameters = CreateDynamicParameters(databaseProvider, statementMap);
                     if (dynamicObject.Parameters.Count() > 0)
                     {
                         if (dynamicObject.BaseFieldMappings != null && dynamicObject.BaseFieldMappings.Count() > 0)
                         {
-                            int baseSequence = statementMap.Seq - 1;
+                            var baseSequence = statementMap.Seq - 1;
                             DataRow? dataRow = null;
                             if (dataRows.Count > 0 && statementMap.Seq > 0)
                             {
                                 dataRow = dataRows.GetValueOrDefault(baseSequence);
                             }
 
-                            for (int baseFieldIndex = 0; baseFieldIndex < dynamicObject.BaseFieldMappings.Count; baseFieldIndex++)
+                            for (var baseFieldIndex = 0; baseFieldIndex < dynamicObject.BaseFieldMappings.Count; baseFieldIndex++)
                             {
-                                BaseFieldMapping baseFieldMapping = dynamicObject.BaseFieldMappings[baseFieldIndex];
+                                var baseFieldMapping = dynamicObject.BaseFieldMappings[baseFieldIndex];
 
                                 if (string.IsNullOrEmpty(baseFieldMapping.BaseSequence) == false)
                                 {
-                                    int baseSequenceMapping = int.Parse(baseFieldMapping.BaseSequence);
+                                    var baseSequenceMapping = int.Parse(baseFieldMapping.BaseSequence);
                                     if (baseSequence != baseSequenceMapping)
                                     {
                                         baseSequence = baseSequenceMapping;
@@ -1718,7 +1710,7 @@ TransactionException:
                                     goto TransactionException;
                                 }
 
-                                DynamicParameter? dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == baseFieldMapping.TargetFieldID).FirstOrDefault();
+                                var dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == baseFieldMapping.TargetFieldID).FirstOrDefault();
 
                                 if (dynamicParameter == null)
                                 {
@@ -1738,12 +1730,12 @@ TransactionException:
                         SetDbParameterMapping(connectionFactory, databaseProvider, dynamicObject, statementMap, dynamicParameters);
                     }
 
-                    string SQLID = "";
-                    string executeDataID = dynamicObject.QueryID + "_" + i.ToString();
+                    var SQLID = "";
+                    var executeDataID = dynamicObject.QueryID + "_" + i.ToString();
 
                     if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                     {
-                        string logData = $"Pretreatment {executeDataID}, ParseSQL Parameters: {JsonConvert.SerializeObject(dynamicObject)}";
+                        var logData = $"Pretreatment {executeDataID}, ParseSQL Parameters: {JsonConvert.SerializeObject(dynamicObject)}";
                         loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLToNonQuery", (string error) =>
                         {
                             logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLToNonQuery");
@@ -1759,20 +1751,20 @@ TransactionException:
 
                             if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                             {
-                                string logData = $"SQLID: {SQLID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
+                                var logData = $"SQLID: {SQLID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
                                 loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLToNonQuery", (string error) =>
                                 {
                                     logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLToNonQuery");
                                 });
                             }
 
-                            ConsoleProfiler pretreatmentProfiler = new ConsoleProfiler(request.RequestID, SQLID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
+                            var pretreatmentProfiler = new ConsoleProfiler(request.RequestID, SQLID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
                             var pretreatmentConnection = new ProfilerDbConnection(connectionFactory.Connection, pretreatmentProfiler);
 
                             try
                             {
                                 using var pretreatmentReader = await pretreatmentConnection.ExecuteReaderAsync(pretreatment.SQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
-                                using (DataSet? ds = DataTableHelper.DataReaderToDataSet(pretreatmentReader))
+                                using (var ds = DataTableHelper.DataReaderToDataSet(pretreatmentReader))
                                 {
                                     var resultTypes = pretreatment.ResultType.Split(",");
                                     if (resultTypes.Count() != (ds == null ? 0 : ds.Tables.Count))
@@ -1784,10 +1776,10 @@ TransactionException:
 
                                     if (ds != null)
                                     {
-                                        for (int j = 0; j < ds.Tables.Count; j++)
+                                        for (var j = 0; j < ds.Tables.Count; j++)
                                         {
-                                            string resultType = resultTypes[j].Trim();
-                                            DataTable table = ds.Tables[j];
+                                            var resultType = resultTypes[j].Trim();
+                                            var table = ds.Tables[j];
                                             if (table.Columns.Count == 0)
                                             {
                                                 continue;
@@ -1795,13 +1787,13 @@ TransactionException:
 
                                             if (resultType == "Row")
                                             {
-                                                DataRow rowItem = table.Rows[0];
-                                                DataColumnCollection colItems = table.Columns;
+                                                var rowItem = table.Rows[0];
+                                                var colItems = table.Columns;
                                                 foreach (DataColumn item in colItems)
                                                 {
                                                     PretreatmentAddParameter(databaseProvider, statementMap, dynamicParameters, rowItem, item);
 
-                                                    DynamicParameter? dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == item.ColumnName).FirstOrDefault();
+                                                    var dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == item.ColumnName).FirstOrDefault();
 
                                                     if (dynamicParameter == null)
                                                     {
@@ -1826,12 +1818,12 @@ TransactionException:
                                             }
                                             else if (resultType == "List")
                                             {
-                                                List<object> parameters = new List<object>();
-                                                DataColumnCollection colItems = table.Columns;
+                                                var parameters = new List<object>();
+                                                var colItems = table.Columns;
                                                 foreach (DataColumn item in colItems)
                                                 {
-                                                    DataView dataView = new DataView(table);
-                                                    DataTable dataTable = dataView.ToTable(true, item.ColumnName);
+                                                    var dataView = new DataView(table);
+                                                    var dataTable = dataView.ToTable(true, item.ColumnName);
                                                     foreach (DataRow row in dataTable.Rows)
                                                     {
                                                         parameters.Add(row[0]);
@@ -1841,7 +1833,7 @@ TransactionException:
                                                     {
                                                         dynamicParameters?.Add(item.ColumnName, parameters);
 
-                                                        DynamicParameter? dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == item.ColumnName).FirstOrDefault();
+                                                        var dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == item.ColumnName).FirstOrDefault();
 
                                                         if (dynamicParameter == null)
                                                         {
@@ -1870,7 +1862,7 @@ TransactionException:
                                 }
                                 pretreatmentReader?.Close();
 
-                                string logData = $"SQLID: {SQLID}, ExecuteSQL: \n\n{pretreatmentProfiler.ExecuteSQL}";
+                                var logData = $"SQLID: {SQLID}, ExecuteSQL: \n\n{pretreatmentProfiler.ExecuteSQL}";
                                 if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                                 {
                                     loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLToNonQuery", (string error) =>
@@ -1895,7 +1887,7 @@ TransactionException:
 
                     if (string.IsNullOrEmpty(statementMap.BeforeTransactionCommand) == false)
                     {
-                        string logData = "";
+                        var logData = "";
                         if (ModuleConfiguration.IsTransactionLogging == true)
                         {
                             logData = $"GlobalID={request.GlobalID}, QueryID={dynamicObject.QueryID}, CommandID={statementMap.BeforeTransactionCommand}, , dynamicParameters={JsonConvert.SerializeObject(dynamicParameters)}";
@@ -1936,25 +1928,25 @@ TransactionException:
                     }
 
                     SQLID = executeDataID + "_statement";
-                    ConsoleProfiler profiler = new ConsoleProfiler(request.RequestID, executeDataID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
+                    var profiler = new ConsoleProfiler(request.RequestID, executeDataID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
 
                     try
                     {
                         if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                         {
-                            string logData = $"SQLID: {SQLID}, ParseSQL Parameters: {JsonConvert.SerializeObject(dynamicObject)}";
+                            var logData = $"SQLID: {SQLID}, ParseSQL Parameters: {JsonConvert.SerializeObject(dynamicObject)}";
                             loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMapToNonQuery", (string error) =>
                             {
                                 logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToNonQuery");
                             });
                         }
 
-                        string parseSQL = DatabaseMapper.Find(statementMap, dynamicObject);
+                        var parseSQL = DatabaseMapper.Find(statementMap, dynamicObject);
                         if (string.IsNullOrEmpty(parseSQL) == true || parseSQL.Replace(Environment.NewLine, "").Replace("\t", "").Trim() == "")
                         {
                             if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                             {
-                                string logData = $"SQLID: {SQLID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
+                                var logData = $"SQLID: {SQLID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
                                 loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLToNonQuery", (string error) =>
                                 {
                                     logger.Information("[{LogCategory}] " + "fallback error: " + error + ", empty SQL passing" + logData, "QueryDataClient/ExecuteDynamicSQLMapToNonQuery");
@@ -1966,7 +1958,7 @@ TransactionException:
 
                         if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                         {
-                            string logData = $"SQLID: {SQLID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
+                            var logData = $"SQLID: {SQLID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
                             loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMapToNonQuery", (string error) =>
                             {
                                 logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToNonQuery");
@@ -1977,68 +1969,66 @@ TransactionException:
                         using var mainReader = connection.ExecuteReader(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
                         if (dynamicObject.IgnoreResult == true)
                         {
-                            using (DataTable dataTable = new DataTable())
-                            using (DataTable? schemaTable = mainReader.GetSchemaTable())
+                            using var dataTable = new DataTable();
+                            using var schemaTable = mainReader.GetSchemaTable();
+                            if (schemaTable == null)
                             {
-                                if (schemaTable == null)
+                                continue;
+                            }
+
+                            DataRow row;
+
+                            string columnName;
+                            DataColumn column;
+                            var count = schemaTable.Rows.Count;
+
+                            for (var j = 0; j < count; j++)
+                            {
+                                row = schemaTable.Rows[j];
+                                columnName = (string)row["ColumnName"];
+
+                                column = new DataColumn(columnName, (Type)row["DataType"]);
+                                dataTable.Columns.Add(column);
+                            }
+
+                            var values = new object[count];
+
+                            try
+                            {
+                                result = result + mainReader.RecordsAffected;
+                                dataTable.BeginLoadData();
+                                while (mainReader.Read())
                                 {
-                                    continue;
+                                    mainReader.GetValues(values);
+                                    dataTable.LoadDataRow(values, true);
                                 }
+                            }
+                            finally
+                            {
+                                dataTable.EndLoadData();
+                            }
 
-                                DataRow row;
-
-                                string columnName;
-                                DataColumn column;
-                                int count = schemaTable.Rows.Count;
-
-                                for (int j = 0; j < count; j++)
-                                {
-                                    row = schemaTable.Rows[j];
-                                    columnName = (string)row["ColumnName"];
-
-                                    column = new DataColumn(columnName, (Type)row["DataType"]);
-                                    dataTable.Columns.Add(column);
-                                }
-
-                                object[] values = new object[count];
-
-                                try
-                                {
-                                    result = result + mainReader.RecordsAffected;
-                                    dataTable.BeginLoadData();
-                                    while (mainReader.Read())
-                                    {
-                                        mainReader.GetValues(values);
-                                        dataTable.LoadDataRow(values, true);
-                                    }
-                                }
-                                finally
-                                {
-                                    dataTable.EndLoadData();
-                                }
-
-                                if (dataTable.Rows.Count > 0)
-                                {
-                                    dataRows[statementMap.Seq] = dataTable.Rows[dataTable.Rows.Count - 1];
-                                }
-                                else
-                                {
-                                    dataRows[statementMap.Seq] = null;
-                                }
+                            if (dataTable.Rows.Count > 0)
+                            {
+                                dataRows[statementMap.Seq] = dataTable.Rows[dataTable.Rows.Count - 1];
+                            }
+                            else
+                            {
+                                dataRows[statementMap.Seq] = null;
                             }
                         }
                         else
                         {
-                            using (DataSet? ds = DataTableHelper.DataReaderToDataSet(mainReader))
+                            using (var ds = DataTableHelper.DataReaderToDataSet(mainReader))
                             {
                                 if (ds != null && ds.Tables.Count > 0)
                                 {
-                                    for (int j = 0; j < ds.Tables.Count; j++)
+                                    for (var j = 0; j < ds.Tables.Count; j++)
                                     {
                                         i++;
                                     }
 
-                                    DataTable table = ds.Tables[ds.Tables.Count - 1];
+                                    var table = ds.Tables[ds.Tables.Count - 1];
                                     if (table.Rows.Count > 0)
                                     {
                                         dataRows[statementMap.Seq] = table.Rows[table.Rows.Count - 1];
@@ -2061,7 +2051,7 @@ TransactionException:
 
                         if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                         {
-                            string logData = $"SQLID: {SQLID}, ExecuteSQL: \n\n{profiler.ExecuteSQL}";
+                            var logData = $"SQLID: {SQLID}, ExecuteSQL: \n\n{profiler.ExecuteSQL}";
                             loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMapToNonQuery", (string error) =>
                             {
                                 logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToNonQuery");
@@ -2071,7 +2061,7 @@ TransactionException:
                     catch (Exception exception)
                     {
                         response.ExceptionText = exception.ToMessage();
-                        string logData = $"SQLID: {SQLID}, ExceptionText: {response.ExceptionText}, ExecuteSQL: \n\n{profiler.ExecuteSQL}";
+                        var logData = $"SQLID: {SQLID}, ExceptionText: {response.ExceptionText}, ExecuteSQL: \n\n{profiler.ExecuteSQL}";
                         loggerClient.TransactionMessageLogging(request.GlobalID, "N", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMapToNonQuery", (string error) =>
                         {
                             logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToNonQuery");
@@ -2195,10 +2185,10 @@ TransactionException:
 
         public async Task ExecuteDynamicSQLMapToXml(DynamicRequest request, DynamicResponse response)
         {
-            bool isCommandError = false;
+            var isCommandError = false;
             request.RequestID = request.RequestID == null ? "NULL" : request.RequestID;
-            Dictionary<string, TransactionDynamicObjects> transactionDynamicObjects = new Dictionary<string, TransactionDynamicObjects>();
-            List<DatabaseTransactionObjects> databaseTransactionObjects = new List<DatabaseTransactionObjects>();
+            var transactionDynamicObjects = new Dictionary<string, TransactionDynamicObjects>();
+            var databaseTransactionObjects = new List<DatabaseTransactionObjects>();
 
             try
             {
@@ -2208,11 +2198,11 @@ TransactionException:
                     return;
                 }
 
-                List<string> logQuerys = new List<string>();
-                int i = 0;
-                foreach (QueryObject queryObject in request.DynamicObjects)
+                var logQuerys = new List<string>();
+                var i = 0;
+                foreach (var queryObject in request.DynamicObjects)
                 {
-                    if (request.LoadOptions?.TryGetValue("$tenantID", out string? tenantID) == true)
+                    if (request.LoadOptions?.TryGetValue("$tenantID", out var tenantID) == true)
                     {
                         queryObject.TenantID = tenantID;
                     }
@@ -2249,7 +2239,7 @@ TransactionException:
                 {
                     if (ModuleConfiguration.IsTransactionLogging == true)
                     {
-                        string logData = $"QueryID: {string.Join(", ", logQuerys.ToArray())}";
+                        var logData = $"QueryID: {string.Join(", ", logQuerys.ToArray())}";
                         if (ModuleConfiguration.IsLogServer == true)
                         {
                             loggerClient.ProgramMessageLogging(request.GlobalID, "Y", GlobalConfiguration.ApplicationID, logData, "QueryDataClient/ExecuteDynamicSQLMapToXml", (string error) =>
@@ -2274,37 +2264,37 @@ TransactionException:
                 }
 
                 i = 0;
-                List<DataTable> results = new List<DataTable>();
-                Dictionary<int, DataRow?> dataRows = new Dictionary<int, DataRow?>();
+                var results = new List<DataTable>();
+                var dataRows = new Dictionary<int, DataRow?>();
                 foreach (var transactionDynamicObject in transactionDynamicObjects)
                 {
-                    QueryObject dynamicObject = transactionDynamicObject.Value.DynamicTransaction;
-                    StatementMap statementMap = transactionDynamicObject.Value.Statement;
+                    var dynamicObject = transactionDynamicObject.Value.DynamicTransaction;
+                    var statementMap = transactionDynamicObject.Value.Statement;
 
                     var databaseProvider = transactionDynamicObject.Value.DataProvider;
                     var databaseTransactionObject = CreateDatabaseTransactionFactory(request, databaseTransactionObjects, transactionDynamicObject, statementMap, databaseProvider);
-                    DatabaseFactory connectionFactory = databaseTransactionObject.ConnectionFactory!;
-                    DbTransaction? databaseTransaction = databaseTransactionObject.DatabaseTransaction;
+                    var connectionFactory = databaseTransactionObject.ConnectionFactory!;
+                    var databaseTransaction = databaseTransactionObject.DatabaseTransaction;
 
                     dynamic? dynamicParameters = CreateDynamicParameters(databaseProvider, statementMap);
                     if (dynamicObject.Parameters.Count() > 0)
                     {
                         if (dynamicObject.BaseFieldMappings != null && dynamicObject.BaseFieldMappings.Count() > 0)
                         {
-                            int baseSequence = statementMap.Seq - 1;
+                            var baseSequence = statementMap.Seq - 1;
                             DataRow? dataRow = null;
                             if (dataRows.Count > 0 && statementMap.Seq > 0)
                             {
                                 dataRow = dataRows.GetValueOrDefault(baseSequence);
                             }
 
-                            for (int baseFieldIndex = 0; baseFieldIndex < dynamicObject.BaseFieldMappings.Count; baseFieldIndex++)
+                            for (var baseFieldIndex = 0; baseFieldIndex < dynamicObject.BaseFieldMappings.Count; baseFieldIndex++)
                             {
-                                BaseFieldMapping baseFieldMapping = dynamicObject.BaseFieldMappings[baseFieldIndex];
+                                var baseFieldMapping = dynamicObject.BaseFieldMappings[baseFieldIndex];
 
                                 if (string.IsNullOrEmpty(baseFieldMapping.BaseSequence) == false)
                                 {
-                                    int baseSequenceMapping = int.Parse(baseFieldMapping.BaseSequence);
+                                    var baseSequenceMapping = int.Parse(baseFieldMapping.BaseSequence);
                                     if (baseSequence != baseSequenceMapping)
                                     {
                                         baseSequence = baseSequenceMapping;
@@ -2326,7 +2316,7 @@ TransactionException:
                                     goto TransactionException;
                                 }
 
-                                DynamicParameter? dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == baseFieldMapping.TargetFieldID).FirstOrDefault();
+                                var dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == baseFieldMapping.TargetFieldID).FirstOrDefault();
 
                                 if (dynamicParameter == null)
                                 {
@@ -2346,11 +2336,11 @@ TransactionException:
                         SetDbParameterMapping(connectionFactory, databaseProvider, dynamicObject, statementMap, dynamicParameters);
                     }
 
-                    string SQLID = "";
-                    string executeDataID = dynamicObject.QueryID + "_" + i.ToString();
+                    var SQLID = "";
+                    var executeDataID = dynamicObject.QueryID + "_" + i.ToString();
                     if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                     {
-                        string logData = $"Pretreatment {executeDataID}, ParseSQL Parameters: {JsonConvert.SerializeObject(dynamicObject)}";
+                        var logData = $"Pretreatment {executeDataID}, ParseSQL Parameters: {JsonConvert.SerializeObject(dynamicObject)}";
                         loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLToXml", (string error) =>
                         {
                             logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLToXml");
@@ -2366,20 +2356,20 @@ TransactionException:
 
                             if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                             {
-                                string logData = $"SQLID: {SQLID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
+                                var logData = $"SQLID: {SQLID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
                                 loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLToXml", (string error) =>
                                 {
                                     logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLToXml");
                                 });
                             }
 
-                            ConsoleProfiler pretreatmentProfiler = new ConsoleProfiler(request.RequestID, SQLID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
+                            var pretreatmentProfiler = new ConsoleProfiler(request.RequestID, SQLID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
                             var pretreatmentConnection = new ProfilerDbConnection(connectionFactory.Connection, pretreatmentProfiler);
 
                             try
                             {
                                 using var pretreatmentReader = await pretreatmentConnection.ExecuteReaderAsync(pretreatment.SQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
-                                using (DataSet? ds = DataTableHelper.DataReaderToDataSet(pretreatmentReader))
+                                using (var ds = DataTableHelper.DataReaderToDataSet(pretreatmentReader))
                                 {
                                     var resultTypes = pretreatment.ResultType.Split(",");
                                     if (resultTypes.Count() != (ds == null ? 0 : ds.Tables.Count))
@@ -2391,10 +2381,10 @@ TransactionException:
 
                                     if (ds != null)
                                     {
-                                        for (int j = 0; j < ds.Tables.Count; j++)
+                                        for (var j = 0; j < ds.Tables.Count; j++)
                                         {
-                                            string resultType = resultTypes[j].Trim();
-                                            DataTable table = ds.Tables[j];
+                                            var resultType = resultTypes[j].Trim();
+                                            var table = ds.Tables[j];
                                             if (table.Columns.Count == 0)
                                             {
                                                 continue;
@@ -2402,13 +2392,13 @@ TransactionException:
 
                                             if (resultType == "Row")
                                             {
-                                                DataRow rowItem = table.Rows[0];
-                                                DataColumnCollection colItems = table.Columns;
+                                                var rowItem = table.Rows[0];
+                                                var colItems = table.Columns;
                                                 foreach (DataColumn item in colItems)
                                                 {
                                                     PretreatmentAddParameter(databaseProvider, statementMap, dynamicParameters, rowItem, item);
 
-                                                    DynamicParameter? dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == item.ColumnName).FirstOrDefault();
+                                                    var dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == item.ColumnName).FirstOrDefault();
 
                                                     if (dynamicParameter == null)
                                                     {
@@ -2433,12 +2423,12 @@ TransactionException:
                                             }
                                             else if (resultType == "List")
                                             {
-                                                List<object> parameters = new List<object>();
-                                                DataColumnCollection colItems = table.Columns;
+                                                var parameters = new List<object>();
+                                                var colItems = table.Columns;
                                                 foreach (DataColumn item in colItems)
                                                 {
-                                                    DataView dataView = new DataView(table);
-                                                    DataTable dataTable = dataView.ToTable(true, item.ColumnName);
+                                                    var dataView = new DataView(table);
+                                                    var dataTable = dataView.ToTable(true, item.ColumnName);
                                                     foreach (DataRow row in dataTable.Rows)
                                                     {
                                                         parameters.Add(row[0]);
@@ -2448,7 +2438,7 @@ TransactionException:
                                                     {
                                                         dynamicParameters?.Add(item.ColumnName, parameters);
 
-                                                        DynamicParameter? dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == item.ColumnName).FirstOrDefault();
+                                                        var dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == item.ColumnName).FirstOrDefault();
 
                                                         if (dynamicParameter == null)
                                                         {
@@ -2477,7 +2467,7 @@ TransactionException:
                                 }
                                 pretreatmentReader?.Close();
 
-                                string logData = $"SQLID: {SQLID}, ExecuteSQL: \n\n{pretreatmentProfiler.ExecuteSQL}";
+                                var logData = $"SQLID: {SQLID}, ExecuteSQL: \n\n{pretreatmentProfiler.ExecuteSQL}";
                                 if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                                 {
                                     loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLToXml", (string error) =>
@@ -2502,7 +2492,7 @@ TransactionException:
 
                     if (string.IsNullOrEmpty(statementMap.BeforeTransactionCommand) == false)
                     {
-                        string logData = "";
+                        var logData = "";
                         if (ModuleConfiguration.IsTransactionLogging == true)
                         {
                             logData = $"GlobalID={request.GlobalID}, QueryID={dynamicObject.QueryID}, CommandID={statementMap.BeforeTransactionCommand}, , dynamicParameters={JsonConvert.SerializeObject(dynamicParameters)}";
@@ -2543,25 +2533,25 @@ TransactionException:
                     }
 
                     SQLID = executeDataID + "_statement";
-                    ConsoleProfiler profiler = new ConsoleProfiler(request.RequestID, executeDataID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
+                    var profiler = new ConsoleProfiler(request.RequestID, executeDataID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
 
                     try
                     {
                         if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                         {
-                            string logData = $"SQLID: {SQLID}, ParseSQL Parameters: {JsonConvert.SerializeObject(dynamicObject)}";
+                            var logData = $"SQLID: {SQLID}, ParseSQL Parameters: {JsonConvert.SerializeObject(dynamicObject)}";
                             loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMapToXml", (string error) =>
                             {
                                 logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToXml");
                             });
                         }
 
-                        string parseSQL = DatabaseMapper.Find(statementMap, dynamicObject);
+                        var parseSQL = DatabaseMapper.Find(statementMap, dynamicObject);
                         if (string.IsNullOrEmpty(parseSQL) == true || parseSQL.Replace(Environment.NewLine, "").Replace("\t", "").Trim() == "")
                         {
                             if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                             {
-                                string logData = $"SQLID: {SQLID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
+                                var logData = $"SQLID: {SQLID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
                                 loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLToXml", (string error) =>
                                 {
                                     logger.Information("[{LogCategory}] " + "fallback error: " + error + ", empty SQL passing" + logData, "QueryDataClient/ExecuteDynamicSQLMapToXml");
@@ -2573,7 +2563,7 @@ TransactionException:
 
                         if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                         {
-                            string logData = $"SQLID: {SQLID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
+                            var logData = $"SQLID: {SQLID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
                             loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMapToXml", (string error) =>
                             {
                                 logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToXml");
@@ -2584,163 +2574,159 @@ TransactionException:
                         using var mainReader = connection.ExecuteReader(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
                         if (dynamicObject.IgnoreResult == true)
                         {
-                            using (DataTable dataTable = new DataTable())
-                            using (DataTable? schemaTable = mainReader.GetSchemaTable())
+                            using var dataTable = new DataTable();
+                            using var schemaTable = mainReader.GetSchemaTable();
+                            if (schemaTable == null)
                             {
-                                if (schemaTable == null)
+                                continue;
+                            }
+
+                            DataRow row;
+
+                            string columnName;
+                            DataColumn column;
+                            var count = schemaTable.Rows.Count;
+
+                            for (var j = 0; j < count; j++)
+                            {
+                                row = schemaTable.Rows[j];
+                                columnName = (string)row["ColumnName"];
+
+                                column = new DataColumn(columnName, (Type)row["DataType"]);
+                                dataTable.Columns.Add(column);
+                            }
+
+                            var values = new object[count];
+
+                            try
+                            {
+                                dataTable.BeginLoadData();
+                                while (mainReader.Read())
                                 {
-                                    continue;
+                                    mainReader.GetValues(values);
+                                    dataTable.LoadDataRow(values, true);
                                 }
+                            }
+                            finally
+                            {
+                                dataTable.EndLoadData();
+                            }
 
-                                DataRow row;
-
-                                string columnName;
-                                DataColumn column;
-                                int count = schemaTable.Rows.Count;
-
-                                for (int j = 0; j < count; j++)
-                                {
-                                    row = schemaTable.Rows[j];
-                                    columnName = (string)row["ColumnName"];
-
-                                    column = new DataColumn(columnName, (Type)row["DataType"]);
-                                    dataTable.Columns.Add(column);
-                                }
-
-                                object[] values = new object[count];
-
-                                try
-                                {
-                                    dataTable.BeginLoadData();
-                                    while (mainReader.Read())
-                                    {
-                                        mainReader.GetValues(values);
-                                        dataTable.LoadDataRow(values, true);
-                                    }
-                                }
-                                finally
-                                {
-                                    dataTable.EndLoadData();
-                                }
-
-                                if (dataTable.Rows.Count > 0)
-                                {
-                                    dataRows[statementMap.Seq] = dataTable.Rows[dataTable.Rows.Count - 1];
-                                }
-                                else
-                                {
-                                    dataRows[statementMap.Seq] = null;
-                                }
+                            if (dataTable.Rows.Count > 0)
+                            {
+                                dataRows[statementMap.Seq] = dataTable.Rows[dataTable.Rows.Count - 1];
+                            }
+                            else
+                            {
+                                dataRows[statementMap.Seq] = null;
                             }
                         }
                         else
                         {
-                            using (DataSet? ds = DataTableHelper.DataReaderToDataSet(mainReader, "Table" + statementMap.Seq.ToString(), 1))
+                            using var ds = DataTableHelper.DataReaderToDataSet(mainReader, "Table" + statementMap.Seq.ToString(), 1);
+                            if (ds != null)
                             {
-                                if (ds != null)
+                                for (var j = 0; j < ds.Tables.Count; j++)
                                 {
-                                    for (int j = 0; j < ds.Tables.Count; j++)
+                                    var table = ds.Tables[j];
+                                    if (table.Columns.Count == 0)
                                     {
-                                        DataTable table = ds.Tables[j];
-                                        if (table.Columns.Count == 0)
-                                        {
-                                            continue;
-                                        }
+                                        continue;
+                                    }
 
-                                        if (dynamicObject.BaseFieldRelations != null && dynamicObject.BaseFieldRelations.Count() > 0)
+                                    if (dynamicObject.BaseFieldRelations != null && dynamicObject.BaseFieldRelations.Count() > 0)
+                                    {
+                                        var baseFieldRelation = dynamicObject.BaseFieldRelations[j];
+                                        if (baseFieldRelation != null && baseFieldRelation.BaseSequence >= 0 && ((ds.Tables.Count - 1) >= baseFieldRelation.BaseSequence))
                                         {
-                                            var baseFieldRelation = dynamicObject.BaseFieldRelations[j];
-                                            if (baseFieldRelation != null && baseFieldRelation.BaseSequence >= 0 && ((ds.Tables.Count - 1) >= baseFieldRelation.BaseSequence))
+                                            var baseTable = ds.Tables[baseFieldRelation.BaseSequence];
+                                            if (baseTable != null)
                                             {
-                                                var baseTable = ds.Tables[baseFieldRelation.BaseSequence];
-                                                if (baseTable != null)
+                                                var baseColumnID = string.IsNullOrEmpty(baseFieldRelation.RelationFieldID) == true ? "_Children" : baseFieldRelation.RelationFieldID;
+                                                if (baseTable.Columns.Contains(baseColumnID) == false && baseFieldRelation.RelationMappings.Count > 0)
                                                 {
-                                                    string baseColumnID = string.IsNullOrEmpty(baseFieldRelation.RelationFieldID) == true ? "_Children" : baseFieldRelation.RelationFieldID;
-                                                    if (baseTable.Columns.Contains(baseColumnID) == false && baseFieldRelation.RelationMappings.Count > 0)
+                                                    baseTable.Columns.Add(baseColumnID, typeof(object));
+
+                                                    var dvChildren = table.AsDataView();
+                                                    foreach (DataRow row in baseTable.Rows)
                                                     {
-                                                        baseTable.Columns.Add(baseColumnID, typeof(object));
-
-                                                        var dvChildren = table.AsDataView();
-                                                        foreach (DataRow row in baseTable.Rows)
+                                                        var rowFilters = new List<string>() { "1<2" };
+                                                        foreach (var item in baseFieldRelation.RelationMappings)
                                                         {
-                                                            List<string> rowFilters = new List<string>() { "1<2" };
-                                                            foreach (var item in baseFieldRelation.RelationMappings)
+                                                            if (baseTable.Columns.Contains(item.BaseFieldID) == true && table.Columns.Contains(item.ChildrenFieldID) == true)
                                                             {
-                                                                if (baseTable.Columns.Contains(item.BaseFieldID) == true && table.Columns.Contains(item.ChildrenFieldID) == true)
+                                                                rowFilters.Add($" AND {item.BaseFieldID} = '{row[item.ChildrenFieldID]}'");
+                                                            }
+                                                        }
+
+                                                        if (rowFilters.Count > 1)
+                                                        {
+                                                            dvChildren.RowFilter = string.Join("", rowFilters);
+
+                                                            DataTable? dtChildren = null;
+                                                            if (baseFieldRelation.ColumnNames.Count > 0)
+                                                            {
+                                                                dtChildren = dvChildren.ToTable(false, baseFieldRelation.ColumnNames.ToArray());
+                                                            }
+                                                            else
+                                                            {
+                                                                dtChildren = dvChildren.ToTable();
+                                                                foreach (var item in baseFieldRelation.RelationMappings)
                                                                 {
-                                                                    rowFilters.Add($" AND {item.BaseFieldID} = '{row[item.ChildrenFieldID]}'");
+                                                                    dtChildren.Columns.Remove(item.ChildrenFieldID);
                                                                 }
                                                             }
 
-                                                            if (rowFilters.Count > 1)
-                                                            {
-                                                                dvChildren.RowFilter = string.Join("", rowFilters);
-
-                                                                DataTable? dtChildren = null;
-                                                                if (baseFieldRelation.ColumnNames.Count > 0)
-                                                                {
-                                                                    dtChildren = dvChildren.ToTable(false, baseFieldRelation.ColumnNames.ToArray());
-                                                                }
-                                                                else
-                                                                {
-                                                                    dtChildren = dvChildren.ToTable();
-                                                                    foreach (var item in baseFieldRelation.RelationMappings)
-                                                                    {
-                                                                        dtChildren.Columns.Remove(item.ChildrenFieldID);
-                                                                    }
-                                                                }
-
-                                                                row[baseColumnID] = dtChildren;
-                                                            }
+                                                            row[baseColumnID] = dtChildren;
                                                         }
                                                     }
                                                 }
                                             }
                                         }
                                     }
+                                }
 
-                                    for (int j = 0; j < ds.Tables.Count; j++)
+                                for (var j = 0; j < ds.Tables.Count; j++)
+                                {
+                                    var table = ds.Tables[j];
+                                    if (table.Columns.Count == 0)
                                     {
-                                        DataTable table = ds.Tables[j];
-                                        if (table.Columns.Count == 0)
-                                        {
-                                            continue;
-                                        }
+                                        continue;
+                                    }
 
-                                        if (dynamicObject.BaseFieldRelations != null && dynamicObject.BaseFieldRelations.Count() > 0)
+                                    if (dynamicObject.BaseFieldRelations != null && dynamicObject.BaseFieldRelations.Count() > 0)
+                                    {
+                                        var baseFieldRelation = dynamicObject.BaseFieldRelations[j];
+                                        if (baseFieldRelation != null)
                                         {
-                                            var baseFieldRelation = dynamicObject.BaseFieldRelations[j];
-                                            if (baseFieldRelation != null)
+                                            if (baseFieldRelation.DisposeResult == true)
                                             {
-                                                if (baseFieldRelation.DisposeResult == true)
-                                                {
-                                                    ds.Tables.Remove(table);
-                                                }
+                                                ds.Tables.Remove(table);
                                             }
                                         }
                                     }
+                                }
 
-                                    for (int j = 0; j < ds.Tables.Count; j++)
+                                for (var j = 0; j < ds.Tables.Count; j++)
+                                {
+                                    var table = ds.Tables[j];
+                                    if (table.Columns.Count == 0)
                                     {
-                                        DataTable table = ds.Tables[j];
-                                        if (table.Columns.Count == 0)
-                                        {
-                                            continue;
-                                        }
-
-                                        if (table.Rows.Count > 0)
-                                        {
-                                            dataRows[statementMap.Seq] = table.Rows[table.Rows.Count - 1];
-                                        }
-                                        else
-                                        {
-                                            dataRows[statementMap.Seq] = null;
-                                        }
-
-                                        results.Add(table.Copy());
-
-                                        i++;
+                                        continue;
                                     }
+
+                                    if (table.Rows.Count > 0)
+                                    {
+                                        dataRows[statementMap.Seq] = table.Rows[table.Rows.Count - 1];
+                                    }
+                                    else
+                                    {
+                                        dataRows[statementMap.Seq] = null;
+                                    }
+
+                                    results.Add(table.Copy());
+
+                                    i++;
                                 }
                             }
                         }
@@ -2749,7 +2735,7 @@ TransactionException:
 
                         if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                         {
-                            string logData = $"SQLID: {SQLID}, ExecuteSQL: \n\n{profiler.ExecuteSQL}";
+                            var logData = $"SQLID: {SQLID}, ExecuteSQL: \n\n{profiler.ExecuteSQL}";
                             loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMapToXml", (string error) =>
                             {
                                 logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToXml");
@@ -2759,7 +2745,7 @@ TransactionException:
                     catch (Exception exception)
                     {
                         response.ExceptionText = exception.ToMessage();
-                        string logData = $"SQLID: {SQLID}, ExceptionText: {response.ExceptionText}, ExecuteSQL: \n\n{profiler.ExecuteSQL}";
+                        var logData = $"SQLID: {SQLID}, ExceptionText: {response.ExceptionText}, ExecuteSQL: \n\n{profiler.ExecuteSQL}";
                         loggerClient.TransactionMessageLogging(request.GlobalID, "N", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLMapToXml", (string error) =>
                         {
                             logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLMapToXml");
@@ -2831,7 +2817,7 @@ TransactionException:
                     CommitTransactions(databaseTransactionObjects);
                 }
 
-                using (DataSet? ds = new DataSet())
+                using (var ds = new DataSet())
                 using (var memoryStream = new MemoryStream())
                 using (TextWriter streamWriter = new StreamWriter(memoryStream))
                 {
@@ -2893,10 +2879,10 @@ TransactionException:
 
         public async Task ExecuteCodeHelpSQLMap(DynamicRequest request, DynamicResponse response)
         {
-            bool isCommandError = false;
+            var isCommandError = false;
             request.RequestID = request.RequestID == null ? "NULL" : request.RequestID;
-            Dictionary<string, TransactionDynamicObjects> transactionDynamicObjects = new Dictionary<string, TransactionDynamicObjects>();
-            List<DatabaseTransactionObjects> databaseTransactionObjects = new List<DatabaseTransactionObjects>();
+            var transactionDynamicObjects = new Dictionary<string, TransactionDynamicObjects>();
+            var databaseTransactionObjects = new List<DatabaseTransactionObjects>();
 
             try
             {
@@ -2906,11 +2892,11 @@ TransactionException:
                     return;
                 }
 
-                List<string> logQuerys = new List<string>();
-                int i = 0;
-                foreach (QueryObject queryObject in request.DynamicObjects)
+                var logQuerys = new List<string>();
+                var i = 0;
+                foreach (var queryObject in request.DynamicObjects)
                 {
-                    if (request.LoadOptions?.TryGetValue("$tenantID", out string? tenantID) == true)
+                    if (request.LoadOptions?.TryGetValue("$tenantID", out var tenantID) == true)
                     {
                         queryObject.TenantID = tenantID;
                     }
@@ -2947,7 +2933,7 @@ TransactionException:
                 {
                     if (ModuleConfiguration.IsTransactionLogging == true)
                     {
-                        string logData = $"QueryID: {string.Join(", ", logQuerys.ToArray())}";
+                        var logData = $"QueryID: {string.Join(", ", logQuerys.ToArray())}";
                         if (ModuleConfiguration.IsLogServer == true)
                         {
                             loggerClient.ProgramMessageLogging(request.GlobalID, "Y", GlobalConfiguration.ApplicationID, logData, "QueryDataClient/ExecuteCodeHelpSQLMap", (string error) =>
@@ -2972,136 +2958,132 @@ TransactionException:
                 }
 
                 i = 0;
-                ResponseCodeObject responseCodeObject = new ResponseCodeObject();
+                var responseCodeObject = new ResponseCodeObject();
                 foreach (var transactionDynamicObject in transactionDynamicObjects)
                 {
-                    QueryObject queryObject = transactionDynamicObject.Value.DynamicTransaction;
-                    StatementMap statementMap = transactionDynamicObject.Value.Statement;
+                    var queryObject = transactionDynamicObject.Value.DynamicTransaction;
+                    var statementMap = transactionDynamicObject.Value.Statement;
 
                     var databaseProvider = transactionDynamicObject.Value.DataProvider;
                     var databaseTransactionObject = CreateDatabaseTransactionFactory(request, databaseTransactionObjects, transactionDynamicObject, statementMap, databaseProvider);
-                    DatabaseFactory connectionFactory = databaseTransactionObject.ConnectionFactory!;
-                    DbTransaction? databaseTransaction = databaseTransactionObject.DatabaseTransaction;
+                    var connectionFactory = databaseTransactionObject.ConnectionFactory!;
+                    var databaseTransaction = databaseTransactionObject.DatabaseTransaction;
 
-                    string SQLID = queryObject.QueryID + "_" + i.ToString();
-                    ConsoleProfiler profiler = new ConsoleProfiler(request.RequestID, queryObject.QueryID + "_" + i.ToString() + "_statment", ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
+                    var SQLID = queryObject.QueryID + "_" + i.ToString();
+                    var profiler = new ConsoleProfiler(request.RequestID, queryObject.QueryID + "_" + i.ToString() + "_statment", ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
 
                     try
                     {
                         if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                         {
-                            string logData = $"SQLID: {SQLID}, ParseSQL Parameters: {JsonConvert.SerializeObject(queryObject)}";
+                            var logData = $"SQLID: {SQLID}, ParseSQL Parameters: {JsonConvert.SerializeObject(queryObject)}";
                             loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteCodeHelpSQLMap", (string error) =>
                             {
                                 logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteCodeHelpSQLMap");
                             });
                         }
 
-                        string parseSQL = DatabaseMapper.Find(statementMap, queryObject);
+                        var parseSQL = DatabaseMapper.Find(statementMap, queryObject);
                         dynamic? dynamicParameters = CreateDynamicParameters(databaseProvider, statementMap);
                         SetDbParameterMapping(connectionFactory, databaseProvider, queryObject, statementMap, dynamicParameters);
                         var connection = new ProfilerDbConnection(connectionFactory.Connection, profiler);
 
-                        using (IDataReader dataReader = await connection.ExecuteReaderAsync(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout))
-                        {
+                        using IDataReader dataReader = await connection.ExecuteReaderAsync(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
 
-                            if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
+                        if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
+                        {
+                            var logData = $"SQLID: {SQLID}, ExecuteSQL: \n\n{profiler.ExecuteSQL}";
+                            loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteCodeHelpSQLMap", (string error) =>
                             {
-                                string logData = $"SQLID: {SQLID}, ExecuteSQL: \n\n{profiler.ExecuteSQL}";
-                                loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteCodeHelpSQLMap", (string error) =>
-                                {
-                                    logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteCodeHelpSQLMap");
-                                });
+                                logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteCodeHelpSQLMap");
+                            });
+                        }
+
+                        using var ds = DataTableHelper.DataReaderToDataSet(dataReader);
+                        {
+                            if (ds == null || ds.Tables.Count < 2)
+                            {
+                                response.ExceptionText = $"TransactionID: {statementMap.TransactionID}, StatementID: {statementMap.StatementID}에 대한 데이터 정보 확인 필요";
+                                isCommandError = true;
+                                goto TransactionException;
                             }
 
-                            using DataSet? ds = DataTableHelper.DataReaderToDataSet(dataReader);
+                            var table = ds.Tables[0];
+                            if (table.Rows.Count == 1)
                             {
-                                if (ds == null || ds.Tables.Count < 2)
+                                var item = table.Rows[0];
+                                var businessConnectionInfo = GetConnectionInfomation(queryObject, statementMap.ApplicationID, statementMap.ProjectID, item.GetStringSafe("DataSourceID"));
+                                if (businessConnectionInfo == null)
                                 {
-                                    response.ExceptionText = $"TransactionID: {statementMap.TransactionID}, StatementID: {statementMap.StatementID}에 대한 데이터 정보 확인 필요";
+                                    response.ExceptionText = $"DataSourceID - {statementMap.ApplicationID}_{statementMap.ProjectID}_{item.GetStringSafe("DataSourceID")}에 대한 데이터 원본 정보 필요";
                                     isCommandError = true;
                                     goto TransactionException;
                                 }
 
-                                DataTable table = ds.Tables[0];
-                                if (table.Rows.Count == 1)
+                                var commandText = item["CommandText"]?.ToStringSafe();
+                                var parameters = queryObject.Parameters[2]?.Value == null ? "" : queryObject.Parameters[2]?.Value?.ToStringSafe();
+
+                                var businessParameters = new DynamicParameters();
+                                var adHocParameters = new JObject();
+
+                                if (parameters != null)
                                 {
-                                    DataRow item = table.Rows[0];
-                                    var businessConnectionInfo = GetConnectionInfomation(queryObject, statementMap.ApplicationID, statementMap.ProjectID, item.GetStringSafe("DataSourceID"));
-                                    if (businessConnectionInfo == null)
+                                    var codeHelpParameters = parameters.Split(';');
+                                    foreach (var codeHelpParameter in codeHelpParameters)
                                     {
-                                        response.ExceptionText = $"DataSourceID - {statementMap.ApplicationID}_{statementMap.ProjectID}_{item.GetStringSafe("DataSourceID")}에 대한 데이터 원본 정보 필요";
-                                        isCommandError = true;
-                                        goto TransactionException;
-                                    }
-
-                                    string? commandText = item["CommandText"]?.ToStringSafe();
-                                    string? parameters = queryObject.Parameters[2]?.Value == null ? "" : queryObject.Parameters[2]?.Value?.ToStringSafe();
-
-                                    DynamicParameters businessParameters = new DynamicParameters();
-                                    JObject adHocParameters = new JObject();
-
-                                    if (parameters != null)
-                                    {
-                                        string[] codeHelpParameters = parameters.Split(';');
-                                        foreach (string codeHelpParameter in codeHelpParameters)
+                                        if (codeHelpParameter.Length > 0)
                                         {
-                                            if (codeHelpParameter.Length > 0)
-                                            {
-                                                string parameterName = codeHelpParameter.Split(':')[0].Trim();
-                                                string parameterValue = codeHelpParameter.Split(':')[1].Trim();
+                                            var parameterName = codeHelpParameter.Split(':')[0].Trim();
+                                            var parameterValue = codeHelpParameter.Split(':')[1].Trim();
 
-                                                businessParameters.Add(
-                                                    parameterName,
-                                                    parameterValue,
-                                                    DbType.String,
-                                                    ParameterDirection.Input,
-                                                    -1
-                                                );
+                                            businessParameters.Add(
+                                                parameterName,
+                                                parameterValue,
+                                                DbType.String,
+                                                ParameterDirection.Input,
+                                                -1
+                                            );
 
-                                                adHocParameters.Add(GetParameterName(parameterName), string.IsNullOrEmpty(parameterValue) == true ? null : JToken.FromObject(parameterValue));
-                                            }
+                                            adHocParameters.Add(GetParameterName(parameterName), string.IsNullOrEmpty(parameterValue) == true ? null : JToken.FromObject(parameterValue));
                                         }
                                     }
+                                }
 
-                                    responseCodeObject.Comment = item.GetStringSafe("Comment");
-                                    responseCodeObject.CodeColumnID = item.GetStringSafe("CodeColumnID");
-                                    responseCodeObject.ValueColumnID = item.GetStringSafe("ValueColumnID");
-                                    responseCodeObject.CreatedAt = item.GetStringSafe("CreatedAt");
-                                    responseCodeObject.Scheme = new List<Scheme>();
+                                responseCodeObject.Comment = item.GetStringSafe("Comment");
+                                responseCodeObject.CodeColumnID = item.GetStringSafe("CodeColumnID");
+                                responseCodeObject.ValueColumnID = item.GetStringSafe("ValueColumnID");
+                                responseCodeObject.CreatedAt = item.GetStringSafe("CreatedAt");
+                                responseCodeObject.Scheme = new List<Scheme>();
 
-                                    DataTable schemeDataTable = ds.Tables[1];
-                                    foreach (DataRow row in schemeDataTable.Rows)
+                                var schemeDataTable = ds.Tables[1];
+                                foreach (DataRow row in schemeDataTable.Rows)
+                                {
+                                    var val = row.GetStringSafe("HiddenYN");
+
+                                    responseCodeObject.Scheme.Add(new Scheme()
                                     {
-                                        string val = row.GetStringSafe("HiddenYN");
+                                        ColumnID = row.GetStringSafe("ColumnID"),
+                                        ColumnText = row.GetStringSafe("ColumnText"),
+                                        HiddenYN = (val.ToLower() == "true" || val.ToLower() == "on" || val == "1" || val == "Y")
+                                    });
+                                }
 
-                                        responseCodeObject.Scheme.Add(new Scheme()
-                                        {
-                                            ColumnID = row.GetStringSafe("ColumnID"),
-                                            ColumnText = row.GetStringSafe("ColumnText"),
-                                            HiddenYN = (val.ToLower() == "true" || val.ToLower() == "on" || val == "1" || val == "Y")
-                                        });
+                                var keyString = "";
+                                commandText = DatabaseMapper.RecursiveParameters(commandText.ToStringSafe(), adHocParameters, keyString);
+
+                                logger.Warning("[{LogCategory}] [{GlobalID}] " + $"Request QueryID: {queryObject.QueryID}, SQL: {commandText}", "QueryDataClient/ExecuteCodeHelpSQLMap", request.GlobalID);
+
+                                var businessDatabase = new DatabaseFactory(businessConnectionInfo.Item1, businessConnectionInfo.Item2);
+                                if (businessDatabase.Connection != null)
+                                {
+                                    using var businessReader = await businessDatabase.Connection.ExecuteReaderAsync(commandText, businessParameters);
+                                    using var dsCodes = DataTableHelper.DataReaderToDataSet(businessReader);
+                                    if (dsCodes == null || dsCodes.Tables.Count == 0)
+                                    {
                                     }
-
-                                    string keyString = "";
-                                    commandText = DatabaseMapper.RecursiveParameters(commandText.ToStringSafe(), adHocParameters, keyString);
-
-                                    logger.Warning("[{LogCategory}] [{GlobalID}] " + $"Request QueryID: {queryObject.QueryID}, SQL: {commandText}", "QueryDataClient/ExecuteCodeHelpSQLMap", request.GlobalID);
-
-                                    DatabaseFactory businessDatabase = new DatabaseFactory(businessConnectionInfo.Item1, businessConnectionInfo.Item2);
-                                    if (businessDatabase.Connection != null)
+                                    else
                                     {
-                                        using (var businessReader = await businessDatabase.Connection.ExecuteReaderAsync(commandText, businessParameters))
-                                        using (DataSet? dsCodes = DataTableHelper.DataReaderToDataSet(businessReader))
-                                        {
-                                            if (dsCodes == null || dsCodes.Tables.Count == 0)
-                                            {
-                                            }
-                                            else
-                                            {
-                                                responseCodeObject.DataSource = dsCodes.Tables[0];
-                                            }
-                                        }
+                                        responseCodeObject.DataSource = dsCodes.Tables[0];
                                     }
                                 }
                             }
@@ -3110,7 +3092,7 @@ TransactionException:
                     catch (Exception exception)
                     {
                         response.ExceptionText = exception.ToMessage();
-                        string logData = $"SQLID: {SQLID}, ExceptionText: {response.ExceptionText}, ExecuteSQL: \n\n{profiler.ExecuteSQL}";
+                        var logData = $"SQLID: {SQLID}, ExceptionText: {response.ExceptionText}, ExecuteSQL: \n\n{profiler.ExecuteSQL}";
                         loggerClient.TransactionMessageLogging(request.GlobalID, "N", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteCodeHelpSQLMap", (string error) =>
                         {
                             logger.Error("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteCodeHelpSQLMap");
@@ -3174,10 +3156,10 @@ TransactionException:
 
         public async Task ExecuteSchemeOnlySQLMap(DynamicRequest request, DynamicResponse response)
         {
-            bool isCommandError = false;
+            var isCommandError = false;
             request.RequestID = request.RequestID == null ? "NULL" : request.RequestID;
-            Dictionary<string, TransactionDynamicObjects> transactionDynamicObjects = new Dictionary<string, TransactionDynamicObjects>();
-            List<DatabaseTransactionObjects> databaseTransactionObjects = new List<DatabaseTransactionObjects>();
+            var transactionDynamicObjects = new Dictionary<string, TransactionDynamicObjects>();
+            var databaseTransactionObjects = new List<DatabaseTransactionObjects>();
 
             try
             {
@@ -3187,11 +3169,11 @@ TransactionException:
                     return;
                 }
 
-                List<string> logQuerys = new List<string>();
-                int i = 0;
-                foreach (QueryObject queryObject in request.DynamicObjects)
+                var logQuerys = new List<string>();
+                var i = 0;
+                foreach (var queryObject in request.DynamicObjects)
                 {
-                    if (request.LoadOptions?.TryGetValue("$tenantID", out string? tenantID) == true)
+                    if (request.LoadOptions?.TryGetValue("$tenantID", out var tenantID) == true)
                     {
                         queryObject.TenantID = tenantID;
                     }
@@ -3228,7 +3210,7 @@ TransactionException:
                 {
                     if (ModuleConfiguration.IsTransactionLogging == true)
                     {
-                        string logData = $"QueryID: {string.Join(", ", logQuerys.ToArray())}";
+                        var logData = $"QueryID: {string.Join(", ", logQuerys.ToArray())}";
                         if (ModuleConfiguration.IsLogServer == true)
                         {
                             loggerClient.ProgramMessageLogging(request.GlobalID, "Y", GlobalConfiguration.ApplicationID, logData, "QueryDataClient/ExecuteSchemeOnlySQLMap", (string error) =>
@@ -3254,19 +3236,19 @@ TransactionException:
 
                 i = 0;
                 DataRow? dataRow = null;
-                DataTable additionalData = new DataTable();
+                var additionalData = new DataTable();
                 additionalData.Columns.Add("MessageCode", typeof(string));
                 additionalData.Columns.Add("MessageText", typeof(string));
-                Dictionary<string, List<DatabaseColumn>> mergeDatas = new Dictionary<string, List<DatabaseColumn>>();
+                var mergeDatas = new Dictionary<string, List<DatabaseColumn>>();
                 foreach (var transactionDynamicObject in transactionDynamicObjects)
                 {
-                    QueryObject dynamicObject = transactionDynamicObject.Value.DynamicTransaction;
-                    StatementMap statementMap = transactionDynamicObject.Value.Statement;
+                    var dynamicObject = transactionDynamicObject.Value.DynamicTransaction;
+                    var statementMap = transactionDynamicObject.Value.Statement;
 
                     var databaseProvider = transactionDynamicObject.Value.DataProvider;
                     var databaseTransactionObject = CreateDatabaseTransactionFactory(request, databaseTransactionObjects, transactionDynamicObject, statementMap, databaseProvider);
-                    DatabaseFactory connectionFactory = databaseTransactionObject.ConnectionFactory!;
-                    DbTransaction? databaseTransaction = databaseTransactionObject.DatabaseTransaction;
+                    var connectionFactory = databaseTransactionObject.ConnectionFactory!;
+                    var databaseTransaction = databaseTransactionObject.DatabaseTransaction;
 
                     dynamic? dynamicParameters = CreateDynamicParameters(databaseProvider, statementMap);
                     if (dynamicObject.Parameters.Count() > 0)
@@ -3281,9 +3263,9 @@ TransactionException:
                                 goto TransactionException;
                             }
 
-                            for (int baseFieldIndex = 0; baseFieldIndex < dynamicObject.BaseFieldMappings.Count; baseFieldIndex++)
+                            for (var baseFieldIndex = 0; baseFieldIndex < dynamicObject.BaseFieldMappings.Count; baseFieldIndex++)
                             {
-                                BaseFieldMapping baseFieldMapping = dynamicObject.BaseFieldMappings[baseFieldIndex];
+                                var baseFieldMapping = dynamicObject.BaseFieldMappings[baseFieldIndex];
 
                                 if (dataRow[baseFieldMapping.SourceFieldID] == null)
                                 {
@@ -3292,7 +3274,7 @@ TransactionException:
                                     goto TransactionException;
                                 }
 
-                                DynamicParameter? dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == baseFieldMapping.TargetFieldID).FirstOrDefault();
+                                var dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == baseFieldMapping.TargetFieldID).FirstOrDefault();
 
                                 if (dynamicParameter == null)
                                 {
@@ -3312,11 +3294,11 @@ TransactionException:
                         SetDbParameterMapping(connectionFactory, databaseProvider, dynamicObject, statementMap, dynamicParameters);
                     }
 
-                    string SQLID = "";
-                    string executeDataID = dynamicObject.QueryID + "_" + i.ToString();
+                    var SQLID = "";
+                    var executeDataID = dynamicObject.QueryID + "_" + i.ToString();
                     if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                     {
-                        string logData = $"Pretreatment {executeDataID}, ParseSQL Parameters: {JsonConvert.SerializeObject(dynamicObject)}";
+                        var logData = $"Pretreatment {executeDataID}, ParseSQL Parameters: {JsonConvert.SerializeObject(dynamicObject)}";
                         loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteSchemeOnlySQLMap", (string error) =>
                         {
                             logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteSchemeOnlySQLMap");
@@ -3332,20 +3314,20 @@ TransactionException:
 
                             if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                             {
-                                string logData = $"SQLID: {SQLID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
+                                var logData = $"SQLID: {SQLID}, Parameters: {JsonConvert.SerializeObject(dynamicParameters)}";
                                 loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteSchemeOnlySQLMap", (string error) =>
                                 {
                                     logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteSchemeOnlySQLMap");
                                 });
                             }
 
-                            ConsoleProfiler pretreatmentProfiler = new ConsoleProfiler(request.RequestID, SQLID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
+                            var pretreatmentProfiler = new ConsoleProfiler(request.RequestID, SQLID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
                             var pretreatmentConnection = new ProfilerDbConnection(connectionFactory.Connection, pretreatmentProfiler);
 
                             try
                             {
                                 using var pretreatmentReader = await pretreatmentConnection.ExecuteReaderAsync(pretreatment.SQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
-                                using (DataSet? ds = DataTableHelper.DataReaderToDataSet(pretreatmentReader))
+                                using (var ds = DataTableHelper.DataReaderToDataSet(pretreatmentReader))
                                 {
                                     var resultTypes = pretreatment.ResultType.Split(",");
                                     if (resultTypes.Count() != (ds == null ? 0 : ds.Tables.Count))
@@ -3357,10 +3339,10 @@ TransactionException:
 
                                     if (ds != null)
                                     {
-                                        for (int j = 0; j < ds.Tables.Count; j++)
+                                        for (var j = 0; j < ds.Tables.Count; j++)
                                         {
-                                            string resultType = resultTypes[j].Trim();
-                                            DataTable table = ds.Tables[j];
+                                            var resultType = resultTypes[j].Trim();
+                                            var table = ds.Tables[j];
                                             if (table.Columns.Count == 0)
                                             {
                                                 continue;
@@ -3368,13 +3350,13 @@ TransactionException:
 
                                             if (resultType == "Row")
                                             {
-                                                DataRow rowItem = table.Rows[0];
-                                                DataColumnCollection colItems = table.Columns;
+                                                var rowItem = table.Rows[0];
+                                                var colItems = table.Columns;
                                                 foreach (DataColumn item in colItems)
                                                 {
                                                     PretreatmentAddParameter(databaseProvider, statementMap, dynamicParameters, rowItem, item);
 
-                                                    DynamicParameter? dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == item.ColumnName).FirstOrDefault();
+                                                    var dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == item.ColumnName).FirstOrDefault();
 
                                                     if (dynamicParameter == null)
                                                     {
@@ -3399,12 +3381,12 @@ TransactionException:
                                             }
                                             else if (resultType == "List")
                                             {
-                                                List<object> parameters = new List<object>();
-                                                DataColumnCollection colItems = table.Columns;
+                                                var parameters = new List<object>();
+                                                var colItems = table.Columns;
                                                 foreach (DataColumn item in colItems)
                                                 {
-                                                    DataView dataView = new DataView(table);
-                                                    DataTable dataTable = dataView.ToTable(true, item.ColumnName);
+                                                    var dataView = new DataView(table);
+                                                    var dataTable = dataView.ToTable(true, item.ColumnName);
                                                     foreach (DataRow row in dataTable.Rows)
                                                     {
                                                         parameters.Add(row[0]);
@@ -3414,7 +3396,7 @@ TransactionException:
                                                     {
                                                         dynamicParameters?.Add(item.ColumnName, parameters);
 
-                                                        DynamicParameter? dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == item.ColumnName).FirstOrDefault();
+                                                        var dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == item.ColumnName).FirstOrDefault();
 
                                                         if (dynamicParameter == null)
                                                         {
@@ -3443,7 +3425,7 @@ TransactionException:
                                 }
                                 pretreatmentReader?.Close();
 
-                                string logData = $"SQLID: {SQLID}, ExecuteSQL: \n\n{pretreatmentProfiler.ExecuteSQL}";
+                                var logData = $"SQLID: {SQLID}, ExecuteSQL: \n\n{pretreatmentProfiler.ExecuteSQL}";
                                 if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                                 {
                                     loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteSchemeOnlySQLMap", (string error) =>
@@ -3467,19 +3449,19 @@ TransactionException:
                     }
 
                     SQLID = dynamicObject.QueryID + "_" + i.ToString();
-                    ConsoleProfiler profiler = new ConsoleProfiler(request.RequestID, executeDataID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
+                    var profiler = new ConsoleProfiler(request.RequestID, executeDataID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
 
                     if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                     {
                         SQLID = dynamicObject.QueryID + "_" + i.ToString();
-                        string logData = $"SQLID: {SQLID}, ParseSQL Parameters: {JsonConvert.SerializeObject(dynamicObject)}";
+                        var logData = $"SQLID: {SQLID}, ParseSQL Parameters: {JsonConvert.SerializeObject(dynamicObject)}";
                         loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteSchemeOnlySQLMap", (string error) =>
                         {
                             logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteSchemeOnlySQLMap");
                         });
                     }
 
-                    string parseSQL = DatabaseMapper.Find(statementMap, dynamicObject);
+                    var parseSQL = DatabaseMapper.Find(statementMap, dynamicObject);
                     var connection = new ProfilerDbConnection(connectionFactory.Connection, profiler);
 
                     IDataReader? mainReader = null;
@@ -3489,122 +3471,118 @@ TransactionException:
 
                         if (dynamicObject.IgnoreResult == true)
                         {
-                            using (DataTable dataTable = new DataTable())
-                            using (DataTable? schemaTable = mainReader.GetSchemaTable())
+                            using var dataTable = new DataTable();
+                            using var schemaTable = mainReader.GetSchemaTable();
+                            if (schemaTable == null)
                             {
-                                if (schemaTable == null)
+                                continue;
+                            }
+
+                            DataRow row;
+
+                            string columnName;
+                            DataColumn column;
+                            var count = schemaTable.Rows.Count;
+
+                            for (var j = 0; j < count; j++)
+                            {
+                                row = schemaTable.Rows[j];
+                                columnName = (string)row["ColumnName"];
+
+                                column = new DataColumn(columnName, (Type)row["DataType"]);
+                                dataTable.Columns.Add(column);
+                            }
+
+                            var values = new object[count];
+
+                            try
+                            {
+                                dataTable.BeginLoadData();
+                                while (mainReader.Read())
                                 {
-                                    continue;
+                                    mainReader.GetValues(values);
+                                    dataTable.LoadDataRow(values, true);
                                 }
+                            }
+                            finally
+                            {
+                                dataTable.EndLoadData();
+                            }
 
-                                DataRow row;
-
-                                string columnName;
-                                DataColumn column;
-                                int count = schemaTable.Rows.Count;
-
-                                for (int j = 0; j < count; j++)
-                                {
-                                    row = schemaTable.Rows[j];
-                                    columnName = (string)row["ColumnName"];
-
-                                    column = new DataColumn(columnName, (Type)row["DataType"]);
-                                    dataTable.Columns.Add(column);
-                                }
-
-                                object[] values = new object[count];
-
-                                try
-                                {
-                                    dataTable.BeginLoadData();
-                                    while (mainReader.Read())
-                                    {
-                                        mainReader.GetValues(values);
-                                        dataTable.LoadDataRow(values, true);
-                                    }
-                                }
-                                finally
-                                {
-                                    dataTable.EndLoadData();
-                                }
-
-                                if (dataTable.Rows.Count > 0)
-                                {
-                                    dataRow = dataTable.Rows[0];
-                                }
-                                else
-                                {
-                                    dataRow = null;
-                                }
+                            if (dataTable.Rows.Count > 0)
+                            {
+                                dataRow = dataTable.Rows[0];
+                            }
+                            else
+                            {
+                                dataRow = null;
                             }
                         }
                         else
                         {
-                            using (DataSet? ds = DataTableHelper.DataReaderToSchemeOnly(mainReader, "Table", 1))
+                            using var ds = DataTableHelper.DataReaderToSchemeOnly(mainReader, "Table", 1);
+                            var jsonObjectType = JsonObjectType.FormJson;
+
+                            if (ds != null)
                             {
-                                JsonObjectType jsonObjectType = JsonObjectType.FormJson;
-
-                                if (ds != null)
+                                for (var j = 0; j < ds.Tables.Count; j++)
                                 {
-                                    for (int j = 0; j < ds.Tables.Count; j++)
+                                    var table = ds.Tables[j];
+                                    if (table.Columns.Count == 0)
                                     {
-                                        DataTable table = ds.Tables[j];
-                                        if (table.Columns.Count == 0)
-                                        {
-                                            continue;
-                                        }
+                                        continue;
+                                    }
 
-                                        if (dynamicObject.JsonObjects == null || dynamicObject.JsonObjects.Count == 0)
+                                    if (dynamicObject.JsonObjects == null || dynamicObject.JsonObjects.Count == 0)
+                                    {
+                                        jsonObjectType = dynamicObject.JsonObject;
+                                    }
+                                    else
+                                    {
+                                        try
+                                        {
+                                            jsonObjectType = dynamicObject.JsonObjects[i];
+                                        }
+                                        catch
                                         {
                                             jsonObjectType = dynamicObject.JsonObject;
                                         }
-                                        else
-                                        {
-                                            try
-                                            {
-                                                jsonObjectType = dynamicObject.JsonObjects[i];
-                                            }
-                                            catch
-                                            {
-                                                jsonObjectType = dynamicObject.JsonObject;
-                                            }
-                                        }
-
-                                        switch (jsonObjectType)
-                                        {
-                                            case JsonObjectType.FormJson:
-                                                // mergeDatas.Add("FormData" + i.ToString(), table.GetMetaColumns());
-                                                mergeDatas.Add("FormData" + i.ToString(), table.GetDbColumns());
-                                                break;
-                                            case JsonObjectType.jqGridJson:
-                                                // mergeDatas.Add("jqGridData" + i.ToString(), table.GetMetaColumns());
-                                                mergeDatas.Add("jqGridData" + i.ToString(), table.GetDbColumns());
-                                                break;
-                                            case JsonObjectType.GridJson:
-                                                // mergeDatas.Add("GridData" + i.ToString(), table.GetMetaColumns());
-                                                mergeDatas.Add("GridData" + i.ToString(), table.GetDbColumns());
-                                                break;
-                                            case JsonObjectType.ChartJson:
-                                                // mergeDatas.Add("ChartData" + i.ToString(), table.GetMetaColumns());
-                                                mergeDatas.Add("ChartData" + i.ToString(), table.GetDbColumns());
-                                                break;
-                                            case JsonObjectType.DataSetJson:
-                                                // mergeDatas.Add("DataTable" + i.ToString(), table.GetMetaColumns());
-                                                mergeDatas.Add("DataTable" + i.ToString(), table.GetDbColumns());
-                                                break;
-                                        }
-
-                                        if (table.Rows.Count > 0)
-                                        {
-                                            dataRow = table.Rows[0];
-                                        }
-                                        else
-                                        {
-                                            dataRow = null;
-                                        }
-
-                                        i++;
                                     }
+
+                                    switch (jsonObjectType)
+                                    {
+                                        case JsonObjectType.FormJson:
+                                            // mergeDatas.Add("FormData" + i.ToString(), table.GetMetaColumns());
+                                            mergeDatas.Add("FormData" + i.ToString(), table.GetDbColumns());
+                                            break;
+                                        case JsonObjectType.jqGridJson:
+                                            // mergeDatas.Add("jqGridData" + i.ToString(), table.GetMetaColumns());
+                                            mergeDatas.Add("jqGridData" + i.ToString(), table.GetDbColumns());
+                                            break;
+                                        case JsonObjectType.GridJson:
+                                            // mergeDatas.Add("GridData" + i.ToString(), table.GetMetaColumns());
+                                            mergeDatas.Add("GridData" + i.ToString(), table.GetDbColumns());
+                                            break;
+                                        case JsonObjectType.ChartJson:
+                                            // mergeDatas.Add("ChartData" + i.ToString(), table.GetMetaColumns());
+                                            mergeDatas.Add("ChartData" + i.ToString(), table.GetDbColumns());
+                                            break;
+                                        case JsonObjectType.DataSetJson:
+                                            // mergeDatas.Add("DataTable" + i.ToString(), table.GetMetaColumns());
+                                            mergeDatas.Add("DataTable" + i.ToString(), table.GetDbColumns());
+                                            break;
+                                    }
+
+                                    if (table.Rows.Count > 0)
+                                    {
+                                        dataRow = table.Rows[0];
+                                    }
+                                    else
+                                    {
+                                        dataRow = null;
+                                    }
+
+                                    i++;
                                 }
                             }
                         }
@@ -3684,11 +3662,11 @@ TransactionException:
 
         public async Task ExecuteDynamicSQLText(DynamicRequest request, DynamicResponse response)
         {
-            SQLMapMeta result = new SQLMapMeta();
-            bool isCommandError = false;
+            var result = new SQLMapMeta();
+            var isCommandError = false;
             request.RequestID = request.RequestID == null ? "NULL" : request.RequestID;
-            Dictionary<string, TransactionDynamicObjects> transactionDynamicObjects = new Dictionary<string, TransactionDynamicObjects>();
-            List<DatabaseTransactionObjects> databaseTransactionObjects = new List<DatabaseTransactionObjects>();
+            var transactionDynamicObjects = new Dictionary<string, TransactionDynamicObjects>();
+            var databaseTransactionObjects = new List<DatabaseTransactionObjects>();
 
             try
             {
@@ -3698,11 +3676,11 @@ TransactionException:
                     return;
                 }
 
-                List<string> logQuerys = new List<string>();
-                int i = 0;
-                foreach (QueryObject queryObject in request.DynamicObjects)
+                var logQuerys = new List<string>();
+                var i = 0;
+                foreach (var queryObject in request.DynamicObjects)
                 {
-                    if (request.LoadOptions?.TryGetValue("$tenantID", out string? tenantID) == true)
+                    if (request.LoadOptions?.TryGetValue("$tenantID", out var tenantID) == true)
                     {
                         queryObject.TenantID = tenantID;
                     }
@@ -3739,7 +3717,7 @@ TransactionException:
                 {
                     if (ModuleConfiguration.IsTransactionLogging == true)
                     {
-                        string logData = $"QueryID: {string.Join(", ", logQuerys.ToArray())}";
+                        var logData = $"QueryID: {string.Join(", ", logQuerys.ToArray())}";
                         if (ModuleConfiguration.IsLogServer == true)
                         {
                             loggerClient.ProgramMessageLogging(request.GlobalID, "Y", GlobalConfiguration.ApplicationID, logData, "QueryDataClient/ExecuteDynamicSQLText", (string error) =>
@@ -3765,21 +3743,21 @@ TransactionException:
 
                 i = 0;
                 DataRow? dataRow = null;
-                DataTable additionalData = new DataTable();
+                var additionalData = new DataTable();
                 additionalData.Columns.Add("MessageCode", typeof(string));
                 additionalData.Columns.Add("MessageText", typeof(string));
-                List<object> mergeDatas = new List<object>();
+                var mergeDatas = new List<object>();
                 foreach (var transactionDynamicObject in transactionDynamicObjects)
                 {
-                    QueryObject dynamicObject = transactionDynamicObject.Value.DynamicTransaction;
-                    StatementMap statementMap = transactionDynamicObject.Value.Statement;
+                    var dynamicObject = transactionDynamicObject.Value.DynamicTransaction;
+                    var statementMap = transactionDynamicObject.Value.Statement;
 
                     var databaseProvider = transactionDynamicObject.Value.DataProvider;
                     var databaseTransactionObject = CreateDatabaseTransactionFactory(request, databaseTransactionObjects, transactionDynamicObject, statementMap, databaseProvider);
-                    DatabaseFactory connectionFactory = databaseTransactionObject.ConnectionFactory!;
-                    DbTransaction? databaseTransaction = databaseTransactionObject.DatabaseTransaction;
+                    var connectionFactory = databaseTransactionObject.ConnectionFactory!;
+                    var databaseTransaction = databaseTransactionObject.DatabaseTransaction;
 
-                    StatementMap? cloneStatement = statementMap.ShallowCopy();
+                    var cloneStatement = statementMap.ShallowCopy();
                     if (cloneStatement != null)
                     {
                         cloneStatement.SQL = cloneStatement.SQL.EncodeBase64();
@@ -3802,9 +3780,9 @@ TransactionException:
                                 goto TransactionException;
                             }
 
-                            for (int baseFieldIndex = 0; baseFieldIndex < dynamicObject.BaseFieldMappings.Count; baseFieldIndex++)
+                            for (var baseFieldIndex = 0; baseFieldIndex < dynamicObject.BaseFieldMappings.Count; baseFieldIndex++)
                             {
-                                BaseFieldMapping baseFieldMapping = dynamicObject.BaseFieldMappings[baseFieldIndex];
+                                var baseFieldMapping = dynamicObject.BaseFieldMappings[baseFieldIndex];
 
                                 if (dataRow[baseFieldMapping.SourceFieldID] == null)
                                 {
@@ -3813,7 +3791,7 @@ TransactionException:
                                     goto TransactionException;
                                 }
 
-                                DynamicParameter? dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == baseFieldMapping.TargetFieldID).FirstOrDefault();
+                                var dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == baseFieldMapping.TargetFieldID).FirstOrDefault();
 
                                 if (dynamicParameter == null)
                                 {
@@ -3833,11 +3811,11 @@ TransactionException:
                         SetDbParameterMapping(connectionFactory, databaseProvider, dynamicObject, statementMap, dynamicParameters);
                     }
 
-                    string SQLID = "";
-                    string executeDataID = dynamicObject.QueryID + "_" + i.ToString();
+                    var SQLID = "";
+                    var executeDataID = dynamicObject.QueryID + "_" + i.ToString();
                     if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                     {
-                        string logData = $"Pretreatment {executeDataID}, ParseSQL Parameters: {JsonConvert.SerializeObject(dynamicObject)}";
+                        var logData = $"Pretreatment {executeDataID}, ParseSQL Parameters: {JsonConvert.SerializeObject(dynamicObject)}";
                         loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLText", (string error) =>
                         {
                             logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLText");
@@ -3849,7 +3827,7 @@ TransactionException:
                     {
                         if (pretreatment.SQL.Replace(Environment.NewLine, "").Replace("\t", "").Trim() != "")
                         {
-                            string pretreatmentSQLID = executeDataID + "_pretreatment";
+                            var pretreatmentSQLID = executeDataID + "_pretreatment";
                             result.DefinedSQL.Add(pretreatmentSQLID, pretreatment.SQL.EncodeBase64());
 
                             Dictionary<string, object?>? pretreatmentParametersDictionary = null;
@@ -3880,13 +3858,13 @@ TransactionException:
 
                             result.Parameters.Add(pretreatmentSQLID, pretreatmentParametersDictionary);
 
-                            ConsoleProfiler pretreatmentProfiler = new ConsoleProfiler(request.RequestID, pretreatmentSQLID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
+                            var pretreatmentProfiler = new ConsoleProfiler(request.RequestID, pretreatmentSQLID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
                             var pretreatmentConnection = new ProfilerDbConnection(connectionFactory.Connection, pretreatmentProfiler);
 
                             try
                             {
                                 using var pretreatmentReader = await pretreatmentConnection.ExecuteReaderAsync(pretreatment.SQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout);
-                                using (DataSet? ds = DataTableHelper.DataReaderToDataSet(pretreatmentReader))
+                                using (var ds = DataTableHelper.DataReaderToDataSet(pretreatmentReader))
                                 {
                                     var resultTypes = pretreatment.ResultType.Split(",");
                                     if (resultTypes.Count() != (ds == null ? 0 : ds.Tables.Count))
@@ -3898,10 +3876,10 @@ TransactionException:
 
                                     if (ds != null)
                                     {
-                                        for (int j = 0; j < ds.Tables.Count; j++)
+                                        for (var j = 0; j < ds.Tables.Count; j++)
                                         {
-                                            string resultType = resultTypes[j].Trim();
-                                            DataTable table = ds.Tables[j];
+                                            var resultType = resultTypes[j].Trim();
+                                            var table = ds.Tables[j];
                                             if (table.Columns.Count == 0)
                                             {
                                                 continue;
@@ -3909,13 +3887,13 @@ TransactionException:
 
                                             if (resultType == "Row")
                                             {
-                                                DataRow rowItem = table.Rows[0];
-                                                DataColumnCollection colItems = table.Columns;
+                                                var rowItem = table.Rows[0];
+                                                var colItems = table.Columns;
                                                 foreach (DataColumn item in colItems)
                                                 {
                                                     PretreatmentAddParameter(databaseProvider, statementMap, dynamicParameters, rowItem, item);
 
-                                                    DynamicParameter? dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == item.ColumnName).FirstOrDefault();
+                                                    var dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == item.ColumnName).FirstOrDefault();
 
                                                     if (dynamicParameter == null)
                                                     {
@@ -3940,12 +3918,12 @@ TransactionException:
                                             }
                                             else if (resultType == "List")
                                             {
-                                                List<object> parameters = new List<object>();
-                                                DataColumnCollection colItems = table.Columns;
+                                                var parameters = new List<object>();
+                                                var colItems = table.Columns;
                                                 foreach (DataColumn item in colItems)
                                                 {
-                                                    DataView dataView = new DataView(table);
-                                                    DataTable dataTable = dataView.ToTable(true, item.ColumnName);
+                                                    var dataView = new DataView(table);
+                                                    var dataTable = dataView.ToTable(true, item.ColumnName);
                                                     foreach (DataRow row in dataTable.Rows)
                                                     {
                                                         parameters.Add(row[0]);
@@ -3955,7 +3933,7 @@ TransactionException:
                                                     {
                                                         dynamicParameters?.Add(item.ColumnName, parameters);
 
-                                                        DynamicParameter? dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == item.ColumnName).FirstOrDefault();
+                                                        var dynamicParameter = dynamicObject.Parameters.Where(p => p.ParameterName == item.ColumnName).FirstOrDefault();
 
                                                         if (dynamicParameter == null)
                                                         {
@@ -3986,7 +3964,7 @@ TransactionException:
                             }
                             catch (Exception exception)
                             {
-                                string logData = $"ExecuteSQL: {pretreatmentProfiler.ExecuteSQL}, Exception{exception.ToMessage()}";
+                                var logData = $"ExecuteSQL: {pretreatmentProfiler.ExecuteSQL}, Exception{exception.ToMessage()}";
 
                                 if (ModuleConfiguration.IsLogServer == true)
                                 {
@@ -4006,20 +3984,20 @@ TransactionException:
                     }
 
                     SQLID = executeDataID + "_statement";
-                    ConsoleProfiler profiler = new ConsoleProfiler(request.RequestID, SQLID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
+                    var profiler = new ConsoleProfiler(request.RequestID, SQLID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
 
                     try
                     {
                         if (ModuleConfiguration.IsTransactionLogging == true || statementMap.TransactionLog == true)
                         {
-                            string logData = $"SQLID: {SQLID}, ParseSQL Parameters: {JsonConvert.SerializeObject(dynamicObject)}";
+                            var logData = $"SQLID: {SQLID}, ParseSQL Parameters: {JsonConvert.SerializeObject(dynamicObject)}";
                             loggerClient.TransactionMessageLogging(request.GlobalID, "Y", statementMap.ApplicationID, statementMap.ProjectID, statementMap.TransactionID, statementMap.StatementID, logData, "QueryDataClient/ExecuteDynamicSQLText", (string error) =>
                             {
                                 logger.Information("[{LogCategory}] " + "fallback error: " + error + ", " + logData, "QueryDataClient/ExecuteDynamicSQLText");
                             });
                         }
 
-                        string parseSQL = DatabaseMapper.Find(statementMap, dynamicObject);
+                        var parseSQL = DatabaseMapper.Find(statementMap, dynamicObject);
                         result.DefinedSQL.Add(SQLID, parseSQL.EncodeBase64());
 
                         Dictionary<string, object?>? parametersDictionary = null;
@@ -4055,53 +4033,51 @@ TransactionException:
 
                         if (dynamicObject.IgnoreResult == true)
                         {
-                            using (DataTable dataTable = new DataTable())
-                            using (DataTable? schemaTable = mainReader.GetSchemaTable())
+                            using var dataTable = new DataTable();
+                            using var schemaTable = mainReader.GetSchemaTable();
+                            if (schemaTable == null)
                             {
-                                if (schemaTable == null)
+                                continue;
+                            }
+
+                            DataRow row;
+
+                            string columnName;
+                            DataColumn column;
+                            var count = schemaTable.Rows.Count;
+
+                            for (var j = 0; j < count; j++)
+                            {
+                                row = schemaTable.Rows[j];
+                                columnName = (string)row["ColumnName"];
+
+                                column = new DataColumn(columnName, (Type)row["DataType"]);
+                                dataTable.Columns.Add(column);
+                            }
+
+                            var values = new object[count];
+
+                            try
+                            {
+                                dataTable.BeginLoadData();
+                                while (mainReader.Read())
                                 {
-                                    continue;
+                                    mainReader.GetValues(values);
+                                    dataTable.LoadDataRow(values, true);
                                 }
+                            }
+                            finally
+                            {
+                                dataTable.EndLoadData();
+                            }
 
-                                DataRow row;
-
-                                string columnName;
-                                DataColumn column;
-                                int count = schemaTable.Rows.Count;
-
-                                for (int j = 0; j < count; j++)
-                                {
-                                    row = schemaTable.Rows[j];
-                                    columnName = (string)row["ColumnName"];
-
-                                    column = new DataColumn(columnName, (Type)row["DataType"]);
-                                    dataTable.Columns.Add(column);
-                                }
-
-                                object[] values = new object[count];
-
-                                try
-                                {
-                                    dataTable.BeginLoadData();
-                                    while (mainReader.Read())
-                                    {
-                                        mainReader.GetValues(values);
-                                        dataTable.LoadDataRow(values, true);
-                                    }
-                                }
-                                finally
-                                {
-                                    dataTable.EndLoadData();
-                                }
-
-                                if (dataTable.Rows.Count > 0)
-                                {
-                                    dataRow = dataTable.Rows[0];
-                                }
-                                else
-                                {
-                                    dataRow = null;
-                                }
+                            if (dataTable.Rows.Count > 0)
+                            {
+                                dataRow = dataTable.Rows[0];
+                            }
+                            else
+                            {
+                                dataRow = null;
                             }
                         }
 
@@ -4109,7 +4085,7 @@ TransactionException:
                     }
                     catch (Exception exception)
                     {
-                        string logData = $"ExecuteSQL: {profiler.ExecuteSQL}, ExceptionText: {exception.ToMessage()}";
+                        var logData = $"ExecuteSQL: {profiler.ExecuteSQL}, ExceptionText: {exception.ToMessage()}";
 
                         if (ModuleConfiguration.IsLogServer == true)
                         {
@@ -4171,7 +4147,7 @@ TransactionException:
 
         private string GetProviderDbType(DataColumn column, DataProviders? databaseProvider = null)
         {
-            string result = "";
+            var result = "";
 
             if (databaseProvider == null)
             {
@@ -4397,8 +4373,8 @@ TransactionException:
             {
                 if (parameter.Value != null)
                 {
-                    string replacePrefix = "";
-                    string replacePostfix = "";
+                    var replacePrefix = "";
+                    var replacePostfix = "";
                     Regex paramRegex;
 
                     if (parameter.Value.Type.ToString() == "Object")
@@ -4490,12 +4466,12 @@ TransactionException:
             }
 
             ISequentialIdGenerator sequentialIdGenerator = new SequentialIdGenerator();
-            List<DbParameterMap> dbParameterMaps = statementMap.DbParameters;
-            foreach (DbParameterMap dbParameterMap in dbParameterMaps)
+            var dbParameterMaps = statementMap.DbParameters;
+            foreach (var dbParameterMap in dbParameterMaps)
             {
                 if (dbParameterMap.Direction.IndexOf("Input") > -1)
                 {
-                    DynamicParameter? dynamicParameter = GetDbParameterMap(dbParameterMap.Name, queryObject.Parameters);
+                    var dynamicParameter = GetDbParameterMap(dbParameterMap.Name, queryObject.Parameters);
 
                     if (dynamicParameter == null && dbParameterMap.DefaultValue.ToUpper() == "NULL")
                     {
@@ -4554,7 +4530,7 @@ TransactionException:
                                 dynamicDbType = (OracleDbType)Enum.Parse(typeof(OracleDbType), string.IsNullOrEmpty(dbParameterMap.DbType) == true ? dynamicParameter.DbType : dbParameterMap.DbType);
                                 if (dynamicDbType == OracleDbType.Clob)
                                 {
-                                    OracleClobParameter oracleClobParameter = new OracleClobParameter(dynamicParameter.Value);
+                                    var oracleClobParameter = new OracleClobParameter(dynamicParameter.Value);
                                     if (databaseFactory.Connection != null && databaseFactory.Connection.IsConnectionOpen() == false)
                                     {
                                         databaseFactory.Connection.EnsureOpen();
@@ -4590,7 +4566,7 @@ TransactionException:
                     }
                     else
                     {
-                        DbType dynamicDbType = (DbType)Enum.Parse(typeof(DbType), string.IsNullOrEmpty(dbParameterMap.DbType) == true ? dynamicParameter.DbType : dbParameterMap.DbType);
+                        var dynamicDbType = (DbType)Enum.Parse(typeof(DbType), string.IsNullOrEmpty(dbParameterMap.DbType) == true ? dynamicParameter.DbType : dbParameterMap.DbType);
 
                         if (dynamicDbType == DbType.String)
                         {
@@ -4668,7 +4644,7 @@ TransactionException:
                     }
                     else
                     {
-                        DbType dynamicDbType = (DbType)Enum.Parse(typeof(DbType), dbParameterMap.DbType);
+                        var dynamicDbType = (DbType)Enum.Parse(typeof(DbType), dbParameterMap.DbType);
 
                         dynamicParameters.Add(
                             GetParameterName(dbParameterMap.Name),
@@ -4721,7 +4697,7 @@ TransactionException:
             }
             else
             {
-                DbType dynamicDbType = (DbType)Enum.Parse(typeof(DbType), GetProviderDbType(item));
+                var dynamicDbType = (DbType)Enum.Parse(typeof(DbType), GetProviderDbType(item));
 
                 dynamicParameters.Add(
                     item.ColumnName,
@@ -4738,7 +4714,7 @@ TransactionException:
             Tuple<string, DataProviders, string>? result = null;
             if (string.IsNullOrEmpty(dataSourceID) == false)
             {
-                DataSourceMap? dataSourceMap = DatabaseMapper.GetDataSourceMap(queryObject, applicationID, projectID, dataSourceID);
+                var dataSourceMap = DatabaseMapper.GetDataSourceMap(queryObject, applicationID, projectID, dataSourceID);
                 if (dataSourceMap != null)
                 {
                     result = new Tuple<string, DataProviders, string>(dataSourceMap.ConnectionString, dataSourceMap.DataProvider, dataSourceMap.TransactionIsolationLevel);
@@ -4797,15 +4773,15 @@ TransactionException:
         private static DatabaseTransactionObjects CreateDatabaseTransactionFactory(DynamicRequest request, List<DatabaseTransactionObjects> databaseTransactionObjects, KeyValuePair<string, TransactionDynamicObjects> transactionDynamicObject, StatementMap statementMap, DataProviders databaseProvider)
         {
             DatabaseTransactionObjects result;
-            string statementSeq = transactionDynamicObject.Key.Split("_")[1];
+            var statementSeq = transactionDynamicObject.Key.Split("_")[1];
             if (statementSeq == "0")
             {
-                DatabaseFactory connectionFactory = new DatabaseFactory(transactionDynamicObject.Value.ConnectionString.ToStringSafe(), databaseProvider);
+                var connectionFactory = new DatabaseFactory(transactionDynamicObject.Value.ConnectionString.ToStringSafe(), databaseProvider);
                 DbTransaction? databaseTransaction = null;
 
                 if (request.IsTransaction == true)
                 {
-                    string isolationLevel = string.IsNullOrEmpty(statementMap.TransactionIsolationLevel) == true ? transactionDynamicObject.Value.TransactionIsolationLevel.ToStringSafe() : statementMap.TransactionIsolationLevel;
+                    var isolationLevel = string.IsNullOrEmpty(statementMap.TransactionIsolationLevel) == true ? transactionDynamicObject.Value.TransactionIsolationLevel.ToStringSafe() : statementMap.TransactionIsolationLevel;
                     isolationLevel = string.IsNullOrEmpty(isolationLevel) == true ? "ReadCommitted" : isolationLevel;
                     if (Enum.TryParse<IsolationLevel>(isolationLevel, out var transactionIsolationLevel) == true)
                     {
@@ -4824,7 +4800,7 @@ TransactionException:
             }
             else
             {
-                int baseSequence = databaseTransactionObjects.Count - 1;
+                var baseSequence = databaseTransactionObjects.Count - 1;
                 result = databaseTransactionObjects[baseSequence];
             }
 

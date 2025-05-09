@@ -36,13 +36,13 @@ namespace transact.Extensions
 
                 if (businessContract == null)
                 {
-                    string userWorkID = string.Empty;
-                    string appBasePath = string.Empty;
-                    DirectoryInfo baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
+                    var userWorkID = string.Empty;
+                    var appBasePath = string.Empty;
+                    var baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
                     var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
-                    foreach (string directory in directories)
+                    foreach (var directory in directories)
                     {
-                        DirectoryInfo directoryInfo = new DirectoryInfo(directory);
+                        var directoryInfo = new DirectoryInfo(directory);
                         if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
                         {
                             appBasePath = directoryInfo.FullName.Replace("\\", "/");
@@ -53,7 +53,7 @@ namespace transact.Extensions
 
                     if (string.IsNullOrEmpty(appBasePath) == false)
                     {
-                        string tenantID = $"{userWorkID}|{applicationID}";
+                        var tenantID = $"{userWorkID}|{applicationID}";
                         var filePath = PathExtensions.Combine(appBasePath, "transact", projectID, transactionID + ".json");
                         if (File.Exists(filePath) == true)
                         {
@@ -69,7 +69,7 @@ namespace transact.Extensions
                                             BusinessMappings.Remove(filePath);
                                         }
 
-                                        FileInfo fileInfo = new FileInfo(filePath);
+                                        var fileInfo = new FileInfo(filePath);
                                         businessContract.ApplicationID = string.IsNullOrEmpty(businessContract.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : businessContract.ApplicationID;
                                         businessContract.ProjectID = string.IsNullOrEmpty(businessContract.ProjectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : businessContract.ProjectID;
                                         businessContract.TransactionID = string.IsNullOrEmpty(businessContract.TransactionID) == true ? fileInfo.Name.Replace(fileInfo.Extension, "") : businessContract.TransactionID;
@@ -99,35 +99,35 @@ namespace transact.Extensions
 
             if (result == null)
             {
-                string applicationID = string.Empty;
-                string userWorkID = string.Empty;
+                var applicationID = string.Empty;
+                var userWorkID = string.Empty;
                 var itemKeys = routeSegmentID.Split("|");
                 if (itemKeys.Length == 4)
                 {
                     applicationID = itemKeys[0];
                     userWorkID = string.Empty;
-                    string publicRouteSegmentID = $"{itemKeys[0]}|*|{itemKeys[2]}|{itemKeys[3]}";
+                    var publicRouteSegmentID = $"{itemKeys[0]}|*|{itemKeys[2]}|{itemKeys[3]}";
                     result = ModuleConfiguration.RoutingCommandUri[publicRouteSegmentID];
                 }
                 else if (itemKeys.Length == 5)
                 {
                     userWorkID = itemKeys[0];
                     applicationID = itemKeys[1];
-                    string publicRouteSegmentID = $"{itemKeys[0]}|{itemKeys[1]}|*|{itemKeys[3]}|{itemKeys[4]}";
+                    var publicRouteSegmentID = $"{itemKeys[0]}|{itemKeys[1]}|*|{itemKeys[3]}|{itemKeys[4]}";
                     result = ModuleConfiguration.RoutingCommandUri[publicRouteSegmentID];
                 }
 
                 if (result == null)
                 {
-                    string appBasePath = string.Empty;
-                    DirectoryInfo baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
+                    var appBasePath = string.Empty;
+                    var baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
 
                     if (string.IsNullOrEmpty(userWorkID) == true)
                     {
                         var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
-                        foreach (string directory in directories)
+                        foreach (var directory in directories)
                         {
-                            DirectoryInfo directoryInfo = new DirectoryInfo(directory);
+                            var directoryInfo = new DirectoryInfo(directory);
                             if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
                             {
                                 appBasePath = directoryInfo.FullName.Replace("\\", "/");
@@ -141,11 +141,11 @@ namespace transact.Extensions
                         appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                     }
 
-                    string tenantID = $"{userWorkID}|{applicationID}";
-                    string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
+                    var tenantID = $"{userWorkID}|{applicationID}";
+                    var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                     if (string.IsNullOrEmpty(appBasePath) == false && File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                     {
-                        string appSettingText = File.ReadAllText(settingFilePath);
+                        var appSettingText = File.ReadAllText(settingFilePath);
                         var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
                         if (appSetting != null)
                         {
@@ -154,7 +154,7 @@ namespace transact.Extensions
                             {
                                 foreach (var item in routingCommandUri.AsEnumerable())
                                 {
-                                    string tenantRouteSegmentID = $"{userWorkID}|{item.ApplicationID}|{item.ProjectID}|{item.CommandType}|{item.Environment}";
+                                    var tenantRouteSegmentID = $"{userWorkID}|{item.ApplicationID}|{item.ProjectID}|{item.CommandType}|{item.Environment}";
                                     if (ModuleConfiguration.RoutingCommandUri.ContainsKey(tenantRouteSegmentID) == false)
                                     {
                                         ModuleConfiguration.RoutingCommandUri.Add(tenantRouteSegmentID, item.Uri);
@@ -166,12 +166,12 @@ namespace transact.Extensions
                                 {
                                     if (itemKeys.Length == 4)
                                     {
-                                        string publicRouteSegmentID = $"{itemKeys[0]}|*|{itemKeys[2]}|{itemKeys[3]}";
+                                        var publicRouteSegmentID = $"{itemKeys[0]}|*|{itemKeys[2]}|{itemKeys[3]}";
                                         result = ModuleConfiguration.RoutingCommandUri[publicRouteSegmentID];
                                     }
                                     else if (itemKeys.Length == 5)
                                     {
-                                        string publicRouteSegmentID = $"{itemKeys[0]}|{itemKeys[1]}|*|{itemKeys[3]}|{itemKeys[4]}";
+                                        var publicRouteSegmentID = $"{itemKeys[0]}|{itemKeys[1]}|*|{itemKeys[3]}|{itemKeys[4]}";
                                         result = ModuleConfiguration.RoutingCommandUri[publicRouteSegmentID];
                                     }
                                 }
@@ -194,13 +194,13 @@ namespace transact.Extensions
 
             if (result == null)
             {
-                string userWorkID = string.Empty;
-                string appBasePath = string.Empty;
-                DirectoryInfo baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
+                var userWorkID = string.Empty;
+                var appBasePath = string.Empty;
+                var baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
                 var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
-                foreach (string directory in directories)
+                foreach (var directory in directories)
                 {
-                    DirectoryInfo directoryInfo = new DirectoryInfo(directory);
+                    var directoryInfo = new DirectoryInfo(directory);
                     if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
                     {
                         appBasePath = directoryInfo.FullName.Replace("\\", "/");
@@ -209,11 +209,11 @@ namespace transact.Extensions
                     }
                 }
 
-                string tenantID = $"{userWorkID}|{applicationID}";
-                string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
+                var tenantID = $"{userWorkID}|{applicationID}";
+                var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                 if (string.IsNullOrEmpty(appBasePath) == false && File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                 {
-                    string appSettingText = File.ReadAllText(settingFilePath);
+                    var appSettingText = File.ReadAllText(settingFilePath);
                     var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
                     if (appSetting != null)
                     {
@@ -225,11 +225,11 @@ namespace transact.Extensions
 
                         if (publicTransactions != null && publicTransactions.Count() > 0)
                         {
-                            for (int i = 0; i < publicTransactions.Count(); i++)
+                            for (var i = 0; i < publicTransactions.Count(); i++)
                             {
                                 var publicTransaction = publicTransactions[i];
 
-                                PublicTransaction appPublicTransaction = new PublicTransaction();
+                                var appPublicTransaction = new PublicTransaction();
                                 appPublicTransaction.ApplicationID = applicationID;
                                 appPublicTransaction.ProjectID = publicTransaction.ProjectID;
                                 appPublicTransaction.TransactionID = publicTransaction.TransactionID;
@@ -259,10 +259,10 @@ namespace transact.Extensions
 
         public static bool HasContractFile(string fileRelativePath)
         {
-            bool result = false;
+            var result = false;
             foreach (var basePath in ModuleConfiguration.ContractBasePath)
             {
-                string filePath = PathExtensions.Join(basePath, fileRelativePath);
+                var filePath = PathExtensions.Join(basePath, fileRelativePath);
                 result = File.Exists(filePath);
                 if (result == true)
                 {
@@ -275,7 +275,7 @@ namespace transact.Extensions
 
         public static bool IsDynamicContract(string applicationID, string projectID, string transactionID)
         {
-            bool result = false;
+            var result = false;
             lock (BusinessMappings)
             {
                 var findContracts = from item in BusinessMappings
@@ -294,7 +294,7 @@ namespace transact.Extensions
 
         public static bool Upsert(string key, BusinessContract businessContract, TimeSpan? expiryDuration = null)
         {
-            bool result = false;
+            var result = false;
             lock (BusinessMappings)
             {
                 try
@@ -326,7 +326,7 @@ namespace transact.Extensions
 
         public static bool Remove(string filePath)
         {
-            bool result = false;
+            var result = false;
             lock (BusinessMappings)
             {
                 try
@@ -353,7 +353,7 @@ namespace transact.Extensions
 
         public static int HasCount(string applicationID, string projectID, string transactionID)
         {
-            int result = 0;
+            var result = 0;
             lock (BusinessMappings)
             {
                 var findContracts = from item in BusinessMappings.Values
@@ -382,16 +382,16 @@ namespace transact.Extensions
                         continue;
                     }
 
-                    string[] businessFiles = Directory.GetFiles(basePath, "*.json", SearchOption.AllDirectories);
+                    var businessFiles = Directory.GetFiles(basePath, "*.json", SearchOption.AllDirectories);
                     lock (BusinessMappings)
                     {
-                        foreach (string businessFile in businessFiles)
+                        foreach (var businessFile in businessFiles)
                         {
                             try
                             {
-                                FileInfo fileInfo = new FileInfo(businessFile);
-                                string configData = File.ReadAllText(businessFile);
-                                BusinessContract? businessContract = BusinessContract.FromJson(configData);
+                                var fileInfo = new FileInfo(businessFile);
+                                var configData = File.ReadAllText(businessFile);
+                                var businessContract = BusinessContract.FromJson(configData);
                                 if (businessContract == null)
                                 {
                                     logger.Error("[{LogCategory}] " + $"업무 계약 파일 역직렬화 오류 - {businessFile}", "LoadContract");

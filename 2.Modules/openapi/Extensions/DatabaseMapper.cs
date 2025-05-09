@@ -30,15 +30,15 @@ namespace openapi.Extensions
 
         public static string DecryptConnectionString(string connectionString)
         {
-            string result = "";
+            var result = "";
             try
             {
                 var values = connectionString.SplitAndTrim('.');
 
-                string encrypt = values[0];
-                string decryptKey = values[1];
-                string hostName = values[2];
-                string hash = values[3];
+                var encrypt = values[0];
+                var decryptKey = values[1];
+                var hostName = values[2];
+                var hash = values[3];
 
                 if ($"{encrypt}.{decryptKey}.{hostName}".ToSHA256() == hash)
                 {
@@ -56,11 +56,11 @@ namespace openapi.Extensions
 
         public static string Find(string SQL, Dictionary<string, object?> queryParameters)
         {
-            string result = string.Empty;
+            var result = string.Empty;
             var children = new HtmlDocument();
             children.OptionDefaultStreamEncoding = Encoding.UTF8;
             children.LoadHtml(SQL);
-            JObject parameters = JObject.FromObject(queryParameters);
+            var parameters = JObject.FromObject(queryParameters);
 
             var childNodes = children.DocumentNode.ChildNodes;
             foreach (var childNode in childNodes)
@@ -82,8 +82,8 @@ namespace openapi.Extensions
 
         public static string ConvertChildren(HtmlNode htmlNode, JObject parameters)
         {
-            string result = "";
-            string nodeType = htmlNode.NodeType.ToString();
+            var result = "";
+            var nodeType = htmlNode.NodeType.ToString();
             if (nodeType == "Text")
             {
                 result = ConvertParameter(htmlNode, parameters);
@@ -113,26 +113,26 @@ namespace openapi.Extensions
 
         public static string ConvertForeach(HtmlNode htmlNode, JObject parameters)
         {
-            string result = "";
+            var result = "";
             // JArray list = Eval.Execute<JArray>(htmlNode.Attributes["collection"].Value, parameters);
-            JArray? list = parameters[htmlNode.Attributes["collection"].Value] as JArray;
+            var list = parameters[htmlNode.Attributes["collection"].Value] as JArray;
             if (list != null)
             {
-                string item = htmlNode.Attributes["item"].Value;
-                string open = htmlNode.Attributes["open"] == null ? "" : htmlNode.Attributes["open"].Value;
-                string close = htmlNode.Attributes["close"] == null ? "" : htmlNode.Attributes["close"].Value;
-                string separator = htmlNode.Attributes["separator"] == null ? "" : htmlNode.Attributes["separator"].Value;
+                var item = htmlNode.Attributes["item"].Value;
+                var open = htmlNode.Attributes["open"] == null ? "" : htmlNode.Attributes["open"].Value;
+                var close = htmlNode.Attributes["close"] == null ? "" : htmlNode.Attributes["close"].Value;
+                var separator = htmlNode.Attributes["separator"] == null ? "" : htmlNode.Attributes["separator"].Value;
 
-                List<string> foreachTexts = new List<string>();
+                var foreachTexts = new List<string>();
                 foreach (var coll in list)
                 {
                     var foreachParam = parameters;
                     foreachParam[item] = coll.Value<string>();
 
-                    string foreachText = "";
+                    var foreachText = "";
                     foreach (var childNode in htmlNode.ChildNodes)
                     {
-                        string childrenText = ConvertChildren(childNode, foreachParam);
+                        var childrenText = ConvertChildren(childNode, foreachParam);
                         childrenText = Regex.Replace(childrenText, "^\\s*$", "");
 
                         if (string.IsNullOrEmpty(childrenText) == false)
@@ -155,17 +155,17 @@ namespace openapi.Extensions
 
         public static string ConvertIf(HtmlNode htmlNode, JObject parameters)
         {
-            string evalString = htmlNode.Attributes["test"].Value;
+            var evalString = htmlNode.Attributes["test"].Value;
             evalString = ReplaceEvalString(evalString, parameters);
             evalString = evalString.Replace(" and ", " && ");
             evalString = evalString.Replace(" or ", " || ");
-            string evalText = evalString.Replace("'", "\"");
+            var evalText = evalString.Replace("'", "\"");
 
-            string line = JsonUtils.GenerateDynamicLinqStatement(parameters);
+            var line = JsonUtils.GenerateDynamicLinqStatement(parameters);
             var queryable = new[] { parameters }.AsQueryable().Select(line.Replace("#", "$"));
-            bool evalResult = queryable.Any(evalText);
+            var evalResult = queryable.Any(evalText);
 
-            string convertString = "";
+            var convertString = "";
             if (evalResult == true)
             {
                 foreach (var childNode in htmlNode.ChildNodes)
@@ -179,13 +179,13 @@ namespace openapi.Extensions
 
         public static JObject ConvertBind(HtmlNode htmlNode, JObject parameters)
         {
-            string bindID = htmlNode.Attributes["name"].Value;
-            string evalString = htmlNode.Attributes["value"].Value;
+            var bindID = htmlNode.Attributes["name"].Value;
+            var evalString = htmlNode.Attributes["value"].Value;
             evalString = ReplaceEvalString(evalString, parameters);
-            string evalText = evalString.Replace("'", "\"");
+            var evalText = evalString.Replace("'", "\"");
 
-            string evalResult = evalText;
-            string line = JsonUtils.GenerateDynamicLinqStatement(parameters);
+            var evalResult = evalText;
+            var line = JsonUtils.GenerateDynamicLinqStatement(parameters);
             var queryable = new[] { parameters }.AsQueryable().Select(line.Replace("#", "$"));
             var queryResult = queryable.Select<string>(evalText);
             if (queryResult.Any() == true)
@@ -200,10 +200,10 @@ namespace openapi.Extensions
 
         public static string ConvertParameter(HtmlNode htmlNode, JObject parameters)
         {
-            string convertString = htmlNode.InnerText;
+            var convertString = htmlNode.InnerText;
             if (parameters != null && parameters.Count > 0)
             {
-                string keyString = "";
+                var keyString = "";
                 convertString = RecursiveParameters(convertString, parameters, keyString);
             }
 
@@ -237,8 +237,8 @@ namespace openapi.Extensions
                         }
                         else
                         {
-                            string name = parameter.Key;
-                            string value = parameter.Value.ToStringSafe();
+                            var name = parameter.Key;
+                            var value = parameter.Value.ToStringSafe();
 
                             name = name.StartsWith("$") == true ? "\\" + name : name;
                             if (name.StartsWith("\\$") == false)
@@ -264,8 +264,8 @@ namespace openapi.Extensions
             {
                 if (parameter.Value != null)
                 {
-                    string replacePrefix = "";
-                    string replacePostfix = "";
+                    var replacePrefix = "";
+                    var replacePostfix = "";
                     Regex paramRegex;
 
                     if (parameter.Value.Type.ToString() == "Object")
@@ -291,15 +291,15 @@ namespace openapi.Extensions
 
         public static string ReplaceCData(string rawText)
         {
-            Regex cdataRegex = new Regex("(<!\\[CDATA\\[)([\\s\\S]*?)(\\]\\]>)");
+            var cdataRegex = new Regex("(<!\\[CDATA\\[)([\\s\\S]*?)(\\]\\]>)");
             var matches = cdataRegex.Matches(rawText);
 
             if (matches != null && matches.Count > 0)
             {
                 foreach (Match match in matches)
                 {
-                    string[] matchSplit = Regex.Split(match.Value, "(<!\\[CDATA\\[)([\\s\\S]*?)(\\]\\]>)");
-                    string cdataText = matchSplit[2];
+                    var matchSplit = Regex.Split(match.Value, "(<!\\[CDATA\\[)([\\s\\S]*?)(\\]\\]>)");
+                    var cdataText = matchSplit[2];
                     cdataText = Regex.Replace(cdataText, "&", "&amp;");
                     cdataText = Regex.Replace(cdataText, "<", "&lt;");
                     cdataText = Regex.Replace(cdataText, ">", "&gt;");

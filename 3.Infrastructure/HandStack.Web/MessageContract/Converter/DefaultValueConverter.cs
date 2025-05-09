@@ -15,10 +15,10 @@ namespace HandStack.Web.MessageContract.Converter
             switch (reader.TokenType)
             {
                 case JsonToken.Integer:
-                    int integerValue = serializer.Deserialize<int>(reader);
+                    var integerValue = serializer.Deserialize<int>(reader);
                     return new DefaultValue { Integer = integerValue };
                 case JsonToken.Boolean:
-                    bool boolValue = serializer.Deserialize<bool>(reader);
+                    var boolValue = serializer.Deserialize<bool>(reader);
                     return new DefaultValue { Boolean = boolValue };
                 case JsonToken.String:
                 case JsonToken.Date:

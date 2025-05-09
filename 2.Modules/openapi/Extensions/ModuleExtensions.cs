@@ -46,8 +46,8 @@ namespace openapi.Extensions
                     if (dataSource != null)
                     {
                         var dataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), dataSource.DataProvider);
-                        string connectionString = dataSource.ConnectionString;
-                        string? parseParameters = parameters == null ? null : JsonConvert.SerializeObject(parameters);
+                        var connectionString = dataSource.ConnectionString;
+                        var parseParameters = parameters == null ? null : JsonConvert.SerializeObject(parameters);
 
                         switch (dataProvider)
                         {
@@ -55,30 +55,28 @@ namespace openapi.Extensions
                                 var sqlServerMeta = DatabaseExtensions.GetSqlClientMetaSQL(ModuleConfiguration.DatabaseContractPath, applicationID, paths[0], paths[1], paths[2], parseParameters);
                                 if (sqlServerMeta != null)
                                 {
-                                    JObject? adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
-                                    string commandText = sqlServerMeta.Item1;
+                                    var adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
+                                    var commandText = sqlServerMeta.Item1;
                                     commandText = DatabaseExtensions.RecursiveParameters(commandText, adHocParameters, "", false);
 
-                                    using (SqlServerClient sqlServerClient = new SqlServerClient(connectionString))
+                                    using var sqlServerClient = new SqlServerClient(connectionString);
+                                    switch (returnType)
                                     {
-                                        switch (returnType)
-                                        {
-                                            case ReturnType.NonQuery:
-                                                result = sqlServerClient.ExecuteNonQuery(commandText, sqlServerMeta.Item2);
-                                                break;
-                                            case ReturnType.Scalar:
-                                                result = sqlServerClient.ExecuteScalar(commandText, sqlServerMeta.Item2);
-                                                break;
-                                            case ReturnType.DataSet:
-                                                result = sqlServerClient.ExecuteDataSet(commandText, sqlServerMeta.Item2);
-                                                break;
-                                            case ReturnType.DataReader:
-                                                result = sqlServerClient.ExecuteReader(commandText, sqlServerMeta.Item2);
-                                                break;
-                                            case ReturnType.Dynamic:
-                                                result = sqlServerClient.ExecuteDynamic(commandText, sqlServerMeta.Item2);
-                                                break;
-                                        }
+                                        case ReturnType.NonQuery:
+                                            result = sqlServerClient.ExecuteNonQuery(commandText, sqlServerMeta.Item2);
+                                            break;
+                                        case ReturnType.Scalar:
+                                            result = sqlServerClient.ExecuteScalar(commandText, sqlServerMeta.Item2);
+                                            break;
+                                        case ReturnType.DataSet:
+                                            result = sqlServerClient.ExecuteDataSet(commandText, sqlServerMeta.Item2);
+                                            break;
+                                        case ReturnType.DataReader:
+                                            result = sqlServerClient.ExecuteReader(commandText, sqlServerMeta.Item2);
+                                            break;
+                                        case ReturnType.Dynamic:
+                                            result = sqlServerClient.ExecuteDynamic(commandText, sqlServerMeta.Item2);
+                                            break;
                                     }
                                 }
                                 break;
@@ -86,30 +84,28 @@ namespace openapi.Extensions
                                 var oracleMeta = DatabaseExtensions.GetOracleMetaSQL(ModuleConfiguration.DatabaseContractPath, applicationID, paths[0], paths[1], paths[2], parseParameters);
                                 if (oracleMeta != null)
                                 {
-                                    JObject? adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
-                                    string commandText = oracleMeta.Item1;
+                                    var adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
+                                    var commandText = oracleMeta.Item1;
                                     commandText = DatabaseExtensions.RecursiveParameters(commandText, adHocParameters, "", false);
 
-                                    using (OracleClient oracleClient = new OracleClient(connectionString))
+                                    using var oracleClient = new OracleClient(connectionString);
+                                    switch (returnType)
                                     {
-                                        switch (returnType)
-                                        {
-                                            case ReturnType.NonQuery:
-                                                result = oracleClient.ExecuteNonQuery(commandText, oracleMeta.Item2);
-                                                break;
-                                            case ReturnType.Scalar:
-                                                result = oracleClient.ExecuteScalar(commandText, oracleMeta.Item2);
-                                                break;
-                                            case ReturnType.DataSet:
-                                                result = oracleClient.ExecuteDataSet(commandText, oracleMeta.Item2);
-                                                break;
-                                            case ReturnType.DataReader:
-                                                result = oracleClient.ExecuteReader(commandText, oracleMeta.Item2);
-                                                break;
-                                            case ReturnType.Dynamic:
-                                                result = oracleClient.ExecuteDynamic(commandText, oracleMeta.Item2);
-                                                break;
-                                        }
+                                        case ReturnType.NonQuery:
+                                            result = oracleClient.ExecuteNonQuery(commandText, oracleMeta.Item2);
+                                            break;
+                                        case ReturnType.Scalar:
+                                            result = oracleClient.ExecuteScalar(commandText, oracleMeta.Item2);
+                                            break;
+                                        case ReturnType.DataSet:
+                                            result = oracleClient.ExecuteDataSet(commandText, oracleMeta.Item2);
+                                            break;
+                                        case ReturnType.DataReader:
+                                            result = oracleClient.ExecuteReader(commandText, oracleMeta.Item2);
+                                            break;
+                                        case ReturnType.Dynamic:
+                                            result = oracleClient.ExecuteDynamic(commandText, oracleMeta.Item2);
+                                            break;
                                     }
                                 }
                                 break;
@@ -117,30 +113,28 @@ namespace openapi.Extensions
                                 var mySqlMeta = DatabaseExtensions.GetMySqlMetaSQL(ModuleConfiguration.DatabaseContractPath, applicationID, paths[0], paths[1], paths[2], parseParameters);
                                 if (mySqlMeta != null)
                                 {
-                                    JObject? adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
-                                    string commandText = mySqlMeta.Item1;
+                                    var adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
+                                    var commandText = mySqlMeta.Item1;
                                     commandText = DatabaseExtensions.RecursiveParameters(commandText, adHocParameters, "", false);
 
-                                    using (MySqlClient mySqlClient = new MySqlClient(connectionString))
+                                    using var mySqlClient = new MySqlClient(connectionString);
+                                    switch (returnType)
                                     {
-                                        switch (returnType)
-                                        {
-                                            case ReturnType.NonQuery:
-                                                result = mySqlClient.ExecuteNonQuery(commandText, mySqlMeta.Item2);
-                                                break;
-                                            case ReturnType.Scalar:
-                                                result = mySqlClient.ExecuteScalar(commandText, mySqlMeta.Item2);
-                                                break;
-                                            case ReturnType.DataSet:
-                                                result = mySqlClient.ExecuteDataSet(commandText, mySqlMeta.Item2);
-                                                break;
-                                            case ReturnType.DataReader:
-                                                result = mySqlClient.ExecuteReader(commandText, mySqlMeta.Item2);
-                                                break;
-                                            case ReturnType.Dynamic:
-                                                result = mySqlClient.ExecuteDynamic(commandText, mySqlMeta.Item2);
-                                                break;
-                                        }
+                                        case ReturnType.NonQuery:
+                                            result = mySqlClient.ExecuteNonQuery(commandText, mySqlMeta.Item2);
+                                            break;
+                                        case ReturnType.Scalar:
+                                            result = mySqlClient.ExecuteScalar(commandText, mySqlMeta.Item2);
+                                            break;
+                                        case ReturnType.DataSet:
+                                            result = mySqlClient.ExecuteDataSet(commandText, mySqlMeta.Item2);
+                                            break;
+                                        case ReturnType.DataReader:
+                                            result = mySqlClient.ExecuteReader(commandText, mySqlMeta.Item2);
+                                            break;
+                                        case ReturnType.Dynamic:
+                                            result = mySqlClient.ExecuteDynamic(commandText, mySqlMeta.Item2);
+                                            break;
                                     }
                                 }
                                 break;
@@ -148,30 +142,28 @@ namespace openapi.Extensions
                                 var postgreSqlMeta = DatabaseExtensions.GetPostreSqlMetaSQL(ModuleConfiguration.DatabaseContractPath, applicationID, paths[0], paths[1], paths[2], parseParameters);
                                 if (postgreSqlMeta != null)
                                 {
-                                    JObject? adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
-                                    string commandText = postgreSqlMeta.Item1;
+                                    var adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
+                                    var commandText = postgreSqlMeta.Item1;
                                     commandText = DatabaseExtensions.RecursiveParameters(commandText, adHocParameters, "", false);
 
-                                    using (PostgreSqlClient postgreSqlClient = new PostgreSqlClient(connectionString))
+                                    using var postgreSqlClient = new PostgreSqlClient(connectionString);
+                                    switch (returnType)
                                     {
-                                        switch (returnType)
-                                        {
-                                            case ReturnType.NonQuery:
-                                                result = postgreSqlClient.ExecuteNonQuery(commandText, postgreSqlMeta.Item2);
-                                                break;
-                                            case ReturnType.Scalar:
-                                                result = postgreSqlClient.ExecuteScalar(commandText, postgreSqlMeta.Item2);
-                                                break;
-                                            case ReturnType.DataSet:
-                                                result = postgreSqlClient.ExecuteDataSet(commandText, postgreSqlMeta.Item2);
-                                                break;
-                                            case ReturnType.DataReader:
-                                                result = postgreSqlClient.ExecuteReader(commandText, postgreSqlMeta.Item2);
-                                                break;
-                                            case ReturnType.Dynamic:
-                                                result = postgreSqlClient.ExecuteDynamic(commandText, postgreSqlMeta.Item2);
-                                                break;
-                                        }
+                                        case ReturnType.NonQuery:
+                                            result = postgreSqlClient.ExecuteNonQuery(commandText, postgreSqlMeta.Item2);
+                                            break;
+                                        case ReturnType.Scalar:
+                                            result = postgreSqlClient.ExecuteScalar(commandText, postgreSqlMeta.Item2);
+                                            break;
+                                        case ReturnType.DataSet:
+                                            result = postgreSqlClient.ExecuteDataSet(commandText, postgreSqlMeta.Item2);
+                                            break;
+                                        case ReturnType.DataReader:
+                                            result = postgreSqlClient.ExecuteReader(commandText, postgreSqlMeta.Item2);
+                                            break;
+                                        case ReturnType.Dynamic:
+                                            result = postgreSqlClient.ExecuteDynamic(commandText, postgreSqlMeta.Item2);
+                                            break;
                                     }
                                 }
                                 break;
@@ -179,30 +171,28 @@ namespace openapi.Extensions
                                 var sqliteMeta = DatabaseExtensions.GetSQLiteMetaSQL(ModuleConfiguration.DatabaseContractPath, applicationID, paths[0], paths[1], paths[2], parseParameters);
                                 if (sqliteMeta != null)
                                 {
-                                    JObject? adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
-                                    string commandText = sqliteMeta.Item1;
+                                    var adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
+                                    var commandText = sqliteMeta.Item1;
                                     commandText = DatabaseExtensions.RecursiveParameters(commandText, adHocParameters, "", false);
 
-                                    using (SQLiteClient sqlLiteClient = new SQLiteClient(connectionString))
+                                    using var sqlLiteClient = new SQLiteClient(connectionString);
+                                    switch (returnType)
                                     {
-                                        switch (returnType)
-                                        {
-                                            case ReturnType.NonQuery:
-                                                result = sqlLiteClient.ExecuteNonQuery(commandText, sqliteMeta.Item2);
-                                                break;
-                                            case ReturnType.Scalar:
-                                                result = sqlLiteClient.ExecuteScalar(commandText, sqliteMeta.Item2);
-                                                break;
-                                            case ReturnType.DataSet:
-                                                result = sqlLiteClient.ExecuteDataSet(commandText, sqliteMeta.Item2);
-                                                break;
-                                            case ReturnType.DataReader:
-                                                result = sqlLiteClient.ExecuteReader(commandText, sqliteMeta.Item2);
-                                                break;
-                                            case ReturnType.Dynamic:
-                                                result = sqlLiteClient.ExecuteDynamic(commandText, sqliteMeta.Item2);
-                                                break;
-                                        }
+                                        case ReturnType.NonQuery:
+                                            result = sqlLiteClient.ExecuteNonQuery(commandText, sqliteMeta.Item2);
+                                            break;
+                                        case ReturnType.Scalar:
+                                            result = sqlLiteClient.ExecuteScalar(commandText, sqliteMeta.Item2);
+                                            break;
+                                        case ReturnType.DataSet:
+                                            result = sqlLiteClient.ExecuteDataSet(commandText, sqliteMeta.Item2);
+                                            break;
+                                        case ReturnType.DataReader:
+                                            result = sqlLiteClient.ExecuteReader(commandText, sqliteMeta.Item2);
+                                            break;
+                                        case ReturnType.Dynamic:
+                                            result = sqlLiteClient.ExecuteDynamic(commandText, sqliteMeta.Item2);
+                                            break;
                                     }
                                 }
                                 break;
@@ -226,7 +216,7 @@ namespace openapi.Extensions
             {
                 try
                 {
-                    string? parseParameters = parameters == null ? null : JsonConvert.SerializeObject(parameters);
+                    var parseParameters = parameters == null ? null : JsonConvert.SerializeObject(parameters);
 
                     switch (dataProvider)
                     {
@@ -234,30 +224,28 @@ namespace openapi.Extensions
                             var sqlServerMeta = DatabaseExtensions.GetSqlClientMetaSQL(ModuleConfiguration.DatabaseContractPath, applicationID, paths[0], paths[1], paths[2], parseParameters);
                             if (sqlServerMeta != null)
                             {
-                                JObject? adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
-                                string commandText = sqlServerMeta.Item1;
+                                var adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
+                                var commandText = sqlServerMeta.Item1;
                                 commandText = DatabaseExtensions.RecursiveParameters(commandText, adHocParameters, "", false);
 
-                                using (SqlServerClient sqlServerClient = new SqlServerClient(ModuleConfiguration.ModuleDataSource.ConnectionString))
+                                using var sqlServerClient = new SqlServerClient(ModuleConfiguration.ModuleDataSource.ConnectionString);
+                                switch (returnType)
                                 {
-                                    switch (returnType)
-                                    {
-                                        case ReturnType.NonQuery:
-                                            result = sqlServerClient.ExecuteNonQuery(commandText, sqlServerMeta.Item2);
-                                            break;
-                                        case ReturnType.Scalar:
-                                            result = sqlServerClient.ExecuteScalar(commandText, sqlServerMeta.Item2);
-                                            break;
-                                        case ReturnType.DataSet:
-                                            result = sqlServerClient.ExecuteDataSet(commandText, sqlServerMeta.Item2);
-                                            break;
-                                        case ReturnType.DataReader:
-                                            result = sqlServerClient.ExecuteReader(commandText, sqlServerMeta.Item2);
-                                            break;
-                                        case ReturnType.Dynamic:
-                                            result = sqlServerClient.ExecuteDynamic(commandText, sqlServerMeta.Item2);
-                                            break;
-                                    }
+                                    case ReturnType.NonQuery:
+                                        result = sqlServerClient.ExecuteNonQuery(commandText, sqlServerMeta.Item2);
+                                        break;
+                                    case ReturnType.Scalar:
+                                        result = sqlServerClient.ExecuteScalar(commandText, sqlServerMeta.Item2);
+                                        break;
+                                    case ReturnType.DataSet:
+                                        result = sqlServerClient.ExecuteDataSet(commandText, sqlServerMeta.Item2);
+                                        break;
+                                    case ReturnType.DataReader:
+                                        result = sqlServerClient.ExecuteReader(commandText, sqlServerMeta.Item2);
+                                        break;
+                                    case ReturnType.Dynamic:
+                                        result = sqlServerClient.ExecuteDynamic(commandText, sqlServerMeta.Item2);
+                                        break;
                                 }
                             }
                             break;
@@ -265,30 +253,28 @@ namespace openapi.Extensions
                             var oracleMeta = DatabaseExtensions.GetOracleMetaSQL(ModuleConfiguration.DatabaseContractPath, applicationID, paths[0], paths[1], paths[2], parseParameters);
                             if (oracleMeta != null)
                             {
-                                JObject? adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
-                                string commandText = oracleMeta.Item1;
+                                var adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
+                                var commandText = oracleMeta.Item1;
                                 commandText = DatabaseExtensions.RecursiveParameters(commandText, adHocParameters, "", false);
 
-                                using (OracleClient oracleClient = new OracleClient(ModuleConfiguration.ModuleDataSource.ConnectionString))
+                                using var oracleClient = new OracleClient(ModuleConfiguration.ModuleDataSource.ConnectionString);
+                                switch (returnType)
                                 {
-                                    switch (returnType)
-                                    {
-                                        case ReturnType.NonQuery:
-                                            result = oracleClient.ExecuteNonQuery(commandText, oracleMeta.Item2);
-                                            break;
-                                        case ReturnType.Scalar:
-                                            result = oracleClient.ExecuteScalar(commandText, oracleMeta.Item2);
-                                            break;
-                                        case ReturnType.DataSet:
-                                            result = oracleClient.ExecuteDataSet(commandText, oracleMeta.Item2);
-                                            break;
-                                        case ReturnType.DataReader:
-                                            result = oracleClient.ExecuteReader(commandText, oracleMeta.Item2);
-                                            break;
-                                        case ReturnType.Dynamic:
-                                            result = oracleClient.ExecuteDynamic(commandText, oracleMeta.Item2);
-                                            break;
-                                    }
+                                    case ReturnType.NonQuery:
+                                        result = oracleClient.ExecuteNonQuery(commandText, oracleMeta.Item2);
+                                        break;
+                                    case ReturnType.Scalar:
+                                        result = oracleClient.ExecuteScalar(commandText, oracleMeta.Item2);
+                                        break;
+                                    case ReturnType.DataSet:
+                                        result = oracleClient.ExecuteDataSet(commandText, oracleMeta.Item2);
+                                        break;
+                                    case ReturnType.DataReader:
+                                        result = oracleClient.ExecuteReader(commandText, oracleMeta.Item2);
+                                        break;
+                                    case ReturnType.Dynamic:
+                                        result = oracleClient.ExecuteDynamic(commandText, oracleMeta.Item2);
+                                        break;
                                 }
                             }
                             break;
@@ -296,30 +282,28 @@ namespace openapi.Extensions
                             var mySqlMeta = DatabaseExtensions.GetMySqlMetaSQL(ModuleConfiguration.DatabaseContractPath, applicationID, paths[0], paths[1], paths[2], parseParameters);
                             if (mySqlMeta != null)
                             {
-                                JObject? adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
-                                string commandText = mySqlMeta.Item1;
+                                var adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
+                                var commandText = mySqlMeta.Item1;
                                 commandText = DatabaseExtensions.RecursiveParameters(commandText, adHocParameters, "", false);
 
-                                using (MySqlClient mySqlClient = new MySqlClient(ModuleConfiguration.ModuleDataSource.ConnectionString))
+                                using var mySqlClient = new MySqlClient(ModuleConfiguration.ModuleDataSource.ConnectionString);
+                                switch (returnType)
                                 {
-                                    switch (returnType)
-                                    {
-                                        case ReturnType.NonQuery:
-                                            result = mySqlClient.ExecuteNonQuery(commandText, mySqlMeta.Item2);
-                                            break;
-                                        case ReturnType.Scalar:
-                                            result = mySqlClient.ExecuteScalar(commandText, mySqlMeta.Item2);
-                                            break;
-                                        case ReturnType.DataSet:
-                                            result = mySqlClient.ExecuteDataSet(commandText, mySqlMeta.Item2);
-                                            break;
-                                        case ReturnType.DataReader:
-                                            result = mySqlClient.ExecuteReader(commandText, mySqlMeta.Item2);
-                                            break;
-                                        case ReturnType.Dynamic:
-                                            result = mySqlClient.ExecuteDynamic(commandText, mySqlMeta.Item2);
-                                            break;
-                                    }
+                                    case ReturnType.NonQuery:
+                                        result = mySqlClient.ExecuteNonQuery(commandText, mySqlMeta.Item2);
+                                        break;
+                                    case ReturnType.Scalar:
+                                        result = mySqlClient.ExecuteScalar(commandText, mySqlMeta.Item2);
+                                        break;
+                                    case ReturnType.DataSet:
+                                        result = mySqlClient.ExecuteDataSet(commandText, mySqlMeta.Item2);
+                                        break;
+                                    case ReturnType.DataReader:
+                                        result = mySqlClient.ExecuteReader(commandText, mySqlMeta.Item2);
+                                        break;
+                                    case ReturnType.Dynamic:
+                                        result = mySqlClient.ExecuteDynamic(commandText, mySqlMeta.Item2);
+                                        break;
                                 }
                             }
                             break;
@@ -327,30 +311,28 @@ namespace openapi.Extensions
                             var postgreSqlMeta = DatabaseExtensions.GetPostreSqlMetaSQL(ModuleConfiguration.DatabaseContractPath, applicationID, paths[0], paths[1], paths[2], parseParameters);
                             if (postgreSqlMeta != null)
                             {
-                                JObject? adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
-                                string commandText = postgreSqlMeta.Item1;
+                                var adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
+                                var commandText = postgreSqlMeta.Item1;
                                 commandText = DatabaseExtensions.RecursiveParameters(commandText, adHocParameters, "", false);
 
-                                using (PostgreSqlClient postgreSqlClient = new PostgreSqlClient(ModuleConfiguration.ModuleDataSource.ConnectionString))
+                                using var postgreSqlClient = new PostgreSqlClient(ModuleConfiguration.ModuleDataSource.ConnectionString);
+                                switch (returnType)
                                 {
-                                    switch (returnType)
-                                    {
-                                        case ReturnType.NonQuery:
-                                            result = postgreSqlClient.ExecuteNonQuery(commandText, postgreSqlMeta.Item2);
-                                            break;
-                                        case ReturnType.Scalar:
-                                            result = postgreSqlClient.ExecuteScalar(commandText, postgreSqlMeta.Item2);
-                                            break;
-                                        case ReturnType.DataSet:
-                                            result = postgreSqlClient.ExecuteDataSet(commandText, postgreSqlMeta.Item2);
-                                            break;
-                                        case ReturnType.DataReader:
-                                            result = postgreSqlClient.ExecuteReader(commandText, postgreSqlMeta.Item2);
-                                            break;
-                                        case ReturnType.Dynamic:
-                                            result = postgreSqlClient.ExecuteDynamic(commandText, postgreSqlMeta.Item2);
-                                            break;
-                                    }
+                                    case ReturnType.NonQuery:
+                                        result = postgreSqlClient.ExecuteNonQuery(commandText, postgreSqlMeta.Item2);
+                                        break;
+                                    case ReturnType.Scalar:
+                                        result = postgreSqlClient.ExecuteScalar(commandText, postgreSqlMeta.Item2);
+                                        break;
+                                    case ReturnType.DataSet:
+                                        result = postgreSqlClient.ExecuteDataSet(commandText, postgreSqlMeta.Item2);
+                                        break;
+                                    case ReturnType.DataReader:
+                                        result = postgreSqlClient.ExecuteReader(commandText, postgreSqlMeta.Item2);
+                                        break;
+                                    case ReturnType.Dynamic:
+                                        result = postgreSqlClient.ExecuteDynamic(commandText, postgreSqlMeta.Item2);
+                                        break;
                                 }
                             }
                             break;
@@ -358,30 +340,28 @@ namespace openapi.Extensions
                             var sqliteMeta = DatabaseExtensions.GetSQLiteMetaSQL(ModuleConfiguration.DatabaseContractPath, applicationID, paths[0], paths[1], paths[2], parseParameters);
                             if (sqliteMeta != null)
                             {
-                                JObject? adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
-                                string commandText = sqliteMeta.Item1;
+                                var adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
+                                var commandText = sqliteMeta.Item1;
                                 commandText = DatabaseExtensions.RecursiveParameters(commandText, adHocParameters, "", false);
 
-                                using (SQLiteClient sqlLiteClient = new SQLiteClient(ModuleConfiguration.ModuleDataSource.ConnectionString))
+                                using var sqlLiteClient = new SQLiteClient(ModuleConfiguration.ModuleDataSource.ConnectionString);
+                                switch (returnType)
                                 {
-                                    switch (returnType)
-                                    {
-                                        case ReturnType.NonQuery:
-                                            result = sqlLiteClient.ExecuteNonQuery(commandText, sqliteMeta.Item2);
-                                            break;
-                                        case ReturnType.Scalar:
-                                            result = sqlLiteClient.ExecuteScalar(commandText, sqliteMeta.Item2);
-                                            break;
-                                        case ReturnType.DataSet:
-                                            result = sqlLiteClient.ExecuteDataSet(commandText, sqliteMeta.Item2);
-                                            break;
-                                        case ReturnType.DataReader:
-                                            result = sqlLiteClient.ExecuteReader(commandText, sqliteMeta.Item2);
-                                            break;
-                                        case ReturnType.Dynamic:
-                                            result = sqlLiteClient.ExecuteDynamic(commandText, sqliteMeta.Item2);
-                                            break;
-                                    }
+                                    case ReturnType.NonQuery:
+                                        result = sqlLiteClient.ExecuteNonQuery(commandText, sqliteMeta.Item2);
+                                        break;
+                                    case ReturnType.Scalar:
+                                        result = sqlLiteClient.ExecuteScalar(commandText, sqliteMeta.Item2);
+                                        break;
+                                    case ReturnType.DataSet:
+                                        result = sqlLiteClient.ExecuteDataSet(commandText, sqliteMeta.Item2);
+                                        break;
+                                    case ReturnType.DataReader:
+                                        result = sqlLiteClient.ExecuteReader(commandText, sqliteMeta.Item2);
+                                        break;
+                                    case ReturnType.Dynamic:
+                                        result = sqlLiteClient.ExecuteDynamic(commandText, sqliteMeta.Item2);
+                                        break;
                                 }
                             }
                             break;
@@ -398,13 +378,13 @@ namespace openapi.Extensions
 
         public static T? ExecuteMetaSQLPoco<T>(DataProviders dataProvider, string applicationID, string queryID, object? parameters = null)
         {
-            T? result = default(T);
+            var result = default(T);
             var paths = queryID.Split(".");
             if (paths.Length == 3)
             {
                 try
                 {
-                    string? parseParameters = parameters == null ? null : JsonConvert.SerializeObject(parameters);
+                    var parseParameters = parameters == null ? null : JsonConvert.SerializeObject(parameters);
 
                     switch (dataProvider)
                     {
@@ -412,70 +392,60 @@ namespace openapi.Extensions
                             var sqlServerMeta = DatabaseExtensions.GetSqlClientMetaSQL(ModuleConfiguration.DatabaseContractPath, applicationID, paths[0], paths[1], paths[2], parseParameters);
                             if (sqlServerMeta != null)
                             {
-                                JObject? adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
-                                string commandText = sqlServerMeta.Item1;
+                                var adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
+                                var commandText = sqlServerMeta.Item1;
                                 commandText = DatabaseExtensions.RecursiveParameters(commandText, adHocParameters, "", false);
 
-                                using (SqlServerClient sqlServerClient = new SqlServerClient(ModuleConfiguration.ModuleDataSource.ConnectionString))
-                                {
-                                    result = sqlServerClient.ExecutePocoMapping<T>(commandText, sqlServerMeta.Item2);
-                                }
+                                using var sqlServerClient = new SqlServerClient(ModuleConfiguration.ModuleDataSource.ConnectionString);
+                                result = sqlServerClient.ExecutePocoMapping<T>(commandText, sqlServerMeta.Item2);
                             }
                             break;
                         case DataProviders.Oracle:
                             var oracleMeta = DatabaseExtensions.GetOracleMetaSQL(ModuleConfiguration.DatabaseContractPath, applicationID, paths[0], paths[1], paths[2], parseParameters);
                             if (oracleMeta != null)
                             {
-                                JObject? adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
-                                string commandText = oracleMeta.Item1;
+                                var adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
+                                var commandText = oracleMeta.Item1;
                                 commandText = DatabaseExtensions.RecursiveParameters(commandText, adHocParameters, "", false);
 
-                                using (OracleClient oracleClient = new OracleClient(ModuleConfiguration.ModuleDataSource.ConnectionString))
-                                {
-                                    result = oracleClient.ExecutePocoMapping<T>(commandText, oracleMeta.Item2);
-                                }
+                                using var oracleClient = new OracleClient(ModuleConfiguration.ModuleDataSource.ConnectionString);
+                                result = oracleClient.ExecutePocoMapping<T>(commandText, oracleMeta.Item2);
                             }
                             break;
                         case DataProviders.MySQL:
                             var mySqlMeta = DatabaseExtensions.GetMySqlMetaSQL(ModuleConfiguration.DatabaseContractPath, applicationID, paths[0], paths[1], paths[2], parseParameters);
                             if (mySqlMeta != null)
                             {
-                                JObject? adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
-                                string commandText = mySqlMeta.Item1;
+                                var adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
+                                var commandText = mySqlMeta.Item1;
                                 commandText = DatabaseExtensions.RecursiveParameters(commandText, adHocParameters, "", false);
 
-                                using (MySqlClient mySqlClient = new MySqlClient(ModuleConfiguration.ModuleDataSource.ConnectionString))
-                                {
-                                    result = mySqlClient.ExecutePocoMapping<T>(commandText, mySqlMeta.Item2);
-                                }
+                                using var mySqlClient = new MySqlClient(ModuleConfiguration.ModuleDataSource.ConnectionString);
+                                result = mySqlClient.ExecutePocoMapping<T>(commandText, mySqlMeta.Item2);
                             }
                             break;
                         case DataProviders.PostgreSQL:
                             var postgreSqlMeta = DatabaseExtensions.GetPostreSqlMetaSQL(ModuleConfiguration.DatabaseContractPath, applicationID, paths[0], paths[1], paths[2], parseParameters);
                             if (postgreSqlMeta != null)
                             {
-                                JObject? adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
-                                string commandText = postgreSqlMeta.Item1;
+                                var adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
+                                var commandText = postgreSqlMeta.Item1;
                                 commandText = DatabaseExtensions.RecursiveParameters(commandText, adHocParameters, "", false);
 
-                                using (PostgreSqlClient postgreSqlClient = new PostgreSqlClient(ModuleConfiguration.ModuleDataSource.ConnectionString))
-                                {
-                                    result = postgreSqlClient.ExecutePocoMapping<T>(commandText, postgreSqlMeta.Item2);
-                                }
+                                using var postgreSqlClient = new PostgreSqlClient(ModuleConfiguration.ModuleDataSource.ConnectionString);
+                                result = postgreSqlClient.ExecutePocoMapping<T>(commandText, postgreSqlMeta.Item2);
                             }
                             break;
                         case DataProviders.SQLite:
                             var sqliteMeta = DatabaseExtensions.GetSQLiteMetaSQL(ModuleConfiguration.DatabaseContractPath, applicationID, paths[0], paths[1], paths[2], parseParameters);
                             if (sqliteMeta != null)
                             {
-                                JObject? adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
-                                string commandText = sqliteMeta.Item1;
+                                var adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
+                                var commandText = sqliteMeta.Item1;
                                 commandText = DatabaseExtensions.RecursiveParameters(commandText, adHocParameters, "", false);
 
-                                using (SQLiteClient sqlLiteClient = new SQLiteClient(ModuleConfiguration.ModuleDataSource.ConnectionString))
-                                {
-                                    result = sqlLiteClient.ExecutePocoMapping<T>(commandText, sqliteMeta.Item2);
-                                }
+                                using var sqlLiteClient = new SQLiteClient(ModuleConfiguration.ModuleDataSource.ConnectionString);
+                                result = sqlLiteClient.ExecutePocoMapping<T>(commandText, sqliteMeta.Item2);
                             }
                             break;
                     }
@@ -497,7 +467,7 @@ namespace openapi.Extensions
             {
                 try
                 {
-                    string? parseParameters = parameters == null ? null : JsonConvert.SerializeObject(parameters);
+                    var parseParameters = parameters == null ? null : JsonConvert.SerializeObject(parameters);
 
                     switch (dataProvider)
                     {
@@ -505,70 +475,60 @@ namespace openapi.Extensions
                             var sqlServerMeta = DatabaseExtensions.GetSqlClientMetaSQL(ModuleConfiguration.DatabaseContractPath, applicationID, paths[0], paths[1], paths[2], parseParameters);
                             if (sqlServerMeta != null)
                             {
-                                JObject? adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
-                                string commandText = sqlServerMeta.Item1;
+                                var adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
+                                var commandText = sqlServerMeta.Item1;
                                 commandText = DatabaseExtensions.RecursiveParameters(commandText, adHocParameters, "", false);
 
-                                using (SqlServerClient sqlServerClient = new SqlServerClient(ModuleConfiguration.ModuleDataSource.ConnectionString))
-                                {
-                                    result = sqlServerClient.ExecutePocoMappings<T>(commandText, sqlServerMeta.Item2);
-                                }
+                                using var sqlServerClient = new SqlServerClient(ModuleConfiguration.ModuleDataSource.ConnectionString);
+                                result = sqlServerClient.ExecutePocoMappings<T>(commandText, sqlServerMeta.Item2);
                             }
                             break;
                         case DataProviders.Oracle:
                             var oracleMeta = DatabaseExtensions.GetOracleMetaSQL(ModuleConfiguration.DatabaseContractPath, applicationID, paths[0], paths[1], paths[2], parseParameters);
                             if (oracleMeta != null)
                             {
-                                JObject? adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
-                                string commandText = oracleMeta.Item1;
+                                var adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
+                                var commandText = oracleMeta.Item1;
                                 commandText = DatabaseExtensions.RecursiveParameters(commandText, adHocParameters, "", false);
 
-                                using (OracleClient oracleClient = new OracleClient(ModuleConfiguration.ModuleDataSource.ConnectionString))
-                                {
-                                    result = oracleClient.ExecutePocoMappings<T>(commandText, oracleMeta.Item2);
-                                }
+                                using var oracleClient = new OracleClient(ModuleConfiguration.ModuleDataSource.ConnectionString);
+                                result = oracleClient.ExecutePocoMappings<T>(commandText, oracleMeta.Item2);
                             }
                             break;
                         case DataProviders.MySQL:
                             var mySqlMeta = DatabaseExtensions.GetMySqlMetaSQL(ModuleConfiguration.DatabaseContractPath, applicationID, paths[0], paths[1], paths[2], parseParameters);
                             if (mySqlMeta != null)
                             {
-                                JObject? adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
-                                string commandText = mySqlMeta.Item1;
+                                var adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
+                                var commandText = mySqlMeta.Item1;
                                 commandText = DatabaseExtensions.RecursiveParameters(commandText, adHocParameters, "", false);
 
-                                using (MySqlClient mySqlClient = new MySqlClient(ModuleConfiguration.ModuleDataSource.ConnectionString))
-                                {
-                                    result = mySqlClient.ExecutePocoMappings<T>(commandText, mySqlMeta.Item2);
-                                }
+                                using var mySqlClient = new MySqlClient(ModuleConfiguration.ModuleDataSource.ConnectionString);
+                                result = mySqlClient.ExecutePocoMappings<T>(commandText, mySqlMeta.Item2);
                             }
                             break;
                         case DataProviders.PostgreSQL:
                             var postgreSqlMeta = DatabaseExtensions.GetPostreSqlMetaSQL(ModuleConfiguration.DatabaseContractPath, applicationID, paths[0], paths[1], paths[2], parseParameters);
                             if (postgreSqlMeta != null)
                             {
-                                JObject? adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
-                                string commandText = postgreSqlMeta.Item1;
+                                var adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
+                                var commandText = postgreSqlMeta.Item1;
                                 commandText = DatabaseExtensions.RecursiveParameters(commandText, adHocParameters, "", false);
 
-                                using (PostgreSqlClient postgreSqlClient = new PostgreSqlClient(ModuleConfiguration.ModuleDataSource.ConnectionString))
-                                {
-                                    result = postgreSqlClient.ExecutePocoMappings<T>(commandText, postgreSqlMeta.Item2);
-                                }
+                                using var postgreSqlClient = new PostgreSqlClient(ModuleConfiguration.ModuleDataSource.ConnectionString);
+                                result = postgreSqlClient.ExecutePocoMappings<T>(commandText, postgreSqlMeta.Item2);
                             }
                             break;
                         case DataProviders.SQLite:
                             var sqliteMeta = DatabaseExtensions.GetSQLiteMetaSQL(ModuleConfiguration.DatabaseContractPath, applicationID, paths[0], paths[1], paths[2], parseParameters);
                             if (sqliteMeta != null)
                             {
-                                JObject? adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
-                                string commandText = sqliteMeta.Item1;
+                                var adHocParameters = parseParameters == null ? null : JObject.Parse(parseParameters);
+                                var commandText = sqliteMeta.Item1;
                                 commandText = DatabaseExtensions.RecursiveParameters(commandText, adHocParameters, "", false);
 
-                                using (SQLiteClient sqlLiteClient = new SQLiteClient(ModuleConfiguration.ModuleDataSource.ConnectionString))
-                                {
-                                    result = sqlLiteClient.ExecutePocoMappings<T>(commandText, sqliteMeta.Item2);
-                                }
+                                using var sqlLiteClient = new SQLiteClient(ModuleConfiguration.ModuleDataSource.ConnectionString);
+                                result = sqlLiteClient.ExecutePocoMappings<T>(commandText, sqliteMeta.Item2);
                             }
                             break;
                     }

@@ -73,7 +73,7 @@ namespace checkup.Areas.checkup.Controllers
             ActionResult result = BadRequest("요청 정보 확인이 필요합니다");
             var entityResult = new EntityResult();
 
-            string? remoteClientIP = HttpContext.GetRemoteIpAddress();
+            var remoteClientIP = HttpContext.GetRemoteIpAddress();
 
             if (string.IsNullOrEmpty(emailID) == false)
             {
@@ -81,7 +81,7 @@ namespace checkup.Areas.checkup.Controllers
 
                 try
                 {
-                    string existUser = "0";
+                    var existUser = "0";
                     var scalarResults = ModuleExtensions.ExecuteMetaSQL(ReturnType.Scalar, "SYS.USR010.GD01", new
                     {
                         PersonID = emailID,
@@ -166,7 +166,7 @@ namespace checkup.Areas.checkup.Controllers
             ActionResult result = BadRequest("요청 정보 확인이 필요합니다");
             var entityResult = new EntityResult();
 
-            string? remoteClientIP = HttpContext.GetRemoteIpAddress();
+            var remoteClientIP = HttpContext.GetRemoteIpAddress();
             if (clientIP == remoteClientIP)
             {
                 string? personNo = null;
@@ -201,9 +201,9 @@ namespace checkup.Areas.checkup.Controllers
                         return Ok(entityResult);
                     }
 
-                    string issueID = sequentialIdGenerator.NewId().ToString("N");
-                    string signInUrl = Request.GetBaseUrl() + $"/checkup/api/account/sign-in?userID={userID}&issueID={issueID}&validID={issueID.EncryptAES(ModuleConfiguration.EncryptionAES256Key).EncodeBase64()}";
-                    string signID = signInUrl.ToSHA256();
+                    var issueID = sequentialIdGenerator.NewId().ToString("N");
+                    var signInUrl = Request.GetBaseUrl() + $"/checkup/api/account/sign-in?userID={userID}&issueID={issueID}&validID={issueID.EncryptAES(ModuleConfiguration.EncryptionAES256Key).EncodeBase64()}";
+                    var signID = signInUrl.ToSHA256();
                     signInUrl = signInUrl + $"&signID={signID}";
 
                     entityResult.Message = signInUrl;
@@ -226,8 +226,8 @@ namespace checkup.Areas.checkup.Controllers
             ActionResult result = BadRequest();
 
             string errorText;
-            string linkUrl = $"/checkup/redirection.html?tick={DateTime.Now.Ticks}";
-            string clientIP = HttpContext.GetRemoteIpAddress().ToStringSafe();
+            var linkUrl = $"/checkup/redirection.html?tick={DateTime.Now.Ticks}";
+            var clientIP = HttpContext.GetRemoteIpAddress().ToStringSafe();
 
             if (string.IsNullOrEmpty(userID) == false
                 && string.IsNullOrEmpty(issueID) == false
@@ -239,13 +239,13 @@ namespace checkup.Areas.checkup.Controllers
                 try
                 {
                     var issueDateTime = Guid.Parse(issueID).ToDateTime();
-                    DateTime dateTime = (issueDateTime == null ? DateTime.UtcNow : (DateTime)issueDateTime);
+                    var dateTime = (issueDateTime == null ? DateTime.UtcNow : (DateTime)issueDateTime);
                     var adjustHours = TimeZoneInfo.Local.GetUtcOffset(dateTime).TotalHours;
                     createdAt = dateTime.AddHours(adjustHours);
 
-                    string signInUrl = Request.GetAbsoluteUrl().Split("&signID=")[0];
-                    string hashID = signInUrl.ToSHA256();
-                    string decryptIssueID = validID.DecodeBase64().DecryptAES(ModuleConfiguration.EncryptionAES256Key);
+                    var signInUrl = Request.GetAbsoluteUrl().Split("&signID=")[0];
+                    var hashID = signInUrl.ToSHA256();
+                    var decryptIssueID = validID.DecodeBase64().DecryptAES(ModuleConfiguration.EncryptionAES256Key);
 
                     if (createdAt.AddDays(3) < DateTime.Now || signID != hashID || issueID != decryptIssueID)
                     {
@@ -298,7 +298,7 @@ namespace checkup.Areas.checkup.Controllers
                                         MemberNo = memberNo
                                     });
 
-                                    string userWorkID = sqids.Encode((int)memberSequence);
+                                    var userWorkID = sqids.Encode((int)memberSequence);
 
                                     ModuleExtensions.ExecuteMetaSQL(ReturnType.Scalar, "SYS.USR010.UD02", new
                                     {
@@ -306,9 +306,9 @@ namespace checkup.Areas.checkup.Controllers
                                         MemberNo = memberNo
                                     });
 
-                                    for (int i = 0; i < memberClaims.Count; i++)
+                                    for (var i = 0; i < memberClaims.Count; i++)
                                     {
-                                        DataRow memberClaim = memberClaims[i];
+                                        var memberClaim = memberClaims[i];
                                         if (memberClaim["ClaimType"].ToStringSafe() == "UserWorkID")
                                         {
                                             memberClaim["ClaimValue"] = userWorkID;
@@ -355,7 +355,7 @@ namespace checkup.Areas.checkup.Controllers
                                 foreach (DataRow item in memberClaims)
                                 {
                                     var claimType = item.GetString("ClaimType");
-                                    string claimValue = item.GetString("ClaimValue").ToStringSafe();
+                                    var claimValue = item.GetString("ClaimValue").ToStringSafe();
                                     if (string.IsNullOrEmpty(claimType) == false)
                                     {
                                         var claim = new Claim(claimType, claimValue);
@@ -380,7 +380,7 @@ namespace checkup.Areas.checkup.Controllers
 
                                 // applicationUser에서 UserNo, UserID, UserName, Email, Roles를 제외한 추가 정보
                                 var excludeColumnNames = new string[] { "UserNo", "UserID", "UserName", "Email", "Roles" };
-                                Dictionary<string, string> dictionary = new Dictionary<string, string>();
+                                var dictionary = new Dictionary<string, string>();
                                 dictionary.Add("ClientIP", clientIP);
 
                                 foreach (DataColumn item in columns)
@@ -393,7 +393,7 @@ namespace checkup.Areas.checkup.Controllers
 
                                 var variable = JObject.FromObject(dictionary);
                                 variable.Add("InstallType", GlobalConfiguration.InstallType);
-                                BearerToken bearerToken = CreateBearerToken(userAccount, claims, variable);
+                                var bearerToken = CreateBearerToken(userAccount, claims, variable);
 
                                 var claimsIdentity = new ClaimsIdentity(claims, $"{GlobalConfiguration.CookiePrefixName}.AuthenticationScheme");
                                 var authenticationProperties = new AuthenticationProperties()
@@ -402,7 +402,7 @@ namespace checkup.Areas.checkup.Controllers
                                     IsPersistent = true
                                 };
 
-                                CookieOptions cookieOptions = new CookieOptions();
+                                var cookieOptions = new CookieOptions();
                                 cookieOptions.HttpOnly = false;
                                 cookieOptions.SameSite = SameSiteMode.Lax;
 
@@ -413,15 +413,15 @@ namespace checkup.Areas.checkup.Controllers
                                 }
                                 else if (GlobalConfiguration.UserSignExpire < 0)
                                 {
-                                    int addDay = DateTime.Now.Day == userAccount.LoginedAt.Day ? 1 : 0;
+                                    var addDay = DateTime.Now.Day == userAccount.LoginedAt.Day ? 1 : 0;
                                     expiredAt = DateTime.Parse(DateTime.Now.AddDays(1).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00");
                                 }
 
                                 cookieOptions.Expires = expiredAt;
                                 authenticationProperties.ExpiresUtc = expiredAt;
 
-                                long expireTicks = ((expiredAt.Ticks - (new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).Ticks) / 10000);
-                                string jsonAcount = JsonConvert.SerializeObject(userAccount);
+                                var expireTicks = ((expiredAt.Ticks - (new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).Ticks) / 10000);
+                                var jsonAcount = JsonConvert.SerializeObject(userAccount);
 
                                 WriteCookie($"{GlobalConfiguration.CookiePrefixName}.TokenID", bearerToken.TokenID, cookieOptions);
                                 WriteCookie($"{GlobalConfiguration.CookiePrefixName}.ExpireTicks", expireTicks.ToString(), cookieOptions);
@@ -434,7 +434,7 @@ namespace checkup.Areas.checkup.Controllers
 
                                 try
                                 {
-                                    HttpContext.Request.Cookies.TryGetValue(GlobalConfiguration.SessionCookieName, out string? cookieValue);
+                                    HttpContext.Request.Cookies.TryGetValue(GlobalConfiguration.SessionCookieName, out var cookieValue);
                                     if (string.IsNullOrEmpty(cookieValue) == false)
                                     {
                                         var protectedData = Convert.FromBase64String(cookieValue.SessionDecryptPad());
@@ -473,11 +473,11 @@ namespace checkup.Areas.checkup.Controllers
 
         private BearerToken CreateBearerToken(UserAccount userAccount, List<Claim> claims, JObject variable)
         {
-            BearerToken result = new BearerToken();
+            var result = new BearerToken();
 
             var guid = sequentialIdGenerator.NewId();
-            DateTime now = DateTime.Now;
-            result.TokenID = $"{GlobalConfiguration.RunningEnvironment}|{GlobalConfiguration.HostName}|{GlobalConfiguration.SystemID}|{GlobalConfiguration.ApplicationID}|{guid.ToString("N")}";
+            var now = DateTime.Now;
+            result.TokenID = $"{GlobalConfiguration.RunningEnvironment}|{GlobalConfiguration.HostName}|{GlobalConfiguration.SystemID}|{GlobalConfiguration.ApplicationID}|{guid:N}";
             result.IssuerName = GlobalConfiguration.SystemID;
             result.ClientIP = HttpContext.GetRemoteIpAddress().ToStringSafe();
             result.CreatedAt = now;
@@ -488,7 +488,7 @@ namespace checkup.Areas.checkup.Controllers
             }
             else if (GlobalConfiguration.UserSignExpire < 0)
             {
-                int addDay = DateTime.Now.Day == userAccount.LoginedAt.Day ? 1 : 0;
+                var addDay = DateTime.Now.Day == userAccount.LoginedAt.Day ? 1 : 0;
                 result.ExpiredAt = DateTime.Parse(DateTime.Now.AddDays(addDay).ToString("yyyy-MM-dd") + "T" + GlobalConfiguration.UserSignExpire.ToString().Replace("-", "").PadLeft(2, '0') + ":00:00");
             }
 
@@ -607,9 +607,9 @@ namespace checkup.Areas.checkup.Controllers
             }
 
             var cookieKeys = Request.Cookies.Keys.ToList();
-            for (int i = 0; i < cookieKeys.Count; i++)
+            for (var i = 0; i < cookieKeys.Count; i++)
             {
-                string cookieKey = cookieKeys[i];
+                var cookieKey = cookieKeys[i];
                 if (cookieKey.StartsWith(cookiePrefixName) == true)
                 {
                     Response.Cookies.Delete(cookieKey);

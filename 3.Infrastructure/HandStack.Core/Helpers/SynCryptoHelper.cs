@@ -12,8 +12,8 @@ namespace HandStack.Core.Helpers
     {
         public static string Encrypt(string plainText, string key = "")
         {
-            List<int> buffer = new List<int>();
-            int keyLength = 6;
+            var buffer = new List<int>();
+            var keyLength = 6;
             if (string.IsNullOrEmpty(key) == true)
             {
                 key = key.ToSHA256().Substring(0, keyLength);
@@ -37,7 +37,7 @@ namespace HandStack.Core.Helpers
 
         public static string Decrypt(string cipherText, string key = "")
         {
-            string result = string.Empty;
+            var result = string.Empty;
             if (string.IsNullOrEmpty(cipherText) == true)
             {
                 return result;
@@ -52,10 +52,10 @@ namespace HandStack.Core.Helpers
                 }
 
                 var source = cipherText.Split('.');
-                string content = source[0];
-                string passcode = source[1];
+                var content = source[0];
+                var passcode = source[1];
 
-                int keyLength = 6;
+                var keyLength = 6;
                 if (string.IsNullOrEmpty(key) == true)
                 {
                     key = key.ToSHA256().Substring(0, keyLength);
@@ -67,9 +67,9 @@ namespace HandStack.Core.Helpers
 
                 if (passcode == key.ToSHA256().Substring(0, keyLength))
                 {
-                    List<int> buffer = new List<int>();
-                    List<char> str = new List<char>();
-                    List<int>? charList = JsonSerializer.Deserialize<List<int>>(content);
+                    var buffer = new List<int>();
+                    var str = new List<char>();
+                    var charList = JsonSerializer.Deserialize<List<int>>(content);
 
                     if (charList != null)
                     {

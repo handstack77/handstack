@@ -273,7 +273,7 @@ namespace HandStack.Data.SqlFormatter.Languages
             // Fix cases where names are ambiguously keywords or functions
             if (token.IsWindow(querySpan.Slice(token)))
             {
-                Token? aheadToken = TokenLookAhead();
+                var aheadToken = TokenLookAhead();
                 if (aheadToken is { Type: TokenType.OpenParen })
                 {
                     // This is a function call, treat it as a reserved word
@@ -284,7 +284,7 @@ namespace HandStack.Data.SqlFormatter.Languages
             // Fix cases where names are ambiguously keywords or properties
             if (token.IsEnd(querySpan.Slice(token)))
             {
-                Token? backToken = TokenLookBehind();
+                var backToken = TokenLookBehind();
                 if (backToken is not null
                     && backToken.Value.Type == TokenType.Operator
                     && backToken.Value.Length == 1

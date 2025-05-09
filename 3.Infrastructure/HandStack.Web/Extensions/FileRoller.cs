@@ -24,7 +24,7 @@ namespace HandStack.Web.Extensions
             var file = Path.GetFileNameWithoutExtension(filename);
             var folderPart = Path.GetDirectoryName(fullpath) ?? ("." + Path.DirectorySeparatorChar);
             var dateFormat = string.Empty;
-            DateTime date = DateTime.Now;
+            var date = DateTime.Now;
 
             switch (period)
             {

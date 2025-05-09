@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Net;
 using System.Threading.Tasks;
 
 using HandStack.Core.ExtensionMethod;
@@ -27,17 +26,17 @@ namespace checkup.Extensions
 
         public async Task InvokeAsync(HttpContext httpContext)
         {
-            string requestPath = httpContext.Request.Path.ToString();
-            string tenantAppRequestPath = $"/{GlobalConfiguration.TenantAppRequestPath}/";
+            var requestPath = httpContext.Request.Path.ToString();
+            var tenantAppRequestPath = $"/{GlobalConfiguration.TenantAppRequestPath}/";
             if (requestPath.StartsWith(tenantAppRequestPath) == true)
             {
                 var splits = requestPath.SplitAndTrim('/');
-                string userWorkID = splits.Count > 2 ? splits[1] : "";
-                string applicationID = splits.Count > 2 ? splits[2] : "";
+                var userWorkID = splits.Count > 2 ? splits[1] : "";
+                var applicationID = splits.Count > 2 ? splits[2] : "";
                 if (string.IsNullOrEmpty(applicationID) == false)
                 {
-                    string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-                    DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
+                    var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                    var directoryInfo = new DirectoryInfo(appBasePath);
                     if (directoryInfo.Exists == false)
                     {
                         httpContext.Response.StatusCode = StatusCodes.Status404NotFound;
@@ -45,31 +44,31 @@ namespace checkup.Extensions
                     }
                     else
                     {
-                        string pathName = splits.Count > 3 ? splits[3] : "";
+                        var pathName = splits.Count > 3 ? splits[3] : "";
                         if (pathName.StartsWith("app.environment.json") == true)
                         {
 
                         }
                         else
                         {
-                            string tenantID = $"{userWorkID}|{applicationID}";
-                            string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
+                            var tenantID = $"{userWorkID}|{applicationID}";
+                            var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                             if (File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                             {
-                                string appSettingText = await File.ReadAllTextAsync(settingFilePath);
+                                var appSettingText = await File.ReadAllTextAsync(settingFilePath);
                                 var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
                                 if (appSetting != null && appSetting.ApplicationID == applicationID)
                                 {
                                     if (appSetting.AllowAnonymousPath?.Contains("*") == false)
                                     {
-                                        string tenantAppBasePath = $"/{GlobalConfiguration.TenantAppRequestPath}/{userWorkID}/{applicationID}/wwwroot";
-                                        string? member = httpContext.Request.Cookies[$"{applicationID}.Member"];
+                                        var tenantAppBasePath = $"/{GlobalConfiguration.TenantAppRequestPath}/{userWorkID}/{applicationID}/wwwroot";
+                                        var member = httpContext.Request.Cookies[$"{applicationID}.Member"];
                                         if (string.IsNullOrEmpty(member) == true)
                                         {
-                                            bool isAllowAnonymous = false;
-                                            string parent = "";
+                                            var isAllowAnonymous = false;
+                                            var parent = "";
                                             var parents = requestPath.Replace(new FileInfo(requestPath).Name, "*").Replace(tenantAppBasePath, "").SplitAndTrim('/');
-                                            for (int i = 0; i < parents.Count; i++)
+                                            for (var i = 0; i < parents.Count; i++)
                                             {
                                                 parent += parents[i] + "/";
                                                 if (appSetting.AllowAnonymousPath?.Contains(parent + "*") == true)
@@ -92,7 +91,7 @@ namespace checkup.Extensions
                                                 }
                                                 else
                                                 {
-                                                    string requestAbsoluteUrl = httpContext.Request.GetBaseUrl() + tenantAppBasePath;
+                                                    var requestAbsoluteUrl = httpContext.Request.GetBaseUrl() + tenantAppBasePath;
                                                     if (requestRefererUrl.Contains($"/{GlobalConfiguration.ContractRequestPath}/") == false && appSetting.AllowAnonymousPath?.Contains(requestRefererUrl.Replace(requestAbsoluteUrl, "")) == false)
                                                     {
                                                         httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
@@ -105,7 +104,7 @@ namespace checkup.Extensions
                                         {
                                             try
                                             {
-                                                UserAccount? userAccount = JsonConvert.DeserializeObject<UserAccount>(member.DecodeBase64());
+                                                var userAccount = JsonConvert.DeserializeObject<UserAccount>(member.DecodeBase64());
                                                 if (userAccount != null)
                                                 {
                                                     var lastedLoginTime = userAccount.LoginedAt.DateDiff(PartOfDateTime.Second, DateTime.Now);
@@ -120,7 +119,7 @@ namespace checkup.Extensions
                                                             }
                                                         }
 
-                                                        string signInPath = $"{tenantAppBasePath}signin.html";
+                                                        var signInPath = $"{tenantAppBasePath}signin.html";
                                                         if (File.Exists(httpContext.MapPath(signInPath)) == true)
                                                         {
                                                             httpContext.Response.Redirect(signInPath);

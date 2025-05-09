@@ -77,7 +77,8 @@ namespace dbclient.Events
                 {
                     if (managedAction.Arguments != null)
                     {
-                        DataSource item = new DataSource() {
+                        var item = new DataSource()
+                        {
                             ApplicationID = managedAction.Arguments.Get<string>("applicationID").ToStringSafe(),
                             ProjectID = managedAction.Arguments.Get<string>("projectID").ToStringSafe(),
                             DataSourceID = managedAction.Arguments.Get<string>("dataSourceID").ToStringSafe(),
@@ -96,13 +97,13 @@ namespace dbclient.Events
                                 var dataSourceMappings = DatabaseMapper.DataSourceMappings.Where(x => x.Key.DataSourceID == item.DataSourceID
                                     && x.Value.ApplicationID == item.ApplicationID).ToList();
 
-                                for (int i = dataSourceMappings.Count(); i > 0; i--)
+                                for (var i = dataSourceMappings.Count(); i > 0; i--)
                                 {
                                     var mappingItem = dataSourceMappings[i - 1].Key;
                                     DatabaseMapper.DataSourceMappings.Remove(mappingItem);
                                 }
 
-                                DataSourceTanantKey tanantMap = new DataSourceTanantKey();
+                                var tanantMap = new DataSourceTanantKey();
                                 tanantMap.ApplicationID = item.ApplicationID;
                                 tanantMap.DataSourceID = item.DataSourceID;
                                 tanantMap.TanantPattern = "";
@@ -110,7 +111,7 @@ namespace dbclient.Events
 
                                 if (DatabaseMapper.DataSourceMappings.ContainsKey(tanantMap) == false)
                                 {
-                                    DataSourceMap dataSourceMap = new DataSourceMap();
+                                    var dataSourceMap = new DataSourceMap();
                                     dataSourceMap.ApplicationID = item.ApplicationID;
                                     dataSourceMap.ProjectListID = item.ProjectID.Split(",").Where(s => string.IsNullOrWhiteSpace(s) == false).Distinct().ToList();
                                     dataSourceMap.DataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), item.DataProvider);

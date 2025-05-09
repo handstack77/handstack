@@ -22,7 +22,7 @@ namespace HandStack.Data.SqlFormatter.Core
 
             if (key is not null && key.Length != 0)
             {
-                parameters.TryGetValue(key, out string? paramValue);
+                parameters.TryGetValue(key, out var paramValue);
                 return paramValue;
             }
 

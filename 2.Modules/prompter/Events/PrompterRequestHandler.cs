@@ -1,20 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-using prompter.Encapsulation;
-using prompter.Extensions;
-
-using HandStack.Web.Extensions;
 using HandStack.Web;
+using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.Enumeration;
 using HandStack.Web.MessageContract.Message;
 
 using MediatR;
 
 using Newtonsoft.Json;
+
+using prompter.Encapsulation;
 using prompter.Entity;
+using prompter.Extensions;
 
 namespace prompter.Events
 {
@@ -52,7 +51,7 @@ namespace prompter.Events
     public class PrompterRequestHandler : IRequestHandler<PrompterRequest, object?>
     {
         private PromptLoggerClient loggerClient { get; }
-        
+
         private Serilog.ILogger logger { get; }
 
         private IPromptClient dataClient { get; }
@@ -66,8 +65,8 @@ namespace prompter.Events
 
         public async Task<object?> Handle(PrompterRequest requestQueryData, CancellationToken cancellationToken)
         {
-            DynamicRequest? request = requestQueryData.Request as DynamicRequest;
-            DynamicResponse? response = new DynamicResponse();
+            var request = requestQueryData.Request as DynamicRequest;
+            var response = new DynamicResponse();
             response.Acknowledge = AcknowledgeType.Failure;
 
             if (request == null)
@@ -79,7 +78,7 @@ namespace prompter.Events
             response.CorrelationID = request.GlobalID;
             if (string.IsNullOrEmpty(request.RequestID) == true)
             {
-                request.RequestID = $"SELF_{GlobalConfiguration.SystemID}{GlobalConfiguration.HostName}{GlobalConfiguration.RunningEnvironment}{DateTime.Now.ToString("yyyyMMddHHmmssfff")}";
+                request.RequestID = $"SELF_{GlobalConfiguration.SystemID}{GlobalConfiguration.HostName}{GlobalConfiguration.RunningEnvironment}{DateTime.Now:yyyyMMddHHmmssfff}";
             }
 
             if (string.IsNullOrEmpty(request.GlobalID) == true)
@@ -99,7 +98,7 @@ namespace prompter.Events
 
                 if (request.LoadOptions != null)
                 {
-                    Dictionary<string, string> loadOptions = request.LoadOptions;
+                    var loadOptions = request.LoadOptions;
                     if (loadOptions.Count > 0)
                     {
                     }
@@ -148,7 +147,7 @@ namespace prompter.Events
 
             try
             {
-                string acknowledge = response.Acknowledge == AcknowledgeType.Success ? "Y" : "N";
+                var acknowledge = response.Acknowledge == AcknowledgeType.Success ? "Y" : "N";
                 if (request.ReturnType == ExecuteDynamicTypeObject.Xml)
                 {
                     var responseData = response.ResultObject as string;
@@ -167,7 +166,7 @@ namespace prompter.Events
                 }
                 else
                 {
-                    string responseData = JsonConvert.SerializeObject(response);
+                    var responseData = JsonConvert.SerializeObject(response);
                     if (ModuleConfiguration.IsTransactionLogging == true)
                     {
                         loggerClient.DynamicResponseLogging(request.GlobalID, acknowledge, GlobalConfiguration.ApplicationID, responseData, "Query/Execute ReturnType: " + request.ReturnType.ToString(), (string error) =>
@@ -196,7 +195,7 @@ namespace prompter.Events
                 {
                     if (request.ReturnType == ExecuteDynamicTypeObject.Json)
                     {
-                        string responseData = JsonConvert.SerializeObject(response);
+                        var responseData = JsonConvert.SerializeObject(response);
 
                         if (ModuleConfiguration.IsTransactionLogging == true)
                         {

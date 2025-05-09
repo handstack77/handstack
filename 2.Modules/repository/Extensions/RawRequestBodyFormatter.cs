@@ -82,12 +82,10 @@ namespace dbclient.Extensions
                 {
                     if (contentType.IndexOf("application/json") > -1)
                     {
-                        using (var reader = new StreamReader(request.Body))
-                        {
-                            var content = await reader.ReadToEndAsync();
-                            downloadRequest = JsonConvert.DeserializeObject<DownloadRequest>(content);
-                            return await InputFormatterResult.SuccessAsync(downloadRequest);
-                        }
+                        using var reader = new StreamReader(request.Body);
+                        var content = await reader.ReadToEndAsync();
+                        downloadRequest = JsonConvert.DeserializeObject<DownloadRequest>(content);
+                        return await InputFormatterResult.SuccessAsync(downloadRequest);
                     }
                 }
                 catch (Exception exception)

@@ -28,7 +28,7 @@ namespace HandStack.Core.Helpers
 
         public void AddColumn(string columnName, Type columnType)
         {
-            DataColumn Column = new DataColumn();
+            var Column = new DataColumn();
             Column.DataType = columnType;
             Column.ColumnName = columnName;
 
@@ -37,7 +37,7 @@ namespace HandStack.Core.Helpers
 
         public void NewRow()
         {
-            DataRow rowItem = resultTable.NewRow();
+            var rowItem = resultTable.NewRow();
             resultTable.Rows.Add(rowItem);
         }
 
@@ -78,57 +78,55 @@ namespace HandStack.Core.Helpers
         {
             if (reader != null)
             {
-                using (DataSet ds = new DataSet())
+                using var ds = new DataSet();
+                do
                 {
-                    do
+                    using (var dataTable = new DataTable())
+                    using (var schemaTable = reader.GetSchemaTable())
                     {
-                        using (DataTable dataTable = new DataTable())
-                        using (DataTable? schemaTable = reader.GetSchemaTable())
+                        if (schemaTable == null)
                         {
-                            if (schemaTable == null)
+                            continue;
+                        }
+
+                        DataRow row;
+
+                        string columnName;
+                        DataColumn column;
+                        var count = schemaTable.Rows.Count;
+
+                        for (var i = 0; i < count; i++)
+                        {
+                            row = schemaTable.Rows[i];
+                            columnName = (string)row["ColumnName"];
+
+                            column = new DataColumn(columnName, (Type)row["DataType"]);
+                            dataTable.Columns.Add(column);
+                        }
+
+                        dataTable.TableName = prefix + dataTableIndex.ToString();
+                        ds.Tables.Add(dataTable);
+
+                        var values = new object[count];
+
+                        try
+                        {
+                            dataTable.BeginLoadData();
+                            while (reader.Read())
                             {
-                                continue;
-                            }
-
-                            DataRow row;
-
-                            string columnName;
-                            DataColumn column;
-                            int count = schemaTable.Rows.Count;
-
-                            for (int i = 0; i < count; i++)
-                            {
-                                row = schemaTable.Rows[i];
-                                columnName = (string)row["ColumnName"];
-
-                                column = new DataColumn(columnName, (Type)row["DataType"]);
-                                dataTable.Columns.Add(column);
-                            }
-
-                            dataTable.TableName = prefix + dataTableIndex.ToString();
-                            ds.Tables.Add(dataTable);
-
-                            object[] values = new object[count];
-
-                            try
-                            {
-                                dataTable.BeginLoadData();
-                                while (reader.Read())
-                                {
-                                    reader.GetValues(values);
-                                    dataTable.LoadDataRow(values, true);
-                                }
-                            }
-                            finally
-                            {
-                                dataTable.EndLoadData();
+                                reader.GetValues(values);
+                                dataTable.LoadDataRow(values, true);
                             }
                         }
-                        dataTableIndex = dataTableIndex + 1;
-                    } while (reader.NextResult() == true);
+                        finally
+                        {
+                            dataTable.EndLoadData();
+                        }
+                    }
+                    dataTableIndex = dataTableIndex + 1;
+                } while (reader.NextResult() == true);
 
-                    return ds;
-                }
+                return ds;
             }
 
             return null;
@@ -136,26 +134,24 @@ namespace HandStack.Core.Helpers
 
         public static DataSet DataReaderToSchemeOnly(IDataReader reader, string prefix = "dataTable", int dataTableIndex = 0)
         {
-            using (DataSet ds = new DataSet())
+            using var ds = new DataSet();
+            do
             {
-                do
+                using (var schemaTable = reader.GetSchemaTable())
                 {
-                    using (DataTable? schemaTable = reader.GetSchemaTable())
+                    if (schemaTable == null)
                     {
-                        if (schemaTable == null)
-                        {
-                            continue;
-                        }
-
-                        DataTable addTable = schemaTable.Copy();
-                        addTable.TableName = prefix + dataTableIndex.ToString();
-                        ds.Tables.Add(addTable);
+                        continue;
                     }
-                    dataTableIndex = dataTableIndex + 1;
-                } while (reader.NextResult() == true);
 
-                return ds;
-            }
+                    var addTable = schemaTable.Copy();
+                    addTable.TableName = prefix + dataTableIndex.ToString();
+                    ds.Tables.Add(addTable);
+                }
+                dataTableIndex = dataTableIndex + 1;
+            } while (reader.NextResult() == true);
+
+            return ds;
         }
     }
 }

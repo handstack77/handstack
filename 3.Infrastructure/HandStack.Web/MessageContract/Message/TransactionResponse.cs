@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-using HandStack.Web.MessageContract.Contract;
+﻿using HandStack.Web.MessageContract.Contract;
 using HandStack.Web.Messages;
 
 using Newtonsoft.Json;

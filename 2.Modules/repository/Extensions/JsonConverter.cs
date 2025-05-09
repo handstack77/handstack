@@ -21,10 +21,10 @@ namespace repository.Extensions
 
         public static string Serialize(object serializeObject, bool isStringNullValueEmpty)
         {
-            string jsonString = "{}";
+            var jsonString = "{}";
             try
             {
-                JsonSerializer jsonSerializer = JsonSerializer.Create(null);
+                var jsonSerializer = JsonSerializer.Create(null);
 
                 if (isStringNullValueEmpty == true)
                 {
@@ -38,9 +38,9 @@ namespace repository.Extensions
                 jsonSerializer.MissingMemberHandling = MissingMemberHandling.Ignore;
                 jsonSerializer.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
 
-                StringBuilder stringBuilder = new StringBuilder(1024);
-                StringWriter stringWriter = new StringWriter(stringBuilder, CultureInfo.InvariantCulture);
-                using (JsonTextWriter jsonTextWriter = new JsonTextWriter(stringWriter))
+                var stringBuilder = new StringBuilder(1024);
+                var stringWriter = new StringWriter(stringBuilder, CultureInfo.InvariantCulture);
+                using (var jsonTextWriter = new JsonTextWriter(stringWriter))
                 {
                     jsonTextWriter.Formatting = Newtonsoft.Json.Formatting.None;
                     jsonSerializer.Serialize(jsonTextWriter, serializeObject);
@@ -62,10 +62,10 @@ namespace repository.Extensions
 
         public static string Serialize<T>(T serializeObject, bool isStringNullValueEmpty)
         {
-            string jsonString = "{}";
+            var jsonString = "{}";
             try
             {
-                JsonSerializer jsonSerializer = JsonSerializer.Create(null);
+                var jsonSerializer = JsonSerializer.Create(null);
 
                 if (isStringNullValueEmpty == true)
                 {
@@ -79,9 +79,9 @@ namespace repository.Extensions
                 jsonSerializer.MissingMemberHandling = MissingMemberHandling.Ignore;
                 jsonSerializer.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
 
-                StringBuilder stringBuilder = new StringBuilder(1024);
-                StringWriter stringWriter = new StringWriter(stringBuilder, CultureInfo.InvariantCulture);
-                using (JsonTextWriter jsonTextWriter = new JsonTextWriter(stringWriter))
+                var stringBuilder = new StringBuilder(1024);
+                var stringWriter = new StringWriter(stringBuilder, CultureInfo.InvariantCulture);
+                using (var jsonTextWriter = new JsonTextWriter(stringWriter))
                 {
                     jsonTextWriter.Formatting = Newtonsoft.Json.Formatting.None;
                     jsonSerializer.Serialize(jsonTextWriter, serializeObject);
@@ -100,7 +100,7 @@ namespace repository.Extensions
         {
             try
             {
-                return JsonConvert.DeserializeObject<T>(jsonString) as T;
+                return JsonConvert.DeserializeObject<T>(jsonString);
             }
             catch (Exception exception)
             {
@@ -143,26 +143,24 @@ namespace repository.Extensions
     {
         public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
-            using (DataTable? dataTable = value as DataTable)
+            using var dataTable = value as DataTable;
+            if (dataTable != null)
             {
-                if (dataTable != null)
+                writer.WriteStartArray();
+                foreach (DataRow row in dataTable.Rows)
                 {
-                    writer.WriteStartArray();
-                    foreach (DataRow row in dataTable.Rows)
+                    writer.WriteStartObject();
+                    foreach (DataColumn column in row.Table.Columns)
                     {
-                        writer.WriteStartObject();
-                        foreach (DataColumn column in row.Table.Columns)
+                        if (serializer.NullValueHandling != NullValueHandling.Ignore || row[column] != null && row[column] != DBNull.Value)
                         {
-                            if (serializer.NullValueHandling != NullValueHandling.Ignore || row[column] != null && row[column] != DBNull.Value)
-                            {
-                                writer.WritePropertyName(column.ColumnName);
-                                serializer.Serialize(writer, (column.DataType == typeof(String) && row[column].GetType().Name == "DBNull") ? "" : row[column]);
-                            }
+                            writer.WritePropertyName(column.ColumnName);
+                            serializer.Serialize(writer, (column.DataType == typeof(String) && row[column].GetType().Name == "DBNull") ? "" : row[column]);
                         }
-                        writer.WriteEndObject();
                     }
-                    writer.WriteEndArray();
+                    writer.WriteEndObject();
                 }
+                writer.WriteEndArray();
             }
         }
 
@@ -181,19 +179,17 @@ namespace repository.Extensions
     {
         public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
-            using (DataSet? dataSet = value as DataSet)
+            using var dataSet = value as DataSet;
+            if (dataSet != null)
             {
-                if (dataSet != null)
+                var dataTableConverter = new DataTableConverter();
+                writer.WriteStartObject();
+                foreach (DataTable table in dataSet.Tables)
                 {
-                    DataTableConverter dataTableConverter = new DataTableConverter();
-                    writer.WriteStartObject();
-                    foreach (DataTable table in dataSet.Tables)
-                    {
-                        writer.WritePropertyName((table.TableName));
-                        dataTableConverter.WriteJson(writer, table, serializer);
-                    }
-                    writer.WriteEndObject();
+                    writer.WritePropertyName((table.TableName));
+                    dataTableConverter.WriteJson(writer, table, serializer);
                 }
+                writer.WriteEndObject();
             }
         }
 

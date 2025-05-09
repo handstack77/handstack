@@ -25,8 +25,8 @@ namespace HandStack.Core.Helpers
                 return false;
             }
 
-            int equalIndex = data.IndexOf('=');
-            int length = data.Length;
+            var equalIndex = data.IndexOf('=');
+            var length = data.Length;
 
             if (!(equalIndex == -1 || equalIndex == length - 1 || (equalIndex == length - 2 && data[length - 1] == '=')))
             {
@@ -37,7 +37,7 @@ namespace HandStack.Core.Helpers
 
             try
             {
-                byte[]? decodedData = Convert.FromBase64String(data);
+                var decodedData = Convert.FromBase64String(data);
                 decoded = Encoding.UTF8.GetString(decodedData);
             }
             catch (Exception)
@@ -46,7 +46,7 @@ namespace HandStack.Core.Helpers
             }
 
             char current;
-            for (int i = 0; i < decoded.Length; i++)
+            for (var i = 0; i < decoded.Length; i++)
             {
                 current = decoded[i];
                 if (current == 65533)

@@ -52,7 +52,7 @@ namespace HandStack.Core.ExtensionMethod
         {
             if (@this != null && itemsToAdd != null)
             {
-                foreach (T local in itemsToAdd)
+                foreach (var local in itemsToAdd)
                 {
                     @this.Add(local);
                 }
@@ -111,7 +111,7 @@ namespace HandStack.Core.ExtensionMethod
         {
             if (@this != null && itemsToAdd != null)
             {
-                foreach (T local in itemsToAdd)
+                foreach (var local in itemsToAdd)
                 {
                     @this.Add(local);
                 }

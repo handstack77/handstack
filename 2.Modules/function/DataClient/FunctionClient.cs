@@ -55,12 +55,12 @@ namespace function.DataClient
 
         public async Task ExecuteScriptMap(DynamicRequest request, DynamicResponse response)
         {
-            Dictionary<string, TransactionScriptObjects> transactionDynamicObjects = new Dictionary<string, TransactionScriptObjects>();
+            var transactionDynamicObjects = new Dictionary<string, TransactionScriptObjects>();
             try
             {
-                List<string> logQuerys = new List<string>();
-                int i = 0;
-                foreach (QueryObject queryObject in request.DynamicObjects)
+                var logQuerys = new List<string>();
+                var i = 0;
+                foreach (var queryObject in request.DynamicObjects)
                 {
                     var moduleScriptMap = FunctionMapper.GetScriptMap(queryObject.QueryID);
                     if (moduleScriptMap == null)
@@ -88,7 +88,7 @@ namespace function.DataClient
 
                 if (logQuerys.Count > 0)
                 {
-                    string logData = $"FunctionID: {string.Join(", ", logQuerys.ToArray())}";
+                    var logData = $"FunctionID: {string.Join(", ", logQuerys.ToArray())}";
                     if (ModuleConfiguration.IsLogServer == true)
                     {
                         loggerClient.ProgramMessageLogging(request.GlobalID, "Y", GlobalConfiguration.ApplicationID, logData, "FunctionClient/ExecuteScriptMap", (string error) =>
@@ -109,17 +109,17 @@ namespace function.DataClient
 
                 i = 0;
                 DataRow? dataRow = null;
-                DataTable additionalData = new DataTable();
+                var additionalData = new DataTable();
                 additionalData.Columns.Add("MessageCode", typeof(string));
                 additionalData.Columns.Add("MessageText", typeof(string));
-                List<string> mergeMetaDatas = new List<string>();
-                List<object> mergeDatas = new List<object>();
+                var mergeMetaDatas = new List<string>();
+                var mergeDatas = new List<object>();
                 foreach (var transactionDynamicObject in transactionDynamicObjects)
                 {
-                    QueryObject queryObject = transactionDynamicObject.Value.DynamicObject;
-                    ModuleScriptMap moduleScriptMap = transactionDynamicObject.Value.ModuleScriptMap;
+                    var queryObject = transactionDynamicObject.Value.DynamicObject;
+                    var moduleScriptMap = transactionDynamicObject.Value.ModuleScriptMap;
 
-                    List<DynamicParameter> dynamicParameters = new List<DynamicParameter>();
+                    var dynamicParameters = new List<DynamicParameter>();
                     if (queryObject.Parameters.Count() > 0)
                     {
                         // 이전 실행 결과값으로 현재 요청 매개변수로 적용
@@ -131,9 +131,9 @@ namespace function.DataClient
                                 return;
                             }
 
-                            for (int baseFieldIndex = 0; baseFieldIndex < queryObject.BaseFieldMappings.Count; baseFieldIndex++)
+                            for (var baseFieldIndex = 0; baseFieldIndex < queryObject.BaseFieldMappings.Count; baseFieldIndex++)
                             {
-                                BaseFieldMapping baseFieldMapping = queryObject.BaseFieldMappings[baseFieldIndex];
+                                var baseFieldMapping = queryObject.BaseFieldMappings[baseFieldIndex];
 
                                 if (dataRow[baseFieldMapping.SourceFieldID] == null)
                                 {
@@ -141,7 +141,7 @@ namespace function.DataClient
                                     return;
                                 }
 
-                                DynamicParameter? dynamicParameter = queryObject.Parameters.Where(p => p.ParameterName == baseFieldMapping.TargetFieldID).FirstOrDefault();
+                                var dynamicParameter = queryObject.Parameters.Where(p => p.ParameterName == baseFieldMapping.TargetFieldID).FirstOrDefault();
                                 if (dynamicParameter == null)
                                 {
                                     response.ExceptionText = $"BaseFieldMappings - {queryObject.QueryID}에 대한 TargetFieldID {baseFieldMapping.SourceFieldID} 컬럼 정보 필요";
@@ -152,10 +152,10 @@ namespace function.DataClient
                             }
                         }
 
-                        List<ModuleParameterMap> moduleParameterMaps = moduleScriptMap.ModuleParameters;
-                        foreach (ModuleParameterMap moduleParameterMap in moduleParameterMaps)
+                        var moduleParameterMaps = moduleScriptMap.ModuleParameters;
+                        foreach (var moduleParameterMap in moduleParameterMaps)
                         {
-                            DynamicParameter? dynamicParameter = GetDbParameterMap(moduleParameterMap.Name, queryObject.Parameters);
+                            var dynamicParameter = GetDbParameterMap(moduleParameterMap.Name, queryObject.Parameters);
 
                             if (dynamicParameter == null)
                             {
@@ -169,7 +169,7 @@ namespace function.DataClient
                             dynamicParameters.Add(dynamicParameter);
                         }
 
-                        DynamicParameter lastParameter = new DynamicParameter();
+                        var lastParameter = new DynamicParameter();
                         lastParameter.ParameterName = "GlobalID";
                         lastParameter.Value = request.GlobalID;
                         lastParameter.DbType = "String";
@@ -177,7 +177,7 @@ namespace function.DataClient
                         dynamicParameters.Add(lastParameter);
                     }
 
-                    string programPath = moduleScriptMap.ProgramPath;
+                    var programPath = moduleScriptMap.ProgramPath;
                     if (File.Exists(programPath) == false)
                     {
                         response.ExceptionText = $"'{moduleScriptMap.DataSourceID}'에 대한 프로그램 경로 확인 필요";
@@ -186,7 +186,7 @@ namespace function.DataClient
 
                     if (string.IsNullOrEmpty(moduleScriptMap.BeforeTransactionCommand) == false)
                     {
-                        string logData = "";
+                        var logData = "";
                         if (ModuleConfiguration.IsTransactionLogging == true)
                         {
                             logData = $"programPath={programPath}, queryID={queryObject.QueryID}, BeforeTransactionCommand: {moduleScriptMap.BeforeTransactionCommand}, dynamicParameters={JsonConvert.SerializeObject(dynamicParameters)}";
@@ -204,9 +204,9 @@ namespace function.DataClient
                         }
 
                         var transactionCommands = moduleScriptMap.BeforeTransactionCommand.Split("|");
-                        List<ServiceParameter> serviceParameters = new List<ServiceParameter>();
+                        var serviceParameters = new List<ServiceParameter>();
                         serviceParameters.Add(new ServiceParameter() { prop = "ProgramPath", val = programPath });
-                        string? beforeCommandResult = await businessApiClient.OnewayTransactionCommandAsync(transactionCommands, request.GlobalID, queryObject.QueryID, dynamicParameters, serviceParameters);
+                        var beforeCommandResult = await businessApiClient.OnewayTransactionCommandAsync(transactionCommands, request.GlobalID, queryObject.QueryID, dynamicParameters, serviceParameters);
                         if (string.IsNullOrEmpty(beforeCommandResult) == false)
                         {
                             response.ExceptionText = $"ExecuteScriptMap.BeforeTransactionCommand Error: {beforeCommandResult}";
@@ -227,20 +227,20 @@ namespace function.DataClient
                         }
                     }
 
-                    string jsonArguments = JsonConvert.SerializeObject(dynamicParameters);
+                    var jsonArguments = JsonConvert.SerializeObject(dynamicParameters);
 
-                    List<object> listParams = new List<object>();
+                    var listParams = new List<object>();
                     listParams.Add(dynamicParameters);
 
-                    DataContext dataContext = new DataContext();
+                    var dataContext = new DataContext();
 
-                    FileInfo fileInfo = new FileInfo(programPath);
+                    var fileInfo = new FileInfo(programPath);
                     var directoryInfo = fileInfo.Directory;
                     if (directoryInfo != null && fileInfo.Exists)
                     {
-                        string fileDirectory = directoryInfo.FullName.Replace("\\", "/");
-                        string fileDirectoryName = directoryInfo.Name;
-                        string scriptMapFile = PathExtensions.Combine(fileDirectory, "featureMeta.json");
+                        var fileDirectory = directoryInfo.FullName.Replace("\\", "/");
+                        var fileDirectoryName = directoryInfo.Name;
+                        var scriptMapFile = PathExtensions.Combine(fileDirectory, "featureMeta.json");
 
                         var functionScriptContract = File.Exists(scriptMapFile) == true ? FunctionScriptContract.FromJson(File.ReadAllText(scriptMapFile)) : null;
 
@@ -283,13 +283,13 @@ namespace function.DataClient
                     dataContext.platform = GlobalConfiguration.OSPlatform;
                     dataContext.featureMeta = moduleScriptMap;
 
-                    string dataProvider = "";
-                    string connectionString = "";
-                    string workingDirectoryPath = "";
+                    var dataProvider = "";
+                    var connectionString = "";
+                    var workingDirectoryPath = "";
                     var dataSourceIDs = moduleScriptMap.DataSourceID.SplitComma();
-                    for (int j = 0; j < dataSourceIDs.Count; j++)
+                    for (var j = 0; j < dataSourceIDs.Count; j++)
                     {
-                        string dataSourceID = dataSourceIDs[j];
+                        var dataSourceID = dataSourceIDs[j];
                         var dataSourceMap = FunctionMapper.GetDataSourceMap(moduleScriptMap.ApplicationID, moduleScriptMap.ProjectID, moduleScriptMap.TransactionID, dataSourceID);
 
                         if (dataSourceMap != null)
@@ -320,7 +320,7 @@ namespace function.DataClient
 
                             if (ModuleConfiguration.IsTransactionLogging == true || moduleScriptMap.TransactionLog == true)
                             {
-                                string requestData = $"ProgramPath: {programPath}, Arguments: {jsonArguments}";
+                                var requestData = $"ProgramPath: {programPath}, Arguments: {jsonArguments}";
                                 loggerClient.TransactionMessageLogging(request.GlobalID, "Y", moduleScriptMap.ApplicationID, moduleScriptMap.ProjectID, moduleScriptMap.TransactionID, moduleScriptMap.ScriptID, requestData, "FunctionClient/InvokeFromFileAsync ReturnType: " + request.ReturnType.ToString(), (string error) =>
                                 {
                                     logger.Warning("[{LogCategory}] [{GlobalID}] " + $"Request JSON: {requestData}", "FunctionClient/InvokeFromFileAsync", response.CorrelationID);
@@ -333,7 +333,7 @@ namespace function.DataClient
                             }
                             else
                             {
-                                int timeout = moduleScriptMap.Timeout * 1000;
+                                var timeout = moduleScriptMap.Timeout * 1000;
                                 var task = HandStack.Core.ExtensionMethod.TaskExtensions.ExecuteWithTimeout(() => InvokePythonScriptFile(moduleScriptMap, programPath, dynamicParameters, dataContext), TimeSpan.FromMilliseconds(timeout));
                                 if (task.Wait(timeout) == true)
                                 {
@@ -341,7 +341,7 @@ namespace function.DataClient
                                 }
                                 else
                                 {
-                                    response.ExceptionText = $"TimeoutException - '{timeout.ToString()}' 실행 시간 초과";
+                                    response.ExceptionText = $"TimeoutException - '{timeout}' 실행 시간 초과";
 
                                     if (ModuleConfiguration.IsLogServer == true)
                                     {
@@ -364,7 +364,7 @@ namespace function.DataClient
 
                             if (ModuleConfiguration.IsTransactionLogging == true || moduleScriptMap.TransactionLog == true)
                             {
-                                string requestData = $"ProgramPath: {programPath}, Arguments: {jsonArguments}";
+                                var requestData = $"ProgramPath: {programPath}, Arguments: {jsonArguments}";
                                 loggerClient.TransactionMessageLogging(request.GlobalID, "N", moduleScriptMap.ApplicationID, moduleScriptMap.ProjectID, moduleScriptMap.TransactionID, moduleScriptMap.ScriptID, requestData, "FunctionClient/InvokeFromFileAsync ReturnType: " + request.ReturnType.ToString(), (string error) =>
                                 {
                                     logger.Warning("[{LogCategory}] [{GlobalID}] " + $"Request JSON: {requestData}, ExceptionText: {response.ExceptionText}", "FunctionClient/InvokeFromFileAsync", response.CorrelationID);
@@ -376,8 +376,8 @@ namespace function.DataClient
                     {
                         try
                         {
-                            string functionID = queryObject.QueryID;
-                            string module = "var syn=require('syn');module.exports=async(functionID,moduleFileName)=>{return syn.initializeModuleScript(functionID,moduleFileName);}";
+                            var functionID = queryObject.QueryID;
+                            var module = "var syn=require('syn');module.exports=async(functionID,moduleFileName)=>{return syn.initializeModuleScript(functionID,moduleFileName);}";
                             var moduleID = await nodeJSService.InvokeFromStringAsync<string>(module, args: new[] { functionID, programPath });
 
                             listParams.Insert(0, moduleID.ToStringSafe());
@@ -385,7 +385,7 @@ namespace function.DataClient
 
                             if (ModuleConfiguration.IsTransactionLogging == true || moduleScriptMap.TransactionLog == true)
                             {
-                                string requestData = $"ProgramPath: {programPath}, Arguments: {jsonArguments}";
+                                var requestData = $"ProgramPath: {programPath}, Arguments: {jsonArguments}";
                                 loggerClient.TransactionMessageLogging(request.GlobalID, "Y", moduleScriptMap.ApplicationID, moduleScriptMap.ProjectID, moduleScriptMap.TransactionID, moduleScriptMap.ScriptID, requestData, "FunctionClient/InvokeFromFileAsync ReturnType: " + request.ReturnType.ToString(), (string error) =>
                                 {
                                     logger.Warning("[{LogCategory}] [{GlobalID}] " + $"Request JSON: {requestData}", "FunctionClient/InvokeFromFileAsync", response.CorrelationID);
@@ -399,14 +399,14 @@ namespace function.DataClient
                             else
                             {
                                 var task = nodeJSService.InvokeFromFileAsync<string>(programPath, moduleScriptMap.ExportName, arguments);
-                                int timeout = moduleScriptMap.Timeout * 1000;
+                                var timeout = moduleScriptMap.Timeout * 1000;
                                 if (task.Wait(timeout) == true)
                                 {
                                     executeResult = task.Result;
                                 }
                                 else
                                 {
-                                    response.ExceptionText = $"TimeoutException - '{timeout.ToString()}' 실행 시간 초과";
+                                    response.ExceptionText = $"TimeoutException - '{timeout}' 실행 시간 초과";
 
                                     if (ModuleConfiguration.IsLogServer == true)
                                     {
@@ -430,7 +430,7 @@ namespace function.DataClient
 
                             if (ModuleConfiguration.IsTransactionLogging == true || moduleScriptMap.TransactionLog == true)
                             {
-                                string requestData = $"ProgramPath: {programPath}, Arguments: {jsonArguments}";
+                                var requestData = $"ProgramPath: {programPath}, Arguments: {jsonArguments}";
                                 loggerClient.TransactionMessageLogging(request.GlobalID, "N", moduleScriptMap.ApplicationID, moduleScriptMap.ProjectID, moduleScriptMap.TransactionID, moduleScriptMap.ScriptID, requestData, "FunctionClient/InvokeFromFileAsync ReturnType: " + request.ReturnType.ToString(), (string error) =>
                                 {
                                     logger.Warning("[{LogCategory}] [{GlobalID}] " + $"Request JSON: {requestData}, ExceptionText: {response.ExceptionText}", "FunctionClient/InvokeFromFileAsync", response.CorrelationID);
@@ -446,7 +446,7 @@ namespace function.DataClient
 
                             if (ModuleConfiguration.IsTransactionLogging == true || moduleScriptMap.TransactionLog == true)
                             {
-                                string requestData = $"ProgramPath: {programPath}, Arguments: {jsonArguments}";
+                                var requestData = $"ProgramPath: {programPath}, Arguments: {jsonArguments}";
                                 loggerClient.TransactionMessageLogging(request.GlobalID, "Y", moduleScriptMap.ApplicationID, moduleScriptMap.ProjectID, moduleScriptMap.TransactionID, moduleScriptMap.ScriptID, requestData, "FunctionClient/InvokeFromFileAsync ReturnType: " + request.ReturnType.ToString(), (string error) =>
                                 {
                                     logger.Warning("[{LogCategory}] [{GlobalID}] " + $"Request JSON: {requestData}", "FunctionClient/InvokeFromFileAsync", response.CorrelationID);
@@ -483,10 +483,10 @@ namespace function.DataClient
                                             }
                                             else
                                             {
-                                                int timeout = moduleScriptMap.Timeout * 1000;
+                                                var timeout = moduleScriptMap.Timeout * 1000;
                                                 if (task.Wait(timeout) == false)
                                                 {
-                                                    response.ExceptionText = $"TimeoutException - '{timeout.ToString()}' 실행 시간 초과";
+                                                    response.ExceptionText = $"TimeoutException - '{timeout}' 실행 시간 초과";
                                                     if (ModuleConfiguration.IsLogServer == true)
                                                     {
                                                         loggerClient.ProgramMessageLogging(request.GlobalID, "N", GlobalConfiguration.ApplicationID, response.ExceptionText, $"FunctionClient/InvokeFromFileAsync: dynamicParameters={JsonConvert.SerializeObject(arguments)}", (string error) =>
@@ -525,7 +525,7 @@ namespace function.DataClient
 
                             if (ModuleConfiguration.IsTransactionLogging == true || moduleScriptMap.TransactionLog == true)
                             {
-                                string requestData = $"ProgramPath: {programPath}, Arguments: {jsonArguments}";
+                                var requestData = $"ProgramPath: {programPath}, Arguments: {jsonArguments}";
                                 loggerClient.TransactionMessageLogging(request.GlobalID, "N", moduleScriptMap.ApplicationID, moduleScriptMap.ProjectID, moduleScriptMap.TransactionID, moduleScriptMap.ScriptID, requestData, "FunctionClient/InvokeFromFileAsync ReturnType: " + request.ReturnType.ToString(), (string error) =>
                                 {
                                     logger.Warning("[{LogCategory}] [{GlobalID}] " + $"Request JSON: {requestData}, ExceptionText: {response.ExceptionText}", "FunctionClient/InvokeFromFileAsync", response.CorrelationID);
@@ -542,7 +542,7 @@ namespace function.DataClient
                     {
                         if (string.IsNullOrEmpty(moduleScriptMap.FallbackTransactionCommand) == false)
                         {
-                            string logData = $"GlobalID={request.GlobalID}, QueryID={queryObject.QueryID}, FallbackTransactionCommand: {moduleScriptMap.FallbackTransactionCommand}, dynamicParameters={JsonConvert.SerializeObject(dynamicParameters)}";
+                            var logData = $"GlobalID={request.GlobalID}, QueryID={queryObject.QueryID}, FallbackTransactionCommand: {moduleScriptMap.FallbackTransactionCommand}, dynamicParameters={JsonConvert.SerializeObject(dynamicParameters)}";
                             if (ModuleConfiguration.IsLogServer == true)
                             {
                                 loggerClient.ProgramMessageLogging(request.GlobalID, "Y", GlobalConfiguration.ApplicationID, logData, "FunctionClient/FallbackTransactionCommand", (string error) =>
@@ -556,7 +556,7 @@ namespace function.DataClient
                             }
 
                             var transactionCommands = moduleScriptMap.FallbackTransactionCommand.Split("|");
-                            string? fallbackCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, queryObject.QueryID, dynamicParameters);
+                            var fallbackCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, queryObject.QueryID, dynamicParameters);
                             if (string.IsNullOrEmpty(fallbackCommandResult) == false)
                             {
                                 response.ExceptionText = response.ExceptionText + $", ExecuteScriptMap.FallbackTransactionCommand Error: GlobalID={request.GlobalID}, QueryID={queryObject.QueryID}, CommandID={moduleScriptMap.FallbackTransactionCommand}, CommandResult={fallbackCommandResult}";
@@ -580,7 +580,7 @@ namespace function.DataClient
 
                     if (string.IsNullOrEmpty(moduleScriptMap.AfterTransactionCommand) == false)
                     {
-                        string logData = $"executeResult: {executeResult}, AfterTransactionCommand: {moduleScriptMap.AfterTransactionCommand}, dynamicParameters={JsonConvert.SerializeObject(dynamicParameters)}";
+                        var logData = $"executeResult: {executeResult}, AfterTransactionCommand: {moduleScriptMap.AfterTransactionCommand}, dynamicParameters={JsonConvert.SerializeObject(dynamicParameters)}";
                         if (ModuleConfiguration.IsLogServer == true)
                         {
                             loggerClient.ProgramMessageLogging(request.GlobalID, "Y", GlobalConfiguration.ApplicationID, logData, $"FunctionClient/AfterTransactionCommand", (string error) =>
@@ -594,9 +594,9 @@ namespace function.DataClient
                         }
 
                         var transactionCommands = moduleScriptMap.AfterTransactionCommand.Split("|");
-                        List<ServiceParameter> serviceParameters = new List<ServiceParameter>();
+                        var serviceParameters = new List<ServiceParameter>();
                         serviceParameters.Add(new ServiceParameter() { prop = "CommandResult", val = executeResult });
-                        string? afterCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, queryObject.QueryID, dynamicParameters, serviceParameters);
+                        var afterCommandResult = businessApiClient.OnewayTransactionCommand(transactionCommands, request.GlobalID, queryObject.QueryID, dynamicParameters, serviceParameters);
                         if (string.IsNullOrEmpty(afterCommandResult) == false)
                         {
                             response.ExceptionText = $"ExecuteScriptMap.AfterTransactionCommand Error: {afterCommandResult}";
@@ -621,21 +621,17 @@ namespace function.DataClient
                     {
                         if (executeResult != null && executeResult.Length > 0)
                         {
-                            using (DataSet? ds = JsonConvert.DeserializeObject<DataSet>(executeResult))
+                            using var ds = JsonConvert.DeserializeObject<DataSet>(executeResult);
+                            if (ds != null && ds.Tables.Count > 0)
                             {
-                                if (ds != null && ds.Tables.Count > 0)
+                                using var dataTable = ds.Tables[0];
+                                if (dataTable.Rows.Count > 0)
                                 {
-                                    using (DataTable dataTable = ds.Tables[0])
-                                    {
-                                        if (dataTable.Rows.Count > 0)
-                                        {
-                                            dataRow = dataTable.Rows[0];
-                                        }
-                                        else
-                                        {
-                                            dataRow = null;
-                                        }
-                                    }
+                                    dataRow = dataTable.Rows[0];
+                                }
+                                else
+                                {
+                                    dataRow = null;
                                 }
                             }
                         }
@@ -647,15 +643,15 @@ namespace function.DataClient
                             switch (request.ReturnType)
                             {
                                 case ExecuteDynamicTypeObject.Json:
-                                    using (DataSet? ds = JsonConvert.DeserializeObject<DataSet>(executeResult))
+                                    using (var ds = JsonConvert.DeserializeObject<DataSet>(executeResult))
                                     {
                                         if (ds != null)
                                         {
-                                            JsonObjectType jsonObjectType = JsonObjectType.FormJson;
+                                            var jsonObjectType = JsonObjectType.FormJson;
 
-                                            for (int j = 0; j < ds.Tables.Count; j++)
+                                            for (var j = 0; j < ds.Tables.Count; j++)
                                             {
-                                                DataTable table = ds.Tables[j];
+                                                var table = ds.Tables[j];
 
                                                 if (queryObject.JsonObjects == null || queryObject.JsonObjects.Count == 0)
                                                 {
@@ -673,8 +669,8 @@ namespace function.DataClient
                                                     }
                                                 }
 
-                                                StringBuilder sb = new StringBuilder(256);
-                                                for (int k = 0; k < table.Columns.Count; k++)
+                                                var sb = new StringBuilder(256);
+                                                for (var k = 0; k < table.Columns.Count; k++)
                                                 {
                                                     var column = table.Columns[k];
                                                     sb.Append($"{column.ColumnName}:{JsonExtensions.toMetaDataType(column.DataType.Name)};");
@@ -782,7 +778,7 @@ namespace function.DataClient
         private string? InvokePythonScriptFile(ModuleScriptMap moduleScriptMap, string programPath, List<DynamicParameter> dynamicParameters, DataContext dataContext)
         {
             string? result = null;
-            string moduleName = "";
+            var moduleName = "";
             Exception? invokeException = null;
             try
             {
@@ -797,9 +793,9 @@ namespace function.DataClient
                     PythonEngine.Initialize();
                 }
 
-                string transactionID = new DirectoryInfo(Path.GetDirectoryName(programPath)!).Name;
+                var transactionID = new DirectoryInfo(Path.GetDirectoryName(programPath)!).Name;
                 moduleName = $"{moduleScriptMap.ApplicationID}_{moduleScriptMap.ProjectID}_{moduleScriptMap.TransactionID}";
-                string mainFilePath = programPath.Replace("featureMain.py", $"{moduleName}.py");
+                var mainFilePath = programPath.Replace("featureMain.py", $"{moduleName}.py");
                 if (File.Exists(mainFilePath) == false)
                 {
                     File.Copy(programPath, mainFilePath, true);
@@ -825,7 +821,7 @@ namespace function.DataClient
 
                     var pythonResult = scriptModule.InvokeMethod(moduleScriptMap.ExportName, pythonParameters.ToArray());
 
-                    object? moduleResult = pythonResult.AsManagedObject(typeof(object));
+                    var moduleResult = pythonResult.AsManagedObject(typeof(object));
                     if (moduleResult != null)
                     {
                         var resultType = moduleResult.GetType().Name;

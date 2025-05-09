@@ -29,16 +29,16 @@ namespace HandStack.Web.ApiClient
 
         public async Task<MediatorResponse> SendAsync(MediatorRequest mediatorRequest)
         {
-            MediatorResponse result = new MediatorResponse();
+            var result = new MediatorResponse();
             result.Acknowledge = AcknowledgeType.Failure;
             result.ResponseID = string.Concat(GlobalConfiguration.SystemID, GlobalConfiguration.HostName, mediatorRequest.ReturnType, DateTime.Now.ToString("yyyyMMddHHmmss"));
             result.CorrelationID = mediatorRequest.GlobalID;
             result.Environment = GlobalConfiguration.EnvironmentName;
 
-            string actionModuleID = mediatorRequest.ActionModuleID;
-            string subscribeEventID = mediatorRequest.SubscribeEventID;
+            var actionModuleID = mediatorRequest.ActionModuleID;
+            var subscribeEventID = mediatorRequest.SubscribeEventID;
 
-            bool isValidateEventAction = CheckModuleEventAction(actionModuleID, subscribeEventID);
+            var isValidateEventAction = CheckModuleEventAction(actionModuleID, subscribeEventID);
             if (isValidateEventAction == false)
             {
                 logger.Error("[{LogCategory}] " + $"actionModuleID: {actionModuleID}, subscribeEventID: {subscribeEventID} 확인 필요", "MediatorClient/SendAsync");
@@ -48,13 +48,13 @@ namespace HandStack.Web.ApiClient
             {
                 try
                 {
-                    Type? type = Assembly.Load(subscribeEventID.Split(".")[0])?.GetType(subscribeEventID);
+                    var type = Assembly.Load(subscribeEventID.Split(".")[0])?.GetType(subscribeEventID);
                     if (type != null)
                     {
-                        object? instance = Activator.CreateInstance(type, mediatorRequest);
+                        var instance = Activator.CreateInstance(type, mediatorRequest);
                         if (instance != null)
                         {
-                            object? eventResponse = await mediator.Send(instance);
+                            var eventResponse = await mediator.Send(instance);
                             if (eventResponse is MediatorResponse)
                             {
                                 result = (MediatorResponse)eventResponse;
@@ -84,10 +84,10 @@ namespace HandStack.Web.ApiClient
 
         public async Task PublishAsync(MediatorRequest mediatorRequest)
         {
-            string actionModuleID = mediatorRequest.ActionModuleID;
-            string subscribeEventID = mediatorRequest.SubscribeEventID;
+            var actionModuleID = mediatorRequest.ActionModuleID;
+            var subscribeEventID = mediatorRequest.SubscribeEventID;
 
-            bool isValidateEventAction = CheckModuleEventAction(actionModuleID, subscribeEventID);
+            var isValidateEventAction = CheckModuleEventAction(actionModuleID, subscribeEventID);
             if (isValidateEventAction == false)
             {
                 logger.Error("[{LogCategory}] " + $"actionModuleID: {actionModuleID}, subscribeEventID: {subscribeEventID} 확인 필요", "MediatorClient/PublishAsync");
@@ -96,10 +96,10 @@ namespace HandStack.Web.ApiClient
             {
                 try
                 {
-                    Type? type = Assembly.Load(subscribeEventID.Split(".")[0])?.GetType(subscribeEventID);
+                    var type = Assembly.Load(subscribeEventID.Split(".")[0])?.GetType(subscribeEventID);
                     if (type != null)
                     {
-                        object? instance = Activator.CreateInstance(type, mediatorRequest);
+                        var instance = Activator.CreateInstance(type, mediatorRequest);
                         if (instance != null)
                         {
                             await mediator.Publish(instance);
@@ -119,7 +119,7 @@ namespace HandStack.Web.ApiClient
 
         private bool CheckModuleEventAction(string actionModuleID, string subscribeEventID)
         {
-            bool result = false;
+            var result = false;
             foreach (var module in GlobalConfiguration.Modules)
             {
                 if (module.ModuleID == actionModuleID && module.EventAction.Contains(subscribeEventID) == true)

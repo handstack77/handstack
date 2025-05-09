@@ -8,7 +8,6 @@ using HandStack.Web.Entity;
 using HandStack.Web.Extensions;
 using HandStack.Web.Modules;
 
-using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
@@ -37,18 +36,18 @@ namespace wwwroot
 
         public void ConfigureServices(IServiceCollection services, IWebHostEnvironment environment, IConfiguration configuration)
         {
-            ModuleInfo? module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == ModuleID);
+            var module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == ModuleID);
             if (module != null)
             {
-                string moduleSettingFilePath = module.ModuleSettingFilePath;
+                var moduleSettingFilePath = module.ModuleSettingFilePath;
                 if (File.Exists(moduleSettingFilePath) == true)
                 {
-                    string configurationText = File.ReadAllText(moduleSettingFilePath);
-                    ModuleConfigJson? moduleConfigJson = JsonConvert.DeserializeObject<ModuleConfigJson>(configurationText);
+                    var configurationText = File.ReadAllText(moduleSettingFilePath);
+                    var moduleConfigJson = JsonConvert.DeserializeObject<ModuleConfigJson>(configurationText);
 
                     if (moduleConfigJson != null)
                     {
-                        ModuleConfig moduleConfig = moduleConfigJson.ModuleConfig;
+                        var moduleConfig = moduleConfigJson.ModuleConfig;
                         ModuleConfiguration.ModuleID = moduleConfigJson.ModuleID;
                         ModuleConfiguration.Version = moduleConfigJson.Version;
                         ModuleConfiguration.AuthorizationKey = string.IsNullOrEmpty(moduleConfig.AuthorizationKey) == false ? moduleConfig.AuthorizationKey : GlobalConfiguration.SystemID + GlobalConfiguration.RunningEnvironment + GlobalConfiguration.HostName;
@@ -65,14 +64,14 @@ namespace wwwroot
                     }
                     else
                     {
-                        string message = $"Json Deserialize 오류 module.json 파일 확인 필요: {moduleSettingFilePath}";
+                        var message = $"Json Deserialize 오류 module.json 파일 확인 필요: {moduleSettingFilePath}";
                         Log.Logger.Error("[{LogCategory}] " + message, $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
                         throw new FileLoadException(message);
                     }
                 }
                 else
                 {
-                    string message = $"module.json 파일 확인 필요: {moduleSettingFilePath}";
+                    var message = $"module.json 파일 확인 필요: {moduleSettingFilePath}";
                     Log.Logger.Error("[{LogCategory}] " + message, $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
                     throw new FileNotFoundException(message);
                 }
@@ -81,19 +80,19 @@ namespace wwwroot
                 {
                     foreach (var userWorkPath in Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath))
                     {
-                        DirectoryInfo workDirectoryInfo = new DirectoryInfo(userWorkPath);
-                        string userWorkID = workDirectoryInfo.Name;
+                        var workDirectoryInfo = new DirectoryInfo(userWorkPath);
+                        var userWorkID = workDirectoryInfo.Name;
                         foreach (var appBasePath in Directory.GetDirectories(userWorkPath))
                         {
-                            DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
+                            var directoryInfo = new DirectoryInfo(appBasePath);
                             if (directoryInfo.Exists == true)
                             {
-                                string applicationID = directoryInfo.Name;
-                                string tenantID = $"{userWorkID}|{applicationID}";
-                                string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
+                                var applicationID = directoryInfo.Name;
+                                var tenantID = $"{userWorkID}|{applicationID}";
+                                var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                                 if (File.Exists(settingFilePath) == true && GlobalConfiguration.DisposeTenantApps.Contains(tenantID) == false)
                                 {
-                                    string appSettingText = File.ReadAllText(settingFilePath);
+                                    var appSettingText = File.ReadAllText(settingFilePath);
                                     var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
                                     if (appSetting != null)
                                     {
@@ -138,10 +137,10 @@ namespace wwwroot
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment? environment, ICorsService corsService, ICorsPolicyProvider corsPolicyProvider)
         {
-            ModuleInfo? module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == typeof(ModuleInitializer).Assembly.GetName().Name);
+            var module = GlobalConfiguration.Modules.FirstOrDefault(p => p.ModuleID == typeof(ModuleInitializer).Assembly.GetName().Name);
             if (string.IsNullOrEmpty(ModuleID) == false && module != null)
             {
-                string wwwrootContractBasePath = PathExtensions.Combine(ModuleConfiguration.ContractBasePath, GlobalConfiguration.ApplicationID);
+                var wwwrootContractBasePath = PathExtensions.Combine(ModuleConfiguration.ContractBasePath, GlobalConfiguration.ApplicationID);
                 if (string.IsNullOrEmpty(ModuleConfiguration.ContractBasePath) == false && Directory.Exists(wwwrootContractBasePath) == true)
                 {
                     ModuleConfiguration.IsContractRequestPath = true;
@@ -172,7 +171,7 @@ namespace wwwroot
                     });
                 }
 
-                string wwwrootDirectory = string.IsNullOrEmpty(ModuleConfiguration.WWWRootBasePath) == true ? PathExtensions.Combine(module.BasePath, "wwwroot") : ModuleConfiguration.WWWRootBasePath;
+                var wwwrootDirectory = string.IsNullOrEmpty(ModuleConfiguration.WWWRootBasePath) == true ? PathExtensions.Combine(module.BasePath, "wwwroot") : ModuleConfiguration.WWWRootBasePath;
                 if (string.IsNullOrEmpty(wwwrootDirectory) == false && Directory.Exists(wwwrootDirectory) == true)
                 {
                     app.UseMiddleware<CaseInsensitiveStaticFileMiddleware>(wwwrootDirectory);
@@ -241,7 +240,7 @@ namespace wwwroot
                         }
                     });
 
-                    string libDirectoryPath = PathExtensions.Combine(wwwrootDirectory, "lib");
+                    var libDirectoryPath = PathExtensions.Combine(wwwrootDirectory, "lib");
                     if (Directory.Exists(libDirectoryPath) == true)
                     {
                         app.UseDirectoryBrowser(new DirectoryBrowserOptions

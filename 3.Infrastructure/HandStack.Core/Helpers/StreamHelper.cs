@@ -15,10 +15,10 @@ namespace HandStack.Core.Helpers
 
         public string ReadString()
         {
-            int len = 0;
+            var len = 0;
             len = ioStream.ReadByte() * 256;
             len += ioStream.ReadByte();
-            byte[] inBuffer = new byte[len];
+            var inBuffer = new byte[len];
             ioStream.ReadExactly(inBuffer, 0, len);
 
             return Encoding.UTF8.GetString(inBuffer);
@@ -26,11 +26,11 @@ namespace HandStack.Core.Helpers
 
         public int WriteString(string outString)
         {
-            byte[] outBuffer = Encoding.UTF8.GetBytes(outString);
-            int len = outBuffer.Length;
+            var outBuffer = Encoding.UTF8.GetBytes(outString);
+            var len = outBuffer.Length;
             if (len > UInt16.MaxValue)
             {
-                len = (int)UInt16.MaxValue;
+                len = ushort.MaxValue;
             }
             ioStream.WriteByte((byte)(len / 256));
             ioStream.WriteByte((byte)(len & 255));

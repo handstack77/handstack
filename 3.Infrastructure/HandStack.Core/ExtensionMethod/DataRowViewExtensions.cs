@@ -174,11 +174,11 @@ namespace HandStack.Core.ExtensionMethod
         {
             if (string.IsNullOrEmpty(fieldName) == false)
             {
-                string? classType = @this.GetString(fieldName);
+                var classType = @this.GetString(fieldName);
 
                 if (classType != null && classType.Length > 0)
                 {
-                    Type? type = Type.GetType(classType);
+                    var type = Type.GetType(classType);
 
                     if (type != null)
                     {

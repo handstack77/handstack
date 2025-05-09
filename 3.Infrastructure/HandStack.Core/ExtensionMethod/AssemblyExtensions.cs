@@ -11,7 +11,7 @@ namespace HandStack.Core.ExtensionMethod
         public static Dictionary<string, ManifestResourceInfo?>? GetManifestResources(this Assembly @this)
         {
             var result = new Dictionary<string, ManifestResourceInfo?>();
-            foreach (string resourceName in @this.GetManifestResourceNames())
+            foreach (var resourceName in @this.GetManifestResourceNames())
             {
                 result.Add(resourceName, @this.GetManifestResourceInfo(resourceName));
             }
@@ -22,7 +22,7 @@ namespace HandStack.Core.ExtensionMethod
         public async static Task<string?> GetStringEmbeddedResource(this Assembly @this, string resourceName)
         {
             string? result = null;
-            using (Stream? stream = @this.GetStreamEmbeddedResource(resourceName))
+            using (var stream = @this.GetStreamEmbeddedResource(resourceName))
             {
                 if (stream != null)
                 {
@@ -40,7 +40,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public async static Task<ReadOnlyMemory<byte>>? GetByteEmbeddedResource(this Assembly @this, string resourceName)
         {
-            await using Stream? resourceStream = GetStreamEmbeddedResource(@this, resourceName);
+            await using var resourceStream = GetStreamEmbeddedResource(@this, resourceName);
             using var memoryStream = new MemoryStream();
             await resourceStream!.CopyToAsync(memoryStream);
             return new ReadOnlyMemory<byte>(memoryStream.ToArray());
@@ -56,8 +56,8 @@ namespace HandStack.Core.ExtensionMethod
             const int peHeaderOffset = 60;
             const int linkerTimestampOffset = 8;
 
-            byte[] buffer = new byte[2048];
-            string path = @this.Location;
+            var buffer = new byte[2048];
+            var path = @this.Location;
             if (string.IsNullOrEmpty(path) == true)
             {
                 return DateTime.MinValue;
@@ -68,10 +68,10 @@ namespace HandStack.Core.ExtensionMethod
                 stream.ReadExactly(buffer);
             }
 
-            int i = BitConverter.ToInt32(buffer, peHeaderOffset);
-            int secondsSince1970 = BitConverter.ToInt32(buffer, i + linkerTimestampOffset);
+            var i = BitConverter.ToInt32(buffer, peHeaderOffset);
+            var secondsSince1970 = BitConverter.ToInt32(buffer, i + linkerTimestampOffset);
 
-            DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Local);
+            var dateTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Local);
             dateTime = dateTime.AddSeconds(secondsSince1970);
             dateTime = dateTime.AddHours(TimeZoneInfo.ConvertTimeToUtc(dateTime).ToEpochTimeSpan().Hours);
             return dateTime;

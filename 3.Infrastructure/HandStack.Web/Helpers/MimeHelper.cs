@@ -503,7 +503,7 @@ namespace HandStack.Web.Helper
                 return mime;
             }
 
-            string extension = System.IO.Path.GetExtension(fileName).ToLower();
+            var extension = System.IO.Path.GetExtension(fileName).ToLower();
 
             if (!extension.StartsWith("."))
             {

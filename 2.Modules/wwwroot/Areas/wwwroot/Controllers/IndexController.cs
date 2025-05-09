@@ -90,7 +90,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
 
             if (Request.Method == "POST")
             {
-                string rawBody = await Request.GetRawBodyStringAsync();
+                var rawBody = await Request.GetRawBodyStringAsync();
                 var rawSetting = JsonConvert.DeserializeAnonymousType(rawBody, new
                 {
                     applicationID = "",
@@ -118,13 +118,13 @@ namespace wwwroot.Areas.wwwroot.Controllers
                 && string.IsNullOrEmpty(serviceID) == false
             )
             {
-                bool isWithOrigin = false;
-                string? requestRefererUrl = Request.Headers.Referer.ToString();
+                var isWithOrigin = false;
+                var requestRefererUrl = Request.Headers.Referer.ToString();
                 if (string.IsNullOrEmpty(requestRefererUrl) == false)
                 {
-                    for (int i = 0; i < GlobalConfiguration.WithOrigins.Count; i++)
+                    for (var i = 0; i < GlobalConfiguration.WithOrigins.Count; i++)
                     {
-                        string origin = GlobalConfiguration.WithOrigins[i];
+                        var origin = GlobalConfiguration.WithOrigins[i];
                         if (requestRefererUrl.IndexOf(origin) > -1)
                         {
                             isWithOrigin = true;
@@ -145,7 +145,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
                 {
                     try
                     {
-                        TransactionClientObject transactionObject = new TransactionClientObject();
+                        var transactionObject = new TransactionClientObject();
                         transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
                         transactionObject.ProgramID = applicationID;
                         transactionObject.BusinessID = projectID;
@@ -153,7 +153,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
                         transactionObject.FunctionID = serviceID;
                         transactionObject.ScreenID = string.IsNullOrEmpty(screenID) == true ? transactionID : screenID;
 
-                        string requestID = GetRequestID(transactionObject, tokenID);
+                        var requestID = GetRequestID(transactionObject, tokenID);
                         if (distributedCache.Get(requestID) != null)
                         {
                             distributedCache.Remove(requestID);
@@ -179,7 +179,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
                     }
                     catch (Exception exception)
                     {
-                        string exceptionText = exception.ToMessage();
+                        var exceptionText = exception.ToMessage();
                         logger.Warning("[{LogCategory}] " + exceptionText, "Index/CreateID");
                         result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
                     }
@@ -225,8 +225,8 @@ namespace wwwroot.Areas.wwwroot.Controllers
             {
                 if (count != null && count > 0)
                 {
-                    List<string> list = new List<string>();
-                    for (int i = 0; i < count; i++)
+                    var list = new List<string>();
+                    for (var i = 0; i < count; i++)
                     {
                         list.Add(sequentialIdGenerator.NewId().ToString());
                     }
@@ -241,8 +241,8 @@ namespace wwwroot.Areas.wwwroot.Controllers
             {
                 if (count != null && count > 0)
                 {
-                    List<string> list = new List<string>();
-                    for (int i = 0; i < count; i++)
+                    var list = new List<string>();
+                    for (var i = 0; i < count; i++)
                     {
                         list.Add(sequentialIdGenerator.NewId().ToString("N"));
                     }

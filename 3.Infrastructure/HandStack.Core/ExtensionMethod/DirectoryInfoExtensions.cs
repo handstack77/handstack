@@ -28,7 +28,7 @@ namespace HandStack.Core.ExtensionMethod
                .SelectMany(searchPattern => Directory.EnumerateFiles(@this.FullName.Replace("\\", "/"), searchPattern, searchOption))
                .ToList();
 
-            for (int i = 0; i < items.Count; i++)
+            for (var i = 0; i < items.Count; i++)
             {
                 var item = new FileInfo(items[i]);
                 if (result.Contains(item) == false)
@@ -131,7 +131,7 @@ namespace HandStack.Core.ExtensionMethod
                 throw new ArgumentNullException("destination");
             }
 
-            DirectoryInfo target = new DirectoryInfo(destination);
+            var target = new DirectoryInfo(destination);
             if (@this.Exists == false)
             {
                 throw new DirectoryNotFoundException("source 디렉토리 확인 필요: " + @this.FullName.Replace("\\", "/"));

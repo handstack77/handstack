@@ -6,12 +6,12 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
 
-using Microsoft.AspNetCore.Mvc.ApplicationParts;
-using Microsoft.Extensions.DependencyInjection;
-
 using HandStack.Web;
 using HandStack.Web.Extensions;
 using HandStack.Web.Modules;
+
+using Microsoft.AspNetCore.Mvc.ApplicationParts;
+using Microsoft.Extensions.DependencyInjection;
 
 using Serilog;
 
@@ -91,7 +91,7 @@ namespace ack.Extensions
 
         private static void TryLoadModuleAssembly(string moduleID, ModuleInfo module)
         {
-            string moduleBasePath = module.BasePath;
+            var moduleBasePath = module.BasePath.Replace("\\", "/");
             var binariesFolder = new DirectoryInfo(moduleBasePath);
 
             Log.Logger.Information($"LoadModule: {moduleID}, moduleBasePath: {moduleBasePath}");
@@ -106,11 +106,11 @@ namespace ack.Extensions
                     {
                         if (file.FullName.Replace("\\", "/").IndexOf($"/runtimes/") > -1)
                         {
-                     
+
                         }
                         else
                         {
-                            string filePath = file.FullName.Replace("\\", "/").Replace(moduleBasePath, "");
+                            var filePath = file.FullName.Replace("\\", "/").Replace(moduleBasePath, "");
                             if (ShouldSkipLoading(module.LoadPassAssemblyPath, filePath) == false)
                             {
                                 assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(file.FullName.Replace("\\", "/"));
@@ -127,9 +127,9 @@ namespace ack.Extensions
                             throw;
                         }
 
-                        string assemblyFilePath = string.IsNullOrEmpty(assembly.Location) == true ? file.FullName.Replace("\\", "/") : assembly.Location;
-                        string? loadedAssemblyVersion = FileVersionInfo.GetVersionInfo(assemblyFilePath).FileVersion;
-                        string? tryToLoadAssemblyVersion = FileVersionInfo.GetVersionInfo(file.FullName.Replace("\\", "/")).FileVersion;
+                        var assemblyFilePath = string.IsNullOrEmpty(assembly.Location) == true ? file.FullName.Replace("\\", "/") : assembly.Location;
+                        var loadedAssemblyVersion = FileVersionInfo.GetVersionInfo(assemblyFilePath).FileVersion;
+                        var tryToLoadAssemblyVersion = FileVersionInfo.GetVersionInfo(file.FullName.Replace("\\", "/")).FileVersion;
 
                         if (tryToLoadAssemblyVersion != loadedAssemblyVersion)
                         {
@@ -156,7 +156,7 @@ namespace ack.Extensions
 
                 if (path.EndsWith("/**") == true)
                 {
-                    string directoryPath = path.Replace("/**", "");
+                    var directoryPath = path.Replace("/**", "");
                     if (filePath.StartsWith(directoryPath) == true)
                     {
                         return true;

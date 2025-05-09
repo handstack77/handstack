@@ -64,8 +64,8 @@ namespace openapi.Areas.openapi.Controllers
             {
                 if (string.IsNullOrEmpty(apiServiceID) == false)
                 {
-                    List<string> items = GetMemoryCacheKeys(apiServiceID);
-                    foreach (string item in items)
+                    var items = GetMemoryCacheKeys(apiServiceID);
+                    foreach (var item in items)
                     {
                         memoryCache.Remove(item);
                     }
@@ -75,7 +75,7 @@ namespace openapi.Areas.openapi.Controllers
             }
             catch (Exception exception)
             {
-                string exceptionText = exception.ToMessage();
+                var exceptionText = exception.ToMessage();
                 logger.Warning("[{LogCategory}] " + exceptionText, "Transaction/CacheClear");
                 result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
             }
@@ -89,16 +89,16 @@ namespace openapi.Areas.openapi.Controllers
         {
             ActionResult result = StatusCode(StatusCodes.Status400BadRequest, ResponseApi.I20.ToEnumString());
 
-            Dictionary<string, object?> parameters = new Dictionary<string, object?>();
+            var parameters = new Dictionary<string, object?>();
             try
             {
-                string requestUrl = Request.GetAbsoluteUrl();
+                var requestUrl = Request.GetAbsoluteUrl();
                 foreach (var item in Request.Query)
                 {
                     parameters.Add(item.Key, item.Value);
                 }
 
-                string accessID = Request.GetContainValue("AccessID");
+                var accessID = Request.GetContainValue("AccessID");
                 if (string.IsNullOrEmpty(interfaceID) == true || string.IsNullOrEmpty(accessID) == true)
                 {
                     logger.Warning("필수 요청 항목 확인 필요: " + JsonConvert.SerializeObject(new
@@ -109,7 +109,7 @@ namespace openapi.Areas.openapi.Controllers
                     return result;
                 }
 
-                string transactionID = dataProvider.ToEnumString();
+                var transactionID = dataProvider.ToEnumString();
                 var format = parameters.ContainsKey("Format") == true ? parameters["Format"].ToStringSafe().ToLower() : "json";
                 var apiService = ModuleConfiguration.ApiServices.FirstOrDefault(item =>
                     item.InterfaceID == interfaceID
@@ -206,7 +206,7 @@ namespace openapi.Areas.openapi.Controllers
                     }
                 }
 
-                string remoteClientIP = HttpContext.GetRemoteIpAddress().ToStringSafe();
+                var remoteClientIP = HttpContext.GetRemoteIpAddress().ToStringSafe();
                 if (apiService.LimitIPAddressYN == true && accessMemberApi.AllowIPAddress.Contains(remoteClientIP) == false)
                 {
                     logger.Warning($"{ResponseApi.I42.ToEnumString()}: " + JsonConvert.SerializeObject(parameters));
@@ -216,7 +216,7 @@ namespace openapi.Areas.openapi.Controllers
 
                 if (apiService.AccessControl == "SecretKey")
                 {
-                    string secretKey = Request.GetContainValue("SecretKey");
+                    var secretKey = Request.GetContainValue("SecretKey");
                     if (accessMemberApi.SecretKey != secretKey)
                     {
                         logger.Warning($"{ResponseApi.I41.ToEnumString()}: " + JsonConvert.SerializeObject(parameters));
@@ -232,7 +232,7 @@ namespace openapi.Areas.openapi.Controllers
                     return result;
                 }
 
-                string cacheKey = $"{ModuleConfiguration.ModuleID}|{apiService.APIServiceID}|{requestUrl}";
+                var cacheKey = $"{ModuleConfiguration.ModuleID}|{apiService.APIServiceID}|{requestUrl}";
                 if (apiService.CacheDuration > 0)
                 {
                     ActionResult? actionResult = null;
@@ -284,7 +284,7 @@ namespace openapi.Areas.openapi.Controllers
 
                 foreach (var apiParameter in apiParameters)
                 {
-                    string parameterID = apiParameter.ParameterID.Replace("@", "").Replace("#", "").Replace(":", "");
+                    var parameterID = apiParameter.ParameterID.Replace("@", "").Replace("#", "").Replace(":", "");
                     var parameterValue = parameters.ContainsKey(parameterID) == true ? parameters[parameterID].ToStringSafe() : "";
                     if (string.IsNullOrEmpty(parameterValue) == true && apiParameter.RequiredYN == true)
                     {
@@ -321,18 +321,18 @@ namespace openapi.Areas.openapi.Controllers
                     if (dataSet != null)
                     {
                         dataSet.DataSetName = "dataSet";
-                        StringBuilder sb = new StringBuilder(256);
+                        var sb = new StringBuilder(256);
                         switch (format)
                         {
                             case "json":
-                                List<int> mergeDataCounts = new List<int>();
-                                List<string> mergeMetaDatas = new List<string>();
-                                List<object> mergeDatas = new List<object>();
-                                for (int i = 0; i < dataSet.Tables.Count; i++)
+                                var mergeDataCounts = new List<int>();
+                                var mergeMetaDatas = new List<string>();
+                                var mergeDatas = new List<object>();
+                                for (var i = 0; i < dataSet.Tables.Count; i++)
                                 {
                                     sb.Clear();
-                                    DataTable table = dataSet.Tables[i];
-                                    for (int k = 0; k < table.Columns.Count; k++)
+                                    var table = dataSet.Tables[i];
+                                    for (var k = 0; k < table.Columns.Count; k++)
                                     {
                                         var column = table.Columns[k];
                                         sb.Append($"{column.ColumnName}:{JsonExtensions.toMetaDataType(column.DataType.Name)};");
@@ -351,7 +351,7 @@ namespace openapi.Areas.openapi.Controllers
                                 }), "application/json");
                                 break;
                             case "xml":
-                                using (StringWriter sw = new StringWriter(sb))
+                                using (var sw = new StringWriter(sb))
                                 {
                                     dataSet.WriteXml(sw, XmlWriteMode.WriteSchema);
                                 }
@@ -360,7 +360,7 @@ namespace openapi.Areas.openapi.Controllers
                             case "soap":
                                 using (var stream = new MemoryStream())
                                 {
-                                    SoapFormatter formatter = new SoapFormatter();
+                                    var formatter = new SoapFormatter();
                                     formatter.Serialize(stream, dataSet);
                                     result = File(stream.ToArray(), "text/xml");
                                 }
@@ -374,7 +374,7 @@ namespace openapi.Areas.openapi.Controllers
 
                                 var rssFeed = CreateFeed("rss", dataSet.Tables[0].Rows[0], dataSet.Tables[1].Rows);
                                 using (var stream = new MemoryStream())
-                                using (XmlWriter xmlWriter = XmlWriter.Create(stream, new XmlWriterSettings
+                                using (var xmlWriter = XmlWriter.Create(stream, new XmlWriterSettings
                                 {
                                     Encoding = Encoding.UTF8,
                                     Indent = false
@@ -394,7 +394,7 @@ namespace openapi.Areas.openapi.Controllers
 
                                 var atomFeed = CreateFeed("rss", dataSet.Tables[0].Rows[0], dataSet.Tables[1].Rows);
                                 using (var stream = new MemoryStream())
-                                using (XmlWriter xmlWriter = XmlWriter.Create(stream, new XmlWriterSettings
+                                using (var xmlWriter = XmlWriter.Create(stream, new XmlWriterSettings
                                 {
                                     Encoding = Encoding.UTF8,
                                     Indent = false
@@ -448,7 +448,7 @@ namespace openapi.Areas.openapi.Controllers
 
         private List<string> GetMemoryCacheKeys(string apiServiceID)
         {
-            List<string> result = new List<string>();
+            var result = new List<string>();
             foreach (var cacheKey in ModuleConfiguration.CacheKeys)
             {
                 if (cacheKey.StartsWith($"{ModuleConfiguration.ModuleID}|{apiServiceID}|") == true)
@@ -462,34 +462,34 @@ namespace openapi.Areas.openapi.Controllers
 
         private SyndicationFeed CreateFeed(string format, DataRow rowHeader, DataRowCollection rows)
         {
-            string baseUrl = Request.GetBaseUrl();
+            var baseUrl = Request.GetBaseUrl();
             var feed = new SyndicationFeed();
             feed.Id = baseUrl;
-            string title = rowHeader.GetString("Title").ToStringSafe();
+            var title = rowHeader.GetString("Title").ToStringSafe();
             if (string.IsNullOrEmpty(title) == false)
             {
                 feed.Title = new TextSyndicationContent(title);
             }
 
-            string description = rowHeader.GetString("Description").ToStringSafe();
+            var description = rowHeader.GetString("Description").ToStringSafe();
             if (string.IsNullOrEmpty(description) == false)
             {
                 feed.Description = new TextSyndicationContent(description);
             }
 
-            string copyright = rowHeader.GetString("CopyRight").ToStringSafe();
+            var copyright = rowHeader.GetString("CopyRight").ToStringSafe();
             if (string.IsNullOrEmpty(copyright) == false)
             {
                 feed.Copyright = new TextSyndicationContent(copyright);
             }
 
-            string generator = rowHeader.GetString("Generator").ToStringSafe();
+            var generator = rowHeader.GetString("Generator").ToStringSafe();
             if (string.IsNullOrEmpty(generator) == false)
             {
                 feed.Generator = generator;
             }
 
-            string imageUrl = rowHeader.GetString("ImageUrl").ToStringSafe();
+            var imageUrl = rowHeader.GetString("ImageUrl").ToStringSafe();
             if (string.IsNullOrEmpty(imageUrl) == false)
             {
                 Uri? parseUri;
@@ -499,7 +499,7 @@ namespace openapi.Areas.openapi.Controllers
                 }
             }
 
-            string lastUpdatedTime = rowHeader.GetString("LastUpdatedTime").ToStringSafe();
+            var lastUpdatedTime = rowHeader.GetString("LastUpdatedTime").ToStringSafe();
             if (string.IsNullOrEmpty(lastUpdatedTime) == false)
             {
                 DateTime parseDateTime;
@@ -510,12 +510,12 @@ namespace openapi.Areas.openapi.Controllers
             }
 
             var items = new List<SyndicationItem>();
-            for (int i = 0; i < rows.Count; i++)
+            for (var i = 0; i < rows.Count; i++)
             {
-                DataRow row = rows[i];
+                var row = rows[i];
                 var item = new SyndicationItem();
 
-                string itemUrl = row.GetString("ItemUrl").ToStringSafe();
+                var itemUrl = row.GetString("ItemUrl").ToStringSafe();
                 if (string.IsNullOrEmpty(itemUrl) == false)
                 {
                     Uri? parseUri;
@@ -525,13 +525,13 @@ namespace openapi.Areas.openapi.Controllers
                     }
                 }
 
-                string itemTitle = row.GetString("Title").ToStringSafe();
+                var itemTitle = row.GetString("Title").ToStringSafe();
                 if (string.IsNullOrEmpty(itemTitle) == false)
                 {
                     item.Title = new TextSyndicationContent(itemTitle);
                 }
 
-                string itemLinks = row.GetString("Links").ToStringSafe();
+                var itemLinks = row.GetString("Links").ToStringSafe();
                 if (string.IsNullOrEmpty(itemLinks) == false)
                 {
                     var links = itemLinks.SplitComma();
@@ -541,19 +541,19 @@ namespace openapi.Areas.openapi.Controllers
                     }
                 }
 
-                string itemSummary = row.GetString("Summary").ToStringSafe();
+                var itemSummary = row.GetString("Summary").ToStringSafe();
                 if (string.IsNullOrEmpty(itemSummary) == false)
                 {
                     item.Summary = SyndicationContent.CreateHtmlContent(itemSummary);
                 }
 
-                string itemContent = row.GetString("Content").ToStringSafe();
+                var itemContent = row.GetString("Content").ToStringSafe();
                 if (string.IsNullOrEmpty(itemContent) == false)
                 {
                     item.Content = SyndicationContent.CreateHtmlContent(itemContent);
                 }
 
-                string publishDate = row.GetString("PublishDate").ToStringSafe();
+                var publishDate = row.GetString("PublishDate").ToStringSafe();
                 if (string.IsNullOrEmpty(publishDate) == false)
                 {
                     DateTime parseDateTime;
@@ -563,9 +563,9 @@ namespace openapi.Areas.openapi.Controllers
                     }
                 }
 
-                string itemAuthorEmail = row.GetString("AuthorEmail").ToStringSafe();
-                string itemAuthorName = row.GetString("AuthorName").ToStringSafe();
-                string itemAuthorUrl = row.GetString("AuthorUrl").ToStringSafe();
+                var itemAuthorEmail = row.GetString("AuthorEmail").ToStringSafe();
+                var itemAuthorName = row.GetString("AuthorName").ToStringSafe();
+                var itemAuthorUrl = row.GetString("AuthorUrl").ToStringSafe();
                 if (string.IsNullOrEmpty(itemAuthorEmail) == false && string.IsNullOrEmpty(itemAuthorName) == false)
                 {
                     item.Authors.Add(new SyndicationPerson(itemAuthorEmail, itemAuthorName, itemAuthorUrl));

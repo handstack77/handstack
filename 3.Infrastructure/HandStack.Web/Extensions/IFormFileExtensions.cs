@@ -15,20 +15,16 @@ namespace HandStack.Web.Extensions
 
         public static async Task<MemoryStream> GetFileStream(this IFormFile file)
         {
-            using (MemoryStream filestream = new MemoryStream())
-            {
-                await file.CopyToAsync(filestream);
-                return filestream;
-            }
+            using var filestream = new MemoryStream();
+            await file.CopyToAsync(filestream);
+            return filestream;
         }
 
         public static async Task<byte[]> GetFileArray(this IFormFile file)
         {
-            using (MemoryStream filestream = new MemoryStream())
-            {
-                await file.CopyToAsync(filestream);
-                return filestream.ToArray();
-            }
+            using var filestream = new MemoryStream();
+            await file.CopyToAsync(filestream);
+            return filestream.ToArray();
         }
     }
 }

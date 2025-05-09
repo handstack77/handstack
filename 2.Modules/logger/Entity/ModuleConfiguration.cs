@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using Microsoft.Data.SqlClient;
 using System.Data.SQLite;
 using System.IO;
 using System.Linq;
@@ -9,6 +8,8 @@ using System.Linq;
 using HandStack.Core.ExtensionMethod;
 using HandStack.Data;
 using HandStack.Web;
+
+using Microsoft.Data.SqlClient;
 
 using Polly;
 using Polly.CircuitBreaker;
@@ -152,34 +153,32 @@ namespace logger.Entity
                         databaseFactory.Connection.Open();
                     }
 
-                    using (var command = databaseFactory.Connection.CreateCommand())
+                    using var command = databaseFactory.Connection.CreateCommand();
+                    command.CommandTimeout = 3000;
+                    command.CommandText = commandText;
+                    command.CommandType = CommandType.Text;
+                    var isExists = command.ExecuteScalar().ToStringSafe().ToBoolean();
+
+                    if (isExists == false)
                     {
-                        command.CommandTimeout = 3000;
-                        command.CommandText = commandText;
-                        command.CommandType = CommandType.Text;
-                        var isExists = command.ExecuteScalar().ToStringSafe().ToBoolean();
-
-                        if (isExists == false)
+                        var sqlFilePath = PathExtensions.Combine(ModuleBasePath, "SQL", "Create", dataProvider.ToString() + ".txt");
+                        if (File.Exists(sqlFilePath) == true)
                         {
-                            var sqlFilePath = PathExtensions.Combine(ModuleBasePath, "SQL", "Create", dataProvider.ToString() + ".txt");
-                            if (File.Exists(sqlFilePath) == true)
-                            {
-                                var ddlScript = File.ReadAllText(sqlFilePath).Replace("{TableName}", tableName);
+                            var ddlScript = File.ReadAllText(sqlFilePath).Replace("{TableName}", tableName);
 
-                                command.CommandText = ddlScript;
-                                command.ExecuteNonQuery();
+                            command.CommandText = ddlScript;
+                            command.ExecuteNonQuery();
 
-                                result = true;
-                            }
-                            else
-                            {
-                                Log.Logger.Error("[{LogCategory}] " + $"sqlFilePath: {sqlFilePath} 확인 필요", "ModuleConfiguration/CreateNotExistTable");
-                            }
+                            result = true;
                         }
                         else
                         {
-                            result = true;
+                            Log.Logger.Error("[{LogCategory}] " + $"sqlFilePath: {sqlFilePath} 확인 필요", "ModuleConfiguration/CreateNotExistTable");
                         }
+                    }
+                    else
+                    {
+                        result = true;
                     }
                 }
             }

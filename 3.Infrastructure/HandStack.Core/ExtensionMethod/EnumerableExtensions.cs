@@ -25,8 +25,8 @@ namespace HandStack.Core.ExtensionMethod
         /// </code>
         public static IEnumerable<TSource> Distinct<TSource, TKey>(this IEnumerable<TSource> @this, Func<TSource, TKey> keySelector)
         {
-            HashSet<TKey> seenKeys = new HashSet<TKey>();
-            foreach (TSource element in @this)
+            var seenKeys = new HashSet<TKey>();
+            foreach (var element in @this)
             {
                 if (seenKeys.Add(keySelector(element)))
                 {
@@ -37,7 +37,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string? GetDescriptionFromValue<T>(this T @this) where T : Enum
         {
-            string strValue = @this.ToString();
+            var strValue = @this.ToString();
 
             var description =
                 typeof(T).GetField(strValue)?

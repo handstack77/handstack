@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,8 +14,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-
-using RestSharp;
 
 using Serilog;
 
@@ -108,7 +105,7 @@ namespace ack
             Log.Information($"ack Stop...");
             Log.CloseAndFlush();
 
-            Process currentProcess = Process.GetCurrentProcess();
+            var currentProcess = Process.GetCurrentProcess();
             currentProcess.Kill();
         }
 
@@ -141,7 +138,7 @@ namespace ack
                             {
                                 try
                                 {
-                                    X509Certificate2 cert = new X509Certificate2(GlobalConfiguration.ServerDevCertFilePath, GlobalConfiguration.ServerDevCertPassword);
+                                    var cert = new X509Certificate2(GlobalConfiguration.ServerDevCertFilePath, GlobalConfiguration.ServerDevCertPassword);
                                     options.ListenAnyIP(GlobalConfiguration.ServerDevCertSslPort, listenOptions =>
                                     {
                                         listenOptions.UseHttps(cert);

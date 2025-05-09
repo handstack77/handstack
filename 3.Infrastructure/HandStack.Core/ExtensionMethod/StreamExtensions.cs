@@ -9,7 +9,7 @@ namespace HandStack.Core.ExtensionMethod
     {
         public static void CopyStream(this Stream @this, Stream destnationStream, int bufferSize)
         {
-            byte[] buffer = new byte[bufferSize];
+            var buffer = new byte[bufferSize];
             int read;
             while ((read = @this.Read(buffer, 0, buffer.Length)) > 0)
             {
@@ -66,10 +66,8 @@ namespace HandStack.Core.ExtensionMethod
 
         public static string ReadToEnd(this Stream stream, Encoding encoding)
         {
-            using (var reader = stream.GetReader(encoding))
-            {
-                return reader.ReadToEnd();
-            }
+            using var reader = stream.GetReader(encoding);
+            return reader.ReadToEnd();
         }
 
         public static Stream SeekToBegin(this Stream stream)
@@ -130,15 +128,13 @@ namespace HandStack.Core.ExtensionMethod
 
         public static byte[] ReadAllBytes(this Stream stream)
         {
-            using (var memoryStream = stream.CopyToMemory())
-            {
-                return memoryStream.ToArray();
-            }
+            using var memoryStream = stream.CopyToMemory();
+            return memoryStream.ToArray();
         }
 
         public static byte[]? ReadFixedBuffersize(this Stream stream, int bufsize)
         {
-            byte[]? buf = new byte[bufsize];
+            var buf = new byte[bufsize];
             int offset = 0, cnt;
             do
             {
@@ -161,26 +157,22 @@ namespace HandStack.Core.ExtensionMethod
 
         public static byte[] ToByteArray(this Stream stream)
         {
-            using (var ms = new MemoryStream())
-            {
-                stream.CopyTo(ms);
-                return ms.ToArray();
-            }
+            using var ms = new MemoryStream();
+            stream.CopyTo(ms);
+            return ms.ToArray();
         }
 
         public static string ToMD5Hash(this Stream stream)
         {
-            using (MD5 md5 = MD5.Create())
+            using var md5 = MD5.Create();
+            var hashBytes = md5.ComputeHash(stream);
+            var sb = new StringBuilder();
+            foreach (var bytes in hashBytes)
             {
-                byte[] hashBytes = md5.ComputeHash(stream);
-                var sb = new StringBuilder();
-                foreach (byte bytes in hashBytes)
-                {
-                    sb.Append(bytes.ToString("X2"));
-                }
-
-                return sb.ToString();
+                sb.Append(bytes.ToString("X2"));
             }
+
+            return sb.ToString();
         }
     }
 }

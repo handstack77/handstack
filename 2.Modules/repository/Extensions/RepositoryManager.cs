@@ -46,7 +46,7 @@ namespace repository.Extensions
 
         public string GetPolicyPath(Repository repository)
         {
-            string result = "";
+            var result = "";
             if (repository.IsAutoPath == true)
             {
                 switch (repository.PolicyPathID)
@@ -68,10 +68,10 @@ namespace repository.Extensions
 
         public string GetPhysicalPath(Repository repository, string customPath1, string customPath2, string customPath3)
         {
-            string result = "";
+            var result = "";
             if (repository.IsAutoPath == true)
             {
-                string dynamicPath = "";
+                var dynamicPath = "";
                 switch (repository.PolicyPathID)
                 {
                     case "1": // 참조식별자+년도
@@ -131,7 +131,7 @@ namespace repository.Extensions
 
         public string GetRepositoryItemPath(Repository repository, RepositoryItems repositoryItem)
         {
-            string result = "";
+            var result = "";
 
             if (repository.StorageType == "AzureBlob")
             {
@@ -148,7 +148,7 @@ namespace repository.Extensions
             {
                 if (repository.IsAutoPath == true)
                 {
-                    string dynamicPath = GetCustomFileStoragePath(repositoryItem.CustomPath1, repositoryItem.CustomPath2, repositoryItem.CustomPath3) + repositoryItem.PolicyPath;
+                    var dynamicPath = GetCustomFileStoragePath(repositoryItem.CustomPath1, repositoryItem.CustomPath2, repositoryItem.CustomPath3) + repositoryItem.PolicyPath;
                     result = PathExtensions.Combine(repository.PhysicalPath, dynamicPath);
                 }
                 else
@@ -169,7 +169,7 @@ namespace repository.Extensions
         {
             if (blobContainerClient.CanGenerateSasUri)
             {
-                BlobSasBuilder sasBuilder = new BlobSasBuilder()
+                var sasBuilder = new BlobSasBuilder()
                 {
                     BlobContainerName = blobContainerClient.Name,
                     Resource = "c"
@@ -185,7 +185,7 @@ namespace repository.Extensions
                     sasBuilder.Identifier = storedPolicyName;
                 }
 
-                Uri sasUri = blobContainerClient.GenerateSasUri(sasBuilder);
+                var sasUri = blobContainerClient.GenerateSasUri(sasBuilder);
                 return sasUri;
             }
             else
@@ -204,7 +204,7 @@ namespace repository.Extensions
         {
             if (blobClient.CanGenerateSasUri)
             {
-                BlobSasBuilder sasBuilder = new BlobSasBuilder()
+                var sasBuilder = new BlobSasBuilder()
                 {
                     BlobContainerName = blobClient.GetParentBlobContainerClient().Name,
                     BlobName = blobClient.Name,
@@ -221,7 +221,7 @@ namespace repository.Extensions
                     sasBuilder.Identifier = storedPolicyName;
                 }
 
-                Uri sasUri = blobClient.GenerateSasUri(sasBuilder);
+                var sasUri = blobClient.GenerateSasUri(sasBuilder);
                 return sasUri;
             }
             else
@@ -233,7 +233,7 @@ namespace repository.Extensions
 
         public string GetCustomUrlPath(string customPath1, string customPath2, string customPath3)
         {
-            string result = "";
+            var result = "";
             if (string.IsNullOrEmpty(customPath1) == false)
             {
                 result += customPath1 + "/";
@@ -254,7 +254,7 @@ namespace repository.Extensions
 
         public string GetCustomFileStoragePath(string customPath1, string customPath2, string customPath3)
         {
-            string result = "";
+            var result = "";
             if (string.IsNullOrEmpty(customPath1) == false)
             {
                 result += customPath1 + directoryPathFlag;
@@ -281,18 +281,18 @@ namespace repository.Extensions
         public async Task<string> GetDuplicateCheckUniqueFileName(BlobContainerClient container, string blobID)
         {
             string result;
-            BlobClient blob = container.GetBlobClient(blobID);
+            var blob = container.GetBlobClient(blobID);
             if (await blob.ExistsAsync() == true)
             {
-                string originalBlobID = blobID;
+                var originalBlobID = blobID;
                 if (File.Exists(PathExtensions.Combine(this.PersistenceDirectoryPath, blobID)) == false)
                 {
                     result = blobID;
                 }
                 else
                 {
-                    int i = 0;
-                    string extension = Path.GetExtension(blobID);
+                    var i = 0;
+                    var extension = Path.GetExtension(blobID);
                     blobID = blobID.Replace(extension, "");
                     do
                     {
@@ -303,7 +303,8 @@ namespace repository.Extensions
                     result = blobID;
                 }
             }
-            else {
+            else
+            {
                 result = blobID;
             }
 
@@ -315,9 +316,9 @@ namespace repository.Extensions
             string result;
             if (File.Exists(PathExtensions.Combine(this.PersistenceDirectoryPath, fileName)) == true)
             {
-                string originalFileName = fileName;
-                int i = 0;
-                string extension = Path.GetExtension(fileName);
+                var originalFileName = fileName;
+                var i = 0;
+                var extension = Path.GetExtension(fileName);
 
                 if (string.IsNullOrEmpty(extension) == false)
                 {
@@ -343,7 +344,7 @@ namespace repository.Extensions
 
         public string GetSavePath(string itemID)
         {
-            DirectoryInfo saveFolder = new DirectoryInfo(this.PersistenceDirectoryPath);
+            var saveFolder = new DirectoryInfo(this.PersistenceDirectoryPath);
 
             if (saveFolder.Exists == false)
             {
@@ -357,7 +358,7 @@ namespace repository.Extensions
         {
             if (string.IsNullOrEmpty(sourceFileName) == false)
             {
-                string fileName = GetSavePath(sourceFileName);
+                var fileName = GetSavePath(sourceFileName);
                 if (File.Exists(fileName) == true)
                 {
                     File.Move(fileName, destnationFileName, true);
@@ -369,7 +370,7 @@ namespace repository.Extensions
         {
             if (string.IsNullOrEmpty(itemID) == false)
             {
-                string fileName = PathExtensions.Combine(this.PersistenceDirectoryPath, itemID);
+                var fileName = PathExtensions.Combine(this.PersistenceDirectoryPath, itemID);
                 if (File.Exists(fileName) == true)
                 {
                     File.Delete(fileName);
@@ -383,7 +384,7 @@ namespace repository.Extensions
             {
                 thumbnailWidth = originalWidth;
                 thumbnailHeight = originalHeight;
-                Single ratio = (((Single)originalHeight) / ((Single)originalWidth)) * 100f;
+                var ratio = (originalHeight / ((Single)originalWidth)) * 100f;
                 if (ratio < 100f)
                 {
                     if (originalWidth > thumbnailMaxWidth)

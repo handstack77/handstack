@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SQLite;
 using System.Globalization;
 using System.IO;
 
@@ -22,16 +21,16 @@ namespace transact.Extensions
     {
         public static bool IsLogDbFile(string userWorkID, string applicationID, string rollingID)
         {
-            string transactionLogBasePath = PathExtensions.Combine(ModuleConfiguration.TransactionLogBasePath, userWorkID, applicationID);
-            string logDbFilePath = PathExtensions.Combine(transactionLogBasePath, $"{rollingID}-{applicationID}.db");
-            FileInfo fileInfo = new FileInfo(logDbFilePath);
+            var transactionLogBasePath = PathExtensions.Combine(ModuleConfiguration.TransactionLogBasePath, userWorkID, applicationID);
+            var logDbFilePath = PathExtensions.Combine(transactionLogBasePath, $"{rollingID}-{applicationID}.db");
+            var fileInfo = new FileInfo(logDbFilePath);
             return fileInfo.Exists;
         }
 
         public static string? GetLogDbConnectionString(string userWorkID, string applicationID, string? rollingID = "")
         {
             string? result = null;
-            string transactionLogBasePath = PathExtensions.Combine(ModuleConfiguration.TransactionLogBasePath, userWorkID, applicationID);
+            var transactionLogBasePath = PathExtensions.Combine(ModuleConfiguration.TransactionLogBasePath, userWorkID, applicationID);
             if (Directory.Exists(transactionLogBasePath) == false)
             {
                 Directory.CreateDirectory(transactionLogBasePath);
@@ -39,8 +38,8 @@ namespace transact.Extensions
 
             if (string.IsNullOrEmpty(rollingID) == true)
             {
-                DateTime dateTime = DateTime.Now;
-                DayOfWeek day = CultureInfo.InvariantCulture.Calendar.GetDayOfWeek(dateTime);
+                var dateTime = DateTime.Now;
+                var day = CultureInfo.InvariantCulture.Calendar.GetDayOfWeek(dateTime);
                 if (day >= DayOfWeek.Monday && day <= DayOfWeek.Wednesday)
                 {
                     dateTime = dateTime.AddDays(3);
@@ -50,10 +49,10 @@ namespace transact.Extensions
             }
 
             // 주간별 SQLite 데이터베이스 파일 생성: {년도}{주2자리}-{애플리케이션 ID}.db
-            string logDbFilePath = PathExtensions.Combine(transactionLogBasePath, $"{rollingID}-{applicationID}.db");
+            var logDbFilePath = PathExtensions.Combine(transactionLogBasePath, $"{rollingID}-{applicationID}.db");
             result = $"URI=file:{logDbFilePath};Journal Mode=Off;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;";
 
-            FileInfo fileInfo = new FileInfo(logDbFilePath);
+            var fileInfo = new FileInfo(logDbFilePath);
             if (fileInfo.Directory != null && fileInfo.Directory.Exists == false)
             {
                 Directory.CreateDirectory(fileInfo.Directory.FullName.Replace("\\", "/"));
@@ -97,30 +96,28 @@ namespace transact.Extensions
                 {
                     try
                     {
-                        string? parseParameters = parameters == null ? null : JsonConvert.SerializeObject(parameters);
+                        var parseParameters = parameters == null ? null : JsonConvert.SerializeObject(parameters);
                         var sqlMeta = DatabaseExtensions.GetSQLiteMetaSQL(ModuleConfiguration.DatabaseContractPath, GlobalConfiguration.ApplicationID, paths[0], paths[1], paths[2], parseParameters);
                         if (sqlMeta != null)
                         {
-                            using (SQLiteClient sqliteClient = new SQLiteClient(connectionString))
+                            using var sqliteClient = new SQLiteClient(connectionString);
+                            switch (returnType)
                             {
-                                switch (returnType)
-                                {
-                                    case ReturnType.NonQuery:
-                                        result = sqliteClient.ExecuteNonQuery(sqlMeta.Item1, sqlMeta.Item2);
-                                        break;
-                                    case ReturnType.Scalar:
-                                        result = sqliteClient.ExecuteScalar(sqlMeta.Item1, sqlMeta.Item2);
-                                        break;
-                                    case ReturnType.DataSet:
-                                        result = sqliteClient.ExecuteDataSet(sqlMeta.Item1, sqlMeta.Item2);
-                                        break;
-                                    case ReturnType.DataReader:
-                                        result = sqliteClient.ExecuteReader(sqlMeta.Item1, sqlMeta.Item2);
-                                        break;
-                                    case ReturnType.Dynamic:
-                                        result = sqliteClient.ExecuteDynamic(sqlMeta.Item1, sqlMeta.Item2);
-                                        break;
-                                }
+                                case ReturnType.NonQuery:
+                                    result = sqliteClient.ExecuteNonQuery(sqlMeta.Item1, sqlMeta.Item2);
+                                    break;
+                                case ReturnType.Scalar:
+                                    result = sqliteClient.ExecuteScalar(sqlMeta.Item1, sqlMeta.Item2);
+                                    break;
+                                case ReturnType.DataSet:
+                                    result = sqliteClient.ExecuteDataSet(sqlMeta.Item1, sqlMeta.Item2);
+                                    break;
+                                case ReturnType.DataReader:
+                                    result = sqliteClient.ExecuteReader(sqlMeta.Item1, sqlMeta.Item2);
+                                    break;
+                                case ReturnType.Dynamic:
+                                    result = sqliteClient.ExecuteDynamic(sqlMeta.Item1, sqlMeta.Item2);
+                                    break;
                             }
                         }
                     }
@@ -149,14 +146,12 @@ namespace transact.Extensions
                 {
                     try
                     {
-                        string? parseParameters = parameters == null ? null : JsonConvert.SerializeObject(parameters);
+                        var parseParameters = parameters == null ? null : JsonConvert.SerializeObject(parameters);
                         var sqlMeta = DatabaseExtensions.GetSQLiteMetaSQL(ModuleConfiguration.DatabaseContractPath, GlobalConfiguration.ApplicationID, paths[0], paths[1], paths[2], parseParameters);
                         if (sqlMeta != null)
                         {
-                            using (SQLiteClient sqliteClient = new SQLiteClient(connectionString))
-                            {
-                                result = sqliteClient.ExecutePocoMappings<T>(sqlMeta.Item1, sqlMeta.Item2);
-                            }
+                            using var sqliteClient = new SQLiteClient(connectionString);
+                            result = sqliteClient.ExecutePocoMappings<T>(sqlMeta.Item1, sqlMeta.Item2);
                         }
                     }
                     catch (Exception exception)

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net.NetworkInformation;
+﻿using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 
@@ -9,18 +8,16 @@ namespace HandStack.Core.Helpers
     {
         public static bool IsIntranet(string ipAddress, int port, AddressFamily addressFamily = AddressFamily.InterNetwork)
         {
-            bool result = false;
+            var result = false;
 
             try
             {
-                using (Socket socket = new Socket(addressFamily, SocketType.Stream, ProtocolType.Tcp))
-                {
-                    socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, false);
+                using var socket = new Socket(addressFamily, SocketType.Stream, ProtocolType.Tcp);
+                socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, false);
 
-                    IAsyncResult asyncResult = socket.BeginConnect(ipAddress, port, null, null);
+                var asyncResult = socket.BeginConnect(ipAddress, port, null, null);
 
-                    result = asyncResult.AsyncWaitHandle.WaitOne(1000, true);
-                }
+                result = asyncResult.AsyncWaitHandle.WaitOne(1000, true);
             }
             catch
             {
@@ -32,23 +29,21 @@ namespace HandStack.Core.Helpers
 
         public static bool IsPing(string hostNameOrAddress, AddressFamily addressFamily = AddressFamily.InterNetwork)
         {
-            bool result = false;
+            var result = false;
 
             try
             {
-                using (TcpClient tcpClient = new TcpClient(addressFamily))
-                {
-                    Ping pingSender = new Ping();
-                    PingOptions options = new PingOptions();
+                using var tcpClient = new TcpClient(addressFamily);
+                var pingSender = new Ping();
+                var options = new PingOptions();
 
-                    options.DontFragment = true;
+                options.DontFragment = true;
 
-                    byte[] buffer = Encoding.ASCII.GetBytes("");
-                    int timeout = 120;
-                    PingReply reply = pingSender.Send(hostNameOrAddress, timeout, buffer, options);
+                var buffer = Encoding.ASCII.GetBytes("");
+                var timeout = 120;
+                var reply = pingSender.Send(hostNameOrAddress, timeout, buffer, options);
 
-                    result = (reply.Status == IPStatus.Success);
-                }
+                result = (reply.Status == IPStatus.Success);
             }
             catch
             {

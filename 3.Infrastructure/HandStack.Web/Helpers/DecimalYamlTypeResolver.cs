@@ -12,7 +12,7 @@ namespace HandStack.Web.Helper
         {
             if (nodeEvent is Scalar scalar)
             {
-                bool couldBeNumber =
+                var couldBeNumber =
                     scalar.Style is not ScalarStyle.SingleQuoted and not ScalarStyle.DoubleQuoted &&
                     scalar.Value.Length != 0 &&
                     (scalar.Value[0] is >= '0' and <= '9' || scalar.Value[0] == '-');

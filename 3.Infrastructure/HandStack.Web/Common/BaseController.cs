@@ -28,7 +28,7 @@ namespace HandStack.Web.Common
 
         protected async Task<bool> VerifyUserRole(HttpContext? httpContext, string scheme, string roleID)
         {
-            bool result = false;
+            var result = false;
             if (httpContext != null)
             {
                 try
@@ -61,7 +61,7 @@ namespace HandStack.Web.Common
 
         protected async Task<List<Claim>> GetPrincipalClaims(HttpContext? httpContext, string scheme)
         {
-            List<Claim> result = new List<Claim>();
+            var result = new List<Claim>();
             if (httpContext != null)
             {
                 try

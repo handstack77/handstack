@@ -47,7 +47,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public PagingExtensions(IQueryable<T> dataSource, int index, int pageSize)
         {
-            int dataCount = dataSource.Count();
+            var dataCount = dataSource.Count();
 
             this.TotalCount = dataCount;
             this.TotalPages = dataCount / pageSize;
@@ -65,7 +65,7 @@ namespace HandStack.Core.ExtensionMethod
         public PagingExtensions(List<T> dataSource, int index, int pageSize)
         {
 
-            int dataCount = dataSource.Count();
+            var dataCount = dataSource.Count();
 
             this.TotalCount = dataCount;
             this.TotalPages = dataCount / pageSize;

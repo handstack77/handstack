@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Dynamic;
-using System.Linq;
 using System.Reflection;
 
 namespace HandStack.Core.ExpendObjects
@@ -124,7 +123,7 @@ namespace HandStack.Core.ExpendObjects
             {
                 try
                 {
-                    bool result = SetProperty(instance, binder.Name, value);
+                    var result = SetProperty(instance, binder.Name, value);
                     if (result == true)
                     {
                         return true;
@@ -299,7 +298,7 @@ namespace HandStack.Core.ExpendObjects
 
         public bool Contains(KeyValuePair<string, object> item, bool includeInstanceProperties = false)
         {
-            bool isContain = Properties.ContainsKey(item.Key);
+            var isContain = Properties.ContainsKey(item.Key);
             if (isContain == true)
             {
                 return true;

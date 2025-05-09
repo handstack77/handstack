@@ -69,7 +69,7 @@ namespace dbclient.Areas.dbclient.Controllers
                 }
                 catch (Exception exception)
                 {
-                    string exceptionText = exception.ToMessage();
+                    var exceptionText = exception.ToMessage();
                     logger.Error("[{LogCategory}] " + exceptionText, "Query/Has");
 
                     result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
@@ -90,7 +90,7 @@ namespace dbclient.Areas.dbclient.Controllers
             }
             else
             {
-                bool actionResult = false;
+                var actionResult = false;
 
                 try
                 {
@@ -101,21 +101,21 @@ namespace dbclient.Areas.dbclient.Controllers
 
                     logger.Information("[{LogCategory}] " + $"WatcherChangeTypes: {changeType}, FilePath: {filePath}", "Query/Refresh");
 
-                    FileInfo fileInfo = new FileInfo(filePath);
+                    var fileInfo = new FileInfo(filePath);
 
                     var businessContracts = DatabaseMapper.StatementMappings;
                     lock (businessContracts)
                     {
-                        WatcherChangeTypes watcherChangeTypes = (WatcherChangeTypes)Enum.Parse(typeof(WatcherChangeTypes), changeType);
+                        var watcherChangeTypes = (WatcherChangeTypes)Enum.Parse(typeof(WatcherChangeTypes), changeType);
                         switch (watcherChangeTypes)
                         {
                             case WatcherChangeTypes.Created:
                             case WatcherChangeTypes.Changed:
                                 if (string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false)
                                 {
-                                    string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-                                    string itemPath = PathExtensions.Join(appBasePath, filePath);
-                                    DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
+                                    var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                                    var itemPath = PathExtensions.Join(appBasePath, filePath);
+                                    var directoryInfo = new DirectoryInfo(appBasePath);
                                     if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true && fileInfo.Extension == ".xml" == true)
                                     {
                                         logger.Information("[{LogCategory}] " + $"Add TenantApp StatementMap FilePath: {filePath}", "Query/Refresh");
@@ -126,8 +126,8 @@ namespace dbclient.Areas.dbclient.Controllers
                                 {
                                     foreach (var basePath in ModuleConfiguration.ContractBasePath)
                                     {
-                                        string itemPath = PathExtensions.Join(basePath, filePath);
-                                        DirectoryInfo directoryInfo = new DirectoryInfo(basePath);
+                                        var itemPath = PathExtensions.Join(basePath, filePath);
+                                        var directoryInfo = new DirectoryInfo(basePath);
                                         if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true && fileInfo.Extension == ".xml" == true)
                                         {
                                             logger.Information("[{LogCategory}] " + $"Add StatementMap FilePath: {filePath}", "Query/Refresh");
@@ -138,11 +138,11 @@ namespace dbclient.Areas.dbclient.Controllers
                                 }
                                 break;
                             case WatcherChangeTypes.Deleted:
-                                List<StatementMap> existStatementMaps = new List<StatementMap>();
+                                var existStatementMaps = new List<StatementMap>();
                                 if (string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false)
                                 {
-                                    string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-                                    DirectoryInfo directoryInfo = new DirectoryInfo(appBasePath);
+                                    var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                                    var directoryInfo = new DirectoryInfo(appBasePath);
                                     if (directoryInfo.Exists == true)
                                     {
                                         existStatementMaps = DatabaseMapper.StatementMappings.Select(p => p.Value).Where(p =>
@@ -161,14 +161,14 @@ namespace dbclient.Areas.dbclient.Controllers
 
                                 if (existStatementMaps.Count > 0)
                                 {
-                                    List<string> mapStrings = new List<string>();
-                                    for (int i = 0; i < existStatementMaps.Count; i++)
+                                    var mapStrings = new List<string>();
+                                    for (var i = 0; i < existStatementMaps.Count; i++)
                                     {
                                         var item = existStatementMaps[i];
                                         mapStrings.Add($"{item.ApplicationID}|{item.ProjectID}|{item.TransactionID}|{item.StatementID}");
                                     }
 
-                                    for (int i = 0; i < mapStrings.Count; i++)
+                                    for (var i = 0; i < mapStrings.Count; i++)
                                     {
                                         var item = existStatementMaps[i];
                                         var items = mapStrings[i].SplitAndTrim('|');
@@ -184,7 +184,7 @@ namespace dbclient.Areas.dbclient.Controllers
                 }
                 catch (Exception exception)
                 {
-                    string exceptionText = exception.ToMessage();
+                    var exceptionText = exception.ToMessage();
                     logger.Error("[{LogCategory}] " + exceptionText, "Query/Refresh");
 
                     result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
@@ -237,16 +237,16 @@ namespace dbclient.Areas.dbclient.Controllers
 
                     if (string.IsNullOrEmpty(model.FunctionID) == false)
                     {
-                        string queryFunctionID = model.FunctionID.Substring(0, model.FunctionID.Length - 2);
+                        var queryFunctionID = model.FunctionID.Substring(0, model.FunctionID.Length - 2);
                         queryResults = queryResults.Where(p => p.StatementID.Substring(0, p.StatementID.Length - 2) == queryFunctionID);
                     }
 
-                    List<StatementMap> statementMaps = queryResults.ToList();
+                    var statementMaps = queryResults.ToList();
                     result = Content(JsonConvert.SerializeObject(statementMaps), "application/json");
                 }
                 catch (Exception exception)
                 {
-                    string exceptionText = exception.ToMessage();
+                    var exceptionText = exception.ToMessage();
                     logger.Error("[{LogCategory}] " + exceptionText, "Query/Retrieve");
 
                     result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
@@ -270,7 +270,7 @@ namespace dbclient.Areas.dbclient.Controllers
                 try
                 {
                     var queryResults = DatabaseMapper.StatementMappings.Select(p => p.Value);
-                    List<StatementMap> statementMaps = queryResults.ToList();
+                    var statementMaps = queryResults.ToList();
                     if (statementMaps != null)
                     {
                         result = Content(JsonConvert.SerializeObject(statementMaps), "application/json");
@@ -278,7 +278,7 @@ namespace dbclient.Areas.dbclient.Controllers
                 }
                 catch (Exception exception)
                 {
-                    string exceptionText = exception.ToMessage();
+                    var exceptionText = exception.ToMessage();
                     logger.Error("[{LogCategory}] " + exceptionText, "Query/Meta");
 
                     result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
@@ -302,7 +302,7 @@ namespace dbclient.Areas.dbclient.Controllers
                 try
                 {
                     var queryResults = DatabaseMapper.StatementMappings.Select(p => p.Value);
-                    List<StatementMap> statementMaps = queryResults.ToList();
+                    var statementMaps = queryResults.ToList();
                     if (statementMaps != null)
                     {
                         var reports = statementMaps.Select(p => new
@@ -325,7 +325,7 @@ namespace dbclient.Areas.dbclient.Controllers
                 }
                 catch (Exception exception)
                 {
-                    string exceptionText = exception.ToMessage();
+                    var exceptionText = exception.ToMessage();
                     logger.Error("[{LogCategory}] " + exceptionText, "Query/Reports");
 
                     result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
@@ -340,7 +340,7 @@ namespace dbclient.Areas.dbclient.Controllers
         public async Task<ActionResult> Execute(DynamicRequest request)
         {
             ActionResult result = BadRequest();
-            DynamicResponse response = new DynamicResponse();
+            var response = new DynamicResponse();
             response.Acknowledge = AcknowledgeType.Failure;
 
             if (request == null)
@@ -358,7 +358,7 @@ namespace dbclient.Areas.dbclient.Controllers
             response.CorrelationID = request.GlobalID;
             if (string.IsNullOrEmpty(request.RequestID) == true)
             {
-                request.RequestID = $"SELF_{GlobalConfiguration.SystemID}{GlobalConfiguration.HostName}{GlobalConfiguration.RunningEnvironment}{DateTime.Now.ToString("yyyyMMddHHmmssfff")}";
+                request.RequestID = $"SELF_{GlobalConfiguration.SystemID}{GlobalConfiguration.HostName}{GlobalConfiguration.RunningEnvironment}{DateTime.Now:yyyyMMddHHmmssfff}";
             }
 
             if (string.IsNullOrEmpty(request.GlobalID) == true)
@@ -378,7 +378,7 @@ namespace dbclient.Areas.dbclient.Controllers
 
                 if (request.LoadOptions != null)
                 {
-                    Dictionary<string, string> loadOptions = request.LoadOptions;
+                    var loadOptions = request.LoadOptions;
                     if (loadOptions.Count > 0)
                     {
                     }
@@ -445,7 +445,7 @@ namespace dbclient.Areas.dbclient.Controllers
 
             try
             {
-                string acknowledge = response.Acknowledge == AcknowledgeType.Success ? "Y" : "N";
+                var acknowledge = response.Acknowledge == AcknowledgeType.Success ? "Y" : "N";
                 if (request.ReturnType == ExecuteDynamicTypeObject.Xml)
                 {
                     var responseData = response.ResultObject as string;
@@ -466,7 +466,7 @@ namespace dbclient.Areas.dbclient.Controllers
                 }
                 else
                 {
-                    string responseData = JsonConvert.SerializeObject(response);
+                    var responseData = JsonConvert.SerializeObject(response);
                     if (ModuleConfiguration.IsTransactionLogging == true)
                     {
                         loggerClient.DynamicResponseLogging(request.GlobalID, acknowledge, GlobalConfiguration.ApplicationID, responseData, "Query/Execute ReturnType: " + request.ReturnType.ToString(), (string error) =>
@@ -497,7 +497,7 @@ namespace dbclient.Areas.dbclient.Controllers
                 {
                     if (request.ReturnType == ExecuteDynamicTypeObject.Json)
                     {
-                        string responseData = JsonConvert.SerializeObject(response);
+                        var responseData = JsonConvert.SerializeObject(response);
 
                         if (ModuleConfiguration.IsTransactionLogging == true)
                         {

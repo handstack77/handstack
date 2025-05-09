@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
@@ -12,20 +11,18 @@ namespace HandStack.Core.ExpendObjects
     {
         public static bool SerializeObject(object instance, string fileName, bool throwExceptions)
         {
-            bool result = true;
+            var result = true;
 
             try
             {
-                XmlSerializer serializer = new XmlSerializer(instance.GetType());
-                using (Stream fs = new FileStream(fileName, FileMode.Create))
-                using (XmlTextWriter writer = new XmlTextWriter(fs, new UTF8Encoding()))
-                {
-                    writer.Formatting = Formatting.Indented;
-                    writer.IndentChar = ' ';
-                    writer.Indentation = 4;
+                var serializer = new XmlSerializer(instance.GetType());
+                using Stream fs = new FileStream(fileName, FileMode.Create);
+                using var writer = new XmlTextWriter(fs, new UTF8Encoding());
+                writer.Formatting = Formatting.Indented;
+                writer.IndentChar = ' ';
+                writer.Indentation = 4;
 
-                    serializer.Serialize(writer, instance);
-                }
+                serializer.Serialize(writer, instance);
             }
             catch (Exception exception)
             {
@@ -43,11 +40,11 @@ namespace HandStack.Core.ExpendObjects
 
         public static bool SerializeObject(object instance, XmlTextWriter writer, bool throwExceptions)
         {
-            bool result = true;
+            var result = true;
 
             try
             {
-                XmlSerializer serializer = new XmlSerializer(instance.GetType());
+                var serializer = new XmlSerializer(instance.GetType());
                 writer.Formatting = Formatting.Indented;
                 writer.IndentChar = ' ';
                 writer.Indentation = 4;
@@ -77,16 +74,14 @@ namespace HandStack.Core.ExpendObjects
         public static bool SerializeObject(object instance, out string xmlResultString, bool throwExceptions)
         {
             xmlResultString = string.Empty;
-            using (MemoryStream ms = new MemoryStream())
-            using (XmlTextWriter writer = new XmlTextWriter(ms, new UTF8Encoding()))
+            using var ms = new MemoryStream();
+            using var writer = new XmlTextWriter(ms, new UTF8Encoding());
+            if (SerializeObject(instance, writer, throwExceptions) == false)
             {
-                if (SerializeObject(instance, writer, throwExceptions) == false)
-                {
-                    return false;
-                }
-
-                xmlResultString = Encoding.UTF8.GetString(ms.ToArray(), 0, (int)ms.Length);
+                return false;
             }
+
+            xmlResultString = Encoding.UTF8.GetString(ms.ToArray(), 0, (int)ms.Length);
 
             return true;
         }
@@ -107,12 +102,10 @@ namespace HandStack.Core.ExpendObjects
             object? instance = null;
             try
             {
-                XmlSerializer serializer = new XmlSerializer(objectType);
-                using (FileStream fs = new FileStream(fileName, FileMode.Open))
-                using (XmlReader reader = new XmlTextReader(fs))
-                {
-                    instance = serializer.Deserialize(reader);
-                }
+                var serializer = new XmlSerializer(objectType);
+                using var fs = new FileStream(fileName, FileMode.Open);
+                using XmlReader reader = new XmlTextReader(fs);
+                instance = serializer.Deserialize(reader);
             }
             catch (Exception exception)
             {
@@ -131,14 +124,14 @@ namespace HandStack.Core.ExpendObjects
 
         public static object? DeSerializeObject(string xml, Type objectType)
         {
-            XmlTextReader reader = new XmlTextReader(xml, XmlNodeType.Document, null);
+            var reader = new XmlTextReader(xml, XmlNodeType.Document, null);
             return DeSerializeObject(reader, objectType);
         }
 
         public static object? DeSerializeObject(XmlReader reader, Type objectType)
         {
-            XmlSerializer serializer = new XmlSerializer(objectType);
-            object? result = serializer.Deserialize(reader);
+            var serializer = new XmlSerializer(objectType);
+            var result = serializer.Deserialize(reader);
             reader.Close();
 
             return result;
@@ -147,21 +140,21 @@ namespace HandStack.Core.ExpendObjects
         public static string? ObjectToString(object instance, string separator, ObjectToStringTypes type)
         {
             string? result = null;
-            FieldInfo[] fi = instance.GetType().GetFields();
+            var fi = instance.GetType().GetFields();
             if (type == ObjectToStringTypes.Properties || type == ObjectToStringTypes.PropertiesAndFields)
             {
-                foreach (PropertyInfo property in instance.GetType().GetProperties())
+                foreach (var property in instance.GetType().GetProperties())
                 {
-                    object? value = property.GetValue(instance, null);
+                    var value = property.GetValue(instance, null);
                     result += property.Name + ":" + (value == null ? "" : value).ToString() + separator;
                 }
             }
 
             if (type == ObjectToStringTypes.Fields || type == ObjectToStringTypes.PropertiesAndFields)
             {
-                foreach (FieldInfo field in fi)
+                foreach (var field in fi)
                 {
-                    object? value = field.GetValue(instance);
+                    var value = field.GetValue(instance);
                     result = result + field.Name + ": " + (value == null ? "" : value).ToString() + separator;
                 }
             }

@@ -39,41 +39,37 @@ namespace HandStack.Data.ExtensionMethod
 
         public static DataSet ExecuteDataSet(this NpgsqlConnection @this, string cmdText, NpgsqlParameter[]? parameters, CommandType commandType, NpgsqlTransaction? transaction)
         {
-            using (var command = @this.CreateCommand())
+            using var command = @this.CreateCommand();
+            command.CommandText = cmdText;
+            command.CommandType = commandType;
+            command.Transaction = transaction;
+
+            if (parameters != null)
             {
-                command.CommandText = cmdText;
-                command.CommandType = commandType;
-                command.Transaction = transaction;
-
-                if (parameters != null)
-                {
-                    command.Parameters.AddRange(parameters);
-                }
-
-                var ds = new DataSet();
-                using (var dataAdapter = new NpgsqlDataAdapter(command))
-                {
-                    dataAdapter.Fill(ds);
-                }
-
-                return ds;
+                command.Parameters.AddRange(parameters);
             }
+
+            var ds = new DataSet();
+            using (var dataAdapter = new NpgsqlDataAdapter(command))
+            {
+                dataAdapter.Fill(ds);
+            }
+
+            return ds;
         }
 
         public static DataSet ExecuteDataSet(this NpgsqlConnection @this, Action<NpgsqlCommand> commandFactory)
         {
-            using (var command = @this.CreateCommand())
+            using var command = @this.CreateCommand();
+            commandFactory(command);
+
+            var ds = new DataSet();
+            using (var dataAdapter = new NpgsqlDataAdapter(command))
             {
-                commandFactory(command);
-
-                var ds = new DataSet();
-                using (var dataAdapter = new NpgsqlDataAdapter(command))
-                {
-                    dataAdapter.Fill(ds);
-                }
-
-                return ds;
+                dataAdapter.Fill(ds);
             }
+
+            return ds;
         }
 
         public static DataSet ExecuteDataSet(this NpgsqlConnection @this, string cmdText)
@@ -113,41 +109,37 @@ namespace HandStack.Data.ExtensionMethod
 
         public static DataTable ExecuteDataTable(this NpgsqlConnection @this, string cmdText, NpgsqlParameter[]? parameters, CommandType commandType, NpgsqlTransaction? transaction)
         {
-            using (NpgsqlCommand command = @this.CreateCommand())
+            using var command = @this.CreateCommand();
+            command.CommandText = cmdText;
+            command.CommandType = commandType;
+            command.Transaction = transaction;
+
+            if (parameters != null)
             {
-                command.CommandText = cmdText;
-                command.CommandType = commandType;
-                command.Transaction = transaction;
-
-                if (parameters != null)
-                {
-                    command.Parameters.AddRange(parameters);
-                }
-
-                var ds = new DataSet();
-                using (var dataAdapter = new NpgsqlDataAdapter(command))
-                {
-                    dataAdapter.Fill(ds);
-                }
-
-                return ds.Tables[0];
+                command.Parameters.AddRange(parameters);
             }
+
+            var ds = new DataSet();
+            using (var dataAdapter = new NpgsqlDataAdapter(command))
+            {
+                dataAdapter.Fill(ds);
+            }
+
+            return ds.Tables[0];
         }
 
         public static DataTable ExecuteDataTable(this NpgsqlConnection @this, Action<NpgsqlCommand> commandFactory)
         {
-            using (NpgsqlCommand command = @this.CreateCommand())
+            using var command = @this.CreateCommand();
+            commandFactory(command);
+
+            var ds = new DataSet();
+            using (var dataAdapter = new NpgsqlDataAdapter(command))
             {
-                commandFactory(command);
-
-                var ds = new DataSet();
-                using (var dataAdapter = new NpgsqlDataAdapter(command))
-                {
-                    dataAdapter.Fill(ds);
-                }
-
-                return ds.Tables[0];
+                dataAdapter.Fill(ds);
             }
+
+            return ds.Tables[0];
         }
 
         public static DataTable ExecuteDataTable(this NpgsqlConnection @this, string cmdText)
@@ -187,35 +179,27 @@ namespace HandStack.Data.ExtensionMethod
 
         public static IEnumerable<T> ExecuteEntities<T>(this NpgsqlConnection @this, string cmdText, NpgsqlParameter[]? parameters, CommandType commandType, NpgsqlTransaction? transaction) where T : new()
         {
-            using (NpgsqlCommand command = @this.CreateCommand())
+            using var command = @this.CreateCommand();
+            command.CommandText = cmdText;
+            command.CommandType = commandType;
+            command.Transaction = transaction;
+
+            if (parameters != null)
             {
-                command.CommandText = cmdText;
-                command.CommandType = commandType;
-                command.Transaction = transaction;
-
-                if (parameters != null)
-                {
-                    command.Parameters.AddRange(parameters);
-                }
-
-                using (IDataReader reader = command.ExecuteReader())
-                {
-                    return reader.ToEntities<T>();
-                }
+                command.Parameters.AddRange(parameters);
             }
+
+            using IDataReader reader = command.ExecuteReader();
+            return reader.ToEntities<T>();
         }
 
         public static IEnumerable<T> ExecuteEntities<T>(this NpgsqlConnection @this, Action<NpgsqlCommand> commandFactory) where T : new()
         {
-            using (NpgsqlCommand command = @this.CreateCommand())
-            {
-                commandFactory(command);
+            using var command = @this.CreateCommand();
+            commandFactory(command);
 
-                using (IDataReader reader = command.ExecuteReader())
-                {
-                    return reader.ToEntities<T>();
-                }
-            }
+            using IDataReader reader = command.ExecuteReader();
+            return reader.ToEntities<T>();
         }
 
         public static IEnumerable<T> ExecuteEntities<T>(this NpgsqlConnection @this, string cmdText) where T : new()
@@ -255,37 +239,29 @@ namespace HandStack.Data.ExtensionMethod
 
         public static T ExecuteEntity<T>(this NpgsqlConnection @this, string cmdText, NpgsqlParameter[]? parameters, CommandType commandType, NpgsqlTransaction? transaction) where T : new()
         {
-            using (NpgsqlCommand command = @this.CreateCommand())
+            using var command = @this.CreateCommand();
+            command.CommandText = cmdText;
+            command.CommandType = commandType;
+            command.Transaction = transaction;
+
+            if (parameters != null)
             {
-                command.CommandText = cmdText;
-                command.CommandType = commandType;
-                command.Transaction = transaction;
-
-                if (parameters != null)
-                {
-                    command.Parameters.AddRange(parameters);
-                }
-
-                using (IDataReader reader = command.ExecuteReader())
-                {
-                    reader.Read();
-                    return reader.ToEntity<T>();
-                }
+                command.Parameters.AddRange(parameters);
             }
+
+            using IDataReader reader = command.ExecuteReader();
+            reader.Read();
+            return reader.ToEntity<T>();
         }
 
         public static T ExecuteEntity<T>(this NpgsqlConnection @this, Action<NpgsqlCommand> commandFactory) where T : new()
         {
-            using (NpgsqlCommand command = @this.CreateCommand())
-            {
-                commandFactory(command);
+            using var command = @this.CreateCommand();
+            commandFactory(command);
 
-                using (IDataReader reader = command.ExecuteReader())
-                {
-                    reader.Read();
-                    return reader.ToEntity<T>();
-                }
-            }
+            using IDataReader reader = command.ExecuteReader();
+            reader.Read();
+            return reader.ToEntity<T>();
         }
 
         public static T ExecuteEntity<T>(this NpgsqlConnection @this, string cmdText) where T : new()
@@ -325,37 +301,29 @@ namespace HandStack.Data.ExtensionMethod
 
         public static dynamic ExecuteExpandoObject(this NpgsqlConnection @this, string cmdText, NpgsqlParameter[]? parameters, CommandType commandType, NpgsqlTransaction? transaction)
         {
-            using (NpgsqlCommand command = @this.CreateCommand())
+            using var command = @this.CreateCommand();
+            command.CommandText = cmdText;
+            command.CommandType = commandType;
+            command.Transaction = transaction;
+
+            if (parameters != null)
             {
-                command.CommandText = cmdText;
-                command.CommandType = commandType;
-                command.Transaction = transaction;
-
-                if (parameters != null)
-                {
-                    command.Parameters.AddRange(parameters);
-                }
-
-                using (IDataReader reader = command.ExecuteReader())
-                {
-                    reader.Read();
-                    return reader.ToExpandoObject();
-                }
+                command.Parameters.AddRange(parameters);
             }
+
+            using IDataReader reader = command.ExecuteReader();
+            reader.Read();
+            return reader.ToExpandoObject();
         }
 
         public static dynamic ExecuteExpandoObject(this NpgsqlConnection @this, Action<NpgsqlCommand> commandFactory)
         {
-            using (NpgsqlCommand command = @this.CreateCommand())
-            {
-                commandFactory(command);
+            using var command = @this.CreateCommand();
+            commandFactory(command);
 
-                using (IDataReader reader = command.ExecuteReader())
-                {
-                    reader.Read();
-                    return reader.ToExpandoObject();
-                }
-            }
+            using IDataReader reader = command.ExecuteReader();
+            reader.Read();
+            return reader.ToExpandoObject();
         }
 
         public static dynamic ExecuteExpandoObject(this NpgsqlConnection @this, string cmdText)
@@ -395,35 +363,27 @@ namespace HandStack.Data.ExtensionMethod
 
         public static IEnumerable<dynamic> ExecuteExpandoObjects(this NpgsqlConnection @this, string cmdText, NpgsqlParameter[]? parameters, CommandType commandType, NpgsqlTransaction? transaction)
         {
-            using (NpgsqlCommand command = @this.CreateCommand())
+            using var command = @this.CreateCommand();
+            command.CommandText = cmdText;
+            command.CommandType = commandType;
+            command.Transaction = transaction;
+
+            if (parameters != null)
             {
-                command.CommandText = cmdText;
-                command.CommandType = commandType;
-                command.Transaction = transaction;
-
-                if (parameters != null)
-                {
-                    command.Parameters.AddRange(parameters);
-                }
-
-                using (IDataReader reader = command.ExecuteReader())
-                {
-                    return reader.ToExpandoObjects();
-                }
+                command.Parameters.AddRange(parameters);
             }
+
+            using IDataReader reader = command.ExecuteReader();
+            return reader.ToExpandoObjects();
         }
 
         public static IEnumerable<dynamic> ExecuteExpandoObjects(this NpgsqlConnection @this, Action<NpgsqlCommand> commandFactory)
         {
-            using (NpgsqlCommand command = @this.CreateCommand())
-            {
-                commandFactory(command);
+            using var command = @this.CreateCommand();
+            commandFactory(command);
 
-                using (IDataReader reader = command.ExecuteReader())
-                {
-                    return reader.ToExpandoObjects();
-                }
-            }
+            using IDataReader reader = command.ExecuteReader();
+            return reader.ToExpandoObjects();
         }
 
         public static IEnumerable<dynamic> ExecuteExpandoObjects(this NpgsqlConnection @this, string cmdText)
@@ -471,7 +431,7 @@ namespace HandStack.Data.ExtensionMethod
 
         public static string ParameterValueForSQL(this NpgsqlParameter @this)
         {
-            object? paramValue = @this.Value;
+            var paramValue = @this.Value;
 
             if (paramValue == null)
             {
@@ -521,7 +481,7 @@ namespace HandStack.Data.ExtensionMethod
 
         private static void CommandAsNpgsql_Text(this NpgsqlCommand @this, StringBuilder sql)
         {
-            string query = @this.CommandText;
+            var query = @this.CommandText;
 
             foreach (NpgsqlParameter p in @this.Parameters)
             {
@@ -547,7 +507,7 @@ namespace HandStack.Data.ExtensionMethod
 
             sql.Append("exec [").Append(@this.CommandText).AppendLine("]");
 
-            bool FirstParam = true;
+            var FirstParam = true;
             foreach (NpgsqlParameter param in @this.Parameters)
             {
                 if (param.Direction != ParameterDirection.ReturnValue)

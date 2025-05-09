@@ -39,7 +39,7 @@ namespace repository.Extensions
             try
             {
                 var transactionInfo = ModuleConfiguration.TransactionFileRepositorys.Split("|");
-                TransactionClientObject transactionObject = new TransactionClientObject();
+                var transactionObject = new TransactionClientObject();
                 transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
                 transactionObject.ProgramID = transactionInfo[0];
                 transactionObject.BusinessID = transactionInfo[1];
@@ -47,7 +47,7 @@ namespace repository.Extensions
                 transactionObject.FunctionID = transactionInfo[3];
                 transactionObject.ScreenID = transactionObject.TransactionID;
 
-                List<ServiceParameter> inputs = new List<ServiceParameter>();
+                var inputs = new List<ServiceParameter>();
                 inputs.Add("ApplicationID", applicationIDs);
                 transactionObject.Inputs.Add(inputs);
 
@@ -79,14 +79,15 @@ namespace repository.Extensions
                 result = ModuleConfiguration.FileRepositorys.AsQueryable().Where(p => p.ApplicationID == applicationID
                     && p.RepositoryID == repositoryID).FirstOrDefault();
 
-                if (result == null) {
-                    string? userWorkID = string.Empty;
-                    string appBasePath = string.Empty;
-                    DirectoryInfo baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
+                if (result == null)
+                {
+                    var userWorkID = string.Empty;
+                    var appBasePath = string.Empty;
+                    var baseDirectoryInfo = new DirectoryInfo(GlobalConfiguration.TenantAppBasePath);
                     var directories = Directory.GetDirectories(GlobalConfiguration.TenantAppBasePath, applicationID, SearchOption.AllDirectories);
-                    foreach (string directory in directories)
+                    foreach (var directory in directories)
                     {
-                        DirectoryInfo directoryInfo = new DirectoryInfo(directory);
+                        var directoryInfo = new DirectoryInfo(directory);
                         if (baseDirectoryInfo.Name == directoryInfo.Parent?.Parent?.Name)
                         {
                             appBasePath = directoryInfo.FullName.Replace("\\", "/");
@@ -97,10 +98,10 @@ namespace repository.Extensions
 
                     if (string.IsNullOrEmpty(userWorkID) == false && Directory.Exists(appBasePath) == true)
                     {
-                        string settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
+                        var settingFilePath = PathExtensions.Combine(appBasePath, "settings.json");
                         if (System.IO.File.Exists(settingFilePath) == true)
                         {
-                            string appSettingText = System.IO.File.ReadAllText(settingFilePath);
+                            var appSettingText = System.IO.File.ReadAllText(settingFilePath);
                             var appSetting = JsonConvert.DeserializeObject<AppSettings>(appSettingText);
                             if (appSetting != null)
                             {
@@ -109,7 +110,7 @@ namespace repository.Extensions
                                 {
                                     foreach (var storage in storages)
                                     {
-                                        Repository repository = new Repository();
+                                        var repository = new Repository();
 
                                         repository.ApplicationID = storage.ApplicationID;
                                         repository.RepositoryID = storage.RepositoryID;
@@ -153,7 +154,7 @@ namespace repository.Extensions
                                         {
                                             repository.PhysicalPath = repository.PhysicalPath.Replace("{appBasePath}", appBasePath);
                                             repository.PhysicalPath = GlobalConfiguration.GetBasePath(repository.PhysicalPath);
-                                            DirectoryInfo repositoryDirectoryInfo = new DirectoryInfo(repository.PhysicalPath);
+                                            var repositoryDirectoryInfo = new DirectoryInfo(repository.PhysicalPath);
                                             if (repositoryDirectoryInfo.Exists == false)
                                             {
                                                 repositoryDirectoryInfo.Create();
@@ -188,7 +189,7 @@ namespace repository.Extensions
                 if (repository != null)
                 {
                     var transactionInfo = string.IsNullOrEmpty(repository.TransactionGetItem) == true ? $"{GlobalConfiguration.ApplicationID}|STR|SLT010|GD01".Split("|") : repository.TransactionGetItem.Split("|");
-                    TransactionClientObject transactionObject = new TransactionClientObject();
+                    var transactionObject = new TransactionClientObject();
                     transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
                     if (transactionInfo.Length == 3)
                     {
@@ -211,7 +212,7 @@ namespace repository.Extensions
                     }
                     transactionObject.ScreenID = transactionObject.TransactionID;
 
-                    List<ServiceParameter> inputs = new List<ServiceParameter>();
+                    var inputs = new List<ServiceParameter>();
                     inputs.Add("RepositoryID", repositoryID);
                     inputs.Add("ItemID", itemID);
                     inputs.Add("ApplicationID", applicationID);
@@ -251,7 +252,7 @@ namespace repository.Extensions
                 if (repository != null)
                 {
                     var transactionInfo = string.IsNullOrEmpty(repository.TransactionGetItems) == true ? $"{GlobalConfiguration.ApplicationID}|STR|SLT010|LD01".Split("|") : repository.TransactionGetItems.Split("|");
-                    TransactionClientObject transactionObject = new TransactionClientObject();
+                    var transactionObject = new TransactionClientObject();
                     transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
                     if (transactionInfo.Length == 3)
                     {
@@ -274,7 +275,7 @@ namespace repository.Extensions
                     }
                     transactionObject.ScreenID = transactionObject.TransactionID;
 
-                    List<ServiceParameter> inputs = new List<ServiceParameter>();
+                    var inputs = new List<ServiceParameter>();
                     inputs.Add("RepositoryID", repositoryID);
                     inputs.Add("DependencyID", dependencyID);
                     inputs.Add("ApplicationID", applicationID);
@@ -303,7 +304,7 @@ namespace repository.Extensions
 
         public async Task<bool> DeleteRepositoryItem(string applicationID, string repositoryID, string itemID, string businessID)
         {
-            bool result = false;
+            var result = false;
 
             try
             {
@@ -311,7 +312,7 @@ namespace repository.Extensions
                 if (repository != null)
                 {
                     var transactionInfo = string.IsNullOrEmpty(repository.TransactionDeleteItem) == true ? $"{GlobalConfiguration.ApplicationID}|STR|SLT010|DD01".Split("|") : repository.TransactionDeleteItem.Split("|");
-                    TransactionClientObject transactionObject = new TransactionClientObject();
+                    var transactionObject = new TransactionClientObject();
                     transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
                     if (transactionInfo.Length == 3)
                     {
@@ -334,7 +335,7 @@ namespace repository.Extensions
                     }
                     transactionObject.ScreenID = transactionObject.TransactionID;
 
-                    List<ServiceParameter> inputs = new List<ServiceParameter>();
+                    var inputs = new List<ServiceParameter>();
                     inputs.Add("RepositoryID", repositoryID);
                     inputs.Add("ItemID", itemID);
                     inputs.Add("ApplicationID", applicationID);
@@ -363,7 +364,7 @@ namespace repository.Extensions
 
         public async Task<bool> UpsertRepositoryItem(RepositoryItems repositoryItem)
         {
-            bool result = false;
+            var result = false;
 
             try
             {
@@ -371,7 +372,7 @@ namespace repository.Extensions
                 if (repository != null)
                 {
                     var transactionInfo = string.IsNullOrEmpty(repository.TransactionUpsertItem) == true ? $"{GlobalConfiguration.ApplicationID}|STR|SLT010|MD01".Split("|") : repository.TransactionUpsertItem.Split("|");
-                    TransactionClientObject transactionObject = new TransactionClientObject();
+                    var transactionObject = new TransactionClientObject();
                     transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
                     if (transactionInfo.Length == 3)
                     {
@@ -394,7 +395,7 @@ namespace repository.Extensions
                     }
                     transactionObject.ScreenID = transactionObject.TransactionID;
 
-                    List<ServiceParameter> inputs = new List<ServiceParameter>();
+                    var inputs = new List<ServiceParameter>();
                     inputs.Add("ItemID", repositoryItem.ItemID);
                     inputs.Add("ApplicationID", repositoryItem.ApplicationID);
                     inputs.Add("BusinessID", repositoryItem.BusinessID);
@@ -442,7 +443,7 @@ namespace repository.Extensions
 
         public async Task<bool> UpdateDependencyID(RepositoryItems repositoryItem, string targetDependencyID)
         {
-            bool result = false;
+            var result = false;
 
             try
             {
@@ -450,7 +451,7 @@ namespace repository.Extensions
                 if (repository != null)
                 {
                     var transactionInfo = string.IsNullOrEmpty(repository.TransactionUpdateDependencyID) == true ? $"{GlobalConfiguration.ApplicationID}|STR|SLT010|UD01".Split("|") : repository.TransactionUpdateDependencyID.Split("|");
-                    TransactionClientObject transactionObject = new TransactionClientObject();
+                    var transactionObject = new TransactionClientObject();
                     transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
                     if (transactionInfo.Length == 3)
                     {
@@ -473,7 +474,7 @@ namespace repository.Extensions
                     }
                     transactionObject.ScreenID = transactionObject.TransactionID;
 
-                    List<ServiceParameter> inputs = new List<ServiceParameter>();
+                    var inputs = new List<ServiceParameter>();
                     inputs.Add("RepositoryID", repositoryItem.RepositoryID);
                     inputs.Add("ItemID", repositoryItem.ItemID);
                     inputs.Add("BusinessID", repositoryItem.BusinessID);
@@ -504,7 +505,7 @@ namespace repository.Extensions
 
         public async Task<bool> UpdateFileName(RepositoryItems repositoryItem, string sourceItemID)
         {
-            bool result = false;
+            var result = false;
 
             try
             {
@@ -512,7 +513,7 @@ namespace repository.Extensions
                 if (repository != null)
                 {
                     var transactionInfo = string.IsNullOrEmpty(repository.TransactionUpdateFileName) == true ? $"{GlobalConfiguration.ApplicationID}|STR|SLT010|UD02".Split("|") : repository.TransactionUpdateFileName.Split("|");
-                    TransactionClientObject transactionObject = new TransactionClientObject();
+                    var transactionObject = new TransactionClientObject();
                     transactionObject.SystemID = TransactionConfig.Transaction.SystemID;
                     if (transactionInfo.Length == 3)
                     {
@@ -535,7 +536,7 @@ namespace repository.Extensions
                     }
                     transactionObject.ScreenID = transactionObject.TransactionID;
 
-                    List<ServiceParameter> inputs = new List<ServiceParameter>();
+                    var inputs = new List<ServiceParameter>();
                     inputs.Add("ApplicationID", repositoryItem.ApplicationID);
                     inputs.Add("RepositoryID", repositoryItem.RepositoryID);
                     inputs.Add("ItemID", sourceItemID);

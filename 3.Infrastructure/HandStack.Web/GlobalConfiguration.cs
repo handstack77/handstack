@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Text;
 
 using HandStack.Core.ExtensionMethod;
@@ -137,7 +136,7 @@ namespace HandStack.Web
 
         public static bool InitailizeAppSetting(Dictionary<string, JToken> transactionResult)
         {
-            bool result = false;
+            var result = false;
             if (transactionResult.Count > 0 && transactionResult.ContainsKey("HasException") == false)
             {
                 lock (ApplicationCodes)
@@ -184,13 +183,13 @@ namespace HandStack.Web
 
         public static bool ClearPrivateAppSetting(string moduleID)
         {
-            bool result = false;
+            var result = false;
             var clearModuleAppSettings = ApplicationCodes.Where(x => x.Value != null && x.Value.Area == moduleID && x.Value.CommonYN == false).ToList();
             if (clearModuleAppSettings.Any() == true)
             {
                 lock (ApplicationCodes)
                 {
-                    for (int i = clearModuleAppSettings.Count(); 0 < i; --i)
+                    for (var i = clearModuleAppSettings.Count(); 0 < i; --i)
                     {
                         var item = clearModuleAppSettings[i];
                         ApplicationCodes.Remove(item.Key);

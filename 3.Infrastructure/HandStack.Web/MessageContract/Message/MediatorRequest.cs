@@ -2,8 +2,6 @@
 
 using HandStack.Web.MessageContract.Enumeration;
 
-using MediatR;
-
 namespace HandStack.Web.MessageContract.Message
 {
     public class MediatorRequest

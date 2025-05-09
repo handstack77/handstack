@@ -72,12 +72,12 @@ namespace HandStack.Core.Helpers
 
         public static byte[] CompressToUint8Array(string uncompressed)
         {
-            string compressed = Compress(uncompressed);
-            byte[] buf = new byte[compressed.Length * 2];
+            var compressed = Compress(uncompressed);
+            var buf = new byte[compressed.Length * 2];
 
-            for (int i = 0; i < compressed.Length; i++)
+            for (var i = 0; i < compressed.Length; i++)
             {
-                int current_value = Convert.ToInt32(compressed[i]);
+                var current_value = Convert.ToInt32(compressed[i]);
                 buf[i * 2] = (byte)(current_value >> 8);
                 buf[i * 2 + 1] = (byte)(current_value % 256);
             }
@@ -88,8 +88,8 @@ namespace HandStack.Core.Helpers
         {
             if (compressed == null) throw new ArgumentNullException(nameof(compressed));
 
-            char[] result = new char[compressed.Length / 2];
-            for (int i = 0; i < result.Length; i++)
+            var result = new char[compressed.Length / 2];
+            for (var i = 0; i < result.Length; i++)
             {
                 result[i] = Convert.ToChar(compressed[i * 2] * 256 + compressed[i * 2 + 1]);
             }

@@ -67,7 +67,7 @@ namespace transact.Events
         private TransactClient transactClient { get; }
 
         private TransactLoggerClient loggerClient { get; }
-        
+
         private Serilog.ILogger logger { get; }
 
         private readonly IMemoryCache memoryCache;
@@ -87,8 +87,8 @@ namespace transact.Events
 
         public async Task<object?> Handle(TransactRequest requestTransact, CancellationToken cancellationToken)
         {
-            TransactionRequest? request = requestTransact.Request as TransactionRequest;
-            TransactionResponse? response = new TransactionResponse();
+            var request = requestTransact.Request as TransactionRequest;
+            var response = new TransactionResponse();
 
             response.Acknowledge = AcknowledgeType.Failure;
 
@@ -99,7 +99,7 @@ namespace transact.Events
             }
 
             transactionRouteCount = request.System.Routes.Count > 0 ? request.System.Routes.Count - 1 : 0;
-            string transactionWorkID = "mainapp";
+            var transactionWorkID = "mainapp";
             try
             {
                 var transactionUserWorkID = request.LoadOptions?.Get<string>("work-id").ToStringSafe();
@@ -124,7 +124,7 @@ namespace transact.Events
                     }
                 }
 
-                bool isAllowRequestTransactions = false;
+                var isAllowRequestTransactions = false;
                 if (ModuleConfiguration.AllowRequestTransactions.ContainsKey("*") == true)
                 {
                     isAllowRequestTransactions = true;
@@ -191,7 +191,7 @@ namespace transact.Events
 
                     request.PayLoad.DataMapSet.Clear();
 
-                    foreach (string dataMapSetRaw in request.PayLoad.DataMapSetRaw)
+                    foreach (var dataMapSetRaw in request.PayLoad.DataMapSetRaw)
                     {
                         var decryptInputData = transactClient.DecryptInputData(dataMapSetRaw, request.Transaction.CompressionYN);
                         var reqJArray = transactClient.ToJson(decryptInputData);
@@ -221,7 +221,7 @@ namespace transact.Events
 
                         request.PayLoad.DataMapSet.Clear();
 
-                        foreach (string dataMapSetRaw in request.PayLoad.DataMapSetRaw)
+                        foreach (var dataMapSetRaw in request.PayLoad.DataMapSetRaw)
                         {
                             var decryptInputData = transactClient.DecryptInputData(dataMapSetRaw, request.Transaction.CompressionYN);
                             if (decryptInputData == null)
@@ -249,14 +249,14 @@ namespace transact.Events
                     return LoggingAndReturn(response, transactionWorkID, "Y", null);
                 }
 
-                string cacheKey = string.Empty;
+                var cacheKey = string.Empty;
                 if (ModuleConfiguration.IsCodeDataCache == true && request.LoadOptions?.Get<string>("codeCacheYN").ToStringSafe().ParseBool() == true)
                 {
                     if (request.PayLoad != null && request.PayLoad.DataMapSet != null && request.PayLoad.DataMapSet.Count > 0)
                     {
                         var inputs = request.PayLoad.DataMapSet[0];
-                        List<string> cacheKeys = new List<string>();
-                        for (int i = 0; i < inputs.Count; i++)
+                        var cacheKeys = new List<string>();
+                        for (var i = 0; i < inputs.Count; i++)
                         {
                             var input = inputs[i];
                             cacheKeys.Add(input.FieldID + ":" + (input.Value == null ? "null" : input.Value.ToString()));
@@ -274,7 +274,7 @@ namespace transact.Events
 
                             transactionResponse.ResponseID = string.Concat(ModuleConfiguration.SystemID, GlobalConfiguration.HostName, request.Environment, DateTime.Now.ToString("yyyyMMddHHmmss"));
                             transactClient.DefaultResponseHeaderConfiguration(request, transactionResponse, transactionRouteCount);
-                            transactionResponse.System.PathName = "event";;
+                            transactionResponse.System.PathName = "event"; ;
                             return LoggingAndReturn(transactionResponse, transactionWorkID, "Y", null);
                         }
                     }
@@ -332,10 +332,10 @@ namespace transact.Events
                 #region 거래 Transaction 입력 전문 확인
 
                 var dynamicContract = ModuleConfiguration.IsAllowDynamicRequest == true ? request.LoadOptions?.Get<string>("dynamic").ToStringSafe().ParseBool() : false;
-                BusinessContract? businessContract = TransactionMapper.GetBusinessContract(request.System.ProgramID, request.Transaction.BusinessID, request.Transaction.TransactionID);
+                var businessContract = TransactionMapper.GetBusinessContract(request.System.ProgramID, request.Transaction.BusinessID, request.Transaction.TransactionID);
                 if (businessContract == null && dynamicContract == true)
                 {
-                    PublicTransaction? publicTransaction = TransactionMapper.GetPublicTransaction(request.System.ProgramID, request.Transaction.BusinessID, request.Transaction.TransactionID);
+                    var publicTransaction = TransactionMapper.GetPublicTransaction(request.System.ProgramID, request.Transaction.BusinessID, request.Transaction.TransactionID);
                     if (publicTransaction != null)
                     {
                         businessContract = new BusinessContract();
@@ -386,11 +386,11 @@ namespace transact.Events
 
                 if (transactionInfo == null && dynamicContract == true)
                 {
-                    bool dynamicAuthorize = request.LoadOptions == null ? false : request.LoadOptions.Get<string>("authorize").ToStringSafe().ParseBool();
-                    string dynamicCommandType = request.LoadOptions == null ? "" : request.LoadOptions.Get<string>("commandType").ToStringSafe();
-                    string dynamicReturnType = request.LoadOptions == null ? "" : request.LoadOptions.Get<string>("returnType").ToStringSafe();
-                    bool dynamicTransactionScope = request.LoadOptions == null ? false : request.LoadOptions.Get<string>("transactionScope").ToStringSafe().ParseBool();
-                    bool dynamicTransactionLog = request.LoadOptions == null ? false : request.LoadOptions.Get<string>("transactionLog").ToStringSafe().ParseBool();
+                    var dynamicAuthorize = request.LoadOptions == null ? false : request.LoadOptions.Get<string>("authorize").ToStringSafe().ParseBool();
+                    var dynamicCommandType = request.LoadOptions == null ? "" : request.LoadOptions.Get<string>("commandType").ToStringSafe();
+                    var dynamicReturnType = request.LoadOptions == null ? "" : request.LoadOptions.Get<string>("returnType").ToStringSafe();
+                    var dynamicTransactionScope = request.LoadOptions == null ? false : request.LoadOptions.Get<string>("transactionScope").ToStringSafe().ParseBool();
+                    var dynamicTransactionLog = request.LoadOptions == null ? false : request.LoadOptions.Get<string>("transactionLog").ToStringSafe().ParseBool();
 
                     transactionInfo = new TransactionInfo();
                     transactionInfo.ServiceID = request.Transaction.FunctionID;
@@ -411,7 +411,7 @@ namespace transact.Events
                     return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                 }
 
-                bool isAccessScreenID = false;
+                var isAccessScreenID = false;
                 if (transactionInfo.AccessScreenID == null)
                 {
                     if (businessContract.TransactionID == request.Transaction.ScreenID)
@@ -433,7 +433,7 @@ namespace transact.Events
 
                 if (isAccessScreenID == false)
                 {
-                    PublicTransaction? publicTransaction = TransactionMapper.GetPublicTransaction(request.System.ProgramID, request.Transaction.BusinessID, request.Transaction.TransactionID);
+                    var publicTransaction = TransactionMapper.GetPublicTransaction(request.System.ProgramID, request.Transaction.BusinessID, request.Transaction.TransactionID);
                     if (publicTransaction != null)
                     {
                         isAccessScreenID = true;
@@ -450,12 +450,12 @@ namespace transact.Events
 
                 #region 거래 입력 정보 생성
 
-                string requestSystemID = "";
+                var requestSystemID = "";
                 BearerToken? bearerToken = null;
-                string token = request.AccessToken;
+                var token = request.AccessToken;
                 try
                 {
-                    bool isBypassAuthorizeIP = false;
+                    var isBypassAuthorizeIP = false;
                     if (string.IsNullOrEmpty(ModuleConfiguration.BypassAuthorizeIP.FirstOrDefault(p => p == "*")) == false)
                     {
                         isBypassAuthorizeIP = true;
@@ -482,8 +482,8 @@ namespace transact.Events
                     {
                         if (string.IsNullOrEmpty(token) == false && token.IndexOf(".") > -1 && string.IsNullOrEmpty(request.Transaction.OperatorID) == false)
                         {
-                            string[] tokenArray = token.Split(".");
-                            string userID = tokenArray[0].DecodeBase64();
+                            var tokenArray = token.Split(".");
+                            var userID = tokenArray[0].DecodeBase64();
 
                             token = tokenArray[1];
                             bearerToken = JsonConvert.DeserializeObject<BearerToken>(token.DecryptAES(request.Transaction.OperatorID.PaddingRight(32)));
@@ -512,8 +512,8 @@ namespace transact.Events
                                 return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                             }
 
-                            string[] tokenArray = token.Split(".");
-                            string userID = tokenArray[0].DecodeBase64();
+                            var tokenArray = token.Split(".");
+                            var userID = tokenArray[0].DecodeBase64();
 
                             if (userID != request.Transaction.OperatorID)
                             {
@@ -534,7 +534,7 @@ namespace transact.Events
                             {
                                 if (transactionInfo.Roles != null && transactionInfo.Roles.Count > 0)
                                 {
-                                    bool isRoleYN = false;
+                                    var isRoleYN = false;
                                     foreach (var role in bearerToken.Policy.Roles)
                                     {
                                         if (transactionInfo.Roles.IndexOf(role) > -1)
@@ -553,7 +553,7 @@ namespace transact.Events
 
                                 if (transactionInfo.Policys != null && transactionInfo.Policys.Count > 0)
                                 {
-                                    bool isClaimYN = false;
+                                    var isClaimYN = false;
                                     foreach (var claim in bearerToken.Policy.Claims)
                                     {
                                         if (transactionInfo.Policys.ContainsKey(claim.Key) == true)
@@ -588,9 +588,9 @@ namespace transact.Events
                 {
                     if (transactionInfo.Inputs.Count == 0)
                     {
-                        string[] dti = request.PayLoad.DataMapInterface.Split("|");
-                        string[] inputs = dti[0].Split(",");
-                        foreach (string item in inputs)
+                        var dti = request.PayLoad.DataMapInterface.Split("|");
+                        var inputs = dti[0].Split(",");
+                        foreach (var item in inputs)
                         {
                             if (string.IsNullOrEmpty(item) == false)
                             {
@@ -610,9 +610,9 @@ namespace transact.Events
 
                     if (transactionInfo.Outputs.Count == 0)
                     {
-                        string[] dti = request.PayLoad.DataMapInterface.Split("|");
-                        string[] outputs = dti[1].Split(",");
-                        foreach (string item in outputs)
+                        var dti = request.PayLoad.DataMapInterface.Split("|");
+                        var outputs = dti[1].Split(",");
+                        foreach (var item in outputs)
                         {
                             if (string.IsNullOrEmpty(item) == false)
                             {
@@ -627,7 +627,7 @@ namespace transact.Events
                     }
                 }
 
-                TransactionObject transactionObject = new TransactionObject();
+                var transactionObject = new TransactionObject();
                 transactionObject.LoadOptions = request.LoadOptions;
                 if (transactionObject.LoadOptions != null && transactionObject.LoadOptions.Count > 0)
                 {
@@ -646,9 +646,9 @@ namespace transact.Events
                 transactionObject.ReturnType = transactionInfo.ReturnType;
                 transactionObject.InputsItemCount = request.PayLoad.DataMapCount;
 
-                List<Model> businessModels = businessContract.Models;
-                List<ModelInputContract> inputContracts = transactionInfo.Inputs;
-                List<ModelOutputContract> outputContracts = transactionInfo.Outputs;
+                var businessModels = businessContract.Models;
+                var inputContracts = transactionInfo.Inputs;
+                var outputContracts = transactionInfo.Outputs;
                 var requestInputs = request.PayLoad.DataMapSet;
 
                 // 입력 항목이 계약과 동일한지 확인
@@ -659,12 +659,12 @@ namespace transact.Events
                 }
 
                 // 입력 항목ID가 계약에 적합한지 확인
-                int inputOffset = 0;
-                Dictionary<string, List<List<DataMapItem>>> requestInputItems = new Dictionary<string, List<List<DataMapItem>>>();
-                for (int i = 0; i < inputContracts.Count; i++)
+                var inputOffset = 0;
+                var requestInputItems = new Dictionary<string, List<List<DataMapItem>>>();
+                for (var i = 0; i < inputContracts.Count; i++)
                 {
-                    ModelInputContract inputContract = inputContracts[i];
-                    Model? model = businessModels.GetBusinessModel(inputContract.ModelID);
+                    var inputContract = inputContracts[i];
+                    var model = businessModels.GetBusinessModel(inputContract.ModelID);
 
                     if (model == null && inputContract.ModelID != "Unknown" && inputContract.ModelID != "Dynamic")
                     {
@@ -672,7 +672,7 @@ namespace transact.Events
                         return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                     }
 
-                    int inputCount = request.PayLoad.DataMapCount[i];
+                    var inputCount = request.PayLoad.DataMapCount[i];
                     if (inputContract.Type == "Row" && inputCount != 1)
                     {
                         response.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력 항목이 계약과 동일한지 확인 필요";
@@ -704,10 +704,10 @@ namespace transact.Events
                         inputCount = 1;
                         requestInput = new List<DataMapItem>();
 
-                        int fieldIndex = 0;
-                        foreach (string REQ_FIELD_ID in inputContract.Fields)
+                        var fieldIndex = 0;
+                        foreach (var REQ_FIELD_ID in inputContract.Fields)
                         {
-                            DefaultValue defaultValue = inputContract.DefaultValues[fieldIndex];
+                            var defaultValue = inputContract.DefaultValues[fieldIndex];
                             DatabaseColumn? column = null;
 
                             if (model == null)
@@ -726,7 +726,7 @@ namespace transact.Events
                                 column = model.Columns.FirstOrDefault(p => p.Name == REQ_FIELD_ID);
                             }
 
-                            DataMapItem tempReqInput = new DataMapItem();
+                            var tempReqInput = new DataMapItem();
                             tempReqInput.FieldID = REQ_FIELD_ID;
 
                             transactClient.SetInputDefaultValue(defaultValue, column, tempReqInput);
@@ -765,17 +765,17 @@ namespace transact.Events
                     inputOffset = inputOffset + inputCount;
                 }
 
-                List<List<TransactField>> transactInputs = new List<List<TransactField>>();
+                var transactInputs = new List<List<TransactField>>();
 
-                int index = 0;
+                var index = 0;
                 foreach (var requestInputItem in requestInputItems)
                 {
-                    string modelID = requestInputItem.Key;
-                    List<List<DataMapItem>> inputItems = requestInputItem.Value;
+                    var modelID = requestInputItem.Key;
+                    var inputItems = requestInputItem.Value;
 
                     // 입력 정보 생성
-                    ModelInputContract inputContract = inputContracts[index];
-                    Model? model = businessModels.GetBusinessModel(inputContract.ModelID);
+                    var inputContract = inputContracts[index];
+                    var model = businessModels.GetBusinessModel(inputContract.ModelID);
 
                     if (model == null && inputContract.ModelID != "Unknown" && inputContract.ModelID != "Dynamic")
                     {
@@ -783,10 +783,10 @@ namespace transact.Events
                         return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                     }
 
-                    for (int i = 0; i < inputItems.Count; i++)
+                    for (var i = 0; i < inputItems.Count; i++)
                     {
-                        List<TransactField> transactInput = new List<TransactField>();
-                        List<DataMapItem> requestInput = inputItems[i];
+                        var transactInput = new List<TransactField>();
+                        var requestInput = inputItems[i];
 
                         foreach (var item in requestInput)
                         {
@@ -815,7 +815,7 @@ namespace transact.Events
                             }
                             else
                             {
-                                TransactField transactField = new TransactField();
+                                var transactField = new TransactField();
                                 transactField.FieldID = item.FieldID;
                                 transactField.Length = column.Length;
                                 transactField.DataType = column.DataType.ToString();
@@ -842,7 +842,7 @@ namespace transact.Events
                                         transactField.Value = item.Value;
                                         if (transactField.Value.ToString() == "")
                                         {
-                                            string dataType = transactField.DataType.ToLower();
+                                            var dataType = transactField.DataType.ToLower();
                                             if (dataType.Contains("string") == true || dataType.Contains("char") == true)
                                             {
                                             }
@@ -858,20 +858,20 @@ namespace transact.Events
                             }
                         }
 
-                        JObject? bearerFields = bearerToken == null ? null : bearerToken.Variable as JObject;
+                        var bearerFields = bearerToken == null ? null : bearerToken.Variable as JObject;
                         if (bearerFields != null)
                         {
                             foreach (var item in bearerFields)
                             {
-                                string REQ_FIELD_ID = "$" + item.Key;
-                                JToken? jToken = item.Value;
+                                var REQ_FIELD_ID = "$" + item.Key;
+                                var jToken = item.Value;
                                 if (jToken == null)
                                 {
                                     response.ExceptionText = $"{REQ_FIELD_ID} Bearer 필드 확인 필요";
                                     return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                                 }
 
-                                DatabaseColumn column = new DatabaseColumn()
+                                var column = new DatabaseColumn()
                                 {
                                     Name = REQ_FIELD_ID,
                                     Length = -1,
@@ -880,7 +880,7 @@ namespace transact.Events
                                     Require = false
                                 };
 
-                                TransactField transactField = new TransactField();
+                                var transactField = new TransactField();
                                 transactField.FieldID = REQ_FIELD_ID;
                                 transactField.Length = column.Length;
                                 transactField.DataType = column.DataType.ToString();
@@ -921,7 +921,7 @@ namespace transact.Events
                                         transactField.Value = REQ_FIELD_DAT;
                                         if (transactField.Value.ToString() == "")
                                         {
-                                            string dataType = transactField.DataType.ToLower();
+                                            var dataType = transactField.DataType.ToLower();
                                             if (dataType.Contains("string") == true || dataType.Contains("char") == true)
                                             {
                                             }
@@ -951,7 +951,7 @@ namespace transact.Events
 
                 request.Transaction.CommandType = transactionInfo.CommandType;
                 response.Transaction.CommandType = transactionInfo.CommandType;
-                ApplicationResponse applicationResponse = new ApplicationResponse();
+                var applicationResponse = new ApplicationResponse();
 
                 if (request.Action == "PSH")
                 {
@@ -974,8 +974,8 @@ namespace transact.Events
 
                 #region 거래 명령 실행 및 결과 반환
 
-                string responseData = string.Empty;
-                string properties = "Transaction/Response ReturnType: " + transactionInfo.ReturnType.ToString();
+                var responseData = string.Empty;
+                var properties = "Transaction/Response ReturnType: " + transactionInfo.ReturnType.ToString();
 
                 switch (transactionInfo.ReturnType)
                 {
@@ -1035,16 +1035,16 @@ namespace transact.Events
 
                         response.ResponseID = string.Concat(ModuleConfiguration.SystemID, GlobalConfiguration.HostName, request.Environment, DateTime.Now.ToString("yyyyMMddHHmmddsss"));
                         response.Acknowledge = AcknowledgeType.Success;
-                        ExecuteDynamicTypeObject executeDynamicTypeObject = (ExecuteDynamicTypeObject)Enum.Parse(typeof(ExecuteDynamicTypeObject), transactionInfo.ReturnType);
+                        var executeDynamicTypeObject = (ExecuteDynamicTypeObject)Enum.Parse(typeof(ExecuteDynamicTypeObject), transactionInfo.ReturnType);
                         response.Result.ResponseType = ((int)executeDynamicTypeObject).ToString();
 
                         if (response.Transaction.DataFormat == "T")
                         {
-                            List<string> resultMeta = applicationResponse.ResultMeta;
-                            int i = 0;
+                            var resultMeta = applicationResponse.ResultMeta;
+                            var i = 0;
                             foreach (var dataMapItem in response.Result.DataSet)
                             {
-                                JToken? Value = dataMapItem.Value as JToken;
+                                var Value = dataMapItem.Value as JToken;
                                 if (Value != null)
                                 {
                                     if (Value is JObject)
@@ -1054,7 +1054,7 @@ namespace transact.Events
                                         {
                                             foreach (var item in names)
                                             {
-                                                string? data = Value[item]?.ToString();
+                                                var data = Value[item]?.ToString();
                                                 if (string.IsNullOrEmpty(data) == false)
                                                 {
                                                     if (data.StartsWith('"') == true)
@@ -1082,7 +1082,7 @@ namespace transact.Events
                                                 {
                                                     foreach (var item in names)
                                                     {
-                                                        string? data = jtoken[item]?.ToString();
+                                                        var data = jtoken[item]?.ToString();
                                                         if (string.IsNullOrEmpty(data) == false)
                                                         {
                                                             if (data.ToString().StartsWith('"') == true)
@@ -1101,30 +1101,28 @@ namespace transact.Events
                                         }
                                     }
 
-                                    string meta = resultMeta[i];
+                                    var meta = resultMeta[i];
                                     if (Value.HasValues == true)
                                     {
                                         var jsonReader = new StringReader(Value.ToString());
-                                        using (ChoJSONReader choJSONReader = new ChoJSONReader(jsonReader))
+                                        using var choJSONReader = new ChoJSONReader(jsonReader);
+                                        var stringBuilder = new StringBuilder();
+                                        using (var choCSVWriter = new ChoCSVWriter(stringBuilder, new ChoCSVRecordConfiguration()
                                         {
-                                            var stringBuilder = new StringBuilder();
-                                            using (var choCSVWriter = new ChoCSVWriter(stringBuilder, new ChoCSVRecordConfiguration()
-                                            {
-                                                Delimiter = "｜",
-                                                EOLDelimiter = "↵"
-                                            }).WithFirstLineHeader().QuoteAllFields(false))
-                                            {
-                                                choCSVWriter.Write(choJSONReader);
-                                            }
+                                            Delimiter = "｜",
+                                            EOLDelimiter = "↵"
+                                        }).WithFirstLineHeader().QuoteAllFields(false))
+                                        {
+                                            choCSVWriter.Write(choJSONReader);
+                                        }
 
-                                            if (request.Transaction.CompressionYN.ParseBool() == true)
-                                            {
-                                                dataMapItem.Value = LZStringHelper.CompressToBase64(meta + "＾" + stringBuilder.ToString().Replace("\"\"", "\""));
-                                            }
-                                            else
-                                            {
-                                                dataMapItem.Value = meta + "＾" + stringBuilder.ToString().Replace("\"\"", "\"");
-                                            }
+                                        if (request.Transaction.CompressionYN.ParseBool() == true)
+                                        {
+                                            dataMapItem.Value = LZStringHelper.CompressToBase64(meta + "＾" + stringBuilder.ToString().Replace("\"\"", "\""));
+                                        }
+                                        else
+                                        {
+                                            dataMapItem.Value = meta + "＾" + stringBuilder.ToString().Replace("\"\"", "\"");
                                         }
                                     }
                                     else
@@ -1138,11 +1136,11 @@ namespace transact.Events
                         }
                         else
                         {
-                            List<string> resultMeta = applicationResponse.ResultMeta;
-                            int i = 0;
+                            var resultMeta = applicationResponse.ResultMeta;
+                            var i = 0;
                             foreach (var dataMapItem in response.Result.DataSet)
                             {
-                                JToken? value = dataMapItem.Value as JToken;
+                                var value = dataMapItem.Value as JToken;
                                 if (value != null)
                                 {
                                     if (request.Transaction.CompressionYN.ParseBool() == true)

@@ -13,13 +13,13 @@ namespace HandStack.Web.Common
         public Arguments(string[] Args)
         {
             parameters = new StringDictionary();
-            Regex spliter = new Regex(@"^-{1,2}|^/|=|:", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-            Regex remover = new Regex(@"^['""]?(.*?)['""]?$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            var spliter = new Regex(@"^-{1,2}|^/|=|:", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            var remover = new Regex(@"^['""]?(.*?)['""]?$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
             string? parameter = null;
             string[] Parts;
 
-            foreach (string Txt in Args)
+            foreach (var Txt in Args)
             {
                 Parts = spliter.Split(Txt, 3);
 

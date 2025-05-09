@@ -24,13 +24,13 @@ namespace HandStack.Core.Helpers
 
         public ArgumentHelper(string[] args)
         {
-            Regex spliter = new Regex(@"^-{1,2}|^/|=|:", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-            Regex remover = new Regex(@"^['""]?(.*?)['""]?$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            var spliter = new Regex(@"^-{1,2}|^/|=|:", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            var remover = new Regex(@"^['""]?(.*?)['""]?$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
             string? parameter = null;
             string[] tokens;
 
-            foreach (string arg in args)
+            foreach (var arg in args)
             {
                 tokens = spliter.Split(arg, 3);
 

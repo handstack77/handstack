@@ -4,7 +4,7 @@
     {
         public static string toMetaDataType(string dataType)
         {
-            string result = "string";
+            var result = "string";
 
             switch (dataType)
             {

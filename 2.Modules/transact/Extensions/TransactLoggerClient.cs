@@ -58,7 +58,7 @@ namespace transact.Extensions
 
         public RestResponse? Send(Method httpVerb, string hostUrl, LogMessage logMessage, Action<string> fallbackFunction, Dictionary<string, string>? headers = null)
         {
-            RestResponse? restResponse = new RestResponse
+            var restResponse = new RestResponse
             {
                 Content = "",
                 ErrorMessage = "Equivalent to HTTP status 503",
@@ -140,7 +140,7 @@ namespace transact.Extensions
                 }
                 else
                 {
-                    fallbackFunction($"CircuitBreaker Error Reason: {circuitBreakerPolicy.CircuitState.ToString()}");
+                    fallbackFunction($"CircuitBreaker Error Reason: {circuitBreakerPolicy.CircuitState}");
                 }
             }
 
@@ -149,7 +149,7 @@ namespace transact.Extensions
 
         public void ProgramMessageLogging(string globalID, string acknowledge, string message, string properties, Action<string> fallbackFunction)
         {
-            LogMessage logMessage = new LogMessage();
+            var logMessage = new LogMessage();
             logMessage.ServerID = GlobalConfiguration.HostName;
             logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
             logMessage.ProgramName = ModuleConfiguration.ModuleID;
@@ -169,7 +169,7 @@ namespace transact.Extensions
 
             if (ModuleConfiguration.IsLogServer == true)
             {
-                LogRequest logRequest = new LogRequest();
+                var logRequest = new LogRequest();
                 logRequest.LogMessage = logMessage;
                 logRequest.FallbackFunction = fallbackFunction;
 
@@ -185,7 +185,7 @@ namespace transact.Extensions
 
         public void TransactionMessageLogging(string globalID, string acknowledge, string applicationID, string projectID, string transactionID, string serviceID, string message, string properties, Action<string> fallbackFunction)
         {
-            LogMessage logMessage = new LogMessage();
+            var logMessage = new LogMessage();
             logMessage.ServerID = GlobalConfiguration.HostName;
             logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
             logMessage.ProgramName = ModuleConfiguration.ModuleID;
@@ -205,7 +205,7 @@ namespace transact.Extensions
 
             if (ModuleConfiguration.IsLogServer == true)
             {
-                LogRequest logRequest = new LogRequest();
+                var logRequest = new LogRequest();
                 logRequest.LogMessage = logMessage;
                 logRequest.FallbackFunction = fallbackFunction;
 
@@ -221,7 +221,7 @@ namespace transact.Extensions
 
         public void TransactionRequestLogging(TransactionRequest request, string userWorkID, string acknowledge, Action<string> fallbackFunction)
         {
-            LogMessage logMessage = new LogMessage();
+            var logMessage = new LogMessage();
             logMessage.ServerID = GlobalConfiguration.HostName;
             logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
             logMessage.ProgramName = ModuleConfiguration.ModuleID;
@@ -241,7 +241,7 @@ namespace transact.Extensions
 
             if (ModuleConfiguration.IsLogServer == true)
             {
-                LogRequest logRequest = new LogRequest();
+                var logRequest = new LogRequest();
                 logRequest.LogMessage = logMessage;
                 logRequest.FallbackFunction = fallbackFunction;
 
@@ -256,11 +256,11 @@ namespace transact.Extensions
             {
                 try
                 {
-                    string applicationID = request.System.ProgramID;
+                    var applicationID = request.System.ProgramID;
                     var connectionString = ModuleExtensions.GetLogDbConnectionString(userWorkID, applicationID);
                     if (string.IsNullOrEmpty(connectionString) == false)
                     {
-                        DateTime acceptDateTime = (DateTime)request.AcceptDateTime;
+                        var acceptDateTime = (DateTime)request.AcceptDateTime;
                         ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, connectionString, "TAG.TAG010.MD01", new
                         {
                             CreateDate = acceptDateTime.ToString("yyyyMMdd"),
@@ -287,7 +287,7 @@ namespace transact.Extensions
 
         public void TransactionResponseLogging(TransactionResponse response, string userWorkID, string acknowledge, Action<string> fallbackFunction)
         {
-            LogMessage logMessage = new LogMessage();
+            var logMessage = new LogMessage();
             logMessage.ServerID = GlobalConfiguration.HostName;
             logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
             logMessage.ProgramName = ModuleConfiguration.ModuleID;
@@ -307,7 +307,7 @@ namespace transact.Extensions
 
             if (ModuleConfiguration.IsLogServer == true)
             {
-                LogRequest logRequest = new LogRequest();
+                var logRequest = new LogRequest();
                 logRequest.LogMessage = logMessage;
                 logRequest.FallbackFunction = fallbackFunction;
 
@@ -322,12 +322,12 @@ namespace transact.Extensions
             {
                 try
                 {
-                    string applicationID = response.System.ProgramID;
+                    var applicationID = response.System.ProgramID;
                     var connectionString = ModuleExtensions.GetLogDbConnectionString(userWorkID, applicationID);
                     if (string.IsNullOrEmpty(connectionString) == false)
                     {
-                        DateTime acceptDateTime = (DateTime)response.AcceptDateTime;
-                        string currentDateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                        var acceptDateTime = (DateTime)response.AcceptDateTime;
+                        var currentDateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                         if (response.Acknowledge == AcknowledgeType.Success)
                         {
                             ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, connectionString, "TAG.TAG010.UD01", new
@@ -361,7 +361,7 @@ namespace transact.Extensions
                                 FeatureID = response.Transaction.FunctionID,
                                 GlobalID = response.Transaction.GlobalID,
                                 UserID = response.Transaction.OperatorID,
-                                LogType = ModuleConfiguration.IsLogServer == true ? "S":"F",
+                                LogType = ModuleConfiguration.IsLogServer == true ? "S" : "F",
                                 CreatedAt = currentDateTime
                             });
                         }
@@ -385,19 +385,15 @@ namespace transact.Extensions
             {
                 if (ModuleConfiguration.IsTransactAggregate == true && Directory.Exists(PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID)) == true)
                 {
-                    string appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-                    string logDbFilePath = PathExtensions.Combine(appBasePath, ".managed", "sqlite", "transact", $"log-{rollingID}.db");
+                    var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
+                    var logDbFilePath = PathExtensions.Combine(appBasePath, ".managed", "sqlite", "transact", $"log-{rollingID}.db");
                     if (Directory.Exists(appBasePath) == true && File.Exists(logDbFilePath) == true)
                     {
-                        string connectionString = $"URI=file:{logDbFilePath};Journal Mode=Off;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;";
+                        var connectionString = $"URI=file:{logDbFilePath};Journal Mode=Off;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;";
                         // 주간별 SQLite 데이터베이스 파일 생성: {프로젝트 ID}_{년도}{주2자리}.db
-                        using (SQLiteClient dbClient = new SQLiteClient(connectionString))
-                        {
-                            using (var dataSet = dbClient.ExecuteDataSet(SQL, CommandType.Text))
-                            {
-                                result = dataSet;
-                            }
-                        }
+                        using var dbClient = new SQLiteClient(connectionString);
+                        using var dataSet = dbClient.ExecuteDataSet(SQL, CommandType.Text);
+                        result = dataSet;
                     }
                 }
             }
@@ -411,7 +407,7 @@ namespace transact.Extensions
 
         private void BackgroundTask(object? state)
         {
-            LogRequest? logRequest = state as LogRequest;
+            var logRequest = state as LogRequest;
 
             if (circuitBreakerPolicy != null && logRequest != null)
             {
