@@ -949,9 +949,9 @@ namespace transact.Areas.transact.Controllers
                         }
                         else if (transactionInfo.Authorize == true)
                         {
+                            bool isRoleYN = false;
                             if (transactionInfo.Roles != null && transactionInfo.Roles.Count > 0)
                             {
-                                bool isRoleYN = false;
                                 var transactionMinRoleValue = Role.User.GetRoleValue(transactionInfo.Roles, true);
                                 foreach (var userRole in userAccount.Roles)
                                 {
@@ -965,17 +965,11 @@ namespace transact.Areas.transact.Controllers
                                         }
                                     }
                                 }
-
-                                if (isRoleYN == false)
-                                {
-                                    response.ExceptionText = "앱 사용자 역할 권한 확인 필요";
-                                    return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
-                                }
                             }
 
+                            bool isClaimYN = false;
                             if (transactionInfo.Policys != null && transactionInfo.Policys.Count > 0)
                             {
-                                bool isClaimYN = false;
                                 foreach (var claim in userAccount.Claims)
                                 {
                                     if (transactionInfo.Policys.ContainsKey(claim.Key) == true)
@@ -988,12 +982,12 @@ namespace transact.Areas.transact.Controllers
                                         }
                                     }
                                 }
+                            }
 
-                                if (isClaimYN == false)
-                                {
-                                    response.ExceptionText = "앱 사용자 정책 권한 확인 필요";
-                                    return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
-                                }
+                            if (isRoleYN == false && isClaimYN == false)
+                            {
+                                response.ExceptionText = "앱 사용자 역할 또는 정책 권한 확인 필요";
+                                return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                             }
                         }
                     }
@@ -1113,9 +1107,10 @@ namespace transact.Areas.transact.Controllers
 
                             if (transactionInfo.Authorize == true)
                             {
+                                bool isRoleYN = true;
                                 if (transactionInfo.Roles != null && transactionInfo.Roles.Count > 0)
                                 {
-                                    bool isRoleYN = false;
+                                    isRoleYN = false;
                                     var transactionMinRoleValue = Role.User.GetRoleValue(transactionInfo.Roles, true);
                                     foreach (var userRole in bearerToken.Policy.Roles)
                                     {
@@ -1129,17 +1124,12 @@ namespace transact.Areas.transact.Controllers
                                             }
                                         }
                                     }
-
-                                    if (isRoleYN == false)
-                                    {
-                                        response.ExceptionText = "BearerToken 역할 권한 확인 필요";
-                                        return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
-                                    }
                                 }
 
+                                bool isClaimYN = true;
                                 if (transactionInfo.Policys != null && transactionInfo.Policys.Count > 0)
                                 {
-                                    bool isClaimYN = false;
+                                    isClaimYN = false;
                                     foreach (var claim in bearerToken.Policy.Claims)
                                     {
                                         if (transactionInfo.Policys.ContainsKey(claim.Key) == true)
@@ -1152,12 +1142,12 @@ namespace transact.Areas.transact.Controllers
                                             }
                                         }
                                     }
+                                }
 
-                                    if (isClaimYN == false)
-                                    {
-                                        response.ExceptionText = "BearerToken 정책 권한 확인 필요";
-                                        return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
-                                    }
+                                if (isRoleYN == false && isClaimYN == false)
+                                {
+                                    response.ExceptionText = "BearerToken 역할 또는 정책 권한 확인 필요";
+                                    return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                                 }
                             }
                         }
