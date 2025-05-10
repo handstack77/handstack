@@ -1,5 +1,5 @@
 /*!
-HandStack Javascript Library v2025.5.7
+HandStack Javascript Library v2025.5.10
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -2265,19 +2265,19 @@ if (typeof module !== 'undefined' && module.exports) {
     const eventRegistry = (() => {
         const items = [];
         return Object.freeze({
-            add(el, type, handler, capture = false) {
+            add(el, type, handler, options = {}) {
                 if (!el || !type || typeof handler !== 'function') return false;
-                if (!items.some(item => item.el === el && item.type === type && item.handler === handler && item.capture === capture)) {
-                    items.push({ el, type, handler, capture });
+                if (!items.some(item => item.el === el && item.type === type && item.handler === handler)) {
+                    items.push({ el, type, handler, options });
                     return true;
                 }
                 return false;
             },
-            remove(el, type, handler, capture = false) {
+            remove(el, type, handler) {
                 const initialLength = items.length;
                 for (let i = items.length - 1; i >= 0; i--) {
                     const item = items[i];
-                    if (item.el === el && item.type === type && item.handler === handler && item.capture === capture) {
+                    if (item.el === el && item.type === type && item.handler === handler) {
                         items.splice(i, 1);
                     }
                 }
@@ -2290,12 +2290,11 @@ if (typeof module !== 'undefined' && module.exports) {
                     }
                 }
             },
-            findByArgs(el, type, handler, capture = false) {
+            findByArgs(el, type, handler) {
                 return items.filter(item =>
                     item.el === el &&
                     item.type === type &&
-                    item.handler === handler &&
-                    item.capture === capture
+                    item.handler === handler
                 );
             },
             findAllByArgs(el, type) {
@@ -2305,9 +2304,9 @@ if (typeof module !== 'undefined' && module.exports) {
                 return [...items];
             },
             flush() {
-                this.getAll().forEach(({ el, type, handler, capture }) => {
+                this.getAll().forEach(({ el, type, handler, options = {} }) => {
                     if (el.removeEventListener) {
-                        el.removeEventListener(type, handler, capture);
+                        el.removeEventListener(type, handler, options);
                     }
                 });
                 items.length = 0;
@@ -2436,14 +2435,18 @@ if (typeof module !== 'undefined' && module.exports) {
             }
         },
 
-        addEvent(el, type, handler) {
+        addEvent(el, type, handler, options = {}) {
             el = this.getElement(el);
             if (!el || typeof handler !== 'function') return this;
 
-            if (this.events.add(el, type, handler, false)) {
-                if (el.addEventListener) {
-                    el.addEventListener(type, handler, false);
-                }
+            const defaultOptions = {
+                capture: false,
+                once: false,
+                passive: false,
+                ...options
+            };
+            if (this.events.add(el, type, handler, defaultOptions)) {
+                el.addEventListener(type, handler, defaultOptions);
             }
 
             if ($object.isString(type) && type.toLowerCase() === 'resize') {
@@ -2453,7 +2456,7 @@ if (typeof module !== 'undefined' && module.exports) {
             return this;
         },
 
-        addEvents(query, type, handler) {
+        addEvents(query, type, handler, options = {}) {
             if (typeof handler !== 'function') return this;
 
             let elements = [];
@@ -2473,12 +2476,12 @@ if (typeof module !== 'undefined' && module.exports) {
             }
 
 
-            elements.forEach(el => this.addEvent(el, type, handler));
+            elements.forEach(el => this.addEvent(el, type, handler, options));
 
             return this;
         },
 
-        addLive(query, type, handler) {
+        addLive(query, type, handler, options = {}) {
             if (globalRoot.devicePlatform === 'node') return this;
 
             this.addEvent(doc, type, (evt) => {
@@ -2488,18 +2491,22 @@ if (typeof module !== 'undefined' && module.exports) {
                     evt.preventDefault();
                     evt.stopPropagation();
                 }
-            });
+            }, options);
             return this;
         },
 
-        removeEvent(el, type, handler) {
+        removeEvent(el, type, handler, options = {}) {
             el = this.getElement(el);
             if (!el || typeof handler !== 'function') return this;
 
-            if (this.events.remove(el, type, handler, false)) {
-                if (el.removeEventListener) {
-                    el.removeEventListener(type, handler, false);
-                }
+            const defaultOptions = {
+                capture: false,
+                once: false,
+                passive: false,
+                ...options
+            };
+            if (this.events.remove(el, type, handler)) {
+                el.removeEventListener(type, handler, defaultOptions);
             }
             return this;
         },
@@ -2509,7 +2516,7 @@ if (typeof module !== 'undefined' && module.exports) {
             if (!el) return false;
 
             if (typeof handler === 'function') {
-                return this.events.findByArgs(el, type, handler, false).length > 0;
+                return this.events.findByArgs(el, type, handler).length > 0;
             } else {
                 return this.events.findAllByArgs(el, type).length > 0;
             }
