@@ -80,7 +80,7 @@ namespace HandStack.Core.ExtensionMethod
                 result.Columns.Add(prop.Name, prop.PropertyType);
             }
 
-            var values = new object[props.Count];
+            object?[] values = new object[props.Count];
             foreach (var item in data)
             {
                 for (var i = 0; i < values.Length; i++)
