@@ -108,7 +108,7 @@ namespace HandStack.Core.ExtensionMethod
             table.BeginLoadData();
             using (var enumerator = source.GetEnumerator())
             {
-                var values = new object[table.Columns.Count];
+                object?[] values = new object[table.Columns.Count];
                 while (enumerator.MoveNext())
                 {
                     var column = table.Columns["Value"];
@@ -133,8 +133,7 @@ namespace HandStack.Core.ExtensionMethod
 
         public object?[] ShredObject(DataTable table, T instance)
         {
-            var values = new object[table.Columns.Count];
-
+            object?[] values = new object[table.Columns.Count];
             if (instance != null)
             {
                 var fieldInfos = fields;
