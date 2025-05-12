@@ -7,7 +7,7 @@
 
     $dateperiodpicker.extend({
         name: 'syn.uicontrols.$dateperiodpicker',
-        version: 'v2025.3.24',
+        version: 'v2025.5.12',
         dateControls: [],
         selectedYear: null,
         pkaStartDate: null,
@@ -777,7 +777,7 @@
             var date = new Date($dateperiodpicker.selectedYear + '-01-01');
             var year = $date.toString(date, 'y');
             var startDate = year + '-01-01';
-            var endDate = $date.getLastDate(new Date(year + '-03-01'));
+            var endDate = $date.getLastDate(new Date(year + '-03-31'));
 
             $dateperiodpicker.setDateRange(startDate, endDate);
             $dateperiodpicker.checkPeriodMonth([1, 2, 3]);
@@ -787,7 +787,7 @@
             var date = new Date($dateperiodpicker.selectedYear + '-01-01');
             var year = $date.toString(date, 'y');
             var startDate = year + '-04-01';
-            var endDate = $date.getLastDate(new Date(year + '-06-01'));
+            var endDate = $date.getLastDate(new Date(year + '-06-30'));
 
             $dateperiodpicker.setDateRange(startDate, endDate);
             $dateperiodpicker.checkPeriodMonth([4, 5, 6]);
@@ -797,7 +797,7 @@
             var date = new Date($dateperiodpicker.selectedYear + '-01-01');
             var year = $date.toString(date, 'y');
             var startDate = year + '-07-01';
-            var endDate = $date.getLastDate(new Date(year + '-09-01'));
+            var endDate = $date.getLastDate(new Date(year + '-09-30'));
 
             $dateperiodpicker.setDateRange(startDate, endDate);
             $dateperiodpicker.checkPeriodMonth([7, 8, 9]);
@@ -807,7 +807,7 @@
             var date = new Date($dateperiodpicker.selectedYear + '-01-01');
             var year = $date.toString(date, 'y');
             var startDate = year + '-10-01';
-            var endDate = $date.getLastDate(new Date(year + '-12-01'));
+            var endDate = $date.getLastDate(new Date(year + '-12-31'));
 
             $dateperiodpicker.setDateRange(startDate, endDate);
             $dateperiodpicker.checkPeriodMonth([10, 11, 12]);
@@ -817,7 +817,7 @@
             var date = new Date($dateperiodpicker.selectedYear + '-01-01');
             var year = $date.toString(date, 'y');
             var startDate = year + '-01-01';
-            var endDate = $date.getLastDate(new Date(year + '-06-01'));
+            var endDate = $date.getLastDate(new Date(year + '-06-30'));
 
             $dateperiodpicker.setDateRange(startDate, endDate);
             $dateperiodpicker.checkPeriodMonth([1, 2, 3, 4, 5, 6]);
@@ -827,7 +827,7 @@
             var date = new Date($dateperiodpicker.selectedYear + '-01-01');
             var year = $date.toString(date, 'y');
             var startDate = year + '-07-01';
-            var endDate = $date.getLastDate(new Date(year + '-12-01'));
+            var endDate = $date.getLastDate(new Date(year + '-12-31'));
 
             $dateperiodpicker.setDateRange(startDate, endDate);
             $dateperiodpicker.checkPeriodMonth([7, 8, 9, 10, 11, 12]);
