@@ -124,11 +124,20 @@ namespace HandStack.Web
             }
 
             basePath = basePath.Replace("\\", "/");
-            if (string.IsNullOrEmpty(basePath) == false && Directory.Exists(basePath) == false && string.IsNullOrEmpty(defaultPath) == true)
+
+            if (string.IsNullOrEmpty(basePath) == false && Directory.Exists(basePath) == false)
             {
-                if (File.Exists(basePath) == false)
+                try
                 {
                     Directory.CreateDirectory(basePath);
+                }
+                catch
+                {
+                    var filePath = Path.GetDirectoryName(basePath);
+                    if (string.IsNullOrEmpty(filePath) == false)
+                    {
+                        Directory.CreateDirectory(filePath);
+                    }
                 }
             }
             return basePath;
