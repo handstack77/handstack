@@ -55,6 +55,7 @@
             }
 
             el.setAttribute('syn-options', JSON.stringify(setting));
+            el.spellcheck = $string.toBoolean(setting.spellcheck) == true ? 'true' : 'false';
 
             if ($object.isEmpty(setting.placeText) == false) {
                 superplaceholder({

@@ -58,7 +58,7 @@
             el.style.height = setting.height;
 
             el.setAttribute('syn-options', JSON.stringify(setting));
-            el.setAttribute('spellcheck', 'false');
+            el.spellcheck = $string.toBoolean(setting.spellcheck) == true ? 'true' : 'false';
 
             var events = el.getAttribute('syn-events');
             var editor = null;
