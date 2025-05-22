@@ -942,7 +942,23 @@
             }
         },
 
-        notify(type, message, title, timeout) {
+        notify(type, message, title, options) {
+            let config = {
+                autoHideTimeout: 3000,
+                classList: [],
+                payload: {},
+                clickNotify: null
+            };
+
+            if (typeof options === 'number') {
+                config.autoHideTimeout = options;
+            } else if (typeof options === 'object' && options !== null) {
+                config.autoHideTimeout = typeof options.autoHideTimeout === 'number' ? options.autoHideTimeout : 3000;
+                config.classList = options.classList || [];
+                config.payload = options.payload || {};
+                config.clickNotify = typeof options.clickNotify === 'function' ? options.clickNotify : null;
+            }
+
             if (window == top || syn.$w.pageScript == '$main') {
                 if (notifier && $string.isNullOrEmpty(message) == false) {
                     type = type || '';
@@ -952,39 +968,35 @@
                     var iconDataUri = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGNsYXNzPSJpY29uIGljb24tdGFibGVyIGljb24tdGFibGVyLWV4Y2xhbWF0aW9uLW1hcmsiIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZT0iY3VycmVudENvbG9yIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIHN0cm9rZT0ibm9uZSIgZD0iTTAgMGgyNHYyNEgweiIgZmlsbD0ibm9uZSI+PC9wYXRoPjxwYXRoIGQ9Ik0xMiAxOXYuMDEiPjwvcGF0aD48cGF0aCBkPSJNMTIgMTV2LTEwIj48L3BhdGg+PC9zdmc+';
                     switch (type) {
                         case 'debug':
-                            timeout = timeout || 3000;
                             notifyType = 'success';
                             iconDataUri = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGNsYXNzPSJpY29uIGljb24tdGFibGVyIGljb24tdGFibGVyLWJ1ZyIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlPSJjdXJyZW50Q29sb3IiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggc3Ryb2tlPSJub25lIiBkPSJNMCAwaDI0djI0SDB6IiBmaWxsPSJub25lIj48L3BhdGg+PHBhdGggZD0iTTkgOXYtMWEzIDMgMCAwIDEgNiAwdjEiPjwvcGF0aD48cGF0aCBkPSJNOCA5aDhhNiA2IDAgMCAxIDEgM3YzYTUgNSAwIDAgMSAtMTAgMHYtM2E2IDYgMCAwIDEgMSAtMyI+PC9wYXRoPjxwYXRoIGQ9Ik0zIDEzbDQgMCI+PC9wYXRoPjxwYXRoIGQ9Ik0xNyAxM2w0IDAiPjwvcGF0aD48cGF0aCBkPSJNMTIgMjBsMCAtNiI+PC9wYXRoPjxwYXRoIGQ9Ik00IDE5bDMuMzUgLTIiPjwvcGF0aD48cGF0aCBkPSJNMjAgMTlsLTMuMzUgLTIiPjwvcGF0aD48cGF0aCBkPSJNNCA3bDMuNzUgMi40Ij48L3BhdGg+PHBhdGggZD0iTTIwIDdsLTMuNzUgMi40Ij48L3BhdGg+PC9zdmc+';
                             break;
                         case 'information':
-                            timeout = timeout || 3000;
                             notifyType = 'info';
                             iconDataUri = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGNsYXNzPSJpY29uIGljb24tdGFibGVyIGljb24tdGFibGVyLWluZm8tY2lyY2xlIiB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBzdHJva2U9Im5vbmUiIGQ9Ik0wIDBoMjR2MjRIMHoiIGZpbGw9Im5vbmUiPjwvcGF0aD48cGF0aCBkPSJNMyAxMmE5IDkgMCAxIDAgMTggMGE5IDkgMCAwIDAgLTE4IDAiPjwvcGF0aD48cGF0aCBkPSJNMTIgOWguMDEiPjwvcGF0aD48cGF0aCBkPSJNMTEgMTJoMXY0aDEiPjwvcGF0aD48L3N2Zz4=';
                             break;
                         case 'success':
-                            timeout = timeout || 3000;
                             notifyType = 'info';
                             iconDataUri = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGNsYXNzPSJpY29uIGljb24tdGFibGVyIGljb24tdGFibGVyLWNpcmNsZS1jaGVjayIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlPSJjdXJyZW50Q29sb3IiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggc3Ryb2tlPSJub25lIiBkPSJNMCAwaDI0djI0SDB6IiBmaWxsPSJub25lIj48L3BhdGg+PHBhdGggZD0iTTEyIDEybS05IDBhOSA5IDAgMSAwIDE4IDBhOSA5IDAgMSAwIC0xOCAwIj48L3BhdGg+PHBhdGggZD0iTTkgMTJsMiAybDQgLTQiPjwvcGF0aD48L3N2Zz4=';
                             break;
                         case 'warning':
-                            timeout = timeout || 6000;
                             notifyType = 'warning';
                             iconDataUri = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGNsYXNzPSJpY29uIGljb24tdGFibGVyIGljb24tdGFibGVyLWFsZXJ0LWNpcmNsZSIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlPSJjdXJyZW50Q29sb3IiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggc3Ryb2tlPSJub25lIiBkPSJNMCAwaDI0djI0SDB6IiBmaWxsPSJub25lIj48L3BhdGg+PHBhdGggZD0iTTMgMTJhOSA5IDAgMSAwIDE4IDBhOSA5IDAgMCAwIC0xOCAwIj48L3BhdGg+PHBhdGggZD0iTTEyIDh2NCI+PC9wYXRoPjxwYXRoIGQ9Ik0xMiAxNmguMDEiPjwvcGF0aD48L3N2Zz4=';
                             break;
                         case 'error':
-                            timeout = timeout || 6000;
+                            config.autoHideTimeout = 6000;
                             notifyType = 'danger';
                             iconDataUri = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGNsYXNzPSJpY29uIGljb24tdGFibGVyIGljb24tdGFibGVyLWJlbGwteCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlPSJjdXJyZW50Q29sb3IiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggc3Ryb2tlPSJub25lIiBkPSJNMCAwaDI0djI0SDB6IiBmaWxsPSJub25lIj48L3BhdGg+PHBhdGggZD0iTTEzIDE3aC05YTQgNCAwIDAgMCAyIC0zdi0zYTcgNyAwIDAgMSA0IC02YTIgMiAwIDEgMSA0IDBhNyA3IDAgMCAxIDQgNnYyIj48L3BhdGg+PHBhdGggZD0iTTkgMTd2MWEzIDMgMCAwIDAgNC4xOTQgMi43NTMiPjwvcGF0aD48cGF0aCBkPSJNMjIgMjJsLTUgLTUiPjwvcGF0aD48cGF0aCBkPSJNMTcgMjJsNSAtNSI+PC9wYXRoPjwvc3ZnPg==';
                             break;
                         case 'fatal':
-                            timeout = timeout || 6000;
+                            config.autoHideTimeout = 6000;
                             notifyType = 'danger';
                             iconDataUri = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGNsYXNzPSJpY29uIGljb24tdGFibGVyIGljb24tdGFibGVyLWJlbGwtcmluZ2luZyIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiB2aWV3Qm94PSIwIDAgMjQgMjQiIHN0cm9rZS13aWR0aD0iMSIgc3Ryb2tlPSJjdXJyZW50Q29sb3IiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggc3Ryb2tlPSJub25lIiBkPSJNMCAwaDI0djI0SDB6IiBmaWxsPSJub25lIj48L3BhdGg+PHBhdGggZD0iTTEwIDVhMiAyIDAgMCAxIDQgMGE3IDcgMCAwIDEgNCA2djNhNCA0IDAgMCAwIDIgM2gtMTZhNCA0IDAgMCAwIDIgLTN2LTNhNyA3IDAgMCAxIDQgLTYiPjwvcGF0aD48cGF0aCBkPSJNOSAxN3YxYTMgMyAwIDAgMCA2IDB2LTEiPjwvcGF0aD48cGF0aCBkPSJNMjEgNi43MjdhMTEuMDUgMTEuMDUgMCAwIDAgLTIuNzk0IC0zLjcyNyI+PC9wYXRoPjxwYXRoIGQ9Ik0zIDYuNzI3YTExLjA1IDExLjA1IDAgMCAxIDIuNzkyIC0zLjcyNyI+PC9wYXRoPjwvc3ZnPg==';
                             break;
                         default:
                             return;
                     }
-                    var notifierID = notifier.show(title, message, notifyType, iconDataUri, timeout);
+                    var notifierID = notifier.show(title, message, notifyType, iconDataUri, config);
                     syn.$w.notifications.push(notifierID);
                     if (syn.$w.notifications.length > 7) {
                         var firstNotifierID = syn.$w.notifications[0];
@@ -995,7 +1007,7 @@
             }
             else {
                 if (window.parent && window.top !== window) {
-                    window.parent.syn.$w.notify(type, message, title, timeout);
+                    window.parent.syn.$w.notify(type, message, title, config);
                 }
             }
         },

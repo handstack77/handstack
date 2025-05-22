@@ -1,107 +1,131 @@
-﻿;(function (root, factory) {
-  if (typeof exports === 'object' && typeof module === 'object') {
-    module.exports = factory();
-  } else if(typeof define === 'function' && define.amd) {
-    define([], factory);
-  } else if(typeof exports === 'object') {
-    exports['notifier'] = factory();
-  } else {
-    root['notifier'] = factory();
-  }
-}(typeof self !== 'undefined' ? self : this, function () {
-  var count = 0;
-  var d = document;
-
-  var myCreateElement = function(elem, attrs) {
-    var el = d.createElement(elem);
-    for (var prop in attrs) {
-      el.setAttribute(prop, attrs[prop]);
-    }
-    return el;
-  };
-
-  var createContainer = function() {
-    var container = myCreateElement('div', {class: 'notifier-container', id: 'notifier-container'});
-    d.body.appendChild(container);
-  };
-
-  var show = function(title, msg, type, icon, timeout) {
-
-    if (typeof timeout != 'number') timeout = 0;
-
-    var ntfId = 'notifier-' + count;
-
-    var container = d.querySelector('.notifier-container'),
-        ntf       = myCreateElement('div', {class: 'notifier ' + type}),
-        ntfTitle  = myCreateElement('h3',  {class: 'notifier-title'}),
-        ntfBody   = myCreateElement('div', {class: 'notifier-body'}),
-        ntfImg    = myCreateElement('div', {class: 'notifier-img'}),
-        img       = myCreateElement('img', {class: 'img', src: icon}),
-        ntfClose  = myCreateElement('button',{class: 'notifier-close', type: 'button'});
-
-    ntfTitle.innerHTML = title;
-    ntfBody.innerHTML  = msg;
-    ntfClose.innerHTML = '&times;';
-
-    if (icon.length > 0) {
-      ntfImg.appendChild(img);
-    }
-
-    ntf.appendChild(ntfClose);
-    ntf.appendChild(ntfImg);
-    ntf.appendChild(ntfTitle);
-    ntf.appendChild(ntfBody);
-
-    container.appendChild(ntf);
-
-    ntfImg.style.height = ntfImg.parentNode.offsetHeight + 'px' || null;
-
-    setTimeout(function() {
-      ntf.className += ' shown';
-      ntf.setAttribute('id', ntfId);
-    }, 100);
-
-    if (timeout > 0) {
-
-      setTimeout(function() {
-        hide(ntfId);
-      }, timeout);
-
-    }
-
-    ntfClose.addEventListener('click', function() {
-      hide(ntfId);
-    });
-
-    count += 1;
-
-    return ntfId;
-
-  };
-
-  var hide = function(notificationId) {
-
-    var notification = document.getElementById(notificationId);
-
-    if (notification) {
-
-      notification.className = notification.className.replace(' shown', '');
-
-      setTimeout(function() {
-        notification.parentNode.removeChild(notification);
-      }, 600);
-
-      return true;
-
+﻿; (function (root, factory) {
+    if (typeof exports === 'object' && typeof module === 'object') {
+        module.exports = factory();
+    } else if (typeof define === 'function' && define.amd) {
+        define([], factory);
+    } else if (typeof exports === 'object') {
+        exports['notifier'] = factory();
     } else {
-      return false;
+        root['notifier'] = factory();
     }
-  };
+}(typeof self !== 'undefined' ? self : this, function () {
+    let notificationCounter = 0;
+    const createElement = function (tagName, attributes) {
+        const element = document.createElement(tagName);
+        for (const property in attributes) {
+            element.setAttribute(property, attributes[property]);
+        }
+        return element;
+    };
 
-  createContainer();
+    const createNotificationContainer = function () {
+        const container = createElement('div', { class: 'notifier-container', id: 'notifier-container' });
+        document.body.appendChild(container);
+    };
 
-  return {
-    show: show,
-    hide: hide
-  };
+    const showNotification = function (title, message, notificationType, iconUrl, options) {
+        let config = {
+            autoHideTimeout: 3000,
+            classList: [],
+            payload: {},
+            clickNotify: null
+        };
+
+        title = title || '알림';
+        message = message || '메시지 입니다.';
+        notificationType = notificationType || 'info';
+
+        if (typeof options === 'number') {
+            config.autoHideTimeout = options;
+        } else if (typeof options === 'object' && options !== null) {
+            config.autoHideTimeout = typeof options.autoHideTimeout === 'number' ? options.autoHideTimeout : 3000;
+            config.classList = options.classList || [];
+            config.payload = options.payload || {};
+            config.clickNotify = typeof options.clickNotify === 'function' ? options.clickNotify : null;
+        }
+
+        const notificationId = config.payload.id || 'notifier-' + notificationCounter;
+        const container = document.querySelector('.notifier-container'),
+            notification = createElement('div', { class: 'notifier ' + notificationType }),
+            titleElement = createElement('h3', { class: 'notifier-title' }),
+            bodyElement = createElement('div', { class: 'notifier-body' }),
+            imageContainer = createElement('div', { class: 'notifier-img' }),
+            closeButton = createElement('button', { class: 'notifier-close', type: 'button' });
+
+        if (config.classList && config.classList.length > 0) {
+            config.classList.forEach(cls => {
+                if (!container.classList.contains(cls)) {
+                    container.classList.add(cls);
+                }
+            });
+        }
+        titleElement.innerHTML = title;
+        bodyElement.innerHTML = message;
+        closeButton.innerHTML = '&times;';
+
+        if (iconUrl && iconUrl.length > 0) {
+            imageContainer.appendChild(createElement('img', { class: 'img', src: iconUrl }));
+        }
+
+        notification.appendChild(closeButton);
+        notification.appendChild(imageContainer);
+        notification.appendChild(titleElement);
+        notification.appendChild(bodyElement);
+
+        container.appendChild(notification);
+
+        imageContainer.style.height = imageContainer.parentNode.offsetHeight + 'px' || null;
+
+        setTimeout(function () {
+            notification.className += ' shown';
+            notification.setAttribute('id', notificationId);
+        }, 100);
+
+        if (config.autoHideTimeout > 0) {
+            setTimeout(function () {
+                hideNotification(notificationId);
+            }, config.autoHideTimeout);
+        }
+
+        if (config.clickNotify) {
+            notification.addEventListener('click', function (evt) {
+                if (evt.target !== closeButton) {
+                    config.clickNotify(evt, config.payload, notificationId);
+                    hideNotification(notificationId);
+                }
+            });
+            notification.style.cursor = 'pointer';
+        }
+
+        closeButton.addEventListener('click', function () {
+            hideNotification(notificationId);
+        });
+
+        notificationCounter += 1;
+
+        return notificationId;
+    };
+
+    const hideNotification = function (notificationId) {
+        const notificationElement = document.getElementById(notificationId);
+
+        if (notificationElement) {
+            notificationElement.className = notificationElement.className.replace(' shown', '');
+
+            setTimeout(function () {
+                notificationElement.parentNode.removeChild(notificationElement);
+            }, 600);
+
+            return true;
+        } else {
+            return false;
+        }
+    };
+
+    createNotificationContainer();
+
+    return {
+        show: showNotification,
+        hide: hideNotification
+    };
 }));
