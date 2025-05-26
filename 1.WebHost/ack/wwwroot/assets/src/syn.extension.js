@@ -452,7 +452,8 @@
             try {
                 const el = document.createElement('div');
                 el.innerHTML = val.replace(/<br\s*\/?>/gi, '\n');
-                return el.textContent || el.innerText || '';
+                const text = el.textContent || el.innerText || '';
+                return text.replace(/\s{2,}/g, ' ');
             } catch {
                 return val;
             }
@@ -1092,6 +1093,12 @@
                 }
             });
             return to;
+        },
+
+        excludeKeys(sourceObject, keysToExclude) {
+            return Object.fromEntries(
+                Object.entries(sourceObject).filter(([key]) => !keysToExclude.includes(key))
+            );
         }
     });
     context.$object = $object;

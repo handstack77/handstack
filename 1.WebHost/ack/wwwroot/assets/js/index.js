@@ -1,5 +1,5 @@
 /*!
-HandStack Javascript Library v2025.5.10
+HandStack Javascript Library v2025.5.26
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -1597,7 +1597,8 @@ if (typeof module !== 'undefined' && module.exports) {
             try {
                 const el = document.createElement('div');
                 el.innerHTML = val.replace(/<br\s*\/?>/gi, '\n');
-                return el.textContent || el.innerText || '';
+                const text = el.textContent || el.innerText || '';
+                return text.replace(/\s{2,}/g, ' ');
             } catch {
                 return val;
             }
@@ -2237,6 +2238,12 @@ if (typeof module !== 'undefined' && module.exports) {
                 }
             });
             return to;
+        },
+
+        excludeKeys(sourceObject, keysToExclude) {
+            return Object.fromEntries(
+                Object.entries(sourceObject).filter(([key]) => !keysToExclude.includes(key))
+            );
         }
     });
     context.$object = $object;

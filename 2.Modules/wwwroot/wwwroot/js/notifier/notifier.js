@@ -113,7 +113,7 @@
             notificationElement.className = notificationElement.className.replace(' shown', '');
 
             setTimeout(function () {
-                notificationElement.parentNode.removeChild(notificationElement);
+                notificationElement.parentNode?.removeChild(notificationElement);
             }, 600);
 
             return true;
