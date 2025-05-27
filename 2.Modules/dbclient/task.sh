@@ -61,6 +61,11 @@ if [ "$TASK_COMMAND" == "copy" ]; then
     rsync -av $WORKING_PATH/wwwroot/ $HANDSTACK_PATH/1.WebHost/build/handstack/modules/dbclient/wwwroot/
 fi
 
+if [ "$TASK_COMMAND" == "devcert" ]; then
+    dotnet dev-certs https -ep $HANDSTACK_HOME/ack.pfx -p 1234
+    dotnet dev-certs https --trust
+fi
+
 if [ "$TASK_COMMAND" == "start" ]; then
     pm2 start $HANDSTACK_ACK --name ack --no-autorestart
 fi

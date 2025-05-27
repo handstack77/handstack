@@ -45,6 +45,11 @@ if "%TASK_COMMAND%"=="copy" (
     robocopy %WORKING_PATH%/wwwroot %HANDSTACK_PATH%/1.WebHost/build/handstack/modules/logger/wwwroot /e /copy:dat
 )
 
+if "%TASK_COMMAND%"=="devcert" (
+    dotnet dev-certs https -ep %HANDSTACK_HOME%/ack.pfx -p 1234
+    dotnet dev-certs https --trust
+)
+
 if "%TASK_COMMAND%"=="start" (
     pm2 start %HANDSTACK_ACK% --name ack --no-autorestart
 )

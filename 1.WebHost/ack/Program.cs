@@ -179,7 +179,6 @@ namespace ack
 
                     GlobalConfiguration.ServerPort = port ?? int.Parse(configuration["AppSettings:ServerPort"].ToStringSafe("8000"));
 
-                    // dotnet dev-certs https -ep %HANDSTACK_HOME%/ack.pfx [-p 1234]
                     GlobalConfiguration.ServerDevCertSslPort = int.Parse(configuration["AppSettings:ServerDevCertSslPort"].ToStringSafe("8443"));
                     GlobalConfiguration.ServerDevCertFilePath = configuration["AppSettings:ServerDevCertFilePath"].ToStringSafe();
                     GlobalConfiguration.ServerDevCertPassword = configuration["AppSettings:ServerDevCertPassword"];
