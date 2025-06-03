@@ -1,4 +1,4 @@
-/*!
+﻿/*!
 HandStack Javascript Library v2025.5.26
 https://handshake.kr
 
@@ -198,7 +198,7 @@ syn.Config = {
     IsApiFindServer: false,
     DiscoveryApiServerUrl: '',
     ReportServer: '',
-    FileManagerServer: 'http://localhost:8000',
+    FileManagerServer: 'http://localhost:8421',
     FindClientIPServer: '/checkip',
     FindGlobalIDServer: '',
     FileServerType: 'L',
@@ -7766,7 +7766,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 }
             }
             else if (globalRoot.devicePlatform == 'node') {
-                $print.reportifyServer = 'http://localhost:8000';
+                $print.reportifyServer = 'http://localhost:8421';
             }
         },
 

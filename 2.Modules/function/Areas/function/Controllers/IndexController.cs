@@ -22,7 +22,7 @@ namespace function.Areas.function.Controllers
             this.logger = logger;
         }
 
-        // http://localhost:8000/function/api/index
+        // http://localhost:8421/function/api/index
         [HttpGet]
         public string Get()
         {

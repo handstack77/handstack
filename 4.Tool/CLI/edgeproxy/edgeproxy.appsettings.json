@@ -27,7 +27,7 @@
             "cluster1": {
                 "Destinations": {
                     "destination1": {
-                        "Address": "http://localhost:8000"
+                        "Address": "http://localhost:8421"
                     }
                 }
             }

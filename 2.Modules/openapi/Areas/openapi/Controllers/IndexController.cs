@@ -22,7 +22,7 @@ namespace openapi.Areas.openapi.Controllers
             this.logger = logger;
         }
 
-        // http://localhost:8000/openapi/api/index
+        // http://localhost:8421/openapi/api/index
         [HttpGet]
         public string Get()
         {

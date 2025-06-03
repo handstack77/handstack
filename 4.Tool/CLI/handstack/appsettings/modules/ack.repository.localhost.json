@@ -5,8 +5,8 @@
     "Version": "1.0.0",
     "ModuleConfig": {
         "SystemID": "HANDSTACK",
-        "FileServerUrl": "http://localhost:8000",
-        "BusinessServerUrl": "http://localhost:8000/transact/api/transaction/execute",
+        "FileServerUrl": "http://localhost:8421",
+        "BusinessServerUrl": "http://localhost:8421/transact/api/transaction/execute",
         "ContractBasePath": [
             "../contracts/repository"
         ],
@@ -15,7 +15,7 @@
         "ModuleBasePath": "../modules/repository",
         "EventAction": [],
         "SubscribeAction": [ "repository.Events.RepositoryRequest" ],
-        "XFrameOptions": "ALLOW-FROM http://127.0.0.1:8000,http://localhost:8000",
-        "ContentSecurityPolicy": "frame-ancestors 'self' http://127.0.0.1:8000 http://localhost:8000;"
+        "XFrameOptions": "ALLOW-FROM http://127.0.0.1:8000,http://localhost:8421",
+        "ContentSecurityPolicy": "frame-ancestors 'self' http://127.0.0.1:8000 http://localhost:8421;"
     }
 }

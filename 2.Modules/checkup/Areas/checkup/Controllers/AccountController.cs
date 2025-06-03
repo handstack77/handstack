@@ -66,7 +66,7 @@ namespace checkup.Areas.checkup.Controllers
             return "checkup AccountController";
         }
 
-        // http://localhost:8000/checkup/api/account/invite-member?userID=dev@handstack.io&clientIP=1.1.1.67
+        // http://localhost:8421/checkup/api/account/invite-member?userID=dev@handstack.io&clientIP=1.1.1.67
         [HttpGet("[action]")]
         public ActionResult InviteMember(string emailID, string applicationName, string roles, string? userName)
         {
@@ -158,7 +158,7 @@ namespace checkup.Areas.checkup.Controllers
             return result;
         }
 
-        // http://localhost:8000/checkup/api/account/login?userID=dev@handstack.io&password=sha256&clientIP=1.1.1.67
+        // http://localhost:8421/checkup/api/account/login?userID=dev@handstack.io&password=sha256&clientIP=1.1.1.67
         [AllowAnonymous]
         [HttpGet("[action]")]
         public ActionResult Login(string userID, string password, string clientIP)
@@ -219,7 +219,7 @@ namespace checkup.Areas.checkup.Controllers
             return result;
         }
 
-        // http://localhost:8000/checkup/api/account/sign-in?userID=email@handstack.io&issueID=08db7618-9fd0-9485-ca91-a8521400025c&validID=WlGVxKVMiG3UYsrZlvY2lWg+AC9472BfOhJbj+r4mniaTdyNBuUayunuCB9oj/En&signID=5aea84ed469249b1cdb1cddf6618d4eb2f346e88fcfd8eff58580a675646f568
+        // http://localhost:8421/checkup/api/account/sign-in?userID=email@handstack.io&issueID=08db7618-9fd0-9485-ca91-a8521400025c&validID=WlGVxKVMiG3UYsrZlvY2lWg+AC9472BfOhJbj+r4mniaTdyNBuUayunuCB9oj/En&signID=5aea84ed469249b1cdb1cddf6618d4eb2f346e88fcfd8eff58580a675646f568
         [HttpGet("[action]")]
         public async Task<ActionResult> SignIn(string userID, string issueID, string validID, string signID)
         {
@@ -526,7 +526,7 @@ namespace checkup.Areas.checkup.Controllers
             Response.Cookies.Append(key, value, cookieOptions);
         }
 
-        // http://localhost:8000/checkup/api/account/signal-event
+        // http://localhost:8421/checkup/api/account/signal-event
         [HttpGet("[action]")]
         public ActionResult SignalEvent()
         {
@@ -543,7 +543,7 @@ namespace checkup.Areas.checkup.Controllers
             // 
             //     string mailTemplate = System.IO.File.ReadAllText(PathExtensions.Combine(ModuleConfiguration.WWWRootBasePath, "verify-email.html"));
             //     mailTemplate = mailTemplate.Replace("#{이름}", "HandStack");
-            //     mailTemplate = mailTemplate.Replace("#{로그인주소}", "http://localhost:8000/checkup/account/signin.html");
+            //     mailTemplate = mailTemplate.Replace("#{로그인주소}", "http://localhost:8421/checkup/account/signin.html");
             // 
             //     mediatorRequest.Parameters = new Dictionary<string, object?>();
             //     mediatorRequest.Parameters.Add("SenderGroupID", "MessageSender");
@@ -576,14 +576,14 @@ namespace checkup.Areas.checkup.Controllers
             // return result;
         }
 
-        // http://localhost:8000/checkup/api/account/is-authenticated
+        // http://localhost:8421/checkup/api/account/is-authenticated
         [HttpGet("[action]")]
         public bool IsAuthenticated()
         {
             return User.Identity == null ? false : User.Identity.IsAuthenticated;
         }
 
-        // http://localhost:8000/checkup/api/account/logout
+        // http://localhost:8421/checkup/api/account/logout
         [HttpGet("[action]")]
         public async Task Logout(string? cookiePrefixName = "")
         {

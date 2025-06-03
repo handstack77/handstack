@@ -22,7 +22,7 @@ namespace transact.Areas.transact.Controllers
             this.logger = logger;
         }
 
-        // http://localhost:8000/transact/api/index
+        // http://localhost:8421/transact/api/index
         [HttpGet]
         public string Get()
         {

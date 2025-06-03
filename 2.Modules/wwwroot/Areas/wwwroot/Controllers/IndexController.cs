@@ -50,14 +50,14 @@ namespace wwwroot.Areas.wwwroot.Controllers
             this.antiforgery = antiforgery;
         }
 
-        // http://localhost:8000/wwwroot/api/index
+        // http://localhost:8421/wwwroot/api/index
         [HttpGet]
         public string Get()
         {
             return "wwwroot IndexController";
         }
 
-        // http://localhost:8000/wwwroot/api/index/get-anti-forgery-token
+        // http://localhost:8421/wwwroot/api/index/get-anti-forgery-token
         [HttpGet("[action]")]
         public IActionResult GetAntiForgeryToken()
         {
@@ -65,7 +65,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
             return new JsonResult(new { token = tokens.RequestToken });
         }
 
-        // http://localhost:8000/wwwroot/api/index/validate-token
+        // http://localhost:8421/wwwroot/api/index/validate-token
         [HttpGet("[action]")]
         public async Task<IActionResult> ValidateToken()
         {
@@ -81,7 +81,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
             }
         }
 
-        // http://localhost:8000/wwwroot/api/index/create-id?applicationID=HDS&projectID=SYS&transactionID=SYS010&serviceID=LD01&screenID=web&tokenID=123456
+        // http://localhost:8421/wwwroot/api/index/create-id?applicationID=HDS&projectID=SYS&transactionID=SYS010&serviceID=LD01&screenID=web&tokenID=123456
         [HttpGet("[action]")]
         [HttpPost("[action]")]
         public async Task<ActionResult> CreateID(string? applicationID, string? projectID, string? transactionID, string? serviceID, string? tokenID, string? screenID, int? fromMinutes = 10)
@@ -207,7 +207,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
             return requestID;
         }
 
-        // http://localhost:8000/wwwroot/api/index/sha256hash?text=handstack12345
+        // http://localhost:8421/wwwroot/api/index/sha256hash?text=handstack12345
         [HttpGet("[action]")]
         public string SHA256Hash(string text)
         {
@@ -215,7 +215,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
             return text.ToSHA256();
         }
 
-        // http://localhost:8000/wwwroot/api/index/id
+        // http://localhost:8421/wwwroot/api/index/id
         [HttpGet("[action]")]
         public ActionResult ID(int? count, bool? hasSplits = false)
         {
@@ -262,7 +262,7 @@ namespace wwwroot.Areas.wwwroot.Controllers
             return result;
         }
 
-        // http://localhost:8000/wwwroot/api/index/guid
+        // http://localhost:8421/wwwroot/api/index/guid
         [HttpGet("[action]")]
         public ActionResult GUID(bool? hasSplits = false)
         {
@@ -276,14 +276,14 @@ namespace wwwroot.Areas.wwwroot.Controllers
             }
         }
 
-        // http://localhost:8000/wwwroot/api/index/encode-no?numbers=12345678
+        // http://localhost:8421/wwwroot/api/index/encode-no?numbers=12345678
         [HttpGet("[action]")]
         public ActionResult EncodeNo([FromQuery] int[] numbers, string? key)
         {
             return Content(sqids.Encode(numbers), "text/html");
         }
 
-        // http://localhost:8000/wwwroot/api/index/decode-no?hash=1rQ2go
+        // http://localhost:8421/wwwroot/api/index/decode-no?hash=1rQ2go
         [HttpGet("[action]")]
         public ActionResult DecodeNo(string hash, string? key)
         {

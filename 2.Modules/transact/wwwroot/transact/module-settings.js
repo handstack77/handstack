@@ -8,7 +8,7 @@ let $module_settings = {
             "Version": "1.0.0",
             "ModuleConfig": {
                 "SystemID": "HANDSTACK",
-                "BusinessServerUrl": "http://localhost:8000/transact/api/transaction/execute",
+                "BusinessServerUrl": "http://localhost:8421/transact/api/transaction/execute",
                 "CircuitBreakResetSecond": 60,
                 "IsValidationRequest": false,
                 "IsAllowDynamicRequest": false,
@@ -22,7 +22,7 @@ let $module_settings = {
                     "../contracts/transact"
                 ],
                 "AvailableEnvironment": [ "P", "D", "S" ],
-                "LogServerUrl": "http://localhost:8000/logger/api/log/insert",
+                "LogServerUrl": "http://localhost:8421/logger/api/log/insert",
                 "IsCodeDataCache": true,
                 "CodeDataCacheTimeout": 20,
                 "ModuleBasePath": "../modules/transact",
@@ -37,15 +37,15 @@ let $module_settings = {
                     "HDS": ["*"]
                 },
                 "RoutingCommandUri": {
-                    "HDS|*|D|D": "http://localhost:8000/dbclient/api/query",
-                    "HDS|*|F|D": "http://localhost:8000/function/api/execution",
-                    "HDS|*|P|D": "http://localhost:8000/prompter/api/query",
-                    "HDS|*|D|P": "http://localhost:8000/dbclient/api/query",
-                    "HDS|*|F|P": "http://localhost:8000/function/api/execution",
-                    "HDS|*|P|P": "http://localhost:8000/prompter/api/query",
-                    "HDS|*|D|T": "http://localhost:8000/dbclient/api/query",
-                    "HDS|*|F|T": "http://localhost:8000/function/api/execution",
-                    "HDS|*|P|T": "http://localhost:8000/prompter/api/query"
+                    "HDS|*|D|D": "http://localhost:8421/dbclient/api/query",
+                    "HDS|*|F|D": "http://localhost:8421/function/api/execution",
+                    "HDS|*|P|D": "http://localhost:8421/prompter/api/query",
+                    "HDS|*|D|P": "http://localhost:8421/dbclient/api/query",
+                    "HDS|*|F|P": "http://localhost:8421/function/api/execution",
+                    "HDS|*|P|P": "http://localhost:8421/prompter/api/query",
+                    "HDS|*|D|T": "http://localhost:8421/dbclient/api/query",
+                    "HDS|*|F|T": "http://localhost:8421/function/api/execution",
+                    "HDS|*|P|T": "http://localhost:8421/prompter/api/query"
                 },
                 "EventAction": [],
                 "SubscribeAction": [

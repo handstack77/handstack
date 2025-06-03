@@ -107,7 +107,7 @@ namespace checkup.Areas.checkup.Controllers
             public Dictionary<string, string> KeyValues { get; set; } = new Dictionary<string, string>();
         }
 
-        // http://localhost:8000/checkup/api/tenant-app/direct?commandID=HDS|JWT|JWT010|AD01&KeyValues[UserAccountID]=08db77a3cba70039ca91a82878021905
+        // http://localhost:8421/checkup/api/tenant-app/direct?commandID=HDS|JWT|JWT010|AD01&KeyValues[UserAccountID]=08db77a3cba70039ca91a82878021905
         [HttpGet("[action]")]
         public async Task<ActionResult> Direct(string commandID, [FromQuery] QueryParams? queryParams)
         {
@@ -137,7 +137,7 @@ namespace checkup.Areas.checkup.Controllers
             return NotFound();
         }
 
-        // http://localhost:8000/checkup/api/tenant-app/authenticate?applicationID=helloworld&accountSignNo=7D2937949D90795F7FFC1EE4938893F8
+        // http://localhost:8421/checkup/api/tenant-app/authenticate?applicationID=helloworld&accountSignNo=7D2937949D90795F7FFC1EE4938893F8
         [HttpGet("[action]")]
         public async Task<ActionResult> Authenticate(string userWorkID, string applicationID, string accountSignNo)
         {
@@ -299,7 +299,7 @@ namespace checkup.Areas.checkup.Controllers
             return Ok(result);
         }
 
-        // http://localhost:8000/checkup/api/tenant-app/refresh-token?applicationID=helloworld&refreshToken=2E14205609C886A98C7F057ED41F3058DEC87B2C7D0E9B2C9F139A695035D93869E33A4D3F028EAD1632E83479ED5BC935EDBEBEF21706ED74A5626E24D06F15
+        // http://localhost:8421/checkup/api/tenant-app/refresh-token?applicationID=helloworld&refreshToken=2E14205609C886A98C7F057ED41F3058DEC87B2C7D0E9B2C9F139A695035D93869E33A4D3F028EAD1632E83479ED5BC935EDBEBEF21706ED74A5626E24D06F15
         [HttpGet("[action]")]
         public async Task<ActionResult> RefreshToken(string applicationID, string? refreshToken)
         {
@@ -428,7 +428,7 @@ namespace checkup.Areas.checkup.Controllers
             return Ok(result);
         }
 
-        // http://localhost:8000/checkup/api/tenant-app/get?applicationID=helloworld&userAccountID=0AD3C1E514A749F78F7D3088AAB53A61
+        // http://localhost:8421/checkup/api/tenant-app/get?applicationID=helloworld&userAccountID=0AD3C1E514A749F78F7D3088AAB53A61
         [HttpGet("[action]")]
         public async Task<ActionResult> Get(string? applicationID, string userAccountID)
         {
@@ -446,7 +446,7 @@ namespace checkup.Areas.checkup.Controllers
             return Ok(result);
         }
 
-        // http://localhost:8000/checkup/api/tenant-app/revoke-token?applicationID=helloworld&refreshToken=2E14205609C886A98C7F057ED41F3058DEC87B2C7D0E9B2C9F139A695035D93869E33A4D3F028EAD1632E83479ED5BC935EDBEBEF21706ED74A5626E24D06F15
+        // http://localhost:8421/checkup/api/tenant-app/revoke-token?applicationID=helloworld&refreshToken=2E14205609C886A98C7F057ED41F3058DEC87B2C7D0E9B2C9F139A695035D93869E33A4D3F028EAD1632E83479ED5BC935EDBEBEF21706ED74A5626E24D06F15
         [HttpGet("[action]")]
         public async Task<ActionResult> RevokeToken(string? applicationID, string? refreshToken)
         {
@@ -597,7 +597,7 @@ namespace checkup.Areas.checkup.Controllers
             return result;
         }
 
-        // http://localhost:8000/checkup/api/tenant-app/refresh-cors-origin-app?applicationID=helloworld&appSecret=1447a93fc5324512ad69e3bc9acac9c6
+        // http://localhost:8421/checkup/api/tenant-app/refresh-cors-origin-app?applicationID=helloworld&appSecret=1447a93fc5324512ad69e3bc9acac9c6
         [HttpGet("[action]")]
         public async Task<ActionResult> RefreshCorsOriginApp(string userWorkID, string applicationID, string appSecret)
         {
@@ -654,7 +654,7 @@ namespace checkup.Areas.checkup.Controllers
             return result;
         }
 
-        // http://localhost:8000/checkup/api/tenant-app/refresh-origin-app?applicationID=helloworld&appSecret=1447a93fc5324512ad69e3bc9acac9c6
+        // http://localhost:8421/checkup/api/tenant-app/refresh-origin-app?applicationID=helloworld&appSecret=1447a93fc5324512ad69e3bc9acac9c6
         [HttpGet("[action]")]
         public async Task<ActionResult> RefreshOriginApp(string userWorkID, string applicationID, string appSecret)
         {
@@ -710,7 +710,7 @@ namespace checkup.Areas.checkup.Controllers
             return result;
         }
 
-        // http://localhost:8000/checkup/api/tenant-app/refresh-referer-app?applicationID=helloworld&appSecret=1447a93fc5324512ad69e3bc9acac9c6
+        // http://localhost:8421/checkup/api/tenant-app/refresh-referer-app?applicationID=helloworld&appSecret=1447a93fc5324512ad69e3bc9acac9c6
         [HttpGet("[action]")]
         public async Task<ActionResult> RefreshRefererApp(string userWorkID, string applicationID, string appSecret)
         {
@@ -766,7 +766,7 @@ namespace checkup.Areas.checkup.Controllers
             return result;
         }
 
-        // http://localhost:8000/checkup/api/tenant-app/definition-bundling?applicationID=16f0edaab65f4cd2b4c9d77c07fc64e5&accessKey=6eac215f2f5e495cad4f2abfdcad7644
+        // http://localhost:8421/checkup/api/tenant-app/definition-bundling?applicationID=16f0edaab65f4cd2b4c9d77c07fc64e5&accessKey=6eac215f2f5e495cad4f2abfdcad7644
         [HttpGet("[action]")]
         public ActionResult DefinitionBundling(string accessKey, string userWorkID, string applicationID)
         {
@@ -953,7 +953,7 @@ namespace checkup.Areas.checkup.Controllers
             return result;
         }
 
-        // http://localhost:8000/checkup/api/tenant-app/sign-in?applicationNo=08dbcde8520ce00cca91a85e00064bf7&memberNo=08db77a3cba70039ca91a82878021905
+        // http://localhost:8421/checkup/api/tenant-app/sign-in?applicationNo=08dbcde8520ce00cca91a85e00064bf7&memberNo=08db77a3cba70039ca91a82878021905
         [HttpGet("[action]")]
         public ActionResult SignIn(string applicationNo, string memberNo)
         {
@@ -1002,7 +1002,7 @@ namespace checkup.Areas.checkup.Controllers
             return result;
         }
 
-        // http://localhost:8000/checkup/api/tenant-app/logout
+        // http://localhost:8421/checkup/api/tenant-app/logout
         [HttpGet("[action]")]
         public ActionResult Logout()
         {
@@ -1010,7 +1010,7 @@ namespace checkup.Areas.checkup.Controllers
             return Ok();
         }
 
-        // http://localhost:8000/checkup/api/tenant-app/create-app?applicationName=나의 첫번째 앱&memberNo=08db77a3cba70039ca91a82878021905&accessKey=6eac215f2f5e495cad4f2abfdcad7644
+        // http://localhost:8421/checkup/api/tenant-app/create-app?applicationName=나의 첫번째 앱&memberNo=08db77a3cba70039ca91a82878021905&accessKey=6eac215f2f5e495cad4f2abfdcad7644
         [HttpGet("[action]")]
         [HttpPost("[action]")]
         public async Task<ActionResult> CreateApp(string accessKey
@@ -1432,7 +1432,7 @@ namespace checkup.Areas.checkup.Controllers
             }
         }
 
-        // http://localhost:8000/checkup/api/tenant-app/delete-app?applicationID=9ysztou4&userWorkID=9ysztou4&memberNo=08db77a3cba70039ca91a82878021905&accessKey=6eac215f2f5e495cad4f2abfdcad7644
+        // http://localhost:8421/checkup/api/tenant-app/delete-app?applicationID=9ysztou4&userWorkID=9ysztou4&memberNo=08db77a3cba70039ca91a82878021905&accessKey=6eac215f2f5e495cad4f2abfdcad7644
         [HttpGet("[action]")]
         public async Task<ActionResult> DeleteApp(string accessKey
             , string memberNo
@@ -1641,7 +1641,7 @@ namespace checkup.Areas.checkup.Controllers
             }
         }
 
-        // http://localhost:8000/checkup/api/tenant-app/meta-scheme?applicationID=helloworld&accessKey=6eac215f2f5e495cad4f2abfdcad7644
+        // http://localhost:8421/checkup/api/tenant-app/meta-scheme?applicationID=helloworld&accessKey=6eac215f2f5e495cad4f2abfdcad7644
         [HttpGet("[action]")]
         public ActionResult MetaScheme(string accessKey, string userWorkID, string applicationID)
         {
@@ -1670,7 +1670,7 @@ namespace checkup.Areas.checkup.Controllers
             return result;
         }
 
-        // http://localhost:8000/checkup/api/tenant-app/table-columns?applicationID=helloworld&tableName=Customer&accessKey=6eac215f2f5e495cad4f2abfdcad7644
+        // http://localhost:8421/checkup/api/tenant-app/table-columns?applicationID=helloworld&tableName=Customer&accessKey=6eac215f2f5e495cad4f2abfdcad7644
         [HttpGet("[action]")]
         public ActionResult TableColumns(string accessKey, string userWorkID, string applicationID, string tableName)
         {
@@ -1735,7 +1735,7 @@ namespace checkup.Areas.checkup.Controllers
             return result;
         }
 
-        // http://localhost:8000/checkup/api/tenant-app/table-data?applicationID=helloworld&tableName=Album&pageIndex=0&accessKey=6eac215f2f5e495cad4f2abfdcad7644
+        // http://localhost:8421/checkup/api/tenant-app/table-data?applicationID=helloworld&tableName=Album&pageIndex=0&accessKey=6eac215f2f5e495cad4f2abfdcad7644
         [HttpGet("[action]")]
         public ActionResult TableData(string accessKey, string userWorkID, string applicationID, string tableName, string pageIndex = "0")
         {
@@ -1772,7 +1772,7 @@ namespace checkup.Areas.checkup.Controllers
             return result;
         }
 
-        // http://localhost:8000/checkup/api/tenant-app/backup-database?applicationID=helloworld&accessKey=6eac215f2f5e495cad4f2abfdcad7644
+        // http://localhost:8421/checkup/api/tenant-app/backup-database?applicationID=helloworld&accessKey=6eac215f2f5e495cad4f2abfdcad7644
         [HttpGet("[action]")]
         public ActionResult BackupDatabase(string accessKey, string userWorkID, string applicationID)
         {
@@ -1828,7 +1828,7 @@ namespace checkup.Areas.checkup.Controllers
             return result;
         }
 
-        // http://localhost:8000/checkup/api/tenant-app/backup-database-download?applicationID=helloworld&downloadTokenID=08DBB57E66F24CD7CA91A830F006DA4F
+        // http://localhost:8421/checkup/api/tenant-app/backup-database-download?applicationID=helloworld&downloadTokenID=08DBB57E66F24CD7CA91A830F006DA4F
         [HttpGet("[action]")]
         public ActionResult BackupDatabaseDownload(string userWorkID, string applicationID, string downloadTokenID)
         {
@@ -1861,7 +1861,7 @@ namespace checkup.Areas.checkup.Controllers
             return result;
         }
 
-        // http://localhost:8000/checkup/api/tenant-app/restore-database?applicationID=helloworld&accessKey=6eac215f2f5e495cad4f2abfdcad7644
+        // http://localhost:8421/checkup/api/tenant-app/restore-database?applicationID=helloworld&accessKey=6eac215f2f5e495cad4f2abfdcad7644
         [HttpGet("[action]")]
         public ActionResult RestoreDatabase(string accessKey, string userWorkID, string applicationID)
         {
@@ -1899,7 +1899,7 @@ namespace checkup.Areas.checkup.Controllers
             return result;
         }
 
-        // http://localhost:8000/checkup/api/tenant-app/restore-database-upload?applicationID=helloworld&uploadTokenID=08DBB5828D73213ECA91A8276401A03E
+        // http://localhost:8421/checkup/api/tenant-app/restore-database-upload?applicationID=helloworld&uploadTokenID=08DBB5828D73213ECA91A8276401A03E
         [HttpPost("[action]")]
         public async Task<ActionResult> RestoreDatabaseUpload([FromForm] IFormFile file)
         {
@@ -1987,7 +1987,7 @@ namespace checkup.Areas.checkup.Controllers
             return result;
         }
 
-        // http://localhost:8000/checkup/api/tenant-app/execute-sql?applicationID=helloworld&compressBase64=MoUQMiDCAqAEBUsBiAlA8gWVgZwI4BsBLAFwFMB9AWwENsyAnWAdQAkQURZiBPAB1IC8AcmLUARvlJCA3EA=&accessKey=6eac215f2f5e495cad4f2abfdcad7644
+        // http://localhost:8421/checkup/api/tenant-app/execute-sql?applicationID=helloworld&compressBase64=MoUQMiDCAqAEBUsBiAlA8gWVgZwI4BsBLAFwFMB9AWwENsyAnWAdQAkQURZiBPAB1IC8AcmLUARvlJCA3EA=&accessKey=6eac215f2f5e495cad4f2abfdcad7644
         [HttpGet("[action]")]
         [HttpPost("[action]")]
         public ActionResult ExecuteSql(string accessKey, string userWorkID, string applicationID, string? compressBase64)
@@ -2025,7 +2025,7 @@ namespace checkup.Areas.checkup.Controllers
             return result;
         }
 
-        // http://localhost:8000/checkup/api/tenant-app/package-download?applicationID=helloworld&packageNo=08DBAA8914CED69CCA91A83AD40485F1&accessKey=6eac215f2f5e495cad4f2abfdcad7644
+        // http://localhost:8421/checkup/api/tenant-app/package-download?applicationID=helloworld&packageNo=08DBAA8914CED69CCA91A83AD40485F1&accessKey=6eac215f2f5e495cad4f2abfdcad7644
         [HttpGet("[action]")]
         public ActionResult PackageDownload(string accessKey, string userWorkID, string applicationID, string packageNo)
         {
@@ -2047,7 +2047,7 @@ namespace checkup.Areas.checkup.Controllers
             return result;
         }
 
-        // http://localhost:8000/checkup/api/tenant-app/publish?applicationID=helloworld&packageNo=08DBAA8914CED69CCA91A83AD40485F1&accessID=Z2B032VV&signID=60969e8117cc3016c525bd3b3e63f0d7bd663153f90cdac67cc9c141bc73aa54
+        // http://localhost:8421/checkup/api/tenant-app/publish?applicationID=helloworld&packageNo=08DBAA8914CED69CCA91A83AD40485F1&accessID=Z2B032VV&signID=60969e8117cc3016c525bd3b3e63f0d7bd663153f90cdac67cc9c141bc73aa54
         [HttpGet("[action]")]
         [HttpPost("[action]")]
         public async Task<ActionResult> Publish([FromForm] IFormFile? file)
@@ -2132,7 +2132,7 @@ TransactionException:
             return result;
         }
 
-        // http://localhost:8000/checkup/api/tenant-app/archives-backup?applicationID=helloworld&packageNo=08DBAA8914CED69CCA91A83AD40485F1&accessID=Z2B032VV&signID=60969e8117cc3016c525bd3b3e63f0d7bd663153f90cdac67cc9c141bc73aa54
+        // http://localhost:8421/checkup/api/tenant-app/archives-backup?applicationID=helloworld&packageNo=08DBAA8914CED69CCA91A83AD40485F1&accessID=Z2B032VV&signID=60969e8117cc3016c525bd3b3e63f0d7bd663153f90cdac67cc9c141bc73aa54
         [HttpGet("[action]")]
         public async Task<ActionResult> ArchivesBackup(string userWorkID, string applicationID, string packageNo, string accessID, string signID)
         {
@@ -2283,7 +2283,7 @@ TransactionException:
             return result;
         }
 
-        // http://localhost:8000/checkup/api/tenant-app/progress?applicationID=helloworld&packageNo=08DBAA8914CED69CCA91A83AD40485F1&accessID=Z2B032VV&signID=60969e8117cc3016c525bd3b3e63f0d7bd663153f90cdac67cc9c141bc73aa54
+        // http://localhost:8421/checkup/api/tenant-app/progress?applicationID=helloworld&packageNo=08DBAA8914CED69CCA91A83AD40485F1&accessID=Z2B032VV&signID=60969e8117cc3016c525bd3b3e63f0d7bd663153f90cdac67cc9c141bc73aa54
         [HttpGet("[action]")]
         public async Task<ActionResult> Progress(string userWorkID, string applicationID, string packageNo, string accessID, string signID)
         {
@@ -2507,7 +2507,7 @@ TransactionException:
             return result;
         }
 
-        // http://localhost:8000/checkup/api/tenant-app/upload-common-file?applicationID=helloworld&accessKey=6eac215f2f5e495cad4f2abfdcad7644
+        // http://localhost:8421/checkup/api/tenant-app/upload-common-file?applicationID=helloworld&accessKey=6eac215f2f5e495cad4f2abfdcad7644
         [HttpPost("[action]")]
         public async Task<ActionResult> UploadCommonFile([FromForm] IFormFile file)
         {
@@ -2570,7 +2570,7 @@ TransactionException:
             return result;
         }
 
-        // http://localhost:8000/checkup/api/tenant-app/asset-file-list?userWorkID=3qmbxyhc&applicationID=9ysztou4&accessKey=6eac215f2f5e495cad4f2abfdcad7644
+        // http://localhost:8421/checkup/api/tenant-app/asset-file-list?userWorkID=3qmbxyhc&applicationID=9ysztou4&accessKey=6eac215f2f5e495cad4f2abfdcad7644
         [HttpGet("[action]")]
         public ActionResult AssetFileList(string userWorkID, string applicationID, string accessKey, string? locationPath = "")
         {
@@ -2643,7 +2643,7 @@ TransactionException:
             return result;
         }
 
-        // http://localhost:8000/checkup/api/tenant-app/upload-asset-file?applicationID=helloworld&accessKey=6eac215f2f5e495cad4f2abfdcad7644
+        // http://localhost:8421/checkup/api/tenant-app/upload-asset-file?applicationID=helloworld&accessKey=6eac215f2f5e495cad4f2abfdcad7644
         [HttpPost("[action]")]
         public async Task<ActionResult> UploadAssetFile([FromForm] IFormFile file)
         {
@@ -2735,7 +2735,7 @@ TransactionException:
             return result;
         }
 
-        // http://localhost:8000/checkup/api/tenant-app/npm-package?packageName=axios&version=
+        // http://localhost:8421/checkup/api/tenant-app/npm-package?packageName=axios&version=
         [HttpGet("[action]")]
         public async Task<ActionResult> NpmPackage(string packageName, string? version)
         {
@@ -2763,7 +2763,7 @@ TransactionException:
             return result;
         }
 
-        // http://localhost:8000/checkup/api/tenant-app/nuget-package?packageName=MediatR&version=
+        // http://localhost:8421/checkup/api/tenant-app/nuget-package?packageName=MediatR&version=
         [HttpGet("[action]")]
         public async Task<ActionResult> NugetPackage(string packageName, string? version)
         {
@@ -2791,7 +2791,7 @@ TransactionException:
             return result;
         }
 
-        // http://localhost:8000/checkup/api/tenant-app/create-directory?applicationID=helloworld&projectType=B&directoryName=TST&accessKey=6eac215f2f5e495cad4f2abfdcad7644
+        // http://localhost:8421/checkup/api/tenant-app/create-directory?applicationID=helloworld&projectType=B&directoryName=TST&accessKey=6eac215f2f5e495cad4f2abfdcad7644
         [HttpGet("[action]")]
         public ActionResult CreateDirectory(string accessKey, string userWorkID, string applicationID, string directoryName, string projectType)
         {
@@ -2820,7 +2820,7 @@ TransactionException:
             return result;
         }
 
-        // http://localhost:8000/checkup/api/tenant-app/delete-directory?applicationID=helloworld&projectType=B&directoryName=TST&accessKey=6eac215f2f5e495cad4f2abfdcad7644
+        // http://localhost:8421/checkup/api/tenant-app/delete-directory?applicationID=helloworld&projectType=B&directoryName=TST&accessKey=6eac215f2f5e495cad4f2abfdcad7644
         [HttpGet("[action]")]
         public ActionResult DeleteDirectory(string accessKey, string userWorkID, string applicationID, string directoryName, string projectType)
         {
@@ -2849,7 +2849,7 @@ TransactionException:
             return result;
         }
 
-        // http://localhost:8000/checkup/api/tenant-app/delete-file?applicationID=helloworld&projectType=B&filePath=TST/TST010.json&accessKey=6eac215f2f5e495cad4f2abfdcad7644
+        // http://localhost:8421/checkup/api/tenant-app/delete-file?applicationID=helloworld&projectType=B&filePath=TST/TST010.json&accessKey=6eac215f2f5e495cad4f2abfdcad7644
         [HttpGet("[action]")]
         public ActionResult DeleteFile(string accessKey, string userWorkID, string applicationID, string itemPath, string projectType)
         {
@@ -2886,7 +2886,7 @@ TransactionException:
             return result;
         }
 
-        // http://localhost:8000/checkup/api/tenant-app/plain-text?applicationID=helloworld&projectType=B&filePath=STR/SLT010.json
+        // http://localhost:8421/checkup/api/tenant-app/plain-text?applicationID=helloworld&projectType=B&filePath=STR/SLT010.json
         [HttpGet("[action]")]
         public ActionResult PlainText(string accessKey, string userWorkID, string applicationID, string filePath, string? projectType)
         {
@@ -2913,7 +2913,7 @@ TransactionException:
             return result;
         }
 
-        // http://localhost:8000/checkup/api/tenant-app/post-text?applicationID=helloworld&filePath=wwwroot/view/STR/SLT010.html&compressBase64=EYGwhqZA
+        // http://localhost:8421/checkup/api/tenant-app/post-text?applicationID=helloworld&filePath=wwwroot/view/STR/SLT010.html&compressBase64=EYGwhqZA
         [HttpGet("[action]")]
         [HttpPost("[action]")]
         public ActionResult PostText(string accessKey, string userWorkID, string applicationID, string filePath, string? projectType, string? compressBase64)
@@ -2949,7 +2949,7 @@ TransactionException:
             return result;
         }
 
-        // http://localhost:8000/checkup/api/tenant-app/total-items?applicationID=helloworld&applicationName=HelloWorld&accessKey=6eac215f2f5e495cad4f2abfdcad7644
+        // http://localhost:8421/checkup/api/tenant-app/total-items?applicationID=helloworld&applicationName=HelloWorld&accessKey=6eac215f2f5e495cad4f2abfdcad7644
         [HttpGet("[action]")]
         public ActionResult TotalItems(string accessKey, string userWorkID, string applicationID, string applicationName = "")
         {
@@ -3018,7 +3018,7 @@ TransactionException:
             return result;
         }
 
-        // http://localhost:8000/checkup/api/tenant-app/items?applicationID=helloworld&projectType=B&parentMenuID=HBM&parentMenuName=HelloWorld&accessKey=6eac215f2f5e495cad4f2abfdcad7644
+        // http://localhost:8421/checkup/api/tenant-app/items?applicationID=helloworld&projectType=B&parentMenuID=HBM&parentMenuName=HelloWorld&accessKey=6eac215f2f5e495cad4f2abfdcad7644
         [HttpGet("[action]")]
         public ActionResult Items(string accessKey, string userWorkID, string applicationID, string projectType, string parentMenuID, string parentMenuName)
         {

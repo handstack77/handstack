@@ -22,7 +22,7 @@ namespace dbclient.Areas.dbclient.Controllers
             this.logger = logger;
         }
 
-        // http://localhost:8000/dbclient/api/index
+        // http://localhost:8421/dbclient/api/index
         [HttpGet]
         public string Get()
         {

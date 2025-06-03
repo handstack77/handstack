@@ -46,7 +46,7 @@ namespace prompter.Areas.prompter.Controllers
             this.logger = logger;
         }
 
-        // http://localhost:8000/prompter/api/managed/reset-contract
+        // http://localhost:8421/prompter/api/managed/reset-contract
         [HttpGet("[action]")]
         public ActionResult ResetContract()
         {
@@ -77,7 +77,7 @@ namespace prompter.Areas.prompter.Controllers
             return result;
         }
 
-        // http://localhost:8000/prompter/api/managed/reset-app-contract?userWorkID=userWorkID&applicationID=helloworld
+        // http://localhost:8421/prompter/api/managed/reset-app-contract?userWorkID=userWorkID&applicationID=helloworld
         [HttpGet("[action]")]
         public ActionResult ResetAppContract(string userWorkID, string applicationID)
         {
@@ -270,7 +270,7 @@ namespace prompter.Areas.prompter.Controllers
             return result;
         }
 
-        // http://localhost:8000/prompter/api/managed/delete-app-contract?userWorkID=userWorkID&applicationID=helloworld
+        // http://localhost:8421/prompter/api/managed/delete-app-contract?userWorkID=userWorkID&applicationID=helloworld
         [HttpGet("[action]")]
         public ActionResult DeleteAppContract(string userWorkID, string applicationID)
         {

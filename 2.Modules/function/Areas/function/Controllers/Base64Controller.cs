@@ -29,7 +29,7 @@ namespace function.Areas.function.Controllers
             this.loggerClient = loggerClient;
         }
 
-        // http://localhost:8000/function/api/base64/encode?value={"ProjectID":"SYN","BusinessID":"DSO","TransactionID":"0001","FunctionID":"R01"}
+        // http://localhost:8421/function/api/base64/encode?value={"ProjectID":"SYN","BusinessID":"DSO","TransactionID":"0001","FunctionID":"R01"}
         [HttpGet("[action]")]
         public ActionResult Encode(string value)
         {
@@ -57,7 +57,7 @@ namespace function.Areas.function.Controllers
             return result;
         }
 
-        // http://localhost:8000/function/api/base64/decode?value=eyJQcm9qZWN0SUQiOiJRQUYiLCJCdXNpbmVzc0lEIjoiRFNPIiwiVHJhbnNhY3Rpb25JRCI6IjAwMDEiLCJGdW5jdGlvbklEIjoiUjAxIn0=
+        // http://localhost:8421/function/api/base64/decode?value=eyJQcm9qZWN0SUQiOiJRQUYiLCJCdXNpbmVzc0lEIjoiRFNPIiwiVHJhbnNhY3Rpb25JRCI6IjAwMDEiLCJGdW5jdGlvbklEIjoiUjAxIn0=
         [HttpGet("[action]")]
         public ActionResult Decode(string value)
         {

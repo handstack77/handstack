@@ -8,8 +8,8 @@
         "ReferenceModuleID": "checkup",
         "Use": true,
         "Configuration": {
-            "WindowsBaseUrl": "http://localhost:8000",
-            "LinuxBaseUrl": "http://localhost:8000"
+            "WindowsBaseUrl": "http://localhost:8421",
+            "LinuxBaseUrl": "http://localhost:8421"
         },
         "Description": "Forbes 앱 환경설정"
     },

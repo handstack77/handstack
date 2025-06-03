@@ -12,11 +12,11 @@ let $module_settings = {
                 "ContractBasePath": [
                     "../contracts/prompter"
                 ],
-                "BusinessServerUrl": "http://localhost:8000/transact/api/transaction/execute",
+                "BusinessServerUrl": "http://localhost:8421/transact/api/transaction/execute",
                 "IsTransactionLogging": false,
                 "ModuleLogFilePath": "../log/prompter/module.log",
                 "IsLogServer": true,
-                "LogServerUrl": "http://localhost:8000/logger/api/log/insert",
+                "LogServerUrl": "http://localhost:8421/logger/api/log/insert",
                 "EventAction": [
                     "prompter.Events.ManagedRequest"
                 ],

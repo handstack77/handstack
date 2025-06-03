@@ -55,7 +55,7 @@ namespace openapi.Areas.openapi.Controllers
             this.dataProvider = (DataProviders)Enum.Parse(typeof(DataProviders), ModuleConfiguration.ModuleDataSource.DataProvider);
         }
 
-        // http://localhost:8000/openapi/api/transaction/remove-cache?apiServiceID=
+        // http://localhost:8421/openapi/api/transaction/remove-cache?apiServiceID=
         [HttpGet("api/transaction/[action]")]
         public ActionResult RemoveCache(string apiServiceID)
         {
@@ -83,7 +83,7 @@ namespace openapi.Areas.openapi.Controllers
             return result;
         }
 
-        // http://localhost:8000/openapi/codes?AccessID=c48972d403cf4c3485d2625a892d135d&GroupCode=SYS000&CategoryID=
+        // http://localhost:8421/openapi/codes?AccessID=c48972d403cf4c3485d2625a892d135d&GroupCode=SYS000&CategoryID=
         [HttpGet("{interfaceID}")]
         public async Task<ActionResult> Execute(string interfaceID)
         {

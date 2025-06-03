@@ -7,7 +7,7 @@
         "LanguageType": "csharp",
         "ReferenceModuleID": "checkup",
         "Configuration": {
-            "TransactServerUrl": "http://localhost:8000/transact/api/aggregate"
+            "TransactServerUrl": "http://localhost:8421/transact/api/aggregate"
         },
         "Use": true,
         "Description": "Forbes 앱 대시보드 정보"

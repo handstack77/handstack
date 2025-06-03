@@ -198,7 +198,7 @@ syn.Config = {
     IsApiFindServer: false,
     DiscoveryApiServerUrl: '',
     ReportServer: '',
-    FileManagerServer: 'http://localhost:8000',
+    FileManagerServer: 'http://localhost:8421',
     FindClientIPServer: '/checkip',
     FindGlobalIDServer: '',
     FileServerType: 'L',

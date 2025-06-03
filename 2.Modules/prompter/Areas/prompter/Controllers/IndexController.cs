@@ -22,7 +22,7 @@ namespace prompter.Areas.prompter.Controllers
             this.logger = logger;
         }
 
-        // http://localhost:8000/prompter/api/index
+        // http://localhost:8421/prompter/api/index
         [HttpGet]
         public string Get()
         {

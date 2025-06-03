@@ -8,7 +8,7 @@ let $module_settings = {
             "Version": "1.0.0",
             "ModuleConfig": {
                 "SystemID": "HANDSTACK",
-                "BusinessServerUrl": "http://localhost:8000/transact/api/transaction/execute",
+                "BusinessServerUrl": "http://localhost:8421/transact/api/transaction/execute",
                 "CircuitBreakResetSecond": 60,
                 "DefaultCommandTimeout": 30,
                 "ContractBasePath": [
@@ -17,7 +17,7 @@ let $module_settings = {
                 "IsTransactionLogging": false,
                 "ModuleLogFilePath": "../log/dbclient/module.log",
                 "IsLogServer": true,
-                "LogServerUrl": "http://localhost:8000/logger/api/log/insert",
+                "LogServerUrl": "http://localhost:8421/logger/api/log/insert",
                 "IsProfileLogging": false,
                 "ProfileLogFilePath": "../log/dbclient/profile.log",
                 "EventAction": [],

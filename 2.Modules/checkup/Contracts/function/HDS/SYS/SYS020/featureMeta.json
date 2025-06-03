@@ -7,8 +7,8 @@
         "LanguageType": "csharp",
         "ReferenceModuleID": "checkup",
         "Configuration": {
-            "LogServerListUrl": "http://localhost:8000/logger/api/log/list",
-            "LogServerDetailUrl": "http://localhost:8000/logger/api/log/detail"
+            "LogServerListUrl": "http://localhost:8421/logger/api/log/list",
+            "LogServerDetailUrl": "http://localhost:8421/logger/api/log/detail"
         },
         "Use": true,
         "Description": "거래 이력정보 관리"

@@ -11,7 +11,7 @@ let $module_settings = {
                 "IsSQLiteCreateOnNotSettingRequest": true,
                 "LogDeleteRepeatSecond": 43200,
                 "ModuleBasePath": "../modules/logger",
-                "BusinessServerUrl": "http://localhost:8000/transact/api/transaction/execute",
+                "BusinessServerUrl": "http://localhost:8421/transact/api/transaction/execute",
                 "EventAction": [],
                 "SubscribeAction": [],
                 "DataSource": [

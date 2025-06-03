@@ -42,7 +42,7 @@ namespace transact.Areas.transact.Controllers
             this.loggerClient = loggerClient;
         }
 
-        // http://localhost:8000/transact/api/managed/reset-contract
+        // http://localhost:8421/transact/api/managed/reset-contract
         [HttpGet("[action]")]
         public ActionResult ResetContract()
         {
@@ -71,7 +71,7 @@ namespace transact.Areas.transact.Controllers
             return result;
         }
 
-        // http://localhost:8000/transact/api/managed/reset-app-contract?userWorkID=userWorkID&applicationID=helloworld
+        // http://localhost:8421/transact/api/managed/reset-app-contract?userWorkID=userWorkID&applicationID=helloworld
         [HttpGet("[action]")]
         public ActionResult ResetAppContract(string userWorkID, string applicationID)
         {
@@ -160,7 +160,7 @@ namespace transact.Areas.transact.Controllers
             return result;
         }
 
-        // http://localhost:8000/transact/api/managed/delete-app-contract?userWorkID=userWorkID&applicationID=helloworld
+        // http://localhost:8421/transact/api/managed/delete-app-contract?userWorkID=userWorkID&applicationID=helloworld
         [HttpGet("[action]")]
         public ActionResult DeleteAppContract(string userWorkID, string applicationID)
         {
@@ -204,7 +204,7 @@ namespace transact.Areas.transact.Controllers
             return result;
         }
 
-        // http://localhost:8000/transact/api/managed/string-encrypt?value=helloworld
+        // http://localhost:8421/transact/api/managed/string-encrypt?value=helloworld
         [HttpGet("[action]")]
         public ActionResult StringEncrypt(string value)
         {
@@ -231,7 +231,7 @@ namespace transact.Areas.transact.Controllers
             return result;
         }
 
-        // http://localhost:8000/transact/api/managed/string-decrypt?value=WzE2MSwxNTIsMTYyLDIwNSwxNjAsMTc1LDE2OCwxNjUsMTYyLDE5N10uOTM2YTE4
+        // http://localhost:8421/transact/api/managed/string-decrypt?value=WzE2MSwxNTIsMTYyLDIwNSwxNjAsMTc1LDE2OCwxNjUsMTYyLDE5N10uOTM2YTE4
         [HttpGet("[action]")]
         public ActionResult StringDecrypt(string value)
         {

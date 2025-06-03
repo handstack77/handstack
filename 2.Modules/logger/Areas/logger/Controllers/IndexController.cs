@@ -22,7 +22,7 @@ namespace logger.Areas.logger.Controllers
             this.logger = logger;
         }
 
-        // http://localhost:8000/logger/api/index
+        // http://localhost:8421/logger/api/index
         [HttpGet]
         public string Get()
         {

@@ -40,7 +40,7 @@ namespace openapi.Areas.openapi.Controllers
             this.mediatorClient = mediatorClient;
         }
 
-        // http://localhost:8000/openapi/api/managed/initialize-settings
+        // http://localhost:8421/openapi/api/managed/initialize-settings
         [HttpGet("[action]")]
         public async Task<ActionResult> InitializeSettings()
         {
@@ -92,7 +92,7 @@ namespace openapi.Areas.openapi.Controllers
             return result;
         }
 
-        // http://localhost:8000/openapi/api/managed/delete-api-service
+        // http://localhost:8421/openapi/api/managed/delete-api-service
         [HttpGet("[action]")]
         public ActionResult DeleteApiService(string apiServiceID)
         {
@@ -140,7 +140,7 @@ namespace openapi.Areas.openapi.Controllers
             return result;
         }
 
-        // http://localhost:8000/openapi/api/managed/delete-api-data-source
+        // http://localhost:8421/openapi/api/managed/delete-api-data-source
         [HttpGet("[action]")]
         public ActionResult DeleteApiDataSource(string dataSourceID)
         {
@@ -176,7 +176,7 @@ namespace openapi.Areas.openapi.Controllers
             return result;
         }
 
-        // http://localhost:8000/openapi/api/managed/cache-clear
+        // http://localhost:8421/openapi/api/managed/cache-clear
         [HttpGet("[action]")]
         public ActionResult CacheClear()
         {

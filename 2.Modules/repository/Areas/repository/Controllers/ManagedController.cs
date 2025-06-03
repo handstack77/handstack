@@ -42,7 +42,7 @@ namespace repository.Areas.repository.Controllers
             this.moduleApiClient = moduleApiClient;
         }
 
-        // http://localhost:8000/repository/api/managed/reset-app-contract?userWorkID=userWorkID&applicationID=helloworld
+        // http://localhost:8421/repository/api/managed/reset-app-contract?userWorkID=userWorkID&applicationID=helloworld
         [HttpGet("[action]")]
         public ActionResult ResetAppContract(string userWorkID, string applicationID)
         {
@@ -238,7 +238,7 @@ namespace repository.Areas.repository.Controllers
             return result;
         }
 
-        // http://localhost:8000/repository/api/managed/delete-app-contract?userWorkID=userWorkID&applicationID=helloworld
+        // http://localhost:8421/repository/api/managed/delete-app-contract?userWorkID=userWorkID&applicationID=helloworld
         [HttpGet("[action]")]
         public ActionResult DeleteAppContract(string userWorkID, string applicationID)
         {

@@ -55,14 +55,14 @@ namespace repository.Controllers
             this.configuration = configuration;
         }
 
-        // http://localhost:8000/repository/api/storage/get-client-ip
+        // http://localhost:8421/repository/api/storage/get-client-ip
         [HttpGet("[action]")]
         public string? GetClientIP()
         {
             return HttpContext.GetRemoteIpAddress();
         }
 
-        // http://localhost:8000/repository/api/storage/action-handler
+        // http://localhost:8421/repository/api/storage/action-handler
         [HttpGet("[action]")]
         public async Task<ActionResult> ActionHandler()
         {
@@ -501,7 +501,7 @@ namespace repository.Controllers
             return result;
         }
 
-        // http://localhost:8000/repository/api/storage/get-repository
+        // http://localhost:8421/repository/api/storage/get-repository
         [HttpGet("[action]")]
         public ContentResult GetRepository(string applicationID, string repositoryID)
         {
@@ -533,7 +533,7 @@ namespace repository.Controllers
             return Content(result, "application/json");
         }
 
-        // http://localhost:8000/repository/api/storage/upload-file
+        // http://localhost:8421/repository/api/storage/upload-file
         [HttpPost("[action]")]
         public async Task<ActionResult> UploadFile([FromForm] IFormFile? file)
         {
@@ -1231,7 +1231,7 @@ namespace repository.Controllers
             return Content(JsonConvert.SerializeObject(result), "application/json");
         }
 
-        // http://localhost:8000/repository/api/storage/upload-files
+        // http://localhost:8421/repository/api/storage/upload-files
         [HttpPost("[action]")]
         public async Task<ActionResult> UploadFiles([FromForm] List<IFormFile> files)
         {
@@ -1770,7 +1770,7 @@ namespace repository.Controllers
             }
         }
 
-        // http://localhost:8000/repository/api/storage/download-file
+        // http://localhost:8421/repository/api/storage/download-file
         [HttpPost("[action]")]
         public async Task<ActionResult> DownloadFile([FromBody] DownloadRequest downloadRequest)
         {
@@ -1831,7 +1831,7 @@ namespace repository.Controllers
             return result;
         }
 
-        // http://localhost:8000/repository/api/storage/http-download-file?repositoryid=2FD91746-D77A-4EE1-880B-14AA604ACE5A&itemID=
+        // http://localhost:8421/repository/api/storage/http-download-file?repositoryid=2FD91746-D77A-4EE1-880B-14AA604ACE5A&itemID=
         [HttpGet("[action]")]
         public async Task<ActionResult> HttpDownloadFile(string applicationID, string repositoryID, string itemID, string? fileMD5, string? tokenID, string? businessID, string? disposition)
         {
@@ -1956,7 +1956,7 @@ namespace repository.Controllers
             return result;
         }
 
-        // http://localhost:8000/repository/api/storage/virtual-download-file?repositoryID=2FD91746-D77A-4EE1-880B-14AA604ACE5A&fileName=강아지.jpg&subDirectory=2020
+        // http://localhost:8421/repository/api/storage/virtual-download-file?repositoryID=2FD91746-D77A-4EE1-880B-14AA604ACE5A&fileName=강아지.jpg&subDirectory=2020
         [HttpGet("[action]")]
         public async Task<ActionResult> VirtualDownloadFile(string applicationID, string repositoryID, string fileName, string? subDirectory, string? disposition)
         {
@@ -2066,7 +2066,7 @@ namespace repository.Controllers
             return result;
         }
 
-        // http://localhost:8000/repository/api/storage/virtual-delete-file?repositoryid=2FD91746-D77A-4EE1-880B-14AA604ACE5A&filename=강아지.jpg&subdirectory=2020
+        // http://localhost:8421/repository/api/storage/virtual-delete-file?repositoryid=2FD91746-D77A-4EE1-880B-14AA604ACE5A&filename=강아지.jpg&subdirectory=2020
         [HttpGet("[action]")]
         public async Task<ActionResult> VirtualDeleteFile(string applicationID, string repositoryID, string fileName, string subDirectory)
         {
@@ -2171,7 +2171,7 @@ namespace repository.Controllers
             return result;
         }
 
-        // http://localhost:8000/repository/api/storage/get-repositorys
+        // http://localhost:8421/repository/api/storage/get-repositorys
         [HttpGet("[action]")]
         public string GetRepositorys()
         {
@@ -2191,7 +2191,7 @@ namespace repository.Controllers
             return result;
         }
 
-        // http://localhost:8000/repository/api/storage/remove-item?repositoryID=AttachFile&itemid=12345678
+        // http://localhost:8421/repository/api/storage/remove-item?repositoryID=AttachFile&itemid=12345678
         [HttpGet("[action]")]
         public async Task<ActionResult> RemoveItem(string applicationID, string repositoryID, string itemID, string businessID)
         {
@@ -2309,7 +2309,7 @@ namespace repository.Controllers
             return Content(JsonConvert.SerializeObject(jsonContentResult), "application/json");
         }
 
-        // http://localhost:8000/repository/api/storage/remove-items?repositoryID=AttachFile&dependencyID=helloworld
+        // http://localhost:8421/repository/api/storage/remove-items?repositoryID=AttachFile&dependencyID=helloworld
         [HttpGet("[action]")]
         public async Task<ActionResult> RemoveItems(string applicationID, string repositoryID, string dependencyID, string businessID)
         {
@@ -2729,7 +2729,7 @@ namespace repository.Controllers
             return result;
         }
 
-        // http://localhost:8000/repository/api/storage/get-mime-type?path=test.json
+        // http://localhost:8421/repository/api/storage/get-mime-type?path=test.json
         [HttpGet("[action]")]
         public string GetMimeType(string path)
         {
@@ -2755,7 +2755,7 @@ namespace repository.Controllers
             return BitConverter.ToString(md5.ComputeHash(fileStream)).Replace("-", string.Empty);
         }
 
-        // http://localhost:8000/repository/api/storage/get-md5-hash?value=s
+        // http://localhost:8421/repository/api/storage/get-md5-hash?value=s
         [HttpGet("[action]")]
         public string GetMD5Hash(string value)
         {

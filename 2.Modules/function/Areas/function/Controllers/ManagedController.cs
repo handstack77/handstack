@@ -39,7 +39,7 @@ namespace function.Areas.function.Controllers
             this.environment = environment;
         }
 
-        // http://localhost:8000/function/api/managed/reset-contract
+        // http://localhost:8421/function/api/managed/reset-contract
         [HttpGet("[action]")]
         public ActionResult ResetContract()
         {
@@ -70,7 +70,7 @@ namespace function.Areas.function.Controllers
             return result;
         }
 
-        // http://localhost:8000/function/api/managed/reset-app-contract?userWorkID=userWorkID&applicationID=helloworld
+        // http://localhost:8421/function/api/managed/reset-app-contract?userWorkID=userWorkID&applicationID=helloworld
         [HttpGet("[action]")]
         public ActionResult ResetAppContract(string userWorkID, string applicationID)
         {
@@ -275,7 +275,7 @@ namespace function.Areas.function.Controllers
             return result;
         }
 
-        // http://localhost:8000/function/api/managed/delete-app-contract?userWorkID=userWorkID&applicationID=helloworld
+        // http://localhost:8421/function/api/managed/delete-app-contract?userWorkID=userWorkID&applicationID=helloworld
         [HttpGet("[action]")]
         public ActionResult DeleteAppContract(string userWorkID, string applicationID)
         {

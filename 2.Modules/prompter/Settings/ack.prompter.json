@@ -6,14 +6,14 @@
         "ProgramName": "ack",
         "HostName": "HOSTNAME",
         "InstallType": "L",
-        "BusinessServerUrl": "http://localhost:8000/transact/api/transaction/execute",
+        "BusinessServerUrl": "http://localhost:8421/transact/api/transaction/execute",
         "FindGlobalIDServer": "",
         "DomainAPIServer": {
             "ServerID": "SERVERD01",
             "ServerType": "D",
             "Protocol": "http",
             "IP": "localhost",
-            "Port": "8000",
+            "Port": "8421",
             "Path": "/transact/api/transaction/execute",
             "ClientIP": "127.0.0.1"
         },
@@ -47,7 +47,7 @@
             "http://127.0.0.1",
             "http://127.0.0.1:8000",
             "http://localhost",
-            "http://localhost:8000"
+            "http://localhost:8421"
         ],
         "SessionState": {
             "IsSession": true,

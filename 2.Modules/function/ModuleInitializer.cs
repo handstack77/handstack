@@ -250,7 +250,7 @@ namespace function
                             "IsApiFindServer": false,
                             "DiscoveryApiServerUrl": "",
                             "ReportServer": "",
-                            "FileManagerServer": "http://localhost:8000",
+                            "FileManagerServer": "http://localhost:8421",
                             "FindClientIPServer": "/checkip",
                             "FindGlobalIDServer": "",
                             "FileServerType": "L",
@@ -261,7 +261,7 @@ namespace function
                                 "ServerType": "D",
                                 "Protocol": "http",
                                 "IP": "localhost",
-                                "Port": "8000",
+                                "Port": "8421",
                                 "Path": "/transact/api/transaction/execute",
                                 "ClientIP": "localhost"
                             },

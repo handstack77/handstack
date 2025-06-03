@@ -8,7 +8,7 @@ let $module_settings = {
             "Version": "1.0.0",
             "ModuleConfig": {
                 "SystemID": "HANDSTACK",
-                "BusinessServerUrl": "http://localhost:8000/transact/api/transaction/execute",
+                "BusinessServerUrl": "http://localhost:8421/transact/api/transaction/execute",
                 "ModuleLogFilePath": "../log/wwwroot/module.log",
                 "ContractRequestPath": "view",
                 "ContractBasePath": "../contracts/wwwroot",

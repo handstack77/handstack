@@ -59,7 +59,7 @@ namespace checkup.Areas.checkup.Controllers
             return "checkup IndexController";
         }
 
-        // http://localhost:8000/checkup/api/index/has-key?cacheKey=
+        // http://localhost:8421/checkup/api/index/has-key?cacheKey=
         [HttpGet("[action]")]
         public ActionResult HasKey(string cacheKey)
         {
@@ -84,7 +84,7 @@ namespace checkup.Areas.checkup.Controllers
             return result;
         }
 
-        // http://localhost:8000/checkup/api/index/create-id?applicationID=HDS&projectID=SYS&transactionID=SYS010&serviceID=LD01&tokenID=123456
+        // http://localhost:8421/checkup/api/index/create-id?applicationID=HDS&projectID=SYS&transactionID=SYS010&serviceID=LD01&tokenID=123456
         [HttpGet("[action]")]
         [HttpPost("[action]")]
         public async Task<ActionResult> CreateID(string? applicationID, string? projectID, string? transactionID, string? serviceID, string? tokenID, string? screenID, int? fromMinutes = 10)
@@ -199,14 +199,14 @@ namespace checkup.Areas.checkup.Controllers
             return requestID;
         }
 
-        // http://localhost:8000/checkup/api/index/sha256hash?text=handstack12345
+        // http://localhost:8421/checkup/api/index/sha256hash?text=handstack12345
         [HttpGet("[action]")]
         public string SHA256Hash(string text)
         {
             return text.ToSHA256();
         }
 
-        // http://localhost:8000/checkup/api/index/get-session?key=hello
+        // http://localhost:8421/checkup/api/index/get-session?key=hello
         [HttpGet("[action]")]
         public string GetSession(string key)
         {
@@ -221,7 +221,7 @@ namespace checkup.Areas.checkup.Controllers
             return result;
         }
 
-        // http://localhost:8000/checkup/api/index/set-session?key=hello&value=world
+        // http://localhost:8421/checkup/api/index/set-session?key=hello&value=world
         [HttpGet("[action]")]
         public string SetSession(string key, string value)
         {
@@ -231,7 +231,7 @@ namespace checkup.Areas.checkup.Controllers
             return value;
         }
 
-        // http://localhost:8000/checkup/api/index/session-key
+        // http://localhost:8421/checkup/api/index/session-key
         [HttpGet("[action]")]
         public string SessionKey()
         {
@@ -255,7 +255,7 @@ namespace checkup.Areas.checkup.Controllers
             return result;
         }
 
-        // http://localhost:8000/checkup/api/index/id
+        // http://localhost:8421/checkup/api/index/id
         [HttpGet("[action]")]
         public ActionResult ID(int? count, bool? hasSplits = false)
         {
@@ -302,7 +302,7 @@ namespace checkup.Areas.checkup.Controllers
             return result;
         }
 
-        // http://localhost:8000/checkup/api/index/guid
+        // http://localhost:8421/checkup/api/index/guid
         [HttpGet("[action]")]
         public ActionResult GUID(bool? hasSplits = false)
         {
@@ -316,7 +316,7 @@ namespace checkup.Areas.checkup.Controllers
             }
         }
 
-        // http://localhost:8000/checkup/api/index/encode-no?numbers=12345678&key=abcdefghijklmnopqrstuvwxyz1234567890
+        // http://localhost:8421/checkup/api/index/encode-no?numbers=12345678&key=abcdefghijklmnopqrstuvwxyz1234567890
         [HttpGet("[action]")]
         public ActionResult EncodeNo([FromQuery] int[] numbers, string? key)
         {
@@ -338,7 +338,7 @@ namespace checkup.Areas.checkup.Controllers
             return result;
         }
 
-        // http://localhost:8000/checkup/api/index/decode-no?hash=1rQ2go&key=abcdefghijklmnopqrstuvwxyz1234567890
+        // http://localhost:8421/checkup/api/index/decode-no?hash=1rQ2go&key=abcdefghijklmnopqrstuvwxyz1234567890
         [HttpGet("[action]")]
         public ActionResult DecodeNo(string hash, string? key)
         {

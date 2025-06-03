@@ -34,7 +34,7 @@ namespace checkup.Areas.checkup.Controllers
             this.sequentialIdGenerator = sequentialIdGenerator;
         }
 
-        // http://localhost:8000/checkup/api/managed/initialize-settings
+        // http://localhost:8421/checkup/api/managed/initialize-settings
         [HttpGet("[action]")]
         public ActionResult InitializeSettings()
         {
@@ -106,7 +106,7 @@ namespace checkup.Areas.checkup.Controllers
             return result;
         }
 
-        // http://localhost:8000/checkup/api/managed/reset-administrator-key
+        // http://localhost:8421/checkup/api/managed/reset-administrator-key
         [HttpGet("[action]")]
         public ActionResult ResetAdministratorKey(string? oldPasswordKey = "")
         {

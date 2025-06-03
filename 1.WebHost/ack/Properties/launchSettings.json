@@ -6,7 +6,7 @@
             "environmentVariables": {
                 "ASPNETCORE_ENVIRONMENT": "Development"
             },
-            "applicationUrl": "http://localhost:8000",
+            "applicationUrl": "http://localhost:8421",
             "dotnetRunMessages": true
         },
         "IIS": {
@@ -30,11 +30,11 @@
         "windowsAuthentication": false,
         "anonymousAuthentication": true,
         "iis": {
-            "applicationUrl": "http://localhost:8000",
+            "applicationUrl": "http://localhost:8421",
             "sslPort": 0
         },
         "iisExpress": {
-            "applicationUrl": "http://localhost:8000",
+            "applicationUrl": "http://localhost:8421",
             "sslPort": 0
         }
     }

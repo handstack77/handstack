@@ -28,7 +28,7 @@
                 }
             }
             else if (globalRoot.devicePlatform == 'node') {
-                $print.reportifyServer = 'http://localhost:8000';
+                $print.reportifyServer = 'http://localhost:8421';
             }
         },
 

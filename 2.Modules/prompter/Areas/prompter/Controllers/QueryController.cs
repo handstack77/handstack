@@ -43,7 +43,7 @@ namespace prompter.Areas.prompter.Controllers
             this.dataClient = dataClient;
         }
 
-        // http://localhost:8000/prompter/api/query/has
+        // http://localhost:8421/prompter/api/query/has
         [HttpGet("[action]")]
         public ActionResult Has(string applicationID, string projectID, string transactionID, string functionID)
         {
@@ -79,7 +79,7 @@ namespace prompter.Areas.prompter.Controllers
             return result;
         }
 
-        // http://localhost:8000/prompter/api/query/refresh?changeType=Created&filePath=HDS/ZZD/TST010.xml
+        // http://localhost:8421/prompter/api/query/refresh?changeType=Created&filePath=HDS/ZZD/TST010.xml
         [HttpGet("[action]")]
         public ActionResult Refresh(string changeType, string filePath, string? userWorkID, string? applicationID)
         {
@@ -194,7 +194,7 @@ namespace prompter.Areas.prompter.Controllers
             return result;
         }
 
-        // http://localhost:8000/prompter/api/query/retrieve?
+        // http://localhost:8421/prompter/api/query/retrieve?
         [HttpGet("[action]")]
         public ActionResult Retrieve(string applicationID, string? projectID, string? transactionID, string? functionID)
         {
@@ -256,7 +256,7 @@ namespace prompter.Areas.prompter.Controllers
             return result;
         }
 
-        // http://localhost:8000/prompter/api/query/meta
+        // http://localhost:8421/prompter/api/query/meta
         [HttpGet("[action]")]
         public ActionResult Meta()
         {
@@ -288,7 +288,7 @@ namespace prompter.Areas.prompter.Controllers
             return result;
         }
 
-        // http://localhost:8000/prompter/api/query/reports
+        // http://localhost:8421/prompter/api/query/reports
         [HttpGet("[action]")]
         public ActionResult Reports()
         {
@@ -339,7 +339,7 @@ namespace prompter.Areas.prompter.Controllers
             return result;
         }
 
-        // http://localhost:8000/prompter/api/query/execute
+        // http://localhost:8421/prompter/api/query/execute
         [HttpPost()]
         public async Task<ActionResult> Execute(DynamicRequest request)
         {
