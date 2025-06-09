@@ -1,4 +1,4 @@
-﻿/*!
+/*!
 HandStack Javascript Library v2025.5.26
 https://handshake.kr
 
@@ -3396,7 +3396,7 @@ if (typeof module !== 'undefined' && module.exports) {
                     let splitIndex = query[i].indexOf('=');
                     const key = query[i].substring(0, splitIndex);
                     const value = query[i].substring(splitIndex + 1);
-                    syn.$r.params[key] = value;
+                    syn.$r.params[key] = /%[0-9A-Fa-f]{2}/.test(value) == true ? decodeURIComponent(value) : value;
                 }
                 return syn.$r.params;
             }(url)[param];
