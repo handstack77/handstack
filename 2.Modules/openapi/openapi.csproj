@@ -87,7 +87,7 @@
     </Target>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-        <Exec Condition="'$(OS)'=='Windows_NT'" Command="(robocopy $(TargetDir)wwwroot/view ../../1.WebHost/build/handstack/contracts/wwwroot /mir /copy:dat)&#xD;&#xA;DEL $(TargetDir)HandStack.*&#xD;&#xA;(robocopy $(TargetDir) ../../1.WebHost/build/handstack/modules/openapi /mir /copy:dat) ^&amp; IF %25ERRORLEVEL%25 LEQ 1 exit 0" />
+        <Exec Condition="'$(OS)'=='Windows_NT'" Command="(robocopy $(TargetDir)wwwroot/view $(HANDSTACK_SRC)/../build/handstack/contracts/wwwroot /mir /copy:dat)&#xD;&#xA;DEL $(TargetDir)HandStack.*&#xD;&#xA;(robocopy $(TargetDir) $(HANDSTACK_SRC)/../build/handstack/modules/openapi /mir /copy:dat) ^&amp; IF %25ERRORLEVEL%25 LEQ 1 exit 0" />
         <Exec Condition="'$(OS)'!='Windows_NT'" Command="$(ProjectDir)post-build.sh $(TargetDir) $(ConfigurationName) $(PlatformName) $(ProjectDir)" />
     </Target>
 </Project>

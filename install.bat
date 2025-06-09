@@ -53,9 +53,9 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
     setx HANDSTACK_SRC %current_path%
     set HANDSTACK_SRC=%current_path%
 
-    mkdir %current_path%\1.WebHost\build\handstack
-    setx HANDSTACK_HOME %current_path%\1.WebHost\build\handstack
-    set HANDSTACK_HOME=%current_path%\1.WebHost\build\handstack
+    mkdir %HANDSTACK_SRC%\..\build\handstack
+    setx HANDSTACK_HOME %HANDSTACK_SRC%\..\build\handstack
+    set HANDSTACK_HOME=%HANDSTACK_SRC%\..\build\handstack
 
     echo current_path: %current_path% HandStack 개발 환경 설치 확인 중...
 
@@ -111,16 +111,16 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
     dotnet build handstack.sln
 
     cd %current_path%
-    robocopy %current_path%\2.Modules\function %current_path%\1.WebHost\build\handstack package*.* /copy:dat
-    if not exist %current_path%\1.WebHost\build\handstack\node_modules (
-        echo node.js Function 모듈 %current_path%\1.WebHost\build\handstack\package.json 설치를 시작합니다...
-        cd %current_path%\1.WebHost\build\handstack
+    robocopy %current_path%\2.Modules\function %HANDSTACK_SRC%\..\build\handstack package*.* /copy:dat
+    if not exist %HANDSTACK_SRC%\..\build\handstack\node_modules (
+        echo node.js Function 모듈 %HANDSTACK_SRC%\..\build\handstack\package.json 설치를 시작합니다...
+        cd %HANDSTACK_SRC%\..\build\handstack
         call npm install
-        robocopy %current_path%\1.WebHost\ack\wwwroot\assets\js %current_path%\1.WebHost\build\handstack\node_modules\syn index.js /copy:dat
+        robocopy %current_path%\1.WebHost\ack\wwwroot\assets\js %HANDSTACK_SRC%\..\build\handstack\node_modules\syn index.js /copy:dat
     )
 
     cd %current_path%
-    robocopy %current_path%\1.WebHost\ack\wwwroot\assets\js %current_path%\1.WebHost\build\handstack\node_modules\syn index.js /copy:dat
+    robocopy %current_path%\1.WebHost\ack\wwwroot\assets\js %HANDSTACK_SRC%\..\build\handstack\node_modules\syn index.js /copy:dat
 
     echo HandStack 개발 환경 설치가 완료되었습니다. Visual Studio 개발 도구로 handstack.sln 를 실행하세요. 자세한 정보는 https://handstack.kr 를 참고하세요.
 )

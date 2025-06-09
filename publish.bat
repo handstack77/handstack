@@ -25,7 +25,7 @@ if "%arch_mode%" == "" set arch_mode=x64
 
 REM 사용자 지정 publish 경로
 set publish_path=%5
-if "%publish_path%" == "" set publish_path=..\publish\%os_mode%-%arch_mode%
+if "%publish_path%" == "" set publish_path=%HANDSTACK_SRC%\..\publish\%os_mode%-%arch_mode%
 
 REM 설정에 따라 Optimize 옵션 설정
 if "%configuration_mode%" == "Debug" (
@@ -77,4 +77,4 @@ del /F /Q "%wwwroot_js_path%\js\syn.scripts.base.min.js"
 del /F /Q "%wwwroot_js_path%\js\syn.scripts.js"
 del /F /Q "%wwwroot_js_path%\js\syn.scripts.min.js"
 
-REM git archive --format zip --output ..\publish\handstack-src.zip master
+REM git archive --format zip --output %HANDSTACK_SRC%\..\publish\handstack-src.zip master

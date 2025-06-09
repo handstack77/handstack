@@ -65,11 +65,11 @@ if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
     source /etc/profile
     
     sudo sed -i '/export HANDSTACK_HOME=/d' /etc/profile
-    echo "export HANDSTACK_HOME=\"$current_path/1.WebHost/build/handstack\"" | sudo tee -a /etc/profile
-    export HANDSTACK_HOME="$current_path/1.WebHost/build/handstack"
+    echo "export HANDSTACK_HOME=\"$HANDSTACK_SRC/../build/handstack\"" | sudo tee -a /etc/profile
+    export HANDSTACK_HOME="$HANDSTACK_SRC/../build/handstack"
     source /etc/profile
 
-    mkdir -p $current_path/1.WebHost/build/handstack
+    mkdir -p $HANDSTACK_SRC/../build/handstack
     
     # syn.js 번들링 (ack 프로젝트)
     echo "current_path: $current_path 개발 환경 설치 확인 중..."
@@ -104,8 +104,8 @@ if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
         echo "syn.bundle.js 모듈 $current_path/2.Modules/wwwroot/package.json 설치를 시작합니다..."
         cd $current_path/2.Modules/wwwroot
         npm install
-        mkdir -p $current_path/1.WebHost/build/handstack/modules/wwwroot/wwwroot/lib
-        rsync -av --delete wwwroot/lib/ $current_path/1.WebHost/build/handstack/modules/wwwroot/wwwroot/lib/
+        mkdir -p $HANDSTACK_SRC/../build/handstack/modules/wwwroot/wwwroot/lib
+        rsync -av --delete wwwroot/lib/ $HANDSTACK_SRC/../build/handstack/modules/wwwroot/wwwroot/lib/
         echo "syn.controls, syn.scripts, syn.bundle 번들링을 시작합니다..."
         gulp
     fi
@@ -113,7 +113,7 @@ if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
     # 솔루션 빌드 및 Function 모듈 설치
     cd $current_path
     echo "current_path: $current_path"
-    build_path=$current_path/1.WebHost/build/handstack
+    build_path=$HANDSTACK_SRC/../build/handstack
 
     echo build.sh, post-build.sh 스크립트에 실행 권한을 부여합니다...
     module_paths=("$current_path/1.WebHost/ack" "$current_path/1.WebHost/forbes" "$current_path/2.Modules/checkup" "$current_path/2.Modules/dbclient" "$current_path/2.Modules/function" "$current_path/2.Modules/logger" "$current_path/2.Modules/openapi" "$current_path/2.Modules/repository" "$current_path/2.Modules/transact" "$current_path/2.Modules/wwwroot" "$current_path/4.Tool/CLI/handstack")
@@ -130,12 +130,12 @@ if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
     dotnet build handstack.sln
 
     cd $current_path
-    cp $current_path/2.Modules/function/package*.* $current_path/1.WebHost/build/handstack/
-    if [ ! -d "$current_path/1.WebHost/build/handstack/node_modules" ]; then
-        echo "node.js Function 모듈 $current_path/1.WebHost/build/handstack/package.json 설치를 시작합니다..."
-        cd $current_path/1.WebHost/build/handstack
+    cp $current_path/2.Modules/function/package*.* $HANDSTACK_SRC/../build/handstack/
+    if [ ! -d "$HANDSTACK_SRC/../build/handstack/node_modules" ]; then
+        echo "node.js Function 모듈 $HANDSTACK_SRC/../build/handstack/package.json 설치를 시작합니다..."
+        cd $HANDSTACK_SRC/../build/handstack
         npm install
-        rsync -av --progress --exclude='*' --include='index.js' $current_path/1.WebHost/ack/wwwroot/assets/js $current_path/1.WebHost/build/handstack/node_modules/syn
+        rsync -av --progress --exclude='*' --include='index.js' $current_path/1.WebHost/ack/wwwroot/assets/js $HANDSTACK_SRC/../build/handstack/node_modules/syn
     fi
 
     cd $current_path

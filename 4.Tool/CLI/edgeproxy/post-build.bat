@@ -27,4 +27,4 @@ if "%arch_mode%" == "" set arch_mode=x64
 
 echo os_mode: %os_mode%, action_mode: %action_mode%, configuration_mode: %configuration_mode%, arch_mode: %arch_mode%
 
-dotnet publish edgeproxy.csproj --configuration Release --arch %arch_mode% --os %os_mode% --output ../../../1.WebHost/build/handstack/app/cli
+dotnet publish edgeproxy.csproj --configuration Release --arch %arch_mode% --os %os_mode% --output %HANDSTACK_SRC%/../build/handstack/app/cli

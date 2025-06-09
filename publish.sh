@@ -20,7 +20,7 @@ configuration_mode=${3:-Release}
 arch_mode=${4:-x64}
 
 # Optional custom publish path
-default_publish_path="../publish/${os_mode}-${arch_mode}"
+default_publish_path="${HANDSTACK_SRC}/../publish/${os_mode}-${arch_mode}"
 publish_path=${5:-$default_publish_path}
 
 echo "os_mode: $os_mode, action_mode: $action_mode, configuration_mode: $configuration_mode, arch_mode: $arch_mode, publish_path: $publish_path"
@@ -104,4 +104,4 @@ rm -f "$wwwroot_js_path/js/syn.scripts.base.min.js"
 rm -f "$wwwroot_js_path/js/syn.scripts.js"
 rm -f "$wwwroot_js_path/js/syn.scripts.min.js"
 
-# git archive --format zip --output ../publish/handstack-src.zip master
+# git archive --format zip --output $HANDSTACK_SRC/../publish/handstack-src.zip master
