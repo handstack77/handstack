@@ -70,11 +70,6 @@
             "destination": "wwwroot/lib/filedrop/"
         },
         {
-            "provider": "unpkg",
-            "library": "handsontable@14.5.0",
-            "destination": "wwwroot/lib/handsontable/"
-        },
-        {
             "library": "highlight.js@11.11.0",
             "destination": "wwwroot/lib/highlight.js/"
         },
@@ -188,7 +183,7 @@
         },
         {
             "provider": "jsdelivr",
-            "library": "@tabler/core@1.2.0",
+            "library": "@tabler/core@1.3.2",
             "destination": "wwwroot/lib/tabler-core/"
         },
         {
