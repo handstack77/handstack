@@ -662,7 +662,7 @@
                     tabID = parent.$main.method.getActiveTabID(projectID, fileID);
                 }
                 else {
-                    tabID = syn.$r.query('tabID');
+                    tabID = parent.$main.method.getActiveTab()?.getAttribute('data-tab-id');
                 }
 
                 if (tabID) {
@@ -713,7 +713,7 @@
                     tabID = parent.$main.method.getActiveTabID(projectID, fileID);
                 }
                 else {
-                    tabID = syn.$r.query('tabID');
+                    tabID = parent.$main.method.getActiveTab()?.getAttribute('data-tab-id');
                 }
             }
             else {
