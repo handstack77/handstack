@@ -14,7 +14,7 @@
 			SELECT NOW() AS ServerDate, @@hostname AS ServerName;
 			]]>
         </statement>
-        
+
         <statement id="GD02" seq="0" use="Y" timeout="0" desc="Oracle 데이터베이스 현재 시간 및 서버명 조회">
             <![CDATA[
 			SELECT SYSDATE AS "ServerDate", host_name AS "ServerName" FROM v$instance
@@ -37,6 +37,70 @@
             <![CDATA[
 			SELECT GETDATE() AS ServerDate, @@SERVERNAME AS ServerName;
 			]]>
+        </statement>
+
+        <statement id="GD06" seq="0" use="Y" timeout="0" desc="SQL 확장 기능 예제">
+            <![CDATA[
+SELECT TOP 100 M.*
+FROM [Message] AS M
+INNER JOIN ConversationMember AS CM 
+    ON M.ConversationID = CM.ConversationID 
+    AND CM.UserID = @UserID
+WHERE M.IsDeleted = 0
+    AND M.UserID != '00000000000000000000000000000000'
+            ]]>
+
+            <if test="(Content != '')">
+                <![CDATA[
+    AND FREETEXT(M.MarkdownText, @Content)
+			    ]]>
+            </if>
+
+            <if test="(SearchUsers != '')">
+                <![CDATA[
+    AND M.UserID IN (SELECT [value] FROM STRING_SPLIT(@SearchUsers, ','))
+			    ]]>
+            </if>
+
+            <if test="(StartedAt != '')">
+                <![CDATA[
+    AND CONVERT(DATETIME, @StartedAt + ' 00:00:00') < M.CreatedAt
+			    ]]>
+            </if>
+
+            <if test="(EndedAt != '')">
+                <![CDATA[
+    AND M.CreatedAt <= CONVERT(DATETIME, @EndedAt + ' 23:59:59')
+			    ]]>
+            </if>
+
+            <if test="(EqualAt != '')">
+                <![CDATA[
+    AND CONVERT(DATETIME, @EqualAt + ' 00:00:00') < M.CreatedAt
+    AND M.CreatedAt <= CONVERT(DATETIME, @EqualAt + ' 23:59:59')
+			    ]]>
+            </if>
+
+            <if test="(ConversationIDs != '')">
+                <![CDATA[
+    AND M.ConversationID IN (SELECT [value] FROM STRING_SPLIT(@ConversationIDs, ','))
+			    ]]>
+            </if>
+
+            <![CDATA[
+SELECT *
+FROM RoleUser AS RU
+WHERE 1<2 AND
+            ]]>
+            <foreach collection="TransformRoles" item="TransformRole" open="(" close=")" separator="OR">
+                <![CDATA[
+    RU.UserID = #{TransformRole}
+                ]]>
+                
+            </foreach>
+            <param id="@UserID" type="String" length="255" value="NULL" />
+            <param id="@RoleID" type="String" length="100" value="NULL" />
+            <param id="@TransformRoles" type="String" length="100" value="NULL" transform="@FOREACH" />
         </statement>
     </commands>
 </mapper>
