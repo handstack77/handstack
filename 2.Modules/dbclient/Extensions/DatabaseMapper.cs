@@ -301,10 +301,11 @@ namespace dbclient.Extensions
                                                     {
                                                         Name = paramNode.Attributes["id"].Value.ToString(),
                                                         DbType = paramNode.Attributes["type"].Value.ToString(),
-                                                        Length = int.Parse(paramNode.Attributes["length"].Value.ToString()),
-                                                        DefaultValue = paramNode.Attributes["value"].Value.ToString(),
+                                                        Length = (paramNode.Attributes["length"] == null ? "-1" : paramNode.Attributes["length"].Value.ToString()).ParseInt(-1),
+                                                        DefaultValue = paramNode.Attributes["value"] == null ? "" : paramNode.Attributes["value"].Value.ToString(),
                                                         TestValue = paramNode.Attributes["test"] == null ? "" : paramNode.Attributes["test"].Value.ToString(),
-                                                        Direction = paramNode.Attributes["direction"] == null ? "Input" : paramNode.Attributes["direction"].Value.ToString()
+                                                        Direction = paramNode.Attributes["direction"] == null ? "Input" : paramNode.Attributes["direction"].Value.ToString(),
+                                                        Transform = paramNode.Attributes["transform"] == null ? "" : paramNode.Attributes["transform"].Value.ToString(),
                                                     });
                                                 }
                                             }
@@ -516,10 +517,11 @@ namespace dbclient.Extensions
                                                 {
                                                     Name = paramNode.Attributes["id"].Value.ToString(),
                                                     DbType = paramNode.Attributes["type"].Value.ToString(),
-                                                    Length = int.Parse(paramNode.Attributes["length"].Value.ToString()),
-                                                    DefaultValue = paramNode.Attributes["value"].Value.ToString(),
+                                                    Length = (paramNode.Attributes["length"] == null ? "-1" : paramNode.Attributes["length"].Value.ToString()).ParseInt(-1),
+                                                    DefaultValue = paramNode.Attributes["value"] == null ? "" : paramNode.Attributes["value"].Value.ToString(),
                                                     TestValue = paramNode.Attributes["test"] == null ? "" : paramNode.Attributes["test"].Value.ToString(),
-                                                    Direction = paramNode.Attributes["direction"] == null ? "Input" : paramNode.Attributes["direction"].Value.ToString()
+                                                    Direction = paramNode.Attributes["direction"] == null ? "Input" : paramNode.Attributes["direction"].Value.ToString(),
+                                                    Transform = paramNode.Attributes["transform"] == null ? "" : paramNode.Attributes["transform"].Value.ToString(),
                                                 });
                                             }
                                         }
@@ -780,40 +782,51 @@ namespace dbclient.Extensions
         public static string ConvertForeach(HtmlNode htmlNode, JObject parameters)
         {
             var result = "";
-            // JArray list = Eval.Execute<JArray>(htmlNode.Attributes["collection"].Value, parameters);
-            var list = parameters[htmlNode.Attributes["collection"].Value] as JArray;
-            if (list != null)
+            var collectionName = htmlNode.Attributes["collection"]?.Value;
+            if (string.IsNullOrEmpty(collectionName))
             {
-                var item = htmlNode.Attributes["item"].Value;
-                var open = htmlNode.Attributes["open"] == null ? "" : htmlNode.Attributes["open"].Value;
-                var close = htmlNode.Attributes["close"] == null ? "" : htmlNode.Attributes["close"].Value;
-                var separator = htmlNode.Attributes["separator"] == null ? "" : htmlNode.Attributes["separator"].Value;
+                return "";
+            }
 
-                var foreachTexts = new List<string>();
-                foreach (var coll in list)
+            var value = parameters[collectionName] as JValue;
+            if (value != null)
+            {
+                var list = JArray.Parse(value.ToString());
+                if (list != null)
                 {
-                    var foreachParam = parameters;
-                    foreachParam[item] = coll.Value<string>();
+                    var item = htmlNode.Attributes["item"].Value;
+                    var open = htmlNode.Attributes["open"] == null ? "" : htmlNode.Attributes["open"].Value;
+                    var close = htmlNode.Attributes["close"] == null ? "" : htmlNode.Attributes["close"].Value;
+                    var separator = htmlNode.Attributes["separator"] == null ? "" : htmlNode.Attributes["separator"].Value;
 
-                    var foreachText = "";
-                    foreach (var childNode in htmlNode.ChildNodes)
+                    var foreachTexts = new List<string>();
+                    foreach (var coll in list)
                     {
-                        var childrenText = ConvertChildren(childNode, foreachParam);
-                        childrenText = Regex.Replace(childrenText, "^\\s*$", "");
+                        var foreachParam = parameters;
+                        foreachParam[item] = coll.Value<string>();
 
-                        if (string.IsNullOrEmpty(childrenText) == false)
+                        var foreachText = "";
+                        foreach (var childNode in htmlNode.ChildNodes)
                         {
-                            foreachText = foreachText + childrenText;
+                            var childrenText = ConvertChildren(childNode, foreachParam);
+                            childrenText = Regex.Replace(childrenText, "^\\s*$", "");
+
+                            if (string.IsNullOrEmpty(childrenText) == false)
+                            {
+                                foreachText = foreachText + childrenText;
+                            }
+                        }
+
+                        if (string.IsNullOrEmpty(foreachText) == false)
+                        {
+                            foreachTexts.Add(foreachText);
                         }
                     }
 
-                    if (string.IsNullOrEmpty(foreachText) == false)
-                    {
-                        foreachTexts.Add(foreachText);
-                    }
+                    result = (open + string.Join(separator, foreachTexts.ToArray()) + close);
                 }
 
-                result = (open + string.Join(separator, foreachTexts.ToArray()) + close);
+                parameters.Remove(collectionName);
             }
 
             return result;
@@ -1073,10 +1086,11 @@ namespace dbclient.Extensions
                                                 {
                                                     Name = paramNode.Attributes["id"].Value.ToString(),
                                                     DbType = paramNode.Attributes["type"].Value.ToString(),
-                                                    Length = int.Parse(paramNode.Attributes["length"].Value.ToString()),
-                                                    DefaultValue = paramNode.Attributes["value"].Value.ToString(),
+                                                    Length = (paramNode.Attributes["length"] == null ? "-1" : paramNode.Attributes["length"].Value.ToString()).ParseInt(-1),
+                                                    DefaultValue = paramNode.Attributes["value"] == null ? "" : paramNode.Attributes["value"].Value.ToString(),
                                                     TestValue = paramNode.Attributes["test"] == null ? "" : paramNode.Attributes["test"].Value.ToString(),
-                                                    Direction = paramNode.Attributes["direction"] == null ? "Input" : paramNode.Attributes["direction"].Value.ToString()
+                                                    Direction = paramNode.Attributes["direction"] == null ? "Input" : paramNode.Attributes["direction"].Value.ToString(),
+                                                    Transform = paramNode.Attributes["transform"] == null ? "" : paramNode.Attributes["transform"].Value.ToString(),
                                                 });
                                             }
                                         }

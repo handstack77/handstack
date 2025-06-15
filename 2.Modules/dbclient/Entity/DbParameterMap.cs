@@ -6,6 +6,8 @@
 
         public string DefaultValue { get; set; }
 
+        public string Transform { get; set; }
+
         public string TestValue { get; set; }
 
         public string DbType { get; set; }
@@ -18,6 +20,7 @@
         {
             Name = "";
             DefaultValue = "";
+            Transform = "";
             TestValue = "";
             DbType = "";
             Length = 0;
