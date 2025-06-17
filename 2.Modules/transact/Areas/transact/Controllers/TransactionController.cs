@@ -350,8 +350,7 @@ namespace transact.Areas.transact.Controllers
 
                         if (businessContract != null)
                         {
-                            var value = JsonConvert.SerializeObject(businessContract);
-                            result = Content(JsonConvert.SerializeObject(value), "application/json");
+                            result = Content(JsonConvert.SerializeObject(businessContract), "application/json");
                         }
                     }
                 }
@@ -402,8 +401,7 @@ namespace transact.Areas.transact.Controllers
                     }
 
                     var businessContracts = queryResults.ToList();
-                    var value = JsonConvert.SerializeObject(businessContracts);
-                    result = Content(JsonConvert.SerializeObject(value), "application/json");
+                    result = Content(JsonConvert.SerializeObject(businessContracts), "application/json");
                 }
                 catch (Exception exception)
                 {
