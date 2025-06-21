@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -4601,13 +4602,17 @@ TransactionException:
                             }
                         }
 
-                        dynamicParameters.Add(
-                            dynamicParameter.ParameterName,
-                            dynamicParameter.Value,
-                            dynamicDbType,
-                            (ParameterDirection)Enum.Parse(typeof(ParameterDirection), dbParameterMap.Direction),
-                            dbParameterMap.Length <= 0 ? -1 : dbParameterMap.Length
-                        );
+                        bool isTransformed = TransformValue(dbParameterMap, dynamicParameter, dbParameterMaps);
+                        if (isTransformed == false)
+                        {
+                            dynamicParameters.Add(
+                                dynamicParameter.ParameterName,
+                                dynamicParameter.Value,
+                                dynamicDbType,
+                                (ParameterDirection)Enum.Parse(typeof(ParameterDirection), dbParameterMap.Direction),
+                                dbParameterMap.Length <= 0 ? -1 : dbParameterMap.Length
+                            );
+                        }
                     }
                 }
                 else
@@ -4656,6 +4661,402 @@ TransactionException:
                     }
                 }
             }
+        }
+
+        private bool TransformValue(DbParameterMap dbParameterMap, DynamicParameter dynamicParameter, List<DbParameterMap> dbParameterMaps)
+        {
+            bool isTransformed = false;
+            string[] transformParts = dbParameterMap.Transform.Split('|');
+            string transformCommand = transformParts[0];
+
+            try
+            {
+
+                switch (transformCommand)
+                {
+                    case "@FOREACH":
+                        string jsonArrayString = JsonConvert.SerializeObject(dynamicParameter.Value.ToStringSafe().Split(','));
+                        dynamicParameter.Value = JArray.Parse(jsonArrayString);
+                        isTransformed = true;
+                        break;
+                    case "@LOWER":
+                        dynamicParameter.Value = dynamicParameter.Value.ToStringSafe().ToLower();
+                        break;
+                    case "@UPPER":
+                        dynamicParameter.Value = dynamicParameter.Value.ToStringSafe().ToUpper();
+                        break;
+                    case "@STRING2DATETIME":
+                        // @STRING2DATETIME|format
+                        string datetimeString = dynamicParameter.Value.ToStringSafe();
+
+                        if (transformParts.Length >= 2)
+                        {
+                            string format = transformParts[1];
+                            if (DateTime.TryParseExact(datetimeString, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedExact))
+                            {
+                                dynamicParameter.Value = parsedExact;
+                            }
+                            else
+                            {
+                                dynamicParameter.Value = null;
+                            }
+                        }
+                        else
+                        {
+                            if (DateTime.TryParse(datetimeString, out DateTime parsedDefault))
+                            {
+                                dynamicParameter.Value = parsedDefault;
+                            }
+                            else
+                            {
+                                dynamicParameter.Value = null;
+                            }
+                        }
+                        break;
+                    case "@DATETIME2STRING":
+                        // @DATETIME2STRING|format
+                        if (transformParts.Length >= 2)
+                        {
+                            string format = transformParts[1];
+                            if (DateTime.TryParse(dynamicParameter.Value.ToStringSafe(), out DateTime parsedDateTime))
+                            {
+                                dynamicParameter.Value = parsedDateTime.ToString(format);
+                            }
+                            else
+                            {
+                                dynamicParameter.Value = "";
+                            }
+                        }
+                        break;
+                    case "@SUBSTRING":
+                        // @SUBSTRING|startIndex|length
+                        if (transformParts.Length >= 3)
+                        {
+                            int startIndex = int.Parse(transformParts[1]);
+                            int length = int.Parse(transformParts[2]);
+                            string sourceString = dynamicParameter.Value.ToStringSafe();
+                            dynamicParameter.Value = sourceString.Length > startIndex ?
+                                sourceString.Substring(startIndex, Math.Min(length, sourceString.Length - startIndex)) : "";
+                        }
+                        break;
+
+                    case "@SUBSTRING_START":
+                        // @SUBSTRING_START|startIndex
+                        if (transformParts.Length >= 2)
+                        {
+                            int startIndex = int.Parse(transformParts[1]);
+                            string sourceString = dynamicParameter.Value.ToStringSafe();
+                            dynamicParameter.Value = sourceString.Length > startIndex ? sourceString.Substring(startIndex) : "";
+                        }
+                        break;
+
+                    case "@REPLACE":
+                        // @REPLACE|oldValue|newValue
+                        if (transformParts.Length >= 3)
+                        {
+                            string oldValue = transformParts[1];
+                            string newValue = transformParts[2];
+                            dynamicParameter.Value = dynamicParameter.Value.ToStringSafe().Replace(oldValue, newValue);
+                        }
+                        break;
+
+                    case "@REPLACE_REGEX":
+                        // @REPLACE_REGEX|pattern|replacement  
+                        if (transformParts.Length >= 3)
+                        {
+                            string pattern = transformParts[1];
+                            string replacement = transformParts[2];
+                            dynamicParameter.Value = Regex.Replace(dynamicParameter.Value.ToStringSafe(), pattern, replacement);
+                        }
+                        break;
+
+                    case "@CONTAINS":
+                        // @CONTAINS|searchString
+                        if (transformParts.Length >= 2)
+                        {
+                            string searchString = transformParts[1];
+                            dynamicParameter.Value = dynamicParameter.Value.ToStringSafe().Contains(searchString);
+                        }
+                        break;
+
+                    case "@STARTS_WITH":
+                        // @STARTS_WITH|prefix
+                        if (transformParts.Length >= 2)
+                        {
+                            string prefix = transformParts[1];
+                            dynamicParameter.Value = dynamicParameter.Value.ToStringSafe().StartsWith(prefix);
+                        }
+                        break;
+
+                    case "@ENDS_WITH":
+                        // @ENDS_WITH|suffix
+                        if (transformParts.Length >= 2)
+                        {
+                            string suffix = transformParts[1];
+                            dynamicParameter.Value = dynamicParameter.Value.ToStringSafe().EndsWith(suffix);
+                        }
+                        break;
+
+                    case "@PADLEFT":
+                        // @PADLEFT|totalWidth|paddingChar
+                        if (transformParts.Length >= 3)
+                        {
+                            int totalWidth = int.Parse(transformParts[1]);
+                            char paddingChar = transformParts[2].Length > 0 ? transformParts[2][0] : ' ';
+                            dynamicParameter.Value = dynamicParameter.Value.ToStringSafe().PadLeft(totalWidth, paddingChar);
+                        }
+                        break;
+
+                    case "@PADRIGHT":
+                        // @PADRIGHT|totalWidth|paddingChar
+                        if (transformParts.Length >= 3)
+                        {
+                            int totalWidth = int.Parse(transformParts[1]);
+                            char paddingChar = transformParts[2].Length > 0 ? transformParts[2][0] : ' ';
+                            dynamicParameter.Value = dynamicParameter.Value.ToStringSafe().PadRight(totalWidth, paddingChar);
+                        }
+                        break;
+
+                    case "@SPLIT_CUSTOM":
+                        // @SPLIT_CUSTOM|delimiter
+                        if (transformParts.Length >= 2)
+                        {
+                            string delimiter = transformParts[1];
+                            dynamicParameter.Value = dynamicParameter.Value.ToStringSafe().Split(new string[] { delimiter }, StringSplitOptions.None);
+                        }
+                        break;
+
+                    case "@JOIN_CUSTOM":
+                        // @JOIN_CUSTOM|separator
+                        if (transformParts.Length >= 2)
+                        {
+                            string separator = transformParts[1];
+                            dynamicParameter.Value = string.Join(separator, (IEnumerable<object>)dynamicParameter.Value);
+                        }
+                        break;
+
+                    case "@DEFAULT_IF_NULL":
+                        // @DEFAULT_IF_NULL|defaultValue
+                        if (transformParts.Length >= 2)
+                        {
+                            string defaultValue = transformParts[1];
+                            dynamicParameter.Value = dynamicParameter.Value ?? defaultValue;
+                        }
+                        break;
+
+                    case "@DEFAULT_IF_EMPTY":
+                        // @DEFAULT_IF_EMPTY|defaultValue
+                        if (transformParts.Length >= 2)
+                        {
+                            string defaultValue = transformParts[1];
+                            dynamicParameter.Value = string.IsNullOrEmpty(dynamicParameter.Value.ToStringSafe()) ? defaultValue : dynamicParameter.Value;
+                        }
+                        break;
+
+                    case "@DEFAULT_IF_WHITESPACE":
+                        // @DEFAULT_IF_WHITESPACE|defaultValue
+                        if (transformParts.Length >= 2)
+                        {
+                            string defaultValue = transformParts[1];
+                            dynamicParameter.Value = string.IsNullOrWhiteSpace(dynamicParameter.Value.ToStringSafe()) ? defaultValue : dynamicParameter.Value;
+                        }
+                        break;
+
+                    case "@ROUND_DECIMAL":
+                        // @ROUND_DECIMAL|decimals
+                        if (transformParts.Length >= 2)
+                        {
+                            int decimals = int.Parse(transformParts[1]);
+                            dynamicParameter.Value = Math.Round(Convert.ToDouble(dynamicParameter.Value), decimals);
+                        }
+                        break;
+
+                    case "@FORMAT_NUMBER":
+                        // @FORMAT_NUMBER|format (예: N2, C, P)
+                        if (transformParts.Length >= 2)
+                        {
+                            string format = transformParts[1];
+                            dynamicParameter.Value = Convert.ToDouble(dynamicParameter.Value).ToString(format);
+                        }
+                        break;
+
+                    case "@FORMAT_DATETIME":
+                        // @FORMAT_DATETIME|format (예: yyyy-MM-dd, HH:mm:ss)
+                        if (transformParts.Length >= 2)
+                        {
+                            string format = transformParts[1];
+                            dynamicParameter.Value = ((DateTime)dynamicParameter.Value).ToString(format);
+                        }
+                        break;
+
+                    case "@ADD_DAYS":
+                        // @ADD_DAYS|days
+                        if (transformParts.Length >= 2)
+                        {
+                            int days = int.Parse(transformParts[1]);
+                            dynamicParameter.Value = ((DateTime)dynamicParameter.Value).AddDays(days);
+                        }
+                        break;
+
+                    case "@ADD_HOURS":
+                        // @ADD_HOURS|hours
+                        if (transformParts.Length >= 2)
+                        {
+                            int hours = int.Parse(transformParts[1]);
+                            dynamicParameter.Value = ((DateTime)dynamicParameter.Value).AddHours(hours);
+                        }
+                        break;
+
+                    case "@ADD_MINUTES":
+                        // @ADD_MINUTES|minutes
+                        if (transformParts.Length >= 2)
+                        {
+                            int minutes = int.Parse(transformParts[1]);
+                            dynamicParameter.Value = ((DateTime)dynamicParameter.Value).AddMinutes(minutes);
+                        }
+                        break;
+
+                    case "@RANDOM_STRING":
+                        // @RANDOM_STRING|length|characters (characters는 선택사항)
+                        if (transformParts.Length >= 2)
+                        {
+                            int length = int.Parse(transformParts[1]);
+                            string characters = transformParts.Length >= 3 ? transformParts[2] : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+                            var random = new Random();
+                            var result = new StringBuilder(length);
+                            for (int i = 0; i < length; i++)
+                            {
+                                result.Append(characters[random.Next(characters.Length)]);
+                            }
+                            dynamicParameter.Value = result.ToString();
+                        }
+                        break;
+
+                    case "@RANDOM_NUMBER":
+                        // @RANDOM_NUMBER|min|max
+                        if (transformParts.Length >= 3)
+                        {
+                            int min = int.Parse(transformParts[1]);
+                            int max = int.Parse(transformParts[2]);
+                            dynamicParameter.Value = new Random().Next(min, max + 1);
+                        }
+                        else
+                        {
+                            dynamicParameter.Value = new Random().Next();
+                        }
+                        break;
+
+                    case "@ARRAY_SLICE":
+                        // @ARRAY_SLICE|startIndex|count
+                        if (transformParts.Length >= 3)
+                        {
+                            int startIndex = int.Parse(transformParts[1]);
+                            int count = int.Parse(transformParts[2]);
+                            var array = ((IEnumerable<object>)dynamicParameter.Value).ToArray();
+                            dynamicParameter.Value = array.Skip(startIndex).Take(count).ToArray();
+                        }
+                        break;
+
+                    case "@ARRAY_SKIP":
+                        // @ARRAY_SKIP|count
+                        if (transformParts.Length >= 2)
+                        {
+                            int count = int.Parse(transformParts[1]);
+                            dynamicParameter.Value = ((IEnumerable<object>)dynamicParameter.Value).Skip(count).ToArray();
+                        }
+                        break;
+
+                    case "@ARRAY_TAKE":
+                        // @ARRAY_TAKE|count
+                        if (transformParts.Length >= 2)
+                        {
+                            int count = int.Parse(transformParts[1]);
+                            dynamicParameter.Value = ((IEnumerable<object>)dynamicParameter.Value).Take(count).ToArray();
+                        }
+                        break;
+
+                    case "@ARRAY_ELEMENT":
+                        // @ARRAY_ELEMENT|index
+                        if (transformParts.Length >= 2)
+                        {
+                            int index = int.Parse(transformParts[1]);
+                            var array = ((IEnumerable<object>)dynamicParameter.Value).ToArray();
+                            dynamicParameter.Value = index >= 0 && index < array.Length ? array[index] : null;
+                        }
+                        break;
+
+                    case "@CLAMP":
+                        // @CLAMP|min|max
+                        if (transformParts.Length >= 3)
+                        {
+                            double min = double.Parse(transformParts[1]);
+                            double max = double.Parse(transformParts[2]);
+                            double value = Convert.ToDouble(dynamicParameter.Value);
+                            dynamicParameter.Value = Math.Max(min, Math.Min(max, value));
+                        }
+                        break;
+
+                    case "@MULTIPLY":
+                        // @MULTIPLY|factor
+                        if (transformParts.Length >= 2)
+                        {
+                            double factor = double.Parse(transformParts[1]);
+                            dynamicParameter.Value = Convert.ToDouble(dynamicParameter.Value) * factor;
+                        }
+                        break;
+
+                    case "@ADD":
+                        // @ADD|value
+                        if (transformParts.Length >= 2)
+                        {
+                            double addValue = double.Parse(transformParts[1]);
+                            dynamicParameter.Value = Convert.ToDouble(dynamicParameter.Value) + addValue;
+                        }
+                        break;
+
+                    case "@PERCENTAGE":
+                        // @PERCENTAGE|total|decimals
+                        if (transformParts.Length >= 3)
+                        {
+                            double total = double.Parse(transformParts[1]);
+                            int decimals = int.Parse(transformParts[2]);
+                            double percentage = (Convert.ToDouble(dynamicParameter.Value) / total) * 100;
+                            dynamicParameter.Value = Math.Round(percentage, decimals);
+                        }
+                        break;
+
+                    case "@REGEX_MATCH":
+                        // @REGEX_MATCH|pattern
+                        if (transformParts.Length >= 2)
+                        {
+                            string pattern = transformParts[1];
+                            var match = Regex.Match(dynamicParameter.Value.ToStringSafe(), pattern);
+                            dynamicParameter.Value = match.Success ? match.Value : "";
+                        }
+                        break;
+
+                    case "@REGEX_EXTRACT":
+                        // @REGEX_EXTRACT|pattern|groupIndex
+                        if (transformParts.Length >= 3)
+                        {
+                            string pattern = transformParts[1];
+                            int groupIndex = int.Parse(transformParts[2]);
+                            var match = Regex.Match(dynamicParameter.Value.ToStringSafe(), pattern);
+                            dynamicParameter.Value = match.Success && match.Groups.Count > groupIndex ? match.Groups[groupIndex].Value : "";
+                        }
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+            catch (Exception exception)
+            {
+                logger.Warning("[{LogCategory}] [{ParameterName}] " + $"transformCommand: {transformCommand}: {exception.ToMessage()}", "QueryDataClient/TransformValue", dynamicParameter.ParameterName);
+            }
+
+            return isTransformed;
         }
 
         private void PretreatmentAddParameter(DataProviders databaseProvider, StatementMap statementMap, dynamic? dynamicParameters, DataRow rowItem, DataColumn item)

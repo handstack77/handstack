@@ -12,7 +12,7 @@ namespace dbclient.Extensions
     {
         public static bool IsAllowAuthorization(this HttpContext httpContext)
         {
-            string? authorizationKey = httpContext.Request.Headers["AuthorizationKey"];
+            string? authorizationKey = httpContext.Request.GetContainValue("AuthorizationKey");
             var isAllowClientIP = string.IsNullOrEmpty(ModuleConfiguration.AllowClientIP.FirstOrDefault(p => p == "*" || p == httpContext.GetRemoteIpAddress())) == false;
             return ModuleConfiguration.AuthorizationKey == authorizationKey && isAllowClientIP == true;
         }

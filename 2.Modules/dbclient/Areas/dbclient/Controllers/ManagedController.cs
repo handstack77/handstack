@@ -194,10 +194,11 @@ namespace dbclient.Areas.dbclient.Controllers
                                                         {
                                                             Name = paramNode.Attributes["id"].Value.ToString(),
                                                             DbType = paramNode.Attributes["type"].Value.ToString(),
-                                                            Length = int.Parse(paramNode.Attributes["length"].Value.ToString()),
-                                                            DefaultValue = paramNode.Attributes["value"].Value.ToString(),
+                                                            Length = (paramNode.Attributes["length"] == null ? "-1" : paramNode.Attributes["length"].Value.ToString()).ParseInt(-1),
+                                                            DefaultValue = paramNode.Attributes["value"] == null ? "" : paramNode.Attributes["value"].Value.ToString(),
                                                             TestValue = paramNode.Attributes["test"] == null ? "" : paramNode.Attributes["test"].Value.ToString(),
-                                                            Direction = paramNode.Attributes["direction"] == null ? "Input" : paramNode.Attributes["direction"].Value.ToString()
+                                                            Direction = paramNode.Attributes["direction"] == null ? "Input" : paramNode.Attributes["direction"].Value.ToString(),
+                                                            Transform = paramNode.Attributes["transform"] == null ? "" : paramNode.Attributes["transform"].Value.ToString(),
                                                         });
                                                     }
                                                 }
