@@ -318,6 +318,20 @@ namespace ack
                         }
                     });
                 }
+                else if (cacheType == "Redis")
+                {
+                    services.AddStackExchangeRedisCache(options =>
+                    {
+                        options.Configuration = appSettings["SessionState:RedisConnectionString"].ToStringSafe();
+                        options.InstanceName = appSettings["SessionState:RedisInstanceName"].ToStringSafe();
+
+                        if (options.Configuration == "")
+                        {
+                            Log.Error("[{LogCategory}] " + "Redis Cache 환경설정(ConnectionString) 확인 필요", "Startup/ConfigureServices");
+                            throw new Exception("Redis Cache 환경설정(ConnectionString) 확인 필요");
+                        }
+                    });
+                }
                 else
                 {
                     Log.Error("[{LogCategory}] " + $"SessionState CacheType: {cacheType} 확인 필요", "Startup/ConfigureServices");
