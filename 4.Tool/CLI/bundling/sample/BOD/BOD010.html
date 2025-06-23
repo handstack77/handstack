@@ -1,0 +1,110 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="visibility: hidden;">
+    <form autocomplete="off" id="form1" syn-datafield="MainForm">
+        <div class="page">
+            <div class="page-wrapper">
+                <div class="page-header mt-2 d-print-none">
+                    <div class="container-fluid max-width:1600!">
+                        <div class="row g-2 align-items-center">
+                            <div class="col">
+                                <h2 class="page-title">
+                                    게시판
+                                </h2>
+                            </div>
+                            <div class="col-auto ms-auto d-print-none">
+                                <div class="btn-list">
+                                    <button type="button" id="btnTruncateTable" syn-events="['click']" class="btn btn-danger">
+                                        <i class="font:20 mr:4 ti ti-refresh-alert"></i>
+                                        게시판 Board 테이블 초기화
+                                    </button>
+                                    <button type="button" id="btnNewBoard" syn-events="['click']" class="btn btn-primary">
+                                        <i class="font:20 mr:4 ti ti-news"></i>
+                                        신규 게시글 작성
+                                    </button>
+                                    <button type="button" id="btnSearch" syn-events="['click']" class="btn btn-secondary">
+                                        <i class="font:20 mr:4 ti ti-search"></i>
+                                        조회
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-body mt-2">
+                    <div class="container-fluid max-width:1600!">
+                        <div class="card mb-4">
+                            <div class="card-body p-2">
+                                <div class="row">
+                                    <div class="col-sm-12 col-md-6 col-lg-3 pl-0">
+                                        <div class="input-group">
+                                            <label class="w:90 col-form-label px-2">제목</label>
+                                            <input id="txtTitle" syn-datafield="Title" syn-options="{editType: 'text', belongID: ['LD01']}" type="text" class="form-control" maxlengthB="256">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-6 col-lg-3 pl-0">
+                                        <div class="input-group">
+                                            <label class="w:90 col-form-label px-2">분류</label>
+                                            <select class="form-select" id="ddlCategory" syn-datafield="Category" syn-options="{toSynControl: false, belongID: ['LD01']}">
+                                                <option value="" selected="">전체</option>
+                                                <option value="정보">정보</option>
+                                                <option value="강좌">강좌</option>
+                                                <option value="소식">소식</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-6 col-lg-3 pl-0">
+                                        <div class="input-group">
+                                            <label class="w:90 col-form-label px-2">입력기간</label>
+                                            <syn_datepicker id="dtpStartDate" syn-datafield="StartDate" syn-options="{value: 'month:-1', useRangeSelect: true, rangeEndControlID: 'dtpEndDate', belongID: ['LD01']}"></syn_datepicker>
+                                            <syn_datepicker id="dtpEndDate" syn-datafield="EndDate" syn-options="{value: 'now', useRangeSelect: true, rangeStartControlID: 'dtpStartDate', belongID: ['LD01']}"></syn_datepicker>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-6 col-lg-3 pl-0">
+                                        <div class="input-group">
+                                            <label class="w:90 col-form-label px-2">정렬순서</label>
+                                            <select class="form-select" id="ddlOrderBy" syn-datafield="OrderBy" syn-options="{toSynControl: false, belongID: ['LD01']}">
+                                                <option value="ID" selected="">게시글 ID</option>
+                                                <option value="Category">분류</option>
+                                                <option value="Title">제목</option>
+                                                <option value="Author">작성자</option>
+                                            </select>
+                                            <select class="form-select" id="ddlSequence" syn-datafield="Sequence" syn-options="{toSynControl: false, belongID: ['LD01']}">
+                                                <option value="DESC" selected="">역순</option>
+                                                <option value="ASC">정순</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-body p-2">
+                                <div class="form-fieldset p-0">
+                                    <syn_grid id="grdBoard" syn-datafield="Board" syn-options="{
+                                    height: 420
+				                    , columns: [
+                                        ['ID', '게시글 ID', 100, false, 'text', false, 'center']
+                                        , ['Category', '분류', 100, false, 'text', false, 'center']
+                                        , ['Title', '제목', 400, false, 'text', false, 'left', '', {style: 'hyperlink'}]
+                                        , ['Author', '작성자', 100, false, 'text', true, 'center']
+                                        , ['DatePosted', '게시일자', 200, false, 'text', true, 'center']
+                                        , ['EditPost', '상세', 80, false, 'button', true, 'center']
+				                    ]
+                                    , readOnly: true
+			                    }" syn-events="['afterSelectionEnd']"></syn_grid>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <script src="/js/syn.loader.js"></script>
+</body>
+</html>

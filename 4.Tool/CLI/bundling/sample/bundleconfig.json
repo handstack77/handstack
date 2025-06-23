@@ -1,0 +1,21 @@
+[
+    {
+        "outputFileName": "BOD.js",
+        "inputFiles": [
+            "BOD/*.js",
+            "!BOD/BOD010.js"
+        ],
+        "minify": {
+            "enabled": false
+        }
+    },
+    {
+        "outputFileName": "TST.js",
+        "inputFiles": [
+            "TST/*.js"
+        ],
+        "minify": {
+            "enabled": false
+        }
+    }
+]
