@@ -113,6 +113,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "excludedportrange", "4.Tool
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bundling", "4.Tool\CLI\bundling\bundling.csproj", "{79FE27BD-1544-305A-7D6F-392B30ECDBA1}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EFC7711F-7874-46A9-A8A3-7A93F53B7B63} = {EFC7711F-7874-46A9-A8A3-7A93F53B7B63}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -223,7 +226,7 @@ Global
 		{79FE27BD-1544-305A-7D6F-392B30ECDBA1} = {FA291842-9FD5-4508-A423-7421803FDA88}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		VisualSVNWorkingCopyRoot = .
 		SolutionGuid = {0075CE72-935C-4F87-A6BA-989C82F06F8F}
+		VisualSVNWorkingCopyRoot = .
 	EndGlobalSection
 EndGlobal
