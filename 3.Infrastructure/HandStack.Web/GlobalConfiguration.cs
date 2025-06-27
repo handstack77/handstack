@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 
 using HandStack.Core.ExtensionMethod;
+using HandStack.Core.Licensing;
 using HandStack.Web.Entity;
 using HandStack.Web.Model;
 using HandStack.Web.Modules;
@@ -61,6 +62,7 @@ namespace HandStack.Web
         public static string OSPlatform = "";
         public static string HostName = "";
         public static string SystemName = "";
+        public static string HardwareID = "HANDSTACK_HOSTACCESSID";
         public static string HostAccessID = "HANDSTACK_HOSTACCESSID";
         public static string SystemID = "HANDSTACK";
         public static string ProcessID = "";
@@ -88,6 +90,7 @@ namespace HandStack.Web
         public static string LoadContractBasePath = "";
         public static int UserSignExpire = 720;
         public static string CookiePrefixName = "";
+        public static string ServerLocalIP = "127.0.0.1";
         public static int ServerPort = 8000;
         public static int ServerDevCertSslPort = 8443;
         public static string ServerDevCertFilePath = "";
@@ -111,6 +114,7 @@ namespace HandStack.Web
         public static List<ModuleInfo> Modules { get; set; } = new List<ModuleInfo>();
         public static bool IsPermissionRoles = false;
         public static List<PermissionRoles> PermissionRoles { get; set; } = new List<PermissionRoles>();
+        public static Dictionary<string, LicenseItem> Licenses { get; set; } = new Dictionary<string, LicenseItem>();
 
         public static string DefaultCulture => "ko-KR";
 

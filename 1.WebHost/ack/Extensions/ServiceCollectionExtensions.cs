@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
+using System.Threading.Tasks;
 
 using HandStack.Web;
 using HandStack.Web.Extensions;
@@ -21,9 +22,9 @@ namespace ack.Extensions
     {
         private static readonly IModuleConfigurationManager modulesConfig = new ModuleConfigurationManager();
 
-        public static IServiceCollection AddModules(this IServiceCollection services)
+        public static async Task<IServiceCollection> AddModules(this IServiceCollection services)
         {
-            foreach (var module in modulesConfig.GetModules())
+            foreach (var module in await modulesConfig.GetModulesAsync())
             {
                 if (module.IsBundledWithHost == false)
                 {

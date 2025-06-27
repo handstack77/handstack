@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Net;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
@@ -81,18 +84,54 @@ namespace ack
                 }
             }
 
+            GlobalConfiguration.ServerLocalIP = GetLocalIPv4Address();
             if (string.IsNullOrEmpty(GlobalConfiguration.ServerDevCertFilePath) == true)
             {
-                Log.Information($"ack Port: {port} Start...");
+                Log.Information($"ack LocalIP: {GlobalConfiguration.ServerLocalIP}, Port: {port} Start...");
             }
             else
             {
-                Log.Information($"ack Port: {port}, SslPort: {GlobalConfiguration.ServerDevCertSslPort} Start...");
+                Log.Information($"ack LocalIP: {GlobalConfiguration.ServerLocalIP}, Port: {port}, SslPort: {GlobalConfiguration.ServerDevCertSslPort} Start...");
             }
 
             GlobalConfiguration.IsRunning = true;
             await host.RunAsync(cancellationTokenSource.Token);
             host.Dispose();
+        }
+
+        public static string GetLocalIPv4Address()
+        {
+            string localIp = "127.0.0.1";
+
+            try
+            {
+                foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
+                {
+                    if (ni.OperationalStatus == OperationalStatus.Up &&
+                        (ni.NetworkInterfaceType == NetworkInterfaceType.Ethernet ||
+                         ni.NetworkInterfaceType == NetworkInterfaceType.Wireless80211) &&
+                        ni.Name.Contains("Loopback") == false)
+                    {
+                        IPInterfaceProperties ipProps = ni.GetIPProperties();
+                        foreach (UnicastIPAddressInformation ip in ipProps.UnicastAddresses)
+                        {
+                            if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
+                            {
+                                if (!IPAddress.IsLoopback(ip.Address))
+                                {
+                                    return ip.Address.ToString();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"IP 주소를 가져오는 중 오류 발생: {ex.Message}");
+            }
+
+            return localIp;
         }
 
         public void Stop()

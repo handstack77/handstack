@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -288,6 +289,37 @@ namespace wwwroot.Areas.wwwroot.Controllers
         public ActionResult DecodeNo(string hash, string? key)
         {
             return Content(string.Join(",", sqids.Decode(hash)), "text/html");
+        }
+
+        // http://localhost:8421/wwwroot/api/index/get-secret?keyName=MySecret
+        [HttpGet("[action]")]
+        public async Task<string> GetSecret(string? baseUrl, string keyName)
+        {
+            if (string.IsNullOrEmpty(baseUrl) == true)
+            {
+                baseUrl = Request.GetBaseUrl();
+            }
+
+            var requestUri = $"{baseUrl}/secrets/{keyName}";
+            using var httpClient = new HttpClient() { Timeout = TimeSpan.FromSeconds(3) };
+            using var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
+
+            request.Headers.Add("HandStack-MachineID", GlobalConfiguration.HardwareID);
+            request.Headers.Add("HandStack-IP", GlobalConfiguration.ServerLocalIP);
+            request.Headers.Add("HandStack-HostName", GlobalConfiguration.HostName);
+            request.Headers.Add("HandStack-Environment", GlobalConfiguration.RunningEnvironment);
+
+            using var response = await httpClient.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+
+            var secretData = await response.Content.ReadAsStringAsync();
+            var keyItem = JsonConvert.DeserializeObject<KeyItem>(secretData)!;
+
+            string systemVaultKey = "[Strong@Passw0rd]";
+            var vaultKey = (systemVaultKey + "|" + keyItem.Key.PadRight(32, '0')).Substring(0, 32);
+            var content = keyItem.IsEncryption.ToBoolean() == true ? keyItem.Value.DecryptAES(keyItem.Key.PadRight(32, '0').Substring(0, 32)) : keyItem.Value;
+
+            return content;
         }
     }
 }

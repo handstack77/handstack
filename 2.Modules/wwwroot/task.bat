@@ -49,6 +49,10 @@ if "%TASK_COMMAND%"=="www" (
     robocopy %WORKING_PATH%/wwwroot %HANDSTACK_SRC%/../build/handstack/modules/wwwroot/wwwroot /e /copy:dat /xd %WORKING_PATH%\wwwroot\lib
 )
 
+if "%TASK_COMMAND%"=="lib" (
+    robocopy %WORKING_PATH%/wwwroot %HANDSTACK_SRC%/../build/handstack/modules/wwwroot/wwwroot /e /copy:dat
+)
+
 if "%TASK_COMMAND%"=="syn" (
     robocopy %WORKING_PATH%/wwwroot/js %HANDSTACK_SRC%/../build/handstack/modules/wwwroot/wwwroot/js /XF syn.domain.js syn.domain.min.js syn.loader.js syn.loader.min.js /LEV:1 /R:0 /W:0
     robocopy %WORKING_PATH%/wwwroot/uicontrols %HANDSTACK_SRC%/../build/handstack/modules/wwwroot/wwwroot/uicontrols /e /copy:dat /xd %WORKING_PATH%\wwwroot\lib

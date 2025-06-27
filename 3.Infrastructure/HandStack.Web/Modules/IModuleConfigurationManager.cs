@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace HandStack.Web.Modules
 {
     public interface IModuleConfigurationManager
     {
-        IEnumerable<ModuleInfo> GetModules();
+        Task<IEnumerable<ModuleInfo>> GetModulesAsync();
     }
 }

@@ -112,8 +112,8 @@ namespace ack
             GlobalConfiguration.CookiePrefixName = appSettings["CookiePrefixName"].ToStringSafe("HandStack");
             GlobalConfiguration.UserSignExpire = int.Parse(appSettings["UserSignExpire"].ToStringSafe("1440"));
 
-            var hardwareId = GetHardwareID();
-            Console.WriteLine($"Current Hardware ID: {hardwareId}");
+            GlobalConfiguration.HardwareID = GetHardwareID();
+            Console.WriteLine($"Current Hardware ID: {GlobalConfiguration.HardwareID}");
 
             switch (GlobalConfiguration.RunningEnvironment)
             {
@@ -542,6 +542,7 @@ namespace ack
                 Alphabet = appSettings["SqidsAlphabet"].ToStringSafe() == "" ? "abcdefghijklmnopqrstuvwxyz1234567890" : appSettings["SqidsAlphabet"].ToStringSafe(),
                 MinLength = 8,
             }));
+            services.AddSingleton<SecretService>();
 
             services.AddRazorPages()
             .AddRazorPagesOptions(options =>
@@ -1277,6 +1278,215 @@ namespace ack
                 {
                     context.Response.Headers["Content-Type"] = "text/html";
                     await context.Response.WriteAsync(context.GetRemoteIpAddress().ToStringSafe());
+                });
+
+                // curl --location "http://localhost:8421/license-keys"
+                endpoints.MapGet("/license-keys", async context =>
+                {
+                    var secretService = context.RequestServices.GetRequiredService<SecretService>();
+
+                    var allKeys = secretService.GetLicenseKeys();
+                    var filtered = allKeys?.ToList();
+
+                    context.Response.ContentType = "application/json";
+                    var jsonResponse = JsonConvert.SerializeObject(filtered, Formatting.Indented);
+                    await context.Response.WriteAsync(jsonResponse);
+                });
+
+
+                // curl --location "http://localhost:8421/secrets" --header "HandStack-MachineID: [Current Hardware ID]" --header "HandStack-IP: [LocalIP]" --header "HandStack-HostName: [HostName]" --header "HandStack-Environment: [EnvironmentName]"
+                endpoints.MapGet("/secrets", async context =>
+                {
+                    var secretService = context.RequestServices.GetRequiredService<SecretService>();
+
+                    if (ClientInfo.TryGetFromHeaders(context.Request.Headers, out var clientInfo) == false)
+                    {
+                        context.Response.StatusCode = StatusCodes.Status404NotFound;
+                        return;
+                    }
+
+                    var allKeys = secretService.GetAllKeys(clientInfo!);
+                    var filtered = allKeys?.ToDictionary(
+                        kvp => kvp.Key,
+                        kvp => kvp.Value.Select(item => item.Key).ToList()
+                    );
+
+                    context.Response.ContentType = "application/json";
+                    var jsonResponse = JsonConvert.SerializeObject(filtered, Formatting.Indented);
+                    await context.Response.WriteAsync(jsonResponse);
+                });
+
+                // curl --location "http://localhost:8421/secrets/[name]" --header "HandStack-MachineID: [Current Hardware ID]" --header "HandStack-IP: [LocalIP]" --header "HandStack-HostName: [HostName]" --header "HandStack-Environment: [EnvironmentName]"
+                endpoints.MapGet("/secrets/{name}", async context =>
+                {
+                    try
+                    {
+                        var secretService = context.RequestServices.GetRequiredService<SecretService>();
+
+                        var keyName = context.Request.RouteValues["name"]?.ToString();
+                        if (string.IsNullOrEmpty(keyName))
+                        {
+                            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                            await context.Response.WriteAsync("키 이름이 필요합니다.");
+                            return;
+                        }
+
+                        if (!ClientInfo.TryGetFromHeaders(context.Request.Headers, out var clientInfo))
+                        {
+                            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                            await context.Response.WriteAsync("필수 헤더가 누락되었습니다: HandStack-MachineID, HandStack-IP, HandStack-HostID");
+                            return;
+                        }
+
+                        var keyItem = await secretService.GetKeyAsync(clientInfo!, keyName);
+                        if (keyItem == null)
+                        {
+                            context.Response.StatusCode = StatusCodes.Status404NotFound;
+                            await context.Response.WriteAsync($"요청 하신 '{keyName}' 키에 대한 정보를 찾을 수 없습니다.");
+                            return;
+                        }
+
+                        if (keyItem.ExpiresAt < DateTime.Now)
+                        {
+                            context.Response.StatusCode = StatusCodes.Status404NotFound;
+                            await context.Response.WriteAsync($"요청 하신 '{keyName}' 키에 대한 정보가 만료 되었습니다.");
+                            return;
+                        }
+
+                        // 키 수급 에서 사용 코드
+                        // var vaultKey = (secretService.SystemVaultKey + "|" + newKey.Key.PadRight(32, '0')).Substring(0, 32);
+                        // var decryptedValue = keyItem.IsEncryption.ToBoolean() == true ? keyItem.Value.DecryptAES(vaultKey) : keyItem.Value;
+                        var responseItem = new
+                        {
+                            keyItem.Key,
+                            keyItem.Value,
+                            keyItem.IsEncryption,
+                            keyItem.Tags
+                        };
+
+                        context.Response.ContentType = "application/json";
+                        var jsonResponse = JsonConvert.SerializeObject(responseItem, Formatting.Indented);
+                        await context.Response.WriteAsync(jsonResponse);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Logger.Error(ex, "[{LogCategory}] 키 조회 실패", "KeyVaultSecret/GetKey");
+                        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                        await context.Response.WriteAsync("내부 서버 오류가 발생했습니다.");
+                    }
+                });
+
+                /*
+                curl --location --request POST 'http://localhost:8421/secrets' \
+                --header 'HandStack-MachineID: [Current Hardware ID]' \
+                --header 'HandStack-IP: [LocalIP]' \
+                --header 'HandStack-HostName: [HostName]' \
+                --header 'HandStack-Environment: [EnvironmentName]' \
+                --header 'Content-Type: application/json' \
+                --data '{
+                    "Key": "PlainValue",
+                    "Value": "Hello World Blabla",
+                    "IsEncryption": "N",
+                    "ExpiresAt": null,
+                    "Environment": "Development",
+                    "Tags": ["Test"]
+                }'
+                 */
+                endpoints.MapPost("/secrets", async context =>
+                {
+                    try
+                    {
+                        var secretService = context.RequestServices.GetRequiredService<SecretService>();
+
+                        if (!ClientInfo.TryGetFromHeaders(context.Request.Headers, out var clientInfo))
+                        {
+                            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                            await context.Response.WriteAsync("필수 헤더가 누락되었습니다: HandStack-MachineID, HandStack-IP, HandStack-HostID");
+                            return;
+                        }
+
+                        KeyItem? newKey;
+                        using (var reader = new StreamReader(context.Request.Body))
+                        {
+                            var body = await reader.ReadToEndAsync();
+                            newKey = JsonConvert.DeserializeObject<KeyItem>(body);
+                        }
+
+                        if (newKey == null || string.IsNullOrEmpty(newKey.Key) || string.IsNullOrEmpty(newKey.Value))
+                        {
+                            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                            await context.Response.WriteAsync("요청 본문에 Key와 Value 필드는 필수입니다.");
+                            return;
+                        }
+
+                        var encryptQuery = context.Request.Query["encrypt"].ToStringSafe();
+                        if (string.IsNullOrEmpty(encryptQuery) == false && encryptQuery.ToBoolean() == true)
+                        {
+                            var vaultKey = (secretService.SystemVaultKey + "|" + newKey.Key.PadRight(32, '0')).Substring(0, 32);
+                            newKey.Value = newKey.Value.EncryptAES(vaultKey);
+                            newKey.IsEncryption = "Y";
+                        }
+
+                        var (success, message) = await secretService.UpsertKeyAsync(clientInfo!, newKey);
+
+                        if (!success)
+                        {
+                            context.Response.StatusCode = StatusCodes.Status404NotFound;
+                            await context.Response.WriteAsync(message);
+                            return;
+                        }
+
+                        context.Response.StatusCode = StatusCodes.Status201Created;
+                        context.Response.ContentType = "application/json";
+                        var jsonResponse = JsonConvert.SerializeObject(newKey);
+                        await context.Response.WriteAsync(jsonResponse);
+                    }
+                    catch (JsonException jsonEx)
+                    {
+                        Log.Logger.Error(jsonEx, "[{LogCategory}] 새 키에 대한 JSON 형식이 유효하지 않습니다.", "KeyVaultSecret/AddKey");
+                        context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                        await context.Response.WriteAsync("요청 본문의 JSON 형식이 유효하지 않습니다.");
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Logger.Error(ex, "[{LogCategory}] 키 추가 실패", "KeyVaultSecret/AddKey");
+                        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                        await context.Response.WriteAsync("내부 서버 오류가 발생했습니다.");
+                    }
+                });
+
+                // curl --location --request DELETE "http://localhost:8421/secrets/[name]" --header "HandStack-MachineID: [Current Hardware ID]" --header "HandStack-IP: [LocalIP]" --header "HandStack-HostName: [HostName]" --header "HandStack-Environment: [EnvironmentName]"
+                endpoints.MapDelete("/secrets/{name}", async context =>
+                {
+                    try
+                    {
+                        var secretService = context.RequestServices.GetRequiredService<SecretService>();
+
+                        var keyName = context.Request.RouteValues["name"]?.ToString();
+                        if (string.IsNullOrEmpty(keyName))
+                        {
+                            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                            await context.Response.WriteAsync("키 이름이 필요합니다.");
+                            return;
+                        }
+
+                        if (!ClientInfo.TryGetFromHeaders(context.Request.Headers, out var clientInfo))
+                        {
+                            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                            await context.Response.WriteAsync("필수 헤더가 누락되었습니다: HandStack-MachineID, HandStack-IP, HandStack-HostID");
+                            return;
+                        }
+
+                        var (success, message) = await secretService.DeleteKeyAsync(clientInfo!, keyName);
+                        context.Response.StatusCode = success == true ? StatusCodes.Status200OK : StatusCodes.Status204NoContent;
+                        await context.Response.WriteAsync(message);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Logger.Error(ex, "[{LogCategory}] 키 삭제 실패", "KeyVaultSecret/DeleteKey");
+                        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                        await context.Response.WriteAsync("내부 서버 오류가 발생했습니다.");
+                    }
                 });
             });
 
