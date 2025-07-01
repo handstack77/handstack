@@ -278,39 +278,6 @@ namespace repository.Extensions
             File.WriteAllText(PathExtensions.Combine(persistenceDirectoryPath, fileName), addedText);
         }
 
-        public async Task<string> GetDuplicateCheckUniqueFileName(BlobContainerClient container, string blobID)
-        {
-            string result;
-            var blob = container.GetBlobClient(blobID);
-            if (await blob.ExistsAsync() == true)
-            {
-                var originalBlobID = blobID;
-                if (File.Exists(PathExtensions.Combine(this.PersistenceDirectoryPath, blobID)) == false)
-                {
-                    result = blobID;
-                }
-                else
-                {
-                    var i = 0;
-                    var extension = Path.GetExtension(blobID);
-                    blobID = blobID.Replace(extension, "");
-                    do
-                    {
-                        blobID = string.Concat(originalBlobID, " (", (i++).ToString(), ")", extension);
-                        blob = container.GetBlobClient(blobID);
-                    } while (await blob.ExistsAsync());
-
-                    result = blobID;
-                }
-            }
-            else
-            {
-                result = blobID;
-            }
-
-            return result;
-        }
-
         public string GetDuplicateCheckUniqueFileName(string fileName)
         {
             string result;

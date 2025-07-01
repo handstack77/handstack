@@ -27,6 +27,7 @@ using Newtonsoft.Json;
 using repository.Entity;
 using repository.Events;
 using repository.Extensions;
+using repository.Services;
 
 using Serilog;
 
@@ -93,6 +94,7 @@ namespace repository
                 }
 
                 services.AddScoped<ModuleApiClient>();
+                services.AddSingleton<IStorageProviderFactory, StorageProviderFactory>();
                 services.AddTransient<IRequestHandler<RepositoryRequest, object?>, RepositoryRequestHandler>();
             }
         }

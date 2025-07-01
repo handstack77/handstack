@@ -20,6 +20,20 @@
 
         public string BlobItemUrl { get; set; } = "";
 
+        public string GcsBucketName { get; set; } = "";
+
+        public string GcsCredentialFile { get; set; } = "";
+
+        public string AwsBucketName { get; set; } = "";
+
+        public string AwsRegion { get; set; } = "";
+
+        public string AwsAccessKey { get; set; } = "";
+
+        public string AwsSecretKey { get; set; } = "";
+
+        public string AwsServiceUrl { get; set; } = "";
+
         public bool IsVirtualPath { get; set; } = false;
 
         public string AccessMethod { get; set; } = "protected";

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection.Metadata;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,6 +22,7 @@ using HandStack.Web.MessageContract.Message;
 
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 
@@ -29,8 +31,11 @@ using Newtonsoft.Json;
 using repository.Entity;
 using repository.Extensions;
 using repository.Message;
+using repository.Services;
 
 using Serilog;
+
+using static System.Reflection.Metadata.BlobBuilder;
 
 namespace repository.Controllers
 {
@@ -42,17 +47,19 @@ namespace repository.Controllers
     {
         private readonly ModuleApiClient moduleApiClient;
         private readonly ISequentialIdGenerator sequentialIdGenerator;
+        private readonly IStorageProviderFactory storageProviderFactory;
 
         private ILogger logger { get; }
 
         private IConfiguration configuration { get; }
 
-        public StorageController(ModuleApiClient moduleApiClient, ISequentialIdGenerator sequentialIdGenerator, ILogger logger, IConfiguration configuration)
+        public StorageController(ModuleApiClient moduleApiClient, ISequentialIdGenerator sequentialIdGenerator, ILogger logger, IConfiguration configuration, IStorageProviderFactory storageProviderFactory)
         {
             this.moduleApiClient = moduleApiClient;
             this.sequentialIdGenerator = sequentialIdGenerator;
             this.logger = logger;
             this.configuration = configuration;
+            this.storageProviderFactory = storageProviderFactory;
         }
 
         // http://localhost:8421/repository/api/storage/get-client-ip
@@ -239,14 +246,6 @@ namespace repository.Controllers
                 var customPath2 = item.CustomPath2;
                 var customPath3 = item.CustomPath3;
 
-                BlobContainerClient? container = null;
-                var hasContainer = false;
-                if (repository.StorageType == "AzureBlob")
-                {
-                    container = new BlobContainerClient(repository.BlobConnectionString, repository.BlobContainerID.ToLower());
-                    hasContainer = await container.ExistsAsync();
-                }
-
                 var repositoryManager = new RepositoryManager();
                 repositoryManager.PersistenceDirectoryPath = repositoryManager.GetPhysicalPath(repository, customPath1, customPath2, customPath3);
                 var relativeDirectoryPath = repositoryManager.GetRelativePath(repository, customPath1, customPath2, customPath3);
@@ -254,57 +253,26 @@ namespace repository.Controllers
                 relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.Substring(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
 
                 var isExistFile = false;
-                // 파일명 변경
-                switch (repository.StorageType)
+
+                var storageProvider = storageProviderFactory.Create(repository, item.CustomPath1, item.CustomPath2, item.CustomPath3);
+                if (storageProvider == null)
                 {
-                    case "AzureBlob":
-                        if (container != null && hasContainer == true)
-                        {
-                            string fileName;
-                            if (repository.IsFileNameEncrypt == true)
-                            {
-                                fileName = item.ItemID;
-                            }
-                            else
-                            {
-                                fileName = item.FileName;
-                            }
-                            var blobID = relativeDirectoryUrlPath + fileName;
-
-                            var blob = container.GetBlobClient(blobID);
-                            isExistFile = await blob.ExistsAsync();
-                            if (isExistFile == true)
-                            {
-                                BlobDownloadInfo blobDownloadInfo = await blob.DownloadAsync();
-                                BlobProperties properties = await blob.GetPropertiesAsync();
-                                var headers = new BlobHttpHeaders
-                                {
-                                    ContentType = properties.ContentType
-                                };
-
-                                var newBlobID = relativeDirectoryUrlPath + changeFileName;
-                                var newBlob = container.GetBlobClient(newBlobID);
-                                await newBlob.UploadAsync(blobDownloadInfo.Content, headers);
-                                await container.DeleteBlobIfExistsAsync(blobID);
-                            }
-                        }
-                        break;
-                    case "FileSystem":
-                        isExistFile = System.IO.File.Exists(repositoryManager.GetSavePath(item.FileName));
-                        if (isExistFile == true)
-                        {
-                            repositoryManager.Move(item.FileName, repositoryManager.GetSavePath(changeFileName));
-                        }
-                        break;
-                    default:
-                        var errorText = $"ApplicationID: {repository.ApplicationID}, RepositoryID: {repository.RepositoryID}, StorageType: {repository.StorageType} 확인 필요";
-                        logger.Warning("[{LogCategory}] " + errorText, "StorageController/UpdateFileName");
-                        result = BadRequest(errorText);
-                        break;
+                    var errorText = $"ApplicationID: {repository.ApplicationID}, RepositoryID: {repository.RepositoryID}, StorageType: {repository.StorageType} 확인 필요";
+                    logger.Warning("[{LogCategory}] " + errorText, "StorageController/UpdateFileName");
+                    result = BadRequest(errorText);
+                    return result;
                 }
 
+                string sourceFileName = repository.IsFileNameEncrypt ? item.ItemID : item.FileName;
+                var sourceBlobID = relativeDirectoryUrlPath + sourceFileName;
 
-                if (isExistFile == false)
+                isExistFile = await storageProvider.FileExistsAsync(sourceBlobID);
+                if (isExistFile == true)
+                {
+                    var newBlobID = relativeDirectoryUrlPath + changeFileName;
+                    await storageProvider.MoveAsync(sourceBlobID, newBlobID, item.MimeType);
+                }
+                else
                 {
                     jsonContentResult.Message = $"파일 없음, 파일 요청 정보 확인 필요. repositoryID: {repositoryID}, itemID: {itemID}, fileName: {changeFileName}";
                     return BadRequest(jsonContentResult.Message);
@@ -589,6 +557,15 @@ namespace repository.Controllers
                         var relativeDirectoryUrlPath = string.IsNullOrEmpty(relativeDirectoryPath) == true ? "" : relativeDirectoryPath;
                         relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.Substring(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
 
+                        var storageProvider = storageProviderFactory.Create(repository, customPath1, customPath2, customPath3);
+                        if (storageProvider == null)
+                        {
+                            var errorText = $"ApplicationID: {repository.ApplicationID}, RepositoryID: {repository.RepositoryID}, StorageType: {repository.StorageType} 확인 필요";
+                            logger.Warning("[{LogCategory}] " + errorText, "StorageController/UploadFile");
+                            result.Message = errorText;
+                            return Content(JsonConvert.SerializeObject(result), "application/json");
+                        }
+
                         if (repository.IsMultiUpload == true)
                         {
                             List<RepositoryItems>? items;
@@ -651,14 +628,6 @@ namespace repository.Controllers
 
                                 if (items != null && items.Count() > 0)
                                 {
-                                    BlobContainerClient? container = null;
-                                    var hasContainer = false;
-                                    if (repository.StorageType == "AzureBlob")
-                                    {
-                                        container = new BlobContainerClient(repository.BlobConnectionString, repository.BlobContainerID.ToLower());
-                                        hasContainer = await container.ExistsAsync();
-                                    }
-
                                     foreach (var item in items)
                                     {
                                         string deleteFileName;
@@ -671,23 +640,7 @@ namespace repository.Controllers
                                             deleteFileName = item.FileName;
                                         }
 
-                                        switch (repository.StorageType)
-                                        {
-                                            case "AzureBlob":
-                                                if (container != null && hasContainer == true)
-                                                {
-                                                    var blobID = relativeDirectoryUrlPath + deleteFileName;
-                                                    await container.DeleteBlobIfExistsAsync(blobID);
-                                                }
-                                                break;
-                                            case "FileSystem":
-                                                repositoryManager.Delete(deleteFileName);
-                                                break;
-                                            default:
-                                                var errorText = $"ApplicationID: {repository.ApplicationID}, RepositoryID: {repository.RepositoryID}, StorageType: {repository.StorageType} 확인 필요";
-                                                logger.Warning("[{LogCategory}] " + errorText, "StorageController/UploadFile");
-                                                break;
-                                        }
+                                        await storageProvider.DeleteAsync(deleteFileName);
 
                                         if (repository.IsLocalDbFileManaged == true)
                                         {
@@ -737,36 +690,33 @@ namespace repository.Controllers
                         repositoryItem.CreatedMemberNo = userID;
                         repositoryItem.CreatedAt = DateTime.Now;
 
+
                         switch (repository.StorageType)
                         {
                             case "AzureBlob":
-                                var container = new BlobContainerClient(repository.BlobConnectionString, repository.BlobContainerID.ToLower());
-                                await container.CreateIfNotExistsAsync(PublicAccessType.Blob);
+                            case "AwsS3":
+                            case "GoogleCloudStorage":
                                 var blobID = relativeDirectoryUrlPath + repositoryItem.ItemID;
-                                var blob = container.GetBlobClient(blobID);
 
                                 if (repository.IsFileNameEncrypt == false && repository.IsFileOverWrite == false)
                                 {
-                                    blobID = await repositoryManager.GetDuplicateCheckUniqueFileName(container, blobID);
+                                    blobID = await storageProvider.GetDuplicateCheckUniqueFileName(blobID);
                                     repositoryItem.ItemID = blobID;
                                     repositoryItem.FileName = blobID;
                                 }
 
                                 var openReadStream = file.OpenReadStream();
-
                                 var headers = new BlobHttpHeaders
                                 {
                                     ContentType = repositoryItem.MimeType
                                 };
 
-                                await blob.UploadAsync(openReadStream, headers);
-
-                                BlobProperties properties = await blob.GetPropertiesAsync();
+                                var (creationTime, lastWriteTime) = await storageProvider.UploadAsync(repositoryItem.ItemID, openReadStream, repositoryItem.MimeType);
 
                                 repositoryItem.PhysicalPath = "";
                                 repositoryItem.MD5 = GetStreamMD5Hash(openReadStream);
-                                repositoryItem.CreationTime = properties.CreatedOn.LocalDateTime;
-                                repositoryItem.LastWriteTime = properties.LastModified.LocalDateTime;
+                                repositoryItem.CreationTime = creationTime;
+                                repositoryItem.LastWriteTime = lastWriteTime;
 
                                 if (repository.IsVirtualPath == true)
                                 {
@@ -920,6 +870,15 @@ namespace repository.Controllers
                         var relativeDirectoryUrlPath = string.IsNullOrEmpty(relativeDirectoryPath) == true ? "" : relativeDirectoryPath;
                         relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.Substring(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
 
+                        var storageProvider = storageProviderFactory.Create(repository, customPath1, customPath2, customPath3);
+                        if (storageProvider == null)
+                        {
+                            var errorText = $"ApplicationID: {repository.ApplicationID}, RepositoryID: {repository.RepositoryID}, StorageType: {repository.StorageType} 확인 필요";
+                            logger.Warning("[{LogCategory}] " + errorText, "StorageController/UploadFile");
+                            result.Message = errorText;
+                            return Content(JsonConvert.SerializeObject(result), "application/json");
+                        }
+
                         if (repository.IsMultiUpload == true)
                         {
                             List<RepositoryItems>? items = null;
@@ -969,14 +928,6 @@ namespace repository.Controllers
 
                             if (items != null && items.Count() > 0)
                             {
-                                BlobContainerClient? container = null;
-                                var hasContainer = false;
-                                if (repository.StorageType == "AzureBlob")
-                                {
-                                    container = new BlobContainerClient(repository.BlobConnectionString, repository.BlobContainerID.ToLower());
-                                    hasContainer = await container.ExistsAsync();
-                                }
-
                                 foreach (var item in items)
                                 {
                                     string deleteFileName;
@@ -989,23 +940,8 @@ namespace repository.Controllers
                                         deleteFileName = item.FileName;
                                     }
 
-                                    switch (repository.StorageType)
-                                    {
-                                        case "AzureBlob":
-                                            if (container != null && hasContainer == true)
-                                            {
-                                                var blobID = relativeDirectoryUrlPath + deleteFileName;
-                                                await container.DeleteBlobIfExistsAsync(blobID);
-                                            }
-                                            break;
-                                        case "FileSystem":
-                                            repositoryManager.Delete(deleteFileName);
-                                            break;
-                                        default:
-                                            var errorText = $"ApplicationID: {repository.ApplicationID}, RepositoryID: {repository.RepositoryID}, StorageType: {repository.StorageType} 확인 필요";
-                                            logger.Warning("[{LogCategory}] " + errorText, "StorageController/UploadFile");
-                                            return BadRequest(errorText);
-                                    }
+
+                                    await storageProvider.DeleteAsync(deleteFileName);
 
                                     if (repository.IsLocalDbFileManaged == true)
                                     {
@@ -1056,36 +992,35 @@ namespace repository.Controllers
                         switch (repository.StorageType)
                         {
                             case "AzureBlob":
-                                var container = new BlobContainerClient(repository.BlobConnectionString, repository.BlobContainerID.ToLower());
-                                await container.CreateIfNotExistsAsync(PublicAccessType.Blob);
+                            case "AwsS3":
+                            case "GoogleCloudStorage":
                                 var blobID = relativeDirectoryUrlPath + repositoryItem.ItemID;
-                                var blob = container.GetBlobClient(blobID);
 
                                 if (repository.IsFileNameEncrypt == false && repository.IsFileOverWrite == false)
                                 {
-                                    blobID = await repositoryManager.GetDuplicateCheckUniqueFileName(container, blobID);
+                                    blobID = await storageProvider.GetDuplicateCheckUniqueFileName(blobID);
                                     repositoryItem.ItemID = blobID;
                                     repositoryItem.FileName = blobID;
                                 }
 
-                                var headers = new BlobHttpHeaders
-                                {
-                                    ContentType = repositoryItem.MimeType
-                                };
 
-                                using (var memoryStream = new MemoryStream(8192))
+                                using (var openReadStream = new MemoryStream(8192))
                                 {
-                                    await Request.BodyReader.CopyToAsync(memoryStream);
-                                    memoryStream.Position = 0;
-                                    await blob.UploadAsync(memoryStream, headers);
-                                    repositoryItem.MD5 = GetStreamMD5Hash(memoryStream);
+                                    await Request.BodyReader.CopyToAsync(openReadStream);
+                                    openReadStream.Position = 0;
+                                    var headers = new BlobHttpHeaders
+                                    {
+                                        ContentType = repositoryItem.MimeType
+                                    };
+
+
+                                    var (creationTime, lastWriteTime) = await storageProvider.UploadAsync(repositoryItem.ItemID, openReadStream, repositoryItem.MimeType);
+
+                                    repositoryItem.PhysicalPath = "";
+                                    repositoryItem.MD5 = GetStreamMD5Hash(openReadStream);
+                                    repositoryItem.CreationTime = creationTime;
+                                    repositoryItem.LastWriteTime = lastWriteTime;
                                 }
-
-                                BlobProperties properties = await blob.GetPropertiesAsync();
-
-                                repositoryItem.PhysicalPath = "";
-                                repositoryItem.CreationTime = properties.CreatedOn.LocalDateTime;
-                                repositoryItem.LastWriteTime = properties.LastModified.LocalDateTime;
 
                                 if (repository.IsVirtualPath == true)
                                 {
@@ -1303,6 +1238,15 @@ namespace repository.Controllers
                 relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.Substring(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
                 var policyPath = repositoryManager.GetPolicyPath(repository);
 
+                var storageProvider = storageProviderFactory.Create(repository, customPath1, customPath2, customPath3);
+
+                if (storageProvider == null)
+                {
+                    var errorText = $"ApplicationID: {repository.ApplicationID}, RepositoryID: {repository.RepositoryID}, StorageType: {repository.StorageType} 확인 필요";
+                    logger.Warning("[{LogCategory}] " + errorText, "StorageController/UploadFiles");
+                    return BadRequest(errorText);
+                }
+
                 if (repository.IsMultiUpload == true)
                 {
                     if (repository.IsFileUploadDownloadOnly == true)
@@ -1368,14 +1312,6 @@ namespace repository.Controllers
 
                         if (items != null && items.Count() > 0)
                         {
-                            BlobContainerClient? container = null;
-                            var hasContainer = false;
-                            if (repository.StorageType == "AzureBlob")
-                            {
-                                container = new BlobContainerClient(repository.BlobConnectionString, repository.BlobContainerID.ToLower());
-                                hasContainer = await container.ExistsAsync();
-                            }
-
                             foreach (var item in items)
                             {
                                 string deleteFileName;
@@ -1391,11 +1327,10 @@ namespace repository.Controllers
                                 switch (repository.StorageType)
                                 {
                                     case "AzureBlob":
-                                        if (container != null && hasContainer == true)
-                                        {
-                                            var blobID = relativeDirectoryUrlPath + deleteFileName;
-                                            await container.DeleteBlobIfExistsAsync(blobID);
-                                        }
+                                    case "AwsS3":
+                                    case "GoogleCloudStorage":
+                                        var blobID = relativeDirectoryUrlPath + deleteFileName;
+                                        await storageProvider.DeleteAsync(blobID);
                                         break;
                                     case "FileSystem":
                                         repositoryManager.Delete(deleteFileName);
@@ -1469,32 +1404,26 @@ namespace repository.Controllers
                             switch (repository.StorageType)
                             {
                                 case "AzureBlob":
-                                    var container = new BlobContainerClient(repository.BlobConnectionString, repository.BlobContainerID.ToLower());
-                                    await container.CreateIfNotExistsAsync(PublicAccessType.Blob);
+                                case "AwsS3":
+                                case "GoogleCloudStorage":
                                     var blobID = relativeDirectoryUrlPath + repositoryItem.ItemID;
-                                    var blob = container.GetBlobClient(blobID);
 
                                     if (repository.IsFileNameEncrypt == false && repository.IsFileOverWrite == false)
                                     {
-                                        blobID = await repositoryManager.GetDuplicateCheckUniqueFileName(container, blobID);
+                                        blobID = await storageProvider.GetDuplicateCheckUniqueFileName(blobID);
                                         repositoryItem.ItemID = blobID;
                                         repositoryItem.FileName = blobID;
                                     }
 
-                                    var openReadStream = file.OpenReadStream();
-                                    var headers = new BlobHttpHeaders
+                                    using (var openReadStream = file.OpenReadStream())
                                     {
-                                        ContentType = repositoryItem.MimeType
-                                    };
-
-                                    await blob.UploadAsync(openReadStream, headers);
-
-                                    BlobProperties properties = await blob.GetPropertiesAsync();
+                                        var (creationTime, lastWriteTime) = await storageProvider.UploadAsync(repositoryItem.ItemID, openReadStream, repositoryItem.MimeType);
+                                        repositoryItem.MD5 = GetStreamMD5Hash(openReadStream);
+                                        repositoryItem.CreationTime = creationTime;
+                                        repositoryItem.LastWriteTime = lastWriteTime;
+                                    }
 
                                     repositoryItem.PhysicalPath = "";
-                                    repositoryItem.MD5 = GetStreamMD5Hash(openReadStream);
-                                    repositoryItem.CreationTime = properties.CreatedOn.LocalDateTime;
-                                    repositoryItem.LastWriteTime = properties.LastModified.LocalDateTime;
 
                                     if (repository.IsVirtualPath == true)
                                     {
@@ -1807,7 +1736,9 @@ namespace repository.Controllers
             switch (repository.StorageType)
             {
                 case "AzureBlob":
-                    result = await ExecuteBlobFileDownload(downloadResult, applicationID, repositoryID, itemID, businessID);
+                case "AwsS3":
+                case "GoogleCloudStorage":
+                    result = await ExecuteObjectFileDownload(downloadResult, applicationID, repositoryID, itemID, businessID);
                     break;
                 case "FileSystem":
                     result = await ExecuteFileDownload(downloadResult, applicationID, repositoryID, itemID, businessID);
@@ -1932,7 +1863,9 @@ namespace repository.Controllers
             switch (repository.StorageType)
             {
                 case "AzureBlob":
-                    result = await ExecuteBlobFileDownload(downloadResult, applicationID, repositoryID, itemID, businessID.ToStringSafe());
+                case "AwsS3":
+                case "GoogleCloudStorage":
+                    result = await ExecuteObjectFileDownload(downloadResult, applicationID, repositoryID, itemID, businessID.ToStringSafe());
                     break;
                 case "FileSystem":
                     result = await ExecuteFileDownload(downloadResult, applicationID, repositoryID, itemID, businessID.ToStringSafe());
@@ -2106,61 +2039,70 @@ namespace repository.Controllers
 
             var repositoryManager = new RepositoryManager();
 
-            if (repository.StorageType == "AzureBlob")
+            switch (repository.StorageType)
             {
-                var container = new BlobContainerClient(repository.BlobConnectionString, repository.BlobContainerID.ToLower());
-                await container.CreateIfNotExistsAsync(PublicAccessType.Blob);
-                var blobID = (string.IsNullOrEmpty(applicationID) == false ? applicationID + "/" : "") + (string.IsNullOrEmpty(subDirectory) == false ? subDirectory + "/" : "") + fileName;
-                var blob = container.GetBlobClient(blobID);
-                if (await blob.ExistsAsync() == true)
-                {
-                    var azureResponse = await blob.DeleteAsync();
-                    deleteResult.Message = azureResponse.ToString();
-                }
-                else
-                {
-                    result = NotFound();
-                    deleteResult.Message = $"파일을 찾을 수 없습니다. FileID - '{blobID}'";
-                }
-            }
-            else
-            {
-                var persistenceDirectoryPath = repository.PhysicalPath;
-                if (string.IsNullOrEmpty(applicationID) == false)
-                {
-                    persistenceDirectoryPath = PathExtensions.Combine(repository.PhysicalPath, applicationID);
-                }
-
-                if (string.IsNullOrEmpty(subDirectory) == true)
-                {
-                    repositoryManager.PersistenceDirectoryPath = persistenceDirectoryPath;
-                }
-                else
-                {
-                    repositoryManager.PersistenceDirectoryPath = PathExtensions.Combine(persistenceDirectoryPath, subDirectory);
-                }
-
-                var filePath = PathExtensions.Combine(repositoryManager.PersistenceDirectoryPath, fileName);
-                try
-                {
-                    if (System.IO.File.Exists(filePath) == true)
+                case "AzureBlob":
+                case "AwsS3":
+                case "GoogleCloudStorage":
+                    var storageProvider = storageProviderFactory.Create(repository, "", "", "");
+                    if (storageProvider == null)
                     {
-                        System.IO.File.Delete(filePath);
+                        var errorText = $"ApplicationID: {repository.ApplicationID}, RepositoryID: {repository.RepositoryID}, StorageType: {repository.StorageType} 확인 필요";
+                        logger.Warning("[{LogCategory}] " + errorText, "StorageController/VirtualDeleteFile");
+                        result = BadRequest(errorText);
+                        return result;
+                    }
+
+                    var blobID = (string.IsNullOrEmpty(applicationID) == false ? applicationID + "/" : "") + (string.IsNullOrEmpty(subDirectory) == false ? subDirectory + "/" : "") + fileName;
+                    if (await storageProvider.FileExistsAsync(blobID) == true)
+                    {
+                        await storageProvider.DeleteAsync(blobID);
                         deleteResult.Result = true;
-                        return Content(JsonConvert.SerializeObject(result), "application/json");
                     }
                     else
                     {
                         result = NotFound();
-                        deleteResult.Message = $"파일을 찾을 수 없습니다. fileName - '{fileName}', subDirectory - '{subDirectory}'";
+                        deleteResult.Message = $"파일을 찾을 수 없습니다. FileID - '{blobID}'";
                     }
-                }
-                catch (Exception exception)
-                {
-                    result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
-                    deleteResult.Message = $"파일을 삭제 중 오류가 발생했습니다. fileName - '{fileName}', subDirectory - '{subDirectory}', message - '{exception.Message}'";
-                    logger.Error("[{LogCategory}] " + $"{deleteResult.Message} - {exception.ToMessage()}", "StorageController/VirtualFileDownload");
-                }
+
+                    break;
+                case "FileSystem":
+                    var persistenceDirectoryPath = repository.PhysicalPath;
+                    if (string.IsNullOrEmpty(applicationID) == false)
+                    {
+                        persistenceDirectoryPath = PathExtensions.Combine(repository.PhysicalPath, applicationID);
+                    }
+
+                    if (string.IsNullOrEmpty(subDirectory) == true)
+                    {
+                        repositoryManager.PersistenceDirectoryPath = persistenceDirectoryPath;
+                    }
+                    else
+                    {
+                        repositoryManager.PersistenceDirectoryPath = PathExtensions.Combine(persistenceDirectoryPath, subDirectory);
+                    }
+
+                    var filePath = PathExtensions.Combine(repositoryManager.PersistenceDirectoryPath, fileName);
+                    try
+                    {
+                        if (System.IO.File.Exists(filePath) == true)
+                        {
+                            System.IO.File.Delete(filePath);
+                            deleteResult.Result = true;
+                        }
+                        else
+                        {
+                            result = NotFound();
+                            deleteResult.Message = $"파일을 찾을 수 없습니다. fileName - '{fileName}', subDirectory - '{subDirectory}'";
+                        }
+                    }
+                    catch (Exception exception)
+                    {
+                        result = StatusCode(StatusCodes.Status500InternalServerError, exception.ToMessage());
+                        deleteResult.Message = $"파일을 삭제 중 오류가 발생했습니다. fileName - '{fileName}', subDirectory - '{subDirectory}', message - '{exception.Message}'";
+                        logger.Error("[{LogCategory}] " + $"{deleteResult.Message} - {exception.ToMessage()}", "StorageController/VirtualFileDownload");
+                    }
+                    break;
             }
 
             Response.Headers.Append("Access-Control-Expose-Headers", "FileModelType, FileResult");
@@ -2242,12 +2184,14 @@ namespace repository.Controllers
                     var relativeDirectoryUrlPath = string.IsNullOrEmpty(relativeDirectoryPath) == true ? "" : relativeDirectoryPath;
                     relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.Substring(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
 
-                    BlobContainerClient? container = null;
-                    var hasContainer = false;
-                    if (repository.StorageType == "AzureBlob")
+                    var storageProvider = storageProviderFactory.Create(repository, repositoryItem.CustomPath1, repositoryItem.CustomPath2, repositoryItem.CustomPath3);
+                    if (storageProvider == null)
                     {
-                        container = new BlobContainerClient(repository.BlobConnectionString, repository.BlobContainerID.ToLower());
-                        hasContainer = await container.ExistsAsync();
+                        var errorText = $"ApplicationID: {repository.ApplicationID}, RepositoryID: {repository.RepositoryID}, StorageType: {repository.StorageType} 확인 필요";
+                        logger.Warning("[{LogCategory}] " + errorText, "StorageController/RemoveItem");
+
+                        jsonContentResult.Message = errorText;
+                        return Content(JsonConvert.SerializeObject(jsonContentResult), "application/json");
                     }
 
                     string deleteFileName;
@@ -2263,11 +2207,10 @@ namespace repository.Controllers
                     switch (repository.StorageType)
                     {
                         case "AzureBlob":
-                            if (container != null && hasContainer == true)
-                            {
-                                var blobID = relativeDirectoryUrlPath + deleteFileName;
-                                await container.DeleteBlobIfExistsAsync(blobID);
-                            }
+                        case "AwsS3":
+                        case "GoogleCloudStorage":
+                            var blobID = relativeDirectoryUrlPath + deleteFileName;
+                            await storageProvider.DeleteAsync(blobID);
                             break;
                         case "FileSystem":
                             repositoryManager.Delete(deleteFileName);
@@ -2352,20 +2295,23 @@ namespace repository.Controllers
                 {
                     var repositoryManager = new RepositoryManager();
 
-                    BlobContainerClient? container = null;
-                    var hasContainer = false;
-                    if (repository.StorageType == "AzureBlob")
-                    {
-                        container = new BlobContainerClient(repository.BlobConnectionString, repository.BlobContainerID.ToLower());
-                        hasContainer = await container.ExistsAsync();
-                    }
-
                     foreach (var repositoryItem in repositoryItems)
                     {
                         repositoryManager.PersistenceDirectoryPath = repositoryManager.GetRepositoryItemPath(repository, repositoryItem);
                         var relativeDirectoryPath = repositoryManager.GetRelativePath(repository, repositoryItem.CustomPath1, repositoryItem.CustomPath2, repositoryItem.CustomPath3);
                         var relativeDirectoryUrlPath = string.IsNullOrEmpty(relativeDirectoryPath) == true ? "" : relativeDirectoryPath;
                         relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.Substring(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
+
+
+                        var storageProvider = storageProviderFactory.Create(repository, repositoryItem.CustomPath1, repositoryItem.CustomPath2, repositoryItem.CustomPath3);
+                        if (storageProvider == null)
+                        {
+                            var errorText = $"ApplicationID: {repository.ApplicationID}, RepositoryID: {repository.RepositoryID}, StorageType: {repository.StorageType} 확인 필요";
+                            logger.Warning("[{LogCategory}] " + errorText, "StorageController/RemoveItems");
+
+                            jsonContentResult.Message = errorText;
+                            return Content(JsonConvert.SerializeObject(jsonContentResult), "application/json");
+                        }
 
                         string deleteFileName;
                         if (repository.IsFileNameEncrypt == true)
@@ -2380,11 +2326,10 @@ namespace repository.Controllers
                         switch (repository.StorageType)
                         {
                             case "AzureBlob":
-                                if (container != null && hasContainer == true)
-                                {
-                                    var blobID = relativeDirectoryUrlPath + deleteFileName;
-                                    await container.DeleteBlobIfExistsAsync(blobID);
-                                }
+                            case "AwsS3":
+                            case "GoogleCloudStorage":
+                                var blobID = relativeDirectoryUrlPath + deleteFileName;
+                                await storageProvider.DeleteAsync(blobID);
                                 break;
                             case "FileSystem":
                                 repositoryManager.Delete(deleteFileName);
@@ -2534,7 +2479,7 @@ namespace repository.Controllers
             return result;
         }
 
-        private async Task<ActionResult> ExecuteBlobFileDownload(DownloadResult downloadResult, string applicationID, string repositoryID, string itemID, string businessID)
+        private async Task<ActionResult> ExecuteObjectFileDownload(DownloadResult downloadResult, string applicationID, string repositoryID, string itemID, string businessID)
         {
             ActionResult result = NotFound();
 
@@ -2586,8 +2531,13 @@ namespace repository.Controllers
             var relativeDirectoryUrlPath = string.IsNullOrEmpty(relativeDirectoryPath) == true ? "" : relativeDirectoryPath;
             relativeDirectoryUrlPath = relativeDirectoryUrlPath.Length <= 1 ? "" : relativeDirectoryUrlPath.Substring(relativeDirectoryUrlPath.Length - 1) == "/" ? relativeDirectoryUrlPath : relativeDirectoryUrlPath + "/";
 
-            var container = new BlobContainerClient(repository.BlobConnectionString, repository.BlobContainerID.ToLower());
-            await container.CreateIfNotExistsAsync(PublicAccessType.Blob);
+            var storageProvider = storageProviderFactory.Create(repository, repositoryItem.CustomPath1, repositoryItem.CustomPath2, repositoryItem.CustomPath3);
+            if (storageProvider == null)
+            {
+                downloadResult.Message = $"ApplicationID: {repository.ApplicationID}, RepositoryID: {repository.RepositoryID}, StorageType: {repository.StorageType} 확인 필요";
+                result = StatusCode(StatusCodes.Status400BadRequest, downloadResult.Message);
+                return result;
+            }
 
             string fileName;
             if (repository.IsFileNameEncrypt == true)
@@ -2600,12 +2550,9 @@ namespace repository.Controllers
             }
 
             var blobID = relativeDirectoryUrlPath + fileName;
-
-            var blob = container.GetBlobClient(blobID);
-            if (await blob.ExistsAsync() == true)
+            if (await storageProvider.FileExistsAsync(blobID) == true)
             {
-                BlobDownloadInfo blobDownloadInfo = await blob.DownloadAsync();
-
+                var downloadResultData = await storageProvider.DownloadAsync(blobID);
                 string downloadFileName;
                 if (string.IsNullOrEmpty(Path.GetExtension(repositoryItem.FileName)) == true && string.IsNullOrEmpty(repositoryItem.Extension) == false)
                 {
@@ -2616,7 +2563,7 @@ namespace repository.Controllers
                     downloadFileName = repositoryItem.FileName;
                 }
 
-                result = File(blobDownloadInfo.Content, repositoryItem.MimeType, downloadFileName, true);
+                result = File(downloadResultData.Content, repositoryItem.MimeType, downloadFileName, true);
 
                 downloadResult.FileName = downloadFileName;
                 downloadResult.MimeType = repositoryItem.MimeType;
