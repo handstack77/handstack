@@ -82,8 +82,8 @@ ENTRYPOINT ["edgeproxy"]
 
 # Docker 빌드 및 실행 명령
 # docker build -t myapp:1.0.0 -f Dockerfile .
-# docker run -d --name myapp-1.0.0 -p 8000:8080 -v %cd%\contracts:/opt/handstack/contracts -v %cd%\log:/opt/handstack/log -v %cd%\modules:/opt/handstack/modules -v %cd%\sqlite:/opt/handstack/sqlite -v %cd%\storage:/opt/handstack/storage myapp:1.0.0
-# docker run -d --name myapp-1.0.0 -p 8000:8080 myapp:1.0.0
+# docker run -d --name myapp-1.0.0 -p 8421:8421 -v %cd%\contracts:/opt/handstack/contracts -v %cd%\log:/opt/handstack/log -v %cd%\modules:/opt/handstack/modules -v %cd%\sqlite:/opt/handstack/sqlite -v %cd%\storage:/opt/handstack/storage myapp:1.0.0
+# docker run -d --name myapp-1.0.0 -p 8421:8421 myapp:1.0.0
 # docker exec -it myapp-1.0.0 /bin/bash
 # docker cp myapp-1.0.0:/opt/handstack/modules .
 # docker cp ./modules myapp-1.0.0:/opt/handstack/modules

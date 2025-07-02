@@ -175,7 +175,7 @@ class Module {
 }
 
 Module.ancestor = Object;
-Module.version = 'v2025.3.12';
+Module.version = 'v2025.7.3';
 
 const syn = { Module };
 syn.Config = {
@@ -210,7 +210,7 @@ syn.Config = {
         ServerType: 'D',
         Protocol: 'http',
         IP: 'localhost',
-        Port: '8000',
+        Port: '8421',
         Path: '/transact/api/transaction/execute',
         ClientIP: 'localhost'
     },

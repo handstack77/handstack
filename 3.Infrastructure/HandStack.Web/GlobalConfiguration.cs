@@ -91,7 +91,7 @@ namespace HandStack.Web
         public static int UserSignExpire = 720;
         public static string CookiePrefixName = "";
         public static string ServerLocalIP = "127.0.0.1";
-        public static int ServerPort = 8000;
+        public static int ServerPort = 8421;
         public static int ServerDevCertSslPort = 8443;
         public static string ServerDevCertFilePath = "";
         public static string? ServerDevCertPassword;

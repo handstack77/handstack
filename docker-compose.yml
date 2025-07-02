@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8000:8000"
+      - "8421:8421"
     volumes:
       - ./contracts:/opt/handstack/contracts
       - ./log:/opt/handstack/log
