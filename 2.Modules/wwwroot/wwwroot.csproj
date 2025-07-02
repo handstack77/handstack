@@ -83,7 +83,11 @@
         </Content>
         <Compile Remove="Contracts/function/**" />
     </ItemGroup>
-
+    
+    <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+        <MakeDir Condition="!Exists('$(TargetDir)\wwwroot\lib')" Directories="$(TargetDir)\wwwroot\lib" />
+    </Target>
+    
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
         <Exec Condition="'$(OS)'=='Windows_NT'" Command="DEL $(TargetDir)HandStack.*&#xD;&#xA;(robocopy $(TargetDir) $(HANDSTACK_SRC)/../build/handstack/modules/wwwroot /mir /copy:dat /xd $(TargetDir)wwwroot\lib) ^&amp; IF %25ERRORLEVEL%25 LEQ 1 exit 0" />
         <Exec Condition="'$(OS)'!='Windows_NT'" Command="$(ProjectDir)post-build.sh $(TargetDir) $(ConfigurationName) $(PlatformName) $(ProjectDir)" />
