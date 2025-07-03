@@ -1,12 +1,10 @@
 ﻿using System;
 using System.IO;
-using System.Reflection.Metadata;
 using System.Threading.Tasks;
 
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 
-using HandStack.Core.ExtensionMethod;
 using HandStack.Web.Entity;
 
 using repository.Entity;
@@ -28,7 +26,7 @@ namespace repository.Extensions
             await containerClient.DeleteBlobIfExistsAsync(blobID);
         }
 
-        public async Task<StorageDownloadResult> DownloadAsync(string blobID)
+        public async Task<StorageDownloadResult?> DownloadAsync(string blobID)
         {
             var blobClient = containerClient.GetBlobClient(blobID);
             if (!await blobClient.ExistsAsync())
@@ -84,7 +82,7 @@ namespace repository.Extensions
             }
 
             string newBlobID;
-            int i = 1;
+            var i = 1;
             var extension = Path.GetExtension(blobID);
             var baseBlobID = blobID.Substring(0, blobID.Length - extension.Length);
 

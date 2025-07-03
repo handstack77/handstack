@@ -45,7 +45,7 @@ namespace repository.Extensions
             await s3Client.DeleteObjectAsync(deleteRequest);
         }
 
-        public async Task<StorageDownloadResult> DownloadAsync(string blobID)
+        public async Task<StorageDownloadResult?> DownloadAsync(string blobID)
         {
             var request = new GetObjectRequest
             {
@@ -117,8 +117,8 @@ namespace repository.Extensions
             };
             var metadataResponse = await s3Client.GetObjectMetadataAsync(metadataRequest);
 
-            DateTime? lastModifiedTime = metadataResponse.LastModified?.ToLocalTime();
-            DateTime? createdTime = lastModifiedTime;
+            var lastModifiedTime = metadataResponse.LastModified?.ToLocalTime();
+            var createdTime = lastModifiedTime;
 
             return (createdTime, lastModifiedTime);
         }
@@ -131,7 +131,7 @@ namespace repository.Extensions
             }
 
             string newBlobID;
-            int i = 1;
+            var i = 1;
             var extension = Path.GetExtension(blobID);
             var baseBlobID = blobID.Substring(0, blobID.Length - extension.Length);
 

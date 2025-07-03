@@ -31,23 +31,25 @@ namespace repository.Extensions
             return Task.CompletedTask;
         }
 
-        public Task<StorageDownloadResult> DownloadAsync(string blobID)
+        public Task<StorageDownloadResult?> DownloadAsync(string blobID)
         {
             var filePath = repositoryManager.GetSavePath(blobID);
             if (!File.Exists(filePath))
             {
-                return Task.FromResult<StorageDownloadResult>(null);
+                return Task.FromResult<StorageDownloadResult?>(null);
             }
 
             var fileInfo = new FileInfo(filePath);
             var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
 
+#pragma warning disable CS8619
             return Task.FromResult(new StorageDownloadResult
             {
                 Content = stream,
                 ContentType = MimeHelper.GetMimeType(Path.GetFileName(filePath)) ?? "application/octet-stream",
                 ContentLength = fileInfo.Length
             });
+#pragma warning restore CS8619
         }
 
         public Task<bool> FileExistsAsync(string blobID)
@@ -76,7 +78,7 @@ namespace repository.Extensions
                 await content.CopyToAsync(fileStream);
             }
 
-            FileInfo fileInfo = new FileInfo(filePath);
+            var fileInfo = new FileInfo(filePath);
             return (fileInfo.CreationTime, fileInfo.LastWriteTime);
         }
 

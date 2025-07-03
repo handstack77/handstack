@@ -67,6 +67,12 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
         gulp
     )
 
+    REM 솔루션 빌드
+    cd %current_path%
+	echo current_path: %current_path%
+
+    dotnet build handstack.sln
+
     REM CLI 빌드 및 lib.zip 해제
     cd %current_path%
     if not exist %current_path%\2.Modules\wwwroot\wwwroot\lib (
@@ -103,12 +109,6 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
         echo syn.controls, syn.scripts, syn.bundle 번들링을 시작합니다...
         gulp
     )
-
-    REM 솔루션 빌드 및 Function 모듈 설치
-    cd %current_path%
-	echo current_path: %current_path%
-
-    dotnet build handstack.sln
 
     cd %current_path%
     robocopy %current_path%\2.Modules\function %HANDSTACK_SRC%\..\build\handstack package*.* /copy:dat

@@ -80,7 +80,7 @@ namespace ack
             this.environment = environment;
         }
 
-        public void ConfigureServices(IServiceCollection services)
+        public async Task ConfigureServices(IServiceCollection services)
         {
             var appSettings = configuration.GetSection("AppSettings");
             if (appSettings.GetSection("ApplicationID").Value == null)
@@ -618,7 +618,7 @@ namespace ack
                 }
             }
 
-            services.AddModules();
+            await services.AddModules();
             services.AddCustomizedMvc(GlobalConfiguration.Modules);
 
             var homePath = new DirectoryInfo(GlobalConfiguration.EntryBasePath).Parent?.FullName.Replace("\\", "/");

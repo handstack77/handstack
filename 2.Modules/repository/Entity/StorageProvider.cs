@@ -15,7 +15,7 @@ namespace repository.Entity
     public interface IStorageProvider
     {
         Task<(DateTime?, DateTime?)> UploadAsync(string blobID, Stream content, string contentType);
-        Task<StorageDownloadResult> DownloadAsync(string blobID);
+        Task<StorageDownloadResult?> DownloadAsync(string blobID);
         Task DeleteAsync(string blobID);
         Task MoveAsync(string sourceBlobID, string destinationBlobID, string contentType);
         Task<bool> FileExistsAsync(string blobID);

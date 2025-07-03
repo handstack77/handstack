@@ -36,7 +36,7 @@ namespace repository.Extensions
             }
         }
 
-        public async Task<StorageDownloadResult> DownloadAsync(string blobID)
+        public async Task<StorageDownloadResult?> DownloadAsync(string blobID)
         {
             if (!await FileExistsAsync(blobID))
             {
@@ -81,8 +81,8 @@ namespace repository.Extensions
 
             var uploadedObject = await storageClient.UploadObjectAsync(bucketName, blobID, contentType, content);
 
-            DateTime? createdTime = uploadedObject.TimeCreatedDateTimeOffset?.LocalDateTime;
-            DateTime? updatedTime = uploadedObject.UpdatedDateTimeOffset?.LocalDateTime;
+            var createdTime = uploadedObject.TimeCreatedDateTimeOffset?.LocalDateTime;
+            var updatedTime = uploadedObject.UpdatedDateTimeOffset?.LocalDateTime;
 
             return (createdTime, updatedTime);
         }
@@ -106,7 +106,7 @@ namespace repository.Extensions
             }
 
             string newBlobID;
-            int i = 1;
+            var i = 1;
             var extension = Path.GetExtension(blobID);
             var baseBlobID = blobID.Substring(0, blobID.Length - extension.Length);
 
