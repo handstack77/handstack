@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Reflection.Metadata;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,7 +21,6 @@ using HandStack.Web.MessageContract.Message;
 
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 
@@ -34,8 +32,6 @@ using repository.Message;
 using repository.Services;
 
 using Serilog;
-
-using static System.Reflection.Metadata.BlobBuilder;
 
 namespace repository.Controllers
 {
@@ -263,7 +259,7 @@ namespace repository.Controllers
                     return result;
                 }
 
-                string sourceFileName = repository.IsFileNameEncrypt ? item.ItemID : item.FileName;
+                var sourceFileName = repository.IsFileNameEncrypt ? item.ItemID : item.FileName;
                 var sourceBlobID = relativeDirectoryUrlPath + sourceFileName;
 
                 isExistFile = await storageProvider.FileExistsAsync(sourceBlobID);
@@ -2553,6 +2549,12 @@ namespace repository.Controllers
             if (await storageProvider.FileExistsAsync(blobID) == true)
             {
                 var downloadResultData = await storageProvider.DownloadAsync(blobID);
+                if (downloadResultData == null)
+                {
+                    downloadResult.Message = $"파일을 찾을 수 없습니다. FileID - '{itemID}'";
+                    return NotFound();
+                }
+
                 string downloadFileName;
                 if (string.IsNullOrEmpty(Path.GetExtension(repositoryItem.FileName)) == true && string.IsNullOrEmpty(repositoryItem.Extension) == false)
                 {

@@ -105,7 +105,7 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
         echo syn.bundle.js 모듈 %current_path%\2.Modules\wwwroot\package.json 설치를 시작합니다...
         cd %current_path%\2.Modules\wwwroot
         call npm install
-        robocopy wwwroot\lib ..\..\1.WebHost\build\handstack\modules\wwwroot\wwwroot\lib /MIR
+        robocopy wwwroot\lib %HANDSTACK_SRC%\..\build\handstack\modules\wwwroot\wwwroot\lib /MIR
         echo syn.controls, syn.scripts, syn.bundle 번들링을 시작합니다...
         gulp
     )
