@@ -545,7 +545,7 @@ namespace repository.Controllers
                 {
                     try
                     {
-                        if (repository.UploadSizeLimit < ToFileLength(file.Length))
+                        if (repository.UploadSizeLimit < file.Length)
                         {
                             result.Message = repository.UploadSizeLimit.ToByteSize() + " 이상 업로드 할 수 없습니다";
                             return Content(JsonConvert.SerializeObject(result), "application/json");
@@ -858,7 +858,7 @@ namespace repository.Controllers
                         var fileName = string.IsNullOrEmpty(saveFileName) == true ? xFileName : saveFileName;
                         var fileLength = xFileSize.GetLong();
 
-                        if (repository.UploadSizeLimit < ToFileLength(fileLength))
+                        if (repository.UploadSizeLimit < fileLength)
                         {
                             result.Message = repository.UploadSizeLimit.ToByteSize() + " 이상 업로드 할 수 없습니다";
                             return Content(JsonConvert.SerializeObject(result), "application/json");
@@ -1220,7 +1220,7 @@ namespace repository.Controllers
                     }
                     else
                     {
-                        if (repository.UploadSizeLimit < ToFileLength(file.Length))
+                        if (repository.UploadSizeLimit < file.Length)
                         {
                             stringBuilder.AppendLine(scriptStart);
                             stringBuilder.AppendLine("alert('" + repository.UploadSizeLimit.ToCurrencyString() + "이상 업로드 할 수 없습니다');");
@@ -2709,26 +2709,5 @@ namespace repository.Controllers
             using var md5 = MD5.Create();
             return BitConverter.ToString(md5.ComputeHash(Encoding.UTF8.GetBytes(value))).Replace("-", string.Empty);
         }
-
-        private long ToFileLength(long fileLength)
-        {
-            long result = 0;
-            if (fileLength < 0)
-            {
-                fileLength = 0;
-            }
-
-            if (fileLength < 1048576.0)
-            {
-                result = (fileLength / 1024);
-            }
-            else if (fileLength < 1073741824.0)
-            {
-                result = (fileLength / 1024) / 1024;
-            }
-
-            return result;
-        }
-
     }
 }

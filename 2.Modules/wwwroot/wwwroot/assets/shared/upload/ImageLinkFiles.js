@@ -140,19 +140,27 @@ let $ImageLinkFiles = {
                     // 업로드된 아이템의 갯수만큼 FileDownload UI 항목를 화면에 추가합니다.
                     if (repositoryItems.length > 0) {
                         for (var i = 0; i < repositoryItems.length; i++) {
-                            repositoryItem = repositoryItems[i];
+                            var repositoryItem = repositoryItems[i];
+                            var listGroupItem = syn.$m.append(syn.$l.get('divFileInfos'), 'div', repositoryItem.ItemID);
+                            listGroupItem.className = 'list-group-item p-1';
 
-                            var li = syn.$m.append(syn.$l.get('divFileInfos'), 'li', repositoryItem.ItemID);
-                            var image = syn.$m.append(li, 'img', repositoryItem.ItemID + '_image');
-                            image.src = repositoryItem.AbsolutePath + (repositoryItem.AbsolutePath.indexOf('?') == -1 ? '?' : '&') + 'ext=' + repositoryItem.Extension;
-                            image.style.width = '64px';
-                            image.style.height = '64px';
+                            var row = syn.$m.append(listGroupItem, 'div');
+                            row.className = 'row align-items-center';
 
-                            var link = syn.$m.append(li, 'a', repositoryItem.ItemID + '_link');
-                            link.href = 'javascript: void(0)';
-                            link.downloadPath = repositoryItem.AbsolutePath + (repositoryItem.AbsolutePath.indexOf('?') == -1 ? '?' : '&') + 'ext=' + repositoryItem.Extension;
-                            link.download = repositoryItem.FileName;
-                            syn.$l.addEvent(link, 'click', function () {
+                            var colAvatar = syn.$m.append(row, 'div');
+                            colAvatar.className = 'col-auto';
+
+                            var avatarSpan = syn.$m.append(colAvatar, 'span');
+                            avatarSpan.className = 'avatar avatar-1';
+                            avatarSpan.style.backgroundImage = 'url(' + (repositoryItem.AbsolutePath + (repositoryItem.AbsolutePath.indexOf('?') == -1 ? '?' : '&') + 'ext=' + repositoryItem.Extension) + ')';
+
+                            var colText = syn.$m.append(row, 'div');
+                            colText.className = 'col text-truncate';
+
+                            var fileLink = syn.$m.append(colText, 'a', repositoryItem.ItemID + '_link');
+                            fileLink.downloadPath = repositoryItem.AbsolutePath + (repositoryItem.AbsolutePath.indexOf('?') == -1 ? '?' : '&') + 'ext=' + repositoryItem.Extension;
+                            fileLink.download = repositoryItem.FileName;
+                            syn.$l.addEvent(fileLink, 'click', function () {
                                 var downloadPath = this.downloadPath;
                                 var download = this.download;
                                 syn.$l.blobUrlToBlob(downloadPath, function (blob) {
@@ -160,12 +168,21 @@ let $ImageLinkFiles = {
                                 });
                                 return false;
                             });
-                            link.textContent = repositoryItem.FileName;
+                            fileLink.className = 'text-reset d-block';
+                            fileLink.textContent = repositoryItem.FileName;
 
-                            var span = syn.$m.append(li, 'span', repositoryItem.ItemID + '_span');
-                            syn.$l.addEvent(span, 'click', $this.event.btnAttachFileDelete_click);
-                            span.innerText = '삭제';
-                            span.item = repositoryItem;
+                            var descriptionDiv = syn.$m.append(colText, 'div');
+                            descriptionDiv.className = 'd-block text-secondary text-truncate mt-n1';
+                            descriptionDiv.textContent = `파일 크기: ${$number.toByteString(repositoryItem.Size)}`;
+
+                            var colDelete = syn.$m.append(row, 'div');
+                            colDelete.className = 'col-auto';
+
+                            var deleteIcon = syn.$m.append(colDelete, 'i');
+                            deleteIcon.className = 'font:20 mr:4 ti ti-x';
+                            deleteIcon.style.cursor = 'pointer';
+                            syn.$l.addEvent(deleteIcon, 'click', $this.event.btnAttachFileDelete_click);
+                            deleteIcon.item = repositoryItem;
                         }
                     }
                 }

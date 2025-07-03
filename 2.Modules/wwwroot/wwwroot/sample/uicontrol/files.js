@@ -124,7 +124,18 @@ let $files = {
         },
 
         btnMultiFileDownload_click() {
-            syn.uicontrols.$fileclient.fileDownload('txtMultiFileID');
+            const itemID = syn.$l.get('txtMultiItemID').value;
+            const setting = syn.uicontrols.$fileclient.getFileSetting('txtMultiFileID');
+            let options = {
+                repositoryID: setting.repositoryID,
+                itemID: itemID,
+                fileMD5: '',
+                tokenID: setting.tokenID,
+                applicationID: syn.uicontrols.$fileclient.applicationID,
+                businessID: syn.uicontrols.$fileclient.businessID
+            };
+
+            syn.uicontrols.$fileclient.fileDownload(options);
         },
 
         fleMultiFile_Callback(action, result) {

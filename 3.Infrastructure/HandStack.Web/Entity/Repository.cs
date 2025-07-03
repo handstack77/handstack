@@ -58,7 +58,7 @@
 
         public int UploadCount { get; set; } = 0;
 
-        public int UploadSizeLimit { get; set; } = 0;
+        public long UploadSizeLimit { get; set; } = 0;
 
         public bool IsLocalDbFileManaged { get; set; } = false;
 

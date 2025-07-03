@@ -66,7 +66,7 @@
             "UploadTypeID": "ImageLink",
             "UploadExtensions": "gif;jpg;jpeg;png;bmp",
             "UploadCount": 30,
-            "UploadSizeLimit": 20480,
+            "UploadSizeLimit": 20971520,
             "IsLocalDbFileManaged": true,
             "SQLiteConnectionString": "URI=file:{appBasePath}/.managed/sqlite/storage.db;Journal Mode=Off;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;",
             "TransactionGetItem": "STR|SLT010|LD01",

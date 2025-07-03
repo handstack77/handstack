@@ -1,4 +1,4 @@
-/// <reference path="/js/syn.js" />
+﻿/// <reference path="/js/syn.js" />
 
 (function (window) {
     syn.uicontrols = syn.uicontrols || new syn.module();
@@ -7730,7 +7730,7 @@
             convert_urls: false,
             isNumberTempDependency: true,
             height: 300,
-            imageFileSizeLimit: 300000,
+            imageFileSizeLimit: 6291456,
             viewerHtml: '<html><head><base href="/"><style type="text/css">body { font-family: \'Noto Sans KR\', \'Pretendard\', \'Nanum Gothic\', \'Malgun Gothic\', Gulim, 굴림, sans-serif !important; font-size: 14px; }</style><link type="text/css" rel="stylesheet" href="/lib/tinymce/skins/ui/oxide/content.min.css"><link type="text/css" rel="stylesheet" href="/lib/tinymce/skins/content/default/content.min.css"></head><body id="tinymce" class="mce-content-body">{0}<script>document.onselectstart = function () { return false; }; document.oncontextmenu = function () { return false; }; document.addEventListener && document.addEventListener("click", function(e) {for (var elm = e.target; elm; elm = elm.parentNode) {if (elm.nodeName === "A" && !(e.ctrlKey && !e.altKey)) {e.preventDefault();}}}, false);</script></body></html>',
             language: 'ko_KR',
             // plugins: [

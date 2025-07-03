@@ -277,7 +277,7 @@ TransactionException:
                                         repository.UploadTypeID = uploadTypeID;
                                         repository.UploadExtensions = uploadExtensions;
                                         repository.UploadCount = uploadCount.ParseInt(0);
-                                        repository.UploadSizeLimit = uploadSizeLimit.ParseInt(0);
+                                        repository.UploadSizeLimit = uploadSizeLimit.ParseLong(0);
                                         repository.IsLocalDbFileManaged = isLocalDBFileManaged.ParseBool(false);
                                         repository.SQLiteConnectionString = sqliteConnectionString;
                                         repository.TransactionGetItem = transactionGetItem;
@@ -323,7 +323,7 @@ TransactionException:
                                         repository.UploadTypeID = uploadTypeID;
                                         repository.UploadExtensions = uploadExtensions;
                                         repository.UploadCount = uploadCount.ParseInt(0);
-                                        repository.UploadSizeLimit = uploadSizeLimit.ParseInt(0);
+                                        repository.UploadSizeLimit = uploadSizeLimit.ParseLong(0);
                                         repository.IsLocalDbFileManaged = isLocalDBFileManaged.ParseBool(false);
                                         repository.SQLiteConnectionString = sqliteConnectionString;
                                         repository.TransactionGetItem = transactionGetItem;
