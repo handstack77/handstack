@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
-using System.Threading.Tasks;
 
 using HandStack.Core.ExtensionMethod;
 using HandStack.Web.Entity;
@@ -14,7 +13,7 @@ namespace HandStack.Web.Modules
 {
     public class ModuleConfigurationManager : IModuleConfigurationManager
     {
-        public async Task<IEnumerable<ModuleInfo>> GetModulesAsync()
+        public IEnumerable<ModuleInfo> GetModules()
         {
             var modules = new List<ModuleInfo>();
             if (string.IsNullOrEmpty(GlobalConfiguration.LoadModuleBasePath) == true)
@@ -43,9 +42,9 @@ namespace HandStack.Web.Modules
                     var moduleSettingFilePath = PathExtensions.Combine(moduleBasePath, moduleSettingFile);
                     if (moduleID.IndexOf("|") > -1)
                     {
-                        string[] parts = moduleID.Split('|', StringSplitOptions.RemoveEmptyEntries);
+                        var parts = moduleID.Split('|', StringSplitOptions.RemoveEmptyEntries);
                         moduleID = parts[0];
-                        string fileUri = parts[1];
+                        var fileUri = parts[1];
 
                         if (fileUri.StartsWith("http://", StringComparison.OrdinalIgnoreCase) == true || fileUri.StartsWith("https://", StringComparison.OrdinalIgnoreCase) == true)
                         {
@@ -56,10 +55,10 @@ namespace HandStack.Web.Modules
                             request.Headers.Add("HandStack-HostName", GlobalConfiguration.HostName);
                             request.Headers.Add("HandStack-Environment", GlobalConfiguration.RunningEnvironment);
 
-                            using var response = await httpClient.SendAsync(request);
+                            using var response = httpClient.Send(request);
                             response.EnsureSuccessStatusCode();
 
-                            var secretData = await response.Content.ReadAsStringAsync();
+                            var secretData = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
                             var keyItem = JsonConvert.DeserializeObject<KeyItem>(secretData)!;
                             var content = keyItem.IsEncryption.ToBoolean() == true ? keyItem.Value.DecryptAES(keyItem.Key.PadRight(32, '0').Substring(0, 32)) : keyItem.Value;
 
