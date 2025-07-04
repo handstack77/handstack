@@ -155,12 +155,12 @@ namespace ack
             GlobalConfiguration.WebRootPath = environment.WebRootPath;
 
             GlobalConfiguration.TenantAppRequestPath = appSettings["TenantAppRequestPath"].ToStringSafe();
-            GlobalConfiguration.TenantAppBasePath = GlobalConfiguration.GetBasePath(appSettings["TenantAppBasePath"], $"{(string.IsNullOrEmpty(Environment.GetEnvironmentVariable("HANDSTACK_HOME")) == true ? ".." : Environment.GetEnvironmentVariable("HANDSTACK_HOME"))}{Path.DirectorySeparatorChar}tenants");
-            GlobalConfiguration.BatchProgramBasePath = GlobalConfiguration.GetBasePath(appSettings["BatchProgramBasePath"]);
-            GlobalConfiguration.CreateAppTempPath = GlobalConfiguration.GetBasePath(appSettings["CreateAppTempPath"]);
-            GlobalConfiguration.ForbesBasePath = GlobalConfiguration.GetBasePath(appSettings["ForbesBasePath"]);
-            GlobalConfiguration.LoadModuleBasePath = GlobalConfiguration.GetBasePath(appSettings["LoadModuleBasePath"]);
-            GlobalConfiguration.LoadContractBasePath = GlobalConfiguration.GetBasePath(PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "..", "contracts"));
+            GlobalConfiguration.TenantAppBasePath = GlobalConfiguration.GetBaseDirectoryPath(appSettings["TenantAppBasePath"], $"{(string.IsNullOrEmpty(Environment.GetEnvironmentVariable("HANDSTACK_HOME")) == true ? ".." : Environment.GetEnvironmentVariable("HANDSTACK_HOME"))}{Path.DirectorySeparatorChar}tenants");
+            GlobalConfiguration.BatchProgramBasePath = GlobalConfiguration.GetBaseDirectoryPath(appSettings["BatchProgramBasePath"]);
+            GlobalConfiguration.CreateAppTempPath = GlobalConfiguration.GetBaseDirectoryPath(appSettings["CreateAppTempPath"]);
+            GlobalConfiguration.ForbesBasePath = GlobalConfiguration.GetBaseDirectoryPath(appSettings["ForbesBasePath"]);
+            GlobalConfiguration.LoadModuleBasePath = GlobalConfiguration.GetBaseDirectoryPath(appSettings["LoadModuleBasePath"]);
+            GlobalConfiguration.LoadContractBasePath = GlobalConfiguration.GetBaseDirectoryPath(PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "..", "contracts"));
 
             var disposeTenantAppsFilePath = PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "dispose-tenantapps.log");
             if (File.Exists(disposeTenantAppsFilePath) == true)
@@ -681,7 +681,7 @@ namespace ack
                                     {
                                         foreach (var basePath in module.ContractBasePath)
                                         {
-                                            var moduleContractPath = GlobalConfiguration.GetBasePath(basePath);
+                                            var moduleContractPath = GlobalConfiguration.GetBaseDirectoryPath(basePath);
                                             if (moduleContractPath.StartsWith(GlobalConfiguration.LoadContractBasePath) == true)
                                             {
                                                 continue;

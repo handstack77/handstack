@@ -79,7 +79,7 @@ namespace HDS.Function.HFM
                     dataTableBuilder.AddColumn("resolved", typeof(string));
 
                     string packageLockFilePath = dataContext.functionHeader.Configuration?[$"{dataContext.platform}PackageLockFilePath"].ToStringSafe();
-                    packageLockFilePath = GlobalConfiguration.GetBasePath(packageLockFilePath);
+                    packageLockFilePath = GlobalConfiguration.GetBaseDirectoryPath(packageLockFilePath);
 
                     if (System.IO.File.Exists(packageLockFilePath) == true)
                     {

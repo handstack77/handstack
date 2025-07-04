@@ -69,7 +69,7 @@ namespace dbclient
                         ModuleConfiguration.IsContractFileWatching = moduleConfig.IsContractFileWatching;
                         foreach (var basePath in moduleConfig.ContractBasePath)
                         {
-                            ModuleConfiguration.ContractBasePath.Add(GlobalConfiguration.GetBasePath(basePath));
+                            ModuleConfiguration.ContractBasePath.Add(GlobalConfiguration.GetBaseDirectoryPath(basePath));
                         }
 
                         ModuleConfiguration.IsTransactionLogging = moduleConfig.IsTransactionLogging;

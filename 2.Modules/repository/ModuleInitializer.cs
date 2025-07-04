@@ -67,14 +67,14 @@ namespace repository
 
                         foreach (var basePath in moduleConfig.ContractBasePath)
                         {
-                            ModuleConfiguration.ContractBasePath.Add(GlobalConfiguration.GetBasePath(basePath));
+                            ModuleConfiguration.ContractBasePath.Add(GlobalConfiguration.GetBaseDirectoryPath(basePath));
                         }
 
-                        ModuleConfiguration.ModuleBasePath = GlobalConfiguration.GetBasePath(moduleConfig.ModuleBasePath);
-                        ModuleConfiguration.DatabaseContractPath = GlobalConfiguration.GetBasePath(moduleConfig.DatabaseContractPath, PathExtensions.Combine(ModuleConfiguration.ModuleBasePath, "Contracts", "dbclient"));
-                        ModuleConfiguration.ModuleLogFilePath = GlobalConfiguration.GetBasePath(moduleConfig.ModuleLogFilePath);
+                        ModuleConfiguration.ModuleBasePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.ModuleBasePath);
+                        ModuleConfiguration.DatabaseContractPath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.DatabaseContractPath, PathExtensions.Combine(ModuleConfiguration.ModuleBasePath, "Contracts", "dbclient"));
+                        ModuleConfiguration.ModuleLogFilePath = GlobalConfiguration.GetBaseFilePath(moduleConfig.ModuleLogFilePath);
                         ModuleConfiguration.IsModuleLogging = string.IsNullOrEmpty(moduleConfig.ModuleLogFilePath) == false;
-                        ModuleConfiguration.ModuleFilePath = GlobalConfiguration.GetBasePath(moduleConfig.ModuleFilePath);
+                        ModuleConfiguration.ModuleFilePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.ModuleFilePath);
 
                         ModuleConfiguration.AllowClientIP = moduleConfig.AllowClientIP;
                         ModuleConfiguration.IsConfigure = true;
@@ -295,7 +295,7 @@ namespace repository
             {
                 if (ModuleConfiguration.ContractBasePath.Count == 0)
                 {
-                    ModuleConfiguration.ContractBasePath.Add(GlobalConfiguration.GetBasePath($"../contracts/{ModuleConfiguration.ModuleID}"));
+                    ModuleConfiguration.ContractBasePath.Add(GlobalConfiguration.GetBaseDirectoryPath($"../contracts/{ModuleConfiguration.ModuleID}"));
                 }
 
                 foreach (var basePath in ModuleConfiguration.ContractBasePath)
@@ -324,7 +324,7 @@ namespace repository
                                         {
                                             if (repository.PhysicalPath.IndexOf("{appBasePath}") == -1)
                                             {
-                                                repository.PhysicalPath = GlobalConfiguration.GetBasePath(repository.PhysicalPath);
+                                                repository.PhysicalPath = GlobalConfiguration.GetBaseDirectoryPath(repository.PhysicalPath);
                                                 var repositoryDirectoryInfo = new DirectoryInfo(repository.PhysicalPath);
                                                 if (repositoryDirectoryInfo.Exists == false)
                                                 {
@@ -359,7 +359,7 @@ namespace repository
                                             {
                                                 if (repository.PhysicalPath.IndexOf("{appBasePath}") == -1)
                                                 {
-                                                    repository.PhysicalPath = GlobalConfiguration.GetBasePath(repository.PhysicalPath);
+                                                    repository.PhysicalPath = GlobalConfiguration.GetBaseDirectoryPath(repository.PhysicalPath);
                                                     var repositoryDirectoryInfo = new DirectoryInfo(repository.PhysicalPath);
                                                     if (repositoryDirectoryInfo.Exists == false)
                                                     {

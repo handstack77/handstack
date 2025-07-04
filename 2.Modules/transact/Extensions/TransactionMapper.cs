@@ -372,7 +372,7 @@ namespace transact.Extensions
             {
                 if (ModuleConfiguration.ContractBasePath.Count == 0)
                 {
-                    ModuleConfiguration.ContractBasePath.Add(GlobalConfiguration.GetBasePath($"../contracts/{ModuleConfiguration.ModuleID}"));
+                    ModuleConfiguration.ContractBasePath.Add(GlobalConfiguration.GetBaseDirectoryPath($"../contracts/{ModuleConfiguration.ModuleID}"));
                 }
 
                 foreach (var basePath in ModuleConfiguration.ContractBasePath)

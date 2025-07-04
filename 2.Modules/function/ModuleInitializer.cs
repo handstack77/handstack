@@ -87,7 +87,7 @@ namespace function
                         ModuleConfiguration.Version = moduleConfigJson.Version;
                         ModuleConfiguration.AuthorizationKey = string.IsNullOrEmpty(moduleConfig.AuthorizationKey) == false ? moduleConfig.AuthorizationKey : GlobalConfiguration.SystemID + GlobalConfiguration.RunningEnvironment + GlobalConfiguration.HostName;
                         ModuleConfiguration.IsBundledWithHost = moduleConfigJson.IsBundledWithHost;
-                        ModuleConfiguration.ModuleBasePath = GlobalConfiguration.GetBasePath(moduleConfig.ModuleBasePath);
+                        ModuleConfiguration.ModuleBasePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.ModuleBasePath);
                         ModuleConfiguration.BusinessServerUrl = moduleConfig.BusinessServerUrl;
                         ModuleConfiguration.CircuitBreakResetSecond = moduleConfig.CircuitBreakResetSecond;
                         ModuleConfiguration.IsLogServer = moduleConfig.IsLogServer;
@@ -95,7 +95,7 @@ namespace function
 
                         foreach (var basePath in moduleConfig.ContractBasePath)
                         {
-                            ModuleConfiguration.ContractBasePath.Add(GlobalConfiguration.GetBasePath(basePath));
+                            ModuleConfiguration.ContractBasePath.Add(GlobalConfiguration.GetBaseDirectoryPath(basePath));
                         }
 
                         ModuleConfiguration.IsTransactionLogging = moduleConfig.IsTransactionLogging;
@@ -106,9 +106,9 @@ namespace function
                             ModuleConfiguration.ModuleLogger = loggerConfiguration.CreateLogger();
                         }
 
-                        ModuleConfiguration.LocalStoragePath = GlobalConfiguration.GetBasePath(moduleConfig.NodeFunctionConfig.LocalStoragePath);
+                        ModuleConfiguration.LocalStoragePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.NodeFunctionConfig.LocalStoragePath);
                         ModuleConfiguration.LogMinimumLevel = moduleConfig.NodeFunctionConfig.LogMinimumLevel;
-                        ModuleConfiguration.NodeFunctionLogBasePath = GlobalConfiguration.GetBasePath(moduleConfig.NodeFunctionConfig.FileLogBasePath);
+                        ModuleConfiguration.NodeFunctionLogBasePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.NodeFunctionConfig.FileLogBasePath);
                         ModuleConfiguration.TimeoutMS = moduleConfig.NodeFunctionConfig.TimeoutMS;
                         ModuleConfiguration.IsSingleThread = moduleConfig.NodeFunctionConfig.IsSingleThread;
                         ModuleConfiguration.WatchGracefulShutdown = moduleConfig.NodeFunctionConfig.WatchGracefulShutdown;
@@ -120,13 +120,13 @@ namespace function
                         ModuleConfiguration.WatchFileNamePatterns = moduleConfig.NodeFunctionConfig.WatchFileNamePatterns;
 
                         ModuleConfiguration.CSharpEnableFileWatching = moduleConfig.CSharpFunctionConfig.EnableFileWatching;
-                        ModuleConfiguration.CSharpFunctionLogBasePath = GlobalConfiguration.GetBasePath(moduleConfig.CSharpFunctionConfig.FileLogBasePath);
+                        ModuleConfiguration.CSharpFunctionLogBasePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.CSharpFunctionConfig.FileLogBasePath);
                         ModuleConfiguration.CSharpWatchFileNamePatterns = moduleConfig.CSharpFunctionConfig.WatchFileNamePatterns;
 
                         ModuleConfiguration.EnablePythonDLL = moduleConfig.PythonFunctionConfig.EnablePythonDLL;
-                        ModuleConfiguration.PythonDLLFilePath = GlobalConfiguration.GetBasePath(moduleConfig.PythonFunctionConfig.PythonDLLFilePath);
+                        ModuleConfiguration.PythonDLLFilePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.PythonFunctionConfig.PythonDLLFilePath);
                         ModuleConfiguration.PythonEnableFileWatching = moduleConfig.PythonFunctionConfig.EnableFileWatching;
-                        ModuleConfiguration.PythonFunctionLogBasePath = GlobalConfiguration.GetBasePath(moduleConfig.PythonFunctionConfig.FileLogBasePath);
+                        ModuleConfiguration.PythonFunctionLogBasePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.PythonFunctionConfig.FileLogBasePath);
                         ModuleConfiguration.PythonWatchFileNamePatterns = moduleConfig.PythonFunctionConfig.WatchFileNamePatterns;
 
                         if (ModuleConfiguration.EnablePythonDLL == true)
@@ -209,7 +209,7 @@ namespace function
                     for (var i = 0; i < ModuleConfiguration.ContractBasePath.Count; i++)
                     {
                         var basePath = ModuleConfiguration.ContractBasePath[i];
-                        nodeEnvironmentVariables.Add($"SYN_ContractBasePath{i}", GlobalConfiguration.GetBasePath(basePath));
+                        nodeEnvironmentVariables.Add($"SYN_ContractBasePath{i}", GlobalConfiguration.GetBaseDirectoryPath(basePath));
                     }
 
                     if (Directory.Exists(ModuleConfiguration.NodeFunctionLogBasePath) == false)
@@ -217,9 +217,9 @@ namespace function
                         Directory.CreateDirectory(ModuleConfiguration.NodeFunctionLogBasePath);
                     }
 
-                    nodeEnvironmentVariables.Add("SYN_FileLogBasePath", GlobalConfiguration.GetBasePath(ModuleConfiguration.NodeFunctionLogBasePath));
+                    nodeEnvironmentVariables.Add("SYN_FileLogBasePath", GlobalConfiguration.GetBaseDirectoryPath(ModuleConfiguration.NodeFunctionLogBasePath));
                     nodeEnvironmentVariables.Add("SYN_LogMinimumLevel", ModuleConfiguration.LogMinimumLevel);
-                    nodeEnvironmentVariables.Add("SYN_LocalStoragePath", GlobalConfiguration.GetBasePath(ModuleConfiguration.LocalStoragePath));
+                    nodeEnvironmentVariables.Add("SYN_LocalStoragePath", GlobalConfiguration.GetBaseDirectoryPath(ModuleConfiguration.LocalStoragePath));
 
                     var nodeConfigFilePath = PathExtensions.Combine(module.BasePath, "node.config.json");
                     if (File.Exists(nodeConfigFilePath) == true)

@@ -78,12 +78,12 @@ namespace transact
                         ModuleConfiguration.IsContractFileWatching = moduleConfig.IsContractFileWatching;
                         foreach (var basePath in moduleConfig.ContractBasePath)
                         {
-                            ModuleConfiguration.ContractBasePath.Add(GlobalConfiguration.GetBasePath(basePath));
+                            ModuleConfiguration.ContractBasePath.Add(GlobalConfiguration.GetBaseDirectoryPath(basePath));
                         }
 
-                        ModuleConfiguration.ModuleBasePath = GlobalConfiguration.GetBasePath(moduleConfig.ModuleBasePath);
-                        ModuleConfiguration.DatabaseContractPath = GlobalConfiguration.GetBasePath(moduleConfig.DatabaseContractPath, PathExtensions.Combine(ModuleConfiguration.ModuleBasePath, "Contracts", "dbclient"));
-                        ModuleConfiguration.TransactionLogBasePath = GlobalConfiguration.GetBasePath(moduleConfig.TransactionLogBasePath);
+                        ModuleConfiguration.ModuleBasePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.ModuleBasePath);
+                        ModuleConfiguration.DatabaseContractPath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.DatabaseContractPath, PathExtensions.Combine(ModuleConfiguration.ModuleBasePath, "Contracts", "dbclient"));
+                        ModuleConfiguration.TransactionLogBasePath = GlobalConfiguration.GetBaseDirectoryPath(moduleConfig.TransactionLogBasePath);
 
                         ModuleConfiguration.PublicTransactions = moduleConfig.PublicTransactions;
                         ModuleConfiguration.PublicTransactions.ExtendExpiryTime(DateTime.Now.AddYears(10));

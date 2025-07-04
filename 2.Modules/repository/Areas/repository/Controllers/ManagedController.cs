@@ -123,7 +123,7 @@ namespace repository.Areas.repository.Controllers
                                             if (findRepository == null)
                                             {
                                                 repository.PhysicalPath = repository.PhysicalPath.Replace("{appBasePath}", appBasePath);
-                                                repository.PhysicalPath = GlobalConfiguration.GetBasePath(repository.PhysicalPath);
+                                                repository.PhysicalPath = GlobalConfiguration.GetBaseDirectoryPath(repository.PhysicalPath);
                                                 var repositoryDirectoryInfo = new DirectoryInfo(repository.PhysicalPath);
                                                 if (repositoryDirectoryInfo.Exists == false)
                                                 {
@@ -160,7 +160,7 @@ namespace repository.Areas.repository.Controllers
                                                 && x.RepositoryID == repository.RepositoryID) == null)
                                             {
                                                 repository.PhysicalPath = repository.PhysicalPath.Replace("{appBasePath}", appBasePath);
-                                                repository.PhysicalPath = GlobalConfiguration.GetBasePath(repository.PhysicalPath);
+                                                repository.PhysicalPath = GlobalConfiguration.GetBaseDirectoryPath(repository.PhysicalPath);
                                                 var repositoryDirectoryInfo = new DirectoryInfo(repository.PhysicalPath);
                                                 if (repositoryDirectoryInfo.Exists == false)
                                                 {
@@ -194,7 +194,7 @@ namespace repository.Areas.repository.Controllers
                                                     && x.RepositoryID == repository.RepositoryID) == null)
                                                 {
                                                     repository.PhysicalPath = repository.PhysicalPath.Replace("{appBasePath}", appBasePath);
-                                                    repository.PhysicalPath = GlobalConfiguration.GetBasePath(repository.PhysicalPath);
+                                                    repository.PhysicalPath = GlobalConfiguration.GetBaseDirectoryPath(repository.PhysicalPath);
                                                     var repositoryDirectoryInfo = new DirectoryInfo(repository.PhysicalPath);
                                                     if (repositoryDirectoryInfo.Exists == false)
                                                     {

@@ -118,7 +118,7 @@ namespace HandStack.Web
 
         public static string DefaultCulture => "ko-KR";
 
-        public static string GetBasePath(string? basePath, string? defaultPath = "")
+        public static string GetBaseDirectoryPath(string? basePath, string? defaultPath = "")
         {
             basePath = Environment.ExpandEnvironmentVariables(basePath.ToStringSafe());
             basePath = string.IsNullOrEmpty(basePath) == true ? "" : (basePath.StartsWith(".") == true ? Path.GetFullPath(basePath, EntryBasePath) : new DirectoryInfo(basePath).FullName.Replace("\\", "/"));
@@ -141,6 +141,35 @@ namespace HandStack.Web
                     if (string.IsNullOrEmpty(filePath) == false)
                     {
                         Directory.CreateDirectory(filePath);
+                    }
+                }
+            }
+            return basePath;
+        }
+
+        public static string GetBaseFilePath(string? basePath, string? defaultPath = "")
+        {
+            basePath = Environment.ExpandEnvironmentVariables(basePath.ToStringSafe());
+            basePath = string.IsNullOrEmpty(basePath) == true ? "" : (basePath.StartsWith(".") == true ? Path.GetFullPath(basePath, EntryBasePath) : new FileInfo(basePath).FullName.Replace("\\", "/"));
+            if (string.IsNullOrEmpty(basePath) == true && string.IsNullOrEmpty(defaultPath) == false)
+            {
+                basePath = defaultPath;
+            }
+
+            basePath = basePath.Replace("\\", "/");
+
+            if (string.IsNullOrEmpty(basePath) == false && File.Exists(basePath) == false)
+            {
+                try
+                {
+                    File.Create(basePath);
+                }
+                catch
+                {
+                    var filePath = Path.GetDirectoryName(basePath);
+                    if (string.IsNullOrEmpty(filePath) == false)
+                    {
+                        File.Create(filePath);
                     }
                 }
             }
