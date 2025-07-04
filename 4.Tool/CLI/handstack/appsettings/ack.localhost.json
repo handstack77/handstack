@@ -124,14 +124,5 @@
             "MaxRequestBodySize": 104857600,
             "KeepAliveTimeout": "00:02:00"
         }
-    },
-    "DataProtection": {
-        "ApplicationDiscriminator": "HandStack",
-        "KeyManagement": {
-            "XmlRepository": {
-                "Type": "FileSystemXmlRepository",
-                "Directory": "handstack-dataprotection.keys"
-            }
-        }
     }
 }

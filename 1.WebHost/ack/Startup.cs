@@ -408,6 +408,7 @@ namespace ack
                 options.HeaderName = "X-CSRF-TOKEN";
                 options.FormFieldName = "__RequestVerificationToken";
             });
+            services.AddDataProtection();
             services.AddRouting(options =>
             {
                 options.LowercaseUrls = true;

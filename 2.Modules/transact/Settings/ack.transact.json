@@ -123,14 +123,5 @@
             "MaxConcurrentUpgradedConnections": 100,
             "MaxRequestBodySize": 30000000
         }
-    },
-    "DataProtection": {
-        "ApplicationDiscriminator": "HandStack",
-        "KeyManagement": {
-            "XmlRepository": {
-                "Type": "FileSystemXmlRepository",
-                "Directory": "handstack-dataprotection.keys"
-            }
-        }
     }
 }
