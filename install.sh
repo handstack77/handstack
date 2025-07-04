@@ -127,7 +127,8 @@ if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
     tr -d '\r' < $current_path/4.Tool/CLI/handstack/build.sh > $current_path/4.Tool/CLI/handstack/build_fixed.sh && mv $current_path/4.Tool/CLI/handstack/build_fixed.sh $current_path/4.Tool/CLI/handstack/build.sh
     chmod +x $current_path/4.Tool/CLI/handstack/build.sh
 
-    dotnet build handstack.sln
+    # # tr -d '\r' < build.sh > build_fixed.sh && mv build_fixed.sh build.sh && chmod +x build.sh
+    ./build.sh
 
     cd $current_path
     cp $current_path/2.Modules/function/package*.* $HANDSTACK_SRC/../build/handstack/

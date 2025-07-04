@@ -71,7 +71,7 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
     cd %current_path%
 	echo current_path: %current_path%
 
-    dotnet build handstack.sln
+    call build.bat
 
     REM CLI 빌드 및 lib.zip 해제
     cd %current_path%
