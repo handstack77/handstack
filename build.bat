@@ -3,6 +3,7 @@ chcp 65001
 setlocal
 
 rem Clean previous builds
+dotnet restore handstack.sln
 dotnet clean handstack.sln
 
 rem Build Infrastructure projects first

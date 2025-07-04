@@ -6,6 +6,7 @@
 set -e
 
 echo "Cleaning previous builds..."
+dotnet restore handstack.sln
 dotnet clean handstack.sln
 
 echo "Building Infrastructure projects..."
