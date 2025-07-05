@@ -162,15 +162,15 @@ namespace HandStack.Web
             {
                 try
                 {
-                    File.Create(basePath);
-                }
-                catch
-                {
-                    var filePath = Path.GetDirectoryName(basePath);
-                    if (string.IsNullOrEmpty(filePath) == false)
+                    var directoryPath = Path.GetDirectoryName(basePath);
+                    if (string.IsNullOrEmpty(directoryPath) == false && Directory.Exists(directoryPath) == false)
                     {
-                        File.Create(filePath);
+                        Directory.CreateDirectory(directoryPath);
                     }
+                }
+                catch (Exception exception)
+                {
+                    Log.Error(exception, "[{LogCategory}] 파일 디렉토리 생성 확인 필요: {BasePath}", "GlobalConfiguration/GetBaseFilePath", basePath);
                 }
             }
             return basePath;
