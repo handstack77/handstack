@@ -427,7 +427,12 @@ namespace transact.Areas.transact.Controllers
             {
                 try
                 {
-                    result = Content(JsonConvert.SerializeObject(TransactionMapper.BusinessMappings), "application/json");
+                    var businessResults = TransactionMapper.BusinessMappings.Select(p => p.Key);
+                    var businessMaps = businessResults.ToList();
+                    if (businessMaps != null)
+                    {
+                        result = Content(JsonConvert.SerializeObject(businessMaps), "application/json");
+                    }
                 }
                 catch (Exception exception)
                 {

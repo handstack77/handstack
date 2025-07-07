@@ -269,7 +269,7 @@ namespace prompter.Areas.prompter.Controllers
             {
                 try
                 {
-                    var queryResults = PromptMapper.PromptMappings.Select(p => p.Value);
+                    var queryResults = PromptMapper.PromptMappings.Select(p => p.Key);
                     var promptMaps = queryResults.ToList();
                     if (promptMaps != null)
                     {

@@ -284,7 +284,7 @@ namespace function.Areas.function.Controllers
                 {
                     List<ModuleScriptMap>? statementMaps = null;
 
-                    var queryResults = FunctionMapper.ScriptMappings.Select(p => p.Value);
+                    var queryResults = FunctionMapper.ScriptMappings.Select(p => p.Key);
                     statementMaps = queryResults.ToList();
                     if (statementMaps != null)
                     {

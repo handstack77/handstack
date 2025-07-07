@@ -269,7 +269,7 @@ namespace dbclient.Areas.dbclient.Controllers
             {
                 try
                 {
-                    var queryResults = DatabaseMapper.StatementMappings.Select(p => p.Value);
+                    var queryResults = DatabaseMapper.StatementMappings.Select(p => p.Key);
                     var statementMaps = queryResults.ToList();
                     if (statementMaps != null)
                     {
