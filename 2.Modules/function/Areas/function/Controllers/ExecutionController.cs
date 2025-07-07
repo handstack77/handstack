@@ -282,10 +282,8 @@ namespace function.Areas.function.Controllers
             {
                 try
                 {
-                    List<ModuleScriptMap>? statementMaps = null;
-
                     var queryResults = FunctionMapper.ScriptMappings.Select(p => p.Key);
-                    statementMaps = queryResults.ToList();
+                    var statementMaps = queryResults.ToList();
                     if (statementMaps != null)
                     {
                         result = Content(JsonConvert.SerializeObject(statementMaps), "application/json");
