@@ -234,7 +234,7 @@ let $index = {
             var length = scheme.length;
             for (var i = 0; i < length; i++) {
                 var item = scheme[i];
-                columns.push([item.ColumnID, item.ColumnText, 100, item.HiddenYN, 'text', true, 'left']);
+                columns.push([item.ColumnID, item.ColumnText, 100, $string.toBoolean(item.HiddenYN), 'text', true, 'left']);
             }
 
             var settings = syn.uicontrols.$grid.getInitializeColumns({ columns: columns });
