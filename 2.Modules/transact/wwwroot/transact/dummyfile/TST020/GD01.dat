@@ -1,0 +1,36 @@
+[
+    {
+        "id": "FormData0",
+        "value": {
+            "NAME": "홍길동",
+            "EMPLOYEE_ID": "0003",
+            "NAME_ENG": "",
+            "NAME_CHI": "",
+            "USER_ID": "honggildong@handstack.kr",
+            "JOIN_YMD": "2025-01-01",
+            "RETIRE_YMD": "",
+            "IDENTITY_NO": "",
+            "EMPLOYEE_STATUS": "재직",
+            "SEX": "1",
+            "DEPARTMENT_NAME": "한국지점",
+            "MANAGER_YN": "Y",
+            "EXTENTION_NO": "0",
+            "POSITION": "부장",
+            "CELLUAR": "010-1234-1234",
+            "BIRTH_YMD": "1977-01-01",
+            "ZIP_CODE": "",
+            "ADDRESS": "",
+            "ADDRESS_OTHER": "",
+            "BANK_CODE": "",
+            "BANK_ACCOUNT": "",
+            "PASSWORD": "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5",
+            "START_DT": "출근시간: 08:30",
+            "END_DT": "퇴근시간: 17:30",
+            "FAX": "",
+            "COMMUTE_YN": "N",
+            "OUT_BUSINESS_YN": "N",
+            "APPROVE_BYPASS_YN": "N",
+            "EMAIL": "honggildong@handstack.kr"
+        }
+    }
+]
