@@ -1,26 +1,29 @@
 ALTER DATABASE CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE `{TableName}` (
-    `LogNo` int NOT NULL AUTO_INCREMENT COMMENT '로그순번',
-    `Acknowledge` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '거래구분',
-    `ApplicationID` varchar(36) CHARACTER SET utf8mb4 NULL COMMENT '어플리케이션ID',
-    `CreatedAt` varchar(50) CHARACTER SET utf8mb4 NULL COMMENT '입력일시',
-    `Flow` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '업무흐름',
-    `Format` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '데이터포맷',
-    `GlobalID` varchar(50) CHARACTER SET utf8mb4 NULL COMMENT '거래고유ID',
-    `Level` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '업무수준',
-    `Message` varchar(8000) CHARACTER SET utf8mb4 NULL COMMENT '로그메시지',
-    `ProgramName` varchar(50) CHARACTER SET utf8mb4 NULL COMMENT '프로그램',
-    `ProjectID` varchar(36) CHARACTER SET utf8mb4 NULL COMMENT '프로젝트ID',
-    `Properties` varchar(8000) CHARACTER SET utf8mb4 NULL COMMENT '추가속성',
-    `RunningEnvironment` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '실행환경',
-    `ServerID` varchar(30) CHARACTER SET utf8mb4 NULL COMMENT '서버ID',
-    `ServiceID` varchar(36) CHARACTER SET utf8mb4 NULL COMMENT '서비스ID',
-    `TransactionID` varchar(36) CHARACTER SET utf8mb4 NULL COMMENT '거래ID',
-    `Type` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '업무구분',
-    `UserID` varchar(36) CHARACTER SET utf8mb4 NULL COMMENT '입력자ID',
-    CONSTRAINT `PK_{TableName}` PRIMARY KEY (`LogNo`)
+    `LogNo` int NOT NULL AUTO_INCREMENT COMMENT '로그순번',
+    `Acknowledge` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '거래구분',
+    `ApplicationID` varchar(36) CHARACTER SET utf8mb4 NULL COMMENT '어플리케이션ID',
+    `CreatedAt` datetime CHARACTER SET utf8mb4 NULL COMMENT '입력일시',
+    `Flow` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '업무흐름',
+    `Format` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '데이터포맷',
+    `GlobalID` varchar(50) CHARACTER SET utf8mb4 NULL COMMENT '거래고유ID',
+    `Level` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '업무수준',
+    `Message` varchar(8000) CHARACTER SET utf8mb4 NULL COMMENT '로그메시지',
+    `ProgramName` varchar(50) CHARACTER SET utf8mb4 NULL COMMENT '프로그램',
+    `ProjectID` varchar(36) CHARACTER SET utf8mb4 NULL COMMENT '프로젝트ID',
+    `Properties` varchar(8000) CHARACTER SET utf8mb4 NULL COMMENT '추가속성',
+    `RunningEnvironment` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '실행환경',
+    `ServerID` varchar(30) CHARACTER SET utf8mb4 NULL COMMENT '서버ID',
+    `ServiceID` varchar(36) CHARACTER SET utf8mb4 NULL COMMENT '서비스ID',
+    `TransactionID` varchar(36) CHARACTER SET utf8mb4 NULL COMMENT '거래ID',
+    `Type` varchar(1) CHARACTER SET utf8mb4 NULL COMMENT '업무구분',
+    `UserID` varchar(36) CHARACTER SET utf8mb4 NULL COMMENT '입력자ID',
+    CONSTRAINT `PK_{TableName}` PRIMARY KEY (`LogNo`)
 ) CHARACTER SET=utf8mb4;
 
 CREATE INDEX IX_{TableName}_GlobalID
 ON `{TableName}` (`GlobalID`);
+
+CREATE INDEX IX_{TableName}_CreatedAt
+ON `{TableName}` (`CreatedAt` DESC);

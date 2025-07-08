@@ -1,24 +1,46 @@
 CREATE TABLE [{TableName}] (
-    [LogNo] int NOT NULL IDENTITY(1,1),
-    [Acknowledge] nvarchar(1) NULL,
-    [ApplicationID] nvarchar(36) NULL,
-    [CreatedAt] nvarchar(50) NULL,
-    [Flow] nvarchar(1) NULL,
-    [Format] nvarchar(1) NULL,
-    [GlobalID] nvarchar(50) NULL,
-    [Level] nvarchar(1) NULL,
-    [Message] nvarchar(max) NULL,
-    [ProgramName] nvarchar(50) NULL,
-    [ProjectID] nvarchar(36) NULL,
-    [Properties] nvarchar(max) NULL,
-    [RunningEnvironment] nvarchar(1) NULL,
-    [ServerID] nvarchar(30) NULL,
-    [ServiceID] nvarchar(36) NULL,
-    [TransactionID] nvarchar(36) NULL,
-    [Type] nvarchar(1) NULL,
-    [UserID] nvarchar(36) NULL,
-    CONSTRAINT [PK_{TableName}] PRIMARY KEY ([LogNo])
+    [LogNo] int NOT NULL IDENTITY(1,1),
+    [Acknowledge] nvarchar(1) NULL,
+    [ApplicationID] nvarchar(36) NULL,
+    [CreatedAt] datetime2 NULL,
+    [Flow] nvarchar(1) NULL,
+    [Format] nvarchar(1) NULL,
+    [GlobalID] nvarchar(50) NULL,
+    [Level] nvarchar(1) NULL,
+    [Message] nvarchar(max) NULL,
+    [ProgramName] nvarchar(50) NULL,
+    [ProjectID] nvarchar(36) NULL,
+    [Properties] nvarchar(max) NULL,
+    [RunningEnvironment] nvarchar(1) NULL,
+    [ServerID] nvarchar(30) NULL,
+    [ServiceID] nvarchar(36) NULL,
+    [TransactionID] nvarchar(36) NULL,
+    [Type] nvarchar(1) NULL,
+    [UserID] nvarchar(36) NULL,
+    CONSTRAINT [PK_{TableName}] PRIMARY KEY ([LogNo])
 );
 
-CREATE NONCLUSTERED INDEX IX_TransactLog_GlobalID
-ON [TransactLog] (GlobalID)
+EXEC sp_addextendedproperty @name = N'MS_Description', @value = N'로그순번', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'{TableName}', @level2type = N'COLUMN', @level2name = N'LogNo';
+EXEC sp_addextendedproperty @name = N'MS_Description', @value = N'거래구분', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'{TableName}', @level2type = N'COLUMN', @level2name = N'Acknowledge';
+EXEC sp_addextendedproperty @name = N'MS_Description', @value = N'어플리케이션ID', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'{TableName}', @level2type = N'COLUMN', @level2name = N'ApplicationID';
+EXEC sp_addextendedproperty @name = N'MS_Description', @value = N'입력일시', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'{TableName}', @level2type = N'COLUMN', @level2name = N'CreatedAt';
+EXEC sp_addextendedproperty @name = N'MS_Description', @value = N'업무흐름', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'{TableName}', @level2type = N'COLUMN', @level2name = N'Flow';
+EXEC sp_addextendedproperty @name = N'MS_Description', @value = N'데이터포맷', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'{TableName}', @level2type = N'COLUMN', @level2name = N'Format';
+EXEC sp_addextendedproperty @name = N'MS_Description', @value = N'거래고유ID', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'{TableName}', @level2type = N'COLUMN', @level2name = N'GlobalID';
+EXEC sp_addextendedproperty @name = N'MS_Description', @value = N'업무수준', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'{TableName}', @level2type = N'COLUMN', @level2name = N'Level';
+EXEC sp_addextendedproperty @name = N'MS_Description', @value = N'로그메시지', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'{TableName}', @level2type = N'COLUMN', @level2name = N'Message';
+EXEC sp_addextendedproperty @name = N'MS_Description', @value = N'프로그램', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'{TableName}', @level2type = N'COLUMN', @level2name = N'ProgramName';
+EXEC sp_addextendedproperty @name = N'MS_Description', @value = N'프로젝트ID', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'{TableName}', @level2type = N'COLUMN', @level2name = N'ProjectID';
+EXEC sp_addextendedproperty @name = N'MS_Description', @value = N'추가속성', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'{TableName}', @level2type = N'COLUMN', @level2name = N'Properties';
+EXEC sp_addextendedproperty @name = N'MS_Description', @value = N'실행환경', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'{TableName}', @level2type = N'COLUMN', @level2name = N'RunningEnvironment';
+EXEC sp_addextendedproperty @name = N'MS_Description', @value = N'서버ID', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'{TableName}', @level2type = N'COLUMN', @level2name = N'ServerID';
+EXEC sp_addextendedproperty @name = N'MS_Description', @value = N'서비스ID', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'{TableName}', @level2type = N'COLUMN', @level2name = N'ServiceID';
+EXEC sp_addextendedproperty @name = N'MS_Description', @value = N'거래ID', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'{TableName}', @level2type = N'COLUMN', @level2name = N'TransactionID';
+EXEC sp_addextendedproperty @name = N'MS_Description', @value = N'업무구분', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'{TableName}', @level2type = N'COLUMN', @level2name = N'Type';
+EXEC sp_addextendedproperty @name = N'MS_Description', @value = N'입력자ID', @level0type = N'SCHEMA', @level0name = N'dbo', @level1type = N'TABLE', @level1name = N'{TableName}', @level2type = N'COLUMN', @level2name = N'UserID';
+
+CREATE NONCLUSTERED INDEX IX_{TableName}_GlobalID
+ON [{TableName}] (GlobalID);
+
+CREATE NONCLUSTERED INDEX IX_{TableName}_CreatedAt
+ON [{TableName}] (CreatedAt DESC);

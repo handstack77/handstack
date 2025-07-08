@@ -1,45 +1,45 @@
 CREATE TABLE {TableName} (
-    -- 로그순번
-    "LogNo" INTEGER NOT NULL CONSTRAINT "PK_{TableName}" PRIMARY KEY AUTOINCREMENT,
+    -- 로그순번
+    "LogNo" INTEGER NOT NULL CONSTRAINT "PK_{TableName}" PRIMARY KEY AUTOINCREMENT,
 
-    -- 거래구분
-    "Acknowledge" TEXT NULL,
+    -- 거래구분
+    "Acknowledge" TEXT NULL,
 
-    -- 애플리케이션ID
-    "ApplicationID" TEXT NULL,
+    -- 애플리케이션ID
+    "ApplicationID" TEXT NULL,
 
-    -- 입력일시
-    "CreatedAt" TEXT NULL,
+    -- 입력일시
+    "CreatedAt" DATETIME NULL,
 
-    -- 업무흐름
-    "Flow" TEXT NULL,
+    -- 업무흐름
+    "Flow" TEXT NULL,
 
-    -- 데이터포맷
-    "Format" TEXT NULL,
+    -- 데이터포맷
+    "Format" TEXT NULL,
 
-    -- 거래고유ID
-    "GlobalID" TEXT NULL,
+    -- 거래고유ID
+    "GlobalID" TEXT NULL,
 
-    -- 업무수준
-    "Level" TEXT NULL,
+    -- 업무수준
+    "Level" TEXT NULL,
 
-    -- 로그메시지
-    "Message" TEXT NULL,
+    -- 로그메시지
+    "Message" TEXT NULL,
 
-    -- 프로그램
-    "ProgramName" TEXT NULL,
+    -- 프로그램
+    "ProgramName" TEXT NULL,
 
-    -- 프로젝트ID
-    "ProjectID" TEXT NULL,
+    -- 프로젝트ID
+    "ProjectID" TEXT NULL,
 
-    -- 추가속성
-    "Properties" TEXT NULL,
+    -- 추가속성
+    "Properties" TEXT NULL,
 
-    -- 실행환경
-    "RunningEnvironment" TEXT NULL,
+    -- 실행환경
+    "RunningEnvironment" TEXT NULL,
 
-    -- 서버ID
-    "ServerID" TEXT NULL,
+    -- 서버ID
+    "ServerID" TEXT NULL,
 
     -- 서비스ID
     "ServiceID" TEXT NULL,
@@ -56,3 +56,6 @@ CREATE TABLE {TableName} (
 
 CREATE INDEX IX_{TableName}_GlobalID
 ON {TableName} (GlobalID);
+
+CREATE INDEX IX_{TableName}_CreatedAt
+ON {TableName} (CreatedAt DESC);
