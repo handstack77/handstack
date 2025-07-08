@@ -166,31 +166,28 @@ namespace transact.Areas.transact.Controllers
                                 {
                                     foreach (var basePath in ModuleConfiguration.ContractBasePath)
                                     {
-                                        if (fileInfo.Name != "publicTransactions.json")
+                                        var itemPath = PathExtensions.Join(basePath, filePath);
+                                        if (System.IO.File.Exists(itemPath) == true)
                                         {
-                                            var itemPath = PathExtensions.Join(basePath, filePath);
-                                            if (System.IO.File.Exists(itemPath) == true)
+                                            var businessContract = BusinessContract.FromJson(System.IO.File.ReadAllText(itemPath));
+                                            if (businessContract != null)
                                             {
-                                                var businessContract = BusinessContract.FromJson(System.IO.File.ReadAllText(itemPath));
-                                                if (businessContract != null)
+                                                if (businessContracts.ContainsKey(itemPath) == true)
                                                 {
-                                                    if (businessContracts.ContainsKey(itemPath) == true)
-                                                    {
-                                                        businessContracts.Remove(itemPath);
-                                                    }
-
-                                                    fileInfo = new FileInfo(itemPath);
-                                                    businessContract.ApplicationID = string.IsNullOrEmpty(businessContract.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : businessContract.ApplicationID;
-                                                    businessContract.ProjectID = string.IsNullOrEmpty(businessContract.ProjectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : businessContract.ProjectID;
-                                                    businessContract.TransactionID = string.IsNullOrEmpty(businessContract.TransactionID) == true ? fileInfo.Name.Replace(fileInfo.Extension, "") : businessContract.TransactionID;
-                                                    businessContract.TransactionProjectID = string.IsNullOrEmpty(businessContract.TransactionProjectID) == true ? businessContract.ProjectID : businessContract.TransactionProjectID;
-
-                                                    businessContracts.Add(itemPath, businessContract, TimeSpan.FromDays(36500));
-
-                                                    logger.Information("[{LogCategory}] " + $"Add Contract FilePath: {itemPath}", "Transaction/Refresh");
-                                                    actionResult = true;
-                                                    break;
+                                                    businessContracts.Remove(itemPath);
                                                 }
+
+                                                fileInfo = new FileInfo(itemPath);
+                                                businessContract.ApplicationID = string.IsNullOrEmpty(businessContract.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : businessContract.ApplicationID;
+                                                businessContract.ProjectID = string.IsNullOrEmpty(businessContract.ProjectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : businessContract.ProjectID;
+                                                businessContract.TransactionID = string.IsNullOrEmpty(businessContract.TransactionID) == true ? fileInfo.Name.Replace(fileInfo.Extension, "") : businessContract.TransactionID;
+                                                businessContract.TransactionProjectID = string.IsNullOrEmpty(businessContract.TransactionProjectID) == true ? businessContract.ProjectID : businessContract.TransactionProjectID;
+
+                                                businessContracts.Add(itemPath, businessContract, TimeSpan.FromDays(36500));
+
+                                                logger.Information("[{LogCategory}] " + $"Add Contract FilePath: {itemPath}", "Transaction/Refresh");
+                                                actionResult = true;
+                                                break;
                                             }
                                         }
                                     }
