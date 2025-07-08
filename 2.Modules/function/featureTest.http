@@ -1,5 +1,5 @@
 # curl -f -L -o ijhttp.zip "https://jb.gg/ijhttp/latest"
-# ijhttp -L VERBOSE function-test.http
+# ijhttp -L VERBOSE featureTest.http
 
 POST /function/api/function/execute?accessToken=&loadOptions[option1]=value1&featureMeta.Timeout=0&globalID=blabla&featureSQLPath=C:\projects\qcn.qramework\modules\filehub\Contracts\function\csharp\HDS\FHB\SYS010\featureSQL.xml&dataProvider=SqlServer&connectionString=Data Source=localhost;TrustServerCertificate=True;Initial Catalog=master;User ID=sa;Password=Strong@Passw0rd;&platform=Windows&functionID=FHB.SYS010.GF01 HTTP/1.1
 Host: localhost:8421

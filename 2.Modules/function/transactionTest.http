@@ -1,0 +1,76 @@
+# curl -f -L -o ijhttp.zip "https://jb.gg/ijhttp/latest"
+# ijhttp -L VERBOSE transactionTest.http
+
+POST /function/api/execution HTTP/1.1
+Host: localhost:8421
+Content-Type: application/json
+Cookie: X-CSRF-TOKEN=CfDJ8MppmXPORONHvpu0Y2DyWryhJe6GrMIrGakRzHYX4kv4xduffgSRoYE-oyCEk13k5Klm-APUA38a9Iar1wSTVdu_IXC9oGpoOsA70-I7ydYxaSAODdVjGW9jlZ5eZFh9rOj8ElYi-7aPiuB0Emt_3sQ
+Content-Length: 2054
+
+{
+    "ClientTag": "",
+    "AccessToken": "",
+    "Version": "001",
+    "RequestID": "HDSHEDHED010GF01D20230821133753804DP0",
+    "LoadOptions": {
+        "encryptionType": "P",
+        "encryptionKey": "G",
+        "platform": "Win32",
+        "dynamic": "Y",
+        "authorize": "N",
+        "commandType": "F",
+        "returnType": "Json",
+        "transactionScope": "N",
+        "transactionLog": "Y"
+    },
+    "Action": "SYN",
+    "Environment": "D",
+    "ReturnType": 0,
+    "GlobalID": "HDSHEDHED010GF01D20230821133753804DP0",
+    "IsTransaction": false,
+    "DynamicObjects": [
+        {
+            "QueryID": "HDS|HED|HED010|GF0100",
+            "JsonObject": 0,
+            "JsonObjects": [
+                0,
+                1
+            ],
+            "Parameters": [
+                {
+                    "ParameterName": "UserWorkID",
+                    "Value": "3qmbxyhc",
+                    "DbType": "String",
+                    "Length": -1
+                },
+                {
+                    "ParameterName": "ApplicationID",
+                    "Value": "9ysztou4",
+                    "DbType": "String",
+                    "Length": -1
+                },
+                {
+                    "ParameterName": "ApplicationNo",
+                    "Value": "08dbcde8520ce00cca91a85e00064bf7",
+                    "DbType": "String",
+                    "Length": -1
+                },
+                {
+                    "ParameterName": "UserNo",
+                    "Value": "08db77a3cba70039ca91a82878021905",
+                    "DbType": "String",
+                    "Length": -1
+                },
+                {
+                    "ParameterName": "DataProvider",
+                    "Value": "SqlServer",
+                    "DbType": "String",
+                    "Length": -1
+                }
+            ],
+            "DecryptParameters": [],
+            "BaseFieldMappings": [],
+            "IgnoreResult": false
+        }
+    ]
+}
