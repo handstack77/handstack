@@ -1,5 +1,4 @@
-ALTER DATABASE CHARACTER SET utf8mb4;
-
+ALTER DATABASE CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE `{TableName}` (
     `LogNo` int NOT NULL AUTO_INCREMENT COMMENT '로그순번',
@@ -22,3 +21,6 @@ CREATE TABLE `{TableName}` (
     `UserID` varchar(36) CHARACTER SET utf8mb4 NULL COMMENT '입력자ID',
     CONSTRAINT `PK_{TableName}` PRIMARY KEY (`LogNo`)
 ) CHARACTER SET=utf8mb4;
+
+CREATE INDEX IX_{TableName}_GlobalID
+ON `{TableName}` (`GlobalID`);

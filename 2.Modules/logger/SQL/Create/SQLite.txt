@@ -54,4 +54,5 @@ CREATE TABLE {TableName} (
     "UserID" TEXT NULL
 );
 
-
+CREATE INDEX IX_{TableName}_GlobalID
+ON {TableName} (GlobalID);

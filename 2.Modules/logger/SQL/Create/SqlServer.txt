@@ -1,5 +1,5 @@
 CREATE TABLE [{TableName}] (
-    [LogNo] int NOT NULL IDENTITY,
+    [LogNo] int NOT NULL IDENTITY(1,1),
     [Acknowledge] nvarchar(1) NULL,
     [ApplicationID] nvarchar(36) NULL,
     [CreatedAt] nvarchar(50) NULL,
@@ -19,3 +19,6 @@ CREATE TABLE [{TableName}] (
     [UserID] nvarchar(36) NULL,
     CONSTRAINT [PK_{TableName}] PRIMARY KEY ([LogNo])
 );
+
+CREATE NONCLUSTERED INDEX IX_TransactLog_GlobalID
+ON [TransactLog] (GlobalID)

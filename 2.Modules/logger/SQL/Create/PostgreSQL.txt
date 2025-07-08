@@ -20,3 +20,5 @@ CREATE TABLE {TableName} (
     CONSTRAINT "PK_{TableName}" PRIMARY KEY ("LogNo")
 );
 
+CREATE INDEX IX_{TableName}_GlobalID
+ON {TableName} (GlobalID);
