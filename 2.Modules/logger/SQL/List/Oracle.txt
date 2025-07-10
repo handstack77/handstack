@@ -2,6 +2,7 @@ SELECT TL.LogNo
     , TL.ServerID
     , TL.RunningEnvironment
     , TL.GlobalID
+    , TL.ProgramName
     , TL.ApplicationID
     , TL.ProjectID
     , TL.TransactionID
@@ -23,4 +24,4 @@ WHERE CASE WHEN @GlobalID = '' THEN @GlobalID ELSE TL.GlobalID END = @GlobalID
 	AND CASE WHEN @ServiceID = '' THEN @ServiceID ELSE TL.ServiceID END = @ServiceID
 	AND TL.CreatedAt BETWEEN @StartedAt AND @EndedAt
 ORDER BY TL.LogNo DESC
-LIMIT 300;
+LIMIT 500;

@@ -1,7 +1,8 @@
-SELECT TOP 300 TL.LogNo
+SELECT TOP 500 TL.LogNo
     , TL.ServerID
     , TL.RunningEnvironment
     , TL.GlobalID
+    , TL.ProgramName
     , TL.ApplicationID
     , TL.ProjectID
     , TL.TransactionID
