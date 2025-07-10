@@ -326,17 +326,18 @@
                             });
                         }
 
-                        if (gridHookEvents.includes('afterSelectionEnd') == true && gridHookEvents.indexOf('cellClick') == -1) {
-                            AUIGrid.bind(gridID, 'cellClick', function (evt) {
+                        if (gridHookEvents.includes('afterSelectionEnd') == true && gridHookEvents.indexOf('selectionChange') == -1) {
+                            AUIGrid.bind(gridID, 'selectionChange', function (evt) {
                                 var mod = window[syn.$w.pageScript];
                                 var eventHandler = mod.event ? mod.event['{0}_{1}'.format(elID, 'afterSelectionEnd')] : null;
                                 if (eventHandler) {
-                                    var rowIndex = evt.rowIndex;
-                                    var columnIndex = evt.columnIndex;
-                                    var dataField = evt.dataField;
-                                    var value = evt.value;
-                                    var editable = evt.editable;
-                                    var item = evt.item;
+                                    var primeCell = evt.primeCell;
+                                    var rowIndex = primeCell.rowIndex;
+                                    var columnIndex = primeCell.columnIndex;
+                                    var dataField = primeCell.dataField;
+                                    var value = primeCell.value;
+                                    var editable = primeCell.editable;
+                                    var item = primeCell.item;
 
                                     eventHandler(elID, rowIndex, columnIndex, dataField, value, editable, item);
                                 }
