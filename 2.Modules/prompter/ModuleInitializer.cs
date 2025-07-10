@@ -213,7 +213,7 @@ namespace prompter
                         if (GlobalConfiguration.IsRunning == true && fileInfo.FullName.Replace("\\", "/").IndexOf(basePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))
                         {
                             var filePath = fileInfo.FullName.Replace("\\", "/").Replace(basePath, "");
-                            var hostUrl = $"http://localhost:{GlobalConfiguration.ServerPort}/prompter/api/query/refresh?changeType={changeTypes}&filePath={filePath}";
+                            var hostUrl = $"http://localhost:{GlobalConfiguration.OriginPort}/prompter/api/query/refresh?changeType={changeTypes}&filePath={filePath}";
 
                             var request = new RestRequest(hostUrl, Method.Get);
                             request.Timeout = TimeSpan.FromSeconds(3);

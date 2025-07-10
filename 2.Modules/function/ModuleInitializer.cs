@@ -431,7 +431,7 @@ namespace function
                                 && (fileInfo.Name.StartsWith("featureMain") == true || fileInfo.Name == "featureMeta.json" || fileInfo.Name == "featureSQL.xml") == true)
                             {
                                 var filePath = fileInfo.FullName.Replace("\\", "/").Replace(functionContractBasePath, "");
-                                var hostUrl = $"http://localhost:{GlobalConfiguration.ServerPort}/function/api/execution/refresh?changeType={changeTypes}&filePath={filePath}";
+                                var hostUrl = $"http://localhost:{GlobalConfiguration.OriginPort}/function/api/execution/refresh?changeType={changeTypes}&filePath={filePath}";
 
                                 var request = new RestRequest(hostUrl, Method.Get);
                                 request.Timeout = TimeSpan.FromSeconds(3);

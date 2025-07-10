@@ -93,7 +93,7 @@ namespace checkup.Areas.checkup.Controllers
                         Console.WriteLine($"Administrator Key: {filePath} Person 정보 확인 및 키 초기화 방법. http://localhost:{GlobalConfiguration.ServerPort}/checkup/api/managed/reset-administrator-key?oldPasswordKey=[초기화하는 기존 키]");
                     }
 
-                    Console.WriteLine($"http://localhost:{GlobalConfiguration.ServerPort}/checkup/account/signin.html");
+                    Console.WriteLine($"http://localhost:{GlobalConfiguration.OriginPort}/checkup/account/signin.html");
 
                     result = Ok();
                 }
