@@ -46,22 +46,22 @@ set forbes_path=%publish_path%\handstack\forbes
 robocopy %forbes_path%\wwwroot %forbes_path% /E /MOVE
 del /F /Q "%forbes_path%\*"
 
-set contracts_path=1.WebHost\build\handstack\contracts
+set contracts_path=%HANDSTACK_HOME%\contracts
 if exist "%contracts_path%" (
     rd /S /Q "%contracts_path%"
 )
 
-dotnet %action_mode% -p:Optimize=%optimize_flag% 2.Modules\dbclient\dbclient.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output %publish_path%\handstack\modules\dbclient
-dotnet %action_mode% -p:Optimize=%optimize_flag% 2.Modules\function\function.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output %publish_path%\handstack\modules\function
-dotnet %action_mode% -p:Optimize=%optimize_flag% 2.Modules\logger\logger.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output %publish_path%\handstack\modules\logger
-dotnet %action_mode% -p:Optimize=%optimize_flag% 2.Modules\repository\repository.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output %publish_path%\handstack\modules\repository
-dotnet %action_mode% -p:Optimize=%optimize_flag% 2.Modules\transact\transact.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output %publish_path%\handstack\modules\transact
-dotnet %action_mode% -p:Optimize=%optimize_flag% 2.Modules\wwwroot\wwwroot.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output %publish_path%\handstack\modules\wwwroot
-dotnet %action_mode% -p:Optimize=%optimize_flag% 2.Modules\checkup\checkup.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output %publish_path%\handstack\modules\checkup
-dotnet %action_mode% -p:Optimize=%optimize_flag% 2.Modules\openapi\openapi.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output %publish_path%\handstack\modules\openapi
-dotnet %action_mode% -p:Optimize=%optimize_flag% 2.Modules\prompter\prompter.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output %publish_path%\handstack\modules\prompter
+dotnet build -p:Optimize=%optimize_flag% 2.Modules\dbclient\dbclient.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output %publish_path%\handstack\modules\dbclient
+dotnet build -p:Optimize=%optimize_flag% 2.Modules\function\function.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output %publish_path%\handstack\modules\function
+dotnet build -p:Optimize=%optimize_flag% 2.Modules\logger\logger.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output %publish_path%\handstack\modules\logger
+dotnet build -p:Optimize=%optimize_flag% 2.Modules\repository\repository.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output %publish_path%\handstack\modules\repository
+dotnet build -p:Optimize=%optimize_flag% 2.Modules\transact\transact.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output %publish_path%\handstack\modules\transact
+dotnet build -p:Optimize=%optimize_flag% 2.Modules\wwwroot\wwwroot.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output %publish_path%\handstack\modules\wwwroot
+dotnet build -p:Optimize=%optimize_flag% 2.Modules\checkup\checkup.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output %publish_path%\handstack\modules\checkup
+dotnet build -p:Optimize=%optimize_flag% 2.Modules\openapi\openapi.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output %publish_path%\handstack\modules\openapi
+dotnet build -p:Optimize=%optimize_flag% 2.Modules\prompter\prompter.csproj --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --output %publish_path%\handstack\modules\prompter
 
-robocopy 1.WebHost\build\handstack\contracts %publish_path%\handstack\contracts /s /e /copy:dat
+robocopy %HANDSTACK_HOME%\contracts %publish_path%\handstack\contracts /s /e /copy:dat
 robocopy . %publish_path%\handstack install.* /copy:dat
 robocopy 2.Modules\function %publish_path%\handstack package*.* /copy:dat
 

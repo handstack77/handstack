@@ -73,22 +73,22 @@ mv $forbes_path/wwwroot/* $forbes_path
 rm -rf $forbes_path/wwwroot
 rm -f $forbes_path/*
 
-contracts_path=1.WebHost/build/handstack/contracts
+contracts_path=${HANDSTACK_HOME}/contracts
 if [ -d "$contracts_path" ]; then
     rm -rf $contracts_path/*
 fi
 
-dotnet $action_mode $optimize_flag 2.Modules/dbclient/dbclient.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output "$publish_path/handstack/modules/dbclient"
-dotnet $action_mode $optimize_flag 2.Modules/function/function.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output "$publish_path/handstack/modules/function"
-dotnet $action_mode $optimize_flag 2.Modules/logger/logger.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output "$publish_path/handstack/modules/logger"
-dotnet $action_mode $optimize_flag 2.Modules/repository/repository.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output "$publish_path/handstack/modules/repository"
-dotnet $action_mode $optimize_flag 2.Modules/transact/transact.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output "$publish_path/handstack/modules/transact"
-dotnet $action_mode $optimize_flag 2.Modules/wwwroot/wwwroot.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output "$publish_path/handstack/modules/wwwroot"
-dotnet $action_mode $optimize_flag 2.Modules/checkup/checkup.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output "$publish_path/handstack/modules/checkup"
-dotnet $action_mode $optimize_flag 2.Modules/openapi/openapi.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output "$publish_path/handstack/modules/openapi"
-dotnet $action_mode $optimize_flag 2.Modules/prompter/prompter.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output "$publish_path/handstack/modules/prompter"
+dotnet build $optimize_flag 2.Modules/dbclient/dbclient.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output "$publish_path/handstack/modules/dbclient"
+dotnet build $optimize_flag 2.Modules/function/function.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output "$publish_path/handstack/modules/function"
+dotnet build $optimize_flag 2.Modules/logger/logger.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output "$publish_path/handstack/modules/logger"
+dotnet build $optimize_flag 2.Modules/repository/repository.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output "$publish_path/handstack/modules/repository"
+dotnet build $optimize_flag 2.Modules/transact/transact.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output "$publish_path/handstack/modules/transact"
+dotnet build $optimize_flag 2.Modules/wwwroot/wwwroot.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output "$publish_path/handstack/modules/wwwroot"
+dotnet build $optimize_flag 2.Modules/checkup/checkup.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output "$publish_path/handstack/modules/checkup"
+dotnet build $optimize_flag 2.Modules/openapi/openapi.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output "$publish_path/handstack/modules/openapi"
+dotnet build $optimize_flag 2.Modules/prompter/prompter.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output "$publish_path/handstack/modules/prompter"
 
-rsync -avq 1.WebHost/build/handstack/contracts/ "$publish_path/handstack/contracts"
+rsync -avq ${HANDSTACK_HOME}/contracts/ "$publish_path/handstack/contracts"
 rsync -av --progress ./install.* "$publish_path/handstack"
 rsync -av --progress 2.Modules/function/package*.* "$publish_path/handstack"
 
