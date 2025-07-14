@@ -135,10 +135,11 @@ namespace function
                             {
                                 var message = $"Python DLL 파일 확인 필요: {ModuleConfiguration.PythonDLLFilePath}";
                                 Log.Logger.Error("[{LogCategory}] " + message, $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
-                                throw new FileNotFoundException(message);
                             }
-
-                            Runtime.PythonDLL = ModuleConfiguration.PythonDLLFilePath;
+                            else
+                            {
+                                Runtime.PythonDLL = ModuleConfiguration.PythonDLLFilePath;
+                            }
                         }
 
                         ModuleConfiguration.DefaultDataSourceID = moduleConfig.DefaultDataSourceID;
