@@ -24,6 +24,15 @@ HandStack은 다음의 기술로 개발됩니다. 각 기술은 상호보완적�
 
 자세한 내용은 [공식 가이드 문서](https://handstack.kr) 및 [유튜브 채널](https://www.youtube.com/@handstack-kr) 을 참고하세요.
 
+## 프로젝트 구조
+
+HandStack 솔루션은 다음과 같은 주요 프로젝트로 구성되어 있습니다.
+
+- **1.WebHost**: 웹 애플리케이션의 호스팅을 담당하는 프로젝트입니다. `ack`, `forbes` 등의 웹 애플리케이션 프로젝트를 포함합니다.
+- **2.Modules**: `wwwroot`, `dbclient`, `function`, `logger`, `repository`, `transact`, `checkup`, `openapi`, `prompter` 등 기능별 모듈을 관리하는 프로젝트입니다. 각 모듈은 독립적인 기능을 수행하며, 필요에 따라 웹 호스트 프로젝트에서 참조하여 사용됩니다.
+- **3.Infrastructure**: `HandStack.Core`, `HandStack.Web`, `HandStack.Data` 등 공통 라이브러리 및 기반 프레임워크 프로젝트를 포함합니다. 애플리케이션 전반에서 사용되는 핵심 기능과 데이터 처리 관련 기능을 제공합니다.
+- **4.Tool**: `handstack`, `handsonapp`, `edgeproxy`, `excludedportrange`, `bundling` 등 개발 및 운영에 필요한 각종 유틸리티 및 CLI 도구 프로젝트를 포함합니다.
+
 ## HandStack의 주요 특징
 
 - 비즈니스 앱은 HTML, Javascript, SQL 으로 풀 스택 개발 가능합니다.
@@ -46,6 +55,16 @@ HandStack은 상업적으로 제한이 없는 완전한 오픈 소스로 만드�
 기술과 시스템은 목적이 아닌 기업 경쟁력 유지를 위한 도구 또는 수단으로 기업의 미래를 위해 숙고해야 합니다. HandStack은 개인 프로젝트부터 큰 규모의 협업 프로젝트에서 사용 가능하도록 설계되었습니다.
 
 협업에 관심이 있는 분들은 언제든 handstack77@gmail.com로 연락주세요.
+
+## 빌드 및 실행
+
+프로젝트 루트 디렉토리에는 다음과 같은 스크립트 파일들이 제공되어 빌드, 설치, 배포 과정을 자동화할 수 있습니다.
+
+- `build.bat` / `build.sh`: 프로젝트를 빌드합니다.
+- `install.bat` / `install.sh`: 프로젝트에 필요한 의존성을 설치합니다.
+- `publish.bat` / `publish.sh`: 프로젝트를 배포 가능한 형태로 패키징합니다.
+
+각 스크립트는 사용하는 운영체제에 맞춰 실행하면 됩니다. (예: Windows에서는 `.bat`, macOS/Linux에서는 `.sh` 파일 사용)
 
 ## HandStack 사용 방법
 
