@@ -3012,7 +3012,13 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         toBoolean(val) {
-            return (val === 'true' || val === 'True' || val === 'TRUE' || val === 'Y' || val == '1');
+            if ($object.isNullOrEmpty(val) == true) {
+                return false;
+            }
+
+            const lowerVal = val.toString().toLowerCase();
+            const trueValues = ['true', 'y', '1', 'ok', 'yes', 'on'];
+            return trueValues.includes(lowerVal);
         },
 
         toDynamic(val, emptyIsNull = false) {

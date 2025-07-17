@@ -270,17 +270,14 @@ namespace HandStack.Core.ExtensionMethod
 
         public static bool ParseBool(this string @this, bool defaultValue = false)
         {
-            var result = false;
             if (string.IsNullOrEmpty(@this) == true)
             {
-                result = defaultValue;
-            }
-            else
-            {
-                result = (@this.ToLower() == "true" || @this.ToLower() == "on" || @this == "1" || @this == "Y");
+                return defaultValue;
             }
 
-            return result;
+            var lowerVal = @this.ToLower();
+            var trueValues = new[] { "true", "y", "1", "ok", "yes", "on" };
+            return trueValues.Contains(lowerVal);
         }
 
         public static DateTime? ParseDateTime(this string @this, DateTime? defaultValue = null, DateTimeStyles dateTimeStyles = DateTimeStyles.None)
@@ -409,7 +406,7 @@ namespace HandStack.Core.ExtensionMethod
                 return false;
             }
 
-            return Reflector.StringToTypedValue<bool>(@this);
+            return ParseBool(@this);
         }
 
         public static short ToShort(this string @this)
