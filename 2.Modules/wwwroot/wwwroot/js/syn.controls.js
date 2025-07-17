@@ -1293,7 +1293,7 @@
 
     $data.extend({
         name: 'syn.uicontrols.$data',
-        version: 'v2025.3.10',
+        version: 'v2025.7.17',
         bindingList: [],
         storeList: [],
 
@@ -1351,7 +1351,44 @@
         },
 
         clear(elID, isControlLoad) {
-            // 지원 안함
+            $data.propertyEvent = false;
+            var metaStore = $data.getMetaStore(elID);
+            if (metaStore) {
+                let targetStore = $this.store[metaStore.dataSourceID];
+                if (metaStore.storeType == 'Form' && metaStore.columns) {
+                    metaStore.columns.forEach(column => {
+                        const columnName = column.data;
+                        const dataType = column.dataType;
+
+                        let initialValue;
+
+                        switch (dataType) {
+                            case 'string':
+                                initialValue = '';
+                                break;
+                            case 'number':
+                            case 'numeric':
+                            case 'int':
+                                initialValue = 0;
+                                break;
+                            case 'bool':
+                            case 'boolean':
+                                initialValue = false;
+                                break;
+                            default:
+                                initialValue = null;
+                                break;
+                        }
+
+                        targetStore[columnName] = initialValue;
+                    });
+                }
+                else if (targetStore.length && targetStore.length > 0)
+                {
+                    targetStore.length = 0;
+                }
+            }
+            $data.propertyEvent = true;
         },
 
         getMetaStore(elID) {
