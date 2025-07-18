@@ -166,7 +166,7 @@
 
     $auigrid.extend({
         name: 'syn.uicontrols.$auigrid',
-        version: 'v2025.3.25',
+        version: 'v2025.7.18',
 
         gridControls: [],
         gridCodeDatas: [],
@@ -273,6 +273,7 @@
                 setting.height = setting.height + 'px';
             }
 
+            setting.columns = columnLayout || setting.columns || [];
             el.setAttribute('id', el.id + '_hidden');
             el.setAttribute('syn-options', JSON.stringify(setting));
             el.style.display = 'none';
@@ -550,7 +551,7 @@
                     }
                 }
 
-                if (columnInfo.validators && columnInfo.validators.indexOf('required') > -1) {
+                if (columnInfo.validators && columnInfo.validators.indexOf('require') > -1) {
                     columnInfo.style = columnInfo.style + ' column-required';
                 }
 
@@ -3126,6 +3127,13 @@
                         }
                     }
                 }
+            }
+
+            AUIGrid.clearSelection(gridID);
+            $auigrid.clearConditions(elID);
+            const length = value.length;
+            for (let i = 0; i < length; i++) {
+                value[i].Flag = 'R';
             }
 
             AUIGrid.setGridData(gridID, value);
