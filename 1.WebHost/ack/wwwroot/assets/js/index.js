@@ -1,5 +1,5 @@
 /*!
-HandStack Javascript Library v2025.5.26
+HandStack Javascript Library v2025.7.18
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -1724,7 +1724,7 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         toBoolean(val) {
-            if ($object.isNullOrEmpty(val) == true) {
+            if ($object.isNullOrUndefined(val) == true) {
                 return false;
             }
 

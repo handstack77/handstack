@@ -579,7 +579,7 @@
         },
 
         toBoolean(val) {
-            if ($object.isNullOrEmpty(val) == true) {
+            if ($object.isNullOrUndefined(val) == true) {
                 return false;
             }
 
