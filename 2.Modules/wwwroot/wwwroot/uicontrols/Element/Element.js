@@ -9,10 +9,11 @@
         name: 'syn.uicontrols.$element',
         version: 'v2025.3.1',
         defaultSetting: {
-            contents: '',
             disabled: false,
             dataType: 'string',
             belongID: null,
+            getter: false,
+            setter: false,
             controlText: null,
             content: 'value', // value, text, html
             validators: null,
