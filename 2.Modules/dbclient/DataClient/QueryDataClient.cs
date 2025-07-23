@@ -3065,7 +3065,7 @@ TransactionException:
                                     {
                                         ColumnID = row.GetStringSafe("ColumnID"),
                                         ColumnText = row.GetStringSafe("ColumnText"),
-                                        HiddenYN = (val.ToLower() == "true" || val.ToLower() == "on" || val == "1" || val == "Y")
+                                        HiddenYN = val.ToBoolean()
                                     });
                                 }
 
