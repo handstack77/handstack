@@ -7,6 +7,17 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+        <DebugType>none</DebugType>
+        <DebugSymbols>False</DebugSymbols>
+        <Optimize>True</Optimize>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+        <DebugType>portable</DebugType>
+        <Optimize>False</Optimize>
+    </PropertyGroup>
+    
     <ItemGroup>
         <Compile Remove="build/**" />
         <None Include="wwwroot/**" />

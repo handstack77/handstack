@@ -7,6 +7,17 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+        <DebugType>none</DebugType>
+        <DebugSymbols>False</DebugSymbols>
+        <Optimize>True</Optimize>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+        <DebugType>portable</DebugType>
+        <Optimize>False</Optimize>
+    </PropertyGroup>
+    
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
         <Exec Condition="'$(OS)'=='Windows_NT'" Command="cmd /c post-build.bat win build Debug" />
         <Exec Condition="'$(OS)'!='Windows_NT'" Command="bash post-build.sh linux build Debug" />
