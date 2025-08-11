@@ -83,3 +83,7 @@ if [ "$TASK_COMMAND" == "build" ]; then
     dotnet build --no-restore --no-incremental
     pm2 start $HANDSTACK_ACK --name ack --no-autorestart
 fi
+
+if [ "$TASK_COMMAND" == "publish" ]; then
+    dotnet build -p:Optimize=true --configuration Release
+fi

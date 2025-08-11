@@ -82,3 +82,7 @@ if "%TASK_COMMAND%"=="build" (
     dotnet build --no-restore --no-incremental
     pm2 start %HANDSTACK_ACK% --name ack --no-autorestart
 )
+
+if "%TASK_COMMAND%"=="publish" (
+    dotnet build -p:Optimize=true --configuration Release
+)
