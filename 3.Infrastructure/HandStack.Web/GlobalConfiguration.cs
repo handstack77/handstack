@@ -115,7 +115,7 @@ namespace HandStack.Web
         public static List<ModuleInfo> Modules { get; set; } = new List<ModuleInfo>();
         public static bool IsPermissionRoles = false;
         public static List<PermissionRoles> PermissionRoles { get; set; } = new List<PermissionRoles>();
-        public static Dictionary<string, LicenseItem> Licenses { get; set; } = new Dictionary<string, LicenseItem>();
+        public static Dictionary<string, LicenseItem> LoadModuleLicenses { get; set; } = new Dictionary<string, LicenseItem>();
 
         public static string DefaultCulture => "ko-KR";
 

@@ -1,0 +1,250 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HandStack License Validation Demo</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .status {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid;
+        }
+
+        .status.success {
+            background-color: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+
+        .status.error {
+            background-color: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+
+        .status.warning {
+            background-color: #fff3cd;
+            border-color: #ffc107;
+            color: #856404;
+        }
+
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        .code {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>HandStack 라이선스 검증 데모</h1>
+        <p><strong>현재시간:</strong> <span id="currentTime"></span></p>
+        <p><strong>도메인:</strong> <span id="currentDomain"></span></p>
+
+        <div id="licenseStatus"></div>
+
+        <h2>Test Functions</h2>
+        <button onclick="testSafeValidation()">Safe Validation (No Throw)</button>
+        <button onclick="testMultipleModules()">Multiple Modules</button>
+
+        <h2>Validation Results</h2>
+        <div id="results"></div>
+
+        <h2>Console Logs</h2>
+        <div id="consoleLogs" class="code"></div>
+    </div>
+
+    <script src="../generated-licenses/handstackUiV1License.js"></script>
+    <script src="../generated-licenses/customApiModuleLicense.js"></script>
+    <script src="../generated-licenses/handstackAnalyticsLicense.js"></script>
+
+    <script src="license-validator-browser.js"></script>
+
+    <script>
+        let monitoringInterval = null;
+        const logs = [];
+
+        const currentTimeEl = document.getElementById('currentTime');
+        const currentDomainEl = document.getElementById('currentDomain');
+        const licenseStatusEl = document.getElementById('licenseStatus');
+        const resultsEl = document.getElementById('results');
+        const consoleLogsEl = document.getElementById('consoleLogs');
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            const now = new Date(Date.UTC(2025, 6, 2, 0, 2, 21)); // 2025-07-02 00:02:21 UTC
+
+            const year = now.getUTCFullYear();
+            const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+            const day = String(now.getUTCDate()).padStart(2, '0');
+            const hours = String(now.getUTCHours()).padStart(2, '0');
+            const minutes = String(now.getUTCMinutes()).padStart(2, '0');
+            const seconds = String(now.getUTCSeconds()).padStart(2, '0');
+
+            const formatted = `${year}-${month}-${day} ${hours}:${minutes}:${seconds} UTC`;
+            currentTimeEl.textContent = formatted;
+
+            currentDomainEl.textContent = window.location.hostname;
+
+            interceptConsole();
+
+            await checkInitialLicenseStatus();
+
+            log('HandStack License Validation Demo Loaded');
+            log(`Current Domain: ${window.location.hostname}`);
+        });
+
+        function interceptConsole() {
+            const originalLog = console.log;
+            const originalError = console.error;
+            const originalWarn = console.warn;
+
+            console.log = function (...args) {
+                log('LOG: ' + args.join(' '));
+                originalLog.apply(console, args);
+            };
+
+            console.error = function (...args) {
+                log('ERROR: ' + args.join(' '), 'error');
+                originalError.apply(console, args);
+            };
+
+            console.warn = function (...args) {
+                log('WARN: ' + args.join(' '), 'warning');
+                originalWarn.apply(console, args);
+            };
+        }
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            logs.push(`[${timestamp}] ${message}`);
+
+            if (logs.length > 100) {
+                logs.shift();
+            }
+
+            updateConsoleLogs();
+        }
+
+        function updateConsoleLogs() {
+            consoleLogsEl.textContent = logs.join('\n');
+            consoleLogsEl.scrollTop = consoleLogsEl.scrollHeight;
+        }
+
+        function showResult(title, content, type = 'info') {
+            const statusClass = type === 'error' ? 'error' : type === 'warning' ? 'warning' : 'success';
+
+            resultsEl.innerHTML += `
+                <div class="status ${statusClass}">
+                    <h4>${title}</h4>
+                    <div>${content}</div>
+                </div>
+            `;
+        }
+
+        async function checkInitialLicenseStatus() {
+            const modules = ['handstack-ui-v1', 'custom-api-module', 'handstack-analytics'];
+            const results = await validateMultipleLicenses(modules);
+
+            let html = '<h3>Initial License Status</h3>';
+
+            Object.entries(results).forEach(([moduleId, result]) => {
+                const status = result.valid ? 'Valid' : 'Invalid';
+                const statusClass = result.valid ? 'success' : 'error';
+
+                html += `
+                    <div class="status ${statusClass}">
+                        <strong>${moduleId}:</strong> ${status}
+                        ${!result.valid ? `<br><small>Error: ${result.error}</small>` : ''}
+                    </div>
+                `;
+            });
+
+            licenseStatusEl.innerHTML = html;
+        }
+
+        async function testSafeValidation() {
+            log('Testing safe validation...');
+
+            const result = await validateHandStackLicense('handstack-ui-v1', {
+                throwOnError: false
+            });
+
+            if (result.valid) {
+                showResult(
+                    'Safe Validation Success',
+                    `Module: ${result.data.moduleId}<br>
+                     Company: ${result.data.company}<br>
+                     Environment: ${result.data.environment}<br>
+                     Expires: ${result.data.expiresAt || 'Never'}`,
+                    'success'
+                );
+            } else {
+                showResult(
+                    'Safe Validation Failed',
+                    `Error: ${result.error}`,
+                    'error'
+                );
+            }
+        }
+
+        async function testMultipleModules() {
+            log('Testing multiple module validation...');
+
+            const modules = ['handstack-ui-v1', 'custom-api-module', 'handstack-analytics', 'invalid-module'];
+            const results = await validateMultipleLicenses(modules, { throwOnError: true });
+
+            let html = '';
+            Object.entries(results).forEach(([moduleId, result]) => {
+                const status = result.valid ? 'Valid' : 'Invalid';
+                html += `<strong>${moduleId}:</strong> ${status}<br>`;
+                if (!result.valid) {
+                    html += `<small style="color: #666;">Error: ${result.error}</small><br>`;
+                }
+            });
+
+            showResult(
+                'Multiple Module Validation',
+                html,
+                'info'
+            );
+        }
+    </script>
+</body>
+
+</html>

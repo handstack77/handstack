@@ -1,0 +1,37 @@
+{
+    "GeneratedAt": "2025-08-20T22:50:18.287Z",
+    "GeneratedBy": "handstack",
+    "Version": "1.0.0",
+    "Licenses": {
+        "handstack-ui-v1": {
+            "CompanyName": "HandStack",
+            "ProductName": "HandStackUI-v1.0.0-PROD001",
+            "AuthorizedHost": "handstack.kr,www.handstack.kr",
+            "Key": "MzJmZjE2ZDllM2M2M2M3MWM1MzIzYzc2ODIzODdjMDQ6OGIwZGQzNjdjYzYzMGQ2MTMxOWFkZDU2Zjg3MmFkMTM4YzhkZjkwNzdhYzRjYzMwNjk5NjE2ZTZjYjk4NzA4NTc0YTQwZmE1NDVhNjcxNjc0OTViMjE4ZTJmNWU0ODM1ZDc3NTVmY2M3MDRhMWNlMWVkNDE4MWYyMjliYjA4OTdmZTVkZjVjNDI2YjM2MDU2MjJhOGNjOGNmNDFkMDkwMTkwYjcyMGRhODhlYmZlNzIxZmEzYmEyNTQ1MTg1MzU2YjQxNTVhYzQ4MmQ1YWY0YzViN2RiMDNmNDdmNzAwNWY=",
+            "CreatedAt": "2025-07-02T05:46:16.283Z",
+            "ExpiresAt": "2026-07-01T23:59:59.000Z",
+            "Environment": "Production",
+            "SignKey": "af4772aaeb9830fec7e359dad2b9e4f1c97370038f22fd44c01917a0af5f322b"
+        },
+        "custom-api-module": {
+            "CompanyName": "HandStack",
+            "ProductName": "CustomApiModule-v1.0.0-PROD001",
+            "AuthorizedHost": "handstack.kr,www.handstack.kr",
+            "Key": "MGFiNTIyZjNlOGRlYWQxNzA3ODIzZGQ3M2FkODNhMjI6MTAwZGU4MTU3OTI2YWNiOTMwYzk0NTY3OGYwMzRjNjcxMTY4Zjk4ZWI1MmY4YjcxYTE1ZjE3Mjg1MWZjODhiZjMxY2VjNDlkNTg2OTZhNWMzNjNlODczOWYwZmY2NjQ3YmM5NWFiMWFhZDA2ZDhjNjg3MGZhNjQ3ODhlNDYzZjFlNzZlZWI1YTU4ZGE3NDVkYjI0MmZjNzk3NGY3MTU0MzRjZDAxMTZjMzYzZDE3ODdjNDU4Y2QzNDdhMWY3ZDgxYmY1ZTYxMDk1MGFkZTU5YzMxMzkwYTRkNGU4NDYwOGQ=",
+            "CreatedAt": "2025-07-02T05:43:24.742Z",
+            "ExpiresAt": "2026-07-01T23:59:59.000Z",
+            "Environment": "Production",
+            "SignKey": "8fc06192d6dff3ba6adbf587d9f8ec3f583f906ef449cf326233e3e124dfe45e"
+        },
+        "handstack-analytics": {
+            "CompanyName": "HandStack",
+            "ProductName": "HandStackAnalytics-v1.0.0-PROD001",
+            "AuthorizedHost": "handstack.kr,www.handstack.kr",
+            "Key": "ZjIzMTM5Nzk4Yjg0MGRmMzFhN2JiMTAzYTcwMmRhYmQ6MTgxYjhhMjE2MzI2ZjNjNjdiYmY3ZjlmZjQyZDk1MThkZjVkMTcyM2Y0MDVlODgwNzliZWI3NmIxZDEzMjAyNzMxZjE0NWI5ZTgyMjY4OWEyMjNjMTUxMzhmYWM4ZjA3MzEzMzFmOWRmOTdkZGI0ZTgwZTkwNGE4MTFhMTk5MjUxNTgyMDBjMGVmMWUxZmQ4ZWQ3ZWQzMDNiYWNhMDk2YmU1NzQxZWQ3YmVmZTYzYWMwODc5NmU1OTI5ZGE1NmJkMzEwMDAxN2ViZjZhNzM0NDYwNDZkZTNkODEzN2VhZWU=",
+            "CreatedAt": "2025-07-02T05:43:50.600Z",
+            "ExpiresAt": "2026-07-01T23:59:59.000Z",
+            "Environment": "Production",
+            "SignKey": "5b3d2f180f2b125d57064b02e45b3e72689c69b80fae3167901217f9a0652427"
+        }
+    }
+}

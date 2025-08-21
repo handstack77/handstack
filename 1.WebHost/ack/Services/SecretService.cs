@@ -24,8 +24,6 @@ namespace ack.Services
     {
         public ManagementHostInfo ManagementHost { get; set; } = new("", "", "", "");
 
-        public Dictionary<string, LicenseItem> Licenses { get; set; } = new();
-
         public Dictionary<string, List<KeyItem>> Secrets { get; set; } = new();
     }
 
@@ -75,7 +73,6 @@ namespace ack.Services
                 {
                     var json = await File.ReadAllTextAsync(secretFilePath);
                     secretData = JsonConvert.DeserializeObject<SecretData>(json) ?? new SecretData();
-                    GlobalConfiguration.Licenses = secretData.Licenses;
                 }
                 finally
                 {
@@ -104,11 +101,6 @@ namespace ack.Services
             {
                 logger.Warning("[{LogCategory}] ack 프로그램 루트에 handstack-secrets.json 파일이 없습니다. 초기 데이터를 구성하세요.", "SecretService/SaveSecretsInternalAsync");
             }
-        }
-
-        public ICollection<string>? GetLicenseKeys()
-        {
-            return secretData?.Licenses.Keys;
         }
 
         public Dictionary<string, List<KeyItem>>? GetAllKeys(ClientInfo client)

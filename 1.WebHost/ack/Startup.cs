@@ -162,6 +162,14 @@ namespace ack
             GlobalConfiguration.LoadModuleBasePath = GlobalConfiguration.GetBaseDirectoryPath(appSettings["LoadModuleBasePath"]);
             GlobalConfiguration.LoadContractBasePath = GlobalConfiguration.GetBaseDirectoryPath(PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "..", "contracts"));
 
+            string sectionLoadModuleLicenses = "AppSettings:LoadModuleLicenses";
+            var section = configuration.GetSection(sectionLoadModuleLicenses);
+
+            if (section.Exists() == true)
+            {
+                GlobalConfiguration.LoadModuleLicenses = configuration.GetDictionarySection<LicenseItem>("AppSettings:LoadModuleLicenses");
+            }
+
             var disposeTenantAppsFilePath = PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "dispose-tenantapps.log");
             if (File.Exists(disposeTenantAppsFilePath) == true)
             {
@@ -640,12 +648,23 @@ namespace ack
                 }
             }
 
+            var validator = new ModuleLicenseValidator();
             foreach (var module in GlobalConfiguration.Modules)
             {
                 if (module.Assembly != null)
                 {
                     try
                     {
+                        if (GlobalConfiguration.LoadModuleLicenses.TryGetValue(module.ModuleID, out var entry) == true)
+                        {
+                            var validationResult = validator.ValidateLicenseAsync(module.ModuleID, entry, enableCache: true, throwOnError: false).Result;
+                            if (validationResult.IsValid == false)
+                            {
+                                Log.Error("[{LogCategory}] " + $"module: {module.ModuleID} LicenseKey, LicenseSignature 확인 필요", "ack Startup/ConfigureServices");
+                                throw new UnauthorizedAccessException($"module: {module.ModuleID} LicenseKey, LicenseSignature 확인 필요");
+                            }
+                        }
+
                         var moduleContractPath = PathExtensions.Combine(module.BasePath, "Contracts");
                         if (module.IsCopyContract == true && Directory.Exists(moduleContractPath) == true)
                         {
@@ -1284,9 +1303,7 @@ namespace ack
                 // curl --location "http://localhost:8421/license-keys"
                 endpoints.MapGet("/license-keys", async context =>
                 {
-                    var secretService = context.RequestServices.GetRequiredService<SecretService>();
-
-                    var allKeys = secretService.GetLicenseKeys();
+                    var allKeys = GlobalConfiguration.LoadModuleLicenses.Keys;
                     var filtered = allKeys?.ToList();
 
                     context.Response.ContentType = "application/json";

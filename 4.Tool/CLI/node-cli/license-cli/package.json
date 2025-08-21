@@ -1,0 +1,28 @@
+{
+    "name": "handstack-license-generator",
+    "version": "1.0.0",
+    "description": "HandStack License Key Generator",
+    "main": "license-manager.js",
+    "bin": {
+        "license-cli": "./license-cli.js"
+    },
+    "scripts": {
+        "cli": "node license-cli.js",
+        "install-obfuscator": "npm install -g javascript-obfuscator"
+    },
+    "keywords": [
+        "license",
+        "security",
+        "handstack",
+        "drm"
+    ],
+    "author": "handstack",
+    "license": "MIT",
+    "dependencies": {
+        "commander": "^9.4.1",
+        "glob": "^8.1.0"
+    },
+    "engines": {
+        "node": ">=14.0.0"
+    }
+}
