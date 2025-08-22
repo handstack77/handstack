@@ -13,6 +13,7 @@ namespace HandStack.Core.Licensing
         public DateTime? ExpiresAt { get; init; }
         public string Environment { get; init; } = string.Empty;
         public string SignKey { get; init; } = string.Empty;
+        public LicenseValidationData? Data { get; set; }
     }
 
     public class ValidationResult

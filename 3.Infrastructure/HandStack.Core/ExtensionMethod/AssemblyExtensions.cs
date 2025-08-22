@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace HandStack.Core.ExtensionMethod
@@ -75,6 +77,38 @@ namespace HandStack.Core.ExtensionMethod
             dateTime = dateTime.AddSeconds(secondsSince1970);
             dateTime = dateTime.AddHours(TimeZoneInfo.ConvertTimeToUtc(dateTime).ToEpochTimeSpan().Hours);
             return dateTime;
+        }
+
+        public static string GetPublicKey(this Assembly @this)
+        {
+            string result = "";
+
+            try
+            {
+                var publicKey = @this.GetName().GetPublicKey();
+                if (publicKey == null || publicKey.Length == 0)
+                {
+                    return result;
+                }
+
+                using (SHA256 sha256 = SHA256.Create())
+                {
+                    byte[] hash = sha256.ComputeHash(publicKey);
+                    StringBuilder sb = new StringBuilder();
+                    foreach (var b in hash)
+                    {
+                        sb.Append(b.ToString("x2"));
+                    }
+
+                    result = sb.ToString();
+                }
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+            }
+
+            return result;
         }
     }
 }

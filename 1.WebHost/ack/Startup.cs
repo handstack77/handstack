@@ -655,14 +655,16 @@ namespace ack
                 {
                     try
                     {
-                        if (GlobalConfiguration.LoadModuleLicenses.TryGetValue(module.ModuleID, out var entry) == true)
+                        if (GlobalConfiguration.LoadModuleLicenses.TryGetValue(module.ModuleID, out var licenseItem) == true)
                         {
-                            var validationResult = validator.ValidateLicenseAsync(module.ModuleID, entry, enableCache: true, throwOnError: false).Result;
+                            var validationResult = validator.ValidateLicenseAsync(module.ModuleID, licenseItem, enableCache: true, throwOnError: false).Result;
                             if (validationResult.IsValid == false)
                             {
                                 Log.Error("[{LogCategory}] " + $"module: {module.ModuleID} LicenseKey, LicenseSignature 확인 필요", "ack Startup/ConfigureServices");
                                 throw new UnauthorizedAccessException($"module: {module.ModuleID} LicenseKey, LicenseSignature 확인 필요");
                             }
+
+                            licenseItem.Data = validationResult.Data;
                         }
 
                         var moduleContractPath = PathExtensions.Combine(module.BasePath, "Contracts");
@@ -685,6 +687,22 @@ namespace ack
 
                 if (module.Assembly != null)
                 {
+                    string assemblyPublicKey = module.Assembly.GetPublicKey();
+                    if (assemblyPublicKey != "")
+                    {
+                        if (GlobalConfiguration.LoadModuleLicenses.ContainsKey(module.ModuleID) == false)
+                        {
+                            Log.Error("[{LogCategory}] " + $"module: {module.ModuleID} 라이선스 정보 확인 필요", "ack Startup/ConfigureServices");
+                            throw new Exception($"module: {module.ModuleID} 라이선스 정보 확인 필요");
+                        }
+
+                        if (GlobalConfiguration.LoadModuleLicenses[module.ModuleID].SignKey.Split(".")[1] != assemblyPublicKey)
+                        {
+                            Log.Error("[{LogCategory}] " + $"module: {module.ModuleID} 어셈블리 서명과 라이선스 정보가 일치하지 않습니다", "ack Startup/ConfigureServices");
+                            throw new Exception($"module: {module.ModuleID} 어셈블리 서명과 라이선스 정보가 일치하지 않습니다");
+                        }
+                    }
+
                     var moduleInitializerType = module.Assembly.GetTypes().FirstOrDefault(t => typeof(IModuleInitializer).IsAssignableFrom(t));
                     if (moduleInitializerType != null && (moduleInitializerType != typeof(IModuleInitializer)))
                     {

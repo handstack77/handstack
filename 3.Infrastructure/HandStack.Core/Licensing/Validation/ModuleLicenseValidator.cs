@@ -10,7 +10,7 @@ namespace HandStack.Core.Licensing.Validation
 {
     public class ModuleLicenseValidator
     {
-        private readonly string saltValue = "handstack-salt-value";
+        private string saltValue = "handstack-salt-value";
         private readonly Dictionary<string, (ValidationResult result, DateTime timestamp)> cache = new();
         private readonly TimeSpan cacheTtl = TimeSpan.FromHours(24);
         private int validationCount = 0;
@@ -120,11 +120,12 @@ namespace HandStack.Core.Licensing.Validation
                 return (false, null, null, "라이선스 키가 비어있습니다.");
 
             var parts = licenseKey.Split('.');
-            if (parts.Length != 2)
+            if (parts.Length != 3)
                 return (false, null, null, "잘못된 라이선스 키 형식 (Key.SignKey 예상)");
 
             var encrypted = parts[0];
             var sign = parts[1];
+            saltValue = parts[2];
 
             if (!IsValidBase64(encrypted))
                 return (false, null, null, "암호화된 키 Base64 형식 오류");
@@ -180,6 +181,12 @@ namespace HandStack.Core.Licensing.Validation
 
                 string plaintext = DecryptAesCbc(cipherBytes, keyBytes, iv);
 
+                var fields = plaintext.Split('|');
+                if (fields.Length < 5)
+                {
+                    return (false, null, "필드 개수가 부족합니다.");
+                }
+
                 string expectedSign = await GenerateSignKeyAsync(plaintext, saltValue);
                 if (!CryptographicOperations.FixedTimeEquals(
                         Encoding.ASCII.GetBytes(expectedSign),
@@ -187,10 +194,6 @@ namespace HandStack.Core.Licensing.Validation
                 {
                     return (false, null, "서명 불일치");
                 }
-
-                var fields = plaintext.Split('|');
-                if (fields.Length < 5)
-                    return (false, null, "필드 개수가 부족합니다.");
 
                 var data = new LicenseData
                 {
