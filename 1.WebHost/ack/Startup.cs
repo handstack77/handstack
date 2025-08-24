@@ -688,7 +688,7 @@ namespace ack
                 if (module.Assembly != null)
                 {
                     string assemblyPublicKey = module.Assembly.GetPublicKey();
-                    if (assemblyPublicKey != "")
+                    if (string.IsNullOrEmpty(assemblyPublicKey) == false)
                     {
                         if (GlobalConfiguration.LoadModuleLicenses.ContainsKey(module.ModuleID) == false)
                         {
@@ -700,6 +700,12 @@ namespace ack
                         {
                             Log.Error("[{LogCategory}] " + $"module: {module.ModuleID} 어셈블리 서명과 라이선스 정보가 일치하지 않습니다", "ack Startup/ConfigureServices");
                             throw new Exception($"module: {module.ModuleID} 어셈블리 서명과 라이선스 정보가 일치하지 않습니다");
+                        }
+
+                        if (GlobalConfiguration.LoadModuleLicenses.TryGetValue(module.ModuleID, out var licenseItem) == true)
+                        {
+                            licenseItem.AssemblyKey = assemblyPublicKey;
+                            licenseItem.AssemblyToken = module.Assembly.GetPublicKeyToken();
                         }
                     }
 
