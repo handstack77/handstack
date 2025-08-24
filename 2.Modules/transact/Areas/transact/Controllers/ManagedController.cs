@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json.Nodes;
 
 using HandStack.Core.ExtensionMethod;
 using HandStack.Core.Helpers;
@@ -111,10 +112,55 @@ namespace transact.Areas.transact.Controllers
                                 try
                                 {
                                     var configData = System.IO.File.ReadAllText(businessFile);
+
+                                    JsonNode? root = JsonNode.Parse(configData.RemoveJsonComments());
+                                    if (root is JsonObject rootNode)
+                                    {
+                                        var hasSignatureKey = rootNode.TryGetPropertyValue("SignatureKey", out var signatureKeyNode) && signatureKeyNode is JsonValue;
+                                        var hasEncrypt = rootNode.TryGetPropertyValue("EncryptServices", out var encryptNode) && encryptNode is JsonValue;
+                                        if (hasSignatureKey == true && hasEncrypt == true)
+                                        {
+                                            var signatureKey = signatureKeyNode!.GetValue<string>();
+                                            var licenseItem = GlobalConfiguration.LoadModuleLicenses.Values.FirstOrDefault(li => li.AssemblyToken == signatureKey);
+                                            if (licenseItem == null)
+                                            {
+                                                logger.Error("[{LogCategory}] " + $"{businessFile} 업무 계약 파일 오류 - 서명 키 불일치", "ManagedController/ResetAppContract");
+                                                continue;
+                                            }
+
+                                            var cipher = encryptNode!.GetValue<string>();
+                                            var plain = LZStringHelper.DecompressFromUint8Array(cipher.DecryptAESBytes(licenseItem.AssemblyKey)) ?? string.Empty;
+
+                                            JsonNode? restored;
+                                            try
+                                            {
+                                                restored = JsonNode.Parse(plain);
+
+                                                if (restored is not JsonArray restoredArr)
+                                                {
+                                                    logger.Error("[{LogCategory}] " + $"Decrypted Services는 {businessFile} 내의 JSON 배열이 아닙니다.", "ManagedController/ResetAppContract");
+                                                    continue;
+                                                }
+
+                                                rootNode["Services"] = restoredArr;
+                                            }
+                                            catch (Exception exception)
+                                            {
+                                                logger.Error(exception, "[{LogCategory}] " + $"업무 계약 파일 역 직렬화 오류 - {businessFile}", "ManagedController/ResetAppContract");
+                                                continue;
+                                            }
+
+                                            rootNode.Remove("SignatureKey");
+                                            rootNode.Remove("EncryptServices");
+
+                                            configData = rootNode.ToJsonString();
+                                        }
+                                    }
+
                                     var businessContract = BusinessContract.FromJson(configData);
                                     if (businessContract == null)
                                     {
-                                        logger.Error("[{LogCategory}] " + $"업무 계약 파일 역직렬화 오류 - {businessFile}", "LoadContract");
+                                        logger.Error("[{LogCategory}] " + $"업무 계약 파일 역 직렬화 오류 - {businessFile}", "ManagedController/ResetAppContract");
                                     }
                                     else
                                     {
@@ -133,13 +179,13 @@ namespace transact.Areas.transact.Controllers
                                         }
                                         else
                                         {
-                                            logger.Warning("[{LogCategory}] " + $"업무 계약 파일 또는 거래 정보 중복 오류 - {businessFile}, ProjectID - {businessContract.ApplicationID}, BusinessID - {businessContract.ProjectID}, TransactionID - {businessContract.TransactionID}", "LoadContract");
+                                            logger.Warning("[{LogCategory}] " + $"업무 계약 파일 또는 거래 정보 중복 오류 - {businessFile}, ProjectID - {businessContract.ApplicationID}, BusinessID - {businessContract.ProjectID}, TransactionID - {businessContract.TransactionID}", "ManagedController/LoadContract");
                                         }
                                     }
                                 }
                                 catch (Exception exception)
                                 {
-                                    logger.Error("[{LogCategory}] " + $"업무 계약 파일 역직렬화 오류 - {businessFile}, {exception.ToMessage()}", "LoadContract");
+                                    logger.Error("[{LogCategory}] " + $"업무 계약 파일 역 직렬화 오류 - {businessFile}, {exception.ToMessage()}", "ManagedController/LoadContract");
                                 }
                             }
                         }

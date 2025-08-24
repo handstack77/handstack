@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json.Nodes;
 
 using function.Entity;
 using function.Extensions;
 
 using HandStack.Core.ExtensionMethod;
+using HandStack.Core.Helpers;
 using HandStack.Web;
 using HandStack.Web.Common;
 using HandStack.Web.Extensions;
@@ -121,8 +123,53 @@ namespace function.Areas.function.Controllers
                                         continue;
                                     }
 
-                                    var functionScriptContract = FunctionScriptContract.FromJson(System.IO.File.ReadAllText(scriptMapFile));
+                                    var configData = System.IO.File.ReadAllText(scriptMapFile);
 
+                                    JsonNode? root = JsonNode.Parse(configData.RemoveJsonComments());
+                                    if (root is JsonObject rootNode)
+                                    {
+                                        var hasSignatureKey = rootNode.TryGetPropertyValue("SignatureKey", out var signatureKeyNode) && signatureKeyNode is JsonValue;
+                                        var hasEncrypt = rootNode.TryGetPropertyValue("EncryptCommands", out var encryptNode) && encryptNode is JsonValue;
+                                        if (hasSignatureKey == true && hasEncrypt == true)
+                                        {
+                                            var signatureKey = signatureKeyNode!.GetValue<string>();
+                                            var licenseItem = GlobalConfiguration.LoadModuleLicenses.Values.FirstOrDefault(li => li.AssemblyToken == signatureKey);
+                                            if (licenseItem == null)
+                                            {
+                                                logger.Error("[{LogCategory}] " + $"{scriptMapFile} 업무 계약 파일 오류 - 서명 키 불일치", "ManagedController/ResetAppContract");
+                                                continue;
+                                            }
+
+                                            var cipher = encryptNode!.GetValue<string>();
+                                            var plain = LZStringHelper.DecompressFromUint8Array(cipher.DecryptAESBytes(licenseItem.AssemblyKey)) ?? string.Empty;
+
+                                            JsonNode? restored;
+                                            try
+                                            {
+                                                restored = JsonNode.Parse(plain);
+
+                                                if (restored is not JsonArray restoredArr)
+                                                {
+                                                    logger.Error("[{LogCategory}] " + $"Decrypted Services는 {scriptMapFile} 내의 JSON 배열이 아닙니다.", "ManagedController/ResetAppContract");
+                                                    continue;
+                                                }
+
+                                                rootNode["Services"] = restoredArr;
+                                            }
+                                            catch (Exception exception)
+                                            {
+                                                logger.Error(exception, "[{LogCategory}] " + $"업무 계약 파일 역 직렬화 오류 - {scriptMapFile}", "ManagedController/ResetAppContract");
+                                                continue;
+                                            }
+
+                                            rootNode.Remove("SignatureKey");
+                                            rootNode.Remove("EncryptCommands");
+
+                                            configData = rootNode.ToJsonString();
+                                        }
+                                    }
+
+                                    var functionScriptContract = FunctionScriptContract.FromJson(configData);
                                     if (functionScriptContract == null)
                                     {
                                         Log.Logger.Information("[{LogCategory}] " + $"{scriptMapFile} 대응 functionFilePath 파일 없음", "ManagedController/ResetAppContract");

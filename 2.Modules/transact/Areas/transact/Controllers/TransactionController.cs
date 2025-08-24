@@ -4,6 +4,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -135,29 +136,75 @@ namespace transact.Areas.transact.Controllers
                                 if (string.IsNullOrEmpty(userWorkID) == false && string.IsNullOrEmpty(applicationID) == false)
                                 {
                                     var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
-                                    var itemPath = PathExtensions.Join(appBasePath, filePath);
+                                    var businessFile = PathExtensions.Join(appBasePath, filePath);
                                     var directoryInfo = new DirectoryInfo(appBasePath);
-                                    if (directoryInfo.Exists == true && System.IO.File.Exists(itemPath) == true)
+                                    if (directoryInfo.Exists == true && System.IO.File.Exists(businessFile) == true)
                                     {
-                                        var businessContract = BusinessContract.FromJson(System.IO.File.ReadAllText(itemPath));
+                                        var configData = System.IO.File.ReadAllText(businessFile);
+
+                                        JsonNode? root = JsonNode.Parse(configData.RemoveJsonComments());
+                                        if (root is JsonObject rootNode)
+                                        {
+                                            var hasSignatureKey = rootNode.TryGetPropertyValue("SignatureKey", out var signatureKeyNode) && signatureKeyNode is JsonValue;
+                                            var hasEncrypt = rootNode.TryGetPropertyValue("EncryptServices", out var encryptNode) && encryptNode is JsonValue;
+                                            if (hasSignatureKey == true && hasEncrypt == true)
+                                            {
+                                                var signatureKey = signatureKeyNode!.GetValue<string>();
+                                                var licenseItem = GlobalConfiguration.LoadModuleLicenses.Values.FirstOrDefault(li => li.AssemblyToken == signatureKey);
+                                                if (licenseItem == null)
+                                                {
+                                                    logger.Error("[{LogCategory}] " + $"{businessFile} 업무 계약 파일 오류 - 서명 키 불일치", "TransactionController/Refresh");
+                                                    break;
+                                                }
+
+                                                var cipher = encryptNode!.GetValue<string>();
+                                                var plain = LZStringHelper.DecompressFromUint8Array(cipher.DecryptAESBytes(licenseItem.AssemblyKey)) ?? string.Empty;
+
+                                                JsonNode? restored;
+                                                try
+                                                {
+                                                    restored = JsonNode.Parse(plain);
+
+                                                    if (restored is not JsonArray restoredArr)
+                                                    {
+                                                        logger.Error("[{LogCategory}] " + $"Decrypted Services는 {businessFile} 내의 JSON 배열이 아닙니다.", "TransactionController/Refresh");
+                                                        break;
+                                                    }
+
+                                                    rootNode["Services"] = restoredArr;
+                                                }
+                                                catch (Exception exception)
+                                                {
+                                                    logger.Error(exception, "[{LogCategory}] " + $"업무 계약 파일 역 직렬화 오류 - {businessFile}", "TransactionController/Refresh");
+                                                    break;
+                                                }
+
+                                                rootNode.Remove("SignatureKey");
+                                                rootNode.Remove("EncryptServices");
+
+                                                configData = rootNode.ToJsonString();
+                                            }
+                                        }
+
+                                        var businessContract = BusinessContract.FromJson(configData);
                                         if (businessContract != null)
                                         {
-                                            if (businessContracts.ContainsKey(itemPath) == true)
+                                            if (businessContracts.ContainsKey(businessFile) == true)
                                             {
-                                                businessContracts.Remove(itemPath);
+                                                businessContracts.Remove(businessFile);
                                             }
 
                                             businessContract.TransactionProjectID = string.IsNullOrEmpty(businessContract.TransactionProjectID) == true ? businessContract.ProjectID : businessContract.TransactionProjectID;
 
-                                            fileInfo = new FileInfo(itemPath);
+                                            fileInfo = new FileInfo(businessFile);
                                             businessContract.ApplicationID = string.IsNullOrEmpty(businessContract.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : businessContract.ApplicationID;
                                             businessContract.ProjectID = string.IsNullOrEmpty(businessContract.ProjectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : businessContract.ProjectID;
                                             businessContract.TransactionID = string.IsNullOrEmpty(businessContract.TransactionID) == true ? fileInfo.Name.Replace(fileInfo.Extension, "") : businessContract.TransactionID;
                                             businessContract.TransactionProjectID = string.IsNullOrEmpty(businessContract.TransactionProjectID) == true ? businessContract.ProjectID : businessContract.TransactionProjectID;
 
-                                            businessContracts.Add(itemPath, businessContract);
+                                            businessContracts.Add(businessFile, businessContract);
 
-                                            logger.Information("[{LogCategory}] " + $"Add TenantApp Contract FilePath: {itemPath}", "Transaction/Refresh");
+                                            logger.Information("[{LogCategory}] " + $"Add TenantApp Contract FilePath: {businessFile}", "Transaction/Refresh");
                                             actionResult = true;
                                         }
                                     }
@@ -166,26 +213,72 @@ namespace transact.Areas.transact.Controllers
                                 {
                                     foreach (var basePath in ModuleConfiguration.ContractBasePath)
                                     {
-                                        var itemPath = PathExtensions.Join(basePath, filePath);
-                                        if (System.IO.File.Exists(itemPath) == true)
+                                        var businessFile = PathExtensions.Join(basePath, filePath);
+                                        if (System.IO.File.Exists(businessFile) == true)
                                         {
-                                            var businessContract = BusinessContract.FromJson(System.IO.File.ReadAllText(itemPath));
+                                            var configData = System.IO.File.ReadAllText(businessFile);
+
+                                            JsonNode? root = JsonNode.Parse(configData.RemoveJsonComments());
+                                            if (root is JsonObject rootNode)
+                                            {
+                                                var hasSignatureKey = rootNode.TryGetPropertyValue("SignatureKey", out var signatureKeyNode) && signatureKeyNode is JsonValue;
+                                                var hasEncrypt = rootNode.TryGetPropertyValue("EncryptServices", out var encryptNode) && encryptNode is JsonValue;
+                                                if (hasSignatureKey == true && hasEncrypt == true)
+                                                {
+                                                    var signatureKey = signatureKeyNode!.GetValue<string>();
+                                                    var licenseItem = GlobalConfiguration.LoadModuleLicenses.Values.FirstOrDefault(li => li.AssemblyToken == signatureKey);
+                                                    if (licenseItem == null)
+                                                    {
+                                                        logger.Error("[{LogCategory}] " + $"{businessFile} 업무 계약 파일 오류 - 서명 키 불일치", "TransactionController/Refresh");
+                                                        break;
+                                                    }
+
+                                                    var cipher = encryptNode!.GetValue<string>();
+                                                    var plain = LZStringHelper.DecompressFromUint8Array(cipher.DecryptAESBytes(licenseItem.AssemblyKey)) ?? string.Empty;
+
+                                                    JsonNode? restored;
+                                                    try
+                                                    {
+                                                        restored = JsonNode.Parse(plain);
+
+                                                        if (restored is not JsonArray restoredArr)
+                                                        {
+                                                            logger.Error("[{LogCategory}] " + $"Decrypted Services는 {businessFile} 내의 JSON 배열이 아닙니다.", "TransactionController/Refresh");
+                                                            break;
+                                                        }
+
+                                                        rootNode["Services"] = restoredArr;
+                                                    }
+                                                    catch (Exception exception)
+                                                    {
+                                                        logger.Error(exception, "[{LogCategory}] " + $"업무 계약 파일 역 직렬화 오류 - {businessFile}", "TransactionController/Refresh");
+                                                        break;
+                                                    }
+
+                                                    rootNode.Remove("SignatureKey");
+                                                    rootNode.Remove("EncryptServices");
+
+                                                    configData = rootNode.ToJsonString();
+                                                }
+                                            }
+
+                                            var businessContract = BusinessContract.FromJson(configData);
                                             if (businessContract != null)
                                             {
-                                                if (businessContracts.ContainsKey(itemPath) == true)
+                                                if (businessContracts.ContainsKey(businessFile) == true)
                                                 {
-                                                    businessContracts.Remove(itemPath);
+                                                    businessContracts.Remove(businessFile);
                                                 }
 
-                                                fileInfo = new FileInfo(itemPath);
+                                                fileInfo = new FileInfo(businessFile);
                                                 businessContract.ApplicationID = string.IsNullOrEmpty(businessContract.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : businessContract.ApplicationID;
                                                 businessContract.ProjectID = string.IsNullOrEmpty(businessContract.ProjectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : businessContract.ProjectID;
                                                 businessContract.TransactionID = string.IsNullOrEmpty(businessContract.TransactionID) == true ? fileInfo.Name.Replace(fileInfo.Extension, "") : businessContract.TransactionID;
                                                 businessContract.TransactionProjectID = string.IsNullOrEmpty(businessContract.TransactionProjectID) == true ? businessContract.ProjectID : businessContract.TransactionProjectID;
 
-                                                businessContracts.Add(itemPath, businessContract, TimeSpan.FromDays(36500));
+                                                businessContracts.Add(businessFile, businessContract, TimeSpan.FromDays(36500));
 
-                                                logger.Information("[{LogCategory}] " + $"Add Contract FilePath: {itemPath}", "Transaction/Refresh");
+                                                logger.Information("[{LogCategory}] " + $"Add Contract FilePath: {businessFile}", "Transaction/Refresh");
                                                 actionResult = true;
                                                 break;
                                             }

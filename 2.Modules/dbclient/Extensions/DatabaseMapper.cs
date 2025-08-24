@@ -7,6 +7,7 @@ using System.Linq.Dynamic.Core;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Xml;
 
 using Dapper;
 
@@ -14,6 +15,7 @@ using dbclient.Entity;
 using dbclient.NativeParameters;
 
 using HandStack.Core.ExtensionMethod;
+using HandStack.Core.Helpers;
 using HandStack.Data;
 using HandStack.Web;
 using HandStack.Web.Entity;
@@ -27,7 +29,11 @@ using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
+using Org.BouncyCastle.Crypto;
+
 using Serilog;
+
+using static Mysqlx.Expect.Open.Types.Condition.Types;
 
 namespace dbclient.Extensions
 {
@@ -231,6 +237,23 @@ namespace dbclient.Extensions
                                 htmlDocument.OptionDefaultStreamEncoding = Encoding.UTF8;
                                 htmlDocument.LoadHtml(ReplaceCData(File.ReadAllText(filePath)));
                                 var header = htmlDocument.DocumentNode.SelectSingleNode("//mapper/header");
+                                var signatureKey = (header?.Element("signaturekey")?.InnerText).ToStringSafe();
+                                var encryptCommands = (header?.Element("encryptcommands")?.InnerText).ToStringSafe();
+
+                                if (string.IsNullOrEmpty(signatureKey) == false && string.IsNullOrEmpty(encryptCommands) == false)
+                                {
+                                    var licenseItem = GlobalConfiguration.LoadModuleLicenses.Values.FirstOrDefault(li => li.AssemblyToken == signatureKey);
+                                    if (licenseItem == null)
+                                    {
+                                        Log.Logger.Error("[{LogCategory}] " + $"{filePath} 업무 계약 파일 오류 - 서명키 불일치", "DatabaseMapper/GetStatementMap");
+                                        return null;
+                                    }
+
+                                    var plain = LZStringHelper.DecompressFromUint8Array(encryptCommands.DecryptAESBytes(licenseItem.AssemblyKey)) ?? string.Empty;
+
+                                    var commands = htmlDocument.DocumentNode.SelectSingleNode("//mapper/commands");
+                                    commands.InnerHtml = plain;
+                                }
 
                                 applicationID = (header?.Element("application")?.InnerText).ToStringSafe();
                                 projectID = (header?.Element("project")?.InnerText).ToStringSafe();
@@ -445,6 +468,23 @@ namespace dbclient.Extensions
                             htmlDocument.OptionDefaultStreamEncoding = Encoding.UTF8;
                             htmlDocument.LoadHtml(ReplaceCData(File.ReadAllText(filePath)));
                             var header = htmlDocument.DocumentNode.SelectSingleNode("//mapper/header");
+                            var signatureKey = (header?.Element("signaturekey")?.InnerText).ToStringSafe();
+                            var encryptCommands = (header?.Element("encryptcommands")?.InnerText).ToStringSafe();
+
+                            if (string.IsNullOrEmpty(signatureKey) == false && string.IsNullOrEmpty(encryptCommands) == false)
+                            {
+                                var licenseItem = GlobalConfiguration.LoadModuleLicenses.Values.FirstOrDefault(li => li.AssemblyToken == signatureKey);
+                                if (licenseItem == null)
+                                {
+                                    logger.Error("[{LogCategory}] " + $"{filePath} 업무 계약 파일 오류 - 서명 키 불일치", "DatabaseMapper/AddStatementMap");
+                                    continue;
+                                }
+
+                                var plain = LZStringHelper.DecompressFromUint8Array(encryptCommands.DecryptAESBytes(licenseItem.AssemblyKey)) ?? string.Empty;
+
+                                var commands = htmlDocument.DocumentNode.SelectSingleNode("//mapper/commands");
+                                commands.InnerHtml = plain;
+                            }
 
                             var isTenantContractFile = false;
                             var applicationID = (header?.Element("application")?.InnerText).ToStringSafe();
@@ -1016,6 +1056,23 @@ namespace dbclient.Extensions
                             htmlDocument.OptionDefaultStreamEncoding = Encoding.UTF8;
                             htmlDocument.LoadHtml(ReplaceCData(File.ReadAllText(sqlMapFile)));
                             var header = htmlDocument.DocumentNode.SelectSingleNode("//mapper/header");
+                            var signatureKey = (header?.Element("signaturekey")?.InnerText).ToStringSafe();
+                            var encryptCommands = (header?.Element("encryptcommands")?.InnerText).ToStringSafe();
+
+                            if (string.IsNullOrEmpty(signatureKey) == false && string.IsNullOrEmpty(encryptCommands) == false)
+                            {
+                                var licenseItem = GlobalConfiguration.LoadModuleLicenses.Values.FirstOrDefault(li => li.AssemblyToken == signatureKey);
+                                if (licenseItem == null)
+                                {
+                                    logger.Error("[{LogCategory}] " + $"{sqlMapFile} 업무 계약 파일 오류 - 서명키 불일치", "DatabaseMapper/LoadContract");
+                                    continue;
+                                }
+
+                                var plain = LZStringHelper.DecompressFromUint8Array(encryptCommands.DecryptAESBytes(licenseItem.AssemblyKey)) ?? string.Empty;
+
+                                var commands = htmlDocument.DocumentNode.SelectSingleNode("//mapper/commands");
+                                commands.InnerHtml = plain;
+                            }
 
                             var applicationID = (header?.Element("application")?.InnerText).ToStringSafe();
                             var projectID = (header?.Element("project")?.InnerText).ToStringSafe();

@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Text.Json.Nodes;
 
 using function.Builder;
 using function.Entity;
 
 using HandStack.Core.ExtensionMethod;
+using HandStack.Core.Helpers;
 using HandStack.Data;
 using HandStack.Web;
 using HandStack.Web.Entity;
@@ -212,8 +214,53 @@ namespace function.Extensions
                         return;
                     }
 
-                    var functionScriptContract = FunctionScriptContract.FromJson(File.ReadAllText(scriptMapFile));
+                    var configData = System.IO.File.ReadAllText(scriptMapFile);
 
+                    JsonNode? root = JsonNode.Parse(configData.RemoveJsonComments());
+                    if (root is JsonObject rootNode)
+                    {
+                        var hasSignatureKey = rootNode.TryGetPropertyValue("SignatureKey", out var signatureKeyNode) && signatureKeyNode is JsonValue;
+                        var hasEncrypt = rootNode.TryGetPropertyValue("EncryptCommands", out var encryptNode) && encryptNode is JsonValue;
+                        if (hasSignatureKey == true && hasEncrypt == true)
+                        {
+                            var signatureKey = signatureKeyNode!.GetValue<string>();
+                            var licenseItem = GlobalConfiguration.LoadModuleLicenses.Values.FirstOrDefault(li => li.AssemblyToken == signatureKey);
+                            if (licenseItem == null)
+                            {
+                                Log.Logger.Error("[{LogCategory}] " + $"{scriptMapFile} 업무 계약 파일 오류 - 서명 키 불일치", "FunctionMapper/MergeContractFile");
+                                return;
+                            }
+
+                            var cipher = encryptNode!.GetValue<string>();
+                            var plain = LZStringHelper.DecompressFromUint8Array(cipher.DecryptAESBytes(licenseItem.AssemblyKey)) ?? string.Empty;
+
+                            JsonNode? restored;
+                            try
+                            {
+                                restored = JsonNode.Parse(plain);
+
+                                if (restored is not JsonArray restoredArr)
+                                {
+                                    Log.Logger.Error("[{LogCategory}] " + $"Decrypted Services는 {scriptMapFile} 내의 JSON 배열이 아닙니다.", "FunctionMapper/MergeContractFile");
+                                    return;
+                                }
+
+                                rootNode["Services"] = restoredArr;
+                            }
+                            catch (Exception exception)
+                            {
+                                Log.Logger.Error(exception, "[{LogCategory}] " + $"업무 계약 파일 역 직렬화 오류 - {scriptMapFile}", "FunctionMapper/MergeContractFile");
+                                return;
+                            }
+
+                            rootNode.Remove("SignatureKey");
+                            rootNode.Remove("EncryptCommands");
+
+                            configData = rootNode.ToJsonString();
+                        }
+                    }
+
+                    var functionScriptContract = FunctionScriptContract.FromJson(configData);
                     if (functionScriptContract == null)
                     {
                         Log.Logger.Information("[{LogCategory}] " + $"{scriptMapFile} 대응 functionFilePath 파일 없음", "FunctionMapper/MergeContractFile");
@@ -408,7 +455,7 @@ namespace function.Extensions
             return result;
         }
 
-        public static bool AddScriptMap(string scriptMapFile, bool forceUpdate, ILogger logger)
+        public static bool AddScriptMap(string scriptFilePath, bool forceUpdate, ILogger logger)
         {
             var result = false;
 
@@ -416,27 +463,64 @@ namespace function.Extensions
             {
                 foreach (var basePath in ModuleConfiguration.ContractBasePath)
                 {
-                    if (scriptMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && GlobalConfiguration.IsTenantFunction == false)
+                    if (scriptFilePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true && GlobalConfiguration.IsTenantFunction == false)
                     {
                         return result;
                     }
 
-                    var filePath = string.Empty;
-                    var scriptMapFilePath = string.Empty;
-
-                    scriptMapFilePath = PathExtensions.Combine(basePath, scriptMapFile);
-                    if (File.Exists(scriptMapFilePath) == true)
+                    var scriptMapFile = PathExtensions.Combine(basePath, scriptFilePath);
+                    if (File.Exists(scriptMapFile) == true)
                     {
-                        filePath = scriptMapFilePath;
-                    }
+                        var configData = System.IO.File.ReadAllText(scriptMapFile);
 
-                    if (File.Exists(filePath) == true)
-                    {
-                        var functionScriptContract = FunctionScriptContract.FromJson(File.ReadAllText(filePath));
+                        JsonNode? root = JsonNode.Parse(configData.RemoveJsonComments());
+                        if (root is JsonObject rootNode)
+                        {
+                            var hasSignatureKey = rootNode.TryGetPropertyValue("SignatureKey", out var signatureKeyNode) && signatureKeyNode is JsonValue;
+                            var hasEncrypt = rootNode.TryGetPropertyValue("EncryptCommands", out var encryptNode) && encryptNode is JsonValue;
+                            if (hasSignatureKey == true && hasEncrypt == true)
+                            {
+                                var signatureKey = signatureKeyNode!.GetValue<string>();
+                                var licenseItem = GlobalConfiguration.LoadModuleLicenses.Values.FirstOrDefault(li => li.AssemblyToken == signatureKey);
+                                if (licenseItem == null)
+                                {
+                                    logger.Error("[{LogCategory}] " + $"{scriptMapFile} 업무 계약 파일 오류 - 서명 키 불일치", "FunctionMapper/AddScriptMap");
+                                    continue;
+                                }
 
+                                var cipher = encryptNode!.GetValue<string>();
+                                var plain = LZStringHelper.DecompressFromUint8Array(cipher.DecryptAESBytes(licenseItem.AssemblyKey)) ?? string.Empty;
+
+                                JsonNode? restored;
+                                try
+                                {
+                                    restored = JsonNode.Parse(plain);
+
+                                    if (restored is not JsonArray restoredArr)
+                                    {
+                                        logger.Error("[{LogCategory}] " + $"Decrypted Services는 {scriptMapFile} 내의 JSON 배열이 아닙니다.", "FunctionMapper/AddScriptMap");
+                                        continue;
+                                    }
+
+                                    rootNode["Services"] = restoredArr;
+                                }
+                                catch (Exception exception)
+                                {
+                                    logger.Error(exception, "[{LogCategory}] " + $"업무 계약 파일 역 직렬화 오류 - {scriptMapFile}", "FunctionMapper/AddScriptMap");
+                                    continue;
+                                }
+
+                                rootNode.Remove("SignatureKey");
+                                rootNode.Remove("EncryptCommands");
+
+                                configData = rootNode.ToJsonString();
+                            }
+                        }
+
+                        var functionScriptContract = FunctionScriptContract.FromJson(configData);
                         if (functionScriptContract == null)
                         {
-                            logger.Information("[{LogCategory}] " + $"{filePath} 대응 functionFilePath 파일 없음", "FunctionMapper/AddScriptMap");
+                            logger.Information("[{LogCategory}] " + $"{scriptMapFile} 대응 functionFilePath 파일 없음", "FunctionMapper/AddScriptMap");
                             continue;
                         }
 
@@ -456,19 +540,19 @@ namespace function.Extensions
 
                         if (string.IsNullOrEmpty(fileExtension) == true)
                         {
-                            logger.Error("[{LogCategory}] " + $"{scriptMapFile} 언어 타입 확인 필요", "FunctionMapper/AddScriptMap");
+                            logger.Error("[{LogCategory}] " + $"{scriptFilePath} 언어 타입 확인 필요", "FunctionMapper/AddScriptMap");
                             continue;
                         }
 
-                        var functionScriptFile = filePath.Replace("featureMeta.json", $"featureMain.{fileExtension}");
+                        var functionScriptFile = scriptMapFile.Replace("featureMeta.json", $"featureMain.{fileExtension}");
                         if (File.Exists(functionScriptFile) == true)
                         {
                             var header = functionScriptContract.Header;
                             var isTenantContractFile = false;
-                            if (filePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
+                            if (scriptMapFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == true)
                             {
                                 isTenantContractFile = true;
-                                var fileInfo = new FileInfo(filePath);
+                                var fileInfo = new FileInfo(scriptMapFile);
                                 header.ApplicationID = string.IsNullOrEmpty(header.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Parent?.Parent?.Name).ToStringSafe() : header.ApplicationID;
                                 header.ProjectID = string.IsNullOrEmpty(header.ProjectID) == true ? (fileInfo.Directory?.Parent?.Name).ToStringSafe() : header.ProjectID;
                                 header.TransactionID = string.IsNullOrEmpty(header.TransactionID) == true ? (fileInfo.Directory?.Name).ToStringSafe().Replace(fileInfo.Extension, "") : header.TransactionID;
@@ -576,7 +660,7 @@ namespace function.Extensions
                                         }
                                         else
                                         {
-                                            logger.Warning("[{LogCategory}] " + $"ScriptMap 정보 중복 확인 필요 - {filePath}, ApplicationID - {moduleScriptMap.ApplicationID}, ProjectID - {moduleScriptMap.ProjectID}, TransactionID - {moduleScriptMap.TransactionID}, ScriptID - {moduleScriptMap.ScriptID}", "FunctionMapper/AddScriptMap");
+                                            logger.Warning("[{LogCategory}] " + $"ScriptMap 정보 중복 확인 필요 - {scriptMapFile}, ApplicationID - {moduleScriptMap.ApplicationID}, ProjectID - {moduleScriptMap.ProjectID}, TransactionID - {moduleScriptMap.TransactionID}, ScriptID - {moduleScriptMap.ScriptID}", "FunctionMapper/AddScriptMap");
                                         }
                                     }
                                 }
@@ -593,7 +677,7 @@ namespace function.Extensions
             }
             catch (Exception exception)
             {
-                logger.Error("[{LogCategory}] " + $"{scriptMapFile} 업무 계약 파일 오류 - {exception.ToMessage()}", "FunctionMapper/AddScriptMap");
+                logger.Error("[{LogCategory}] " + $"{scriptFilePath} 업무 계약 파일 오류 - {exception.ToMessage()}", "FunctionMapper/AddScriptMap");
             }
 
             return result;
@@ -648,8 +732,53 @@ namespace function.Extensions
                                 continue;
                             }
 
-                            var functionScriptContract = FunctionScriptContract.FromJson(File.ReadAllText(scriptMapFile));
+                            var configData = System.IO.File.ReadAllText(scriptMapFile);
 
+                            JsonNode? root = JsonNode.Parse(configData.RemoveJsonComments());
+                            if (root is JsonObject rootNode)
+                            {
+                                var hasSignatureKey = rootNode.TryGetPropertyValue("SignatureKey", out var signatureKeyNode) && signatureKeyNode is JsonValue;
+                                var hasEncrypt = rootNode.TryGetPropertyValue("EncryptCommands", out var encryptNode) && encryptNode is JsonValue;
+                                if (hasSignatureKey == true && hasEncrypt == true)
+                                {
+                                    var signatureKey = signatureKeyNode!.GetValue<string>();
+                                    var licenseItem = GlobalConfiguration.LoadModuleLicenses.Values.FirstOrDefault(li => li.AssemblyToken == signatureKey);
+                                    if (licenseItem == null)
+                                    {
+                                        logger.Error("[{LogCategory}] " + $"{scriptMapFile} 업무 계약 파일 오류 - 서명 키 불일치", "FunctionMapper/LoadContract");
+                                        continue;
+                                    }
+
+                                    var cipher = encryptNode!.GetValue<string>();
+                                    var plain = LZStringHelper.DecompressFromUint8Array(cipher.DecryptAESBytes(licenseItem.AssemblyKey)) ?? string.Empty;
+
+                                    JsonNode? restored;
+                                    try
+                                    {
+                                        restored = JsonNode.Parse(plain);
+
+                                        if (restored is not JsonArray restoredArr)
+                                        {
+                                            logger.Error("[{LogCategory}] " + $"Decrypted Services는 {scriptMapFile} 내의 JSON 배열이 아닙니다.", "FunctionMapper/LoadContract");
+                                            continue;
+                                        }
+
+                                        rootNode["Services"] = restoredArr;
+                                    }
+                                    catch (Exception exception)
+                                    {
+                                        logger.Error(exception, "[{LogCategory}] " + $"업무 계약 파일 역 직렬화 오류 - {scriptMapFile}", "FunctionMapper/LoadContract");
+                                        continue;
+                                    }
+
+                                    rootNode.Remove("SignatureKey");
+                                    rootNode.Remove("EncryptCommands");
+
+                                    configData = rootNode.ToJsonString();
+                                }
+                            }
+
+                            var functionScriptContract = FunctionScriptContract.FromJson(configData);
                             if (functionScriptContract == null)
                             {
                                 logger.Information("[{LogCategory}] " + $"{scriptMapFile} 대응 functionFilePath 파일 없음", "FunctionMapper/LoadContract");

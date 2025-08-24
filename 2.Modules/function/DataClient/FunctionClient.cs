@@ -4,6 +4,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 
 using function.Builder;
@@ -12,6 +13,7 @@ using function.Entity;
 using function.Extensions;
 
 using HandStack.Core.ExtensionMethod;
+using HandStack.Core.Helpers;
 using HandStack.Web;
 using HandStack.Web.ApiClient;
 using HandStack.Web.Entity;
@@ -242,8 +244,62 @@ namespace function.DataClient
                         var fileDirectoryName = directoryInfo.Name;
                         var scriptMapFile = PathExtensions.Combine(fileDirectory, "featureMeta.json");
 
-                        var functionScriptContract = File.Exists(scriptMapFile) == true ? FunctionScriptContract.FromJson(File.ReadAllText(scriptMapFile)) : null;
+                        if (File.Exists(scriptMapFile) == false)
+                        {
+                            response.ExceptionText = $"'{queryObject.QueryID}'에 대한 featureMeta.json 확인 필요";
+                            return;
+                        }
 
+                        var configData = System.IO.File.ReadAllText(scriptMapFile);
+
+                        JsonNode? root = JsonNode.Parse(configData.RemoveJsonComments());
+                        if (root is JsonObject rootNode)
+                        {
+                            var hasSignatureKey = rootNode.TryGetPropertyValue("SignatureKey", out var signatureKeyNode) && signatureKeyNode is JsonValue;
+                            var hasEncrypt = rootNode.TryGetPropertyValue("EncryptCommands", out var encryptNode) && encryptNode is JsonValue;
+                            if (hasSignatureKey == true && hasEncrypt == true)
+                            {
+                                var signatureKey = signatureKeyNode!.GetValue<string>();
+                                var licenseItem = GlobalConfiguration.LoadModuleLicenses.Values.FirstOrDefault(li => li.AssemblyToken == signatureKey);
+                                if (licenseItem == null)
+                                {
+                                    logger.Error("[{LogCategory}] " + $"{scriptMapFile} 업무 계약 파일 오류 - 서명 키 불일치", "FunctionClient/ExecuteScriptMap");
+                                    response.ExceptionText = $"{scriptMapFile} 업무 계약 파일 오류 - 서명 키 불일치";
+                                    return;
+                                }
+
+                                var cipher = encryptNode!.GetValue<string>();
+                                var plain = LZStringHelper.DecompressFromUint8Array(cipher.DecryptAESBytes(licenseItem.AssemblyKey)) ?? string.Empty;
+
+                                JsonNode? restored;
+                                try
+                                {
+                                    restored = JsonNode.Parse(plain);
+
+                                    if (restored is not JsonArray restoredArr)
+                                    {
+                                        logger.Error("[{LogCategory}] " + $"Decrypted Services는 {scriptMapFile} 내의 JSON 배열이 아닙니다.", "FunctionClient/ExecuteScriptMap");
+                                        response.ExceptionText = $"Decrypted Services는 {scriptMapFile} 내의 JSON 배열이 아닙니다.";
+                                        return;
+                                    }
+
+                                    rootNode["Services"] = restoredArr;
+                                }
+                                catch (Exception exception)
+                                {
+                                    logger.Error(exception, "[{LogCategory}] " + $"업무 계약 파일 역 직렬화 오류 - {scriptMapFile}", "FunctionClient/ExecuteScriptMap");
+                                    response.ExceptionText = $"업무 계약 파일 역 직렬화 오류 - {scriptMapFile}";
+                                    return;
+                                }
+
+                                rootNode.Remove("SignatureKey");
+                                rootNode.Remove("EncryptCommands");
+
+                                configData = rootNode.ToJsonString();
+                            }
+                        }
+
+                        var functionScriptContract = FunctionScriptContract.FromJson(configData);
                         if (functionScriptContract != null)
                         {
                             var moduleConfig = functionScriptContract.Header;

@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text.Json.Nodes;
 
 using HandStack.Core.ExtensionMethod;
+using HandStack.Core.Helpers;
 using HandStack.Web;
 using HandStack.Web.Entity;
 using HandStack.Web.Extensions;
@@ -54,35 +56,81 @@ namespace transact.Extensions
                     if (string.IsNullOrEmpty(appBasePath) == false)
                     {
                         var tenantID = $"{userWorkID}|{applicationID}";
-                        var filePath = PathExtensions.Combine(appBasePath, "transact", projectID, transactionID + ".json");
-                        if (File.Exists(filePath) == true)
+                        var businessFile = PathExtensions.Combine(appBasePath, "transact", projectID, transactionID + ".json");
+                        if (File.Exists(businessFile) == true)
                         {
                             try
                             {
-                                businessContract = BusinessContract.FromJson(File.ReadAllText(filePath));
+                                var configData = File.ReadAllText(businessFile);
+
+                                JsonNode? root = JsonNode.Parse(configData.RemoveJsonComments());
+                                if (root is JsonObject rootNode)
+                                {
+                                    var hasSignatureKey = rootNode.TryGetPropertyValue("SignatureKey", out var signatureKeyNode) && signatureKeyNode is JsonValue;
+                                    var hasEncrypt = rootNode.TryGetPropertyValue("EncryptServices", out var encryptNode) && encryptNode is JsonValue;
+                                    if (hasSignatureKey == true && hasEncrypt == true)
+                                    {
+                                        var signatureKey = signatureKeyNode!.GetValue<string>();
+                                        var licenseItem = GlobalConfiguration.LoadModuleLicenses.Values.FirstOrDefault(li => li.AssemblyToken == signatureKey);
+                                        if (licenseItem == null)
+                                        {
+                                            Log.Logger.Error("[{LogCategory}] " + $"{businessFile} 업무 계약 파일 오류 - 서명 키 불일치", "TransactionMapper/GetBusinessContract");
+                                            return businessContract;
+                                        }
+
+                                        var cipher = encryptNode!.GetValue<string>();
+                                        var plain = LZStringHelper.DecompressFromUint8Array(cipher.DecryptAESBytes(licenseItem.AssemblyKey)) ?? string.Empty;
+
+                                        JsonNode? restored;
+                                        try
+                                        {
+                                            restored = JsonNode.Parse(plain);
+
+                                            if (restored is not JsonArray restoredArr)
+                                            {
+                                                Log.Logger.Error("[{LogCategory}] " + $"Decrypted Services는 {businessFile} 내의 JSON 배열이 아닙니다.", "TransactionMapper/GetBusinessContract");
+                                                return businessContract;
+                                            }
+
+                                            rootNode["Services"] = restoredArr;
+                                        }
+                                        catch (Exception exception)
+                                        {
+                                            Log.Logger.Error(exception, "[{LogCategory}] " + $"업무 계약 파일 역 직렬화 오류 - {businessFile}", "TransactionMapper/GetBusinessContract");
+                                            return businessContract;
+                                        }
+
+                                        rootNode.Remove("SignatureKey");
+                                        rootNode.Remove("EncryptServices");
+
+                                        configData = rootNode.ToJsonString();
+                                    }
+                                }
+
+                                businessContract = BusinessContract.FromJson(configData);
                                 if (businessContract != null)
                                 {
                                     lock (BusinessMappings)
                                     {
-                                        if (BusinessMappings.ContainsKey(filePath) == true)
+                                        if (BusinessMappings.ContainsKey(businessFile) == true)
                                         {
-                                            BusinessMappings.Remove(filePath);
+                                            BusinessMappings.Remove(businessFile);
                                         }
 
-                                        var fileInfo = new FileInfo(filePath);
+                                        var fileInfo = new FileInfo(businessFile);
                                         businessContract.ApplicationID = string.IsNullOrEmpty(businessContract.ApplicationID) == true ? (fileInfo.Directory?.Parent?.Parent?.Name).ToStringSafe() : businessContract.ApplicationID;
                                         businessContract.ProjectID = string.IsNullOrEmpty(businessContract.ProjectID) == true ? (fileInfo.Directory?.Name).ToStringSafe() : businessContract.ProjectID;
                                         businessContract.TransactionID = string.IsNullOrEmpty(businessContract.TransactionID) == true ? fileInfo.Name.Replace(fileInfo.Extension, "") : businessContract.TransactionID;
                                         businessContract.TransactionProjectID = string.IsNullOrEmpty(businessContract.TransactionProjectID) == true ? businessContract.ProjectID : businessContract.TransactionProjectID;
 
-                                        BusinessMappings.Add(PathExtensions.Combine(filePath), businessContract);
+                                        BusinessMappings.Add(PathExtensions.Combine(businessFile), businessContract);
                                     }
                                 }
 
                             }
                             catch (Exception exception)
                             {
-                                Log.Logger.Error("[{LogCategory}] " + $"{filePath} 업무 계약 파일 오류 - {exception.ToMessage()}", "TransactionMapper/GetBusinessContract");
+                                Log.Logger.Error("[{LogCategory}] " + $"{businessFile} 업무 계약 파일 오류 - {exception.ToMessage()}", "TransactionMapper/GetBusinessContract");
                             }
                         }
                     }
@@ -391,10 +439,55 @@ namespace transact.Extensions
                             {
                                 var fileInfo = new FileInfo(businessFile);
                                 var configData = File.ReadAllText(businessFile);
+
+                                JsonNode? root = JsonNode.Parse(configData.RemoveJsonComments());
+                                if (root is JsonObject rootNode)
+                                {
+                                    var hasSignatureKey = rootNode.TryGetPropertyValue("SignatureKey", out var signatureKeyNode) && signatureKeyNode is JsonValue;
+                                    var hasEncrypt = rootNode.TryGetPropertyValue("EncryptServices", out var encryptNode) && encryptNode is JsonValue;
+                                    if (hasSignatureKey == true && hasEncrypt == true)
+                                    {
+                                        var signatureKey = signatureKeyNode!.GetValue<string>();
+                                        var licenseItem = GlobalConfiguration.LoadModuleLicenses.Values.FirstOrDefault(li => li.AssemblyToken == signatureKey);
+                                        if (licenseItem == null)
+                                        {
+                                            logger.Error("[{LogCategory}] " + $"{businessFile} 업무 계약 파일 오류 - 서명 키 불일치", "TransactionMapper/LoadContract");
+                                            continue;
+                                        }
+
+                                        var cipher = encryptNode!.GetValue<string>();
+                                        var plain = LZStringHelper.DecompressFromUint8Array(cipher.DecryptAESBytes(licenseItem.AssemblyKey)) ?? string.Empty;
+
+                                        JsonNode? restored;
+                                        try
+                                        {
+                                            restored = JsonNode.Parse(plain);
+
+                                            if (restored is not JsonArray restoredArr)
+                                            {
+                                                logger.Error("[{LogCategory}] " + $"Decrypted Services는 {businessFile} 내의 JSON 배열이 아닙니다.", "TransactionMapper/LoadContract");
+                                                continue;
+                                            }
+
+                                            rootNode["Services"] = restoredArr;
+                                        }
+                                        catch (Exception exception)
+                                        {
+                                            logger.Error(exception, "[{LogCategory}] " + $"업무 계약 파일 역 직렬화 오류 - {businessFile}", "TransactionMapper/LoadContract");
+                                            continue;
+                                        }
+
+                                        rootNode.Remove("SignatureKey");
+                                        rootNode.Remove("EncryptServices");
+
+                                        configData = rootNode.ToJsonString();
+                                    }
+                                }
+
                                 var businessContract = BusinessContract.FromJson(configData);
                                 if (businessContract == null)
                                 {
-                                    logger.Error("[{LogCategory}] " + $"업무 계약 파일 역직렬화 오류 - {businessFile}", "LoadContract");
+                                    logger.Error("[{LogCategory}] " + $"업무 계약 파일 역 직렬화 오류 - {businessFile}", "TransactionMapper/LoadContract");
                                 }
                                 else
                                 {
@@ -409,13 +502,13 @@ namespace transact.Extensions
                                     }
                                     else
                                     {
-                                        logger.Warning("[{LogCategory}] " + $"업무 계약 파일 또는 거래 정보 중복 오류 - {businessFile}, ProjectID - {businessContract.ApplicationID}, BusinessID - {businessContract.ProjectID}, TransactionID - {businessContract.TransactionID}", "LoadContract");
+                                        logger.Warning("[{LogCategory}] " + $"업무 계약 파일 또는 거래 정보 중복 오류 - {businessFile}, ProjectID - {businessContract.ApplicationID}, BusinessID - {businessContract.ProjectID}, TransactionID - {businessContract.TransactionID}", "TransactionMapper/LoadContract");
                                     }
                                 }
                             }
                             catch (Exception exception)
                             {
-                                logger.Error("[{LogCategory}] " + $"업무 계약 파일 역직렬화 오류 - {businessFile}, {exception.ToMessage()}", "LoadContract");
+                                logger.Error("[{LogCategory}] " + $"업무 계약 파일 역 직렬화 오류 - {businessFile}, {exception.ToMessage()}", "TransactionMapper/LoadContract");
                             }
                         }
                     }
@@ -423,7 +516,7 @@ namespace transact.Extensions
             }
             catch (Exception exception)
             {
-                logger.Error("[{LogCategory}] " + $"LoadContract 오류 - {exception.ToMessage()}", "LoadContract");
+                logger.Error("[{LogCategory}] " + $"LoadContract 오류 - {exception.ToMessage()}", "TransactionMapper/LoadContract");
             }
         }
     }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 
 using function.Entity;
@@ -29,7 +30,7 @@ namespace function.Areas.function.Controllers
     [ApiController]
     public class FunctionController : BaseController
     {
-        private ILogger? logger { get; }
+        private ILogger logger { get; }
         private readonly IHttpContextAccessor httpContextAccessor;
 
         public FunctionController(ILogger logger, IHttpContextAccessor httpContextAccessor)
@@ -102,10 +103,53 @@ namespace function.Areas.function.Controllers
             var scriptMapFile = string.IsNullOrEmpty(ModuleConfiguration.ModuleBasePath) == true ? PathExtensions.Combine(ModuleConfiguration.ModuleBasePath, "featureTest.json") : PathExtensions.Combine(GlobalConfiguration.GetBaseDirectoryPath($"../modules/{ModuleConfiguration.ModuleID}"), "featureTest.json");
             if (System.IO.File.Exists(scriptMapFile) == true)
             {
-                var scriptMapData = System.IO.File.ReadAllText(scriptMapFile);
+                var configData = System.IO.File.ReadAllText(scriptMapFile);
 
-                var functionScriptContract = FunctionScriptContract.FromJson(scriptMapData);
+                JsonNode? root = JsonNode.Parse(configData.RemoveJsonComments());
+                if (root is JsonObject rootNode)
+                {
+                    var hasSignatureKey = rootNode.TryGetPropertyValue("SignatureKey", out var signatureKeyNode) && signatureKeyNode is JsonValue;
+                    var hasEncrypt = rootNode.TryGetPropertyValue("EncryptCommands", out var encryptNode) && encryptNode is JsonValue;
+                    if (hasSignatureKey == true && hasEncrypt == true)
+                    {
+                        var signatureKey = signatureKeyNode!.GetValue<string>();
+                        var licenseItem = GlobalConfiguration.LoadModuleLicenses.Values.FirstOrDefault(li => li.AssemblyToken == signatureKey);
+                        if (licenseItem == null)
+                        {
+                            logger.Error("[{LogCategory}] " + $"{scriptMapFile} 업무 계약 파일 오류 - 서명 키 불일치", "FunctionController/Execute");
+                            return result;
+                        }
 
+                        var cipher = encryptNode!.GetValue<string>();
+                        var plain = LZStringHelper.DecompressFromUint8Array(cipher.DecryptAESBytes(licenseItem.AssemblyKey)) ?? string.Empty;
+
+                        JsonNode? restored;
+                        try
+                        {
+                            restored = JsonNode.Parse(plain);
+
+                            if (restored is not JsonArray restoredArr)
+                            {
+                                logger.Error("[{LogCategory}] " + $"Decrypted Services는 {scriptMapFile} 내의 JSON 배열이 아닙니다.", "FunctionController/Execute");
+                                return result;
+                            }
+
+                            rootNode["Services"] = restoredArr;
+                        }
+                        catch (Exception exception)
+                        {
+                            logger.Error(exception, "[{LogCategory}] " + $"업무 계약 파일 역 직렬화 오류 - {scriptMapFile}", "FunctionController/Execute");
+                            return result;
+                        }
+
+                        rootNode.Remove("SignatureKey");
+                        rootNode.Remove("EncryptCommands");
+
+                        configData = rootNode.ToJsonString();
+                    }
+                }
+
+                var functionScriptContract = FunctionScriptContract.FromJson(configData);
                 if (functionScriptContract == null)
                 {
                     result.BuildExceptionData("Y", "Warning", $"{scriptMapFile} 대응 functionFilePath 파일 없음");
