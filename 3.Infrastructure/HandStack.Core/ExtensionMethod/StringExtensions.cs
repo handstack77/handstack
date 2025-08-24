@@ -202,16 +202,6 @@ namespace HandStack.Core.ExtensionMethod
             return bytes;
         }
 
-        public static string BytesToHex(this byte[] bytes)
-        {
-            var hex = new StringBuilder();
-            for (var i = 0; i < bytes.Length; i++)
-            {
-                hex.AppendFormat("{0:X2}", bytes[i]);
-            }
-            return hex.ToString();
-        }
-
         public static List<string> ToList(this string @this, string separator)
         {
             var list = new List<string>();
@@ -505,10 +495,10 @@ namespace HandStack.Core.ExtensionMethod
             return Regex.Matches(@this, pattern, options);
         }
 
-        public static string ToSHA256(this string value)
+        public static string ToSHA256(this string @this)
         {
             using var sha256Hash = SHA256.Create();
-            var bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(value));
+            var bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(@this));
             var builder = new StringBuilder();
             for (var i = 0; i < bytes.Length; i++)
             {
@@ -517,11 +507,11 @@ namespace HandStack.Core.ExtensionMethod
             return builder.ToString();
         }
 
-        public static string ToSHA256(this string value, Encoding encoding)
+        public static string ToSHA256(this string @this, Encoding encoding)
         {
             encoding = (encoding ?? Encoding.UTF8);
             using var sha256Hash = SHA256.Create();
-            var bytes = sha256Hash.ComputeHash(encoding.GetBytes(value));
+            var bytes = sha256Hash.ComputeHash(encoding.GetBytes(@this));
             var builder = new StringBuilder();
             for (var i = 0; i < bytes.Length; i++)
             {
@@ -530,7 +520,7 @@ namespace HandStack.Core.ExtensionMethod
             return builder.ToString();
         }
 
-        public static string EncryptAES(this string value, string key, int keySize = 256, int blockSize = 128, CipherMode cipherMode = CipherMode.CBC, PaddingMode paddingMode = PaddingMode.PKCS7, int ivLength = 16)
+        public static string EncryptAES(this string @this, string key, int keySize = 256, int blockSize = 128, CipherMode cipherMode = CipherMode.CBC, PaddingMode paddingMode = PaddingMode.PKCS7, int ivLength = 16)
         {
             var aes = Aes.Create();
             aes.KeySize = keySize;
@@ -544,14 +534,14 @@ namespace HandStack.Core.ExtensionMethod
             using var ms = new MemoryStream();
             using (var cs = new CryptoStream(ms, encrypt, CryptoStreamMode.Write))
             {
-                var bytes = Encoding.UTF8.GetBytes(value);
+                var bytes = Encoding.UTF8.GetBytes(@this);
                 cs.Write(bytes, 0, bytes.Length);
             }
 
             return Convert.ToBase64String(ms.ToArray());
         }
 
-        public static string DecryptAES(this string value, string key, int keySize = 256, int blockSize = 128, CipherMode cipherMode = CipherMode.CBC, PaddingMode paddingMode = PaddingMode.PKCS7, int ivLength = 16)
+        public static string DecryptAES(this string @this, string key, int keySize = 256, int blockSize = 128, CipherMode cipherMode = CipherMode.CBC, PaddingMode paddingMode = PaddingMode.PKCS7, int ivLength = 16)
         {
             var aes = Aes.Create();
             aes.KeySize = keySize;
@@ -565,11 +555,32 @@ namespace HandStack.Core.ExtensionMethod
             using var ms = new MemoryStream();
             using (var cs = new CryptoStream(ms, decrypt, CryptoStreamMode.Write))
             {
-                var bytes = Convert.FromBase64String(value);
+                var bytes = Convert.FromBase64String(@this);
                 cs.Write(bytes, 0, bytes.Length);
             }
 
             return Encoding.UTF8.GetString(ms.ToArray());
+        }
+
+        public static byte[] DecryptAESBytes(this string @this, string key, int keySize = 256, int blockSize = 128, CipherMode cipherMode = CipherMode.CBC, PaddingMode paddingMode = PaddingMode.PKCS7, int ivLength = 16)
+        {
+            var aes = Aes.Create();
+            aes.KeySize = keySize;
+            aes.BlockSize = blockSize;
+            aes.Mode = cipherMode;
+            aes.Padding = paddingMode;
+            aes.Key = Encoding.UTF8.GetBytes(key);
+            aes.IV = new byte[ivLength];
+
+            var decrypt = aes.CreateDecryptor();
+            using var ms = new MemoryStream();
+            using (var cs = new CryptoStream(ms, decrypt, CryptoStreamMode.Write))
+            {
+                var bytes = Convert.FromBase64String(@this);
+                cs.Write(bytes, 0, bytes.Length);
+            }
+
+            return ms.ToArray();
         }
 
         public static string? Truncate(this string @this, int maxLength, string suffix = "...")
@@ -798,6 +809,19 @@ namespace HandStack.Core.ExtensionMethod
                 return @this;
             }
             return @this.PadRight(totalWidth, paddingChar).Substring(0, totalWidth);
+        }
+
+        public static string RemoveJsonComments(this string @this)
+        {
+            if (string.IsNullOrEmpty(@this) == true)
+            {
+                return @this;
+            }
+
+            @this = Regex.Replace(@this, @"//.*", "");
+            @this = Regex.Replace(@this, @"/\*.*?\*/", "", RegexOptions.Singleline);
+
+            return @this;
         }
     }
 }

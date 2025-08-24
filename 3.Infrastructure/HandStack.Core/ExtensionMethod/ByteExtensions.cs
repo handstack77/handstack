@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace HandStack.Core.ExtensionMethod
@@ -145,6 +146,66 @@ namespace HandStack.Core.ExtensionMethod
         public static MemoryStream ToMemoryStream(this byte[] @this)
         {
             return new MemoryStream(@this);
+        }
+
+        public static string EncryptAES(this byte[] @this, string key, int keySize = 256, int blockSize = 128, CipherMode cipherMode = CipherMode.CBC, PaddingMode paddingMode = PaddingMode.PKCS7, int ivLength = 16)
+        {
+            var aes = Aes.Create();
+            aes.KeySize = keySize;
+            aes.BlockSize = blockSize;
+            aes.Mode = cipherMode;
+            aes.Padding = paddingMode;
+            aes.Key = Encoding.UTF8.GetBytes(key);
+            aes.IV = new byte[ivLength];
+
+            var encrypt = aes.CreateEncryptor(aes.Key, aes.IV);
+            using var ms = new MemoryStream();
+            using (var cs = new CryptoStream(ms, encrypt, CryptoStreamMode.Write))
+            {
+                cs.Write(@this, 0, @this.Length);
+            }
+
+            return Convert.ToBase64String(ms.ToArray());
+        }
+
+        public static string DecryptAES(this byte[] @this, string key, int keySize = 256, int blockSize = 128, CipherMode cipherMode = CipherMode.CBC, PaddingMode paddingMode = PaddingMode.PKCS7, int ivLength = 16)
+        {
+            var aes = Aes.Create();
+            aes.KeySize = keySize;
+            aes.BlockSize = blockSize;
+            aes.Mode = cipherMode;
+            aes.Padding = paddingMode;
+            aes.Key = Encoding.UTF8.GetBytes(key);
+            aes.IV = new byte[ivLength];
+
+            var decrypt = aes.CreateDecryptor();
+            using var ms = new MemoryStream();
+            using (var cs = new CryptoStream(ms, decrypt, CryptoStreamMode.Write))
+            {
+                cs.Write(@this, 0, @this.Length);
+            }
+
+            return Encoding.UTF8.GetString(ms.ToArray());
+        }
+
+        public static byte[] DecryptAESBytes(this byte[] @this, string key, int keySize = 256, int blockSize = 128, CipherMode cipherMode = CipherMode.CBC, PaddingMode paddingMode = PaddingMode.PKCS7, int ivLength = 16)
+        {
+            var aes = Aes.Create();
+            aes.KeySize = keySize;
+            aes.BlockSize = blockSize;
+            aes.Mode = cipherMode;
+            aes.Padding = paddingMode;
+            aes.Key = Encoding.UTF8.GetBytes(key);
+            aes.IV = new byte[ivLength];
+
+            var decrypt = aes.CreateDecryptor();
+            using var ms = new MemoryStream();
+            using (var cs = new CryptoStream(ms, decrypt, CryptoStreamMode.Write))
+            {
+                cs.Write(@this, 0, @this.Length);
+            }
+
+            return ms.ToArray();
         }
     }
 }

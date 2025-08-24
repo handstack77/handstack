@@ -94,14 +94,30 @@ namespace HandStack.Core.ExtensionMethod
                 using (SHA256 sha256 = SHA256.Create())
                 {
                     byte[] hash = sha256.ComputeHash(publicKey);
-                    StringBuilder sb = new StringBuilder();
-                    foreach (var b in hash)
-                    {
-                        sb.Append(b.ToString("x2"));
-                    }
-
-                    result = sb.ToString();
+                    result = hash.ToHex();
                 }
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+            }
+
+            return result;
+        }
+
+        public static string GetPublicKeyToken(this Assembly @this)
+        {
+            string result = "";
+
+            try
+            {
+                var publicKeyToken = @this.GetName().GetPublicKeyToken();
+                if (publicKeyToken == null || publicKeyToken.Length == 0)
+                {
+                    return result;
+                }
+
+                result = publicKeyToken.ToHex();
             }
             catch (Exception exception)
             {

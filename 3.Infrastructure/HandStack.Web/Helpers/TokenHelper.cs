@@ -57,7 +57,7 @@ namespace HandStack.Web.Helper
             }
             catch (JsonException exception)
             {
-                Console.WriteLine($"토큰 JSON 역직렬화 오류: {exception.Message}");
+                Console.WriteLine($"토큰 JSON 역 직렬화 오류: {exception.Message}");
             }
             catch (CryptographicException exception)
             {
