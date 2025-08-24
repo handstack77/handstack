@@ -9,6 +9,7 @@ using System.Net;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -376,6 +377,87 @@ namespace handstack
             }, optionAckFile, optionDirectory);
 
             rootCommand.Add(subCommandPurgeContracts);
+
+            #endregion
+
+            #region encryptcontracts
+
+            // encryptcontracts --file=%HANDSTACK_HOME%/modules/myapp/myapp.dll --directory=C:/projects/myapp/contracts
+            var subCommandEncryptContracts = new Command("encryptcontracts", "모듈의 Contracts 디렉토리 내 파일들을 지정 규칙에 따라 암호화 합니다") {
+                optionFile, optionDirectory
+            };
+
+            subCommandEncryptContracts.SetHandler((ddlFile, directory) =>
+            {
+                if (ddlFile != null && ddlFile.Exists == true && directory != null && directory.Exists == true)
+                {
+                    string? ddlFilePath = ddlFile?.FullName;
+                    var contractPath = directory.FullName.Replace("\\", "/");
+                    if (File.Exists(ddlFilePath) == false || Directory.Exists(contractPath) == false)
+                    {
+                        Log.Error($"관리형 DLL 파일 '{ddlFilePath}' 을 찾을 수 없거나 Contracts 디렉토리 경로 '{contractPath}'가 없습니다.");
+                        Environment.Exit(1);
+                    }
+
+                    string assemblyKey = string.Empty;
+                    string assemblyToken = string.Empty;
+                    try
+                    {
+                        var asmName = AssemblyName.GetAssemblyName(ddlFilePath);
+
+                        var publicKey = asmName.GetPublicKey() ?? Array.Empty<byte>();
+                        var publicKeyToken = asmName.GetPublicKeyToken() ?? Array.Empty<byte>();
+
+                        if (publicKey.Length == 0)
+                        {
+                            Log.Information("지정한 어셈블리 파일에 강력한 이름 서명이 필요합니다.");
+                        }
+                        else
+                        {
+                            Log.Information($"어셈블리 파일 경로: {ddlFilePath}");
+                            Log.Information($"어셈블리 이름: {asmName.Name}");
+                            Log.Information($"어셈블리 버전: {asmName.Version}");
+
+                            using (SHA256 sha256 = SHA256.Create())
+                            {
+                                byte[] hash = sha256.ComputeHash(publicKey);
+                                assemblyKey = ToHex(hash).ToLowerInvariant();
+                                Console.WriteLine();
+                                Log.Information($"공개 키 (SHA256): {assemblyKey}");
+                            }
+
+                            assemblyToken = ToHex(publicKeyToken).ToLowerInvariant();
+                            Log.Information($"공개 키 (Token): {assemblyToken}");
+                            Console.WriteLine();
+
+                            try
+                            {
+                                var processor = new CryptoProcessor(assemblyKey.NormalizeKey(), assemblyToken);
+                                var report = processor.Process(contractPath);
+
+                                Log.Information($"dbclient xml: 암호화 {report.DbClientEncrypted}");
+                                Log.Information($"transact json: 암호화 {report.TransactEncrypted}");
+                                Log.Information($"function featureMeta: 암호화 {report.FunctionMetaEncrypted}");
+                            }
+                            catch (Exception exception)
+                            {
+                                Console.Error.WriteLine(exception.Message);
+                                Console.Error.WriteLine(exception.StackTrace);
+                            }
+                        }
+                    }
+                    catch (Exception exception)
+                    {
+                        Log.Error(exception, $"예기치 않은 오류");
+                    }
+                }
+                else
+                {
+                    Log.Information($"ddlFile:{ddlFile?.FullName.Replace("\\", "/")} 파일 확인 또는 contractPath:{directory?.FullName.Replace("\\", "/")} 디렉토리 확인이 필요합니다");
+                }
+            }, optionFile, optionDirectory);
+
+            rootCommand.Add(subCommandEncryptContracts);
 
             #endregion
 
@@ -1241,25 +1323,24 @@ namespace handstack
                 optionFile, optionValue
             };
 
-            subCommandPublicKey.SetHandler((file, value) =>
+            subCommandPublicKey.SetHandler((ddlFile, value) =>
             {
-                string? path = file?.FullName;
-                if (File.Exists(path) == false)
+                string? ddlFilePath = ddlFile?.FullName;
+                if (string.IsNullOrEmpty(ddlFilePath) == true || File.Exists(ddlFilePath) == false)
                 {
-                    Console.Error.WriteLine($"[오류] 파일을 찾을 수 없습니다: {path}");
-                    Environment.Exit(2);
+                    Console.Error.WriteLine($"관리형 DLL 파일을 찾을 수 없습니다: {ddlFilePath}");
                 }
 
                 try
                 {
-                    var asmName = AssemblyName.GetAssemblyName(path);
+                    var asmName = AssemblyName.GetAssemblyName(ddlFilePath!);
 
                     var publicKey = asmName.GetPublicKey() ?? Array.Empty<byte>();
                     var publicKeyToken = asmName.GetPublicKeyToken() ?? Array.Empty<byte>();
 
-                    Console.WriteLine($"파일: {path}");
-                    Console.WriteLine($"이름: {asmName.Name}");
-                    Console.WriteLine($"버전: {asmName.Version}");
+                    Console.WriteLine($"어셈블리 파일 경로: {ddlFilePath}");
+                    Console.WriteLine($"어셈블리 이름: {asmName.Name}");
+                    Console.WriteLine($"어셈블리 버전: {asmName.Version}");
                     Console.WriteLine();
 
                     if (publicKey.Length == 0)
@@ -1282,28 +1363,23 @@ namespace handstack
                             Console.WriteLine("공개 키 (SHA256):");
                             Console.WriteLine(ToHex(hash).ToLowerInvariant());
                         }
+
+                        Console.WriteLine();
+                        Console.WriteLine("공개 키 (Token):");
+                        Console.WriteLine(publicKeyToken.Length == 0 ? "(없음)" : ToHex(publicKeyToken).ToLowerInvariant());
                     }
-
-                    Console.WriteLine();
-                    Console.WriteLine("공개 키 (Token):");
-                    Console.WriteLine(publicKeyToken.Length == 0 ? "(없음)" : ToHex(publicKeyToken).ToLowerInvariant());
-
-                    Environment.Exit(0);
                 }
                 catch (BadImageFormatException)
                 {
-                    Console.Error.WriteLine("[오류] .NET 어셈블리가 아닙니다(네이티브 DLL 또는 손상된 파일).");
-                    Environment.Exit(3);
+                    Console.Error.WriteLine(".NET 어셈블리가 아닙니다(네이티브 DLL 또는 손상된 파일).");
                 }
                 catch (FileLoadException ex)
                 {
-                    Console.Error.WriteLine("[오류] 어셈블리 메타데이터를 읽을 수 없습니다: " + ex.Message);
-                    Environment.Exit(4);
+                    Console.Error.WriteLine("어셈블리 메타데이터를 읽을 수 없습니다: " + ex.Message);
                 }
                 catch (Exception ex)
                 {
-                    Console.Error.WriteLine("[오류] 예기치 않은 오류: " + ex.Message);
-                    Environment.Exit(5);
+                    Console.Error.WriteLine("예기치 않은 오류: " + ex.Message);
                 }
             }, optionFile, optionValue);
 
