@@ -4,6 +4,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 
@@ -108,7 +109,11 @@ namespace checkup.Areas.checkup.Controllers
             {
                 var configData = System.IO.File.ReadAllText(scriptMapFile);
 
-                JsonNode? root = JsonNode.Parse(configData.RemoveJsonComments());
+                JsonNode? root = JsonNode.Parse(configData, documentOptions: new JsonDocumentOptions
+                {
+                    CommentHandling = JsonCommentHandling.Skip,
+                    AllowTrailingCommas = true
+                });
                 if (root is JsonObject rootNode)
                 {
                     var hasSignatureKey = rootNode.TryGetPropertyValue("SignatureKey", out var signatureKeyNode) && signatureKeyNode is JsonValue;

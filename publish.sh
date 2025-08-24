@@ -148,11 +148,7 @@ for module in "${modules[@]}"; do
     IFS=':' read -r project_path module_name <<< "$module"
     echo "$module_name 모듈 처리 중..."
     
-    if [ "$action_mode" == "publish" ]; then
-        dotnet publish $dotnet_options "$project_path" --output "$publish_path/handstack/modules/$module_name"
-    else
-        dotnet build $dotnet_options "$project_path" --output "$publish_path/handstack/modules/$module_name"
-    fi
+    dotnet build $dotnet_options "$project_path" --output "$publish_path/handstack/modules/$module_name"
 done
 
 echo "Reverting assembly signing to False..."

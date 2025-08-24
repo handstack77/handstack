@@ -810,18 +810,5 @@ namespace HandStack.Core.ExtensionMethod
             }
             return @this.PadRight(totalWidth, paddingChar).Substring(0, totalWidth);
         }
-
-        public static string RemoveJsonComments(this string @this)
-        {
-            if (string.IsNullOrEmpty(@this) == true)
-            {
-                return @this;
-            }
-
-            @this = Regex.Replace(@this, @"//.*", "");
-            @this = Regex.Replace(@this, @"/\*.*?\*/", "", RegexOptions.Singleline);
-
-            return @this;
-        }
     }
 }

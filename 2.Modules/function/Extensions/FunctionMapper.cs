@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 
 using function.Builder;
@@ -216,7 +217,11 @@ namespace function.Extensions
 
                     var configData = System.IO.File.ReadAllText(scriptMapFile);
 
-                    JsonNode? root = JsonNode.Parse(configData.RemoveJsonComments());
+                    JsonNode? root = JsonNode.Parse(configData, documentOptions: new JsonDocumentOptions
+                    {
+                        CommentHandling = JsonCommentHandling.Skip,
+                        AllowTrailingCommas = true
+                    });
                     if (root is JsonObject rootNode)
                     {
                         var hasSignatureKey = rootNode.TryGetPropertyValue("SignatureKey", out var signatureKeyNode) && signatureKeyNode is JsonValue;
@@ -473,7 +478,11 @@ namespace function.Extensions
                     {
                         var configData = System.IO.File.ReadAllText(scriptMapFile);
 
-                        JsonNode? root = JsonNode.Parse(configData.RemoveJsonComments());
+                        JsonNode? root = JsonNode.Parse(configData, documentOptions: new JsonDocumentOptions
+                        {
+                            CommentHandling = JsonCommentHandling.Skip,
+                            AllowTrailingCommas = true
+                        });
                         if (root is JsonObject rootNode)
                         {
                             var hasSignatureKey = rootNode.TryGetPropertyValue("SignatureKey", out var signatureKeyNode) && signatureKeyNode is JsonValue;
@@ -734,7 +743,11 @@ namespace function.Extensions
 
                             var configData = System.IO.File.ReadAllText(scriptMapFile);
 
-                            JsonNode? root = JsonNode.Parse(configData.RemoveJsonComments());
+                            JsonNode? root = JsonNode.Parse(configData, documentOptions: new JsonDocumentOptions
+                            {
+                                CommentHandling = JsonCommentHandling.Skip,
+                                AllowTrailingCommas = true
+                            });
                             if (root is JsonObject rootNode)
                             {
                                 var hasSignatureKey = rootNode.TryGetPropertyValue("SignatureKey", out var signatureKeyNode) && signatureKeyNode is JsonValue;

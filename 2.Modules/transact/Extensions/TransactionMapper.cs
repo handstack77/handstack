@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 
 using HandStack.Core.ExtensionMethod;
@@ -63,7 +64,11 @@ namespace transact.Extensions
                             {
                                 var configData = File.ReadAllText(businessFile);
 
-                                JsonNode? root = JsonNode.Parse(configData.RemoveJsonComments());
+                                JsonNode? root = JsonNode.Parse(configData, documentOptions: new JsonDocumentOptions
+                                {
+                                    CommentHandling = JsonCommentHandling.Skip,
+                                    AllowTrailingCommas = true
+                                });
                                 if (root is JsonObject rootNode)
                                 {
                                     var hasSignatureKey = rootNode.TryGetPropertyValue("SignatureKey", out var signatureKeyNode) && signatureKeyNode is JsonValue;
@@ -440,7 +445,11 @@ namespace transact.Extensions
                                 var fileInfo = new FileInfo(businessFile);
                                 var configData = File.ReadAllText(businessFile);
 
-                                JsonNode? root = JsonNode.Parse(configData.RemoveJsonComments());
+                                JsonNode? root = JsonNode.Parse(configData, documentOptions: new JsonDocumentOptions
+                                {
+                                    CommentHandling = JsonCommentHandling.Skip,
+                                    AllowTrailingCommas = true
+                                });
                                 if (root is JsonObject rootNode)
                                 {
                                     var hasSignatureKey = rootNode.TryGetPropertyValue("SignatureKey", out var signatureKeyNode) && signatureKeyNode is JsonValue;

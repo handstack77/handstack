@@ -96,23 +96,13 @@ if exist "%contracts_path%" (
 )
 
 REM 모듈 빌드 (빌드 모드에서만, 퍼블리시는 위에서 처리됨)
-if "%action_mode%" == "build" (
-    dotnet build %dotnet_options% 2.Modules\dbclient\dbclient.csproj --output %publish_path%\handstack\modules\dbclient
-    dotnet build %dotnet_options% 2.Modules\function\function.csproj --output %publish_path%\handstack\modules\function
-    dotnet build %dotnet_options% 2.Modules\logger\logger.csproj --output %publish_path%\handstack\modules\logger
-    dotnet build %dotnet_options% 2.Modules\repository\repository.csproj --output %publish_path%\handstack\modules\repository
-    dotnet build %dotnet_options% 2.Modules\transact\transact.csproj --output %publish_path%\handstack\modules\transact
-    dotnet build %dotnet_options% 2.Modules\wwwroot\wwwroot.csproj --output %publish_path%\handstack\modules\wwwroot
-    dotnet build %dotnet_options% 2.Modules\checkup\checkup.csproj --output %publish_path%\handstack\modules\checkup
-) else (
-    dotnet publish %dotnet_options% 2.Modules\dbclient\dbclient.csproj --output %publish_path%\handstack\modules\dbclient
-    dotnet publish %dotnet_options% 2.Modules\function\function.csproj --output %publish_path%\handstack\modules\function
-    dotnet publish %dotnet_options% 2.Modules\logger\logger.csproj --output %publish_path%\handstack\modules\logger
-    dotnet publish %dotnet_options% 2.Modules\repository\repository.csproj --output %publish_path%\handstack\modules\repository
-    dotnet publish %dotnet_options% 2.Modules\transact\transact.csproj --output %publish_path%\handstack\modules\transact
-    dotnet publish %dotnet_options% 2.Modules\wwwroot\wwwroot.csproj --output %publish_path%\handstack\modules\wwwroot
-    dotnet publish %dotnet_options% 2.Modules\checkup\checkup.csproj --output %publish_path%\handstack\modules\checkup
-)
+dotnet build %dotnet_options% 2.Modules\dbclient\dbclient.csproj --output %publish_path%\handstack\modules\dbclient
+dotnet build %dotnet_options% 2.Modules\function\function.csproj --output %publish_path%\handstack\modules\function
+dotnet build %dotnet_options% 2.Modules\logger\logger.csproj --output %publish_path%\handstack\modules\logger
+dotnet build %dotnet_options% 2.Modules\repository\repository.csproj --output %publish_path%\handstack\modules\repository
+dotnet build %dotnet_options% 2.Modules\transact\transact.csproj --output %publish_path%\handstack\modules\transact
+dotnet build %dotnet_options% 2.Modules\wwwroot\wwwroot.csproj --output %publish_path%\handstack\modules\wwwroot
+dotnet build %dotnet_options% 2.Modules\checkup\checkup.csproj --output %publish_path%\handstack\modules\checkup
 
 echo Reverting assembly signing to False...
 node signassembly.js false
