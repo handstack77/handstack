@@ -249,7 +249,7 @@ namespace dbclient.Extensions
                                         return null;
                                     }
 
-                                    var plain = LZStringHelper.DecompressFromUint8Array(encryptCommands.DecryptAESBytes(licenseItem.AssemblyKey)) ?? string.Empty;
+                                    var plain = LZStringHelper.DecompressFromUint8Array(encryptCommands.DecryptAESBytes(licenseItem.AssemblyKey.NormalizeKey())) ?? string.Empty;
 
                                     var commands = htmlDocument.DocumentNode.SelectSingleNode("//mapper/commands");
                                     commands.InnerHtml = plain;
@@ -480,7 +480,7 @@ namespace dbclient.Extensions
                                     continue;
                                 }
 
-                                var plain = LZStringHelper.DecompressFromUint8Array(encryptCommands.DecryptAESBytes(licenseItem.AssemblyKey)) ?? string.Empty;
+                                var plain = LZStringHelper.DecompressFromUint8Array(encryptCommands.DecryptAESBytes(licenseItem.AssemblyKey.NormalizeKey())) ?? string.Empty;
 
                                 var commands = htmlDocument.DocumentNode.SelectSingleNode("//mapper/commands");
                                 commands.InnerHtml = plain;
@@ -1068,7 +1068,7 @@ namespace dbclient.Extensions
                                     continue;
                                 }
 
-                                var plain = LZStringHelper.DecompressFromUint8Array(encryptCommands.DecryptAESBytes(licenseItem.AssemblyKey)) ?? string.Empty;
+                                var plain = LZStringHelper.DecompressFromUint8Array(encryptCommands.DecryptAESBytes(licenseItem.AssemblyKey.NormalizeKey())) ?? string.Empty;
 
                                 var commands = htmlDocument.DocumentNode.SelectSingleNode("//mapper/commands");
                                 commands.InnerHtml = plain;

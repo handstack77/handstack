@@ -129,7 +129,7 @@ namespace checkup.Areas.checkup.Controllers
                         }
 
                         var cipher = encryptNode!.GetValue<string>();
-                        var plain = LZStringHelper.DecompressFromUint8Array(cipher.DecryptAESBytes(licenseItem.AssemblyKey)) ?? string.Empty;
+                        var plain = LZStringHelper.DecompressFromUint8Array(cipher.DecryptAESBytes(licenseItem.AssemblyKey.NormalizeKey())) ?? string.Empty;
 
                         JsonNode? restored;
                         try
