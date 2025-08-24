@@ -9,10 +9,16 @@ echo "Cleaning previous builds..."
 dotnet restore handstack.sln
 dotnet clean handstack.sln
 
+echo "Enabling assembly signing for build..."
+node signassembly.js true
+
 echo "Building Infrastructure projects..."
 dotnet build "3.Infrastructure/HandStack.Core/HandStack.Core.csproj" -c Debug
 dotnet build "3.Infrastructure/HandStack.Data/HandStack.Data.csproj" -c Debug
 dotnet build "3.Infrastructure/HandStack.Web/HandStack.Web.csproj" -c Debug
+
+echo "Reverting assembly signing to False..."
+node signassembly.js false
 
 echo "Building Modules projects..."
 dotnet build "2.Modules/wwwroot/wwwroot.csproj" -c Debug
@@ -22,8 +28,6 @@ dotnet build "2.Modules/logger/logger.csproj" -c Debug
 dotnet build "2.Modules/repository/repository.csproj" -c Debug
 dotnet build "2.Modules/transact/transact.csproj" -c Debug
 dotnet build "2.Modules/checkup/checkup.csproj" -c Debug
-dotnet build "2.Modules/openapi/openapi.csproj" -c Debug
-dotnet build "2.Modules/prompter/prompter.csproj" -c Debug
 
 echo "Building WebHost projects..."
 dotnet build "1.WebHost/ack/ack.csproj" -c Debug

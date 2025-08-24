@@ -16,18 +16,15 @@ namespace HandStack.Core.Licensing.Validation
             if (N > int.MaxValue / 128 / r) throw new ArgumentException("N too large");
             if (r > int.MaxValue / 128 / p) throw new ArgumentException("r too large");
 
-            // 1. Initial PBKDF2-HMAC-SHA256 with 1 iteration, output length = p * 128 * r
             int Bsize = p * 128 * r;
             byte[] B = PBKDF2SHA256(password, salt, 1, Bsize);
 
-            // 2. For each block
             int blockLen = 128 * r;
             for (int i = 0; i < p; i++)
             {
                 ROMix(B, i * blockLen, N, r);
             }
 
-            // 3. PBKDF2 again using password and B
             return PBKDF2SHA256(password, B, 1, dkLen);
         }
 
@@ -62,18 +59,16 @@ namespace HandStack.Core.Licensing.Validation
 
         private static void ROMix(byte[] B, int Bi, int N, int r)
         {
-            int blockWords = 32 * r;   // 128 * r bytes / 4
+            int blockWords = 32 * r;
             uint[] X = new uint[blockWords];
             uint[] T = new uint[blockWords];
             uint[] V = new uint[blockWords * N];
 
-            // Convert little-endian bytes to uint32
             for (int i = 0; i < blockWords; i++)
             {
                 X[i] = BinaryPrimitives.ReadUInt32LittleEndian(B.AsSpan(Bi + i * 4, 4));
             }
 
-            int Xi = 0;
             for (int i = 0; i < N; i++)
             {
                 Array.Copy(X, 0, V, i * blockWords, blockWords);
@@ -87,7 +82,6 @@ namespace HandStack.Core.Licensing.Validation
                 BlockMix(X, T, r);
             }
 
-            // Write back as little endian
             for (int i = 0; i < blockWords; i++)
             {
                 BinaryPrimitives.WriteUInt32LittleEndian(B.AsSpan(Bi + i * 4, 4), X[i]);
@@ -96,7 +90,6 @@ namespace HandStack.Core.Licensing.Validation
 
         private static void BlockMix(uint[] B, uint[] Y, int r)
         {
-            int half = 16;
             uint[] X = new uint[16];
             int BOff = (2 * r - 1) * 16;
             Array.Copy(B, BOff, X, 0, 16);
@@ -110,7 +103,6 @@ namespace HandStack.Core.Licensing.Validation
                 outOff += 16;
             }
 
-            // Re-order
             for (int i = 0; i < r; i++)
                 Array.Copy(Y, i * 32, B, i * 16, 16);
             for (int i = 0; i < r; i++)
@@ -123,7 +115,6 @@ namespace HandStack.Core.Licensing.Validation
             Array.Copy(B, x, 16);
             for (int i = 8; i > 0; i -= 2)
             {
-                // quarterround operations
                 x[4] ^= RotL(x[0] + x[12], 7); x[8] ^= RotL(x[4] + x[0], 9); x[12] ^= RotL(x[8] + x[4], 13); x[0] ^= RotL(x[12] + x[8], 18);
                 x[9] ^= RotL(x[5] + x[1], 7); x[13] ^= RotL(x[9] + x[5], 9); x[1] ^= RotL(x[13] + x[9], 13); x[5] ^= RotL(x[1] + x[13], 18);
                 x[14] ^= RotL(x[10] + x[6], 7); x[2] ^= RotL(x[14] + x[10], 9); x[6] ^= RotL(x[2] + x[14], 13); x[10] ^= RotL(x[6] + x[2], 18);

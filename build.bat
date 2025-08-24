@@ -7,6 +7,9 @@ dotnet restore handstack.sln
 dotnet clean handstack.sln
 
 rem Build Infrastructure projects first
+echo Enabling assembly signing for build...
+node signassembly.js true
+
 echo Building HandStack.Core...
 dotnet build "3.Infrastructure\HandStack.Core\HandStack.Core.csproj" -c Debug
 if %errorlevel% neq 0 goto :error
@@ -18,6 +21,9 @@ if %errorlevel% neq 0 goto :error
 echo Building HandStack.Web...
 dotnet build "3.Infrastructure\HandStack.Web\HandStack.Web.csproj" -c Debug
 if %errorlevel% neq 0 goto :error
+
+echo Reverting assembly signing to False...
+node signassembly.js false
 
 rem Build Modules projects (consider their internal dependencies if any)
 echo Building wwwroot...
@@ -46,14 +52,6 @@ if %errorlevel% neq 0 goto :error
 
 echo Building checkup...
 dotnet build "2.Modules\checkup\checkup.csproj" -c Debug
-if %errorlevel% neq 0 goto :error
-
-echo Building openapi...
-dotnet build "2.Modules\openapi\openapi.csproj" -c Debug
-if %errorlevel% neq 0 goto :error
-
-echo Building prompter...
-dotnet build "2.Modules\prompter\prompter.csproj" -c Debug
 if %errorlevel% neq 0 goto :error
 
 rem Build WebHost projects

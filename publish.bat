@@ -58,6 +58,9 @@ echo os_mode: %os_mode%, action_mode: %action_mode%, configuration_mode: %config
 
 rmdir /s /q %publish_path%
 
+echo Enabling assembly signing for build...
+node signassembly.js true
+
 REM WebHost 프로젝트들 빌드/퍼블리시
 if "%action_mode%" == "publish" (
     dotnet publish %dotnet_options% 1.WebHost\ack\ack.csproj --output %publish_path%\handstack\app
@@ -101,8 +104,6 @@ if "%action_mode%" == "build" (
     dotnet build %dotnet_options% 2.Modules\transact\transact.csproj --output %publish_path%\handstack\modules\transact
     dotnet build %dotnet_options% 2.Modules\wwwroot\wwwroot.csproj --output %publish_path%\handstack\modules\wwwroot
     dotnet build %dotnet_options% 2.Modules\checkup\checkup.csproj --output %publish_path%\handstack\modules\checkup
-    dotnet build %dotnet_options% 2.Modules\openapi\openapi.csproj --output %publish_path%\handstack\modules\openapi
-    dotnet build %dotnet_options% 2.Modules\prompter\prompter.csproj --output %publish_path%\handstack\modules\prompter
 ) else (
     dotnet publish %dotnet_options% 2.Modules\dbclient\dbclient.csproj --output %publish_path%\handstack\modules\dbclient
     dotnet publish %dotnet_options% 2.Modules\function\function.csproj --output %publish_path%\handstack\modules\function
@@ -111,9 +112,10 @@ if "%action_mode%" == "build" (
     dotnet publish %dotnet_options% 2.Modules\transact\transact.csproj --output %publish_path%\handstack\modules\transact
     dotnet publish %dotnet_options% 2.Modules\wwwroot\wwwroot.csproj --output %publish_path%\handstack\modules\wwwroot
     dotnet publish %dotnet_options% 2.Modules\checkup\checkup.csproj --output %publish_path%\handstack\modules\checkup
-    dotnet publish %dotnet_options% 2.Modules\openapi\openapi.csproj --output %publish_path%\handstack\modules\openapi
-    dotnet publish %dotnet_options% 2.Modules\prompter\prompter.csproj --output %publish_path%\handstack\modules\prompter
 )
+
+echo Reverting assembly signing to False...
+node signassembly.js false
 
 REM 파일 복사
 if exist "%HANDSTACK_HOME%\contracts" (

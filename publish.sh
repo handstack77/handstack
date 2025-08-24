@@ -88,11 +88,12 @@ fix_post_build_script "2.Modules/dbclient/post-build.sh"
 fix_post_build_script "2.Modules/function/post-build.sh"
 fix_post_build_script "2.Modules/logger/post-build.sh"
 fix_post_build_script "2.Modules/repository/post-build.sh"
-fix_post_build_script "2.Modules/openapi/post-build.sh"
-fix_post_build_script "2.Modules/prompter/post-build.sh"
 fix_post_build_script "2.Modules/transact/post-build.sh"
 fix_post_build_script "2.Modules/wwwroot/post-build.sh"
 fix_post_build_script "4.Tool/CLI/handstack/post-build.sh"
+
+echo "Enabling assembly signing for build..."
+node signassembly.js true
 
 # WebHost 프로젝트들 빌드/퍼블리시
 echo "WebHost 프로젝트 빌드/퍼블리시 중..."
@@ -140,8 +141,6 @@ modules=(
     "2.Modules/transact/transact.csproj:transact"
     "2.Modules/wwwroot/wwwroot.csproj:wwwroot"
     "2.Modules/checkup/checkup.csproj:checkup"
-    "2.Modules/openapi/openapi.csproj:openapi"
-    "2.Modules/prompter/prompter.csproj:prompter"
 )
 
 # 각 모듈을 순회하며 빌드/퍼블리시 실행
@@ -155,6 +154,10 @@ for module in "${modules[@]}"; do
         dotnet build $dotnet_options "$project_path" --output "$publish_path/handstack/modules/$module_name"
     fi
 done
+
+echo "Reverting assembly signing to False..."
+node signassembly.js false
+
 
 # 추가 파일들 복사
 echo "추가 파일 복사 중..."
