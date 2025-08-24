@@ -810,5 +810,21 @@ namespace HandStack.Core.ExtensionMethod
             }
             return @this.PadRight(totalWidth, paddingChar).Substring(0, totalWidth);
         }
+
+        public static string NormalizeKey(this string @this)
+        {
+            if (@this.Length == 32) return @this;
+            if (@this.Length == 64 && Regex.IsMatch(@this, "^[0-9a-fA-F]{64}$"))
+            {
+                return @this.Substring(0, 32);
+            }
+            if (@this.Length < 32)
+            {
+                return @this.PadRight(32, '0');
+            }
+
+            var hex = @this.ToSHA256();
+            return hex.Substring(0, 32);
+        }
     }
 }
