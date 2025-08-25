@@ -80,6 +80,8 @@
 
         public string? SettingFilePath { get; set; } = "";
 
+        public string? UploadOptions { get; set; } = "";
+
         public string? Comment { get; set; } = "";
 
         public string? CreatedMemberID { get; set; } = "";

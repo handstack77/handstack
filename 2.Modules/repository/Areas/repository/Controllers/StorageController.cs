@@ -32,6 +32,7 @@ using repository.Message;
 using repository.Services;
 
 using Serilog;
+using SkiaSharp;
 
 namespace repository.Controllers
 {
@@ -686,6 +687,62 @@ namespace repository.Controllers
                         repositoryItem.CreatedMemberNo = userID;
                         repositoryItem.CreatedAt = DateTime.Now;
 
+                        Stream streamToUpload = file.OpenReadStream();
+                        long fileSize = file.Length;
+
+                        if (repository.UploadTypeID == "Profile" && string.IsNullOrEmpty(repository.UploadOptions) == false)
+                        {
+                            var uploadOptions = ParseUploadOptions(repository.UploadOptions);
+                            var originalImageStream = new MemoryStream();
+                            await streamToUpload.CopyToAsync(originalImageStream);
+                            originalImageStream.Position = 0;
+                            streamToUpload = originalImageStream;
+
+                            bool hasThumbnailX = uploadOptions.TryGetValue("ThumbnailX", out int thumbnailX);
+                            bool hasThumbnailY = uploadOptions.TryGetValue("ThumbnailY", out int thumbnailY);
+                            if (hasThumbnailX == true || hasThumbnailY == true)
+                            {
+                                thumbnailX = thumbnailX > 0 ? thumbnailX : int.MaxValue;
+                                thumbnailY = thumbnailY > 0 ? thumbnailY : int.MaxValue;
+
+                                streamToUpload.Position = 0;
+                                using var thumbnailStream = ResizeImage(streamToUpload, thumbnailX, thumbnailY);
+
+                                if (thumbnailStream != null)
+                                {
+                                    var thumbnailItem = DeepClone(repositoryItem);
+                                    var originalFileNameWithoutExt = Path.GetFileNameWithoutExtension(repositoryItem.FileName);
+                                    var thumbnailFileName = $"{originalFileNameWithoutExt}_thumbnail{repositoryItem.Extension}";
+
+                                    thumbnailItem.ItemID = repository.IsFileNameEncrypt ? $"{repositoryItem.ItemID}_thumbnail" : thumbnailFileName;
+                                    thumbnailItem.FileName = thumbnailFileName;
+                                    thumbnailItem.Size = thumbnailStream.Length;
+                                    thumbnailItem.MD5 = GetStreamMD5Hash(thumbnailStream);
+                                    thumbnailStream.Position = 0;
+
+                                    await storageProvider.UploadAsync(thumbnailItem.ItemID, thumbnailStream, thumbnailItem.MimeType);
+                                }
+                            }
+
+                            bool hasResizeX = uploadOptions.TryGetValue("ResizeX", out int resizeX);
+                            bool hasResizeY = uploadOptions.TryGetValue("ResizeY", out int resizeY);
+                            if (hasResizeX == true || hasResizeY == true)
+                            {
+                                resizeX = resizeX > 0 ? resizeX : int.MaxValue;
+                                resizeY = resizeY > 0 ? resizeY : int.MaxValue;
+
+                                streamToUpload.Position = 0;
+                                var resizedStream = ResizeImage(streamToUpload, resizeX, resizeY);
+                                if (resizedStream != null)
+                                {
+                                    streamToUpload.Dispose();
+                                    streamToUpload = resizedStream;
+                                    fileSize = streamToUpload.Length;
+                                    repositoryItem.Size = fileSize;
+                                }
+                            }
+                            streamToUpload.Position = 0;
+                        }
 
                         switch (repository.StorageType)
                         {
@@ -701,16 +758,10 @@ namespace repository.Controllers
                                     repositoryItem.FileName = blobID;
                                 }
 
-                                var openReadStream = file.OpenReadStream();
-                                var headers = new BlobHttpHeaders
-                                {
-                                    ContentType = repositoryItem.MimeType
-                                };
-
-                                var (creationTime, lastWriteTime) = await storageProvider.UploadAsync(repositoryItem.ItemID, openReadStream, repositoryItem.MimeType);
+                                var (creationTime, lastWriteTime) = await storageProvider.UploadAsync(repositoryItem.ItemID, streamToUpload, repositoryItem.MimeType);
 
                                 repositoryItem.PhysicalPath = "";
-                                repositoryItem.MD5 = GetStreamMD5Hash(openReadStream);
+                                repositoryItem.MD5 = GetStreamMD5Hash(streamToUpload);
                                 repositoryItem.CreationTime = creationTime;
                                 repositoryItem.LastWriteTime = lastWriteTime;
 
@@ -753,14 +804,15 @@ namespace repository.Controllers
 
                                 using (var fileStream = new FileStream(itemPhysicalPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
                                 {
-                                    await file.CopyToAsync(fileStream);
+                                    await streamToUpload.CopyToAsync(fileStream);
                                 }
 
                                 if (repository.IsKeepFileExtension == true)
                                 {
                                     itemPhysicalPath = itemPhysicalPath + extension;
                                     using var fileStream = new FileStream(itemPhysicalPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
-                                    await file.CopyToAsync(fileStream);
+                                    streamToUpload.Position = 0;
+                                    await streamToUpload.CopyToAsync(fileStream);
                                 }
 
                                 var fileInfo = new FileInfo(itemPhysicalPath);
@@ -798,6 +850,8 @@ namespace repository.Controllers
                                 logger.Warning("[{LogCategory}] " + errorText, "StorageController/UploadFile");
                                 return BadRequest(errorText);
                         }
+
+                        streamToUpload.Dispose();
 
                         var isDataUpsert = false;
                         if (repository.IsFileUploadDownloadOnly == true)
@@ -985,6 +1039,61 @@ namespace repository.Controllers
                         repositoryItem.CreatedMemberNo = userID;
                         repositoryItem.CreatedAt = DateTime.Now;
 
+
+                        using var originalRequestStream = new MemoryStream();
+                        await Request.BodyReader.CopyToAsync(originalRequestStream);
+                        originalRequestStream.Position = 0;
+                        Stream streamToUpload = originalRequestStream;
+
+                        if (repository.UploadTypeID == "Profile" && string.IsNullOrEmpty(repository.UploadOptions) == false)
+                        {
+                            var uploadOptions = ParseUploadOptions(repository.UploadOptions);
+
+                            bool hasThumbnailX = uploadOptions.TryGetValue("ThumbnailX", out int thumbnailX);
+                            bool hasThumbnailY = uploadOptions.TryGetValue("ThumbnailY", out int thumbnailY);
+                            if (hasThumbnailX == true || hasThumbnailY == true)
+                            {
+                                thumbnailX = thumbnailX > 0 ? thumbnailX : int.MaxValue;
+                                thumbnailY = thumbnailY > 0 ? thumbnailY : int.MaxValue;
+
+                                streamToUpload.Position = 0;
+                                using var thumbnailStream = ResizeImage(streamToUpload, thumbnailX, thumbnailY);
+                                if (thumbnailStream != null)
+                                {
+                                    var thumbnailItem = DeepClone(repositoryItem);
+                                    var originalFileNameWithoutExt = Path.GetFileNameWithoutExtension(repositoryItem.FileName);
+                                    var thumbnailFileName = $"{originalFileNameWithoutExt}_thumbnail{repositoryItem.Extension}";
+
+                                    thumbnailItem.ItemID = repository.IsFileNameEncrypt ? $"{repositoryItem.ItemID}_thumbnail" : thumbnailFileName;
+                                    thumbnailItem.FileName = thumbnailFileName;
+                                    thumbnailItem.Size = thumbnailStream.Length;
+                                    thumbnailItem.MD5 = GetStreamMD5Hash(thumbnailStream);
+                                    thumbnailStream.Position = 0;
+
+                                    await storageProvider.UploadAsync(thumbnailItem.ItemID, thumbnailStream, thumbnailItem.MimeType);
+                                }
+                            }
+
+                            bool hasResizeX = uploadOptions.TryGetValue("ResizeX", out int resizeX);
+                            bool hasResizeY = uploadOptions.TryGetValue("ResizeY", out int resizeY);
+                            if (hasResizeX == true || hasResizeY == true)
+                            {
+                                resizeX = resizeX > 0 ? resizeX : int.MaxValue;
+                                resizeY = resizeY > 0 ? resizeY : int.MaxValue;
+
+                                streamToUpload.Position = 0;
+                                var resizedStream = ResizeImage(streamToUpload, resizeX, resizeY);
+
+                                if (resizedStream != null)
+                                {
+                                    streamToUpload.Dispose();
+                                    streamToUpload = resizedStream;
+                                    repositoryItem.Size = streamToUpload.Length;
+                                }
+                            }
+                            streamToUpload.Position = 0;
+                        }
+
                         switch (repository.StorageType)
                         {
                             case "AzureBlob":
@@ -999,24 +1108,12 @@ namespace repository.Controllers
                                     repositoryItem.FileName = blobID;
                                 }
 
+                                var (creationTime, lastWriteTime) = await storageProvider.UploadAsync(repositoryItem.ItemID, streamToUpload, repositoryItem.MimeType);
 
-                                using (var openReadStream = new MemoryStream(8192))
-                                {
-                                    await Request.BodyReader.CopyToAsync(openReadStream);
-                                    openReadStream.Position = 0;
-                                    var headers = new BlobHttpHeaders
-                                    {
-                                        ContentType = repositoryItem.MimeType
-                                    };
-
-
-                                    var (creationTime, lastWriteTime) = await storageProvider.UploadAsync(repositoryItem.ItemID, openReadStream, repositoryItem.MimeType);
-
-                                    repositoryItem.PhysicalPath = "";
-                                    repositoryItem.MD5 = GetStreamMD5Hash(openReadStream);
-                                    repositoryItem.CreationTime = creationTime;
-                                    repositoryItem.LastWriteTime = lastWriteTime;
-                                }
+                                repositoryItem.PhysicalPath = "";
+                                repositoryItem.MD5 = GetStreamMD5Hash(streamToUpload);
+                                repositoryItem.CreationTime = creationTime;
+                                repositoryItem.LastWriteTime = lastWriteTime;
 
                                 if (repository.IsVirtualPath == true)
                                 {
@@ -1053,19 +1150,16 @@ namespace repository.Controllers
                                 }
 
                                 using (var fileStream = new FileStream(itemPhysicalPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
-                                using (var memoryStream = new MemoryStream(8192))
                                 {
-                                    await Request.BodyReader.CopyToAsync(memoryStream);
-                                    memoryStream.Position = 0;
-                                    await memoryStream.CopyToAsync(fileStream);
+                                    await streamToUpload.CopyToAsync(fileStream);
+                                }
 
-                                    if (repository.IsKeepFileExtension == true)
-                                    {
-                                        itemPhysicalPath = itemPhysicalPath + extension;
-                                        using var keepFileStream = new FileStream(itemPhysicalPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
-                                        memoryStream.Position = 0;
-                                        await memoryStream.CopyToAsync(keepFileStream);
-                                    }
+                                if (repository.IsKeepFileExtension == true)
+                                {
+                                    itemPhysicalPath = itemPhysicalPath + extension;
+                                    using var keepFileStream = new FileStream(itemPhysicalPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
+                                    streamToUpload.Position = 0;
+                                    await streamToUpload.CopyToAsync(keepFileStream);
                                 }
 
                                 var fileInfo = new FileInfo(itemPhysicalPath);
@@ -1103,6 +1197,8 @@ namespace repository.Controllers
                                 logger.Warning("[{LogCategory}] " + errorText, "StorageController/UploadFile");
                                 return BadRequest(errorText);
                         }
+
+                        streamToUpload.Dispose();
 
                         var isDataUpsert = false;
                         if (repository.IsLocalDbFileManaged == true)
@@ -1397,6 +1493,76 @@ namespace repository.Controllers
                             repositoryItem.CreatedMemberNo = userID;
                             repositoryItem.CreatedAt = DateTime.Now;
 
+                            Stream streamToUpload = file.OpenReadStream();
+                            long fileSize = file.Length;
+
+                            if (repository.UploadTypeID == "Profile" && string.IsNullOrEmpty(repository.UploadOptions) == false)
+                            {
+                                var uploadOptions = ParseUploadOptions(repository.UploadOptions);
+                                var originalImageStream = new MemoryStream();
+                                await streamToUpload.CopyToAsync(originalImageStream);
+                                originalImageStream.Position = 0;
+                                streamToUpload = originalImageStream;
+
+                                bool hasThumbnailX = uploadOptions.TryGetValue("ThumbnailX", out int thumbnailX);
+                                bool hasThumbnailY = uploadOptions.TryGetValue("ThumbnailY", out int thumbnailY);
+                                if (hasThumbnailX == true || hasThumbnailY == true)
+                                {
+                                    thumbnailX = thumbnailX > 0 ? thumbnailX : int.MaxValue;
+                                    thumbnailY = thumbnailY > 0 ? thumbnailY : int.MaxValue;
+
+                                    streamToUpload.Position = 0;
+                                    using var thumbnailStream = ResizeImage(streamToUpload, thumbnailX, thumbnailY);
+
+                                    if (thumbnailStream != null)
+                                    {
+                                        var thumbnailItem = DeepClone(repositoryItem);
+                                        var originalFileNameWithoutExt = Path.GetFileNameWithoutExtension(repositoryItem.FileName);
+                                        var thumbnailFileName = $"{originalFileNameWithoutExt}_thumbnail{repositoryItem.Extension}";
+
+                                        thumbnailItem.ItemID = repository.IsFileNameEncrypt ? $"{repositoryItem.ItemID}_thumbnail" : thumbnailFileName;
+                                        thumbnailItem.FileName = thumbnailFileName;
+                                        thumbnailItem.Size = thumbnailStream.Length;
+                                        thumbnailItem.MD5 = GetStreamMD5Hash(thumbnailStream);
+                                        thumbnailStream.Position = 0;
+
+                                        await storageProvider.UploadAsync(thumbnailItem.ItemID, thumbnailStream, thumbnailItem.MimeType);
+
+                                        if (repository.IsFileUploadDownloadOnly == false)
+                                        {
+                                            if (repository.IsLocalDbFileManaged == true)
+                                            {
+                                                ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.SLT010.MD01", thumbnailItem);
+                                            }
+                                            else
+                                            {
+                                                await moduleApiClient.UpsertRepositoryItem(thumbnailItem);
+                                            }
+                                        }
+                                    }
+                                }
+
+                                bool hasResizeX = uploadOptions.TryGetValue("ResizeX", out int resizeX);
+                                bool hasResizeY = uploadOptions.TryGetValue("ResizeY", out int resizeY);
+                                if (hasResizeX == true || hasResizeY == true)
+                                {
+                                    resizeX = resizeX > 0 ? resizeX : int.MaxValue;
+                                    resizeY = resizeY > 0 ? resizeY : int.MaxValue;
+
+                                    streamToUpload.Position = 0;
+                                    var resizedStream = ResizeImage(streamToUpload, resizeX, resizeY);
+                                    if (resizedStream != null)
+                                    {
+                                        streamToUpload.Dispose();
+                                        streamToUpload = resizedStream;
+                                        fileSize = streamToUpload.Length;
+                                        repositoryItem.Size = fileSize;
+                                    }
+                                }
+                                streamToUpload.Position = 0;
+                            }
+
+
                             switch (repository.StorageType)
                             {
                                 case "AzureBlob":
@@ -1411,13 +1577,10 @@ namespace repository.Controllers
                                         repositoryItem.FileName = blobID;
                                     }
 
-                                    using (var openReadStream = file.OpenReadStream())
-                                    {
-                                        var (creationTime, lastWriteTime) = await storageProvider.UploadAsync(repositoryItem.ItemID, openReadStream, repositoryItem.MimeType);
-                                        repositoryItem.MD5 = GetStreamMD5Hash(openReadStream);
-                                        repositoryItem.CreationTime = creationTime;
-                                        repositoryItem.LastWriteTime = lastWriteTime;
-                                    }
+                                    var (creationTime, lastWriteTime) = await storageProvider.UploadAsync(repositoryItem.ItemID, streamToUpload, repositoryItem.MimeType);
+                                    repositoryItem.MD5 = GetStreamMD5Hash(streamToUpload);
+                                    repositoryItem.CreationTime = creationTime;
+                                    repositoryItem.LastWriteTime = lastWriteTime;
 
                                     repositoryItem.PhysicalPath = "";
 
@@ -1460,14 +1623,15 @@ namespace repository.Controllers
 
                                     using (var fileStream = new FileStream(itemPhysicalPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
                                     {
-                                        await file.CopyToAsync(fileStream);
+                                        await streamToUpload.CopyToAsync(fileStream);
                                     }
 
                                     if (repository.IsKeepFileExtension == true)
                                     {
                                         itemPhysicalPath = itemPhysicalPath + extension;
                                         using var fileStream = new FileStream(itemPhysicalPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
-                                        await file.CopyToAsync(fileStream);
+                                        streamToUpload.Position = 0;
+                                        await streamToUpload.CopyToAsync(fileStream);
                                     }
 
                                     var fileInfo = new FileInfo(itemPhysicalPath);
@@ -1505,6 +1669,8 @@ namespace repository.Controllers
                                     logger.Warning("[{LogCategory}] " + errorText, "StorageController/UploadFiles");
                                     return BadRequest(errorText);
                             }
+
+                            streamToUpload.Dispose();
 
                             var isDataUpsert = false;
                             if (repository.IsFileUploadDownloadOnly == true)
@@ -2700,8 +2866,11 @@ namespace repository.Controllers
 
         private string GetStreamMD5Hash(Stream fileStream)
         {
+            fileStream.Position = 0;
             using var md5 = MD5.Create();
-            return BitConverter.ToString(md5.ComputeHash(fileStream)).Replace("-", string.Empty);
+            var hash = BitConverter.ToString(md5.ComputeHash(fileStream)).Replace("-", string.Empty);
+            fileStream.Position = 0;
+            return hash;
         }
 
         // http://localhost:8421/repository/api/storage/get-md5-hash?value=s
@@ -2710,6 +2879,106 @@ namespace repository.Controllers
         {
             using var md5 = MD5.Create();
             return BitConverter.ToString(md5.ComputeHash(Encoding.UTF8.GetBytes(value))).Replace("-", string.Empty);
+        }
+
+        private Dictionary<string, int> ParseUploadOptions(string options)
+        {
+            var optionsDict = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            if (string.IsNullOrWhiteSpace(options))
+            {
+                return optionsDict;
+            }
+
+            var pairs = options.Split(',', StringSplitOptions.RemoveEmptyEntries);
+            foreach (var pair in pairs)
+            {
+                var keyValue = pair.Split('=', StringSplitOptions.RemoveEmptyEntries);
+                if (keyValue.Length == 2 && int.TryParse(keyValue[1], out int value))
+                {
+                    optionsDict[keyValue[0].Trim()] = value;
+                }
+            }
+            return optionsDict;
+        }
+
+        private MemoryStream? ResizeImage(Stream inputStream, int maxWidth, int maxHeight)
+        {
+            try
+            {
+                using var originalBitmap = SKBitmap.Decode(inputStream);
+                if (originalBitmap == null)
+                {
+                    return null;
+                }
+
+                if (originalBitmap.Width <= maxWidth && originalBitmap.Height <= maxHeight)
+                {
+                    inputStream.Position = 0;
+                    var ms = new MemoryStream();
+                    inputStream.CopyTo(ms);
+                    ms.Position = 0;
+                    return ms;
+                }
+
+                var ratioX = (double)maxWidth / originalBitmap.Width;
+                var ratioY = (double)maxHeight / originalBitmap.Height;
+                var ratio = Math.Min(ratioX, ratioY);
+
+                var newWidth = (int)(originalBitmap.Width * ratio);
+                var newHeight = (int)(originalBitmap.Height * ratio);
+
+                var resizedInfo = new SKImageInfo(newWidth, newHeight);
+                using var resizedBitmap = originalBitmap.Resize(resizedInfo, SKFilterQuality.High);
+
+                if (resizedBitmap == null) return null;
+
+                using var image = SKImage.FromBitmap(resizedBitmap);
+                inputStream.Position = 0;
+                var codec = SKCodec.Create(inputStream);
+                var format = codec?.EncodedFormat ?? SKEncodedImageFormat.Jpeg;
+
+                var outputStream = new MemoryStream();
+                image.Encode(format, 90).SaveTo(outputStream);
+                outputStream.Position = 0;
+
+                return outputStream;
+            }
+            catch (Exception ex)
+            {
+                logger.Error("[{LogCategory}] Error resizing image: " + ex.Message, "StorageController/ResizeImage");
+                return null;
+            }
+        }
+
+        private RepositoryItems DeepClone(RepositoryItems source)
+        {
+            return new RepositoryItems
+            {
+                ApplicationID = source.ApplicationID,
+                BusinessID = source.BusinessID,
+                RepositoryID = source.RepositoryID,
+                ItemID = source.ItemID,
+                DependencyID = source.DependencyID,
+                FileName = source.FileName,
+                SortingNo = source.SortingNo,
+                Comment = source.Comment,
+                PhysicalPath = source.PhysicalPath,
+                AbsolutePath = source.AbsolutePath,
+                RelativePath = source.RelativePath,
+                Extension = source.Extension,
+                Size = source.Size,
+                MD5 = source.MD5,
+                MimeType = source.MimeType,
+                CreationTime = source.CreationTime,
+                LastWriteTime = source.LastWriteTime,
+                CustomPath1 = source.CustomPath1,
+                CustomPath2 = source.CustomPath2,
+                CustomPath3 = source.CustomPath3,
+                PolicyPath = source.PolicyPath,
+                CreatedMemberNo = source.CreatedMemberNo,
+                CreatedAt = source.CreatedAt,
+                ModifiedAt = source.ModifiedAt
+            };
         }
     }
 }

@@ -48,6 +48,8 @@
         <PackageReference Include="MediatR" Version="12.4.1" />
         <PackageReference Include="System.Private.Uri" Version="4.3.2" />
         <PackageReference Include="System.Text.Json" Version="8.0.5" />
+        <PackageReference Include="SkiaSharp" Version="2.88.9" />
+        <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.88.9" />
     </ItemGroup>
 
     <ItemGroup>
@@ -83,7 +85,7 @@
     </Target>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-        <Exec Condition="'$(OS)'=='Windows_NT'" Command="DEL $(TargetDir)HandStack.*&#xD;&#xA;(robocopy $(TargetDir) $(HANDSTACK_SRC)/../build/handstack/modules/repository /mir /copy:dat) ^&amp; IF %25ERRORLEVEL%25 LEQ 1 exit 0" />
+        <Exec Condition="'$(OS)'=='Windows_NT'" Command="DEL $(TargetDir)HandStack.*&#xD;&#xA;if exist $(ProjectDir)bin/Release/net8.0/publish (robocopy $(ProjectDir)bin/Release/net8.0/publish $(TargetDir) SkiaSharp.dll libSkiaSharp.dll)&#xD;&#xA;(robocopy $(TargetDir) $(HANDSTACK_SRC)/../build/handstack/modules/repository /mir /copy:dat) ^&amp; IF %25ERRORLEVEL%25 LEQ 1 exit 0" />
         <Exec Condition="'$(OS)'!='Windows_NT'" Command="$(ProjectDir)post-build.sh $(TargetDir) $(ConfigurationName) $(PlatformName) $(ProjectDir)" />
     </Target>
 </Project>
