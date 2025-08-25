@@ -1,6 +1,6 @@
-﻿#!/usr/bin/env node
+﻿/*
+#!/usr/bin/env node
 
-/*
 # 라이선스 생성과 함께 JavaScript 파일도 생성
 node license-cli.js create --module-id "handstack-ui-v1" --company "HandStack" --product "HandStackUI-v1.0.0-PROD001" --hosts "handstack.kr,www.handstack.kr" --environment "Production" --expires "2026-07-01T23:59:59.000Z" --gen-js --js-dir "./generated-licenses"
 node license-cli.js create --module-id "custom-api-module" --company "HandStack" --product "CustomApiModule-v1.0.0-PROD001" --hosts "handstack.kr,www.handstack.kr" --environment "Production" --expires "2026-07-01T23:59:59.000Z" --gen-js --js-dir "./generated-licenses"

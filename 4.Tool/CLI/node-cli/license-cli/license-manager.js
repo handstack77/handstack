@@ -4,14 +4,15 @@ const path = require('path');
 
 class LicenseManager {
     constructor() {
+        this.saltValue = 'handstack-salt-value';
+        this.publisher = 'handstack.kr';
+        this.allowedDomains = ['localhost', '127.0.0.1'];
+        this.currentUser = 'handstack';
+
         this.algorithm = 'aes-256-cbc';
         this.hashAlgorithm = 'sha256';
         this.encoding = 'base64';
         this.licenses = new Map();
-        this.defaultHosts = ['localhost', '127.0.0.1'];
-        this.saltValue = 'handstack-salt-value';
-        this.publisher = 'handstack.kr';
-        this.currentUser = 'handstack';
     }
 
     /**
@@ -89,7 +90,7 @@ class LicenseManager {
      * 허용된 호스트 목록 구성
      */
     buildAllowedHosts(authorizedHosts) {
-        const hosts = [...this.defaultHosts];
+        const hosts = [...this.allowedDomains];
         
         // 중복 제거하면서 추가
         authorizedHosts.forEach(host => {
@@ -222,7 +223,7 @@ class LicenseManager {
             CreatedAt: createdAt,
             ExpiresAt: expiresAt,
             Environment: environment,
-            SignKey: signKey
+            SignKey: `${signKey}.${this.saltValue}`
         };
 
         return {

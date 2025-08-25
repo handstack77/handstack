@@ -448,6 +448,8 @@
             this.saltValue = 'handstack-salt-value';
             this.publisher = 'handstack.kr';
             this.allowedDomains = ['localhost', '127.0.0.1'];
+            this.currentUser = 'handstack';
+
             this.validationCache = new Map();
             this.validationCount = 0;
             this.maxValidationAttempts = 1000;
@@ -455,7 +457,6 @@
             this.keyDerivation = 'PBKDF2';
             this.hashAlgorithm = 'SHA-256';
             this.encoding = 'base64';
-            this.currentUser = 'handstack';
         }
 
         async validateLicense(moduleId, options = {}) {
@@ -581,11 +582,15 @@
                 }
 
                 const parts = licenseKey.split('.');
-                if (parts.length !== 2) {
+                if (parts.length !== 3) {
                     return { valid: false, error: '잘못된 라이선스 키 형식 (Key.SignKey 형식을 예상했습니다.)' };
                 }
 
-                const [encryptedKey, signKey] = parts;
+                const [encryptedKey, signKey, _saltValue] = parts;
+                this.saltValue = _saltValue || this.saltValue;
+                if (!encryptedKey || !signKey) {
+                    return { valid: false, error: '암호화된 키 또는 서명이 누락되었습니다.' };
+                }
 
                 if (!encryptedKey || !signKey) {
                     return { valid: false, error: '암호화된 키 또는 서명이 누락되었습니다.' };
