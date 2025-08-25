@@ -49,9 +49,9 @@ if "%os_mode%" == "win" (
 
 REM dotnet 명령어 옵션 설정
 if "%action_mode%" == "publish" (
-    set dotnet_options=-p:Optimize=%optimize_flag% --configuration %configuration_mode% --runtime %rid% --self-contained false
+    set dotnet_options=-p:Optimize=%optimize_flag% --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% --runtime %rid% --self-contained false
 ) else (
-    set dotnet_options=-p:Optimize=%optimize_flag% --configuration %configuration_mode%
+    set dotnet_options=-p:Optimize=%optimize_flag% --configuration %configuration_mode% --arch %arch_mode% --os %os_mode%
 )
 
 echo os_mode: %os_mode%, action_mode: %action_mode%, configuration_mode: %configuration_mode%, arch_mode: %arch_mode%, optimize: %optimize_flag%, rid: %rid%, publish_path: %publish_path%
@@ -62,17 +62,10 @@ echo Enabling assembly signing for build...
 node signassembly.js true
 
 REM WebHost 프로젝트들 빌드/퍼블리시
-if "%action_mode%" == "publish" (
-    dotnet publish %dotnet_options% 1.WebHost\ack\ack.csproj --output %publish_path%\handstack\app
-    dotnet publish %dotnet_options% 1.WebHost\forbes\forbes.csproj --output %publish_path%\handstack\forbes
-    dotnet publish %dotnet_options% 4.Tool\CLI\handstack\handstack.csproj --output %publish_path%\handstack\app\cli
-    dotnet publish -p:Optimize=%optimize_flag% --configuration Release --runtime %rid% --self-contained false 4.Tool\CLI\edgeproxy\edgeproxy.csproj --output %publish_path%\handstack\app\cli
-) else (
-    dotnet build %dotnet_options% 1.WebHost\ack\ack.csproj --output %publish_path%\handstack\app
-    dotnet build %dotnet_options% 1.WebHost\forbes\forbes.csproj --output %publish_path%\handstack\forbes
-    dotnet build %dotnet_options% 4.Tool\CLI\handstack\handstack.csproj --output %publish_path%\handstack\app\cli
-    dotnet build -p:Optimize=%optimize_flag% --configuration Release 4.Tool\CLI\edgeproxy\edgeproxy.csproj --output %publish_path%\handstack\app\cli
-)
+dotnet %action_mode% %dotnet_options% 1.WebHost\ack\ack.csproj --output %publish_path%\handstack\app
+dotnet %action_mode% %dotnet_options% 1.WebHost\forbes\forbes.csproj --output %publish_path%\handstack\forbes
+dotnet %action_mode% %dotnet_options% 4.Tool\CLI\handstack\handstack.csproj --output %publish_path%\handstack\app\cli
+dotnet %action_mode% -p:Optimize=%optimize_flag% --configuration Release --runtime %rid% --self-contained false 4.Tool\CLI\edgeproxy\edgeproxy.csproj --output %publish_path%\handstack\app\cli
 
 REM Forbes 파일 정리
 set forbes_path=%publish_path%\handstack\forbes

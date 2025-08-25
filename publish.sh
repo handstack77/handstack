@@ -61,9 +61,9 @@ esac
 
 # 액션 모드에 따른 dotnet 명령어 옵션 설정
 if [ "$action_mode" == "publish" ]; then
-    dotnet_options="$optimize_flag --configuration $configuration_mode --runtime $rid --self-contained false"
+    dotnet_options="$optimize_flag --configuration $configuration_mode --arch $arch_mode --os $os_mode --runtime $rid --self-contained false"
 else
-    dotnet_options="$optimize_flag --configuration $configuration_mode"
+    dotnet_options="$optimize_flag --configuration $configuration_mode --arch $arch_mode --os $os_mode"
 fi
 
 echo "운영체제: $os_mode, 액션모드: $action_mode, 구성모드: $configuration_mode, 아키텍처: $arch_mode, RID: $rid, 출력경로: $publish_path"
@@ -97,19 +97,10 @@ node signassembly.js true
 
 # WebHost 프로젝트들 빌드/퍼블리시
 echo "WebHost 프로젝트 빌드/퍼블리시 중..."
-if [ "$action_mode" == "publish" ]; then
-    # 퍼블리시 모드에서는 runtime 옵션과 함께 실행
-    dotnet publish $dotnet_options 1.WebHost/ack/ack.csproj --output "$publish_path/handstack/app"
-    dotnet publish $dotnet_options 1.WebHost/forbes/forbes.csproj --output "$publish_path/handstack/forbes"
-    dotnet publish $dotnet_options 4.Tool/CLI/handstack/handstack.csproj --output "$publish_path/handstack/app/cli"
-    dotnet publish -p:Optimize=true --configuration Release --runtime $rid --self-contained false 4.Tool/CLI/edgeproxy/edgeproxy.csproj --output "$publish_path/handstack/app/cli"
-else
-    # 빌드 모드에서는 기본 옵션으로 실행
-    dotnet build $dotnet_options 1.WebHost/ack/ack.csproj --output "$publish_path/handstack/app"
-    dotnet build $dotnet_options 1.WebHost/forbes/forbes.csproj --output "$publish_path/handstack/forbes"
-    dotnet build $dotnet_options 4.Tool/CLI/handstack/handstack.csproj --output "$publish_path/handstack/app/cli"
-    dotnet build -p:Optimize=true --configuration Release 4.Tool/CLI/edgeproxy/edgeproxy.csproj --output "$publish_path/handstack/app/cli"
-fi
+dotnet $action_mode $dotnet_options 1.WebHost/ack/ack.csproj --output "$publish_path/handstack/app"
+dotnet $action_mode $dotnet_options 1.WebHost/forbes/forbes.csproj --output "$publish_path/handstack/forbes"
+dotnet $action_mode $dotnet_options 4.Tool/CLI/handstack/handstack.csproj --output "$publish_path/handstack/app/cli"
+dotnet $action_mode -p:Optimize=true --configuration Release --runtime $rid --self-contained false 4.Tool/CLI/edgeproxy/edgeproxy.csproj --output "$publish_path/handstack/app/cli"
 
 # Forbes 파일 처리
 echo "Forbes 파일 처리 중..."
