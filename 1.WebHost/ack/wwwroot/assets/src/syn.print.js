@@ -40,18 +40,6 @@
             return `${$print.reportifyServer}${$print.reportifyTemplateUrl}${reportFileID}`;
         },
 
-        formatDate(date, format) {
-            const map = {
-                yyyy: date.getFullYear(),
-                MM: ('0' + (date.getMonth() + 1)).slice(-2),
-                dd: ('0' + date.getDate()).slice(-2),
-                HH: ('0' + date.getHours()).slice(-2),
-                mm: ('0' + date.getMinutes()).slice(-2),
-                ss: ('0' + date.getSeconds()).slice(-2)
-            };
-            return format.replace(/yyyy|MM|dd|HH|mm|ss/gi, matched => map[matched]);
-        },
-
         updateOptions(options) {
             if (options) {
                 if ($string.isNullOrEmpty(options.base64ExcelFile) == false) {
@@ -466,52 +454,6 @@
                 }
             }
             return result;
-        },
-
-        requestReportValue(moduleID, pdfOptions, transactionOptions, callback) {
-            var defaultPdfOptions = {
-                REPORT_ID: '',
-                COMPANY_NO: '',
-                DOCUMENT_FORM_ID: '',
-                DOCUMENT_NO: '',
-                EMPLOYEE_NO: '',
-                PRINT_TYPE: '',
-                ENV: 'D'
-            };
-
-            if (syn.Config && syn.Config.Environment) {
-                defaultPdfOptions.ENV = syn.Config.Environment.substring(0, 1);
-            }
-
-            pdfOptions = syn.$w.argumentsExtend(defaultPdfOptions, pdfOptions);
-
-            const directObject = {
-                programID: syn.Config.ApplicationID,
-                businessID: transactionOptions.businessID || syn.Config.ProjectID || 'RPT',
-                transactionID: transactionOptions.transactionID || pdfOptions.REPORT_ID,
-                functionID: transactionOptions.functionID || 'PD01',
-                dataMapInterface: transactionOptions.dataMapInterface || 'Row|Form',
-                inputObjects: Object.entries(pdfOptions).map(([key, val]) => ({ prop: key, val }))
-            };
-
-            try {
-                syn.$w.transactionDirect(directObject, function (response) {
-                    var result = {};
-                    if (response && response.length > 0) {
-                        for (var i = 0; i < response.length; i++) {
-                            var item = response[i];
-                            result[item.id] = item.value;
-                        }
-                    }
-                    else {
-                        syn.$l.moduleEventLog(moduleID, 'requestReportValue', '보고서 요청 오류, directObject: {0}'.format(JSON.stringify(directObject)), 'Error');
-                    }
-
-                    callback(null, result);
-                });
-            } catch (error) {
-                callback(error, null);
-            }
         }
     });
 

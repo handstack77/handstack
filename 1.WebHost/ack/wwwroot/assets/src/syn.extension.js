@@ -204,7 +204,16 @@
                 case 'm': return pad(month);
                 case 'y': return String(year);
                 case 'ym': return `${year}-${pad(month)}`;
-                default: return pad(day);
+                default:
+                    const map = {
+                        yyyy: date.getFullYear(),
+                        MM: ('0' + (date.getMonth() + 1)).slice(-2),
+                        dd: ('0' + date.getDate()).slice(-2),
+                        HH: ('0' + date.getHours()).slice(-2),
+                        mm: ('0' + date.getMinutes()).slice(-2),
+                        ss: ('0' + date.getSeconds()).slice(-2)
+                    };
+                    return format.replace(/yyyy|MM|dd|HH|mm|ss/gi, matched => map[matched] || '');
             }
         },
 
