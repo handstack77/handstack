@@ -877,6 +877,16 @@
             return this.base64ToBlob(realData, mimeType);
         },
 
+        async urlToBase64(url) {
+            var result = null;
+            var itemResult = await syn.$r.httpFetch(url).send();
+            if (itemResult && itemResult.error) {
+                return result;
+            }
+            result = await syn.$l.blobToBase64(itemResult, true);
+            return result;
+        },
+
         async resizeImage(blob, maxSize) {
             if (globalRoot.devicePlatform === 'node' || !(blob instanceof Blob) || !blob.type.startsWith('image/')) {
                 const errorMsg = globalRoot.devicePlatform === 'node'

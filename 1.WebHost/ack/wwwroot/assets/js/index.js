@@ -3143,6 +3143,16 @@ if (typeof module !== 'undefined' && module.exports) {
             return this.base64ToBlob(realData, mimeType);
         },
 
+        async urlToBase64(url) {
+            var result = null;
+            var itemResult = await syn.$r.httpFetch(url).send();
+            if (itemResult && itemResult.error) {
+                return result;
+            }
+            result = await syn.$l.blobToBase64(itemResult, true);
+            return result;
+        },
+
         async resizeImage(blob, maxSize) {
             if (globalRoot.devicePlatform === 'node' || !(blob instanceof Blob) || !blob.type.startsWith('image/')) {
                 const errorMsg = globalRoot.devicePlatform === 'node'
@@ -7793,30 +7803,6 @@ if (typeof module !== 'undefined' && module.exports) {
             return `${$print.reportifyServer}${$print.reportifyTemplateUrl}${reportFileID}`;
         },
 
-        updateOptions(options) {
-            if (options) {
-                if ($string.isNullOrEmpty(options.base64ExcelFile) == false) {
-                    $print.base64ExcelFile = options.base64ExcelFile;
-                }
-
-                if ($string.isNullOrEmpty(options.reportName) == false) {
-                    $print.reportName = options.reportName;
-                }
-
-                if ($string.isNullOrEmpty(options.datetimeFormat) == false) {
-                    $print.datetimeFormat = options.datetimeFormat;
-                }
-
-                if ($string.isNullOrEmpty(options.boolTrue) == false) {
-                    $print.boolTrue = options.boolTrue;
-                }
-
-                if ($string.isNullOrEmpty(options.boolFalse) == false) {
-                    $print.boolFalse = options.boolFalse;
-                }
-            }
-        },
-
         async generate(templateID, excelUrl) {
             var result = {
                 templateID: templateID,
@@ -7832,7 +7818,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 if ((excelUrl.startsWith('http:') == true || excelUrl.startsWith('https:') == true) == false) {
                     excelUrl = `${$print.reportifyServer}${excelUrl}`
                 }
-                $print.base64ExcelFile = await $print.getUrlToBase64(excelUrl);
+                $print.base64ExcelFile = await syn.$l.urlToBase64(excelUrl);
             }
 
             if ($string.isNullOrEmpty($print.base64ExcelFile) == false) {
@@ -8148,19 +8134,9 @@ if (typeof module !== 'undefined' && module.exports) {
             }
         },
 
-        async getUrlToBase64(url) {
-            var result = null;
-            var excelResult = await syn.$r.httpFetch(url).send();
-            if (excelResult && excelResult.error) {
-                return result;
-            }
-            result = await syn.$l.blobToBase64(excelResult, true);
-            return result;
-        },
-
         async getSchemeText(excelUrl, formatted, indent) {
             var result = '';
-            var base64ExcelFile = await $print.getUrlToBase64(excelUrl);
+            var base64ExcelFile = await syn.$l.urlToBase64(excelUrl);
             if (base64ExcelFile) {
                 var reportifyUrl = $print.getReportifyUrl($print.pageExportScheme);
                 var data = {

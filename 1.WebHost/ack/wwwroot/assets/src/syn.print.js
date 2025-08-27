@@ -40,30 +40,6 @@
             return `${$print.reportifyServer}${$print.reportifyTemplateUrl}${reportFileID}`;
         },
 
-        updateOptions(options) {
-            if (options) {
-                if ($string.isNullOrEmpty(options.base64ExcelFile) == false) {
-                    $print.base64ExcelFile = options.base64ExcelFile;
-                }
-
-                if ($string.isNullOrEmpty(options.reportName) == false) {
-                    $print.reportName = options.reportName;
-                }
-
-                if ($string.isNullOrEmpty(options.datetimeFormat) == false) {
-                    $print.datetimeFormat = options.datetimeFormat;
-                }
-
-                if ($string.isNullOrEmpty(options.boolTrue) == false) {
-                    $print.boolTrue = options.boolTrue;
-                }
-
-                if ($string.isNullOrEmpty(options.boolFalse) == false) {
-                    $print.boolFalse = options.boolFalse;
-                }
-            }
-        },
-
         async generate(templateID, excelUrl) {
             var result = {
                 templateID: templateID,
@@ -79,7 +55,7 @@
                 if ((excelUrl.startsWith('http:') == true || excelUrl.startsWith('https:') == true) == false) {
                     excelUrl = `${$print.reportifyServer}${excelUrl}`
                 }
-                $print.base64ExcelFile = await $print.getUrlToBase64(excelUrl);
+                $print.base64ExcelFile = await syn.$l.urlToBase64(excelUrl);
             }
 
             if ($string.isNullOrEmpty($print.base64ExcelFile) == false) {
@@ -395,19 +371,9 @@
             }
         },
 
-        async getUrlToBase64(url) {
-            var result = null;
-            var excelResult = await syn.$r.httpFetch(url).send();
-            if (excelResult && excelResult.error) {
-                return result;
-            }
-            result = await syn.$l.blobToBase64(excelResult, true);
-            return result;
-        },
-
         async getSchemeText(excelUrl, formatted, indent) {
             var result = '';
-            var base64ExcelFile = await $print.getUrlToBase64(excelUrl);
+            var base64ExcelFile = await syn.$l.urlToBase64(excelUrl);
             if (base64ExcelFile) {
                 var reportifyUrl = $print.getReportifyUrl($print.pageExportScheme);
                 var data = {
