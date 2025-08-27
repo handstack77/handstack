@@ -79,28 +79,29 @@
             return result;
         },
 
-        addWorkItem(sourceName = 'workItems', document, worksheet, bind, row, col, type, data, overtake, step) {
+        addWorkItem(workItems, document, worksheet, datafield, bind, row, col, type, data, overtake, step) {
             if ($object.isNumber(document) == true) {
                 if (document || worksheet || bind || row || col) {
-                    syn.$l.eventLog('addWorkItem', 'document, worksheet, bind, row, col 필수 항목 필요', 'Warning');
+                    syn.$l.eventLog('addWorkItem', 'document, worksheet, datafield, bind, row, col 필수 항목 필요', 'Warning');
                 }
                 else {
-                    var workItem = { document, worksheet, bind, row, col, type, data, step };
+                    var workItem = { document, worksheet, datafield, bind, row, col, type, data, step };
                     if (overtake) {
                         workItem.overtake = overtake;
                     }
-                    $print[sourceName].push(workItem);
+                    workItems.push(workItem);
                 }
             }
             else if ($object.isObject(document) == true) {
                 var workObject = document;
                 if (!workObject.document || !workObject.worksheet || !workObject.bind || !workObject.row || !workObject.col) {
-                    syn.$l.eventLog('addWorkItem', 'document, worksheet, bind, row, col 필수 항목 필요', 'Warning');
+                    syn.$l.eventLog('addWorkItem', 'document, worksheet, datafield, bind, row, col 필수 항목 필요', 'Warning');
                 }
                 else {
                     var workItem = {
                         document: workObject.document,
                         worksheet: workObject.worksheet,
+                        datafield: workObject.datafield,
                         bind: workObject.bind,
                         row: workObject.row,
                         col: workObject.col,
@@ -111,15 +112,15 @@
                     if (workObject.overtake) {
                         workItem.overtake = workObject.overtake;
                     }
-                    $print[sourceName].push(workItem);
+                    workItems.push(workItem);
                 }
             }
         },
 
-        addAtWorkItem(sourceName = 'workItems', document, worksheet, datafield, target, nextDirection) {
+        addAtWorkItem(workItems, document, worksheet, datafield, target, nextDirection) {
             nextDirection = nextDirection || true;
 
-            var index = $print[sourceName].findIndex(item =>
+            var index = workItems.findIndex(item =>
                 item.document === document &&
                 item.worksheet === worksheet &&
                 item.datafield === datafield
@@ -130,7 +131,7 @@
                 return;
             }
 
-            index = $print[sourceName].findIndex(item =>
+            index = workItems.findIndex(item =>
                 item.document === target.document &&
                 item.worksheet === target.worksheet &&
                 ($string.isNullOrEmpty(target.datafield) == false && item.datafield === target.datafield)
@@ -157,29 +158,29 @@
             }
 
             if ($string.toBoolean(nextDirection) == true) {
-                $print[sourceName].splice(index + 1, 0, newItem);
+                workItems.splice(index + 1, 0, newItem);
             } else {
-                $print[sourceName].splice(index, 0, newItem);
+                workItems.splice(index, 0, newItem);
             }
         },
 
-        removeWorkItem(sourceName = 'workItems', document, worksheet, datafield) {
-            var index = $print[sourceName].findIndex(item =>
+        removeWorkItem(workItems, document, worksheet, datafield) {
+            var index = workItems.findIndex(item =>
                 item.document === document &&
                 item.worksheet === worksheet &&
                 item.datafield === datafield
             );
 
             if (index > -1) {
-                $print[sourceName].splice(index, 1);
+                workItems.splice(index, 1);
             }
             else {
                 syn.$l.eventLog('removeWorkItem', `document: ${document}, worksheet: ${worksheet}, datafield: ${datafield} 항목 확인 필요`, 'Warning');
             }
         },
 
-        updateWorkItem(sourceName = 'workItems', document, worksheet, datafield, updates) {
-            var item = $print[sourceName].find(item =>
+        updateWorkItem(workItems, document, worksheet, datafield, updates) {
+            var item = workItems.find(item =>
                 item.document === document &&
                 item.worksheet === worksheet &&
                 item.datafield === datafield
@@ -193,13 +194,18 @@
             }
         },
 
-        bindingWorkItems(sourceName = 'workItems', workItems, dataSource) {
+        bindingWorkItems(workItems, dataSource, documentOffset) {
             var reportWorkItems = JSON.parse(JSON.stringify(workItems));
             for (var key in dataSource) {
                 var dataItem = dataSource[key];
                 if (dataItem) {
                     for (var i = 0, length = reportWorkItems.length; i < length; i++) {
                         var item = reportWorkItems[i];
+
+                        if (documentOffset && $object.isNumber(documentOffset) == true && documentOffset > 0 && item.document > -1) {
+                            item.document = item.document + documentOffset;
+                        }
+
                         if ($object.isNullOrUndefined(item.bind) == true) {
                             item.bind = 'cell';
                         }
@@ -223,58 +229,18 @@
                     }
                 }
             }
-            $print[sourceName] = reportWorkItems;
+
             return reportWorkItems;
         },
 
-        addItem(document, worksheet, bind, row, col, type, data, overtake, step) {
-            $print.addWorkItem('workItems', document, worksheet, bind, row, col, type, data, overtake, step);
-        },
-
-        addAtItem(document, worksheet, datafield, target, nextDirection) {
-            $print.addAtWorkItem('workItems', document, worksheet, datafield, target, nextDirection);
-        },
-
-        removeItem(document, worksheet, datafield) {
-            $print.removeWorkItem('workItems', document, worksheet, datafield);
-        },
-
-        updateItem(document, worksheet, datafield, updates) {
-            $print.updateWorkItem('workItems', document, worksheet, datafield, updates);
-        },
-
-        bindingItems(workItems, dataSource) {
-            $print.bindingWorkItems('workItems', workItems, dataSource);
-        },
-
-        addAction(document, worksheet, bind, row, col, type, data, overtake, step) {
-            $print.addWorkItem('workActions', document, worksheet, bind, row, col, type, data, overtake, step);
-        },
-
-        addAtAction(document, worksheet, datafield, target, nextDirection) {
-            $print.addAtWorkItem('workActions', document, worksheet, datafield, target, nextDirection);
-        },
-
-        removeAction(document, worksheet, datafield) {
-            $print.removeWorkItem('workActions', document, worksheet, datafield);
-        },
-
-        updateAction(document, worksheet, datafield, updates) {
-            $print.updateWorkItem('workActions', document, worksheet, datafield, updates);
-        },
-
-        bindingActions(workActions, dataSource) {
-            $print.bindingWorkItems('workActions', workActions, dataSource);
-        },
-
-        // var workData = syn.$p.transformWorkData(data, ['DETAIL_CONTENTS', 'RESULTS']);
+        // let workData = syn.$p.transformWorkData(data, ['DETAIL_CONTENTS', 'RESULTS']);
         transformWorkData(jsonData, keys) {
             return jsonData.map(item => {
                 return keys.map(key => item[key]);
             });
         },
 
-        // var chunkDatas = splitDataChunks(dataList, 2, 3);
+        // let chunkDatas = syn.$p.splitDataChunks(dataList, 2, 3);
         splitDataChunks(dataList, firstLength, chunkSize) {
             var result = [];
 
@@ -397,22 +363,12 @@
                         document.body.appendChild(tempButton);
 
                         var clipboard = new ClipboardJS(tempButton);
-
-                        return new Promise((resolve, reject) => {
-                            clipboard.on('success', (e) => {
-                                clipboard.destroy();
-                                document.body.removeChild(tempButton);
-                                resolve(true);
-                            });
-
-                            clipboard.on('error', (e) => {
-                                clipboard.destroy();
-                                document.body.removeChild(tempButton);
-                                reject(false);
-                            });
-
-                            tempButton.click();
+                        clipboard.on('success', (error) => {
+                            clipboard.destroy();
+                            document.body.removeChild(tempButton);
                         });
+
+                        tempButton.click();
                     }
                 }
                 else {
