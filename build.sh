@@ -17,9 +17,6 @@ dotnet build "3.Infrastructure/HandStack.Core/HandStack.Core.csproj" -c Debug
 dotnet build "3.Infrastructure/HandStack.Data/HandStack.Data.csproj" -c Debug
 dotnet build "3.Infrastructure/HandStack.Web/HandStack.Web.csproj" -c Debug
 
-echo "Reverting assembly signing to False..."
-node signassembly.js false
-
 echo "Building Modules projects..."
 dotnet build "2.Modules/wwwroot/wwwroot.csproj" -c Debug
 dotnet build "2.Modules/dbclient/dbclient.csproj" -c Debug
@@ -39,5 +36,8 @@ dotnet build "4.Tool/CLI/handsonapp/handsonapp.csproj" -c Debug
 dotnet build "4.Tool/CLI/edgeproxy/edgeproxy.csproj" -c Debug
 dotnet build "4.Tool/CLI/excludedportrange/excludedportrange.csproj" -c Debug
 dotnet build "4.Tool/CLI/bundling/bundling.csproj" -c Debug
+
+echo "Reverting assembly signing to False..."
+node signassembly.js false
 
 echo "All projects built successfully."

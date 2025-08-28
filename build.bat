@@ -22,9 +22,6 @@ echo Building HandStack.Web...
 dotnet build "3.Infrastructure\HandStack.Web\HandStack.Web.csproj" -c Debug
 if %errorlevel% neq 0 goto :error
 
-echo Reverting assembly signing to False...
-node signassembly.js false
-
 rem Build Modules projects (consider their internal dependencies if any)
 echo Building wwwroot...
 dotnet build "2.Modules\wwwroot\wwwroot.csproj" -c Debug
@@ -83,6 +80,9 @@ if %errorlevel% neq 0 goto :error
 echo Building bundling CLI...
 dotnet build "4.Tool\CLI\bundling\bundling.csproj" -c Debug
 if %errorlevel% neq 0 goto :error
+
+echo Reverting assembly signing to False...
+node signassembly.js false
 
 echo All projects built successfully.
 goto :eof
