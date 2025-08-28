@@ -743,7 +743,7 @@
                     var pageWindow = parent.$main.method.getActiveTabContent(tabID);
                     if (pageWindow && pageWindow.syn) {
                         var pageScript = pageWindow[pageWindow.syn.$w.pageScript];
-                        var targetFunction = pageScript[func];
+                        var targetFunction = pageScript.method?.[func];
 
                         if (targetFunction) {
                             targetFunction(val);
@@ -776,7 +776,7 @@
                                     var remainingTriggerIntervalID = setInterval(function () {
                                         clearInterval(remainingTriggerIntervalID);
                                         if (pageWebform.isPageLoad == true) {
-                                            var targetFunction = pageScript[func];
+                                            var targetFunction = pageScript.method?.[func];
 
                                             if (targetFunction) {
                                                 targetFunction(val);
