@@ -1,5 +1,5 @@
 /*!
-HandStack Javascript Library v2025.8.27
+HandStack Javascript Library v2025.9.1
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -3666,7 +3666,33 @@ if (typeof module !== 'undefined' && module.exports) {
         },
 
         getElement(el) {
-            return $object.isString(el) ? this.get(el) : el;
+            let result = null;
+            if ($object.isString(el) == true) {
+                const findEL = this.get(el);
+                if (findEL) {
+                    result = findEL;
+                }
+                else {
+                    result = this.querySelector(el);
+                }
+            }
+            else {
+                if (el && (
+                    el instanceof HTMLElement ||
+                    el instanceof Element ||
+                    (el && el.nodeType === 1) ||
+                    el === window ||
+                    (el && el.constructor && el.constructor.name === 'Window') ||
+                    el === document ||
+                    el instanceof Document ||
+                    el instanceof DocumentFragment ||
+                    el instanceof EventTarget ||
+                    typeof el.addEventListener === 'function'
+                )) {
+                    result = el;
+                }
+            }
+            return result;
         },
 
         stringToArrayBuffer(value) {
