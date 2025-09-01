@@ -1340,6 +1340,7 @@
         },
 
         showDialog(el, options, callback) {
+            el = syn.$l.getElement(el);
             var dialogOptions = $object.clone(syn.$w.dialogOptions);
             options = syn.$w.argumentsExtend(dialogOptions, options);
 
