@@ -218,18 +218,18 @@
                 syn.$l.addEvent('_DatePeriodPicker_btnFirstHalf', 'click', $dateperiodpicker._DatePeriodPicker_btnFirstHalf_click);
                 syn.$l.addEvent('_DatePeriodPicker_btnSecondHalf', 'click', $dateperiodpicker._DatePeriodPicker_btnSecondHalf_click);
                 syn.$l.addEvent('_DatePeriodPicker_btnConfirm', 'click', $dateperiodpicker._DatePeriodPicker_btnConfirm_click);
-                syn.$l.addEvent('_DatePeriodPicker_chkPeriodMonth1', 'change', $dateperiodpicker._DatePeriodPicker_chkPeriodMonth_change);
-                syn.$l.addEvent('_DatePeriodPicker_chkPeriodMonth2', 'change', $dateperiodpicker._DatePeriodPicker_chkPeriodMonth_change);
-                syn.$l.addEvent('_DatePeriodPicker_chkPeriodMonth3', 'change', $dateperiodpicker._DatePeriodPicker_chkPeriodMonth_change);
-                syn.$l.addEvent('_DatePeriodPicker_chkPeriodMonth4', 'change', $dateperiodpicker._DatePeriodPicker_chkPeriodMonth_change);
-                syn.$l.addEvent('_DatePeriodPicker_chkPeriodMonth5', 'change', $dateperiodpicker._DatePeriodPicker_chkPeriodMonth_change);
-                syn.$l.addEvent('_DatePeriodPicker_chkPeriodMonth6', 'change', $dateperiodpicker._DatePeriodPicker_chkPeriodMonth_change);
-                syn.$l.addEvent('_DatePeriodPicker_chkPeriodMonth7', 'change', $dateperiodpicker._DatePeriodPicker_chkPeriodMonth_change);
-                syn.$l.addEvent('_DatePeriodPicker_chkPeriodMonth8', 'change', $dateperiodpicker._DatePeriodPicker_chkPeriodMonth_change);
-                syn.$l.addEvent('_DatePeriodPicker_chkPeriodMonth9', 'change', $dateperiodpicker._DatePeriodPicker_chkPeriodMonth_change);
-                syn.$l.addEvent('_DatePeriodPicker_chkPeriodMonth10', 'change', $dateperiodpicker._DatePeriodPicker_chkPeriodMonth_change);
-                syn.$l.addEvent('_DatePeriodPicker_chkPeriodMonth11', 'change', $dateperiodpicker._DatePeriodPicker_chkPeriodMonth_change);
-                syn.$l.addEvent('_DatePeriodPicker_chkPeriodMonth12', 'change', $dateperiodpicker._DatePeriodPicker_chkPeriodMonth_change);
+                syn.$l.addEvent(syn.$l.querySelector('[for="_DatePeriodPicker_chkPeriodMonth1"]'), 'click', $dateperiodpicker._DatePeriodPicker_chkPeriodMonth_click);
+                syn.$l.addEvent(syn.$l.querySelector('[for="_DatePeriodPicker_chkPeriodMonth2"]'), 'click', $dateperiodpicker._DatePeriodPicker_chkPeriodMonth_click);
+                syn.$l.addEvent(syn.$l.querySelector('[for="_DatePeriodPicker_chkPeriodMonth3"]'), 'click', $dateperiodpicker._DatePeriodPicker_chkPeriodMonth_click);
+                syn.$l.addEvent(syn.$l.querySelector('[for="_DatePeriodPicker_chkPeriodMonth4"]'), 'click', $dateperiodpicker._DatePeriodPicker_chkPeriodMonth_click);
+                syn.$l.addEvent(syn.$l.querySelector('[for="_DatePeriodPicker_chkPeriodMonth5"]'), 'click', $dateperiodpicker._DatePeriodPicker_chkPeriodMonth_click);
+                syn.$l.addEvent(syn.$l.querySelector('[for="_DatePeriodPicker_chkPeriodMonth6"]'), 'click', $dateperiodpicker._DatePeriodPicker_chkPeriodMonth_click);
+                syn.$l.addEvent(syn.$l.querySelector('[for="_DatePeriodPicker_chkPeriodMonth7"]'), 'click', $dateperiodpicker._DatePeriodPicker_chkPeriodMonth_click);
+                syn.$l.addEvent(syn.$l.querySelector('[for="_DatePeriodPicker_chkPeriodMonth8"]'), 'click', $dateperiodpicker._DatePeriodPicker_chkPeriodMonth_click);
+                syn.$l.addEvent(syn.$l.querySelector('[for="_DatePeriodPicker_chkPeriodMonth9"]'), 'click', $dateperiodpicker._DatePeriodPicker_chkPeriodMonth_click);
+                syn.$l.addEvent(syn.$l.querySelector('[for="_DatePeriodPicker_chkPeriodMonth10"]'), 'click', $dateperiodpicker._DatePeriodPicker_chkPeriodMonth_click);
+                syn.$l.addEvent(syn.$l.querySelector('[for="_DatePeriodPicker_chkPeriodMonth11"]'), 'click', $dateperiodpicker._DatePeriodPicker_chkPeriodMonth_click);
+                syn.$l.addEvent(syn.$l.querySelector('[for="_DatePeriodPicker_chkPeriodMonth12"]'), 'click', $dateperiodpicker._DatePeriodPicker_chkPeriodMonth_click);
 
                 $dateperiodpicker.selectedYear = $date.toString(new Date(), 'y');
 
@@ -867,8 +867,11 @@
             }
         },
 
-        _DatePeriodPicker_chkPeriodMonth_change(evt) {
-            $dateperiodpicker.checkSelectedMonth(evt.target.value);
+        _DatePeriodPicker_chkPeriodMonth_click(evt) {
+            const el = syn.$l.get(evt.target.getAttribute('for'));
+            if (el) {
+                $dateperiodpicker.checkSelectedMonth(el.value);
+            }
         }
     });
     syn.uicontrols.$dateperiodpicker = $dateperiodpicker;
