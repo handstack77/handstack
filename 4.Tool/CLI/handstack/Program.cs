@@ -21,6 +21,7 @@ using HandStack.Core.ExtensionMethod;
 using HandStack.Core.Helpers;
 
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.FileProviders;
 
 using Newtonsoft.Json.Linq;
 
@@ -211,7 +212,19 @@ namespace handstack
             {
                 if (ackFile != null && ackFile.Exists == true && settings != null && settings.Exists == true)
                 {
-                    var targetBasePath = ackFile.DirectoryName.ToStringSafe();
+                    var ackFileBasePath = PathExtensions.GetFullPath(ackFile.DirectoryName.ToStringSafe());
+                    var sourceBasePath = PathExtensions.GetFullPath(settings.DirectoryName.ToStringSafe());
+                    var targetBasePath = ackFileBasePath;
+
+                    string toRemove = "/app";
+                    int lastIndex = ackFileBasePath.LastIndexOf(toRemove);
+                    if (lastIndex != -1)
+                    {
+                        targetBasePath = ackFileBasePath.Remove(lastIndex, toRemove.Length);
+                    }
+
+                    Log.Information($"configuration basepath source: {sourceBasePath}, target: {targetBasePath}");
+
                     var settingDirectoryPath = settings.DirectoryName.ToStringSafe();
                     var settingFilePath = settings.FullName.Replace("\\", "/");
                     var settingFileName = settings.Name;
@@ -222,7 +235,7 @@ namespace handstack
                         var moduleBasePath = setting.SelectToken("AppSettings.LoadModuleBasePath").ToStringSafe();
                         if (moduleBasePath.StartsWith(".") == true)
                         {
-                            moduleBasePath = PathExtensions.Combine(targetBasePath, moduleBasePath);
+                            moduleBasePath = PathExtensions.Combine(ackFileBasePath, moduleBasePath);
                         }
 
                         var loadModules = setting.SelectToken("AppSettings.LoadModules");
@@ -278,8 +291,9 @@ namespace handstack
 
                                             var sourceModuleSettingFileInfo = new FileInfo(sourceModuleSettingFilePath);
                                             var targetModuleSettingFilePath = PathExtensions.Combine(moduleBasePath, moduleID, moduleSettingFile);
+
                                             File.Copy(sourceModuleSettingFilePath, targetModuleSettingFilePath, true);
-                                            Log.Information($"modules: {targetModuleSettingFilePath}");
+                                            Log.Information($"configuration modules source: {PathExtensions.GetFullPath(sourceModuleSettingFilePath).Replace(sourceBasePath, "")}, target: {PathExtensions.GetFullPath(targetModuleSettingFilePath).Replace(targetBasePath, "")}");
                                         }
                                         else
                                         {
@@ -291,25 +305,26 @@ namespace handstack
 
                             var appBasePath = ackFile.DirectoryName.ToStringSafe();
                             var appSettingFileInfo = new FileInfo(PathExtensions.Combine(appBasePath, "appsettings.json"));
-                            var appSettingFilePath = appSettingFileInfo.FullName.Replace("\\", "/");
+                            var appSettingFilePath = appSettingFileInfo.FullName;
                             File.WriteAllText(appSettingFilePath, setting.ToString());
-                            var settingFileInfo = new FileInfo(settingFilePath);
-                            Log.Information($"appsettings: {appSettingFilePath}");
+                            Log.Information($"configuration appsettings source: {PathExtensions.GetFullPath(settingFilePath).Replace(sourceBasePath, "")}, target: {PathExtensions.GetFullPath(appSettingFilePath).Replace(targetBasePath, "")}");
 
                             var synConfigFilePath = PathExtensions.Combine(settingDirectoryPath, "synconfigs", settingFileName);
                             if (File.Exists(synConfigFilePath) == true && string.IsNullOrEmpty(wwwrootModuleBasePath) == false)
                             {
                                 var synConfigFileInfo = new FileInfo(PathExtensions.Combine(wwwrootModuleBasePath, "wwwroot", "syn.config.json"));
-                                File.Copy(synConfigFilePath, synConfigFileInfo.FullName.Replace("\\", "/"), true);
-                                Log.Information($"synconfigs: {synConfigFileInfo.FullName.Replace("\\", "/")}");
+                                var appSynConfigFilePath = synConfigFileInfo.FullName;
+                                File.Copy(synConfigFilePath, appSynConfigFilePath, true);
+                                Log.Information($"configuration synconfigs source: {PathExtensions.GetFullPath(synConfigFilePath).Replace(sourceBasePath, "")}, target: {PathExtensions.GetFullPath(appSynConfigFilePath).Replace(targetBasePath, "")}");
                             }
 
                             var nodeConfigFilePath = PathExtensions.Combine(settingDirectoryPath, "nodeconfigs", settingFileName);
                             if (File.Exists(nodeConfigFilePath) == true && string.IsNullOrEmpty(functionModuleBasePath) == false)
                             {
                                 var nodeConfigFileInfo = new FileInfo(PathExtensions.Combine(functionModuleBasePath, "node.config.json"));
-                                File.Copy(nodeConfigFilePath, nodeConfigFileInfo.FullName.Replace("\\", "/"), true);
-                                Log.Information($"nodeconfigs: {nodeConfigFileInfo.FullName.Replace("\\", "/")}");
+                                var appNodeConfigFilePath = nodeConfigFileInfo.FullName;
+                                File.Copy(nodeConfigFilePath, appNodeConfigFilePath, true);
+                                Log.Information($"configuration nodeconfigs source: {PathExtensions.GetFullPath(nodeConfigFilePath).Replace(sourceBasePath, "")}, target: {PathExtensions.GetFullPath(appNodeConfigFilePath).Replace(targetBasePath, "")}");
                             }
                         }
                     }
