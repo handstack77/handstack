@@ -46,7 +46,7 @@ if "%TASK_COMMAND%"=="copy" (
 )
 
 if "%TASK_COMMAND%"=="www" (
-    robocopy %WORKING_PATH%/wwwroot %HANDSTACK_SRC%/../build/handstack/modules/wwwroot/wwwroot /e /copy:dat /xd %WORKING_PATH%\wwwroot\lib
+    robocopy %WORKING_PATH%/wwwroot %HANDSTACK_SRC%/../build/handstack/modules/wwwroot/wwwroot /e /copy:dat /xd %WORKING_PATH%\wwwroot\lib /xf syn.config.json
 )
 
 if "%TASK_COMMAND%"=="lib" (

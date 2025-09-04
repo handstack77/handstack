@@ -62,7 +62,7 @@ if [ "$TASK_COMMAND" == "copy" ]; then
 fi
 
 if [ "$TASK_COMMAND" == "www" ]; then
-    rsync -av --exclude=$WORKING_PATH/wwwroot/lib $WORKING_PATH/wwwroot/ $HANDSTACK_SRC/../build/handstack/modules/wwwroot/wwwroot/
+    rsync -av --exclude=$WORKING_PATH/wwwroot/lib --exclude=syn.config.json $WORKING_PATH/wwwroot/ $HANDSTACK_SRC/../build/handstack/modules/wwwroot/wwwroot/
 fi
 
 if [ "$TASK_COMMAND" == "devcert" ]; then
