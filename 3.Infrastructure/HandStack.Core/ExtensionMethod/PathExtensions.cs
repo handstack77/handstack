@@ -135,5 +135,11 @@ namespace HandStack.Core.ExtensionMethod
             var combinedPath = Path.Join(paths);
             return combinedPath.Replace('\\', separator).Replace('/', separator);
         }
+
+        public static string GetFullPath(string path, char separator = '/')
+        {
+            var fullPath = Path.GetFullPath(path);
+            return fullPath.Replace('\\', separator).Replace('/', separator);
+        }
     }
 }
