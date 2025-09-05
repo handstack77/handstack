@@ -166,7 +166,7 @@
 
     $auigrid.extend({
         name: 'syn.uicontrols.$auigrid',
-        version: 'v2025.7.18',
+        version: 'v2025.9.5',
 
         gridControls: [],
         gridCodeDatas: [],
@@ -301,6 +301,10 @@
                 gridID: AUIGrid.create(gridID, columnLayout, controlSetting),
                 setting: controlSetting
             });
+
+            if (setting.grandTotals) {
+                $auigrid.setFooter(elID, setting.grandTotals);
+            }
 
             if (mod) {
                 // https://www.auisoft.net/documentation/auigrid/DataGrid/Events.html
@@ -1024,7 +1028,7 @@
                 if (mod.config && mod.config.dataSource && mod.config.dataSource[setting.dataSourceID]) {
                     dataSource = mod.config.dataSource[setting.dataSourceID];
                 }
-                
+
                 if (dataSource) {
                     if (callback) {
                         callback();
