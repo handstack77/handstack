@@ -10062,6 +10062,19 @@ a.ui-button:active,
 	padding: 0;
 }
 
+.fc-daygrid thead tr {
+    background-color: #f6f6f6;
+}
+
+.fc-header-toolbar button {
+    background-color: #f6f6f6 !important;
+    color: #000 !important;
+}
+
+.fc-scrollgrid-sync-table tbody tr td:nth-of-type(1), td:nth-of-type(7) {
+    background-color: #f6f6f6;
+}
+
 .syn-chart {
   color: #000;
 }

@@ -110,6 +110,7 @@ gulp.task('basescripts', async function () {
 
 gulp.task('controls', async function () {
     return gulp.src([
+        'wwwroot/uicontrols/Calendar/Calendar.js',
         'wwwroot/uicontrols/Chart/Chart.js',
         'wwwroot/uicontrols/CheckBox/CheckBox.js',
         'wwwroot/uicontrols/CodePicker/CodePicker.js',
@@ -149,6 +150,7 @@ gulp.task('controls', async function () {
 
 gulp.task('obfusecontrols', async function () {
     return gulp.src([
+        'wwwroot/uicontrols/Calendar/Calendar.js',
         'wwwroot/uicontrols/Chart/Chart.js',
         'wwwroot/uicontrols/CheckBox/CheckBox.js',
         'wwwroot/uicontrols/CodePicker/CodePicker.js',
@@ -231,6 +233,7 @@ gulp.task('styles', async function () {
         'wwwroot/css/uicontrols/Control.css',
 
         // syn.controls.js
+        'wwwroot/uicontrols/Calendar/Calendar.css',
         'wwwroot/uicontrols/Chart/Chart.css',
         'wwwroot/uicontrols/CheckBox/CheckBox.css',
         'wwwroot/uicontrols/ColorPicker/ColorPicker.css',
@@ -294,6 +297,7 @@ gulp.task('basestyles', async function () {
         'wwwroot/css/uicontrols/Control.css',
 
         // syn.controls.js
+        'wwwroot/uicontrols/Calendar/Calendar.css',
         'wwwroot/uicontrols/Chart/Chart.css',
         'wwwroot/uicontrols/CheckBox/CheckBox.css',
         'wwwroot/uicontrols/ColorPicker/ColorPicker.css',
