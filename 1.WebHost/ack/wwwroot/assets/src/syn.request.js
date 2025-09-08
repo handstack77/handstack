@@ -68,6 +68,62 @@
             }, {});
         },
 
+        // resolveUrl('/api/v1/users', 'https://example.com'); // https://example.com/api/v1/users
+        // resolveUrl('/api/v1/users', 'https://example.com/api/v2'); // https://example.com/api/v1/users
+        // resolveUrl('../v1/users/', 'https://example.com/api/v2'); // https://example.com/api/v1/users
+        // resolveUrl('users', 'https://example.com/api/v1/groups'); // https://example.com/api/v1/users
+        // const usersApiUrl = resolveUrl('/api/users');
+        resolveUrl(relativePath, baseUrl) {
+            baseUrl = (baseUrl instanceof URL) ? baseUrl.href : (baseUrl || location.href);
+            return new URL(relativePath, baseUrl).href;
+        },
+
+        addQueryParam(param, value, urlStr) {
+            const url = new URL(urlStr || location.href);
+
+            if ($object.isObject(param) == true) {
+                Object.entries(param).forEach(([key, val]) => {
+                    url.searchParams.append(key, String(val));
+                });
+            } else if ($object.isString(param) && value !== undefined) {
+                url.searchParams.append(param, String(value));
+            } else {
+                syn.$l.eventLog('$r.addQueryParam', '잘못된 파라미터 형식입니다. 문자열 키와 값이거나 객체여야 합니다.', 'Warning');
+            }
+
+            return url.toString();
+        },
+
+        removeQueryParam(paramName, urlStr) {
+            const url = new URL(urlStr || location.href);
+
+            if ($object.isArray(paramName) == true) {
+                paramName.forEach(p => url.searchParams.delete(p));
+            } else if ($object.isString(paramName)) {
+                url.searchParams.delete(paramName);
+            } else {
+                syn.$l.eventLog('$r.removeQueryParam', '잘못된 파라미터 형식입니다. 문자열 또는 문자열 배열이어야 합니다.', 'Warning');
+            }
+
+            return url.toString();
+        },
+
+        setQueryParam(param, value, urlStr) {
+            const url = new URL(urlStr || location.href);
+
+            if ($object.isObject(param) == true) {
+                Object.entries(param).forEach(([key, val]) => {
+                    url.searchParams.set(key, String(val));
+                });
+            } else if ($object.isString(param) && value !== undefined) {
+                url.searchParams.set(param, String(value));
+            } else {
+                syn.$l.eventLog('$r.setQueryParam', '잘못된 파라미터 형식입니다. 문자열 키와 값이거나 객체여야 합니다.', 'Warning');
+            }
+
+            return url.toString();
+        },
+
         async isCorsEnabled(url) {
             let result = false;
             try {

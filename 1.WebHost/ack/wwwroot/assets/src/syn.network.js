@@ -5,6 +5,8 @@
     $network.extend({
         myChannelID: null,
         connections: [],
+        sseConnections: {},
+        wsConnections: {},
         concreate($network) {
             $network.myChannelID = syn.$r.query('channelID') || syn.$r.query('ChannelID') || syn.$r.query('CHANNELID') || syn.$r.query('channelid') || '';
         },
@@ -603,6 +605,253 @@
             }
 
             connection.emit(val);
+        },
+
+        // const sseEventHandler = {
+        //     open: () => {
+        //         console.log('SSE 연결 성공!');
+        //     },
+        //     message: (event) => {
+        //         const data = JSON.parse(event.data);
+        //         console.log('일반 메시지:', data);
+        //     },
+        //     heartbeat: (event) => {
+        //         console.log('서버 상태:', event.data, '마지막 이벤트 ID:', event.lastEventId);
+        //     },
+        //     notice: (event) => {
+        //         const notification = JSON.parse(event.data);
+        //         showNotification(notification.title, notification.message);
+        //     }
+        // };
+        // 
+        // syn.$w.startSse('realtime-updates', '/api/events', sseEventHandler);
+        startSse(id, url, eventHandlers, options = {}) {
+            if (typeof id !== 'string' || !id) {
+                syn.$l.eventLog('$n.startSse', '고유한 연결 ID를 제공해야 합니다.', 'Error');
+                return null;
+            }
+            if (this.sseConnections[id]) {
+                syn.$l.eventLog('$n.startSse', `ID '${id}'를 가진 SSE 연결이 이미 존재합니다.`, 'Warning');
+                return this.sseConnections[id];
+            }
+            if (!context.EventSource) {
+                syn.$l.eventLog('$n.startSse', '이 브라우저는 EventSource를 지원하지 않습니다.', 'Error');
+                return null;
+            }
+
+            const config = {
+                withCredentials: false,
+                ...options
+            };
+
+            try {
+                const events = new EventSource(url, { withCredentials: config.withCredentials });
+                const defaultHandlers = {
+                    open: () => {
+                        syn.$l.eventLog('$n.startSse', `SSE 연결이 열렸습니다 (ID: ${id}).`, 'Information');
+                    },
+                    error: (event) => {
+                        if (events.readyState === EventSource.CLOSED) {
+                            syn.$l.eventLog('$n.startSse', `SSE 연결이 닫혔습니다 (ID: ${id}).`, 'Information');
+                        } else {
+                            syn.$l.eventLog('$n.startSse', `SSE 에러 발생 (ID: ${id}).`, 'Error', event);
+                        }
+                    },
+                    message: (event) => {
+                        syn.$l.eventLog('$n.startSse', `기본 메시지 수신 (ID: ${id}): ${event.data}`, 'Verbose');
+                    }
+                };
+
+                const handlers = { ...defaultHandlers, ...eventHandlers };
+
+                Object.entries(handlers).forEach(([eventName, handler]) => {
+                    if (typeof handler === 'function') {
+                        events.addEventListener(eventName, handler);
+                    }
+                });
+
+                this.sseConnections[id] = events;
+                return events;
+
+            } catch (error) {
+                syn.$l.eventLog('$n.startSse', `SSE 연결 생성 실패 (ID: ${id}).`, 'Fatal', error);
+                return null;
+            }
+        },
+
+        // syn.$w.stopSse('realtime-updates');
+        stopSse(id) {
+            const connection = this.sseConnections[id];
+            if (connection) {
+                connection.close();
+                delete this.sseConnections[id];
+                syn.$l.eventLog('$n.stopSse', `SSE 연결을 닫았습니다 (ID: ${id}).`, 'Information');
+                return true;
+            }
+            syn.$l.eventLog('$n.stopSse', `닫을 SSE 연결을 찾을 수 없습니다 (ID: ${id}).`, 'Warning');
+            return false;
+        },
+
+        stopAllSse() {
+            Object.keys(this.sseConnections).forEach(id => {
+                this.stopSse(id);
+            });
+        },
+
+        getSseConnection(id) {
+            return this.sseConnections[id];
+        },
+
+        // const wsEventHandler = {
+        //     open: () => {
+        //         console.log('채팅 서버에 연결되었습니다.');
+        //         syn.$n.sendSocketMessage('chat', { type: 'join', user: 'alex' });
+        //     },
+        //     message: (data) => {
+        //         if (data.type === 'message') {
+        //             appendChatMessage(data.user, data.text);
+        //         } else if (data.type === 'user_list') {
+        //             updateUserList(data.users);
+        //         }
+        //     },
+        //     close: (event) => {
+        //         console.log(`채팅 서버와 연결이 끊어졌습니다. 코드: ${event.code}`);
+        //     },
+        //     error: (err) => {
+        //         console.error('채팅 소켓 에러:', err);
+        //     }
+        // };
+        // 
+        // syn.$n.startSocket('chat', 'wss://example.com/chat', wsEventHandler);
+        startSocket(id, url, eventHandlers = {}, options = {}) {
+            if (typeof id !== 'string' || !id) {
+                syn.$l.eventLog('$n.startSocket', '고유한 연결 ID를 제공해야 합니다.', 'Error');
+                return null;
+            }
+            if (this.wsConnections[id]) {
+                syn.$l.eventLog('$n.startSocket', `ID '${id}'를 가진 WebSocket 연결이 이미 존재합니다.`, 'Warning');
+                return this.wsConnections[id].socket;
+            }
+            if (!context.WebSocket) {
+                syn.$l.eventLog('$n.startSocket', '이 브라우저는 WebSocket을 지원하지 않습니다.', 'Error');
+                return null;
+            }
+
+            const config = {
+                autoReconnect: true,
+                reconnectInterval: 3000,
+                json: true,
+                ...options
+            };
+
+            const connect = () => {
+                try {
+                    const socket = new WebSocket(url);
+
+                    const connection = {
+                        id,
+                        socket,
+                        url,
+                        eventHandlers,
+                        options: config,
+                        reconnectTimer: null,
+                        _isClosedIntentionally: false
+                    };
+
+                    this.wsConnections[id] = connection;
+
+                    socket.addEventListener('open', (event) => {
+                        syn.$l.eventLog('$n.startSocket', `WebSocket 연결이 열렸습니다 (ID: ${id}).`, 'Information');
+                        if (connection.reconnectTimer) {
+                            clearTimeout(connection.reconnectTimer);
+                            connection.reconnectTimer = null;
+                        }
+                        if (eventHandlers.open) eventHandlers.open(event);
+                    });
+
+                    socket.addEventListener('message', (event) => {
+                        let data = event.data;
+                        if (config.json) {
+                            try {
+                                data = JSON.parse(event.data);
+                            } catch (e) {
+                                syn.$l.eventLog('$n.startSocket', `JSON 파싱 오류 (ID: ${id}): ${e.message}`, 'Warning');
+                            }
+                        }
+                        if (eventHandlers.message) eventHandlers.message(data, event);
+                    });
+
+                    socket.addEventListener('error', (event) => {
+                        syn.$l.eventLog('$n.startSocket', `WebSocket 에러 발생 (ID: ${id}).`, 'Error', event);
+                        if (eventHandlers.error) eventHandlers.error(event);
+                    });
+
+                    socket.addEventListener('close', (event) => {
+                        syn.$l.eventLog('$n.startSocket', `WebSocket 연결이 닫혔습니다 (ID: ${id}). Code: ${event.code}`, 'Information');
+                        if (eventHandlers.close) eventHandlers.close(event);
+
+                        if (config.autoReconnect && !connection._isClosedIntentionally) {
+                            syn.$l.eventLog('$n.startSocket', `${config.reconnectInterval}ms 후 재연결 시도... (ID: ${id})`, 'Information');
+                            connection.reconnectTimer = setTimeout(() => {
+                                delete this.wsConnections[id];
+                                this.startSocket(id, url, eventHandlers, options);
+                            }, config.reconnectInterval);
+                        }
+                    });
+
+                } catch (error) {
+                    syn.$l.eventLog('$n.startSocket', `WebSocket 연결 생성 실패 (ID: ${id}).`, 'Fatal', error);
+                    if (config.autoReconnect) {
+                        setTimeout(() => this.startSocket(id, url, eventHandlers, options), config.reconnectInterval);
+                    }
+                }
+            };
+
+            connect();
+            return this.wsConnections[id]?.socket || null;
+        },
+
+        // syn.$n.sendSocketMessage('chat', { type: 'message',text: input.value });
+        sendSocketMessage(id, message) {
+            const connection = this.wsConnections[id];
+            if (connection && connection.socket.readyState === WebSocket.OPEN) {
+                try {
+                    const dataToSend = (connection.options.json && typeof message === 'object')
+                        ? JSON.stringify(message)
+                        : message;
+                    connection.socket.send(dataToSend);
+                    return true;
+                } catch (error) {
+                    syn.$l.eventLog('$n.sendSocketMessage', `메시지 전송 실패 (ID: ${id}).`, 'Error', error);
+                    return false;
+                }
+            }
+            syn.$l.eventLog('$n.sendSocketMessage', `메시지를 보낼 수 없습니다. 연결이 준비되지 않았습니다 (ID: ${id}).`, 'Warning');
+            return false;
+        },
+
+        // syn.$n.stopSocket('chat');
+        stopSocket(id) {
+            const connection = this.wsConnections[id];
+            if (connection) {
+                connection._isClosedIntentionally = true;
+                if (connection.reconnectTimer) {
+                    clearTimeout(connection.reconnectTimer);
+                }
+                connection.socket.close();
+                delete this.wsConnections[id];
+                syn.$l.eventLog('$n.stopSocket', `WebSocket 연결을 닫았습니다 (ID: ${id}).`, 'Information');
+            } else {
+                syn.$l.eventLog('$n.stopSocket', `닫을 WebSocket 연결을 찾을 수 없습니다 (ID: ${id}).`, 'Warning');
+            }
+        },
+
+        stopAllSockets() {
+            Object.keys(this.wsConnections).forEach(id => this.stopSocket(id));
+        },
+
+        getSocket(id) {
+            return this.wsConnections[id]?.socket;
         }
     });
 

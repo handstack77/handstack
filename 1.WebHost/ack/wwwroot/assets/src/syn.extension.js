@@ -659,6 +659,38 @@
             return typeof val === 'string' ? val.trim().replace(/[^\d.-]/g, '') : '';
         },
 
+        toStringCounts(text, locale) {
+            locale = locale || syn.$b?.language || 'ko-KR';
+            if (!context.Intl?.Segmenter) {
+                return {
+                    characters: text.length,
+                    words: (text.match(/\S+/g) || []).length,
+                    sentences: (text.match(/[^.!?]+[.!?]+/g) || []).length
+                };
+            }
+
+            const characters = new Intl.Segmenter(
+                locale,
+                { granularity: 'grapheme' }
+            );
+
+            const words = new Intl.Segmenter(
+                locale,
+                { granularity: 'word' }
+            );
+
+            const sentences = new Intl.Segmenter(
+                locale,
+                { granularity: 'sentence' }
+            );
+
+            return {
+                characters: [...characters.segment(text)].length,
+                words: [...words.segment(text)].length,
+                sentences: [...sentences.segment(text)].length
+            };
+        },
+
         toCurrency(val, localeID, options = {}) {
             const num = this.toNumber(val);
             if (isNaN(num)) return null;

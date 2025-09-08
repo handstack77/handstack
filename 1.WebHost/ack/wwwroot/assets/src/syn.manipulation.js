@@ -236,6 +236,59 @@
             return this;
         },
 
+        // syn.$m.addClass(el, 'highlight').fade(el, { duration: 1000, to: 0.5 });
+        fade(el, options = {}) {
+            el = syn.$l.getElement(el);
+            if (el) {
+                const config = {
+                    duration: 1000,
+                    from: parseFloat(context.getComputedStyle(el).opacity) || 1,
+                    to: 0,
+                    fps: 60,
+                    callback: null,
+                    ...options
+                };
+
+                const frameInterval = 1000 / config.fps;
+                const totalFrames = (config.duration / 1000) * config.fps;
+                const opacityChange = config.to - config.from;
+                const opacityIncrement = opacityChange / totalFrames;
+
+                let currentOpacity = config.from;
+                let lastTimestamp;
+
+                const animate = (timestamp) => {
+                    if (!lastTimestamp) {
+                        lastTimestamp = timestamp;
+                    }
+
+                    const elapsed = timestamp - lastTimestamp;
+
+                    if (elapsed < frameInterval) {
+                        requestAnimationFrame(animate);
+                        return;
+                    }
+
+                    lastTimestamp = timestamp;
+                    currentOpacity += opacityIncrement;
+
+                    if ((opacityIncrement > 0 && currentOpacity >= config.to) || (opacityIncrement < 0 && currentOpacity <= config.to)) {
+                        el.style.opacity = config.to;
+                        if (typeof config.callback === 'function') {
+                            config.callback.call(el);
+                        }
+                    } else {
+                        el.style.opacity = currentOpacity;
+                        requestAnimationFrame(animate);
+                    }
+                };
+
+                requestAnimationFrame(animate);
+            }
+
+            return this;
+        },
+
         append(baseEl, tag, elID, options = {}) {
             const baseElement = syn.$l.getElement(baseEl);
             if (!baseElement || !tag || !doc) return null;

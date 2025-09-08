@@ -1,5 +1,5 @@
 /*!
-HandStack Javascript Library v2025.9.1
+HandStack Javascript Library v2025.9.8
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -1804,6 +1804,38 @@ if (typeof module !== 'undefined' && module.exports) {
             return typeof val === 'string' ? val.trim().replace(/[^\d.-]/g, '') : '';
         },
 
+        toStringCounts(text, locale) {
+            locale = locale || syn.$b?.language || 'ko-KR';
+            if (!context.Intl?.Segmenter) {
+                return {
+                    characters: text.length,
+                    words: (text.match(/\S+/g) || []).length,
+                    sentences: (text.match(/[^.!?]+[.!?]+/g) || []).length
+                };
+            }
+
+            const characters = new Intl.Segmenter(
+                locale,
+                { granularity: 'grapheme' }
+            );
+
+            const words = new Intl.Segmenter(
+                locale,
+                { granularity: 'word' }
+            );
+
+            const sentences = new Intl.Segmenter(
+                locale,
+                { granularity: 'sentence' }
+            );
+
+            return {
+                characters: [...characters.segment(text)].length,
+                words: [...words.segment(text)].length,
+                sentences: [...sentences.segment(text)].length
+            };
+        },
+
         toCurrency(val, localeID, options = {}) {
             const num = this.toNumber(val);
             if (isNaN(num)) return null;
@@ -3240,7 +3272,7 @@ if (typeof module !== 'undefined' && module.exports) {
         eventLogTimer: null,
         eventLogCount: 0,
 
-        eventLog(event, data, logLevelInput = 'Verbose') {
+        eventLog(event, data, logLevelInput = 'Verbose', logStyle = null) {
             const message = data instanceof Error ? data.message : String(data);
             const stack = data instanceof Error ? data.stack : undefined;
 
@@ -3277,18 +3309,23 @@ if (typeof module !== 'undefined' && module.exports) {
                 if (context.console) console.log(finalLogMessage);
 
             } else if (context.console) {
-                switch (logLevelNum) {
-                    case this.logLevel.Error:
-                    case this.logLevel.Fatal:
-                        console.error(finalLogMessage); break;
-                    case this.logLevel.Warning:
-                        console.warn(finalLogMessage); break;
-                    case this.logLevel.Information:
-                        console.info(finalLogMessage); break;
-                    case this.logLevel.Debug:
-                        console.debug(finalLogMessage); break;
-                    default: // Verbose
-                        console.log(finalLogMessage); break;
+                const levelToConsoleMethod = {
+                    [this.logLevel.Fatal]: 'error',
+                    [this.logLevel.Error]: 'error',
+                    [this.logLevel.Warning]: 'warn',
+                    [this.logLevel.Information]: 'info',
+                    [this.logLevel.Debug]: 'debug'
+                };
+
+                const method = levelToConsoleMethod[logLevelNum] || 'log';
+                if (typeof finalLogMessage === 'string' && typeof logStyle === 'string' && logStyle.trim()) {
+                    if (!finalLogMessage.includes('%c')) {
+                        console[method](`%c${finalLogMessage}`, logStyle);
+                    } else {
+                        console[method](finalLogMessage, logStyle);
+                    }
+                } else {
+                    console[method](finalLogMessage);
                 }
 
                 if (syn.Config?.IsDebugMode === true && syn.Config?.Environment === 'Development' && logLevelNum >= this.logLevel.Warning) {
@@ -3298,6 +3335,9 @@ if (typeof module !== 'undefined' && module.exports) {
                 if (doc && !context.console) {
                     const div = doc.createElement('div');
                     div.textContent = finalLogMessage;
+                    if (logStyle) {
+                        div.style.cssText = logStyle;
+                    }
                     const eventlogs = doc.getElementById('eventlogs');
                     if (eventlogs) {
                         eventlogs.appendChild(div);
@@ -3307,19 +3347,6 @@ if (typeof module !== 'undefined' && module.exports) {
                         }, 10);
                     } else {
                         doc.body?.appendChild(div);
-                    }
-                }
-
-                if (context.bound?.browserEvent) {
-                    try {
-                        context.bound.browserEvent('browser', {
-                            ID: 'EventLog',
-                            Data: finalLogMessage
-                        }, (error, json) => {
-                            if (error) console.log(`browserEvent EventLog 콜백 오류: ${error}`);
-                        });
-                    } catch (bridgeError) {
-                        console.log(`bound.browserEvent 호출 오류: ${bridgeError}`);
                     }
                 }
             }
@@ -3491,6 +3518,62 @@ if (typeof module !== 'undefined' && module.exports) {
             return (url.match(/([^?=&]+)(=([^&]*))/g) || []).reduce(function (a, v) {
                 return a[v.slice(0, v.indexOf('='))] = v.slice(v.indexOf('=') + 1), a;
             }, {});
+        },
+
+        // resolveUrl('/api/v1/users', 'https://example.com'); // https://example.com/api/v1/users
+        // resolveUrl('/api/v1/users', 'https://example.com/api/v2'); // https://example.com/api/v1/users
+        // resolveUrl('../v1/users/', 'https://example.com/api/v2'); // https://example.com/api/v1/users
+        // resolveUrl('users', 'https://example.com/api/v1/groups'); // https://example.com/api/v1/users
+        // const usersApiUrl = resolveUrl('/api/users');
+        resolveUrl(relativePath, baseUrl) {
+            baseUrl = (baseUrl instanceof URL) ? baseUrl.href : (baseUrl || location.href);
+            return new URL(relativePath, baseUrl).href;
+        },
+
+        addQueryParam(param, value, urlStr) {
+            const url = new URL(urlStr || location.href);
+
+            if ($object.isObject(param) == true) {
+                Object.entries(param).forEach(([key, val]) => {
+                    url.searchParams.append(key, String(val));
+                });
+            } else if ($object.isString(param) && value !== undefined) {
+                url.searchParams.append(param, String(value));
+            } else {
+                syn.$l.eventLog('$r.addQueryParam', '잘못된 파라미터 형식입니다. 문자열 키와 값이거나 객체여야 합니다.', 'Warning');
+            }
+
+            return url.toString();
+        },
+
+        removeQueryParam(paramName, urlStr) {
+            const url = new URL(urlStr || location.href);
+
+            if ($object.isArray(paramName) == true) {
+                paramName.forEach(p => url.searchParams.delete(p));
+            } else if ($object.isString(paramName)) {
+                url.searchParams.delete(paramName);
+            } else {
+                syn.$l.eventLog('$r.removeQueryParam', '잘못된 파라미터 형식입니다. 문자열 또는 문자열 배열이어야 합니다.', 'Warning');
+            }
+
+            return url.toString();
+        },
+
+        setQueryParam(param, value, urlStr) {
+            const url = new URL(urlStr || location.href);
+
+            if ($object.isObject(param) == true) {
+                Object.entries(param).forEach(([key, val]) => {
+                    url.searchParams.set(key, String(val));
+                });
+            } else if ($object.isString(param) && value !== undefined) {
+                url.searchParams.set(param, String(value));
+            } else {
+                syn.$l.eventLog('$r.setQueryParam', '잘못된 파라미터 형식입니다. 문자열 키와 값이거나 객체여야 합니다.', 'Warning');
+            }
+
+            return url.toString();
         },
 
         async isCorsEnabled(url) {
@@ -3890,6 +3973,7 @@ if (typeof module !== 'undefined' && module.exports) {
         moduleReadyIntervalID: null,
         remainingReadyIntervalID: null,
         remainingReadyCount: 0,
+        intersectionObservers: {},
 
         defaultControlOptions: {
             value: '',
@@ -3963,20 +4047,31 @@ if (typeof module !== 'undefined' && module.exports) {
                     } catch (e) {
                         syn.$l.eventLog('$w.getStorage (Node)', `키 "${storageKey}"에 대한 스토리지 항목 파싱 오류: ${e}`, 'Error');
                         localStorage.removeItem(storageKey);
-                        return null;
                     }
                 }
             } else {
                 const storage = isLocal ? localStorage : sessionStorage;
-                const val = storage.getItem(storageKey);
-                try {
-                    return val ? JSON.parse(val) : null;
-                } catch (e) {
-                    syn.$l.eventLog('$w.getStorage (Browser)', `키 "${storageKey}"에 대한 스토리지 항목 파싱 오류: ${e}`, 'Error');
-                    storage.removeItem(storageKey);
-                    return null;
+                if ($object.isString(storageKey) == true) {
+                    const val = storage.getItem(storageKey);
+                    try {
+                        return val ? JSON.parse(val) : null;
+                    } catch (e) {
+                        syn.$l.eventLog('$w.getStorage (Browser)', `키 "${storageKey}"에 대한 스토리지 항목 파싱 오류: ${e}`, 'Error');
+                        storage.removeItem(storageKey);
+                    }
+                }
+                else if ($object.isArray(storageKey) == true) {
+                    let results = {};
+                    for (let i = 0; i < storage.length; i++) {
+                        const key = storage.key(i);
+                        if (storageKey.includes(key) == true) {
+                            results[key] = storage.getItem(key);
+                        }
+                    }
                 }
             }
+
+            return null;
         },
 
         removeStorage(prop, isLocal = false) {
@@ -3988,6 +4083,16 @@ if (typeof module !== 'undefined' && module.exports) {
                 storage.removeItem(storageKey);
             }
             return this;
+        },
+
+        getStorageKeys(isLocal = false) {
+            const keys = [];
+            const storage = isLocal ? localStorage : sessionStorage;
+
+            for (let i = 0; i < storage.length; i++) {
+                keys.push(storage.key(i));
+            }
+            return keys;
         },
 
         activeControl(evt) {
@@ -6802,6 +6907,97 @@ if (typeof module !== 'undefined' && module.exports) {
             return $webform;
         },
 
+        getDynamicStyle(styleID) {
+            if ($object.isNullOrUndefined(styleID) == true) {
+                const sheets = doc.styleSheets;
+                if (sheets.length > 0) {
+                    return sheets[sheets.length - 1];
+                }
+                return null;
+            }
+
+            let styleEl = doc.getElementById(styleID);
+            if (!styleEl) {
+                styleEl = doc.createElement('style');
+                styleEl.id = styleID;
+                doc.head.appendChild(styleEl);
+            }
+            return styleEl.sheet;
+        },
+
+        // syn.$l.addCssRule('.highlight { background-color: yellow; font-weight: bold; }', 'page-style');
+        // syn.$l.addCssRule('div { border: 1px solid red; }', 'page-styles');
+        // syn.$l.addCssRule('span { border: 1px solid blue; }', 'page-styles');
+        addCssRule(rules, styleID) {
+            const sheet = this.getDynamicStyle(styleID);
+            if (!sheet) {
+                syn.$l.eventLog('$w.addCssRule', 'StyleSheet를 가져올 수 없습니다.', 'Error');
+                return [];
+            }
+
+            const addedIndexes = [];
+            const rulesArray = Array.isArray(rules) ? rules : [rules];
+
+            rulesArray.forEach(rule => {
+                try {
+                    const index = sheet.insertRule(rule, sheet.cssRules.length);
+                    addedIndexes.push(index);
+                } catch (error) {
+                    syn.$l.eventLog('$w.addCssRule', `잘못된 CSS 규칙: "${rule}"`, 'Error', error);
+                }
+            });
+
+            return addedIndexes;
+        },
+
+        // syn.$l.removeCssRule('.highlight', 'page-styles');
+        removeCssRule(identifier, styleID) {
+            const sheet = this.getDynamicStyle(styleID);
+            if (!sheet) return false;
+
+            if (typeof identifier === 'number') {
+                if (identifier >= 0 && identifier < sheet.cssRules.length) {
+                    sheet.deleteRule(identifier);
+                    return true;
+                }
+                return false;
+            }
+
+            if (typeof identifier === 'string') {
+                const selector = identifier.toLowerCase();
+                for (let i = sheet.cssRules.length - 1; i >= 0; i--) {
+                    const rule = sheet.cssRules[i];
+                    if (rule.selectorText && rule.selectorText.toLowerCase().split(',').map(s => s.trim()).includes(selector)) {
+                        sheet.deleteRule(i);
+                        return true;
+                    }
+                }
+            }
+
+            syn.$l.eventLog('$w.removeCssRule', `삭제할 규칙을 찾을 수 없습니다: ${identifier}`, 'Warning');
+            return false;
+        },
+
+        // const loadedImage = await syn.$w.fetchImage('path/to/image.jpg', 'path/to/fallback.png');
+        fetchImage(url, fallbackUrl) {
+            return new Promise((resolve, reject) => {
+                const image = new Image();
+                image.src = url;
+                image.addEventListener('load', () => {
+                    resolve(image);
+                });
+
+                image.addEventListener('error', error => {
+                    if (!fallbackUrl || image.src === fallbackUrl) {
+                        reject(error);
+                    } else {
+                        syn.$l.eventLog('$w.fetchImage', `이미지 로딩 실패. Fallback 시도: ${fallbackUrl}`, 'Warning');
+                        image.src = fallbackUrl;
+                    }
+                });
+            });
+        },
+
         async fetchScript(moduleUrl) {
             var result = null;
             var moduleName;
@@ -7681,6 +7877,129 @@ if (typeof module !== 'undefined' && module.exports) {
                 sheet.innerHTML = styleTexts.join('\n');
                 head.appendChild(sheet);
             }
+        },
+
+        async copyToClipboard(text) {
+            if (!text) return Promise.reject('');
+
+            if (context.navigator?.clipboard?.writeText) {
+                try {
+                    await context.navigator.clipboard.writeText(text);
+                    return Promise.resolve();
+                } catch (error) {
+                    syn.$l.eventLog('$w.copyToClipboard', `Clipboard API 실패: ${error.message}`, 'Warning');
+                    return Promise.reject(error);
+                }
+            }
+
+            const textArea = doc.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.top = "-9999px";
+            textArea.style.left = "-9999px";
+            doc.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            try {
+                const successful = doc.execCommand('copy');
+                doc.body.removeChild(textArea);
+                if (successful) {
+                    return Promise.resolve();
+                }
+                return Promise.reject(new Error('execCommand copy 실패'));
+            } catch (error) {
+                doc.body.removeChild(textArea);
+                syn.$l.eventLog('$w.copyToClipboard', `execCommand 실패: ${error.message}`, 'Error');
+                return Promise.reject(error);
+            }
+        },
+
+        // function loadMoreContent(done) {
+        // 	   done(true);
+        // }
+        // 
+        // syn.$w.startIntersection(
+        //     'my-list-scroll', 
+        //     '#loading-placeholder', 
+        //     loadMoreContent,
+        //     {
+        //         rootMargin: '100px' // placeholder가 화면 상하좌우 100px 안으로 들어오면 미리 로드 시작
+        //     }
+        // );
+        startIntersection(id, placeholder, loadMore, options = {}) {
+            const targetElement = syn.$l.getElement(placeholder);
+
+            if (typeof id !== 'string' || !id) {
+                syn.$l.eventLog('$w.startIntersection', '고유한 ID를 제공해야 합니다.', 'Error');
+                return null;
+            }
+            if (this.intersectionObservers[id]) {
+                syn.$l.eventLog('$w.startIntersection', `ID '${id}'를 가진 Observer가 이미 존재합니다.`, 'Warning');
+                return this.intersectionObservers[id].observer;
+            }
+            if (!targetElement) {
+                syn.$l.eventLog('$w.startIntersection', '감시할 placeholder 엘리먼트를 찾을 수 없습니다.', 'Warning');
+                return null;
+            }
+            if (!context.IntersectionObserver) {
+                syn.$l.eventLog('$w.startIntersection', '이 브라우저는 IntersectionObserver를 지원하지 않습니다.', 'Error');
+                return null;
+            }
+
+            let isLoading = false;
+
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.01,
+                ...options
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                const entry = entries[0];
+                if (entry.isIntersecting && !isLoading) {
+                    isLoading = true;
+
+                    const done = (isFinished = false) => {
+                        isLoading = false;
+                        if (isFinished === true) {
+                            this.stopIntersection(id);
+                        }
+                    };
+
+                    loadMore(done);
+                }
+            }, observerOptions);
+
+            observer.observe(targetElement);
+
+            this.intersectionObservers[id] = {
+                observer: observer,
+                element: targetElement,
+                isLoading: isLoading
+            };
+
+            syn.$l.eventLog('$w.startIntersection', `무한 스크롤 시작 (ID: ${id})`, 'Information');
+            return observer;
+        },
+
+        // syn.$w.stopIntersection('my-list-scroll');
+        stopIntersection(id) {
+            const observerInfo = this.intersectionObservers[id];
+            if (observerInfo) {
+                observerInfo.observer.unobserve(observerInfo.element);
+                observerInfo.observer.disconnect();
+                delete this.intersectionObservers[id];
+                syn.$l.eventLog('$w.stopIntersection', `무한 스크롤 중지 (ID: ${id})`, 'Information');
+            }
+        },
+
+        // syn.$l.addEvent(context, 'beforeunload', () => {
+        //     syn.$w.stopAllInfiniteScrolls();
+        // });
+        stopAllIntersections() {
+            Object.keys(this.intersectionObservers).forEach(id => this.stopIntersection(id));
         }
     });
 
@@ -7724,6 +8043,14 @@ if (typeof module !== 'undefined' && module.exports) {
         browserOnlyMethods.forEach(method => { delete $webform[method]; });
     }
     else {
+        const preferColorScheme = window.matchMedia('(prefers-color-scheme: dark)');
+        if (preferColorScheme) {
+            context.$webform.isDarkMode = preferColorScheme.matches;
+            preferColorScheme.addEventListener('change', (event) => {
+                context.$webform.isDarkMode = event.matches;
+            });
+        }
+
         const pathname = location.pathname;
         const pathSegments = pathname.split('/').filter(Boolean);
         if (pathSegments.length > 0) {
@@ -8158,6 +8485,9 @@ if (typeof module !== 'undefined' && module.exports) {
                         });
 
                         tempButton.click();
+                    }
+                    else {
+                        await syn.$w.copyToClipboard(textToCopy);
                     }
                 }
                 else {

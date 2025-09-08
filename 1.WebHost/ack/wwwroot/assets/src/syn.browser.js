@@ -14,6 +14,7 @@
         platform: nav.platform,
         devicePlatform: context.devicePlatform,
         userAgent: nav.userAgent,
+        effectiveType: nav.effectiveType,
         devicePixelRatio: context.devicePixelRatio,
         isExtended: screen?.isExtended ?? false,
         screenWidth: screen?.width ?? 0,
@@ -231,6 +232,99 @@
             }
 
             return ipAddress;
+        },
+
+        canShare(data) {
+            if (!context.navigator?.share) {
+                return false;
+            }
+            if (data && context.navigator.canShare) {
+                return context.navigator.canShare(data);
+            }
+            return true;
+        },
+
+        // const shareData = {
+        //     title: 'HandStack',
+        //     text: '개발자의 워크플로우를 높이는 통합 플랫폼, HandStack',
+        //     url: 'https://handstack.kr',
+        //     files: Array.from(files) // 지원하는 환경에서만 가능
+        // }
+        // await syn.$b.share(shareData);
+        async share(data) {
+            if (this.canShare(data)) {
+                try {
+                    await context.navigator.share(data);
+                    syn.$l.eventLog('$b.share', '공유 UI가 성공적으로 호출되었습니다.', 'Information');
+                    return Promise.resolve();
+                } catch (error) {
+                    if (error.name !== 'AbortError') {
+                        syn.$l.eventLog('$b.share', 'Web Share API 에러:', 'Error', error);
+                    } else {
+                        syn.$l.eventLog('$b.share', '사용자가 공유를 취소했습니다.', 'Information');
+                    }
+                    return Promise.reject(error);
+                }
+            } else {
+                syn.$l.eventLog('$b.share', 'Web Share API가 지원되지 않습니다.', 'Warning');
+                if (data.url || data.text) {
+                    const textToCopy = data.url || data.text;
+                    await syn.$w.copyToClipboard(textToCopy);
+                }
+                return Promise.reject(new Error('Web Share API가 지원되지 않습니다.'));
+            }
+        },
+
+        // const navigationEntry = syn.$l.getPerformanceEntries({ type: 'navigation' });
+        // const transactionEntry = syn.$l.getPerformanceEntries({ name: resolveUrl('/transact/api/transaction/execute'), type: 'resource' });
+        // https://developer.mozilla.org/en-US/docs/Web/API/Performance_API
+        getPerformanceEntries(options = {}) {
+            if (!context.performance?.getEntries) {
+                syn.$l.eventLog('$b.getPerformanceEntries', 'Performance Timeline API is not supported.', 'Warning');
+                return [];
+            }
+
+            const { type, name } = options;
+
+            if (name && type) {
+                return context.performance.getEntriesByName(name, type);
+            }
+            if (name) {
+                return context.performance.getEntriesByName(name);
+            }
+            if (type) {
+                return context.performance.getEntriesByType(type);
+            }
+            return context.performance.getEntries();
+        },
+
+        markPerformance(markName) {
+            if (context.performance?.mark) {
+                context.performance.mark(markName);
+            }
+            return this;
+        },
+
+        // syn.$b.markPerformance('start-data-processing');
+        // // ... 데이터 처리 로직 ...
+        // syn.$b.markPerformance('end-data-processing');
+        // syn.$b.measurePerformance('data-processing-time', 'start-data-processing', 'end-data-processing');
+        // const [measureEntry] = syn.$b.getPerformanceEntries({ type: 'measure', name: 'data-processing-time' });
+        // if(measureEntry) {
+        //     console.log(`데이터 처리 시간: ${measureEntry.duration.toFixed(2)}ms`);
+        // }
+        measurePerformance(measureName, startMark, endMark) {
+            if (context.performance?.measure) {
+                try {
+                    context.performance.measure(measureName, startMark, endMark);
+                    const entries = this.getPerformanceEntries({ type: 'measure', name: measureName });
+                    return entries.length > 0 ? entries[entries.length - 1] : null;
+                } catch (e) {
+                    syn.$l.eventLog('$b.measurePerformance', `'${measureName}' 측정값을 생성할 수 없습니다.`, 'Error', e);
+                    return null;
+                }
+            }
+            return null;
         }
     });
     context.$browser = syn.$b = $browser;

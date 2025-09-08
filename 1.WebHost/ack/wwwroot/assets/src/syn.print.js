@@ -370,6 +370,9 @@
 
                         tempButton.click();
                     }
+                    else {
+                        await syn.$w.copyToClipboard(textToCopy);
+                    }
                 }
                 else {
                     syn.$l.eventLog('getSchemeText', `작업 항목 요청 오류: ${reportifyUrl}`, 'Error');

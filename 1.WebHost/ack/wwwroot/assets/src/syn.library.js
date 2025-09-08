@@ -974,7 +974,7 @@
         eventLogTimer: null,
         eventLogCount: 0,
 
-        eventLog(event, data, logLevelInput = 'Verbose') {
+        eventLog(event, data, logLevelInput = 'Verbose', logStyle = null) {
             const message = data instanceof Error ? data.message : String(data);
             const stack = data instanceof Error ? data.stack : undefined;
 
@@ -1011,18 +1011,23 @@
                 if (context.console) console.log(finalLogMessage);
 
             } else if (context.console) {
-                switch (logLevelNum) {
-                    case this.logLevel.Error:
-                    case this.logLevel.Fatal:
-                        console.error(finalLogMessage); break;
-                    case this.logLevel.Warning:
-                        console.warn(finalLogMessage); break;
-                    case this.logLevel.Information:
-                        console.info(finalLogMessage); break;
-                    case this.logLevel.Debug:
-                        console.debug(finalLogMessage); break;
-                    default: // Verbose
-                        console.log(finalLogMessage); break;
+                const levelToConsoleMethod = {
+                    [this.logLevel.Fatal]: 'error',
+                    [this.logLevel.Error]: 'error',
+                    [this.logLevel.Warning]: 'warn',
+                    [this.logLevel.Information]: 'info',
+                    [this.logLevel.Debug]: 'debug'
+                };
+
+                const method = levelToConsoleMethod[logLevelNum] || 'log';
+                if (typeof finalLogMessage === 'string' && typeof logStyle === 'string' && logStyle.trim()) {
+                    if (!finalLogMessage.includes('%c')) {
+                        console[method](`%c${finalLogMessage}`, logStyle);
+                    } else {
+                        console[method](finalLogMessage, logStyle);
+                    }
+                } else {
+                    console[method](finalLogMessage);
                 }
 
                 if (syn.Config?.IsDebugMode === true && syn.Config?.Environment === 'Development' && logLevelNum >= this.logLevel.Warning) {
@@ -1032,6 +1037,9 @@
                 if (doc && !context.console) {
                     const div = doc.createElement('div');
                     div.textContent = finalLogMessage;
+                    if (logStyle) {
+                        div.style.cssText = logStyle;
+                    }
                     const eventlogs = doc.getElementById('eventlogs');
                     if (eventlogs) {
                         eventlogs.appendChild(div);
@@ -1041,19 +1049,6 @@
                         }, 10);
                     } else {
                         doc.body?.appendChild(div);
-                    }
-                }
-
-                if (context.bound?.browserEvent) {
-                    try {
-                        context.bound.browserEvent('browser', {
-                            ID: 'EventLog',
-                            Data: finalLogMessage
-                        }, (error, json) => {
-                            if (error) console.log(`browserEvent EventLog 콜백 오류: ${error}`);
-                        });
-                    } catch (bridgeError) {
-                        console.log(`bound.browserEvent 호출 오류: ${bridgeError}`);
                     }
                 }
             }

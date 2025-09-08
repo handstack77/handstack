@@ -1,5 +1,5 @@
 /*!
-HandStack Javascript Library v2025.9.1
+HandStack Javascript Library v2025.9.8
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -261,6 +261,7 @@ if (typeof module !== 'undefined' && module.exports) {
         platform: nav.platform,
         devicePlatform: context.devicePlatform,
         userAgent: nav.userAgent,
+        effectiveType: nav.effectiveType,
         devicePixelRatio: context.devicePixelRatio,
         isExtended: screen?.isExtended ?? false,
         screenWidth: screen?.width ?? 0,
@@ -478,6 +479,99 @@ if (typeof module !== 'undefined' && module.exports) {
             }
 
             return ipAddress;
+        },
+
+        canShare(data) {
+            if (!context.navigator?.share) {
+                return false;
+            }
+            if (data && context.navigator.canShare) {
+                return context.navigator.canShare(data);
+            }
+            return true;
+        },
+
+        // const shareData = {
+        //     title: 'HandStack',
+        //     text: '개발자의 워크플로우를 높이는 통합 플랫폼, HandStack',
+        //     url: 'https://handstack.kr',
+        //     files: Array.from(files) // 지원하는 환경에서만 가능
+        // }
+        // await syn.$b.share(shareData);
+        async share(data) {
+            if (this.canShare(data)) {
+                try {
+                    await context.navigator.share(data);
+                    syn.$l.eventLog('$b.share', '공유 UI가 성공적으로 호출되었습니다.', 'Information');
+                    return Promise.resolve();
+                } catch (error) {
+                    if (error.name !== 'AbortError') {
+                        syn.$l.eventLog('$b.share', 'Web Share API 에러:', 'Error', error);
+                    } else {
+                        syn.$l.eventLog('$b.share', '사용자가 공유를 취소했습니다.', 'Information');
+                    }
+                    return Promise.reject(error);
+                }
+            } else {
+                syn.$l.eventLog('$b.share', 'Web Share API가 지원되지 않습니다.', 'Warning');
+                if (data.url || data.text) {
+                    const textToCopy = data.url || data.text;
+                    await syn.$w.copyToClipboard(textToCopy);
+                }
+                return Promise.reject(new Error('Web Share API가 지원되지 않습니다.'));
+            }
+        },
+
+        // const navigationEntry = syn.$l.getPerformanceEntries({ type: 'navigation' });
+        // const transactionEntry = syn.$l.getPerformanceEntries({ name: resolveUrl('/transact/api/transaction/execute'), type: 'resource' });
+        // https://developer.mozilla.org/en-US/docs/Web/API/Performance_API
+        getPerformanceEntries(options = {}) {
+            if (!context.performance?.getEntries) {
+                syn.$l.eventLog('$b.getPerformanceEntries', 'Performance Timeline API is not supported.', 'Warning');
+                return [];
+            }
+
+            const { type, name } = options;
+
+            if (name && type) {
+                return context.performance.getEntriesByName(name, type);
+            }
+            if (name) {
+                return context.performance.getEntriesByName(name);
+            }
+            if (type) {
+                return context.performance.getEntriesByType(type);
+            }
+            return context.performance.getEntries();
+        },
+
+        markPerformance(markName) {
+            if (context.performance?.mark) {
+                context.performance.mark(markName);
+            }
+            return this;
+        },
+
+        // syn.$b.markPerformance('start-data-processing');
+        // // ... 데이터 처리 로직 ...
+        // syn.$b.markPerformance('end-data-processing');
+        // syn.$b.measurePerformance('data-processing-time', 'start-data-processing', 'end-data-processing');
+        // const [measureEntry] = syn.$b.getPerformanceEntries({ type: 'measure', name: 'data-processing-time' });
+        // if(measureEntry) {
+        //     console.log(`데이터 처리 시간: ${measureEntry.duration.toFixed(2)}ms`);
+        // }
+        measurePerformance(measureName, startMark, endMark) {
+            if (context.performance?.measure) {
+                try {
+                    context.performance.measure(measureName, startMark, endMark);
+                    const entries = this.getPerformanceEntries({ type: 'measure', name: measureName });
+                    return entries.length > 0 ? entries[entries.length - 1] : null;
+                } catch (e) {
+                    syn.$l.eventLog('$b.measurePerformance', `'${measureName}' 측정값을 생성할 수 없습니다.`, 'Error', e);
+                    return null;
+                }
+            }
+            return null;
         }
     });
     context.$browser = syn.$b = $browser;
@@ -718,6 +812,59 @@ if (typeof module !== 'undefined' && module.exports) {
                     });
                 }
             }
+            return this;
+        },
+
+        // syn.$m.addClass(el, 'highlight').fade(el, { duration: 1000, to: 0.5 });
+        fade(el, options = {}) {
+            el = syn.$l.getElement(el);
+            if (el) {
+                const config = {
+                    duration: 1000,
+                    from: parseFloat(context.getComputedStyle(el).opacity) || 1,
+                    to: 0,
+                    fps: 60,
+                    callback: null,
+                    ...options
+                };
+
+                const frameInterval = 1000 / config.fps;
+                const totalFrames = (config.duration / 1000) * config.fps;
+                const opacityChange = config.to - config.from;
+                const opacityIncrement = opacityChange / totalFrames;
+
+                let currentOpacity = config.from;
+                let lastTimestamp;
+
+                const animate = (timestamp) => {
+                    if (!lastTimestamp) {
+                        lastTimestamp = timestamp;
+                    }
+
+                    const elapsed = timestamp - lastTimestamp;
+
+                    if (elapsed < frameInterval) {
+                        requestAnimationFrame(animate);
+                        return;
+                    }
+
+                    lastTimestamp = timestamp;
+                    currentOpacity += opacityIncrement;
+
+                    if ((opacityIncrement > 0 && currentOpacity >= config.to) || (opacityIncrement < 0 && currentOpacity <= config.to)) {
+                        el.style.opacity = config.to;
+                        if (typeof config.callback === 'function') {
+                            config.callback.call(el);
+                        }
+                    } else {
+                        el.style.opacity = currentOpacity;
+                        requestAnimationFrame(animate);
+                    }
+                };
+
+                requestAnimationFrame(animate);
+            }
+
             return this;
         },
 
@@ -3092,6 +3239,38 @@ if (typeof module !== 'undefined' && module.exports) {
             return typeof val === 'string' ? val.trim().replace(/[^\d.-]/g, '') : '';
         },
 
+        toStringCounts(text, locale) {
+            locale = locale || syn.$b?.language || 'ko-KR';
+            if (!context.Intl?.Segmenter) {
+                return {
+                    characters: text.length,
+                    words: (text.match(/\S+/g) || []).length,
+                    sentences: (text.match(/[^.!?]+[.!?]+/g) || []).length
+                };
+            }
+
+            const characters = new Intl.Segmenter(
+                locale,
+                { granularity: 'grapheme' }
+            );
+
+            const words = new Intl.Segmenter(
+                locale,
+                { granularity: 'word' }
+            );
+
+            const sentences = new Intl.Segmenter(
+                locale,
+                { granularity: 'sentence' }
+            );
+
+            return {
+                characters: [...characters.segment(text)].length,
+                words: [...words.segment(text)].length,
+                sentences: [...sentences.segment(text)].length
+            };
+        },
+
         toCurrency(val, localeID, options = {}) {
             const num = this.toNumber(val);
             if (isNaN(num)) return null;
@@ -4528,7 +4707,7 @@ if (typeof module !== 'undefined' && module.exports) {
         eventLogTimer: null,
         eventLogCount: 0,
 
-        eventLog(event, data, logLevelInput = 'Verbose') {
+        eventLog(event, data, logLevelInput = 'Verbose', logStyle = null) {
             const message = data instanceof Error ? data.message : String(data);
             const stack = data instanceof Error ? data.stack : undefined;
 
@@ -4565,18 +4744,23 @@ if (typeof module !== 'undefined' && module.exports) {
                 if (context.console) console.log(finalLogMessage);
 
             } else if (context.console) {
-                switch (logLevelNum) {
-                    case this.logLevel.Error:
-                    case this.logLevel.Fatal:
-                        console.error(finalLogMessage); break;
-                    case this.logLevel.Warning:
-                        console.warn(finalLogMessage); break;
-                    case this.logLevel.Information:
-                        console.info(finalLogMessage); break;
-                    case this.logLevel.Debug:
-                        console.debug(finalLogMessage); break;
-                    default: // Verbose
-                        console.log(finalLogMessage); break;
+                const levelToConsoleMethod = {
+                    [this.logLevel.Fatal]: 'error',
+                    [this.logLevel.Error]: 'error',
+                    [this.logLevel.Warning]: 'warn',
+                    [this.logLevel.Information]: 'info',
+                    [this.logLevel.Debug]: 'debug'
+                };
+
+                const method = levelToConsoleMethod[logLevelNum] || 'log';
+                if (typeof finalLogMessage === 'string' && typeof logStyle === 'string' && logStyle.trim()) {
+                    if (!finalLogMessage.includes('%c')) {
+                        console[method](`%c${finalLogMessage}`, logStyle);
+                    } else {
+                        console[method](finalLogMessage, logStyle);
+                    }
+                } else {
+                    console[method](finalLogMessage);
                 }
 
                 if (syn.Config?.IsDebugMode === true && syn.Config?.Environment === 'Development' && logLevelNum >= this.logLevel.Warning) {
@@ -4586,6 +4770,9 @@ if (typeof module !== 'undefined' && module.exports) {
                 if (doc && !context.console) {
                     const div = doc.createElement('div');
                     div.textContent = finalLogMessage;
+                    if (logStyle) {
+                        div.style.cssText = logStyle;
+                    }
                     const eventlogs = doc.getElementById('eventlogs');
                     if (eventlogs) {
                         eventlogs.appendChild(div);
@@ -4595,19 +4782,6 @@ if (typeof module !== 'undefined' && module.exports) {
                         }, 10);
                     } else {
                         doc.body?.appendChild(div);
-                    }
-                }
-
-                if (context.bound?.browserEvent) {
-                    try {
-                        context.bound.browserEvent('browser', {
-                            ID: 'EventLog',
-                            Data: finalLogMessage
-                        }, (error, json) => {
-                            if (error) console.log(`browserEvent EventLog 콜백 오류: ${error}`);
-                        });
-                    } catch (bridgeError) {
-                        console.log(`bound.browserEvent 호출 오류: ${bridgeError}`);
                     }
                 }
             }
@@ -4779,6 +4953,62 @@ if (typeof module !== 'undefined' && module.exports) {
             return (url.match(/([^?=&]+)(=([^&]*))/g) || []).reduce(function (a, v) {
                 return a[v.slice(0, v.indexOf('='))] = v.slice(v.indexOf('=') + 1), a;
             }, {});
+        },
+
+        // resolveUrl('/api/v1/users', 'https://example.com'); // https://example.com/api/v1/users
+        // resolveUrl('/api/v1/users', 'https://example.com/api/v2'); // https://example.com/api/v1/users
+        // resolveUrl('../v1/users/', 'https://example.com/api/v2'); // https://example.com/api/v1/users
+        // resolveUrl('users', 'https://example.com/api/v1/groups'); // https://example.com/api/v1/users
+        // const usersApiUrl = resolveUrl('/api/users');
+        resolveUrl(relativePath, baseUrl) {
+            baseUrl = (baseUrl instanceof URL) ? baseUrl.href : (baseUrl || location.href);
+            return new URL(relativePath, baseUrl).href;
+        },
+
+        addQueryParam(param, value, urlStr) {
+            const url = new URL(urlStr || location.href);
+
+            if ($object.isObject(param) == true) {
+                Object.entries(param).forEach(([key, val]) => {
+                    url.searchParams.append(key, String(val));
+                });
+            } else if ($object.isString(param) && value !== undefined) {
+                url.searchParams.append(param, String(value));
+            } else {
+                syn.$l.eventLog('$r.addQueryParam', '잘못된 파라미터 형식입니다. 문자열 키와 값이거나 객체여야 합니다.', 'Warning');
+            }
+
+            return url.toString();
+        },
+
+        removeQueryParam(paramName, urlStr) {
+            const url = new URL(urlStr || location.href);
+
+            if ($object.isArray(paramName) == true) {
+                paramName.forEach(p => url.searchParams.delete(p));
+            } else if ($object.isString(paramName)) {
+                url.searchParams.delete(paramName);
+            } else {
+                syn.$l.eventLog('$r.removeQueryParam', '잘못된 파라미터 형식입니다. 문자열 또는 문자열 배열이어야 합니다.', 'Warning');
+            }
+
+            return url.toString();
+        },
+
+        setQueryParam(param, value, urlStr) {
+            const url = new URL(urlStr || location.href);
+
+            if ($object.isObject(param) == true) {
+                Object.entries(param).forEach(([key, val]) => {
+                    url.searchParams.set(key, String(val));
+                });
+            } else if ($object.isString(param) && value !== undefined) {
+                url.searchParams.set(param, String(value));
+            } else {
+                syn.$l.eventLog('$r.setQueryParam', '잘못된 파라미터 형식입니다. 문자열 키와 값이거나 객체여야 합니다.', 'Warning');
+            }
+
+            return url.toString();
         },
 
         async isCorsEnabled(url) {
@@ -5161,6 +5391,8 @@ if (typeof module !== 'undefined' && module.exports) {
     $network.extend({
         myChannelID: null,
         connections: [],
+        sseConnections: {},
+        wsConnections: {},
         concreate($network) {
             $network.myChannelID = syn.$r.query('channelID') || syn.$r.query('ChannelID') || syn.$r.query('CHANNELID') || syn.$r.query('channelid') || '';
         },
@@ -5759,6 +5991,253 @@ if (typeof module !== 'undefined' && module.exports) {
             }
 
             connection.emit(val);
+        },
+
+        // const sseEventHandler = {
+        //     open: () => {
+        //         console.log('SSE 연결 성공!');
+        //     },
+        //     message: (event) => {
+        //         const data = JSON.parse(event.data);
+        //         console.log('일반 메시지:', data);
+        //     },
+        //     heartbeat: (event) => {
+        //         console.log('서버 상태:', event.data, '마지막 이벤트 ID:', event.lastEventId);
+        //     },
+        //     notice: (event) => {
+        //         const notification = JSON.parse(event.data);
+        //         showNotification(notification.title, notification.message);
+        //     }
+        // };
+        // 
+        // syn.$w.startSse('realtime-updates', '/api/events', sseEventHandler);
+        startSse(id, url, eventHandlers, options = {}) {
+            if (typeof id !== 'string' || !id) {
+                syn.$l.eventLog('$n.startSse', '고유한 연결 ID를 제공해야 합니다.', 'Error');
+                return null;
+            }
+            if (this.sseConnections[id]) {
+                syn.$l.eventLog('$n.startSse', `ID '${id}'를 가진 SSE 연결이 이미 존재합니다.`, 'Warning');
+                return this.sseConnections[id];
+            }
+            if (!context.EventSource) {
+                syn.$l.eventLog('$n.startSse', '이 브라우저는 EventSource를 지원하지 않습니다.', 'Error');
+                return null;
+            }
+
+            const config = {
+                withCredentials: false,
+                ...options
+            };
+
+            try {
+                const events = new EventSource(url, { withCredentials: config.withCredentials });
+                const defaultHandlers = {
+                    open: () => {
+                        syn.$l.eventLog('$n.startSse', `SSE 연결이 열렸습니다 (ID: ${id}).`, 'Information');
+                    },
+                    error: (event) => {
+                        if (events.readyState === EventSource.CLOSED) {
+                            syn.$l.eventLog('$n.startSse', `SSE 연결이 닫혔습니다 (ID: ${id}).`, 'Information');
+                        } else {
+                            syn.$l.eventLog('$n.startSse', `SSE 에러 발생 (ID: ${id}).`, 'Error', event);
+                        }
+                    },
+                    message: (event) => {
+                        syn.$l.eventLog('$n.startSse', `기본 메시지 수신 (ID: ${id}): ${event.data}`, 'Verbose');
+                    }
+                };
+
+                const handlers = { ...defaultHandlers, ...eventHandlers };
+
+                Object.entries(handlers).forEach(([eventName, handler]) => {
+                    if (typeof handler === 'function') {
+                        events.addEventListener(eventName, handler);
+                    }
+                });
+
+                this.sseConnections[id] = events;
+                return events;
+
+            } catch (error) {
+                syn.$l.eventLog('$n.startSse', `SSE 연결 생성 실패 (ID: ${id}).`, 'Fatal', error);
+                return null;
+            }
+        },
+
+        // syn.$w.stopSse('realtime-updates');
+        stopSse(id) {
+            const connection = this.sseConnections[id];
+            if (connection) {
+                connection.close();
+                delete this.sseConnections[id];
+                syn.$l.eventLog('$n.stopSse', `SSE 연결을 닫았습니다 (ID: ${id}).`, 'Information');
+                return true;
+            }
+            syn.$l.eventLog('$n.stopSse', `닫을 SSE 연결을 찾을 수 없습니다 (ID: ${id}).`, 'Warning');
+            return false;
+        },
+
+        stopAllSse() {
+            Object.keys(this.sseConnections).forEach(id => {
+                this.stopSse(id);
+            });
+        },
+
+        getSseConnection(id) {
+            return this.sseConnections[id];
+        },
+
+        // const wsEventHandler = {
+        //     open: () => {
+        //         console.log('채팅 서버에 연결되었습니다.');
+        //         syn.$n.sendSocketMessage('chat', { type: 'join', user: 'alex' });
+        //     },
+        //     message: (data) => {
+        //         if (data.type === 'message') {
+        //             appendChatMessage(data.user, data.text);
+        //         } else if (data.type === 'user_list') {
+        //             updateUserList(data.users);
+        //         }
+        //     },
+        //     close: (event) => {
+        //         console.log(`채팅 서버와 연결이 끊어졌습니다. 코드: ${event.code}`);
+        //     },
+        //     error: (err) => {
+        //         console.error('채팅 소켓 에러:', err);
+        //     }
+        // };
+        // 
+        // syn.$n.startSocket('chat', 'wss://example.com/chat', wsEventHandler);
+        startSocket(id, url, eventHandlers = {}, options = {}) {
+            if (typeof id !== 'string' || !id) {
+                syn.$l.eventLog('$n.startSocket', '고유한 연결 ID를 제공해야 합니다.', 'Error');
+                return null;
+            }
+            if (this.wsConnections[id]) {
+                syn.$l.eventLog('$n.startSocket', `ID '${id}'를 가진 WebSocket 연결이 이미 존재합니다.`, 'Warning');
+                return this.wsConnections[id].socket;
+            }
+            if (!context.WebSocket) {
+                syn.$l.eventLog('$n.startSocket', '이 브라우저는 WebSocket을 지원하지 않습니다.', 'Error');
+                return null;
+            }
+
+            const config = {
+                autoReconnect: true,
+                reconnectInterval: 3000,
+                json: true,
+                ...options
+            };
+
+            const connect = () => {
+                try {
+                    const socket = new WebSocket(url);
+
+                    const connection = {
+                        id,
+                        socket,
+                        url,
+                        eventHandlers,
+                        options: config,
+                        reconnectTimer: null,
+                        _isClosedIntentionally: false
+                    };
+
+                    this.wsConnections[id] = connection;
+
+                    socket.addEventListener('open', (event) => {
+                        syn.$l.eventLog('$n.startSocket', `WebSocket 연결이 열렸습니다 (ID: ${id}).`, 'Information');
+                        if (connection.reconnectTimer) {
+                            clearTimeout(connection.reconnectTimer);
+                            connection.reconnectTimer = null;
+                        }
+                        if (eventHandlers.open) eventHandlers.open(event);
+                    });
+
+                    socket.addEventListener('message', (event) => {
+                        let data = event.data;
+                        if (config.json) {
+                            try {
+                                data = JSON.parse(event.data);
+                            } catch (e) {
+                                syn.$l.eventLog('$n.startSocket', `JSON 파싱 오류 (ID: ${id}): ${e.message}`, 'Warning');
+                            }
+                        }
+                        if (eventHandlers.message) eventHandlers.message(data, event);
+                    });
+
+                    socket.addEventListener('error', (event) => {
+                        syn.$l.eventLog('$n.startSocket', `WebSocket 에러 발생 (ID: ${id}).`, 'Error', event);
+                        if (eventHandlers.error) eventHandlers.error(event);
+                    });
+
+                    socket.addEventListener('close', (event) => {
+                        syn.$l.eventLog('$n.startSocket', `WebSocket 연결이 닫혔습니다 (ID: ${id}). Code: ${event.code}`, 'Information');
+                        if (eventHandlers.close) eventHandlers.close(event);
+
+                        if (config.autoReconnect && !connection._isClosedIntentionally) {
+                            syn.$l.eventLog('$n.startSocket', `${config.reconnectInterval}ms 후 재연결 시도... (ID: ${id})`, 'Information');
+                            connection.reconnectTimer = setTimeout(() => {
+                                delete this.wsConnections[id];
+                                this.startSocket(id, url, eventHandlers, options);
+                            }, config.reconnectInterval);
+                        }
+                    });
+
+                } catch (error) {
+                    syn.$l.eventLog('$n.startSocket', `WebSocket 연결 생성 실패 (ID: ${id}).`, 'Fatal', error);
+                    if (config.autoReconnect) {
+                        setTimeout(() => this.startSocket(id, url, eventHandlers, options), config.reconnectInterval);
+                    }
+                }
+            };
+
+            connect();
+            return this.wsConnections[id]?.socket || null;
+        },
+
+        // syn.$n.sendSocketMessage('chat', { type: 'message',text: input.value });
+        sendSocketMessage(id, message) {
+            const connection = this.wsConnections[id];
+            if (connection && connection.socket.readyState === WebSocket.OPEN) {
+                try {
+                    const dataToSend = (connection.options.json && typeof message === 'object')
+                        ? JSON.stringify(message)
+                        : message;
+                    connection.socket.send(dataToSend);
+                    return true;
+                } catch (error) {
+                    syn.$l.eventLog('$n.sendSocketMessage', `메시지 전송 실패 (ID: ${id}).`, 'Error', error);
+                    return false;
+                }
+            }
+            syn.$l.eventLog('$n.sendSocketMessage', `메시지를 보낼 수 없습니다. 연결이 준비되지 않았습니다 (ID: ${id}).`, 'Warning');
+            return false;
+        },
+
+        // syn.$n.stopSocket('chat');
+        stopSocket(id) {
+            const connection = this.wsConnections[id];
+            if (connection) {
+                connection._isClosedIntentionally = true;
+                if (connection.reconnectTimer) {
+                    clearTimeout(connection.reconnectTimer);
+                }
+                connection.socket.close();
+                delete this.wsConnections[id];
+                syn.$l.eventLog('$n.stopSocket', `WebSocket 연결을 닫았습니다 (ID: ${id}).`, 'Information');
+            } else {
+                syn.$l.eventLog('$n.stopSocket', `닫을 WebSocket 연결을 찾을 수 없습니다 (ID: ${id}).`, 'Warning');
+            }
+        },
+
+        stopAllSockets() {
+            Object.keys(this.wsConnections).forEach(id => this.stopSocket(id));
+        },
+
+        getSocket(id) {
+            return this.wsConnections[id]?.socket;
         }
     });
 
@@ -5790,6 +6269,7 @@ if (typeof module !== 'undefined' && module.exports) {
         moduleReadyIntervalID: null,
         remainingReadyIntervalID: null,
         remainingReadyCount: 0,
+        intersectionObservers: {},
 
         defaultControlOptions: {
             value: '',
@@ -5863,20 +6343,31 @@ if (typeof module !== 'undefined' && module.exports) {
                     } catch (e) {
                         syn.$l.eventLog('$w.getStorage (Node)', `키 "${storageKey}"에 대한 스토리지 항목 파싱 오류: ${e}`, 'Error');
                         localStorage.removeItem(storageKey);
-                        return null;
                     }
                 }
             } else {
                 const storage = isLocal ? localStorage : sessionStorage;
-                const val = storage.getItem(storageKey);
-                try {
-                    return val ? JSON.parse(val) : null;
-                } catch (e) {
-                    syn.$l.eventLog('$w.getStorage (Browser)', `키 "${storageKey}"에 대한 스토리지 항목 파싱 오류: ${e}`, 'Error');
-                    storage.removeItem(storageKey);
-                    return null;
+                if ($object.isString(storageKey) == true) {
+                    const val = storage.getItem(storageKey);
+                    try {
+                        return val ? JSON.parse(val) : null;
+                    } catch (e) {
+                        syn.$l.eventLog('$w.getStorage (Browser)', `키 "${storageKey}"에 대한 스토리지 항목 파싱 오류: ${e}`, 'Error');
+                        storage.removeItem(storageKey);
+                    }
+                }
+                else if ($object.isArray(storageKey) == true) {
+                    let results = {};
+                    for (let i = 0; i < storage.length; i++) {
+                        const key = storage.key(i);
+                        if (storageKey.includes(key) == true) {
+                            results[key] = storage.getItem(key);
+                        }
+                    }
                 }
             }
+
+            return null;
         },
 
         removeStorage(prop, isLocal = false) {
@@ -5888,6 +6379,16 @@ if (typeof module !== 'undefined' && module.exports) {
                 storage.removeItem(storageKey);
             }
             return this;
+        },
+
+        getStorageKeys(isLocal = false) {
+            const keys = [];
+            const storage = isLocal ? localStorage : sessionStorage;
+
+            for (let i = 0; i < storage.length; i++) {
+                keys.push(storage.key(i));
+            }
+            return keys;
         },
 
         activeControl(evt) {
@@ -8702,6 +9203,97 @@ if (typeof module !== 'undefined' && module.exports) {
             return $webform;
         },
 
+        getDynamicStyle(styleID) {
+            if ($object.isNullOrUndefined(styleID) == true) {
+                const sheets = doc.styleSheets;
+                if (sheets.length > 0) {
+                    return sheets[sheets.length - 1];
+                }
+                return null;
+            }
+
+            let styleEl = doc.getElementById(styleID);
+            if (!styleEl) {
+                styleEl = doc.createElement('style');
+                styleEl.id = styleID;
+                doc.head.appendChild(styleEl);
+            }
+            return styleEl.sheet;
+        },
+
+        // syn.$l.addCssRule('.highlight { background-color: yellow; font-weight: bold; }', 'page-style');
+        // syn.$l.addCssRule('div { border: 1px solid red; }', 'page-styles');
+        // syn.$l.addCssRule('span { border: 1px solid blue; }', 'page-styles');
+        addCssRule(rules, styleID) {
+            const sheet = this.getDynamicStyle(styleID);
+            if (!sheet) {
+                syn.$l.eventLog('$w.addCssRule', 'StyleSheet를 가져올 수 없습니다.', 'Error');
+                return [];
+            }
+
+            const addedIndexes = [];
+            const rulesArray = Array.isArray(rules) ? rules : [rules];
+
+            rulesArray.forEach(rule => {
+                try {
+                    const index = sheet.insertRule(rule, sheet.cssRules.length);
+                    addedIndexes.push(index);
+                } catch (error) {
+                    syn.$l.eventLog('$w.addCssRule', `잘못된 CSS 규칙: "${rule}"`, 'Error', error);
+                }
+            });
+
+            return addedIndexes;
+        },
+
+        // syn.$l.removeCssRule('.highlight', 'page-styles');
+        removeCssRule(identifier, styleID) {
+            const sheet = this.getDynamicStyle(styleID);
+            if (!sheet) return false;
+
+            if (typeof identifier === 'number') {
+                if (identifier >= 0 && identifier < sheet.cssRules.length) {
+                    sheet.deleteRule(identifier);
+                    return true;
+                }
+                return false;
+            }
+
+            if (typeof identifier === 'string') {
+                const selector = identifier.toLowerCase();
+                for (let i = sheet.cssRules.length - 1; i >= 0; i--) {
+                    const rule = sheet.cssRules[i];
+                    if (rule.selectorText && rule.selectorText.toLowerCase().split(',').map(s => s.trim()).includes(selector)) {
+                        sheet.deleteRule(i);
+                        return true;
+                    }
+                }
+            }
+
+            syn.$l.eventLog('$w.removeCssRule', `삭제할 규칙을 찾을 수 없습니다: ${identifier}`, 'Warning');
+            return false;
+        },
+
+        // const loadedImage = await syn.$w.fetchImage('path/to/image.jpg', 'path/to/fallback.png');
+        fetchImage(url, fallbackUrl) {
+            return new Promise((resolve, reject) => {
+                const image = new Image();
+                image.src = url;
+                image.addEventListener('load', () => {
+                    resolve(image);
+                });
+
+                image.addEventListener('error', error => {
+                    if (!fallbackUrl || image.src === fallbackUrl) {
+                        reject(error);
+                    } else {
+                        syn.$l.eventLog('$w.fetchImage', `이미지 로딩 실패. Fallback 시도: ${fallbackUrl}`, 'Warning');
+                        image.src = fallbackUrl;
+                    }
+                });
+            });
+        },
+
         async fetchScript(moduleUrl) {
             var result = null;
             var moduleName;
@@ -9581,6 +10173,129 @@ if (typeof module !== 'undefined' && module.exports) {
                 sheet.innerHTML = styleTexts.join('\n');
                 head.appendChild(sheet);
             }
+        },
+
+        async copyToClipboard(text) {
+            if (!text) return Promise.reject('');
+
+            if (context.navigator?.clipboard?.writeText) {
+                try {
+                    await context.navigator.clipboard.writeText(text);
+                    return Promise.resolve();
+                } catch (error) {
+                    syn.$l.eventLog('$w.copyToClipboard', `Clipboard API 실패: ${error.message}`, 'Warning');
+                    return Promise.reject(error);
+                }
+            }
+
+            const textArea = doc.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.top = "-9999px";
+            textArea.style.left = "-9999px";
+            doc.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            try {
+                const successful = doc.execCommand('copy');
+                doc.body.removeChild(textArea);
+                if (successful) {
+                    return Promise.resolve();
+                }
+                return Promise.reject(new Error('execCommand copy 실패'));
+            } catch (error) {
+                doc.body.removeChild(textArea);
+                syn.$l.eventLog('$w.copyToClipboard', `execCommand 실패: ${error.message}`, 'Error');
+                return Promise.reject(error);
+            }
+        },
+
+        // function loadMoreContent(done) {
+        // 	   done(true);
+        // }
+        // 
+        // syn.$w.startIntersection(
+        //     'my-list-scroll', 
+        //     '#loading-placeholder', 
+        //     loadMoreContent,
+        //     {
+        //         rootMargin: '100px' // placeholder가 화면 상하좌우 100px 안으로 들어오면 미리 로드 시작
+        //     }
+        // );
+        startIntersection(id, placeholder, loadMore, options = {}) {
+            const targetElement = syn.$l.getElement(placeholder);
+
+            if (typeof id !== 'string' || !id) {
+                syn.$l.eventLog('$w.startIntersection', '고유한 ID를 제공해야 합니다.', 'Error');
+                return null;
+            }
+            if (this.intersectionObservers[id]) {
+                syn.$l.eventLog('$w.startIntersection', `ID '${id}'를 가진 Observer가 이미 존재합니다.`, 'Warning');
+                return this.intersectionObservers[id].observer;
+            }
+            if (!targetElement) {
+                syn.$l.eventLog('$w.startIntersection', '감시할 placeholder 엘리먼트를 찾을 수 없습니다.', 'Warning');
+                return null;
+            }
+            if (!context.IntersectionObserver) {
+                syn.$l.eventLog('$w.startIntersection', '이 브라우저는 IntersectionObserver를 지원하지 않습니다.', 'Error');
+                return null;
+            }
+
+            let isLoading = false;
+
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.01,
+                ...options
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                const entry = entries[0];
+                if (entry.isIntersecting && !isLoading) {
+                    isLoading = true;
+
+                    const done = (isFinished = false) => {
+                        isLoading = false;
+                        if (isFinished === true) {
+                            this.stopIntersection(id);
+                        }
+                    };
+
+                    loadMore(done);
+                }
+            }, observerOptions);
+
+            observer.observe(targetElement);
+
+            this.intersectionObservers[id] = {
+                observer: observer,
+                element: targetElement,
+                isLoading: isLoading
+            };
+
+            syn.$l.eventLog('$w.startIntersection', `무한 스크롤 시작 (ID: ${id})`, 'Information');
+            return observer;
+        },
+
+        // syn.$w.stopIntersection('my-list-scroll');
+        stopIntersection(id) {
+            const observerInfo = this.intersectionObservers[id];
+            if (observerInfo) {
+                observerInfo.observer.unobserve(observerInfo.element);
+                observerInfo.observer.disconnect();
+                delete this.intersectionObservers[id];
+                syn.$l.eventLog('$w.stopIntersection', `무한 스크롤 중지 (ID: ${id})`, 'Information');
+            }
+        },
+
+        // syn.$l.addEvent(context, 'beforeunload', () => {
+        //     syn.$w.stopAllInfiniteScrolls();
+        // });
+        stopAllIntersections() {
+            Object.keys(this.intersectionObservers).forEach(id => this.stopIntersection(id));
         }
     });
 
@@ -9624,6 +10339,14 @@ if (typeof module !== 'undefined' && module.exports) {
         browserOnlyMethods.forEach(method => { delete $webform[method]; });
     }
     else {
+        const preferColorScheme = window.matchMedia('(prefers-color-scheme: dark)');
+        if (preferColorScheme) {
+            context.$webform.isDarkMode = preferColorScheme.matches;
+            preferColorScheme.addEventListener('change', (event) => {
+                context.$webform.isDarkMode = event.matches;
+            });
+        }
+
         const pathname = location.pathname;
         const pathSegments = pathname.split('/').filter(Boolean);
         if (pathSegments.length > 0) {
@@ -10058,6 +10781,9 @@ if (typeof module !== 'undefined' && module.exports) {
                         });
 
                         tempButton.click();
+                    }
+                    else {
+                        await syn.$w.copyToClipboard(textToCopy);
                     }
                 }
                 else {
