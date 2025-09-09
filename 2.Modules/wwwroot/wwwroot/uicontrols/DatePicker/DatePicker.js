@@ -117,7 +117,7 @@
                 textbox.setAttribute('syn-events', events);
             }
 
-            syn.$m.insertAfter(textbox, el);
+            syn.$m.insertBefore(textbox, el);
 
             var button = syn.$m.create({
                 id: `${elID}_Button`,
@@ -125,7 +125,7 @@
                 className: 'btn btn-icon f:20! bg-muted-lt'
             });
             button.innerHTML = `<i class="ti ti-calendar"></i>`;
-            syn.$m.insertAfter(button, textbox);
+            syn.$m.insertAfter(button, el);
 
             syn.uicontrols.$textbox.controlLoad(elID, eval('(' + syn.$l.get(elID).getAttribute('syn-options') + ')'));
 

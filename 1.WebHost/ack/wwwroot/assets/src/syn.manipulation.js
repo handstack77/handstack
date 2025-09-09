@@ -338,6 +338,15 @@
             return el ? el.hasChildNodes() : false;
         },
 
+        insertBefore(el, targetEL) {
+            el = syn.$l.getElement(el);
+            const targetElement = syn.$l.getElement(targetEL);
+            if (el && targetElement?.parentNode) {
+                targetElement.parentNode.insertBefore(el, targetElement);
+            }
+            return this;
+        },
+
         insertAfter(el, targetEL) {
             el = syn.$l.getElement(el);
             const targetElement = syn.$l.getElement(targetEL);

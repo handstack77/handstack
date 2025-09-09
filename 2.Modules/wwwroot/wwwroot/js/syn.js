@@ -1,5 +1,5 @@
 /*!
-HandStack Javascript Library v2025.9.8
+HandStack Javascript Library v2025.9.9
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -915,6 +915,15 @@ if (typeof module !== 'undefined' && module.exports) {
         hasChild(el) {
             el = syn.$l.getElement(el);
             return el ? el.hasChildNodes() : false;
+        },
+
+        insertBefore(el, targetEL) {
+            el = syn.$l.getElement(el);
+            const targetElement = syn.$l.getElement(targetEL);
+            if (el && targetElement?.parentNode) {
+                targetElement.parentNode.insertBefore(el, targetElement);
+            }
+            return this;
         },
 
         insertAfter(el, targetEL) {

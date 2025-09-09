@@ -618,14 +618,11 @@
             var endedAt = new Date(endDate);
 
             $dateperiodpicker.pkaStartDate.setDate(startDate);
-            $dateperiodpicker.pkaStartDate.setStartRange($date.addDay(startedAt, -1));
-            $dateperiodpicker.pkaStartDate.setEndRange(endedAt);
-            $dateperiodpicker.pkaStartDate.draw();
-
             $dateperiodpicker.pkaEndDate.setDate(endDate);
-            $dateperiodpicker.pkaEndDate.setStartRange($date.addDay(startedAt, -1));
-            $dateperiodpicker.pkaEndDate.setEndRange(endedAt);
-            $dateperiodpicker.pkaEndDate.draw();
+            setTimeout(() => {
+                $dateperiodpicker.pkaStartDate.setDate(startDate);
+                $dateperiodpicker.pkaEndDate.setDate(endDate);
+            }, 25);
 
             syn.$l.get('spnPeriodDate').innerText = `${($date.diff(startedAt, endedAt) + 1)}일`;
         },
@@ -636,7 +633,9 @@
             var endDate = $date.getLastDate(new Date(startDate));
 
             $dateperiodpicker.setDateRange(startDate, endDate);
-            $dateperiodpicker.checkPeriodMonth([$string.toNumber(month)]);
+            setTimeout(() => {
+                $dateperiodpicker.checkPeriodMonth([$string.toNumber(month)]);
+            }, 30);
         },
 
         checkPeriodMonth(months) {
@@ -655,7 +654,10 @@
             var endDate = year + '-12-31';
 
             $dateperiodpicker.setDateRange(startDate, endDate);
-            $dateperiodpicker.checkPeriodMonth([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+
+            setTimeout(() => {
+                $dateperiodpicker.checkPeriodMonth([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+            }, 30);
         },
 
         _DatePeriodPicker_btnUntilToday_click() {
@@ -666,8 +668,10 @@
 
             $dateperiodpicker.setDateRange(startDate, endDate);
 
-            var thisMonth = parseInt($date.toString(date, 'm'));
-            $dateperiodpicker.checkPeriodMonth(Array(thisMonth).fill().map((_, i) => i + 1));
+            setTimeout(() => {
+                var thisMonth = parseInt($date.toString(date, 'm'));
+                $dateperiodpicker.checkPeriodMonth(Array(thisMonth).fill().map((_, i) => i + 1));
+            }, 30);
         },
 
         _DatePeriodPicker_btnToday_click() {
@@ -677,8 +681,10 @@
 
             $dateperiodpicker.setDateRange(startDate, endDate);
 
-            var thisMonth = parseInt($date.toString(date, 'm'));
-            $dateperiodpicker.checkPeriodMonth([thisMonth]);
+            setTimeout(() => {
+                var thisMonth = parseInt($date.toString(date, 'm'));
+                $dateperiodpicker.checkPeriodMonth([thisMonth]);
+            }, 30);
         },
 
         _DatePeriodPicker_btnPreviousDay_click() {
@@ -688,8 +694,10 @@
 
             $dateperiodpicker.setDateRange(startDate, endDate);
 
-            var thisMonth = parseInt($date.toString(date, 'm'));
-            $dateperiodpicker.checkPeriodMonth([thisMonth]);
+            setTimeout(() => {
+                var thisMonth = parseInt($date.toString(date, 'm'));
+                $dateperiodpicker.checkPeriodMonth([thisMonth]);
+            }, 30);
         },
 
         _DatePeriodPicker_btnWeekly_click() {
@@ -704,8 +712,10 @@
 
             $dateperiodpicker.setDateRange(startDate, endDate);
 
-            var thisMonth = parseInt($date.toString(date, 'm'));
-            $dateperiodpicker.checkPeriodMonth([thisMonth]);
+            setTimeout(() => {
+                var thisMonth = parseInt($date.toString(date, 'm'));
+                $dateperiodpicker.checkPeriodMonth([thisMonth]);
+            }, 30);
         },
 
         _DatePeriodPicker_btnPreviousWeek_click() {
@@ -726,8 +736,10 @@
 
             $dateperiodpicker.setDateRange(startDate, endDate);
 
-            var thisMonth = parseInt($date.toString(date, 'm'));
-            $dateperiodpicker.checkPeriodMonth([thisMonth]);
+            setTimeout(() => {
+                var thisMonth = parseInt($date.toString(date, 'm'));
+                $dateperiodpicker.checkPeriodMonth([thisMonth]);
+            }, 30);
         },
 
         _DatePeriodPicker_btnThisMonth_click() {
@@ -737,8 +749,10 @@
 
             $dateperiodpicker.setDateRange(startDate, endDate);
 
-            var thisMonth = parseInt($date.toString(date, 'm'));
-            $dateperiodpicker.checkPeriodMonth([thisMonth]);
+            setTimeout(() => {
+                var thisMonth = parseInt($date.toString(date, 'm'));
+                $dateperiodpicker.checkPeriodMonth([thisMonth]);
+            }, 30);
         },
 
         _DatePeriodPicker_btnPreviousMonth_click() {
@@ -749,8 +763,10 @@
 
             $dateperiodpicker.setDateRange(startDate, endDate);
 
-            var thisMonth = parseInt($date.toString(date, 'm'));
-            $dateperiodpicker.checkPeriodMonth([thisMonth]);
+            setTimeout(() => {
+                var thisMonth = parseInt($date.toString(date, 'm'));
+                $dateperiodpicker.checkPeriodMonth([thisMonth]);
+            }, 30);
         },
 
         _DatePeriodPicker_btnPreviousYear_click() {
@@ -760,7 +776,10 @@
             var endDate = year + '-12-31';
 
             $dateperiodpicker.setDateRange(startDate, endDate);
-            $dateperiodpicker.checkPeriodMonth([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+
+            setTimeout(() => {
+                $dateperiodpicker.checkPeriodMonth([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+            }, 30);
         },
 
         _DatePeriodPicker_btnTwoYearAgo_click() {
@@ -770,7 +789,10 @@
             var endDate = year + '-12-31';
 
             $dateperiodpicker.setDateRange(startDate, endDate);
-            $dateperiodpicker.checkPeriodMonth([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+
+            setTimeout(() => {
+                $dateperiodpicker.checkPeriodMonth([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+            }, 30);
         },
 
         _DatePeriodPicker_btnQuarter1_click() {
@@ -780,7 +802,10 @@
             var endDate = $date.getLastDate(new Date(year + '-03-31'));
 
             $dateperiodpicker.setDateRange(startDate, endDate);
-            $dateperiodpicker.checkPeriodMonth([1, 2, 3]);
+
+            setTimeout(() => {
+                $dateperiodpicker.checkPeriodMonth([1, 2, 3]);
+            }, 30);
         },
 
         _DatePeriodPicker_btnQuarter2_click() {
@@ -790,7 +815,10 @@
             var endDate = $date.getLastDate(new Date(year + '-06-30'));
 
             $dateperiodpicker.setDateRange(startDate, endDate);
-            $dateperiodpicker.checkPeriodMonth([4, 5, 6]);
+
+            setTimeout(() => {
+                $dateperiodpicker.checkPeriodMonth([4, 5, 6]);
+            }, 30);
         },
 
         _DatePeriodPicker_btnQuarter3_click() {
@@ -800,7 +828,10 @@
             var endDate = $date.getLastDate(new Date(year + '-09-30'));
 
             $dateperiodpicker.setDateRange(startDate, endDate);
-            $dateperiodpicker.checkPeriodMonth([7, 8, 9]);
+
+            setTimeout(() => {
+                $dateperiodpicker.checkPeriodMonth([7, 8, 9]);
+            }, 30);
         },
 
         _DatePeriodPicker_btnQuarter4_click() {
@@ -810,7 +841,10 @@
             var endDate = $date.getLastDate(new Date(year + '-12-31'));
 
             $dateperiodpicker.setDateRange(startDate, endDate);
-            $dateperiodpicker.checkPeriodMonth([10, 11, 12]);
+
+            setTimeout(() => {
+                $dateperiodpicker.checkPeriodMonth([10, 11, 12]);
+            }, 30);
         },
 
         _DatePeriodPicker_btnFirstHalf_click() {
@@ -820,7 +854,10 @@
             var endDate = $date.getLastDate(new Date(year + '-06-30'));
 
             $dateperiodpicker.setDateRange(startDate, endDate);
-            $dateperiodpicker.checkPeriodMonth([1, 2, 3, 4, 5, 6]);
+
+            setTimeout(() => {
+                $dateperiodpicker.checkPeriodMonth([1, 2, 3, 4, 5, 6]);
+            }, 30);
         },
 
         _DatePeriodPicker_btnSecondHalf_click() {
@@ -830,7 +867,10 @@
             var endDate = $date.getLastDate(new Date(year + '-12-31'));
 
             $dateperiodpicker.setDateRange(startDate, endDate);
-            $dateperiodpicker.checkPeriodMonth([7, 8, 9, 10, 11, 12]);
+
+            setTimeout(() => {
+                $dateperiodpicker.checkPeriodMonth([7, 8, 9, 10, 11, 12]);
+            }, 30);
         },
 
         _DatePeriodPicker_btnConfirm_click() {

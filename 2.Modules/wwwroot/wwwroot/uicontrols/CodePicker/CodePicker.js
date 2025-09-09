@@ -77,7 +77,7 @@
             var textboxCode = syn.$m.create({
                 id: `${elID}_Code`,
                 tag: 'input',
-                className: 'form-control mr-1 pr-1'
+                className: 'form-control'
             });
 
             textboxCode.type = 'text';
@@ -123,7 +123,7 @@
             if ($object.isNullOrUndefined(events) == false) {
                 textboxCode.setAttribute('syn-events', events);
             }
-            syn.$m.insertAfter(textboxCode, el);
+            syn.$m.insertBefore(textboxCode, el);
 
             var buttonOpen = syn.$m.create({
                 id: `${elID}_Button`,
@@ -132,7 +132,7 @@
             });
             buttonOpen.innerHTML = `<i class="ti ti-search"></i>`;
 
-            syn.$m.insertAfter(buttonOpen, textboxCode);
+            syn.$m.insertAfter(buttonOpen, el);
 
             var textboxText = syn.$m.create({
                 id: `${elID}_Text`,
