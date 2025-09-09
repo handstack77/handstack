@@ -76,7 +76,7 @@ function callHandStackAPI(groupCode) {
                 ],
                 "localeID": "ko-KR",
                 "hostName": "localhost:8421",
-                "pathName": "/arha/sample/uipattern/TPL010.html"
+                "pathName": "/sample/TPL010.html"
             },
             "interface": {
                 "devicePlatform": "browser",
