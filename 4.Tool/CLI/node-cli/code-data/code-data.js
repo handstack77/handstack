@@ -151,9 +151,6 @@ function callHandStackAPI(groupCode) {
             res.on('end', () => {
                 try {
                     const response = JSON.parse(data);
-                    console.log(`\n=== ${groupCode} API 응답 ===`);
-                    console.log(JSON.stringify(response, null, 2));
-
                     if (response.result &&
                         response.result.dataSet &&
                         response.result.dataSet.length > 0 &&
@@ -188,12 +185,12 @@ function callHandStackAPI(groupCode) {
 
 // 모든 GroupCode에 대해 순차적으로 API 호출
 async function processAllGroupCodes() {
-    console.log('\n🚀 HandStack API 클라이언트 시작');
+    console.log('\n🚀 코드 데이터 생성 시작');
     const results = [];
 
     for (const groupCode of groupCodes) {
         try {
-            console.log(`\n📡 ${groupCode} 처리 중...`);
+            console.log(`📡 ${groupCode} 처리 중...`);
             const result = await callHandStackAPI(groupCode);
             results.push(result);
 
