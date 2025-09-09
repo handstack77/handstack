@@ -8,7 +8,7 @@
 
     $codepicker.extend({
         name: 'syn.uicontrols.$codepicker',
-        version: 'v2025.3.25',
+        version: 'v2025.9.10',
         defaultSetting: {
             dataSourceID: null,
             storeSourceID: null,
@@ -33,6 +33,7 @@
             isAutoSearch: true,
             isOnlineData: false,
             viewType: '',
+            sharedAssetUrl: '',
             dataType: 'string',
             belongID: null,
             getter: false,
@@ -66,6 +67,7 @@
                 var moduleSettings = mod.hook.controlInit(elID, setting);
                 setting = syn.$w.argumentsExtend(setting, moduleSettings);
             }
+            setting.sharedAssetUrl = setting.sharedAssetUrl || syn.Config.SharedAssetUrl;
 
             el.setAttribute('id', el.id + '_hidden');
             el.setAttribute('syn-options', JSON.stringify(setting));
@@ -332,7 +334,7 @@
             dialogOptions.close = true;
             dialogOptions.caption = (setting.controlText || setting.columnText || setting.headerText || setting.dataSourceID) + ' 코드도움';
 
-            var url = $string.isNullOrEmpty(setting.url) == false ? setting.url : syn.Config.SharedAssetUrl + 'codehelp/index.html';
+            var url = $string.isNullOrEmpty(setting.url) == false ? setting.url : setting.sharedAssetUrl + 'codehelp/index.html';
             syn.$w.showUIDialog(url + '?parameterID={0}'.format(parameterID), dialogOptions, function (result) {
                 if (result && result.length > 0) {
                     var value = '';

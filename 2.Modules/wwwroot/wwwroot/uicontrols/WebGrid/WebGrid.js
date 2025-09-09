@@ -382,7 +382,7 @@
 
     $grid.extend({
         name: 'syn.uicontrols.$grid',
-        version: 'v2025.3.25',
+        version: 'v2025.9.10',
         defaultHotSettings: {
             licenseKey: 'non-commercial-and-evaluation',
             language: 'ko-KR',
@@ -1327,6 +1327,7 @@
                 codeColumnID: null,
                 required: true,
                 local: true,
+                sharedAssetUrl: '',
                 dataSourceID: null,
                 storeSourceID: null,
                 dataSource: null,
@@ -1338,6 +1339,7 @@
             setting.elID = elID;
             setting.storeSourceID = setting.storeSourceID || setting.dataSourceID;
             setting = syn.$w.argumentsExtend(defaultSetting, setting);
+            setting.sharedAssetUrl = setting.sharedAssetUrl || syn.Config.SharedAssetUrl;
 
             if (setting.columnName && setting.storeSourceID) {
                 var mod = window[syn.$w.pageScript];
@@ -1418,7 +1420,7 @@
                         syn.$w.removeReadyCount();
                     } else {
                         if (setting.local == true) {
-                            syn.$w.loadJson(syn.Config.SharedAssetUrl + 'code/{0}.json'.format(setting.storeSourceID), setting, function (setting, json) {
+                            syn.$w.loadJson(setting.sharedAssetUrl + 'code/{0}.json'.format(setting.storeSourceID), setting, function (setting, json) {
                                 if (json) {
                                     mod.config.dataSource[setting.storeSourceID] = json;
                                     loadData(columnInfo, json, setting);

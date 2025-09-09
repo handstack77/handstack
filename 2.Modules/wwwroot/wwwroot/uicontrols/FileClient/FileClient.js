@@ -13,7 +13,7 @@
 
     $fileclient.extend({
         name: 'syn.uicontrols.$fileclient',
-        version: 'v2025.3.1',
+        version: 'v2025.9.10',
 
         fileManagers: [],
         fileControls: [],
@@ -86,6 +86,7 @@
             pageHttpDownloadFile: 'http-download-file',
             pageVirtualDownloadFile: 'virtual-download-file',
             pageVirtualDeleteFile: 'virtual-delete-file',
+            sharedAssetUrl: '',
             dataType: 'string',
             belongID: null,
             getter: false,
@@ -123,6 +124,7 @@
 
             setting.uploadType = null;
             setting.uploadUrl = null;
+            setting.sharedAssetUrl = setting.sharedAssetUrl || syn.Config.SharedAssetUrl;
 
             if ($string.isNullOrEmpty(setting.fileManagerServer) == true && syn.Config && syn.Config.FileManagerServer) {
                 setting.fileManagerServer = syn.Config.FileManagerServer;
@@ -179,16 +181,16 @@
                 setting.uploadSizeLimit = repositoryData.UploadSizeLimit;
 
                 if (setting.uploadType == 'Single') {
-                    setting.uploadUrl = syn.Config.SharedAssetUrl + 'upload/SingleFile.html';
+                    setting.uploadUrl = setting.sharedAssetUrl + 'upload/SingleFile.html';
                 }
                 else if (setting.uploadType == 'Profile') {
-                    setting.uploadUrl = syn.Config.SharedAssetUrl + 'upload/ProfilePicture.html';
+                    setting.uploadUrl = setting.sharedAssetUrl + 'upload/ProfilePicture.html';
                 }
                 else if (setting.uploadType == 'Multi') {
-                    setting.uploadUrl = syn.Config.SharedAssetUrl + 'upload/MultiFiles.html';
+                    setting.uploadUrl = setting.sharedAssetUrl + 'upload/MultiFiles.html';
                 }
                 else if (setting.uploadType == 'ImageLink') {
-                    setting.uploadUrl = syn.Config.SharedAssetUrl + 'upload/ImageLinkFiles.html';
+                    setting.uploadUrl = setting.sharedAssetUrl + 'upload/ImageLinkFiles.html';
                 }
 
                 setting.elID = elID;

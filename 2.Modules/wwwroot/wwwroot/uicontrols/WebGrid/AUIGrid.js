@@ -166,7 +166,7 @@
 
     $auigrid.extend({
         name: 'syn.uicontrols.$auigrid',
-        version: 'v2025.9.5',
+        version: 'v2025.9.10',
 
         gridControls: [],
         gridCodeDatas: [],
@@ -1002,6 +1002,7 @@
                 required: true,
                 emptyText: '전체',
                 local: true,
+                sharedAssetUrl: '',
                 dataSourceID: null,
                 storeSourceID: null,
                 dataSource: null,
@@ -1013,6 +1014,8 @@
             setting.elID = elID;
             setting.storeSourceID = setting.storeSourceID || setting.dataSourceID;
             setting = syn.$w.argumentsExtend(defaultSetting, setting);
+            setting.sharedAssetUrl = setting.sharedAssetUrl || syn.Config.SharedAssetUrl;
+
             if (setting.dataField && setting.storeSourceID) {
                 var mod = window[syn.$w.pageScript];
                 if (mod.config && mod.config.dataSource && mod.config.dataSource[setting.storeSourceID]) {
@@ -1036,7 +1039,7 @@
                     syn.$w.removeReadyCount();
                 } else {
                     if (setting.local == true) {
-                        syn.$w.loadJson(syn.Config.SharedAssetUrl + 'code/{0}.json'.format(setting.storeSourceID), setting, function (setting, json) {
+                        syn.$w.loadJson(setting.sharedAssetUrl + 'code/{0}.json'.format(setting.storeSourceID), setting, function (setting, json) {
                             if (json) {
                                 if (setting.required == false) {
                                     var empty = {};

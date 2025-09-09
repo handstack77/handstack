@@ -828,7 +828,7 @@
 
     $codepicker.extend({
         name: 'syn.uicontrols.$codepicker',
-        version: 'v2025.3.25',
+        version: 'v2025.9.10',
         defaultSetting: {
             dataSourceID: null,
             storeSourceID: null,
@@ -853,6 +853,7 @@
             isAutoSearch: true,
             isOnlineData: false,
             viewType: '',
+            sharedAssetUrl: '',
             dataType: 'string',
             belongID: null,
             getter: false,
@@ -886,6 +887,7 @@
                 var moduleSettings = mod.hook.controlInit(elID, setting);
                 setting = syn.$w.argumentsExtend(setting, moduleSettings);
             }
+            setting.sharedAssetUrl = setting.sharedAssetUrl || syn.Config.SharedAssetUrl;
 
             el.setAttribute('id', el.id + '_hidden');
             el.setAttribute('syn-options', JSON.stringify(setting));
@@ -1152,7 +1154,7 @@
             dialogOptions.close = true;
             dialogOptions.caption = (setting.controlText || setting.columnText || setting.headerText || setting.dataSourceID) + ' 코드도움';
 
-            var url = $string.isNullOrEmpty(setting.url) == false ? setting.url : syn.Config.SharedAssetUrl + 'codehelp/index.html';
+            var url = $string.isNullOrEmpty(setting.url) == false ? setting.url : setting.sharedAssetUrl + 'codehelp/index.html';
             syn.$w.showUIDialog(url + '?parameterID={0}'.format(parameterID), dialogOptions, function (result) {
                 if (result && result.length > 0) {
                     var value = '';
@@ -3303,7 +3305,7 @@
 
     $multiselect.extend({
         name: 'syn.uicontrols.$multiselect',
-        version: 'v2025.3.1',
+        version: 'v2025.9.10',
         selectControls: [],
         defaultSetting: {
             elID: '',
@@ -3320,6 +3322,7 @@
             parameters: null, // @ParameterValue:HELLO WORLD;
             selectedValue: null,
             toSynControl: false,
+            sharedAssetUrl: '',
             dataType: 'string',
             belongID: null,
             getter: false,
@@ -3355,6 +3358,7 @@
 
             setting.elID = elID;
             setting.storeSourceID = setting.storeSourceID || setting.dataSourceID;
+            setting.sharedAssetUrl = setting.sharedAssetUrl || syn.Config.SharedAssetUrl;
 
             var el = syn.$l.get(elID);
             el.setAttribute('syn-options', JSON.stringify(setting));
@@ -3375,7 +3379,7 @@
                     syn.$w.removeReadyCount();
                 } else {
                     if (setting.local == true) {
-                        syn.$w.loadJson(syn.Config.SharedAssetUrl + 'code/{0}.json'.format(setting.storeSourceID), setting, function (setting, json) {
+                        syn.$w.loadJson(setting.sharedAssetUrl + 'code/{0}.json'.format(setting.storeSourceID), setting, function (setting, json) {
                             if (json) {
                                 mod.config.dataSource[setting.storeSourceID] = json;
                                 $multiselect.loadData(setting.elID, json, setting.required);
@@ -3441,7 +3445,7 @@
                     }
                 } else {
                     if (setting.local == true) {
-                        syn.$w.loadJson(syn.Config.SharedAssetUrl + 'code/{0}.json'.format(setting.storeSourceID), setting, function (setting, json) {
+                        syn.$w.loadJson(setting.sharedAssetUrl + 'code/{0}.json'.format(setting.storeSourceID), setting, function (setting, json) {
                             mod.config.dataSource[setting.storeSourceID] = json;
                             $multiselect.loadData(setting.elID, json, setting.required);
                             if (setting.selectedValue) {
@@ -3834,7 +3838,7 @@
 
     $select.extend({
         name: 'syn.uicontrols.$select',
-        version: 'v2025.3.1',
+        version: 'v2025.9.10',
         selectControls: [],
         defaultSetting: {
             elID: '',
@@ -3851,6 +3855,7 @@
             parameters: null, // @ParameterValue:HELLO WORLD;
             selectedValue: null,
             toSynControl: true,
+            sharedAssetUrl: '',
             dataType: 'string',
             belongID: null,
             getter: false,
@@ -3885,6 +3890,7 @@
 
             setting.elID = elID;
             setting.storeSourceID = setting.storeSourceID || setting.dataSourceID;
+            setting.sharedAssetUrl = setting.sharedAssetUrl || syn.Config.SharedAssetUrl;
 
             var el = syn.$l.get(elID);
             el.setAttribute('syn-options', JSON.stringify(setting));
@@ -3905,7 +3911,7 @@
                     syn.$w.removeReadyCount();
                 } else {
                     if (setting.local == true) {
-                        syn.$w.loadJson(syn.Config.SharedAssetUrl + 'code/{0}.json'.format(setting.storeSourceID), setting, function (setting, json) {
+                        syn.$w.loadJson(setting.sharedAssetUrl + 'code/{0}.json'.format(setting.storeSourceID), setting, function (setting, json) {
                             if (json) {
                                 mod.config.dataSource[setting.storeSourceID] = json;
                                 $select.loadData(setting.elID, json, setting.required);
@@ -3972,7 +3978,7 @@
                     }
                 } else {
                     if (setting.local == true) {
-                        syn.$w.loadJson(syn.Config.SharedAssetUrl + 'code/{0}.json'.format(setting.storeSourceID), setting, function (setting, json) {
+                        syn.$w.loadJson(setting.sharedAssetUrl + 'code/{0}.json'.format(setting.storeSourceID), setting, function (setting, json) {
                             mod.config.dataSource[setting.storeSourceID] = json;
                             $select.loadData(setting.elID, json, setting.required);
                             if (setting.selectedValue) {
@@ -4318,7 +4324,7 @@
 
     $fileclient.extend({
         name: 'syn.uicontrols.$fileclient',
-        version: 'v2025.3.1',
+        version: 'v2025.9.10',
 
         fileManagers: [],
         fileControls: [],
@@ -4391,6 +4397,7 @@
             pageHttpDownloadFile: 'http-download-file',
             pageVirtualDownloadFile: 'virtual-download-file',
             pageVirtualDeleteFile: 'virtual-delete-file',
+            sharedAssetUrl: '',
             dataType: 'string',
             belongID: null,
             getter: false,
@@ -4428,6 +4435,7 @@
 
             setting.uploadType = null;
             setting.uploadUrl = null;
+            setting.sharedAssetUrl = setting.sharedAssetUrl || syn.Config.SharedAssetUrl;
 
             if ($string.isNullOrEmpty(setting.fileManagerServer) == true && syn.Config && syn.Config.FileManagerServer) {
                 setting.fileManagerServer = syn.Config.FileManagerServer;
@@ -4484,16 +4492,16 @@
                 setting.uploadSizeLimit = repositoryData.UploadSizeLimit;
 
                 if (setting.uploadType == 'Single') {
-                    setting.uploadUrl = syn.Config.SharedAssetUrl + 'upload/SingleFile.html';
+                    setting.uploadUrl = setting.sharedAssetUrl + 'upload/SingleFile.html';
                 }
                 else if (setting.uploadType == 'Profile') {
-                    setting.uploadUrl = syn.Config.SharedAssetUrl + 'upload/ProfilePicture.html';
+                    setting.uploadUrl = setting.sharedAssetUrl + 'upload/ProfilePicture.html';
                 }
                 else if (setting.uploadType == 'Multi') {
-                    setting.uploadUrl = syn.Config.SharedAssetUrl + 'upload/MultiFiles.html';
+                    setting.uploadUrl = setting.sharedAssetUrl + 'upload/MultiFiles.html';
                 }
                 else if (setting.uploadType == 'ImageLink') {
-                    setting.uploadUrl = syn.Config.SharedAssetUrl + 'upload/ImageLinkFiles.html';
+                    setting.uploadUrl = setting.sharedAssetUrl + 'upload/ImageLinkFiles.html';
                 }
 
                 setting.elID = elID;
@@ -10311,7 +10319,7 @@
 
     $auigrid.extend({
         name: 'syn.uicontrols.$auigrid',
-        version: 'v2025.9.5',
+        version: 'v2025.9.10',
 
         gridControls: [],
         gridCodeDatas: [],
@@ -11147,6 +11155,7 @@
                 required: true,
                 emptyText: '전체',
                 local: true,
+                sharedAssetUrl: '',
                 dataSourceID: null,
                 storeSourceID: null,
                 dataSource: null,
@@ -11158,6 +11167,8 @@
             setting.elID = elID;
             setting.storeSourceID = setting.storeSourceID || setting.dataSourceID;
             setting = syn.$w.argumentsExtend(defaultSetting, setting);
+            setting.sharedAssetUrl = setting.sharedAssetUrl || syn.Config.SharedAssetUrl;
+
             if (setting.dataField && setting.storeSourceID) {
                 var mod = window[syn.$w.pageScript];
                 if (mod.config && mod.config.dataSource && mod.config.dataSource[setting.storeSourceID]) {
@@ -11181,7 +11192,7 @@
                     syn.$w.removeReadyCount();
                 } else {
                     if (setting.local == true) {
-                        syn.$w.loadJson(syn.Config.SharedAssetUrl + 'code/{0}.json'.format(setting.storeSourceID), setting, function (setting, json) {
+                        syn.$w.loadJson(setting.sharedAssetUrl + 'code/{0}.json'.format(setting.storeSourceID), setting, function (setting, json) {
                             if (json) {
                                 if (setting.required == false) {
                                     var empty = {};
@@ -13686,7 +13697,7 @@
 
     $grid.extend({
         name: 'syn.uicontrols.$grid',
-        version: 'v2025.3.25',
+        version: 'v2025.9.10',
         defaultHotSettings: {
             licenseKey: 'non-commercial-and-evaluation',
             language: 'ko-KR',
@@ -14631,6 +14642,7 @@
                 codeColumnID: null,
                 required: true,
                 local: true,
+                sharedAssetUrl: '',
                 dataSourceID: null,
                 storeSourceID: null,
                 dataSource: null,
@@ -14642,6 +14654,7 @@
             setting.elID = elID;
             setting.storeSourceID = setting.storeSourceID || setting.dataSourceID;
             setting = syn.$w.argumentsExtend(defaultSetting, setting);
+            setting.sharedAssetUrl = setting.sharedAssetUrl || syn.Config.SharedAssetUrl;
 
             if (setting.columnName && setting.storeSourceID) {
                 var mod = window[syn.$w.pageScript];
@@ -14722,7 +14735,7 @@
                         syn.$w.removeReadyCount();
                     } else {
                         if (setting.local == true) {
-                            syn.$w.loadJson(syn.Config.SharedAssetUrl + 'code/{0}.json'.format(setting.storeSourceID), setting, function (setting, json) {
+                            syn.$w.loadJson(setting.sharedAssetUrl + 'code/{0}.json'.format(setting.storeSourceID), setting, function (setting, json) {
                                 if (json) {
                                     mod.config.dataSource[setting.storeSourceID] = json;
                                     loadData(columnInfo, json, setting);

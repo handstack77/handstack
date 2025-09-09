@@ -7,7 +7,7 @@
 
     $multiselect.extend({
         name: 'syn.uicontrols.$multiselect',
-        version: 'v2025.3.1',
+        version: 'v2025.9.10',
         selectControls: [],
         defaultSetting: {
             elID: '',
@@ -24,6 +24,7 @@
             parameters: null, // @ParameterValue:HELLO WORLD;
             selectedValue: null,
             toSynControl: false,
+            sharedAssetUrl: '',
             dataType: 'string',
             belongID: null,
             getter: false,
@@ -59,6 +60,7 @@
 
             setting.elID = elID;
             setting.storeSourceID = setting.storeSourceID || setting.dataSourceID;
+            setting.sharedAssetUrl = setting.sharedAssetUrl || syn.Config.SharedAssetUrl;
 
             var el = syn.$l.get(elID);
             el.setAttribute('syn-options', JSON.stringify(setting));
@@ -79,7 +81,7 @@
                     syn.$w.removeReadyCount();
                 } else {
                     if (setting.local == true) {
-                        syn.$w.loadJson(syn.Config.SharedAssetUrl + 'code/{0}.json'.format(setting.storeSourceID), setting, function (setting, json) {
+                        syn.$w.loadJson(setting.sharedAssetUrl + 'code/{0}.json'.format(setting.storeSourceID), setting, function (setting, json) {
                             if (json) {
                                 mod.config.dataSource[setting.storeSourceID] = json;
                                 $multiselect.loadData(setting.elID, json, setting.required);
@@ -145,7 +147,7 @@
                     }
                 } else {
                     if (setting.local == true) {
-                        syn.$w.loadJson(syn.Config.SharedAssetUrl + 'code/{0}.json'.format(setting.storeSourceID), setting, function (setting, json) {
+                        syn.$w.loadJson(setting.sharedAssetUrl + 'code/{0}.json'.format(setting.storeSourceID), setting, function (setting, json) {
                             mod.config.dataSource[setting.storeSourceID] = json;
                             $multiselect.loadData(setting.elID, json, setting.required);
                             if (setting.selectedValue) {
