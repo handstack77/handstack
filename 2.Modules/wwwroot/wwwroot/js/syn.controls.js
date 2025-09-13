@@ -7400,7 +7400,7 @@
                             }
                         }
                     } else if (value.length == 11) {
-                        if (syn.$v.regexs.areaPhone.test(value) == true) {
+                        if (syn.$v.regexs.areaPhone.test(value) == true || syn.$v.regexs.onesPhone.test(value) == true) {
                             el.value = value.substr(0, 3).concat('-', value.substr(3, 4), '-', value.substr(7, 4));
                         }
                         else if (syn.$v.regexs.mobilePhone.test(value) == true) {
@@ -7490,7 +7490,7 @@
                             }
                         }
                     } else if (value.length == 11) {
-                        if (syn.$v.regexs.areaPhone.test(value) == true) {
+                        if (syn.$v.regexs.areaPhone.test(value) == true || syn.$v.regexs.onesPhone.test(value) == true) {
                             el.value = value.substr(0, 3).concat('-', value.substr(3, 4), '-', value.substr(7, 4));
                         }
                         else if (syn.$v.regexs.mobilePhone.test(value) == true) {

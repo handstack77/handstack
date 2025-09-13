@@ -1906,35 +1906,38 @@ namespace transact.Areas.transact.Controllers
                             var i = 0;
                             foreach (var dataMapItem in response.Result.DataSet)
                             {
-                                var Value = dataMapItem.Value as JToken;
-                                if (Value != null)
+                                var value = dataMapItem.Value as JToken;
+                                if (value != null)
                                 {
-                                    if (Value is JObject)
+                                    response.Result.DataMapCount.Add(value.Type == JTokenType.Array ? value.Count() : 1);
+                                    response.Result.DataSetMeta.Add(resultMeta[i]);
+
+                                    if (value is JObject)
                                     {
-                                        var names = Value.ToObject<JObject>()?.Properties().Select(p => p.Name).ToList();
+                                        var names = value.ToObject<JObject>()?.Properties().Select(p => p.Name).ToList();
                                         if (names != null)
                                         {
                                             foreach (var item in names)
                                             {
-                                                var data = Value[item]?.ToString();
+                                                var data = value[item]?.ToString();
                                                 if (string.IsNullOrEmpty(data) == false)
                                                 {
                                                     if (data.StartsWith('"') == true)
                                                     {
-                                                        Value[item] = "\"" + data;
+                                                        value[item] = "\"" + data;
                                                     }
 
                                                     if (data.EndsWith('"') == true)
                                                     {
-                                                        Value[item] = data + "\"";
+                                                        value[item] = data + "\"";
                                                     }
                                                 }
                                             }
                                         }
                                     }
-                                    else if (Value is JArray)
+                                    else if (value is JArray)
                                     {
-                                        var jtokens = Value.ToObject<JArray>()?.ToList();
+                                        var jtokens = value.ToObject<JArray>()?.ToList();
                                         if (jtokens != null)
                                         {
                                             foreach (var jtoken in jtokens)
@@ -1963,10 +1966,9 @@ namespace transact.Areas.transact.Controllers
                                         }
                                     }
 
-                                    var meta = resultMeta[i];
-                                    if (Value.HasValues == true)
+                                    if (value.HasValues == true)
                                     {
-                                        var jsonReader = new StringReader(Value.ToString());
+                                        var jsonReader = new StringReader(value.ToString());
                                         using var choJSONReader = new ChoJSONReader(jsonReader);
                                         var stringBuilder = new StringBuilder();
                                         using (var choCSVWriter = new ChoCSVWriter(stringBuilder, new ChoCSVRecordConfiguration()
@@ -1980,16 +1982,16 @@ namespace transact.Areas.transact.Controllers
 
                                         if (request.Transaction.CompressionYN.ParseBool() == true)
                                         {
-                                            dataMapItem.Value = LZStringHelper.CompressToBase64(meta + "＾" + stringBuilder.ToString().Replace("\"\"", "\""));
+                                            dataMapItem.Value = LZStringHelper.CompressToBase64(stringBuilder.ToString().Replace("\"\"", "\""));
                                         }
                                         else
                                         {
-                                            dataMapItem.Value = meta + "＾" + stringBuilder.ToString().Replace("\"\"", "\"");
+                                            dataMapItem.Value = stringBuilder.ToString().Replace("\"\"", "\"");
                                         }
                                     }
                                     else
                                     {
-                                        dataMapItem.Value = meta + "＾";
+                                        dataMapItem.Value = "";
                                     }
                                 }
 
@@ -2005,6 +2007,9 @@ namespace transact.Areas.transact.Controllers
                                 var value = dataMapItem.Value as JToken;
                                 if (value != null)
                                 {
+                                    response.Result.DataMapCount.Add(value.Type == JTokenType.Array ? value.Count() : 1);
+                                    response.Result.DataSetMeta.Add(resultMeta[i]);
+
                                     if (request.Transaction.CompressionYN.ParseBool() == true)
                                     {
                                         dataMapItem.Value = LZStringHelper.CompressToBase64(JsonConvert.SerializeObject(value));

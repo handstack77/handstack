@@ -101,6 +101,13 @@ namespace HandStack.Core.Helpers
                             columnName = (string)row["ColumnName"];
 
                             column = new DataColumn(columnName, (Type)row["DataType"]);
+                            if (row["ColumnSize"] != DBNull.Value && row["ColumnSize"] is int columnSize && columnSize > 0)
+                            {
+                                if (column.DataType == typeof(string))
+                                {
+                                    column.MaxLength = columnSize;
+                                }
+                            }
                             dataTable.Columns.Add(column);
                         }
 

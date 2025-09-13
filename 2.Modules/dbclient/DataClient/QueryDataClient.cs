@@ -783,7 +783,15 @@ namespace dbclient.DataClient
                                     for (var k = 0; k < table.Columns.Count; k++)
                                     {
                                         var column = table.Columns[k];
-                                        sb.Append($"{column.ColumnName}:{JsonExtensions.toMetaDataType(column.DataType.Name)};");
+                                        string metaDataType = JsonExtensions.toMetaDataType(column.DataType.Name);
+                                        if (metaDataType == "string")
+                                        {
+                                            sb.Append($"{column.ColumnName}:{metaDataType}|{column.MaxLength};");
+                                        }
+                                        else
+                                        {
+                                            sb.Append($"{column.ColumnName}:{metaDataType};");
+                                        }
                                     }
 
                                     switch (jsonObjectType)

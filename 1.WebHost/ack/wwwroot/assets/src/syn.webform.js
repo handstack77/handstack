@@ -3676,9 +3676,12 @@
                                         const message = transactionResponse.message;
                                         if (transactionResponse.result.dataSet != null && transactionResponse.result.dataSet.length > 0) {
                                             const dataMapItem = transactionResponse.result.dataSet;
+                                            message.additions.push({ code: 'dataSetMeta', text: transactionResponse.result.dataSetMeta });
+                                            message.additions.push({ code: 'dataMapCount', text: transactionResponse.result.dataMapCount });
                                             const length = dataMapItem.length;
                                             for (let i = 0; i < length; i++) {
                                                 const item = dataMapItem[i];
+                                                const dataSetMeta = transactionResponse.result.dataSetMeta[i];
 
                                                 if (transactionResponse.transaction.simulationType == syn.$w.dynamicType.CodeHelp) {
                                                     jsonResult.push({
@@ -3711,13 +3714,13 @@
                                                         if (transaction) {
                                                             let value = null;
                                                             if ($object.isEmpty(item.value) == false) {
-                                                                value = transactionResponse.transaction.compressionYN == 'Y' ? syn.$c.LZString.decompressFromBase64(item.value).split('＾') : item.value.split('＾');
-                                                                const meta = $string.toParameterObject(value[0]);
-                                                                value = $string.toJson(value[1], { delimeter: '｜', newline: '↵', meta: meta });
+                                                                value = transactionResponse.transaction.compressionYN == 'Y' ? syn.$c.LZString.decompressFromBase64(item.value) : item.value;
+                                                                const meta = $string.toParameterObject(dataSetMeta);
+                                                                value = $string.toJson(value, { delimeter: '｜', newline: '↵', meta: meta });
 
                                                                 const outputMapping = transaction.outputs[i];
                                                                 if (outputMapping.responseType == 'Form') {
-                                                                    value = value[0];
+                                                                    value = dataSetMeta;
                                                                     if ($object.isNullOrUndefined(value) == true) {
                                                                         value = {};
                                                                     }
@@ -3736,11 +3739,11 @@
                                                         }
                                                     }
                                                     else {
-                                                        let value = transactionResponse.transaction.compressionYN == 'Y' ? syn.$c.LZString.decompressFromBase64(item.value).split('＾') : item.value.split('＾');
-                                                        const meta = $string.toParameterObject(value[0]);
-                                                        value = $string.toJson(value[1], { delimeter: '｜', newline: '↵', meta: meta });
+                                                        let value = transactionResponse.transaction.compressionYN == 'Y' ? syn.$c.LZString.decompressFromBase64(item.value) : item.value;
+                                                        const meta = $string.toParameterObject(dataSetMeta);
+                                                        value = $string.toJson(value, { delimeter: '｜', newline: '↵', meta: meta });
                                                         if (item.id.startsWith('Form') == true) {
-                                                            value = value[0];
+                                                            value = dataSetMeta;
                                                             if ($object.isNullOrUndefined(value) == true) {
                                                                 value = {};
                                                             }
@@ -3766,14 +3769,8 @@
                                                 for (let i = 0; i < message.additions.length; i++) {
                                                     const addition = message.additions[i];
 
-                                                    if (addition.code == 'F' && $object.isNullOrUndefined(addtionalData[addition.code]) == true) {
+                                                    if ($string.isNullOrEmpty(addition.code) == false && $object.isNullOrUndefined(addtionalData[addition.code]) == true) {
                                                         addtionalData[addition.code] = addition.text;
-                                                    }
-                                                    else if (addition.code == 'P') {
-
-                                                    }
-                                                    else if (addition.code == 'S') {
-
                                                     }
                                                 }
                                             }
