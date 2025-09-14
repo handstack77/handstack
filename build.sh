@@ -2,6 +2,8 @@
 
 # tr -d '\r' < build.sh > build_fixed.sh && mv build_fixed.sh build.sh && chmod +x build.sh
 
+trysignassembly=${1:false}
+
 # Exit immediately if a command exits with a non-zero status.
 set -e
 
@@ -9,8 +11,10 @@ echo "Cleaning previous builds..."
 dotnet restore handstack.sln
 dotnet clean handstack.sln
 
-echo "Enabling assembly signing for build..."
-node signassembly.js true
+if [ "trysignassembly" == "true" ]; then
+    echo "Enabling assembly signing for build..."
+    node signassembly.js true
+fi
 
 echo "Building Infrastructure projects..."
 dotnet build "3.Infrastructure/HandStack.Core/HandStack.Core.csproj" -c Debug
@@ -37,7 +41,9 @@ dotnet build "4.Tool/CLI/edgeproxy/edgeproxy.csproj" -c Debug
 dotnet build "4.Tool/CLI/excludedportrange/excludedportrange.csproj" -c Debug
 dotnet build "4.Tool/CLI/bundling/bundling.csproj" -c Debug
 
-echo "Reverting assembly signing to False..."
-node signassembly.js false
+if [ "trysignassembly" == "true" ]; then
+    echo "Reverting assembly signing to False..."
+    node signassembly.js false
+fi
 
 echo "All projects built successfully."

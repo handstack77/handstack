@@ -23,8 +23,12 @@ REM x64, x86, arm64
 set arch_mode=%4
 if "%arch_mode%" == "" set arch_mode=x64
 
+REM false, true
+set trysignassembly=%5
+if "%trysignassembly%" == "" set trysignassembly=false
+
 REM 사용자 지정 publish 경로
-set publish_path=%5
+set publish_path=%6
 if "%publish_path%" == "" set publish_path=%HANDSTACK_SRC%\..\publish\%os_mode%-%arch_mode%
 
 REM 설정에 따라 Optimize 옵션 설정
@@ -58,8 +62,10 @@ echo os_mode: %os_mode%, action_mode: %action_mode%, configuration_mode: %config
 
 rmdir /s /q %publish_path%
 
-echo Enabling assembly signing for build...
-node signassembly.js true
+if "%trysignassembly%" == "true" (
+    echo Enabling assembly signing for build...
+    node signassembly.js true
+)
 
 REM WebHost 프로젝트들 빌드/퍼블리시
 dotnet %action_mode% %dotnet_options% 1.WebHost\ack\ack.csproj --output %publish_path%\handstack\app
@@ -97,8 +103,10 @@ dotnet build %dotnet_options% 2.Modules\transact\transact.csproj --output %publi
 dotnet build %dotnet_options% 2.Modules\wwwroot\wwwroot.csproj --output %publish_path%\handstack\modules\wwwroot
 dotnet build %dotnet_options% 2.Modules\checkup\checkup.csproj --output %publish_path%\handstack\modules\checkup
 
-echo Reverting assembly signing to False...
-node signassembly.js false
+if "%trysignassembly%" == "true" (
+    echo Reverting assembly signing to False...
+    node signassembly.js false
+)
 
 REM 파일 복사
 if exist "%HANDSTACK_HOME%\contracts" (

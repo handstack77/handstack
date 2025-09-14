@@ -19,9 +19,12 @@ configuration_mode=${3:-Release}
 # x64, x86, arm64
 arch_mode=${4:-x64}
 
+# x64, x86, arm64
+trysignassembly=${5:false}
+
 # Optional custom publish path
 default_publish_path="${HANDSTACK_SRC}/../publish/${os_mode}-${arch_mode}"
-publish_path=${5:-$default_publish_path}
+publish_path=${6:$default_publish_path}
 
 echo "os_mode: $os_mode, action_mode: $action_mode, configuration_mode: $configuration_mode, arch_mode: $arch_mode, publish_path: $publish_path"
 
@@ -93,7 +96,9 @@ fix_post_build_script "2.Modules/wwwroot/post-build.sh"
 fix_post_build_script "4.Tool/CLI/handstack/post-build.sh"
 
 echo "Enabling assembly signing for build..."
-node signassembly.js true
+if [ "trysignassembly" == "true" ]; then
+    node signassembly.js true
+fi
 
 # WebHost 프로젝트들 빌드/퍼블리시
 echo "WebHost 프로젝트 빌드/퍼블리시 중..."
@@ -143,8 +148,9 @@ for module in "${modules[@]}"; do
 done
 
 echo "Reverting assembly signing to False..."
-node signassembly.js false
-
+if [ "trysignassembly" == "true" ]; then
+    node signassembly.js false
+fi
 
 # 추가 파일들 복사
 echo "추가 파일 복사 중..."
