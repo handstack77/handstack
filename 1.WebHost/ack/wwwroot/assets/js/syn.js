@@ -1,5 +1,5 @@
-﻿/*!
-HandStack Javascript Library v2025.9.13
+/*!
+HandStack Javascript Library v2025.9.16
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -428,7 +428,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 .map(plugin => `${plugin.name}: ${plugin.filename}`);
         },
 
-        async fingerPrint() {
+        fingerPrint(userID, clientIP) {
             const computeComponents = {
                 appName: this.appName,
                 appCodeName: this.appCodeName,
@@ -443,12 +443,12 @@ if (typeof module !== 'undefined' && module.exports) {
                 plugins: this.getPlugins(),
                 dateFormat: new Date(0).toString(),
                 fonts: this.getSystemFonts(),
-                canvas2dRender: this.getCanvas2dRender(),
-                webglRender: this.getWebglRender(),
-                ipAddress: await this.getIpAddress()
+                ipAddress: clientIP,
+                fingerUserID: userID
             };
 
-            return syn.$c.sha256(JSON.stringify(computeComponents));
+            const computeString = JSON.stringify(computeComponents);
+            return `${syn.$c.sha256(computeString)}|${computeString}|${$date.toString(new Date(), 'f')}`;
         },
 
         windowWidth() {
