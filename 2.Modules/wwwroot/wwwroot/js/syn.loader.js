@@ -44,7 +44,7 @@
     document.onkeydown = function (evt) {
         if (evt.ctrlKey == true && evt.altKey == true && evt.shiftKey == true) {
             if (evt.keyCode == '68') {
-                if (window.parent && window.parent.$w && window.parent.$w.pageScript == '$main') {
+                if (window.parent && window.parent.syn.$w && window.parent.syn.$w.pageScript == '$main') {
                     window.parent.$main.toogleDarkMode();
                 }
                 else {
@@ -63,7 +63,7 @@
                 }
             }
             else if (evt.keyCode == '69') {
-                if (window.parent && window.parent.$w && window.parent.$w.pageScript == '$main') {
+                if (window.parent && window.parent.syn.$w && window.parent.syn.$w.pageScript == '$main') {
                     window.parent.$main.toogleDeveloperMode();
                 }
                 else {

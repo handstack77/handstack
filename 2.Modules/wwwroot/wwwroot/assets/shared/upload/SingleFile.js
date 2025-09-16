@@ -99,7 +99,7 @@ let $SingleFile = {
                                     for (var i = 0; i < uploadCallbacks.length; i++) {
                                         try {
                                             if (i === 0) {
-                                                clientCallback = parent.$this[uploadCallbacks[i]];
+                                                clientCallback = parent.$this.event[uploadCallbacks[i]];
                                             }
                                             else {
                                                 clientCallback = clientCallback[uploadCallbacks[i]];
@@ -119,7 +119,7 @@ let $SingleFile = {
                                         };
 
                                         if ($this.prop.fileUploadOptions.elementID) {
-                                            parent.$l.get($this.prop.fileUploadOptions.elementID).value = '';
+                                            parent.syn.$l.get($this.prop.fileUploadOptions.elementID).value = '';
                                         }
 
                                         clientCallback('delete', result);
@@ -237,7 +237,7 @@ let $SingleFile = {
                 for (var i = 0; i < uploadCallbacks.length; i++) {
                     try {
                         if (i === 0) {
-                            clientCallback = parent.$this[uploadCallbacks[i]];
+                            clientCallback = parent.$this.event[uploadCallbacks[i]];
                         }
                         else {
                             clientCallback = clientCallback[uploadCallbacks[i]];

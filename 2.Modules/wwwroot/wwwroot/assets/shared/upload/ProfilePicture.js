@@ -89,7 +89,7 @@ let $ProfilePicture = {
                                     for (var i = 0; i < uploadCallbacks.length; i++) {
                                         try {
                                             if (i === 0) {
-                                                clientCallback = parent.$this[uploadCallbacks[i]];
+                                                clientCallback = parent.$this.event[uploadCallbacks[i]];
                                             }
                                             else {
                                                 clientCallback = clientCallback[uploadCallbacks[i]];
@@ -109,7 +109,7 @@ let $ProfilePicture = {
                                         };
 
                                         if ($this.prop.fileUploadOptions.elementID) {
-                                            parent.$l.get($this.prop.fileUploadOptions.elementID).value = '';
+                                            parent.syn.$l.get($this.prop.fileUploadOptions.elementID).value = '';
                                         }
 
                                         clientCallback('delete', result);
@@ -221,7 +221,7 @@ let $ProfilePicture = {
                 for (var i = 0; i < uploadCallbacks.length; i++) {
                     try {
                         if (i === 0) {
-                            clientCallback = parent.$this[uploadCallbacks[i]];
+                            clientCallback = parent.$this.event[uploadCallbacks[i]];
                         }
                         else {
                             clientCallback = clientCallback[uploadCallbacks[i]];
