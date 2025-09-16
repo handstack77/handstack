@@ -13,7 +13,7 @@
 
     $fileclient.extend({
         name: 'syn.uicontrols.$fileclient',
-        version: 'v2025.9.10',
+        version: 'v2025.9.16',
 
         fileManagers: [],
         fileControls: [],
@@ -426,7 +426,7 @@
                 syn.$m.addClass(divFile, 'input-group');
 
                 var file = document.createElement('input');
-                syn.$m.addClass(file, 'form-control');
+                syn.$m.addClass(file, 'form-control f:14!');
 
                 var remove = document.createElement('button');
                 syn.$m.addClass(remove, 'btn btn-icon bg-muted-lt');
