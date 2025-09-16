@@ -1700,7 +1700,7 @@
 
     $data.extend({
         name: 'syn.uicontrols.$data',
-        version: 'v2025.7.17',
+        version: 'v2025.9.16',
         bindingList: [],
         storeList: [],
 
@@ -1741,12 +1741,34 @@
             });
         },
 
-        getValue(elID, meta) {
+        getValue(elID, isAll) {
             var result = null;
             $data.propertyEvent = false;
             var metaStore = $data.getMetaStore(elID);
             if (metaStore) {
                 result = $this.store[metaStore.dataSourceID];
+                if (result) {
+                    if ($string.toBoolean(isAll) == true) {
+                        result = $this.store[metaStore.dataSourceID];
+                    }
+                    else if (Array.isArray(result)) {
+                        result = result.filter(item => {
+                            return item && item.Flag !== 'R';
+                        });
+                    }
+                    else if (typeof result === 'object') {
+                        var filteredResult = {};
+                        for (var key in result) {
+                            if (result.hasOwnProperty(key) == true) {
+                                var item = result[key];
+                                if (item && typeof item === 'object') {
+                                    filteredResult[key] = item;
+                                }
+                            }
+                        }
+                        result = filteredResult;
+                    }
+                }
             }
             $data.propertyEvent = true;
 
