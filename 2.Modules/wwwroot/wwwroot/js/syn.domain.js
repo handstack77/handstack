@@ -2398,14 +2398,14 @@
                 }
 
                 if (options.validators.indexOf('ipaddress') > -1) {
-                    if (vaildateData.filter(function (row) { return !regexs.ipaddress.test(row) }).length > 0) {
+                    if (vaildateData.filter(function (row) { return !syn.$v.regexs.ipaddress.test(row) }).length > 0) {
                         var message = '{0} 그리드의 {1} 컬럼은 IP 주소만 입력 할 수 있습니다'.format(controlText, columnName);
                         return valiationFunc(message);
                     }
                 }
 
                 if (options.validators.indexOf('email') > -1) {
-                    if (vaildateData.filter(function (row) { return !regexs.email.test(row) }).length > 0) {
+                    if (vaildateData.filter(function (row) { return !syn.$v.regexs.email.test(row) }).length > 0) {
                         var message = '{0} 그리드의 {1} 컬럼은 이메일 주소만 입력 할 수 있습니다'.format(controlText, columnName);
                         return valiationFunc(message);
                     }
@@ -2431,7 +2431,7 @@
                 }
 
                 if (options.validators.indexOf('url') > -1) {
-                    if (vaildateData.filter(function (row) { return !regexs.url.test(row) }).length > 0) {
+                    if (vaildateData.filter(function (row) { return !syn.$v.regexs.url.test(row) }).length > 0) {
                         var message = '{0} 그리드의 {1} 컬럼은 웹 URL 주소만 입력 할 수 있습니다'.format(controlText, columnName);
                         return valiationFunc(message);
                     }

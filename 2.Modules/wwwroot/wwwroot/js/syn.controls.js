@@ -11101,7 +11101,7 @@
                                 showEditorBtn: false,
                                 showEditorBtnOver: true,
                                 defaultFormat: 'yyyy-mm-dd',
-                                showPlaceholder: true,
+                                showPlaceholder: false,
                                 openDirectly: true,
                                 onlyCalendar: false,
                                 showExtraDays: true
