@@ -3265,7 +3265,7 @@
                                     if (value == null) {
                                         isTypeCheck = true;
                                     } else {
-                                        isTypeCheck = $object.isDate(value);
+                                        isTypeCheck = $date.isDate(value);
                                     }
                                     break;
                                 default:
@@ -3524,7 +3524,7 @@
                                         isTypeCheck = $string.isNullOrEmpty(item[column]) == true || $string.isNumber(item[column]) || $object.isNumber(item[column]);
                                         break;
                                     case 'date':
-                                        isTypeCheck = $string.isNullOrEmpty(item[column]) == true || $object.isDate(item[column]);
+                                        isTypeCheck = $string.isNullOrEmpty(item[column]) == true || $date.isDate(item[column]);
                                         break;
                                     default:
                                         isTypeCheck = false;

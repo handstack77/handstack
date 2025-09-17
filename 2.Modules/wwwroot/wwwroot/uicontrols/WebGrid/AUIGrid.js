@@ -2249,7 +2249,7 @@
                                         if (value == null) {
                                             isTypeCheck = true;
                                         } else {
-                                            isTypeCheck = $object.isDate(value);
+                                            isTypeCheck = $date.isDate(value);
                                         }
                                         break;
                                     default:
@@ -3119,7 +3119,7 @@
                                     isTypeCheck = $string.isNullOrEmpty(item[column]) == true || $string.isNumber(item[column]) || $object.isNumber(item[column]);
                                     break;
                                 case 'date':
-                                    isTypeCheck = $string.isNullOrEmpty(item[column]) == true || $object.isDate(item[column]);
+                                    isTypeCheck = $string.isNullOrEmpty(item[column]) == true || $date.isDate(item[column]);
                                     break;
                                 default:
                                     isTypeCheck = false;
@@ -3127,7 +3127,7 @@
                             }
 
                             if (isTypeCheck == false) {
-                                syn.$l.eventLog('syn.uicontrols.$grid', '바인딩 데이터 타입과 매핑 정의가 다름, 바인딩 ID - "{0}", 타입 - "{1}"'.format(column, metaColumn.dataType), 'Warning');
+                                syn.$l.eventLog('syn.uicontrols.$auigrid', '바인딩 데이터 타입과 매핑 정의가 다름, 바인딩 ID - "{0}", 타입 - "{1}"'.format(column, metaColumn.dataType), 'Warning');
                                 return;
                             }
                         } else {

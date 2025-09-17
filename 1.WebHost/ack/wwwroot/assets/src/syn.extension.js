@@ -294,21 +294,16 @@
         },
 
         isDate(val) {
-            if (val instanceof Date && !isNaN(val)) return true;
-            if (!$object.isString(val)) return false;
-
-            const parsedDate = new Date(val);
-            if (!isNaN(parsedDate)) return true;
-
-            if (/^\d{4}-\d{2}-\d{2}$/.test(val)) {
-                const parts = val.split('-');
-                if (parts[1] >= 1 && parts[1] <= 12 && parts[2] >= 1 && parts[2] <= 31) {
-                    const specificDate = new Date(parts[0], parts[1] - 1, parts[2]);
-                    return !isNaN(specificDate);
-                }
+            var result = false;
+            if ($object.isString(val) == true) {
+                const timestamp = Date.parse(val);
+                result = !isNaN(timestamp);
+            }
+            else if (val instanceof Date) {
+                result = true;
             }
 
-            return false;
+            return result;
         },
 
         isISOString(val) {
