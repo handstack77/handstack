@@ -4517,8 +4517,10 @@ TransactionException:
                                 dynamicParameter.Value = false;
                                 break;
                             case "@DBNULL":
-                            case "NULL":
                                 dynamicParameter.Value = DBNull.Value;
+                                break;
+                            case "NULL":
+                                dynamicParameter.Value = "";
                                 break;
                             default:
                                 dynamicParameter.Value = dbParameterMap.DefaultValue;
