@@ -1778,7 +1778,7 @@
         removeRow(elID, dataField, rowIndex, callback) {
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
-                rowIndex = rowIndex || 'selectedIndex';
+                rowIndex = rowIndex || '';
                 var colIndex = 0;
                 if ($object.isNullOrUndefined(rowIndex) == true) {
                     var selected = AUIGrid.getSelectedIndex(gridID);
