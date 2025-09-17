@@ -555,6 +555,10 @@
                     }
                 }
 
+                if ($string.toBoolean(readOnly) == true) {
+                    columnInfo.style = columnInfo.style + ' column-readonly';
+                }
+
                 if (columnInfo.validators && columnInfo.validators.indexOf('require') > -1) {
                     columnInfo.style = columnInfo.style + ' column-required';
                 }
