@@ -17,8 +17,8 @@
             local: true,
             search: false,
             multiSelectAll: true,
-            width: '100%',
-            classNames: null,
+            width: null,
+            classNames: 'border-0 form-select',
             dataSourceID: null,
             storeSourceID: null,
             parameters: null, // @ParameterValue:HELLO WORLD;

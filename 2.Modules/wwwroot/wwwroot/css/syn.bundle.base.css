@@ -10199,15 +10199,15 @@ a.ui-button:active,
 }
 
     .tail-select .select-label {
-        height: 40px;
-        line-height: 27px;
+        height: 36px;
+        line-height: 24px;
         border: var(--tblr-border-width) solid var(--tblr-border-color);
         border-radius: var(--tblr-border-radius);
         box-shadow: var(--tblr-box-shadow-input);
     }
 
         .tail-select .select-label:after {
-            top: 17px;
+            top: 16px;
         }
 
     .tail-select .select-dropdown {
@@ -10233,15 +10233,15 @@ a.ui-button:active,
 }
 
     .tail-select .select-label {
-        height: 40px;
-        line-height: 27px;
+        height: 36px;
+        line-height: 24px;
         border: var(--tblr-border-width) solid var(--tblr-border-color);
         border-radius: var(--tblr-border-radius);
         box-shadow: var(--tblr-box-shadow-input);
     }
 
         .tail-select .select-label:after {
-            top: 17px;
+            top: 16px;
         }
 
     .tail-select .select-dropdown {
