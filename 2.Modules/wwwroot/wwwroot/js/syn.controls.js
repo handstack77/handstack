@@ -12241,9 +12241,9 @@
             if (gridID) {
                 var colIndex = $auigrid.propToCol(gridID, 'Flag');
                 if (rowIndex > -1 && colIndex > -1) {
-                    var flag = $auigrid.getDataAtCell(rowIndex, colIndex);
+                    var flag = $auigrid.getDataAtCell(gridID, rowIndex, colIndex);
                     if (flag != 'S') {
-                        $auigrid.setDataAtCell(rowIndex, colIndex, flagValue);
+                        $auigrid.setDataAtCell(gridID, rowIndex, colIndex, flagValue);
                     }
                 }
             }
