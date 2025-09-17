@@ -12738,7 +12738,7 @@
                     var dataField = null;
                     if ($object.isString(col) == true) {
                         if ($auigrid.propToCol(elID, col) > -1) {
-                            dataField = data;
+                            dataField = col;
                         }
                     }
                     else if ($object.isNumber(col) == true) {
