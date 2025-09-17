@@ -51,7 +51,7 @@ let $index = {
                     }
                     else {
                         if (setting.local == true) {
-                            syn.$w.loadJSON(syn.Config.SharedAssetUrl + 'code/{0}.json'.format(setting.dataSourceID), setting, function (setting, json) {
+                            syn.$w.loadJson(syn.Config.SharedAssetUrl + 'code/{0}.json'.format(setting.dataSourceID), setting, function (setting, json) {
                                 if (parent && parent.document && json.Description) {
                                     var popupHeader = parent.document.querySelector('h3.mt-0.mb-0');
                                     popupHeader.textContent = json.Description;
