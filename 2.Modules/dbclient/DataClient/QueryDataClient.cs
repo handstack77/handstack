@@ -4481,12 +4481,12 @@ TransactionException:
                 if (dbParameterMap.Direction.IndexOf("Input") > -1)
                 {
                     var dynamicParameter = GetDbParameterMap(dbParameterMap.Name, queryObject.Parameters);
-
                     if (dynamicParameter == null && dbParameterMap.DefaultValue.ToUpper() == "NULL")
                     {
                         continue;
                     }
-                    else
+
+                    if (dynamicParameter == null || string.IsNullOrEmpty(dynamicParameter.Value.ToStringSafe()) == true)
                     {
                         if (dynamicParameter == null)
                         {
@@ -4494,34 +4494,35 @@ TransactionException:
                             dynamicParameter.ParameterName = GetParameterName(dbParameterMap.Name);
                             dynamicParameter.Length = dbParameterMap.Length;
                             dynamicParameter.DbType = dbParameterMap.DbType;
+                        }
 
-                            switch (dbParameterMap.DefaultValue)
-                            {
-                                case "@SUID":
-                                    dynamicParameter.Value = sequentialIdGenerator.NewId().ToString("N");
-                                    break;
-                                case "@GUID":
-                                    dynamicParameter.Value = Guid.NewGuid();
-                                    break;
-                                case "@NOW":
-                                    dynamicParameter.Value = DateTime.Now;
-                                    break;
-                                case "@UTCNOW":
-                                    dynamicParameter.Value = DateTime.UtcNow;
-                                    break;
-                                case "@TRUE":
-                                    dynamicParameter.Value = true;
-                                    break;
-                                case "@FALSE":
-                                    dynamicParameter.Value = false;
-                                    break;
-                                case "@DBNULL":
-                                    dynamicParameter.Value = DBNull.Value;
-                                    break;
-                                default:
-                                    dynamicParameter.Value = dbParameterMap.DefaultValue;
-                                    break;
-                            }
+                        switch (dbParameterMap.DefaultValue)
+                        {
+                            case "@SUID":
+                                dynamicParameter.Value = sequentialIdGenerator.NewId().ToString("N");
+                                break;
+                            case "@GUID":
+                                dynamicParameter.Value = Guid.NewGuid();
+                                break;
+                            case "@NOW":
+                                dynamicParameter.Value = DateTime.Now;
+                                break;
+                            case "@UTCNOW":
+                                dynamicParameter.Value = DateTime.UtcNow;
+                                break;
+                            case "@TRUE":
+                                dynamicParameter.Value = true;
+                                break;
+                            case "@FALSE":
+                                dynamicParameter.Value = false;
+                                break;
+                            case "@DBNULL":
+                            case "NULL":
+                                dynamicParameter.Value = DBNull.Value;
+                                break;
+                            default:
+                                dynamicParameter.Value = dbParameterMap.DefaultValue;
+                                break;
                         }
                     }
 
