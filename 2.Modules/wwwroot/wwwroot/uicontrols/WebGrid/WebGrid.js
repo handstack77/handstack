@@ -1332,6 +1332,7 @@
                 storeSourceID: null,
                 dataSource: null,
                 parameters: null,
+                deleteCache: true,
                 selectedValue: null
             }
 
@@ -1343,7 +1344,7 @@
 
             if (setting.columnName && setting.storeSourceID) {
                 var mod = window[syn.$w.pageScript];
-                if (mod.config && mod.config.dataSource && mod.config.dataSource[setting.storeSourceID]) {
+                if (mod.config && mod.config.dataSource && mod.config.dataSource[setting.storeSourceID] && $string.toBoolean(setting.deleteCache) == true) {
                     delete mod.config.dataSource[setting.storeSourceID];
                 }
 

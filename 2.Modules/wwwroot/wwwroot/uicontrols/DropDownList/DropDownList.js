@@ -116,13 +116,14 @@
             setting.elID = elID;
             setting.storeSourceID = setting.storeSourceID || setting.dataSourceID;
             setting = syn.$w.argumentsExtend(JSON.parse(syn.$l.get(elID).getAttribute('syn-options')), setting);
+            setting.deleteCache = $object.isNullOrUndefined(setting.deleteCache) == true ? true : setting.deleteCache;
 
             var el = syn.$l.get(elID);
             el.setAttribute('syn-options', JSON.stringify(setting));
 
             if (setting.dataSourceID) {
                 var mod = window[syn.$w.pageScript];
-                if (mod.config && mod.config.dataSource && mod.config.dataSource[setting.storeSourceID]) {
+                if (mod.config && mod.config.dataSource && mod.config.dataSource[setting.storeSourceID] && $string.toBoolean(setting.deleteCache) == true) {
                     delete mod.config.dataSource[setting.storeSourceID];
                 }
 

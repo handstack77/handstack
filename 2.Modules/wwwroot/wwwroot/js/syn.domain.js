@@ -2244,14 +2244,14 @@
                     }
 
                     if (options.validators.indexOf('ipaddress') > -1) {
-                        if (regexs.ipaddress.test(value) == false) {
+                        if (syn.$v.regexs.ipaddress.test(value) == false) {
                             var message = '{0} 항목은 IP 주소만 입력 할 수 있습니다'.format(controlText);
                             return valiationFunc(message);
                         }
                     }
 
                     if (options.validators.indexOf('email') > -1) {
-                        if (regexs.email.test(value) == false) {
+                        if (syn.$v.regexs.email.test(value) == false) {
                             var message = '{0} 항목은 이메일 주소만 입력 할 수 있습니다'.format(controlText);
                             return valiationFunc(message);
                         }
@@ -2259,7 +2259,7 @@
 
                     if (options.validators.indexOf('date') > -1) {
                         var isDateCheck = true;
-                        if (regexs.date.test(value) == false) {
+                        if (syn.$v.regexs.date.test(value) == false) {
                             isDateCheck = false;
                         };
 
@@ -2278,7 +2278,7 @@
                     }
 
                     if (options.validators.indexOf('url') > -1) {
-                        if (regexs.url.test(value) == false) {
+                        if (syn.$v.regexs.url.test(value) == false) {
                             var message = '{0} 항목은 웹 URL 주소만 입력 할 수 있습니다'.format(controlText);
                             return valiationFunc(message);
                         }
@@ -2316,14 +2316,14 @@
                     }
 
                     if (options.validators.indexOf('ipaddress') > -1) {
-                        if (regexs.ipaddress.test(value) == false) {
+                        if (syn.$v.regexs.ipaddress.test(value) == false) {
                             var message = '{0} 그리드의 {1} 컬럼은 IP 주소만 입력 할 수 있습니다'.format(controlText, columnName);
                             return valiationFunc(message);
                         }
                     }
 
                     if (options.validators.indexOf('email') > -1) {
-                        if (regexs.email.test(value) == false) {
+                        if (syn.$v.regexs.email.test(value) == false) {
                             var message = '{0} 그리드의 {1} 컬럼은 이메일 주소만 입력 할 수 있습니다'.format(controlText, columnName);
                             return valiationFunc(message);
                         }
@@ -2331,7 +2331,7 @@
 
                     if (options.validators.indexOf('date') > -1) {
                         var isDateCheck = true;
-                        if (regexs.date.test(value) == false) {
+                        if (syn.$v.regexs.date.test(value) == false) {
                             isDateCheck = false;
                         };
 
@@ -2350,7 +2350,7 @@
                     }
 
                     if (options.validators.indexOf('url') > -1) {
-                        if (regexs.url.test(value) == false) {
+                        if (syn.$v.regexs.url.test(value) == false) {
                             var message = '{0} 그리드의 {1} 컬럼은 웹 URL 주소만 입력 할 수 있습니다'.format(controlText, columnName);
                             return valiationFunc(message);
                         }
@@ -2413,7 +2413,7 @@
 
                 if (options.validators.indexOf('date') > -1) {
                     if (vaildateData.filter(function (row) {
-                        if (regexs.date.test(row) == false) {
+                        if (syn.$v.regexs.date.test(row) == false) {
                             return true;
                         };
 
