@@ -795,6 +795,10 @@
                                 imgHeight: $string.isNullOrEmpty(columnInfo.imgHeight) == true ? 24 : columnInfo.imgHeight,
                             }
 
+                            if ($string.isNullOrEmpty(columnInfo.prefix) == false) {
+                                columnInfo.renderer.prefix = columnInfo.prefix;
+                            }
+
                             if ($string.isNullOrEmpty(columnInfo.altField) == false) {
                                 columnInfo.renderer.altField = columnInfo.altField;
                             }

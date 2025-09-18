@@ -788,7 +788,7 @@
             end = el.value.length;
 
             var moveCaret = function () {
-                if (el.type != 'email' && el.setSelectionRange) {
+                if (el.type == 'text' && el.setSelectionRange) {
                     el.setSelectionRange(begin, end);
                 } else if (el.createTextRange) {
                     var range = el.createTextRange();

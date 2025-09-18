@@ -7714,7 +7714,7 @@
             end = el.value.length;
 
             var moveCaret = function () {
-                if (el.type != 'email' && el.setSelectionRange) {
+                if (el.type == 'text' && el.setSelectionRange) {
                     el.setSelectionRange(begin, end);
                 } else if (el.createTextRange) {
                     var range = el.createTextRange();
@@ -10970,6 +10970,10 @@
                             columnInfo.renderer = {
                                 type: 'ImageRenderer',
                                 imgHeight: $string.isNullOrEmpty(columnInfo.imgHeight) == true ? 24 : columnInfo.imgHeight,
+                            }
+
+                            if ($string.isNullOrEmpty(columnInfo.prefix) == false) {
+                                columnInfo.renderer.prefix = columnInfo.prefix;
                             }
 
                             if ($string.isNullOrEmpty(columnInfo.altField) == false) {
