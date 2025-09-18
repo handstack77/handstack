@@ -905,20 +905,23 @@
 .aui-grid-header-filter-icon {
     border-left: 1px solid #eaeaea;
     border-right: none;
-    background: url(/img/auigrid/filter_ico.png) 50% 50% no-repeat;
+    background: url(/img/btn/filter.png) 50% 50% no-repeat;
+    background-size: 12px 12px;
     box-sizing: content-box;
     cursor: pointer;
 }
 
     .aui-grid-header-filter-icon:hover {
-        background: #eaeaea url(/img/auigrid/filter_ico.png) 50% 50% no-repeat;
+        background: #eaeaea url(/img/btn/filter.png) 50% 50% no-repeat;
+        background-size: 12px 12px;
     }
 
 /* 현재 필터링 된 상태 아이콘 스타일 */
 .aui-grid-header-filter-icon-filtered {
     border-left: 1px solid #eaeaea;
     border-right: none;
-    background: #999 url(/img/auigrid/filter_ico.png) 50% 50% no-repeat;
+    background: #999 url(/img/btn/filter.png) 50% 50% no-repeat;
+    background-size: 12px 12px;
     box-sizing: content-box;
     cursor: pointer;
 }
@@ -939,7 +942,8 @@
 
     /* 필터 초기화 */
     .aui-grid-filter-popup-layer > span:first-child {
-        background: url(/img/auigrid/filter_ico.png) 5px 50% no-repeat;
+        background: url(/img/btn/filter.png) 5px 50% no-repeat;
+        background-size: 12px 12px;
         margin: 10px 0px 4px 0px;
         display: block;
         padding: 4px;
@@ -949,7 +953,8 @@
 
         /* 필터 초기화 over */
         .aui-grid-filter-popup-layer > span:first-child:hover {
-            background: #eaeaea url(/img/auigrid/filter_ico.png) 5px 50% no-repeat;
+            background: #eaeaea url(/img/btn/filter.png) 5px 50% no-repeat;
+            background-size: 12px 12px;
             cursor: pointer;
         }
 
@@ -1206,7 +1211,8 @@
     top: 1px;
     right: 1px;
     display: inline-block;
-    background: url(/img/auigrid/search.png) 0 0 no-repeat;
+    background: url(/img/btn/search.png) 0 0 no-repeat;
+    background-size: 16px 16px;
     width: 16px;
     height: 16px;
 }
@@ -2177,6 +2183,11 @@
 
 .aui-grid-icon-renderer img.aui-img {
     cursor: pointer;
+    background-color: #f3f4f6;
+    border: 1px #ccc solid !important;
+    border-radius:4px;
+    height: 18px !important;
+    width: 18px !important;
 }
 
 .syn-auigrid {

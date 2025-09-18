@@ -567,10 +567,41 @@
                 if ($object.isString(columnType) == true) {
                     switch (columnType) {
                         case 'text':
+                            if ($string.isNullOrEmpty(columnInfo.cellButtonIcon) == false) {
+                                columnInfo.renderer = {
+                                    type: "IconRenderer",
+                                    iconPosition: "aisleRight",
+                                    iconWidth: 18,
+                                    iconHeight: 18,
+                                    iconTableRef: {
+                                        default: columnInfo.cellButtonIcon
+                                    },
+                                    onClick: function (evt) {
+                                        var gridID = evt.pid;
+                                        var elID = gridID.substring(1);
+                                        var isAllowEdit = true;
+                                        var mod = window[syn.$w.pageScript];
+                                        var eventHandler = mod.event ? mod.event['{0}_{1}'.format(elID, 'cellEditBegin')] : null;
+                                        if (eventHandler) {
+                                            var value = eventHandler(evt);
+                                            isAllowEdit = $string.toBoolean(value);
+                                        }
+
+                                        if (isAllowEdit == true) {
+                                            var mod = window[syn.$w.pageScript];
+                                            var eventHandler = mod.event['{0}_cellButtonClick'.format(elID)];
+                                            if (eventHandler) {
+                                                eventHandler(elID, evt.rowIndex, evt.columnIndex, evt.dataField, evt.item);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
                             columnInfo.editRenderer = {
                                 type: 'InputEditRenderer',
                                 showEditorBtn: false,
-                                showEditorBtnOver: true,
+                                showEditorBtnOver: $string.isNullOrEmpty(columnInfo.cellButtonIcon),
                             }
                             break;
                         case 'textarea':
@@ -734,10 +765,12 @@
                             columnInfo.renderer = {
                                 type: 'ButtonRenderer',
                                 onClick: (evt) => {
+                                    var gridID = evt.pid;
+                                    var elID = gridID.substring(1);
                                     var mod = window[syn.$w.pageScript];
-                                    var eventHandler = mod.event['{0}_cellButtonClick'.format(columnInfo.elID)];
+                                    var eventHandler = mod.event['{0}_cellButtonClick'.format(elID)];
                                     if (eventHandler) {
-                                        eventHandler(columnInfo.elID, evt.rowIndex, evt.columnIndex, evt.dataField, evt.item);
+                                        eventHandler(elID, evt.rowIndex, evt.columnIndex, evt.dataField, evt.item);
                                     }
                                 },
                                 visibleFunction: function (rowIndex, columnIndex, value, item, dataField) {
@@ -855,13 +888,14 @@
                             columnInfo.renderer = {
                                 type: "IconRenderer",
                                 iconPosition: "aisleRight",
-                                iconWidth: 20,
-                                iconHeight: 20,
+                                iconWidth: 18,
+                                iconHeight: 18,
                                 iconTableRef: {
-                                    default: '/img/btn/search.png' // 'data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-search"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>'
+                                    default: columnInfo.cellButtonIcon || '/img/btn/search.png'
                                 },
                                 onClick: function (evt) {
                                     var gridID = evt.pid;
+                                    var elID = gridID.substring(1);
                                     var rowIndex = evt.rowIndex;
                                     var columnIndex = evt.columnIndex;
                                     var dataField = evt.dataField;
@@ -879,11 +913,11 @@
                                         var columnInfo = columns.find((item) => { return item.dataField == dataField });
                                         if (columnInfo && columnInfo.columnType == 'codehelp') {
                                             if (rowIndex > -1) {
-                                                var elID = gridID.substring(1);
                                                 var synOptions = syn.$w.argumentsExtend(syn.uicontrols.$codepicker.defaultSetting, columnInfo);
                                                 synOptions.elID = elID;
                                                 synOptions.viewType = 'auigrid';
                                                 synOptions.url = $auigrid.codeHelpUrl || '';
+                                                synOptions.searchText = evt.text || '';
                                                 syn.uicontrols.$codepicker.find(synOptions, function (result) {
                                                     var returnHandler = mod.hook.frameEvent;
                                                     if (returnHandler) {
