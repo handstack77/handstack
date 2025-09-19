@@ -77,7 +77,7 @@
                 let parsedMessage;
                 try {
                     if (!evt.data || location.origin != evt.origin) return;
-                    parsedMessage = JSON.parse(evt.data);
+                    parsedMessage = $object.isString(evt.data) == true ? JSON.parse(evt.data) : evt.data;
                     if (typeof parsedMessage !== 'object' || parsedMessage === null) {
                         syn.$l.eventLog('$network.onPostMessage', 'postMessage data 확인 필요 (non-object)', 'Verbose');
                         return;

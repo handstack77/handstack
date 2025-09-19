@@ -887,12 +887,7 @@
                             }
                             break;
                         case 'numeric':
-                            if (value.indexOf(',') > -1) {
-                                el.value = value;
-                            }
-                            else {
-                                el.value = $string.isNumber(value) == true ? $string.toCurrency(value) : value;
-                            }
+                            el.value = $string.isNumber(value) == true ? $string.toCurrency(value) : value;
                             break;
                         default:
                             el.value = '';
