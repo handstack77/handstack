@@ -687,17 +687,13 @@ namespace repository.Controllers
                         repositoryItem.CreatedMemberNo = userID;
                         repositoryItem.CreatedAt = DateTime.Now;
 
-                        Stream streamToUpload = file.OpenReadStream();
-                        long fileSize = file.Length;
+                        Stream fileStream = file.OpenReadStream();
+                        var streamToUpload = new MemoryStream();
+                        fileStream.CopyTo(streamToUpload);
 
                         if (repository.UploadTypeID == "Profile" && string.IsNullOrEmpty(repository.UploadOptions) == false)
                         {
                             var uploadOptions = ParseUploadOptions(repository.UploadOptions);
-                            var originalImageStream = new MemoryStream();
-                            await streamToUpload.CopyToAsync(originalImageStream);
-                            originalImageStream.Position = 0;
-                            streamToUpload = originalImageStream;
-
                             bool hasThumbnailX = uploadOptions.TryGetValue("ThumbnailX", out int thumbnailX);
                             bool hasThumbnailY = uploadOptions.TryGetValue("ThumbnailY", out int thumbnailY);
                             if (hasThumbnailX == true || hasThumbnailY == true)
@@ -706,7 +702,9 @@ namespace repository.Controllers
                                 thumbnailY = thumbnailY > 0 ? thumbnailY : int.MaxValue;
 
                                 streamToUpload.Position = 0;
-                                using var thumbnailStream = ResizeImage(streamToUpload, thumbnailX, thumbnailY);
+                                var memoryStream = new MemoryStream();
+                                streamToUpload.CopyTo(memoryStream);
+                                using var thumbnailStream = ResizeImage(memoryStream, thumbnailX, thumbnailY);
 
                                 if (thumbnailStream != null)
                                 {
@@ -714,7 +712,7 @@ namespace repository.Controllers
                                     var originalFileNameWithoutExt = Path.GetFileNameWithoutExtension(repositoryItem.FileName);
                                     var thumbnailFileName = $"{originalFileNameWithoutExt}_thumbnail{repositoryItem.Extension}";
 
-                                    thumbnailItem.ItemID = repository.IsFileNameEncrypt ? $"{repositoryItem.ItemID}_thumbnail" : thumbnailFileName;
+                                    thumbnailItem.ItemID = sequentialIdGenerator.NewId().ToString("N");
                                     thumbnailItem.FileName = thumbnailFileName;
                                     thumbnailItem.Size = thumbnailStream.Length;
                                     thumbnailItem.MD5 = GetStreamMD5Hash(thumbnailStream);
@@ -735,10 +733,8 @@ namespace repository.Controllers
                                 var resizedStream = ResizeImage(streamToUpload, resizeX, resizeY);
                                 if (resizedStream != null)
                                 {
-                                    streamToUpload.Dispose();
                                     streamToUpload = resizedStream;
-                                    fileSize = streamToUpload.Length;
-                                    repositoryItem.Size = fileSize;
+                                    repositoryItem.Size = streamToUpload.Length;
                                 }
                             }
                             streamToUpload.Position = 0;
@@ -802,17 +798,17 @@ namespace repository.Controllers
                                     repositoryItem.FileName = renewFileName;
                                 }
 
-                                using (var fileStream = new FileStream(itemPhysicalPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
+                                using (var saveFileStream = new FileStream(itemPhysicalPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
                                 {
-                                    await streamToUpload.CopyToAsync(fileStream);
+                                    await streamToUpload.CopyToAsync(saveFileStream);
                                 }
 
                                 if (repository.IsKeepFileExtension == true)
                                 {
                                     itemPhysicalPath = itemPhysicalPath + extension;
-                                    using var fileStream = new FileStream(itemPhysicalPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
+                                    using var saveFileStream = new FileStream(itemPhysicalPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
                                     streamToUpload.Position = 0;
-                                    await streamToUpload.CopyToAsync(fileStream);
+                                    await streamToUpload.CopyToAsync(saveFileStream);
                                 }
 
                                 var fileInfo = new FileInfo(itemPhysicalPath);
@@ -1039,11 +1035,10 @@ namespace repository.Controllers
                         repositoryItem.CreatedMemberNo = userID;
                         repositoryItem.CreatedAt = DateTime.Now;
 
-
-                        using var originalRequestStream = new MemoryStream();
-                        await Request.BodyReader.CopyToAsync(originalRequestStream);
-                        originalRequestStream.Position = 0;
-                        Stream streamToUpload = originalRequestStream;
+                        var fileStream = new MemoryStream();
+                        await Request.BodyReader.CopyToAsync(fileStream);
+                        var streamToUpload = new MemoryStream();
+                        fileStream.CopyTo(streamToUpload);
 
                         if (repository.UploadTypeID == "Profile" && string.IsNullOrEmpty(repository.UploadOptions) == false)
                         {
@@ -1057,14 +1052,16 @@ namespace repository.Controllers
                                 thumbnailY = thumbnailY > 0 ? thumbnailY : int.MaxValue;
 
                                 streamToUpload.Position = 0;
-                                using var thumbnailStream = ResizeImage(streamToUpload, thumbnailX, thumbnailY);
+                                var memoryStream = new MemoryStream();
+                                streamToUpload.CopyTo(memoryStream);
+                                using var thumbnailStream = ResizeImage(memoryStream, thumbnailX, thumbnailY);
                                 if (thumbnailStream != null)
                                 {
                                     var thumbnailItem = DeepClone(repositoryItem);
                                     var originalFileNameWithoutExt = Path.GetFileNameWithoutExtension(repositoryItem.FileName);
                                     var thumbnailFileName = $"{originalFileNameWithoutExt}_thumbnail{repositoryItem.Extension}";
 
-                                    thumbnailItem.ItemID = repository.IsFileNameEncrypt ? $"{repositoryItem.ItemID}_thumbnail" : thumbnailFileName;
+                                    thumbnailItem.ItemID = sequentialIdGenerator.NewId().ToString("N");
                                     thumbnailItem.FileName = thumbnailFileName;
                                     thumbnailItem.Size = thumbnailStream.Length;
                                     thumbnailItem.MD5 = GetStreamMD5Hash(thumbnailStream);
@@ -1083,10 +1080,8 @@ namespace repository.Controllers
 
                                 streamToUpload.Position = 0;
                                 var resizedStream = ResizeImage(streamToUpload, resizeX, resizeY);
-
                                 if (resizedStream != null)
                                 {
-                                    streamToUpload.Dispose();
                                     streamToUpload = resizedStream;
                                     repositoryItem.Size = streamToUpload.Length;
                                 }
@@ -1149,9 +1144,9 @@ namespace repository.Controllers
                                     repositoryItem.FileName = renewFileName;
                                 }
 
-                                using (var fileStream = new FileStream(itemPhysicalPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
+                                using (var saveFileStream = new FileStream(itemPhysicalPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
                                 {
-                                    await streamToUpload.CopyToAsync(fileStream);
+                                    await streamToUpload.CopyToAsync(saveFileStream);
                                 }
 
                                 if (repository.IsKeepFileExtension == true)
@@ -1493,17 +1488,13 @@ namespace repository.Controllers
                             repositoryItem.CreatedMemberNo = userID;
                             repositoryItem.CreatedAt = DateTime.Now;
 
-                            Stream streamToUpload = file.OpenReadStream();
-                            long fileSize = file.Length;
+                            Stream fileStream = file.OpenReadStream();
+                            var streamToUpload = new MemoryStream();
+                            fileStream.CopyTo(streamToUpload);
 
                             if (repository.UploadTypeID == "Profile" && string.IsNullOrEmpty(repository.UploadOptions) == false)
                             {
                                 var uploadOptions = ParseUploadOptions(repository.UploadOptions);
-                                var originalImageStream = new MemoryStream();
-                                await streamToUpload.CopyToAsync(originalImageStream);
-                                originalImageStream.Position = 0;
-                                streamToUpload = originalImageStream;
-
                                 bool hasThumbnailX = uploadOptions.TryGetValue("ThumbnailX", out int thumbnailX);
                                 bool hasThumbnailY = uploadOptions.TryGetValue("ThumbnailY", out int thumbnailY);
                                 if (hasThumbnailX == true || hasThumbnailY == true)
@@ -1512,7 +1503,9 @@ namespace repository.Controllers
                                     thumbnailY = thumbnailY > 0 ? thumbnailY : int.MaxValue;
 
                                     streamToUpload.Position = 0;
-                                    using var thumbnailStream = ResizeImage(streamToUpload, thumbnailX, thumbnailY);
+                                    var memoryStream = new MemoryStream();
+                                    streamToUpload.CopyTo(memoryStream);
+                                    using var thumbnailStream = ResizeImage(memoryStream, thumbnailX, thumbnailY);
 
                                     if (thumbnailStream != null)
                                     {
@@ -1520,7 +1513,7 @@ namespace repository.Controllers
                                         var originalFileNameWithoutExt = Path.GetFileNameWithoutExtension(repositoryItem.FileName);
                                         var thumbnailFileName = $"{originalFileNameWithoutExt}_thumbnail{repositoryItem.Extension}";
 
-                                        thumbnailItem.ItemID = repository.IsFileNameEncrypt ? $"{repositoryItem.ItemID}_thumbnail" : thumbnailFileName;
+                                        thumbnailItem.ItemID = sequentialIdGenerator.NewId().ToString("N");
                                         thumbnailItem.FileName = thumbnailFileName;
                                         thumbnailItem.Size = thumbnailStream.Length;
                                         thumbnailItem.MD5 = GetStreamMD5Hash(thumbnailStream);
@@ -1553,15 +1546,11 @@ namespace repository.Controllers
                                     var resizedStream = ResizeImage(streamToUpload, resizeX, resizeY);
                                     if (resizedStream != null)
                                     {
-                                        streamToUpload.Dispose();
                                         streamToUpload = resizedStream;
-                                        fileSize = streamToUpload.Length;
-                                        repositoryItem.Size = fileSize;
+                                        repositoryItem.Size = streamToUpload.Length;
                                     }
                                 }
-                                streamToUpload.Position = 0;
                             }
-
 
                             switch (repository.StorageType)
                             {
@@ -1621,17 +1610,18 @@ namespace repository.Controllers
                                         repositoryItem.FileName = renewFileName;
                                     }
 
-                                    using (var fileStream = new FileStream(itemPhysicalPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
+                                    using (var saveFileStream = new FileStream(itemPhysicalPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
                                     {
-                                        await streamToUpload.CopyToAsync(fileStream);
+                                        streamToUpload.Position = 0;
+                                        await streamToUpload.CopyToAsync(saveFileStream);
                                     }
 
                                     if (repository.IsKeepFileExtension == true)
                                     {
                                         itemPhysicalPath = itemPhysicalPath + extension;
-                                        using var fileStream = new FileStream(itemPhysicalPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
+                                        using var saveFileStream = new FileStream(itemPhysicalPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
                                         streamToUpload.Position = 0;
-                                        await streamToUpload.CopyToAsync(fileStream);
+                                        await streamToUpload.CopyToAsync(saveFileStream);
                                     }
 
                                     var fileInfo = new FileInfo(itemPhysicalPath);
@@ -2905,6 +2895,11 @@ namespace repository.Controllers
         {
             try
             {
+                inputStream.Position = 0;
+                using var newStream = new MemoryStream();
+                inputStream.CopyTo(newStream);
+                newStream.Position = 0;
+                inputStream.Position = 0;
                 using var originalBitmap = SKBitmap.Decode(inputStream);
                 if (originalBitmap == null)
                 {
@@ -2913,11 +2908,7 @@ namespace repository.Controllers
 
                 if (originalBitmap.Width <= maxWidth && originalBitmap.Height <= maxHeight)
                 {
-                    inputStream.Position = 0;
-                    var ms = new MemoryStream();
-                    inputStream.CopyTo(ms);
-                    ms.Position = 0;
-                    return ms;
+                    return newStream;
                 }
 
                 var ratioX = (double)maxWidth / originalBitmap.Width;
@@ -2933,14 +2924,12 @@ namespace repository.Controllers
                 if (resizedBitmap == null) return null;
 
                 using var image = SKImage.FromBitmap(resizedBitmap);
-                inputStream.Position = 0;
-                var codec = SKCodec.Create(inputStream);
+                using var resizedStream = new MemoryStream();
+                var codec = SKCodec.Create(resizedStream);
                 var format = codec?.EncodedFormat ?? SKEncodedImageFormat.Jpeg;
-
                 var outputStream = new MemoryStream();
                 image.Encode(format, 90).SaveTo(outputStream);
                 outputStream.Position = 0;
-
                 return outputStream;
             }
             catch (Exception ex)

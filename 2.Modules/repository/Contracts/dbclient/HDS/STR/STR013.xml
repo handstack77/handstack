@@ -22,9 +22,9 @@ BEGIN
     IF v_exists = 0 THEN
         EXECUTE IMMEDIATE '
             CREATE TABLE "REPOSITORYFILE" (
-                "ItemID" VARCHAR2(36) NOT NULL,
-                "RepositoryID" VARCHAR2(36) NOT NULL,
-                "DependencyID" VARCHAR2(36),
+                "ItemID" VARCHAR2(32) NOT NULL,
+                "RepositoryID" VARCHAR2(32) NOT NULL,
+                "DependencyID" VARCHAR2(32),
                 "FileName" NVARCHAR2(256) NOT NULL,
                 "PhysicalPath" NVARCHAR2(1000),
                 "AbsolutePath" NVARCHAR2(1000),
@@ -38,7 +38,7 @@ BEGIN
                 "PolicyPath" VARCHAR2(10),
                 "SortingNo" NUMBER(10,0),
                 "Comment" NVARCHAR2(200),
-                "CreatedMemberNo" VARCHAR2(36),
+                "CreatedMemberNo" VARCHAR2(32),
                 "CreatedAt" DATE,
                 CONSTRAINT "PK_REPOSITORYFILE" PRIMARY KEY ("ItemID")
             )';
@@ -77,8 +77,8 @@ FROM   "RepositoryFile" RF
 WHERE  RF."RepositoryID" = :RepositoryID
     AND RF."ItemID" = :ItemID;
 			]]>
-            <param id=":RepositoryID" type="Varchar2" length="36" value="" />
-            <param id=":ItemID" type="Varchar2" length="36" value="" />
+            <param id=":RepositoryID" type="Varchar2" length="32" value="" />
+            <param id=":ItemID" type="Varchar2" length="32" value="" />
 		</statement>
 
         <statement id="LD01" seq="0" use="Y" timeout="0" desc="멀티 파일 조회" native="Y">
@@ -105,16 +105,16 @@ FROM   "RepositoryFile" RF
 WHERE  RF."RepositoryID" = :RepositoryID
        AND NVL(:DependencyID, RF."DependencyID") = :DependencyID;
 			]]>
-            <param id=":RepositoryID" type="Varchar2" length="36" value="" />
-            <param id=":DependencyID" type="Varchar2" length="36" value="" />
+            <param id=":RepositoryID" type="Varchar2" length="32" value="" />
+            <param id=":DependencyID" type="Varchar2" length="32" value="" />
         </statement>
 
         <statement id="DD01" seq="0" use="Y" timeout="0" desc="파일 정보 삭제" native="Y">
             <![CDATA[
 DELETE FROM "RepositoryFile" WHERE "RepositoryID" = :RepositoryID AND "ItemID" = :ItemID;
 			]]>
-            <param id=":RepositoryID" type="Varchar2" length="36" value="" />
-            <param id=":ItemID" type="Varchar2" length="36" value="" />
+            <param id=":RepositoryID" type="Varchar2" length="32" value="" />
+            <param id=":ItemID" type="Varchar2" length="32" value="" />
         </statement>
 
         <statement id="MD01" seq="0" use="Y" timeout="0" desc="파일 정보 입력 또는 변경" native="Y">
@@ -178,9 +178,9 @@ WHEN NOT MATCHED THEN
         , :CreatedMemberNo
         , SYSDATE);
 			]]>
-            <param id=":ItemID" type="Varchar2" length="36" value="" />
-            <param id=":RepositoryID" type="Varchar2" length="36" value="" />
-            <param id=":DependencyID" type="Varchar2" length="36" value="" />
+            <param id=":ItemID" type="Varchar2" length="32" value="" />
+            <param id=":RepositoryID" type="Varchar2" length="32" value="" />
+            <param id=":DependencyID" type="Varchar2" length="32" value="" />
             <param id=":FileName" type="NVarchar2" length="256" value="" />
             <param id=":PhysicalPath" type="NVarchar2" length="1000" value="" />
             <param id=":AbsolutePath" type="NVarchar2" length="1000" value="" />
@@ -194,7 +194,7 @@ WHEN NOT MATCHED THEN
             <param id=":PolicyPath" type="Varchar2" length="1" value="" />
             <param id=":SortingNo" type="Int32" length="-1" value="" />
             <param id=":Comment" type="NVarchar2" length="200" value="" />
-            <param id=":CreatedMemberNo" type="Varchar2" length="36" value="" />
+            <param id=":CreatedMemberNo" type="Varchar2" length="32" value="" />
         </statement>
 
         <statement id="UD01" seq="0" use="Y" timeout="0" desc="파일 참조 ID 변경" native="Y">
@@ -205,10 +205,10 @@ WHERE "RepositoryID" = :RepositoryID
     AND "DependencyID" = :SourceDependencyID
     AND NVL(:ItemID, "ItemID") = :ItemID;
 			]]>
-            <param id=":RepositoryID" type="Varchar2" length="36" value="NULL" />
-            <param id=":ItemID" type="Varchar2" length="36" value="NULL" />
-            <param id=":SourceDependencyID" type="Varchar2" length="36" value="NULL" />
-            <param id=":TargetDependencyID" type="Varchar2" length="36" value="NULL" />
+            <param id=":RepositoryID" type="Varchar2" length="32" value="NULL" />
+            <param id=":ItemID" type="Varchar2" length="32" value="NULL" />
+            <param id=":SourceDependencyID" type="Varchar2" length="32" value="NULL" />
+            <param id=":TargetDependencyID" type="Varchar2" length="32" value="NULL" />
         </statement>
 
         <statement id="UD02" seq="0" use="Y" timeout="0" desc="파일명 변경" native="Y">
@@ -221,8 +221,8 @@ SET "FileName" = :FileName,
 WHERE "RepositoryID" = :RepositoryID
     AND "ItemID" = :ItemID;
 			]]>
-            <param id=":RepositoryID" type="Varchar2" length="36" value="NULL" />
-            <param id=":ItemID" type="Varchar2" length="36" value="NULL" />
+            <param id=":RepositoryID" type="Varchar2" length="32" value="NULL" />
+            <param id=":ItemID" type="Varchar2" length="32" value="NULL" />
             <param id=":FileName" type="NVarchar2" length="256" value="NULL" />
         </statement>
 	</commands>

@@ -96,8 +96,8 @@ FROM   RepositoryFile RF
 WHERE  RF.RepositoryID = @RepositoryID
     AND RF.ItemID = @ItemID;
 			]]>
-            <param id="@RepositoryID" type="String" length="36" value="" />
-            <param id="@ItemID" type="String" length="36" value="" />
+            <param id="@RepositoryID" type="String" length="32" value="" />
+            <param id="@ItemID" type="String" length="32" value="" />
 		</statement>
 
         <statement id="LD01" seq="0" use="Y" timeout="0" desc="멀티 파일 조회" native="Y">
@@ -124,16 +124,16 @@ FROM   RepositoryFile RF
 WHERE  RF.RepositoryID = @RepositoryID
        AND CASE WHEN @DependencyID = '' THEN @DependencyID ELSE RF.DependencyID END = @DependencyID;
 			]]>
-            <param id="@RepositoryID" type="String" length="36" value="" />
-            <param id="@DependencyID" type="String" length="36" value="" />
+            <param id="@RepositoryID" type="String" length="32" value="" />
+            <param id="@DependencyID" type="String" length="32" value="" />
         </statement>
 
         <statement id="DD01" seq="0" use="Y" timeout="0" desc="파일 정보 삭제" native="Y">
             <![CDATA[
 DELETE FROM RepositoryFile WHERE RepositoryID = @RepositoryID AND ItemID = @ItemID;
 			]]>
-            <param id="@RepositoryID" type="String" length="36" value="" />
-            <param id="@ItemID" type="String" length="36" value="" />
+            <param id="@RepositoryID" type="String" length="32" value="" />
+            <param id="@ItemID" type="String" length="32" value="" />
         </statement>
 
         <statement id="MD01" seq="0" use="Y" timeout="0" desc="파일 정보 입력 또는 변경" native="Y">
@@ -181,9 +181,9 @@ VALUES
     DATETIME('now', 'localtime')
 );
 			]]>
-            <param id="@ItemID" type="String" length="36" value="" />
-            <param id="@RepositoryID" type="String" length="36" value="" />
-            <param id="@DependencyID" type="String" length="36" value="" />
+            <param id="@ItemID" type="String" length="32" value="" />
+            <param id="@RepositoryID" type="String" length="32" value="" />
+            <param id="@DependencyID" type="String" length="32" value="" />
             <param id="@FileName" type="String" length="256" value="" />
             <param id="@PhysicalPath" type="String" length="1000" value="" />
             <param id="@AbsolutePath" type="String" length="1000" value="" />
@@ -197,7 +197,7 @@ VALUES
             <param id="@PolicyPath" type="String" length="1" value="" />
             <param id="@SortingNo" type="Int32" length="-1" value="" />
             <param id="@Comment" type="String" length="200" value="" />
-            <param id="@CreatedMemberNo" type="String" length="36" value="" />
+            <param id="@CreatedMemberNo" type="String" length="32" value="" />
         </statement>
 
         <statement id="UD01" seq="0" use="Y" timeout="0" desc="파일 참조 ID 변경" native="Y">
@@ -207,10 +207,10 @@ WHERE RepositoryID = @RepositoryID
     AND DependencyID = @SourceDependencyID
     AND CASE WHEN @ItemID = '' THEN @ItemID ELSE ItemID END = @ItemID;
 			]]>
-            <param id="@RepositoryID" type="String" length="36" value="NULL" />
-            <param id="@ItemID" type="String" length="36" value="NULL" />
-            <param id="@SourceDependencyID" type="String" length="36" value="NULL" />
-            <param id="@TargetDependencyID" type="String" length="36" value="NULL" />
+            <param id="@RepositoryID" type="String" length="32" value="NULL" />
+            <param id="@ItemID" type="String" length="32" value="NULL" />
+            <param id="@SourceDependencyID" type="String" length="32" value="NULL" />
+            <param id="@TargetDependencyID" type="String" length="32" value="NULL" />
         </statement>
 
         <statement id="UD02" seq="0" use="Y" timeout="0" desc="파일명 변경" native="Y">
@@ -222,8 +222,8 @@ UPDATE RepositoryFile SET FileName = @FileName,
 WHERE RepositoryID = @RepositoryID
 AND ItemID = @ItemID;
 			]]>
-            <param id="@RepositoryID" type="String" length="36" value="NULL" />
-            <param id="@ItemID" type="String" length="36" value="NULL" />
+            <param id="@RepositoryID" type="String" length="32" value="NULL" />
+            <param id="@ItemID" type="String" length="32" value="NULL" />
             <param id="@FileName" type="String" length="256" value="NULL" />
         </statement>
 	</commands>
