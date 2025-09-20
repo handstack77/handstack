@@ -562,9 +562,17 @@ namespace HandStack.Data.ExtensionMethod
                 case DbType.Boolean:
                     return (paramValue.ToBoolean(false)) ? "1" : "0";
                 case DbType.Decimal:
-                    return ((decimal)paramValue).ToString(CultureInfo.InvariantCulture).Replace("'", "''");
+                    if (decimal.TryParse(paramValue.ToStringSafe(), NumberStyles.Any, CultureInfo.InvariantCulture, out var decimalValue))
+                    {
+                        return decimalValue.ToString(CultureInfo.InvariantCulture).Replace("'", "''");
+                    }
+                    return "NULL";
                 case DbType.Double:
-                    return ((double)paramValue).ToString(CultureInfo.InvariantCulture).Replace("'", "''");
+                    if (double.TryParse(paramValue.ToStringSafe(), NumberStyles.Any, CultureInfo.InvariantCulture, out var doubleValue))
+                    {
+                        return doubleValue.ToString(CultureInfo.InvariantCulture).Replace("'", "''");
+                    }
+                    return "NULL";
                 default:
                     return paramValue.ToStringSafe().Replace("'", "''");
             }
