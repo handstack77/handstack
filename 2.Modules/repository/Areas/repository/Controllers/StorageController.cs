@@ -540,6 +540,7 @@ namespace repository.Controllers
                 }
                 else
                 {
+                    var streamToUpload = new MemoryStream();
                     try
                     {
                         if (repository.UploadSizeLimit < file.Length)
@@ -688,7 +689,6 @@ namespace repository.Controllers
                         repositoryItem.CreatedAt = DateTime.Now;
 
                         Stream fileStream = file.OpenReadStream();
-                        var streamToUpload = new MemoryStream();
                         fileStream.CopyTo(streamToUpload);
 
                         if (repository.UploadTypeID == "Profile" && string.IsNullOrEmpty(repository.UploadOptions) == false)
@@ -708,17 +708,9 @@ namespace repository.Controllers
 
                                 if (thumbnailStream != null)
                                 {
-                                    var thumbnailItem = DeepClone(repositoryItem);
-                                    var originalFileNameWithoutExt = Path.GetFileNameWithoutExtension(repositoryItem.FileName);
-                                    var thumbnailFileName = $"{originalFileNameWithoutExt}_thumbnail{repositoryItem.Extension}";
-
-                                    thumbnailItem.ItemID = sequentialIdGenerator.NewId().ToString("N");
-                                    thumbnailItem.FileName = thumbnailFileName;
-                                    thumbnailItem.Size = thumbnailStream.Length;
-                                    thumbnailItem.MD5 = GetStreamMD5Hash(thumbnailStream);
+                                    var thumbnailFileName = $"{repositoryItem.ItemID}_thumbnail";
                                     thumbnailStream.Position = 0;
-
-                                    await storageProvider.UploadAsync(thumbnailItem.ItemID, thumbnailStream, thumbnailItem.MimeType);
+                                    await storageProvider.UploadAsync(thumbnailFileName, thumbnailStream, repositoryItem.MimeType);
                                 }
                             }
 
@@ -800,6 +792,7 @@ namespace repository.Controllers
 
                                 using (var saveFileStream = new FileStream(itemPhysicalPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
                                 {
+                                    streamToUpload.Position = 0;
                                     await streamToUpload.CopyToAsync(saveFileStream);
                                 }
 
@@ -847,8 +840,6 @@ namespace repository.Controllers
                                 return BadRequest(errorText);
                         }
 
-                        streamToUpload.Dispose();
-
                         var isDataUpsert = false;
                         if (repository.IsFileUploadDownloadOnly == true)
                         {
@@ -884,6 +875,11 @@ namespace repository.Controllers
                         logger.Error("[{LogCategory}] " + $"{result.Message} - {JsonConvert.SerializeObject(repositoryItem)}", "StorageController/UploadFile");
                         return Content(JsonConvert.SerializeObject(result), "application/json");
                     }
+                    finally
+                    {
+                        streamToUpload.Close();
+                        streamToUpload.Dispose();
+                    }
                 }
             }
             else
@@ -898,6 +894,7 @@ namespace repository.Controllers
                 }
                 else
                 {
+                    var streamToUpload = new MemoryStream();
                     try
                     {
                         xFileName = WebUtility.UrlDecode(xFileName);
@@ -1037,7 +1034,6 @@ namespace repository.Controllers
 
                         var fileStream = new MemoryStream();
                         await Request.BodyReader.CopyToAsync(fileStream);
-                        var streamToUpload = new MemoryStream();
                         fileStream.CopyTo(streamToUpload);
 
                         if (repository.UploadTypeID == "Profile" && string.IsNullOrEmpty(repository.UploadOptions) == false)
@@ -1057,17 +1053,9 @@ namespace repository.Controllers
                                 using var thumbnailStream = ResizeImage(memoryStream, thumbnailX, thumbnailY);
                                 if (thumbnailStream != null)
                                 {
-                                    var thumbnailItem = DeepClone(repositoryItem);
-                                    var originalFileNameWithoutExt = Path.GetFileNameWithoutExtension(repositoryItem.FileName);
-                                    var thumbnailFileName = $"{originalFileNameWithoutExt}_thumbnail{repositoryItem.Extension}";
-
-                                    thumbnailItem.ItemID = sequentialIdGenerator.NewId().ToString("N");
-                                    thumbnailItem.FileName = thumbnailFileName;
-                                    thumbnailItem.Size = thumbnailStream.Length;
-                                    thumbnailItem.MD5 = GetStreamMD5Hash(thumbnailStream);
+                                    var thumbnailFileName = $"{repositoryItem.ItemID}_thumbnail";
                                     thumbnailStream.Position = 0;
-
-                                    await storageProvider.UploadAsync(thumbnailItem.ItemID, thumbnailStream, thumbnailItem.MimeType);
+                                    await storageProvider.UploadAsync(thumbnailFileName, thumbnailStream, repositoryItem.MimeType);
                                 }
                             }
 
@@ -1146,6 +1134,7 @@ namespace repository.Controllers
 
                                 using (var saveFileStream = new FileStream(itemPhysicalPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
                                 {
+                                    streamToUpload.Position = 0;
                                     await streamToUpload.CopyToAsync(saveFileStream);
                                 }
 
@@ -1193,8 +1182,6 @@ namespace repository.Controllers
                                 return BadRequest(errorText);
                         }
 
-                        streamToUpload.Dispose();
-
                         var isDataUpsert = false;
                         if (repository.IsLocalDbFileManaged == true)
                         {
@@ -1222,6 +1209,11 @@ namespace repository.Controllers
                         result.Message = exception.Message;
                         logger.Error("[{LogCategory}] " + $"{result.Message} - {JsonConvert.SerializeObject(repositoryItem)}", "StorageController/UploadFile");
                         return Content(JsonConvert.SerializeObject(result), "application/json");
+                    }
+                    finally
+                    {
+                        streamToUpload.Close();
+                        streamToUpload.Dispose();
                     }
                 }
             }
@@ -1458,6 +1450,7 @@ namespace repository.Controllers
                     }
                     else
                     {
+                        var streamToUpload = new MemoryStream();
                         try
                         {
                             var absolutePath = "";
@@ -1489,7 +1482,6 @@ namespace repository.Controllers
                             repositoryItem.CreatedAt = DateTime.Now;
 
                             Stream fileStream = file.OpenReadStream();
-                            var streamToUpload = new MemoryStream();
                             fileStream.CopyTo(streamToUpload);
 
                             if (repository.UploadTypeID == "Profile" && string.IsNullOrEmpty(repository.UploadOptions) == false)
@@ -1506,32 +1498,11 @@ namespace repository.Controllers
                                     var memoryStream = new MemoryStream();
                                     streamToUpload.CopyTo(memoryStream);
                                     using var thumbnailStream = ResizeImage(memoryStream, thumbnailX, thumbnailY);
-
                                     if (thumbnailStream != null)
                                     {
-                                        var thumbnailItem = DeepClone(repositoryItem);
-                                        var originalFileNameWithoutExt = Path.GetFileNameWithoutExtension(repositoryItem.FileName);
-                                        var thumbnailFileName = $"{originalFileNameWithoutExt}_thumbnail{repositoryItem.Extension}";
-
-                                        thumbnailItem.ItemID = sequentialIdGenerator.NewId().ToString("N");
-                                        thumbnailItem.FileName = thumbnailFileName;
-                                        thumbnailItem.Size = thumbnailStream.Length;
-                                        thumbnailItem.MD5 = GetStreamMD5Hash(thumbnailStream);
+                                        var thumbnailFileName = $"{repositoryItem.ItemID}_thumbnail";
                                         thumbnailStream.Position = 0;
-
-                                        await storageProvider.UploadAsync(thumbnailItem.ItemID, thumbnailStream, thumbnailItem.MimeType);
-
-                                        if (repository.IsFileUploadDownloadOnly == false)
-                                        {
-                                            if (repository.IsLocalDbFileManaged == true)
-                                            {
-                                                ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.SLT010.MD01", thumbnailItem);
-                                            }
-                                            else
-                                            {
-                                                await moduleApiClient.UpsertRepositoryItem(thumbnailItem);
-                                            }
-                                        }
+                                        await storageProvider.UploadAsync(thumbnailFileName, thumbnailStream, repositoryItem.MimeType);
                                     }
                                 }
 
@@ -1660,8 +1631,6 @@ namespace repository.Controllers
                                     return BadRequest(errorText);
                             }
 
-                            streamToUpload.Dispose();
-
                             var isDataUpsert = false;
                             if (repository.IsFileUploadDownloadOnly == true)
                             {
@@ -1693,6 +1662,11 @@ namespace repository.Controllers
                         catch (Exception exception)
                         {
                             fileUploadResult.Message = exception.Message;
+                        }
+                        finally
+                        {
+                            streamToUpload.Close();
+                            streamToUpload.Dispose();
                         }
                     }
 
@@ -2896,7 +2870,7 @@ namespace repository.Controllers
             try
             {
                 inputStream.Position = 0;
-                using var newStream = new MemoryStream();
+                var newStream = new MemoryStream();
                 inputStream.CopyTo(newStream);
                 newStream.Position = 0;
                 inputStream.Position = 0;
