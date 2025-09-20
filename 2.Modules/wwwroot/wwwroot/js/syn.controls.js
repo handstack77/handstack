@@ -10979,6 +10979,43 @@
                                 columnInfo.renderer.srcFunction = eval(columnInfo.srcFunction);
                             }
                             break;
+                        case 'imagefallback':
+                            columnInfo.renderer = {
+                                type: 'TemplateRenderer',
+                                imgHeight: $string.isNullOrEmpty(columnInfo.imgHeight) == true ? 24 : columnInfo.imgHeight,
+                            }
+
+                            if ($string.isNullOrEmpty(columnInfo.altField) == false) {
+                                columnInfo.renderer.altField = columnInfo.altField;
+                            }
+
+                            columnInfo.labelFunction = function (rowIndex, columnIndex, value, headerText, item) { // HTML 템플릿 작성
+                                if ($string.isNullOrEmpty(value) == true) {
+                                    return '';
+                                }
+
+                                if ($string.isNullOrEmpty(columnInfo.altField) == false) {
+                                    columnInfo.renderer.altField = columnInfo.altField;
+                                }
+
+                                var info = $auigrid.getColumnInfo(columnInfo.elID, columnIndex);
+
+                                const altText = info.altField ? item[info.altField] : value;
+                                let onErrorHandler = 'this.onerror=null;';
+                                if ($string.isNullOrEmpty(info.fallbackUrl) == false) {
+                                    onErrorHandler = `this.src='${info.fallbackUrl}';`;
+                                } else if ($string.toBoolean(info.hideOnError) == true) {
+                                    onErrorHandler = "this.style.display='none';";
+                                }
+
+                                if ($string.isNullOrEmpty(info.prefix) == false) {
+                                    value = info.prefix + value;
+                                }
+
+                                return `<img class="aui-img" style="border: 0px; padding: 0px; margin: 0px; text-align: center; vertical-align: middle; max-width: 100%; height: ${info.imgHeight}px;" alt="${altText}" src="${value}" onerror="${onErrorHandler}">`;
+                            }
+
+                            break;
                         case 'dropdown':
                             var mod = window[syn.$w.pageScript];
                             var storeSourceID = columnInfo.storeSourceID || columnInfo.dataSourceID;
