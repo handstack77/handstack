@@ -9,6 +9,7 @@
     $codepicker.extend({
         name: 'syn.uicontrols.$codepicker',
         version: 'v2025.9.10',
+        codeHelpUrl: '/assets/shared/codehelp/index2.html',
         defaultSetting: {
             dataSourceID: null,
             storeSourceID: null,
@@ -31,6 +32,7 @@
             searchText: '',
             isMultiSelect: false,
             isAutoSearch: true,
+            isSingleAutoReturn: true,
             isOnlineData: false,
             viewType: '',
             sharedAssetUrl: '',
@@ -83,7 +85,7 @@
             });
 
             textboxCode.type = 'text';
-            textboxCode.setAttribute('syn-events', `['keydown', 'blur']`);
+            textboxCode.setAttribute('syn-events', `['keydown', 'change']`);
             textboxCode.setAttribute('baseID', elID);
 
             if ($string.isNullOrEmpty(dataField) == false) {
@@ -91,11 +93,11 @@
             }
 
             if ($string.isNullOrEmpty(setting.codeElementWidth) == false) {
-                textboxCode.style.width = codeElementWidth;
+                textboxCode.style.width = setting.codeElementWidth;
             }
 
             if ($string.isNullOrEmpty(setting.codeElementClass) == false) {
-                syn.$m.addClass(textboxCode, codeElementClass);
+                syn.$m.addClass(textboxCode, setting.codeElementClass);
             }
 
             if ($string.toBoolean(setting.readonly) == true) {
@@ -125,7 +127,6 @@
             if ($object.isNullOrUndefined(events) == false) {
                 textboxCode.setAttribute('syn-events', events);
             }
-            syn.$m.insertBefore(textboxCode, el);
 
             var buttonOpen = syn.$m.create({
                 id: `${elID}_Button`,
@@ -134,8 +135,6 @@
             });
             buttonOpen.innerHTML = `<i class="ti ti-search"></i>`;
 
-            syn.$m.insertAfter(buttonOpen, el);
-
             var textboxText = syn.$m.create({
                 id: `${elID}_Text`,
                 tag: 'input',
@@ -143,7 +142,7 @@
             });
 
             textboxText.type = 'text';
-            textboxText.setAttribute('syn-events', `['keydown', 'blur']`);
+            textboxText.setAttribute('syn-events', `['keydown', 'change']`);
             textboxText.setAttribute('baseID', elID);
 
             if ($string.isNullOrEmpty(setting.textDataFieldID) == false) {
@@ -151,11 +150,11 @@
             }
 
             if ($string.isNullOrEmpty(setting.textElementWidth) == false) {
-                textboxText.style.width = textElementWidth;
+                textboxText.style.width = setting.textElementWidth;
             }
 
             if ($string.isNullOrEmpty(setting.textElementClass) == false) {
-                syn.$m.addClass(textboxText, textElementClass);
+                syn.$m.addClass(textboxText, setting.textElementClass);
             }
 
             if ($string.toBoolean(setting.readonly) == true) {
@@ -185,7 +184,10 @@
             if ($object.isNullOrUndefined(events) == false) {
                 textboxText.setAttribute('syn-events', events);
             }
-            syn.$m.insertAfter(textboxText, buttonOpen);
+
+            syn.$m.insertBefore(textboxCode, el);
+            syn.$m.insertAfter(textboxText, textboxCode);
+            syn.$m.insertAfter(buttonOpen, el);
 
             var codeEL = syn.$l.get(elID + '_Code');
             syn.$l.addEvent(codeEL, 'focus', function (evt) {
@@ -202,13 +204,13 @@
 
                 syn.$l.get(elID + '_Text').value = '';
 
-                if (evt.keyCode == 13 || evt instanceof FocusEvent) {
+                if (el.value != '' && evt.keyCode == 13 || evt instanceof FocusEvent) {
                     syn.$l.trigger(syn.$l.get(elID + '_Button'), 'click', evt)
                 }
             }
 
             syn.$l.addEvent(codeEL, 'keydown', fnCodeChange);
-            syn.$l.addEvent(codeEL, 'blur', fnCodeChange);
+            syn.$l.addEvent(codeEL, 'change', fnCodeChange);
 
             var synOptions = codeEL.getAttribute('syn-options');
             if ($string.isNullOrEmpty(synOptions) == false) {
@@ -233,13 +235,13 @@
 
                 syn.$l.get(elID + '_Code').value = '';
 
-                if (evt.keyCode == 13 || evt instanceof FocusEvent) {
+                if (el.value != '' && evt.keyCode == 13 || evt instanceof FocusEvent) {
                     syn.$l.trigger(syn.$l.get(elID + '_Button'), 'click', evt)
                 }
             }
 
             syn.$l.addEvent(textEL, 'keydown', fnTextChange);
-            syn.$l.addEvent(textEL, 'blur', fnTextChange);
+            syn.$l.addEvent(textEL, 'change', fnTextChange);
 
             synOptions = textEL.getAttribute('syn-options');
             if ($string.isNullOrEmpty(synOptions) == false) {
@@ -333,8 +335,7 @@
             dialogOptions.minHeight = 480;
             dialogOptions.close = true;
             dialogOptions.caption = (setting.controlText || setting.columnText || setting.headerText || setting.dataSourceID) + ' 코드도움';
-
-            var url = $string.isNullOrEmpty(setting.url) == false ? setting.url : setting.sharedAssetUrl + 'codehelp/index.html';
+            var url = $string.isNullOrEmpty(setting.url) == false ? setting.url : $codepicker.codeHelpUrl;
             syn.$w.showUIDialog(url + '?parameterID={0}'.format(parameterID), dialogOptions, function (result) {
                 if (result && result.length > 0) {
                     var value = '';

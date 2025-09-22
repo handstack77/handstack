@@ -19,19 +19,16 @@
                         <div class="card mb-2">
                             <div class="card-body p-2">
                                 <div class="row">
-                                    <div class="col-4 pl-0">
+                                    <div class="col-5 pl-0">
                                         <div class="input-group h:36!_.select-label lh:24px!_.select-label">
-                                            <label class="w:90 col-form-label px-2">검색구분</label>
-                                            <select id="ddlSearchType" syn-datafield="SearchType" syn-options="{width: '108px'}">
-                                                <option value="1" selected>코드</option>
-                                                <option value="2">명</option>
-                                            </select>
+                                            <label class="w:90 col-form-label px-2">검색 구분</label>
+                                            <select id="ddlSearchType" syn-datafield="SearchType" class="form-select" syn-options="{width: '108px', toSynControl: false}"></select>
                                         </div>
                                     </div>
-                                    <div class="col-8 pl-0">
+                                    <div class="col-7 pl-0">
                                         <div class="input-group">
-                                            <label class="w:90 col-form-label px-2">코드/명</label>
-                                            <input id="txtSearch" syn-datafield="Search" type="text" class="form-control" maxlengthB="50">
+                                            <label class="w:90 col-form-label px-2">키워드</label>
+                                            <input id="txtSearch" syn-datafield="Search" syn-events="['keydown']" type="text" class="form-control" maxlengthB="50">
                                             <button type="button" id="btnSearch" syn-events="['click']" class="btn btn-icon">
                                                 <i class="font:20 ti ti-search"></i>
                                             </button>

@@ -9,9 +9,10 @@ let $index2 = {
             searchText: '',
             isMultiSelect: false,
             isAutoSearch: true,
+            isSingleAutoReturn: true,
             isOnlineData: false,
             parameters: ''
-        },
+        }
     },
 
     hook: {
@@ -31,7 +32,6 @@ let $index2 = {
             var parameterID = syn.$r.query('parameterID');
             if (parent && parameterID) {
                 var setting = parent[parent.syn.$w.pageScript].codePickerArguments[parameterID];
-
                 if (setting.storeSourceID) {
                     var dataSource = null;
                     var mod = window[syn.$w.pageScript];
@@ -94,7 +94,6 @@ let $index2 = {
 
             if (evt.rowIndex > -1) {
                 var codeConfig = $this.prop.codeConfig;
-
                 if (codeConfig.isMultiSelect == false) {
                     var item = syn.uicontrols.$auigrid.getSourceDataAtRow($this.prop.gridID, evt.rowIndex);
                     var code = {
@@ -172,14 +171,28 @@ let $index2 = {
         search() {
             var searchType = syn.uicontrols.$select.getValue('ddlSearchType');
             var search = syn.$l.get('txtSearch').value.trim();
-
-            if (search == '') {
+            if (searchType == '' && search == '') {
                 syn.uicontrols.$auigrid.setValue($this.prop.gridID, $this.prop.codeConfig.DataSource);
             }
             else {
-                var items = $this.prop.codeConfig.DataSource.filter(function (item) {
-                    return (item[$this.prop.codeConfig.CodeColumnID].toString().indexOf(search) > -1 || item[$this.prop.codeConfig.ValueColumnID].toString().indexOf(search) > -1);
-                });
+                let items = [];
+                if (searchType == '') {
+                    const searchableKeys = $this.prop.codeConfig.Scheme
+                        .filter(col => col && $string.toBoolean(col.HiddenYN) == false)
+                        .map(col => col.ColumnID);
+
+                    items = $this.prop.codeConfig.DataSource.filter(row =>
+                        searchableKeys.some(key => {
+                            const v = row?.[key];
+                            return v != null && v.toString().indexOf(search) > -1;
+                        })
+                    );
+                }
+                else {
+                    items = $this.prop.codeConfig.DataSource.filter(function (item) {
+                        return (item[searchType]?.toString().indexOf(search) > -1);
+                    });
+                }
 
                 syn.uicontrols.$auigrid.setValue($this.prop.gridID, items);
             }
@@ -209,10 +222,18 @@ let $index2 = {
                 }
             }
 
+            const elSearchType = syn.$l.get('ddlSearchType');
+            elSearchType.options.length = 0;
+            elSearchType.options.add(new Option('전체', '', true));
+
             var length = scheme.length;
             for (var i = 0; i < length; i++) {
                 var item = scheme[i];
                 columns.push([item.ColumnID, item.ColumnText, 100, $string.toBoolean(item.HiddenYN), 'text', true, 'left']);
+
+                if ($string.toBoolean(item.HiddenYN) == false) {
+                    elSearchType.options.add(new Option(item.ColumnText, item.ColumnID));
+                }
             }
 
             columns.unshift(['Flag', 'Flag', 60, true, 'text', true, 'left']);
@@ -221,20 +242,11 @@ let $index2 = {
             syn.uicontrols.$auigrid.changeColumnLayout($this.prop.gridID, columnLayout);
 
             if (codeConfig.isAutoSearch == true) {
-                if (codeConfig.searchValue == '' && codeConfig.searchText != '') {
-                    syn.$l.get('ddlSearchType').value = '2';
-                    syn.$l.get('txtSearch').value = codeConfig.searchText;
-                }
-                else if (codeConfig.searchValue != '' && codeConfig.searchText == '') {
-                    syn.$l.get('ddlSearchType').value = '1';
-                    syn.$l.get('txtSearch').value = codeConfig.searchValue;
-                }
-
+                syn.$l.get('txtSearch').value = codeConfig.searchValue || codeConfig.searchText;
                 $this.method.search();
-
                 if (codeConfig.isMultiSelect == false) {
                     var count = syn.uicontrols.$auigrid.countRows($this.prop.gridID);
-                    if (count == 1) {
+                    if ($string.toBoolean($this.prop.codeConfig.isSingleAutoReturn) == true && count == 1) {
                         var item = syn.uicontrols.$auigrid.getSourceDataAtRow($this.prop.gridID, 0);
 
                         var result = null;
@@ -256,13 +268,13 @@ let $index2 = {
                 else {
                     var count = syn.uicontrols.$auigrid.countRows($this.prop.gridID);
                     if (0 < count) {
-                        if (syn.$l.get('ddlSearchType').value == '1') {
+                        if (codeConfig.searchValue != '' && codeConfig.searchText == '') {
                             var searchItems = codeConfig.searchValue.split(',');
                             for (var i = 0; i < count; i++) {
                                 var item = syn.uicontrols.$auigrid.getSourceDataAtRow($this.prop.gridID, i);
                                 var codeData = item[codeConfig.CodeColumnID];
                                 if (codeData) {
-                                    if (searchItems.includes(item[codeConfig.CodeColumnID].toString()) == true) {
+                                    if (searchItems.includes(item[codeConfig.CodeColumnID]?.toString()) == true) {
                                         syn.uicontrols.$auigrid.setDataAtCell($this.prop.gridID, i, 'IsSelect', '1');
                                     }
                                 }
@@ -271,13 +283,13 @@ let $index2 = {
                                 }
                             }
                         }
-                        else {
+                        else if (codeConfig.searchValue == '' && codeConfig.searchText != '') {
                             var searchItems = codeConfig.searchText.split(',');
                             for (var i = 0; i < count; i++) {
                                 var item = syn.uicontrols.$auigrid.getSourceDataAtRow($this.prop.gridID, i);
                                 var valueData = item[codeConfig.ValueColumnID];
                                 if (valueData) {
-                                    if (searchItems.includes(item[codeConfig.ValueColumnID].toString()) == true) {
+                                    if (searchItems.includes(item[codeConfig.ValueColumnID]?.toString()) == true) {
                                         syn.uicontrols.$auigrid.setDataAtCell($this.prop.gridID, i, 'IsSelect', '1');
                                     }
                                 }
