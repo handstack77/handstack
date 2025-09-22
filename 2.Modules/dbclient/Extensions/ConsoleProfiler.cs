@@ -1,13 +1,25 @@
 ﻿using System;
 using System.Data.Common;
+using System.Data.SQLite;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 
 using dbclient.Entity;
 using dbclient.Profiler;
 
 using HandStack.Data.ExtensionMethod;
 using HandStack.Web.Extensions;
+
+using Microsoft.Data.SqlClient;
+
+using MySql.Data.MySqlClient;
+
+using MySqlX.XDevAPI;
+
+using Npgsql;
+
+using Oracle.ManagedDataAccess.Client;
 
 namespace dbclient.Extensions
 {
@@ -204,8 +216,51 @@ namespace dbclient.Extensions
         {
             if (ModuleConfiguration.IsProfileLogging == true && IsLogger == true)
             {
-                ModuleConfiguration.ProfileLogger?.Error($"OnCommandError Request GlobalID: {globalID}, SQL: {exception.ToMessage()}");
+                var errorDetails = ExtractDatabaseErrorInfo(exception);
+                ModuleConfiguration.ProfileLogger?.Error($"OnCommandError Request GlobalID: {globalID}, Command : {command.CommandText}, ErrorDetails: {errorDetails}, Exception: {exception.Message}");
             }
+        }
+
+        private string ExtractDatabaseErrorInfo(Exception exception)
+        {
+            var errorBuilder = new StringBuilder();
+
+            switch (exception)
+            {
+                case SqlException sqlException:
+                    errorBuilder.AppendLine($"SqlState: {sqlException.State}");
+                    errorBuilder.AppendLine($"Severity: {sqlException.Class}");
+                    errorBuilder.AppendLine($"LineNumber: {sqlException.LineNumber}");
+                    errorBuilder.AppendLine($"Position: {sqlException.Number}");
+                    break;
+
+                case MySqlException mysqlException:
+                    errorBuilder.AppendLine($"SqlState: {mysqlException.SqlState}");
+                    errorBuilder.AppendLine($"Number: {mysqlException.Number}");
+                    break;
+
+                case OracleException oracleException:
+                    errorBuilder.AppendLine($"SqlState: {oracleException.SqlState}");
+                    errorBuilder.AppendLine($"Number: {oracleException.Number}");
+                    break;
+
+                case PostgresException pgException:
+                    errorBuilder.AppendLine($"SqlState: {pgException.SqlState}");
+                    errorBuilder.AppendLine($"Severity: {pgException.Severity}");
+                    errorBuilder.AppendLine($"LineNumber: {pgException.Line}");
+                    errorBuilder.AppendLine($"Position: {pgException.Position}");
+                    break;
+
+                case SQLiteException sqliteException:
+                    errorBuilder.AppendLine($"SqlState: {sqliteException.SqlState}");
+                    errorBuilder.AppendLine($"ResultCode: {sqliteException.ResultCode.ToString()}");
+                    break;
+
+                default:
+                    break;
+            }
+
+            return errorBuilder.ToString().Trim();
         }
     }
 }
