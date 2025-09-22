@@ -166,7 +166,7 @@
 
     $auigrid.extend({
         name: 'syn.uicontrols.$auigrid',
-        version: 'v2025.9.17',
+        version: 'v2025.9.22',
 
         gridControls: [],
         gridCodeDatas: [],
@@ -1006,22 +1006,58 @@
                                 showPlaceholder: false,
                                 openDirectly: true,
                                 onlyCalendar: false,
-                                showExtraDays: true
+                                showExtraDays: true,
+                                showTodayBtn: true,
+                                showUncheckDateBtn: true,
+                                uncheckDateValue: '',
+                                validator: function (oldValue, newValue, item) {
+                                    const isValid = $string.isNullOrEmpty(newValue) == true ? true : $date.isDate(newValue);
+                                    return { "validate": isValid, "message": "유효한 날짜 형식으로 입력해주세요." };
+                                }
                             }
                             break;
                         case 'time':
+                            let timeFormat = $string.toBoolean(columnInfo.showTimeSecond) == true ? 'HH:MM:ss' : 'HH:MM';
+                            if ($string.isNullOrEmpty(columnInfo.formatString) == false) {
+                                timeFormat = columnInfo.formatString;
+                            }
+
                             columnInfo.dataType = 'date';
-                            columnInfo.dateInputFormat = 'HH:MM:ss';
-                            columnInfo.formatString = $string.isNullOrEmpty(columnInfo.formatString) == true ? 'HH:MM:ss' : columnInfo.formatString;
+                            columnInfo.dateInputFormat = timeFormat;
+                            columnInfo.formatString = timeFormat;
                             columnInfo.editRenderer = {
                                 type: 'CalendarRenderer',
                                 showEditorBtn: false,
                                 showEditorBtnOver: true,
-                                defaultFormat: 'HH:MM:ss',
+                                defaultFormat: timeFormat,
+                                openDirectly: true,
+                                onlyCalendar: false,
                                 onlyTimeMode: true,
                                 showTimePicker: true,
                                 showTimeSecond: $string.isNullOrEmpty(columnInfo.showTimeSecond) == true ? false : columnInfo.showTimeSecond,
-                                showConfirmBtn: true
+                                showConfirmBtn: true,
+                                showUncheckDateBtn: true,
+                                uncheckDateText: '시간 선택 해제',
+                                uncheckDateValue: '',
+                                hourInterval: 1,
+                                minList: columnInfo.minList || [0, 15, 30, 45],
+                                hourList: columnInfo.hourList || [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
+                                initDateFunction: function (rowIndex, columnIndex, value, item, dataField, cItem) {
+                                    let defaultTodayFormat = 'yyyy-MM-dd HH:00:00';
+                                    var info = $auigrid.getColumnInfo(columnInfo.elID, columnIndex);
+                                    const hourList = info.editRenderer.hourList;
+                                    if (hourList.length > 0) {
+                                        const currentHour = $date.toString(new Date(), 'HH');
+                                        if (hourList.includes($string.toNumber(currentHour)) == true) {
+                                            defaultTodayFormat = `yyyy-MM-dd ${currentHour}:00:00`;
+                                        }
+                                    }
+
+                                    if ($string.isNullOrEmpty(value) == true || value == undefined) {
+                                        return new Date($date.toString(new Date(), defaultTodayFormat));
+                                    }
+                                    return new Date(value);
+                                }
                             }
                             break;
                         case 'sparkline':
