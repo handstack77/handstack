@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 
 using HandStack.Core.ExtensionMethod;
 using HandStack.Data.Enumeration;
@@ -28,6 +29,8 @@ using repository.Entity;
 using repository.Events;
 using repository.Extensions;
 using repository.Services;
+
+using RestSharp;
 
 using Serilog;
 
@@ -65,6 +68,7 @@ namespace repository
                         ModuleConfiguration.XFrameOptions = moduleConfig.XFrameOptions;
                         ModuleConfiguration.ContentSecurityPolicy = moduleConfig.ContentSecurityPolicy;
 
+                        ModuleConfiguration.IsContractFileWatching = moduleConfig.IsContractFileWatching;
                         foreach (var basePath in moduleConfig.ContractBasePath)
                         {
                             ModuleConfiguration.ContractBasePath.Add(GlobalConfiguration.GetBaseDirectoryPath(basePath));
@@ -92,6 +96,8 @@ namespace repository
                     Log.Logger.Error("[{LogCategory}] " + message, $"{ModuleConfiguration.ModuleID} ModuleInitializer/ConfigureServices");
                     throw new FileNotFoundException(message);
                 }
+
+                RepositoryMapper.LoadContract(environment.EnvironmentName, Log.Logger, configuration);
 
                 services.AddScoped<ModuleApiClient>();
                 services.AddSingleton<IStorageProviderFactory, StorageProviderFactory>();
@@ -139,8 +145,6 @@ namespace repository
                         }
                     });
                 }
-
-                LoadContract();
 
                 foreach (var item in ModuleConfiguration.FileRepositorys)
                 {
@@ -286,116 +290,44 @@ namespace repository
                         }
                     }
                 }
-            }
-        }
 
-        public void LoadContract()
-        {
-            try
-            {
-                if (ModuleConfiguration.ContractBasePath.Count == 0)
-                {
-                    ModuleConfiguration.ContractBasePath.Add(GlobalConfiguration.GetBaseDirectoryPath($"../contracts/{ModuleConfiguration.ModuleID}"));
-                }
-
+                var client = new RestClient();
                 foreach (var basePath in ModuleConfiguration.ContractBasePath)
                 {
-                    if (Directory.Exists(basePath) == false)
+                    if (Directory.Exists(basePath) == true && basePath.StartsWith(GlobalConfiguration.TenantAppBasePath) == false && ModuleConfiguration.IsContractFileWatching == true)
                     {
-                        continue;
-                    }
-
-                    Log.Logger.Information("[{LogCategory}] ContractBasePath: " + basePath, $"{ModuleConfiguration.ModuleID} ModuleInitializer/LoadContract");
-
-                    var repositoryFiles = Directory.GetFiles(basePath, "*.json", SearchOption.AllDirectories);
-                    foreach (var repositoryFile in repositoryFiles)
-                    {
-                        try
+                        var fileSyncManager = new FileSyncManager(basePath, "*.json");
+                        fileSyncManager.MonitoringFile += async (WatcherChangeTypes changeTypes, FileInfo fileInfo) =>
                         {
-                            if (File.Exists(repositoryFile) == true && (repositoryFile.StartsWith(GlobalConfiguration.TenantAppBasePath) == false))
+                            if (GlobalConfiguration.IsRunning == true && fileInfo.FullName.Replace("\\", "/").IndexOf(basePath) > -1 && (changeTypes == WatcherChangeTypes.Deleted || changeTypes == WatcherChangeTypes.Created || changeTypes == WatcherChangeTypes.Changed))
                             {
-                                var repositoryText = File.ReadAllText(repositoryFile);
-                                if (repositoryText.StartsWith("{") == true)
+                                var filePath = fileInfo.FullName.Replace("\\", "/").Replace(basePath, "");
+                                var hostUrl = $"http://localhost:{GlobalConfiguration.OriginPort}/repository/api/storage/refresh?changeType={changeTypes}&filePath={filePath}";
+
+                                var request = new RestRequest(hostUrl, Method.Get);
+                                request.Timeout = TimeSpan.FromSeconds(3);
+                                request.AddHeader("AuthorizationKey", ModuleConfiguration.AuthorizationKey);
+                                try
                                 {
-                                    var repository = JsonConvert.DeserializeObject<Repository>(repositoryText);
-                                    if (repository != null)
+                                    var response = await client.ExecuteAsync(request);
+                                    if (response.StatusCode != HttpStatusCode.OK)
                                     {
-                                        if (ModuleConfiguration.FileRepositorys.Find(x => x.ApplicationID == repository.ApplicationID && x.RepositoryID == repository.RepositoryID) == null)
-                                        {
-                                            if (repository.PhysicalPath.IndexOf("{appBasePath}") == -1)
-                                            {
-                                                repository.PhysicalPath = GlobalConfiguration.GetBaseDirectoryPath(repository.PhysicalPath);
-                                                var repositoryDirectoryInfo = new DirectoryInfo(repository.PhysicalPath);
-                                                if (repositoryDirectoryInfo.Exists == false)
-                                                {
-                                                    repositoryDirectoryInfo.Create();
-                                                }
-                                            }
-
-                                            repository.UserWorkID = "";
-                                            repository.SettingFilePath = repositoryFile;
-
-                                            if (repository.IsLocalDbFileManaged == true)
-                                            {
-                                                ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.SLT010.ZD01");
-                                            }
-
-                                            ModuleConfiguration.FileRepositorys.Add(repository, TimeSpan.FromDays(36500));
-                                        }
-                                        else
-                                        {
-                                            Log.Logger.Warning("[{LogCategory}] " + $"{repositoryFile} 업무 계약 중복 확인 필요", $"{ModuleConfiguration.ModuleID} ModuleInitializer/LoadContract");
-                                        }
+                                        Log.Warning("[{LogCategory}] " + $"{filePath} 파일 갱신 확인 필요. {response.Content.ToStringSafe()}", $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
                                     }
                                 }
-                                else if (repositoryText.StartsWith("[") == true)
+                                catch (Exception exception)
                                 {
-                                    var repositorys = JsonConvert.DeserializeObject<List<Repository>>(repositoryText);
-                                    if (repositorys != null)
-                                    {
-                                        foreach (var repository in repositorys)
-                                        {
-                                            if (ModuleConfiguration.FileRepositorys.Find(x => x.ApplicationID == repository.ApplicationID && x.RepositoryID == repository.RepositoryID) == null)
-                                            {
-                                                if (repository.PhysicalPath.IndexOf("{appBasePath}") == -1)
-                                                {
-                                                    repository.PhysicalPath = GlobalConfiguration.GetBaseDirectoryPath(repository.PhysicalPath);
-                                                    var repositoryDirectoryInfo = new DirectoryInfo(repository.PhysicalPath);
-                                                    if (repositoryDirectoryInfo.Exists == false)
-                                                    {
-                                                        repositoryDirectoryInfo.Create();
-                                                    }
-                                                }
-
-                                                repository.UserWorkID = "";
-                                                repository.SettingFilePath = repositoryFile;
-
-                                                if (repository.IsLocalDbFileManaged == true)
-                                                {
-                                                    ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, repository, "STR.SLT010.ZD01");
-                                                }
-
-                                                ModuleConfiguration.FileRepositorys.Add(repository, TimeSpan.FromDays(36500));
-                                            }
-                                            else
-                                            {
-                                                Log.Logger.Warning("[{LogCategory}] " + $"{repositoryFile} 업무 계약 중복 확인 필요", $"{ModuleConfiguration.ModuleID} ModuleInitializer/LoadContract");
-                                            }
-                                        }
-                                    }
+                                    Log.Error(exception, "[{LogCategory}] " + $"{filePath} 파일 서버 확인 필요.", $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
                                 }
                             }
-                        }
-                        catch (Exception exception)
-                        {
-                            Log.Logger.Error("[{LogCategory}] " + $"{repositoryFile} 업무 계약 파일 오류 - " + exception.ToMessage(), $"{ModuleConfiguration.ModuleID} ModuleInitializer/LoadContract");
-                        }
+                        };
+
+                        Log.Information("[{LogCategory}] Repository File Sync ContractBasePath: " + basePath, $"{ModuleConfiguration.ModuleID} ModuleInitializer/Configure");
+
+                        fileSyncManager.Start();
+                        ModuleConfiguration.RepositoryFileSyncManager.Add(basePath, fileSyncManager);
                     }
                 }
-            }
-            catch (Exception exception)
-            {
-                Log.Logger.Error("[{LogCategory}] " + $"LoadContract 오류 - " + exception.ToMessage(), $"{ModuleConfiguration.ModuleID} ModuleInitializer/LoadContract");
             }
         }
     }

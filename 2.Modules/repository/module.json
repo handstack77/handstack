@@ -7,6 +7,7 @@
         "SystemID": "HANDSTACK",
         "FileServerUrl": "http://localhost:8421",
         "BusinessServerUrl": "http://localhost:8421/transact/api/transaction/execute",
+        "IsContractFileWatching": true,
         "ContractBasePath": [
             "../contracts/repository"
         ],

@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 
 using HandStack.Web.Entity;
-using HandStack.Web.Extensions;
+
+using repository.Extensions;
 
 namespace repository.Entity
 {
@@ -16,6 +17,7 @@ namespace repository.Entity
         public static string DatabaseContractPath = "";
         public static bool IsContractFileWatching = true;
         public static List<string> ContractBasePath = new List<string>();
+        public static Dictionary<string, FileSyncManager> RepositoryFileSyncManager = new Dictionary<string, FileSyncManager>();
         public static string ModuleBasePath = "";
         public static string ModuleFilePath = "";
         public static string BusinessServerUrl = "";
@@ -25,6 +27,6 @@ namespace repository.Entity
         public static string TransactionFileRepositorys = "";
         public static string XFrameOptions = "SAMEORIGIN";
         public static string ContentSecurityPolicy = "frame-ancestors 'self'";
-        public static ExpiringList<Repository> FileRepositorys = new ExpiringList<Repository>();
+        public static List<Repository> FileRepositorys = new List<Repository>();
     }
 }
