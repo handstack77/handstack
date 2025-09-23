@@ -178,7 +178,7 @@ let $index2 = {
                 let items = [];
                 if (searchType == '') {
                     const searchableKeys = $this.prop.codeConfig.Scheme
-                        .filter(col => col && $string.toBoolean(col.HiddenYN) == false)
+                        .filter(col => col && $string.toBoolean(col.HiddenYN) == false || col.ColumnID == $this.prop.codeConfig.CodeColumnID)
                         .map(col => col.ColumnID);
 
                     items = $this.prop.codeConfig.DataSource.filter(row =>

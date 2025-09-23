@@ -828,7 +828,7 @@
 
     $codepicker.extend({
         name: 'syn.uicontrols.$codepicker',
-        version: 'v2025.9.22',
+        version: 'v2025.9.23',
         codeHelpUrl: '/assets/shared/codehelp/index2.html',
         defaultSetting: {
             dataSourceID: null,
@@ -1091,13 +1091,18 @@
                 synOptions.searchValue = syn.$l.get(synOptions.codeElementID).value;
                 synOptions.searchText = syn.$l.get(synOptions.textElementID).value;
 
+                var buttonHandler = mod.event[elID + '_buttonClick'];
+                if (buttonHandler) {
+                    buttonHandler(elID, synOptions);
+                }
+
                 var inputValue = syn.$l.get(synOptions.codeElementID).value;
                 var inputText = syn.$l.get(synOptions.textElementID).value;
                 syn.uicontrols.$codepicker.find(synOptions, function (result) {
                     if (result && result.length > 0) {
                         var changeHandler = mod.event[elID + '_change'];
                         if (changeHandler) {
-                            changeHandler(inputValue, inputText, result);
+                            changeHandler(elID, inputValue, inputText, result);
                         }
                     }
 
