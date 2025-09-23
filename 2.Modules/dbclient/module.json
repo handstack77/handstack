@@ -8,6 +8,7 @@
         "BusinessServerUrl": "http://localhost:8421/transact/api/transaction/execute",
         "CircuitBreakResetSecond": 60,
         "DefaultCommandTimeout": 30,
+        "IsContractFileWatching": true,
         "ContractBasePath": [
             "../contracts/dbclient"
         ],

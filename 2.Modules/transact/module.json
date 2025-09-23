@@ -17,6 +17,7 @@
         "IsDataMasking": false,
         "MaskingChar": "*",
         "MaskingMethod": "Syn",
+        "IsContractFileWatching": true,
         "ContractBasePath": [
             "../contracts/transact"
         ],

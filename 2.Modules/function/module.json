@@ -9,6 +9,7 @@
         "CircuitBreakResetSecond": 60,
         "IsLogServer": true,
         "LogServerUrl": "http://localhost:8421/logger/api/log/insert",
+        "IsContractFileWatching": true,
         "ContractBasePath": [
             "../contracts/function"
         ],
