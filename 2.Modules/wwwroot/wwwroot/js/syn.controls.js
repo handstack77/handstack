@@ -10371,7 +10371,7 @@
 
     $auigrid.extend({
         name: 'syn.uicontrols.$auigrid',
-        version: 'v2025.9.22',
+        version: 'v2025.9.24',
 
         gridControls: [],
         gridCodeDatas: [],
@@ -10388,7 +10388,7 @@
             fillColumnSizeMode: false,
             enableCellMerge: false,
             cellMergeRowSpan: true,
-            cellMergePolicy: 'withNull',
+            cellMergePolicy: 'default',
             fixedRowCount: 0,
             fixedColumnCount: 0,
             showRowNumColumn: true,
