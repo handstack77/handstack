@@ -246,7 +246,7 @@ let $index2 = {
                 $this.method.search();
                 if (codeConfig.isMultiSelect == false) {
                     var count = syn.uicontrols.$auigrid.countRows($this.prop.gridID);
-                    if ($string.toBoolean($this.prop.codeConfig.isSingleAutoReturn) == true && count == 1) {
+                    if ($string.toBoolean($this.prop.codeConfig.isSingleAutoReturn) == true && count == 1 && syn.$l.get('txtSearch').value.trim() != '') {
                         var item = syn.uicontrols.$auigrid.getSourceDataAtRow($this.prop.gridID, 0);
 
                         var result = null;
