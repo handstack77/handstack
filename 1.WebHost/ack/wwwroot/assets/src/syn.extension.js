@@ -370,7 +370,7 @@
 
         timeAgo(dateInput) {
             let date;
-            if ($object.isString(dateInput) && this.isDate(dateInput)) {
+            if ($object.isString(dateInput) == true && this.isDate(dateInput) == true) {
                 date = new Date(dateInput);
             } else if (dateInput instanceof Date) {
                 date = dateInput;
@@ -398,8 +398,38 @@
                 }
             }
             return '방금 전';
-        }
+        },
 
+        parseDate(dateInput) {
+            if (dateInput == null || dateInput == undefined) {
+                return null;
+            }
+
+            if (dateInput instanceof Date) {
+                return dateInput;
+            }
+
+            try {
+                if ($object.isNumber(dateInput) == true) {
+                    return new Date(dateInput);
+                }
+
+                if ($object.isString(dateInput) == true) {
+                    if (dateInput.includes('T')) {
+                        return new Date(dateInput);
+                    }
+
+                    const date = new Date(dateInput);
+                    if (!isNaN(date.getTime())) {
+                        return date;
+                    }
+                }
+            } catch (error) {
+                syn.$l.eventLog('$date.parseDate', error, 'Warning');
+            }
+
+            return null;
+        }
     });
     context.$date = $date;
 

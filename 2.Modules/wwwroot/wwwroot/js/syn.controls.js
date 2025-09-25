@@ -2043,6 +2043,7 @@
             elID: '',
             width: '100%',
             value: '',
+            placeholder: '',
             defaultDate: null,
             setDefaultDate: false,
             minDate: null,
@@ -2121,6 +2122,10 @@
             });
             textbox.type = 'text';
 
+            if ($string.isNullOrEmpty(setting.placeholder) == false) {
+                textbox.setAttribute('placeholder', setting.placeholder);
+            }
+
             if ($string.isNullOrEmpty(dataField) == false) {
                 textbox.setAttribute('syn-datafield', dataField);
             }
@@ -2182,6 +2187,12 @@
                     var selectFunction = '{0}_onselect'.format(elID);
                     if (mod && mod.event[selectFunction]) {
                         mod.event[selectFunction](elID, date);
+                    }
+
+                    const el = syn.$l.get(elID);
+                    var control = $datepicker.getControl(elID);
+                    if (el && $string.isNullOrEmpty(el.placeholder) == true && control && $string.isNullOrEmpty(control.setting.placeholder) == false) {
+                        el.placeholder = control.setting.placeholder;
                     }
                 },
                 onSelect(date) {
@@ -6967,7 +6978,7 @@
 
     $textbox.extend({
         name: 'syn.uicontrols.$textbox',
-        version: 'v2025.3.25',
+        version: 'v2025.9.25',
         defaultSetting: {
             editType: 'text',
             inValidateClear: true,
@@ -7104,6 +7115,20 @@
                     syn.$l.addEvent(el, 'blur', $textbox.event_minute_blur);
                     syn.$l.addEvent(el, 'input', $textbox.event_numeric_input);
                     syn.$m.setStyle(el, 'ime-mode', 'disabled');
+                    break;
+                case 'time5':
+                    syn.$l.addEvent(el, 'focus', $textbox.event_focus);
+                    syn.$l.addEvent(el, 'blur', $textbox.event_time5_blur);
+                    syn.$l.addEvent(el, 'input', $textbox.event_numeric_input);
+                    syn.$m.setStyle(el, 'ime-mode', 'disabled');
+                    VMasker(el).maskPattern('99:99');
+                    break;
+                case 'time8':
+                    syn.$l.addEvent(el, 'focus', $textbox.event_focus);
+                    syn.$l.addEvent(el, 'blur', $textbox.event_time8_blur);
+                    syn.$l.addEvent(el, 'input', $textbox.event_numeric_input);
+                    syn.$m.setStyle(el, 'ime-mode', 'disabled');
+                    VMasker(el).maskPattern('99:99:99');
                     break;
                 case 'yearmonth':
                     syn.$l.addEvent(el, 'focus', $textbox.event_focus);
@@ -7348,6 +7373,59 @@
 
                 if (el.value.length == 1) {
                     el.value = el.value.padStart(2, '0');
+                }
+            }
+        },
+
+        event_time5_blur(evt) {
+            var el = evt.target || evt.srcElement || evt;
+            var value = el.value;
+
+            if (value.length > 0) {
+                el.setAttribute('placeholder', '');
+                var parts = value.split(':');
+                var isValid = false;
+
+                if (parts.length === 2) {
+                    var hour = parseInt(parts[0], 10);
+                    var minute = parseInt(parts[1], 10);
+
+                    if (hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59) {
+                        el.value = String(hour).padStart(2, '0') + ':' + String(minute).padStart(2, '0');
+                        isValid = true;
+                    }
+                }
+
+                if (isValid == false) {
+                    el.value = '';
+                    el.setAttribute('placeholder', 'HH:MM');
+                }
+            }
+        },
+
+        event_time8_blur(evt) {
+            var el = evt.target || evt.srcElement || evt;
+            var value = el.value;
+
+            if (value.length > 0) {
+                el.setAttribute('placeholder', '');
+                var parts = value.split(':');
+                var isValid = false;
+
+                if (parts.length === 3) {
+                    var hour = parseInt(parts[0], 10);
+                    var minute = parseInt(parts[1], 10);
+                    var second = parseInt(parts[2], 10);
+
+                    if (hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59 && second >= 0 && second <= 59) {
+                        el.value = String(hour).padStart(2, '0') + ':' + String(minute).padStart(2, '0') + ':' + String(second).padStart(2, '0');
+                        isValid = true;
+                    }
+                }
+
+                if (isValid == false) {
+                    el.value = '';
+                    el.setAttribute('placeholder', 'HH:MM:SS');
                 }
             }
         },
@@ -7775,6 +7853,8 @@
                     case 'date':
                     case 'hour':
                     case 'minute':
+                    case 'time5':
+                    case 'time8': 
                     case 'yearmonth':
                     case 'homephone':
                     case 'mobilephone':
@@ -7823,6 +7903,8 @@
                         case 'date':
                         case 'hour':
                         case 'minute':
+                        case 'time5':
+                        case 'time8': 
                         case 'yearmonth':
                         case 'homephone':
                         case 'mobilephone':

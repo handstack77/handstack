@@ -13,6 +13,7 @@
             elID: '',
             width: '100%',
             value: '',
+            placeholder: '',
             defaultDate: null,
             setDefaultDate: false,
             minDate: null,
@@ -91,6 +92,10 @@
             });
             textbox.type = 'text';
 
+            if ($string.isNullOrEmpty(setting.placeholder) == false) {
+                textbox.setAttribute('placeholder', setting.placeholder);
+            }
+
             if ($string.isNullOrEmpty(dataField) == false) {
                 textbox.setAttribute('syn-datafield', dataField);
             }
@@ -152,6 +157,12 @@
                     var selectFunction = '{0}_onselect'.format(elID);
                     if (mod && mod.event[selectFunction]) {
                         mod.event[selectFunction](elID, date);
+                    }
+
+                    const el = syn.$l.get(elID);
+                    var control = $datepicker.getControl(elID);
+                    if (el && $string.isNullOrEmpty(el.placeholder) == true && control && $string.isNullOrEmpty(control.setting.placeholder) == false) {
+                        el.placeholder = control.setting.placeholder;
                     }
                 },
                 onSelect(date) {
