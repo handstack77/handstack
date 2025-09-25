@@ -38,6 +38,8 @@ namespace HandStack.Web.Entity
 
         public string DataMapInterface { get; set; }
 
+        public string TransactionToken { get; set; }
+
         public List<Masking> Maskings = new List<Masking>();
 
         public List<int> InputsItemCount = new List<int>();
@@ -58,6 +60,7 @@ namespace HandStack.Web.Entity
             SimulationType = "N";
             ReturnType = "";
             DataMapInterface = "";
+            TransactionToken = "";
         }
     }
 }

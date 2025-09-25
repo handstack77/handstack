@@ -1086,7 +1086,7 @@ namespace transact.Areas.transact.Controllers
                                 }
                             }
 
-                            if (isRoleYN == false && isClaimYN == false)
+                            if (isRoleYN == false && isClaimYN == false && string.IsNullOrEmpty(request.Transaction.TransactionToken) == false && transactionInfo.TransactionTokens?.IndexOf(request.Transaction.TransactionToken) > -1)
                             {
                                 response.ExceptionText = "앱 사용자 역할 또는 정책 권한 확인 필요";
                                 return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
@@ -1163,6 +1163,11 @@ namespace transact.Areas.transact.Controllers
                                 {
                                     isRoleYN = false;
                                 }
+                            }
+
+                            if (isRoleYN == false && string.IsNullOrEmpty(request.Transaction.TransactionToken) == false && transactionInfo.TransactionTokens?.IndexOf(request.Transaction.TransactionToken) > -1)
+                            {
+                                isRoleYN = true;
                             }
 
                             if (isRoleYN == false && ModuleConfiguration.UseApiAuthorize == true && transactionInfo.Authorize == true)

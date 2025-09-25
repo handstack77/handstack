@@ -1567,6 +1567,7 @@
                 transactionObj.businessID = directObject.businessID || syn.Config.ProjectID;
                 transactionObj.systemID = directObject.systemID || globalRoot.$this?.config?.systemID || syn.Config.SystemID;
                 transactionObj.transactionID = directObject.transactionID;
+                transactionObj.transactionToken = directObject.transactionToken;
                 transactionObj.dataMapInterface = directObject.dataMapInterface || 'Row|Form';
                 transactionObj.transactionResult = directObject.transactionResult ?? true;
                 transactionObj.screenID = globalRoot.devicePlatform === 'node'
@@ -3236,6 +3237,7 @@
                 businessID: '',
                 systemID: '',
                 transactionID: '',
+                transactionToken: '',
                 dataMapInterface: null,
                 transactionResult: true,
                 functionID: functionID,
@@ -3472,7 +3474,8 @@
                         screenID: transactionObject.screenID,
                         startTraceID: transactionObject.startTraceID,
                         dataFormat: syn.Config.Transaction.DataFormat,
-                        compressionYN: syn.Config.Transaction.CompressionYN
+                        compressionYN: syn.Config.Transaction.CompressionYN,
+                        transactionToken: transactionObject.transactionToken
                     },
                     payLoad: {
                         property: {},

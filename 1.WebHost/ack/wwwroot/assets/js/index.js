@@ -1,5 +1,5 @@
 /*!
-HandStack Javascript Library v2025.9.25
+HandStack Javascript Library v2025.9.26
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -5543,6 +5543,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 transactionObj.businessID = directObject.businessID || syn.Config.ProjectID;
                 transactionObj.systemID = directObject.systemID || globalRoot.$this?.config?.systemID || syn.Config.SystemID;
                 transactionObj.transactionID = directObject.transactionID;
+                transactionObj.transactionToken = directObject.transactionToken;
                 transactionObj.dataMapInterface = directObject.dataMapInterface || 'Row|Form';
                 transactionObj.transactionResult = directObject.transactionResult ?? true;
                 transactionObj.screenID = globalRoot.devicePlatform === 'node'
@@ -7212,6 +7213,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 businessID: '',
                 systemID: '',
                 transactionID: '',
+                transactionToken: '',
                 dataMapInterface: null,
                 transactionResult: true,
                 functionID: functionID,
@@ -7448,7 +7450,8 @@ if (typeof module !== 'undefined' && module.exports) {
                         screenID: transactionObject.screenID,
                         startTraceID: transactionObject.startTraceID,
                         dataFormat: syn.Config.Transaction.DataFormat,
-                        compressionYN: syn.Config.Transaction.CompressionYN
+                        compressionYN: syn.Config.Transaction.CompressionYN,
+                        transactionToken: transactionObject.transactionToken
                     },
                     payLoad: {
                         property: {},

@@ -40,6 +40,9 @@ namespace HandStack.Web.MessageContract.Contract
         [JsonProperty("compressionYN")]
         public string CompressionYN { get; set; }
 
+        [JsonProperty("transactionToken")]
+        public string TransactionToken { get; set; }
+
         public TransactionType()
         {
             GlobalID = "";
@@ -54,6 +57,7 @@ namespace HandStack.Web.MessageContract.Contract
             DataFormat = "";
             CompressionYN = "";
             CommandType = "";
+            TransactionToken = "";
         }
     }
 }
