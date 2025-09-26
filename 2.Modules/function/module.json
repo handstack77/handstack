@@ -22,21 +22,21 @@
             "IsSingleThread": true,
             "WatchGracefulShutdown": true,
             "EnableFileWatching": true,
-            "WatchFileNamePatterns": [ "featureMain.js" ],
+            "WatchFileNamePatterns": [ "featureMain.js", "featureMeta.json" ],
             "NodeAndV8Options": "",
             "EnvironmentVariables": ""
         },
         "CSharpFunctionConfig": {
             "EnableFileWatching": true,
             "FileLogBasePath": "../log/function/csharp",
-            "WatchFileNamePatterns": [ "featureMain.cs" ]
+            "WatchFileNamePatterns": [ "featureMain.cs", "featureMeta.json" ]
         },
         "PythonFunctionConfig": {
             "EnablePythonDLL": false,
             "PythonDLLFilePath": "C:/anaconda3/envs/myenv/python313.dll",
             "FileLogBasePath": "../log/function/python",
             "EnableFileWatching": true,
-            "WatchFileNamePatterns": [ "featureMain.py" ]
+            "WatchFileNamePatterns": [ "featureMain.py", "featureMeta.json" ]
         },
         "EventAction": [],
         "SubscribeAction": [],

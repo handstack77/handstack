@@ -143,7 +143,7 @@ namespace function.Extensions
                     var filePath = string.Empty;
                     foreach (var basePath in ModuleConfiguration.ContractBasePath)
                     {
-                        var scriptMapFile = PathExtensions.Combine(basePath, applicationID, projectID, transactionID, "featureMeta.json");
+                        var scriptMapFile = PathExtensions.Join(basePath, applicationID, projectID, transactionID, "featureMeta.json");
                         if (File.Exists(scriptMapFile) == true)
                         {
                             filePath = scriptMapFile;
@@ -473,7 +473,7 @@ namespace function.Extensions
                         return result;
                     }
 
-                    var scriptMapFile = PathExtensions.Combine(basePath, scriptFilePath);
+                    var scriptMapFile = PathExtensions.Join(basePath, scriptFilePath);
                     if (File.Exists(scriptMapFile) == true)
                     {
                         var configData = System.IO.File.ReadAllText(scriptMapFile);
