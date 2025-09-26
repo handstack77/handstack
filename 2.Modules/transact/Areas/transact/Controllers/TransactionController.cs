@@ -1066,11 +1066,12 @@ namespace transact.Areas.transact.Controllers
                         }
                         else if (transactionInfo.Authorize == true)
                         {
-                            var isRoleYN = false;
+                            var isRoleYN = true;
                             if (transactionInfo.AuthorizeMethod == null || transactionInfo.AuthorizeMethod?.Contains("Role") == true)
                             {
                                 if (transactionInfo.Roles != null && transactionInfo.Roles.Count > 0)
                                 {
+                                    isRoleYN = false;
                                     var transactionMinRoleValue = Role.User.GetRoleValue(transactionInfo.Roles, true);
                                     foreach (var userRole in userAccount.Roles)
                                     {
@@ -1087,11 +1088,12 @@ namespace transact.Areas.transact.Controllers
                                 }
                             }
 
-                            var isClaimYN = false;
+                            var isClaimYN = true;
                             if (transactionInfo.AuthorizeMethod == null || transactionInfo.AuthorizeMethod?.Contains("Policy") == true)
                             {
                                 if (transactionInfo.Policys != null && transactionInfo.Policys.Count > 0)
                                 {
+                                    isClaimYN = false;
                                     foreach (var claim in userAccount.Claims)
                                     {
                                         if (transactionInfo.Policys.ContainsKey(claim.Key) == true)
