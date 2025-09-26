@@ -137,8 +137,11 @@ namespace HandStack.Web.MessageContract.DataObject
         [JsonProperty("Policys", NullValueHandling = NullValueHandling.Ignore)]
         public Dictionary<string, List<string>>? Policys { get; set; }
 
-        [JsonProperty("TransactionTokens")]
+        [JsonProperty("TransactionTokens", NullValueHandling = NullValueHandling.Ignore)]
         public List<string>? TransactionTokens { get; set; }
+
+        [JsonProperty("AuthorizeMethod", NullValueHandling = NullValueHandling.Ignore)]
+        public List<string>? AuthorizeMethod { get; set; } // Empty(All), Role, Policy, TransactionToken, TransactionTokenOnly
 
         [JsonProperty("CommandType")]
         public string CommandType { get; set; }

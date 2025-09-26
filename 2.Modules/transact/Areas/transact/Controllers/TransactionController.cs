@@ -1044,7 +1044,22 @@ namespace transact.Areas.transact.Controllers
                         }
                     }
 
-                    if (string.IsNullOrEmpty(token) == true && userAccount != null)
+                    var isTransactionTokenOnly = transactionInfo.AuthorizeMethod?.Contains("TransactionTokenOnly") == true;
+                    if (isTransactionTokenOnly == true)
+                    {
+                        var isTransactionTokenYN = false;
+                        if (string.IsNullOrEmpty(request.Transaction.TransactionToken) == false && transactionInfo.TransactionTokens?.Contains(request.Transaction.TransactionToken) == true)
+                        {
+                            isTransactionTokenYN = true;
+                        }
+
+                        if (isTransactionTokenYN == false)
+                        {
+                            response.ExceptionText = "TransactionToken 확인 필요";
+                            return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
+                        }
+                    }
+                    else if (string.IsNullOrEmpty(token) == true && userAccount != null)
                     {
                         if (ModuleConfiguration.SystemID == requestSystemID && isBypassAuthorizeIP == true)
                         {
@@ -1052,41 +1067,56 @@ namespace transact.Areas.transact.Controllers
                         else if (transactionInfo.Authorize == true)
                         {
                             var isRoleYN = false;
-                            if (transactionInfo.Roles != null && transactionInfo.Roles.Count > 0)
+                            if (transactionInfo.AuthorizeMethod == null || transactionInfo.AuthorizeMethod?.Contains("Role") == true)
                             {
-                                var transactionMinRoleValue = Role.User.GetRoleValue(transactionInfo.Roles, true);
-                                foreach (var userRole in userAccount.Roles)
+                                if (transactionInfo.Roles != null && transactionInfo.Roles.Count > 0)
                                 {
-                                    if (Enum.TryParse<Role>(userRole, out var parsedUserRole) == true)
+                                    var transactionMinRoleValue = Role.User.GetRoleValue(transactionInfo.Roles, true);
+                                    foreach (var userRole in userAccount.Roles)
                                     {
-                                        var userRoleValue = (int)parsedUserRole;
-                                        if (userRoleValue <= transactionMinRoleValue)
+                                        if (Enum.TryParse<Role>(userRole, out var parsedUserRole) == true)
                                         {
-                                            isRoleYN = true;
-                                            break;
+                                            var userRoleValue = (int)parsedUserRole;
+                                            if (userRoleValue <= transactionMinRoleValue)
+                                            {
+                                                isRoleYN = true;
+                                                break;
+                                            }
                                         }
                                     }
                                 }
                             }
 
                             var isClaimYN = false;
-                            if (transactionInfo.Policys != null && transactionInfo.Policys.Count > 0)
+                            if (transactionInfo.AuthorizeMethod == null || transactionInfo.AuthorizeMethod?.Contains("Policy") == true)
                             {
-                                foreach (var claim in userAccount.Claims)
+                                if (transactionInfo.Policys != null && transactionInfo.Policys.Count > 0)
                                 {
-                                    if (transactionInfo.Policys.ContainsKey(claim.Key) == true)
+                                    foreach (var claim in userAccount.Claims)
                                     {
-                                        var allowClaims = transactionInfo.Policys[claim.Key];
-                                        if (allowClaims == null || allowClaims.IndexOf(claim.Value) > -1)
+                                        if (transactionInfo.Policys.ContainsKey(claim.Key) == true)
                                         {
-                                            isClaimYN = true;
-                                            break;
+                                            var allowClaims = transactionInfo.Policys[claim.Key];
+                                            if (allowClaims == null || allowClaims.IndexOf(claim.Value) > -1)
+                                            {
+                                                isClaimYN = true;
+                                                break;
+                                            }
                                         }
                                     }
                                 }
                             }
 
-                            if (isRoleYN == false && isClaimYN == false && string.IsNullOrEmpty(request.Transaction.TransactionToken) == false && transactionInfo.TransactionTokens?.IndexOf(request.Transaction.TransactionToken) > -1)
+                            var isTransactionTokenYN = false;
+                            if (transactionInfo.AuthorizeMethod == null || transactionInfo.AuthorizeMethod?.Contains("TransactionToken") == true)
+                            {
+                                if (string.IsNullOrEmpty(request.Transaction.TransactionToken) == false && transactionInfo.TransactionTokens?.Contains(request.Transaction.TransactionToken) == true)
+                                {
+                                    isTransactionTokenYN = true;
+                                }
+                            }
+
+                            if (isRoleYN == false && isClaimYN == false && isTransactionTokenYN == false)
                             {
                                 response.ExceptionText = "앱 사용자 역할 또는 정책 권한 확인 필요";
                                 return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
@@ -1165,9 +1195,12 @@ namespace transact.Areas.transact.Controllers
                                 }
                             }
 
-                            if (isRoleYN == false && string.IsNullOrEmpty(request.Transaction.TransactionToken) == false && transactionInfo.TransactionTokens?.IndexOf(request.Transaction.TransactionToken) > -1)
+                            if (isRoleYN == false && transactionInfo.AuthorizeMethod == null || transactionInfo.AuthorizeMethod?.Contains("TransactionToken") == true)
                             {
-                                isRoleYN = true;
+                                if (string.IsNullOrEmpty(request.Transaction.TransactionToken) == false && transactionInfo.TransactionTokens?.Contains(request.Transaction.TransactionToken) == true)
+                                {
+                                    isRoleYN = true;
+                                }
                             }
 
                             if (isRoleYN == false && ModuleConfiguration.UseApiAuthorize == true && transactionInfo.Authorize == true)
@@ -1215,43 +1248,58 @@ namespace transact.Areas.transact.Controllers
                             if (transactionInfo.Authorize == true)
                             {
                                 var isRoleYN = true;
-                                if (transactionInfo.Roles != null && transactionInfo.Roles.Count > 0)
+                                if (transactionInfo.AuthorizeMethod == null || transactionInfo.AuthorizeMethod?.Contains("Role") == true)
                                 {
-                                    isRoleYN = false;
-                                    var transactionMinRoleValue = Role.User.GetRoleValue(transactionInfo.Roles, true);
-                                    foreach (var userRole in bearerToken.Policy.Roles)
+                                    if (transactionInfo.Roles != null && transactionInfo.Roles.Count > 0)
                                     {
-                                        if (Enum.TryParse<Role>(userRole, out var parsedUserRole) == true)
+                                        isRoleYN = false;
+                                        var transactionMinRoleValue = Role.User.GetRoleValue(transactionInfo.Roles, true);
+                                        foreach (var userRole in bearerToken.Policy.Roles)
                                         {
-                                            var userRoleValue = (int)parsedUserRole;
-                                            if (userRoleValue <= transactionMinRoleValue)
+                                            if (Enum.TryParse<Role>(userRole, out var parsedUserRole) == true)
                                             {
-                                                isRoleYN = true;
-                                                break;
+                                                var userRoleValue = (int)parsedUserRole;
+                                                if (userRoleValue <= transactionMinRoleValue)
+                                                {
+                                                    isRoleYN = true;
+                                                    break;
+                                                }
                                             }
                                         }
                                     }
                                 }
 
                                 var isClaimYN = true;
-                                if (transactionInfo.Policys != null && transactionInfo.Policys.Count > 0)
+                                if (transactionInfo.AuthorizeMethod == null || transactionInfo.AuthorizeMethod?.Contains("Policy") == true)
                                 {
-                                    isClaimYN = false;
-                                    foreach (var claim in bearerToken.Policy.Claims)
+                                    if (transactionInfo.Policys != null && transactionInfo.Policys.Count > 0)
                                     {
-                                        if (transactionInfo.Policys.ContainsKey(claim.Key) == true)
+                                        isClaimYN = false;
+                                        foreach (var claim in bearerToken.Policy.Claims)
                                         {
-                                            var allowClaims = transactionInfo.Policys[claim.Key];
-                                            if (allowClaims == null || allowClaims.IndexOf(claim.Value) > -1)
+                                            if (transactionInfo.Policys.ContainsKey(claim.Key) == true)
                                             {
-                                                isClaimYN = true;
-                                                break;
+                                                var allowClaims = transactionInfo.Policys[claim.Key];
+                                                if (allowClaims == null || allowClaims.IndexOf(claim.Value) > -1)
+                                                {
+                                                    isClaimYN = true;
+                                                    break;
+                                                }
                                             }
                                         }
                                     }
                                 }
 
-                                if (isRoleYN == false && isClaimYN == false)
+                                var isTransactionTokenYN = false;
+                                if (transactionInfo.AuthorizeMethod == null || transactionInfo.AuthorizeMethod?.Contains("TransactionToken") == true)
+                                {
+                                    if (string.IsNullOrEmpty(request.Transaction.TransactionToken) == false && transactionInfo.TransactionTokens?.Contains(request.Transaction.TransactionToken) == true)
+                                    {
+                                        isTransactionTokenYN = true;
+                                    }
+                                }
+
+                                if (isRoleYN == false && isClaimYN == false && isTransactionTokenYN == false)
                                 {
                                     response.ExceptionText = "BearerToken 역할 또는 정책 권한 확인 필요";
                                     return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
