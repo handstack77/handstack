@@ -10,26 +10,63 @@ const targetFiles = [
     '3.Infrastructure/HandStack.Web/HandStack.Web.csproj'
 ];
 
+function extractKeyFilePath(content) {
+    const regex = /<AssemblyOriginatorKeyFile>\s*([^<]+)\s*<\/AssemblyOriginatorKeyFile>/i;
+    const match = content.match(regex);
+    return match ? match[1].trim() : null;
+}
+
+function checkSnkFileExists(projectFilePath, keyFilePath) {
+    if (!keyFilePath) {
+        return { exists: false, resolvedPath: null };
+    }
+
+    let resolvedPath;
+
+    if (path.isAbsolute(keyFilePath) == true) {
+        resolvedPath = keyFilePath;
+    } else {
+        const projectDir = path.dirname(projectFilePath);
+        resolvedPath = path.resolve(projectDir, keyFilePath);
+    }
+
+    const exists = fs.existsSync(resolvedPath);
+
+    return { exists, resolvedPath };
+}
+
 function updateSignAssembly(filePath, value) {
     const fullPath = path.join(process.cwd(), filePath);
 
     try {
         if (!fs.existsSync(fullPath)) {
-            console.warn(`[경고] 파일을 찾을 수 없습니다: ${filePath}`);
+            console.warn(`[경고] .csproj 파일을 찾을 수 없습니다: ${filePath}`);
             return;
         }
 
         let content = fs.readFileSync(fullPath, 'utf8');
 
-        const regex = /<SignAssembly>\s*(true|false)\s*<\/SignAssembly>/i;
+        const keyFilePath = extractKeyFilePath(content);
+        if (!keyFilePath) {
+            return;
+        }
 
-        if (!regex.test(content)) {
+        const { exists, resolvedPath } = checkSnkFileExists(fullPath, keyFilePath);
+        if (!exists) {
+            return;
+        }
+
+        console.log(`[정보] .snk 파일 경로: ${resolvedPath}`);
+
+        const signAssemblyRegex = /<SignAssembly>\s*(true|false)\s*<\/SignAssembly>/i;
+
+        if (!signAssemblyRegex.test(content)) {
             console.warn(`[경고] <SignAssembly> 태그를 찾을 수 없습니다: ${filePath}`);
             return;
         }
 
         const newValueString = value ? 'True' : 'False';
-        const newContent = content.replace(regex, `<SignAssembly>${newValueString}</SignAssembly>`);
+        const newContent = content.replace(signAssemblyRegex, `<SignAssembly>${newValueString}</SignAssembly>`);
 
         fs.writeFileSync(fullPath, newContent, 'utf8');
         console.log(`[성공] ${filePath} 파일의 <SignAssembly> 값을 ${newValueString}로 변경했습니다.`);
