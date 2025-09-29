@@ -90,6 +90,7 @@
         <PackageReference Include="Microsoft.SemanticKernel" Version="1.31.0" />
         <PackageReference Include="MySql.Data" Version="9.1.0" />
         <PackageReference Include="MySql.EntityFrameworkCore" Version="8.0.8" />
+        <PackageReference Include="NCalcSync" Version="5.2.11" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
         <PackageReference Include="Npgsql" Version="8.0.6" />
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11" />

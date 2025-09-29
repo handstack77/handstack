@@ -354,6 +354,12 @@ namespace HandStack.Web.MessageContract.DataObject
         [JsonProperty("BaseFieldRelation", NullValueHandling = NullValueHandling.Ignore)]
         public BaseFieldRelation? BaseFieldRelation { get; set; }
 
+        [JsonProperty("ValidateRules")]
+        public List<string>? ValidateRules { get; set; }
+
+        [JsonProperty("FallbackTransaction")]
+        public string? FallbackTransaction { get; set; }
+
         public ModelOutputContract()
         {
             ModelID = "";
@@ -361,6 +367,8 @@ namespace HandStack.Web.MessageContract.DataObject
             Type = "";
             Maskings = new List<Masking>();
             BaseFieldRelation = null;
+            ValidateRules = null;
+            FallbackTransaction = null;
         }
     }
 

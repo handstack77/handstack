@@ -1567,7 +1567,7 @@ namespace transact.Areas.transact.Controllers
 
                         if (model == null && inputContract.ModelID != "Unknown" && inputContract.ModelID != "Dynamic")
                         {
-                            response.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 '{inputContract.ModelID}' 입력 모델 ID가 계약에 있는지 확인";
+                            response.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 정보에 '{inputContract.ModelID}' 입력 모델 ID가 계약에 있는지 확인";
                             return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                         }
 
@@ -1580,7 +1580,7 @@ namespace transact.Areas.transact.Controllers
 
                         if (inputContract.ParameterHandling == "Rejected" && inputCount == 0)
                         {
-                            response.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 필요한 입력 항목이 필요";
+                            response.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 정보에 필요한 입력 항목이 필요";
                             return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                         }
 
@@ -1594,7 +1594,7 @@ namespace transact.Areas.transact.Controllers
                         {
                             if (inputContract.DefaultValues == null)
                             {
-                                response.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 필요한 기본값 입력 항목 확인 필요";
+                                response.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 정보에 필요한 기본값 입력 항목 확인 필요";
                                 return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                             }
 
@@ -1604,7 +1604,7 @@ namespace transact.Areas.transact.Controllers
                             requestInput = new List<DataMapItem>();
 
                             var fieldIndex = 0;
-                            foreach (var REQ_FIELD_ID in inputContract.Fields)
+                            foreach (var fieldID in inputContract.Fields)
                             {
                                 var defaultValue = inputContract.DefaultValues[fieldIndex];
                                 DatabaseColumn? column = null;
@@ -1613,7 +1613,7 @@ namespace transact.Areas.transact.Controllers
                                 {
                                     column = new DatabaseColumn()
                                     {
-                                        Name = REQ_FIELD_ID,
+                                        Name = fieldID,
                                         Length = -1,
                                         DataType = "String",
                                         Default = "",
@@ -1622,11 +1622,11 @@ namespace transact.Areas.transact.Controllers
                                 }
                                 else
                                 {
-                                    column = model.Columns.FirstOrDefault(p => p.Name == REQ_FIELD_ID);
+                                    column = model.Columns.FirstOrDefault(p => p.Name == fieldID);
                                 }
 
                                 var tempReqInput = new DataMapItem();
-                                tempReqInput.FieldID = REQ_FIELD_ID;
+                                tempReqInput.FieldID = fieldID;
 
                                 transactClient.SetInputDefaultValue(defaultValue, column, tempReqInput);
 
@@ -1653,7 +1653,7 @@ namespace transact.Areas.transact.Controllers
                                     }
                                     else
                                     {
-                                        response.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 '{item.FieldID}' 항목 ID가 계약에 있는지 확인";
+                                        response.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 정보에 '{item.FieldID}' 항목 ID가 계약에 있는지 확인";
                                         return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                                     }
                                 }
@@ -1678,7 +1678,7 @@ namespace transact.Areas.transact.Controllers
 
                         if (model == null && inputContract.ModelID != "Unknown" && inputContract.ModelID != "Dynamic")
                         {
-                            response.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 '{inputContract.ModelID}' 입력 모델 ID가 계약에 있는지 확인";
+                            response.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 정보에 '{inputContract.ModelID}' 입력 모델 ID가 계약에 있는지 확인";
                             return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                         }
 
@@ -1762,23 +1762,23 @@ namespace transact.Areas.transact.Controllers
                             {
                                 foreach (var item in bearerFields)
                                 {
-                                    var REQ_FIELD_ID = "$" + item.Key;
+                                    var fieldID = "$" + item.Key;
 
-                                    if (transactInput.Where(p => p.FieldID == REQ_FIELD_ID).Count() > 0)
+                                    if (transactInput.Where(p => p.FieldID == fieldID).Count() > 0)
                                     {
-                                        transactInput.RemoveAll(p => p.FieldID == REQ_FIELD_ID);
+                                        transactInput.RemoveAll(p => p.FieldID == fieldID);
                                     }
 
                                     var jToken = item.Value;
                                     if (jToken == null)
                                     {
-                                        response.ExceptionText = $"{REQ_FIELD_ID} Bearer 필드 확인 필요";
+                                        response.ExceptionText = $"{fieldID} Bearer 필드 확인 필요";
                                         return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                                     }
 
                                     var column = new DatabaseColumn()
                                     {
-                                        Name = REQ_FIELD_ID,
+                                        Name = fieldID,
                                         Length = -1,
                                         DataType = "String",
                                         Default = "",
@@ -1786,7 +1786,7 @@ namespace transact.Areas.transact.Controllers
                                     };
 
                                     var transactField = new TransactField();
-                                    transactField.FieldID = REQ_FIELD_ID;
+                                    transactField.FieldID = fieldID;
                                     transactField.Length = column.Length;
                                     transactField.DataType = column.DataType.ToString();
 

@@ -27,11 +27,11 @@ namespace HandStack.Web.ApiClient
     public class TransactionClient
     {
         private readonly ILogger logger;
-        private readonly IMediator mediator;
+        private readonly IMediator? mediator;
 
         private static Dictionary<string, JObject> apiServices = new Dictionary<string, JObject>();
 
-        public TransactionClient(ILogger logger, IMediator mediator)
+        public TransactionClient(ILogger logger, IMediator? mediator = null)
         {
             this.logger = logger;
             this.mediator = mediator;
@@ -177,7 +177,7 @@ namespace HandStack.Web.ApiClient
                         }
                         else
                         {
-                            var eventResponse = await mediator.Send(instance);
+                            var eventResponse = mediator == null ? null : await mediator.Send(instance);
                             if (eventResponse != null)
                             {
                                 transactionResponse = JsonConvert.DeserializeObject<TransactionResponse>(JsonConvert.SerializeObject(eventResponse));
@@ -375,7 +375,7 @@ namespace HandStack.Web.ApiClient
                         }
                         else
                         {
-                            var eventResponse = await mediator.Send(instance);
+                            var eventResponse = mediator == null ? null : await mediator.Send(instance);
                             if (eventResponse != null)
                             {
                                 transactionResponse = JsonConvert.DeserializeObject<TransactionResponse>(JsonConvert.SerializeObject(eventResponse));

@@ -13,6 +13,7 @@ using HandStack.Core.ExtensionMethod;
 using HandStack.Core.Helpers;
 using HandStack.Web;
 using HandStack.Web.ApiClient;
+using HandStack.Web.Entity;
 using HandStack.Web.Extensions;
 using HandStack.Web.MessageContract.Contract;
 using HandStack.Web.MessageContract.DataObject;
@@ -20,6 +21,8 @@ using HandStack.Web.MessageContract.Enumeration;
 using HandStack.Web.MessageContract.Message;
 
 using MediatR;
+
+using MySqlX.XDevAPI.Common;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -243,7 +246,7 @@ namespace transact.Extensions
                     var disposeCount = outputContracts.Where(p => p.BaseFieldRelation?.DisposeResult == true).Count();
                     if ((outputContracts.Count - disposeCount - additionCount + (additionCount > 0 ? 1 : 0)) != outputs.Count)
                     {
-                        applicationResponse.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 출력 모델 개수 및 SequentialResultContractValidation 확인 필요, 계약 건수 - '{outputContracts.Count}', 응답 건수 - '{outputs.Count}'";
+                        applicationResponse.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 정보에 출력 모델 개수 및 SequentialResultContractValidation 확인 필요, 계약 건수 - '{outputContracts.Count}', 응답 건수 - '{outputs.Count}'";
                         return applicationResponse;
                     }
 
@@ -256,7 +259,7 @@ namespace transact.Extensions
 
                         if (model == null && outputContract.ModelID != "Unknown" && outputContract.ModelID != "Dynamic")
                         {
-                            applicationResponse.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 '{outputContract.ModelID}' 출력 모델 ID가 계약에 있는지 확인";
+                            applicationResponse.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 정보에 '{outputContract.ModelID}' 출력 모델 ID가 계약에 있는지 확인";
                             return applicationResponse;
                         }
 
@@ -441,7 +444,7 @@ namespace transact.Extensions
                                     var disposeCount = sequentialOutputContracts.Where(p => p.BaseFieldRelation?.DisposeResult == true).Count();
                                     if ((sequentialOutputContracts.Count - disposeCount - additionCount + (additionCount > 0 ? 1 : 0)) != outputs.Count)
                                     {
-                                        applicationResponse.ExceptionText = $"'{transactionID}|{serviceID}' 거래 입력에 출력 모델 개수 및 SequentialDataTransactionAsync 확인 필요, 계약 건수 - '{sequentialOutputContracts.Count}', 응답 건수 - '{outputs.Count}'";
+                                        applicationResponse.ExceptionText = $"'{transactionID}|{serviceID}' 거래 정보에 출력 모델 개수 및 SequentialDataTransactionAsync 확인 필요, 계약 건수 - '{sequentialOutputContracts.Count}', 응답 건수 - '{outputs.Count}'";
                                         return applicationResponse;
                                     }
 
@@ -453,7 +456,7 @@ namespace transact.Extensions
                                         var model = businessModels.GetBusinessModel(outputContract.ModelID);
                                         if (model == null && outputContract.ModelID != "Unknown" && outputContract.ModelID != "Dynamic")
                                         {
-                                            applicationResponse.ExceptionText = $"'{transactionID}|{serviceID}' 거래 입력에 '{outputContract.ModelID}' 출력 모델 ID가 계약에 있는지 확인";
+                                            applicationResponse.ExceptionText = $"'{transactionID}|{serviceID}' 거래 정보에 '{outputContract.ModelID}' 출력 모델 ID가 계약에 있는지 확인";
                                             return applicationResponse;
                                         }
 
@@ -735,7 +738,7 @@ namespace transact.Extensions
                             var disposeCount = outputContracts.Where(p => p.BaseFieldRelation?.DisposeResult == true).Count();
                             if ((outputContracts.Count - disposeCount - additionCount + (additionCount > 0 ? 1 : 0)) != outputs.Count)
                             {
-                                applicationResponse.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 출력 모델 개수 및 DataTransactionAsync 확인 필요, 계약 건수 - '{outputContracts.Count}', 응답 건수 - '{outputs.Count}'";
+                                applicationResponse.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 정보에 출력 모델 개수 및 DataTransactionAsync 확인 필요, 계약 건수 - '{outputContracts.Count}', 응답 건수 - '{outputs.Count}'";
                                 return applicationResponse;
                             }
 
@@ -747,7 +750,7 @@ namespace transact.Extensions
                                 var model = businessModels.GetBusinessModel(outputContract.ModelID);
                                 if (model == null && outputContract.ModelID != "Unknown" && outputContract.ModelID != "Dynamic")
                                 {
-                                    applicationResponse.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 '{outputContract.ModelID}' 출력 모델 ID가 계약에 있는지 확인";
+                                    applicationResponse.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 정보에 '{outputContract.ModelID}' 출력 모델 ID가 계약에 있는지 확인";
                                     return applicationResponse;
                                 }
 
@@ -999,7 +1002,7 @@ namespace transact.Extensions
                             var disposeCount = outputContracts.Where(p => p.BaseFieldRelation?.DisposeResult == true).Count();
                             if ((outputContracts.Count - disposeCount - additionCount + (additionCount > 0 ? 1 : 0)) != outputs.Count)
                             {
-                                applicationResponse.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 출력 모델 개수 및 DataTransactionAsync 확인 필요, 계약 건수 - '{outputContracts.Count}', 응답 건수 - '{outputs.Count}'";
+                                applicationResponse.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 정보에 출력 모델 개수 및 DataTransactionAsync 확인 필요, 계약 건수 - '{outputContracts.Count}', 응답 건수 - '{outputs.Count}'";
                                 return applicationResponse;
                             }
 
@@ -1011,8 +1014,73 @@ namespace transact.Extensions
                                 var model = businessModels.GetBusinessModel(outputContract.ModelID);
                                 if (model == null && outputContract.ModelID != "Unknown" && outputContract.ModelID != "Dynamic")
                                 {
-                                    applicationResponse.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 '{outputContract.ModelID}' 출력 모델 ID가 계약에 있는지 확인";
+                                    applicationResponse.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 정보에 '{outputContract.ModelID}' 출력 모델 ID가 계약에 있는지 확인";
                                     return applicationResponse;
+                                }
+
+                                if (outputContract.ValidateRules != null && outputContract.ValidateRules.Count > 0)
+                                {
+                                    var validationResult = DataMapItemValidator.ValidateDataMapItems(outputs, string.Join(";", outputContract.ValidateRules));
+                                    if (validationResult.IsValid == false)
+                                    {
+                                        applicationResponse.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 정보에 출력 데이터 검증 규칙 및 DataTransactionAsync 확인 필요, 검증 정보 - '{string.Join(";", validationResult.Errors)}'";
+                                        if (string.IsNullOrEmpty(outputContract.FallbackTransaction) == false)
+                                        {
+                                            try
+                                            {
+                                                TransactionClient transactionClient = new TransactionClient(logger);
+                                                var fallbackTransactionInfo = outputContract.FallbackTransaction.Split("|");
+                                                var fallbackTransactionObject = new TransactionClientObject();
+                                                fallbackTransactionObject.SystemID = TransactionConfig.Transaction.SystemID;
+                                                fallbackTransactionObject.ProgramID = fallbackTransactionInfo[0];
+                                                fallbackTransactionObject.BusinessID = fallbackTransactionInfo[1];
+                                                fallbackTransactionObject.TransactionID = fallbackTransactionInfo[2];
+                                                fallbackTransactionObject.FunctionID = fallbackTransactionInfo[3];
+                                                fallbackTransactionObject.ScreenID = fallbackTransactionObject.TransactionID;
+                                                fallbackTransactionObject.StartTraceID = $"{ModuleConfiguration.ModuleID}-module";
+
+                                                List<ServiceParameter> serviceParameters = new List<ServiceParameter>();
+                                                serviceParameters.Add(new ServiceParameter()
+                                                {
+                                                    prop = "CorrelationID",
+                                                    val = response.CorrelationID
+                                                });
+
+                                                serviceParameters.Add(new ServiceParameter()
+                                                {
+                                                    prop = "TransactionRequest",
+                                                    val = JsonConvert.SerializeObject(request)
+                                                });
+
+                                                serviceParameters.Add(new ServiceParameter()
+                                                {
+                                                    prop = "ExceptionText",
+                                                    val = applicationResponse.ExceptionText
+                                                });
+
+                                                fallbackTransactionObject.Inputs.Add(serviceParameters);
+
+                                                string businessServerUrl = ModuleConfiguration.BusinessServerUrl;
+                                                if (fallbackTransactionInfo.Length == 5 && string.IsNullOrEmpty(fallbackTransactionInfo[4]) == false)
+                                                {
+                                                    businessServerUrl = fallbackTransactionInfo[4];
+                                                }
+
+                                                var transactionResult = await transactionClient.TransactionDirect(businessServerUrl, fallbackTransactionObject, ModuleConfiguration.ModuleID);
+                                                if (transactionResult.ContainsKey("HasException") == true)
+                                                {
+                                                    var message = (transactionResult?["HasException"]?["ErrorMessage"]).ToStringSafe();
+                                                    logger.Error("[{LogCategory}] " + $"FallbackTransactionObject: {JsonConvert.SerializeObject(fallbackTransactionObject)}, ErrorMessage: {message}", "ModuleApiClient/TransactionDirect");
+                                                }
+                                            }
+                                            catch (Exception exception)
+                                            {
+                                                logger.Error("[{LogCategory}] " + $"FallbackTransaction: {outputContract.FallbackTransaction}, Message: " + exception.ToMessage(), "TransactClient/DataTransactionAsync");
+                                            }
+                                        }
+
+                                        return applicationResponse;
+                                    }
                                 }
 
                                 dynamic? outputJson = null;

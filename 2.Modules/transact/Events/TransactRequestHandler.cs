@@ -668,7 +668,7 @@ namespace transact.Events
 
                     if (model == null && inputContract.ModelID != "Unknown" && inputContract.ModelID != "Dynamic")
                     {
-                        response.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 '{inputContract.ModelID}' 입력 모델 ID가 계약에 있는지 확인";
+                        response.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 정보에 '{inputContract.ModelID}' 입력 모델 ID가 계약에 있는지 확인";
                         return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                     }
 
@@ -681,7 +681,7 @@ namespace transact.Events
 
                     if (inputContract.ParameterHandling == "Rejected" && inputCount == 0)
                     {
-                        response.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 필요한 입력 항목이 필요";
+                        response.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 정보에 필요한 입력 항목이 필요";
                         return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                     }
 
@@ -695,7 +695,7 @@ namespace transact.Events
                     {
                         if (inputContract.DefaultValues == null)
                         {
-                            response.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 필요한 기본값 입력 항목 확인 필요";
+                            response.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 정보에 필요한 기본값 입력 항목 확인 필요";
                             return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                         }
 
@@ -754,7 +754,7 @@ namespace transact.Events
                                 }
                                 else
                                 {
-                                    response.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 '{item.FieldID}' 항목 ID가 계약에 있는지 확인";
+                                    response.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 정보에 '{item.FieldID}' 항목 ID가 계약에 있는지 확인";
                                     return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                                 }
                             }
@@ -779,7 +779,7 @@ namespace transact.Events
 
                     if (model == null && inputContract.ModelID != "Unknown" && inputContract.ModelID != "Dynamic")
                     {
-                        response.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 입력에 '{inputContract.ModelID}' 입력 모델 ID가 계약에 있는지 확인";
+                        response.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 정보에 '{inputContract.ModelID}' 입력 모델 ID가 계약에 있는지 확인";
                         return LoggingAndReturn(response, transactionWorkID, "Y", transactionInfo);
                     }
 
