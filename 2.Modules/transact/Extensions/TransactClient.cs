@@ -139,7 +139,7 @@ namespace transact.Extensions
                         applicationResponse = await SequentialDataTransactionAsync(request, response, transactionInfo, transactionObject, businessModels, inputContracts, outputContracts);
                         if (string.IsNullOrEmpty(applicationResponse.ExceptionText) == true)
                         {
-                            applicationResponse = SequentialResultContractValidation(applicationResponse, request, response, transactionInfo, transactionObject, businessModels, outputContracts);
+                            applicationResponse = await SequentialResultContractValidation(applicationResponse, request, response, transactionInfo, transactionObject, businessModels, outputContracts);
                         }
                         break;
                     case "R":
@@ -194,7 +194,7 @@ namespace transact.Extensions
                                         break;
                                 }
 
-                                applicationResponse = DummyDataTransaction(request, response, transactionInfo, transactionObject, businessModels, inputContracts, outputContracts, applicationResponse);
+                                applicationResponse = await DummyDataTransaction(request, response, transactionInfo, transactionObject, businessModels, inputContracts, outputContracts, applicationResponse);
                             }
                         }
                         else
@@ -231,7 +231,7 @@ namespace transact.Extensions
             return result;
         }
 
-        public ApplicationResponse SequentialResultContractValidation(ApplicationResponse applicationResponse, TransactionRequest request, TransactionResponse response, TransactionInfo transactionInfo, TransactionObject transactionObject, List<Model> businessModels, List<ModelOutputContract> outputContracts)
+        public async Task<ApplicationResponse> SequentialResultContractValidation(ApplicationResponse applicationResponse, TransactionRequest request, TransactionResponse response, TransactionInfo transactionInfo, TransactionObject transactionObject, List<Model> businessModels, List<ModelOutputContract> outputContracts)
         {
             var outputs = JsonConvert.DeserializeObject<List<DataMapItem>>(applicationResponse.ResultJson);
 
@@ -261,6 +261,15 @@ namespace transact.Extensions
                         {
                             applicationResponse.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 정보에 '{outputContract.ModelID}' 출력 모델 ID가 계약에 있는지 확인";
                             return applicationResponse;
+                        }
+
+                        if (outputContract.ValidateRules != null && outputContract.ValidateRules.Count > 0)
+                        {
+                            var (isValidate, value) = await TransactionValidateRules(applicationResponse, request, response, transactionObject, outputs, outputContract);
+                            if (isValidate == false)
+                            {
+                                return value;
+                            }
                         }
 
                         var responseData = new DataMapItem();
@@ -385,6 +394,73 @@ namespace transact.Extensions
             return applicationResponse;
         }
 
+        private async Task<(bool isValidate, ApplicationResponse value)> TransactionValidateRules(ApplicationResponse applicationResponse, TransactionRequest request, TransactionResponse response, TransactionObject transactionObject, List<DataMapItem> outputs, ModelOutputContract outputContract)
+        {
+            var validationResult = DataMapItemValidator.ValidateDataMapItems(outputs, string.Join(";", outputContract.ValidateRules ?? new List<string>()));
+            if (validationResult.IsValid == false)
+            {
+                applicationResponse.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 정보에 출력 데이터 검증 규칙 및 DataTransactionAsync 확인 필요, 검증 정보 - '{string.Join(";", validationResult.Errors)}'";
+                if (string.IsNullOrEmpty(outputContract.FallbackTransaction) == false)
+                {
+                    try
+                    {
+                        TransactionClient transactionClient = new TransactionClient(logger);
+                        var fallbackTransactionInfo = outputContract.FallbackTransaction.Split("|");
+                        var fallbackTransactionObject = new TransactionClientObject();
+                        fallbackTransactionObject.SystemID = TransactionConfig.Transaction.SystemID;
+                        fallbackTransactionObject.ProgramID = fallbackTransactionInfo[0];
+                        fallbackTransactionObject.BusinessID = fallbackTransactionInfo[1];
+                        fallbackTransactionObject.TransactionID = fallbackTransactionInfo[2];
+                        fallbackTransactionObject.FunctionID = fallbackTransactionInfo[3];
+                        fallbackTransactionObject.ScreenID = fallbackTransactionObject.TransactionID;
+                        fallbackTransactionObject.StartTraceID = $"{ModuleConfiguration.ModuleID}-module";
+
+                        List<ServiceParameter> serviceParameters = new List<ServiceParameter>();
+                        serviceParameters.Add(new ServiceParameter()
+                        {
+                            prop = "CorrelationID",
+                            val = response.CorrelationID
+                        });
+
+                        serviceParameters.Add(new ServiceParameter()
+                        {
+                            prop = "TransactionRequest",
+                            val = JsonConvert.SerializeObject(request)
+                        });
+
+                        serviceParameters.Add(new ServiceParameter()
+                        {
+                            prop = "ExceptionText",
+                            val = applicationResponse.ExceptionText
+                        });
+
+                        fallbackTransactionObject.Inputs.Add(serviceParameters);
+
+                        string businessServerUrl = ModuleConfiguration.BusinessServerUrl;
+                        if (fallbackTransactionInfo.Length == 5 && string.IsNullOrEmpty(fallbackTransactionInfo[4]) == false)
+                        {
+                            businessServerUrl = fallbackTransactionInfo[4];
+                        }
+
+                        var transactionResult = await transactionClient.TransactionDirect(businessServerUrl, fallbackTransactionObject, ModuleConfiguration.ModuleID);
+                        if (transactionResult.ContainsKey("HasException") == true)
+                        {
+                            var message = (transactionResult?["HasException"]?["ErrorMessage"]).ToStringSafe();
+                            logger.Error("[{LogCategory}] " + $"FallbackTransactionObject: {JsonConvert.SerializeObject(fallbackTransactionObject)}, ErrorMessage: {message}", "TransactClient/TransactionValidateRules");
+                        }
+                    }
+                    catch (Exception exception)
+                    {
+                        logger.Error("[{LogCategory}] " + $"FallbackTransaction: {outputContract.FallbackTransaction}, Message: " + exception.ToMessage(), "TransactClient/TransactionValidateRules");
+                    }
+                }
+
+                return (isValidate: false, value: applicationResponse);
+            }
+
+            return (isValidate: true, value: applicationResponse);
+        }
+
         public async Task<ApplicationResponse> SequentialDataTransactionAsync(TransactionRequest request, TransactionResponse response, TransactionInfo transactionInfo, TransactionObject transactionObject, List<Model> businessModels, List<ModelInputContract> inputContracts, List<ModelOutputContract> outputContracts)
         {
             var applicationResponse = new ApplicationResponse();
@@ -460,6 +536,15 @@ namespace transact.Extensions
                                             return applicationResponse;
                                         }
 
+                                        if (outputContract.ValidateRules != null && outputContract.ValidateRules.Count > 0)
+                                        {
+                                            var (isValidate, value) = await TransactionValidateRules(applicationResponse, request, response, transactionObject, outputs, outputContract);
+                                            if (isValidate == false)
+                                            {
+                                                return value;
+                                            }
+                                        }
+
                                         dynamic? outputJson = null;
                                         var responseData = new DataMapItem();
                                         responseData.FieldID = output.FieldID;
@@ -486,7 +571,7 @@ namespace transact.Extensions
                                                 adiMessage.Text = exception.ToMessage();
                                                 response.Message.Additions.Add(adiMessage);
 
-                                                logger.Warning("[{LogCategory}] [{GlobalID}] " + adiMessage.Text, "Transaction/ADI_MSG", request.Transaction.GlobalID);
+                                                logger.Warning("[{LogCategory}] [{GlobalID}] " + adiMessage.Text, "Transaction/Additions", request.Transaction.GlobalID);
                                             }
                                             continue;
                                         }
@@ -665,7 +750,7 @@ namespace transact.Extensions
             return applicationResponse;
         }
 
-        public ApplicationResponse DummyDataTransaction(TransactionRequest request, TransactionResponse response, TransactionInfo transactionInfo, TransactionObject transactionObject, List<Model> businessModels, List<ModelInputContract> inputContracts, List<ModelOutputContract> outputContracts, ApplicationResponse applicationResponse)
+        public async Task<ApplicationResponse> DummyDataTransaction(TransactionRequest request, TransactionResponse response, TransactionInfo transactionInfo, TransactionObject transactionObject, List<Model> businessModels, List<ModelInputContract> inputContracts, List<ModelOutputContract> outputContracts, ApplicationResponse applicationResponse)
         {
             if (string.IsNullOrEmpty(applicationResponse.ExceptionText) == false)
             {
@@ -754,6 +839,15 @@ namespace transact.Extensions
                                     return applicationResponse;
                                 }
 
+                                if (outputContract.ValidateRules != null && outputContract.ValidateRules.Count > 0)
+                                {
+                                    var (isValidate, value) = await TransactionValidateRules(applicationResponse, request, response, transactionObject, outputs, outputContract);
+                                    if (isValidate == false)
+                                    {
+                                        return value;
+                                    }
+                                }
+
                                 dynamic? outputJson = null;
                                 var responseData = new DataMapItem();
                                 responseData.FieldID = output.FieldID;
@@ -776,7 +870,7 @@ namespace transact.Extensions
                                         var adiMessage = new Addition();
                                         adiMessage.Code = "E001";
                                         adiMessage.Text = exception.ToMessage();
-                                        logger.Warning("[{LogCategory}] [{GlobalID}] " + adiMessage.Text, "Transaction/ADI_MSG", request.Transaction.GlobalID);
+                                        logger.Warning("[{LogCategory}] [{GlobalID}] " + adiMessage.Text, "Transaction/Additions", request.Transaction.GlobalID);
                                         response.Message.Additions.Add(adiMessage);
                                     }
                                     continue;
@@ -1020,66 +1114,10 @@ namespace transact.Extensions
 
                                 if (outputContract.ValidateRules != null && outputContract.ValidateRules.Count > 0)
                                 {
-                                    var validationResult = DataMapItemValidator.ValidateDataMapItems(outputs, string.Join(";", outputContract.ValidateRules));
-                                    if (validationResult.IsValid == false)
+                                    var (isValidate, value) = await TransactionValidateRules(applicationResponse, request, response, transactionObject, outputs, outputContract);
+                                    if (isValidate == false)
                                     {
-                                        applicationResponse.ExceptionText = $"'{transactionObject.TransactionID}|{request.Transaction.FunctionID}' 거래 정보에 출력 데이터 검증 규칙 및 DataTransactionAsync 확인 필요, 검증 정보 - '{string.Join(";", validationResult.Errors)}'";
-                                        if (string.IsNullOrEmpty(outputContract.FallbackTransaction) == false)
-                                        {
-                                            try
-                                            {
-                                                TransactionClient transactionClient = new TransactionClient(logger);
-                                                var fallbackTransactionInfo = outputContract.FallbackTransaction.Split("|");
-                                                var fallbackTransactionObject = new TransactionClientObject();
-                                                fallbackTransactionObject.SystemID = TransactionConfig.Transaction.SystemID;
-                                                fallbackTransactionObject.ProgramID = fallbackTransactionInfo[0];
-                                                fallbackTransactionObject.BusinessID = fallbackTransactionInfo[1];
-                                                fallbackTransactionObject.TransactionID = fallbackTransactionInfo[2];
-                                                fallbackTransactionObject.FunctionID = fallbackTransactionInfo[3];
-                                                fallbackTransactionObject.ScreenID = fallbackTransactionObject.TransactionID;
-                                                fallbackTransactionObject.StartTraceID = $"{ModuleConfiguration.ModuleID}-module";
-
-                                                List<ServiceParameter> serviceParameters = new List<ServiceParameter>();
-                                                serviceParameters.Add(new ServiceParameter()
-                                                {
-                                                    prop = "CorrelationID",
-                                                    val = response.CorrelationID
-                                                });
-
-                                                serviceParameters.Add(new ServiceParameter()
-                                                {
-                                                    prop = "TransactionRequest",
-                                                    val = JsonConvert.SerializeObject(request)
-                                                });
-
-                                                serviceParameters.Add(new ServiceParameter()
-                                                {
-                                                    prop = "ExceptionText",
-                                                    val = applicationResponse.ExceptionText
-                                                });
-
-                                                fallbackTransactionObject.Inputs.Add(serviceParameters);
-
-                                                string businessServerUrl = ModuleConfiguration.BusinessServerUrl;
-                                                if (fallbackTransactionInfo.Length == 5 && string.IsNullOrEmpty(fallbackTransactionInfo[4]) == false)
-                                                {
-                                                    businessServerUrl = fallbackTransactionInfo[4];
-                                                }
-
-                                                var transactionResult = await transactionClient.TransactionDirect(businessServerUrl, fallbackTransactionObject, ModuleConfiguration.ModuleID);
-                                                if (transactionResult.ContainsKey("HasException") == true)
-                                                {
-                                                    var message = (transactionResult?["HasException"]?["ErrorMessage"]).ToStringSafe();
-                                                    logger.Error("[{LogCategory}] " + $"FallbackTransactionObject: {JsonConvert.SerializeObject(fallbackTransactionObject)}, ErrorMessage: {message}", "ModuleApiClient/TransactionDirect");
-                                                }
-                                            }
-                                            catch (Exception exception)
-                                            {
-                                                logger.Error("[{LogCategory}] " + $"FallbackTransaction: {outputContract.FallbackTransaction}, Message: " + exception.ToMessage(), "TransactClient/DataTransactionAsync");
-                                            }
-                                        }
-
-                                        return applicationResponse;
+                                        return value;
                                     }
                                 }
 
@@ -1105,7 +1143,7 @@ namespace transact.Extensions
                                         var adiMessage = new Addition();
                                         adiMessage.Code = "E001";
                                         adiMessage.Text = exception.ToMessage();
-                                        logger.Warning("[{LogCategory}] [{GlobalID}] " + adiMessage.Text, "Transaction/ADI_MSG", request.Transaction.GlobalID);
+                                        logger.Warning("[{LogCategory}] [{GlobalID}] " + adiMessage.Text, "Transaction/Additions", request.Transaction.GlobalID);
                                         response.Message.Additions.Add(adiMessage);
                                     }
                                     continue;
