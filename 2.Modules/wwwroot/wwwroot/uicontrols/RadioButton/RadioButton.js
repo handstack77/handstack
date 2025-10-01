@@ -7,7 +7,7 @@
 
     $radio.extend({
         name: 'syn.uicontrols.$radio',
-        version: 'v2025.3.26',
+        version: 'v2025.10.1',
         defaultSetting: {
             contents: '',
             toSynControl: false,
@@ -50,6 +50,8 @@
                 el.setAttribute('id', el.id + '_hidden');
                 el.setAttribute('syn-options', JSON.stringify(setting));
                 el.style.display = 'none';
+
+                var className = el.getAttribute('class');
                 var dataFieldID = el.getAttribute('syn-datafield');
                 var events = el.getAttribute('syn-events');
                 var value = el.value;
@@ -70,7 +72,7 @@
                 var parent = el.parentNode;
                 var wrapper = syn.$m.create({
                     tag: 'span',
-                    className: 'formControl'
+                    className: $string.isNullOrEmpty(className) == true ? 'form-control' : className
                 });
                 wrapper.innerHTML = html;
 

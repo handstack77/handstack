@@ -8,7 +8,7 @@
 
     $codepicker.extend({
         name: 'syn.uicontrols.$codepicker',
-        version: 'v2025.9.23',
+        version: 'v2025.10.1',
         codeHelpUrl: '/assets/shared/codehelp/index2.html',
         defaultSetting: {
             dataSourceID: null,
@@ -75,13 +75,14 @@
             el.setAttribute('syn-options', JSON.stringify(setting));
             el.style.display = 'none';
 
+            var className = el.getAttribute('class');
             var dataField = el.getAttribute('syn-datafield');
             var events = el.getAttribute('syn-events');
 
             var textboxCode = syn.$m.create({
                 id: `${elID}_Code`,
                 tag: 'input',
-                className: 'form-control'
+                className: $string.isNullOrEmpty(className) == true ? 'form-control' : className
             });
 
             textboxCode.type = 'text';

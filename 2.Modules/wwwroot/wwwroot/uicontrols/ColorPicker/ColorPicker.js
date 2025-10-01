@@ -7,7 +7,7 @@
 
     $colorpicker.extend({
         name: 'syn.uicontrols.$colorpicker',
-        version: 'v2025.3.1',
+        version: 'v2025.10.1',
         colorControls: [],
         defaultSetting:
         {
@@ -54,6 +54,7 @@
             el.setAttribute('syn-options', JSON.stringify(setting));
             el.style.display = 'none';
 
+            var className = el.getAttribute('class');
             var dataField = el.getAttribute('syn-datafield');
 
             var html = '<div class="control">' +
@@ -65,7 +66,7 @@
             var wrapper = syn.$m.create({
                 tag: 'div',
                 id: elID + '_box',
-                className: 'control-set'
+                className: $string.isNullOrEmpty(className) == true ? 'form-control control-set' : className
             });
             wrapper.innerHTML = html;
 

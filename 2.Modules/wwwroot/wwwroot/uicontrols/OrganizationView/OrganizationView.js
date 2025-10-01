@@ -7,7 +7,7 @@
 
     $organization.extend({
         name: 'syn.uicontrols.$organization',
-        version: 'v2025.3.1',
+        version: 'v2025.10.1',
         organizationControls: [],
         eventHooks: [
             'nodedrop',
@@ -86,6 +86,7 @@
                 setting.createNode = eval(setting.createNode);
             }
 
+            var className = el.getAttribute('class');
             var hookEvents = el.getAttribute('syn-events');
             try {
                 if (hookEvents) {
@@ -99,7 +100,7 @@
             var wrapper = document.createElement('div');
             wrapper.style.width = setting.width;
             wrapper.style.height = setting.height;
-            wrapper.className = 'organization-container';
+            wrapper.className = $string.isNullOrEmpty(className) == true ? 'organization-container' : className
             wrapper.innerHTML = '<div id="' + elID + '"></div>';
             parent.appendChild(wrapper);
 

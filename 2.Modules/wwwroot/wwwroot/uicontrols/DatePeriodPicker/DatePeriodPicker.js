@@ -40,6 +40,8 @@
             numberOfMonths: 1,
             startDataFieldID: '',
             endDataFieldID: '',
+            startClassName: 'form-control',
+            endClassName: 'form-control',
             dataType: 'string',
             belongID: null,
             getter: false,
@@ -87,7 +89,7 @@
             var textbox1 = syn.$m.create({
                 id: textbox1ID,
                 tag: 'input',
-                className: 'form-control'
+                className: $string.isNullOrEmpty(setting.startClassName) == true ? 'form-control' : setting.startClassName
             });
 
             textbox1.type = 'text';
@@ -138,7 +140,7 @@
             var textbox2 = syn.$m.create({
                 id: textbox2ID,
                 tag: 'input',
-                className: 'form-control'
+                className: $string.isNullOrEmpty(setting.endClassName) == true ? 'form-control' : setting.endClassName
             });
 
             textbox2.type = 'text';

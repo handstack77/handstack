@@ -970,6 +970,9 @@
                     if (triggerOptions && triggerOptions.value) {
                         el.value = triggerOptions.value;
                     }
+                    else {
+                        el.value = '';
+                    }
                 }
             }
         },

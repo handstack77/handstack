@@ -7,7 +7,7 @@
 
     $datepicker.extend({
         name: 'syn.uicontrols.$datepicker',
-        version: 'v2025.3.1',
+        version: 'v2025.10.1',
         dateControls: [],
         defaultSetting: {
             elID: '',
@@ -82,13 +82,14 @@
                 }
             }
 
+            var className = el.getAttribute('class');
             var dataField = el.getAttribute('syn-datafield');
             var events = el.getAttribute('syn-events');
 
             var textbox = syn.$m.create({
                 id: elID,
                 tag: 'input',
-                className: 'form-control'
+                className: $string.isNullOrEmpty(className) == true ? 'form-control' : className
             });
             textbox.type = 'text';
 

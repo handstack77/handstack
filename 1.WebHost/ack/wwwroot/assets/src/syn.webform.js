@@ -1975,7 +1975,7 @@
                                                     const fieldID = meta.fieldID; // DbColumnID
 
                                                     const controlValue = outputData[fieldID];
-                                                    if (controlValue != undefined && synControls && synControls.length > 0) {
+                                                    if (synControls && synControls.length > 0) {
                                                         let bindingControlInfos = synControls.filter(function (item) {
                                                             return item.field == dataFieldID && item.formDataFieldID == outputMapping.dataFieldID;
                                                         });
@@ -2467,7 +2467,7 @@
                                         const fieldID = meta.fieldID;
 
                                         const controlValue = outputData[fieldID];
-                                        if (controlValue != undefined && synControls && synControls.length > 0) {
+                                        if (synControls && synControls.length > 0) {
                                             let bindingControlInfos = synControls.filter(function (item) {
                                                 return item.field == dataFieldID && item.formDataFieldID == outputMapping.dataFieldID;
                                             });
@@ -3041,7 +3041,7 @@
                     if (!fallbackUrl || image.src === fallbackUrl) {
                         reject(error);
                     } else {
-                        syn.$l.eventLog('$w.fetchImage', `이미지 로딩 실패. Fallback 시도: ${fallbackUrl}`, 'Warning');
+                        syn.$l.eventLog('$w.fetchImage', `이미지 로딩 실패. Fallback 시도: ${fallbackUrl}`, 'Information');
                         image.src = fallbackUrl;
                     }
                 });

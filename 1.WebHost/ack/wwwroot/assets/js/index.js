@@ -1,5 +1,5 @@
 /*!
-HandStack Javascript Library v2025.9.26
+HandStack Javascript Library v2025.10.1
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -5951,7 +5951,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                                     const fieldID = meta.fieldID; // DbColumnID
 
                                                     const controlValue = outputData[fieldID];
-                                                    if (controlValue != undefined && synControls && synControls.length > 0) {
+                                                    if (synControls && synControls.length > 0) {
                                                         let bindingControlInfos = synControls.filter(function (item) {
                                                             return item.field == dataFieldID && item.formDataFieldID == outputMapping.dataFieldID;
                                                         });
@@ -6443,7 +6443,7 @@ if (typeof module !== 'undefined' && module.exports) {
                                         const fieldID = meta.fieldID;
 
                                         const controlValue = outputData[fieldID];
-                                        if (controlValue != undefined && synControls && synControls.length > 0) {
+                                        if (synControls && synControls.length > 0) {
                                             let bindingControlInfos = synControls.filter(function (item) {
                                                 return item.field == dataFieldID && item.formDataFieldID == outputMapping.dataFieldID;
                                             });
@@ -7017,7 +7017,7 @@ if (typeof module !== 'undefined' && module.exports) {
                     if (!fallbackUrl || image.src === fallbackUrl) {
                         reject(error);
                     } else {
-                        syn.$l.eventLog('$w.fetchImage', `이미지 로딩 실패. Fallback 시도: ${fallbackUrl}`, 'Warning');
+                        syn.$l.eventLog('$w.fetchImage', `이미지 로딩 실패. Fallback 시도: ${fallbackUrl}`, 'Information');
                         image.src = fallbackUrl;
                     }
                 });

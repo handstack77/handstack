@@ -658,7 +658,7 @@
 
     $checkbox.extend({
         name: 'syn.uicontrols.$checkbox',
-        version: 'v2025.3.24',
+        version: 'v2025.10.1',
         defaultSetting: {
             contents: '',
             toSynControl: false,
@@ -704,6 +704,7 @@
                 el.setAttribute('syn-options', JSON.stringify(setting));
                 el.style.display = 'none';
 
+                var className = el.getAttribute('class');
                 var dataFieldID = el.getAttribute('syn-datafield');
                 var events = el.getAttribute('syn-events');
                 var value = el.value;
@@ -724,7 +725,7 @@
                 var parent = el.parentNode;
                 var wrapper = syn.$m.create({
                     tag: 'span',
-                    className: 'formControl'
+                    className: $string.isNullOrEmpty(className) == true ? 'form-control' : className
                 });
                 wrapper.innerHTML = html;
 
@@ -828,7 +829,7 @@
 
     $codepicker.extend({
         name: 'syn.uicontrols.$codepicker',
-        version: 'v2025.9.23',
+        version: 'v2025.10.1',
         codeHelpUrl: '/assets/shared/codehelp/index2.html',
         defaultSetting: {
             dataSourceID: null,
@@ -895,13 +896,14 @@
             el.setAttribute('syn-options', JSON.stringify(setting));
             el.style.display = 'none';
 
+            var className = el.getAttribute('class');
             var dataField = el.getAttribute('syn-datafield');
             var events = el.getAttribute('syn-events');
 
             var textboxCode = syn.$m.create({
                 id: `${elID}_Code`,
                 tag: 'input',
-                className: 'form-control'
+                className: $string.isNullOrEmpty(className) == true ? 'form-control' : className
             });
 
             textboxCode.type = 'text';
@@ -1270,7 +1272,7 @@
 
     $colorpicker.extend({
         name: 'syn.uicontrols.$colorpicker',
-        version: 'v2025.3.1',
+        version: 'v2025.10.1',
         colorControls: [],
         defaultSetting:
         {
@@ -1317,6 +1319,7 @@
             el.setAttribute('syn-options', JSON.stringify(setting));
             el.style.display = 'none';
 
+            var className = el.getAttribute('class');
             var dataField = el.getAttribute('syn-datafield');
 
             var html = '<div class="control">' +
@@ -1328,7 +1331,7 @@
             var wrapper = syn.$m.create({
                 tag: 'div',
                 id: elID + '_box',
-                className: 'control-set'
+                className: $string.isNullOrEmpty(className) == true ? 'form-control control-set' : className
             });
             wrapper.innerHTML = html;
 
@@ -1459,6 +1462,7 @@
     });
     syn.uicontrols.$colorpicker = $colorpicker;
 })(window);
+
 /// <reference path="/js/syn.js" />
 
 (function (window) {
@@ -2037,7 +2041,7 @@
 
     $datepicker.extend({
         name: 'syn.uicontrols.$datepicker',
-        version: 'v2025.3.1',
+        version: 'v2025.10.1',
         dateControls: [],
         defaultSetting: {
             elID: '',
@@ -2112,13 +2116,14 @@
                 }
             }
 
+            var className = el.getAttribute('class');
             var dataField = el.getAttribute('syn-datafield');
             var events = el.getAttribute('syn-events');
 
             var textbox = syn.$m.create({
                 id: elID,
                 tag: 'input',
-                className: 'form-control'
+                className: $string.isNullOrEmpty(className) == true ? 'form-control' : className
             });
             textbox.type = 'text';
 
@@ -2458,6 +2463,8 @@
             numberOfMonths: 1,
             startDataFieldID: '',
             endDataFieldID: '',
+            startClassName: 'form-control',
+            endClassName: 'form-control',
             dataType: 'string',
             belongID: null,
             getter: false,
@@ -2505,7 +2512,7 @@
             var textbox1 = syn.$m.create({
                 id: textbox1ID,
                 tag: 'input',
-                className: 'form-control'
+                className: $string.isNullOrEmpty(setting.startClassName) == true ? 'form-control' : setting.startClassName
             });
 
             textbox1.type = 'text';
@@ -2556,7 +2563,7 @@
             var textbox2 = syn.$m.create({
                 id: textbox2ID,
                 tag: 'input',
-                className: 'form-control'
+                className: $string.isNullOrEmpty(setting.endClassName) == true ? 'form-control' : setting.endClassName
             });
 
             textbox2.type = 'text';
@@ -6557,7 +6564,7 @@
 
     $radio.extend({
         name: 'syn.uicontrols.$radio',
-        version: 'v2025.3.26',
+        version: 'v2025.10.1',
         defaultSetting: {
             contents: '',
             toSynControl: false,
@@ -6600,6 +6607,8 @@
                 el.setAttribute('id', el.id + '_hidden');
                 el.setAttribute('syn-options', JSON.stringify(setting));
                 el.style.display = 'none';
+
+                var className = el.getAttribute('class');
                 var dataFieldID = el.getAttribute('syn-datafield');
                 var events = el.getAttribute('syn-events');
                 var value = el.value;
@@ -6620,7 +6629,7 @@
                 var parent = el.parentNode;
                 var wrapper = syn.$m.create({
                     tag: 'span',
-                    className: 'formControl'
+                    className: $string.isNullOrEmpty(className) == true ? 'form-control' : className
                 });
                 wrapper.innerHTML = html;
 
@@ -7939,6 +7948,9 @@
                     var triggerOptions = syn.$w.getTriggerOptions(elID);
                     if (triggerOptions && triggerOptions.value) {
                         el.value = triggerOptions.value;
+                    }
+                    else {
+                        el.value = '';
                     }
                 }
             }
@@ -9523,7 +9535,7 @@
 
     $organization.extend({
         name: 'syn.uicontrols.$organization',
-        version: 'v2025.3.1',
+        version: 'v2025.10.1',
         organizationControls: [],
         eventHooks: [
             'nodedrop',
@@ -9602,6 +9614,7 @@
                 setting.createNode = eval(setting.createNode);
             }
 
+            var className = el.getAttribute('class');
             var hookEvents = el.getAttribute('syn-events');
             try {
                 if (hookEvents) {
@@ -9615,7 +9628,7 @@
             var wrapper = document.createElement('div');
             wrapper.style.width = setting.width;
             wrapper.style.height = setting.height;
-            wrapper.className = 'organization-container';
+            wrapper.className = $string.isNullOrEmpty(className) == true ? 'organization-container' : className
             wrapper.innerHTML = '<div id="' + elID + '"></div>';
             parent.appendChild(wrapper);
 
@@ -10565,8 +10578,9 @@
             el.setAttribute('syn-options', JSON.stringify(setting));
             el.style.display = 'none';
 
+            var className = el.getAttribute('class') || '';
             var dataField = el.getAttribute('syn-datafield');
-            var html = `<div id="{0}" class="syn-auigrid" style="width:${setting.width};height:${setting.height};overflow:hidden;"></div>`.format(elID, dataField);
+            var html = `<div id="{0}" class="syn-auigrid ${className}" style="width:${setting.width};height:${setting.height};overflow:hidden;"></div>`.format(elID, dataField);
 
             var parent = el.parentNode;
             var wrapper = document.createElement('div');
@@ -10889,6 +10903,8 @@
                                 type: 'InputEditRenderer',
                                 showEditorBtn: false,
                                 showEditorBtnOver: $string.isNullOrEmpty(columnInfo.cellButtonIcon),
+                                onlyNumeric: $string.toBoolean(columnInfo.onlyNumeric),
+                                inputMode: $string.isNullOrEmpty(columnInfo.inputMode) == false ? 'text' : columnInfo.inputMode
                             }
                             break;
                         case 'textarea':
@@ -10950,6 +10966,12 @@
                                 allowNegative: false,
                                 textAlign: 'center',
                                 autoThousandSeparator: false
+                            }
+
+                            if ($string.isNullOrEmpty(columnInfo.format) == false) {
+                                columnInfo.labelFunction = (rowIndex, columnIndex, value, headerText, item) => {
+                                    return AUIGrid.formatNumber(value, columnInfo.format);
+                                }
                             }
 
                             if ($string.isNullOrEmpty(columnInfo.expFunction) == false && eval('typeof ' + columnInfo.expFunction) == 'function') {

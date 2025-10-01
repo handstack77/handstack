@@ -278,8 +278,9 @@
             el.setAttribute('syn-options', JSON.stringify(setting));
             el.style.display = 'none';
 
+            var className = el.getAttribute('class') || '';
             var dataField = el.getAttribute('syn-datafield');
-            var html = `<div id="{0}" class="syn-auigrid" style="width:${setting.width};height:${setting.height};overflow:hidden;"></div>`.format(elID, dataField);
+            var html = `<div id="{0}" class="syn-auigrid ${className}" style="width:${setting.width};height:${setting.height};overflow:hidden;"></div>`.format(elID, dataField);
 
             var parent = el.parentNode;
             var wrapper = document.createElement('div');
@@ -602,6 +603,8 @@
                                 type: 'InputEditRenderer',
                                 showEditorBtn: false,
                                 showEditorBtnOver: $string.isNullOrEmpty(columnInfo.cellButtonIcon),
+                                onlyNumeric: $string.toBoolean(columnInfo.onlyNumeric),
+                                inputMode: $string.isNullOrEmpty(columnInfo.inputMode) == false ? 'text' : columnInfo.inputMode
                             }
                             break;
                         case 'textarea':
@@ -663,6 +666,12 @@
                                 allowNegative: false,
                                 textAlign: 'center',
                                 autoThousandSeparator: false
+                            }
+
+                            if ($string.isNullOrEmpty(columnInfo.format) == false) {
+                                columnInfo.labelFunction = (rowIndex, columnIndex, value, headerText, item) => {
+                                    return AUIGrid.formatNumber(value, columnInfo.format);
+                                }
                             }
 
                             if ($string.isNullOrEmpty(columnInfo.expFunction) == false && eval('typeof ' + columnInfo.expFunction) == 'function') {
