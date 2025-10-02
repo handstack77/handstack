@@ -747,7 +747,7 @@
                             options = eval('(' + synOptions + ')');
                         }
                     } catch (error) {
-                         syn.$l.eventLog('$w.contentLoaded', 'elID: "{0}" syn-options 확인 필요: '.format(synControl.id) + error.message, 'Warning');
+                        syn.$l.eventLog('$w.contentLoaded', 'elID: "{0}" syn-options 확인 필요: '.format(synControl.id) + error.message, 'Warning');
                     }
 
                     if (options && options.transactConfig && options.transactConfig.triggerEvent) {
@@ -1722,7 +1722,7 @@
                                     else {
                                         for (const key in inputMapping.items) {
                                             const meta = inputMapping.items[key];
-                                            const dataFieldID = key; // syn-datafield
+                                            const dataFieldID = key;
                                             const fieldID = meta.fieldID; // DbColumnID
                                             const dataType = meta.dataType;
                                             const serviceObject = { prop: fieldID, val: '' };
@@ -1785,7 +1785,7 @@
                                         for (const key in inputMapping.items) {
                                             let isMapping = false;
                                             const meta = inputMapping.items[key];
-                                            const dataFieldID = key; // syn-datafield
+                                            const dataFieldID = key;
                                             const fieldID = meta.fieldID; // DbColumnID
                                             const dataType = meta.dataType;
                                             const serviceObject = { prop: fieldID, val: '' };
@@ -1830,13 +1830,12 @@
                                     }
                                 }
 
-                                transactionObject.inputs.push(inputObjects); // transactionObject.inputs.push($object.clone(inputObjects));
+                                transactionObject.inputs.push(inputObjects);
                                 transactionObject.inputsItemCount.push(1);
                             }
                             else if (inputMapping.requestType == 'List') {
-                                const dataFieldID = inputMapping.dataFieldID; // syn-datafield
+                                const dataFieldID = inputMapping.dataFieldID;
 
-                                let controlValue = '';
                                 if (synControls && synControls.length > 0) {
                                     let bindingControlInfos = synControls.filter(function (item) {
                                         return item.field == dataFieldID;
@@ -1916,6 +1915,10 @@
                                     }
                                 }
 
+                                if (inputObjects && inputObjects.length == 0) {
+                                    inputObjects = [[{ prop: 'DefaultEmpty', val: '' }]];
+                                };
+
                                 for (const key in inputObjects) {
                                     transactionObject.inputs.push(inputObjects[key]);
                                 }
@@ -1941,10 +1944,7 @@
                             }
                             else {
                                 if (responseData.length == transaction.outputs.length) {
-                                    // synControls 컨트롤 목록
                                     const synControls = $this.context.synControls;
-
-                                    // Output Mapping을 설정
                                     const outputLength = transaction.outputs.length;
                                     for (let outputIndex = 0; outputIndex < outputLength; outputIndex++) {
                                         const outputMapping = transaction.outputs[outputIndex];
@@ -1971,11 +1971,11 @@
 
                                                 for (const key in outputMapping.items) {
                                                     const meta = outputMapping.items[key];
-                                                    const dataFieldID = key; // syn-datafield
-                                                    const fieldID = meta.fieldID; // DbColumnID
+                                                    const dataFieldID = key;
+                                                    const fieldID = meta.fieldID;
 
                                                     const controlValue = outputData[fieldID];
-                                                    if (synControls && synControls.length > 0) {
+                                                    if (controlValue !== undefined && synControls && synControls.length > 0) {
                                                         let bindingControlInfos = synControls.filter(function (item) {
                                                             return item.field == dataFieldID && item.formDataFieldID == outputMapping.dataFieldID;
                                                         });
@@ -2026,7 +2026,7 @@
                                                 fieldID: responseFieldID,
                                                 Count: outputData.length
                                             });
-                                            const dataFieldID = outputMapping.dataFieldID; // syn-datafield
+                                            const dataFieldID = outputMapping.dataFieldID;
                                             if (synControls && synControls.length > 0) {
                                                 let bindingControlInfos = synControls.filter(function (item) {
                                                     return item.field == dataFieldID;
@@ -2086,7 +2086,7 @@
                                                 fieldID: responseFieldID,
                                                 Count: outputData.length
                                             });
-                                            const dataFieldID = outputMapping.dataFieldID; // syn-datafield
+                                            const dataFieldID = outputMapping.dataFieldID;
 
                                             if (synControls && synControls.length > 0) {
                                                 let bindingControlInfos = synControls.filter(function (item) {
@@ -2321,7 +2321,6 @@
                             else if (inputMapping.requestType == 'List') {
                                 const dataFieldID = inputMapping.dataFieldID;
 
-                                let controlValue = '';
                                 if (synControls && synControls.length > 0) {
                                     let bindingControlInfos = synControls.filter(function (item) {
                                         return item.field == dataFieldID;
@@ -2376,6 +2375,11 @@
                                         }
                                     }
                                 }
+
+
+                                if (inputObjects && inputObjects.length == 0) {
+                                    inputObjects = [[{ prop: 'DefaultEmpty', val: '' }]];
+                                };
 
                                 for (const key in inputObjects) {
                                     const input = {};
@@ -2467,7 +2471,7 @@
                                         const fieldID = meta.fieldID;
 
                                         const controlValue = outputData[fieldID];
-                                        if (synControls && synControls.length > 0) {
+                                        if (controlValue !== undefined && synControls && synControls.length > 0) {
                                             let bindingControlInfos = synControls.filter(function (item) {
                                                 return item.field == dataFieldID && item.formDataFieldID == outputMapping.dataFieldID;
                                             });

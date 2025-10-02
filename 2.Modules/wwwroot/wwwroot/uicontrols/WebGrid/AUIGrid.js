@@ -195,6 +195,7 @@
             enableDrop: false,
             enableSorting: true,
             enableMovingColumn: false,
+            wordWrap: false,
             editable: true,
             enterKeyColumnBase: true,
             selectionMode: 'multipleCells',
