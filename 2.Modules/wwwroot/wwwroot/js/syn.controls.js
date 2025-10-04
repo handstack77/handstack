@@ -10466,7 +10466,7 @@
 
     $auigrid.extend({
         name: 'syn.uicontrols.$auigrid',
-        version: 'v2025.9.24',
+        version: 'v2025.10.4',
 
         gridControls: [],
         gridCodeDatas: [],
@@ -10495,6 +10495,7 @@
             enableDrop: false,
             enableSorting: true,
             enableMovingColumn: false,
+            wordWrap: false,
             editable: true,
             enterKeyColumnBase: true,
             selectionMode: 'multipleCells',
@@ -11164,8 +11165,8 @@
 
                             if ($object.isNullOrUndefined(dataSource) == true) {
                                 mod.config.dataSource[storeSourceID] = {
-                                    CodeColumnID: 'CodeID',
-                                    ValueColumnID: 'CodeValue',
+                                    CodeColumnID: columnInfo.keyField || 'CodeID',
+                                    ValueColumnID: columnInfo.valueField || 'CodeValue',
                                     DataSource: []
                                 };
                                 dataSource = mod.config.dataSource[storeSourceID];
@@ -12230,7 +12231,7 @@
                     }
                 }
                 else {
-                    rowIndex = rowCount - 1;
+                    rowIndex = (rowIndex || rowCount) - 1;
                 }
 
                 if ($object.isString(dataField) == true) {
@@ -12240,10 +12241,6 @@
                     colIndex = dataField;
                 }
 
-                if (callback) {
-                    callback(rowIndex, colIndex);
-                }
-
                 if (rowIndex > -1) {
                     if (colIndex > -1) {
                         AUIGrid.setSelectionByIndex(gridID, rowIndex, colIndex);
@@ -12251,6 +12248,10 @@
                     else {
                         AUIGrid.setSelectionByIndex(gridID, rowIndex, 0);
                     }
+                }
+
+                if (callback) {
+                    callback(rowIndex, colIndex);
                 }
             }
         },
