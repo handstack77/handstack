@@ -11,7 +11,7 @@
 
 /* 그리드 메인 외곽 DIV */
 .aui-grid {
-    font-family: Pretendard, "Nanum Gothic", "Malgun Gothic", Gulim, 굴림, sans-serif;
+    font-family: 'Noto Sans KR', 'Pretendard', 'Nanum Gothic', 'Malgun Gothic', Gulim, 굴림, sans-serif;
     font-size: 14px;
     line-height: 1.2em;
     border: 1px solid #cccccc;
@@ -495,7 +495,7 @@
     border-radius: 4px;
     padding: 2px 8px;
     background: #fff;
-    font-family: Pretendard, "Nanum Gothic", "Malgun Gothic", Gulim, 굴림, sans-serif;
+    font-family: 'Noto Sans KR', 'Pretendard', 'Nanum Gothic', 'Malgun Gothic', Gulim, 굴림, sans-serif;
     font-size: 14px;
     z-index: 999;
     box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);
@@ -928,7 +928,7 @@
 
 /* 필터 팝업 레이어 */
 .aui-grid-filter-popup-layer {
-    font-family: Pretendard, "Nanum Gothic", "Malgun Gothic", Gulim, 굴림, sans-serif;
+    font-family: 'Noto Sans KR', 'Pretendard', 'Nanum Gothic', 'Malgun Gothic', Gulim, 굴림, sans-serif;
     font-size: 14px;
     background: #fff;
     border: 1px solid #aaaaaa;
@@ -981,7 +981,7 @@
 
 /* 필터 - 확장 필터 서브 메뉴 */
 .aui-grid-filter-popup-filter-exmenu-sub-layer {
-    font-family: Pretendard, "Nanum Gothic", "Malgun Gothic", Gulim, 굴림, sans-serif;
+    font-family: 'Noto Sans KR', 'Pretendard', 'Nanum Gothic', 'Malgun Gothic', Gulim, 굴림, sans-serif;
     font-size: 14px;
     background: #fff;
     border: 1px solid #aaaaaa;
@@ -1040,7 +1040,7 @@
 
 /* 사용자 필터 - 숫자, 텍스트 필터 Modal 다이얼로그 */
 .aui-grid-filter-modal-dialog {
-    font-family: Pretendard, "Nanum Gothic", "Malgun Gothic", Gulim, 굴림, sans-serif;
+    font-family: 'Noto Sans KR', 'Pretendard', 'Nanum Gothic', 'Malgun Gothic', Gulim, 굴림, sans-serif;
     font-size: 14px;
     position: relative;
     width: 100%;
@@ -1689,7 +1689,7 @@
 }
 
     .aui-grid-calendar-wrapper .aui-calendar {
-        font-family: Pretendard, "Nanum Gothic", "Malgun Gothic", Gulim, 굴림, sans-serif;
+        font-family: 'Noto Sans KR', 'Pretendard', 'Nanum Gothic', 'Malgun Gothic', Gulim, 굴림, sans-serif;
         background: #fff;
         font-size: 14px;
         width: 190px;
@@ -1915,7 +1915,7 @@
 /* bootstrap-datepicker, jquery-datepicker 달력 시작*/
 .aui-grid-bootstrap-calendar-wrapper,
 .aui-grid-jq-calendar-wrapper {
-    font-family: Pretendard, "Nanum Gothic", "Malgun Gothic", Gulim, 굴림, sans-serif;
+    font-family: 'Noto Sans KR', 'Pretendard', 'Nanum Gothic', 'Malgun Gothic', Gulim, 굴림, sans-serif;
     font-size: 13px;
     padding: 4px;
     position: absolute;
@@ -1940,7 +1940,7 @@
 
 /* 사용자 정의 에디트 렌더러 */
 .aui-grid-edit-renderer-custom {
-    font-family: Pretendard, "Nanum Gothic", "Malgun Gothic", Gulim, 굴림, sans-serif;
+    font-family: 'Noto Sans KR', 'Pretendard', 'Nanum Gothic', 'Malgun Gothic', Gulim, 굴림, sans-serif;
     font-size: 14px;
     background: #fff;
     border: 1px solid #aaaaaa;
