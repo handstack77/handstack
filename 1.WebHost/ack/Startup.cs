@@ -107,6 +107,7 @@ namespace ack
             GlobalConfiguration.FindGlobalIDServer = appSettings["FindGlobalIDServer"].ToStringSafe();
             GlobalConfiguration.IsTenantFunction = bool.Parse(appSettings["IsTenantFunction"].ToStringSafe("false"));
             GlobalConfiguration.IsExceptionDetailText = bool.Parse(appSettings["IsExceptionDetailText"].ToStringSafe("false"));
+            GlobalConfiguration.IsSwaggerUI = bool.Parse(appSettings["IsSwaggerUI"].ToStringSafe("false"));
             GlobalConfiguration.IsModulePurgeContract = bool.Parse(appSettings["IsModulePurgeContract"].ToStringSafe("true"));
             GlobalConfiguration.SessionCookieName = appSettings.GetSection("SessionState").Exists() == true && bool.Parse(appSettings["SessionState:IsSession"].ToStringSafe("false")) == true ? appSettings["SessionState:SessionCookieName"].ToStringSafe("") : "";
             GlobalConfiguration.CookiePrefixName = appSettings["CookiePrefixName"].ToStringSafe("HandStack");
@@ -539,8 +540,10 @@ namespace ack
                 configuration.RegisterServicesFromAssembly(typeof(Program).Assembly);
             });
 
-            services.AddSwaggerGen();
-
+            if (GlobalConfiguration.IsSwaggerUI == true)
+            {
+                services.AddSwaggerGen();
+            }
             services.AddScoped<TransactionClient>();
             services.AddScoped<MediatorClient>();
             services.AddScoped<IMediator, Mediator>();
@@ -1006,11 +1009,14 @@ namespace ack
                 });
             }
 
-            if (environment != null && environment.IsDevelopment() == true)
+            if (GlobalConfiguration.IsSwaggerUI == true)
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
+            }
 
+            if (GlobalConfiguration.IsExceptionDetailText == true)
+            {
                 app.UseDeveloperExceptionPage();
             }
 

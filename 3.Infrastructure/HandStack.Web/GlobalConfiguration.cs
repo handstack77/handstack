@@ -80,6 +80,7 @@ namespace HandStack.Web
         public static int StaticFileCacheMaxAge = 0;
         public static bool IsTenantFunction = false;
         public static bool IsExceptionDetailText = false;
+        public static bool IsSwaggerUI = false;
         public static bool IsModulePurgeContract = true;
         public static string TenantAppRequestPath = "";
         public static string TenantAppBasePath = "";
