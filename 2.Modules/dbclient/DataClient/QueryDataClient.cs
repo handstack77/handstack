@@ -3319,14 +3319,24 @@ TransactionException:
                                         var businessDatabase = new DatabaseFactory(businessConnectionInfo.Item1, businessConnectionInfo.Item2);
                                         if (businessDatabase.Connection != null)
                                         {
-                                            using var businessReader = await businessDatabase.Connection.ExecuteReaderAsync(commandText, businessParameters);
-                                            using var dsCodes = DataTableHelper.DataReaderToDataSet(businessReader);
-                                            if (dsCodes == null || dsCodes.Tables.Count == 0)
+                                            using (var businessReader = await businessDatabase.Connection.ExecuteReaderAsync(commandText, businessParameters))
+                                            using (var dsCodes = DataTableHelper.DataReaderToDataSet(businessReader))
                                             {
-                                            }
-                                            else
-                                            {
-                                                responseCodeObject.DataSource = dsCodes.Tables[0];
+                                                try
+                                                {
+                                                    if (dsCodes == null || dsCodes.Tables.Count == 0)
+                                                    {
+                                                    }
+                                                    else
+                                                    {
+                                                        responseCodeObject.DataSource = dsCodes.Tables[0];
+                                                    }
+                                                }
+                                                finally
+                                                {
+                                                    businessReader.Close();
+                                                    businessDatabase.Connection.Close();
+                                                }
                                             }
                                         }
                                     }
