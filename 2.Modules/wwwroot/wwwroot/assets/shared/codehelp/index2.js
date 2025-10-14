@@ -127,7 +127,7 @@ let $index2 = {
                         text: item[$this.prop.codeConfig.ValueColumnID]
                     };
 
-                    var code = syn.$w.argumentsExtend(item, code);
+                    code = syn.$w.argumentsExtend(item, code);
                     delete code['Flag'];
                     result = [code];
                 }
@@ -253,10 +253,13 @@ let $index2 = {
                         var codeData = item[codeConfig.CodeColumnID];
                         var valueData = item[codeConfig.ValueColumnID];
                         if (codeData && valueData) {
-                            result = [{
+                            var code = {
                                 value: codeData,
-                                text: valueData
-                            }];
+                                text: item[codeConfig.ValueColumnID]
+                            };
+                            code = syn.$w.argumentsExtend(item, code);
+                            delete code['Flag'];
+                            result = [code];
                         }
                         else {
                             syn.$l.eventLog('$codehelp.initialize', 'CodeID: {0} 또는 ValueID: {1} 확인 필요'.format(codeConfig.CodeColumnID, codeConfig.ValueColumnID), 'Error');

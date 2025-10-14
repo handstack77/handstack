@@ -270,10 +270,14 @@ let $index = {
                         var codeData = item[codeConfig.CodeColumnID];
                         var valueData = item[codeConfig.ValueColumnID];
                         if (codeData && valueData) {
-                            result = [{
+                            var code = {
                                 value: codeData,
                                 text: valueData
-                            }];
+                            };
+
+                            code = syn.$w.argumentsExtend(item, code);
+                            delete code['Flag'];
+                            result = [code];
                         }
                         else {
                             syn.$l.eventLog('$codehelp.initialize', 'CodeID: {0} 또는 ValueID: {1} 확인 필요'.format(codeConfig.CodeColumnID, codeConfig.ValueColumnID), 'Error');

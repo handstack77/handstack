@@ -8398,6 +8398,7 @@
             prefixHtml: '',
             suffixHtml: '',
             limitGuideLineWidth: '',
+            deprecation_warnings: false,
             dataType: 'string',
             belongID: null,
             getter: false,
@@ -10478,7 +10479,7 @@
             rowHeight: 40,
             showFooter: false,
             footerPosition: 'bottom',
-            enableClipboard: true,
+            enableClipboard: false,
             wrapSelectionMove: false,
             fillColumnSizeMode: false,
             enableCellMerge: false,
@@ -11265,11 +11266,28 @@
                                         if (columnInfo && columnInfo.columnType == 'codehelp') {
                                             if (rowIndex > -1) {
                                                 var synOptions = syn.$w.argumentsExtend(syn.uicontrols.$codepicker.defaultSetting, columnInfo);
+
+                                                var codeButtonHandler = mod.event['{0}_codeButtonClick'.format(elID)];
+                                                if (codeButtonHandler) {
+                                                    var codeOptions = codeButtonHandler(elID, evt.rowIndex, evt.columnIndex, evt.dataField, evt.item);
+                                                    if ($object.isObject(codeOptions) == true) {
+                                                        synOptions = syn.$w.argumentsExtend(synOptions, codeOptions);
+                                                    }
+                                                    else if ($string.toBoolean(codeOptions) == false) {
+                                                        return;
+                                                    }
+                                                }
+
                                                 synOptions.elID = elID;
                                                 synOptions.viewType = 'auigrid';
                                                 synOptions.url = $auigrid.codeHelpUrl || '';
                                                 synOptions.searchText = evt.text || '';
                                                 syn.uicontrols.$codepicker.find(synOptions, function (result) {
+                                                    var changeHandler = mod.event['{0}_codeChange'.format(elID)];
+                                                    if (changeHandler) {
+                                                        changeHandler(elID, evt.rowIndex, evt.columnIndex, evt.dataField, result);
+                                                    }
+
                                                     var returnHandler = mod.hook.frameEvent;
                                                     if (returnHandler) {
                                                         returnHandler.call(this, 'codeReturn', {
@@ -12417,12 +12435,27 @@
                         if ($string.isNullOrEmpty(dataField) == false) {
                             AUIGrid.showColumnByDataField(gridID, dataField);
                         }
-                    } else {
+                    }
+                    else if ($object.isString(columns) == true) {
+                        var columnIndex = AUIGrid.getColumnIndexByDataField(gridID, columns);
+                        if (columnIndex > -1) {
+                            AUIGrid.showColumnByDataField(gridID, columns);
+                        }
+                    }
+                    else {
                         for (var i = 0, length = columns.length; i < length; i++) {
                             var column = columns[i];
-                            var dataField = AUIGrid.getDataFieldByColumnIndex(gridID, column);
-                            if ($string.isNullOrEmpty(dataField) == false) {
-                                AUIGrid.showColumnByDataField(gridID, dataField);
+                            if ($object.isNumber(column) == true) {
+                                var dataField = AUIGrid.getDataFieldByColumnIndex(gridID, column);
+                                if ($string.isNullOrEmpty(dataField) == false) {
+                                    AUIGrid.showColumnByDataField(gridID, dataField);
+                                }
+                            }
+                            else if ($object.isString(column) == true) {
+                                var columnIndex = AUIGrid.getColumnIndexByDataField(gridID, column);
+                                if (columnIndex > -1) {
+                                    AUIGrid.showColumnByDataField(gridID, column);
+                                }
                             }
                         }
                     }
@@ -12432,12 +12465,27 @@
                         if ($string.isNullOrEmpty(dataField) == false) {
                             AUIGrid.hideColumnByDataField(gridID, dataField);
                         }
-                    } else {
+                    }
+                    else if ($object.isString(columns) == true) {
+                        var columnIndex = AUIGrid.getColumnIndexByDataField(gridID, columns);
+                        if (columnIndex > -1) {
+                            AUIGrid.hideColumnByDataField(gridID, columns);
+                        }
+                    }
+                    else {
                         for (var i = 0, length = columns.length; i < length; i++) {
                             var column = columns[i];
-                            var dataField = AUIGrid.getDataFieldByColumnIndex(gridID, column);
-                            if ($string.isNullOrEmpty(dataField) == false) {
-                                AUIGrid.hideColumnByDataField(gridID, dataField);
+                            if ($object.isNumber(column) == true) {
+                                var dataField = AUIGrid.getDataFieldByColumnIndex(gridID, column);
+                                if ($string.isNullOrEmpty(dataField) == false) {
+                                    AUIGrid.hideColumnByDataField(gridID, dataField);
+                                }
+                            }
+                            else if ($object.isString(column) == true) {
+                                var columnIndex = AUIGrid.getColumnIndexByDataField(gridID, column);
+                                if (columnIndex > -1) {
+                                    AUIGrid.hideColumnByDataField(gridID, column);
+                                }
                             }
                         }
                     }
@@ -12927,6 +12975,10 @@
         },
 
         getDataAtCell(elID, rowIndex, dataField) {
+            if ($string.isNullOrEmpty(rowIndex) == true) {
+                return null;
+            }
+
             return $auigrid.getCellValue(elID, rowIndex, dataField);
         },
 

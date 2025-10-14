@@ -1540,11 +1540,6 @@
                     return;
                 }
 
-                if (popupOptions.notifyActions.length == 0) {
-                    syn.$l.eventLog('syn.domain.windowOpen', 'notifyActions 속성 확인 필요', 'Warning');
-                    return;
-                }
-
                 var channelID = popupOptions.channelID ? popupOptions.channelID : null;
                 popupOptions.title = $object.isNullOrUndefined(popupOptions.title) == false ? popupOptions.title : elID;
 

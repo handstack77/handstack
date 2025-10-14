@@ -56,6 +56,7 @@
             prefixHtml: '',
             suffixHtml: '',
             limitGuideLineWidth: '',
+            deprecation_warnings: false,
             dataType: 'string',
             belongID: null,
             getter: false,
