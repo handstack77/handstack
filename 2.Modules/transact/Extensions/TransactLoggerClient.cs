@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 using HandStack.Core.ExtensionMethod;
@@ -23,40 +25,140 @@ using transact.Entity;
 
 namespace transact.Extensions
 {
-    public class TransactLoggerClient
+    public class TransactLoggerClient : IDisposable
     {
-        private readonly RestClient restClient = new RestClient();
+        private readonly RestClient restClient;
+        private readonly Serilog.ILogger logger;
+        private readonly Serilog.ILogger? transactionLogger;
 
-        private Serilog.ILogger logger { get; }
+        // 비동기 큐 처리
+        private readonly BlockingCollection<LogRequest> logQueue;
+        private readonly CancellationTokenSource cancellationTokenSource;
+        private readonly Task[] backgroundWorkers;
 
-        private Serilog.ILogger? transactionLogger { get; }
+        // Circuit Breaker 정책
+        private CircuitBreakerPolicy<RestResponse> circuitBreakerPolicy;
+        private readonly object circuitBreakerLock = new object();
+        private DateTime? breakDateTime;
 
-        public CircuitBreakerPolicy<RestResponse>? circuitBreakerPolicy = null;
+        // ObjectPool 구현
+        private readonly ConcurrentBag<LogMessage> logMessagePool;
+        private const int MaxPoolSize = 1000;
 
-        public DateTime? BreakDateTime = DateTime.Now;
+        // 배치 처리 설정
+        private const int BatchSize = 100;
+        private const int BatchDelayMs = 1000;
+        private const int MaxQueueSize = 10000;
+        private const int WorkerCount = 3;
+
+        // 재시도 설정
+        private const int MaxRetryCount = 2;
+        private const int RetryDelayMs = 100;
+
+        public CircuitState CircuitState => circuitBreakerPolicy?.CircuitState ?? CircuitState.Closed;
+        public DateTime? BreakDateTime => breakDateTime;
 
         public TransactLoggerClient(Serilog.ILogger logger, Serilog.ILogger? transactionLogger = null)
         {
             this.logger = logger;
             this.transactionLogger = transactionLogger;
 
-            circuitBreakerPolicy = Policy
-                .HandleResult<RestResponse>(x =>
-                {
-                    return x.IsSuccessStatusCode == false;
-                })
-                .CircuitBreaker(1, TimeSpan.FromSeconds(ModuleConfiguration.CircuitBreakResetSecond),
-                onBreak: (iRestResponse, timespan, context) =>
-                {
-                    logger.Error("[{LogCategory}] " + $"TransactLoggerClient CircuitBreaker Error Reason: {iRestResponse.Result.Content}", "CircuitBreaker/onBreak");
-                },
-                onReset: (context) =>
-                {
-                    logger.Information("[{LogCategory}] " + $"TransactLoggerClient CircuitBreaker Reset, DateTime={DateTime.Now}", "CircuitBreaker/onReset");
-                });
+            // RestClient 설정
+            restClient = new RestClient();
+
+            // 큐 초기화
+            logQueue = new BlockingCollection<LogRequest>(MaxQueueSize);
+
+            // ObjectPool 초기화
+            logMessagePool = new ConcurrentBag<LogMessage>();
+
+            // Circuit Breaker 정책
+            InitializeCircuitBreaker();
+
+            // 백그라운드 워커 시작
+            cancellationTokenSource = new CancellationTokenSource();
+            backgroundWorkers = new Task[WorkerCount];
+            for (int i = 0; i < WorkerCount; i++)
+            {
+                int workerId = i;
+                backgroundWorkers[i] = Task.Run(() => ProcessLogQueueAsync(workerId, cancellationTokenSource.Token));
+            }
+
+            logger.Information($"[TransactLoggerClient] Initialized with {WorkerCount} workers, queue capacity: {MaxQueueSize}");
         }
 
-        public RestResponse? Send(Method httpVerb, string hostUrl, LogMessage logMessage, Action<string> fallbackFunction, Dictionary<string, string>? headers = null)
+        private void InitializeCircuitBreaker()
+        {
+            circuitBreakerPolicy = Policy
+                .HandleResult<RestResponse>(x => x.IsSuccessStatusCode == false)
+                .CircuitBreaker(
+                    handledEventsAllowedBeforeBreaking: 3,
+                    durationOfBreak: TimeSpan.FromSeconds(ModuleConfiguration.CircuitBreakResetSecond),
+                    onBreak: (result, timespan) =>
+                    {
+                        breakDateTime = DateTime.Now;
+                        logger.Error($"[CircuitBreaker/onBreak] TransactLoggerClient Circuit opened for {timespan.TotalSeconds}s. Reason: {result.Result?.Content}");
+                    },
+                    onReset: () =>
+                    {
+                        breakDateTime = null;
+                        logger.Information($"[CircuitBreaker/onReset] TransactLoggerClient Circuit reset at {DateTime.Now}");
+                    },
+                    onHalfOpen: () =>
+                    {
+                        logger.Information("[CircuitBreaker/onHalfOpen] TransactLoggerClient Circuit is half-open, testing...");
+                    });
+        }
+
+        #region ObjectPool Methods
+
+        private LogMessage GetLogMessage()
+        {
+            if (logMessagePool.TryTake(out var logMessage))
+            {
+                ResetLogMessage(logMessage);
+                return logMessage;
+            }
+            return new LogMessage();
+        }
+
+        private void ReturnLogMessage(LogMessage logMessage)
+        {
+            if (logMessage != null && logMessagePool.Count < MaxPoolSize)
+            {
+                ResetLogMessage(logMessage);
+                logMessagePool.Add(logMessage);
+            }
+        }
+
+        private void ResetLogMessage(LogMessage logMessage)
+        {
+            logMessage.ServerID = GlobalConfiguration.HostName;
+            logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
+            logMessage.ProgramName = ModuleConfiguration.ModuleID;
+            logMessage.GlobalID = null;
+            logMessage.Acknowledge = null;
+            logMessage.ApplicationID = null;
+            logMessage.ProjectID = null;
+            logMessage.TransactionID = null;
+            logMessage.ServiceID = null;
+            logMessage.Type = null;
+            logMessage.Flow = null;
+            logMessage.Level = null;
+            logMessage.Format = null;
+            logMessage.Message = null;
+            logMessage.Properties = null;
+            logMessage.UserID = null;
+            logMessage.CreatedAt = null;
+        }
+
+        #endregion
+
+        #region HTTP Send Methods
+
+        public async Task<RestResponse> SendAsync(Method httpVerb, string hostUrl, LogMessage logMessage,
+            Action<string>? fallbackFunction = null, Dictionary<string, string>? headers = null,
+            CancellationToken cancellationToken = default)
         {
             var restResponse = new RestResponse
             {
@@ -68,40 +170,14 @@ namespace transact.Extensions
 
             try
             {
-                if (string.IsNullOrEmpty(hostUrl) == true)
+                if (string.IsNullOrEmpty(hostUrl))
                 {
-                    fallbackFunction($"hostUrl 오류: {hostUrl}");
+                    fallbackFunction?.Invoke($"hostUrl 오류: {hostUrl}");
                     return restResponse;
                 }
 
-                var restRequest = new RestRequest(hostUrl, httpVerb);
-                restRequest.AddHeader("cache-control", "no-cache");
-                if (headers != null && headers.Count > 0)
-                {
-                    foreach (var header in headers)
-                    {
-                        restRequest.AddHeader(header.Key, header.Value);
-                    }
-
-                    if (headers.ContainsKey("Content-Type") == false)
-                    {
-                        restRequest.AddHeader("Content-Type", "application/json");
-                    }
-                }
-                else
-                {
-                    restRequest.AddHeader("Content-Type", "application/json");
-                }
-
-                logMessage.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
-
-                var json = JsonConvert.SerializeObject(logMessage);
-                if (httpVerb != Method.Get)
-                {
-                    restRequest.AddStringBody(json, DataFormat.Json);
-                }
-
-                restResponse = this.RestResponseWithPolicy(restRequest, fallbackFunction);
+                var restRequest = CreateRestRequest(httpVerb, hostUrl, logMessage, headers);
+                restResponse = await ExecuteWithRetryAndCircuitBreakerAsync(restRequest, fallbackFunction, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -109,50 +185,154 @@ namespace transact.Extensions
                 {
                     Content = ex.Message,
                     ErrorMessage = ex.Message,
-                    ResponseStatus = ResponseStatus.TimedOut,
+                    ResponseStatus = ResponseStatus.Error,
                     StatusCode = HttpStatusCode.ServiceUnavailable
                 };
+                fallbackFunction?.Invoke($"Exception: {ex.Message}");
             }
 
             return restResponse;
         }
 
-        private RestResponse? RestResponseWithPolicy(RestRequest restRequest, Action<string> fallbackFunction)
+        private RestRequest CreateRestRequest(Method httpVerb, string hostUrl, LogMessage logMessage, Dictionary<string, string>? headers)
         {
-            RestResponse? result = null;
-            if (circuitBreakerPolicy != null && circuitBreakerPolicy.CircuitState == CircuitState.Closed)
-            {
-                result = circuitBreakerPolicy.Execute(() =>
-                {
-                    return restClient.Execute(restRequest);
-                });
+            var restRequest = new RestRequest(hostUrl, httpVerb);
+            restRequest.AddHeader("cache-control", "no-cache");
 
-                if (result.IsSuccessStatusCode == false)
+            if (headers != null && headers.Count > 0)
+            {
+                foreach (var header in headers)
                 {
-                    BreakDateTime = DateTime.Now;
+                    restRequest.AddHeader(header.Key, header.Value);
+                }
+
+                if (!headers.ContainsKey("Content-Type"))
+                {
+                    restRequest.AddHeader("Content-Type", "application/json");
                 }
             }
             else
             {
-                if (circuitBreakerPolicy == null)
-                {
+                restRequest.AddHeader("Content-Type", "application/json");
+            }
 
-                }
-                else
+            logMessage.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+
+            if (httpVerb != Method.Get)
+            {
+                var json = JsonConvert.SerializeObject(logMessage);
+                restRequest.AddStringBody(json, DataFormat.Json);
+            }
+
+            return restRequest;
+        }
+
+        private async Task<RestResponse> ExecuteWithRetryAndCircuitBreakerAsync(RestRequest restRequest,
+            Action<string>? fallbackFunction, CancellationToken cancellationToken)
+        {
+            RestResponse response = null;
+            int retryCount = 0;
+
+            while (retryCount <= MaxRetryCount)
+            {
+                try
                 {
-                    fallbackFunction($"CircuitBreaker Error Reason: {circuitBreakerPolicy.CircuitState}");
+                    lock (circuitBreakerLock)
+                    {
+                        if (circuitBreakerPolicy.CircuitState == CircuitState.Open)
+                        {
+                            if (breakDateTime.HasValue &&
+                                DateTime.Now >= breakDateTime.Value.AddSeconds(ModuleConfiguration.CircuitBreakResetSecond))
+                            {
+                                try
+                                {
+                                    circuitBreakerPolicy.Reset();
+                                }
+                                catch { }
+                            }
+                            else
+                            {
+                                fallbackFunction?.Invoke("Circuit is open");
+                                return new RestResponse
+                                {
+                                    ErrorMessage = "Circuit breaker is open",
+                                    ResponseStatus = ResponseStatus.Error,
+                                    StatusCode = HttpStatusCode.ServiceUnavailable
+                                };
+                            }
+                        }
+                    }
+
+                    response = circuitBreakerPolicy.Execute(() =>
+                    {
+                        return restClient.ExecuteAsync(restRequest, cancellationToken).GetAwaiter().GetResult();
+                    });
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        return response;
+                    }
+
+                    if (retryCount < MaxRetryCount && IsRetryableError(response))
+                    {
+                        retryCount++;
+                        var delay = RetryDelayMs * retryCount;
+                        logger.Warning($"[Retry] Attempt {retryCount}/{MaxRetryCount}, waiting {delay}ms. Status: {response.StatusCode}");
+                        await Task.Delay(delay, cancellationToken);
+                        continue;
+                    }
+
+                    fallbackFunction?.Invoke($"HTTP {(int)response.StatusCode}: {response.Content}");
+                    return response;
+                }
+                catch (BrokenCircuitException ex)
+                {
+                    fallbackFunction?.Invoke($"Circuit is open: {ex.Message}");
+                    return new RestResponse
+                    {
+                        ErrorMessage = "Circuit breaker is open",
+                        ResponseStatus = ResponseStatus.Error,
+                        StatusCode = HttpStatusCode.ServiceUnavailable
+                    };
+                }
+                catch (Exception ex)
+                {
+                    if (retryCount < MaxRetryCount)
+                    {
+                        retryCount++;
+                        var delay = RetryDelayMs * retryCount;
+                        logger.Warning($"[Retry] Exception on attempt {retryCount}/{MaxRetryCount}: {ex.Message}");
+                        await Task.Delay(delay, cancellationToken);
+                        continue;
+                    }
+
+                    throw;
                 }
             }
 
-            return result;
+            return response ?? new RestResponse
+            {
+                ErrorMessage = "Max retries exceeded",
+                ResponseStatus = ResponseStatus.Error,
+                StatusCode = HttpStatusCode.ServiceUnavailable
+            };
         }
 
-        public void ProgramMessageLogging(string globalID, string acknowledge, string message, string properties, Action<string> fallbackFunction)
+        private bool IsRetryableError(RestResponse response)
         {
-            var logMessage = new LogMessage();
-            logMessage.ServerID = GlobalConfiguration.HostName;
-            logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
-            logMessage.ProgramName = ModuleConfiguration.ModuleID;
+            return response.StatusCode == HttpStatusCode.RequestTimeout ||
+                   response.StatusCode == HttpStatusCode.ServiceUnavailable ||
+                   response.StatusCode == HttpStatusCode.GatewayTimeout ||
+                   response.StatusCode == (HttpStatusCode)429;
+        }
+
+        #endregion
+
+        #region Public Logging Methods
+
+        public void ProgramMessageLogging(string globalID, string acknowledge, string message, string properties, Action<string>? fallbackFunction = null)
+        {
+            var logMessage = GetLogMessage();
             logMessage.GlobalID = globalID;
             logMessage.Acknowledge = acknowledge;
             logMessage.ApplicationID = GlobalConfiguration.ApplicationID;
@@ -167,28 +347,13 @@ namespace transact.Extensions
             logMessage.Properties = properties;
             logMessage.UserID = "";
 
-            if (ModuleConfiguration.IsLogServer == true)
-            {
-                var logRequest = new LogRequest();
-                logRequest.LogMessage = logMessage;
-                logRequest.FallbackFunction = fallbackFunction;
-
-                Task.Run(() => { BackgroundTask(logRequest); });
-            }
-            else
-            {
-                logMessage.Message = "";
-                transactionLogger?.Information($"Program GlobalID: {globalID}, {JsonConvert.SerializeObject(logMessage)}");
-                transactionLogger?.Information("[{LogCategory}] " + message, properties);
-            }
+            EnqueueLog(logMessage, fallbackFunction, "Program", null, null);
         }
 
-        public void TransactionMessageLogging(string globalID, string acknowledge, string applicationID, string projectID, string transactionID, string serviceID, string message, string properties, Action<string> fallbackFunction)
+        public void TransactionMessageLogging(string globalID, string acknowledge, string applicationID, string projectID,
+            string transactionID, string serviceID, string message, string properties, Action<string>? fallbackFunction = null)
         {
-            var logMessage = new LogMessage();
-            logMessage.ServerID = GlobalConfiguration.HostName;
-            logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
-            logMessage.ProgramName = ModuleConfiguration.ModuleID;
+            var logMessage = GetLogMessage();
             logMessage.GlobalID = globalID;
             logMessage.Acknowledge = acknowledge;
             logMessage.ApplicationID = applicationID;
@@ -203,30 +368,14 @@ namespace transact.Extensions
             logMessage.Properties = properties;
             logMessage.UserID = "";
 
-            if (ModuleConfiguration.IsLogServer == true)
-            {
-                var logRequest = new LogRequest();
-                logRequest.LogMessage = logMessage;
-                logRequest.FallbackFunction = fallbackFunction;
-
-                Task.Run(() => { BackgroundTask(logRequest); });
-            }
-            else
-            {
-                logMessage.Message = "";
-                transactionLogger?.Information($"Transaction GlobalID: {globalID}, {JsonConvert.SerializeObject(logMessage)}");
-                transactionLogger?.Information("[{LogCategory}] " + message, properties);
-            }
+            EnqueueLog(logMessage, fallbackFunction, "Transaction", null, null);
         }
 
-        public void TransactionRequestLogging(TransactionRequest request, string userWorkID, string acknowledge, Action<string> fallbackFunction)
+        public void TransactionRequestLogging(TransactionRequest request, string userWorkID, string acknowledge, Action<string>? fallbackFunction = null)
         {
-            var logMessage = new LogMessage();
-            logMessage.ServerID = GlobalConfiguration.HostName;
-            logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
-            logMessage.ProgramName = ModuleConfiguration.ModuleID;
+            var logMessage = GetLogMessage();
             logMessage.GlobalID = request.Transaction.GlobalID;
-            logMessage.Acknowledge = string.IsNullOrEmpty(acknowledge) == true ? "N" : acknowledge;
+            logMessage.Acknowledge = string.IsNullOrEmpty(acknowledge) ? "N" : acknowledge;
             logMessage.ApplicationID = request.System.ProgramID;
             logMessage.ProjectID = request.Transaction.BusinessID;
             logMessage.TransactionID = request.Transaction.TransactionID;
@@ -239,60 +388,14 @@ namespace transact.Extensions
             logMessage.Properties = JsonConvert.SerializeObject(request.PayLoad.Property);
             logMessage.UserID = request.Transaction.OperatorID;
 
-            if (ModuleConfiguration.IsLogServer == true)
-            {
-                var logRequest = new LogRequest();
-                logRequest.LogMessage = logMessage;
-                logRequest.FallbackFunction = fallbackFunction;
-
-                Task.Run(() => { BackgroundTask(logRequest); });
-            }
-            else
-            {
-                transactionLogger?.Warning($"Request GlobalID: {request.Transaction.GlobalID}, JSON: {JsonConvert.SerializeObject(logMessage)}");
-            }
-
-            if (ModuleConfiguration.IsTransactAggregate == true && request.AcceptDateTime != null)
-            {
-                try
-                {
-                    var applicationID = request.System.ProgramID;
-                    var connectionString = ModuleExtensions.GetLogDbConnectionString(userWorkID, applicationID);
-                    if (string.IsNullOrEmpty(connectionString) == false)
-                    {
-                        var acceptDateTime = (DateTime)request.AcceptDateTime;
-                        ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, connectionString, "TAG.TAG010.MD01", new
-                        {
-                            CreateDate = acceptDateTime.ToString("yyyyMMdd"),
-                            CreateHour = acceptDateTime.ToString("HH"),
-                            ProjectID = request.Transaction.BusinessID,
-                            TransactionID = request.Transaction.TransactionID,
-                            FeatureID = request.Transaction.FunctionID,
-                            LatelyRequestAt = acceptDateTime.ToString("yyyy-MM-dd HH:mm:ss"),
-                            LatelyResponseAt = "",
-                            Acknowledge = "0",
-                        });
-                    }
-                    else
-                    {
-                        logger.Error($"[{{LogCategory}}] 로그 집계 연결 문자열 확인 필요 applicationID: {applicationID}, transactionRequest: {JsonConvert.SerializeObject(request)}", "TransactLoggerClient/TransactionRequestLogging");
-                    }
-                }
-                catch (Exception exception)
-                {
-                    logger.Error(exception, $"[{{LogCategory}}] 로그 집계 입력 오류 transactionRequest: {JsonConvert.SerializeObject(request)}", "TransactLoggerClient/TransactionRequestLogging");
-                }
-            }
+            EnqueueLog(logMessage, fallbackFunction, "Request", request, null, userWorkID);
         }
 
-        public void TransactionResponseLogging(TransactionResponse response, string userWorkID, string acknowledge, Action<string> fallbackFunction)
+        public void TransactionResponseLogging(TransactionResponse response, string userWorkID, string acknowledge, Action<string>? fallbackFunction = null)
         {
-            var logMessage = new LogMessage();
-            logMessage.ServerID = GlobalConfiguration.HostName;
-            logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
-            logMessage.ProgramName = ModuleConfiguration.ModuleID;
+            var logMessage = GetLogMessage();
             logMessage.GlobalID = response.Transaction.GlobalID;
-            logMessage.Acknowledge = string.IsNullOrEmpty(acknowledge) == true ? "N" : acknowledge;
+            logMessage.Acknowledge = string.IsNullOrEmpty(acknowledge) ? "N" : acknowledge;
             logMessage.ApplicationID = response.System.ProgramID;
             logMessage.ProjectID = response.Transaction.BusinessID;
             logMessage.TransactionID = response.Transaction.TransactionID;
@@ -305,45 +408,132 @@ namespace transact.Extensions
             logMessage.Properties = JsonConvert.SerializeObject(response.Result.Property);
             logMessage.UserID = response.Transaction.OperatorID;
 
-            if (ModuleConfiguration.IsLogServer == true)
-            {
-                var logRequest = new LogRequest();
-                logRequest.LogMessage = logMessage;
-                logRequest.FallbackFunction = fallbackFunction;
+            EnqueueLog(logMessage, fallbackFunction, "Response", null, response, userWorkID);
+        }
 
-                Task.Run(() => { BackgroundTask(logRequest); });
+        #endregion
+
+        #region Enqueue & Local Logging
+
+        private void EnqueueLog(LogMessage logMessage, Action<string>? fallbackFunction, string logType,
+            TransactionRequest? request = null, TransactionResponse? response = null, string? userWorkID = null)
+        {
+            if (ModuleConfiguration.IsLogServer)
+            {
+                var logRequest = new LogRequest
+                {
+                    LogMessage = logMessage,
+                    FallbackFunction = fallbackFunction,
+                    LogType = logType,
+                    Request = request,
+                    Response = response,
+                    UserWorkID = userWorkID
+                };
+
+                if (!logQueue.TryAdd(logRequest, 0))
+                {
+                    logger.Warning($"[LogQueue] Queue full (size: {logQueue.Count}), dropping {logType} log for GlobalID: {logMessage.GlobalID}");
+                    fallbackFunction?.Invoke("Log queue is full");
+                    ReturnLogMessage(logMessage);
+                }
             }
             else
             {
-                transactionLogger?.Warning($"Response GlobalID: {response.Transaction.GlobalID}, JSON: {JsonConvert.SerializeObject(logMessage)}");
+                LogLocally(logMessage, logType);
+                ReturnLogMessage(logMessage);
             }
 
-            if (ModuleConfiguration.IsTransactAggregate == true && response.AcceptDateTime != null)
+            // Aggregate 처리 (비동기)
+            if (request != null)
             {
-                try
-                {
-                    var applicationID = response.System.ProgramID;
-                    var connectionString = ModuleExtensions.GetLogDbConnectionString(userWorkID, applicationID);
-                    if (string.IsNullOrEmpty(connectionString) == false)
+                ProcessRequestAggregate(request, userWorkID);
+            }
+            else if (response != null)
+            {
+                ProcessResponseAggregate(response, userWorkID);
+            }
+        }
+
+        private void LogLocally(LogMessage logMessage, string logType)
+        {
+            var messageForLog = logMessage.Message;
+            logMessage.Message = "";
+
+            switch (logType)
+            {
+                case "Request":
+                case "Response":
+                    transactionLogger?.Warning($"{logType} GlobalID: {logMessage.GlobalID}, JSON: {JsonConvert.SerializeObject(logMessage)}");
+                    break;
+                default:
+                    transactionLogger?.Information($"{logType} GlobalID: {logMessage.GlobalID}, {JsonConvert.SerializeObject(logMessage)}");
+                    if (!string.IsNullOrEmpty(messageForLog))
                     {
-                        var acceptDateTime = (DateTime)response.AcceptDateTime;
-                        var currentDateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                        if (response.Acknowledge == AcknowledgeType.Success)
+                        transactionLogger?.Information($"[{{LogCategory}}] {messageForLog}", logMessage.Properties);
+                    }
+                    break;
+            }
+        }
+
+        #endregion
+
+        #region Aggregate Processing
+
+        private void ProcessRequestAggregate(TransactionRequest request, string? userWorkID)
+        {
+            if (ModuleConfiguration.IsTransactAggregate && request.AcceptDateTime != null)
+            {
+                Task.Run(() =>
+                {
+                    try
+                    {
+                        var applicationID = request.System.ProgramID;
+                        var connectionString = ModuleExtensions.GetLogDbConnectionString(userWorkID, applicationID);
+                        if (!string.IsNullOrEmpty(connectionString))
                         {
-                            ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, connectionString, "TAG.TAG010.UD01", new
+                            var acceptDateTime = (DateTime)request.AcceptDateTime;
+                            ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, connectionString, "TAG.TAG010.MD01", new
                             {
                                 CreateDate = acceptDateTime.ToString("yyyyMMdd"),
                                 CreateHour = acceptDateTime.ToString("HH"),
-                                ProjectID = response.Transaction.BusinessID,
-                                TransactionID = response.Transaction.TransactionID,
-                                FeatureID = response.Transaction.FunctionID,
-                                LatelyResponseAt = currentDateTime,
-                                Acknowledge = ((int)response.Acknowledge).ToString()
+                                ProjectID = request.Transaction.BusinessID,
+                                TransactionID = request.Transaction.TransactionID,
+                                FeatureID = request.Transaction.FunctionID,
+                                LatelyRequestAt = acceptDateTime.ToString("yyyy-MM-dd HH:mm:ss"),
+                                LatelyResponseAt = "",
+                                Acknowledge = "0",
                             });
                         }
                         else
                         {
-                            ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, connectionString, "TAG.TAG010.UD02", new
+                            logger.Error($"[{{LogCategory}}] 로그 집계 연결 문자열 확인 필요 applicationID: {applicationID}", "TransactLoggerClient/ProcessRequestAggregate");
+                        }
+                    }
+                    catch (Exception exception)
+                    {
+                        logger.Error(exception, "[{LogCategory}] 로그 집계 입력 오류", "TransactLoggerClient/ProcessRequestAggregate");
+                    }
+                });
+            }
+        }
+
+        private void ProcessResponseAggregate(TransactionResponse response, string? userWorkID)
+        {
+            if (ModuleConfiguration.IsTransactAggregate && response.AcceptDateTime != null)
+            {
+                Task.Run(() =>
+                {
+                    try
+                    {
+                        var applicationID = response.System.ProgramID;
+                        var connectionString = ModuleExtensions.GetLogDbConnectionString(userWorkID, applicationID);
+                        if (!string.IsNullOrEmpty(connectionString))
+                        {
+                            var acceptDateTime = (DateTime)response.AcceptDateTime;
+                            var currentDateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                            var sqlID = response.Acknowledge == AcknowledgeType.Success ? "TAG.TAG010.UD01" : "TAG.TAG010.UD02";
+
+                            ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, connectionString, sqlID, new
                             {
                                 CreateDate = acceptDateTime.ToString("yyyyMMdd"),
                                 CreateHour = acceptDateTime.ToString("HH"),
@@ -354,27 +544,30 @@ namespace transact.Extensions
                                 Acknowledge = ((int)response.Acknowledge).ToString()
                             });
 
-                            ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, connectionString, "TAG.TAG010.ID01", new
+                            if (response.Acknowledge != AcknowledgeType.Success)
                             {
-                                ProjectID = response.Transaction.BusinessID,
-                                TransactionID = response.Transaction.TransactionID,
-                                FeatureID = response.Transaction.FunctionID,
-                                GlobalID = response.Transaction.GlobalID,
-                                UserID = response.Transaction.OperatorID,
-                                LogType = ModuleConfiguration.IsLogServer == true ? "S" : "F",
-                                CreatedAt = currentDateTime
-                            });
+                                ModuleExtensions.ExecuteMetaSQL(ReturnType.NonQuery, connectionString, "TAG.TAG010.ID01", new
+                                {
+                                    ProjectID = response.Transaction.BusinessID,
+                                    TransactionID = response.Transaction.TransactionID,
+                                    FeatureID = response.Transaction.FunctionID,
+                                    GlobalID = response.Transaction.GlobalID,
+                                    UserID = response.Transaction.OperatorID,
+                                    LogType = ModuleConfiguration.IsLogServer ? "S" : "F",
+                                    CreatedAt = currentDateTime
+                                });
+                            }
+                        }
+                        else
+                        {
+                            logger.Error($"[{{LogCategory}}] 로그 집계 연결 문자열 확인 필요 applicationID: {applicationID}", "TransactLoggerClient/ProcessResponseAggregate");
                         }
                     }
-                    else
+                    catch (Exception exception)
                     {
-                        logger.Error($"[{{LogCategory}}] 로그 집계 연결 문자열 확인 필요 applicationID: {applicationID}, transactionResponse: {JsonConvert.SerializeObject(response)}", "TransactLoggerClient/TransactionResponseLogging");
+                        logger.Error(exception, "[{LogCategory}] 로그 집계 입력 오류", "TransactLoggerClient/ProcessResponseAggregate");
                     }
-                }
-                catch (Exception exception)
-                {
-                    logger.Error(exception, $"[{{LogCategory}}] 로그 집계 입력 오류 transactionResponse: {JsonConvert.SerializeObject(response)}", "TransactLoggerClient/TransactionResponseLogging");
-                }
+                });
             }
         }
 
@@ -383,14 +576,13 @@ namespace transact.Extensions
             DataSet? result = null;
             try
             {
-                if (ModuleConfiguration.IsTransactAggregate == true && Directory.Exists(PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID)) == true)
+                if (ModuleConfiguration.IsTransactAggregate && Directory.Exists(PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID)))
                 {
                     var appBasePath = PathExtensions.Combine(GlobalConfiguration.TenantAppBasePath, userWorkID, applicationID);
                     var logDbFilePath = PathExtensions.Combine(appBasePath, ".managed", "sqlite", "transact", $"log-{rollingID}.db");
-                    if (Directory.Exists(appBasePath) == true && File.Exists(logDbFilePath) == true)
+                    if (Directory.Exists(appBasePath) && File.Exists(logDbFilePath))
                     {
                         var connectionString = $"URI=file:{logDbFilePath};Journal Mode=Off;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;";
-                        // 주간별 SQLite 데이터베이스 파일 생성: {프로젝트 ID}_{년도}{주2자리}.db
                         using var dbClient = new SQLiteClient(connectionString);
                         using var dataSet = dbClient.ExecuteDataSet(SQL, CommandType.Text);
                         result = dataSet;
@@ -399,64 +591,157 @@ namespace transact.Extensions
             }
             catch (Exception exception)
             {
-                logger.Error(exception, $"[{{LogCategory}}] 로그 집계 쿼리 오류 applicationID: {applicationID}, rollingID: {rollingID}, SQL: {SQL}", "TransactLoggerClient/ReadAggregate");
+                logger.Error(exception, $"[{{LogCategory}}] 로그 집계 쿼리 오류 applicationID: {applicationID}, rollingID: {rollingID}", "TransactLoggerClient/ReadAggregate");
             }
 
             return result;
         }
 
-        private void BackgroundTask(object? state)
+        #endregion
+
+        #region Background Processing
+
+        private async Task ProcessLogQueueAsync(int workerId, CancellationToken cancellationToken)
         {
-            var logRequest = state as LogRequest;
+            logger.Information($"[Worker-{workerId}] Started");
+            var batch = new List<LogRequest>(BatchSize);
 
-            if (circuitBreakerPolicy != null && logRequest != null)
+            try
             {
-                try
+                while (!cancellationToken.IsCancellationRequested)
                 {
-                    var circuitState = circuitBreakerPolicy.CircuitState;
-                    if (circuitState == CircuitState.Closed)
+                    batch.Clear();
+                    var deadline = DateTime.UtcNow.AddMilliseconds(BatchDelayMs);
+
+                    while (batch.Count < BatchSize && DateTime.UtcNow < deadline && !cancellationToken.IsCancellationRequested)
                     {
-                        Send(Method.Post, ModuleConfiguration.LogServerUrl, logRequest.LogMessage, (string error) =>
-                        {
-                            BreakDateTime = DateTime.Now;
-                            circuitBreakerPolicy.Isolate();
+                        var remainingTime = (int)(deadline - DateTime.UtcNow).TotalMilliseconds;
+                        if (remainingTime <= 0)
+                            break;
 
-                            logger.Error("BackgroundTask CircuitBreaker 오류: " + error);
-
-                            if (logRequest.FallbackFunction != null)
-                            {
-                                logRequest.FallbackFunction(error);
-                            }
-                        });
-                    }
-                    else
-                    {
-                        if (BreakDateTime != null && BreakDateTime.Value.Ticks < DateTime.Now.AddSeconds(-ModuleConfiguration.CircuitBreakResetSecond).Ticks)
+                        if (logQueue.TryTake(out var logRequest, Math.Min(remainingTime, 100), cancellationToken))
                         {
-                            BreakDateTime = null;
-                            circuitBreakerPolicy.Reset();
-                        }
-
-                        if (logRequest.FallbackFunction != null)
-                        {
-                            logRequest.FallbackFunction("CircuitBreaker CircuitState" + circuitState.ToString());
+                            batch.Add(logRequest);
                         }
                     }
-                }
-                catch (Exception exception)
-                {
-                    try
-                    {
-                        logger.Error(exception, "BackgroundTask 오류: " + JsonConvert.SerializeObject(logRequest.LogMessage));
 
-                        BreakDateTime = DateTime.Now;
-                        circuitBreakerPolicy.Isolate();
-                    }
-                    catch
+                    if (batch.Count > 0)
                     {
+                        await ProcessBatchAsync(batch, workerId, cancellationToken);
                     }
                 }
             }
+            catch (OperationCanceledException)
+            {
+                logger.Information($"[Worker-{workerId}] Shutting down gracefully...");
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, $"[Worker-{workerId}] Terminated unexpectedly");
+            }
+
+            logger.Information($"[Worker-{workerId}] Stopped");
         }
+
+        private async Task ProcessBatchAsync(List<LogRequest> batch, int workerId, CancellationToken cancellationToken)
+        {
+            var tasks = new List<Task>(batch.Count);
+
+            foreach (var logRequest in batch)
+            {
+                tasks.Add(ProcessSingleLogAsync(logRequest, cancellationToken));
+            }
+
+            try
+            {
+                await Task.WhenAll(tasks);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, $"[Worker-{workerId}] Error processing batch of {batch.Count} logs");
+            }
+        }
+
+        private async Task ProcessSingleLogAsync(LogRequest logRequest, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var response = await SendAsync(Method.Post, ModuleConfiguration.LogServerUrl,
+                    logRequest.LogMessage, logRequest.FallbackFunction, null, cancellationToken);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    logRequest.FallbackFunction?.Invoke($"Failed to send log: {response.ErrorMessage}");
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, $"[ProcessSingleLog] Error processing {logRequest.LogType} log: {logRequest.LogMessage?.GlobalID}");
+                logRequest.FallbackFunction?.Invoke($"Exception: {ex.Message}");
+            }
+            finally
+            {
+                if (logRequest.LogMessage != null)
+                {
+                    ReturnLogMessage(logRequest.LogMessage);
+                }
+            }
+        }
+
+        #endregion
+
+        #region Shutdown & Disposal
+
+        public async Task ShutdownAsync(TimeSpan timeout)
+        {
+            logger.Information($"[Shutdown] Initiating graceful shutdown... (Queue size: {logQueue.Count})");
+
+            logQueue.CompleteAdding();
+            cancellationTokenSource.Cancel();
+
+            var shutdownTask = Task.WhenAll(backgroundWorkers);
+            var timeoutTask = Task.Delay(timeout);
+
+            var completedTask = await Task.WhenAny(shutdownTask, timeoutTask);
+
+            if (completedTask == shutdownTask)
+            {
+                logger.Information($"[Shutdown] All workers completed gracefully. Remaining queue: {logQueue.Count}");
+            }
+            else
+            {
+                logger.Warning($"[Shutdown] Timeout after {timeout.TotalSeconds}s. Remaining queue: {logQueue.Count}");
+            }
+        }
+
+        public void Dispose()
+        {
+            try
+            {
+                ShutdownAsync(TimeSpan.FromSeconds(30)).GetAwaiter().GetResult();
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "[Dispose] Error during shutdown");
+            }
+            finally
+            {
+                cancellationTokenSource?.Dispose();
+                logQueue?.Dispose();
+                restClient?.Dispose();
+            }
+        }
+
+        #endregion
+    }
+
+    internal class LogRequest
+    {
+        public LogMessage LogMessage { get; set; }
+        public Action<string>? FallbackFunction { get; set; }
+        public string LogType { get; set; }
+        public TransactionRequest? Request { get; set; }
+        public TransactionResponse? Response { get; set; }
+        public string? UserWorkID { get; set; }
     }
 }

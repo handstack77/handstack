@@ -3314,8 +3314,6 @@ TransactionException:
                                         var keyString = "";
                                         commandText = DatabaseMapper.RecursiveParameters(commandText.ToStringSafe(), adHocParameters, keyString);
 
-                                        logger.Warning("[{LogCategory}] [{GlobalID}] " + $"Request QueryID: {queryObject.QueryID}, SQL: {commandText}", "QueryDataClient/ExecuteCodeHelpSQLMap", request.GlobalID);
-
                                         var businessDatabase = new DatabaseFactory(businessConnectionInfo.Item1, businessConnectionInfo.Item2);
                                         if (businessDatabase.Connection != null)
                                         {

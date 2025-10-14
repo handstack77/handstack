@@ -358,8 +358,8 @@ namespace function
                     fileSizeLimitBytes: 104857600,
                     rollOnFileSizeLimit: true,
                     rollingInterval: RollingInterval.Day,
-                    flushToDiskInterval: TimeSpan.FromSeconds(3),
-                    shared: true);
+                    flushToDiskInterval: TimeSpan.FromSeconds(1),
+                    buffered: true);
             return loggerConfiguration;
         }
 

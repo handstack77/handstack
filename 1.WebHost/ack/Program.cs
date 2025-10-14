@@ -141,39 +141,35 @@ namespace ack
 
                     GlobalConfiguration.ConfigurationRoot = configuration;
 
-                    var loggerConfiguration = new LoggerConfiguration()
-                        .ReadFrom.Configuration(configuration);
-
                     if (string.IsNullOrEmpty(GlobalConfiguration.ProcessName) == false)
                     {
                         var writeToSection = configuration.GetSection("Serilog:WriteTo");
                         foreach (var childSection in writeToSection.GetChildren())
                         {
                             var sinkName = childSection.GetValue<string>("Name");
-                            var sinkArgs = childSection.GetSection("Args").GetChildren().ToDictionary(x => x.Key, x => x.Value);
                             if (sinkName == "File")
                             {
-                                var sinkFilePath = sinkArgs["path"];
+                                var sinkFilePath = childSection.GetValue<string>("Args:path");
                                 if (string.IsNullOrEmpty(sinkFilePath) == false)
                                 {
                                     var fileInfo = new FileInfo(sinkFilePath);
                                     if (string.IsNullOrEmpty(fileInfo.DirectoryName) == false)
                                     {
-                                        if (fileInfo.Directory == null || fileInfo.Directory.Exists == false)
+                                        if (fileInfo.Directory?.Exists == false)
                                         {
                                             Directory.CreateDirectory(fileInfo.DirectoryName);
                                         }
 
-                                        sinkFilePath = PathExtensions.Combine(fileInfo.DirectoryName, GlobalConfiguration.ProcessName + "_" + fileInfo.Name);
-
-                                        loggerConfiguration.WriteTo.File(
-                                            path: sinkFilePath
-                                        );
+                                        var newPath = PathExtensions.Combine(fileInfo.DirectoryName, $"{GlobalConfiguration.ProcessName}_{fileInfo.Name}");
+                                        configuration[$"Serilog:WriteTo:{childSection.Key}:Args:path"] = newPath;
                                     }
                                 }
                             }
                         }
                     }
+
+                    var loggerConfiguration = new LoggerConfiguration()
+                        .ReadFrom.Configuration(configuration);
 
                     Log.Logger = loggerConfiguration.CreateLogger();
 
