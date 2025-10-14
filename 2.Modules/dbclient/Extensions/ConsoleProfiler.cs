@@ -9,13 +9,10 @@ using dbclient.Entity;
 using dbclient.Profiler;
 
 using HandStack.Data.ExtensionMethod;
-using HandStack.Web.Extensions;
 
 using Microsoft.Data.SqlClient;
 
 using MySql.Data.MySqlClient;
-
-using MySqlX.XDevAPI;
 
 using Npgsql;
 
