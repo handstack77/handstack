@@ -411,7 +411,7 @@ namespace dbclient.DataClient
                             }
 
                             var pretreatmentProfiler = new ConsoleProfiler(request.RequestID, SQLID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
-                            await using (var pretreatmentConnection = new ProfilerDbConnection(connectionFactory.Connection, pretreatmentProfiler))
+                            var pretreatmentConnection = new ProfilerDbConnection(connectionFactory.Connection, pretreatmentProfiler);
                             using (var pretreatmentReader = await pretreatmentConnection.ExecuteReaderAsync(pretreatment.SQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout))
                             {
                                 try
@@ -528,7 +528,6 @@ namespace dbclient.DataClient
                                 finally
                                 {
                                     pretreatmentReader?.Close();
-                                    pretreatmentConnection?.Close();
                                 }
                             }
 
@@ -623,7 +622,7 @@ namespace dbclient.DataClient
                             });
                         }
 
-                        await using (var connection = new ProfilerDbConnection(connectionFactory.Connection, profiler))
+                        var connection = new ProfilerDbConnection(connectionFactory.Connection, profiler);
                         using (var mainReader = connection.ExecuteReader(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout))
                         {
                             try
@@ -894,7 +893,6 @@ namespace dbclient.DataClient
                             finally
                             {
                                 mainReader?.Close();
-                                connection?.Close();
                             }
                         }
 
@@ -1224,7 +1222,7 @@ TransactionException:
                             }
 
                             var pretreatmentProfiler = new ConsoleProfiler(request.RequestID, SQLID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
-                            await using (var pretreatmentConnection = new ProfilerDbConnection(connectionFactory.Connection, pretreatmentProfiler))
+                            var pretreatmentConnection = new ProfilerDbConnection(connectionFactory.Connection, pretreatmentProfiler);
                             using (var pretreatmentReader = await pretreatmentConnection.ExecuteReaderAsync(pretreatment.SQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout))
                             {
                                 try
@@ -1349,7 +1347,6 @@ TransactionException:
                                 finally
                                 {
                                     pretreatmentReader?.Close();
-                                    pretreatmentConnection?.Close();
                                 }
                             }
                         }
@@ -1435,7 +1432,7 @@ TransactionException:
                             });
                         }
 
-                        await using (var connection = new ProfilerDbConnection(connectionFactory.Connection, profiler))
+                        var connection = new ProfilerDbConnection(connectionFactory.Connection, profiler);
                         using (var mainReader = connection.ExecuteReader(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout))
                         {
                             try
@@ -1571,7 +1568,6 @@ TransactionException:
                             finally
                             {
                                 mainReader?.Close();
-                                connection?.Close();
                             }
                         }
                     }
@@ -1886,7 +1882,7 @@ TransactionException:
                             }
 
                             var pretreatmentProfiler = new ConsoleProfiler(request.RequestID, SQLID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
-                            await using (var pretreatmentConnection = new ProfilerDbConnection(connectionFactory.Connection, pretreatmentProfiler))
+                            var pretreatmentConnection = new ProfilerDbConnection(connectionFactory.Connection, pretreatmentProfiler);
                             using (var pretreatmentReader = await pretreatmentConnection.ExecuteReaderAsync(pretreatment.SQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout))
                             {
                                 try
@@ -2011,7 +2007,6 @@ TransactionException:
                                 finally
                                 {
                                     pretreatmentReader?.Close();
-                                    pretreatmentConnection?.Close();
                                 }
                             }
                         }
@@ -2097,7 +2092,7 @@ TransactionException:
                             });
                         }
 
-                        await using (var connection = new ProfilerDbConnection(connectionFactory.Connection, profiler))
+                        var connection = new ProfilerDbConnection(connectionFactory.Connection, profiler);
                         using (var mainReader = connection.ExecuteReader(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout))
                         {
                             try
@@ -2238,7 +2233,6 @@ TransactionException:
                             finally
                             {
                                 mainReader?.Close();
-                                connection?.Close();
                             }
                         }
                     }
@@ -2548,7 +2542,7 @@ TransactionException:
                             }
 
                             var pretreatmentProfiler = new ConsoleProfiler(request.RequestID, SQLID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
-                            await using (var pretreatmentConnection = new ProfilerDbConnection(connectionFactory.Connection, pretreatmentProfiler))
+                            var pretreatmentConnection = new ProfilerDbConnection(connectionFactory.Connection, pretreatmentProfiler);
                             using (var pretreatmentReader = await pretreatmentConnection.ExecuteReaderAsync(pretreatment.SQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout))
                             {
                                 try
@@ -2673,7 +2667,6 @@ TransactionException:
                                 finally
                                 {
                                     pretreatmentReader?.Close();
-                                    pretreatmentConnection?.Close();
                                 }
                             }
                         }
@@ -2759,7 +2752,7 @@ TransactionException:
                             });
                         }
 
-                        await using (var connection = new ProfilerDbConnection(connectionFactory.Connection, profiler))
+                        var connection = new ProfilerDbConnection(connectionFactory.Connection, profiler);
                         using (var mainReader = connection.ExecuteReader(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout))
                         {
                             try
@@ -2979,7 +2972,6 @@ TransactionException:
                             finally
                             {
                                 mainReader?.Close();
-                                connection?.Close();
                             }
                         }
                     }
@@ -3228,7 +3220,7 @@ TransactionException:
                         dynamic? dynamicParameters = CreateDynamicParameters(databaseProvider, statementMap);
                         SetDbParameterMapping(connectionFactory, databaseProvider, queryObject, statementMap, dynamicParameters);
 
-                        await using (var connection = new ProfilerDbConnection(connectionFactory.Connection, profiler))
+                        var connection = new ProfilerDbConnection(connectionFactory.Connection, profiler);
                         using (IDataReader dataReader = await connection.ExecuteReaderAsync(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout))
                         {
                             try
@@ -3352,7 +3344,6 @@ TransactionException:
                             finally
                             {
                                 dataReader?.Close();
-                                connection?.Close();
                             }
                         }
                     }
@@ -3589,7 +3580,7 @@ TransactionException:
                             }
 
                             var pretreatmentProfiler = new ConsoleProfiler(request.RequestID, SQLID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
-                            await using (var pretreatmentConnection = new ProfilerDbConnection(connectionFactory.Connection, pretreatmentProfiler))
+                            var pretreatmentConnection = new ProfilerDbConnection(connectionFactory.Connection, pretreatmentProfiler);
                             using (var pretreatmentReader = await pretreatmentConnection.ExecuteReaderAsync(pretreatment.SQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout))
                             {
                                 try
@@ -3714,7 +3705,6 @@ TransactionException:
                                 finally
                                 {
                                     pretreatmentReader?.Close();
-                                    pretreatmentConnection?.Close();
                                 }
                             }
                         }
@@ -3735,7 +3725,7 @@ TransactionException:
 
                     var parseSQL = DatabaseMapper.Find(statementMap, dynamicObject);
 
-                    await using (var connection = new ProfilerDbConnection(connectionFactory.Connection, profiler))
+                    var connection = new ProfilerDbConnection(connectionFactory.Connection, profiler);
                     using (var mainReader = connection.ExecuteReader(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout))
                     {
                         try
@@ -3872,7 +3862,6 @@ TransactionException:
                         finally
                         {
                             mainReader?.Close();
-                            connection?.Close();
                         }
                     }
                 }
@@ -4132,7 +4121,7 @@ TransactionException:
                             result.Parameters.Add(pretreatmentSQLID, pretreatmentParametersDictionary);
 
                             var pretreatmentProfiler = new ConsoleProfiler(request.RequestID, pretreatmentSQLID, ModuleConfiguration.IsTransactionLogging == true ? ModuleConfiguration.ModuleLogFilePath : null);
-                            await using (var pretreatmentConnection = new ProfilerDbConnection(connectionFactory.Connection, pretreatmentProfiler))
+                            var pretreatmentConnection = new ProfilerDbConnection(connectionFactory.Connection, pretreatmentProfiler);
                             using (var pretreatmentReader = await pretreatmentConnection.ExecuteReaderAsync(pretreatment.SQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout))
                             {
                                 try
@@ -4255,7 +4244,6 @@ TransactionException:
                                 finally
                                 {
                                     pretreatmentReader?.Close();
-                                    pretreatmentConnection?.Close();
                                 }
                             }
                         }
@@ -4306,7 +4294,7 @@ TransactionException:
 
                         result.Parameters.Add(SQLID, parametersDictionary);
 
-                        await using (var connection = new ProfilerDbConnection(connectionFactory.Connection, profiler))
+                        var connection = new ProfilerDbConnection(connectionFactory.Connection, profiler);
                         using (var mainReader = connection.ExecuteReader(parseSQL, (SqlMapper.IDynamicParameters?)dynamicParameters, databaseTransaction, statementMap.Timeout < 0 ? ModuleConfiguration.DefaultCommandTimeout : statementMap.Timeout))
                         {
                             try
@@ -4382,7 +4370,6 @@ TransactionException:
                             finally
                             {
                                 mainReader?.Close();
-                                connection?.Close();
                             }
                         }
                     }
