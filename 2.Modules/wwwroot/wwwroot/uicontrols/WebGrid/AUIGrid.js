@@ -1149,7 +1149,7 @@
                 storeSourceID: null,
                 dataSource: null,
                 parameters: null,
-                deleteCache: true,
+                deleteCache: false,
                 selectedValue: null
             }
 
@@ -1171,11 +1171,11 @@
                 }
 
                 var dataSource = null;
-                if (mod.config && mod.config.dataSource && mod.config.dataSource[setting.dataSourceID]) {
-                    dataSource = mod.config.dataSource[setting.dataSourceID];
+                if (mod.config && mod.config.dataSource && mod.config.dataSource[setting.storeSourceID]) {
+                    dataSource = mod.config.dataSource[setting.storeSourceID];
                 }
 
-                if (dataSource) {
+                if (dataSource && dataSource.DataSource.length > 0) {
                     if (callback) {
                         callback();
                     }
