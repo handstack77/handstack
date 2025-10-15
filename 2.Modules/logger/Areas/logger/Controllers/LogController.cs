@@ -53,7 +53,7 @@ namespace logger.Areas.logger.Controllers
         // http://localhost:8421/logger/api/log/insert
         [HttpGet("[action]")]
         [HttpPost("[action]")]
-        public ActionResult Insert(LogMessage logMessage)
+        public async Task<ActionResult> Insert(LogMessage logMessage)
         {
             ActionResult result = BadRequest();
 
@@ -80,10 +80,7 @@ namespace logger.Areas.logger.Controllers
                     return result;
                 }
 
-                Task.Run(() =>
-                {
-                    loggerClient.InsertWithPolicy(logMessage);
-                });
+                await loggerClient.InsertWithPolicy(logMessage);
 
                 result = Ok();
             }

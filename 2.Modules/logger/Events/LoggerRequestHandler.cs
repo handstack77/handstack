@@ -138,32 +138,29 @@ namespace logger.Events
                     return;
                 }
 
-                await Task.Run(() =>
-                {
-                    var logMessage = new LogMessage();
-                    logMessage.LogNo = loggerRequest.LogNo;
-                    logMessage.ServerID = loggerRequest.ServerID;
-                    logMessage.RunningEnvironment = loggerRequest.RunningEnvironment;
-                    logMessage.ProgramName = loggerRequest.ProgramName;
-                    logMessage.GlobalID = loggerRequest.GlobalID;
-                    logMessage.Acknowledge = loggerRequest.Acknowledge;
-                    logMessage.ApplicationID = loggerRequest.ApplicationID;
-                    logMessage.ProjectID = loggerRequest.ProjectID;
-                    logMessage.TransactionID = loggerRequest.TransactionID;
-                    logMessage.ServiceID = loggerRequest.ServiceID;
-                    logMessage.Type = loggerRequest.Type;
-                    logMessage.Flow = loggerRequest.Flow;
-                    logMessage.Level = loggerRequest.Level;
-                    logMessage.Format = loggerRequest.Format;
-                    logMessage.Message = loggerRequest.Message;
-                    logMessage.Properties = loggerRequest.Properties;
-                    logMessage.UserID = loggerRequest.UserID;
-                    logMessage.CreatedAt = loggerRequest.CreatedAt;
-                    logMessage.StartedAt = loggerRequest.StartedAt;
-                    logMessage.EndedAt = loggerRequest.EndedAt;
+                var logMessage = new LogMessage();
+                logMessage.LogNo = loggerRequest.LogNo;
+                logMessage.ServerID = loggerRequest.ServerID;
+                logMessage.RunningEnvironment = loggerRequest.RunningEnvironment;
+                logMessage.ProgramName = loggerRequest.ProgramName;
+                logMessage.GlobalID = loggerRequest.GlobalID;
+                logMessage.Acknowledge = loggerRequest.Acknowledge;
+                logMessage.ApplicationID = loggerRequest.ApplicationID;
+                logMessage.ProjectID = loggerRequest.ProjectID;
+                logMessage.TransactionID = loggerRequest.TransactionID;
+                logMessage.ServiceID = loggerRequest.ServiceID;
+                logMessage.Type = loggerRequest.Type;
+                logMessage.Flow = loggerRequest.Flow;
+                logMessage.Level = loggerRequest.Level;
+                logMessage.Format = loggerRequest.Format;
+                logMessage.Message = loggerRequest.Message;
+                logMessage.Properties = loggerRequest.Properties;
+                logMessage.UserID = loggerRequest.UserID;
+                logMessage.CreatedAt = loggerRequest.CreatedAt;
+                logMessage.StartedAt = loggerRequest.StartedAt;
+                logMessage.EndedAt = loggerRequest.EndedAt;
 
-                    loggerClient.InsertWithPolicy(logMessage);
-                });
+                await loggerClient.InsertWithPolicy(logMessage);
             }
             catch (Exception exception)
             {

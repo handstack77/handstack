@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Threading;
@@ -26,12 +27,48 @@ namespace logger.DataClient
     {
         private ILogger logger { get; }
 
+        private static readonly Dictionary<string, string> sqlScriptCache = new Dictionary<string, string>();
+        private static readonly object cacheLock = new object();
+
         public LoggerClient(ILogger logger)
         {
             this.logger = logger;
         }
 
-        public void InsertWithPolicy(LogMessage request)
+        private string GetSqlScript(string operation, string dataProvider, string tableName, int? removePeriod = null)
+        {
+            var cacheKey = $"{operation}_{dataProvider}_{tableName}";
+            if (removePeriod.HasValue)
+            {
+                cacheKey += $"_{removePeriod.Value}";
+            }
+
+            lock (cacheLock)
+            {
+                if (sqlScriptCache.TryGetValue(cacheKey, out string? cachedScript))
+                {
+                    return cachedScript;
+                }
+
+                var sqlFilePath = PathExtensions.Combine(ModuleConfiguration.ModuleBasePath, "SQL", operation, dataProvider + ".txt");
+                if (File.Exists(sqlFilePath) == false)
+                {
+                    throw new FileNotFoundException($"SQL 파일을 찾을 수 없습니다: {sqlFilePath}");
+                }
+
+                var dmlScript = File.ReadAllText(sqlFilePath).Replace("{TableName}", tableName);
+
+                if (removePeriod.HasValue)
+                {
+                    dmlScript = dmlScript.Replace("{RemovePeriod}", removePeriod.Value.ToString());
+                }
+
+                sqlScriptCache[cacheKey] = dmlScript;
+                return dmlScript;
+            }
+        }
+
+        public async Task InsertWithPolicy(LogMessage request)
         {
             ApplicationCircuitBreakerPolicy? applicationCircuitBreakerPolicy = null;
 
@@ -39,9 +76,10 @@ namespace logger.DataClient
             {
                 applicationCircuitBreakerPolicy = ModuleConfiguration.ApplicationIDCircuitBreakers[request.ApplicationID];
 
-                if (applicationCircuitBreakerPolicy.ApplicationCircuitBreaker != null && applicationCircuitBreakerPolicy.ApplicationCircuitBreaker.CircuitState == CircuitState.Closed)
+                if (applicationCircuitBreakerPolicy.ApplicationCircuitBreaker != null &&
+                    applicationCircuitBreakerPolicy.ApplicationCircuitBreaker.CircuitState == CircuitState.Closed)
                 {
-                    applicationCircuitBreakerPolicy.ApplicationCircuitBreaker.Execute(() =>
+                    await applicationCircuitBreakerPolicy.ApplicationCircuitBreaker.Execute(async () =>
                     {
                         var dataSource = ModuleConfiguration.DataSource.Find(p => p.ApplicationID == request.ApplicationID);
                         if (dataSource != null)
@@ -54,53 +92,52 @@ namespace logger.DataClient
                             using var databaseFactory = new DatabaseFactory(connectionString, dataProvider);
                             if (databaseFactory.Connection == null)
                             {
-                                Log.Logger.Error("[{LogCategory}] " + "Connection 생성 실패. 요청 정보 확인 필요", "LoggerClient/InsertWithPolicy");
+                                Log.Logger.Error("[{LogCategory}] Connection 생성 실패. 요청 정보 확인 필요", "LoggerClient/InsertWithPolicy");
+                                return;
                             }
-                            else
+
+                            try
                             {
-                                var sqlFilePath = PathExtensions.Combine(ModuleConfiguration.ModuleBasePath, "SQL", "Insert", dataProvider.ToString() + ".txt");
-                                if (File.Exists(sqlFilePath) == true)
+                                var dmlScript = GetSqlScript("Insert", dataProvider.ToString(), tableName);
+
+                                if (databaseFactory.Connection.IsConnectionOpen() == false)
                                 {
-                                    var dmlScript = File.ReadAllText(sqlFilePath).Replace("{TableName}", tableName);
-
-                                    if (databaseFactory.Connection.IsConnectionOpen() == false)
-                                    {
-                                        databaseFactory.Connection.Open();
-                                    }
-
-                                    var dynamicParameters = new DynamicParameters();
-                                    dynamicParameters.Add("@ServerID", request.ServerID, DbType.String, ParameterDirection.Input);
-                                    dynamicParameters.Add("@RunningEnvironment", request.RunningEnvironment, DbType.String, ParameterDirection.Input);
-                                    dynamicParameters.Add("@ProgramName", request.ProgramName, DbType.String, ParameterDirection.Input);
-                                    dynamicParameters.Add("@GlobalID", request.GlobalID, DbType.String, ParameterDirection.Input);
-                                    dynamicParameters.Add("@Acknowledge", request.Acknowledge, DbType.String, ParameterDirection.Input);
-                                    dynamicParameters.Add("@ApplicationID", request.ApplicationID, DbType.String, ParameterDirection.Input);
-                                    dynamicParameters.Add("@ProjectID", request.ProjectID, DbType.String, ParameterDirection.Input);
-                                    dynamicParameters.Add("@TransactionID", request.TransactionID, DbType.String, ParameterDirection.Input);
-                                    dynamicParameters.Add("@ServiceID", request.ServiceID, DbType.String, ParameterDirection.Input);
-                                    dynamicParameters.Add("@Type", request.Type, DbType.String, ParameterDirection.Input); // 로그구분 A (Application), T (Transaction)
-                                    dynamicParameters.Add("@Flow", request.Flow, DbType.String, ParameterDirection.Input); // 거래흐름 N (Not), I (In), O (Out)
-                                    dynamicParameters.Add("@Level", request.Level, DbType.String, ParameterDirection.Input); // 로그순위 V (VRB), D (DBG), I (INF), W (WRN), E (ERR), F (FTL)
-                                    dynamicParameters.Add("@Format", request.Format, DbType.String, ParameterDirection.Input); // 데이터형식 P (Plain), T (TSV), C (CSV), J (JSON), X (XML)
-                                    dynamicParameters.Add("@Message", string.IsNullOrEmpty(request.Message) == true ? "" : request.Message, DbType.String, ParameterDirection.Input);
-                                    dynamicParameters.Add("@Properties", request.Properties, DbType.String, ParameterDirection.Input);
-                                    dynamicParameters.Add("@UserID", request.UserID, DbType.String, ParameterDirection.Input);
-                                    dynamicParameters.Add("@CreatedAt", string.IsNullOrEmpty(request.CreatedAt) == true ? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") : request.CreatedAt, DbType.String, ParameterDirection.Input);
-
-                                    var connection = databaseFactory.Connection;
-                                    var result = connection.Execute(dmlScript, dynamicParameters);
+                                    await databaseFactory.Connection.OpenAsync();
                                 }
-                                else
-                                {
-                                    Log.Logger.Error("[{LogCategory}] " + $"sqlFilePath: {sqlFilePath} 확인 필요", "LoggerClient/InsertWithPolicy");
-                                }
+
+                                var dynamicParameters = new DynamicParameters();
+                                dynamicParameters.Add("@ServerID", request.ServerID, DbType.String, ParameterDirection.Input);
+                                dynamicParameters.Add("@RunningEnvironment", request.RunningEnvironment, DbType.String, ParameterDirection.Input);
+                                dynamicParameters.Add("@ProgramName", request.ProgramName, DbType.String, ParameterDirection.Input);
+                                dynamicParameters.Add("@GlobalID", request.GlobalID, DbType.String, ParameterDirection.Input);
+                                dynamicParameters.Add("@Acknowledge", request.Acknowledge, DbType.String, ParameterDirection.Input);
+                                dynamicParameters.Add("@ApplicationID", request.ApplicationID, DbType.String, ParameterDirection.Input);
+                                dynamicParameters.Add("@ProjectID", request.ProjectID, DbType.String, ParameterDirection.Input);
+                                dynamicParameters.Add("@TransactionID", request.TransactionID, DbType.String, ParameterDirection.Input);
+                                dynamicParameters.Add("@ServiceID", request.ServiceID, DbType.String, ParameterDirection.Input);
+                                dynamicParameters.Add("@Type", request.Type, DbType.String, ParameterDirection.Input);
+                                dynamicParameters.Add("@Flow", request.Flow, DbType.String, ParameterDirection.Input);
+                                dynamicParameters.Add("@Level", request.Level, DbType.String, ParameterDirection.Input);
+                                dynamicParameters.Add("@Format", request.Format, DbType.String, ParameterDirection.Input);
+                                dynamicParameters.Add("@Message", string.IsNullOrEmpty(request.Message) ? "" : request.Message, DbType.String, ParameterDirection.Input);
+                                dynamicParameters.Add("@Properties", request.Properties, DbType.String, ParameterDirection.Input);
+                                dynamicParameters.Add("@UserID", request.UserID, DbType.String, ParameterDirection.Input);
+                                dynamicParameters.Add("@CreatedAt", string.IsNullOrEmpty(request.CreatedAt) ? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") : request.CreatedAt, DbType.String, ParameterDirection.Input);
+
+                                await databaseFactory.Connection.ExecuteAsync(dmlScript, dynamicParameters);
+                            }
+                            catch (FileNotFoundException fileNotFoundException)
+                            {
+                                Log.Logger.Error("[{LogCategory}] " + fileNotFoundException.Message, "LoggerClient/InsertWithPolicy");
+                                throw;
                             }
                         }
                     });
                 }
                 else
                 {
-                    if (applicationCircuitBreakerPolicy.BreakDateTime != null && applicationCircuitBreakerPolicy.BreakDateTime.Value.Ticks < DateTime.Now.AddSeconds(-ModuleConfiguration.CircuitBreakResetSecond).Ticks)
+                    if (applicationCircuitBreakerPolicy.BreakDateTime != null &&
+                        applicationCircuitBreakerPolicy.BreakDateTime.Value.Ticks < DateTime.Now.AddSeconds(-ModuleConfiguration.CircuitBreakResetSecond).Ticks)
                     {
                         applicationCircuitBreakerPolicy.BreakDateTime = null;
                         applicationCircuitBreakerPolicy.ApplicationCircuitBreaker?.Reset();
@@ -142,40 +179,37 @@ namespace logger.DataClient
                     using var databaseFactory = new DatabaseFactory(connectionString, dataProvider);
                     if (databaseFactory.Connection == null)
                     {
-                        Log.Logger.Error("[{LogCategory}] " + "Connection 생성 실패. 요청 정보 확인 필요", "LoggerClient/LogList");
+                        Log.Logger.Error("[{LogCategory}] Connection 생성 실패. 요청 정보 확인 필요", "LoggerClient/LogList");
+                        return null;
                     }
-                    else
+
+                    try
                     {
-                        var sqlFilePath = PathExtensions.Combine(ModuleConfiguration.ModuleBasePath, "SQL", "List", dataProvider.ToString() + ".txt");
-                        if (File.Exists(sqlFilePath) == true)
+                        var dmlScript = GetSqlScript("List", dataProvider.ToString(), tableName);
+
+                        if (databaseFactory.Connection.IsConnectionOpen() == false)
                         {
-                            var dmlScript = File.ReadAllText(sqlFilePath).Replace("{TableName}", tableName);
-
-                            if (databaseFactory.Connection.IsConnectionOpen() == false)
-                            {
-                                databaseFactory.Connection.Open();
-                            }
-
-                            var dynamicParameters = new DynamicParameters();
-                            dynamicParameters.Add("@ServerID", serverID.ToStringSafe(), DbType.String, ParameterDirection.Input);
-                            dynamicParameters.Add("@Environment", environment.ToStringSafe(), DbType.String, ParameterDirection.Input);
-                            dynamicParameters.Add("@GlobalID", globalID.ToStringSafe(), DbType.String, ParameterDirection.Input);
-                            dynamicParameters.Add("@ApplicationID", applicationID.ToStringSafe(), DbType.String, ParameterDirection.Input);
-                            dynamicParameters.Add("@ProjectID", projectID.ToStringSafe(), DbType.String, ParameterDirection.Input);
-                            dynamicParameters.Add("@TransactionID", transactionID.ToStringSafe(), DbType.String, ParameterDirection.Input);
-                            dynamicParameters.Add("@ServiceID", serviceID.ToStringSafe(), DbType.String, ParameterDirection.Input);
-                            dynamicParameters.Add("@StartedAt", startedAt.ToStringSafe(), DbType.String, ParameterDirection.Input);
-                            dynamicParameters.Add("@EndedAt", endedAt.ToStringSafe(), DbType.String, ParameterDirection.Input);
-
-                            var connection = databaseFactory.Connection;
-                            var reader = await connection.ExecuteReaderAsync(dmlScript, dynamicParameters);
-                            using var ds = DataTableHelper.DataReaderToDataSet(reader);
-                            result = ds;
+                            await databaseFactory.Connection.OpenAsync();
                         }
-                        else
-                        {
-                            Log.Logger.Error("[{LogCategory}] " + $"sqlFilePath: {sqlFilePath} 확인 필요", "LoggerClient/LogList");
-                        }
+
+                        var dynamicParameters = new DynamicParameters();
+                        dynamicParameters.Add("@ServerID", serverID.ToStringSafe(), DbType.String, ParameterDirection.Input);
+                        dynamicParameters.Add("@Environment", environment.ToStringSafe(), DbType.String, ParameterDirection.Input);
+                        dynamicParameters.Add("@GlobalID", globalID.ToStringSafe(), DbType.String, ParameterDirection.Input);
+                        dynamicParameters.Add("@ApplicationID", applicationID.ToStringSafe(), DbType.String, ParameterDirection.Input);
+                        dynamicParameters.Add("@ProjectID", projectID.ToStringSafe(), DbType.String, ParameterDirection.Input);
+                        dynamicParameters.Add("@TransactionID", transactionID.ToStringSafe(), DbType.String, ParameterDirection.Input);
+                        dynamicParameters.Add("@ServiceID", serviceID.ToStringSafe(), DbType.String, ParameterDirection.Input);
+                        dynamicParameters.Add("@StartedAt", startedAt.ToStringSafe(), DbType.String, ParameterDirection.Input);
+                        dynamicParameters.Add("@EndedAt", endedAt.ToStringSafe(), DbType.String, ParameterDirection.Input);
+
+                        using var reader = await databaseFactory.Connection.ExecuteReaderAsync(dmlScript, dynamicParameters);
+                        using var ds = DataTableHelper.DataReaderToDataSet(reader);
+                        result = ds;
+                    }
+                    catch (FileNotFoundException fileNotFoundException)
+                    {
+                        Log.Logger.Error("[{LogCategory}] " + fileNotFoundException.Message, "LoggerClient/LogList");
                     }
                 }
             }
@@ -204,33 +238,30 @@ namespace logger.DataClient
                     using var databaseFactory = new DatabaseFactory(connectionString, dataProvider);
                     if (databaseFactory.Connection == null)
                     {
-                        Log.Logger.Error("[{LogCategory}] " + "Connection 생성 실패. 요청 정보 확인 필요", "LoggerClient/LogDetail");
+                        Log.Logger.Error("[{LogCategory}] Connection 생성 실패. 요청 정보 확인 필요", "LoggerClient/LogDetail");
+                        return null;
                     }
-                    else
+
+                    try
                     {
-                        var sqlFilePath = PathExtensions.Combine(ModuleConfiguration.ModuleBasePath, "SQL", "Get", dataProvider.ToString() + ".txt");
-                        if (File.Exists(sqlFilePath) == true)
+                        var dmlScript = GetSqlScript("Get", dataProvider.ToString(), tableName);
+
+                        if (databaseFactory.Connection.IsConnectionOpen() == false)
                         {
-                            var dmlScript = File.ReadAllText(sqlFilePath).Replace("{TableName}", tableName);
-
-                            if (databaseFactory.Connection.IsConnectionOpen() == false)
-                            {
-                                databaseFactory.Connection.Open();
-                            }
-
-                            var dynamicParameters = new DynamicParameters();
-                            dynamicParameters.Add("@ApplicationID", applicationID, DbType.String, ParameterDirection.Input);
-                            dynamicParameters.Add("@LogNo", logNo, DbType.Int32, ParameterDirection.Input);
-
-                            var connection = databaseFactory.Connection;
-                            var reader = await connection.ExecuteReaderAsync(dmlScript, dynamicParameters);
-                            using var ds = DataTableHelper.DataReaderToDataSet(reader);
-                            result = ds;
+                            await databaseFactory.Connection.OpenAsync();
                         }
-                        else
-                        {
-                            Log.Logger.Error("[{LogCategory}] " + $"sqlFilePath: {sqlFilePath} 확인 필요", "LoggerClient/LogDetail");
-                        }
+
+                        var dynamicParameters = new DynamicParameters();
+                        dynamicParameters.Add("@ApplicationID", applicationID, DbType.String, ParameterDirection.Input);
+                        dynamicParameters.Add("@LogNo", logNo, DbType.Int32, ParameterDirection.Input);
+
+                        using var reader = await databaseFactory.Connection.ExecuteReaderAsync(dmlScript, dynamicParameters);
+                        using var ds = DataTableHelper.DataReaderToDataSet(reader);
+                        result = ds;
+                    }
+                    catch (FileNotFoundException fileNotFoundException)
+                    {
+                        Log.Logger.Error("[{LogCategory}] " + fileNotFoundException.Message, "LoggerClient/LogDetail");
                     }
                 }
             }
@@ -246,8 +277,9 @@ namespace logger.DataClient
         {
             for (var i = 0; i < ModuleConfiguration.DataSource.Count; i++)
             {
-                var cancellationTokenSource = new CancellationTokenSource();
                 var dataSource = ModuleConfiguration.DataSource[i];
+                using var cancellationTokenSource = new CancellationTokenSource();
+
                 try
                 {
                     var connectionString = dataSource.ConnectionString;
@@ -258,43 +290,34 @@ namespace logger.DataClient
                     using var databaseFactory = new DatabaseFactory(connectionString, dataProvider);
                     if (databaseFactory.Connection == null)
                     {
-                        Log.Logger.Error("[{LogCategory}] " + "Connection 생성 실패. 요청 정보 확인 필요", "LoggerClient/Remove");
+                        Log.Logger.Error("[{LogCategory}] Connection 생성 실패. 요청 정보 확인 필요", "LoggerClient/Delete");
+                        continue;
                     }
-                    else
+
+                    try
                     {
-                        var sqlFilePath = PathExtensions.Combine(ModuleConfiguration.ModuleBasePath, "SQL", "Delete", dataProvider.ToString() + ".txt");
-                        if (File.Exists(sqlFilePath) == true)
-                        {
-                            var dmlScript = File.ReadAllText(sqlFilePath)
-                                    .Replace("{TableName}", tableName)
-                                    .Replace("{RemovePeriod}", dataSource.RemovePeriod.ToString());
+                        var dmlScript = GetSqlScript("Delete", dataProvider.ToString(), tableName, dataSource.RemovePeriod);
 
-                            cancellationTokenSource.CancelAfter(60000);
-                            if (databaseFactory.Connection.IsConnectionOpen() == false)
-                            {
-                                await databaseFactory.Connection.OpenAsync(cancellationTokenSource.Token);
-                            }
-
-                            var connection = databaseFactory.Connection;
-                            await connection.ExecuteScalarAsync(dmlScript);
-                        }
-                        else
+                        cancellationTokenSource.CancelAfter(60000);
+                        if (databaseFactory.Connection.IsConnectionOpen() == false)
                         {
-                            Log.Logger.Error("[{LogCategory}] " + $"sqlFilePath: {sqlFilePath} 확인 필요", "LoggerClient/Remove");
+                            await databaseFactory.Connection.OpenAsync(cancellationTokenSource.Token);
                         }
+
+                        await databaseFactory.Connection.ExecuteScalarAsync(dmlScript);
+                    }
+                    catch (FileNotFoundException fileNotFoundException)
+                    {
+                        Log.Logger.Error("[{LogCategory}] " + fileNotFoundException.Message, "LoggerClient/Delete");
                     }
                 }
                 catch (OperationCanceledException operationCanceledException)
                 {
-                    logger.Warning(operationCanceledException, $"[{{LogCategory}}] 로그 삭제 타임아웃 applicationID: {dataSource.ApplicationID},  provider: {dataSource.DataProvider}", "LoggerClient/Remove");
+                    logger.Warning(operationCanceledException, $"[{{LogCategory}}] 로그 삭제 타임아웃 applicationID: {dataSource.ApplicationID}, provider: {dataSource.DataProvider}", "LoggerClient/Delete");
                 }
                 catch (Exception exception)
                 {
-                    logger.Error(exception, $"[{{LogCategory}}] 로그 삭제 오류 applicationID: {dataSource.ApplicationID},  provider: {dataSource.DataProvider}", "LoggerClient/Remove");
-                }
-                finally
-                {
-                    cancellationTokenSource.Dispose();
+                    logger.Error(exception, $"[{{LogCategory}}] 로그 삭제 오류 applicationID: {dataSource.ApplicationID}, provider: {dataSource.DataProvider}", "LoggerClient/Delete");
                 }
             }
         }

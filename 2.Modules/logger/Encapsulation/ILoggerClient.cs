@@ -7,7 +7,7 @@ namespace logger.Encapsulation
 {
     public interface ILoggerClient
     {
-        void InsertWithPolicy(LogMessage logMessage);
+        Task InsertWithPolicy(LogMessage logMessage);
 
         Task<DataSet?> LogList(string applicationID, string? serverID, string? globalID, string? environment, string? projectID, string? serviceID, string? transactionID, string? startedAt, string? endedAt);
 

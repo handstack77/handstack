@@ -177,22 +177,6 @@ wwwroot_js_path="$publish_path/handstack/modules/wwwroot/wwwroot"
 if [ -d "$wwwroot_js_path" ]; then
     # lib 폴더 삭제
     rm -rf "$wwwroot_js_path/lib" 2>/dev/null || true
-    
-    # 특정 JavaScript 파일들 삭제
-    js_files=(
-        "syn.bundle.js"
-        "syn.bundle.min.js"
-        "syn.controls.js"
-        "syn.controls.min.js"
-        "syn.scripts.base.js"
-        "syn.scripts.base.min.js"
-        "syn.scripts.js"
-        "syn.scripts.min.js"
-    )
-    
-    for js_file in "${js_files[@]}"; do
-        rm -f "$wwwroot_js_path/js/$js_file" 2>/dev/null || true
-    done
 fi
 
 echo "빌드/퍼블리시가 성공적으로 완료되었습니다!"
