@@ -73,22 +73,6 @@ namespace transact.Extensions
             logMessagePool = new ConcurrentBag<LogMessage>();
 
             // Circuit Breaker 정책
-            InitializeCircuitBreaker();
-
-            // 백그라운드 워커 시작
-            cancellationTokenSource = new CancellationTokenSource();
-            backgroundWorkers = new Task[WorkerCount];
-            for (int i = 0; i < WorkerCount; i++)
-            {
-                int workerId = i;
-                backgroundWorkers[i] = Task.Run(() => ProcessLogQueueAsync(workerId, cancellationTokenSource.Token));
-            }
-
-            logger.Information($"[TransactLoggerClient] Initialized with {WorkerCount} workers, queue capacity: {MaxQueueSize}");
-        }
-
-        private void InitializeCircuitBreaker()
-        {
             circuitBreakerPolicy = Policy
                 .HandleResult<RestResponse>(x => x.IsSuccessStatusCode == false)
                 .CircuitBreaker(
@@ -108,6 +92,17 @@ namespace transact.Extensions
                     {
                         logger.Information("[CircuitBreaker/onHalfOpen] TransactLoggerClient Circuit is half-open, testing...");
                     });
+
+            // 백그라운드 워커 시작
+            cancellationTokenSource = new CancellationTokenSource();
+            backgroundWorkers = new Task[WorkerCount];
+            for (int i = 0; i < WorkerCount; i++)
+            {
+                int workerId = i;
+                backgroundWorkers[i] = Task.Run(() => ProcessLogQueueAsync(workerId, cancellationTokenSource.Token));
+            }
+
+            logger.Information($"[TransactLoggerClient] Initialized with {WorkerCount} workers, queue capacity: {MaxQueueSize}");
         }
 
         #region ObjectPool Methods
@@ -136,20 +131,20 @@ namespace transact.Extensions
             logMessage.ServerID = GlobalConfiguration.HostName;
             logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
             logMessage.ProgramName = ModuleConfiguration.ModuleID;
-            logMessage.GlobalID = null;
-            logMessage.Acknowledge = null;
-            logMessage.ApplicationID = null;
-            logMessage.ProjectID = null;
-            logMessage.TransactionID = null;
-            logMessage.ServiceID = null;
-            logMessage.Type = null;
-            logMessage.Flow = null;
-            logMessage.Level = null;
-            logMessage.Format = null;
-            logMessage.Message = null;
-            logMessage.Properties = null;
-            logMessage.UserID = null;
-            logMessage.CreatedAt = null;
+            logMessage.GlobalID = string.Empty;
+            logMessage.Acknowledge = string.Empty;
+            logMessage.ApplicationID = string.Empty;
+            logMessage.ProjectID = string.Empty;
+            logMessage.TransactionID = string.Empty;
+            logMessage.ServiceID = string.Empty;
+            logMessage.Type = string.Empty;
+            logMessage.Flow = string.Empty;
+            logMessage.Level = string.Empty;
+            logMessage.Format = string.Empty;
+            logMessage.Message = string.Empty;
+            logMessage.Properties = string.Empty;
+            logMessage.UserID = string.Empty;
+            logMessage.CreatedAt = string.Empty;
         }
 
         #endregion
@@ -230,7 +225,7 @@ namespace transact.Extensions
         private async Task<RestResponse> ExecuteWithRetryAndCircuitBreakerAsync(RestRequest restRequest,
             Action<string>? fallbackFunction, CancellationToken cancellationToken)
         {
-            RestResponse response = null;
+            RestResponse? response = null;
             int retryCount = 0;
 
             while (retryCount <= MaxRetryCount)
@@ -446,11 +441,11 @@ namespace transact.Extensions
             // Aggregate 처리 (비동기)
             if (request != null)
             {
-                ProcessRequestAggregate(request, userWorkID);
+                ProcessRequestAggregate(request, userWorkID.ToStringSafe());
             }
             else if (response != null)
             {
-                ProcessResponseAggregate(response, userWorkID);
+                ProcessResponseAggregate(response, userWorkID.ToStringSafe());
             }
         }
 
@@ -479,7 +474,7 @@ namespace transact.Extensions
 
         #region Aggregate Processing
 
-        private void ProcessRequestAggregate(TransactionRequest request, string? userWorkID)
+        private void ProcessRequestAggregate(TransactionRequest request, string userWorkID)
         {
             if (ModuleConfiguration.IsTransactAggregate && request.AcceptDateTime != null)
             {
@@ -517,7 +512,7 @@ namespace transact.Extensions
             }
         }
 
-        private void ProcessResponseAggregate(TransactionResponse response, string? userWorkID)
+        private void ProcessResponseAggregate(TransactionResponse response, string userWorkID)
         {
             if (ModuleConfiguration.IsTransactAggregate && response.AcceptDateTime != null)
             {
@@ -737,9 +732,9 @@ namespace transact.Extensions
 
     internal class LogRequest
     {
-        public LogMessage LogMessage { get; set; }
+        public LogMessage LogMessage { get; set; } = new LogMessage();
         public Action<string>? FallbackFunction { get; set; }
-        public string LogType { get; set; }
+        public string LogType { get; set; } = string.Empty;
         public TransactionRequest? Request { get; set; }
         public TransactionResponse? Response { get; set; }
         public string? UserWorkID { get; set; }

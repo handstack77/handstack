@@ -67,7 +67,25 @@ namespace dbclient.Extensions
             logMessagePool = new ConcurrentBag<LogMessage>();
 
             // Circuit Breaker 정책
-            InitializeCircuitBreaker();
+            circuitBreakerPolicy = Policy
+              .HandleResult<RestResponse>(x => x.IsSuccessStatusCode == false)
+              .CircuitBreaker(
+                  handledEventsAllowedBeforeBreaking: 3,
+                  durationOfBreak: TimeSpan.FromSeconds(ModuleConfiguration.CircuitBreakResetSecond),
+                  onBreak: (result, timespan) =>
+                  {
+                      breakDateTime = DateTime.Now;
+                      logger.Error($"[CircuitBreaker/onBreak] Circuit opened for {timespan.TotalSeconds}s. Reason: {result.Result?.Content}");
+                  },
+                  onReset: () =>
+                  {
+                      breakDateTime = null;
+                      logger.Information($"[CircuitBreaker/onReset] Circuit reset at {DateTime.Now}");
+                  },
+                  onHalfOpen: () =>
+                  {
+                      logger.Information("[CircuitBreaker/onHalfOpen] Circuit is half-open, testing...");
+                  });
 
             // 백그라운드 워커 시작
             cancellationTokenSource = new CancellationTokenSource();
@@ -77,29 +95,6 @@ namespace dbclient.Extensions
                 int workerId = i;
                 backgroundWorkers[i] = Task.Run(() => ProcessLogQueueAsync(workerId, cancellationTokenSource.Token));
             }
-        }
-
-        private void InitializeCircuitBreaker()
-        {
-            circuitBreakerPolicy = Policy
-                .HandleResult<RestResponse>(x => x.IsSuccessStatusCode == false)
-                .CircuitBreaker(
-                    handledEventsAllowedBeforeBreaking: 3,
-                    durationOfBreak: TimeSpan.FromSeconds(ModuleConfiguration.CircuitBreakResetSecond),
-                    onBreak: (result, timespan) =>
-                    {
-                        breakDateTime = DateTime.Now;
-                        logger.Error($"[CircuitBreaker/onBreak] Circuit opened for {timespan.TotalSeconds}s. Reason: {result.Result?.Content}");
-                    },
-                    onReset: () =>
-                    {
-                        breakDateTime = null;
-                        logger.Information($"[CircuitBreaker/onReset] Circuit reset at {DateTime.Now}");
-                    },
-                    onHalfOpen: () =>
-                    {
-                        logger.Information("[CircuitBreaker/onHalfOpen] Circuit is half-open, testing...");
-                    });
         }
 
         /// <summary>
@@ -135,20 +130,20 @@ namespace dbclient.Extensions
             logMessage.ServerID = GlobalConfiguration.HostName;
             logMessage.RunningEnvironment = GlobalConfiguration.RunningEnvironment;
             logMessage.ProgramName = ModuleConfiguration.ModuleID;
-            logMessage.GlobalID = null;
-            logMessage.Acknowledge = null;
-            logMessage.ApplicationID = null;
-            logMessage.ProjectID = null;
-            logMessage.TransactionID = null;
-            logMessage.ServiceID = null;
-            logMessage.Type = null;
-            logMessage.Flow = null;
-            logMessage.Level = null;
-            logMessage.Format = null;
-            logMessage.Message = null;
-            logMessage.Properties = null;
-            logMessage.UserID = null;
-            logMessage.CreatedAt = null;
+            logMessage.GlobalID = string.Empty;
+            logMessage.Acknowledge = string.Empty;
+            logMessage.ApplicationID = string.Empty;
+            logMessage.ProjectID = string.Empty;
+            logMessage.TransactionID = string.Empty;
+            logMessage.ServiceID = string.Empty;
+            logMessage.Type = string.Empty;
+            logMessage.Flow = string.Empty;
+            logMessage.Level = string.Empty;
+            logMessage.Format = string.Empty;
+            logMessage.Message = string.Empty;
+            logMessage.Properties = string.Empty;
+            logMessage.UserID = string.Empty;
+            logMessage.CreatedAt = string.Empty;
         }
 
         /// <summary>
@@ -234,7 +229,7 @@ namespace dbclient.Extensions
         private async Task<RestResponse> ExecuteWithRetryAndCircuitBreakerAsync(RestRequest restRequest,
             Action<string>? fallbackFunction, CancellationToken cancellationToken)
         {
-            RestResponse response = null;
+            RestResponse? response = null;
             int retryCount = 0;
 
             while (retryCount <= MaxRetryCount)
@@ -609,8 +604,8 @@ namespace dbclient.Extensions
     /// </summary>
     internal class LogRequest
     {
-        public LogMessage LogMessage { get; set; }
+        public LogMessage LogMessage { get; set; } = new LogMessage();
         public Action<string>? FallbackFunction { get; set; }
-        public string LogType { get; set; }
+        public string LogType { get; set; } = string.Empty;
     }
 }
