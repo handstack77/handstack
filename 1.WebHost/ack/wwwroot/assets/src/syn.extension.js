@@ -972,6 +972,12 @@
             if (typeof num !== 'number' || typeof total !== 'number' || total === 0) return 0;
             const factor = Math.pow(10, precision);
             return Math.round((num * 100 / total) * factor) / factor;
+        },
+
+        amount(rate, total, precision = 0) {
+            if (typeof total !== 'number' || typeof rate !== 'number' || total === 0) return 0;
+            const factor = Math.pow(10, precision);
+            return Math.round((total * rate / 100) * factor) / factor;
         }
     });
     context.$number = $number;
