@@ -3326,6 +3326,7 @@ TransactionException:
                                                 {
                                                     businessReader.Close();
                                                     businessDatabase.Connection.Close();
+                                                    businessDatabase.Dispose();
                                                 }
                                             }
                                         }
@@ -3344,6 +3345,7 @@ TransactionException:
                             finally
                             {
                                 dataReader?.Close();
+                                connection.Close();
                             }
                         }
                     }
