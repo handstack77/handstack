@@ -3346,6 +3346,7 @@ TransactionException:
                             {
                                 dataReader?.Close();
                                 connection.Close();
+                                connectionFactory.Dispose();
                             }
                         }
                     }

@@ -131,6 +131,13 @@ namespace logger.DataClient
                                 Log.Logger.Error("[{LogCategory}] " + fileNotFoundException.Message, "LoggerClient/InsertWithPolicy");
                                 throw;
                             }
+                            finally
+                            {
+                                if (databaseFactory.Connection?.IsConnectionOpen() == true)
+                                {
+                                    await databaseFactory.Connection.CloseAsync();
+                                }
+                            }
                         }
                     });
                 }
@@ -211,6 +218,13 @@ namespace logger.DataClient
                     {
                         Log.Logger.Error("[{LogCategory}] " + fileNotFoundException.Message, "LoggerClient/LogList");
                     }
+                    finally
+                    {
+                        if (databaseFactory.Connection?.IsConnectionOpen() == true)
+                        {
+                            await databaseFactory.Connection.CloseAsync();
+                        }
+                    }
                 }
             }
             catch (Exception exception)
@@ -263,6 +277,14 @@ namespace logger.DataClient
                     {
                         Log.Logger.Error("[{LogCategory}] " + fileNotFoundException.Message, "LoggerClient/LogDetail");
                     }
+                    finally
+                    {
+                        // 명시적으로 연결 닫기
+                        if (databaseFactory.Connection?.IsConnectionOpen() == true)
+                        {
+                            await databaseFactory.Connection.CloseAsync();
+                        }
+                    }
                 }
             }
             catch (Exception exception)
@@ -309,6 +331,13 @@ namespace logger.DataClient
                     catch (FileNotFoundException fileNotFoundException)
                     {
                         Log.Logger.Error("[{LogCategory}] " + fileNotFoundException.Message, "LoggerClient/Delete");
+                    }
+                    finally
+                    {
+                        if (databaseFactory.Connection?.IsConnectionOpen() == true)
+                        {
+                            await databaseFactory.Connection.CloseAsync();
+                        }
                     }
                 }
                 catch (OperationCanceledException operationCanceledException)
