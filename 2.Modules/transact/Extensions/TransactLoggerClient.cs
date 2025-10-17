@@ -31,27 +31,22 @@ namespace transact.Extensions
         private readonly Serilog.ILogger logger;
         private readonly Serilog.ILogger? transactionLogger;
 
-        // 비동기 큐 처리
         private readonly BlockingCollection<LogRequest> logQueue;
         private readonly CancellationTokenSource cancellationTokenSource;
         private readonly Task[] backgroundWorkers;
 
-        // Circuit Breaker 정책
         private CircuitBreakerPolicy<RestResponse> circuitBreakerPolicy;
         private readonly object circuitBreakerLock = new object();
         private DateTime? breakDateTime;
 
-        // ObjectPool 구현
         private readonly ConcurrentBag<LogMessage> logMessagePool;
         private const int MaxPoolSize = 1000;
 
-        // 배치 처리 설정
         private const int BatchSize = 100;
         private const int BatchDelayMs = 1000;
         private const int MaxQueueSize = 10000;
         private const int WorkerCount = 3;
 
-        // 재시도 설정
         private const int MaxRetryCount = 2;
         private const int RetryDelayMs = 100;
 
@@ -63,16 +58,12 @@ namespace transact.Extensions
             this.logger = logger;
             this.transactionLogger = transactionLogger;
 
-            // RestClient 설정
             restClient = new RestClient();
 
-            // 큐 초기화
             logQueue = new BlockingCollection<LogRequest>(MaxQueueSize);
 
-            // ObjectPool 초기화
             logMessagePool = new ConcurrentBag<LogMessage>();
 
-            // Circuit Breaker 정책
             circuitBreakerPolicy = Policy
                 .HandleResult<RestResponse>(x => x.IsSuccessStatusCode == false)
                 .CircuitBreaker(
@@ -93,7 +84,6 @@ namespace transact.Extensions
                         logger.Information("[CircuitBreaker/onHalfOpen] TransactLoggerClient Circuit is half-open, testing...");
                     });
 
-            // 백그라운드 워커 시작
             cancellationTokenSource = new CancellationTokenSource();
             backgroundWorkers = new Task[WorkerCount];
             for (int i = 0; i < WorkerCount; i++)
@@ -101,8 +91,6 @@ namespace transact.Extensions
                 int workerId = i;
                 backgroundWorkers[i] = Task.Run(() => ProcessLogQueueAsync(workerId, cancellationTokenSource.Token));
             }
-
-            logger.Information($"[TransactLoggerClient] Initialized with {WorkerCount} workers, queue capacity: {MaxQueueSize}");
         }
 
         #region ObjectPool Methods
@@ -438,7 +426,6 @@ namespace transact.Extensions
                 ReturnLogMessage(logMessage);
             }
 
-            // Aggregate 처리 (비동기)
             if (request != null)
             {
                 ProcessRequestAggregate(request, userWorkID.ToStringSafe());
@@ -598,7 +585,6 @@ namespace transact.Extensions
 
         private async Task ProcessLogQueueAsync(int workerId, CancellationToken cancellationToken)
         {
-            logger.Information($"[Worker-{workerId}] Started");
             var batch = new List<LogRequest>(BatchSize);
 
             try
@@ -634,8 +620,6 @@ namespace transact.Extensions
             {
                 logger.Error(ex, $"[Worker-{workerId}] Terminated unexpectedly");
             }
-
-            logger.Information($"[Worker-{workerId}] Stopped");
         }
 
         private async Task ProcessBatchAsync(List<LogRequest> batch, int workerId, CancellationToken cancellationToken)
@@ -689,8 +673,6 @@ namespace transact.Extensions
 
         public async Task ShutdownAsync(TimeSpan timeout)
         {
-            logger.Information($"[Shutdown] Initiating graceful shutdown... (Queue size: {logQueue.Count})");
-
             logQueue.CompleteAdding();
             cancellationTokenSource.Cancel();
 

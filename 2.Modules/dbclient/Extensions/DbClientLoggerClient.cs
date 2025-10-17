@@ -25,27 +25,22 @@ namespace dbclient.Extensions
         private readonly Serilog.ILogger logger;
         private readonly Serilog.ILogger? transactionLogger;
 
-        // 비동기 큐 처리
         private readonly BlockingCollection<LogRequest> logQueue;
         private readonly CancellationTokenSource cancellationTokenSource;
         private readonly Task[] backgroundWorkers;
 
-        // Circuit Breaker 정책
         private CircuitBreakerPolicy<RestResponse> circuitBreakerPolicy;
         private readonly object circuitBreakerLock = new object();
         private DateTime? breakDateTime;
 
-        // ObjectPool 구현 (간단한 버전)
         private readonly ConcurrentBag<LogMessage> logMessagePool;
         private const int MaxPoolSize = 1000;
 
-        // 배치 처리 설정
         private const int BatchSize = 100;
         private const int BatchDelayMs = 1000;
         private const int MaxQueueSize = 10000;
         private const int WorkerCount = 3;
 
-        // 재시도 설정
         private const int MaxRetryCount = 2;
         private const int RetryDelayMs = 100;
 
@@ -57,16 +52,10 @@ namespace dbclient.Extensions
             this.logger = logger;
             this.transactionLogger = transactionLogger;
 
-            // RestClient 설정
             restClient = new RestClient();
-
-            // 큐 초기화
             logQueue = new BlockingCollection<LogRequest>(MaxQueueSize);
-
-            // ObjectPool 초기화
             logMessagePool = new ConcurrentBag<LogMessage>();
 
-            // Circuit Breaker 정책
             circuitBreakerPolicy = Policy
               .HandleResult<RestResponse>(x => x.IsSuccessStatusCode == false)
               .CircuitBreaker(
@@ -87,7 +76,6 @@ namespace dbclient.Extensions
                       logger.Information("[CircuitBreaker/onHalfOpen] Circuit is half-open, testing...");
                   });
 
-            // 백그라운드 워커 시작
             cancellationTokenSource = new CancellationTokenSource();
             backgroundWorkers = new Task[WorkerCount];
             for (int i = 0; i < WorkerCount; i++)
@@ -97,9 +85,6 @@ namespace dbclient.Extensions
             }
         }
 
-        /// <summary>
-        /// ObjectPool에서 LogMessage 가져오기
-        /// </summary>
         private LogMessage GetLogMessage()
         {
             if (logMessagePool.TryTake(out var logMessage))
@@ -110,9 +95,6 @@ namespace dbclient.Extensions
             return new LogMessage();
         }
 
-        /// <summary>
-        /// ObjectPool에 LogMessage 반환
-        /// </summary>
         private void ReturnLogMessage(LogMessage logMessage)
         {
             if (logMessage != null && logMessagePool.Count < MaxPoolSize)
@@ -122,9 +104,6 @@ namespace dbclient.Extensions
             }
         }
 
-        /// <summary>
-        /// LogMessage 초기화
-        /// </summary>
         private void ResetLogMessage(LogMessage logMessage)
         {
             logMessage.ServerID = GlobalConfiguration.HostName;
@@ -146,9 +125,6 @@ namespace dbclient.Extensions
             logMessage.CreatedAt = string.Empty;
         }
 
-        /// <summary>
-        /// 비동기 전송 (재시도 로직 포함)
-        /// </summary>
         public async Task<RestResponse> SendAsync(Method httpVerb, string hostUrl, LogMessage logMessage,
             Action<string>? fallbackFunction = null, Dictionary<string, string>? headers = null,
             CancellationToken cancellationToken = default)
@@ -187,9 +163,6 @@ namespace dbclient.Extensions
             return restResponse;
         }
 
-        /// <summary>
-        /// RestRequest 생성
-        /// </summary>
         private RestRequest CreateRestRequest(Method httpVerb, string hostUrl, LogMessage logMessage, Dictionary<string, string>? headers)
         {
             var restRequest = new RestRequest(hostUrl, httpVerb);
@@ -223,9 +196,6 @@ namespace dbclient.Extensions
             return restRequest;
         }
 
-        /// <summary>
-        /// 재시도 + Circuit Breaker 실행
-        /// </summary>
         private async Task<RestResponse> ExecuteWithRetryAndCircuitBreakerAsync(RestRequest restRequest,
             Action<string>? fallbackFunction, CancellationToken cancellationToken)
         {
@@ -236,12 +206,10 @@ namespace dbclient.Extensions
             {
                 try
                 {
-                    // Circuit Breaker 상태 확인
                     lock (circuitBreakerLock)
                     {
                         if (circuitBreakerPolicy.CircuitState == CircuitState.Open)
                         {
-                            // Half-Open 시도를 위한 시간 체크
                             if (breakDateTime.HasValue &&
                                 DateTime.Now >= breakDateTime.Value.AddSeconds(ModuleConfiguration.CircuitBreakResetSecond))
                             {
@@ -264,7 +232,6 @@ namespace dbclient.Extensions
                         }
                     }
 
-                    // Circuit Breaker로 실행
                     response = circuitBreakerPolicy.Execute(() =>
                     {
                         return restClient.ExecuteAsync(restRequest, cancellationToken).GetAwaiter().GetResult();
@@ -275,7 +242,6 @@ namespace dbclient.Extensions
                         return response;
                     }
 
-                    // 재시도 가능한 오류인 경우
                     if (retryCount < MaxRetryCount && IsRetryableError(response))
                     {
                         retryCount++;
@@ -285,7 +251,6 @@ namespace dbclient.Extensions
                         continue;
                     }
 
-                    // 재시도 불가능하거나 최대 재시도 횟수 도달
                     fallbackFunction?.Invoke($"HTTP {(int)response.StatusCode}: {response.Content}");
                     return response;
                 }
@@ -322,20 +287,14 @@ namespace dbclient.Extensions
             };
         }
 
-        /// <summary>
-        /// 재시도 가능한 오류인지 확인
-        /// </summary>
         private bool IsRetryableError(RestResponse response)
         {
             return response.StatusCode == HttpStatusCode.RequestTimeout ||
                    response.StatusCode == HttpStatusCode.ServiceUnavailable ||
                    response.StatusCode == HttpStatusCode.GatewayTimeout ||
-                   response.StatusCode == (HttpStatusCode)429; // Too Many Requests
+                   response.StatusCode == (HttpStatusCode)429;
         }
 
-        /// <summary>
-        /// Program 로그
-        /// </summary>
         public void ProgramMessageLogging(string globalID, string acknowledge, string applicationID,
             string message, string properties, Action<string>? fallbackFunction = null)
         {
@@ -346,9 +305,6 @@ namespace dbclient.Extensions
             EnqueueLog(logMessage, fallbackFunction, "Program");
         }
 
-        /// <summary>
-        /// Transaction 로그
-        /// </summary>
         public void TransactionMessageLogging(string globalID, string acknowledge, string applicationID,
             string projectID, string transactionID, string serviceID, string message, string properties,
             Action<string>? fallbackFunction = null)
@@ -360,9 +316,6 @@ namespace dbclient.Extensions
             EnqueueLog(logMessage, fallbackFunction, "Transaction");
         }
 
-        /// <summary>
-        /// Dynamic Response 로그
-        /// </summary>
         public void DynamicResponseLogging(string globalID, string acknowledge, string applicationID,
             string message, string properties, Action<string>? fallbackFunction = null)
         {
@@ -373,9 +326,6 @@ namespace dbclient.Extensions
             EnqueueLog(logMessage, fallbackFunction, "Response");
         }
 
-        /// <summary>
-        /// Dynamic Request 로그
-        /// </summary>
         public void DynamicRequestLogging(DynamicRequest request, string acknowledge, string applicationID,
             Action<string>? fallbackFunction = null)
         {
@@ -387,9 +337,6 @@ namespace dbclient.Extensions
             EnqueueLog(logMessage, fallbackFunction, "Request");
         }
 
-        /// <summary>
-        /// LogMessage 설정
-        /// </summary>
         private void ConfigureLogMessage(LogMessage logMessage, string globalID, string acknowledge,
             string applicationID, string projectID, string transactionID, string serviceID,
             string type, string flow, string level, string format, string message, string properties)
@@ -409,9 +356,6 @@ namespace dbclient.Extensions
             logMessage.UserID = "";
         }
 
-        /// <summary>
-        /// 로그를 큐에 추가 (논블로킹)
-        /// </summary>
         private void EnqueueLog(LogMessage logMessage, Action<string>? fallbackFunction, string logType)
         {
             if (ModuleConfiguration.IsLogServer)
@@ -423,7 +367,6 @@ namespace dbclient.Extensions
                     LogType = logType
                 };
 
-                // TryAdd로 논블로킹 처리 (큐가 가득 차면 즉시 반환)
                 if (!logQueue.TryAdd(logRequest, 0))
                 {
                     logger.Warning($"[LogQueue] Queue full (size: {logQueue.Count}), dropping {logType} log for GlobalID: {logMessage.GlobalID}");
@@ -433,15 +376,11 @@ namespace dbclient.Extensions
             }
             else
             {
-                // 로컬 로깅
                 LogLocally(logMessage, logType);
                 ReturnLogMessage(logMessage);
             }
         }
 
-        /// <summary>
-        /// 로컬 로깅
-        /// </summary>
         private void LogLocally(LogMessage logMessage, string logType)
         {
             var messageForLog = logMessage.Message;
@@ -453,12 +392,8 @@ namespace dbclient.Extensions
             }
         }
 
-        /// <summary>
-        /// 백그라운드 로그 처리 워커 (배치 처리)
-        /// </summary>
         private async Task ProcessLogQueueAsync(int workerId, CancellationToken cancellationToken)
         {
-            logger.Information($"[Worker-{workerId}] Started");
             var batch = new List<LogRequest>(BatchSize);
 
             try
@@ -467,7 +402,6 @@ namespace dbclient.Extensions
                 {
                     batch.Clear();
 
-                    // 배치 수집
                     var deadline = DateTime.UtcNow.AddMilliseconds(BatchDelayMs);
 
                     while (batch.Count < BatchSize && DateTime.UtcNow < deadline && !cancellationToken.IsCancellationRequested)
@@ -482,7 +416,6 @@ namespace dbclient.Extensions
                         }
                     }
 
-                    // 배치 처리
                     if (batch.Count > 0)
                     {
                         await ProcessBatchAsync(batch, workerId, cancellationToken);
@@ -497,13 +430,8 @@ namespace dbclient.Extensions
             {
                 logger.Error(ex, $"[Worker-{workerId}] Terminated unexpectedly");
             }
-
-            logger.Information($"[Worker-{workerId}] Stopped");
         }
 
-        /// <summary>
-        /// 배치 로그 전송 (병렬 처리)
-        /// </summary>
         private async Task ProcessBatchAsync(List<LogRequest> batch, int workerId, CancellationToken cancellationToken)
         {
             var tasks = new List<Task>(batch.Count);
@@ -523,9 +451,6 @@ namespace dbclient.Extensions
             }
         }
 
-        /// <summary>
-        /// 단일 로그 처리
-        /// </summary>
         private async Task ProcessSingleLogAsync(LogRequest logRequest, CancellationToken cancellationToken)
         {
             try
@@ -552,17 +477,10 @@ namespace dbclient.Extensions
             }
         }
 
-        /// <summary>
-        /// Graceful shutdown
-        /// </summary>
         public async Task ShutdownAsync(TimeSpan timeout)
         {
-            logger.Information($"[Shutdown] Initiating graceful shutdown... (Queue size: {logQueue.Count})");
-
-            // 새 로그 수신 중단
             logQueue.CompleteAdding();
 
-            // 워커들이 종료될 때까지 대기
             cancellationTokenSource.Cancel();
 
             var shutdownTask = Task.WhenAll(backgroundWorkers);
@@ -599,9 +517,6 @@ namespace dbclient.Extensions
         }
     }
 
-    /// <summary>
-    /// LogRequest (내부용)
-    /// </summary>
     internal class LogRequest
     {
         public LogMessage LogMessage { get; set; } = new LogMessage();
