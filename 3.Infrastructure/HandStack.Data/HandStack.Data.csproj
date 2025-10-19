@@ -42,7 +42,7 @@
     </ItemGroup>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-        <Exec Condition="'$(OS)'=='Windows_NT'" Command="(robocopy $(TargetDir) ../Assemblies /e /copy:dat) ^&amp; IF %25ERRORLEVEL%25 LEQ 1 exit 0" />
-        <Exec Condition="'$(OS)'!='Windows_NT'" Command="(rsync -avq $(TargetDir) ../Assemblies)" />
+        <Exec Condition="'$(OS)'=='Windows_NT'" Command="(robocopy $(TargetDir) ../Assemblies/$(Configuration) /e /copy:dat) ^&amp; IF %25ERRORLEVEL%25 LEQ 1 exit 0" />
+        <Exec Condition="'$(OS)'!='Windows_NT'" Command="mkdir -p ../Assemblies/$(Configuration) &amp;&amp; rsync -avq $(TargetDir) ../Assemblies/$(Configuration)" />
     </Target>
 </Project>

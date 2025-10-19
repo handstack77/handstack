@@ -166,54 +166,50 @@ namespace checkup.Areas.checkup.Controllers
             ActionResult result = BadRequest("요청 정보 확인이 필요합니다");
             var entityResult = new EntityResult();
 
-            var remoteClientIP = HttpContext.GetRemoteIpAddress();
-            if (clientIP == remoteClientIP)
+            string? personNo = null;
+
+            try
             {
-                string? personNo = null;
-
-                try
+                var dynamicResults = ModuleExtensions.ExecuteMetaSQL(ReturnType.Dynamic, "SYS.USR010.GD02", new
                 {
-                    var dynamicResults = ModuleExtensions.ExecuteMetaSQL(ReturnType.Dynamic, "SYS.USR010.GD02", new
-                    {
-                        PersonID = userID
-                    });
+                    PersonID = userID
+                });
 
-                    if (dynamicResults == null)
-                    {
-                        entityResult.ErrorText = "SYS.USR010.GD02 확인 필요";
-                        logger.Error("[{LogCategory}] " + $"{ModuleConfiguration.DatabaseContractPath}: ${entityResult.ErrorText}", "AccountController/Email");
-                        return Ok(entityResult);
-                    }
-                    else if (dynamicResults.Count > 0)
-                    {
-                        var item = dynamicResults[0];
-                        personNo = item.PersonNo;
-                        if (item.Password != password)
-                        {
-                            personNo = null;
-                        }
-                    }
-
-                    if (string.IsNullOrEmpty(personNo) == true)
-                    {
-                        entityResult.ErrorText = "SYS.USR010.GD02 결과 필요";
-                        logger.Error("[{LogCategory}] " + $"{ModuleConfiguration.DatabaseContractPath}: ${entityResult.ErrorText}", "AccountController/Email");
-                        return Ok(entityResult);
-                    }
-
-                    var issueID = sequentialIdGenerator.NewId().ToString("N");
-                    var signInUrl = Request.GetBaseUrl() + $"/checkup/api/account/sign-in?userID={userID}&issueID={issueID}&validID={issueID.EncryptAES(ModuleConfiguration.EncryptionAES256Key).EncodeBase64()}";
-                    var signID = signInUrl.ToSHA256();
-                    signInUrl = signInUrl + $"&signID={signID}";
-
-                    entityResult.Message = signInUrl;
-                    result = Ok(entityResult);
-                }
-                catch (Exception exception)
+                if (dynamicResults == null)
                 {
-                    logger.Error(exception, "[{LogCategory}] " + $"로그인 이메일 검증 오류", "AccountController/Email");
-                    result = BadRequest(exception.Message);
+                    entityResult.ErrorText = "SYS.USR010.GD02 확인 필요";
+                    logger.Error("[{LogCategory}] " + $"{ModuleConfiguration.DatabaseContractPath}: ${entityResult.ErrorText}", "AccountController/Email");
+                    return Ok(entityResult);
                 }
+                else if (dynamicResults.Count > 0)
+                {
+                    var item = dynamicResults[0];
+                    personNo = item.PersonNo;
+                    if (item.Password != password)
+                    {
+                        personNo = null;
+                    }
+                }
+
+                if (string.IsNullOrEmpty(personNo) == true)
+                {
+                    entityResult.ErrorText = "SYS.USR010.GD02 결과 필요";
+                    logger.Error("[{LogCategory}] " + $"{ModuleConfiguration.DatabaseContractPath}: ${entityResult.ErrorText}", "AccountController/Email");
+                    return Ok(entityResult);
+                }
+
+                var issueID = sequentialIdGenerator.NewId().ToString("N");
+                var signInUrl = Request.GetBaseUrl() + $"/checkup/api/account/sign-in?userID={userID}&issueID={issueID}&validID={issueID.EncryptAES(ModuleConfiguration.EncryptionAES256Key).EncodeBase64()}";
+                var signID = signInUrl.ToSHA256();
+                signInUrl = signInUrl + $"&signID={signID}";
+
+                entityResult.Message = signInUrl;
+                result = Ok(entityResult);
+            }
+            catch (Exception exception)
+            {
+                logger.Error(exception, "[{LogCategory}] " + $"로그인 이메일 검증 오류", "AccountController/Email");
+                result = BadRequest(exception.Message);
             }
 
             return result;

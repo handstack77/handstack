@@ -80,7 +80,7 @@
 
     <ItemGroup>
         <Reference Include="HandStack.Core">
-            <HintPath>../../../3.Infrastructure/Assemblies/HandStack.Core.dll</HintPath>
+            <HintPath>../../../3.Infrastructure/Assemblies/$(Configuration)/HandStack.Core.dll</HintPath>
         </Reference>
     </ItemGroup>
 

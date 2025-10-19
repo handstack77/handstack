@@ -61,11 +61,20 @@ if "%action_mode%" == "publish" (
 echo os_mode: %os_mode%, action_mode: %action_mode%, configuration_mode: %configuration_mode%, arch_mode: %arch_mode%, optimize: %optimize_flag%, rid: %rid%, publish_path: %publish_path%
 
 rmdir /s /q %publish_path%
+rmdir /s /q %HANDSTACK_SRC%\3.Infrastructure\Assemblies
 
 if "%trysignassembly%" == "true" (
     echo Enabling assembly signing for build...
     node signassembly.js true
 )
+
+REM Infrastructure 프로젝트들 빌드/퍼블리시
+dotnet build --configuration Debug --arch %arch_mode% --os %os_mode% 3.Infrastructure\HandStack.Core\HandStack.Core.csproj
+dotnet build --configuration Debug --arch %arch_mode% --os %os_mode% 3.Infrastructure\HandStack.Data\HandStack.Data.csproj
+dotnet build --configuration Debug --arch %arch_mode% --os %os_mode% 3.Infrastructure\HandStack.Web\HandStack.Web.csproj
+dotnet build --configuration Release --arch %arch_mode% --os %os_mode% 3.Infrastructure\HandStack.Core\HandStack.Core.csproj
+dotnet build --configuration Release --arch %arch_mode% --os %os_mode% 3.Infrastructure\HandStack.Data\HandStack.Data.csproj
+dotnet build --configuration Release --arch %arch_mode% --os %os_mode% 3.Infrastructure\HandStack.Web\HandStack.Web.csproj
 
 REM WebHost 프로젝트들 빌드/퍼블리시
 dotnet %action_mode% %dotnet_options% 1.WebHost\ack\ack.csproj --output %publish_path%\handstack\app
@@ -122,6 +131,24 @@ if exist "%wwwroot_js_path%\lib" (
     rd /S /Q "%wwwroot_js_path%\lib"
 )
 
-echo Build/Publish completed successfully!
+del /F /Q "%wwwroot_js_path%\js\syn.bundle.js" 2>nul
+del /F /Q "%wwwroot_js_path%\js\syn.bundle.min.js" 2>nul
+del /F /Q "%wwwroot_js_path%\js\syn.controls.js" 2>nul
+del /F /Q "%wwwroot_js_path%\js\syn.controls.min.js" 2>nul
+del /F /Q "%wwwroot_js_path%\js\syn.scripts.base.js" 2>nul
+del /F /Q "%wwwroot_js_path%\js\syn.scripts.base.min.js" 2>nul
+del /F /Q "%wwwroot_js_path%\js\syn.scripts.js" 2>nul
+del /F /Q "%wwwroot_js_path%\js\syn.scripts.min.js" 2>nul
+
+for /r "%publish_path%\handstack" %%f in (*.staticwebassets.endpoints.json *.staticwebassets.runtime.json) do (
+    if exist "%%f" (
+        del /F /Q "%%f" 2>nul
+    )
+)
+
+%publish_path%\handstack\app\cli\handstack compress --directory=%HANDSTACK_SRC%/3.Infrastructure/Assemblies --file=%publish_path%/handstack/assemblies.zip
+
+echo "빌드/퍼블리시가 성공적으로 완료되었습니다!"
+echo "출력 디렉토리: %publish_path%"
 
 REM git archive --format zip --output %HANDSTACK_SRC%\..\publish\handstack-src.zip master

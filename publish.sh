@@ -73,6 +73,7 @@ echo "운영체제: $os_mode, 액션모드: $action_mode, 구성모드: $configu
 
 # 기존 출력 디렉토리 삭제
 rm -rf "$publish_path"
+rm -rf "$HANDSTACK_SRC/3.Infrastructure/Assemblies"
 
 # post-build 스크립트의 줄바꿈 문자 수정 및 실행 권한 부여 함수
 fix_post_build_script() {
@@ -99,6 +100,15 @@ echo "Enabling assembly signing for build..."
 if [ "trysignassembly" == "true" ]; then
     node signassembly.js true
 fi
+
+# Infrastructure 프로젝트들 빌드/퍼블리시
+dotnet build --configuration Debug --arch $arch_mode --os $os_mode 3.Infrastructure/HandStack.Core/HandStack.Core.csproj
+dotnet build --configuration Debug --arch $arch_mode --os $os_mode 3.Infrastructure/HandStack.Data/HandStack.Data.csproj
+dotnet build --configuration Debug --arch $arch_mode --os $os_mode 3.Infrastructure/HandStack.Web/HandStack.Web.csproj
+dotnet build --configuration Release --arch $arch_mode --os $os_mode 3.Infrastructure/HandStack.Core/HandStack.Core.csproj
+dotnet build --configuration Release --arch $arch_mode --os $os_mode 3.Infrastructure/HandStack.Data/HandStack.Data.csproj
+dotnet build --configuration Release --arch $arch_mode --os $os_mode 3.Infrastructure/HandStack.Web/HandStack.Web.csproj
+
 
 # WebHost 프로젝트들 빌드/퍼블리시
 echo "WebHost 프로젝트 빌드/퍼블리시 중..."
@@ -177,7 +187,31 @@ wwwroot_js_path="$publish_path/handstack/modules/wwwroot/wwwroot"
 if [ -d "$wwwroot_js_path" ]; then
     # lib 폴더 삭제
     rm -rf "$wwwroot_js_path/lib" 2>/dev/null || true
+    
+    # 특정 JavaScript 파일들 삭제
+    js_files=(
+        "syn.bundle.js"
+        "syn.bundle.min.js"
+        "syn.controls.js"
+        "syn.controls.min.js"
+        "syn.scripts.base.js"
+        "syn.scripts.base.min.js"
+        "syn.scripts.js"
+        "syn.scripts.min.js"
+    )
+    
+    for js_file in "${js_files[@]}"; do
+        rm -f "$wwwroot_js_path/js/$js_file" 2>/dev/null || true
+    done
 fi
+
+find "${publish_path}/handstack" -type f \( -name "*.staticwebassets.endpoints.json" -o -name "*.staticwebassets.runtime.json" \) | while read -r file; do
+    if [ -f "$file" ]; then
+        rm -f "$file" 2>/dev/null
+    fi
+done
+
+$publish_path/handstack/app/cli/handstack compress --directory=$HANDSTACK_SRC/3.Infrastructure/Assemblies --file=$publish_path/handstack/assemblies.zip
 
 echo "빌드/퍼블리시가 성공적으로 완료되었습니다!"
 echo "출력 디렉토리: $publish_path"

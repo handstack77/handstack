@@ -55,13 +55,13 @@
 
     <ItemGroup>
         <Reference Include="HandStack.Core">
-            <HintPath>../../3.Infrastructure/Assemblies/HandStack.Core.dll</HintPath>
+            <HintPath>../../3.Infrastructure/Assemblies/$(Configuration)/HandStack.Core.dll</HintPath>
         </Reference>
         <Reference Include="HandStack.Web">
-            <HintPath>../../3.Infrastructure/Assemblies/HandStack.Web.dll</HintPath>
+            <HintPath>../../3.Infrastructure/Assemblies/$(Configuration)/HandStack.Web.dll</HintPath>
         </Reference>
         <Reference Include="HandStack.Data">
-            <HintPath>../../3.Infrastructure/Assemblies/HandStack.Data.dll</HintPath>
+            <HintPath>../../3.Infrastructure/Assemblies/$(Configuration)/HandStack.Data.dll</HintPath>
         </Reference>
     </ItemGroup>
 
