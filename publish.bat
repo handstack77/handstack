@@ -146,7 +146,7 @@ for /r "%publish_path%\handstack" %%f in (*.staticwebassets.endpoints.json *.sta
     )
 )
 
-%publish_path%\handstack\app\cli\handstack compress --directory=%HANDSTACK_SRC%/3.Infrastructure/Assemblies --file=%publish_path%/handstack/assemblies.zip
+robocopy %HANDSTACK_SRC%/3.Infrastructure/Assemblies %publish_path%/handstack/assemblies /MIR /NFL /NDL /NJH /NJS /NC /NS /NP
 
 echo "빌드/퍼블리시가 성공적으로 완료되었습니다!"
 echo "출력 디렉토리: %publish_path%"

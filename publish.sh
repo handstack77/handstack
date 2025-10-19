@@ -211,7 +211,7 @@ find "${publish_path}/handstack" -type f \( -name "*.staticwebassets.endpoints.j
     fi
 done
 
-$publish_path/handstack/app/cli/handstack compress --directory=$HANDSTACK_SRC/3.Infrastructure/Assemblies --file=$publish_path/handstack/assemblies.zip
+rsync -a --delete -q %HANDSTACK_SRC%/3.Infrastructure/Assemblies/ %publish_path%/handstack/assemblies/
 
 echo "빌드/퍼블리시가 성공적으로 완료되었습니다!"
 echo "출력 디렉토리: $publish_path"
