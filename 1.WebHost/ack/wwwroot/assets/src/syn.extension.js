@@ -978,6 +978,62 @@
             if (typeof total !== 'number' || typeof rate !== 'number' || total === 0) return 0;
             const factor = Math.pow(10, precision);
             return Math.round((total * rate / 100) * factor) / factor;
+        },
+
+        aggregate(type, columnValues) {
+            if (typeof columnValues === 'string') {
+                processedValues = columnValues.split(',');
+            }
+
+            if (!Array.isArray(columnValues)) {
+                return 0;
+            }
+
+            const numericValues = [];
+            let validCount = 0;
+
+            for (const value of columnValues) {
+                const numericValue = $string.toNumber(value);
+                if (!isNaN(numericValue)) {
+                    numericValues.push(numericValue);
+                    validCount++;
+                }
+            }
+
+            if (validCount === 0 && type !== 'COUNT') {
+                return 0;
+            }
+
+            switch (type.toUpperCase()) {
+                case 'SUM':
+                    return numericValues.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+
+                case 'MIN':
+                    return Math.min(...numericValues);
+
+                case 'MAX':
+                    return Math.max(...numericValues);
+
+                case 'COUNT':
+                    return validCount;
+
+                case 'AVG':
+                    const sumAggregate = numericValues.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+                    return validCount > 0 ? sumAggregate / validCount : 0;
+
+                case 'MEDIAN':
+                    numericValues.sort((a, b) => a - b);
+                    const middle = Math.floor(validCount / 2);
+
+                    if (validCount % 2 === 1) {
+                        return numericValues[middle];
+                    } else {
+                        return (numericValues[middle - 1] + numericValues[middle]) / 2;
+                    }
+
+                default:
+                    return 0;
+            }
         }
     });
     context.$number = $number;

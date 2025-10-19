@@ -2658,6 +2658,46 @@
             context.requestAnimationFrame(scrollStep);
         },
 
+        scrollToElement(el, offset) {
+            const doc = document;
+            const context = window;
+
+            if (!doc?.documentElement || !context.requestAnimationFrame || !context.scrollTo) {
+                return;
+            }
+
+            el = syn.$l.getElement(el);
+            if (!el) {
+                return;
+            }
+
+            offset = offset || 0;
+            const targetScrollTop = el.getBoundingClientRect().top + context.scrollY - offset;;
+            const startScrollTop = context.scrollY || doc.documentElement.scrollTop || doc.body.scrollTop;
+            const distance = targetScrollTop - startScrollTop;
+            const startTime = performance.now();
+            const duration = 200;
+            const scrollStep = (currentTime) => {
+                const elapsed = currentTime - startTime;
+
+                const progress = Math.min(1, elapsed / duration);
+
+                const easeProgress = progress < 0.5
+                    ? 4 * progress * progress * progress
+                    : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+                const currentScroll = startScrollTop + (distance * easeProgress);
+
+                context.scrollTo(0, currentScroll);
+
+                if (progress < 1) {
+                    context.requestAnimationFrame(scrollStep);
+                }
+            };
+
+            context.requestAnimationFrame(scrollStep);
+        },
+
         setFavicon(url) {
             if (!doc) return;
             let favicon = doc.querySelector('link[rel="icon"]');

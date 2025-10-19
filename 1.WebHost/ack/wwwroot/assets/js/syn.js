@@ -1,5 +1,5 @@
 /*!
-HandStack Javascript Library v2025.10.2
+HandStack Javascript Library v2025.10.19
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -3678,6 +3678,62 @@ if (typeof module !== 'undefined' && module.exports) {
             if (typeof total !== 'number' || typeof rate !== 'number' || total === 0) return 0;
             const factor = Math.pow(10, precision);
             return Math.round((total * rate / 100) * factor) / factor;
+        },
+
+        aggregate(type, columnValues) {
+            if (typeof columnValues === 'string') {
+                processedValues = columnValues.split(',');
+            }
+
+            if (!Array.isArray(columnValues)) {
+                return 0;
+            }
+
+            const numericValues = [];
+            let validCount = 0;
+
+            for (const value of columnValues) {
+                const numericValue = $string.toNumber(value);
+                if (!isNaN(numericValue)) {
+                    numericValues.push(numericValue);
+                    validCount++;
+                }
+            }
+
+            if (validCount === 0 && type !== 'COUNT') {
+                return 0;
+            }
+
+            switch (type.toUpperCase()) {
+                case 'SUM':
+                    return numericValues.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+
+                case 'MIN':
+                    return Math.min(...numericValues);
+
+                case 'MAX':
+                    return Math.max(...numericValues);
+
+                case 'COUNT':
+                    return validCount;
+
+                case 'AVG':
+                    const sumAggregate = numericValues.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+                    return validCount > 0 ? sumAggregate / validCount : 0;
+
+                case 'MEDIAN':
+                    numericValues.sort((a, b) => a - b);
+                    const middle = Math.floor(validCount / 2);
+
+                    if (validCount % 2 === 1) {
+                        return numericValues[middle];
+                    } else {
+                        return (numericValues[middle - 1] + numericValues[middle]) / 2;
+                    }
+
+                default:
+                    return 0;
+            }
         }
     });
     context.$number = $number;
@@ -9053,6 +9109,46 @@ if (typeof module !== 'undefined' && module.exports) {
                     context.scrollTo(0, scrollTop - scrollTop / 8);
                 }
             };
+            context.requestAnimationFrame(scrollStep);
+        },
+
+        scrollToElement(el, offset) {
+            const doc = document;
+            const context = window;
+
+            if (!doc?.documentElement || !context.requestAnimationFrame || !context.scrollTo) {
+                return;
+            }
+
+            el = syn.$l.getElement(el);
+            if (!el) {
+                return;
+            }
+
+            offset = offset || 0;
+            const targetScrollTop = el.getBoundingClientRect().top + context.scrollY - offset;;
+            const startScrollTop = context.scrollY || doc.documentElement.scrollTop || doc.body.scrollTop;
+            const distance = targetScrollTop - startScrollTop;
+            const startTime = performance.now();
+            const duration = 200;
+            const scrollStep = (currentTime) => {
+                const elapsed = currentTime - startTime;
+
+                const progress = Math.min(1, elapsed / duration);
+
+                const easeProgress = progress < 0.5
+                    ? 4 * progress * progress * progress
+                    : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+                const currentScroll = startScrollTop + (distance * easeProgress);
+
+                context.scrollTo(0, currentScroll);
+
+                if (progress < 1) {
+                    context.requestAnimationFrame(scrollStep);
+                }
+            };
+
             context.requestAnimationFrame(scrollStep);
         },
 
