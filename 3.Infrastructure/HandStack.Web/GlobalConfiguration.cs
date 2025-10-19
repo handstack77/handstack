@@ -97,6 +97,7 @@ namespace HandStack.Web
         public static int ServerDevCertSslPort = 8443;
         public static string ServerDevCertFilePath = "";
         public static string? ServerDevCertPassword;
+        public static string ExternalIPAddress = "";
         public static bool IsApiFindServer = true;
         public static bool IsRunning = false;
         public static List<string> PhysicalFileProviders = new List<string>();

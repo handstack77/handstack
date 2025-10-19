@@ -4,9 +4,13 @@ using System.CommandLine;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Sockets;
 using System.Reflection;
 using System.Runtime.Versioning;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -188,6 +192,8 @@ namespace ack
                         return;
                     }
 
+                    GlobalConfiguration.ExternalIPAddress = await GetExternalIPAddress();
+
                     if (string.IsNullOrEmpty(modules) == false)
                     {
                         var loadModules = modules.Split(',', StringSplitOptions.RemoveEmptyEntries);
@@ -251,6 +257,97 @@ namespace ack
 
             await rootCommand.InvokeAsync(args);
             return exitCode;
+        }
+
+        static async Task<string> GetExternalIPAddress()
+        {
+            string? ipAddress = null;
+            var urls = new[]
+            {
+            new { Url = "https://api.ipify.org?format=json", IsJson = true },
+            new { Url = $"http://localhost:{GlobalConfiguration.ServerPort}/checkip", IsJson = false }
+        };
+
+            using (HttpClient client = new HttpClient())
+            {
+                client.Timeout = TimeSpan.FromSeconds(3);
+
+                foreach (var urlInfo in urls)
+                {
+                    try
+                    {
+                        HttpResponseMessage response = await client.GetAsync(urlInfo.Url);
+
+                        if (response.IsSuccessStatusCode)
+                        {
+                            if (urlInfo.IsJson)
+                            {
+                                string jsonContent = await response.Content.ReadAsStringAsync();
+                                using (JsonDocument doc = JsonDocument.Parse(jsonContent))
+                                {
+                                    if (doc.RootElement.TryGetProperty("ip", out JsonElement ipElement))
+                                    {
+                                        ipAddress = ipElement.GetString();
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                ipAddress = (await response.Content.ReadAsStringAsync()).Trim();
+                            }
+
+                            break;
+                        }
+                    }
+                    catch
+                    {
+                    }
+                }
+            }
+
+            if (string.IsNullOrEmpty(ipAddress) == true)
+            {
+                ipAddress = GetLocalIPAddress();
+            }
+
+            return ipAddress;
+        }
+
+        static string GetLocalIPAddress()
+        {
+            try
+            {
+                using (Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, 0))
+                {
+                    socket.Connect("8.8.8.8", 65530);
+                    var endPoint = socket.LocalEndPoint as IPEndPoint;
+                    if (endPoint != null)
+                    {
+                        return endPoint.Address.ToString();
+                    }
+                }
+            }
+            catch
+            {
+            }
+
+            try
+            {
+                var host = Dns.GetHostEntry(Dns.GetHostName());
+                var ipAddress = host.AddressList
+                    .FirstOrDefault(ip => ip.AddressFamily == AddressFamily.InterNetwork
+                                       && !IPAddress.IsLoopback(ip));
+
+                if (ipAddress != null)
+                {
+                    return ipAddress.ToString();
+                }
+            }
+            catch
+            {
+            }
+
+            return "127.0.0.1";
         }
 
         static void HandleException(object sender, UnhandledExceptionEventArgs e)
