@@ -18,14 +18,17 @@ if "%trysignassembly%" == "true" (
 
 echo Building HandStack.Core...
 dotnet build "3.Infrastructure\HandStack.Core\HandStack.Core.csproj" -c Debug
+dotnet build "3.Infrastructure\HandStack.Core\HandStack.Core.csproj" -c Release
 if %errorlevel% neq 0 goto :error
 
 echo Building HandStack.Data...
 dotnet build "3.Infrastructure\HandStack.Data\HandStack.Data.csproj" -c Debug
+dotnet build "3.Infrastructure\HandStack.Data\HandStack.Data.csproj" -c Release
 if %errorlevel% neq 0 goto :error
 
 echo Building HandStack.Web...
 dotnet build "3.Infrastructure\HandStack.Web\HandStack.Web.csproj" -c Debug
+dotnet build "3.Infrastructure\HandStack.Web\HandStack.Web.csproj" -c Release
 if %errorlevel% neq 0 goto :error
 
 rem Build Modules projects (consider their internal dependencies if any)

@@ -18,8 +18,11 @@ fi
 
 echo "Building Infrastructure projects..."
 dotnet build "3.Infrastructure/HandStack.Core/HandStack.Core.csproj" -c Debug
+dotnet build "3.Infrastructure/HandStack.Core/HandStack.Core.csproj" -c Release
 dotnet build "3.Infrastructure/HandStack.Data/HandStack.Data.csproj" -c Debug
+dotnet build "3.Infrastructure/HandStack.Data/HandStack.Data.csproj" -c Release
 dotnet build "3.Infrastructure/HandStack.Web/HandStack.Web.csproj" -c Debug
+dotnet build "3.Infrastructure/HandStack.Web/HandStack.Web.csproj" -c Release
 
 echo "Building Modules projects..."
 dotnet build "2.Modules/wwwroot/wwwroot.csproj" -c Debug
