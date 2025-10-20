@@ -166,7 +166,7 @@
 
     $auigrid.extend({
         name: 'syn.uicontrols.$auigrid',
-        version: 'v2025.10.4',
+        version: 'v2025.10.20',
 
         gridControls: [],
         gridCodeDatas: [],
@@ -1037,9 +1037,12 @@
                                 showTodayBtn: true,
                                 showUncheckDateBtn: true,
                                 uncheckDateValue: '',
-                                validator: function (oldValue, newValue, item) {
+                                validator: function (oldValue, newValue, item, dataField) {
                                     const isValid = $string.isNullOrEmpty(newValue) == true ? true : $date.isDate(newValue);
-                                    return { "validate": isValid, "message": "유효한 날짜 형식으로 입력해주세요." };
+                                    return {
+                                        validate: isValid,
+                                        message: '유효한 날짜 형식으로 입력해주세요.'
+                                    };
                                 }
                             }
                             break;
@@ -1068,23 +1071,7 @@
                                 uncheckDateValue: '',
                                 hourInterval: 1,
                                 minList: columnInfo.minList || [0, 15, 30, 45],
-                                hourList: columnInfo.hourList || [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
-                                initDateFunction: function (rowIndex, columnIndex, value, item, dataField, cItem) {
-                                    let defaultTodayFormat = 'yyyy-MM-dd HH:00:00';
-                                    var info = $auigrid.getColumnInfo(columnInfo.elID, columnIndex);
-                                    const hourList = info.editRenderer.hourList;
-                                    if (hourList.length > 0) {
-                                        const currentHour = $date.toString(new Date(), 'HH');
-                                        if (hourList.includes($string.toNumber(currentHour)) == true) {
-                                            defaultTodayFormat = `yyyy-MM-dd ${currentHour}:00:00`;
-                                        }
-                                    }
-
-                                    if ($string.isNullOrEmpty(value) == true || value == undefined) {
-                                        return new Date($date.toString(new Date(), defaultTodayFormat));
-                                    }
-                                    return new Date(value);
-                                }
+                                hourList: columnInfo.hourList || [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
                             }
                             break;
                         case 'sparkline':
