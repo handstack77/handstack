@@ -59,15 +59,46 @@ if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
     fi
     
     # 환경 변수 설정
-    sudo sed -i '/export HANDSTACK_SRC=/d' /etc/profile
-    echo "export HANDSTACK_SRC=\"$current_path\"" | sudo tee -a /etc/profile
-    export HANDSTACK_SRC="$current_path"
-    source /etc/profile
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        SED_INPLACE="sed -i ''"
+        PROFILE_FILE="$HOME/.zshrc"
+        echo 'export DOTNET_CLI_TELEMETRY_OPTOUT=1' >> ~/.zshrc
+        source ~/.zshrc
+    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        SED_INPLACE="sed -i"
+        PROFILE_FILE="/etc/profile"
+        echo 'export DOTNET_CLI_TELEMETRY_OPTOUT=1' >> ~/.bashrc
+        source ~/.bashrc
+    fi
+
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        sed -i '' '/export HANDSTACK_SRC=/d' "$PROFILE_FILE"
+    else
+        sudo sed -i '/export HANDSTACK_SRC=/d' "$PROFILE_FILE"
+    fi
+
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        echo "export HANDSTACK_SRC=\"$current_path\"" >> "$PROFILE_FILE"
+    else
+        echo "export HANDSTACK_SRC=\"$current_path\"" | sudo tee -a "$PROFILE_FILE"
+    fi
     
-    sudo sed -i '/export HANDSTACK_HOME=/d' /etc/profile
-    echo "export HANDSTACK_HOME=\"$HANDSTACK_SRC/../build/handstack\"" | sudo tee -a /etc/profile
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        sed -i '' '/export HANDSTACK_HOME=/d' "$PROFILE_FILE"
+    else
+        sudo sed -i '/export HANDSTACK_HOME=/d' "$PROFILE_FILE"
+    fi
+
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        echo "export HANDSTACK_HOME=\"$HANDSTACK_SRC/../build/handstack\"" >> "$PROFILE_FILE"
+    else
+        echo "export HANDSTACK_HOME=\"$HANDSTACK_SRC/../build/handstack\"" | sudo tee -a "$PROFILE_FILE"
+    fi
+
     export HANDSTACK_HOME="$HANDSTACK_SRC/../build/handstack"
-    source /etc/profile
+    source "$PROFILE_FILE"
+
+    echo "HANDSTACK_HOME set to: $HANDSTACK_HOME"
 
     mkdir -p $HANDSTACK_SRC/../build/handstack
     

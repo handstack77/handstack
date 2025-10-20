@@ -50,6 +50,9 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
 	)
 
     REM 환경 변수 설정
+    setx DOTNET_CLI_TELEMETRY_OPTOUT 1
+    set DOTNET_CLI_TELEMETRY_OPTOUT=1
+
     setx HANDSTACK_SRC %current_path%
     set HANDSTACK_SRC=%current_path%
 
