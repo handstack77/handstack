@@ -1,5 +1,5 @@
 /*!
-HandStack Javascript Library v2025.10.19
+HandStack Javascript Library v2025.10.22
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -8263,6 +8263,7 @@ if (typeof module !== 'undefined' && module.exports) {
         reportifyTemplateUrl: '/reportify/api/index/download-template?reportFileID=',
         pageExportScheme: 'export-scheme',
         pageExcelToPdf: 'excel-to-pdf',
+        overwriteFontName: null,
 
         concreate() {
             if (globalRoot.devicePlatform == 'browser') {
@@ -8295,7 +8296,8 @@ if (typeof module !== 'undefined' && module.exports) {
                 boolTrue: $print.boolTrue,
                 boolFalse: $print.boolFalse,
                 workItems: $print.workItems,
-                workActions: $print.workActions
+                workActions: $print.workActions,
+                overwriteFontName: $print.overwriteFontName
             };
 
             if ($string.isNullOrEmpty(excelUrl) == false) {
@@ -8441,6 +8443,16 @@ if (typeof module !== 'undefined' && module.exports) {
             }
         },
 
+        calculateOffsets(totalCount, step) {
+            const offsets = [];
+            let i = 0;
+            for (i = 0; i < totalCount; i += step) {
+                offsets.push(i);
+            }
+            offsets.push(i);
+            return offsets;
+        },
+
         bindingWorkItems(workItems, dataSource, documentOffset) {
             var reportWorkItems = JSON.parse(JSON.stringify(workItems));
             for (var key in dataSource) {
@@ -8487,10 +8499,79 @@ if (typeof module !== 'undefined' && module.exports) {
             });
         },
 
+        // let formData = syn.$p.transformFormData(data, 1);
+        transformFormData(jsonData, offset, padding, defaultKeys) {
+            const result = {};
+            offset = offset || 1;
+            padding = padding || 0;
+
+            let keys = [];
+            const defaultValues = {};
+
+            if (typeof defaultKeys === 'string') {
+                keys = defaultKeys.split(',').map(key => {
+                    const trimmedKey = key.trim();
+                    if (trimmedKey.includes(':')) {
+                        const [keyName, defaultValue] = trimmedKey.split(':').map(part => part.trim());
+                        defaultValues[keyName] = defaultValue;
+                        return keyName;
+                    } else {
+                        defaultValues[trimmedKey] = '';
+                        return trimmedKey;
+                    }
+                });
+            } else if (Array.isArray(defaultKeys)) {
+                keys = defaultKeys.map(key => {
+                    if (typeof key === 'string' && key.includes(':')) {
+                        const [keyName, defaultValue] = key.split(':').map(part => part.trim());
+                        defaultValues[keyName] = defaultValue;
+                        return keyName;
+                    } else {
+                        const keyName = typeof key === 'string' ? key : String(key);
+                        defaultValues[keyName] = '';
+                        return keyName;
+                    }
+                });
+            }
+
+            if (jsonData.length > 0) {
+                const dataKeys = Object.keys(jsonData[0]);
+                dataKeys.forEach(key => {
+                    if (!defaultValues.hasOwnProperty(key)) {
+                        defaultValues[key] = '';
+                    }
+                });
+                keys = [...new Set([...keys, ...dataKeys])];
+            }
+
+            jsonData.forEach((item, index) => {
+                const suffix = offset + index;
+                keys.forEach(key => {
+                    if (item.hasOwnProperty(key)) {
+                        result[key + suffix] = item[key];
+                    } else {
+                        result[key + suffix] = defaultValues[key] || '';
+                    }
+                });
+            });
+
+            if (padding > jsonData.length) {
+                for (let i = jsonData.length; i < padding; i++) {
+                    const suffix = offset + i;
+
+                    keys.forEach(key => {
+                        result[key + suffix] = defaultValues[key] || '';
+                    });
+                }
+            }
+
+            return result;
+        },
+
         // let chunkDatas = syn.$p.splitDataChunks(dataList, 2, 3);
         splitDataChunks(dataList, firstLength, chunkSize) {
             var result = [];
-
+            chunkSize = chunkSize || firstLength;
             if (firstLength > 0 && firstLength <= dataList.length) {
                 result.push(dataList.slice(0, firstLength));
             }
