@@ -33,8 +33,22 @@ if %errorlevel% neq 0 (
 set current_path=%cd%
 
 for %%i in ("%current_path%") do set "PARENT_DIR=%%~dpi"
-
 set "PARENT_DIR=%PARENT_DIR:~0,-1%"
+
+REM 환경 변수 설정
+setx DOTNET_CLI_TELEMETRY_OPTOUT 1
+set DOTNET_CLI_TELEMETRY_OPTOUT=1
+
+setx HANDSTACK_SRC "%current_path%" >nul
+set "HANDSTACK_SRC=%current_path%"
+
+setx HANDSTACK_HOME "%PARENT_DIR%\build\handstack" >nul
+set "HANDSTACK_HOME=%PARENT_DIR%\build\handstack"
+
+echo HANDSTACK_SRC: %HANDSTACK_SRC%
+echo HANDSTACK_HOME: %HANDSTACK_HOME%
+
+if not exist "%HANDSTACK_HOME%" mkdir "%HANDSTACK_HOME%"
 
 REM 개발 환경 설정 (ack.csproj 존재 시)
 if exist %current_path%\1.WebHost\ack\ack.csproj (
@@ -52,23 +66,6 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
 		start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#winget-을-이용한-net-core-설치"
 		goto :EOF
 	)
-
-	REM 환경 변수 설정
-	setx DOTNET_CLI_TELEMETRY_OPTOUT 1
-	set DOTNET_CLI_TELEMETRY_OPTOUT=1
-
-    setx HANDSTACK_SRC "%current_path%" >nul
-    set "HANDSTACK_SRC=%current_path%"
-
-    set "HANDSTACK_HOME=%PARENT_DIR%build\handstack"
-
-    if not exist "%HANDSTACK_HOME%" mkdir "%HANDSTACK_HOME%"
-
-    setx HANDSTACK_HOME "%HANDSTACK_HOME%" >nul
-    
-    echo PARENT_DIR: %PARENT_DIR%
-    echo HANDSTACK_SRC: %HANDSTACK_SRC%
-    echo HANDSTACK_HOME: %HANDSTACK_HOME%
 
 	REM ack 프로젝트 node_modules 설치 및 gulp 실행
 	if not exist %current_path%\1.WebHost\ack\node_modules (
