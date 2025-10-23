@@ -32,6 +32,10 @@ if %errorlevel% neq 0 (
 
 set current_path=%cd%
 
+for %%i in ("%current_path%") do set "PARENT_DIR=%%~dpi"
+
+set "PARENT_DIR=%PARENT_DIR:~0,-1%"
+
 REM 개발 환경 설정 (ack.csproj 존재 시)
 if exist %current_path%\1.WebHost\ack\ack.csproj (
 	REM .NET Core 8.0 확인
@@ -53,19 +57,18 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
 	setx DOTNET_CLI_TELEMETRY_OPTOUT 1
 	set DOTNET_CLI_TELEMETRY_OPTOUT=1
 
-	setx HANDSTACK_SRC "%current_path%"
-	set "HANDSTACK_SRC=%current_path%"
-	
-	for %%i in ("%current_path%") do set "PARENT_DIR=%%~dpi"
+    setx HANDSTACK_SRC "%current_path%" >nul
+    set "HANDSTACK_SRC=%current_path%"
 
-	set "HANDSTACK_HOME=%PARENT_DIR%\build\handstack"
+    set "HANDSTACK_HOME=%PARENT_DIR%build\handstack"
 
-	if not exist "%HANDSTACK_HOME%" mkdir "%HANDSTACK_HOME%"
+    if not exist "%HANDSTACK_HOME%" mkdir "%HANDSTACK_HOME%"
 
-	setx HANDSTACK_HOME "%HANDSTACK_HOME%"
-
-	echo current_path: %current_path% HandStack 개발 환경 설치 확인 중...
-	echo HANDSTACK_HOME: %HANDSTACK_HOME%
+    setx HANDSTACK_HOME "%HANDSTACK_HOME%" >nul
+    
+    echo PARENT_DIR: %PARENT_DIR%
+    echo HANDSTACK_SRC: %HANDSTACK_SRC%
+    echo HANDSTACK_HOME: %HANDSTACK_HOME%
 
 	REM ack 프로젝트 node_modules 설치 및 gulp 실행
 	if not exist %current_path%\1.WebHost\ack\node_modules (
