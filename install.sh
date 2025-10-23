@@ -60,51 +60,44 @@ if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
     
     # 환경 변수 설정
     if [[ "$OSTYPE" == "darwin"* ]]; then
-        SED_INPLACE="sed -i ''"
         PROFILE_FILE="$HOME/.zshrc"
-        echo 'export DOTNET_CLI_TELEMETRY_OPTOUT=1' >> ~/.zshrc
-        source ~/.zshrc
-    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        SED_INPLACE="sed -i"
-        PROFILE_FILE="/etc/profile"
-        echo 'export DOTNET_CLI_TELEMETRY_OPTOUT=1' >> ~/.bashrc
-        source ~/.bashrc
+    else
+        PROFILE_FILE="$HOME/.bashrc"
     fi
 
+    # DOTNET_CLI_TELEMETRY_OPTOUT 설정
+    export DOTNET_CLI_TELEMETRY_OPTOUT=1
+    if ! grep -q "DOTNET_CLI_TELEMETRY_OPTOUT" "$PROFILE_FILE"; then
+        echo 'export DOTNET_CLI_TELEMETRY_OPTOUT=1' >> "$PROFILE_FILE"
+    fi
+
+    # HANDSTACK_SRC 설정 (중복 제거 후 추가)
     if [[ "$OSTYPE" == "darwin"* ]]; then
         sed -i '' '/export HANDSTACK_SRC=/d' "$PROFILE_FILE"
     else
-        sudo sed -i '/export HANDSTACK_SRC=/d' "$PROFILE_FILE"
+        sed -i '/export HANDSTACK_SRC=/d' "$PROFILE_FILE"
     fi
+    echo "export HANDSTACK_SRC=\"$current_path\"" >> "$PROFILE_FILE"
+    export HANDSTACK_SRC="$current_path"
 
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        echo "export HANDSTACK_SRC=\"$current_path\"" >> "$PROFILE_FILE"
-    else
-        echo "export HANDSTACK_SRC=\"$current_path\"" | sudo tee -a "$PROFILE_FILE"
-    fi
-    
+    # PARENT_DIR 계산
+    PARENT_DIR="$(dirname "$current_path")"
+
+    # HANDSTACK_HOME 설정
+    HANDSTACK_HOME="$PARENT_DIR/build/handstack"
+    mkdir -p "$HANDSTACK_HOME"
+
+    # HANDSTACK_HOME 환경 변수 설정 (중복 제거 후 추가)
     if [[ "$OSTYPE" == "darwin"* ]]; then
         sed -i '' '/export HANDSTACK_HOME=/d' "$PROFILE_FILE"
     else
-        sudo sed -i '/export HANDSTACK_HOME=/d' "$PROFILE_FILE"
+        sed -i '/export HANDSTACK_HOME=/d' "$PROFILE_FILE"
     fi
-    
-    mkdir -p "$HANDSTACK_SRC/../build/handstack"
-
-    pushd "$HANDSTACK_SRC/../build/handstack" > /dev/null
-    HANDSTACK_HOME="$(pwd)"
-    popd > /dev/null
-
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        echo "export HANDSTACK_HOME=\"$HANDSTACK_HOME\"" >> "$PROFILE_FILE"
-    else
-        echo "export HANDSTACK_HOME=\"$HANDSTACK_HOME\"" | sudo tee -a "$PROFILE_FILE"
-    fi
-
+    echo "export HANDSTACK_HOME=\"$HANDSTACK_HOME\"" >> "$PROFILE_FILE"
     export HANDSTACK_HOME="$HANDSTACK_HOME"
-    source "$PROFILE_FILE"
 
-    echo "HANDSTACK_HOME set to: $HANDSTACK_HOME"
+    echo "current_path: $current_path HandStack 개발 환경 설치 확인 중..."
+    echo "HANDSTACK_HOME: $HANDSTACK_HOME"
 
     # syn.js 번들링 (ack 프로젝트)
     echo "current_path: $current_path 개발 환경 설치 확인 중..."
@@ -139,8 +132,8 @@ if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
         echo "syn.bundle.js 모듈 $current_path/2.Modules/wwwroot/package.json 설치를 시작합니다..."
         cd $current_path/2.Modules/wwwroot
         npm install
-        mkdir -p $HANDSTACK_SRC/../build/handstack/modules/wwwroot/wwwroot/lib
-        rsync -av --delete wwwroot/lib/ $HANDSTACK_SRC/../build/handstack/modules/wwwroot/wwwroot/lib/
+        mkdir -p $HANDSTACK_HOME/modules/wwwroot/wwwroot/lib
+        rsync -av --delete wwwroot/lib/ $HANDSTACK_HOME/modules/wwwroot/wwwroot/lib/
         echo "syn.controls, syn.scripts, syn.bundle 번들링을 시작합니다..."
         gulp
     fi
@@ -148,7 +141,7 @@ if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
     # 솔루션 빌드 및 Function 모듈 설치
     cd $current_path
     echo "current_path: $current_path"
-    build_path=$HANDSTACK_SRC/../build/handstack
+    build_path=$HANDSTACK_HOME
 
     echo build.sh, post-build.sh 스크립트에 실행 권한을 부여합니다...
     module_paths=("$current_path/1.WebHost/ack" "$current_path/1.WebHost/forbes" "$current_path/2.Modules/checkup" "$current_path/2.Modules/dbclient" "$current_path/2.Modules/function" "$current_path/2.Modules/logger" "$current_path/2.Modules/openapi" "$current_path/2.Modules/repository" "$current_path/2.Modules/transact" "$current_path/2.Modules/wwwroot" "$current_path/4.Tool/CLI/handstack")
@@ -166,12 +159,12 @@ if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
     ./build.sh
 
     cd $current_path
-    cp $current_path/2.Modules/function/package*.* $HANDSTACK_SRC/../build/handstack/
-    if [ ! -d "$HANDSTACK_SRC/../build/handstack/node_modules" ]; then
-        echo "node.js Function 모듈 $HANDSTACK_SRC/../build/handstack/package.json 설치를 시작합니다..."
-        cd $HANDSTACK_SRC/../build/handstack
+    cp $current_path/2.Modules/function/package*.* $HANDSTACK_HOME/
+    if [ ! -d "$HANDSTACK_HOME/node_modules" ]; then
+        echo "node.js Function 모듈 $HANDSTACK_HOME/package.json 설치를 시작합니다..."
+        cd $HANDSTACK_HOME
         npm install
-        rsync -av --progress --exclude='*' --include='index.js' $current_path/1.WebHost/ack/wwwroot/assets/js $HANDSTACK_SRC/../build/handstack/node_modules/syn
+        rsync -av --progress --exclude='*' --include='index.js' $current_path/1.WebHost/ack/wwwroot/assets/js $HANDSTACK_HOME/node_modules/syn
     fi
 
     cd $current_path

@@ -56,11 +56,11 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
 	setx HANDSTACK_SRC "%current_path%"
 	set "HANDSTACK_SRC=%current_path%"
 	
-	if not exist "%HANDSTACK_SRC%\..\build\handstack" mkdir "%HANDSTACK_SRC%\..\build\handstack"
+	for %%i in ("%current_path%") do set "PARENT_DIR=%%~dpi"
 
-	pushd "%HANDSTACK_SRC%\..\build\handstack"
-	set "HANDSTACK_HOME=%CD%"
-	popd
+	set "HANDSTACK_HOME=%PARENT_DIR%\build\handstack"
+
+	if not exist "%HANDSTACK_HOME%" mkdir "%HANDSTACK_HOME%"
 
 	setx HANDSTACK_HOME "%HANDSTACK_HOME%"
 
@@ -113,22 +113,22 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
 		echo syn.bundle.js 모듈 %current_path%\2.Modules\wwwroot\package.json 설치를 시작합니다...
 		cd %current_path%\2.Modules\wwwroot
 		call npm install
-		robocopy wwwroot\lib %HANDSTACK_SRC%\..\build\handstack\modules\wwwroot\wwwroot\lib /MIR
+		robocopy wwwroot\lib %HANDSTACK_HOME%\modules\wwwroot\wwwroot\lib /MIR
 		echo syn.controls, syn.scripts, syn.bundle 번들링을 시작합니다...
 		gulp
 	)
 
 	cd %current_path%
-	robocopy %current_path%\2.Modules\function %HANDSTACK_SRC%\..\build\handstack package*.* /copy:dat
-	if not exist %HANDSTACK_SRC%\..\build\handstack\node_modules (
-		echo node.js Function 모듈 %HANDSTACK_SRC%\..\build\handstack\package.json 설치를 시작합니다...
-		cd %HANDSTACK_SRC%\..\build\handstack
+	robocopy %current_path%\2.Modules\function %HANDSTACK_HOME% package*.* /copy:dat
+	if not exist %HANDSTACK_HOME%\node_modules (
+		echo node.js Function 모듈 %HANDSTACK_HOME%\package.json 설치를 시작합니다...
+		cd %HANDSTACK_HOME%
 		call npm install
-		robocopy %current_path%\1.WebHost\ack\wwwroot\assets\js %HANDSTACK_SRC%\..\build\handstack\node_modules\syn index.js /copy:dat
+		robocopy %current_path%\1.WebHost\ack\wwwroot\assets\js %HANDSTACK_HOME%\node_modules\syn index.js /copy:dat
 	)
 
 	cd %current_path%
-	robocopy %current_path%\1.WebHost\ack\wwwroot\assets\js %HANDSTACK_SRC%\..\build\handstack\node_modules\syn index.js /copy:dat
+	robocopy %current_path%\1.WebHost\ack\wwwroot\assets\js %HANDSTACK_HOME%\node_modules\syn index.js /copy:dat
 
 	echo HandStack 개발 환경 설치가 완료되었습니다. Visual Studio 개발 도구로 handstack.sln 를 실행하세요. 자세한 정보는 https://handstack.kr 를 참고하세요.
 )
@@ -136,12 +136,6 @@ if exist %current_path%\1.WebHost\ack\ack.csproj (
 REM 실행 환경 설정 (ack.exe 존재 시)
 if exist %current_path%\app\ack.exe (
 	echo current_path: %current_path% ack 실행 환경 설치 확인 중...
-
-	REM 환경 변수 설정
-	if "%HANDSTACK_HOME%" == "" (
-		setx HANDSTACK_HOME %current_path%
-		set HANDSTACK_HOME=%current_path%
-	)
 
 	REM 루트 node_modules 설치
 	if not exist %current_path%\node_modules (
