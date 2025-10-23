@@ -88,20 +88,24 @@ if [ -f "$current_path/1.WebHost/ack/ack.csproj" ]; then
     else
         sudo sed -i '/export HANDSTACK_HOME=/d' "$PROFILE_FILE"
     fi
+    
+    mkdir -p "$HANDSTACK_SRC/../build/handstack"
+
+    pushd "$HANDSTACK_SRC/../build/handstack" > /dev/null
+    HANDSTACK_HOME="$(pwd)"
+    popd > /dev/null
 
     if [[ "$OSTYPE" == "darwin"* ]]; then
-        echo "export HANDSTACK_HOME=\"$HANDSTACK_SRC/../build/handstack\"" >> "$PROFILE_FILE"
+        echo "export HANDSTACK_HOME=\"$HANDSTACK_HOME\"" >> "$PROFILE_FILE"
     else
-        echo "export HANDSTACK_HOME=\"$HANDSTACK_SRC/../build/handstack\"" | sudo tee -a "$PROFILE_FILE"
+        echo "export HANDSTACK_HOME=\"$HANDSTACK_HOME\"" | sudo tee -a "$PROFILE_FILE"
     fi
 
-    export HANDSTACK_HOME="$HANDSTACK_SRC/../build/handstack"
+    export HANDSTACK_HOME="$HANDSTACK_HOME"
     source "$PROFILE_FILE"
 
     echo "HANDSTACK_HOME set to: $HANDSTACK_HOME"
 
-    mkdir -p $HANDSTACK_SRC/../build/handstack
-    
     # syn.js 번들링 (ack 프로젝트)
     echo "current_path: $current_path 개발 환경 설치 확인 중..."
     if [ ! -d "$current_path/1.WebHost/ack/node_modules" ]; then
