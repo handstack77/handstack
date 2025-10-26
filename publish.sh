@@ -115,7 +115,12 @@ echo "WebHost 프로젝트 빌드/퍼블리시 중..."
 dotnet $action_mode $dotnet_options 1.WebHost/ack/ack.csproj --output "$publish_path/handstack/app"
 dotnet $action_mode $dotnet_options 1.WebHost/forbes/forbes.csproj --output "$publish_path/handstack/forbes"
 dotnet $action_mode $dotnet_options 4.Tool/CLI/handstack/handstack.csproj --output "$publish_path/handstack/app/cli"
-dotnet $action_mode -p:Optimize=true --configuration Release --runtime $rid --self-contained false 4.Tool/CLI/edgeproxy/edgeproxy.csproj --output "$publish_path/handstack/app/cli"
+
+if [ "$action_mode" == "publish" ]; then
+    dotnet $action_mode -p:Optimize=$optimize_flag --configuration $configuration_mode --runtime $rid --self-contained false 4.Tool/CLI/edgeproxy/edgeproxy.csproj --output $publish_path/handstack/app/cli
+else
+    dotnet $action_mode -p:Optimize=$optimize_flag --configuration $configuration_mode --arch $arch_mode --os $os_mode 4.Tool/CLI/edgeproxy/edgeproxy.csproj --output $publish_path/handstack/app/cli
+fi
 
 # Forbes 파일 처리
 echo "Forbes 파일 처리 중..."

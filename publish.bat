@@ -80,7 +80,12 @@ REM WebHost 프로젝트들 빌드/퍼블리시
 dotnet %action_mode% %dotnet_options% 1.WebHost\ack\ack.csproj --output %publish_path%\handstack\app
 dotnet %action_mode% %dotnet_options% 1.WebHost\forbes\forbes.csproj --output %publish_path%\handstack\forbes
 dotnet %action_mode% %dotnet_options% 4.Tool\CLI\handstack\handstack.csproj --output %publish_path%\handstack\app\cli
-dotnet %action_mode% -p:Optimize=%optimize_flag% --configuration Release --runtime %rid% --self-contained false 4.Tool\CLI\edgeproxy\edgeproxy.csproj --output %publish_path%\handstack\app\cli
+
+if "%action_mode%" == "publish" (
+    dotnet %action_mode% -p:Optimize=%optimize_flag% --configuration %configuration_mode% --runtime %rid% --self-contained false 4.Tool\CLI\edgeproxy\edgeproxy.csproj --output %publish_path%\handstack\app\cli
+) else (
+    dotnet %action_mode% -p:Optimize=%optimize_flag% --configuration %configuration_mode% --arch %arch_mode% --os %os_mode% 4.Tool\CLI\edgeproxy\edgeproxy.csproj --output %publish_path%\handstack\app\cli
+)
 
 REM Forbes 파일 정리
 set forbes_path=%publish_path%\handstack\forbes
@@ -100,7 +105,7 @@ for %%f in ("%forbes_path%\*") do (
 REM Contracts 폴더 정리
 set contracts_path=%HANDSTACK_HOME%\contracts
 if exist "%contracts_path%" (
-    rd /S /Q "%contracts_path%"
+    rmdir /s /q "%contracts_path%"
 )
 
 REM 모듈 빌드 (빌드 모드에서만, 퍼블리시는 위에서 처리됨)
@@ -128,7 +133,7 @@ REM wwwroot 정리
 set wwwroot_js_path=%publish_path%\handstack\modules\wwwroot\wwwroot
 
 if exist "%wwwroot_js_path%\lib" (
-    rd /S /Q "%wwwroot_js_path%\lib"
+    rmdir /s /q "%wwwroot_js_path%\lib"
 )
 
 del /F /Q "%wwwroot_js_path%\js\syn.bundle.js" 2>nul

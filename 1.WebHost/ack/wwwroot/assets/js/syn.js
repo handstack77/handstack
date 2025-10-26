@@ -2917,6 +2917,84 @@ if (typeof module !== 'undefined' && module.exports) {
             }
         },
 
+        getAmPm(time, amText, pmText) {
+            amText = amText || 'AM';
+            pmText = pmText || 'PM';
+
+            if ($string.isNullOrEmpty(time) == true) {
+                return amText;
+            }
+
+            let hour;
+            if (time instanceof Date) {
+                hour = time.getHours();
+            }
+            else if (typeof time === 'string') {
+                if (time.length == 5) {
+                    hour = parseInt(time.split(':')[0]);
+                }
+                else if (time.length > 10) {
+                    hour = $date.parseDate(time).getHours();
+                }
+                else if (time.length <= 2) {
+                    hour = $string.toNumber(time);
+                }
+            }
+            else if (typeof time === 'number') {
+                hour = time;
+            }
+            else {
+                return amText;
+            }
+
+            return hour < 12 ? amText : pmText;
+        },
+
+        get12Time(time, amText, pmText) {
+            amText = amText || 'AM';
+            pmText = pmText || 'PM';
+
+            if ($string.isNullOrEmpty(time) == true) {
+                return amText;
+            }
+
+            let hour = 0;
+            let minute = 0;
+            let second = 0;
+            if (time instanceof Date) {
+                hour = time.getHours();
+                minute = time.getMinutes();
+                second = time.getSeconds();
+            }
+            else if (typeof time === 'string') {
+                if (time.length == 5 && time.indexOf(':') > -1) {
+                    hour = parseInt(time.split(':')[0]);
+                    minute = parseInt(time.split(':')[1]);
+                }
+                else if (time.length == 8 && time.indexOf(':') > -1) {
+                    hour = parseInt(time.split(':')[0]);
+                    minute = parseInt(time.split(':')[1]);
+                    second = parseInt(time.split(':')[2]);
+                }
+                else if (time.length > 10) {
+                    const date = $date.parseDate(time);
+                    hour = date.getHours();
+                    minute = date.getMinutes();
+                    second = date.getSeconds();
+                }
+                else if (time.length <= 2) {
+                    hour = $string.toNumber(time);
+                }
+            }
+            else if (typeof time === 'number') {
+                hour = time;
+            }
+            else {
+                return amText;
+            }
+
+            return `${hour < 12 ? amText : pmText} ${(hour % 12 === 0 ? 12 : hour % 12).toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:${second.toString().padStart(2, '0')}`;
+        },
 
         addSecond(date, val) {
             if (!(date instanceof Date) || isNaN(val)) return null;
