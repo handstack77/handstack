@@ -8,7 +8,7 @@
 
     $textbox.extend({
         name: 'syn.uicontrols.$textbox',
-        version: 'v2025.9.25',
+        version: 'v2025.10.28',
         defaultSetting: {
             editType: 'text',
             inValidateClear: true,
@@ -501,6 +501,8 @@
             if (val.startsWith('-') == true && val.length == 1 || val.trim().length == 0) {
                 el.value = '0';
             }
+
+            el.value = $string.toNumber(val).toString();
         },
 
         event_numeric_blur(evt) {
@@ -527,6 +529,8 @@
             if (val.startsWith('-') == true && val.length == 1 || val.trim().length == 0) {
                 el.value = '0';
             }
+
+            el.value = $string.toNumber(val).toString();
         },
 
         event_homephone_blur(evt) {
