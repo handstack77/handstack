@@ -1,5 +1,5 @@
 /*!
-HandStack Javascript Library v2025.10.22
+HandStack Javascript Library v2025.10.30
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -1652,6 +1652,93 @@ if (typeof module !== 'undefined' && module.exports) {
             }
 
             return null;
+        },
+
+        dateConvert(inputValue, operationType) {
+            const baseChars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            function getDefaultEncodedResult() {
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const day = String(today.getDate()).padStart(2, '0');
+                const todayNumber = parseInt(`${year}${month}${day}`);
+                return encodeToBase36(todayNumber);
+            }
+            function encodeToBase36(number) {
+                if (number === 0) return '0';
+
+                let result = '';
+                let temp = number;
+
+                while (temp > 0) {
+                    result = baseChars[temp % 36] + result;
+                    temp = Math.floor(temp / 36);
+                }
+
+                return result;
+            }
+            function decodeFromBase36(encoded) {
+                if (!encoded || encoded === '') {
+                    return null;
+                }
+
+                const upperEncoded = encoded.toUpperCase();
+                let result = 0;
+                let basePower = 1;
+
+                for (let i = upperEncoded.length - 1; i >= 0; i--) {
+                    const digit = baseChars.indexOf(upperEncoded[i]);
+
+                    if (digit < 0) {
+                        return null;
+                    }
+
+                    result += digit * basePower;
+                    basePower *= 36;
+                }
+
+                return result;
+            }
+
+            function dateToNumber(date) {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return parseInt(`${year}${month}${day}`);
+            }
+
+            const defaultEncodedResult = getDefaultEncodedResult();
+            let processedInput = inputValue;
+
+            if (inputValue instanceof Date) {
+                processedInput = dateToNumber(inputValue).toString();
+            }
+
+            if (operationType === 'E') {
+                const numberToEncode = parseInt(processedInput);
+
+                if (isNaN(numberToEncode)) {
+                    return defaultEncodedResult;
+                }
+
+                return encodeToBase36(numberToEncode);
+            }
+            else if (operationType === 'D') {
+                if (!processedInput || processedInput === '') {
+                    return defaultEncodedResult;
+                }
+
+                const decodedNumber = decodeFromBase36(processedInput.toString());
+
+                if (decodedNumber === null) {
+                    return defaultEncodedResult;
+                }
+
+                return decodedNumber.toString();
+            }
+            else {
+                return defaultEncodedResult;
+            }
         }
     });
     context.$date = $date;

@@ -9986,11 +9986,11 @@ a.ui-button:active,
 			color: #333;
 			border-bottom: solid 1px #e9e9e9;
 			font-size: 16px;
-			height: 38px;
+			height: 36px;
 		}
 
 			#simplemodal-container .simplemodal-data h3 span {
-				line-height: 38px;
+				line-height: 36px;
 				font-weight: bold;
 			}
 

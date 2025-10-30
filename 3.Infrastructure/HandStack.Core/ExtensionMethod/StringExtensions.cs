@@ -16,6 +16,109 @@ namespace HandStack.Core.ExtensionMethod
 {
     public static class StringExtensions
     {
+        private const string BaseChars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+        public static string DateConvert(object inputValue, char operationType)
+        {
+            string defaultEncodedResult = GetDefaultEncodedResult();
+            string processedInput;
+
+            if (inputValue is DateTime dateTime)
+            {
+                processedInput = dateTime.ToString("yyyyMMdd");
+            }
+            else if (inputValue is DateTimeOffset dateTimeOffset)
+            {
+                processedInput = dateTimeOffset.ToString("yyyyMMdd");
+            }
+            else
+            {
+                processedInput = inputValue?.ToString() ?? string.Empty;
+            }
+
+            if (operationType == 'E')
+            {
+                if (long.TryParse(processedInput, out long numberToEncode))
+                {
+                    return EncodeToBase36(numberToEncode);
+                }
+                return defaultEncodedResult;
+            }
+            else if (operationType == 'D')
+            {
+                if (string.IsNullOrEmpty(processedInput))
+                {
+                    return defaultEncodedResult;
+                }
+
+                long? decodedNumber = DecodeFromBase36(processedInput);
+
+                if (decodedNumber.HasValue)
+                {
+                    return decodedNumber.Value.ToString();
+                }
+                return defaultEncodedResult;
+            }
+            else
+            {
+                return defaultEncodedResult;
+            }
+        }
+
+        private static string GetDefaultEncodedResult()
+        {
+            DateTime today = DateTime.Now;
+            long todayNumber = long.Parse(today.ToString("yyyyMMdd"));
+            return EncodeToBase36(todayNumber);
+        }
+
+        private static string EncodeToBase36(long number)
+        {
+            if (number == 0)
+            {
+                return "0";
+            }
+
+            string result = string.Empty;
+            long temp = number;
+
+            while (temp > 0)
+            {
+                result = BaseChars[(int)(temp % 36)] + result;
+                temp /= 36;
+            }
+
+            return result;
+        }
+
+        private static long? DecodeFromBase36(string encoded)
+        {
+            if (string.IsNullOrEmpty(encoded) == true)
+            {
+                return null;
+            }
+
+            string upperEncoded = encoded.ToUpper();
+            long result = 0;
+            long basePower = 1;
+
+            for (int i = upperEncoded.Length - 1; i >= 0; i--)
+            {
+                int digit = BaseChars.IndexOf(upperEncoded[i]);
+
+                if (digit < 0)
+                {
+                    return null;
+                }
+
+                result += digit * basePower;
+                basePower *= 36;
+            }
+
+            return result;
+        }
+
+
         public static string ToStringSafe(this string? @this)
         {
             return @this?.ToString() ?? "";
