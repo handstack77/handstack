@@ -1,10 +1,10 @@
 @echo off
 
-robocopy Contracts %HANDSTACK_SRC%/../build/handstack/contracts /e /copy:dat
-robocopy wwwroot %HANDSTACK_SRC%/../build/handstack/modules/checkup/wwwroot /e /copy:dat
-:: robocopy wwwroot/checkup/view %HANDSTACK_SRC%/../build/handstack/modules/checkup/wwwroot/checkup/view /e /copy:dat
+robocopy Contracts %HANDSTACK_HOME%/contracts /e /copy:dat
+robocopy wwwroot %HANDSTACK_HOME%/modules/checkup/wwwroot /e /copy:dat
+:: robocopy wwwroot/checkup/view %HANDSTACK_HOME%/modules/checkup/wwwroot/checkup/view /e /copy:dat
 
-:: pm2 start %HANDSTACK_SRC%/../build/handstack/app/ack.exe
+:: pm2 start %HANDSTACK_HOME%/app/ack.exe
 :: call pm2 stop ack
 :: cd C:\home\ack\app\ack
 :: call pm2 restart ack

@@ -16,7 +16,7 @@ if "%TASK_ARGUMENTS%" == "" set TASK_ARGUMENTS=
 set WORKING_PATH=%cd%
 if "%HANDSTACK_PATH%" == "" set HANDSTACK_PATH=%HANDSTACK_SRC%
 if "%HANDSTACK_PATH%" == "" set HANDSTACK_PATH=C:/projects/handstack77/handstack
-set HANDSTACK_ACK=%HANDSTACK_SRC%/../build/handstack/app/ack.exe
+set HANDSTACK_ACK=%HANDSTACK_HOME%/app/ack.exe
 set HANDSTACK_CLI=%HANDSTACK_PATH%/4.Tool/CLI/handstack/bin/Debug/net8.0/handstack
 
 echo WORKING_PATH: %WORKING_PATH%
@@ -40,22 +40,22 @@ if "%TASK_COMMAND%"=="app" (
 )
 
 if "%TASK_COMMAND%"=="copy" (
-    robocopy %WORKING_PATH%/Contracts %HANDSTACK_SRC%/../build/handstack/contracts /e /copy:dat
-    robocopy %WORKING_PATH%/Contracts %HANDSTACK_SRC%/../build/handstack/modules/wwwroot/Contracts /e /copy:dat
-    robocopy %WORKING_PATH%/wwwroot/view %HANDSTACK_SRC%/../build/handstack/modules/wwwroot/wwwroot/view /e /copy:dat
+    robocopy %WORKING_PATH%/Contracts %HANDSTACK_HOME%/contracts /e /copy:dat
+    robocopy %WORKING_PATH%/Contracts %HANDSTACK_HOME%/modules/wwwroot/Contracts /e /copy:dat
+    robocopy %WORKING_PATH%/wwwroot/view %HANDSTACK_HOME%/modules/wwwroot/wwwroot/view /e /copy:dat
 )
 
 if "%TASK_COMMAND%"=="www" (
-    robocopy %WORKING_PATH%/wwwroot %HANDSTACK_SRC%/../build/handstack/modules/wwwroot/wwwroot /e /copy:dat /xd %WORKING_PATH%\wwwroot\lib /xf syn.config.json
+    robocopy %WORKING_PATH%/wwwroot %HANDSTACK_HOME%/modules/wwwroot/wwwroot /e /copy:dat /xd %WORKING_PATH%\wwwroot\lib /xf syn.config.json
 )
 
 if "%TASK_COMMAND%"=="lib" (
-    robocopy %WORKING_PATH%/wwwroot %HANDSTACK_SRC%/../build/handstack/modules/wwwroot/wwwroot /e /copy:dat
+    robocopy %WORKING_PATH%/wwwroot %HANDSTACK_HOME%/modules/wwwroot/wwwroot /e /copy:dat
 )
 
 if "%TASK_COMMAND%"=="syn" (
-    robocopy %WORKING_PATH%/wwwroot/js %HANDSTACK_SRC%/../build/handstack/modules/wwwroot/wwwroot/js /XF syn.domain.js syn.domain.min.js syn.loader.js syn.loader.min.js /LEV:1 /R:0 /W:0
-    robocopy %WORKING_PATH%/wwwroot/uicontrols %HANDSTACK_SRC%/../build/handstack/modules/wwwroot/wwwroot/uicontrols /e /copy:dat /xd %WORKING_PATH%\wwwroot\lib
+    robocopy %WORKING_PATH%/wwwroot/js %HANDSTACK_HOME%/modules/wwwroot/wwwroot/js /XF syn.domain.js syn.domain.min.js syn.loader.js syn.loader.min.js /LEV:1 /R:0 /W:0
+    robocopy %WORKING_PATH%/wwwroot/uicontrols %HANDSTACK_HOME%/modules/wwwroot/wwwroot/uicontrols /e /copy:dat /xd %WORKING_PATH%\wwwroot\lib
 )
 
 if "%TASK_COMMAND%"=="devcert" (

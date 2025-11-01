@@ -13,9 +13,9 @@ echo "configuration_name: $configuration_name"
 echo "platform_name: $platform_name"
 echo "project_dir: $project_dir"
 
-if [ ! -d $HANDSTACK_SRC/../build/handstack/modules/wwwroot ]; then 
-    mkdir -p $HANDSTACK_SRC/../build/handstack/modules/wwwroot
+if [ ! -d $HANDSTACK_HOME/modules/wwwroot ]; then 
+    mkdir -p $HANDSTACK_HOME/modules/wwwroot
 fi
 
 rm -f $target_dir/HandStack.*
-rsync -avq --exclude='wwwroot/lib' --delete $target_dir $HANDSTACK_SRC/../build/handstack/modules/wwwroot
+rsync -avq --exclude='wwwroot/lib' --delete $target_dir $HANDSTACK_HOME/modules/wwwroot

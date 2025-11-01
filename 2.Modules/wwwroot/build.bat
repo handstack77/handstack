@@ -1,8 +1,8 @@
 @echo off
 
-:: robocopy Contracts %HANDSTACK_SRC%/../build/handstack/contracts /e /copy:dat
-:: robocopy wwwroot/view %HANDSTACK_SRC%/../build/handstack/contracts/wwwroot /e /copy:dat
-:: robocopy wwwroot %HANDSTACK_SRC%/../build/handstack/modules/wwwroot/wwwroot /e /copy:dat /xd C:\projects\handstack77\handstack\2.Modules\wwwroot\wwwroot\lib
+:: robocopy Contracts %HANDSTACK_HOME%/contracts /e /copy:dat
+:: robocopy wwwroot/view %HANDSTACK_HOME%/contracts/wwwroot /e /copy:dat
+:: robocopy wwwroot %HANDSTACK_HOME%/modules/wwwroot/wwwroot /e /copy:dat /xd C:\projects\handstack77\handstack\2.Modules\wwwroot\wwwroot\lib
 
 :: call pm2 stop ack
 :: :: dotnet msbuild C:/projects/handstack/2.Modules/wwwroot/wwwroot.csproj

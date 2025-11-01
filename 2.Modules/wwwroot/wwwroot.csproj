@@ -86,9 +86,28 @@
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
         <MakeDir Condition="!Exists('$(TargetDir)\wwwroot\lib')" Directories="$(TargetDir)\wwwroot\lib" />
     </Target>
-    
+
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-        <Exec Condition="'$(OS)'=='Windows_NT'" Command="DEL $(TargetDir)HandStack.*&#xD;&#xA;(robocopy $(TargetDir) $(HANDSTACK_SRC)/../build/handstack/modules/wwwroot /mir /copy:dat /xd $(TargetDir)wwwroot\lib) ^&amp; IF %25ERRORLEVEL%25 LEQ 1 exit 0" />
-        <Exec Condition="'$(OS)'!='Windows_NT'" Command="$(ProjectDir)post-build.sh $(TargetDir) $(ConfigurationName) $(PlatformName) $(ProjectDir)" />
+        <!-- HandStack.* 파일 삭제 -->
+        <ItemGroup>
+            <HandStackFilesToDelete Include="$(TargetDir)HandStack.*" />
+        </ItemGroup>
+        <Delete Files="@(HandStackFilesToDelete)" ContinueOnError="WarnAndContinue" />
+
+        <!-- HANDSTACK_HOME/modules/wwwroot로 미러링 (wwwroot/lib 제외) -->
+        <PropertyGroup>
+            <ModuleDestinationDir>$(HANDSTACK_HOME)/modules/wwwroot</ModuleDestinationDir>
+        </PropertyGroup>
+        <MakeDir Directories="$(ModuleDestinationDir)" Condition="!Exists('$(ModuleDestinationDir)')" />
+        <RemoveDir Directories="$(ModuleDestinationDir)" />
+        <MakeDir Directories="$(ModuleDestinationDir)" />
+
+        <!-- TargetDir의 모든 파일을 재귀적으로 복사 (wwwroot/lib 디렉터리 제외) -->
+        <ItemGroup>
+            <SourceFilesForMirroring Include="$(TargetDir)**\*" Exclude="$(TargetDir)wwwroot\lib\**\*" />
+        </ItemGroup>
+        <Copy
+            SourceFiles="@(SourceFilesForMirroring)"
+            DestinationFiles="@(SourceFilesForMirroring->'$(ModuleDestinationDir)/%(RecursiveDir)%(Filename)%(Extension)')" />
     </Target>
 </Project>

@@ -32,7 +32,7 @@ if [ -z "$HANDSTACK_PATH" ]; then
 fi
 
 if [ -z "$HANDSTACK_ACK" ]; then
-    HANDSTACK_ACK="$HANDSTACK_SRC/../build/handstack/app/ack"
+    HANDSTACK_ACK="$HANDSTACK_HOME/app/ack"
 fi
 
 if [ -z "$HANDSTACK_CLI" ]; then
@@ -56,9 +56,9 @@ if [ "$TASK_COMMAND" == "run" ]; then
 fi
 
 if [ "$TASK_COMMAND" == "copy" ]; then
-    rsync -av $WORKING_PATH/Contracts/ $HANDSTACK_SRC/../build/handstack/contracts/
-    rsync -av $WORKING_PATH/Contracts/ $HANDSTACK_SRC/../build/handstack/modules/function/Contracts/
-    rsync -av $WORKING_PATH/wwwroot/ $HANDSTACK_SRC/../build/handstack/modules/function/wwwroot/
+    rsync -av $WORKING_PATH/Contracts/ $HANDSTACK_HOME/contracts/
+    rsync -av $WORKING_PATH/Contracts/ $HANDSTACK_HOME/modules/function/Contracts/
+    rsync -av $WORKING_PATH/wwwroot/ $HANDSTACK_HOME/modules/function/wwwroot/
 fi
 
 if [ "$TASK_COMMAND" == "devcert" ]; then

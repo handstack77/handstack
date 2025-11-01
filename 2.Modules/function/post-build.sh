@@ -13,9 +13,9 @@ echo "configuration_name: $configuration_name"
 echo "platform_name: $platform_name"
 echo "project_dir: $project_dir"
 
-if [ ! -d $HANDSTACK_SRC/../build/handstack/modules/function ]; then 
-    mkdir -p $HANDSTACK_SRC/../build/handstack/modules/function
+if [ ! -d $HANDSTACK_HOME/modules/function ]; then 
+    mkdir -p $HANDSTACK_HOME/modules/function
 fi
 
 rm -f $target_dir/HandStack.*
-rsync -avq --delete $target_dir $HANDSTACK_SRC/../build/handstack/modules/function
+rsync -avq --delete $target_dir $HANDSTACK_HOME/modules/function

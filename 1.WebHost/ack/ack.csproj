@@ -133,12 +133,24 @@
     </ItemGroup>
 
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-        <Exec Condition="'$(OS)'=='Windows_NT'" Command="rmdir /s /q $(TargetDir)" />
-        <Exec Condition="'$(OS)'!='Windows_NT'" Command="rm -rf $(TargetDir)" />
+        <RemoveDir Directories="$(TargetDir)" Condition="Exists('$(TargetDir)')" />
     </Target>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-        <Exec Condition="'$(OS)'=='Windows_NT'" Command="(robocopy $(TargetDir) $(HANDSTACK_SRC)/../build/handstack/app /e /copy:dat /purge) ^&amp; IF %25ERRORLEVEL%25 LEQ 1 exit 0" />
-        <Exec Condition="'$(OS)'!='Windows_NT'" Command="$(ProjectDir)post-build.sh $(TargetDir) $(ConfigurationName) $(PlatformName) $(ProjectDir)" />
+        <!-- HANDSTACK_HOME/app로 동기화 -->
+        <PropertyGroup>
+            <AppDestinationDir>$(HANDSTACK_HOME)/app</AppDestinationDir>
+        </PropertyGroup>
+        <MakeDir Directories="$(AppDestinationDir)" Condition="!Exists('$(AppDestinationDir)')" />
+        <RemoveDir Directories="$(AppDestinationDir)" />
+        <MakeDir Directories="$(AppDestinationDir)" />
+
+        <!-- TargetDir의 모든 파일을 재귀적으로 복사 -->
+        <ItemGroup>
+            <SourceFilesForSync Include="$(TargetDir)**\*" />
+        </ItemGroup>
+        <Copy
+            SourceFiles="@(SourceFilesForSync)"
+            DestinationFiles="@(SourceFilesForSync->'$(AppDestinationDir)/%(RecursiveDir)%(Filename)%(Extension)')" />
     </Target>
 </Project>

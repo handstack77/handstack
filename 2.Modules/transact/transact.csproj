@@ -80,12 +80,30 @@
     </ItemGroup>
 
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-        <Exec Condition="'$(OS)'=='Windows_NT'" Command="rmdir /s /q $(TargetDir)" />
-        <Exec Condition="'$(OS)'!='Windows_NT'" Command="rm -rf $(TargetDir)" />
+        <RemoveDir Directories="$(TargetDir)" Condition="Exists('$(TargetDir)')" />
     </Target>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-        <Exec Condition="'$(OS)'=='Windows_NT'" Command="DEL $(TargetDir)HandStack.*&#xD;&#xA;(robocopy $(TargetDir) $(HANDSTACK_SRC)/../build/handstack/modules/transact /mir /copy:dat) ^&amp; IF %25ERRORLEVEL%25 LEQ 1 exit 0" />
-        <Exec Condition="'$(OS)'!='Windows_NT'" Command="$(ProjectDir)post-build.sh $(TargetDir) $(ConfigurationName) $(PlatformName) $(ProjectDir)" />
+        <!-- HandStack.* 파일 삭제 -->
+        <ItemGroup>
+            <HandStackFilesToDelete Include="$(TargetDir)HandStack.*" />
+        </ItemGroup>
+        <Delete Files="@(HandStackFilesToDelete)" ContinueOnError="WarnAndContinue" />
+
+        <!-- HANDSTACK_HOME/modules/transact로 미러링 -->
+        <PropertyGroup>
+            <ModuleDestinationDir>$(HANDSTACK_HOME)/modules/transact</ModuleDestinationDir>
+        </PropertyGroup>
+        <MakeDir Directories="$(ModuleDestinationDir)" Condition="!Exists('$(ModuleDestinationDir)')" />
+        <RemoveDir Directories="$(ModuleDestinationDir)" />
+        <MakeDir Directories="$(ModuleDestinationDir)" />
+
+        <!-- TargetDir의 모든 파일을 재귀적으로 복사 (미러링) -->
+        <ItemGroup>
+            <SourceFilesForMirroring Include="$(TargetDir)**\*" />
+        </ItemGroup>
+        <Copy
+            SourceFiles="@(SourceFilesForMirroring)"
+            DestinationFiles="@(SourceFilesForMirroring->'$(ModuleDestinationDir)/%(RecursiveDir)%(Filename)%(Extension)')" />
     </Target>
 </Project>

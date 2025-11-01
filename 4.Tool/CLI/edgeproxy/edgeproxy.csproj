@@ -32,7 +32,30 @@
 	</ItemGroup>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-        <Exec Condition="'$(OS)'=='Windows_NT'" Command="cmd /c post-build.bat win build Debug" />
-        <Exec Condition="'$(OS)'!='Windows_NT'" Command="bash post-build.sh linux build Debug" />
+        <!-- 이미 publish 중이면 스킵 -->
+        <PropertyGroup>
+            <IsPublishing Condition="'$(IsPublishing)' == ''">false</IsPublishing>
+        </PropertyGroup>
+
+        <Message Text="Already in publish mode, skipping nested publish..."
+                 Condition="'$(IsPublishing)' == 'true'"
+                 Importance="high" />
+
+        <!-- publish 중이 아닐 때만 실행 -->
+        <PropertyGroup Condition="'$(IsPublishing)' != 'true'">
+            <OsMode Condition="'$(OsMode)' == ''">win</OsMode>
+            <ActionMode Condition="'$(ActionMode)' == ''">build</ActionMode>
+            <ConfigurationMode Condition="'$(ConfigurationMode)' == ''">$(Configuration)</ConfigurationMode>
+            <ArchMode Condition="'$(ArchMode)' == ''">x64</ArchMode>
+            <PublishOutputDir>$(HANDSTACK_HOME)\app\cli</PublishOutputDir>
+        </PropertyGroup>
+
+        <Message Text="os_mode: $(OsMode), action_mode: $(ActionMode), configuration_mode: $(ConfigurationMode), arch_mode: $(ArchMode)"
+                 Condition="'$(IsPublishing)' != 'true'"
+                 Importance="high" />
+
+        <!-- dotnet publish 실행 (IsPublishing=true 전달하여 재귀 방지) -->
+        <Exec Command="dotnet publish edgeproxy.csproj --configuration $(ConfigurationMode) --arch $(ArchMode) --os $(OsMode) --output &quot;$(PublishOutputDir)&quot; -p:IsPublishing=true"
+              Condition="'$(IsPublishing)' != 'true'" />
     </Target>
 </Project>

@@ -9,8 +9,8 @@ project_dir=${4}
 
 echo "target_dir: $target_dir, configuration_name: $configuration_name, platform_name: $platform_name, project_dir: $project_dir"
 
-if [ ! -d ../$HANDSTACK_SRC/../build/handstack/app/cli ]; then 
-    mkdir -p ../$HANDSTACK_SRC/../build/handstack/app/cli
+if [ ! -d $HANDSTACK_HOME/app/cli ]; then 
+    mkdir -p $HANDSTACK_HOME/app/cli
 fi
 
-rsync -avq $target_dir ../$HANDSTACK_SRC/../build/handstack/app/cli
+rsync -avq $target_dir $HANDSTACK_HOME/app/cli

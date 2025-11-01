@@ -27,12 +27,25 @@
     </ItemGroup>
 
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-        <Exec Condition="'$(OS)'=='Windows_NT'" Command="rmdir /s /q $(TargetDir)" />
-        <Exec Condition="'$(OS)'!='Windows_NT'" Command="rm -rf $(TargetDir)" />
+        <RemoveDir Directories="$(TargetDir)" Condition="Exists('$(TargetDir)')" />
     </Target>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-        <Exec Condition="'$(OS)'=='Windows_NT'" Command="(robocopy $(TargetDir)wwwroot $(HANDSTACK_SRC)/../build/handstack/forbes /e /copy:dat) ^&amp; IF %25ERRORLEVEL%25 LEQ 1 exit 0" />
-        <Exec Condition="'$(OS)'!='Windows_NT'" Command="$(ProjectDir)post-build.sh $(TargetDir)wwwroot $(ConfigurationName) $(PlatformName) $(ProjectDir)" />
+        <!-- TargetDir/wwwroot를 HANDSTACK_HOME/forbes로 복사 -->
+        <PropertyGroup>
+            <WwwrootSourceDir>$(TargetDir)wwwroot\</WwwrootSourceDir>
+            <ForbesDestinationDir>$(HANDSTACK_HOME)\forbes\</ForbesDestinationDir>
+        </PropertyGroup>
+        <MakeDir Directories="$(ForbesDestinationDir)" Condition="!Exists('$(ForbesDestinationDir)')" />
+
+        <!-- wwwroot의 모든 파일을 재귀적으로 복사 -->
+        <ItemGroup Condition="Exists('$(WwwrootSourceDir)')">
+            <WwwrootFilesToCopy Include="$(WwwrootSourceDir)**\*" />
+        </ItemGroup>
+        <Copy
+            SourceFiles="@(WwwrootFilesToCopy)"
+            DestinationFiles="@(WwwrootFilesToCopy->'$(ForbesDestinationDir)%(RecursiveDir)%(Filename)%(Extension)')"
+            SkipUnchangedFiles="true"
+            Condition="Exists('$(WwwrootSourceDir)')" />
     </Target>
 </Project>

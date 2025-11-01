@@ -13,9 +13,9 @@ echo "configuration_name: $configuration_name"
 echo "platform_name: $platform_name"
 echo "project_dir: $project_dir"
 
-if [ ! -d $HANDSTACK_SRC/../build/handstack/modules/dbclient ]; then 
-    mkdir -p $HANDSTACK_SRC/../build/handstack/modules/dbclient
+if [ ! -d $HANDSTACK_HOME/modules/dbclient ]; then 
+    mkdir -p $HANDSTACK_HOME/modules/dbclient
 fi
 
 rm -f $target_dir/HandStack.*
-rsync -avq --delete $target_dir $HANDSTACK_SRC/../build/handstack/modules/dbclient
+rsync -avq --delete $target_dir $HANDSTACK_HOME/modules/dbclient

@@ -22,4 +22,4 @@ arch_mode=${4:-x64}
 
 echo "os_mode: $os_mode, action_mode: $action_mode, configuration_mode: $configuration_mode, arch_mode: $arch_mode"
 
-dotnet publish bundling.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output ../$HANDSTACK_SRC/../build/handstack/app/cli
+dotnet publish bundling.csproj --configuration $configuration_mode --arch $arch_mode --os $os_mode --output $HANDSTACK_HOME/app/cli

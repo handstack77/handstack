@@ -85,12 +85,24 @@
     </ItemGroup>
 
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-        <Exec Condition="'$(OS)'=='Windows_NT'" Command="rmdir /s /q $(TargetDir)" />
-        <Exec Condition="'$(OS)'!='Windows_NT'" Command="rm -rf $(TargetDir)" />
+        <RemoveDir Directories="$(TargetDir)" Condition="Exists('$(TargetDir)')" />
     </Target>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-        <Exec Condition="'$(OS)'=='Windows_NT'" Command="(robocopy $(TargetDir) $(HANDSTACK_SRC)/../build/handstack/app/cli /mir /copy:dat) ^&amp; IF %25ERRORLEVEL%25 LEQ 1 exit 0" />
-        <Exec Condition="'$(OS)'!='Windows_NT'" Command="$(ProjectDir)post-build.sh $(TargetDir) $(ConfigurationName) $(PlatformName) $(ProjectDir)" />
+        <!-- HANDSTACK_HOME/app/cli로 미러링 -->
+        <PropertyGroup>
+            <CliDestinationDir>$(HANDSTACK_HOME)\app\cli\</CliDestinationDir>
+        </PropertyGroup>
+        <MakeDir Directories="$(CliDestinationDir)" Condition="!Exists('$(CliDestinationDir)')" />
+        <RemoveDir Directories="$(CliDestinationDir)" />
+        <MakeDir Directories="$(CliDestinationDir)" />
+
+        <!-- TargetDir의 모든 파일을 재귀적으로 복사 (미러링) -->
+        <ItemGroup>
+            <SourceFilesForMirroring Include="$(TargetDir)**\*" />
+        </ItemGroup>
+        <Copy
+            SourceFiles="@(SourceFilesForMirroring)"
+            DestinationFiles="@(SourceFilesForMirroring->'$(CliDestinationDir)%(RecursiveDir)%(Filename)%(Extension)')" />
     </Target>
 </Project>
