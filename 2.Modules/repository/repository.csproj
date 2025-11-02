@@ -97,14 +97,17 @@
         </PropertyGroup>
         <ItemGroup Condition="Exists('$(PublishSourceDir)')">
             <DepsToCopy Include="SkiaSharp.dll" />
-            <DepsToCopy Include="libSkiaSharp.dll" />
             <DepsFullPathsToCopy Include="@(DepsToCopy->'$(PublishSourceDir)/%(Identity)')" />
+
+            <!-- libSkiaSharp.dll은 하위 디렉토리 포함하여 검색 -->
+            <LibSkiaSharpFiles Include="$(PublishSourceDir)/**/libSkiaSharp.dll" />
+            <DepsFullPathsToCopy Include="@(LibSkiaSharpFiles)" />
         </ItemGroup>
         <Copy
             SourceFiles="@(DepsFullPathsToCopy)"
             DestinationFolder="$(TargetDir)"
             SkipUnchangedFiles="true"
-            Condition="Exists('$(PublishSourceDir)')" />
+            Condition="Exists('$(PublishSourceDir)') AND '@(DepsFullPathsToCopy)' != ''" />
 
         <!-- HANDSTACK_HOME/modules/repository로 미러링 -->
         <PropertyGroup>
