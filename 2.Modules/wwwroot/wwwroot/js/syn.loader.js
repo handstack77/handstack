@@ -523,6 +523,7 @@
                             '/lib/moment.js/moment.js',
                             '/lib/pikaday/pikaday.js',
                             '/lib/superplaceholder/superplaceholder.js',
+                            '/lib/vanilla-masker/vanilla-masker.min.js',
                             '/uicontrols/TextBox/TextBox.js',
                             '/uicontrols/DatePicker/DatePicker.js'
                         ];
