@@ -10471,7 +10471,7 @@
 
     $auigrid.extend({
         name: 'syn.uicontrols.$auigrid',
-        version: 'v2025.10.20',
+        version: 'v2025.11.4',
 
         gridControls: [],
         gridCodeDatas: [],
@@ -10629,17 +10629,29 @@
                             }
                         }
 
-                        if (gridHookEvents.indexOf('pasteBegin') == -1) {
+                        if (gridHookEvents.includes('clipboardPaste') == true && gridHookEvents.indexOf('pasteBegin') == -1) {
                             AUIGrid.bind(gridID, 'pasteBegin', function (evt) {
-                                var setting = $auigrid.getGridSetting(evt.pid.substring(1));
+                                var elID = evt.pid.substring(1);
+                                var setting = $auigrid.getGridSetting(elID);
                                 if ($string.toBoolean(setting.allowClipboardPaste) == false) {
                                     return false;
                                 }
+
+                                var mod = window[syn.$w.pageScript];
+                                var eventHandler = mod.event ? mod.event['{0}_{1}'.format(elID, 'clipboardPaste')] : null;
+                                if (eventHandler) {
+                                    const clipboardData = eventHandler(elID, evt.clipboardData);
+                                    if ($object.isNullOrUndefined(clipboardData) == false && clipboardData.length > 0 && clipboardData[0].length > 0 && $object.isArray(clipboardData) == true && $object.isArray(clipboardData[0]) == true) {
+                                        return clipboardData;
+                                    }
+                                }
+                                return false;
                             });
                         }
 
                         if (gridHookEvents.includes('afterSelectionEnd') == true && gridHookEvents.indexOf('selectionChange') == -1) {
                             AUIGrid.bind(gridID, 'selectionChange', function (evt) {
+                                var elID = evt.pid.substring(1);
                                 var mod = window[syn.$w.pageScript];
                                 var eventHandler = mod.event ? mod.event['{0}_{1}'.format(elID, 'afterSelectionEnd')] : null;
                                 if (eventHandler) {
@@ -10658,6 +10670,7 @@
 
                         AUIGrid.bind(gridID, 'cellEditEndBefore', function (evt) {
                             var gridID = evt.pid;
+                            var elID = gridID.substring(1);
                             var rowIndex = evt.rowIndex;
                             var columnIndex = evt.columnIndex;
                             var dataField = evt.dataField;
@@ -10695,6 +10708,7 @@
                         });
 
                         AUIGrid.bind(gridID, 'cellEditEnd', function (evt) {
+                            var elID = evt.pid.substring(1);
                             var eventHandler1 = mod.event ? mod.event['{0}_{1}'.format(elID, 'cellEditEnd')] : null;
                             if (eventHandler1) {
                                 eventHandler1(elID, evt);
@@ -10702,7 +10716,6 @@
 
                             var eventHandler2 = mod.event ? mod.event['{0}_{1}'.format(elID, 'afterChange')] : null;
                             if (eventHandler2) {
-                                var gridID = evt.pid;
                                 var rowIndex = evt.rowIndex;
                                 var columnIndex = evt.columnIndex;
                                 var dataField = evt.dataField;
@@ -10750,7 +10763,7 @@
 
                                 var li6 = document.createElement('li');
                                 li6.id = 'headerItem6';
-                                li6.textContent = '메뉴 닫기';
+                                li6.textContent = '컬럼 숨김 복원하기';
                                 contextEL.appendChild(li6);
 
                                 document.body.appendChild(contextEL);
@@ -10828,6 +10841,7 @@
                         enable: true,
                         showIcon: true
                     },
+                    isHidden: isHidden,
                     visible: !isHidden,
                     editable: $string.toBoolean(editable) == false ? false : !$string.toBoolean(readOnly),
                     style: $object.isNullOrUndefined(alignConstants) == true ? '' : `text:${alignConstants}!`,
@@ -11582,6 +11596,16 @@
                 case 'headerItem5':
                     AUIGrid.showAllColumns(gridID);
                     $('#headerItemUL span.ui-icon[data]').addClass('ui-icon-check').removeClass('ui-icon-blank');
+                    break;
+                case 'headerItem6':
+                    const columnInfos = AUIGrid.getColumnInfoList(gridID);
+                    for (let i = 0, length = columnInfos.length; i < length; i++) {
+                        const columnInfo = columnInfos[i];
+                        if (columnInfo.isHidden == true) {
+                            const dataField = AUIGrid.getDataFieldByColumnIndex(gridID, columnInfo.columnIndex);
+                            AUIGrid.hideColumnByDataField(gridID, dataField);
+                        }
+                    }
                     break;
             }
 

@@ -764,6 +764,271 @@
             return result;
         },
 
+        toJsv(val, options = {}) {
+            if (typeof val !== 'string') return [];
+
+            const { delimiter = ',', newline = '\n', meta = {} } = options;
+            const lines = val.split(newline);
+            if (lines.length < 1) return [];
+
+            const columns = lines[0].split(delimiter).map(column => column.trim().replace(/^"|"$/g, ''));
+            const columnLength = columns.length;
+            const result = [];
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                if (!line.trim()) continue;
+
+                const row = line.split(delimiter);
+                const item = [];
+
+                for (let j = 0; j < columnLength; j++) {
+                    const cellValue = row[j]?.trim() ?? '';
+
+                    const parsedValue = meta[j]
+                        ? this.toParseType(cellValue, meta[j])
+                        : this.toDynamic(cellValue);
+
+                    item.push(parsedValue);
+                }
+                result.push(item);
+            }
+            return result;
+        },
+
+        /*
+        const items = $string.toJsv(clipboardData, { delimiter: '\t' });
+        const rules = {
+            0: {
+                name: 'System',
+                type: 'string',
+                required: true,
+                minLength: 3,
+                enum: ['ERP', 'MES', 'WMS']
+            },
+            9: {
+                name: 'Progress',
+                type: 'string',
+                required: true,
+                pattern: '^\\d+%$',
+                validator: (value) => {
+                    const num = parseInt(value);
+                    return (num >= 0 && num <= 100) || '진행률은 0~100% 사이여야 합니다.';
+                }
+            },
+            11: {
+                name: 'Flag 1',
+                type: 'string',
+                enum: ['Y', 'N']
+            },
+            12: {
+                name: 'Code 1',
+                type: 'string',
+                required: true,
+                minLength: 2,
+                maxLength: 10
+            },
+            13: {
+                name: 'Code 2',
+                type: 'string',
+                required: true,
+                pattern: '^[A-Z]{3}\\d{3}$'
+            }
+        };
+
+        const validate = $string.validateJsv(items, rules);
+        if (validate.result == true) {
+            return items;
+        }
+
+        syn.$l.eventLog('grdGrid1_clipboardPaste', JSON.stringify(validate), 'Warning');
+         */
+        validateJsv(data, rules, options = {}) {
+            const {
+                throwError = false,
+                returnDetails = true,
+                validateAll = false
+            } = options;
+
+            if (!Array.isArray(data) || data.length === 0) {
+                const error = { valid: false, message: '데이터가 비어있습니다.' };
+                if (throwError) throw new Error(error.message);
+                return returnDetails ? error : false;
+            }
+
+            const rulesByIndex = Array.isArray(rules)
+                ? rules.reduce((acc, rule, index) => ({ ...acc, [index]: rule }), {})
+                : rules;
+
+            const errors = [];
+            const rowsToValidate = validateAll ? data : [data[0]];
+
+            for (let rowIndex = 0; rowIndex < rowsToValidate.length; rowIndex++) {
+                const row = rowsToValidate[rowIndex];
+
+                for (const colIndexStr in rulesByIndex) {
+                    const colIndex = parseInt(colIndexStr);
+                    const rule = rulesByIndex[colIndex];
+                    const value = row[colIndex];
+                    const columnName = rule.name || `Column ${colIndex}`;
+
+                    if (colIndex >= row.length) {
+                        errors.push({
+                            row: rowIndex,
+                            column: colIndex,
+                            columnName,
+                            type: 'INDEX_OUT_OF_BOUNDS',
+                            message: `${columnName}(인덱스 ${colIndex})이 데이터 범위를 벗어났습니다. 데이터 길이: ${row.length}`
+                        });
+                        continue;
+                    }
+
+                    if ($string.toBoolean(rule.required) == true && (value === null || value === undefined || value === '')) {
+                        errors.push({
+                            row: rowIndex,
+                            column: colIndex,
+                            columnName,
+                            type: 'REQUIRED',
+                            message: `${columnName}(인덱스 ${colIndex})은(는) 필수값입니다.`,
+                            value
+                        });
+                        continue;
+                    }
+
+                    if ($string.toBoolean(rule.required) == false && (value === null || value === undefined || value === '')) {
+                        continue;
+                    }
+
+                    if (rule.type) {
+                        const typeValid = this.toParseType(value, rule.type);
+                        if (!typeValid) {
+                            errors.push({
+                                row: rowIndex,
+                                column: colIndex,
+                                columnName,
+                                type: 'TYPE_MISMATCH',
+                                message: `${columnName}(인덱스 ${colIndex})의 타입이 올바르지 않습니다. 예상: ${rule.type}, 실제: ${typeof value}`,
+                                value
+                            });
+                            continue;
+                        }
+                    }
+
+                    if (rule.minLength !== undefined || rule.maxLength !== undefined) {
+                        const strValue = String(value);
+                        if (rule.minLength !== undefined && strValue.length < rule.minLength) {
+                            errors.push({
+                                row: rowIndex,
+                                column: colIndex,
+                                columnName,
+                                type: 'MIN_LENGTH',
+                                message: `${columnName}(인덱스 ${colIndex})의 최소 길이는 ${rule.minLength}입니다. 현재: ${strValue.length}`,
+                                value
+                            });
+                        }
+                        if (rule.maxLength !== undefined && strValue.length > rule.maxLength) {
+                            errors.push({
+                                row: rowIndex,
+                                column: colIndex,
+                                columnName,
+                                type: 'MAX_LENGTH',
+                                message: `${columnName}(인덱스 ${colIndex})의 최대 길이는 ${rule.maxLength}입니다. 현재: ${strValue.length}`,
+                                value
+                            });
+                        }
+                    }
+
+                    if (rule.type === 'number') {
+                        if (rule.min !== undefined && value < rule.min) {
+                            errors.push({
+                                row: rowIndex,
+                                column: colIndex,
+                                columnName,
+                                type: 'MIN_VALUE',
+                                message: `${columnName}(인덱스 ${colIndex})의 최소값은 ${rule.min}입니다. 현재: ${value}`,
+                                value
+                            });
+                        }
+                        if (rule.max !== undefined && value > rule.max) {
+                            errors.push({
+                                row: rowIndex,
+                                column: colIndex,
+                                columnName,
+                                type: 'MAX_VALUE',
+                                message: `${columnName}(인덱스 ${colIndex})의 최대값은 ${rule.max}입니다. 현재: ${value}`,
+                                value
+                            });
+                        }
+                    }
+
+                    if (rule.pattern) {
+                        const regex = new RegExp(rule.pattern);
+                        if (!regex.test(String(value))) {
+                            errors.push({
+                                row: rowIndex,
+                                column: colIndex,
+                                columnName,
+                                type: 'PATTERN_MISMATCH',
+                                message: `${columnName}(인덱스 ${colIndex})이(가) 패턴과 일치하지 않습니다.`,
+                                value,
+                                pattern: rule.pattern
+                            });
+                        }
+                    }
+
+                    if (rule.enum && Array.isArray(rule.enum)) {
+                        if (!rule.enum.includes(value)) {
+                            errors.push({
+                                row: rowIndex,
+                                column: colIndex,
+                                columnName,
+                                type: 'ENUM_MISMATCH',
+                                message: `${columnName}(인덱스 ${colIndex})은(는) 허용된 값이 아닙니다. 허용값: ${rule.enum.join(', ')}`,
+                                value,
+                                allowedValues: rule.enum
+                            });
+                        }
+                    }
+
+                    if (rule.validator && typeof rule.validator === 'function') {
+                        const customResult = rule.validator(value, row, rowIndex);
+                        if (customResult !== true) {
+                            errors.push({
+                                row: rowIndex,
+                                column: colIndex,
+                                columnName,
+                                type: 'CUSTOM_VALIDATION',
+                                message: typeof customResult === 'string'
+                                    ? customResult
+                                    : `${columnName}(인덱스 ${colIndex}) 커스텀 검증 실패`,
+                                value
+                            });
+                        }
+                    }
+                }
+            }
+
+            const result = errors.length === 0;
+
+            if (!result && throwError) {
+                throw new Error(`데이터 검증 실패: ${errors.length}개의 오류 발견`);
+            }
+
+            if (returnDetails) {
+                return {
+                    result,
+                    errorCount: errors.length,
+                    errors: errors,
+                    validatedRows: rowsToValidate.length,
+                    validatedColumns: Object.keys(rulesByIndex).map(Number)
+                };
+            }
+
+            return {
+                result
+            };
+        },
+
         toParameterObject(parameters) {
             return (parameters.match(/([^?:;]+)(:([^;]*))/g) || []).reduce(function (a, v) {
                 return a[v.slice(0, v.indexOf(':')).replace('@', '')] = v.slice(v.indexOf(':') + 1), a;
@@ -793,8 +1058,8 @@
             if (emptyIsNull && strVal === '') return null;
             if (strVal === '') return '';
 
-            if (/^(true|y|1)$/i.test(strVal)) return true;
-            if (/^(false|n|0)$/i.test(strVal)) return false;
+            if (/^(true)$/i.test(strVal)) return true;
+            if (/^(false)$/i.test(strVal)) return false;
 
             const numStr = strVal.replace(/,/g, '');
             if ($validation.regexs.float.test(numStr)) {
