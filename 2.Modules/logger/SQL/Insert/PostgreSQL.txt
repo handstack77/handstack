@@ -17,6 +17,9 @@ INSERT INTO {TableName}
 	, Type
 	, UserID
 	, CreatedAt
+	, IpAddress
+	, DeviceID
+	, ProgramID
 )
 VALUES
 (
@@ -37,4 +40,7 @@ VALUES
 	, @Type
 	, @UserID
 	, @CreatedAt
+	, @IpAddress
+	, @DeviceID
+	, @ProgramID
 );

@@ -1,5 +1,5 @@
 /*!
-HandStack Javascript Library v2025.11.4
+HandStack Javascript Library v2025.11.7
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -10297,12 +10297,8 @@ if (typeof module !== 'undefined' && module.exports) {
                 }
 
                 let ipAddress = syn.$w.getStorage('ipAddress', false);
-                if ($object.isNullOrUndefined(ipAddress) == true && $string.isNullOrEmpty(syn.Config.FindClientIPServer) == false) {
-                    ipAddress = await syn.$r.httpFetch(syn.Config.FindClientIPServer || '/checkip').send(null, {
-                        method: 'GET',
-                        redirect: 'follow',
-                        timeout: 3000
-                    });
+                if ($object.isNullOrUndefined(ipAddress) == true) {
+                    ipAddress = await syn.$b.getIpAddress();
                 }
 
                 if ($object.isNullOrUndefined(ipAddress) == true) {
@@ -10354,6 +10350,10 @@ if (typeof module !== 'undefined' && module.exports) {
                     globalID = requestID;
                 }
 
+                const userID = globalRoot.devicePlatform == 'browser' ? (syn.$w.User ? syn.$w.User.UserID : '') : syn.Config.Program.ProgramName;
+                const fingerPrint = syn.$b.fingerPrint(userID, ipAddress);
+                const deviceID = fingerPrint.substring(0, 64);
+
                 const transactionRequest = {
                     accessToken: token || globalRoot.bearerToken || apiServices.BearerToken,
                     action: 'SYN', // "SYN: Request/Response, PSH: Execute/None, ACK: Subscribe",
@@ -10362,7 +10362,8 @@ if (typeof module !== 'undefined' && module.exports) {
                     loadOptions: {
                         encryptionType: syn.Config.Transaction.EncryptionType, // "P:Plain, F:Full, H:Header, B:Body",
                         encryptionKey: syn.Config.Transaction.EncryptionKey, // "P:프로그램, K:KMS 서버, G:GlobalID 키",
-                        platform: globalRoot.devicePlatform == 'browser' ? syn.$b.platform : globalRoot.devicePlatform
+                        platform: globalRoot.devicePlatform == 'browser' ? syn.$b.platform : globalRoot.devicePlatform,
+                        programID: syn.$w.Variable?.ProgramID || ''
                     },
                     requestID: requestID,
                     version: syn.Config.Transaction.ProtocolVersion,
@@ -10379,7 +10380,8 @@ if (typeof module !== 'undefined' && module.exports) {
                         ],
                         localeID: syn.Config.Program.LocaleID,
                         hostName: globalRoot.devicePlatform == 'browser' ? location.host : syn.Config.HostName,
-                        pathName: globalRoot.devicePlatform == 'browser' ? location.pathname : ''
+                        pathName: globalRoot.devicePlatform == 'browser' ? location.pathname : '',
+                        deviceID: syn.$w.Variable?.DeviceID || deviceID || config.programID,
                     },
                     interface: {
                         devicePlatform: globalRoot.devicePlatform,
@@ -10398,7 +10400,7 @@ if (typeof module !== 'undefined' && module.exports) {
                         commandType: transactionObject.options ? (transactionObject.options.commandType || 'D') : 'D',
                         simulationType: syn.Config.Transaction.SimulationType, // "D:더미 P:운영 T:테스트",
                         terminalGroupID: globalRoot.devicePlatform == 'browser' ? (syn.$w.User ? '{0}|{1}'.format(syn.$w.User.CompanyID, syn.$w.User.DepartmentID) : '') : syn.Config.Program.BranchCode,
-                        operatorID: globalRoot.devicePlatform == 'browser' ? (syn.$w.User ? syn.$w.User.UserID : '') : syn.Config.Program.ProgramName,
+                        operatorID: userID,
                         screenID: transactionObject.screenID,
                         startTraceID: transactionObject.startTraceID,
                         dataFormat: syn.Config.Transaction.DataFormat,

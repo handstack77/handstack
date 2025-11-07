@@ -125,6 +125,9 @@ namespace function.Extensions
             logMessage.Properties = string.Empty;
             logMessage.UserID = string.Empty;
             logMessage.CreatedAt = string.Empty;
+            logMessage.IpAddress = string.Empty;
+            logMessage.DeviceID = string.Empty;
+            logMessage.ProgramID = ModuleConfiguration.ModuleID;
         }
 
         public async Task<RestResponse> SendAsync(Method httpVerb, string hostUrl, LogMessage logMessage,

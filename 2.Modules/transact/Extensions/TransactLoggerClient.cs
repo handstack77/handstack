@@ -133,6 +133,9 @@ namespace transact.Extensions
             logMessage.Properties = string.Empty;
             logMessage.UserID = string.Empty;
             logMessage.CreatedAt = string.Empty;
+            logMessage.IpAddress = string.Empty;
+            logMessage.DeviceID = string.Empty;
+            logMessage.ProgramID = ModuleConfiguration.ModuleID;
         }
 
         #endregion
@@ -370,6 +373,9 @@ namespace transact.Extensions
             logMessage.Message = JsonConvert.SerializeObject(request);
             logMessage.Properties = JsonConvert.SerializeObject(request.PayLoad.Property);
             logMessage.UserID = request.Transaction.OperatorID;
+            logMessage.IpAddress = request.Interface.SourceIP;
+            logMessage.DeviceID = request.System.DeviceID;
+            logMessage.ProgramID = request.LoadOptions == null || request.LoadOptions.ContainsKey("programID") == false ? "" : request.LoadOptions["programID"];
 
             EnqueueLog(logMessage, fallbackFunction, "Request", request, null, userWorkID);
         }

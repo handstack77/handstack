@@ -123,6 +123,9 @@ namespace logger.DataClient
                                 dynamicParameters.Add("@Properties", request.Properties, DbType.String, ParameterDirection.Input);
                                 dynamicParameters.Add("@UserID", request.UserID, DbType.String, ParameterDirection.Input);
                                 dynamicParameters.Add("@CreatedAt", string.IsNullOrEmpty(request.CreatedAt) ? DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") : request.CreatedAt, DbType.String, ParameterDirection.Input);
+                                dynamicParameters.Add("@IpAddress", request.IpAddress, DbType.String, ParameterDirection.Input);
+                                dynamicParameters.Add("@DeviceID", request.DeviceID, DbType.String, ParameterDirection.Input);
+                                dynamicParameters.Add("@ProgramID", request.ProgramID, DbType.String, ParameterDirection.Input);
 
                                 await databaseFactory.Connection.ExecuteAsync(dmlScript, dynamicParameters);
                             }

@@ -27,6 +27,9 @@ namespace HandStack.Web.MessageContract.Contract
         [JsonProperty("pathName")]
         public string PathName { get; set; }
 
+        [JsonProperty("deviceID")]
+        public string DeviceID { get; set; }
+
         public SystemType()
         {
             ProgramID = "";
@@ -36,6 +39,7 @@ namespace HandStack.Web.MessageContract.Contract
             LocaleID = "";
             HostName = "";
             PathName = "";
+            DeviceID = "";
         }
     }
 }
