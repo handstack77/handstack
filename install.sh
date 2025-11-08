@@ -35,6 +35,7 @@ current_path=$(pwd)
 
 # 환경 변수 설정
 if [[ "$OSTYPE" == "darwin"* ]]; then
+    sudo chown -R $(whoami) ~/.npm
     PROFILE_FILE="$HOME/.zshrc"
 else
     PROFILE_FILE="$HOME/.bashrc"
