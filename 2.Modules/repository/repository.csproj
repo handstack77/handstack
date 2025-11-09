@@ -96,24 +96,48 @@
         <PropertyGroup>
             <PublishSourceDir>$(ProjectDir)bin/Release/net8.0/publish</PublishSourceDir>
         </PropertyGroup>
+
         <ItemGroup Condition="Exists('$(PublishSourceDir)')">
             <DepsToCopy Include="SkiaSharp.dll" />
-            <DepsToCopy Include="libSkiaSharp.dll" />
             <DepsFullPathsToCopy Include="@(DepsToCopy->'$(PublishSourceDir)/%(Identity)')" />
         </ItemGroup>
+
+        <!-- 현재 런타임에 맞는 네이티브 라이브러리 복사 -->
+        <ItemGroup Condition="Exists('$(PublishSourceDir)')">
+            <!-- Windows x64 -->
+            <NativeLibs Include="$(PublishSourceDir)/runtimes/win-x64/native/libSkiaSharp.dll"
+                        Condition="'$(RuntimeIdentifier)' == 'win-x64'" />
+
+            <!-- Windows ARM64 -->
+            <NativeLibs Include="$(PublishSourceDir)/runtimes/win-arm64/native/libSkiaSharp.dll"
+                        Condition="'$(RuntimeIdentifier)' == 'win-arm64'" />
+
+            <!-- Linux x64 -->
+            <NativeLibs Include="$(PublishSourceDir)/runtimes/linux-x64/native/libSkiaSharp.so"
+                        Condition="'$(RuntimeIdentifier)' == 'linux-x64'" />
+
+            <!-- Linux ARM64 -->
+            <NativeLibs Include="$(PublishSourceDir)/runtimes/linux-arm64/native/libSkiaSharp.so"
+                        Condition="'$(RuntimeIdentifier)' == 'linux-arm64'" />
+
+            <!-- macOS x64 -->
+            <NativeLibs Include="$(PublishSourceDir)/runtimes/osx-x64/native/libSkiaSharp.dylib"
+                        Condition="'$(RuntimeIdentifier)' == 'osx-x64'" />
+
+            <DepsFullPathsToCopy Include="@(NativeLibs)" />
+        </ItemGroup>
+
         <Copy
             SourceFiles="@(DepsFullPathsToCopy)"
             DestinationFolder="$(TargetDir)"
             SkipUnchangedFiles="true"
-            Condition="Exists('$(PublishSourceDir)')" />
+            Condition="Exists('$(PublishSourceDir)') AND '@(DepsFullPathsToCopy)' != ''" />
 
         <!-- HANDSTACK_HOME/modules/repository로 미러링 -->
         <PropertyGroup>
             <ModuleDestinationDir>$(HANDSTACK_HOME)/modules/repository</ModuleDestinationDir>
         </PropertyGroup>
         <MakeDir Directories="$(ModuleDestinationDir)" Condition="!Exists('$(ModuleDestinationDir)')" />
-        <RemoveDir Directories="$(ModuleDestinationDir)" />
-        <MakeDir Directories="$(ModuleDestinationDir)" />
 
         <!-- TargetDir의 모든 파일을 재귀적으로 복사 (미러링) -->
         <ItemGroup>

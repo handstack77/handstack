@@ -13,15 +13,18 @@ SELECT TL.LogNo
     , TL.Level
     , TL.Format
     , TL.UserID
-    , TO_CHAR(TL.CreatedAt, 'YYYY-MM-DD HH24:MI:SS') AS CreatedAt
+    , TO_CHAR(TL.CreatedAt, 'YYYY-MM-DD HH24:MI:SS') AS CreatedAt,
+	, TL.IpAddress
+	, TL.DeviceID
+	, TL.ProgramID
 FROM 
     {TableName} TL
-WHERE CASE WHEN @GlobalID = '' THEN @GlobalID ELSE TL.GlobalID END = @GlobalID
-	AND CASE WHEN @Environment = '' THEN @Environment ELSE TL.RunningEnvironment END = @Environment
-	AND CASE WHEN @ProjectID = '' THEN @ProjectID ELSE TL.ProjectID END = @ProjectID
-	AND CASE WHEN @ServerID = '' THEN @ServerID ELSE TL.ServerID END = @ServerID
-	AND CASE WHEN @TransactionID = '' THEN @TransactionID ELSE TL.TransactionID END = @TransactionID
-	AND CASE WHEN @ServiceID = '' THEN @ServiceID ELSE TL.ServiceID END = @ServiceID
-	AND TL.CreatedAt BETWEEN @StartedAt AND @EndedAt
+WHERE (@GlobalID = '' OR TL.GlobalID = @GlobalID)
+    AND (@Environment = '' OR TL.RunningEnvironment = @Environment)
+    AND (@ProjectID = '' OR TL.ProjectID = @ProjectID)
+    AND (@ServerID = '' OR TL.ServerID = @ServerID)
+    AND (@TransactionID = '' OR TL.TransactionID = @TransactionID)
+    AND (@ServiceID = '' OR TL.ServiceID = @ServiceID)
+    AND TL.CreatedAt BETWEEN @StartedAt AND @EndedAt
 ORDER BY TL.LogNo DESC
 LIMIT 500;

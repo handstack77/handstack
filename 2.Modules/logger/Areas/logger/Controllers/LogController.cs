@@ -50,6 +50,9 @@ namespace logger.Areas.logger.Controllers
         // logMessage.Properties = "프롭프롭";
         // logMessage.UserID = "system";
         // logMessage.CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+        // logMessage.IpAddress = "system";
+        // logMessage.DeviceID = "system";
+        // logMessage.ProgramID = "system";
         // http://localhost:8421/logger/api/log/insert
         [HttpGet("[action]")]
         [HttpPost("[action]")]

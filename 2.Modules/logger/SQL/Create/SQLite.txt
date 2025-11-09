@@ -1,40 +1,46 @@
 CREATE TABLE {TableName} (
-    -- 로그순번 (기본키, 자동증가)
+    -- 로그 순번 (기본키, 자동증가)
     LogNo INTEGER PRIMARY KEY AUTOINCREMENT,
-    -- 거래구분
+    -- 거래 구분
     Acknowledge TEXT NULL,
-    -- 애플리케이션ID
+    -- 애플리케이션 ID
     ApplicationID TEXT NULL,
-    -- 입력일시
-    CreatedAt DATETIME NULL,
-    -- 업무흐름
+    -- 업무 흐름
     Flow TEXT NULL,
-    -- 데이터포맷
+    -- 데이터 포맷
     Format TEXT NULL,
-    -- 거래고유ID
+    -- 거래 고유 ID
     GlobalID TEXT NULL,
-    -- 업무수준
+    -- 업무 수준
     Level TEXT NULL,
-    -- 로그메시지
+    -- 로그 메시지
     Message TEXT NULL,
     -- 프로그램
     ProgramName TEXT NULL,
-    -- 프로젝트ID
+    -- 프로젝트 ID
     ProjectID TEXT NULL,
-    -- 추가속성
+    -- 추가 속성
     Properties TEXT NULL,
-    -- 실행환경
+    -- 실행 환경
     RunningEnvironment TEXT NULL,
-    -- 서버ID
+    -- 서버 ID
     ServerID TEXT NULL,
-    -- 서비스ID
+    -- 서비스 ID
     ServiceID TEXT NULL,
-    -- 거래ID
+    -- 거래 ID
     TransactionID TEXT NULL,
-    -- 업무구분
+    -- 업무 구분
     Type TEXT NULL,
-    -- 입력자ID
-    UserID TEXT NULL
+    -- 입력자 ID
+    UserID TEXT NULL,
+    -- 입력 일시
+    CreatedAt DATETIME NULL,
+    -- IP 주소
+    IpAddress TEXT NULL,
+    -- 단말 ID
+    DeviceID TEXT NULL,
+    -- 프로그램 ID
+    ProgramID TEXT NULL
 );
 
 CREATE INDEX IX_{TableName}_GlobalID

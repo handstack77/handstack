@@ -124,8 +124,6 @@
             <ModuleDestinationDir>$(HANDSTACK_HOME)/modules/function</ModuleDestinationDir>
         </PropertyGroup>
         <MakeDir Directories="$(ModuleDestinationDir)" Condition="!Exists('$(ModuleDestinationDir)')" />
-        <RemoveDir Directories="$(ModuleDestinationDir)" />
-        <MakeDir Directories="$(ModuleDestinationDir)" />
 
         <!-- TargetDir의 모든 파일을 재귀적으로 복사 (미러링) -->
         <ItemGroup>

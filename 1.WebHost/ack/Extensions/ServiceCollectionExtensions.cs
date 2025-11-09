@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
 
+using HandStack.Core.ExtensionMethod;
 using HandStack.Web;
 using HandStack.Web.Extensions;
 using HandStack.Web.Modules;
@@ -111,7 +112,7 @@ namespace ack.Extensions
                         else
                         {
                             var filePath = file.FullName.Replace("\\", "/").Replace(moduleBasePath, "");
-                            if (ShouldSkipLoading(module.LoadPassAssemblyPath, filePath) == false)
+                            if (ShouldSkipLoading(module.LoadPassAssemblyPath, PathExtensions.Join(module.BasePath, filePath)) == false)
                             {
                                 assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(file.FullName.Replace("\\", "/"));
                             }

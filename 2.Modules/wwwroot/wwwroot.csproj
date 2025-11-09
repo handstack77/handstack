@@ -95,13 +95,11 @@
         </ItemGroup>
         <Delete Files="@(HandStackFilesToDelete)" ContinueOnError="WarnAndContinue" />
 
-        <!-- HANDSTACK_HOME/modules/wwwroot로 미러링 (wwwroot/lib 제외) -->
+        <!-- HANDSTACK_HOME/modules/wwwroot로 미러링 -->
         <PropertyGroup>
             <ModuleDestinationDir>$(HANDSTACK_HOME)/modules/wwwroot</ModuleDestinationDir>
         </PropertyGroup>
         <MakeDir Directories="$(ModuleDestinationDir)" Condition="!Exists('$(ModuleDestinationDir)')" />
-        <RemoveDir Directories="$(ModuleDestinationDir)" />
-        <MakeDir Directories="$(ModuleDestinationDir)" />
 
         <!-- TargetDir의 모든 파일을 재귀적으로 복사 (wwwroot/lib 디렉터리 제외) -->
         <ItemGroup>

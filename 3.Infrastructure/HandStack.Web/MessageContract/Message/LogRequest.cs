@@ -41,6 +41,9 @@ namespace HandStack.Web.MessageContract.Message
             CreatedAt = "";
             StartedAt = "";
             EndedAt = "";
+            IpAddress = "";
+            DeviceID = "";
+            ProgramID = "";
         }
 
         [JsonProperty("LogNo")]
@@ -102,5 +105,14 @@ namespace HandStack.Web.MessageContract.Message
 
         [JsonProperty("EndedAt")]
         public string EndedAt { get; set; }
+
+        [JsonProperty("IpAddress")]
+        public string IpAddress { get; set; }
+
+        [JsonProperty("DeviceID")]
+        public string DeviceID { get; set; }
+
+        [JsonProperty("ProgramID")]
+        public string ProgramID { get; set; }
     }
 }

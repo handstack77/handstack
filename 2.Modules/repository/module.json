@@ -18,5 +18,10 @@
         "SubscribeAction": [ "repository.Events.RepositoryRequest" ],
         "XFrameOptions": "ALLOW-FROM http://127.0.0.1:8421,http://localhost:8421",
         "ContentSecurityPolicy": "frame-ancestors 'self' http://127.0.0.1:8421 http://localhost:8421;"
-    }
+    },
+    "LoadPassAssemblyPath": [
+        "/libSkiaSharp.dll",
+        "/libSkiaSharp.so",
+        "/libSkiaSharp.dylib"
+    ]
 }
