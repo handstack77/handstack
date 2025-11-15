@@ -177,10 +177,9 @@ namespace ack
                             {
                                 try
                                 {
-                                    var cert = new X509Certificate2(GlobalConfiguration.ServerDevCertFilePath, GlobalConfiguration.ServerDevCertPassword);
                                     options.ListenAnyIP(GlobalConfiguration.ServerDevCertSslPort, listenOptions =>
                                     {
-                                        listenOptions.UseHttps(cert);
+                                        listenOptions.UseHttps(GlobalConfiguration.ServerDevCertFilePath, GlobalConfiguration.ServerDevCertPassword);
                                     });
                                 }
                                 catch (Exception exception)

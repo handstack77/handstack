@@ -34,15 +34,34 @@ namespace HandStack.Core.Helpers
 
         public static void EncryptFile(string filePath, string cryptographyKey = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ")
         {
-            var outputFilePath = Path.GetTempFileName();
+            var tempFileName = Path.GetRandomFileName();
+            var outputFilePath = Path.Combine(Path.GetTempPath(), tempFileName);
+
+            byte[] salt = RandomNumberGenerator.GetBytes(16);
+
+            int iterations = 100_000;
+
+            byte[] key = Rfc2898DeriveBytes.Pbkdf2(
+                cryptographyKey,
+                salt,
+                iterations,
+                HashAlgorithmName.SHA512,
+                32
+            );
+            byte[] iv = Rfc2898DeriveBytes.Pbkdf2(
+                cryptographyKey,
+                salt,
+                iterations,
+                HashAlgorithmName.SHA512,
+                16
+            );
+
             using (var encryptor = Aes.Create())
             {
-#pragma warning disable SYSLIB0041
-                using var pdb = new Rfc2898DeriveBytes(cryptographyKey, new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
-#pragma warning restore SYSLIB0041
-                encryptor.Key = pdb.GetBytes(32);
-                encryptor.IV = pdb.GetBytes(16);
+                encryptor.Key = key;
+                encryptor.IV = iv;
                 using var fsOutput = new FileStream(outputFilePath, FileMode.Create);
+                fsOutput.Write(salt, 0, salt.Length);
                 using var cs = new CryptoStream(fsOutput, encryptor.CreateEncryptor(), CryptoStreamMode.Write);
                 using var fsInput = new FileStream(filePath, FileMode.Open);
                 int data;
@@ -67,15 +86,44 @@ namespace HandStack.Core.Helpers
 
         public static void DecryptFile(string filePath, string cryptographyKey = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ")
         {
-            var outputFilePath = Path.GetTempFileName();
-            using (var encryptor = Aes.Create())
+            var tempFileName = Path.GetRandomFileName();
+            var outputFilePath = Path.Combine(Path.GetTempPath(), tempFileName);
+
+            int saltLength = 16;
+            int iterations = 100_000;
+
+            using (var fsInput = new FileStream(filePath, FileMode.Open))
             {
-#pragma warning disable SYSLIB0041
-                var pdb = new Rfc2898DeriveBytes(cryptographyKey, new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
-#pragma warning restore SYSLIB0041
-                encryptor.Key = pdb.GetBytes(32);
-                encryptor.IV = pdb.GetBytes(16);
-                using var fsInput = new FileStream(filePath, FileMode.Open);
+                byte[] salt = new byte[saltLength];
+                int bytesRead = 0;
+                while (bytesRead < saltLength)
+                {
+                    int read = fsInput.Read(salt, bytesRead, saltLength - bytesRead);
+                    if (read == 0)
+                    {
+                        throw new EndOfStreamException("파일에서 salt를 모두 읽을 수 없습니다.");
+                    }
+                    bytesRead += read;
+                }
+
+                byte[] key = Rfc2898DeriveBytes.Pbkdf2(
+                    cryptographyKey,
+                    salt,
+                    iterations,
+                    HashAlgorithmName.SHA512,
+                    32
+                );
+                byte[] iv = Rfc2898DeriveBytes.Pbkdf2(
+                    cryptographyKey,
+                    salt,
+                    iterations,
+                    HashAlgorithmName.SHA512,
+                    16
+                );
+
+                using var encryptor = Aes.Create();
+                encryptor.Key = key;
+                encryptor.IV = iv;
                 using var cs = new CryptoStream(fsInput, encryptor.CreateDecryptor(), CryptoStreamMode.Read);
                 using var fsOutput = new FileStream(outputFilePath, FileMode.Create);
                 int data;

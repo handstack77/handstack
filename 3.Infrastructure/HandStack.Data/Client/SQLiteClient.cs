@@ -33,7 +33,7 @@ namespace HandStack.Data.Client
             set { connectionString = value; }
         }
 
-        private DatabaseFactory databaseFactory;
+        private readonly DatabaseFactory databaseFactory;
 
         public DatabaseFactory DbFactory
         {
@@ -95,46 +95,43 @@ namespace HandStack.Data.Client
 
         public string ExecuteCommandText(string procedureName, List<SQLiteParameter>? parameters)
         {
-            var CommandParameters = "";
+            string BuildParameterString(IEnumerable<SQLiteParameter> paramSet)
+            {
+                var commandParameters = "";
+                foreach (var parameter in paramSet)
+                {
+                    var paramName = parameter.ParameterName;
+                    if (!paramName.StartsWith("@"))
+                    {
+                        paramName = "@" + paramName;
+                    }
+                    commandParameters += string.Concat(paramName, "='", parameter.Value.ToStringSafe().Replace("'", "''"), "', ");
+                }
+                if (commandParameters.Length > 0)
+                {
+                    commandParameters = commandParameters.Substring(0, commandParameters.Length - 2);
+                }
+                return commandParameters;
+            }
 
             if (parameters == null || parameters.Count == 0)
             {
                 return string.Concat("exec ", procedureName, ";");
             }
 
-            if (isDeriveParameters == true)
+            string commandParameters;
+            if (isDeriveParameters)
             {
                 var parameterSet = GetSpParameterSet(procedureName);
-
-                foreach (var parameter in parameterSet)
-                {
-                    if (SetDbParameterData(parameter, parameters) == true)
-                    {
-                        CommandParameters += string.Concat(parameter.ParameterName, "='", parameter.Value.ToStringSafe().Replace("'", "''"), "', ");
-                    }
-                }
+                var matchedParameters = parameterSet.Where(p => SetDbParameterData(p, parameters));
+                commandParameters = BuildParameterString(matchedParameters);
             }
             else
             {
-                foreach (var parameter in parameters)
-                {
-                    if (parameter.ParameterName.IndexOf("@") > -1)
-                    {
-                        CommandParameters += string.Concat(parameter.ParameterName, "='", parameter.Value.ToStringSafe().Replace("'", "''"), "', ");
-                    }
-                    else
-                    {
-                        CommandParameters += string.Concat("@", parameter.ParameterName, "='", parameter.Value.ToStringSafe().Replace("'", "''"), "', ");
-                    }
-                }
+                commandParameters = BuildParameterString(parameters);
             }
 
-            if (CommandParameters.Length > 0)
-            {
-                CommandParameters = CommandParameters.Substring(0, CommandParameters.Length - 2);
-            }
-
-            return string.Concat("exec ", procedureName, " ", CommandParameters, ";");
+            return string.Concat("exec ", procedureName, commandParameters.Length > 0 ? " " + commandParameters : "", ";");
         }
 
         public DataSet? ExecuteDataSet(string commandText, CommandType dbCommandType, bool hasSchema = false)
