@@ -28,18 +28,18 @@
     
 	<ItemGroup>
         <PackageReference Include="BundlerMinifier.Core" Version="3.2.449" />
-        <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="8.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.1" />
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-        <PackageReference Include="NUglify" Version="1.21.10" />
-        <PackageReference Include="Serilog" Version="4.1.0" />
-        <PackageReference Include="Serilog.Extensions.Hosting" Version="8.0.0" />
-        <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
-        <PackageReference Include="Serilog.Settings.Configuration" Version="8.0.4" />
-        <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
-        <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
-        <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+        <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.0" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+        <PackageReference Include="NUglify" Version="1.21.17" />
+        <PackageReference Include="Serilog" Version="4.3.0" />
+        <PackageReference Include="Serilog.Extensions.Hosting" Version="9.0.0" />
+        <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.2" />
+        <PackageReference Include="Serilog.Settings.Configuration" Version="9.0.0" />
+        <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
+        <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+        <PackageReference Include="System.CommandLine" Version="2.0.0" />
 	</ItemGroup>
 
     <ItemGroup>
@@ -67,9 +67,7 @@
             <IsPublishing Condition="'$(IsPublishing)' == ''">false</IsPublishing>
         </PropertyGroup>
 
-        <Message Text="Already in publish mode, skipping nested publish..."
-                 Condition="'$(IsPublishing)' == 'true'"
-                 Importance="high" />
+        <Message Text="Already in publish mode, skipping nested publish..." Condition="'$(IsPublishing)' == 'true'" Importance="high" />
 
         <!-- publish 중이 아닐 때만 실행 -->
         <PropertyGroup Condition="'$(IsPublishing)' != 'true'">
@@ -80,12 +78,9 @@
             <PublishOutputDir>$(HANDSTACK_HOME)\app\cli</PublishOutputDir>
         </PropertyGroup>
 
-        <Message Text="os_mode: $(OsMode), action_mode: $(ActionMode), configuration_mode: $(ConfigurationMode), arch_mode: $(ArchMode)"
-                 Condition="'$(IsPublishing)' != 'true'"
-                 Importance="high" />
+        <Message Text="os_mode: $(OsMode), action_mode: $(ActionMode), configuration_mode: $(ConfigurationMode), arch_mode: $(ArchMode)" Condition="'$(IsPublishing)' != 'true'" Importance="high" />
 
         <!-- dotnet publish 실행 (IsPublishing=true 전달하여 재귀 방지) -->
-        <Exec Command="dotnet publish bundling.csproj --configuration $(ConfigurationMode) --arch $(ArchMode) --os $(OsMode) --output &quot;$(PublishOutputDir)&quot; -p:IsPublishing=true"
-              Condition="'$(IsPublishing)' != 'true'" />
+        <Exec Command="dotnet publish bundling.csproj --configuration $(ConfigurationMode) --arch $(ArchMode) --os $(OsMode) --output &quot;$(PublishOutputDir)&quot; -p:IsPublishing=true" Condition="'$(IsPublishing)' != 'true'" />
     </Target>
 </Project>

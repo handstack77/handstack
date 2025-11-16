@@ -20,9 +20,9 @@
     </PropertyGroup>
 
 	<ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="8.0.1" />
-        <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="8.0.1" />
-		<PackageReference Include="Yarp.ReverseProxy" Version="2.2.0" />
+        <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="10.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="10.0.0" />
+		<PackageReference Include="Yarp.ReverseProxy" Version="2.3.0" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -37,9 +37,7 @@
             <IsPublishing Condition="'$(IsPublishing)' == ''">false</IsPublishing>
         </PropertyGroup>
 
-        <Message Text="Already in publish mode, skipping nested publish..."
-                 Condition="'$(IsPublishing)' == 'true'"
-                 Importance="high" />
+        <Message Text="Already in publish mode, skipping nested publish..." Condition="'$(IsPublishing)' == 'true'" Importance="high" />
 
         <!-- publish 중이 아닐 때만 실행 -->
         <PropertyGroup Condition="'$(IsPublishing)' != 'true'">
@@ -50,12 +48,9 @@
             <PublishOutputDir>$(HANDSTACK_HOME)\app\cli</PublishOutputDir>
         </PropertyGroup>
 
-        <Message Text="os_mode: $(OsMode), action_mode: $(ActionMode), configuration_mode: $(ConfigurationMode), arch_mode: $(ArchMode)"
-                 Condition="'$(IsPublishing)' != 'true'"
-                 Importance="high" />
+        <Message Text="os_mode: $(OsMode), action_mode: $(ActionMode), configuration_mode: $(ConfigurationMode), arch_mode: $(ArchMode)" Condition="'$(IsPublishing)' != 'true'" Importance="high" />
 
         <!-- dotnet publish 실행 (IsPublishing=true 전달하여 재귀 방지) -->
-        <Exec Command="dotnet publish edgeproxy.csproj --configuration $(ConfigurationMode) --arch $(ArchMode) --os $(OsMode) --output &quot;$(PublishOutputDir)&quot; -p:IsPublishing=true"
-              Condition="'$(IsPublishing)' != 'true'" />
+        <Exec Command="dotnet publish edgeproxy.csproj --configuration $(ConfigurationMode) --arch $(ArchMode) --os $(OsMode) --output &quot;$(PublishOutputDir)&quot; -p:IsPublishing=true" Condition="'$(IsPublishing)' != 'true'" />
     </Target>
 </Project>

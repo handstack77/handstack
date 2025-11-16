@@ -17,7 +17,7 @@ set WORKING_PATH=%cd%
 if "%HANDSTACK_PATH%" == "" set HANDSTACK_PATH=%HANDSTACK_SRC%
 if "%HANDSTACK_PATH%" == "" set HANDSTACK_PATH=C:/projects/handstack77/handstack
 set HANDSTACK_ACK=%HANDSTACK_HOME%/app/ack.exe
-set HANDSTACK_CLI=%HANDSTACK_PATH%/4.Tool/CLI/handstack/bin/Debug/net8.0/handstack
+set HANDSTACK_CLI=%HANDSTACK_PATH%/4.Tool/CLI/handstack/bin/Debug/net10.0/handstack
 
 echo WORKING_PATH: %WORKING_PATH%
 echo HANDSTACK_PATH: %HANDSTACK_PATH%

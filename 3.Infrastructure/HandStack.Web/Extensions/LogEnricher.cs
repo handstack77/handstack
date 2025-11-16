@@ -1,5 +1,7 @@
 ﻿using System.Linq;
 
+using HandStack.Core.ExtensionMethod;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Routing;
@@ -15,9 +17,28 @@ namespace HandStack.Web.Extensions
         /// </summary>
         public static void EnrichFromRequest(IDiagnosticContext diagnosticContext, HttpContext httpContext)
         {
-            diagnosticContext.Set("ClientIP", httpContext.Connection.RemoteIpAddress?.MapToIPv4().ToString());
-            diagnosticContext.Set("UserAgent", httpContext.Request.Headers["User-Agent"].FirstOrDefault());
-            diagnosticContext.Set("Resource", httpContext.GetMetricsCurrentResourceName());
+            if (httpContext == null)
+            {
+                return;
+            }
+
+            var ipAddress = httpContext.Connection.RemoteIpAddress?.MapToIPv4().ToString();
+            if (ipAddress != null)
+            {
+                diagnosticContext.Set("ClientIP", ipAddress.ToString());
+            }
+
+            var userAgent = httpContext.Request.Headers["User-Agent"].FirstOrDefault();
+            if (userAgent != null)
+            {
+                diagnosticContext.Set("UserAgent", userAgent);
+            }
+
+            var resource = httpContext.GetMetricsCurrentResourceName();
+            if (resource != null)
+            {
+                diagnosticContext.Set("Resource", resource);
+            }
         }
 
         public static string? GetMetricsCurrentResourceName(this HttpContext httpContext)

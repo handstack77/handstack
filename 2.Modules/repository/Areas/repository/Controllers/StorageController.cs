@@ -941,9 +941,9 @@ namespace repository.Controllers
                                 if (repository.IsKeepFileExtension == true)
                                 {
                                     itemPhysicalPath = itemPhysicalPath + extension;
-                                    using var saveFileStream = new FileStream(itemPhysicalPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
+                                    using var keepFileStream = new FileStream(itemPhysicalPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
                                     streamToUpload.Position = 0;
-                                    await streamToUpload.CopyToAsync(saveFileStream);
+                                    await streamToUpload.CopyToAsync(keepFileStream);
                                 }
 
                                 var fileInfo = new FileInfo(itemPhysicalPath);
@@ -3035,7 +3035,7 @@ namespace repository.Controllers
                 var newHeight = (int)(originalBitmap.Height * ratio);
 
                 var resizedInfo = new SKImageInfo(newWidth, newHeight);
-                using var resizedBitmap = originalBitmap.Resize(resizedInfo, SKFilterQuality.High);
+                using var resizedBitmap = originalBitmap.Resize(resizedInfo, new SKSamplingOptions());
 
                 if (resizedBitmap == null) return null;
 

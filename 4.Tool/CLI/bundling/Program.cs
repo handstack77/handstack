@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.CommandLine;
+using System.CommandLine.Parsing;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -48,7 +49,7 @@ namespace bundling
             Console.WriteLine($"Runtime call {Path.GetDirectoryName(Process.GetCurrentProcess().MainModule?.FileName)}");
             Console.WriteLine($"Batch Program Start...");
 
-            var optionDebug = new Option<bool?>("--debug", description: "프로그램 시작시 디버거에 프로세스가 연결 될 수 있도록 지연 후 시작됩니다.(기본값: 10초)");
+            var optionDebug = new Option<bool?>("--debug") { Description = "프로그램 시작시 디버거에 프로세스가 연결 될 수 있도록 지연 후 시작됩니다.(기본값: 10초)", DefaultValueFactory = parseResult => false };
 
             var entryBasePath = AppDomain.CurrentDomain.BaseDirectory;
             if (string.IsNullOrEmpty(entryBasePath) == true)
@@ -69,14 +70,14 @@ namespace bundling
                 .ReadFrom.Configuration(configuration)
                 .CreateLogger();
 
-            var optionFile = new Option<FileInfo>(name: "--file", description: ".html, .js, .css 형식의 전체 파일 경로입니다.");
-            var optionKeepSourceFile = new Option<bool?>(name: "--keep", description: "Compress 효과 적용시 원본 파일을 .src 만들지 여부입니다. (기본값 false)");
-            var optionByPassMinFile = new Option<bool?>(name: "--passmin", description: "Compress 효과 적용시 파일명에 .min 파일을 건너뛰는지 여부입니다. (기본값 true)");
-            var optionDirectoryInfo = new Option<DirectoryInfo>(name: "--path", description: "bundling 프로그램 기능을 적용하는 전체 디렉토리 경로입니다.");
-            var optionFormat = new Option<string>(name: "--format", description: "실행 명령에 따라 적용하는 포맷입니다. 예) encrypt --format=base64|aes256|syn|sha256");
-            var optionBundle = new Option<string>(name: "--bundle", description: "BundleFile 형식의 JSON 포맷의 Base64 문자열입니다.");
-            var optionExcludes = new Option<string?>(name: "--excludes", description: "실행 명령에서 제외할 옵션 정보입니다.");
-            var optionArtifactFile = new Option<FileInfo>(name: "--artifactFile", description: "ArtifactFile 형식의 .json 형식의 전체 파일 경로입니다.");
+            var optionFile = new Option<FileInfo>("--file") { Description = ".html, .js, .css 형식의 전체 파일 경로입니다." };
+            var optionKeepSourceFile = new Option<bool?>("--keep") { Description = "Compress 효과 적용시 원본 파일을 .src 만들지 여부입니다. (기본값 false)" };
+            var optionByPassMinFile = new Option<bool?>("--passmin") { Description = "Compress 효과 적용시 파일명에 .min 파일을 건너뛰는지 여부입니다. (기본값 true)" };
+            var optionDirectoryInfo = new Option<DirectoryInfo>("--path") { Description = "bundling 프로그램 기능을 적용하는 전체 디렉토리 경로입니다." };
+            var optionFormat = new Option<string>("--format") { Description = "실행 명령에 따라 적용하는 포맷입니다. 예) encrypt --format=base64|aes256|syn|sha256" };
+            var optionBundle = new Option<string>("--bundle") { Description = "BundleFile 형식의 JSON 포맷의 Base64 문자열입니다." };
+            var optionExcludes = new Option<string?>("--excludes") { Description = "실행 명령에서 제외할 옵션 정보입니다." };
+            var optionArtifactFile = new Option<FileInfo>("--artifactFile") { Description = "ArtifactFile 형식의 .json 형식의 전체 파일 경로입니다." };
 
             var rootCommand = new RootCommand("HandStack 기반 화면을 위한 Bundling, Compress, Beautify CLI 프로그램"){
                 optionDebug
@@ -90,8 +91,12 @@ namespace bundling
                 optionKeepSourceFile,
                 optionByPassMinFile
             };
-            subCommandCompress.SetHandler((file, keepSourceFile, byPassMinFile) =>
+            subCommandCompress.SetAction((parseResult) =>
             {
+                var file = parseResult.GetValue(optionFile);
+                var keepSourceFile = parseResult.GetValue(optionKeepSourceFile);
+                var byPassMinFile = parseResult.GetValue(optionByPassMinFile);
+
                 if (keepSourceFile == null)
                 {
                     keepSourceFile = false;
@@ -104,14 +109,23 @@ namespace bundling
 
                 try
                 {
-                    WebFileCompress(file, keepSourceFile.Value, byPassMinFile.Value);
+                    if (file == null || file.Exists == false)
+                    {
+                        Log.Warning("대상 파일을 찾을 수 없습니다");
+                    }
+                    else
+                    {
+                        WebFileCompress(file, keepSourceFile.Value, byPassMinFile.Value);
+                    }
                 }
                 catch (Exception exception)
                 {
                     Log.Fatal(exception, "compress 기능 실행 중 오류가 발생했습니다");
                     exitCode = -1;
                 }
-            }, optionFile, optionKeepSourceFile, optionByPassMinFile);
+
+                return exitCode;
+            });
             rootCommand.Add(subCommandCompress);
 
             #endregion
@@ -125,8 +139,13 @@ namespace bundling
                 optionByPassMinFile,
                 optionExcludes
             };
-            subCommandCompressPath.SetHandler((directory, keepSourceFile, byPassMinFile, excludeDirectories) =>
+            subCommandCompressPath.SetAction((parseResult) =>
             {
+                var directory = parseResult.GetValue(optionDirectoryInfo);
+                var keepSourceFile = parseResult.GetValue(optionKeepSourceFile);
+                var byPassMinFile = parseResult.GetValue(optionByPassMinFile);
+                var excludeDirectories = parseResult.GetValue(optionExcludes);
+
                 if (keepSourceFile == null)
                 {
                     keepSourceFile = false;
@@ -144,14 +163,21 @@ namespace bundling
 
                 try
                 {
-                    WebFileCompress(directory, keepSourceFile.Value, byPassMinFile.Value, excludeDirectories);
+                    if (directory == null || directory.Exists == false)
+                    {
+                        Log.Warning("대상 디렉토리 경로를 찾을 수 없습니다");
+                    }
+                    else
+                    {
+                        WebFileCompress(directory, keepSourceFile.Value, byPassMinFile.Value, excludeDirectories);
+                    }
                 }
                 catch (Exception exception)
                 {
                     Log.Fatal(exception, "compresspath 기능 실행 중 오류가 발생했습니다");
                     exitCode = -1;
                 }
-            }, optionDirectoryInfo, optionKeepSourceFile, optionByPassMinFile, optionExcludes);
+            });
             rootCommand.Add(subCommandCompressPath);
 
             #endregion
@@ -163,8 +189,11 @@ namespace bundling
                 optionFile,
                 optionKeepSourceFile
             };
-            subCommandMinify.SetHandler((file, keepSourceFile) =>
+            subCommandMinify.SetAction((parseResult) =>
             {
+                var file = parseResult.GetValue(optionFile);
+                var keepSourceFile = parseResult.GetValue(optionKeepSourceFile);
+
                 if (keepSourceFile == null)
                 {
                     keepSourceFile = false;
@@ -172,14 +201,21 @@ namespace bundling
 
                 try
                 {
-                    WebFileMinify(file, keepSourceFile.Value);
+                    if (file == null || file.Exists == false)
+                    {
+                        Log.Warning("대상 파일을 찾을 수 없습니다");
+                    }
+                    else
+                    {
+                        WebFileMinify(file, keepSourceFile.Value);
+                    }
                 }
                 catch (Exception exception)
                 {
                     Log.Fatal(exception, "minify 기능 실행 중 오류가 발생했습니다");
                     exitCode = -1;
                 }
-            }, optionFile, optionKeepSourceFile);
+            });
             rootCommand.Add(subCommandMinify);
 
             #endregion
@@ -191,8 +227,11 @@ namespace bundling
                 optionDirectoryInfo,
                 optionKeepSourceFile
             };
-            subCommandMinifyPath.SetHandler((directory, keepSourceFile) =>
+            subCommandMinifyPath.SetAction((parseResult) =>
             {
+                var directory = parseResult.GetValue(optionDirectoryInfo);
+                var keepSourceFile = parseResult.GetValue(optionKeepSourceFile);
+
                 if (keepSourceFile == null)
                 {
                     keepSourceFile = false;
@@ -200,14 +239,21 @@ namespace bundling
 
                 try
                 {
-                    WebFileMinify(directory, keepSourceFile.Value);
+                    if (directory == null || directory.Exists == false)
+                    {
+                        Log.Warning("대상 디렉토리 경로를 찾을 수 없습니다");
+                    }
+                    else
+                    {
+                        WebFileMinify(directory, keepSourceFile.Value);
+                    }
                 }
                 catch (Exception exception)
                 {
                     Log.Fatal(exception, "minifypath 기능 실행 중 오류가 발생했습니다");
                     exitCode = -1;
                 }
-            }, optionDirectoryInfo, optionKeepSourceFile);
+            });
             rootCommand.Add(subCommandMinifyPath);
 
             #endregion
@@ -218,18 +264,27 @@ namespace bundling
             var subCommandBeautify = new Command("beautifyfile", ".html, .js, .css 형식의 파일에 Beautify 효과를 적용합니다.") {
                 optionFile
             };
-            subCommandBeautify.SetHandler((file) =>
+            subCommandBeautify.SetAction((parseResult) =>
             {
+                var file = parseResult.GetValue(optionFile);
+
                 try
                 {
-                    Beautify(file);
+                    if (file == null || file.Exists == false)
+                    {
+                        Log.Warning("대상 파일을 찾을 수 없습니다");
+                    }
+                    else
+                    {
+                        Beautify(file);
+                    }
                 }
                 catch (Exception exception)
                 {
                     Log.Fatal(exception, "beautifyfile 기능 실행 중 오류가 발생했습니다");
                     exitCode = -1;
                 }
-            }, optionFile);
+            });
             rootCommand.Add(subCommandBeautify);
 
             #endregion
@@ -240,18 +295,27 @@ namespace bundling
             var subCommandBeautifyPath = new Command("beautifypath", "디렉토리내 모든 (하위 디렉토리 포함) .html, .js, .css 형식의 파일에 Beautify 효과를 적용합니다.") {
                 optionDirectoryInfo
             };
-            subCommandBeautifyPath.SetHandler((directory) =>
+            subCommandBeautifyPath.SetAction((parseResult) =>
             {
+                var directory = parseResult.GetValue(optionDirectoryInfo);
+
                 try
                 {
-                    Beautify(directory);
+                    if (directory == null || directory.Exists == false)
+                    {
+                        Log.Warning("대상 디렉토리 경로를 찾을 수 없습니다");
+                    }
+                    else
+                    {
+                        Beautify(directory);
+                    }
                 }
                 catch (Exception exception)
                 {
                     Log.Fatal(exception, "beautifypath 기능 실행 중 오류가 발생했습니다");
                     exitCode = -1;
                 }
-            }, optionDirectoryInfo);
+            });
             rootCommand.Add(subCommandBeautifyPath);
 
             #endregion
@@ -262,7 +326,7 @@ namespace bundling
             var subCommandMerge = new Command("merge", "동일한 형식의 텍스트 파일을 단일 파일로 병합합니다") {
                 optionBundle
             };
-            subCommandMerge.SetHandler((bundle) =>
+            subCommandMerge.SetAction((parseResult) =>
             {
                 /*
                 // string fileType, List<string> inputFileNames, string outputFileName
@@ -275,6 +339,7 @@ namespace bundling
 
                 string base64BundleFile = JsonConvert.SerializeObject(bundleFile).EncodeBase64();
                 */
+                var bundle = parseResult.GetValue(optionBundle);
 
                 var base64BundleFile = bundle;
                 var bundleFile = JsonConvert.DeserializeObject<BundleFile>(base64BundleFile.DecodeBase64());
@@ -282,7 +347,7 @@ namespace bundling
                 {
                     exitCode = BundleFileProcess(bundleFile.fileType, bundleFile.inputFileNames, bundleFile.outputFileName);
                 }
-            }, optionBundle);
+            });
             rootCommand.Add(subCommandMerge);
 
             #endregion
@@ -293,26 +358,37 @@ namespace bundling
             var subCommandArtifact = new Command("artifact", "ArtifactFile json 파일로 번들링을 수행합니다") {
                 optionArtifactFile
             };
-            subCommandArtifact.SetHandler((artifactFile) =>
+            subCommandArtifact.SetAction((parseResult) =>
             {
-                var processor = new BundleFileProcessor();
-                lock (processor)
+                var artifactFile = parseResult.GetValue(optionArtifactFile);
+
+                if (artifactFile == null || artifactFile.Exists == false)
                 {
-                    var artifactFilePath = artifactFile.FullName.Replace("\\", "/");
-                    var bundles = BundleHandler.GetBundles(artifactFilePath);
-                    var bundleResult = processor.Process(artifactFilePath, bundles);
-                    if (bundleResult == false)
+                    Log.Warning("대상 파일을 찾을 수 없습니다");
+                }
+                else
+                {
+                    var processor = new BundleFileProcessor();
+                    lock (processor)
                     {
-                        exitCode = -1;
+                        var artifactFilePath = artifactFile.FullName.Replace("\\", "/");
+                        var bundles = BundleHandler.GetBundles(artifactFilePath);
+                        var bundleResult = processor.Process(artifactFilePath, bundles);
+                        if (bundleResult == false)
+                        {
+                            exitCode = -1;
+                        }
                     }
                 }
-            }, optionArtifactFile);
+            });
             rootCommand.Add(subCommandArtifact);
 
             #endregion
 
-            rootCommand.SetHandler((debug) =>
+            rootCommand.SetAction((parseResult) =>
             {
+                var debug = parseResult.GetValue(optionDebug);
+
                 try
                 {
                     Log.Information($"Current Directory from {Directory.GetCurrentDirectory()}");
@@ -325,7 +401,7 @@ namespace bundling
                     Log.Fatal(exception, "프로그램 실행 중 오류가 발생했습니다");
                     exitCode = -1;
                 }
-            }, optionDebug);
+            });
 
             var arguments = new ArgumentHelper(args);
             var argumentOptions = arguments["options"];
@@ -341,7 +417,21 @@ namespace bundling
             }
 
             await DebuggerAttach(debug);
-            exitCode = await rootCommand.InvokeAsync(args);
+
+            ParseResult parseResult = rootCommand.Parse(args);
+            if (parseResult.Errors.Count > 0)
+            {
+                exitCode = -1;
+                foreach (ParseError parseError in parseResult.Errors)
+                {
+                    Console.Error.WriteLine(parseError.Message);
+                }
+            }
+            else
+            {
+                exitCode = await parseResult.InvokeAsync();
+            }
+
             return exitCode;
         }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.CommandLine;
+using System.CommandLine.Parsing;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
@@ -69,22 +70,21 @@ namespace handstack
                 .ReadFrom.Configuration(configuration)
                 .CreateLogger();
 
-            var optionDebug = new Option<bool?>("--debug", description: "프로그램 시작시 디버거에 프로세스가 연결 될 수 있도록 지연 후 시작됩니다.(기본값: 10초)");
-            var optionAckFile = new Option<FileInfo?>(name: "--ack", description: "ack 프로그램 전체 파일 경로입니다");
-            var optionArguments = new Option<string?>("--arguments", description: "ack 프로그램 실행시 전달할 매개변수 입니다. 예) \"--modules=wwwroot,transact,dbclient,function\"");
-            var optionPort = new Option<int?>("--port", description: "프로그램 수신 포트를 설정합니다. (기본값: 8080)");
-            var optionProcessID = new Option<int?>("--pid", description: "OS에서 부여한 프로세스 ID 입니다");
-            var optionFormat = new Option<string?>(name: "--format", description: "실행 명령에 따라 적용하는 포맷입니다. 예) encrypt --format=base64|aes256|syn|sha256");
-            var optionKey = new Option<string?>(name: "--key", description: "ack 프로그램 실행 검증 키입니다");
-            var optionValue = new Option<string?>(name: "--value", description: "실행 명령에 따라 적용하는 검증 값입니다");
-            var optionAppSettingFile = new Option<FileInfo?>(name: "--appsettings", description: "ack 프로그램 appsettings 파일명입니다");
-            var optionDirectory = new Option<DirectoryInfo?>(name: "--directory", description: "실행 명령에 따라 적용하는 기준 디렉토리 경로입니다");
-            var optionFile = new Option<FileInfo?>(name: "--file", description: "실행 명령에 따라 적용하는 파일 경로입니다");
-            var optionFind = new Option<string?>(name: "--find", description: "실행 명령에 따라 적용하는 검색 값입니다");
-            var optionReplace = new Option<string?>(name: "--replace", description: "실행 명령에 따라 적용하는 변경 값입니다");
-            var optionOptions = new Option<string?>(name: "--options", description: "실행 명령에 따라 적용하는 옵션 값입니다");
-
-            var rootOptionModules = new Option<string?>("--modules", description: "프로그램 시작시 포함할 모듈을 설정합니다. 예) --modules=wwwroot,transact,dbclient,function");
+            var optionDebug = new Option<bool?>("--debug") { Description = "프로그램 시작시 디버거에 프로세스가 연결 될 수 있도록 지연 후 시작됩니다.(기본값: 10초)" };
+            var optionAckFile = new Option<FileInfo?>("--ack") { Description = "ack 프로그램 전체 파일 경로입니다" };
+            var optionArguments = new Option<string?>("--arguments") { Description = "ack 프로그램 실행시 전달할 매개변수 입니다. 예) \"--modules=wwwroot,transact,dbclient,function\"" };
+            var optionPort = new Option<int?>("--port") { Description = "프로그램 수신 포트를 설정합니다. (기본값: 8080)" };
+            var optionProcessID = new Option<int?>("--pid") { Description = "OS에서 부여한 프로세스 ID 입니다" };
+            var optionFormat = new Option<string?>("--format") { Description = "실행 명령에 따라 적용하는 포맷입니다. 예) encrypt --format=base64|aes256|syn|sha256" };
+            var optionKey = new Option<string?>("--key") { Description = "ack 프로그램 실행 검증 키입니다" };
+            var optionValue = new Option<string?>("--value") { Description = "실행 명령에 따라 적용하는 검증 값입니다" };
+            var optionAppSettingFile = new Option<FileInfo?>("--appsettings") { Description = "ack 프로그램 appsettings 파일명입니다" };
+            var optionDirectory = new Option<DirectoryInfo?>("--directory") { Description = "실행 명령에 따라 적용하는 기준 디렉토리 경로입니다" };
+            var optionFile = new Option<FileInfo?>("--file") { Description = "실행 명령에 따라 적용하는 파일 경로입니다" };
+            var optionFind = new Option<string?>("--find") { Description = "실행 명령에 따라 적용하는 검색 값입니다" };
+            var optionReplace = new Option<string?>("--replace") { Description = "실행 명령에 따라 적용하는 변경 값입니다" };
+            var optionOptions = new Option<string?>("--options") { Description = "실행 명령에 따라 적용하는 옵션 값입니다" };
+            var rootOptionModules = new Option<string?>("--modules") { Description = "프로그램 시작시 포함할 모듈을 설정합니다. 예) --modules=wwwroot,transact,dbclient,function" };
 
             var rootCommand = new RootCommand("IT 혁신은 고객과 업무에 들여야 하는 시간과 노력을 줄이는 데 있습니다. HandStack은 기업 경쟁력 유지를 위한 도구입니다") {
                 optionDebug, optionPort, rootOptionModules, optionOptions
@@ -93,7 +93,7 @@ namespace handstack
             #region list
 
             var subCommandList = new Command("list", "ack 프로세스 목록을 조회합니다");
-            subCommandList.SetHandler(() =>
+            subCommandList.SetAction((parseResult) =>
             {
                 var currentId = Process.GetCurrentProcess().Id;
                 var processes = new List<Process>();
@@ -208,8 +208,11 @@ namespace handstack
                 optionAckFile, optionAppSettingFile
             };
 
-            subCommandConfiguration.SetHandler((ackFile, settings) =>
+            subCommandConfiguration.SetAction((parseResult) =>
             {
+                var ackFile = parseResult.GetValue(optionAckFile);
+                var settings = parseResult.GetValue(optionAppSettingFile);
+
                 if (ackFile != null && ackFile.Exists == true && settings != null && settings.Exists == true)
                 {
                     var ackFileBasePath = PathExtensions.GetFullPath(ackFile.DirectoryName.ToStringSafe());
@@ -337,7 +340,7 @@ namespace handstack
                 {
                     Log.Information($"ackFile:{ackFile?.FullName.Replace("\\", "/")} 파일 확인 또는 settings:{settings?.FullName.Replace("\\", "/")} 파일 확인이 필요합니다");
                 }
-            }, optionAckFile, optionAppSettingFile);
+            });
 
             rootCommand.Add(subCommandConfiguration);
 
@@ -350,8 +353,11 @@ namespace handstack
                 optionAckFile, optionDirectory
             };
 
-            subCommandPurgeContracts.SetHandler((ackFile, directory) =>
+            subCommandPurgeContracts.SetAction((parseResult) =>
             {
+                var ackFile = parseResult.GetValue(optionAckFile);
+                var directory = parseResult.GetValue(optionDirectory);
+
                 if (ackFile != null && ackFile.Exists == true && directory != null && directory.Exists == true)
                 {
                     var appBasePath = ackFile.DirectoryName.ToStringSafe();
@@ -389,7 +395,7 @@ namespace handstack
                 {
                     Log.Information($"ackFile:{ackFile?.FullName.Replace("\\", "/")} 파일 확인 또는 settings:{directory?.FullName.Replace("\\", "/")} 파일 확인이 필요합니다");
                 }
-            }, optionAckFile, optionDirectory);
+            });
 
             rootCommand.Add(subCommandPurgeContracts);
 
@@ -402,8 +408,11 @@ namespace handstack
                 optionFile, optionDirectory
             };
 
-            subCommandEncryptContracts.SetHandler((ddlFile, directory) =>
+            subCommandEncryptContracts.SetAction((parseResult) =>
             {
+                var ddlFile = parseResult.GetValue(optionFile);
+                var directory = parseResult.GetValue(optionDirectory);
+
                 if (ddlFile != null && ddlFile.Exists == true && directory != null && directory.Exists == true)
                 {
                     string? ddlFilePath = ddlFile?.FullName;
@@ -470,7 +479,7 @@ namespace handstack
                 {
                     Log.Information($"ddlFile:{ddlFile?.FullName.Replace("\\", "/")} 파일 확인 또는 contractPath:{directory?.FullName.Replace("\\", "/")} 디렉토리 확인이 필요합니다");
                 }
-            }, optionFile, optionDirectory);
+            });
 
             rootCommand.Add(subCommandEncryptContracts);
 
@@ -483,8 +492,12 @@ namespace handstack
                 optionAckFile, optionArguments, optionAppSettingFile
             };
 
-            subCommandStartLog.SetHandler((ackFile, arguments, settings) =>
+            subCommandStartLog.SetAction((parseResult) =>
             {
+                var ackFile = parseResult.GetValue(optionAckFile);
+                var arguments = parseResult.GetValue(optionArguments);
+                var settings = parseResult.GetValue(optionAppSettingFile);
+
                 if (ackFile != null && ackFile.Exists == true)
                 {
                     var targetBasePath = ackFile.DirectoryName.ToStringSafe();
@@ -513,7 +526,7 @@ namespace handstack
                 {
                     Log.Information($"ackFile:{ackFile?.FullName.Replace("\\", "/")} 파일 확인이 필요합니다");
                 }
-            }, optionAckFile, optionArguments, optionAppSettingFile);
+            });
 
             rootCommand.Add(subCommandStartLog);
 
@@ -526,8 +539,12 @@ namespace handstack
                 optionAckFile, optionArguments, optionAppSettingFile
             };
 
-            subCommandStart.SetHandler((ackFile, arguments, settings) =>
+            subCommandStart.SetAction((parseResult) =>
             {
+                var ackFile = parseResult.GetValue(optionAckFile);
+                var arguments = parseResult.GetValue(optionArguments);
+                var settings = parseResult.GetValue(optionAppSettingFile);
+
                 if (ackFile != null && ackFile.Exists == true)
                 {
                     var targetBasePath = ackFile.DirectoryName.ToStringSafe();
@@ -563,7 +580,7 @@ namespace handstack
                 {
                     Log.Information($"ackFile:{ackFile?.FullName.Replace("\\", "/")} 파일 확인이 필요합니다");
                 }
-            }, optionAckFile, optionArguments, optionAppSettingFile);
+            });
 
             rootCommand.Add(subCommandStart);
 
@@ -575,8 +592,11 @@ namespace handstack
                 optionProcessID, optionPort
             };
 
-            subCommandStop.SetHandler((pid, port) =>
+            subCommandStop.SetAction((parseResult) =>
             {
+                var pid = parseResult.GetValue(optionProcessID) ?? 0;
+                var port = parseResult.GetValue(optionPort);
+
                 var processes = new List<Process>();
                 processes.AddRange(Process.GetProcessesByName("ack"));
                 processes.AddRange(Process.GetProcessesByName("dotnet"));
@@ -703,7 +723,7 @@ namespace handstack
                         }
                     }
                 }
-            }, optionProcessID, optionPort);
+            });
 
             rootCommand.Add(subCommandStop);
 
@@ -717,8 +737,13 @@ namespace handstack
 
             // handstack encrypt --format=base64 --value="helloworld"
             // handstack encrypt --format=connectionstring --value="[connection string]"
-            subCommandEncrypt.SetHandler((format, key, value, options) =>
+            subCommandEncrypt.SetAction((parseResult) =>
             {
+                var format = parseResult.GetValue(optionFormat).ToStringSafe();
+                var key = parseResult.GetValue(optionKey).ToStringSafe();
+                var value = parseResult.GetValue(optionValue);
+                var options = parseResult.GetValue(optionOptions).ToStringSafe();
+
                 switch (format)
                 {
                     case "base64":
@@ -826,7 +851,7 @@ namespace handstack
                         Log.Information($"{encrypt}.{encrypt.ToSHA256()}");
                         break;
                 }
-            }, optionFormat, optionKey, optionValue, optionOptions);
+            });
 
             rootCommand.Add(subCommandEncrypt);
 
@@ -839,8 +864,12 @@ namespace handstack
             };
 
             // handstack decrypt --format=base64 --value="YmxhYmxhIGhlbGxvIHdvcmxk"
-            subCommandDecrypt.SetHandler((format, key, value) =>
+            subCommandDecrypt.SetAction((parseResult) =>
             {
+                var format = parseResult.GetValue(optionFormat).ToStringSafe();
+                var key = parseResult.GetValue(optionKey).ToStringSafe();
+                var value = parseResult.GetValue(optionValue);
+
                 switch (format)
                 {
                     case "base64":
@@ -912,7 +941,7 @@ namespace handstack
                         }
                         break;
                 }
-            }, optionFormat, optionKey, optionValue);
+            });
 
             rootCommand.Add(subCommandDecrypt);
 
@@ -924,9 +953,13 @@ namespace handstack
                 optionDirectory, optionFile, optionKey
             };
 
-            // handstack compress --directory=C:/projects/handstack77/handstack/4.Tool/CLI/handstack/bin/Debug/net8.0/win-x64 --file=C:/tmp/handstack.zip
-            subCommandCompress.SetHandler((directory, file, key) =>
+            // handstack compress --directory=C:/projects/handstack77/handstack/4.Tool/CLI/handstack/bin/Debug/net10.0/win-x64 --file=C:/tmp/handstack.zip
+            subCommandCompress.SetAction((parseResult) =>
             {
+                var directory = parseResult.GetValue(optionDirectory);
+                var file = parseResult.GetValue(optionFile);
+                var key = parseResult.GetValue(optionKey).ToStringSafe();
+
                 try
                 {
                     if (directory != null && directory.Parent != null && directory.Exists == true)
@@ -963,7 +996,7 @@ namespace handstack
                 {
                     Log.Error(exception, $"compress 오류");
                 }
-            }, optionDirectory, optionFile, optionKey);
+            });
 
             rootCommand.Add(subCommandCompress);
 
@@ -976,8 +1009,12 @@ namespace handstack
             };
 
             // handstack extract --file=C:/tmp/handstack.zip --directory=C:/tmp/handstack
-            subCommandExtract.SetHandler((file, directory, options) =>
+            subCommandExtract.SetAction((parseResult) =>
             {
+                var file = parseResult.GetValue(optionFile);
+                var directory = parseResult.GetValue(optionDirectory);
+                var options = parseResult.GetValue(optionOptions).ToStringSafe();
+
                 try
                 {
                     if (file != null && file.Exists == true && directory != null)
@@ -998,7 +1035,7 @@ namespace handstack
                 {
                     Log.Error(exception, $"extract 오류");
                 }
-            }, optionFile, optionDirectory, optionOptions);
+            });
 
             rootCommand.Add(subCommandExtract);
 
@@ -1011,8 +1048,15 @@ namespace handstack
             };
 
             // handstack create --file=C:/tmp/handstack.zip --directory=C:/tmp/handstack --find=handstack --replace=myprojectname
-            subCommandCreate.SetHandler((file, directory, find, replace, ignored) =>
+            subCommandCreate.SetAction((parseResult) =>
             {
+                var file = parseResult.GetValue(optionFile);
+                var directory = parseResult.GetValue(optionDirectory);
+                var find = parseResult.GetValue(optionFind).ToStringSafe();
+                var replace = parseResult.GetValue(optionReplace).ToStringSafe();
+                var ignored = parseResult.GetValue(optionValue).ToStringSafe();
+                string[] ignoredDirectoryNames = Array.Empty<string>();
+
                 if (file != null && file.Exists == true && directory != null && directory.Exists == false)
                 {
                     var targetDirectoryPath = directory.FullName.Replace("\\", "/");
@@ -1047,7 +1091,7 @@ namespace handstack
                 {
                     Log.Information($"file:{file?.FullName.Replace("\\", "/")}, directory:{directory?.FullName.Replace("\\", "/")} 확인이 필요합니다");
                 }
-            }, optionFile, optionDirectory, optionFind, optionReplace, optionValue);
+            });
 
             rootCommand.Add(subCommandCreate);
 
@@ -1060,8 +1104,12 @@ namespace handstack
             };
 
             // handstack replacetext --file=C:/tmp/handstack.txt --find=handstack --replace=myprojectname
-            subCommandReplaceText.SetHandler((file, find, replace) =>
+            subCommandReplaceText.SetAction((parseResult) =>
             {
+                var file = parseResult.GetValue(optionFile);
+                var find = parseResult.GetValue(optionFind).ToStringSafe();
+                var replace = parseResult.GetValue(optionReplace).ToStringSafe();
+
                 if (file != null && file.Exists == true)
                 {
                     if (string.IsNullOrEmpty(find) == false && string.IsNullOrEmpty(replace) == false)
@@ -1084,7 +1132,7 @@ namespace handstack
                 {
                     Log.Information($"file:{file?.FullName.Replace("\\", "/")} 확인이 필요합니다");
                 }
-            }, optionFile, optionFind, optionReplace);
+            });
 
             rootCommand.Add(subCommandReplaceText);
 
@@ -1097,8 +1145,11 @@ namespace handstack
             };
 
             // handstack task --file=C:/tmp/task.json --value=checkman:build;dbclient:build
-            subCommandTask.SetHandler((file, value) =>
+            subCommandTask.SetAction((parseResult) =>
             {
+                var file = parseResult.GetValue(optionFile);
+                var value = parseResult.GetValue(optionValue);
+
                 if (file != null && file.Exists == true && file.Name == "task.json" && string.IsNullOrEmpty(value) == false)
                 {
                     var command = value.ToStringSafe();
@@ -1175,7 +1226,7 @@ namespace handstack
                         commandIndex = commandIndex + 1;
                     }
                 }
-            }, optionFile, optionValue);
+            });
 
             rootCommand.Add(subCommandTask);
 
@@ -1188,8 +1239,11 @@ namespace handstack
                 optionDirectory, optionValue
             };
 
-            subCommandSynUsage.SetHandler((directory, value) =>
+            subCommandSynUsage.SetAction((parseResult) =>
             {
+                var directory = parseResult.GetValue(optionDirectory);
+                var value = parseResult.GetValue(optionValue)?.ToStringSafe();
+
                 Dictionary<string, List<string>> scanTargets = new Dictionary<string, List<string>>
                 {
                     ["functions"] = new List<string>
@@ -1325,7 +1379,7 @@ namespace handstack
                 {
                     Console.WriteLine($"{row.Function},{row.TotalCount}");
                 }
-            }, optionDirectory, optionValue);
+            });
 
             rootCommand.Add(subCommandSynUsage);
 
@@ -1333,13 +1387,15 @@ namespace handstack
 
             #region publickey
 
-            // publickey --file="C:\projects\MyLib\bin\Release\net8.0\MyLib.dll"
+            // publickey --file="C:\projects\MyLib\bin\Release\net10.0\MyLib.dll"
             var subCommandPublicKey = new Command("publickey", "지정한 .NET(.NET Core/5+/Framework) 관리형 DLL의 강력한 이름(Strong Name) 서명에 사용된 공개 키를 출력합니다.") {
                 optionFile, optionValue
             };
 
-            subCommandPublicKey.SetHandler((ddlFile, value) =>
+            subCommandPublicKey.SetAction((parseResult) =>
             {
+                var ddlFile = parseResult.GetValue(optionFile);
+
                 string? ddlFilePath = ddlFile?.FullName;
                 if (string.IsNullOrEmpty(ddlFilePath) == true || File.Exists(ddlFilePath) == false)
                 {
@@ -1396,14 +1452,19 @@ namespace handstack
                 {
                     Console.Error.WriteLine("예기치 않은 오류: " + ex.Message);
                 }
-            }, optionFile, optionValue);
+            });
 
             rootCommand.Add(subCommandPublicKey);
 
             #endregion
 
-            rootCommand.SetHandler((debug, port, modules, options) =>
+            rootCommand.SetAction((parseResult) =>
             {
+                var debug = parseResult.GetValue(optionDebug);
+                var port = parseResult.GetValue(optionPort);
+                var modules = parseResult.GetValue(rootOptionModules);
+                var options = parseResult.GetValue(optionOptions);
+
                 try
                 {
                     Log.Information($"Current Directory from {Directory.GetCurrentDirectory()}");
@@ -1418,7 +1479,7 @@ namespace handstack
                     Log.Fatal(exception, "프로그램 실행 중 오류가 발생했습니다");
                     exitCode = -1;
                 }
-            }, optionDebug, optionPort, rootOptionModules, optionOptions);
+            });
 
             var arguments = new ArgumentHelper(args);
             var argumentOptions = arguments["options"];
@@ -1435,7 +1496,19 @@ namespace handstack
 
             await DebuggerAttach(debug);
 
-            exitCode = await rootCommand.InvokeAsync(args);
+            ParseResult parseResult = rootCommand.Parse(args);
+            if (parseResult.Errors.Count > 0)
+            {
+                exitCode = -1;
+                foreach (ParseError parseError in parseResult.Errors)
+                {
+                    Console.Error.WriteLine(parseError.Message);
+                }
+            }
+            else
+            {
+                exitCode = await parseResult.InvokeAsync();
+            }
             return exitCode;
         }
 

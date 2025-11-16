@@ -15,11 +15,11 @@ robocopy wwwroot %HANDSTACK_HOME%/modules/checkup/wwwroot /e /copy:dat
 :: pm2 stop ack
 :: pm2 monit ack
 :: dotnet msbuild checkup.csproj
-:: robocopy bin\Debug\net8.0 C:\home\ack\modules\checkup /MIR /NFL /NDL /NJH /NJS /NC /NS /NP
+:: robocopy bin\Debug\net10.0 C:\home\ack\modules\checkup /MIR /NFL /NDL /NJH /NJS /NC /NS /NP
 :: pm2 restart ack
 
 :: wwwroot 파일 복사
 :: <Target Name="PostBuild" AfterTargets="PostBuildEvent">
 ::	   <Exec Command="$(SolutionDir)\checkup\build.bat" />
-::     <Exec Command="(robocopy $(SolutionDir)\checkup\bin\Debug\net8.0 C:\home\ack\modules\checkup /S /E /COPY:DAT /PURGE) ^&amp; IF %25ERRORLEVEL%25 LEQ 1 exit 0" />
+::     <Exec Command="(robocopy $(SolutionDir)\checkup\bin\Debug\net10.0 C:\home\ack\modules\checkup /S /E /COPY:DAT /PURGE) ^&amp; IF %25ERRORLEVEL%25 LEQ 1 exit 0" />
 :: </Target>

@@ -94,28 +94,6 @@
             }
         ]
     },
-    "IpRateLimiting": {
-        "EnableEndpointRateLimiting": false,
-        "StackBlockedRequests": true,
-        "RealIpHeader": "X-Real-IP",
-        "ClientIdHeader": "X-ClientId",
-        "HttpStatusCode": 429,
-        "IpWhitelist": [ "127.0.0.1", "::1/10" ],
-        "EndpointWhitelist": [ "get:/diagnostics", "get:/checkip" ],
-        "ClientWhitelist": [ "handstack-id-1", "handstack-id-2", "handstack-id-3" ],
-        "GeneralRules": [
-            {
-                "Endpoint": "*",
-                "Period": "1s",
-                "Limit": 200
-            }
-        ],
-        "QuotaExceededResponse": {
-            "Content": "The response was restricted by the server's policies.",
-            "ContentType": "text/html",
-            "StatusCode": 429
-        }
-    },
     "Kestrel": {
         "DisableStringReuse": true,
         "Limits": {

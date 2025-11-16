@@ -15,8 +15,6 @@ using System.Threading.Tasks;
 using ack.Extensions;
 using ack.Services;
 
-using AspNetCoreRateLimit;
-
 using HandStack.Core.ExtensionMethod;
 using HandStack.Core.Licensing;
 using HandStack.Core.Licensing.Validation;
@@ -396,14 +394,6 @@ namespace ack
                     options.LoginPath = authenticationLoginPath;
                     options.LogoutPath = authenticationLoginPath;
                 });
-            }
-
-            var ipRateLimitingSection = configuration.GetSection("IpRateLimiting");
-            if (ipRateLimitingSection.Exists() == true)
-            {
-                services.Configure<IpRateLimitOptions>(configuration.GetSection("IpRateLimiting"));
-                services.AddInMemoryRateLimiting();
-                services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
             }
 
             services.AddProblemDetails();
@@ -801,12 +791,6 @@ namespace ack
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment environment, ICorsService corsService, ICorsPolicyProvider corsPolicyProvider)
         {
-            var ipRateLimitingSection = configuration.GetSection("IpRateLimiting");
-            if (ipRateLimitingSection.Exists() == true)
-            {
-                app.UseIpRateLimiting();
-            }
-
             if (useResponseComression == true)
             {
                 app.UseResponseCompression();

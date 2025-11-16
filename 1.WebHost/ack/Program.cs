@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.CommandLine;
+using System.CommandLine.Parsing;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -92,21 +93,30 @@ namespace ack
                 environmentName = "";
             }
 
-            var optionPort = new Option<int?>("--port", description: "프로그램 수신 포트를 설정합니다. (기본값: 8000)");
-            var optionDebug = new Option<bool?>("--debug", description: "프로그램 시작시 디버거에 프로세스가 연결 될 수 있도록 지연 후 시작됩니다.(기본값: 10초)");
-            var optionDelay = new Option<int?>("--delay", description: "프로그램 시작시 지연 시간(밀리초)을 설정합니다. (기본값: 10000)");
-            var optionProcessName = new Option<string?>("--pname", description: "관리 업무 목적으로 부여한 프로세스 이름입니다");
-            var optionKey = new Option<string?>(name: "--key", description: "ack 프로그램 실행 검증키입니다");
-            var optionAppSettings = new Option<string?>(name: "--appsettings", description: "ack 프로그램 appsettings 파일명입니다");
-            var optionShowEnv = new Option<string?>("--showenv", description: "ack 프로그램 시작할 때 적용되는 환경설정을 출력합니다. (기본값: false)");
-            var rootOptionModules = new Option<string?>("--modules", description: "프로그램 시작시 포함할 모듈을 설정합니다. 예) --modules=wwwroot,transact,dbclient,function");
+            var optionPort = new Option<int?>("--port") { Description = "프로그램 수신 포트를 설정합니다. (기본값: 8421)", DefaultValueFactory = parseResult => 8421 };
+            var optionDebug = new Option<bool?>("--debug") { Description = "프로그램 시작시 디버거에 프로세스가 연결 될 수 있도록 지연 후 시작됩니다.(기본값: 10초)", DefaultValueFactory = parseResult => false };
+            var optionDelay = new Option<int?>("--delay") { Description = "프로그램 시작시 지연 시간(밀리초)을 설정합니다. (기본값: 10000)", DefaultValueFactory = parseResult => 10000 };
+            var optionProcessName = new Option<string?>("--pname") { Description = "관리 업무 목적으로 부여한 프로세스 이름입니다" };
+            var optionKey = new Option<string?>("--key") { Description = "ack 프로그램 실행 검증키입니다" };
+            var optionAppSettings = new Option<string?>("--appsettings") { Description = "ack 프로그램 appsettings 파일명입니다" };
+            var optionShowEnv = new Option<string?>("--showenv") { Description = "ack 프로그램 시작할 때 적용되는 환경설정을 출력합니다. (기본값: false)" };
+            var rootOptionModules = new Option<string?>("--modules") { Description = "프로그램 시작시 포함할 모듈을 설정합니다. 예) --modules=wwwroot,transact,dbclient,function" };
 
             var rootCommand = new RootCommand("IT 혁신은 고객과 업무에 들여야 하는 시간과 노력을 줄이는 데 있습니다. HandStack은 기업 경쟁력 유지를 위한 도구입니다") {
                 optionDebug, optionDelay, optionPort, rootOptionModules, optionKey, optionAppSettings, optionProcessName, optionShowEnv
             };
 
-            rootCommand.SetHandler(async (debug, delay, port, modules, key, settings, pname, showenv) =>
+            rootCommand.SetAction(async (parseResult) =>
             {
+                var debug = parseResult.GetValue(optionDebug);
+                var delay = parseResult.GetValue(optionDelay);
+                var port = parseResult.GetValue(optionPort);
+                var modules = parseResult.GetValue(rootOptionModules);
+                var key = parseResult.GetValue(optionKey);
+                var settings = parseResult.GetValue(optionAppSettings);
+                var pname = parseResult.GetValue(optionProcessName);
+                var showenv = parseResult.GetValue(optionShowEnv);
+
                 await DebuggerAttach(args, debug, delay);
 
                 try
@@ -253,9 +263,22 @@ namespace ack
                     Console.WriteLine("프로그램 실행 중 오류가 발생했습니다: " + exception.Message);
                     exitCode = -1;
                 }
-            }, optionDebug, optionDelay, optionPort, rootOptionModules, optionKey, optionAppSettings, optionProcessName, optionShowEnv);
+            });
 
-            await rootCommand.InvokeAsync(args);
+            ParseResult parseResult = rootCommand.Parse(args);
+            if (parseResult.Errors.Count > 0)
+            {
+                exitCode = -1;
+                foreach (ParseError parseError in parseResult.Errors)
+                {
+                    Console.Error.WriteLine(parseError.Message);
+                }
+            }
+            else
+            {
+                exitCode = await parseResult.InvokeAsync();
+            }
+
             return exitCode;
         }
 
