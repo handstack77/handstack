@@ -63,33 +63,32 @@
         "UserSignExpire": -1
     },
     "Serilog": {
-        "Enrich": [ "FromLogContext", "WithMachineName" ],
+        "Using": [ "Serilog.Sinks.File", "Serilog.Sinks.Console" ],
         "MinimumLevel": {
-            "Default": "Debug",
+            "Default": "Information",
             "Override": {
-                "Microsoft": "Error",
-                "System": "Error"
+                "Microsoft": "Warning",
+                "System": "Warning"
             }
         },
-        "Using": [ "Serilog.Sinks.File", "Serilog.Sinks.Console" ],
+        "Enrich": [ "FromLogContext" ],
         "WriteTo": [
             {
                 "Name": "Console",
                 "Args": {
-                    "outputTemplate": "[{Timestamp:HH:mm:ss.fff} {Level:u3}] {Message:lj}{NewLine}{Exception}",
-                    "theme": "Serilog.Sinks.SystemConsole.Themes.AnsiConsoleTheme::Code, Serilog.Sinks.Console"
+                    "outputTemplate": "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}"
                 }
             },
             {
                 "Name": "File",
                 "Args": {
-                    "fileSizeLimitBytes": 104857600,
-                    "flushToDiskInterval": "00:00:01",
-                    "outputTemplate": "[{Timestamp:HH:mm:ss.fff} {Level:u3}] {Message:lj}{NewLine}{Exception}",
                     "path": "../log/app.log",
                     "rollingInterval": "Day",
                     "rollOnFileSizeLimit": true,
-                    "buffered": true
+                    "buffered": true,
+                    "fileSizeLimitBytes": 104857600,
+                    "flushToDiskInterval": "00:00:05",
+                    "outputTemplate": "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}"
                 }
             }
         ]
