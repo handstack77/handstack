@@ -31,7 +31,7 @@ namespace ack.Services
                 foreach (var item in GlobalConfiguration.ModuleConfigurationUrl)
                 {
                     moduleConfigurationUrl = item;
-                    if (Uri.TryCreate(moduleConfigurationUrl, UriKind.Absolute, out var uriResult) && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps) == true)
+                    if (string.IsNullOrEmpty(moduleConfigurationUrl) == false && Uri.TryCreate(moduleConfigurationUrl, UriKind.Absolute, out var uriResult) && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps) == true)
                     {
                         logger.Information($"ModuleConfigurationUrl: {item} 요청");
 
@@ -49,10 +49,6 @@ namespace ack.Services
                         {
                             logger.Error($"ModuleConfigurationUrl: {item}, StatusCode: {response.StatusCode}, ErrorMessage: {response.ErrorMessage} 응답 확인 필요");
                         }
-                    }
-                    else
-                    {
-                        logger.Error($"ModuleConfigurationUrl: {item} 경로 확인 필요");
                     }
                 }
             }
