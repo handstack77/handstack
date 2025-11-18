@@ -52,17 +52,17 @@ if not exist "%HANDSTACK_HOME%" mkdir "%HANDSTACK_HOME%"
 
 REM 개발 환경 설정 (ack.csproj 존재 시)
 if exist %current_path%\1.WebHost\ack\ack.csproj (
-	REM .NET Core 8.0 확인
+	REM .NET Core 10.0 확인
 	where dotnet >nul 2>nul
 	if %errorlevel% neq 0 (
-		echo .NET Core 8.0 버전을 설치 해야 합니다.
+		echo .NET Core 10.0 버전을 설치 해야 합니다.
 		start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#winget-을-이용한-net-core-설치"
 		goto :EOF
 	)
 
-	dotnet --version | findstr /R "^8\." >nul 2>nul
+	dotnet --version | findstr /R "^10\." >nul 2>nul
 	if %errorlevel% neq 0 (
-		echo .NET Core 8.0 버전을 설치 해야 합니다.
+		echo .NET Core 10.0 버전을 설치 해야 합니다.
 		start "" "https://handstack.kr/docs/startup/install/필수-프로그램-설치하기#winget-을-이용한-net-core-설치"
 		goto :EOF
 	)
