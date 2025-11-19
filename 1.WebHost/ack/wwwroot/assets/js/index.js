@@ -1,5 +1,5 @@
 /*!
-HandStack Javascript Library v2025.11.7
+HandStack Javascript Library v2025.11.19
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -8000,7 +8000,7 @@ if (typeof module !== 'undefined' && module.exports) {
                 };
 
                 if (syn.$w.transactionLoadOptions) {
-                    syn.$w.transactionLoadOptions(transactionRequest.loadOptions);
+                    syn.$w.transactionLoadOptions(transactionRequest.loadOptions, transactionObject);
                 }
 
                 if ($object.isNullOrUndefined(transactionObject.options) == false) {

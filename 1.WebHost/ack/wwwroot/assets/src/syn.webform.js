@@ -3532,7 +3532,7 @@
                 };
 
                 if (syn.$w.transactionLoadOptions) {
-                    syn.$w.transactionLoadOptions(transactionRequest.loadOptions);
+                    syn.$w.transactionLoadOptions(transactionRequest.loadOptions, transactionObject);
                 }
 
                 if ($object.isNullOrUndefined(transactionObject.options) == false) {
