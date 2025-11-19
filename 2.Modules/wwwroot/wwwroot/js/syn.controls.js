@@ -10471,7 +10471,7 @@
 
     $auigrid.extend({
         name: 'syn.uicontrols.$auigrid',
-        version: 'v2025.11.4',
+        version: 'v2025.11.20',
 
         gridControls: [],
         gridCodeDatas: [],
@@ -12238,7 +12238,7 @@
             if (gridID) {
                 rowIndex = rowIndex || '';
                 var colIndex = 0;
-                if ($object.isNullOrUndefined(rowIndex) == true) {
+                if ($string.isNullOrEmpty(rowIndex) == true) {
                     var selected = AUIGrid.getSelectedIndex(gridID);
                     rowIndex = selected[0];
                     colIndex = selected[1];
@@ -14037,7 +14037,7 @@
 
     $grid.extend({
         name: 'syn.uicontrols.$grid',
-        version: 'v2025.9.10',
+        version: 'v2025.11.20',
         defaultHotSettings: {
             licenseKey: 'non-commercial-and-evaluation',
             language: 'ko-KR',
@@ -15751,7 +15751,7 @@
             var hot = $grid.getGridControl(elID);
             if (hot) {
                 hot.suspendRender();
-                if ($object.isNullOrUndefined(rowIndex) == true) {
+                if ($string.isNullOrEmpty(rowIndex) == true) {
                     var selected = hot.getSelected();
                     if (selected) {
                         rowIndex = selected[0][0];
@@ -15768,7 +15768,7 @@
                     }
                 }
 
-                if ($object.isNullOrUndefined(rowIndex) == true) {
+                if ($string.isNullOrEmpty(rowIndex) == true) {
                     rowIndex = $grid.countRows(elID, true) - 1;
                 }
 
