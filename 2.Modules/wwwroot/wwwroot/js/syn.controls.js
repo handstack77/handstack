@@ -8353,7 +8353,7 @@
 
     $htmleditor.extend({
         name: 'syn.uicontrols.$htmleditor',
-        version: 'v2025.3.24',
+        version: 'v2025.11.20',
         userWorkID: '',
         applicationID: '',
         editorPendings: [],
@@ -9495,6 +9495,10 @@
         setValue(elID, value, meta) {
             var editor = $htmleditor.getHtmlEditor(elID);
             if (editor) {
+                if ($string.isNullOrEmpty(value) == true) {
+                    value = '';
+                }
+
                 var controlOptions = syn.$l.get('{0}_hidden'.format(elID)).getAttribute('syn-options');
                 if ($object.isNullOrUndefined(controlOptions) == false) {
                     var setting = JSON.parse(controlOptions);
