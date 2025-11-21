@@ -344,33 +344,39 @@ namespace transact.Areas.transact.Controllers
 
         // http://localhost:8421/transact/api/transaction/cache-clear?cacheKey=
         [HttpGet("[action]")]
-        public ActionResult CacheClear(string cacheKey)
+        public ActionResult CacheClear()
         {
             ActionResult result = BadRequest();
-            try
+            if (HttpContext.IsAllowAuthorization() == false)
             {
-                if (string.IsNullOrEmpty(cacheKey) == true)
+                result = BadRequest();
+            }
+            else
+            {
+                try
                 {
-                    var items = GetMemoryCacheKeys();
-                    foreach (var item in items)
+                    var cacheKey = Request.Query["cacheKey"].ToString();
+                    if (string.IsNullOrEmpty(cacheKey) == true)
                     {
-                        memoryCache.Remove(item);
+                        var items = GetMemoryCacheKeys();
+                        foreach (var item in items)
+                        {
+                            memoryCache.Remove(item);
+                        }
                     }
-                }
-                else if (memoryCache.Get(cacheKey) != null)
-                {
-                    memoryCache.Remove(cacheKey);
-                }
-                else
-                {
+                    else
+                    {
+                        memoryCache.Remove(cacheKey);
+                    }
+
                     result = Ok();
                 }
-            }
-            catch (Exception exception)
-            {
-                var exceptionText = exception.ToMessage();
-                logger.Warning("[{LogCategory}] " + exceptionText, "Transaction/CacheClear");
-                result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
+                catch (Exception exception)
+                {
+                    var exceptionText = exception.ToMessage();
+                    logger.Warning("[{LogCategory}] " + exceptionText, "Transaction/CacheClear");
+                    result = StatusCode(StatusCodes.Status500InternalServerError, exceptionText);
+                }
             }
 
             return result;
