@@ -3035,7 +3035,8 @@ namespace repository.Controllers
                 var newHeight = (int)(originalBitmap.Height * ratio);
 
                 var resizedInfo = new SKImageInfo(newWidth, newHeight);
-                using var resizedBitmap = originalBitmap.Resize(resizedInfo, new SKSamplingOptions());
+                // using var resizedBitmap = originalBitmap.Resize(resizedInfo, new SKSamplingOptions());
+                using var resizedBitmap = originalBitmap.Resize(resizedInfo, SKFilterQuality.High);
 
                 if (resizedBitmap == null) return null;
 
