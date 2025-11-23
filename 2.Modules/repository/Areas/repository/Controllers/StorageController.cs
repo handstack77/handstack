@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Management;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
@@ -2001,15 +2002,16 @@ namespace repository.Controllers
                 return result;
             }
 
+            string inlineYN = disposition.ToStringSafe().IndexOf("inline") > -1 ? "Y" : "N";
             switch (repository.StorageType)
             {
                 case "AzureBlob":
                 case "AwsS3":
                 case "GoogleCloudStorage":
-                    result = await ExecuteObjectFileDownload(downloadResult, applicationID, repositoryID, itemID, businessID);
+                    result = await ExecuteObjectFileDownload(downloadResult, applicationID, repositoryID, itemID, businessID, inlineYN);
                     break;
                 case "FileSystem":
-                    result = await ExecuteFileDownload(downloadResult, applicationID, repositoryID, itemID, businessID);
+                    result = await ExecuteFileDownload(downloadResult, applicationID, repositoryID, itemID, businessID, inlineYN);
                     break;
                 default:
                     var errorText = $"ApplicationID: {repository.ApplicationID}, RepositoryID: {repository.RepositoryID}, StorageType: {repository.StorageType} 확인 필요";
@@ -2128,15 +2130,16 @@ namespace repository.Controllers
                 }
             }
 
+            string inlineYN = disposition.ToStringSafe().IndexOf("inline") > -1 ? "Y" : "N";
             switch (repository.StorageType)
             {
                 case "AzureBlob":
                 case "AwsS3":
                 case "GoogleCloudStorage":
-                    result = await ExecuteObjectFileDownload(downloadResult, applicationID, repositoryID, itemID, businessID.ToStringSafe());
+                    result = await ExecuteObjectFileDownload(downloadResult, applicationID, repositoryID, itemID, businessID.ToStringSafe(), inlineYN);
                     break;
                 case "FileSystem":
-                    result = await ExecuteFileDownload(downloadResult, applicationID, repositoryID, itemID, businessID.ToStringSafe());
+                    result = await ExecuteFileDownload(downloadResult, applicationID, repositoryID, itemID, businessID.ToStringSafe(), inlineYN);
                     break;
                 default:
                     var errorText = $"ApplicationID: {repository.ApplicationID}, RepositoryID: {repository.RepositoryID}, StorageType: {repository.StorageType} 확인 필요";
@@ -2747,7 +2750,7 @@ namespace repository.Controllers
             return result;
         }
 
-        private async Task<ActionResult> ExecuteObjectFileDownload(DownloadResult downloadResult, string applicationID, string repositoryID, string itemID, string businessID)
+        private async Task<ActionResult> ExecuteObjectFileDownload(DownloadResult downloadResult, string applicationID, string repositoryID, string itemID, string businessID, string? inlineYN = "")
         {
             ActionResult result = NotFound();
 
@@ -2837,7 +2840,14 @@ namespace repository.Controllers
                     downloadFileName = repositoryItem.FileName;
                 }
 
-                result = File(downloadResultData.Content, repositoryItem.MimeType, downloadFileName, true);
+                if (inlineYN.ToBoolean() == true)
+                {
+                    result = File(downloadResultData.Content, repositoryItem.MimeType, true);
+                }
+                else
+                {
+                    result = File(downloadResultData.Content, repositoryItem.MimeType, downloadFileName, true);
+                }
 
                 downloadResult.FileName = downloadFileName;
                 downloadResult.MimeType = repositoryItem.MimeType;
@@ -2856,7 +2866,7 @@ namespace repository.Controllers
             return result;
         }
 
-        private async Task<ActionResult> ExecuteFileDownload(DownloadResult downloadResult, string applicationID, string repositoryID, string itemID, string businessID)
+        private async Task<ActionResult> ExecuteFileDownload(DownloadResult downloadResult, string applicationID, string repositoryID, string itemID, string businessID, string? inlineYN = "")
         {
             ActionResult result = NotFound();
 
@@ -2923,7 +2933,14 @@ namespace repository.Controllers
                         downloadFileName = repositoryItem.FileName;
                     }
 
-                    result = PhysicalFile(filePath, mimeType, downloadFileName, true);
+                    if (inlineYN.ToBoolean() == true)
+                    {
+                        result = PhysicalFile(filePath, mimeType, true);
+                    }
+                    else
+                    {
+                        result = PhysicalFile(filePath, mimeType, downloadFileName, true);
+                    }
 
                     var fileInfo = new FileInfo(filePath);
                     downloadResult.FileName = downloadFileName;
