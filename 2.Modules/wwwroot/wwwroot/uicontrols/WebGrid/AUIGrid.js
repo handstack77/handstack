@@ -166,7 +166,7 @@
 
     $auigrid.extend({
         name: 'syn.uicontrols.$auigrid',
-        version: 'v2025.11.20',
+        version: 'v2025.11.23',
 
         gridControls: [],
         gridCodeDatas: [],
@@ -1075,7 +1075,7 @@
                                 showEditorBtnOver: true,
                                 defaultFormat: timeFormat,
                                 openDirectly: true,
-                                onlyCalendar: false,
+                                onlyCalendar: true,
                                 onlyTimeMode: true,
                                 showTimePicker: true,
                                 showTimeSecond: $string.isNullOrEmpty(columnInfo.showTimeSecond) == true ? false : columnInfo.showTimeSecond,
