@@ -262,6 +262,84 @@ namespace repository
 
                                         httpContext.Context.Response.ContentType = mimeType;
                                     }
+                                    else
+                                    {
+                                        var mimeType = httpContext.Context.Request.Query["mimeType"].ToString();
+                                        if (string.IsNullOrEmpty(mimeType) == false)
+                                        {
+                                            httpContext.Context.Response.ContentType = mimeType;
+                                        }
+                                        else
+                                        {
+                                            if (string.IsNullOrEmpty(httpContext.File.PhysicalPath) == false && Path.HasExtension(httpContext.File.PhysicalPath) == false)
+                                            {
+                                                mimeType = "text/html";
+                                                string filePath = httpContext.File.PhysicalPath;
+                                                if (File.Exists(filePath) == true)
+                                                {
+                                                    try
+                                                    {
+                                                        byte[] buffer = new byte[12];
+                                                        using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                                                        {
+                                                            if (fs.Length >= 4)
+                                                            {
+                                                                int bytesRead = fs.Read(buffer, 0, buffer.Length);
+                                                                if (bytesRead < buffer.Length)
+                                                                {
+                                                                    Array.Clear(buffer, bytesRead, buffer.Length - bytesRead);
+                                                                }
+                                                            }
+                                                        }
+
+                                                        if (buffer[0] == 0xFF && buffer[1] == 0xD8 && buffer[2] == 0xFF)
+                                                        {
+                                                            mimeType = "image/jpeg";
+                                                        }
+                                                        else if (buffer[0] == 0x89 && buffer[1] == 0x50 && buffer[2] == 0x4E && buffer[3] == 0x47)
+                                                        {
+                                                            mimeType = "image/png";
+                                                        }
+                                                        else if (buffer[0] == 0x47 && buffer[1] == 0x49 && buffer[2] == 0x46 && buffer[3] == 0x38)
+                                                        {
+                                                            mimeType = "image/gif";
+                                                        }
+                                                        else if (buffer[0] == 0x42 && buffer[1] == 0x4D)
+                                                        {
+                                                            mimeType = "image/bmp";
+                                                        }
+                                                        else if (buffer[0] == 0x52 && buffer[1] == 0x49 && buffer[2] == 0x46 && buffer[3] == 0x46 &&
+                                                                 buffer[8] == 0x57 && buffer[9] == 0x45 && buffer[10] == 0x42 && buffer[11] == 0x50)
+                                                        {
+                                                            mimeType = "image/webp";
+                                                        }
+                                                        else if ((buffer[0] == 0x49 && buffer[1] == 0x49 && buffer[2] == 0x2A && buffer[3] == 0x00) ||
+                                                                 (buffer[0] == 0x4D && buffer[1] == 0x4D && buffer[2] == 0x00 && buffer[3] == 0x2A))
+                                                        {
+                                                            mimeType = "image/tiff";
+                                                        }
+                                                        else if (buffer[0] == 0x00 && buffer[1] == 0x00 && buffer[2] == 0x01 && buffer[3] == 0x00)
+                                                        {
+                                                            mimeType = "image/x-icon";
+                                                        }
+                                                        else if (buffer[4] == 0x66 && buffer[5] == 0x74 && buffer[6] == 0x79 && buffer[7] == 0x70)
+                                                        {
+                                                            if ((buffer[8] == 0x68 && buffer[9] == 0x65 && buffer[10] == 0x69 && buffer[11] == 0x63) || // heic
+                                                                (buffer[8] == 0x68 && buffer[9] == 0x65 && buffer[10] == 0x69 && buffer[11] == 0x78))   // heix
+                                                            {
+                                                                mimeType = "image/heic";
+                                                            }
+                                                        }
+                                                    }
+                                                    catch
+                                                    {
+                                                    }
+
+                                                    httpContext.Context.Response.ContentType = mimeType;
+                                                }
+                                            }
+                                        }
+                                    }
 
                                     if (isResponse == false)
                                     {
