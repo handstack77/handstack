@@ -38,7 +38,7 @@ namespace transact.Entity
         public static List<string> BypassAuthorizeIP = new List<string>();
         public static string SystemID = "";
         public static List<string> AvailableEnvironment = new List<string> { "D" };
-        public static bool IsCodeDataCache = true;
+        public static bool IsCodeDataCache = false;
         public static int CodeDataCacheTimeout = 20;
         public static Dictionary<string, List<string>> AllowRequestTransactions = new Dictionary<string, List<string>>();
         public static ExpiringDictionary<string, string> RoutingCommandUri = new ExpiringDictionary<string, string>();

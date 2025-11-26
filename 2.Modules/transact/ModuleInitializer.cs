@@ -67,6 +67,7 @@ namespace transact
                         ModuleConfiguration.IsValidationRequest = moduleConfig.IsValidationRequest;
                         ModuleConfiguration.IsAllowDynamicRequest = moduleConfig.IsAllowDynamicRequest;
                         ModuleConfiguration.AllowTenantTransactionCommands = moduleConfig.AllowTenantTransactionCommands;
+                        ModuleConfiguration.IsCodeDataCache = moduleConfig.IsCodeDataCache;
                         ModuleConfiguration.IsLogServer = moduleConfig.IsLogServer;
                         ModuleConfiguration.IsTransactAggregate = moduleConfig.IsTransactAggregate;
                         ModuleConfiguration.IsDataMasking = moduleConfig.IsDataMasking;
