@@ -166,7 +166,7 @@
 
     $auigrid.extend({
         name: 'syn.uicontrols.$auigrid',
-        version: 'v2025.11.23',
+        version: 'v2025.11.26',
 
         gridControls: [],
         gridCodeDatas: [],
@@ -178,7 +178,7 @@
             rowHeight: 40,
             showFooter: false,
             footerPosition: 'bottom',
-            enableClipboard: false,
+            enableClipboard: true,
             wrapSelectionMove: false,
             fillColumnSizeMode: false,
             enableCellMerge: false,
