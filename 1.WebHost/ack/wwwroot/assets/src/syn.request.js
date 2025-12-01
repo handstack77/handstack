@@ -34,7 +34,7 @@
 
             param = syn.$r.path + ((syn.$r.path.length > 0 && urlArray.length > 1) ? '&' : '?');
             for (const key in $request.params) {
-                if (typeof (syn.$r.params[key]) == 'string') {
+                if ($string.isNullOrEmpty(key) == false && typeof (syn.$r.params[key]) == 'string') {
                     param += key + '=' + syn.$r.params[key] + '&';
                 }
             }
