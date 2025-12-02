@@ -166,7 +166,7 @@
 
     $auigrid.extend({
         name: 'syn.uicontrols.$auigrid',
-        version: 'v2025.11.26',
+        version: 'v2025.12.02',
 
         gridControls: [],
         gridCodeDatas: [],
@@ -2053,6 +2053,90 @@
                 result = AUIGrid.getSelectedItems(gridID);
             }
             return result;
+        },
+
+        getMergeItems(elID, rowIndex, dataField) {
+            var result = null;
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                if ($object.isString(dataField) == true) {
+                    dataField = AUIGrid.getColumnIndexByDataField(gridID, dataField);
+                }
+                result = AUIGrid.getMergeItems(gridID, rowIndex, dataField);
+            }
+            return result;
+        },
+
+        getRangeSelected(elID, rowID, colID) {
+            const data = $auigrid.getSelected(elID);
+            if (!data || data.length === 0) {
+                return null;
+            }
+
+            rowID = rowID || 'rowIndex';
+            colID = colID || 'columnIndex';
+
+            return $auigrid.getRangeIndices(data, rowID, colID);
+        },
+
+        getRangeIndices(data, rowID, colID) {
+            if (!data || data.length === 0) {
+                return null;
+            }
+
+            rowID = rowID || 'rowIndex';
+            colID = colID || 'columnIndex';
+
+            return data.reduce((range, cell, index) => {
+                if (index === 0) {
+                    return {
+                        startRowIndex: cell[rowID],
+                        endRowIndex: cell[rowID],
+                        startColIndex: cell[colID],
+                        endColIndex: cell[colID]
+                    };
+                }
+
+                return {
+                    startRowIndex: Math.min(range.startRowIndex, cell[rowID]),
+                    endRowIndex: Math.max(range.endRowIndex, cell[rowID]),
+                    startColIndex: Math.min(range.startColIndex, cell[colID]),
+                    endColIndex: Math.max(range.endColIndex, cell[colID])
+                };
+            }, {});
+        },
+
+        hasMerge(elID, startRowIndex, startDataField, endRowIndex, endDataField) {
+            endRowIndex = endRowIndex || startRowIndex;
+
+            if ($object.isString(startDataField) == true) {
+                startDataField = AUIGrid.getColumnIndexByDataField(gridID, startDataField);
+            }
+
+            endDataField = endDataField || startDataField;
+
+            if ($object.isString(endDataField) == true) {
+                endDataField = AUIGrid.getColumnIndexByDataField(gridID, endDataField);
+            }
+
+            if (($object.isNullOrUndefined(startRowIndex) == true || $object.isNullOrUndefined(startDataField) == true)
+                || (startRowIndex == -1 || startDataField == -1 || endRowIndex == -1 || endDataField == -1)
+                || startRowIndex > endRowIndex) {
+                return false;
+            }
+
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                for (var rowIndex = startRowIndex; rowIndex <= endRowIndex; rowIndex++) {
+                    for (var colIndex = startDataField; colIndex <= endDataField; colIndex++) {
+                        let mergeItems = AUIGrid.getMergeItems(gridID, rowIndex, colIndex);
+                        if (mergeItems && mergeItems.length > 1) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
         },
 
         getRowPosition(elID) {
