@@ -89,7 +89,8 @@ namespace bundling
             var subCommandCompress = new Command("compress", ".html, .js, .css 형식의 파일에 Compress 효과를 적용합니다.") {
                 optionFile,
                 optionKeepSourceFile,
-                optionByPassMinFile
+                optionByPassMinFile,
+                optionDebug
             };
             subCommandCompress.SetAction((parseResult) =>
             {
@@ -137,7 +138,8 @@ namespace bundling
                 optionDirectoryInfo,
                 optionKeepSourceFile,
                 optionByPassMinFile,
-                optionExcludes
+                optionExcludes,
+                optionDebug
             };
             subCommandCompressPath.SetAction((parseResult) =>
             {
@@ -187,7 +189,8 @@ namespace bundling
             // bundling minify --file=sample\\BOD\\BOD010.html --keep=true
             var subCommandMinify = new Command("minify", ".html, .js, .css 형식의 파일에 *.min.xxx 파일을 *.xxx 파일로 적용합니다.") {
                 optionFile,
-                optionKeepSourceFile
+                optionKeepSourceFile,
+                optionDebug
             };
             subCommandMinify.SetAction((parseResult) =>
             {
@@ -225,7 +228,8 @@ namespace bundling
             // bundling minifypath --path=sample\\BOD --keep=true
             var subCommandMinifyPath = new Command("minifypath", "특정 디렉토리내 .html, .js, .css 형식의 파일에 *.min.xxx 파일을 *.xxx 파일로 적용합니다.") {
                 optionDirectoryInfo,
-                optionKeepSourceFile
+                optionKeepSourceFile,
+                optionDebug
             };
             subCommandMinifyPath.SetAction((parseResult) =>
             {
@@ -262,7 +266,8 @@ namespace bundling
 
             // bundling beautifyfile --file=sample\\BOD\\BOD010.html
             var subCommandBeautify = new Command("beautifyfile", ".html, .js, .css 형식의 파일에 Beautify 효과를 적용합니다.") {
-                optionFile
+                optionFile,
+                optionDebug
             };
             subCommandBeautify.SetAction((parseResult) =>
             {
@@ -293,7 +298,8 @@ namespace bundling
 
             // bundling beautifypath --path=sample\\BOD
             var subCommandBeautifyPath = new Command("beautifypath", "디렉토리내 모든 (하위 디렉토리 포함) .html, .js, .css 형식의 파일에 Beautify 효과를 적용합니다.") {
-                optionDirectoryInfo
+                optionDirectoryInfo,
+                optionDebug
             };
             subCommandBeautifyPath.SetAction((parseResult) =>
             {
@@ -324,7 +330,8 @@ namespace bundling
 
             // bundling merge --bundle=eyJmaWxlVHlwZSI6ImpzIiwiaW5wdXRGaWxlTmFtZXMi...
             var subCommandMerge = new Command("merge", "동일한 형식의 텍스트 파일을 단일 파일로 병합합니다") {
-                optionBundle
+                optionBundle,
+                optionDebug
             };
             subCommandMerge.SetAction((parseResult) =>
             {
@@ -356,7 +363,8 @@ namespace bundling
 
             // bundling artifact --artifactFile=sample\\bundleconfig.json
             var subCommandArtifact = new Command("artifact", "ArtifactFile json 파일로 번들링을 수행합니다") {
-                optionArtifactFile
+                optionArtifactFile,
+                optionDebug
             };
             subCommandArtifact.SetAction((parseResult) =>
             {
