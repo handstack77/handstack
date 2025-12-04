@@ -53,6 +53,8 @@ namespace transact.Entity
 
         public string TrustedProxyIP { get; set; }
 
+        public bool HasTrustedCheckIP { get; set; }
+
         public bool UseApiAuthorize { get; set; }
 
         public List<string> BypassAuthorizeIP { get; set; }
@@ -97,6 +99,7 @@ namespace transact.Entity
             IsContractFileWatching = false;
             ContractBasePath = new List<string>();
             TrustedProxyIP = "";
+            HasTrustedCheckIP = false;
             UseApiAuthorize = false;
             BypassAuthorizeIP = new List<string>();
             AvailableEnvironment = new List<string> { "D" };

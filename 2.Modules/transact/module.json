@@ -27,6 +27,7 @@
         "ModuleBasePath": "../modules/transact",
         "TransactionLogBasePath": "../sqlite/aggregate",
         "TrustedProxyIP": "1.1.1.1",
+        "HasTrustedCheckIP": false,
         "UseApiAuthorize": false,
         "BypassAuthorizeIP": [
             "localhost",

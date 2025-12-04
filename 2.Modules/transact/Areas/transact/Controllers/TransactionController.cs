@@ -1375,27 +1375,30 @@ namespace transact.Areas.transact.Controllers
 
                 if (bearerToken != null)
                 {
-                    var clientIP = HttpContext.GetRemoteIpAddress(bearerToken.ClientIP, ModuleConfiguration.TrustedProxyIP).ToStringSafe();
-                    var verifyTokenID = bearerToken.Policy.VerifyTokenID;
-                    if (string.IsNullOrEmpty(verifyTokenID) == true)
+                    if (ModuleConfiguration.HasTrustedCheckIP == true)
                     {
-                        if (bearerToken.ClientIP != clientIP)
+                        var clientIP = HttpContext.GetRemoteIpAddress(bearerToken.ClientIP, ModuleConfiguration.TrustedProxyIP).ToStringSafe();
+                        var verifyTokenID = bearerToken.Policy.VerifyTokenID;
+                        if (string.IsNullOrEmpty(verifyTokenID) == true)
                         {
-                            response.ExceptionText = $"거래 액세스 토큰 IP 유효성 오류";
-                            return LoggingAndReturn(response, transactionWorkID, "N", transactionInfo);
-                        }
-                    }
-                    else
-                    {
-                        bearerToken.Policy.VerifyTokenID = "";
-                        if (verifyTokenID == JsonConvert.SerializeObject(bearerToken).ToSHA256() && bearerToken.ClientIP == clientIP)
-                        {
-                            bearerToken.Policy.VerifyTokenID = verifyTokenID;
+                            if (bearerToken.ClientIP != clientIP)
+                            {
+                                response.ExceptionText = $"거래 액세스 토큰 IP 유효성 오류";
+                                return LoggingAndReturn(response, transactionWorkID, "N", transactionInfo);
+                            }
                         }
                         else
                         {
-                            response.ExceptionText = $"거래 액세스 토큰 유효성 오류";
-                            return LoggingAndReturn(response, transactionWorkID, "N", transactionInfo);
+                            bearerToken.Policy.VerifyTokenID = "";
+                            if (verifyTokenID == JsonConvert.SerializeObject(bearerToken).ToSHA256() && bearerToken.ClientIP == clientIP)
+                            {
+                                bearerToken.Policy.VerifyTokenID = verifyTokenID;
+                            }
+                            else
+                            {
+                                response.ExceptionText = $"거래 액세스 토큰 유효성 오류";
+                                return LoggingAndReturn(response, transactionWorkID, "N", transactionInfo);
+                            }
                         }
                     }
 

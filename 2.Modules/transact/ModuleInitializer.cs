@@ -63,6 +63,7 @@ namespace transact
                         ModuleConfiguration.AvailableEnvironment = moduleConfig.AvailableEnvironment;
                         ModuleConfiguration.UseApiAuthorize = moduleConfig.UseApiAuthorize;
                         ModuleConfiguration.TrustedProxyIP = string.IsNullOrEmpty(moduleConfig.TrustedProxyIP) == true ? "1.1.1.1" : moduleConfig.TrustedProxyIP;
+                        ModuleConfiguration.HasTrustedCheckIP = moduleConfig.HasTrustedCheckIP;
                         ModuleConfiguration.BypassAuthorizeIP = moduleConfig.BypassAuthorizeIP;
                         ModuleConfiguration.IsValidationRequest = moduleConfig.IsValidationRequest;
                         ModuleConfiguration.IsAllowDynamicRequest = moduleConfig.IsAllowDynamicRequest;

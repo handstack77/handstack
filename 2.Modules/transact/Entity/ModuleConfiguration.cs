@@ -34,6 +34,7 @@ namespace transact.Entity
         public static string MaskingMethod = "Syn";
         public static string LogServerUrl = "";
         public static string TrustedProxyIP = "";
+        public static bool HasTrustedCheckIP = false;
         public static bool UseApiAuthorize = false;
         public static List<string> BypassAuthorizeIP = new List<string>();
         public static string SystemID = "";
