@@ -7857,22 +7857,10 @@
             if ($object.isNullOrUndefined(el) == false) {
                 var setting = JSON.parse(el.getAttribute('syn-options'));
                 switch (setting.editType) {
-                    case 'text':
-                    case 'english':
-                    case 'number':
-                    case 'spinner':
-                    case 'date':
-                    case 'hour':
-                    case 'minute':
-                    case 'time5':
-                    case 'time8': 
-                    case 'yearmonth':
-                    case 'homephone':
-                    case 'mobilephone':
-                    case 'email':
-                    case 'juminno':
-                    case 'businessno':
-                    case 'corporateno':
+                    case 'numeric':
+                        result = el.value.replace(/,/g, '');
+                        break;
+                    default:
                         var mod = window[syn.$w.pageScript];
                         if (setting.getter === true && mod.hook.frameEvent) {
                             result = mod.hook.frameEvent('controlGetter', {
@@ -7888,11 +7876,6 @@
                             result = el.value;
                         }
                         break;
-                    case 'numeric':
-                        result = el.value.replace(/,/g, '');
-                        break;
-                    default:
-                        result = '';
                         break;
                 }
             }
@@ -7907,22 +7890,10 @@
                     var result = '';
                     var setting = JSON.parse(el.getAttribute('syn-options'));
                     switch (setting.editType) {
-                        case 'text':
-                        case 'english':
-                        case 'number':
-                        case 'spinner':
-                        case 'date':
-                        case 'hour':
-                        case 'minute':
-                        case 'time5':
-                        case 'time8': 
-                        case 'yearmonth':
-                        case 'homephone':
-                        case 'mobilephone':
-                        case 'email':
-                        case 'juminno':
-                        case 'businessno':
-                        case 'corporateno':
+                        case 'numeric':
+                            el.value = $string.isNumber(value) == true ? $string.toCurrency(value) : value;
+                            break;
+                        default:
                             var mod = window[syn.$w.pageScript];
                             if (setting && setting.setter === true && mod.hook.frameEvent) {
                                 result = mod.hook.frameEvent('controlSetter', {
@@ -7937,12 +7908,6 @@
                             else {
                                 el.value = value;
                             }
-                            break;
-                        case 'numeric':
-                            el.value = $string.isNumber(value) == true ? $string.toCurrency(value) : value;
-                            break;
-                        default:
-                            el.value = '';
                             break;
                     }
                 }
