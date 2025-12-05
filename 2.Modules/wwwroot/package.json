@@ -8,10 +8,12 @@
         "@babel/core": "7.26.10",
         "@babel/preset-env": "7.26.9",
         "gulp": "5.0.0",
-        "gulp-concat": "2.6.1",
-        "gulp-rename": "2.0.0",
-        "gulp-uglify": "3.0.2",
-        "gulp-uglifycss": "1.1.0",
-        "gulp-javascript-obfuscator": "1.1.6"
+        "gulp-concat": "^2.6.1",
+        "gulp-javascript-obfuscator": "^1.1.6",
+        "gulp-rename": "^2.0.0",
+        "gulp-strip-comments": "^2.6.0",
+        "gulp-strip-css-comments": "^3.0.0",
+        "gulp-uglify": "^3.0.2",
+        "gulp-uglifycss": "^1.1.0"
     }
 }

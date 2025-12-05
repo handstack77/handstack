@@ -1,4 +1,3 @@
-/// <reference path="/js/syn.js" />
 
 (function (window) {
     'use strict';
@@ -146,7 +145,6 @@
         },
 
         getValue(elID, meta) {
-            // 지원 안함. getterValue 를 이용하여 syn.uicontrols.$data 를 통해 가져올 것.
             return null;
         },
 
@@ -403,7 +401,6 @@
     syn.uicontrols.$calendar = $calendar;
 })(window);
 
-/// <reference path="/js/syn.js" />
 
 (function (window) {
     syn.uicontrols = syn.uicontrols || new syn.module();
@@ -486,19 +483,6 @@
 
             syn.$l.addEvent(syn.$l.get(elID), 'click', function (evt) {
                 var el = evt.target || evt.srcElement;
-                // var control = $chart.getChartControl(el.id);
-                // if (control) {
-                //     var chart = control.chart;
-                //     // chart.getElementAtEvent(evt);
-                //     // chart.getDatasetAtEvent(evt);
-                //     var activePoints = chart.getElementsAtEventForMode(evt, 'point', control.config);
-                //     if (activePoints.length > 0) {
-                //         var firstPoint = activePoints[0];
-                //         var label = chart.data.labels[firstPoint._index];
-                //         var value = chart.data.datasets[firstPoint._datasetIndex].data[firstPoint._index];
-                //         console.log(label + ": " + value);
-                //     }
-                // }
             });
 
             $chart.chartControls.push({
@@ -551,42 +535,6 @@
                 }
             }
 
-            // var labels = value.map(function (item) { return item[control.config.labelID] });
-            // control.config.data.labels = labels;
-            // 
-            // var length = columnKeys.length;
-            // for (var i = 0; i < length; i++) {
-            //     var columnID = columnKeys[i];
-            // 
-            //     if (control.config.series && control.config.series.length > 0) {
-            //         var series = control.config.series.find(function (item) { return item.columnID == columnID });
-            //         if (series) {
-            //             var labelName = series.label ? series.label : series.columnID;
-            //             var data = value.map(function (item) { return item[columnID] });
-            // 
-            //             var dataset = {
-            //                 label: labelName,
-            //                 data: data,
-            //                 fill: series.fill
-            //             };
-            // 
-            //             control.config.data.datasets.push(dataset);
-            //         }
-            //     }
-            //     else {
-            //         var labelName = columnID;
-            //         var data = value.map(function (item) { return item[columnID] });
-            // 
-            //         var dataset = {
-            //             label: labelName,
-            //             data: data,
-            //             fill: false
-            //         };
-            // 
-            //         control.config.data.datasets.push(dataset);
-            //     }
-            // }
-            // control.chart.update();|| chart.redraw();
         },
 
         randomScalingFactor: function (min, max) {
@@ -649,7 +597,6 @@
     syn.uicontrols.$chart = $chart;
 })(window);
 
-/// <reference path="/js/syn.js" />
 
 (function (window) {
     'use strict';
@@ -819,8 +766,6 @@
     syn.uicontrols.$checkbox = $checkbox;
 })(window);
 
-/// <reference path="/js/syn.js" />
-/// <reference path="/js/syn.domain.js" />
 
 (function (window) {
     'use strict';
@@ -1263,7 +1208,6 @@
     syn.uicontrols.$codepicker = $codepicker;
 })(window);
 
-/// <reference path="/js/syn.js" />
 
 (function (window) {
     'use strict';
@@ -1463,7 +1407,6 @@
     syn.uicontrols.$colorpicker = $colorpicker;
 })(window);
 
-/// <reference path="/js/syn.js" />
 
 (function (window) {
     'use strict';
@@ -1489,7 +1432,6 @@
             hide: false,
             show: false,
             menu: [
-                // uiIcon: https://api.jqueryui.com/theming/icons/
                 { title: 'Cut', cmd: 'cut' },
                 { title: 'Copy', cmd: 'copy', uiIcon: 'ui-icon-copy' },
                 { title: '---' },
@@ -1558,16 +1500,13 @@
         },
 
         getValue(elID, meta) {
-            // 지원 안함
             return null;
         },
 
         setValue(elID, value, meta) {
-            // 지원 안함
         },
 
         clear(elID, isControlLoad) {
-            // 지원 안함
         },
 
         getControl(elID) {
@@ -1701,7 +1640,7 @@
     });
     syn.uicontrols.$contextmenu = $contextmenu;
 })(window);
-/// <reference path="/js/syn.js" />
+
 
 (function (window) {
     'use strict';
@@ -1786,7 +1725,6 @@
         },
 
         setValue(elID, value, meta) {
-            // 지원 안함
         },
 
         clear(elID, isControlLoad) {
@@ -2032,7 +1970,6 @@
     syn.uicontrols.$data = $data;
 })(window);
 
-/// <reference path="/js/syn.js" />
 
 (function (window) {
     'use strict';
@@ -2288,8 +2225,8 @@
             }
 
             var picker = new Pikaday(setting);
-            
-            if ($string.isNullOrEmpty(setting.value) == false) {
+
+                        if ($string.isNullOrEmpty(setting.value) == false) {
                 var value = setting.value;
                 var date = null;
                 if (value == 'now') {
@@ -2421,7 +2358,6 @@
     syn.uicontrols.$datepicker = $datepicker;
 })(window);
 
-/// <reference path="/js/syn.js" />
 
 (function (window) {
     'use strict';
@@ -3369,7 +3305,6 @@
     syn.uicontrols.$dateperiodpicker = $dateperiodpicker;
 })(window);
 
-/// <reference path="/js/syn.js" />
 
 (function (window) {
     'use strict';
@@ -3392,7 +3327,7 @@
             classNames: 'border-0 form-select',
             dataSourceID: null,
             storeSourceID: null,
-            parameters: null, // @ParameterValue:HELLO WORLD;
+            parameters: null, 
             selectedValue: null,
             toSynControl: false,
             sharedAssetUrl: '',
@@ -3903,7 +3838,6 @@
     syn.uicontrols.$multiselect = $multiselect;
 })(window);
 
-/// <reference path="/js/syn.js" />
 
 (function (window) {
     'use strict';
@@ -3926,7 +3860,7 @@
             classNames: 'border-0 form-select',
             dataSourceID: null,
             storeSourceID: null,
-            parameters: null, // @ParameterValue:HELLO WORLD;
+            parameters: null, 
             selectedValue: null,
             toSynControl: true,
             sharedAssetUrl: '',
@@ -4384,16 +4318,11 @@
     syn.uicontrols.$select = $select;
 })(window);
 
-/// <reference path="/js/syn.js" />
-/// <reference path="/js/syn.domain.js" />
 
 (function (window) {
     'use strict';
     window.fileUploadOptions = null;
 
-    /// <summary>
-    /// FileUpload $fileclient 컨트롤 모듈입니다.
-    /// </summary>
     syn.uicontrols = syn.uicontrols || new syn.module();
     var $fileclient = $fileclient || new syn.module();
 
@@ -4453,7 +4382,7 @@
             businessID: '',
             applicationID: '',
             fileUpdateCallback: null,
-            accept: '*/*', // .gif, .jpg, .png, .doc, audio/*,video/*,image/*
+            accept: '*/*', 
             uploadUrl: '',
             fileChangeHandler: undefined,
             custom1: undefined,
@@ -5204,60 +5133,6 @@
             $fileclient.executeProxy(syn.$r.url(), callback);
         },
 
-        /*
-    직접 파일 업로드 구현 필요
-    btnReviewImageUpload_click: async function () {
-        if ($this.inValidFileNames.length > 0) {
-            syn.$w.alert($this.inValidFileNames.join(', ') + ' 파일은 업로드 할 수 없는 파일 형식입니다')
-            return;
-        }
-
-        syn.$l.get('btnReviewImageUpload').value = '업로드 중...';
-        syn.uicontrols.$fileclient.fileUpload('fleReviewImageUpload', '06', '6', function (upload) {
-            syn.$l.get('btnReviewImageUpload').value = '전송';
-
-            if (upload.status == 200) {
-                var uploadResult = null;
-                try {
-                    uploadResult = JSON.parse(upload.response);
-
-                    if (uploadResult.Result == true) {
-                        $this.remainingCount = uploadResult.RemainingCount;
-                        var uploadFiles = uploadResult.FileUploadResults;
-                    }
-                    else {
-                        syn.$w.alert('첨부파일을 업로드 하지 못했습니다');
-                    }
-                } catch {
-                    syn.$w.alert('첨부파일을 업로드 하지 못했습니다');
-                }
-            }
-        });
-    },
-
-    fleReviewImageUpload_change(evt) {
-        var el = evt.target || evt.srcElement;
-        if (el.files.length > $this.remainingCount) {
-            syn.$l.get('fleReviewImageUpload').value = '';
-            syn.$w.alert('{0} 건 이상 파일 업로드 할 수 없습니다'.format($this.uploadOptions.uploadCount));
-        }
-
-        $this.inValidFileNames = [];
-        var acceptTypes = $this.uploadOptions.accept.split(';');
-
-        for (var i = (el.files.length - 1); i >= 0; i--) {
-            var file = el.files[i];
-            var fileExtension = file.name.split('.')[1];
-            if (acceptTypes.indexOf(fileExtension) == -1) {
-                $this.inValidFileNames.push(file.name);
-            }
-        }
-
-        if ($this.inValidFileNames.length > 0) {
-            syn.$w.alert($this.inValidFileNames.join(', ') + ' 파일은 업로드 할 수 없는 파일 형식입니다')
-        }
-    },
-         */
         fileUpload(el, repositoryID, dependencyID, callback, uploadUrl) {
             var result = null;
             el = $object.isString(el) == true ? syn.$l.get(el) : el;
@@ -5705,36 +5580,12 @@
     syn.uicontrols.$fileclient = $fileclient;
 })(window);
 
-/// <reference path="/js/syn.js" />
 
 (function (window) {
     'use strict';
     syn.uicontrols = syn.uicontrols || new syn.module();
     var $list = syn.uicontrols.$list || new syn.module();
 
-    /*
-    // 업무 화면 사용자 검색 필터 처리 필요
-    var listDataTable = syn.uicontrols.$list.getControl('lstDataTable');
-    $('#toDate, #fromDate').unbind().bind('keyup', function () {
-        listDataTable.table.draw();
-    });
-
-    $.fn.dataTable.ext.search.push(
-        function (settings, data, dataIndex) {
-            var min = Date.parse($('#fromDate').val());
-            var max = Date.parse($('#toDate').val());
-            var targetDate = Date.parse(data[5]);
-
-            if ((isNaN(min) && isNaN(max)) ||
-                (isNaN(min) && targetDate <= max) ||
-                (min <= targetDate && isNaN(max)) ||
-                (targetDate >= min && targetDate <= max)) {
-                return true;
-            }
-            return false;
-        }
-    );
-    */
 
     $list.extend({
         name: 'syn.uicontrols.$list',
@@ -5758,25 +5609,11 @@
             order: [],
             sScrollY: '0px',
             footerCallback: function () {
-                // 업무 화면 footer 영역에 사용자 지정 집계 구현
-                // <tfoot>
-                //     <tr>
-                //         <th colspan="2" style="text-align:right;white-space:nowrap;">TOTAL : </th>
-                //         <th colspan="6" style="text-align:left;white-space:nowrap;"></th>
-                //     </tr>
-                // </tfoot>
-                // var api = this.api();
-                // var result = 0;
-                // api.column(7, { search: 'applied' }).data().each(function (data, index) {
-                //     result += parseFloat(data);
-                // });
-                // $(api.column(3).footer()).html(result.toLocaleString() + '원');
             },
             fnDrawCallback: function () {
                 var $dataTable = this.dataTable();
                 var $dataTableWrapper = this.closest('.dataTables_wrapper');
                 setTimeout(function () {
-                    // $dataTable.fnAdjustColumnSizing(false);
 
                     if (typeof (TableTools) != 'undefined') {
                         var tableTools = TableTools.fnGetInstance(table);
@@ -5876,7 +5713,6 @@
             headers.push('<thead><tr>');
 
             if (setting.checkbox === true) {
-                // syn.uicontrols.$list.getControl('lstDataTable').table.column(0).checkboxes.selected().toArray();
                 setting.columnDefs = [{
                     targets: 0,
                     checkboxes: {
@@ -6070,7 +5906,6 @@
     syn.uicontrols.$list = $list;
 })(window);
 
-/// <reference path="/js/syn.js" />
 
 (function (window) {
     'use strict';
@@ -6082,12 +5917,12 @@
         version: 'v2025.3.1',
         guideControls: [],
         itemTemplate: {
-            helpType: '', // I: introJs, T: tippy, P: superplaceholder, U: UI Help & Link
-            selector: '', // querySelector
-            subject: '', // html string
-            sentence: '', // html string
-            options: '', // json string {"contentType":"html"}
-            sortingNo: 0 // step by step
+            helpType: '', 
+            selector: '', 
+            subject: '', 
+            sentence: '', 
+            options: '', 
+            sortingNo: 0 
         },
         defaultSetting: {
             items: [],
@@ -6147,69 +5982,11 @@
 
             el.setAttribute('syn-options', JSON.stringify(setting));
             el.style.display = 'none';
-            
-            var tooltips = [];
+
+                        var tooltips = [];
             var intros = null;
             var placeholders = [];
             if (setting.items && setting.items.length > 0) {
-                /*
-                items: [{
-                    helpType: 'U',
-                    selector: '',
-                    subject: '제목입니다.',
-                    sentence: 'https://handstack.kr/docs/startup/install/지원-운영체제',
-                    options: '{&#34;contentType&#34;: &#34;link&#34;}',
-                },{
-                    helpType: 'U',
-                    selector: '',
-                    subject: '제목입니다.',
-                    sentence: '&lt;b&gt;&lt;u&gt;본문&lt;/u&gt;&lt;/b&gt;입니다.',
-                    options: '{&#34;contentType&#34;: &#34;html&#34;}',
-                },
-                {
-                    helpType: 'I',
-                    selector: '#btnNewDataSource',
-                    subject: '신규 데이터 원본을 설정하세요.',
-                    sentence: 'SqlServer, Oracle, MySQL & MariaDB, PostgreSQL, SQLite 데이터베이스를 연동하세요.',
-                },
-                {
-                    helpType: 'I',
-                    selector: '#lstDataSource',
-                    subject: '연결 가능한 데이터 원본입니다.',
-                    sentence: '앱 에서 데이터베이스 요청을 실행하는 dbclient 모듈의 계약 정보에 사용하는 DataSourceID 목록입니다.',
-                },
-                {
-                    helpType: 'I',
-                    selector: '#ddlDataProvider',
-                    subject: '데이터베이스에 접속할 연결문자열을 입력합니다.',
-                    sentence: 'qrame.kr 에서 접근 가능한 개발 및 테스트 목적의 데이터베이스 연결문자열을 입력하세요. SQLite 의 경우 하위 디렉토리 경로만 가능합니다.',
-                },
-                {
-                    helpType: 'I',
-                    selector: '#txtProjectAppender',
-                    subject: '데이터 원본에 접근 허용할 프로젝트 ID를 입력하세요.',
-                    sentence: '화면내 호출 가능한 거래 접근 제어를 위해 콤마를 구분으로 여러 프로젝트 ID 3자리가 입력되며, * 포함시 모든 프로젝트에 허용됩니다.',
-                },
-                {
-                    helpType: 'T',
-                    selector: 'span.badge.bg-primary',
-                    subject: '앱에서 사용하는 기본 데이터베이스 입니다.',
-                    sentence: '기본 데이터 원본 정보는 제공자와 연결 문자열을 편집할 수 없습니다.',
-                    applyDelay: 1000
-                },
-                {
-                    helpType: 'T',
-                    selector: '#lblDataSourceID',
-                    subject: 'dbclient 모듈의 계약 정보에 사용하는 DataSourceID 입니다.',
-                    sentence: '변경 또는 삭제시 사용중인 계약 정보에 영향을 줍니다.',
-                },
-                {
-                    helpType: 'P',
-                    selector: '#txtConnectionString',
-                    subject: '중요',
-                    sentence: '개발 및 테스트 목적의 데이터베이스 연결문자열을 입력해야 합니다. 데이터베이스에 따라 연결문자열에 대한 참고 내용은 https://www.connectionstrings.com 를 확인하세요.',
-                }]
-                */
                 var helpIntros = setting.items.filter(function (item) { return item.helpType == 'I' });
                 if (window.introJs && helpIntros.length > 0) {
                     var introOptions = setting.introOptions;
@@ -6367,7 +6144,6 @@
             if (guide) {
                 var intro = guide.intro;
                 if (intro) {
-                    // https://introjs.com/docs/intro/api
                     intro.start();
                 }
             }
@@ -6394,17 +6170,7 @@
                             syn.$w.alert('"{0}" 내용을 확인하기 위해 팝업을 허용해야 합니다'.format(help.subject));
                         }
                         else {
-                            var html = `
-                            <html style="margin: 0;">
-                                <head>
-                                    <link type="text/css" rel="stylesheet" href="/js/tinymce/skins/ui/oxide/content.min.css">
-                                    <link type="text/css" rel="stylesheet" href="/js/tinymce/skins/content/default/content.min.css">
-                                </head>
-                                <body style="margin: 0; width: 100%; padding:8px;" class="mce-content-body">
-                                    <h1>${help.subject}</h1>${help.sentence}
-                                </body>
-                            </html>
-                            `;
+                            var html = `<html style="margin: 0;"><head><link type="text/css" rel="stylesheet" href="/js/tinymce/skins/ui/oxide/content.min.css"><link type="text/css" rel="stylesheet" href="/js/tinymce/skins/content/default/content.min.css"></head><body style="margin: 0; width: 100%; padding:8px;" class="mce-content-body"><h1>${help.subject}</h1>${help.sentence}</body></html>`;
 
                             helpWindow.document.open();
                             helpWindow.document.write(html);
@@ -6555,7 +6321,6 @@
     syn.uicontrols.$guide = $guide;
 })(window);
 
-/// <reference path="/js/syn.js" />
 
 (function (window) {
     'use strict';
@@ -6732,7 +6497,6 @@
     syn.uicontrols.$radio = $radio;
 })(window);
 
-/// <reference path="/js/syn.js" />
 
 (function (window) {
     'use strict';
@@ -6828,7 +6592,6 @@
 
                         if (textLength > length) {
                             var alertOptions = $object.clone(syn.$w.alertOptions);
-                            // alertOptions.stack = '영어외에는 2자리씩 계산되며, 현재 {1}글자를 입력했습니다'.format($string.toCurrency(textLength));
                             syn.$w.alert($resource.translations.textMaxLength.format($string.toCurrency(length)), '정보', alertOptions, function (result) {
                                 editor.focus();
                             });
@@ -6948,7 +6711,6 @@
 
                 if (textLength > length) {
                     var alertOptions = $object.clone(syn.$w.alertOptions);
-                    // alertOptions.stack = '영어외에는 2자리씩 계산되며, 현재 {1}글자를 입력했습니다'.format($string.toCurrency(textLength));
                     syn.$w.alert($resource.translations.textMaxLength.format($string.toCurrency(length)), '정보', alertOptions);
 
                     el.focus();
@@ -6962,7 +6724,6 @@
 
                     if (textLength > length) {
                         var alertOptions = $object.clone(syn.$w.alertOptions);
-                        // alertOptions.stack = '영어외에는 2자리씩 계산되며, 현재 {1}글자를 입력했습니다'.format($string.toCurrency(textLength));
                         syn.$w.alert($resource.translations.textMaxLength.format($string.toCurrency(length)), '정보', alertOptions);
 
                         el.focus();
@@ -6977,8 +6738,6 @@
     syn.uicontrols.$textarea = $textarea;
 })(window);
 
-/// <reference path="/js/syn.js" />
-/// <reference path="/lib/superplaceholder/superplaceholder.js" />
 
 (function (window) {
     'use strict';
@@ -7087,7 +6846,6 @@
                     syn.$l.addEvent(el, 'input', $textbox.event_numeric_input);
                     syn.$m.setStyle(el, 'ime-mode', 'disabled');
                     if (el.offsetWidth) {
-                        // el.offsetWidth = el.offsetWidth <= 28 ? 0 : el.offsetWidth - 28;
                     }
 
                     new ISpin(el, {
@@ -7334,7 +7092,6 @@
 
                 if (textLength > length) {
                     var alertOptions = $object.clone(syn.$w.alertOptions);
-                    // alertOptions.stack = '영어외에는 2자리씩 계산되며, 현재 {1}글자를 입력했습니다'.format($string.toCurrency(textLength));
                     syn.$w.alert($resource.translations.textMaxLength.format($string.toCurrency(length)), '정보', alertOptions);
 
                     el.focus();
@@ -7349,7 +7106,6 @@
 
                     if (textLength > length) {
                         var alertOptions = $object.clone(syn.$w.alertOptions);
-                        // alertOptions.stack = '영어외에는 2자리씩 계산되며, 현재 {1}글자를 입력했습니다'.format($string.toCurrency(textLength));
                         syn.$w.alert($resource.translations.textMaxLength.format($string.toCurrency(length)), '정보', alertOptions);
 
                         el.focus();
@@ -7876,7 +7632,6 @@
                             result = el.value;
                         }
                         break;
-                        break;
                 }
             }
 
@@ -7966,7 +7721,6 @@
     syn.uicontrols.$textbox = $textbox;
 })(window);
 
-/// <reference path="/js/syn.js" />
 
 (function (window) {
     syn.uicontrols = syn.uicontrols || new syn.module();
@@ -8307,7 +8061,6 @@
     syn.uicontrols.$sourceeditor = $sourceeditor;
 })(window);
 
-/// <reference path="/js/syn.js" />
 
 (function (context) {
     'use strict';
@@ -8339,15 +8092,9 @@
             imageFileSizeLimit: 6291456,
             viewerHtml: '<html><head><base href="/"><style type="text/css">body { font-family: \'Noto Sans KR\', \'Pretendard\', \'Nanum Gothic\', \'Malgun Gothic\', Gulim, 굴림, sans-serif !important; font-size: 14px; }</style><link type="text/css" rel="stylesheet" href="/lib/tinymce/skins/ui/oxide/content.min.css"><link type="text/css" rel="stylesheet" href="/lib/tinymce/skins/content/default/content.min.css"></head><body id="tinymce" class="mce-content-body">{0}<script>document.onselectstart = function () { return false; }; document.oncontextmenu = function () { return false; }; document.addEventListener && document.addEventListener("click", function(e) {for (var elm = e.target; elm; elm = elm.parentNode) {if (elm.nodeName === "A" && !(e.ctrlKey && !e.altKey)) {e.preventDefault();}}}, false);</script></body></html>',
             language: 'ko_KR',
-            // plugins: [
-            //     'autolink link image lists print preview hr anchor pagebreak',
-            //     'searchreplace visualblocks visualchars code insertdatetime media nonbreaking',
-            //     'table template paste powerpaste export powerpaste advcode help'
-            // ],
             plugins: ['autolink link image lists print hr anchor pagebreak searchreplace visualblocks visualchars code insertdatetime media nonbreaking table paste help'],
-            // toolbar: 'styleselect | bold italic forecolor backcolor table | alignleft aligncenter alignright | bullist numlist outdent indent | link image media | preview export code help',
             toolbar: 'styleselect | bold italic forecolor backcolor table | alignleft aligncenter alignright | link image | code help',
-            menubar: false, // 'file edit view insert format tools table help',
+            menubar: false, 
             content_style: 'body { font-family: \'Noto Sans KR\', \'Pretendard\', \'Nanum Gothic\', \'Malgun Gothic\', Gulim, 굴림, sans-serif !important; font-size: 14px; }',
             powerpaste_word_import: 'merge',
             powerpaste_googledocs_import: 'merge',
@@ -8425,7 +8172,6 @@
             }
         },
 
-        // var setting = $htmleditor.getEditorSetting(elID);
         getEditorSetting(elID) {
             var result = null;
 
@@ -8547,7 +8293,6 @@
                                         if (xhrGetItem.readyState === XMLHttpRequest.DONE) {
                                             if (xhrGetItem.status === 200) {
                                                 var result = JSON.parse(xhrGetItem.responseText);
-                                                // response.location = setting.fileManagerServer + setting.fileManagerPath + '/http-download-file?RepositoryID={0}&ItemID={1}'.format(setting.repositoryID, response.ItemID);
                                                 response.location = result.AbsolutePath;
                                                 success(response.location);
 
@@ -8619,14 +8364,6 @@
                             var mod = window[syn.$w.pageScript];
                             var eventHandler = mod.event['{0}_beforeUploadImageResize'.format(elID)];
                             if (eventHandler) {
-                                // txtCONTENTS_beforeUploadImageResize(elID, blobInfo, callback) {
-                                //     syn.uicontrols.$htmleditor.resizeImage(blobInfo, 320).then(function (adjustBlob) {
-                                //         callback(adjustBlob);
-                                // 
-                                //         var editor = syn.uicontrols.$htmleditor.getHtmlEditor(elID);
-                                //         editor.execCommand('mceRepaint');
-                                //     });
-                                // },
                                 eventHandler.apply(el, [elID, file, (adjustBlob) => {
                                     uploadHandler({
                                         blob: adjustBlob.blob,
@@ -8660,10 +8397,6 @@
             }
 
             setting.paste_preprocess = function (plugin, args) {
-                // console.log(args.content);
-                // debugger;
-                // $this.blobUrlToString(args.content.substring(10, args.content.length - 2));
-                // args.content += ' preprocess';
             };
 
             setting.paste_postprocess = function (plugin, args) {
@@ -8774,18 +8507,6 @@
                         var mod = window[syn.$w.pageScript];
                         var eventHandler = mod.event['{0}_imageResized'.format(elID)];
                         if (eventHandler) {
-                            // txtCONTENTS_imageResized(elID, evt, editor, selectedImage) {
-                            //     if (evt.width > 600) {
-                            //         var ratio = (evt.width / evt.height);
-                            //         evt.width = 600;
-                            //         evt.height = parseFloat(evt.width / ratio);
-                            //         tinymce.activeEditor.dom.setStyle(selectedImage, 'width', evt.width);
-                            //         tinymce.activeEditor.dom.setStyle(selectedImage, 'height', evt.height);
-                            // 
-                            //         selectedImage.setAttribute('width', evt.width);
-                            //         selectedImage.setAttribute('height', evt.height);
-                            //     }
-                            // }
                             eventHandler.apply(el, [elID, e, editor, selectedImage]);
                         }
                     }
@@ -9352,7 +9073,6 @@
             return setting;
         },
 
-        // mode - design, readonly
         setMode(elID, mode) {
             var editor = $htmleditor.getHtmlEditor(elID);
             if (editor) {
@@ -9367,7 +9087,6 @@
             }
         },
 
-        // https://www.tiny.cloud/docs-3x/reference/TinyMCE3x@Command_identifiers/
         execCommand(elID, command, uiState, value, args) {
             var result = false;
             var editor = $htmleditor.getHtmlEditor(elID);
@@ -9498,7 +9217,6 @@
     syn.uicontrols.$htmleditor = $htmleditor;
 })(globalRoot);
 
-/// <reference path="/js/syn.js" />
 
 (function (window) {
     'use strict';
@@ -9535,8 +9253,8 @@
             draggable: false,
             className: 'top-level',
             verticalLevel: 4,
-            nodeTemplate: null, // $this.elID_nodeTemplate: function (data) {}
-            createNode: null, // $this.elID_createNode: function ($node, data) {}
+            nodeTemplate: null, 
+            createNode: null, 
             dataType: 'string',
             belongID: null,
             getter: false,
@@ -9836,7 +9554,7 @@
             var orgchart = $organization.getControl(elID).orgchart;
             if (orgchart && node) {
                 if ($object.isNullOrUndefined(relation) == true) {
-                    relation = 'children'; // "parent", "children", "siblings"
+                    relation = 'children'; 
                 }
 
                 result = orgchart.getNodeState(node, relation);
@@ -9850,7 +9568,7 @@
             var orgchart = $organization.getControl(elID).orgchart;
             if (orgchart && node) {
                 if ($object.isNullOrUndefined(relation) == true) {
-                    relation = 'children'; // "parent", "children", "siblings"
+                    relation = 'children'; 
                 }
 
                 result = orgchart.getRelatedNodes(node, relation);
@@ -9882,7 +9600,6 @@
     syn.uicontrols.$organization = $organization;
 })(window);
 
-/// <reference path="/js/syn.js" />
 
 (function (window) {
     'use strict';
@@ -9925,7 +9642,7 @@
             },
             toggleEffect: false,
             checkbox: false,
-            extensions: ['persist', 'filter'], // https://github.com/mar10/fancytree/wiki/ExtensionIndex
+            extensions: ['persist', 'filter'], 
             persist: {
                 expandLazy: false,
                 expandOpts: {
@@ -10270,7 +9987,6 @@
     syn.uicontrols.$tree = $tree;
 })(window);
 
-/// <reference path='/js/syn.js' />
 
 (function (window) {
     'use strict';
@@ -10581,7 +10297,6 @@
             }
 
             if (mod) {
-                // https://www.auisoft.net/documentation/auigrid/DataGrid/Events.html
                 var gridHookEvents = el.getAttribute('syn-events') || [];
                 try {
                     if (gridHookEvents) {
@@ -10771,18 +10486,6 @@
             });
         },
 
-        // columns = [{
-        //    0 columnID: '',
-        //    1 columnText: '',
-        //    2 width: '',
-        //    3 isHidden: '',
-        //    4 columnType: '',
-        //    5 readOnly: '',
-        //    6 alignConstants: '',
-        //    7 belongID: '',
-        //    8 options: { sorting: true, placeholder: 'Empty Cell' }
-        //    9 children: [columns]
-        // }]
         getInitializeColumns(elID, columns, editable) {
             var result = [];
             var length = columns.length;
@@ -11113,7 +10816,7 @@
                                 columnInfo.renderer.altField = columnInfo.altField;
                             }
 
-                            columnInfo.labelFunction = function (rowIndex, columnIndex, value, headerText, item) { // HTML 템플릿 작성
+                            columnInfo.labelFunction = function (rowIndex, columnIndex, value, headerText, item) { 
                                 if ($string.isNullOrEmpty(value) == true) {
                                     return '';
                                 }
@@ -11381,7 +11084,7 @@
                     }
 
                     if ($string.isNullOrEmpty(columnInfo.dataType) == true) {
-                        columnInfo.dataType = 'string'; // numeric, string, date, boolean
+                        columnInfo.dataType = 'string'; 
                     }
 
                     if ($string.isNullOrEmpty(columnInfo.tooltip) == false) {
@@ -11602,7 +11305,6 @@
             return result;
         },
 
-        // value = { headerText: '헤더 그룹', headerStyle: 'my-strong-header' }
         setColumnProperty(elID, dataField, value) {
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
@@ -11708,7 +11410,6 @@
             }
         },
 
-        // sortInfos = [{ dataField: 'country', sortType: 1 }, { dataField: 'name', sortType: -1 }]
         setSorting(elID, sortInfos) {
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
@@ -11905,7 +11606,6 @@
             return result;
         },
 
-        // func = (dataField, value, item) => {}
         setFilter(elID, dataField, func) {
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
@@ -11934,24 +11634,6 @@
             }
         },
 
-        /*
-        name에 들어갈수 있는 조건
-        begins_with: 로 시작
-        between: 사이
-        by_value: 값
-        contains: 포함
-        empty: 비우기
-        ends_with: 로 끝나다
-        eq: 같음
-        gt:  보다 큰
-        gte: 크거나 같음
-        lt: 이하
-        lte: 이하거나 같음
-        not_between: 사이가 아님
-        not_contains: 포함하지 않음
-        not_empty: 비우지 않음
-        neq: 같지 않다
-         */
         addCondition(elID, dataField, name, args, args2) {
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
@@ -12166,7 +11848,6 @@
                 }
 
                 var filterCache = AUIGrid.getFilterCache(gridID);
-                // rowIndex = Number or first, last, selectionUp, selectionDown
                 AUIGrid.addRow(gridID, values, setting.rowIndex);
 
                 var isUserFilter = false;
@@ -12623,7 +12304,6 @@
             return result;
         },
 
-        // syn.uicontrols.$auigrid.exportAsString('grdDataList', { type: 'csv', callback: (data) => { console.log(data)} });
         exportAsString(elID, options) {
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
@@ -12655,7 +12335,6 @@
             }
         },
 
-        // options = { type: 'xlsx', fileName: 'export.xlsx' }
         exportFile(elID, options) {
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
@@ -13704,7 +13383,6 @@
 
 })(window);
 
-/// <reference path="/js/syn.js" />
 
 (function (window) {
     'use strict';
@@ -14389,7 +14067,6 @@
                             if (row === lastRowIndex) {
                                 var cellProperties = {};
 
-                                // 고정 행 모든 컬럼 cell 타입을 text로 변경
                                 cellProperties.type = 'text';
                                 cellProperties.readOnly = true;
                                 cellProperties.className = 'summaryRow';
@@ -14636,7 +14313,6 @@
 
                     if (hot == null) { return; }
 
-                    // syn.$l.eventLog('gridHooks', 'elID: {0}, hook: {1}'.format(elID, hook), 'Debug');
                     var defaultGridHooks = [
                         'afterChange',
                         'afterCreateRow',
@@ -14755,36 +14431,6 @@
 
                             rowIndex = method_index;
 
-                            // var columns = setting.columns;
-                            // var defaultFields = method_source ? method_source : {};
-                            // var defalutValue = '';
-                            // 
-                            // var defaultValues = [];
-                            // for (var amount = 0; amount < method_amount; amount++) {
-                            //     var amountIndex = rowIndex + amount;
-                            //     var length = columns.length;
-                            //     for (var i = 0; i < length; i++) {
-                            //         var column = columns[i];
-                            //         if (column.type == 'numeric') {
-                            //             defalutValue = 0;
-                            //         } else if (column.type == 'checkbox') {
-                            //             defalutValue = false;
-                            //         }
-                            // 
-                            //         if (defaultFields[column.data]) {
-                            //             defalutValue = defaultFields[column.data];
-                            //         }
-                            // 
-                            //         defaultValues.push([amountIndex, i, defalutValue]);
-                            //         defalutValue = '';
-                            //     }
-                            // }
-                            // 
-                            // if (defaultValues.length > 0) {
-                            //     defaultValues[0][2] = 'C'
-                            //     hot.setDataAtCell(defaultValues);
-                            //     return;
-                            // }
                         } else if (hook == 'afterChange') {
                             var method_changes = arguments[0];
                             var method_source = arguments[1];
@@ -14798,7 +14444,6 @@
                             var columnName = method_changes[0][1];
                             var changeValue = method_changes[0][3];
                             var columnInfos = hot.getSettings().columns;
-                            // var colIndex = hot.propToCol(columnName);
                             var columnInfo = columnInfos.filter(function (item) { return item.data == columnName; })[0];
                             if (columnInfo.type == 'dropdown') {
                                 var dataSource = columnInfo.dataSource;
@@ -14848,9 +14493,8 @@
                             return;
                         }
 
-                        var physicalRowIndex = hot.toPhysicalRow(rowIndex); // Handsontable.hooks.run(hot, 'modifyRow', rowIndex);
+                        var physicalRowIndex = hot.toPhysicalRow(rowIndex); 
                         var rowData = hot.getSourceDataAtRow(physicalRowIndex);
-                        // var rowMeta = hot.getCellMetaAtRow(physicalRowIndex);
                         var rowFlag = rowData && rowData.Flag ? rowData.Flag : 'C';
 
                         if (hook == 'afterCreateRow') {
@@ -14930,33 +14574,6 @@
                             }
                         }
 
-                        // if ($l && syn.$l.hasEvent(el, hook) == true) {
-                        //     var options = eval('(' + elHidden.getAttribute('syn-options') + ')');
-                        //     if (options.transactConfig) {
-                        //         var gridValue = $grid.getGridValue(elID);
-                        //         var previousRow = -1;
-                        //         if (gridValue) {
-                        //             previousRow = gridValue.previousRow;
-                        //         }
-                        //         var currentRow = $grid.getActiveRowIndex(elID);
-                        //         if (gridValue.colHeaderClick == false && currentRow != previousRow) {
-                        //             syn.$l.trigger(el, hook, options.transactConfig);
-                        //         }
-                        //     }
-                        // 
-                        //     if (options.triggerConfig) {
-                        //         var gridValue = $grid.getGridValue(elID);
-                        //         var previousRow = -1;
-                        //         if (gridValue) {
-                        //             previousRow = gridValue.previousRow;
-                        //         }
-                        //         var currentRow = $grid.getActiveRowIndex(elID);
-                        //         if (gridValue.colHeaderClick == false && currentRow != previousRow) {
-                        //             syn.$l.trigger(el, hook, options.transactConfig);
-                        //         }
-                        //         syn.$l.trigger(el, hook, options.triggerConfig);
-                        //     }
-                        // }
                     }
 
                     if (hook == 'afterOnCellDoubleClick') {
@@ -15154,18 +14771,6 @@
             }
         },
 
-        // columns = [{
-        //    0 columnID: '',
-        //    1 columnName: '',
-        //    2 width: '',
-        //    3 isHidden: '',
-        //    4 columnType: '',
-        //    5 readOnly: '',
-        //    6 alignConstants: '',
-        //    7 belongID: '',
-        //    8 validators: ['require', 'unique', 'number', 'ipaddress', 'email', 'date', 'dateformat']
-        //    9 options: { sorting: true, placeholder: 'Empty Cell' }
-        // }]
         getInitializeColumns(settings, elID) {
             var columns = settings.columns;
             var gridSetting = {
@@ -15479,25 +15084,6 @@
         },
 
         addCondition(elID, col, name, args) {
-            /*
-            name에 들어갈수 있는 조건
-            begins_with: 로 시작
-            between: 사이
-            by_value: 값
-            contains: 포함
-            empty: 비우기
-            ends_with: 로 끝나다
-            eq: 같음
-            gt:  보다 큰
-            gte: 크거나 같음
-            lt: 이하
-            lte: 이하거나 같음
-            none: 없음 (필터 없음)
-            not_between: 사이가 아님
-            not_contains: 포함하지 않음
-            not_empty: 비우지 않음
-            neq: 같지 않다
-             */
             var hot = $grid.getGridControl(elID);
             if (hot) {
                 var filtersPlugin = hot.getPlugin('filters');
@@ -16226,7 +15812,6 @@
             return result;
         },
 
-        // className: .handsontable .my-class {background: #fea!important;}
         setCellClassName(elID, row, col, className, isApply) {
             if ($object.isNullOrUndefined(className) == true) {
                 syn.$l.eventLog('$grid.setCellClassName', 'className 확인 필요', 'Warning');
@@ -17522,18 +17107,12 @@
             var el = syn.$l.get(elID);
             var bind = $resource.getBindSource(control);
             if (bind != null) {
-                // var value = $resource.translateText(control, options);
-                // if (value) {
-                //     el[bind] = value;
-                // }
             }
-            // debugger;
         }
     });
     syn.uicontrols.$grid = $grid;
 })(window);
 
-/// <reference path="/js/syn.js" />
 
 (function (window) {
     'use strict';
@@ -17550,7 +17129,7 @@
             getter: false,
             setter: false,
             controlText: null,
-            content: 'value', // value, text, html
+            content: 'value', 
             validators: null,
             transactConfig: null,
             triggerConfig: null
@@ -17654,8 +17233,8 @@
                 }
             }
         },
-        
-        clear(elID, isControlLoad) {
+
+                clear(elID, isControlLoad) {
             var el = syn.$l.get(elID);
             if ($object.isNullOrUndefined(el) == false) {
                 var value = '';

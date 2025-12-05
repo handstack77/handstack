@@ -517,14 +517,19 @@ namespace bundling
                             htmlSettings.KeepTags.Add("html");
                             htmlSettings.KeepTags.Add("head");
                             htmlSettings.KeepTags.Add("body");
+                            htmlSettings.RemoveComments = true;
                             uglifyResult = Uglify.Html(code, settings: htmlSettings);
                             break;
                         case ".js":
+                            var codeSettings = new CodeSettings();
+                            codeSettings.PreserveImportantComments = false;
                             code = code.Replace("use strict", "");
-                            uglifyResult = Uglify.Js(code);
+                            uglifyResult = Uglify.Js(code, codeSettings);
                             break;
                         case ".css":
-                            uglifyResult = Uglify.Css(code);
+                            var cssSettings = new CssSettings();
+                            cssSettings.CommentMode = CssComment.None;
+                            uglifyResult = Uglify.Css(code, cssSettings);
                             break;
                         default:
                             break;

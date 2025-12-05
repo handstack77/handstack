@@ -1,9 +1,11 @@
-﻿var gulp = require('gulp');
-var concat = require('gulp-concat');
-var uglify = require('gulp-uglify');
-var uglifycss = require('gulp-uglifycss');
-var rename = require('gulp-rename');
-var javascriptObfuscator = require('gulp-javascript-obfuscator');
+﻿var gulp = require(`gulp`);
+var concat = require(`gulp-concat`);
+var uglify = require(`gulp-uglify`);
+var stripComments = require('gulp-strip-comments');
+var stripCssComments = require('gulp-strip-css-comments').default;
+var uglifycss = require(`gulp-uglifycss`);
+var rename = require(`gulp-rename`);
+var javascriptObfuscator = require(`gulp-javascript-obfuscator`);
 
 gulp.task('scripts', async function () {
     return gulp.src([
@@ -45,10 +47,14 @@ gulp.task('scripts', async function () {
         'wwwroot/lib/master-css/index.js'
     ], { allowEmpty: true })
         .pipe(concat('syn.scripts.js'))
+        .pipe(stripComments())
         .pipe(gulp.dest('wwwroot/js'))
         .pipe(uglify({
             mangle: true,
-            compress: true
+            compress: true,
+            output: {
+                comments: false
+            }
         }))
         .pipe(rename({
             basename: 'syn.scripts.min',
@@ -96,10 +102,14 @@ gulp.task('basescripts', async function () {
         'wwwroot/lib/master-css/index.js'
     ])
         .pipe(concat('syn.scripts.base.js'))
+        .pipe(stripComments())
         .pipe(gulp.dest('wwwroot/js'))
         .pipe(uglify({
             mangle: true,
-            compress: true
+            compress: true,
+            output: {
+                comments: false
+            }
         }))
         .pipe(rename({
             basename: 'syn.scripts.base.min',
@@ -136,10 +146,14 @@ gulp.task('controls', async function () {
         'wwwroot/uicontrols/Element/Element.js'
     ])
         .pipe(concat('syn.controls.js'))
+        .pipe(stripComments())
         .pipe(gulp.dest('wwwroot/js'))
         .pipe(uglify({
             mangle: true,
-            compress: true
+            compress: true,
+            output: {
+                comments: false
+            }
         }))
         .pipe(rename({
             basename: 'syn.controls.min',
@@ -197,7 +211,10 @@ gulp.task('bundle', async function () {
         .pipe(gulp.dest('wwwroot/js'))
         .pipe(uglify({
             mangle: true,
-            compress: true
+            compress: true,
+            output: {
+                comments: false
+            }
         }))
         .pipe(rename({
             basename: 'syn.bundle.min',
@@ -260,6 +277,7 @@ gulp.task('styles', async function () {
         'wwwroot/css/base.css',
     ])
         .pipe(concat('syn.bundle.css'))
+        .pipe(stripCssComments())
         .pipe(gulp.dest('wwwroot/css'))
         .pipe(uglifycss({
             uglyComments: true
@@ -321,6 +339,7 @@ gulp.task('basestyles', async function () {
         'wwwroot/uicontrols/WebGrid/WebGrid.css',
     ])
         .pipe(concat('syn.bundle.base.css'))
+        .pipe(stripCssComments())
         .pipe(gulp.dest('wwwroot/css'))
         .pipe(uglifycss({
             uglyComments: true

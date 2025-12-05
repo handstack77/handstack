@@ -28,9 +28,7 @@
  * Version: 14.5.0
  * Release date: 30/07/2024 (built at 30/07/2024 11:22:06)
  */
-/**
- * Fix for bootstrap styles
- */
+
 .handsontable .table th, .handsontable .table td {
   border-top: none;
 }
@@ -52,7 +50,7 @@
   border-top: 1px solid #CCCCCC;
 }
 
-/* table-bordered */
+
 .handsontable .table-bordered {
   border: 0;
   border-collapse: separate;
@@ -111,7 +109,7 @@
 
 .handsontable .wtSpreader {
   position: relative;
-  /*must be 0, otherwise blank space appears in scroll demo after scrolling max to the right */
+  
   width: 0;
   height: auto;
 }
@@ -136,15 +134,9 @@
 
 .handsontable table.htCore {
   border-collapse: separate;
-  /* it must be separate, otherwise there are offset miscalculations in WebKit: http://stackoverflow.com/questions/2655987/border-collapse-differences-in-ff-and-webkit */
-  /* this actually only changes appearance of user selection - does not make text unselectable */
-  /* -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -o-user-select: none;
-    -ms-user-select: none;
-    user-select: none; // no browser supports unprefixed version
-  */
+  
+  
+  
   border-spacing: 0;
   margin: 0;
   border-width: 0;
@@ -152,7 +144,7 @@
   width: 0;
   outline-width: 0;
   cursor: default;
-  /* reset bootstrap table style. for more info see: https://github.com/handsontable/handsontable/issues/224 */
+  
   max-width: none;
   max-height: none;
 }
@@ -175,7 +167,7 @@
   empty-cells: show;
   line-height: 21px;
   padding: 0 4px 0 4px;
-  /* top, bottom padding different than 0 is handled poorly by FF with HTML5 doctype */
+  
   background-color: #fff;
   vertical-align: top;
   overflow: hidden;
@@ -190,14 +182,14 @@
 }
 
 .handsontable th:last-child {
-  /*Foundation framework fix*/
+  
   border-left: none;
   border-right: 1px solid #ccc;
   border-bottom: 1px solid #ccc;
 }
 
 [dir=rtl].handsontable th:last-child {
-  /*Foundation framework fix*/
+  
   border-right: none;
   border-left: 1px solid #ccc;
 }
@@ -211,7 +203,7 @@
   border-right: 1px solid #ccc;
 }
 
-/* It removes double right border from first column header when row headers are disabled */
+
 .handsontable .ht_clone_top th:nth-child(2) {
   border-left-width: 0;
   border-right: 1px solid #ccc;
@@ -248,10 +240,7 @@
   border-right: 1px solid #ccc;
 }
 
-/*
-innerBorderTop - Property controlled by top overlay
-innerBorderBottom - Property controlled by bottom overlay
- */
+
 .ht_master:not(.innerBorderTop):not(.innerBorderBottom) thead tr:last-child th,
 .ht_master:not(.innerBorderTop):not(.innerBorderBottom) ~ .handsontable thead tr:last-child th,
 .ht_master:not(.innerBorderTop):not(.innerBorderBottom) thead tr.lastChild th,
@@ -284,7 +273,7 @@ innerBorderBottom - Property controlled by bottom overlay
   line-height: 1.1;
 }
 
-/* Selection */
+
 .handsontable .wtBorder {
   position: absolute;
   font-size: 0;
@@ -294,7 +283,7 @@ innerBorderBottom - Property controlled by bottom overlay
   display: none !important;
 }
 
-/* A layer order of the selection types */
+
 .handsontable .wtBorder.current {
   z-index: 10;
 }
@@ -307,7 +296,7 @@ innerBorderBottom - Property controlled by bottom overlay
   z-index: 6;
 }
 
-/* fill handle */
+
 .handsontable .wtBorder.corner {
   font-size: 0;
   cursor: crosshair;
@@ -390,7 +379,7 @@ innerBorderBottom - Property controlled by bottom overlay
 }
 
 .handsontable td.htInvalid {
-  /*gives priority over td.area selection background*/
+  
   background-color: #ffbeba !important;
 }
 
@@ -433,8 +422,8 @@ innerBorderBottom - Property controlled by bottom overlay
   height: 0;
 }
 
-/* plugins */
-/* row + column resizer*/
+
+
 .handsontable .manualColumnResizer {
   position: absolute;
   top: 0;
@@ -523,12 +512,12 @@ innerBorderBottom - Property controlled by bottom overlay
   left: 0;
   right: 0;
   bottom: 0;
-  /* Fix for IE9 to spread the ":before" pseudo element to 100% height of the parent element */
+  
   bottom: -100% \9 ;
   background: #005eff;
 }
 
-/* Fix for IE10 and IE11 to spread the ":before" pseudo element to 100% height of the parent element */
+
 @media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
   .handsontable td.area:before,
   .handsontable td.area-1:before,
@@ -599,12 +588,12 @@ innerBorderBottom - Property controlled by bottom overlay
   font-size: inherit;
   box-shadow: 0 0 0 2px #5292F7 inset;
   resize: none;
-  /*below are needed to overwrite stuff added by jQuery UI Bootstrap theme*/
+  
   display: block;
   color: #000;
   border-radius: 0;
   background-color: #FFF;
-  /*overwrite styles potentionally made by a framework*/
+  
 }
 
 .handsontableInput:focus {
@@ -627,9 +616,7 @@ innerBorderBottom - Property controlled by bottom overlay
   outline: none;
 }
 
-/*
-TextRenderer readOnly cell
-*/
+
 .handsontable .htDimmed {
   color: #777;
 }
@@ -658,9 +645,7 @@ TextRenderer readOnly cell
   font-size: 9px;
 }
 
-/*
-TextRenderer horizontal alignment
-*/
+
 .handsontable .htLeft {
   text-align: left;
 }
@@ -677,9 +662,7 @@ TextRenderer horizontal alignment
   text-align: justify;
 }
 
-/*
-TextRenderer vertical alignment
-*/
+
 .handsontable .htTop {
   vertical-align: top;
 }
@@ -692,16 +675,12 @@ TextRenderer vertical alignment
   vertical-align: bottom;
 }
 
-/*
-TextRenderer placeholder value
-*/
+
 .handsontable .htPlaceholder {
   color: #999;
 }
 
-/**
- * Handsontable listbox theme
- */
+
 .handsontable.listbox {
   margin: 0;
 }
@@ -753,11 +732,7 @@ TextRenderer placeholder value
   background: #fcedd9;
   color: #583707;
 }
-/*
 
- Handsontable Mobile Text Editor stylesheet
-
- */
 .handsontable.mobile,
 .handsontable.mobile .wtHolder {
   -webkit-touch-callout: none;
@@ -777,7 +752,7 @@ TextRenderer placeholder value
   -webkit-appearance: none;
 }
 
-/* Initial left/top coordinates - overwritten when actual position is set */
+
 .handsontable .topSelectionHandle,
 .handsontable .topSelectionHandle-HitArea,
 .handsontable .bottomSelectionHandle,
@@ -822,10 +797,7 @@ TextRenderer placeholder value
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
-/*
-clear child float (pika-lendar), using the famous micro clearfix hack
-http://nicolasgallagher.com/micro-clearfix-hack/
-*/
+
 .pika-single:before,
 .pika-single:after {
   content: " ";
@@ -889,7 +861,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
   padding: 0;
   width: 20px;
   height: 30px;
-  /* hide text using text-indent trick, using width value (it's enough) */
+  
   text-indent: 20px;
   white-space: nowrap;
   overflow: hidden;
@@ -1034,14 +1006,12 @@ http://nicolasgallagher.com/micro-clearfix-hack/
   border-radius: 3px;
 }
 
-/* styling for abbr */
+
 .pika-table abbr {
   border-bottom: none;
   cursor: help;
 }
-/*
-AutocompleteRenderer down arrow
-*/
+
 .handsontable .htAutocompleteArrow {
   float: right;
   font-size: 10px;
@@ -1070,9 +1040,7 @@ AutocompleteRenderer down arrow
 .handsontable td.area .htAutocompleteArrow {
   color: #d3d3d3;
 }
-/*
-CheckboxRenderer
-*/
+
 .handsontable .htCheckboxRendererInput {
   display: inline-block;
 }
@@ -1155,14 +1123,14 @@ CheckboxRenderer
 .handsontable .columnSorting.sortAction:hover {
   text-decoration: underline;
   cursor: pointer;
-} /* Arrow position */
+} 
 .handsontable span.colHeader.columnSorting::before {
-  /* Centering start */
+  
   top: 50%;
-  /* One extra pixel for purpose of proper positioning of sorting arrow, when `font-size` set to default */
+  
   margin-top: -6px;
-  /* Centering end */
-  /* For purpose of continuous mouse over experience, when moving between the `span` and the `::before` elements */
+  
+  
   padding-left: 8px;
   padding-right: 0;
   position: absolute;
@@ -1177,8 +1145,8 @@ CheckboxRenderer
 }
 
 [dir=rtl].handsontable span.colHeader.columnSorting::before {
-  /* Centering end */
-  /* For purpose of continuous mouse over experience, when moving between the `span` and the `::before` elements */
+  
+  
   padding-right: 8px;
   padding-left: 0;
   left: -9px;
@@ -1187,12 +1155,12 @@ CheckboxRenderer
 }
 
 .handsontable span.colHeader.columnSorting.ascending::before {
-  /* arrow up; 20 x 40 px, scaled to 5 x 10 px; base64 size: 0.3kB */
+  
   background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAoCAMAAADJ7yrpAAAAKlBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKE86IAAAADXRSTlMABBEmRGprlJW72e77tTkTKwAAAFNJREFUeAHtzjkSgCAUBNHPgsoy97+ulGXRqJE5L+xkxoYt2UdsLb5bqFINz+aLuuLn5rIu2RkO3fZpWENimNgiw6iBYRTPMLJjGFxQZ1hxxb/xBI1qC8k39CdKAAAAAElFTkSuQmCC);
 }
 
 .handsontable span.colHeader.columnSorting.descending::before {
-  /* arrow down; 20 x 40 px, scaled to 5 x 10 px; base64 size: 0.3kB */
+  
   background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAoCAMAAADJ7yrpAAAAKlBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKE86IAAAADXRSTlMABBEmRGprlJW72e77tTkTKwAAAFJJREFUeAHtzjkSgCAQRNFmQYUZ7n9dKUvru0TmvPAn3br0QfgdZ5xx6x+rQn23GqTYnq1FDcnuzZIO2WmedVqIRVxgGKEyjNgYRjKGkZ1hFIZ3I70LyM0VtU8AAAAASUVORK5CYII=);
 }
 
@@ -1200,8 +1168,7 @@ CheckboxRenderer
   content: "*";
   display: inline-block;
   position: relative;
-  /* The multi-line header and header with longer text need more padding to not hide arrow,
-  we make header wider in `GhostTable` to make some space for arrow which is positioned absolutely in the main table */
+  
   padding-right: 20px;
 }
 .handsontable .htCommentCell {
@@ -1270,7 +1237,7 @@ CheckboxRenderer
 .htContextMenu:not(.htGhostTable) {
   display: none;
   position: absolute;
-  /* needs to be higher than 1050 - z-index for Twitter Bootstrap modal (#1569) */
+  
   z-index: 1060;
 }
 
@@ -1427,7 +1394,7 @@ textarea.HandsontableCopyPaste {
 .htDropdownMenu:not(.htGhostTable) {
   display: none;
   position: absolute;
-  /* needs to be higher than 1050 - z-index for Twitter Bootstrap modal (#1569) */
+  
   z-index: 1060;
 }
 
@@ -1542,7 +1509,7 @@ textarea.HandsontableCopyPaste {
 /*!
  * Handsontable Filters
  */
-/* Conditions menu */
+
 .htFiltersConditionsMenu:not(.htGhostTable) {
   display: none;
   position: absolute;
@@ -1640,19 +1607,19 @@ textarea.HandsontableCopyPaste {
   cursor: auto;
 }
 
-/* Menu label */
+
 .handsontable .htFiltersMenuLabel {
   font-size: 0.75em;
 }
 
-/* Component action bar */
+
 .handsontable .htFiltersMenuActionBar {
   text-align: center;
   padding-top: 10px;
   padding-bottom: 3px;
 }
 
-/* Component filter by conditional */
+
 .handsontable .htFiltersMenuCondition.border {
   border-bottom: 1px dotted #ccc !important;
 }
@@ -1661,7 +1628,7 @@ textarea.HandsontableCopyPaste {
   padding: 0 0 5px 0;
 }
 
-/* Component filter by value */
+
 .handsontable .htFiltersMenuValue {
   border-bottom: 1px dotted #ccc !important;
 }
@@ -1729,8 +1696,8 @@ textarea.HandsontableCopyPaste {
   margin-right: 0;
 }
 
-/* UI elements */
-/* Input */
+
+
 .handsontable .htUIInput {
   padding: 3px 0 7px 0;
   position: relative;
@@ -1746,7 +1713,7 @@ textarea.HandsontableCopyPaste {
   position: absolute;
 }
 
-/* Button */
+
 .handsontable .htUIInput.htUIButton {
   cursor: pointer;
   display: inline-block;
@@ -1793,7 +1760,7 @@ textarea.HandsontableCopyPaste {
   border-color: #1a6f46;
 }
 
-/* Select */
+
 .handsontable .htUISelect {
   cursor: pointer;
   margin-bottom: 7px;
@@ -1834,7 +1801,7 @@ textarea.HandsontableCopyPaste {
   top: 8px;
 }
 
-/* SelectMultiple */
+
 .handsontable .htUIMultipleSelect .handsontable .htCore {
   border: none;
 }
@@ -1883,9 +1850,7 @@ textarea.HandsontableCopyPaste {
   padding-bottom: 5px;
 }
 @charset "UTF-8";
-/*
- * Handsontable HiddenColumns
- */
+
 .handsontable th.beforeHiddenColumn {
   position: relative;
 }
@@ -1921,24 +1886,24 @@ textarea.HandsontableCopyPaste {
 
 .handsontable th.beforeHiddenColumn::after {
   right: 1px;
-  content: "◀"; /* left arrow */
+  content: "◀"; 
 }
 
 [dir=rtl].handsontable th.beforeHiddenColumn::after {
   right: initial;
   left: 1px;
-  content: "▶"; /* right arrow */
+  content: "▶"; 
 }
 
 .handsontable th.afterHiddenColumn::before {
   left: 1px;
-  content: "▶"; /* right arrow */
+  content: "▶"; 
 }
 
 [dir=rtl].handsontable th.afterHiddenColumn::before {
   right: 1px;
   left: initial;
-  content: "◀"; /* left arrow */
+  content: "◀"; 
 }
 @charset "UTF-8";
 /*!
@@ -2141,40 +2106,40 @@ textarea.HandsontableCopyPaste {
   margin-right: -20px;
 }
 
-/* Column's number position */
+
 .handsontable span.colHeader.columnSorting::after {
-  /* Centering start */
+  
   top: 50%;
-  /* Two extra pixels (-2 instead of -4) for purpose of proper positioning of numeric indicators, when `font-size` set to default */
+  
   margin-top: -2px;
-  /* Centering end */
+  
   position: absolute;
   right: -15px;
   left: unset;
-  /* For purpose of continuous mouse over experience, when moving between the `::before` and the `::after` elements */
+  
   padding-left: 5px;
   padding-right: unset;
   font-size: 8px;
   height: 8px;
   line-height: 1.1;
-  /* Workaround for IE9 - IE11 */
+  
   text-decoration: underline;
 }
 
 [dir=rtl].handsontable span.colHeader.columnSorting::after {
   left: -15px;
   right: unset;
-  /* For purpose of continuous mouse over experience, when moving between the `::before` and the `::after` elements */
+  
   padding-right: 5px;
   padding-left: unset;
 }
 
-/* Workaround for IE9 - IE11, https://stackoverflow.com/a/21902566, https://stackoverflow.com/a/32120247 */
+
 .handsontable span.colHeader.columnSorting::after {
   text-decoration: none;
 }
 
-/* We support up to 7 numeric indicators, describing order of column in sorted columns queue */
+
 .handsontable span.colHeader.columnSorting[class^=sort-]::after,
 .handsontable span.colHeader.columnSorting[class*=" sort-"]::after {
   content: "+";
@@ -2208,7 +2173,7 @@ textarea.HandsontableCopyPaste {
   content: "7";
 }
 
-/* Drop-down menu widens header by 5 pixels, sort sequence numbers won't overlap the icon; mainly for the IE9+ */
+
 .htGhostTable th div button.changeType + span.colHeader.columnSorting:not(.indicatorDisabled) {
   padding-right: 5px;
 }
@@ -2315,7 +2280,7 @@ textarea.HandsontableCopyPaste {
  * www.auisoft.net
  */
 
-/* 그리드 메인 외곽 DIV */
+
 .aui-grid {
 	font-family: 'Malgun Gothic', '맑은 고딕', AppleSDGothicNeo-Light, sans-serif;
 	font-size: 12px;
@@ -2329,7 +2294,7 @@ textarea.HandsontableCopyPaste {
 	-webkit-touch-callout: none;
 }
 
-/* 그리드 table, tr, td 기본 - 셀 기본 */
+
 .aui-grid .aui-grid-table,
 .aui-grid .aui-grid-table tr,
 .aui-grid .aui-grid-table td {
@@ -2342,7 +2307,7 @@ textarea.HandsontableCopyPaste {
 	line-height: 1.5em;
 }
 
-/* 편집 모드 기본 텍스트 인풋  */
+
 .aui-grid .aui-textinputer {
 	font-size: 12px;
 	border: 2px solid #22741c;
@@ -2356,7 +2321,7 @@ textarea.HandsontableCopyPaste {
 	display: none;
 }
 
-/* label */
+
 .aui-label {
 	display: inline-block !important;
 	font-weight: normal !important;
@@ -2364,7 +2329,7 @@ textarea.HandsontableCopyPaste {
 	padding: 0 !important;
 }
 
-/* 체크박스, 라디오  */
+
 .aui-checkbox,
 .aui-radio {
 	vertical-align: middle;
@@ -2376,21 +2341,21 @@ textarea.HandsontableCopyPaste {
 	cursor: not-allowed;
 }
 
-/* 이미지  */
+
 .aui-grid .aui-img {
 	box-sizing: content-box;
 	-webkit-box-sizing: content-box;
 	-moz-box-sizing: content-box;
 }
 
-/* 그리드 메세지 출력 레이어 */
+
 .aui-grid-info-layer {
 	background: #fff;
 	font-size: 20px;
 	font-weight: bold;
 }
 
-/** 그리드 유효성 검사 툴팁 레이어 */
+
 .aui-grid-validator-message-layer {
 	color: #fff;
 	padding: 2px 6px;
@@ -2409,7 +2374,7 @@ textarea.HandsontableCopyPaste {
 	-moz-box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);
 }
 
-/* 노데이터 메세지 레이어*/
+
 .aui-grid-nodata-msg-layer {
 	background: url(./images/info.png) 0 50% no-repeat;
 	position: absolute;
@@ -2420,7 +2385,7 @@ textarea.HandsontableCopyPaste {
 	box-sizing: content-box;
 }
 
-/* 그리드 수평, 수직 라인 만들기 - 바디 */
+
 .aui-grid-body-panel .aui-grid-table tr td {
 	border-top: none;
 	border-right: 1px solid #dcdcdc;
@@ -2432,7 +2397,7 @@ textarea.HandsontableCopyPaste {
 	border-right: none;
 }
 
-/* 그리드 수평, 수직 라인 만들기 - 헤더 */
+
 .aui-grid-header-panel .aui-grid-table tr td {
 	border-top: none;
 	border-right: 1px solid #dcdcdc;
@@ -2444,12 +2409,12 @@ textarea.HandsontableCopyPaste {
 	border-right: none;
 }
 
-/* 그리드 수평 라인 만들기 - 그룹형  헤더 */
+
 .aui-grid-group-branch-header {
 	border-bottom: 1px solid #dcdcdc !important;
 }
 
-/* 그리드 수평, 수직 라인 만들기 - 푸터 */
+
 .aui-grid-footer-panel .aui-grid-table tr td {
 	border-top: 1px solid #dcdcdc;
 	border-right: 1px solid #dcdcdc;
@@ -2461,23 +2426,23 @@ textarea.HandsontableCopyPaste {
 	border-right: none;
 }
 
-/* 그리드 수평, 수직 라인 - 엑셀, PDF */
+
 .aui-grid-grid-lines-for-export {
 	background: #dcdcdc;
 }
 
-/* 그리드 오버 선택자 스타일 */
+
 .aui-grid-cell-hover-style {
 	background: #eaeaea !important;
 	color: #000 !important;
 }
 
-/* 셀 병합 시 실제 rowspan 처리 하지 않은 TD의 아랫선 처리 */
+
 .aui-grid-cell-merge-none-row-span-border {
 	border-bottom: 1px solid transparent !important;
 }
 
-/* 그리드 칼럼 리사이즈 시 나타나는 임시 선 */
+
 .aui-grid-vertical-resizer-rule {
 	border-left: 3px dashed #888;
 	border-top: none;
@@ -2485,12 +2450,12 @@ textarea.HandsontableCopyPaste {
 	border-bottom: none;
 }
 
-/* 그리드 칼럼 위치 바꾸기(칼럼 드래깅) 시 나타나는 임시 선 */
+
 .aui-grid-vertical-column-change-rule {
 	border-left: 3px solid #2a2d33;
 }
 
-/* 행 번호 칼럼 */
+
 .aui-grid-row-num-column {
 	text-align: center;
 	cursor: default;
@@ -2500,31 +2465,31 @@ textarea.HandsontableCopyPaste {
 	color: #000;
 }
 
-/*행 체크박스 칼럼 */
+
 .aui-grid-row-check-column {
 	text-align: center;
 	line-height: 0.5em !important;
 }
 
-/* 행 체크박스 헤더 - 전체 선택 체크*/
+
 .aui-grid-row-check-header {
 	text-align: center;
 	line-height: 0.5em !important;
 }
 
-/* 고정 칼럼과 일반 칼럼 경계선 */
+
 .aui-grid-fixed-column-rule {
 	background: #9d9d9d;
 	width: 1px;
 }
 
-/* 고정 로우와 일반 로우 경계선 */
+
 .aui-grid-fixed-row-rule {
 	background: #9d9d9d;
 	height: 1px;
 }
 
-/* 그리드 헤더 정렬 표시자 시작 */
+
 .aui-grid-multi-sorting-ascending {
 	color: #555;
 	font-size: 9px;
@@ -2547,9 +2512,9 @@ textarea.HandsontableCopyPaste {
 	background: url(./images/icon-down.png) 50% 50% no-repeat;
 }
 
-/* 그리드 헤더 정렬 표시자 끝*/
 
-/* 스크롤 시작 */
+
+
 .aui-scroll-track {
 	box-sizing: border-box;
 	background: #f6f6f6;
@@ -2632,21 +2597,21 @@ textarea.HandsontableCopyPaste {
 	border: none;
 	border-radius: 0.5em;
 }
-/* 스크롤 끝 */
 
-/* 로딩바 스타일 */
+
+
 .aui-ajax-loader-showing {
 	background: #ffffff url('./images/ajaxloader.gif') no-repeat 50% 50%;
 }
 
-/* 내부 처리 로딩바 스타일 */
+
 .aui-process-loader-showing {
-	/*background: url("./images/wait.png") no-repeat 50% 50%;*/
+	
 	background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIQAAABaCAMAAABOrg7KAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyBpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBXaW5kb3dzIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjk5MTI1REI0NzdEMDExRTRBNzY1REZCNDBFNTFEQzZBIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjk5MTI1REI1NzdEMDExRTRBNzY1REZCNDBFNTFEQzZBIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6OTkxMjVEQjI3N0QwMTFFNEE3NjVERkI0MEU1MURDNkEiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6OTkxMjVEQjM3N0QwMTFFNEE3NjVERkI0MEU1MURDNkEiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz5sKH81AAAAvVBMVEX////Jyclvbm6ZmZnT09PLy8vb29v9/f3j4+Pr6+vu7u7R0dH5+fnPz8/19fXW1tb4+Pjp6enx8fHZ2dnh4eH8/Pz39/fOzc3e3d3X19etra3e3t77+vrf39/W1tXw7/Do6Ojm5ub39vb7+/vl5ebY2Ne8vLzz8/POzs7z8vKgoKDw8PDn5+f09PTf4N/Dw8Pg4eHz9PPo5+f8+/v6+/r8/P308/PY2dnw8PHv8O/09PXHx8fv7u7IyMj3+Pc4LLeVAAAIVElEQVRo3u1YC3eiSBMNi6gJQ3xERTE6GrOoBMVH3o75/z/ru1XV3TQZk2/jntnZPceCrnfdvoAmJGd//Avk7I+z3y4nEicSJxInEicSJxInEr+NROBCqr+AROULAC7L3yeR71mBEIeKIoKIEzpgghXJSs9MSGS6VXXpC1HdClsSZ/km0l4BicpR0ry9JRMLiRhuL3ET/yisY0n0sHPUgSMkLiqVKjv9I0k8tNvth0rl4aH90K48cLaNkBIUQrcRwyKkMlXOzfVH5CSVylbuSdTmHkKo0DhNCyZZOinfZjACpp3aILFtK9kqtVWRKehanvfkBkwQl123TGiRkDizx7b55HZrwdjIEJCYTCbbyaTNJ3lAFqsy262KJqbW9hWJSd4qqYw7VCN57a0NJgW9l4YFiev768nk/vp6AueazOSeHZ24vp/Ax0KEChUnF/I4pPeeO1/pVkRTblOTNMDT3ER5zuj6hGrkgsS3axwQURJci2X327WI7uH8MMGOC5VS3WVnyE1GFDCBKlQNcW3vwyS+1fO5ev1bvRDnpl4vpFapvSMV61KtH5g1mbqVMhok6sdIxw7erORgvz//KhhIdD6TtzfLV7ZZmp3r6K3zVujP6LNSPgz1YQQSN0Y6SnfgdDp2unOTl27xcXBLEneKgzfy8yO5saVjbMeCusnxb0Di0pabnxy7yMmEN2ocarvpy1f38lO5eT8HEovXxeXlYrG4ZEve4pUczqFIKTpJyMg+Xcm98vQldyGhSdCgtPPggmBe0fn6yr4UlFq8gsTjdPq4XkwfH6fw1o/T9ZrMmgKoBSJyqGuKtvVUkZiSoPj4iIE1IOA8rvnnZjZnLG54RGmBMW6icXjrBVWpQhtP1yAxn0/nLFM6pyqcznVeVedTSck+yblJ8QgJ6UbsJtnFNC+otqlqstDVZlgg0SSZz1k3jcz5OCTnYJG0mh9Um88H8vOfvbllQOL57u6uiYMsjGgEzxQ8Nzl9p5qa1Hh3npJpcgNaZYa7yH9+5qQMPqt6U03cqfBZ7cMbgsR3yN0LFK3vxr7oUDJ5w8s7m3e92PMF9+X73R1to5apSAASFz9wHJAfal2Y8sG2gjSczGl81szZ77A/lE+WSHxdqlkWHsqP6EObpF+FA4nzL0uZfl7FBwqZ/Ib/Kt5RJOQlKvioEB1BogGBx4aO80ZDIo5VQaz4I/Wa31CdpjJS75k8xdlzDcWxOfMUa5AYjUYEADUiTUeDVx6xGY10k/z22Kmxke4fjZ64UDMzIwXUMGiNkTYNKdJJJDbpaJTigGzSlNVmlG42lEo3KdsNl8kZpWN+9Ek1RUAzZDYbRvAjNwo2DMHVDYNtGGXECydlNBa1bkBiPB6n6VgkxaEj9semkhqTjuPEja7gtbysK01OFMVVari9vc0nUgua8FKFmOZ1CkDiVstY9HhcTIgjp07JdjV6Lg5F/GGITPvYxrv9Ca6wGxRIVI8W+WyUjRccifO3SKhvScE7kkSrWm1Bqq2q6KoOVFpsKw+quiJb7+DKnSjxcFWhaKUOMSwCaaotItFarlarVmvVWi1bS4LnwLKs0SIHxxzJm0V5tVru+DOhR1aEslqupI9n2SzJ0ci0laATicFyORiwYgdGLROo4pKWxAP2y/RmUaLaAN+OrL/U9YG087Tg5sNLs40GW4JEfzDo93FiKYdd8gd2OLAb2MqgSQxUWvoHpq1vTRTwVTgAiW632+/m0ldRX9L9fl54lzgk/QOeFfdtuL5g9bsgUS53yyKW1W7usNf9KWPHxbB7sF5A6IrHJH63EImrKzhXKnFlHHMidSWOVS4X++xJXZVlpiXQOPYwSFy9l6cnUle5MnGun56epPBUHH3vwfypArFPV+9mAAQSf0J6RaU0ez2KrFidPZPs6T41b9KcMlV7h57ZgQsgUeux1JSuKVdUTTI9q4lXTbRWll9TxUJ/T2Bz4HwCmkiIDIdDZWVB5wcp0UNpUGVxhhqiZhyNUFRDNcVQQ10ZEglsPyyxJgdnic9aiQK1ShKirSQR52WSDx6sUb6kYSRdk5laaThUkcIRSCqCROm3y6ckoiTCGftfh42S4VdJ+CXfx060SrlTUv+sdCNKlVTNVGVKdUrEHgPg17qILyXewNeRHtMtIOF/KK4LhTc3z/+1AhIBiW+UJXhhC4JZ5GY+XmOTJJjhBTeJ0eXhd3iUBUGobIaXmiQOgn3E1i8lUYCZLOIsdcVRtLOQfTp97WsSB4VJ7PHaFvB/a33CxHt2EEDBF5u4npfQh8fNwBdk3djD5Ixm0OV6gYwB5SMBiRkJrpgNOQE7EKAkBDWj3Wa7zE1CcrPY5QtFIgpCBCjsgjjeh7ji2Y5uDZEAG99Ht+cmXuiBBIEGeicJZGOQCCkV8kEOhD1Y+X9g5IW4xDjEdrE3m0HTXzghriDGJeJiI4eeRhTPQr5hkU/0ZzxDClS9EKUsnGngUHjMaCsIkRDx1LLEdYVSGCYCGIVhQLecKIWUwHPAk/B2Ef+d7u3otlMXJmc8w/ctUQhhcQvjgoSHmxV6SkKluIVISExX5cV0SeSS48UR2TDcZWEW01PAXY9jx6FvE26+F/IMFAWe41KkN7K3w8kkPhKall76tOHzh5tAewERd8PN2CZECoseC31XqIEnaYYHkaE7FX+4z18jwRfkefRNdBNHObGy0czjvwJRkIZMJnmG1F6+HkeSMOI4ysniTJw43jliHS7HUnBMg8ywwu7OPvqcBKM4tNh4gmpA+FCKmySrBmzt6A7HyQfhuPwUXZ3Id1IoTOIXi3xl3LjAtiD/AAlnv4/x1Pb7Dxv+CRL/V04kTiROJE4kTiT+ayT+BfI/D9BHPtuVWtoAAAAASUVORK5CYII=')
 		no-repeat 50% 50%;
 }
 
-/* 계층 트리 아이콘 */
+
 .aui-grid-tree-plus-icon {
 	display: inline-block;
 	width: 16px;
@@ -2699,7 +2664,7 @@ textarea.HandsontableCopyPaste {
 	margin: 0 2px 0 4px;
 }
 
-/* 트리 lazyMode 프리로더 */
+
 .aui-grid-tree-ajax-loader {
 	display: inline-block;
 	width: 16px;
@@ -2711,9 +2676,9 @@ textarea.HandsontableCopyPaste {
 	margin: 0 2px 0 0;
 }
 
-/* 계층 트리 아이콘 끝*/
 
-/*디폴트 헤더 스타일*/
+
+
 .aui-grid-default-header {
 	position: relative !important;
 	text-align: center;
@@ -2741,7 +2706,7 @@ textarea.HandsontableCopyPaste {
 	cursor: default;
 }
 
-/** 헤더 툴팁 아이콘 스타일 */
+
 .aui-grid-header-help-tooltip-icon {
 	background: url(./images/help_ico.png) no-repeat;
 	width: 12px;
@@ -2749,7 +2714,7 @@ textarea.HandsontableCopyPaste {
 	cursor: default;
 }
 
-/** 헤더 툴팁 아이콘 마우스 오버 시 나오는 툴팁 외형 */
+
 .aui-grid-header-help-tooltip-wrapper {
 	border: 1px solid #6799ff;
 	border-radius: 4px;
@@ -2764,7 +2729,7 @@ textarea.HandsontableCopyPaste {
 	pointer-events: none;
 }
 
-/** 라이브 스크롤 사용하지 않을 때 나오는 스크롤 툴팁 외형 */
+
 .aui-grid-scroll-tip-wrapper {
 	border: 1px solid #6799ff;
 	border-radius: 4px;
@@ -2778,7 +2743,7 @@ textarea.HandsontableCopyPaste {
 	-moz-box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);
 }
 
-/*디폴트 푸터 스타일 */
+
 .aui-grid-default-footer {
 	position: relative !important;
 	background: #eeeeee;
@@ -2792,7 +2757,7 @@ textarea.HandsontableCopyPaste {
 	cursor: default;
 }
 
-/* 푸터 상단(헤더 아래) 출력 스타일 */
+
 .aui-grid-default-footer-top-position {
 	border-top: none !important;
 }
@@ -2801,12 +2766,12 @@ textarea.HandsontableCopyPaste {
 	border-bottom: 3px double #bdbdbd !important;
 }
 
-/* 푸터와 바디간의 구분 선 스타일 */
+
 .aui-grid-footer-division-line {
 	border-top: 3px double #bdbdbd !important;
 }
 
-/** 그리드 툴팁 외형 */
+
 .aui-grid-tooltip-wrapper {
 	padding: 2px 6px;
 	border: 1px solid #999;
@@ -2824,7 +2789,7 @@ textarea.HandsontableCopyPaste {
 	pointer-events: none;
 }
 
-/* 디폴트 칼럼 스타일 */
+
 .aui-grid-default-column {
 	position: relative !important;
 	background-color: inherit;
@@ -2833,19 +2798,19 @@ textarea.HandsontableCopyPaste {
 	cursor: default;
 }
 
-/* 셀력션 대표 백그라운드 스타일 */
+
 .aui-grid-selection-bg {
 	background: inherit;
 	color: inherit;
 }
 
-/* 셀렉션 대표 셀 이외의 백그라운드 스타일 */
+
 .aui-grid-selection-others-bg {
 	background: #ccc !important;
 	color: inherit;
 }
 
-/* 셀력션 행 대표 백그라운드 스타일 */
+
 .aui-grid-selection-row-bg {
 	background: #dadada !important;
 	background: -webkit-linear-gradient(top, #e8e8e8, #dadada) !important;
@@ -2855,7 +2820,7 @@ textarea.HandsontableCopyPaste {
 	background: linear-gradient(to bottom, #e8e8e8, #dadada) !important;
 }
 
-/* 셀력션 행 대표 셀 이외의 백그라운드 스타일 */
+
 .aui-grid-selection-row-others-bg {
 	background: #dadada !important;
 	background: -webkit-linear-gradient(top, #e8e8e8, #dadada) !important;
@@ -2865,12 +2830,12 @@ textarea.HandsontableCopyPaste {
 	background: linear-gradient(to bottom, #e8e8e8, #dadada) !important;
 }
 
-/* 셀렉션의 대표 셀 보더(테두리) 색상 스타일*/
+
 .aui-grid-selection-cell-border-lines {
 	background: #22741c;
 }
 
-/* 셀력션 행번호 칼럼 스타일 */
+
 .aui-grid-selection-row-num-column {
 	font-weight: bold !important;
 	color: #000 !important;
@@ -2882,7 +2847,7 @@ textarea.HandsontableCopyPaste {
 	background: linear-gradient(to bottom, #e8e8e8, #dadada) !important;
 }
 
-/* 셀렉션 헤더 칼럼 스타일 */
+
 .aui-grid-selection-header-column {
 	font-weight: bold !important;
 	background: #dadada !important;
@@ -2893,17 +2858,17 @@ textarea.HandsontableCopyPaste {
 	background: linear-gradient(to bottom, #e8e8e8, #dadada) !important;
 }
 
-/* 그리드 Row 배경색 */
+
 .aui-grid-row-background {
 	background: rgb(250, 250, 250);
 }
 
-/* 그리드 Row 다음 배경색*/
+
 .aui-grid-alternative-row-background {
 	background: rgb(255, 255, 255);
 }
 
-/* 칼럼 위치 변경 할 때 보이는 이미지 - 칼럼 드래깅 */
+
 .aui-grid-column-dragging-proxy {
 	background: #eeeeee;
 	-ms-filter: 'progid:DXImageTransform.Microsoft.Alpha(Opacity=80)';
@@ -2919,26 +2884,26 @@ textarea.HandsontableCopyPaste {
 	max-width: 600px;
 }
 
-/* 행 드래깅 손잡이 */
+
 .aui-grid-row-drag-knob {
 	cursor: move;
 	width: 10px;
 	height: 10px;
 }
 
-/* 행 드래깅 손잡이 칼럼 */
+
 .aui-grid-row-drag-knob-column {
 	background: url(./images/dot_move.png) 50% 50% no-repeat !important;
 	cursor: move;
 }
 
-/* 행 위치 바꾸기(행 드래깅) 시 나타나는 임시 선 */
+
 .aui-grid-horizontal-row-change-rule {
 	border-top: 3px solid #2a2d33;
 	z-index: 9999;
 }
 
-/* 행 위치 변경 할 때 보이는 이미지 - 행 드래깅 */
+
 .aui-grid-row-dragging-proxy {
 	background: #eeeeee url(./images/accept-not.png) 2% 50% no-repeat;
 	font-size: 13px;
@@ -2955,50 +2920,50 @@ textarea.HandsontableCopyPaste {
 	z-index: 9999;
 }
 
-/* 행 위치 변경 할 때 보이는 Accept 이미지 */
+
 .aui-grid-row-dragging-proxy-accept {
 	background: #eeeeee url(./images/accept-ok.png) 2% 50% no-repeat;
 }
 
-/* 상태 칼럼에 출력 시킬 스타일 */
-/* 현재 행 상태 스타일 */
+
+
 .aui-grid-row-state-current {
 	background: url(./images/arrow_icon.png) 50% 50% no-repeat !important;
 }
 
-/* 추가 행 상태 스타일 */
+
 .aui-grid-row-state-added {
 	background: url(./images/add_icon.png) 50% 50% no-repeat !important;
 	cursor: pointer;
 }
 
-/* 삭제 행 상태 스타일 */
+
 .aui-grid-row-state-removed {
 	background: url(./images/delete_icon.png) 50% 50% no-repeat !important;
 	cursor: pointer;
 }
 
-/* 수정 행 상태 스타일 */
+
 .aui-grid-row-state-edited {
 	background: url(./images/modified_icon.png) 50% 50% no-repeat !important;
 	cursor: pointer;
 }
 
-/* 추가한 행-수정 상태 스타일 */
+
 .aui-grid-row-state-added-edited {
 	background: url(./images/modified_a_icon.png) 50% 50% no-repeat !important;
 	cursor: pointer;
 }
 
-/* 상태 칼럼에 출력 시킬 스타일 끝*/
 
-/* 소프트 모드 삭제한 행 스타일*/
+
+
 .aui-grid-row-soft-removed-marker {
 	color: #aaa !important;
 	text-decoration: line-through !important;
 }
 
-/* 수정한 셀 표시 스타일(마커) */
+
 .aui-grid-cell-edited-marker {
 	top: 0px;
 	margin: 0px !important;
@@ -3010,12 +2975,12 @@ textarea.HandsontableCopyPaste {
 	border-right: 4px solid transparent;
 }
 
-/* 엑스트차 체크박스 체크된 행 스타일*/
+
 .aui-grid-extra-checked-row {
 	background: #ffffe4;
 }
 
-/* 페이징 패널 스타일 */
+
 .aui-grid-paging-panel {
 	text-align: center;
 	background: #eaeaea;
@@ -3028,7 +2993,7 @@ textarea.HandsontableCopyPaste {
 	box-sizing: border-box;
 }
 
-/* 페이징 넘버링 */
+
 .aui-grid-paging-panel .aui-grid-paging-number {
 	display: inline-block;
 	border: 1px solid #ccc;
@@ -3047,38 +3012,38 @@ textarea.HandsontableCopyPaste {
 	cursor: pointer;
 }
 
-/* 페이징 현재 페이지 선택 넘버링 */
+
 .aui-grid-paging-panel .aui-grid-paging-number-selected {
 	background: #555 !important;
 	border: 1px solid #555 !important;
 	color: #ffffff !important;
 }
 
-/* 페이징 이전 버튼 */
+
 .aui-grid-paging-panel .aui-grid-paging-prev {
 	background: url(./images/prev_ico.png) 50% 50% no-repeat;
 	text-indent: -99999px;
 }
 
-/* 페이징 다음 버튼 */
+
 .aui-grid-paging-panel .aui-grid-paging-next {
 	background: url(./images/next_ico.png) 50% 50% no-repeat;
 	text-indent: -99999px;
 }
 
-/* 페이징 처음 버튼 */
+
 .aui-grid-paging-panel .aui-grid-paging-first {
 	background: url(./images/first_ico.png) 50% 50% no-repeat;
 	text-indent: -99999px;
 }
 
-/* 페이징 마지막 버튼 */
+
 .aui-grid-paging-panel .aui-grid-paging-last {
 	background: url(./images/last_ico.png) 50% 50% no-repeat;
 	text-indent: -99999px;
 }
 
-/* 페이징 모드 simple 인 경우 나타나는 현재 페이지 */
+
 .aui-grid-paging-number-simple-text {
 	margin-left: 1em;
 	margin-right: 1em;
@@ -3086,14 +3051,14 @@ textarea.HandsontableCopyPaste {
 	cursor: default;
 }
 
-/* 페이징 정보 텍스트 */
+
 .aui-grid-paging-panel .aui-grid-paging-info-text {
 	position: absolute;
 	right: 0px;
 	margin: 8px 10px 0 0;
 }
 
-/* 페이징 행 개수 변경 select */
+
 .aui-grid-paging-row-count-select {
 	width: 50px;
 	border: 1px solid #ddd;
@@ -3106,7 +3071,7 @@ textarea.HandsontableCopyPaste {
 	line-height: 2em;
 }
 
-/* pagingMode button인 경우 좌우 버튼 공용*/
+
 .aui-grid-paging-simple-button {
 	border-radius: 20px;
 	width: 40px;
@@ -3120,21 +3085,21 @@ textarea.HandsontableCopyPaste {
 	cursor: pointer;
 }
 
-/* pagingMode button인 좌-이전 버튼*/
+
 .aui-grid-paging-simple-butotn-prev {
 	left: 4px;
 	bottom: 4px;
 	background: #ffffff url(./images/prev_ico.png) 50% 50% no-repeat;
 }
 
-/* pagingMode button인 우-다음 버튼*/
+
 .aui-grid-paging-simple-butotn-next {
 	right: 4px;
 	bottom: 4px;
 	background: #ffffff url(./images/next_ico.png) 50% 50% no-repeat;
 }
 
-/* 그룹핑 패널 스타일 */
+
 .aui-grid-grouping-panel {
 	background: #eaeaea;
 	background: -webkit-linear-gradient(top, #f8f8f8, #eaeaea);
@@ -3147,7 +3112,7 @@ textarea.HandsontableCopyPaste {
 	text-align: left;
 }
 
-/* 그룹핑 메세지 */
+
 .aui-grid-grouping-message {
 	display: inline-block;
 	padding: 10px 0 0 15px;
@@ -3158,7 +3123,7 @@ textarea.HandsontableCopyPaste {
 	cursor: default;
 }
 
-/* 그룹핑 드래깅 할 때 보이는 이미지 */
+
 .aui-grid-grouping-dragging-proxy {
 	background: #eeeeee url(./images/accept-not.png) 98% 50% no-repeat;
 	-ms-filter: 'progid:DXImageTransform.Microsoft.Alpha(Opacity=70)';
@@ -3174,12 +3139,12 @@ textarea.HandsontableCopyPaste {
 	max-width: 600px;
 }
 
-/* 그룹핑 드래깅 할 때 보이는 Accept 이미지 */
+
 .aui-grid-grouping-dragging-proxy-accept {
 	background: #eeeeee url(./images/accept-ok.png) 98% 50% no-repeat;
 }
 
-/* 그룹핑 패널에 있는 그룹핑 패널 아이템 */
+
 .aui-grid-grouping-item {
 	background: #eeeeee url(./images/delete.png) 98% 50% no-repeat;
 	border: 1px solid #aaaaaa;
@@ -3191,7 +3156,7 @@ textarea.HandsontableCopyPaste {
 	white-space: nowrap;
 }
 
-/* 그룹핑 패널 좌 스크롤 버턴 */
+
 .aui-grid-grouping-prev-btn {
 	background: #bbbbbb url('./images/icon-left.png') no-repeat 50% 50%;
 }
@@ -3201,7 +3166,7 @@ textarea.HandsontableCopyPaste {
 	cursor: pointer;
 }
 
-/* 그룹핑 패널 우 스크롤 버턴 */
+
 .aui-grid-grouping-next-btn {
 	background: #bbbbbb url('./images/icon-right.png') no-repeat 50% 50%;
 }
@@ -3211,7 +3176,7 @@ textarea.HandsontableCopyPaste {
 	cursor: pointer;
 }
 
-/* 헤더 필터 아이콘 스타일 */
+
 .aui-grid-header-filter-icon {
 	border-left: 1px solid #dadada;
 	border-right: none;
@@ -3224,7 +3189,7 @@ textarea.HandsontableCopyPaste {
 	background: #ddd url(./images/filter_ico.png) 50% 50% no-repeat;
 }
 
-/* 현재 필터링 된 상태 아이콘 스타일 */
+
 .aui-grid-header-filter-icon-filtered {
 	border-left: 1px solid #dadada;
 	border-right: none;
@@ -3233,7 +3198,7 @@ textarea.HandsontableCopyPaste {
 	cursor: pointer;
 }
 
-/* 필터 팝업 레이어 */
+
 .aui-grid-filter-popup-layer {
 	font-family: 'Malgun Gothic', '맑은 고딕', AppleSDGothicNeo-Light, sans-serif;
 	font-size: 12px;
@@ -3247,7 +3212,7 @@ textarea.HandsontableCopyPaste {
 	z-index: 1999;
 }
 
-/* 필터 초기화 */
+
 .aui-grid-filter-popup-layer > span:first-child {
 	background: url(./images/filter_ico.png) 5px 50% no-repeat;
 	margin: 10px 0px 4px 0px;
@@ -3257,13 +3222,13 @@ textarea.HandsontableCopyPaste {
 	line-height: 18px;
 }
 
-/* 필터 초기화 over */
+
 .aui-grid-filter-popup-layer > span:first-child:hover {
 	background: #ddd url(./images/filter_ico.png) 5px 50% no-repeat;
 	cursor: pointer;
 }
 
-/* 필터 - 확장 필터 */
+
 .aui-grid-filter-popup-layer .aui-grid-filter-exmenu-span {
 	background: url(./images/icon-right.png) 100% 50% no-repeat;
 	margin: 0;
@@ -3273,18 +3238,18 @@ textarea.HandsontableCopyPaste {
 	line-height: 18px;
 }
 
-/* 필터 - 확장 필터 over */
+
 .aui-grid-filter-popup-layer .aui-grid-filter-exmenu-span:hover {
 	background-color: #ddd;
 	cursor: pointer;
 }
 
-/* 필터 - 확장 필터 선택됨 */
+
 .aui-grid-filter-popup-layer .aui-grid-filter-exmenu-span-selected {
 	background-color: #ddd;
 }
 
-/* 필터 - 확장 필터 서브 메뉴 */
+
 .aui-grid-filter-popup-filter-exmenu-sub-layer {
 	font-family: 'Malgun Gothic', '맑은 고딕', AppleSDGothicNeo-Light, sans-serif;
 	font-size: 12px;
@@ -3328,7 +3293,7 @@ textarea.HandsontableCopyPaste {
 	border-top-style: solid;
 }
 
-/* 필드 - 확장 필터 사용자 지정 modal 컨테이너 */
+
 .aui-grid-filter-modal {
 	position: fixed;
 	top: 0;
@@ -3343,7 +3308,7 @@ textarea.HandsontableCopyPaste {
 	outline: 0;
 }
 
-/* 사용자 필터 - 숫자, 텍스트 필터 Modal 다이얼로그 */
+
 .aui-grid-filter-modal-dialog {
 	font-family: 'Malgun Gothic', '맑은 고딕', AppleSDGothicNeo-Light, sans-serif;
 	font-size: 12px;
@@ -3370,7 +3335,7 @@ textarea.HandsontableCopyPaste {
 	border-bottom: 1px solid #e5e5e5;
 }
 
-/* 필터 modal 닫기 버턴 */
+
 .aui-grid-filter-modal-close-btn {
 	width: 16px;
 	height: 16px;
@@ -3429,7 +3394,7 @@ textarea.HandsontableCopyPaste {
 	padding: 6px 4px;
 }
 
-/* 필드 설정 확인, 취소 버턴 */
+
 .aui-grid-filter-modal-dialog-footer .aui-button {
 	background: #eee;
 	border: 1px solid #aaaaaa;
@@ -3449,28 +3414,28 @@ textarea.HandsontableCopyPaste {
 	background: #ddd;
 }
 
-/* 필터 - 확장 필터 modal 사용자 지정 종료.*/
 
-/* 필터 스크롤 컨테이너 영역*/
+
+
 .aui-grid-filter-popup-layer .aui-container {
 	border: 1px solid #aaaaaa;
 	margin: 10px 5px;
 }
 
-/* 필터 스크롤 컨테이너 스크롤 재정의*/
+
 .aui-grid-filter-popup-layer .aui-container .aui-hscrollbar .aui-scroll-thumb,
 .aui-grid-filter-popup-layer .aui-container .aui-vscrollbar .aui-scroll-thumb {
 	background: #aaaaaa;
 }
 
-/* 필터 안의 Too may Items..문구 */
+
 .aui-grid-filter-popup-layer .aui-container .aui-grid-filter-info-message {
 	padding-left: 4px;
 	font-weight: bold;
 	cursor: default;
 }
 
-/* 필터 체크박스*/
+
 .aui-grid-filter-popup-layer .aui-container .aui-check-label-box {
 	padding: 2px 6px;
 	cursor: default;
@@ -3486,7 +3451,7 @@ textarea.HandsontableCopyPaste {
 	margin-top: 0 !important;
 }
 
-/* 필터 자동완성 검색 인풋 시작 */
+
 .aui-grid-filter-popup-layer .aui-autocomplete-input {
 	overflow: hidden;
 	position: relative;
@@ -3544,7 +3509,7 @@ textarea.HandsontableCopyPaste {
 	height: 8px;
 }
 
-/* 인라인 필터 박스 */
+
 .aui-grid-filter-inline-box {
 	border: 1px solid #bdbdbd;
 	box-sizing: border-box !important;
@@ -3555,7 +3520,7 @@ textarea.HandsontableCopyPaste {
 	border-color: #3db7cc;
 }
 
-/* 인라인 필터 인풋에 표시되는 클리어(X) 버튼 */
+
 .aui-grid-filter-inline-input-clear {
 	display: inline-block;
 	background: url(./images/clear_del.png) 50% 50% no-repeat;
@@ -3566,7 +3531,7 @@ textarea.HandsontableCopyPaste {
 	height: 16px;
 }
 
-/* 인라인 필터 인풋 */
+
 .aui-grid-filter-inline-input {
 	font-size: 12px;
 	height: 24px;
@@ -3585,12 +3550,12 @@ textarea.HandsontableCopyPaste {
 	display: none;
 }
 
-/* 인라인 필터 행 스타일 */
+
 .aui-grid-filter-inline-row {
 	background: #efefef;
 }
 
-/* 컨텍스트 메뉴 */
+
 .aui-grid-context-popup-layer {
 	font-size: 12px;
 	min-width: 180px;
@@ -3609,7 +3574,7 @@ textarea.HandsontableCopyPaste {
 	margin: 0;
 	padding: 0;
 }
-/* 컨텍스트 아이템 */
+
 .aui-grid-context-item {
 	position: relative;
 	cursor: default;
@@ -3633,7 +3598,7 @@ textarea.HandsontableCopyPaste {
 	cursor: default !important;
 }
 
-/* 컨텍스트 아이템 구분 라인 */
+
 .aui-grid-context-item-line {
 	height: 1px;
 	padding: 0 10px 0 24px;
@@ -3641,7 +3606,7 @@ textarea.HandsontableCopyPaste {
 	border-bottom: 1px solid #ccc;
 }
 
-/* 컨텍스트 서브 메뉴*/
+
 .aui-grid-context-list-ul-sub {
 	position: absolute;
 	list-style: none;
@@ -3666,7 +3631,7 @@ textarea.HandsontableCopyPaste {
 	overflow: visible !important;
 }
 
-/* 내보내기 진행 표시 스타일 */
+
 .aui-grid-export-progress-container {
 	width: 280px;
 	height: 80px;
@@ -3723,9 +3688,9 @@ textarea.HandsontableCopyPaste {
 	text-overflow: ellipsis;
 }
 
-/* 내보내기 진행 표시 스타일 끝 */
 
-/* 모든 칼럼 렌더러의 베이스 */
+
+
 .aui-grid-renderer-base {
 	text-overflow: ellipsis;
 	box-sizing: content-box;
@@ -3737,7 +3702,7 @@ textarea.HandsontableCopyPaste {
 	position: relative;
 }
 
-/* 버턴 렌더러 스타일 */
+
 .aui-grid-button-renderer {
 	color: #000000;
 	background: #eee;
@@ -3763,18 +3728,18 @@ textarea.HandsontableCopyPaste {
 	width: 80%;
 }
 
-/* 버튼 비활성화 처리 */
+
 .aui-grid-button-renderer-disabled {
 	cursor: not-allowed;
 	border: 1px solid #ddd;
 	color: #ccc;
 }
 
-/* 버턴 렌더러 스타일 끝 */
 
-/** 넘버 스텝퍼 렌더러 시작 */
+
+
 .aui-grid-number-step-renderer {
-	/*border-radius: 3px;*/
+	
 	margin: 0;
 	overflow: hidden;
 	position: relative;
@@ -3853,9 +3818,9 @@ textarea.HandsontableCopyPaste {
 	-moz-box-sizing: border-box;
 }
 
-/** 넘버 스텝퍼 렌더러 끝 */
 
-/* 드랍다운리스트 렌더러 시작 */
+
+
 .aui-grid-drop-list-wrapper {
 	background: #eaeaea;
 	background: -webkit-linear-gradient(top, #f8f8f8, #eaeaea);
@@ -3895,7 +3860,7 @@ textarea.HandsontableCopyPaste {
 	height: 22px;
 }
 
-/* 드랍다운리스트 비활성화 처리 */
+
 .aui-grid-drop-list-renderer-disabled {
 	border: 1px solid #ddd;
 	background: #eaeaea;
@@ -3906,9 +3871,9 @@ textarea.HandsontableCopyPaste {
 	color: #ccc;
 }
 
-/* 드랍다운리스트 렌더러 끝 */
 
-/* 드랍다운리스트, 콤보박스에서 나오는 리스트의 상위 랩퍼 */
+
+
 .aui-grid-drop-list-item-wrapper {
 	background: #fff;
 	font-size: 12px;
@@ -3925,14 +3890,14 @@ textarea.HandsontableCopyPaste {
 	-moz-box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.3);
 }
 
-/* 드랍다운리스트, 콤보박스에서 나오는 리스트 개별 아이템 ul */
+
 .aui-grid-drop-list-ul {
 	list-style: none;
 	margin: 0;
 	padding: 0;
 }
 
-/* 드랍다운리스트, 콤보박스에서 나오는 리스트 개별 아이템 li */
+
 .aui-grid-drop-list-item {
 	cursor: default;
 	height: 24px;
@@ -3951,7 +3916,7 @@ textarea.HandsontableCopyPaste {
 	color: #fff;
 }
 
-/* 드랍다운리스트 다중 선택에서 선택된 아이템 체크박스 표시 li */
+
 .aui-grid-drop-list-item-checked {
 	background: #b2ccff url('./images/blue-check.png') no-repeat 4px 50%;
 }
@@ -3966,26 +3931,26 @@ textarea.HandsontableCopyPaste {
 	font-weight: bold;
 }
 
-/* 바렌더러 바게이지 시작*/
-/* 바게이지 전체 랩핑 div */
+
+
 .aui-grid-bar-renderer {
 	position: relative;
 }
 
-/* 바게이지 텍스트 span*/
+
 .aui-grid-bar-renderer span {
 	position: relative;
 	margin-top: 4px;
 	padding: 0 2px;
 }
 
-/* 바게이지 바 베이스*/
+
 .aui-grid-bar-renderer-bar-base {
 	box-sizing: border-box;
 	border: 1px solid #e4e4e4;
 }
 
-/* 바게이지 일반 바 */
+
 .aui-grid-bar-renderer-normal {
 	background: #2f9d27;
 	background: -webkit-linear-gradient(right, #86e57f, #2f9d27);
@@ -3995,7 +3960,7 @@ textarea.HandsontableCopyPaste {
 	background: linear-gradient(to left, #86e57f, #2f9d27);
 }
 
-/* 바게이지 오른쪽에서 왼쪽으로 렌더링 될 때  바 */
+
 .aui-grid-bar-renderer-reverse {
 	background: #df4d4d;
 	background: -webkit-linear-gradient(left, #ff9595, #df4d4d);
@@ -4005,19 +3970,19 @@ textarea.HandsontableCopyPaste {
 	background: linear-gradient(to right, #ff9595, #df4d4d);
 }
 
-/* 바게이지 양수 음수 함께 사용되는 영역에서 음수 바 */
+
 .aui-grid-bar-renderer-negative {
 	background: #df4d4d;
 }
 
-/* 바게이지 양수 음수 함께 사용되는 영역에서 양수 바 */
+
 .aui-grid-bar-renderer-positive {
 	background: #2f9d27;
 }
 
-/* 바렌더러 바게이지 끝*/
 
-/* 달력 */
+
+
 .aui-grid-calendar-wrapper {
 	z-index: 1999;
 	background: #ffffff;
@@ -4190,7 +4155,7 @@ textarea.HandsontableCopyPaste {
 	box-sizing: border-box;
 }
 
-/* 이전, 다음 달의 여분 날짜(day) */
+
 .aui-grid-calendar-wrapper .aui-calendar .extraday {
 	text-align: center;
 	color: #aaa;
@@ -4255,7 +4220,7 @@ textarea.HandsontableCopyPaste {
 	background: #286090;
 }
 
-/* 달력 시간 */
+
 .aui-grid-calendar-wrapper .aui-calendar .aui-calendar-body-time {
 	text-align: center;
 }
@@ -4278,9 +4243,9 @@ textarea.HandsontableCopyPaste {
 	margin-right: 3px;
 	font-weight: bold;
 }
-/* 달력 끝 */
 
-/* bootstrap-datepicker, jquery-datepicker 달력 시작*/
+
+
 .aui-grid-bootstrap-calendar-wrapper,
 .aui-grid-jq-calendar-wrapper {
 	font-family: 'Malgun Gothic', '맑은 고딕', AppleSDGothicNeo-Light, sans-serif;
@@ -4304,9 +4269,9 @@ textarea.HandsontableCopyPaste {
 .aui-grid-bootstrap-calendar-wrapper * {
 	box-sizing: content-box;
 }
-/* bootstrap-datepicker,jquery-datepicker 달력 끝*/
 
-/* 사용자 정의 에디트 렌더러 */
+
+
 .aui-grid-edit-renderer-custom {
 	font-family: 'Malgun Gothic', '맑은 고딕', AppleSDGothicNeo-Light, sans-serif;
 	font-size: 12px;
@@ -4320,13 +4285,13 @@ textarea.HandsontableCopyPaste {
 	z-index: 1999;
 }
 
-/* 링크 렌더러 */
+
 .aui-grid-link-renderer > a {
 	text-decoration: underline;
 }
-/* 링크 렌더러 끝*/
 
-/* 스위치 렌더러 */
+
+
 .aui-switch-toggle-label {
 	position: relative;
 }
@@ -4378,9 +4343,9 @@ textarea.HandsontableCopyPaste {
 .aui-switch-toggle-slider-round:before {
 	border-radius: 50%;
 }
-/* 스위치 렌더러 끝 */
 
-/* 셀 에디터 버턴 기본 스타일 */
+
+
 .aui-grid-cell-editor-button {
 	cursor: pointer;
 	background: url(./images/pad-icon.png) 50% 50% no-repeat;
@@ -4388,33 +4353,33 @@ textarea.HandsontableCopyPaste {
 	border: none;
 }
 
-/* 셀 에디터 버턴 텍스트 인풋 스타일 */
+
 .aui-grid-cell-editor-button-inputer {
 	background: url(./images/input-icon.png) 50% 50% no-repeat;
 }
 
-/* 셀 에디터 버턴 콤보박스, 드랍다운리스트 스타일 */
+
 .aui-grid-cell-editor-button-combo-list,
 .aui-grid-cell-editor-button-drop-list {
 	background: url(./images/list-icon.png) 50% 50% no-repeat;
 }
 
-/* 셀 에디터 버턴 달력 스타일 */
+
 .aui-grid-cell-editor-button-calendar {
 	background: url(./images/calendar-icon.png) 50% 50% no-repeat;
 }
 
-/* 셀 에디터 버턴 리모트리스트 검색 스타일 */
+
 .aui-grid-cell-editor-button-remote-search {
 	background: url(./images/search2.png) 50% 50% no-repeat;
 }
 
-/* 셀 에디터 버턴 리모트리스트 프리로더 */
+
 .aui-grid-cell-editor-button-ajax-loader {
 	background: url(./images/tiny-ajax-loader.gif) 50% 50% no-repeat;
 }
 
-/* 계층형인 경우 Depth 에 따른 ROW 간 스타일 */
+
 .aui-grid-row-depth1-style {
 	font-weight: bold;
 	color: #eaeaea;
@@ -4576,9 +4541,9 @@ textarea.HandsontableCopyPaste {
 .tail-select-container.select-label .select-handle{
     margin: 5px 3px;
 }
-/* @end GENERAL */
 
-/* @start LABEL */
+
+
 .tail-select .select-label{
     cursor: pointer;
     color: rgba(48, 52, 56, 0.85);
@@ -4669,9 +4634,9 @@ textarea.HandsontableCopyPaste {
     cursor: not-allowed;
     box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.35);
 }
-/* @end LABEL */
 
-/* @start DROPDOWN */
+
+
 .tail-select .select-dropdown{
     top: 100%;
     left: 0;
@@ -4820,7 +4785,7 @@ textarea.HandsontableCopyPaste {
 .tail-select.hide-disabled .select-dropdown ul li.disabled{
     display: none;
 }
-/* State & Icons :: Single */
+
 .tail-select .select-dropdown ul li.dropdown-option:before{
     background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2212%22%20height%3D%2216%22%20viewBox%3D%220%200%2012%2016%22%3E%3Cpath%20fill%3D%22%23303438%22%20d%3D%22M12%205l-8%208-4-4%201.5-1.5L4%2010l6.5-6.5L12%205z%22/%3E%3C/svg%3E");
 }
@@ -4872,7 +4837,7 @@ textarea.HandsontableCopyPaste {
 .tail-select .select-dropdown ul li.dropdown-option.disabled .option-description{
     color: rgba(48, 52, 56, 0.4);
 }
-/* State & Icons :: Multiple */
+
 .tail-select.multiple .select-dropdown ul li.dropdown-option:before{
     background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2214%22%20height%3D%2216%22%20viewBox%3D%220%200%2014%2016%22%3E%3Cpath%20fill%3D%22%23303438%22%20d%3D%22M13%201H1c-.55%200-1%20.45-1%201v12c0%20.55.45%201%201%201h12c.55%200%201-.45%201-1V2c0-.55-.45-1-1-1zm0%2013H1V2h12v12zM6%209H3V7h3V4h2v3h3v2H8v3H6V9z%22/%3E%3C/svg%3E");
 }
@@ -4887,7 +4852,7 @@ textarea.HandsontableCopyPaste {
 .tail-select.multiple .select-dropdown ul li.dropdown-option.disabled:before{
     background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2214%22%20height%3D%2216%22%20viewBox%3D%220%200%2014%2016%22%3E%3Cpath%20fill%3D%22%23303438%22%20d%3D%22M13%201H1c-.55%200-1%20.45-1%201v12c0%20.55.45%201%201%201h12c.55%200%201-.45%201-1V2c0-.55-.45-1-1-1zm0%2013H1V2h12v12zm-8.5-2H3v-1.5L9.5%204H11v1.5L4.5%2012z%22/%3E%3C/svg%3E");
 }
-/* @end DROPDOWN */
+
 
 .ispin-wrapper {
   position: relative;
@@ -6324,7 +6289,7 @@ div[class^="ckbx-style-"] input[type=checkbox] {
 }
 .color-picker i {
   font: inherit;
-  font-size: 12px; /* measure the color control size by measuring the text size */
+  font-size: 12px; 
 }
 .color-picker-h,
 .color-picker-sv {
@@ -6406,31 +6371,31 @@ div[class^="ckbx-style-"] input[type=checkbox] {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-tap-highlight-color: transparent;
 }
-/* BASICS */
+
 
 .CodeMirror {
-  /* Set height, width, borders, and global font properties here */
+  
   font-family: monospace;
   height: 300px;
   color: black;
   direction: ltr;
 }
 
-/* PADDING */
+
 
 .CodeMirror-lines {
-  padding: 4px 0; /* Vertical padding around content */
+  padding: 4px 0; 
 }
 .CodeMirror pre.CodeMirror-line,
 .CodeMirror pre.CodeMirror-line-like {
-  padding: 0 4px; /* Horizontal padding of content */
+  padding: 0 4px; 
 }
 
 .CodeMirror-scrollbar-filler, .CodeMirror-gutter-filler {
-  background-color: white; /* The little square between H and V scrollbars */
+  background-color: white; 
 }
 
-/* GUTTER */
+
 
 .CodeMirror-gutters {
   border-right: 1px solid #ddd;
@@ -6449,14 +6414,14 @@ div[class^="ckbx-style-"] input[type=checkbox] {
 .CodeMirror-guttermarker { color: black; }
 .CodeMirror-guttermarker-subtle { color: #999; }
 
-/* CURSOR */
+
 
 .CodeMirror-cursor {
   border-left: 1px solid black;
   border-right: none;
   width: 0;
 }
-/* Shown when moving in bi-directional text */
+
 .CodeMirror div.CodeMirror-secondarycursor {
   border-left: 1px solid silver;
 }
@@ -6491,7 +6456,7 @@ div[class^="ckbx-style-"] input[type=checkbox] {
   100% {}
 }
 
-/* Can style cursor different in overwrite (non-insert) mode */
+
 .CodeMirror-overwrite .CodeMirror-cursor {}
 
 .cm-tab { display: inline-block; text-decoration: inherit; }
@@ -6507,7 +6472,7 @@ div[class^="ckbx-style-"] input[type=checkbox] {
   position: absolute;
 }
 
-/* DEFAULT THEME */
+
 
 .cm-s-default .cm-header {color: blue;}
 .cm-s-default .cm-quote {color: #090;}
@@ -6545,17 +6510,16 @@ div[class^="ckbx-style-"] input[type=checkbox] {
 
 .CodeMirror-composing { border-bottom: 2px solid; }
 
-/* Default styles for common addons */
+
 
 div.CodeMirror span.CodeMirror-matchingbracket {color: #0b0;}
 div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
 .CodeMirror-matchingtag { background: rgba(255, 150, 0, .3); }
 .CodeMirror-activeline-background {background: #e8f2ff;}
 
-/* STOP */
 
-/* The rest of this file contains styles related to the mechanics of
-   the editor. You probably shouldn't touch them. */
+
+
 
 .CodeMirror {
   position: relative;
@@ -6564,13 +6528,13 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
 }
 
 .CodeMirror-scroll {
-  overflow: scroll !important; /* Things will break if this is overridden */
-  /* 50px is the magic margin used to hide the element's real scrollbars */
-  /* See overflow: hidden in .CodeMirror */
+  overflow: scroll !important; 
+  
+  
   margin-bottom: -50px; margin-right: -50px;
   padding-bottom: 50px;
   height: 100%;
-  outline: none; /* Prevent dragging from highlighting the element */
+  outline: none; 
   position: relative;
   z-index: 0;
 }
@@ -6579,9 +6543,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
   border-right: 50px solid transparent;
 }
 
-/* The fake, visible scrollbars. Used to force redraw during scrolling
-   before actual scrolling happens, thus preventing shaking and
-   flickering artifacts. */
+
 .CodeMirror-vscrollbar, .CodeMirror-hscrollbar, .CodeMirror-scrollbar-filler, .CodeMirror-gutter-filler {
   position: absolute;
   z-index: 6;
@@ -6638,11 +6600,11 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
 
 .CodeMirror-lines {
   cursor: text;
-  min-height: 1px; /* prevents collapsing before first draw */
+  min-height: 1px; 
 }
 .CodeMirror pre.CodeMirror-line,
 .CodeMirror pre.CodeMirror-line-like {
-  /* Reset some styles that the rest of the page might have set */
+  
   -moz-border-radius: 0; -webkit-border-radius: 0; border-radius: 0;
   border-width: 0;
   background: transparent;
@@ -6676,7 +6638,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
 .CodeMirror-linewidget {
   position: relative;
   z-index: 2;
-  padding: 0.1px; /* Force widget margins to stay inside of the container */
+  padding: 0.1px; 
 }
 
 .CodeMirror-widget {}
@@ -6687,7 +6649,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
   outline: none;
 }
 
-/* Force content-box sizing for the elements where we expect it */
+
 .CodeMirror-scroll,
 .CodeMirror-sizer,
 .CodeMirror-gutter,
@@ -6735,20 +6697,20 @@ div.CodeMirror-dragcursors {
   background-color: rgba(255, 255, 0, .4);
 }
 
-/* Used to force a border model for a node */
+
 .cm-force-border { padding-right: .1px; }
 
 @media print {
-  /* Hide the cursor when printing */
+  
   .CodeMirror div.CodeMirror-cursors {
     visibility: hidden;
   }
 }
 
-/* See issue #2901 */
+
 .cm-tab-wrap-hack:after { content: ''; }
 
-/* Help users use markselection to safely style text background */
+
 span.CodeMirror-selectedtext { background: none; }
 
 /*!
@@ -6757,21 +6719,8 @@ span.CodeMirror-selectedtext { background: none; }
  * DON'T EDIT THE CSS FILE DIRECTLY, since it is automatically generated from
  * the LESS templates.
  */
-/*******************************************************************************
- * Common Styles for Fancytree Skins.
- *
- * This section is automatically generated from the `skin-common.less` template.
- *
- * Copyright (c) 2008-2023, Martin Wendt (https://wwWendt.de)
- * Released under the MIT license
- * https://github.com/mar10/fancytree/wiki/LicenseInfo
- *
- * @version 2.38.3
- * @date 2023-02-01T20:52:50Z
-******************************************************************************/
-/*------------------------------------------------------------------------------
- * Helpers
- *----------------------------------------------------------------------------*/
+
+
 .fancytree-helper-hidden {
   display: none;
 }
@@ -6781,7 +6730,7 @@ span.CodeMirror-selectedtext { background: none; }
 .fancytree-helper-disabled {
   color: #c0c0c0;
 }
-/* Helper to allow spinning loader icon with glyph-, ligature-, and SVG-icons. */
+
 .fancytree-helper-spin {
   -webkit-animation: spin 1000ms infinite linear;
   animation: spin 1000ms infinite linear;
@@ -6806,9 +6755,7 @@ span.CodeMirror-selectedtext { background: none; }
     transform: rotate(359deg);
   }
 }
-/*------------------------------------------------------------------------------
- * Container and UL / LI
- *----------------------------------------------------------------------------*/
+
 ul.fancytree-container {
   font-family: tahoma, arial, helvetica;
   font-size: 10pt;
@@ -6859,9 +6806,7 @@ ul.fancytree-no-connector > li {
 li.fancytree-animating {
   position: relative;
 }
-/*------------------------------------------------------------------------------
- * Common icon definitions
- *----------------------------------------------------------------------------*/
+
 span.fancytree-empty,
 span.fancytree-vline,
 span.fancytree-expander,
@@ -6883,7 +6828,7 @@ span.fancytree-expander,
 span.fancytree-custom-icon {
   margin-top: 2px;
 }
-/* Used by icon option: */
+
 span.fancytree-custom-icon {
   width: 16px;
   height: 16px;
@@ -6891,7 +6836,7 @@ span.fancytree-custom-icon {
   margin-left: 3px;
   background-position: 0px 0px;
 }
-/* Used by 'icon' node option: */
+
 img.fancytree-icon {
   width: 16px;
   height: 16px;
@@ -6900,17 +6845,7 @@ img.fancytree-icon {
   vertical-align: top;
   border-style: none;
 }
-/*------------------------------------------------------------------------------
- * Expander icon
- *
- * Note: IE6 doesn't correctly evaluate multiples class names,
- *		 so we create combined class names that can be used in the CSS.
- *
- * Prefix: fancytree-exp-
- * 1st character: 'e': expanded, 'c': collapsed, 'n': no children
- * 2nd character (optional): 'd': lazy (Delayed)
- * 3rd character (optional): 'l': Last sibling
- *----------------------------------------------------------------------------*/
+
 span.fancytree-expander {
   cursor: pointer;
 }
@@ -6972,7 +6907,7 @@ span.fancytree-expander {
 .fancytree-exp-edl span.fancytree-expander:hover {
   background-position: -48px -96px;
 }
-/* Fade out expanders, when container is not hovered or active */
+
 .fancytree-fade-expander span.fancytree-expander {
   transition: opacity 1.5s;
   opacity: 0;
@@ -6984,9 +6919,7 @@ span.fancytree-expander {
   transition: opacity 0.6s;
   opacity: 1;
 }
-/*------------------------------------------------------------------------------
- * Checkbox icon
- *----------------------------------------------------------------------------*/
+
 span.fancytree-checkbox {
   margin-left: 3px;
   background-position: 0px -32px;
@@ -7056,20 +6989,12 @@ span.fancytree-checkbox.fancytree-radio:hover {
 .fancytree-container.fancytree-checkbox-auto-hide.fancytree-treefocus tr.fancytree-active td span.fancytree-checkbox {
   visibility: unset;
 }
-/*------------------------------------------------------------------------------
- * Node type icon
- * Note: IE6 doesn't correctly evaluate multiples class names,
- *		 so we create combined class names that can be used in the CSS.
- *
- * Prefix: fancytree-ico-
- * 1st character: 'e': expanded, 'c': collapsed
- * 2nd character (optional): 'f': folder
- *----------------------------------------------------------------------------*/
+
 span.fancytree-icon {
   margin-left: 3px;
   background-position: 0px 0px;
 }
-/* Documents */
+
 .fancytree-ico-c span.fancytree-icon:hover {
   background-position: -16px 0px;
 }
@@ -7085,7 +7010,7 @@ span.fancytree-icon {
 .fancytree-ico-e span.fancytree-icon:hover {
   background-position: -80px 0px;
 }
-/* Folders */
+
 .fancytree-ico-cf span.fancytree-icon {
   background-position: 0px -16px;
 }
@@ -7112,16 +7037,14 @@ span.fancytree-icon.fancytree-icon-loading {
   background-image: url("../skin-win8/loading.gif");
   background-position: 0px 0px;
 }
-/* Status node icons */
+
 .fancytree-statusnode-error span.fancytree-icon,
 .fancytree-statusnode-error span.fancytree-icon:hover {
   background-position: 0px -112px;
 }
-/*------------------------------------------------------------------------------
- * Node titles and highlighting
- *----------------------------------------------------------------------------*/
+
 span.fancytree-node {
-  /* See #117 */
+  
   display: inherit;
   width: 100%;
   margin-top: 0px;
@@ -7145,10 +7068,8 @@ span.fancytree-title {
 span.fancytree-node.fancytree-error span.fancytree-title {
   color: red;
 }
-/*------------------------------------------------------------------------------
- * Drag'n'drop support
- *----------------------------------------------------------------------------*/
-/* ext-dnd5: */
+
+
 span.fancytree-childcounter {
   color: #fff;
   background: #337ab7;
@@ -7157,7 +7078,7 @@ span.fancytree-childcounter {
   padding: 2px;
   text-align: center;
 }
-/* ext-dnd: */
+
 div.fancytree-drag-helper span.fancytree-childcounter,
 div.fancytree-drag-helper span.fancytree-dnd-modifier {
   display: inline-block;
@@ -7189,7 +7110,7 @@ div.fancytree-drag-helper.fancytree-drop-accept span.fancytree-drag-helper-img {
 div.fancytree-drag-helper.fancytree-drop-reject span.fancytree-drag-helper-img {
   background-position: -16px -112px;
 }
-/*** Drop marker icon *********************************************************/
+
 #fancytree-drop-marker {
   width: 32px;
   position: absolute;
@@ -7207,17 +7128,15 @@ div.fancytree-drag-helper.fancytree-drop-reject span.fancytree-drag-helper-img {
 #fancytree-drop-marker.fancytree-drop-move {
   background-position: -32px -128px;
 }
-/*** Source node while dragging ***********************************************/
+
 span.fancytree-drag-source.fancytree-drag-remove {
   opacity: 0.15;
 }
-/*** Target node while dragging cursor is over it *****************************/
-/*------------------------------------------------------------------------------
- * 'rtl' option
- *----------------------------------------------------------------------------*/
+
+
 .fancytree-container.fancytree-rtl .fancytree-title {
-  /*unicode-bidi: bidi-override;*/
-  /* optional: reverse title letters */
+  
+  
 }
 .fancytree-container.fancytree-rtl span.fancytree-connector,
 .fancytree-container.fancytree-rtl span.fancytree-expander,
@@ -7247,14 +7166,12 @@ ul.fancytree-container.fancytree-rtl.fancytree-no-connector > li {
 #fancytree-drop-marker.fancytree-rtl {
   background-image: url("../skin-win8/icons-rtl.gif");
 }
-/*------------------------------------------------------------------------------
- * 'table' extension
- *----------------------------------------------------------------------------*/
+
 table.fancytree-ext-table {
   font-family: tahoma, arial, helvetica;
   font-size: 10pt;
   border-collapse: collapse;
-  /* ext-ariagrid */
+  
 }
 table.fancytree-ext-table span.fancytree-node {
   display: inline-block;
@@ -7277,9 +7194,7 @@ table.fancytree-ext-table.fancytree-ext-ariagrid.fancytree-cell-mode > tbody > t
 table.fancytree-ext-table.fancytree-ext-ariagrid.fancytree-cell-mode.fancytree-cell-nav-mode > tbody > tr > td.fancytree-active-cell {
   background-color: #3875d7;
 }
-/*------------------------------------------------------------------------------
- * 'columnview' extension
- *----------------------------------------------------------------------------*/
+
 table.fancytree-ext-columnview tbody tr td {
   position: relative;
   border: 1px solid gray;
@@ -7301,12 +7216,12 @@ table.fancytree-ext-columnview tbody tr td > ul li {
   background-position: 0px 0px;
   background-repeat: repeat-y;
   background-image: none;
-  /* no v-lines */
+  
   margin: 0;
 }
 table.fancytree-ext-columnview span.fancytree-node {
   position: relative;
-  /* allow positioning of embedded spans */
+  
   display: inline-block;
 }
 table.fancytree-ext-columnview span.fancytree-node.fancytree-expanded {
@@ -7323,9 +7238,7 @@ table.fancytree-ext-columnview .fancytree-has-children span.fancytree-cv-right {
 table.fancytree-ext-columnview .fancytree-has-children span.fancytree-cv-right:hover {
   background-position: -16px -80px;
 }
-/*------------------------------------------------------------------------------
- * 'filter' extension
- *----------------------------------------------------------------------------*/
+
 .fancytree-ext-filter-dimm span.fancytree-node span.fancytree-title {
   color: #c0c0c0;
   font-weight: lighter;
@@ -7354,7 +7267,7 @@ table.fancytree-ext-columnview .fancytree-has-children span.fancytree-cv-right:h
   color: black;
   font-weight: normal;
 }
-/* Hide expanders if all child nodes are hidden by filter */
+
 .fancytree-ext-filter-hide-expanders tr.fancytree-match span.fancytree-expander,
 .fancytree-ext-filter-hide-expanders span.fancytree-node.fancytree-match span.fancytree-expander {
   visibility: hidden;
@@ -7386,9 +7299,7 @@ table.fancytree-ext-columnview .fancytree-has-children span.fancytree-cv-right:h
   text-align: center;
   font-size: 9px;
 }
-/*------------------------------------------------------------------------------
- * 'wide' extension
- *----------------------------------------------------------------------------*/
+
 ul.fancytree-ext-wide {
   position: relative;
   min-width: 100%;
@@ -7412,9 +7323,7 @@ ul.fancytree-ext-wide span.fancytree-node span.fancytree-title {
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
-/*------------------------------------------------------------------------------
- * 'fixed' extension
- *----------------------------------------------------------------------------*/
+
 .fancytree-ext-fixed-wrapper .fancytree-ext-fixed-hidden {
   display: none;
 }
@@ -7448,14 +7357,8 @@ ul.fancytree-ext-wide span.fancytree-node span.fancytree-title {
   overflow: scroll;
   z-index: 1;
 }
-/*******************************************************************************
- * Styles specific to this skin.
- *
- * This section is automatically generated from the `ui-fancytree.less` template.
- ******************************************************************************/
-/*******************************************************************************
- * Node titles
- */
+
+
 .fancytree-plain span.fancytree-title {
   border: 1px solid transparent;
 }
@@ -7479,9 +7382,7 @@ ul.fancytree-ext-wide span.fancytree-node span.fancytree-title {
   background-color: #cbe8f6;
   border-color: #26a0da;
 }
-/*******************************************************************************
- * 'table' extension
- */
+
 table.fancytree-ext-table tbody tr td {
   border: 1px solid #EDEDED;
 }
@@ -7523,8 +7424,7 @@ table.fancytree-ext-table.fancytree-treefocus tbody tr.fancytree-selected {
 * To view and modify this theme, visit http://jqueryui.com/themeroller/?scope=&folderName=base&cornerRadiusShadow=8px&offsetLeftShadow=0px&offsetTopShadow=0px&thicknessShadow=5px&opacityShadow=30&bgImgOpacityShadow=0&bgTextureShadow=flat&bgColorShadow=666666&opacityOverlay=30&bgImgOpacityOverlay=0&bgTextureOverlay=flat&bgColorOverlay=aaaaaa&iconColorError=cc0000&fcError=5f3f3f&borderColorError=f1a899&bgTextureError=flat&bgColorError=fddfdf&iconColorHighlight=777620&fcHighlight=777620&borderColorHighlight=dad55e&bgTextureHighlight=flat&bgColorHighlight=fffa90&iconColorActive=ffffff&fcActive=ffffff&borderColorActive=003eff&bgTextureActive=flat&bgColorActive=007fff&iconColorHover=555555&fcHover=2b2b2b&borderColorHover=cccccc&bgTextureHover=flat&bgColorHover=ededed&iconColorDefault=777777&fcDefault=454545&borderColorDefault=c5c5c5&bgTextureDefault=flat&bgColorDefault=f6f6f6&iconColorContent=444444&fcContent=333333&borderColorContent=dddddd&bgTextureContent=flat&bgColorContent=ffffff&iconColorHeader=444444&fcHeader=333333&borderColorHeader=dddddd&bgTextureHeader=flat&bgColorHeader=e9e9e9&cornerRadius=3px&fwDefault=normal&fsDefault=1em&ffDefault=Arial%2CHelvetica%2Csans-serif
 * Copyright jQuery Foundation and other contributors; Licensed MIT */
 
-/* Layout helpers
-----------------------------------*/
+
 .ui-helper-hidden {
 	display: none;
 }
@@ -7564,7 +7464,7 @@ table.fancytree-ext-table.fancytree-treefocus tbody tr.fancytree-selected {
 	left: 0;
 	position: absolute;
 	opacity: 0;
-	filter:Alpha(Opacity=0); /* support: IE8 */
+	filter:Alpha(Opacity=0); 
 }
 
 .ui-front {
@@ -7572,16 +7472,14 @@ table.fancytree-ext-table.fancytree-treefocus tbody tr.fancytree-selected {
 }
 
 
-/* Interaction Cues
-----------------------------------*/
+
 .ui-state-disabled {
 	cursor: default !important;
 	pointer-events: none;
 }
 
 
-/* Icons
-----------------------------------*/
+
 .ui-icon {
 	display: inline-block;
 	vertical-align: middle;
@@ -7598,10 +7496,9 @@ table.fancytree-ext-table.fancytree-treefocus tbody tr.fancytree-selected {
 	display: block;
 }
 
-/* Misc visuals
-----------------------------------*/
 
-/* Overlays */
+
+
 .ui-widget-overlay {
 	position: fixed;
 	top: 0;
@@ -7622,7 +7519,7 @@ table.fancytree-ext-table.fancytree-treefocus tbody tr.fancytree-selected {
 .ui-menu .ui-menu-item {
 	margin: 0;
 	cursor: pointer;
-	/* support: IE10, see #8844 */
+	
 	list-style-image: url("data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7");
 }
 .ui-menu .ui-menu-item-wrapper {
@@ -7641,7 +7538,7 @@ table.fancytree-ext-table.fancytree-treefocus tbody tr.fancytree-selected {
 	margin: -1px;
 }
 
-/* icon support */
+
 .ui-menu-icons {
 	position: relative;
 }
@@ -7649,7 +7546,7 @@ table.fancytree-ext-table.fancytree-treefocus tbody tr.fancytree-selected {
 	padding-left: 2em;
 }
 
-/* left-aligned */
+
 .ui-menu .ui-icon {
 	position: absolute;
 	top: 0;
@@ -7658,14 +7555,13 @@ table.fancytree-ext-table.fancytree-treefocus tbody tr.fancytree-selected {
 	margin: auto 0;
 }
 
-/* right-aligned */
+
 .ui-menu .ui-menu-icon {
 	left: auto;
 	right: 0;
 }
 
-/* Component containers
-----------------------------------*/
+
 .ui-widget {
 	font-family: Arial,Helvetica,sans-serif;
 	font-size: 1em;
@@ -7701,15 +7597,13 @@ table.fancytree-ext-table.fancytree-treefocus tbody tr.fancytree-selected {
 	color: #333333;
 }
 
-/* Interaction states
-----------------------------------*/
+
 .ui-state-default,
 .ui-widget-content .ui-state-default,
 .ui-widget-header .ui-state-default,
 .ui-button,
 
-/* We use html here because we need a greater specificity to make sure disabled
-works properly when clicked or hovered */
+
 html .ui-button.ui-state-disabled:hover,
 html .ui-button.ui-state-disabled:active {
 	border: 1px solid #c5c5c5;
@@ -7780,8 +7674,7 @@ a.ui-button:active,
 	text-decoration: none;
 }
 
-/* Interaction Cues
-----------------------------------*/
+
 .ui-state-highlight,
 .ui-widget-content .ui-state-highlight,
 .ui-widget-header .ui-state-highlight {
@@ -7824,24 +7717,23 @@ a.ui-button:active,
 .ui-widget-content .ui-priority-secondary,
 .ui-widget-header .ui-priority-secondary {
 	opacity: .7;
-	filter:Alpha(Opacity=70); /* support: IE8 */
+	filter:Alpha(Opacity=70); 
 	font-weight: normal;
 }
 .ui-state-disabled,
 .ui-widget-content .ui-state-disabled,
 .ui-widget-header .ui-state-disabled {
 	opacity: .35;
-	filter:Alpha(Opacity=35); /* support: IE8 */
+	filter:Alpha(Opacity=35); 
 	background-image: none;
 }
 .ui-state-disabled .ui-icon {
-	filter:Alpha(Opacity=35); /* support: IE8 - See #6059 */
+	filter:Alpha(Opacity=35); 
 }
 
-/* Icons
-----------------------------------*/
 
-/* states and images */
+
+
 .ui-icon {
 	width: 16px;
 	height: 16px;
@@ -7875,7 +7767,7 @@ a.ui-button:active,
 	background-image: url("/js/jquery-ui-contextmenu/images/ui-icons_777777_256x240.png");
 }
 
-/* positioning */
+
 .ui-icon-blank { background-position: 16px 16px; }
 .ui-icon-caret-1-n { background-position: 0 0; }
 .ui-icon-caret-1-ne { background-position: -16px 0; }
@@ -8013,7 +7905,7 @@ a.ui-button:active,
 .ui-icon-seek-prev { background-position: -48px -160px; }
 .ui-icon-seek-end { background-position: -64px -160px; }
 .ui-icon-seek-start { background-position: -80px -160px; }
-/* ui-icon-seek-first is deprecated, use ui-icon-seek-start instead */
+
 .ui-icon-seek-first { background-position: -80px -160px; }
 .ui-icon-stop { background-position: -96px -160px; }
 .ui-icon-eject { background-position: -112px -160px; }
@@ -8054,10 +7946,9 @@ a.ui-button:active,
 .ui-icon-grip-diagonal-se { background-position: -80px -224px; }
 
 
-/* Misc visuals
-----------------------------------*/
 
-/* Corner radius */
+
+
 .ui-corner-all,
 .ui-corner-top,
 .ui-corner-left,
@@ -8083,29 +7974,20 @@ a.ui-button:active,
 	border-bottom-right-radius: 3px;
 }
 
-/* Overlays */
+
 .ui-widget-overlay {
 	background: #aaaaaa;
 	opacity: .3;
-	filter: Alpha(Opacity=30); /* support: IE8 */
+	filter: Alpha(Opacity=30); 
 }
 .ui-widget-shadow {
 	-webkit-box-shadow: 0px 0px 5px #666666;
 	box-shadow: 0px 0px 5px #666666;
 }
 
-/*
- * jQuery OrgChart Plugin
- * https://github.com/dabeng/OrgChart
- *
- * Copyright 2016, dabeng
- * https://github.com/dabeng
- *
- * Licensed under the MIT license:
- * http://www.opensource.org/licenses/MIT
- */
 
- /* chart styles */
+
+ 
 .orgchart {
   box-sizing: border-box;
   display: inline-block;
@@ -8119,9 +8001,9 @@ a.ui-button:active,
   linear-gradient(to right, rgba(200, 0, 0, 0.15) 5%, rgba(0, 0, 0, 0) 5%),
   linear-gradient(to bottom, rgba(200, 0, 0, 0.15) 5%, rgba(0, 0, 0, 0) 5%),
   linear-gradient(to left, rgba(200, 0, 0, 0.15) 5%, rgba(0, 0, 0, 0) 5%);
-  background-size: 10px 10px; /* background square size */
+  background-size: 10px 10px; 
   padding: 20px 20px 0 20px;
-  /* border: 0.5px solid rgba(200, 0, 0, 0.15); */
+  
 }
 
 .orgchart .hidden, .orgchart~.hidden {
@@ -8185,11 +8067,11 @@ a.ui-button:active,
   position: relative;
 }
 
-/* styles of link lines */
+
 .orgchart .hierarchy::before {
   content: "";
   position: absolute;
-  top: -11px; /* -(background square size + half width of line) */
+  top: -11px; 
   left: 0;
   width: 100%;
   border-top: 2px solid rgba(217, 83, 79, 0.8);
@@ -8227,14 +8109,14 @@ a.ui-button:active,
   content: none;
 }
 
-/* excluding leaf node */
+
 .orgchart .node:not(:only-child)::after {
   content: "";
   position: absolute;
-  bottom: -12px; /* -(background square size + node's border width) */
+  bottom: -12px; 
   left: calc(50% - 1px);
   width: 2px;
-  height: 10px; /* background square size */
+  height: 10px; 
   background-color: rgba(217, 83, 79, 0.8);
 }
 
@@ -8250,14 +8132,14 @@ a.ui-button:active,
 .orgchart ul li .node:hover {
   background-color: rgba(238, 217, 54, 0.5);
 }
-/* excluding root node */
+
 .orgchart > ul > li > ul li > .node::before {
   content: "";
   position: absolute;
-  top: var(--top, -12px); /* -(fallback value = background square size + border width of node) */ 
+  top: var(--top, -12px);  
   left: calc(50% - 1px);
   width: 2px;
-  height: var(--height, 10px); /* fallback value = background square size */
+  height: var(--height, 10px); 
   background-color: rgba(217, 83, 79, 0.8);
 }
 
@@ -8266,7 +8148,7 @@ a.ui-button:active,
   height: var(--height-cross-point, 10px);
 }
 
-/* node styling */
+
 .orgchart .node {
   box-sizing: border-box;
   display: inline-block;
@@ -8423,14 +8305,14 @@ a.ui-button:active,
 }
 
 .orgchart .node .verticalEdge {
-  width: calc(100% - 6px); /* node top half's width */
-  height: 10px; /* background square's size */
-  left: 3px; /* node's padding value */
+  width: calc(100% - 6px); 
+  height: 10px; 
+  left: 3px; 
 }
 
 .orgchart .node .verticalEdge::before {
   position: absolute;
-  left: calc(50% - 5px); /* 50% width of node - half width of up arrow icon) */
+  left: calc(50% - 5px); 
 }
 
 .orgchart .node .topEdge {
@@ -8446,7 +8328,7 @@ a.ui-button:active,
 }
 
 .orgchart .node .bottomEdge {
-  bottom: -2px; /* -(node's border-width) */
+  bottom: -2px; 
 }
 
 .orgchart .node .bottomEdge.oci-chevron-up::before {
@@ -8460,7 +8342,7 @@ a.ui-button:active,
 .orgchart .node .horizontalEdge {
   width: 10px;
   height: calc(100% - 6px);
-  top: 3px; /* node's padding */
+  top: 3px; 
 }
 
 .orgchart .node .rightEdge {
@@ -8494,7 +8376,7 @@ a.ui-button:active,
 
 .orgchart .node .toggleBtn {
   position: absolute;
-  left: -2px; /* -(border width of node) */
+  left: -2px; 
   bottom: -2px;
   width: 16px;
   height: 16px;
@@ -8556,18 +8438,18 @@ a.ui-button:active,
   transform: translateX(-40px);
 }
 
-/* styles for vertical nodes */
+
 
 .orgchart .nodes.vertical {
   display: block;
-  padding-left: 10px; /* width of background square*/
+  padding-left: 10px; 
 }
 
 .orgchart .nodes.vertical .nodes {
   list-style: none;
   display: block;
   margin: 0;
-  padding-left: 10px; /* width of background square*/
+  padding-left: 10px; 
   text-align: left;
 }
 
@@ -8590,7 +8472,7 @@ a.ui-button:active,
   box-sizing: border-box;
   content: '';
   position: absolute;
-  left: -6px; /* -(background square size + half width of line */
+  left: -6px; 
   border-color: rgba(217, 83, 79, 0.8);
   border-style: solid;
   border-width: 0 0 2px 2px;
@@ -8598,13 +8480,13 @@ a.ui-button:active,
 
 .orgchart .nodes.vertical .hierarchy::before {
   top: 0px;
-  height: 26px; /* node top half's height(25px) + half width of line */
-  width: 11px; /* background square size + half width of line */
+  height: 26px; 
+  width: 11px; 
 }
 
 .orgchart .nodes.vertical .hierarchy::after {
   bottom: 0;
-  height: calc(100% - 24px); /* height of hierarchy - (node top half's height(25px) - half width of line) */
+  height: calc(100% - 24px); 
 }
 
 .orgchart .nodes.vertical .hierarchy:last-child::after {
@@ -8613,16 +8495,16 @@ a.ui-button:active,
 
 .orgchart .nodes.vertical > .hierarchy:first-child::before {
   box-sizing: border-box;
-  top: -11px; /* -(background square size + half width of line) */
-  height: 35px; /* node top half's height + node padding + node border width + background square size */
+  top: -11px; 
+  height: 35px; 
   width: calc(50% + 2px);
   border-width: 2px 0 0 2px;
 }
 
 .orgchart .nodes.vertical > .hierarchy:first-child::after {
   box-sizing: border-box;
-  top: 24px; /* node bottom half's height(25px) - half border width of line */
-  width: 11px; /* backgroud square size + half border width of line */
+  top: 24px; 
+  width: 11px; 
   border-width: 2px 0 0 2px;
 }
 
@@ -8630,7 +8512,7 @@ a.ui-button:active,
   border-width: 2px 0 0 0;
 }
 
-/* styles for compact nodes */
+
 .orgchart .node.compact {
   position: static;
   display: grid;
@@ -8781,7 +8663,7 @@ a.ui-button:active,
   border-bottom-color: #449d44;
 }
 
-/* custom icons for orgchart */
+
 .oci {
   display: inline-block;
   position: relative;
@@ -9087,13 +8969,13 @@ a.ui-button:active,
 	display: none;
 }
 
-/* Overlay */
+
 #simplemodal-overlay {
 	background-color: #000;
 	cursor: default;
 }
 
-/* Container */
+
 #simplemodal-container {
 	position: fixed;
 	top: 0;
@@ -9131,7 +9013,7 @@ a.ui-button:active,
 			color: #333;
 			background-size: 14px 14px;
 			padding-left: 17px;
-			/*background: url("/img/icon/ico_h_alert.png") 0 center no-repeat;*/
+			
 		}
 
 		#simplemodal-container .simplemodal-data .btn-area {
@@ -9185,7 +9067,7 @@ a.ui-button:active,
 }
 
 #loadingPage {
-	/*background: #ccc url(/img/resources/javascript24.png);*/
+	
 	position: absolute;
 	left: 0px;
 	top: 0px;
@@ -9528,187 +9410,9 @@ a.ui-button:active,
 	bottom: 0;
 	background-color: rgba(0,0,0,0.1);
 }
-/*
-.window {
-  position: fixed;
-  border: 1px outset #036;
-  width: 400px;
-  height: 300px;
-  border-radius: 6px;
-  border-color: #1d4266;
-  background-color: #1d4266;
-}
-
-.window.maximized {
-  border-width: 0;
-}
-
-#resizerproxy,#moverproxy {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 999999999;
-  display: none;
-}
-#resizerproxy > div,#moverproxy > div {
-  position: absolute;
-  border: 2px solid #666666;
-  border-radius: 6px;
-}
-
-.windowtitlebar {
-  position: absolute;
-  top: 1px;
-  left: 1px;
-  right: 1px;
-  height: 24px;
-  overflow: hidden;
-  background-color: #AAB;
-  cursor: default;
-  border-bottom: 1px solid #002c57;
-}
-
-.window.focused .windowtitlebar {
-  background-color: #036;
-}
-
-.windowtitlebar > .horizbuts {
-  position: absolute;
-  top: 0;
-  width: 59px;
-  right: 0;
-  bottom: 0;
-}
-
-.horizbuts > * {
-  float: left;
-  width: 16px;
-  height: 16px;
-  border: 1px outset #9B9DC9;
-  margin: 3px 1px 0 0;
-  background: #ccc url(jquery.wm.default.icons.png) no-repeat scroll;
-  border-color: #bbb;
-  border-radius: 2px;  
-}
-.horizbuts > *:hover {
-  background-color: #ddd;
-}
-
-.horizbuts > .minimizebut {
-  background-position: -3px 0;
-}
-.horizbuts > .maximizebut {
-  background-position: -32px -1px;
-}
-.horizbuts > .closebut {
-  background-position: -47px -1px;
-}
-.horizbuts > .restorebut {
-  display: none;
-  background-position: -18px -1px;
-}
-.window.maximized .horizbuts > .maximizebut { display: none; }
-.window.maximized .horizbuts > .restorebut { display: block; }
-.window.minimized .horizbuts > .minimizebut { display: none; }
-.window.minimized .horizbuts > .restorebut { display: block; }
 
 
-.windowcontent {
-  border: 1px inset #9B9DC9;
-  border-bottom: 0;
-  position: absolute;
-  top: 25px;
-  right: 1px;
-  left: 1px;
-  bottom: 2px;
-  overflow: auto;
-  background-color: white;
-}
 
-.autohide .windowtitlebar {
-  opacity: 0;
-  transition: opacity .25s ease-in-out;
-  -moz-transition: opacity .25s ease-in-out;
-  -webkit-transition: opacity .25s ease-in-out;
-  z-index: 99999999;
-}
-
-.autohide .windowtitlebar:hover,
-.autohide.minimized .windowtitlebar {
-  opacity: 1;
-}
-
-.autohide .windowcontent {
-  top: 1px;
-}
-
-.window.minimized .windowcontent {
-  display: none;
-}
-
-.windowcontent > iframe {
-  border: 0;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 2;
-}
-.windowcontent > .iframecover {
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  z-index: 3;
-}
-.window.focused > .windowcontent > .iframecover {
-  z-index: 1;
-}
-.window.moving > .windowcontent > .iframecover {
-  z-index: 3 !important;
-}
-.resizer-tl { position: absolute; left: -2px; top: -2px; width: 6px; height: 6px; cursor: nw-resize; }
-.resizer-t  { position: absolute; left: 6px; right: 6px; top: -2px; height: 6px; cursor: n-resize;}
-.resizer-tr { position: absolute; right: -2px; top: -2px; width: 6px; height: 6px; cursor: ne-resize;}
-.resizer-r  { position: absolute; top: 6px; bottom: 6px; right: -2px; width: 6px; cursor: e-resize; }
-.resizer-br { position: absolute; right: -2px; bottom: -2px; width: 6px; height: 6px; cursor: se-resize;}
-.resizer-b  { position: absolute; left: 6px; right: 6px; bottom: -2px; height: 6px; cursor: s-resize; }
-.resizer-bl { position: absolute; left: -2px; bottom: -2px; width: 6px; height: 6px; cursor: sw-resize;}
-.resizer-l  { position: absolute; top: 6px; bottom: 6px; left: -2px; width: 6px; cursor: w-resize;}
-
-.titlebaricon {
-  position: absolute;
-  left: 4px;
-  top: 4px;
-  width: 16px;
-  height: 16px;
-  overflow: hidden;
-}
-
-.titlebartext {
-  position: absolute;
-  color: white;
-  font-weight: bold;
-  left: 24px;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  overflow: hidden;
-}
-
-
-.IE #resizerproxy,.IE #moverproxy,
-.IE .resizer-tl, .IE .resizer-t, .IE .resizer-tr, .IE .resizer-r,
-.IE .resizer-br, .IE .resizer-b, .IE .resizer-bl, .IE .resizer-l {
-  background: url(clear.gif);
-}
-*/
-
-/*calendar*/
 .ui-calendarWrapper {
 	width: 200px;
 	border: solid 2px #999;
@@ -9762,7 +9466,7 @@ a.ui-button:active,
 		cursor: pointer;
 	}
 
-/*tooltip*/
+
 .tooltip {
 	display: none;
 	border: solid 1px #c1c1c1;
@@ -9772,7 +9476,7 @@ a.ui-button:active,
 	box-shadow: 2px 3px 0 rgba(0,0,0,0.05);
 }
 
-/*loading*/
+
 #loadingPage {
 	position: absolute;
 	left: 0px;
@@ -9788,7 +9492,7 @@ a.ui-button:active,
 		left: 50%;
 		width: 64px;
 		height: 64px;
-		/*background: url("/img/common/loading_rnd_64.png") 0 0 no-repeat;*/
+		
 		margin: -32px 0 0 -32px;
 	}
 
@@ -9797,22 +9501,17 @@ a.ui-button:active,
 			margin: -16px 0 0 -16px;
 		}
 
-/*dialog*/
+
 #basic-modal-content {
 	display: none;
 }
 
-/* Overlay */
+
 #alertmodal-overlay {
-/*	background-color: #000;
-	cursor: default;
-	opacity: 1 !important;
-    backdrop-filter: blur(2px) grayscale(90%);
-    -webkit-backdrop-filter: blur(2px) grayscale(90%);
-    background: rgba(0, 0, 0, .1);*/
+
 }
 
-/* Container */
+
 #alertmodal-container {
 	position: fixed;
 	top: 0;
@@ -9839,7 +9538,7 @@ a.ui-button:active,
 			color: #555;
 			background-size: 14px 14px;
 			padding-left: 17px;
-			/*background: url("/img/icon/ico_h_alert.png") 0 center no-repeat;*/
+			
 		}
 
 		#alertmodal-container .alertmodal-data .btn-area {
@@ -9878,7 +9577,7 @@ a.ui-button:active,
 				display: inline-block;
 				width: 82px;
 				height: 72px;
-				/*background: url("/img/icon/ico_alert.png") 0 0 no-repeat;*/
+				
 			}
 
 				#alertmodal-container .alertmodal-data dt span.icon.warning {
@@ -9955,13 +9654,13 @@ a.ui-button:active,
 	box-shadow: 5px 5px 10px rgba(0,0,0,0.3);
 }
 
-/* Overlay */
+
 #simplemodal-overlay {
 	background-color: #000;
 	cursor: default;
 }
 
-/* modalPopup */
+
 #simplemodal-container {
 	position: fixed;
 	top: 0;
@@ -10007,7 +9706,7 @@ a.ui-button:active,
 			color: #555;
 			background-size: 14px 14px;
 			padding-left: 17px;
-			/*background: url("/img/icon/ico_h_alert.png") 0 center no-repeat;*/
+			
 		}
 
 		#simplemodal-container .simplemodal-data .cont {
@@ -10348,7 +10047,7 @@ a.ui-button:active,
 
 		.attachFileWrap .fileInfoDetail li {
 			padding-left: 7px;
-			/*background: url("/img/common/bul_gry_01.png") 0 8px no-repeat;*/
+			
 			line-height: 18px;
 		}
 
@@ -10380,14 +10079,14 @@ a.ui-button:active,
 }
 
 
-/* 검색창, 페이지당 select 등 input 관련 */
+
 .dataTables_wrapper .dataTables_filter input,
 select[name=myTable_length] {
     padding: 0.5em;
     margin-right: 0.5em;
 }
 
-/* page button */
+
 .dataTables_wrapper .dataTables_paginate .paginate_button.current {
     background: #337ab7;
     color: white !important;
@@ -10665,7 +10364,7 @@ ul.fancytree-container {
  * www.auisoft.net
  */
 
-/* 그리드 메인 외곽 DIV */
+
 .aui-grid {
     font-family: 'Noto Sans KR', 'Pretendard', 'Nanum Gothic', 'Malgun Gothic', Gulim, 굴림, sans-serif;
     font-size: 14px;
@@ -10679,7 +10378,7 @@ ul.fancytree-container {
     -webkit-touch-callout: none;
 }
 
-    /* 그리드 table, tr, td 기본 - 셀 기본 */
+    
     .aui-grid .aui-grid-table,
     .aui-grid .aui-grid-table tr,
     .aui-grid .aui-grid-table td {
@@ -10692,7 +10391,7 @@ ul.fancytree-container {
         line-height: 1.5em;
     }
 
-    /* 편집 모드 기본 텍스트 인풋  */
+    
     .aui-grid .aui-textinputer {
         font-size: 14px;
         border: 2px solid #2e6da4;
@@ -10706,7 +10405,7 @@ ul.fancytree-container {
             display: none;
         }
 
-/* 체크박스, 라디오  */
+
 .aui-checkbox,
 .aui-radio {
     vertical-align: middle;
@@ -10715,7 +10414,7 @@ ul.fancytree-container {
     padding: 0;
 }
 
-/* 체크박스 */
+
 .aui-checkbox {
     cursor: pointer;
     -webkit-appearance: none;
@@ -10776,21 +10475,21 @@ ul.fancytree-container {
         border-color: #555555;
     }
 
-/* 이미지  */
+
 .aui-grid .aui-img {
     box-sizing: content-box;
     -webkit-box-sizing: content-box;
     -moz-box-sizing: content-box;
 }
 
-/* 그리드 메세지 출력 레이어 */
+
 .aui-grid-info-layer {
     background: #fff;
     font-size: 20px;
     font-weight: bold;
 }
 
-/** 그리드 유효성 검사 툴팁 레이어 */
+
 .aui-grid-validator-message-layer {
     color: #fff;
     padding: 2px 6px;
@@ -10809,7 +10508,7 @@ ul.fancytree-container {
     -moz-box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);
 }
 
-/* 노데이터 메세지 레이어*/
+
 .aui-grid-nodata-msg-layer {
     background: url(/img/auigrid/info.png) 0 50% no-repeat;
     position: absolute;
@@ -10820,7 +10519,7 @@ ul.fancytree-container {
     box-sizing: content-box;
 }
 
-/* 그리드 수평, 수직 라인 만들기 - 바디 */
+
 .aui-grid-body-panel .aui-grid-table tr td {
     border: 1px solid #eaeaea;
     border-left: none;
@@ -10831,7 +10530,7 @@ ul.fancytree-container {
     border-right: none;
 }
 
-/* 그리드 수평, 수직 라인 만들기 - 헤더 */
+
 .aui-grid-header-panel .aui-grid-table tr td {
     border-top: none;
     border-right: 1px solid #eaeaea;
@@ -10843,12 +10542,12 @@ ul.fancytree-container {
     border-right: none;
 }
 
-/* 그리드 수평 라인 만들기 - 그룹형  헤더 */
+
 .aui-grid-group-branch-header {
     border-bottom: 1px solid #eaeaea !important;
 }
 
-/* 그리드 수평, 수직 라인 만들기 - 푸터 */
+
 .aui-grid-footer-panel .aui-grid-table tr td {
     border-top: 1px solid #eaeaea;
     border-right: 1px solid #eaeaea;
@@ -10860,23 +10559,23 @@ ul.fancytree-container {
     border-right: none;
 }
 
-/* 그리드 수평, 수직 라인 - 엑셀, PDF */
+
 .aui-grid-grid-lines-for-export {
     background: #eaeaea;
 }
 
-/* 그리드 오버 선택자 스타일 */
+
 .aui-grid-cell-hover-style {
     background: #eaeaea !important;
     color: #000 !important;
 }
 
-/* 셀 병합 시 실제 rowspan 처리 하지 않은 TD의 아랫선 처리 */
+
 .aui-grid-cell-merge-none-row-span-border {
     border-bottom: 1px solid transparent !important;
 }
 
-/* 그리드 칼럼 리사이즈 시 나타나는 임시 선 */
+
 .aui-grid-vertical-resizer-rule {
     border-left: 2px dashed #888;
     border-top: none;
@@ -10884,12 +10583,12 @@ ul.fancytree-container {
     border-bottom: none;
 }
 
-/* 그리드 칼럼 위치 바꾸기 시 나타나는 임시 선 */
+
 .aui-grid-vertical-column-change-rule {
     background: #888;
 }
 
-/* 행 번호 칼럼 */
+
 .aui-grid-row-num-column {
     text-align: center;
     cursor: default;
@@ -10900,31 +10599,31 @@ ul.fancytree-container {
         color: #000;
     }
 
-/*행 체크박스 칼럼 */
+
 .aui-grid-row-check-column {
     text-align: center;
     line-height: 0.5em !important;
 }
 
-/* 행 체크박스 헤더 - 전체 선택 체크*/
+
 .aui-grid-row-check-header {
     text-align: center;
     line-height: 0.5em !important;
 }
 
-/* 고정 칼럼과 일반 칼럼 경계선 */
+
 .aui-grid-fixed-column-rule {
     background: #bdbdbd;
     width: 1px;
 }
 
-/* 고정 로우와 일반 로우 경계선 */
+
 .aui-grid-fixed-row-rule {
     background: #bdbdbd;
     height: 1px;
 }
 
-/* 그리드 헤더 정렬 표시자 시작 */
+
 .aui-grid-multi-sorting-ascending {
     color: #555;
     font-size: 9px;
@@ -10947,9 +10646,9 @@ ul.fancytree-container {
     background: url(/img/auigrid/icon-down.png) 50% 50% no-repeat;
 }
 
-/* 그리드 헤더 정렬 표시자 끝*/
 
-/* 스크롤 시작 */
+
+
 .aui-scroll-track {
     box-sizing: border-box;
     background: #f6f6f6;
@@ -11024,20 +10723,20 @@ ul.fancytree-container {
         background: #dddddd url('/img/auigrid/icon-right.png') no-repeat 50% 50%;
     }
 
-/* 스크롤 끝 */
 
-/* 로딩바 스타일 */
+
+
 .aui-ajax-loader-showing {
     background: #ffffff url('/img/auigrid/ajaxloader-blue.gif') no-repeat 50% 50%;
 }
 
-/* 내부 처리 로딩바 스타일 */
+
 .aui-process-loader-showing {
-    /*background: url("/img/auigrid/wait.png") no-repeat 50% 50%;*/
+    
     background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIQAAABaCAMAAABOrg7KAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyBpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBXaW5kb3dzIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjk5MTI1REI0NzdEMDExRTRBNzY1REZCNDBFNTFEQzZBIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjk5MTI1REI1NzdEMDExRTRBNzY1REZCNDBFNTFEQzZBIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6OTkxMjVEQjI3N0QwMTFFNEE3NjVERkI0MEU1MURDNkEiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6OTkxMjVEQjM3N0QwMTFFNEE3NjVERkI0MEU1MURDNkEiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz5sKH81AAAAvVBMVEX////Jyclvbm6Z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') no-repeat 50% 50%;
 }
 
-/* 계층 트리 아이콘 */
+
 .aui-grid-tree-plus-icon {
     display: inline-block;
     width: 16px;
@@ -11090,7 +10789,7 @@ ul.fancytree-container {
     margin: 0 2px 0 4px;
 }
 
-/* 트리 lazyMode 프리로더 */
+
 .aui-grid-tree-ajax-loader {
     display: inline-block;
     width: 16px;
@@ -11102,9 +10801,9 @@ ul.fancytree-container {
     margin: 0 2px 0 0;
 }
 
-/* 계층 트리 아이콘 끝*/
 
-/*디폴트 헤더 스타일*/
+
+
 .aui-grid-default-header {
     position: relative !important;
     text-align: center;
@@ -11122,7 +10821,7 @@ ul.fancytree-container {
     cursor: default;
 }
 
-/** 헤더 툴팁 아이콘 스타일 */
+
 .aui-grid-header-help-tooltip-icon {
     background: url(/img/auigrid/help_ico.png) no-repeat;
     width: 12px;
@@ -11130,7 +10829,7 @@ ul.fancytree-container {
     cursor: default;
 }
 
-/** 헤더 툴팁 아이콘 마우스 오버 시 나오는 툴팁 외형 */
+
 .aui-grid-header-help-tooltip-wrapper {
     border: 1px solid #6799ff;
     border-radius: 4px;
@@ -11145,7 +10844,7 @@ ul.fancytree-container {
     pointer-events: none;
 }
 
-/** 라이브 스크롤 사용하지 않을 때 나오는 스크롤 툴팁 외형 */
+
 .aui-grid-scroll-tip-wrapper {
     border: 1px solid #6799ff;
     border-radius: 4px;
@@ -11159,7 +10858,7 @@ ul.fancytree-container {
     -moz-box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);
 }
 
-/*디폴트 푸터 스타일 */
+
 .aui-grid-default-footer {
     position: relative !important;
     background: #ffffff;
@@ -11172,7 +10871,7 @@ ul.fancytree-container {
     cursor: default;
 }
 
-/* 푸터 상단(헤더 아래) 출력 스타일 */
+
 .aui-grid-default-footer-top-position {
     border-top: none !important;
 }
@@ -11181,12 +10880,12 @@ ul.fancytree-container {
     border-bottom: 3px double #cccccc !important;
 }
 
-/* 푸터와 바디간의 구분 선 스타일 */
+
 .aui-grid-footer-division-line {
     border-top: 3px double #cccccc !important;
 }
 
-/** 그리드 툴팁 외형 */
+
 .aui-grid-tooltip-wrapper {
     padding: 2px 6px;
     border: 1px solid #999;
@@ -11204,7 +10903,7 @@ ul.fancytree-container {
     pointer-events: none;
 }
 
-/* 디폴트 칼럼 스타일 */
+
 .aui-grid-default-column {
     position: relative !important;
     background-color: inherit;
@@ -11213,55 +10912,55 @@ ul.fancytree-container {
     cursor: default;
 }
 
-/* 셀력션 대표 백그라운드 스타일 */
+
 .aui-grid-selection-bg {
     background: inherit;
     color: inherit;
 }
 
-/* 셀렉션 대표 셀 이외의 백그라운드 스타일 */
+
 .aui-grid-selection-others-bg {
     background: #f0f0f0 !important;
     color: inherit;
 }
 
-/* 셀력션 행 대표 백그라운드 스타일 */
+
 .aui-grid-selection-row-bg {
     background: #eaeaea !important;
 }
 
-/* 셀력션 행 대표 셀 이외의 백그라운드 스타일 */
+
 .aui-grid-selection-row-others-bg {
     background: #eaeaea !important;
 }
 
-/* 셀렉션의 대표 셀 보더(테두리) 색상 스타일*/
+
 .aui-grid-selection-cell-border-lines {
     background: #2e6da4;
 }
 
-/* 셀력션 행번호 칼럼 스타일 */
+
 .aui-grid-selection-row-num-column {
     color: #000 !important;
     background: #eaeaea !important;
 }
 
-/* 셀렉션 헤더 칼럼 스타일 */
+
 .aui-grid-selection-header-column {
     background: #eaeaea !important;
 }
 
-/* 그리드 Row 배경색 */
+
 .aui-grid-row-background {
     background: rgb(250, 250, 250);
 }
 
-/* 그리드 Row 다음 배경색*/
+
 .aui-grid-alternative-row-background {
     background: rgb(255, 255, 255);
 }
 
-/* 칼럼 위치 변경 할 때 보이는 이미지 - 칼럼 드래깅 */
+
 .aui-grid-column-dragging-proxy {
     background: #eeeeee;
     -ms-filter: 'progid:DXImageTransform.Microsoft.Alpha(Opacity=80)';
@@ -11277,26 +10976,26 @@ ul.fancytree-container {
     max-width: 600px;
 }
 
-/* 행 드래깅 손잡이 */
+
 .aui-grid-row-drag-knob {
     cursor: move;
     width: 10px;
     height: 10px;
 }
 
-/* 행 드래깅 손잡이 칼럼 */
+
 .aui-grid-row-drag-knob-column {
     background: url(/img/auigrid/dot_move.png) 50% 50% no-repeat !important;
     cursor: move;
 }
 
-/* 행 위치 바꾸기(행 드래깅) 시 나타나는 임시 선 */
+
 .aui-grid-horizontal-row-change-rule {
     border-top: 3px solid #888;
     z-index: 9999;
 }
 
-/* 행 위치 변경 할 때 보이는 이미지 - 행 드래깅 */
+
 .aui-grid-row-dragging-proxy {
     background: #eeeeee url(/img/auigrid/accept-not.png) 2% 50% no-repeat;
     font-size: 13px;
@@ -11313,50 +11012,50 @@ ul.fancytree-container {
     z-index: 9999;
 }
 
-/* 행 위치 변경 할 때 보이는 Accept 이미지 */
+
 .aui-grid-row-dragging-proxy-accept {
     background: #eeeeee url(/img/auigrid/accept-ok.png) 2% 50% no-repeat;
 }
 
-/* 상태 칼럼에 출력 시킬 스타일 */
-/* 현재 행 상태 스타일 */
+
+
 .aui-grid-row-state-current {
     background: url(/img/auigrid/arrow_icon.png) 50% 50% no-repeat !important;
 }
 
-/* 추가 행 상태 스타일 */
+
 .aui-grid-row-state-added {
     background: url(/img/auigrid/add_icon.png) 50% 50% no-repeat !important;
     cursor: pointer;
 }
 
-/* 삭제 행 상태 스타일 */
+
 .aui-grid-row-state-removed {
     background: url(/img/auigrid/delete_icon.png) 50% 50% no-repeat !important;
     cursor: pointer;
 }
 
-/* 수정 행 상태 스타일 */
+
 .aui-grid-row-state-edited {
     background: url(/img/auigrid/modified_icon.png) 50% 50% no-repeat !important;
     cursor: pointer;
 }
 
-/* 추가한 행-수정 상태 스타일 */
+
 .aui-grid-row-state-added-edited {
     background: url(/img/auigrid/modified_a_icon.png) 50% 50% no-repeat !important;
     cursor: pointer;
 }
 
-/* 상태 칼럼에 출력 시킬 스타일 끝*/
 
-/* 소프트 모드 삭제한 행 스타일*/
+
+
 .aui-grid-row-soft-removed-marker {
     color: #aaa !important;
     text-decoration: line-through !important;
 }
 
-/* 수정한 셀 표시 스타일(마커) */
+
 .aui-grid-cell-edited-marker {
     top: 0px;
     margin: 0px !important;
@@ -11368,12 +11067,12 @@ ul.fancytree-container {
     border-right: 4px solid transparent;
 }
 
-/* 엑스트차 체크박스 체크된 행 스타일*/
+
 .aui-grid-extra-checked-row {
     background: #ffffe4;
 }
 
-/* 페이징 패널 스타일 */
+
 .aui-grid-paging-panel {
     text-align: center;
     background: #f9f9f9;
@@ -11381,7 +11080,7 @@ ul.fancytree-container {
     box-sizing: border-box;
 }
 
-    /* 페이징 넘버링 */
+    
     .aui-grid-paging-panel .aui-grid-paging-number {
         display: inline-block;
         border: 1px solid #ccc;
@@ -11400,38 +11099,38 @@ ul.fancytree-container {
             cursor: pointer;
         }
 
-    /* 페이징 현재 페이지 선택 넘버링 */
+    
     .aui-grid-paging-panel .aui-grid-paging-number-selected {
         background: #555 !important;
         border: 1px solid #555 !important;
         color: #ffffff !important;
     }
 
-    /* 페이징 이전 버튼 */
+    
     .aui-grid-paging-panel .aui-grid-paging-prev {
         background: url(/img/auigrid/prev_ico.png) 50% 50% no-repeat;
         text-indent: -99999px;
     }
 
-    /* 페이징 다음 버튼 */
+    
     .aui-grid-paging-panel .aui-grid-paging-next {
         background: url(/img/auigrid/next_ico.png) 50% 50% no-repeat;
         text-indent: -99999px;
     }
 
-    /* 페이징 처음 버튼 */
+    
     .aui-grid-paging-panel .aui-grid-paging-first {
         background: url(/img/auigrid/first_ico.png) 50% 50% no-repeat;
         text-indent: -99999px;
     }
 
-    /* 페이징 마지막 버튼 */
+    
     .aui-grid-paging-panel .aui-grid-paging-last {
         background: url(/img/auigrid/last_ico.png) 50% 50% no-repeat;
         text-indent: -99999px;
     }
 
-/* 페이징 모드 simple 인 경우 나타나는 현재 페이지 */
+
 .aui-grid-paging-number-simple-text {
     margin-left: 1em;
     margin-right: 1em;
@@ -11439,14 +11138,14 @@ ul.fancytree-container {
     cursor: default;
 }
 
-/* 페이징 정보 텍스트 */
+
 .aui-grid-paging-panel .aui-grid-paging-info-text {
     position: absolute;
     right: 0px;
     margin: 8px 10px 0 0;
 }
 
-/* 페이징 행 개수 변경 select */
+
 .aui-grid-paging-row-count-select {
     width: 50px;
     border: 1px solid #ddd;
@@ -11459,7 +11158,7 @@ ul.fancytree-container {
     line-height: 2em;
 }
 
-/* pagingMode button인 경우 좌우 버튼 공용*/
+
 .aui-grid-paging-simple-button {
     border-radius: 20px;
     width: 40px;
@@ -11473,21 +11172,21 @@ ul.fancytree-container {
     cursor: pointer;
 }
 
-/* pagingMode button인 좌-이전 버튼*/
+
 .aui-grid-paging-simple-butotn-prev {
     left: 4px;
     bottom: 4px;
     background: #ffffff url(/img/auigrid/prev_ico.png) 50% 50% no-repeat;
 }
 
-/* pagingMode button인 우-다음 버튼*/
+
 .aui-grid-paging-simple-butotn-next {
     right: 4px;
     bottom: 4px;
     background: #ffffff url(/img/auigrid/next_ico.png) 50% 50% no-repeat;
 }
 
-/* 그룹핑 패널 스타일 */
+
 .aui-grid-grouping-panel {
     background: #f9f9f9;
     border-bottom: 1px solid #cccccc;
@@ -11495,7 +11194,7 @@ ul.fancytree-container {
     text-align: left;
 }
 
-/* 그룹핑 메세지 */
+
 .aui-grid-grouping-message {
     display: inline-block;
     padding: 10px 0 0 15px;
@@ -11505,7 +11204,7 @@ ul.fancytree-container {
     cursor: default;
 }
 
-/* 그룹핑 드래깅 할 때 보이는 이미지 */
+
 .aui-grid-grouping-dragging-proxy {
     background: #eeeeee url(/img/auigrid/accept-not.png) 98% 50% no-repeat;
     -ms-filter: 'progid:DXImageTransform.Microsoft.Alpha(Opacity=70)';
@@ -11521,12 +11220,12 @@ ul.fancytree-container {
     max-width: 600px;
 }
 
-/* 그룹핑 드래깅 할 때 보이는 Accept 이미지 */
+
 .aui-grid-grouping-dragging-proxy-accept {
     background: #eeeeee url(/img/auigrid/accept-ok.png) 98% 50% no-repeat;
 }
 
-/* 그룹핑 패널에 있는 그룹핑 패널 아이템 */
+
 .aui-grid-grouping-item {
     background: #ffffff url(/img/auigrid/delete.png) 98% 50% no-repeat;
     border: 1px solid #aaaaaa;
@@ -11537,7 +11236,7 @@ ul.fancytree-container {
     white-space: nowrap;
 }
 
-/* 그룹핑 패널 좌 스크롤 버턴 */
+
 .aui-grid-grouping-prev-btn {
     background: #eaeaea url('/img/auigrid/icon-left.png') no-repeat 50% 50%;
 }
@@ -11547,7 +11246,7 @@ ul.fancytree-container {
         cursor: pointer;
     }
 
-/* 그룹핑 패널 우 스크롤 버턴 */
+
 .aui-grid-grouping-next-btn {
     background: #eaeaea url('/img/auigrid/icon-right.png') no-repeat 50% 50%;
 }
@@ -11557,7 +11256,7 @@ ul.fancytree-container {
         cursor: pointer;
     }
 
-/* 헤더 필터 아이콘 스타일 */
+
 .aui-grid-header-filter-icon {
     border-left: 1px solid #eaeaea;
     border-right: none;
@@ -11572,7 +11271,7 @@ ul.fancytree-container {
         background-size: 12px 12px;
     }
 
-/* 현재 필터링 된 상태 아이콘 스타일 */
+
 .aui-grid-header-filter-icon-filtered {
     border-left: 1px solid #eaeaea;
     border-right: none;
@@ -11582,7 +11281,7 @@ ul.fancytree-container {
     cursor: pointer;
 }
 
-/* 필터 팝업 레이어 */
+
 .aui-grid-filter-popup-layer {
     font-family: 'Noto Sans KR', 'Pretendard', 'Nanum Gothic', 'Malgun Gothic', Gulim, 굴림, sans-serif;
     font-size: 14px;
@@ -11596,7 +11295,7 @@ ul.fancytree-container {
     z-index: 1999;
 }
 
-    /* 필터 초기화 */
+    
     .aui-grid-filter-popup-layer > span:first-child {
         background: url(/img/btn/filter.png) 5px 50% no-repeat;
         background-size: 12px 12px;
@@ -11607,14 +11306,14 @@ ul.fancytree-container {
         line-height: 18px;
     }
 
-        /* 필터 초기화 over */
+        
         .aui-grid-filter-popup-layer > span:first-child:hover {
             background: #eaeaea url(/img/btn/filter.png) 5px 50% no-repeat;
             background-size: 12px 12px;
             cursor: pointer;
         }
 
-    /* 필터 - 확장 필터 */
+    
     .aui-grid-filter-popup-layer .aui-grid-filter-exmenu-span {
         background: url(/img/auigrid/icon-right.png) 100% 50% no-repeat;
         margin: 0;
@@ -11624,18 +11323,18 @@ ul.fancytree-container {
         line-height: 18px;
     }
 
-        /* 필터 - 확장 필터 over */
+        
         .aui-grid-filter-popup-layer .aui-grid-filter-exmenu-span:hover {
             background-color: #eaeaea;
             cursor: pointer;
         }
 
-    /* 필터 - 확장 필터 선택됨 */
+    
     .aui-grid-filter-popup-layer .aui-grid-filter-exmenu-span-selected {
         background-color: #eaeaea;
     }
 
-/* 필터 - 확장 필터 서브 메뉴 */
+
 .aui-grid-filter-popup-filter-exmenu-sub-layer {
     font-family: 'Noto Sans KR', 'Pretendard', 'Nanum Gothic', 'Malgun Gothic', Gulim, 굴림, sans-serif;
     font-size: 14px;
@@ -11679,7 +11378,7 @@ ul.fancytree-container {
         border-top-style: solid;
     }
 
-/* 필드 - 확장 필터 사용자 지정 modal 컨테이너 */
+
 .aui-grid-filter-modal {
     position: fixed;
     top: 0;
@@ -11694,7 +11393,7 @@ ul.fancytree-container {
     outline: 0;
 }
 
-/* 사용자 필터 - 숫자, 텍스트 필터 Modal 다이얼로그 */
+
 .aui-grid-filter-modal-dialog {
     font-family: 'Noto Sans KR', 'Pretendard', 'Nanum Gothic', 'Malgun Gothic', Gulim, 굴림, sans-serif;
     font-size: 14px;
@@ -11721,7 +11420,7 @@ ul.fancytree-container {
     border-bottom: 1px solid #e5e5e5;
 }
 
-/* 필터 modal 닫기 버턴 */
+
 .aui-grid-filter-modal-close-btn {
     width: 16px;
     height: 16px;
@@ -11780,7 +11479,7 @@ ul.fancytree-container {
     padding: 6px 4px;
 }
 
-/* 필드 설정 확인, 취소 버턴 */
+
 .aui-grid-filter-modal-dialog-footer .aui-button {
     background: #eee;
     border: 1px solid #aaaaaa;
@@ -11800,27 +11499,27 @@ ul.fancytree-container {
         background: #ddd;
     }
 
-/* 필터 스크롤 컨테이너 영역*/
+
 .aui-grid-filter-popup-layer .aui-container {
     border: 1px solid #aaaaaa;
     margin: 10px 5px;
 }
 
-    /* 필터 스크롤 컨테이너 스크롤 재정의*/
+    
     .aui-grid-filter-popup-layer .aui-container .aui-hscrollbar .aui-scroll-thumb,
     .aui-grid-filter-popup-layer .aui-container .aui-vscrollbar .aui-scroll-thumb {
         background: #aaaaaa;
         border-color: #aaaaaa;
     }
 
-    /* 필터 안의 Too may Items..문구 */
+    
     .aui-grid-filter-popup-layer .aui-container .aui-grid-filter-info-message {
         padding-left: 4px;
         font-weight: bold;
         cursor: default;
     }
 
-    /* 필터 체크박스*/
+    
     .aui-grid-filter-popup-layer .aui-container .aui-check-label-box {
         padding: 2px 6px;
         cursor: default;
@@ -11836,7 +11535,7 @@ ul.fancytree-container {
             margin-top: 0 !important;
         }
 
-/* 필터 자동완성 검색 인풋 시작 */
+
 .aui-grid-filter-popup-layer .aui-autocomplete-input {
     overflow: hidden;
     position: relative;
@@ -11895,7 +11594,7 @@ ul.fancytree-container {
     height: 8px;
 }
 
-/* 인라인 필터 박스 */
+
 .aui-grid-filter-inline-box {
     border: 1px solid #bdbdbd;
     box-sizing: border-box !important;
@@ -11906,7 +11605,7 @@ ul.fancytree-container {
     border-color: #3db7cc;
 }
 
-/* 인라인 필터 인풋에 표시되는 클리어(X) 버튼 */
+
 .aui-grid-filter-inline-input-clear {
     display: inline-block;
     background: url(/img/auigrid/clear_del.png) 50% 50% no-repeat;
@@ -11917,7 +11616,7 @@ ul.fancytree-container {
     height: 16px;
 }
 
-/* 인라인 필터 인풋 */
+
 .aui-grid-filter-inline-input {
     font-size: 14px;
     height: 24px;
@@ -11936,12 +11635,12 @@ ul.fancytree-container {
         display: none;
     }
 
-/* 인라인 필터 행 스타일 */
+
 .aui-grid-filter-inline-row {
     background: #fafafa;
 }
 
-/* 컨텍스트 메뉴 */
+
 .aui-grid-context-popup-layer {
     font-size: 14px;
     min-width: 180px;
@@ -11961,7 +11660,7 @@ ul.fancytree-container {
     margin: 0;
     padding: 0;
 }
-/* 컨텍스트 아이템 */
+
 .aui-grid-context-item {
     cursor: default;
     text-align: left;
@@ -11982,7 +11681,7 @@ ul.fancytree-container {
     cursor: default !important;
 }
 
-/* 컨텍스트 아이템 구분 라인 */
+
 .aui-grid-context-item-line {
     height: 1px;
     padding: 0 10px 0 24px;
@@ -11990,7 +11689,7 @@ ul.fancytree-container {
     border-bottom: 1px solid #ccc;
 }
 
-/* 내보내기 진행 표시 스타일 */
+
 .aui-grid-export-progress-container {
     width: 280px;
     height: 80px;
@@ -12047,9 +11746,9 @@ ul.fancytree-container {
     text-overflow: ellipsis;
 }
 
-/* 내보내기 진행 표시 스타일 끝 */
 
-/* 모든 칼럼 렌더러의 베이스 */
+
+
 .aui-grid-renderer-base {
     text-overflow: ellipsis;
     box-sizing: content-box;
@@ -12062,7 +11761,7 @@ ul.fancytree-container {
     position: relative;
 }
 
-/* 버턴 렌더러 스타일 */
+
 .aui-grid-button-renderer {
     color: #000000;
     background: #eee;
@@ -12088,18 +11787,18 @@ ul.fancytree-container {
     width: 80%;
 }
 
-/* 버튼 비활성화 처리 */
+
 .aui-grid-button-renderer-disabled {
     cursor: not-allowed;
     border: 1px solid #ddd;
     color: #ccc;
 }
 
-/* 버턴 렌더러 스타일 끝 */
 
-/** 넘버 스텝퍼 렌더러 시작 */
+
+
 .aui-grid-number-step-renderer {
-    /*border-radius: 3px;*/
+    
     margin: 0;
     overflow: hidden;
     position: relative;
@@ -12178,9 +11877,9 @@ ul.fancytree-container {
     -moz-box-sizing: border-box;
 }
 
-/** 넘버 스텝퍼 렌더러 끝 */
 
-/* 드랍다운리스트 렌더러 시작 */
+
+
 .aui-grid-drop-list-wrapper {
     background: #fefefe;
     border: 1px solid #aaa;
@@ -12215,7 +11914,7 @@ ul.fancytree-container {
     height: 22px;
 }
 
-/* 드랍다운리스트 비활성화 처리 */
+
 .aui-grid-drop-list-renderer-disabled {
     border: 1px solid #ddd;
     background: #eaeaea;
@@ -12226,9 +11925,9 @@ ul.fancytree-container {
         color: #ccc;
     }
 
-/* 드랍다운리스트 렌더러 끝 */
 
-/* 드랍다운리스트, 콤보박스에서 나오는 리스트의 상위 랩퍼 */
+
+
 .aui-grid-drop-list-item-wrapper {
     background: #fff;
     font-size: 14px;
@@ -12245,14 +11944,14 @@ ul.fancytree-container {
     -moz-box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.3);
 }
 
-/* 드랍다운리스트, 콤보박스에서 나오는 리스트 개별 아이템 ul */
+
 .aui-grid-drop-list-ul {
     list-style: none;
     margin: 0;
     padding: 0;
 }
 
-/* 드랍다운리스트, 콤보박스에서 나오는 리스트 개별 아이템 li */
+
 .aui-grid-drop-list-item {
     cursor: default;
     height: 24px;
@@ -12270,7 +11969,7 @@ ul.fancytree-container {
     background: #eaeaea;
 }
 
-/* 드랍다운리스트 다중 선택에서 선택된 아이템 체크박스 표시 li */
+
 .aui-grid-drop-list-item-checked {
     background: #b2ccff url('/img/auigrid/blue-check.png') no-repeat 4px 50%;
 }
@@ -12284,26 +11983,26 @@ ul.fancytree-container {
     font-weight: bold;
 }
 
-/* 바렌더러 바게이지 시작*/
-/* 바게이지 전체 랩핑 div */
+
+
 .aui-grid-bar-renderer {
     position: relative;
 }
 
-    /* 바게이지 텍스트 span*/
+    
     .aui-grid-bar-renderer span {
         position: relative;
         margin-top: 4px;
         padding: 0 2px;
     }
 
-/* 바게이지 바 베이스*/
+
 .aui-grid-bar-renderer-bar-base {
     box-sizing: border-box;
     border: 1px solid #e4e4e4;
 }
 
-/* 바게이지 일반 바 */
+
 .aui-grid-bar-renderer-normal {
     background: #2f9d27;
     background: -webkit-linear-gradient(right, #86e57f, #2f9d27);
@@ -12313,7 +12012,7 @@ ul.fancytree-container {
     background: linear-gradient(to left, #86e57f, #2f9d27);
 }
 
-/* 바게이지 오른쪽에서 왼쪽으로 렌더링 될 때  바 */
+
 .aui-grid-bar-renderer-reverse {
     background: #df4d4d;
     background: -webkit-linear-gradient(left, #ff9595, #df4d4d);
@@ -12323,19 +12022,19 @@ ul.fancytree-container {
     background: linear-gradient(to right, #ff9595, #df4d4d);
 }
 
-/* 바게이지 양수 음수 함께 사용되는 영역에서 음수 바 */
+
 .aui-grid-bar-renderer-negative {
     background: #df4d4d;
 }
 
-/* 바게이지 양수 음수 함께 사용되는 영역에서 양수 바 */
+
 .aui-grid-bar-renderer-positive {
     background: #2f9d27;
 }
 
-/* 바렌더러 바게이지 끝*/
 
-/* 달력 */
+
+
 .aui-grid-calendar-wrapper {
     z-index: 1999;
     background: #ffffff;
@@ -12485,7 +12184,7 @@ ul.fancytree-container {
             box-sizing: border-box;
         }
 
-        /* 이전, 다음 달의 여분 날짜(day) */
+        
         .aui-grid-calendar-wrapper .aui-calendar .extraday {
             text-align: center;
             color: #aaa;
@@ -12541,7 +12240,7 @@ ul.fancytree-container {
                 background: #286090;
             }
 
-        /* 달력 시간 */
+        
         .aui-grid-calendar-wrapper .aui-calendar .aui-calendar-body-time {
             text-align: center;
         }
@@ -12566,9 +12265,9 @@ ul.fancytree-container {
             margin-right: 3px;
             font-weight: bold;
         }
-/* 달력 끝 */
 
-/* bootstrap-datepicker, jquery-datepicker 달력 시작*/
+
+
 .aui-grid-bootstrap-calendar-wrapper,
 .aui-grid-jq-calendar-wrapper {
     font-family: 'Noto Sans KR', 'Pretendard', 'Nanum Gothic', 'Malgun Gothic', Gulim, 굴림, sans-serif;
@@ -12592,9 +12291,9 @@ ul.fancytree-container {
     .aui-grid-bootstrap-calendar-wrapper * {
         box-sizing: content-box;
     }
-/* bootstrap-datepicker,jquery-datepicker 달력 끝*/
 
-/* 사용자 정의 에디트 렌더러 */
+
+
 .aui-grid-edit-renderer-custom {
     font-family: 'Noto Sans KR', 'Pretendard', 'Nanum Gothic', 'Malgun Gothic', Gulim, 굴림, sans-serif;
     font-size: 14px;
@@ -12608,14 +12307,14 @@ ul.fancytree-container {
     z-index: 1999;
 }
 
-/* 링크 렌더러 */
+
 .aui-grid-link-renderer > a {
     text-decoration: underline;
 }
 
-/* 링크 렌더러 끝*/
 
-/* 셀 에디터 버턴 기본 스타일 */
+
+
 .aui-grid-cell-editor-button {
     cursor: pointer;
     background: url(/img/auigrid/pad-icon.png) 50% 50% no-repeat;
@@ -12623,33 +12322,33 @@ ul.fancytree-container {
     border: none;
 }
 
-/* 셀 에디터 버턴 텍스트 인풋 스타일 */
+
 .aui-grid-cell-editor-button-inputer {
     background: url(/img/auigrid/input-icon.png) 50% 50% no-repeat;
 }
 
-/* 셀 에디터 버턴 콤보박스, 드랍다운리스트 스타일 */
+
 .aui-grid-cell-editor-button-combo-list,
 .aui-grid-cell-editor-button-drop-list {
     background: url(/img/auigrid/list-icon.png) 50% 50% no-repeat;
 }
 
-/* 셀 에디터 버턴 달력 스타일 */
+
 .aui-grid-cell-editor-button-calendar {
     background: url(/img/auigrid/calendar-icon.png) 50% 50% no-repeat;
 }
 
-/* 셀 에디터 버턴 리모트리스트 검색 스타일 */
+
 .aui-grid-cell-editor-button-remote-search {
     background: url(/img/auigrid/search2.png) 50% 50% no-repeat;
 }
 
-/* 셀 에디터 버턴 리모트리스트 프리로더 */
+
 .aui-grid-cell-editor-button-ajax-loader {
     background: url(/img/auigrid/tiny-ajax-loader.gif) 50% 50% no-repeat;
 }
 
-/* 계층형인 경우 Depth 에 따른 ROW 간 스타일 */
+
 .aui-grid-row-depth1-style {
     font-weight: bold;
     color: #eaeaea;
@@ -12673,7 +12372,7 @@ ul.fancytree-container {
     color: #000;
 }
 
-/**********************************************************************************/
+
 
 .aui-grid-default-header {
     background: #f0f0f0 !important;
@@ -12757,7 +12456,7 @@ ul.fancytree-container {
     font-size: 14px;
 }
 
-/* 오버라이드 */
+
 .aui-grid {
     background: #f6f8fb;
     border: 0;
@@ -12800,7 +12499,7 @@ ul.fancytree-container {
     max-width: 600px;
 }
 
-/* jQuery UI Menu 스타일 재정의 */
+
 .ui-menu {
     width: 160px;
     box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.3);

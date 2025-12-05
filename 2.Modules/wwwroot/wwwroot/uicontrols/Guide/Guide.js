@@ -322,17 +322,7 @@
                             syn.$w.alert('"{0}" 내용을 확인하기 위해 팝업을 허용해야 합니다'.format(help.subject));
                         }
                         else {
-                            var html = `
-                            <html style="margin: 0;">
-                                <head>
-                                    <link type="text/css" rel="stylesheet" href="/js/tinymce/skins/ui/oxide/content.min.css">
-                                    <link type="text/css" rel="stylesheet" href="/js/tinymce/skins/content/default/content.min.css">
-                                </head>
-                                <body style="margin: 0; width: 100%; padding:8px;" class="mce-content-body">
-                                    <h1>${help.subject}</h1>${help.sentence}
-                                </body>
-                            </html>
-                            `;
+                            var html = `<html style="margin: 0;"><head><link type="text/css" rel="stylesheet" href="/js/tinymce/skins/ui/oxide/content.min.css"><link type="text/css" rel="stylesheet" href="/js/tinymce/skins/content/default/content.min.css"></head><body style="margin: 0; width: 100%; padding:8px;" class="mce-content-body"><h1>${help.subject}</h1>${help.sentence}</body></html>`;
 
                             helpWindow.document.open();
                             helpWindow.document.write(html);
