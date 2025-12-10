@@ -6746,7 +6746,7 @@
 
     $textbox.extend({
         name: 'syn.uicontrols.$textbox',
-        version: 'v2025.12.01',
+        version: 'v2025.12.10',
         defaultSetting: {
             editType: 'text',
             inValidateClear: true,
@@ -7085,10 +7085,12 @@
 
         event_blur(evt) {
             var el = evt.target || evt.srcElement || evt;
+            var synOptions = JSON.parse(el.getAttribute('syn-options'));
+            const value = (synOptions.editType == 'number' || synOptions.editType == 'numeric') ? $string.toNumberString(el.value) : el.value;
             var maxlengthB = el.getAttribute('maxlengthB');
             if ($string.isNullOrEmpty(maxlengthB) == false) {
                 var length = parseInt(el.getAttribute('maxlengthB'));
-                var textLength = $string.length(el.value);
+                var textLength = $string.length(value);
 
                 if (textLength > length) {
                     var alertOptions = $object.clone(syn.$w.alertOptions);
@@ -7102,7 +7104,7 @@
                 var maxLength = el.getAttribute('maxlength');
                 if ($string.isNullOrEmpty(maxLength) == false) {
                     var length = parseInt(el.getAttribute('maxlength'));
-                    var textLength = el.value.length;
+                    var textLength = $string.length(value);
 
                     if (textLength > length) {
                         var alertOptions = $object.clone(syn.$w.alertOptions);
