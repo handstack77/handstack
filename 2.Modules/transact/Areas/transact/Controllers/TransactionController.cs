@@ -414,7 +414,7 @@ namespace transact.Areas.transact.Controllers
             var result = new List<string>();
             foreach (var cacheKey in ModuleConfiguration.CacheKeys)
             {
-                if (cacheKey.StartsWith($"{ModuleConfiguration.ModuleID}|") == true)
+                if (string.IsNullOrEmpty(cacheKey) == false && cacheKey.StartsWith($"{ModuleConfiguration.ModuleID}|") == true)
                 {
                     result.Add(cacheKey);
                 }
