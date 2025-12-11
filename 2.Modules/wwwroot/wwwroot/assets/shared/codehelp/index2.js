@@ -229,7 +229,18 @@ let $index2 = {
             var length = scheme.length;
             for (var i = 0; i < length; i++) {
                 var item = scheme[i];
-                columns.push([item.ColumnID, item.ColumnText, 100, $string.toBoolean(item.HiddenYN), 'text', true, 'left']);
+
+                switch (item.ColumnType) {
+                    case 'number':
+                    case 'checkbox':
+                        columns.push([item.ColumnID, item.ColumnText, 100, $string.toBoolean(item.HiddenYN), item.ColumnType, true, 'center']);
+                        break;
+                    case 'numeric':
+                        columns.push([item.ColumnID, item.ColumnText, 100, $string.toBoolean(item.HiddenYN), item.ColumnType, true, 'right']);
+                        break;
+                    default:
+                        columns.push([item.ColumnID, item.ColumnText, 100, $string.toBoolean(item.HiddenYN), 'text', true, 'left']);
+                }
 
                 if ($string.toBoolean(item.HiddenYN) == false) {
                     elSearchType.options.add(new Option(item.ColumnText, item.ColumnID));

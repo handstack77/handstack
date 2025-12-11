@@ -1410,13 +1410,13 @@
 
             var iframe = syn.$m.append(el, 'iframe');
             syn.$m.setStyle(iframe, 'border', '0px');
-            iframe.setAttribute('name', 'syn-repository');
+            iframe.setAttribute('name', 'syn-ui-dialog');
 
             options.onShow = function (dialog) {
                 iframe.setAttribute('src', src);
             }
 
-            if (options.scrolling) {
+            if ($string.toBoolean(options.scrolling) == true) {
                 iframe.scrolling = 'yes';
             }
             else {

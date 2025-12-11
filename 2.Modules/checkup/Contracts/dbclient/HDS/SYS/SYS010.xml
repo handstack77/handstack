@@ -1026,6 +1026,7 @@ WHERE  CH.UseYN = 'Y'
 
 SELECT CHS.ColumnID
        , CHS.ColumnText
+       , 'text' AS ColumnType
        , CHS.HiddenYN
 FROM   CodeHelp CH 
        INNER JOIN CodeHelpScheme CHS ON CH.UseYN = 'Y' 

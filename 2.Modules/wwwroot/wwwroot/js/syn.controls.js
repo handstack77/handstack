@@ -4675,15 +4675,15 @@
             if (fileContainer != null) {
                 if (document.forms.length > 0) {
                     var form = document.forms[0];
-                    if (syn.$l.get('syn-repository') == null) {
-                        var repositoryTarget = syn.$m.append(form, 'iframe', 'syn-repository', {
+                    if (syn.$l.get('syn-ui-dialog') == null) {
+                        var repositoryTarget = syn.$m.append(form, 'iframe', 'syn-ui-dialog', {
                             styles: { display: 'none' }
                         });
-                        repositoryTarget.name = 'syn-repository';
+                        repositoryTarget.name = 'syn-ui-dialog';
                     }
 
                     form.enctype = 'multipart/form-data';
-                    form.target = 'syn-repository';
+                    form.target = 'syn-ui-dialog';
                     form.method = 'post';
                     form.action = $fileclient.getRepositoryUrl();
                 }
@@ -4921,7 +4921,7 @@
                 }
 
                 if (isContinue == true && document.forms.length > 0) {
-                    if (syn.$l.get('syn-repository') != null) {
+                    if (syn.$l.get('syn-ui-dialog') != null) {
                         syn.$r.params = [];
                         var repositoryID = $fileclient.getRepositoryID(elID);
                         var setting = $fileclient.getFileManagerSetting();
@@ -10158,7 +10158,7 @@
 
     $auigrid.extend({
         name: 'syn.uicontrols.$auigrid',
-        version: 'v2025.12.02',
+        version: 'v2025.12.11',
 
         gridControls: [],
         gridCodeDatas: [],
@@ -10574,9 +10574,9 @@
                                     onClick: function (evt) {
                                         var gridID = evt.pid;
                                         var elID = gridID.substring(1);
-                                        var isAllowEdit = true;
+                                        var isAllowEdit = AUIGrid.getProp(gridID, 'editable');
                                         var mod = window[syn.$w.pageScript];
-                                        var eventHandler = mod.event ? mod.event['{0}_{1}'.format(elID, 'cellEditBegin')] : null;
+                                        var eventHandler = isAllowEdit == true && mod.event ? mod.event['{0}_{1}'.format(elID, 'cellEditBegin')] : null;
                                         if (eventHandler) {
                                             var value = eventHandler(evt);
                                             isAllowEdit = $string.toBoolean(value);
@@ -10770,8 +10770,9 @@
                                 onClick: (evt) => {
                                     var gridID = evt.pid;
                                     var elID = gridID.substring(1);
+                                    var isAllowEdit = AUIGrid.getProp(gridID, 'editable');
                                     var mod = window[syn.$w.pageScript];
-                                    var eventHandler = mod.event['{0}_cellButtonClick'.format(elID)];
+                                    var eventHandler = isAllowEdit == true && mod.event ? mod.event['{0}_cellButtonClick'.format(elID)] : null;
                                     if (eventHandler) {
                                         eventHandler(elID, evt.rowIndex, evt.columnIndex, evt.dataField, evt.item);
                                     }
@@ -10943,10 +10944,9 @@
                                     var rowIndex = evt.rowIndex;
                                     var columnIndex = evt.columnIndex;
                                     var dataField = evt.dataField;
-
-                                    var isAllowEdit = true;
+                                    var isAllowEdit = AUIGrid.getProp(gridID, 'editable');
                                     var mod = window[syn.$w.pageScript];
-                                    var eventHandler = mod.event ? mod.event['{0}_{1}'.format(elID, 'cellEditBegin')] : null;
+                                    var eventHandler = isAllowEdit == true && mod.event ? mod.event['{0}_{1}'.format(elID, 'cellEditBegin')] : null;
                                     if (eventHandler) {
                                         var value = eventHandler(evt);
                                         isAllowEdit = $string.toBoolean(value);
