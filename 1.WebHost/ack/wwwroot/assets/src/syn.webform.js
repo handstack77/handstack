@@ -3834,9 +3834,9 @@
                                     }
                                     else {
                                         const errorText = transactionResponse.exceptionText;
-                                        const errorMessage = '거래: {0}, 기능: {1} 수행중 오류가 발생하였습니다\nGlobalID: {2}'.format(transactionRequest.transaction.transactionID, transactionRequest.transaction.functionID, transactionRequest.transaction.globalID);
+                                        const errorMessage = '거래: {0}, 기능: {1} 수행 중 예외 정보 확인이 필요합니다\nGlobalID: {2}'.format(transactionRequest.transaction.transactionID, transactionRequest.transaction.functionID, transactionRequest.transaction.globalID);
                                         if (syn.$w.serviceClientException) {
-                                            syn.$w.serviceClientException('요청오류', errorMessage, errorText);
+                                            syn.$w.serviceClientException('요청 정보 확인', errorMessage, errorText);
                                         }
                                         syn.$l.eventLog('$w.executeTransaction', `거래 실행 오류: ${errorText}`, 'Warning');
                                         fallback(config, transactionObject);
@@ -3897,9 +3897,9 @@
                                 }
                             }
                             catch (error) {
-                                const errorMessage = '거래: {0}, 기능: {1} 수행중 오류가 발생하였습니다\nGlobalID: {2}'.format(transactionRequest.transaction.transactionID, transactionRequest.transaction.functionID, transactionRequest.transaction.globalID);
+                                const errorMessage = '거래: {0}, 기능: {1} 수행 중 예외 정보 확인이 필요합니다\nGlobalID: {2}'.format(transactionRequest.transaction.transactionID, transactionRequest.transaction.functionID, transactionRequest.transaction.globalID);
                                 if (syn.$w.serviceClientException) {
-                                    syn.$w.serviceClientException('요청오류', errorMessage, error.stack);
+                                    syn.$w.serviceClientException('요청 정보 확인', errorMessage, error.stack);
                                 }
                                 syn.$l.eventLog('$w.executeTransaction', `executeTransaction 오류: ${error}`, 'Error');
                                 fallback(config, transactionObject);
