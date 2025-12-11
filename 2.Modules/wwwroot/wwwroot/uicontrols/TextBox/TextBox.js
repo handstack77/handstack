@@ -880,8 +880,9 @@
             if ($object.isNullOrUndefined(el) == false) {
                 var setting = JSON.parse(el.getAttribute('syn-options'));
                 switch (setting.editType) {
+                    case 'number':
                     case 'numeric':
-                        result = el.value.replace(/,/g, '');
+                        result = $string.toNumberString(el.value);
                         break;
                     default:
                         var mod = window[syn.$w.pageScript];
@@ -912,6 +913,7 @@
                     var result = '';
                     var setting = JSON.parse(el.getAttribute('syn-options'));
                     switch (setting.editType) {
+                        case 'number':
                         case 'numeric':
                             el.value = $string.isNumber(value) == true ? $string.toCurrency(value) : value;
                             break;

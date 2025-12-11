@@ -8,7 +8,7 @@
 
     $codepicker.extend({
         name: 'syn.uicontrols.$codepicker',
-        version: 'v2025.10.1',
+        version: 'v2025.12.11',
         codeHelpUrl: '/assets/shared/codehelp/index2.html',
         defaultSetting: {
             dataSourceID: null,
@@ -337,8 +337,8 @@
             }
 
             var dialogOptions = $object.clone(syn.$w.dialogOptions);
-            dialogOptions.minWidth = 640;
-            dialogOptions.minHeight = 480;
+            dialogOptions.minWidth = setting.dialogWidth || 640;
+            dialogOptions.minHeight = setting.dialogHeight || 480;
             dialogOptions.close = true;
             dialogOptions.caption = (setting.controlText || setting.columnText || setting.headerText || setting.dataSourceID) + ' 코드도움';
             var url = $string.isNullOrEmpty(setting.url) == false ? setting.url : $codepicker.codeHelpUrl;
