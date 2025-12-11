@@ -3299,6 +3299,7 @@ TransactionException:
                                             {
                                                 ColumnID = row.GetStringSafe("ColumnID"),
                                                 ColumnText = row.GetStringSafe("ColumnText"),
+                                                ColumnType = row.GetStringSafe("ColumnType"),
                                                 HiddenYN = val.ToBoolean()
                                             });
                                         }

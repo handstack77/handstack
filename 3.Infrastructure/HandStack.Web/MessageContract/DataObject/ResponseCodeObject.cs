@@ -34,12 +34,15 @@ namespace HandStack.Web.MessageContract.DataObject
         {
             ColumnID = "";
             ColumnText = "";
+            ColumnType = "";
             HiddenYN = false;
         }
 
         public string ColumnID { get; set; }
 
         public string ColumnText { get; set; }
+
+        public string ColumnType { get; set; }
 
         public bool HiddenYN { get; set; }
     }
