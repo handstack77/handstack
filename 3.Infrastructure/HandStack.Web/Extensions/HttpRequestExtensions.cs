@@ -26,24 +26,49 @@ namespace HandStack.Web.Extensions
                 encoding = Encoding.UTF8;
             }
 
+            request.EnableBuffering();
             if (inputStream == null)
             {
                 inputStream = request.Body;
             }
 
-            using var reader = new StreamReader(inputStream, encoding);
-            return await reader.ReadToEndAsync();
+            if (inputStream.CanSeek == true)
+            {
+                inputStream.Position = 0;
+            }
+
+            using var reader = new StreamReader(inputStream, encoding, detectEncodingFromByteOrderMarks: false, bufferSize: 1024, leaveOpen: true);
+            var body = await reader.ReadToEndAsync();
+
+            if (inputStream.CanSeek == true)
+            {
+                inputStream.Position = 0;
+            }
+
+            return body;
         }
 
         public static async Task<byte[]> GetRawBodyBytesAsync(this HttpRequest request, Stream? inputStream = null)
         {
+            request.EnableBuffering();
             if (inputStream == null)
             {
                 inputStream = request.Body;
             }
 
-            using var ms = new MemoryStream(8192);
+            if (inputStream.CanSeek == true)
+            {
+                inputStream.Position = 0;
+            }
+
+            using var ms = new MemoryStream();
             await inputStream.CopyToAsync(ms);
+
+            if (inputStream.CanSeek == true)
+            {
+                inputStream.Position = 0;
+            }
+
             return ms.ToArray();
         }
 
