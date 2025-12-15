@@ -1612,6 +1612,7 @@
 
 .aui-grid-drop-list-item:hover {
     background: #eaeaea;
+	color: #000;
 }
 
 /* 드랍다운리스트 다중 선택에서 선택된 아이템 체크박스 표시 li */

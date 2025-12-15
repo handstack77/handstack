@@ -6746,7 +6746,7 @@
 
     $textbox.extend({
         name: 'syn.uicontrols.$textbox',
-        version: 'v2025.12.10',
+        version: 'v2025.12.15',
         defaultSetting: {
             editType: 'text',
             inValidateClear: true,
@@ -7153,10 +7153,16 @@
                 var parts = value.split(':');
                 var isValid = false;
 
-                if (parts.length === 2) {
+                if (parts.length === 1) {
+                    var hour = parseInt(parts[0], 10);
+                    if (hour >= 0 && hour <= 23) {
+                        el.value = String(hour).padStart(2, '0') + ':00';
+                        isValid = true;
+                    }
+                }
+                else if (parts.length === 2) {
                     var hour = parseInt(parts[0], 10);
                     var minute = parseInt(parts[1], 10);
-
                     if (hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59) {
                         el.value = String(hour).padStart(2, '0') + ':' + String(minute).padStart(2, '0');
                         isValid = true;
@@ -7179,7 +7185,22 @@
                 var parts = value.split(':');
                 var isValid = false;
 
-                if (parts.length === 3) {
+                if (parts.length === 1) {
+                    var hour = parseInt(parts[0], 10);
+                    if (hour >= 0 && hour <= 23) {
+                        el.value = String(hour).padStart(2, '0') + ':00';
+                        isValid = true;
+                    }
+                }
+                else if (parts.length === 2) {
+                    var hour = parseInt(parts[0], 10);
+                    var minute = parseInt(parts[1], 10);
+                    if (hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59) {
+                        el.value = String(hour).padStart(2, '0') + ':' + String(minute).padStart(2, '0') + ':00';
+                        isValid = true;
+                    }
+                }
+                else if (parts.length === 3) {
                     var hour = parseInt(parts[0], 10);
                     var minute = parseInt(parts[1], 10);
                     var second = parseInt(parts[2], 10);
