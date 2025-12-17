@@ -360,15 +360,15 @@
             if (fileContainer != null) {
                 if (document.forms.length > 0) {
                     var form = document.forms[0];
-                    if (syn.$l.get('syn-ui-dialog') == null) {
-                        var repositoryTarget = syn.$m.append(form, 'iframe', 'syn-ui-dialog', {
+                    if (syn.$l.get('syn-repository') == null) {
+                        var repositoryTarget = syn.$m.append(form, 'iframe', 'syn-repository', {
                             styles: { display: 'none' }
                         });
-                        repositoryTarget.name = 'syn-ui-dialog';
+                        repositoryTarget.name = 'syn-repository';
                     }
 
                     form.enctype = 'multipart/form-data';
-                    form.target = 'syn-ui-dialog';
+                    form.target = 'syn-repository';
                     form.method = 'post';
                     form.action = $fileclient.getRepositoryUrl();
                 }
@@ -606,7 +606,7 @@
                 }
 
                 if (isContinue == true && document.forms.length > 0) {
-                    if (syn.$l.get('syn-ui-dialog') != null) {
+                    if (syn.$l.get('syn-repository') != null) {
                         syn.$r.params = [];
                         var repositoryID = $fileclient.getRepositoryID(elID);
                         var setting = $fileclient.getFileManagerSetting();

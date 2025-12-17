@@ -1410,7 +1410,7 @@
 
             var iframe = syn.$m.append(el, 'iframe');
             syn.$m.setStyle(iframe, 'border', '0px');
-            iframe.setAttribute('name', 'syn-ui-dialog');
+            iframe.setAttribute('name', 'syn-repository');
 
             options.onShow = function (dialog) {
                 iframe.setAttribute('src', src);
