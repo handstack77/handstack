@@ -1152,7 +1152,7 @@
 
             if (localeID && typeof Intl !== 'undefined' && Intl.NumberFormat) {
                 const formatOptions = {
-                    style: 'currency',
+                    style: 'decimal',
                     currency: 'KRW',
                     ...options
                 };

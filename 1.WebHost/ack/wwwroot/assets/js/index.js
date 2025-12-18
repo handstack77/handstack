@@ -1,5 +1,5 @@
 /*!
-HandStack Javascript Library v2025.12.11
+HandStack Javascript Library v2025.12.18
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -175,7 +175,7 @@ class Module {
 }
 
 Module.ancestor = Object;
-Module.version = 'v2025.7.3';
+Module.version = 'v2025.12.18';
 
 const syn = { Module };
 syn.Config = {
@@ -2297,7 +2297,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
             if (localeID && typeof Intl !== 'undefined' && Intl.NumberFormat) {
                 const formatOptions = {
-                    style: 'currency',
+                    style: 'decimal',
                     currency: 'KRW',
                     ...options
                 };
