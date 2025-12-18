@@ -1960,7 +1960,7 @@ namespace repository.Controllers
                 else
                 {
                     stringBuilder.AppendLine(scriptStart);
-                    stringBuilder.AppendLine("alert('잘못된 파일 업로드 요청');");
+                    stringBuilder.AppendLine("alert('업로드 파일 정보 요청 확인 필요');");
                     stringBuilder.AppendLine("history.go(-1);");
                     stringBuilder.AppendLine(scriptEnd);
                     return Content(stringBuilder.ToString(), "text/html", Encoding.UTF8);

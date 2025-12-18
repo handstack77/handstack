@@ -541,7 +541,7 @@ namespace HandStack.Web.ApiClient
             transactionRequest.LoadOptions.Add("encryptionType", TransactionConfig.Transaction.EncryptionType);
             transactionRequest.LoadOptions.Add("encryptionKey", TransactionConfig.Transaction.EncryptionKey);
             transactionRequest.LoadOptions.Add("platform", Environment.OSVersion.Platform.ToString());
-            transactionRequest.RequestID = string.Concat(transactionObject.ProgramID, transactionObject.BusinessID, transactionObject.TransactionID, transactionObject.FunctionID, TransactionConfig.Transaction.RunningEnvironment, DateTime.Now.ToString("yyyyMMddHHmmssffffff"));
+            transactionRequest.RequestID = string.Concat(transactionObject.ProgramID, transactionObject.BusinessID, transactionObject.TransactionID, transactionObject.FunctionID, TransactionConfig.Transaction.RunningEnvironment, DateTime.Now.ToString("yyyyMMddHHmmss") + Guid.NewGuid().ToString("N").Substring(0, 6).ToUpper());
             transactionRequest.Version = TransactionConfig.Transaction.ProtocolVersion;
             transactionRequest.Environment = TransactionConfig.Transaction.RunningEnvironment;
 
