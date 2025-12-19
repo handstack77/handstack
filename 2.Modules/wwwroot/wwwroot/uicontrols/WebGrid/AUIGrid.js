@@ -166,7 +166,7 @@
 
     $auigrid.extend({
         name: 'syn.uicontrols.$auigrid',
-        version: 'v2025.12.11',
+        version: 'v2025.12.19',
 
         gridControls: [],
         gridCodeDatas: [],
@@ -678,7 +678,7 @@
                                 showEditorBtnOver: false,
                                 onlyNumeric: true,
                                 allowPoint: false,
-                                allowNegative: false,
+                                allowNegative: $object.isNullOrUndefined(columnInfo.allowNegative) == true ? false : $string.toBoolean(columnInfo.allowNegative),
                                 textAlign: 'center',
                                 autoThousandSeparator: false
                             }
@@ -704,7 +704,7 @@
                                 showEditorBtnOver: false,
                                 onlyNumeric: true,
                                 allowPoint: true,
-                                allowNegative: true,
+                                allowNegative: $object.isNullOrUndefined(columnInfo.allowNegative) == true ? true : $string.toBoolean(columnInfo.allowNegative),
                                 textAlign: 'right',
                                 autoThousandSeparator: true
                             }
@@ -2332,11 +2332,11 @@
         setFlag(elID, rowIndex, flagValue) {
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
-                var colIndex = $auigrid.propToCol(gridID, 'Flag');
+                var colIndex = $auigrid.propToCol(elID, 'Flag');
                 if (rowIndex > -1 && colIndex > -1) {
-                    var flag = $auigrid.getDataAtCell(gridID, rowIndex, colIndex);
+                    var flag = $auigrid.getDataAtCell(elID, rowIndex, colIndex);
                     if (flag != 'S') {
-                        $auigrid.setDataAtCell(gridID, rowIndex, colIndex, flagValue);
+                        $auigrid.setDataAtCell(elID, rowIndex, colIndex, flagValue);
                     }
                 }
             }

@@ -1316,7 +1316,7 @@
                                             dataType: synOptions.dataType
                                         };
 
-                                        if (outputConfig.clear == true) {
+                                        if ($object.isNullOrUndefined(outputConfig.clear) == true || outputConfig.clear == true) {
                                             if (synControls && synControls.length > 0) {
                                                 const controlInfo = synControls.find(function (item) {
                                                     return item.field == outputConfig.dataFieldID;
@@ -1348,7 +1348,7 @@
                                                     };
                                                 }
 
-                                                if (outputConfig.clear == true) {
+                                                if ($object.isNullOrUndefined(outputConfig.clear) == true || outputConfig.clear == true) {
                                                     const dataStore = $this.store[store.dataSourceID];
                                                     if (dataStore) {
                                                         dataStore.length = 0;
@@ -1370,7 +1370,7 @@
                                 if ($object.isNullOrUndefined(controlModule) == false && controlModule.setTransactionBelongID) {
                                     controlModule.setTransactionBelongID(synControlConfig.id, output);
 
-                                    if (outputConfig.clear == true) {
+                                    if ($object.isNullOrUndefined(outputConfig.clear) == true || outputConfig.clear == true) {
                                         if (synControls && synControls.length > 0) {
                                             const controlInfo = synControls.find(function (item) {
                                                 return item.field == output.dataFieldID;
@@ -1406,7 +1406,7 @@
                                             };
                                         }
 
-                                        if (outputConfig.clear == true) {
+                                        if ($object.isNullOrUndefined(outputConfig.clear) == true || outputConfig.clear == true) {
                                             if (synControls && synControls.length > 0) {
                                                 const controlInfo = synControls.find(function (item) {
                                                     return item.field == outputConfig.dataFieldID;
@@ -1437,7 +1437,7 @@
                                                         };
                                                     }
 
-                                                    if (outputConfig.clear == true) {
+                                                    if ($object.isNullOrUndefined(outputConfig.clear) == true || outputConfig.clear == true) {
                                                         const dataStore = $this.store[store.dataSourceID];
                                                         if (dataStore) {
                                                             dataStore.length = 0;
