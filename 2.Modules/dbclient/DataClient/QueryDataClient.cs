@@ -314,6 +314,11 @@ namespace dbclient.DataClient
                 foreach (var transactionDynamicObject in transactionDynamicObjects)
                 {
                     var dynamicObject = transactionDynamicObject.Value.DynamicTransaction;
+                    if (dynamicObject.Parameters.Count > 0 && dynamicObject.Parameters[0].ParameterName == "DefaultEmpty")
+                    {
+                        continue;
+                    }
+
                     var statementMap = transactionDynamicObject.Value.Statement;
 
                     var databaseProvider = transactionDynamicObject.Value.DataProvider;
@@ -1125,6 +1130,10 @@ TransactionException:
                 foreach (var transactionDynamicObject in transactionDynamicObjects)
                 {
                     var dynamicObject = transactionDynamicObject.Value.DynamicTransaction;
+                    if (dynamicObject.Parameters.Count > 0 && dynamicObject.Parameters[0].ParameterName == "DefaultEmpty")
+                    {
+                        continue;
+                    }
                     var statementMap = transactionDynamicObject.Value.Statement;
 
                     var databaseProvider = transactionDynamicObject.Value.DataProvider;
@@ -1786,6 +1795,10 @@ TransactionException:
                 foreach (var transactionDynamicObject in transactionDynamicObjects)
                 {
                     var dynamicObject = transactionDynamicObject.Value.DynamicTransaction;
+                    if (dynamicObject.Parameters.Count > 0 && dynamicObject.Parameters[0].ParameterName == "DefaultEmpty")
+                    {
+                        continue;
+                    }
                     var statementMap = transactionDynamicObject.Value.Statement;
 
                     var databaseProvider = transactionDynamicObject.Value.DataProvider;
@@ -2447,6 +2460,10 @@ TransactionException:
                 foreach (var transactionDynamicObject in transactionDynamicObjects)
                 {
                     var dynamicObject = transactionDynamicObject.Value.DynamicTransaction;
+                    if (dynamicObject.Parameters.Count > 0 && dynamicObject.Parameters[0].ParameterName == "DefaultEmpty")
+                    {
+                        continue;
+                    }
                     var statementMap = transactionDynamicObject.Value.Statement;
 
                     var databaseProvider = transactionDynamicObject.Value.DataProvider;
@@ -3505,6 +3522,10 @@ TransactionException:
                 foreach (var transactionDynamicObject in transactionDynamicObjects)
                 {
                     var dynamicObject = transactionDynamicObject.Value.DynamicTransaction;
+                    if (dynamicObject.Parameters.Count > 0 && dynamicObject.Parameters[0].ParameterName == "DefaultEmpty")
+                    {
+                        continue;
+                    }
                     var statementMap = transactionDynamicObject.Value.Statement;
 
                     var databaseProvider = transactionDynamicObject.Value.DataProvider;
@@ -4016,6 +4037,10 @@ TransactionException:
                 foreach (var transactionDynamicObject in transactionDynamicObjects)
                 {
                     var dynamicObject = transactionDynamicObject.Value.DynamicTransaction;
+                    if (dynamicObject.Parameters.Count > 0 && dynamicObject.Parameters[0].ParameterName == "DefaultEmpty")
+                    {
+                        continue;
+                    }
                     var statementMap = transactionDynamicObject.Value.Statement;
 
                     var databaseProvider = transactionDynamicObject.Value.DataProvider;
