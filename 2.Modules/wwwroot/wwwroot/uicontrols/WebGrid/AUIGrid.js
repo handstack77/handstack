@@ -166,7 +166,7 @@
 
     $auigrid.extend({
         name: 'syn.uicontrols.$auigrid',
-        version: 'v2025.12.19',
+        version: 'v2025.12.25',
 
         gridControls: [],
         gridCodeDatas: [],
@@ -1415,18 +1415,26 @@
                             size.height = size.height + 'px';
                         }
 
-                        if (size.width) {
+                        if ($object.isNullOrUndefined(size.width) == true) {
+                            size.width = '100%';
+                            el.style.width = '100%';
+                        }
+                        else {
                             el.style.width = size.width;
                         }
 
-                        if (size.height) {
+                        if ($object.isNullOrUndefined(size.height) == true) {
+                            size.height = '100%';
+                            el.style.height = '100%';
+                        }
+                        else {
                             el.style.height = size.height;
                         }
 
-                        AUIGrid.resize(gridID, size.width, size.height);
+                        setTimeout(() => { AUIGrid.resize(gridID, size.width, size.height); }, 50);
                     }
                     else {
-                        AUIGrid.resize(gridID);
+                        setTimeout(() => { AUIGrid.resize(gridID); }, 50);
                     }
 
                     if (syn.$w.setTabContentHeight) {

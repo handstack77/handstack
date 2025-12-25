@@ -9677,6 +9677,7 @@ a.ui-button:active,
 	#simplemodal-container .simplemodal-data {
 		padding: 0;
 		margin: 0;
+        overflow: auto;
 	}
 
 		#simplemodal-container .simplemodal-data h3 {

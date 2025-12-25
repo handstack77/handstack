@@ -10179,7 +10179,7 @@
 
     $auigrid.extend({
         name: 'syn.uicontrols.$auigrid',
-        version: 'v2025.12.19',
+        version: 'v2025.12.25',
 
         gridControls: [],
         gridCodeDatas: [],
@@ -11414,18 +11414,26 @@
                             size.height = size.height + 'px';
                         }
 
-                        if (size.width) {
+                        if ($object.isNullOrUndefined(size.width) == true) {
+                            size.width = '100%';
+                            el.style.width = '100%';
+                        }
+                        else {
                             el.style.width = size.width;
                         }
 
-                        if (size.height) {
+                        if ($object.isNullOrUndefined(size.height) == true) {
+                            size.height = '100%';
+                            el.style.height = '100%';
+                        }
+                        else {
                             el.style.height = size.height;
                         }
 
-                        AUIGrid.resize(gridID, size.width, size.height);
+                        setTimeout(() => { AUIGrid.resize(gridID, size.width, size.height); }, 50);
                     }
                     else {
-                        AUIGrid.resize(gridID);
+                        setTimeout(() => { AUIGrid.resize(gridID); }, 50);
                     }
 
                     if (syn.$w.setTabContentHeight) {
@@ -12310,11 +12318,11 @@
         setFlag(elID, rowIndex, flagValue) {
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
-                var colIndex = $auigrid.propToCol(gridID, 'Flag');
+                var colIndex = $auigrid.propToCol(elID, 'Flag');
                 if (rowIndex > -1 && colIndex > -1) {
-                    var flag = $auigrid.getDataAtCell(gridID, rowIndex, colIndex);
+                    var flag = $auigrid.getDataAtCell(elID, rowIndex, colIndex);
                     if (flag != 'S') {
-                        $auigrid.setDataAtCell(gridID, rowIndex, colIndex, flagValue);
+                        $auigrid.setDataAtCell(elID, rowIndex, colIndex, flagValue);
                     }
                 }
             }
@@ -17146,15 +17154,17 @@
 
     $element.extend({
         name: 'syn.uicontrols.$element',
-        version: 'v2025.3.1',
+        version: 'v2025.12.25',
         defaultSetting: {
             disabled: false,
+            checkedValue: '1',
+            uncheckedValue: '0',
             dataType: 'string',
             belongID: null,
             getter: false,
             setter: false,
             controlText: null,
-            content: 'value', 
+            content: null,
             validators: null,
             transactConfig: null,
             triggerConfig: null
@@ -17204,14 +17214,36 @@
                         case 'value':
                             result = el.value;
                             break;
-                        case 'text':
-                            result = el.innerText;
-                            break;
                         case 'html':
-                            result = el.innerHTML;
+                            if ('innerHTML' in el) {
+                                result = el.innerHTML;
+                            }
+                            break;
+                        case 'content':
+                            if ('textContent' in el) {
+                                result = el.textContent;
+                            }
                             break;
                         default:
-                            result = el.value;
+                            if ('innerText' in el) {
+                                result = el.innerText;
+                            }
+                            break;
+                    }
+
+                    switch (options.dataType) {
+                        case 'number':
+                        case 'numeric':
+                            result = $string.toNumberString(result);
+                            break;
+                        case 'bool':
+                        case 'boolean':
+                            if ($string.toBoolean(result) == true) {
+                                result = $object.isNullOrUndefined(options.checkedValue) == true ? '1' : options.checkedValue;
+                            }
+                            else {
+                                result = $object.isNullOrUndefined(options.uncheckedValue) == true ? '0' : options.uncheckedValue;
+                            }
                             break;
                     }
                 }
@@ -17228,27 +17260,36 @@
 
         setValue(elID, value, meta) {
             var el = syn.$l.get(elID);
-            if (value) {
+            if ($object.isNullOrUndefined(value) == false) {
                 if ($object.isNullOrUndefined(el) == false) {
                     var synOptions = el.getAttribute('syn-options');
                     if (synOptions) {
                         var options = JSON.parse(synOptions);
+                        switch (options.dataType) {
+                            case 'number':
+                            case 'numeric':
+                                value = $string.isNumber(value) == true ? $string.toCurrency(value) : value;
+                                break;
+                        }
+
                         switch (options.content) {
                             case 'value':
                                 el.value = value;
-                                break;
-                            case 'text':
-                                if ('innerText' in el) {
-                                    el.innerText = value;
-                                }
                                 break;
                             case 'html':
                                 if ('innerHTML' in el) {
                                     el.innerHTML = value;
                                 }
                                 break;
+                            case 'content':
+                                if ('textContent' in el) {
+                                    el.textContent = value;
+                                }
+                                break;
                             default:
-                                el.value = value;
+                                if ('innerText' in el) {
+                                    el.innerText = value;
+                                }
                                 break;
                         }
                     }
@@ -17259,7 +17300,7 @@
             }
         },
 
-                clear(elID, isControlLoad) {
+        clear(elID, isControlLoad) {
             var el = syn.$l.get(elID);
             if ($object.isNullOrUndefined(el) == false) {
                 var value = '';
@@ -17270,14 +17311,14 @@
                         case 'value':
                             el.value = value;
                             break;
-                        case 'text':
-                            if ('innerText' in el) {
-                                el.innerText = value;
-                            }
-                            break;
                         case 'html':
                             if ('innerHTML' in el) {
                                 el.innerHTML = value;
+                            }
+                            break;
+                        case 'content':
+                            if ('textContent' in el) {
+                                el.textContent = value;
                             }
                             break;
                         default:

@@ -7,15 +7,17 @@
 
     $element.extend({
         name: 'syn.uicontrols.$element',
-        version: 'v2025.3.1',
+        version: 'v2025.12.25',
         defaultSetting: {
             disabled: false,
+            checkedValue: '1',
+            uncheckedValue: '0',
             dataType: 'string',
             belongID: null,
             getter: false,
             setter: false,
             controlText: null,
-            content: 'value', // value, text, html
+            content: null,
             validators: null,
             transactConfig: null,
             triggerConfig: null
@@ -65,14 +67,36 @@
                         case 'value':
                             result = el.value;
                             break;
-                        case 'text':
-                            result = el.innerText;
-                            break;
                         case 'html':
-                            result = el.innerHTML;
+                            if ('innerHTML' in el) {
+                                result = el.innerHTML;
+                            }
+                            break;
+                        case 'content':
+                            if ('textContent' in el) {
+                                result = el.textContent;
+                            }
                             break;
                         default:
-                            result = el.value;
+                            if ('innerText' in el) {
+                                result = el.innerText;
+                            }
+                            break;
+                    }
+
+                    switch (options.dataType) {
+                        case 'number':
+                        case 'numeric':
+                            result = $string.toNumberString(result);
+                            break;
+                        case 'bool':
+                        case 'boolean':
+                            if ($string.toBoolean(result) == true) {
+                                result = $object.isNullOrUndefined(options.checkedValue) == true ? '1' : options.checkedValue;
+                            }
+                            else {
+                                result = $object.isNullOrUndefined(options.uncheckedValue) == true ? '0' : options.uncheckedValue;
+                            }
                             break;
                     }
                 }
@@ -89,27 +113,36 @@
 
         setValue(elID, value, meta) {
             var el = syn.$l.get(elID);
-            if (value) {
+            if ($object.isNullOrUndefined(value) == false) {
                 if ($object.isNullOrUndefined(el) == false) {
                     var synOptions = el.getAttribute('syn-options');
                     if (synOptions) {
                         var options = JSON.parse(synOptions);
+                        switch (options.dataType) {
+                            case 'number':
+                            case 'numeric':
+                                value = $string.isNumber(value) == true ? $string.toCurrency(value) : value;
+                                break;
+                        }
+
                         switch (options.content) {
                             case 'value':
                                 el.value = value;
-                                break;
-                            case 'text':
-                                if ('innerText' in el) {
-                                    el.innerText = value;
-                                }
                                 break;
                             case 'html':
                                 if ('innerHTML' in el) {
                                     el.innerHTML = value;
                                 }
                                 break;
+                            case 'content':
+                                if ('textContent' in el) {
+                                    el.textContent = value;
+                                }
+                                break;
                             default:
-                                el.value = value;
+                                if ('innerText' in el) {
+                                    el.innerText = value;
+                                }
                                 break;
                         }
                     }
@@ -119,7 +152,7 @@
                 }
             }
         },
-        
+
         clear(elID, isControlLoad) {
             var el = syn.$l.get(elID);
             if ($object.isNullOrUndefined(el) == false) {
@@ -131,14 +164,14 @@
                         case 'value':
                             el.value = value;
                             break;
-                        case 'text':
-                            if ('innerText' in el) {
-                                el.innerText = value;
-                            }
-                            break;
                         case 'html':
                             if ('innerHTML' in el) {
                                 el.innerHTML = value;
+                            }
+                            break;
+                        case 'content':
+                            if ('textContent' in el) {
+                                el.textContent = value;
                             }
                             break;
                         default:
