@@ -4074,8 +4074,9 @@
     border-left: 1px solid var(--tblr-border-color);
 }
 
-.input-group .form-control:focus {
-    box-shadow: var(--tblr-shadow-input), 0 0 0 0.25rem rgba(var(--tblr-primary-rgb), 0.25);
+.input-group .form-control,
+.input-group .btn {
+  box-shadow: none;
 }
 
 .row {

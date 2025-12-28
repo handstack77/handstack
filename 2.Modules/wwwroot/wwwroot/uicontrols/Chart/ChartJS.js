@@ -6,56 +6,21 @@
     var $chartjs = syn.uicontrols.$chartjs || new syn.module();
 
     if (window.Chart) {
-        /*
-        Chart.defaults.global.defaultFontColor = '#666';
-        Chart.defaults.global.defaultFontFamily = "Noto Sans KR, 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
-        Chart.defaults.global.defaultFontSize = 12;
-        Chart.defaults.global.defaultFontStyle = 'normal';
-
-        Chart.defaults.global.legend.position = 'bottom';
-        Chart.defaults.global.legend.align = 'start';
-        Chart.defaults.global.legend.onClick = function (e, legendItem) {
-            var el = e.target || e.srcElement;
-            var control = $chartjs.getChartControl(el.id);
-            if (control) {
-                var mod = window[syn.$w.pageScript];
-                // chtChart4_legendClick: function (elID, chart, legendItem) {
-                //     var index = legendItem.datasetIndex;
-                //     var ci = chart;
-                //     var meta = ci.getDatasetMeta(index);
-                // 
-                //     meta.hidden = meta.hidden === null ? !ci.data.datasets[index].hidden : null;
-                // 
-                //     ci.update();
-                // }
-                var eventHandler = '{0}_legendClick'.format(el.id);
-                if (mod && mod[eventHandler]) {
-                    mod[eventHandler](el.id, control.chart, legendItem);
-                }
-            }
-        }
-
-        Chart.defaults.global.elements.line.fill = false;
-
-        Chart.plugins.register({
-            beforeDraw: function (c) {
-                var ctx = c.chart.ctx;
-                ctx.fillStyle = (window.localStorage && localStorage.getItem('isDarkMode') == 'true') ? 'rgba(0, 0, 0, 0)' : '#fff';
-                ctx.fillRect(0, 0, c.chart.width, c.chart.height);
-            }
-        });
-        */
+        Chart.defaults.font.family = "Noto Sans KR, 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
+        Chart.defaults.font.size = 12;
+        Chart.defaults.color = '#666';
+        Chart.defaults.plugins.legend.position = 'bottom';
     }
 
     $chartjs.extend({
         name: 'syn.uicontrols.$chartjs',
-        version: 'v2025.3.25',
+        version: 'v2025.12.26',
         chartControls: [],
         randomSeed: Date.now(),
         defaultSetting: {
             labelID: '',
             series: [],
-            type: 'line', // bar, line, pie, doughnut, horizontalBar, radar
+            type: 'line',
             data: {},
             options: null,
             dataType: 'string',
@@ -98,27 +63,6 @@
                         display: true,
                         fontColor: '#ccc'
                     },
-                    scales: {
-                        x: [{
-                            gridLines: {
-                                color: 'rgba(0, 0, 0, 0.2)',
-                                zeroLineColor: 'rgba(0, 0, 0, 0.5)'
-                            },
-                            ticks: {
-                                fontColor: '#ccc'
-                            }
-                        }],
-                        y: [{
-                            gridLines: {
-                                color: 'rgba(0, 0, 0, 0.2)',
-                                zeroLineColor: 'rgba(0, 0, 0, 0.5)'
-                            },
-                            ticks: {
-                                beginAtZero: true,
-                                fontColor: '#ccc'
-                            }
-                        }]
-                    },
                     animation: {
                         duration: 0
                     },
@@ -157,14 +101,6 @@
                         display: true,
                         fontColor: '#ccc'
                     },
-                    scales: {
-                        x: {
-                            beginAtZero: true
-                        },
-                        y: {
-                            beginAtZero: true
-                        }
-                    },
                     animation: {
                         duration: 0
                     },
@@ -190,6 +126,40 @@
                         // }
                     }
                 }), setting.options);
+            }
+
+            if (setting.type == 'line' || setting.type == 'bar' || setting.type == 'bubble' || setting.type == 'scatter') {
+                if (isDarkMode == true) {
+                    setting.options.scales = {
+                        x: {
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.2)'
+                            },
+                            ticks: {
+                                color: '#ccc'
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.2)'
+                            },
+                            ticks: {
+                                beginAtZero: true,
+                                color: '#ccc'
+                            }
+                        }
+                    };
+                }
+                else {
+                    setting.options.scales = {
+                        x: {
+                            beginAtZero: true
+                        },
+                        y: {
+                            beginAtZero: true
+                        }
+                    };
+                }
             }
 
             /*
@@ -244,7 +214,7 @@
                     var chart = control.chart;
                     // chart.getElementAtEvent(evt);
                     // chart.getDatasetAtEvent(evt);
-                    var activePoints = chart.getElementsAtEventForMode(evt, 'point', control.config);
+                    const activePoints = chart.getElementsAtEventForMode(evt, 'nearest', { intersect: true }, false);
                     if (activePoints.length > 0) {
                         var firstPoint = activePoints[0];
                         var label = chart.data.labels[firstPoint._index];

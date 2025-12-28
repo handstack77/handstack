@@ -35,10 +35,6 @@
             "destination": "wwwroot/lib/datatable/"
         },
         {
-            "library": "downloadjs@1.4.8",
-            "destination": "wwwroot/lib/downloadjs/"
-        },
-        {
             "library": "draggabilly@3.0.0",
             "destination": "wwwroot/lib/draggabilly/"
         },
@@ -52,8 +48,13 @@
         },
         {
             "provider": "jsdelivr",
-            "library": "fullcalendar@5.11.5",
+            "library": "fullcalendar@6.1.20",
             "destination": "wwwroot/lib/fullcalendar/"
+        },
+        {
+            "provider": "jsdelivr",
+            "library": "@fullcalendar/core@6.1.20",
+            "destination": "wwwroot/lib/fullcalendar/core/"
         },
         {
             "provider": "jsdelivr",

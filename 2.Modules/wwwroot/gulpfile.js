@@ -9,42 +9,50 @@ var javascriptObfuscator = require(`gulp-javascript-obfuscator`);
 
 gulp.task('scripts', async function () {
     return gulp.src([
-        'wwwroot/lib/tabler-core/dist/js/tabler.min.js',
-        'wwwroot/lib/jquery/jquery.js',
-        'wwwroot/js/jquery.alertmodal/jquery.alertmodal.js',
-        'wwwroot/lib/jquery-simplemodal/src/jquery.simplemodal.js',
-        'wwwroot/lib/jquery.maskedinput/jquery.maskedinput.js',
-        'wwwroot/js/jquery-wm/jquery.WM.js',
-        'wwwroot/js/jquery-ui-contextmenu/jquery-ui.js',
-        'wwwroot/js/jquery-ui-contextmenu/jquery.ui-contextmenu.js',
-        'wwwroot/lib/orgchart/js/jquery.orgchart.js',
-        'wwwroot/lib/fancytree/jquery.fancytree-all-deps.js',
-        'wwwroot/lib/papaparse/papaparse.js',
-        'wwwroot/lib/xlsx/xlsx.core.min.js',
-        'wwwroot/lib/handsontable/dist/handsontable.full.js',
-        'wwwroot/lib/handsontable/languages/ko-KR.js',
+        `wwwroot/lib/tabler-core/dist/js/tabler.min.js`,
+        `wwwroot/lib/jquery/jquery.js`,
+        `wwwroot/js/jquery.alertmodal/jquery.alertmodal.js`,
+        `wwwroot/lib/jquery-simplemodal/src/jquery.simplemodal.js`,
+        `wwwroot/js/jquery-wm/jquery.WM.js`,
+        `wwwroot/js/jquery-ui-contextmenu/jquery-ui.js`,
+        `wwwroot/js/jquery-ui-contextmenu/jquery.ui-contextmenu.js`,
+        `wwwroot/lib/nanobar/nanobar.js`,
+        `wwwroot/js/notifier/notifier.js`,
+        `wwwroot/lib/clipboard.js/clipboard.js`,
+        `wwwroot/lib/mustache/mustache.min.js`,
+        `wwwroot/lib/dompurify/purify.min.js`,
+        `wwwroot/lib/marked/marked.min.js`,
+        `wwwroot/lib/print-js/print.min.js`,
+        `wwwroot/js/syn.js`,
+        'wwwroot/lib/auigrid/dist/auigridlicense.js',
         'wwwroot/lib/auigrid/dist/auigrid.js',
+        // 'wwwroot/lib/handsontable/dist/handsontable.full.js',
+        // 'wwwroot/lib/handsontable/languages/ko-KR.js',
+        `wwwroot/lib/jquery.maskedinput/jquery.maskedinput.js`,
+        `wwwroot/lib/ispin/dist/ispin.js`,
+        `wwwroot/lib/superplaceholder/superplaceholder.js`,
+        `wwwroot/lib/vanilla-masker/vanilla-masker.min.js`,
+        `wwwroot/lib/codemirror/codemirror.js`,
+        `wwwroot/lib/tail.select.js/js/tail.select.js`,
+        `wwwroot/lib/chart.js/chart.umd.js`,
+        `wwwroot/js/color-picker/color-picker.js`,
+        `wwwroot/lib/moment.js/moment.js`,
+        `wwwroot/lib/pikaday/pikaday.js`,
+        `wwwroot/lib/fancytree/jquery.fancytree-all-deps.js`,
+        `wwwroot/lib/papaparse/papaparse.js`,
+        `wwwroot/lib/xlsx/xlsx.core.min.js`,
+        `wwwroot/lib/filesaver/FileSaver.min.js`,
+        `wwwroot/lib/fullcalendar/index.global.js`,
+        `wwwroot/lib/fullcalendar/core/locales/ko.global.js`,
+        'wwwroot/lib/orgchart/js/jquery.orgchart.js',
         'wwwroot/js/datatable/datatables.js',
         'wwwroot/js/datatable/dataTables.checkboxes.js',
-        'wwwroot/lib/chart.js/chart.umd.js',
-        'wwwroot/js/chart-utils/chart-utils.min.js',
-        'wwwroot/js/color-picker/color-picker.js',
-        'wwwroot/lib/ispin/dist/ispin.js',
-        'wwwroot/lib/moment.js/moment.js',
-        'wwwroot/lib/pikaday/pikaday.js',
-        'wwwroot/lib/popper.js/umd/popper.js',
-        'wwwroot/lib/tippy.js/tippy-bundle.umd.js',
-        'wwwroot/lib/intro.js/intro.js',
-        'wwwroot/lib/superplaceholder/superplaceholder.js',
-        'wwwroot/lib/tail.select.js/js/tail.select.js',
-        'wwwroot/lib/vanilla-masker/vanilla-masker.min.js',
-        'wwwroot/lib/codemirror/codemirror.js',
-        'wwwroot/lib/downloadjs/download.js',
-        'wwwroot/lib/mustache/mustache.js',
         'wwwroot/lib/pdfobject/pdfobject.js',
         'wwwroot/lib/print-js/print.min.js',
-        'wwwroot/js/notifier/notifier.js',
-        'wwwroot/lib/master-css/index.js'
+        `wwwroot/lib/popper.js/umd/popper.js`,
+        `wwwroot/lib/tippy.js/tippy-bundle.umd.js`,
+        `wwwroot/lib/intro.js/intro.js`,
+        `wwwroot/lib/master-css/index.js`,
     ], { allowEmpty: true })
         .pipe(concat('syn.scripts.js'))
         .pipe(stripComments())
@@ -65,42 +73,50 @@ gulp.task('scripts', async function () {
 
 gulp.task('basescripts', async function () {
     return gulp.src([
-        'wwwroot/lib/jquery/jquery.js',
-        'wwwroot/js/jquery.alertmodal/jquery.alertmodal.js',
-        'wwwroot/lib/jquery-simplemodal/src/jquery.simplemodal.js',
-        'wwwroot/lib/jquery.maskedinput/jquery.maskedinput.js',
-        'wwwroot/js/jquery-wm/jquery.WM.js',
-        'wwwroot/js/jquery-ui-contextmenu/jquery-ui.js',
-        'wwwroot/js/jquery-ui-contextmenu/jquery.ui-contextmenu.js',
-        'wwwroot/lib/orgchart/js/jquery.orgchart.js',
-        'wwwroot/lib/fancytree/jquery.fancytree-all-deps.js',
-        'wwwroot/lib/papaparse/papaparse.js',
-        'wwwroot/lib/xlsx/xlsx.core.min.js',
-        'wwwroot/lib/handsontable/dist/handsontable.full.js',
-        'wwwroot/lib/handsontable/languages/ko-KR.js',
+        `wwwroot/lib/jquery/jquery.js`,
+        `wwwroot/js/jquery.alertmodal/jquery.alertmodal.js`,
+        `wwwroot/lib/jquery-simplemodal/src/jquery.simplemodal.js`,
+        `wwwroot/js/jquery-wm/jquery.WM.js`,
+        `wwwroot/js/jquery-ui-contextmenu/jquery-ui.js`,
+        `wwwroot/js/jquery-ui-contextmenu/jquery.ui-contextmenu.js`,
+        `wwwroot/lib/nanobar/nanobar.js`,
+        `wwwroot/js/notifier/notifier.js`,
+        `wwwroot/lib/clipboard.js/clipboard.js`,
+        `wwwroot/lib/mustache/mustache.min.js`,
+        `wwwroot/lib/dompurify/purify.min.js`,
+        `wwwroot/lib/marked/marked.min.js`,
+        `wwwroot/lib/print-js/print.min.js`,
+        `wwwroot/js/syn.js`,
+        'wwwroot/lib/auigrid/dist/auigridlicense.js',
         'wwwroot/lib/auigrid/dist/auigrid.js',
+        // 'wwwroot/lib/handsontable/dist/handsontable.full.js',
+        // 'wwwroot/lib/handsontable/languages/ko-KR.js',
+        `wwwroot/lib/jquery.maskedinput/jquery.maskedinput.js`,
+        `wwwroot/lib/ispin/dist/ispin.js`,
+        `wwwroot/lib/superplaceholder/superplaceholder.js`,
+        `wwwroot/lib/vanilla-masker/vanilla-masker.min.js`,
+        `wwwroot/lib/codemirror/codemirror.js`,
+        `wwwroot/lib/tail.select.js/js/tail.select.js`,
+        `wwwroot/lib/chart.js/chart.umd.js`,
+        `wwwroot/js/color-picker/color-picker.js`,
+        `wwwroot/lib/moment.js/moment.js`,
+        `wwwroot/lib/pikaday/pikaday.js`,
+        `wwwroot/lib/fancytree/jquery.fancytree-all-deps.js`,
+        `wwwroot/lib/papaparse/papaparse.js`,
+        `wwwroot/lib/xlsx/xlsx.core.min.js`,
+        `wwwroot/lib/filesaver/FileSaver.min.js`,
+        `wwwroot/lib/fullcalendar/index.global.js`,
+        `wwwroot/lib/fullcalendar/core/locales/ko.global.js`,
+        'wwwroot/lib/orgchart/js/jquery.orgchart.js',
         'wwwroot/js/datatable/datatables.js',
         'wwwroot/js/datatable/dataTables.checkboxes.js',
-        'wwwroot/lib/chart.js/chart.umd.js',
-        'wwwroot/js/chart-utils/chart-utils.min.js',
-        'wwwroot/js/color-picker/color-picker.js',
-        'wwwroot/lib/ispin/dist/ispin.js',
-        'wwwroot/lib/moment.js/moment.js',
-        'wwwroot/lib/pikaday/pikaday.js',
-        'wwwroot/lib/popper.js/umd/popper.js',
-        'wwwroot/lib/tippy.js/tippy-bundle.umd.js',
-        'wwwroot/lib/intro.js/intro.js',
-        'wwwroot/lib/superplaceholder/superplaceholder.js',
-        'wwwroot/lib/tail.select.js/js/tail.select.js',
-        'wwwroot/lib/vanilla-masker/vanilla-masker.min.js',
-        'wwwroot/lib/codemirror/codemirror.js',
-        'wwwroot/lib/downloadjs/download.js',
-        'wwwroot/lib/mustache/mustache.js',
         'wwwroot/lib/pdfobject/pdfobject.js',
         'wwwroot/lib/print-js/print.min.js',
-        'wwwroot/js/notifier/notifier.js',
-        'wwwroot/lib/master-css/index.js'
-    ])
+        `wwwroot/lib/popper.js/umd/popper.js`,
+        `wwwroot/lib/tippy.js/tippy-bundle.umd.js`,
+        `wwwroot/lib/intro.js/intro.js`,
+        `wwwroot/lib/master-css/index.js`,
+    ], { allowEmpty: true })
         .pipe(concat('syn.scripts.base.js'))
         .pipe(stripComments())
         .pipe(gulp.dest('wwwroot/js'))
@@ -142,9 +158,9 @@ gulp.task('controls', async function () {
         'wwwroot/uicontrols/OrganizationView/OrganizationView.js',
         'wwwroot/uicontrols/TreeView/TreeView.js',
         'wwwroot/uicontrols/WebGrid/AUIGrid.js',
-        'wwwroot/uicontrols/WebGrid/WebGrid.js',
+        // 'wwwroot/uicontrols/WebGrid/WebGrid.js',
         'wwwroot/uicontrols/Element/Element.js'
-    ])
+    ], { allowEmpty: true })
         .pipe(concat('syn.controls.js'))
         .pipe(stripComments())
         .pipe(gulp.dest('wwwroot/js'))
@@ -186,9 +202,9 @@ gulp.task('obfusecontrols', async function () {
         'wwwroot/uicontrols/OrganizationView/OrganizationView.js',
         'wwwroot/uicontrols/TreeView/TreeView.js',
         'wwwroot/uicontrols/WebGrid/AUIGrid.js',
-        'wwwroot/uicontrols/WebGrid/WebGrid.js',
+        // 'wwwroot/uicontrols/WebGrid/WebGrid.js',
         'wwwroot/uicontrols/Element/Element.js'
-    ])
+    ], { allowEmpty: true })
         .pipe(concat('syn.controls.js'))
         .pipe(gulp.dest('wwwroot/js'))
         .pipe(javascriptObfuscator({
@@ -226,20 +242,23 @@ gulp.task('bundle', async function () {
 gulp.task('styles', async function () {
     return gulp.src([
         // syn.scripts.js
-        'wwwroot/lib/tabler-core/dist/css/tabler.css',
-        'wwwroot/lib/tabler-icons-webfont/dist/tabler-icons.css',
-        'wwwroot/lib/handsontable/dist/handsontable.full.css',
-        'wwwroot/lib/auigrid/dist/auigrid_style.css',
-        'wwwroot/lib/tail.select.js/css/default/tail.select-light.css',
+        `wwwroot/lib/tabler-core/dist/css/tabler.css`,
+        `wwwroot/lib/tabler-icons-webfont/dist/tabler-icons.css`,
+        `wwwroot/js/notifier/notifier.css`,
+        `wwwroot/js/jquery-ui-contextmenu/jquery-ui.css`,
         'wwwroot/lib/ispin/dist/ispin.css',
-        'wwwroot/js/css-checkbox/checkboxes.css',
-        'wwwroot/js/color-picker/color-picker.css',
-        'wwwroot/lib/codemirror/codemirror.css',
         'wwwroot/lib/fancytree/skin-win8/ui.fancytree.css',
-        'wwwroot/js/jquery-ui-contextmenu/jquery-ui.css',
         'wwwroot/lib/orgchart/css/jquery.orgchart.css',
         'wwwroot/lib/print-js/print.min.css',
-        'wwwroot/js/notifier/notifier.css',
+        `wwwroot/js/css-checkbox/checkboxes.css`,
+        `wwwroot/lib/codemirror/codemirror.css`,
+        `wwwroot/lib/tail.select.js/css/default/tail.select-light.css`,
+        `wwwroot/js/color-picker/color-picker.css`,
+        `wwwroot/lib/pikaday/css/pikaday.css`,
+        `wwwroot/lib/fancytree/skin-win8/ui.fancytree.css`,
+        `wwwroot/lib/intro.js/introjs.min.css`,
+        // 'wwwroot/lib/handsontable/dist/handsontable.full.css',
+        'wwwroot/lib/auigrid/dist/auigrid_style.css',
 
         // syn.domain.js
         'wwwroot/css/layouts/Dialogs.css',
@@ -271,11 +290,11 @@ gulp.task('styles', async function () {
         'wwwroot/uicontrols/OrganizationView/OrganizationView.css',
         'wwwroot/uicontrols/TreeView/TreeView.css',
         'wwwroot/uicontrols/WebGrid/AUIGrid.css',
-        'wwwroot/uicontrols/WebGrid/WebGrid.css',
+        // 'wwwroot/uicontrols/WebGrid/WebGrid.css',
 
         // 프로젝트 화면 디자인
         'wwwroot/css/base.css',
-    ])
+    ], { allowEmpty: true })
         .pipe(concat('syn.bundle.css'))
         .pipe(stripCssComments())
         .pipe(gulp.dest('wwwroot/css'))
@@ -293,18 +312,21 @@ gulp.task('styles', async function () {
 gulp.task('basestyles', async function () {
     return gulp.src([
         // syn.scripts.js
-        'wwwroot/lib/handsontable/dist/handsontable.full.css',
-        'wwwroot/lib/auigrid/dist/auigrid_style.css',
-        'wwwroot/lib/tail.select.js/css/default/tail.select-light.css',
+        `wwwroot/js/notifier/notifier.css`,
+        `wwwroot/js/jquery-ui-contextmenu/jquery-ui.css`,
         'wwwroot/lib/ispin/dist/ispin.css',
-        'wwwroot/js/css-checkbox/checkboxes.css',
-        'wwwroot/js/color-picker/color-picker.css',
-        'wwwroot/lib/codemirror/codemirror.css',
         'wwwroot/lib/fancytree/skin-win8/ui.fancytree.css',
-        'wwwroot/js/jquery-ui-contextmenu/jquery-ui.css',
         'wwwroot/lib/orgchart/css/jquery.orgchart.css',
         'wwwroot/lib/print-js/print.min.css',
-        'wwwroot/js/notifier/notifier.css',
+        `wwwroot/js/css-checkbox/checkboxes.css`,
+        `wwwroot/lib/codemirror/codemirror.css`,
+        `wwwroot/lib/tail.select.js/css/default/tail.select-light.css`,
+        `wwwroot/js/color-picker/color-picker.css`,
+        `wwwroot/lib/pikaday/css/pikaday.css`,
+        `wwwroot/lib/fancytree/skin-win8/ui.fancytree.css`,
+        `wwwroot/lib/intro.js/introjs.min.css`,
+        // 'wwwroot/lib/handsontable/dist/handsontable.full.css',
+        'wwwroot/lib/auigrid/dist/auigrid_style.css',
 
         // syn.domain.js
         'wwwroot/css/layouts/Dialogs.css',
@@ -337,7 +359,7 @@ gulp.task('basestyles', async function () {
         'wwwroot/uicontrols/TreeView/TreeView.css',
         'wwwroot/uicontrols/WebGrid/AUIGrid.css',
         'wwwroot/uicontrols/WebGrid/WebGrid.css',
-    ])
+    ], { allowEmpty: true })
         .pipe(concat('syn.bundle.base.css'))
         .pipe(stripCssComments())
         .pipe(gulp.dest('wwwroot/css'))
