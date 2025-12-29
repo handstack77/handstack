@@ -414,9 +414,10 @@ namespace transact.Areas.transact.Controllers
             var result = new List<string>();
             foreach (var cacheKey in ModuleConfiguration.CacheKeys)
             {
-                if (string.IsNullOrEmpty(cacheKey) == false && cacheKey.StartsWith($"{ModuleConfiguration.ModuleID}|") == true)
+                string key = cacheKey.Key;
+                if (string.IsNullOrEmpty(key) == false && key.StartsWith($"{ModuleConfiguration.ModuleID}|") == true)
                 {
-                    result.Add(cacheKey);
+                    result.Add(key);
                 }
             }
 
@@ -2091,20 +2092,21 @@ namespace transact.Areas.transact.Controllers
                         {
                             if (memoryCache.Get(cacheKey) == null)
                             {
-                                ModuleConfiguration.CacheKeys.Add(cacheKey);
+                                ModuleConfiguration.CacheKeys.TryAdd(cacheKey, 0);
 
                                 var cacheEntryOptions = new MemoryCacheEntryOptions()
                                     .SetAbsoluteExpiration(TimeSpan.FromMinutes(ModuleConfiguration.CodeDataCacheTimeout))
                                     .RegisterPostEvictionCallback((key, value, reason, state) =>
                                     {
-                                        ModuleConfiguration.CacheKeys.Remove(key.ToStringSafe());
+                                        var keyString = key.ToStringSafe();
+                                        ModuleConfiguration.CacheKeys.TryRemove(keyString, out _);
                                     });
 
                                 memoryCache.Set(cacheKey, response, cacheEntryOptions);
                             }
                             else
                             {
-                                ModuleConfiguration.CacheKeys.Remove(cacheKey);
+                                ModuleConfiguration.CacheKeys.TryRemove(cacheKey, out _);
                             }
                         }
 

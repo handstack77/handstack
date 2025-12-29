@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 
 using HandStack.Web.Extensions;
 
@@ -47,6 +48,6 @@ namespace transact.Entity
         public static ExpiringDictionary<string, string> RoutingCommandUri = new ExpiringDictionary<string, string>();
         public static ExpiringList<PublicTransaction>? PublicTransactions = new ExpiringList<PublicTransaction>();
         public static ExpiringList<string> RequestGlobalIDList = new ExpiringList<string>(TimeSpan.FromMinutes(3), TimeSpan.FromMinutes(1));
-        public static List<string> CacheKeys = new List<string>();
+        public static ConcurrentDictionary<string, byte> CacheKeys = new ConcurrentDictionary<string, byte>();
     }
 }
