@@ -55,8 +55,10 @@ let $MultiFiles = {
             $this.prop.uploadDependencyID = $this.prop.fileUploadOptions.dependencyID;
             $this.prop.fileUpdateCallback = $this.prop.fileUploadOptions.fileUpdateCallback;
 
-            syn.uicontrols.$fileclient.init('MultiFileUpload', syn.$l.get('divAttachFiles'), $this.prop.fileUploadOptions, $this.method.fileChangeHandler);
-            $this.method.initFileUploadUI();
+            setTimeout(() => {
+                syn.uicontrols.$fileclient.init('MultiFileUpload', syn.$l.get('divAttachFiles'), $this.prop.fileUploadOptions, $this.method.fileChangeHandler);
+                $this.method.initFileUploadUI();
+            }, 100);
         }
     },
 

@@ -57,8 +57,10 @@ let $ProfilePicture = {
             $this.prop.uploadDependencyID = $this.prop.fileUploadOptions.dependencyID;
             $this.prop.fileUpdateCallback = $this.prop.fileUploadOptions.fileUpdateCallback;
 
-            syn.uicontrols.$fileclient.init('ProfileFileUpload', syn.$l.get('divProfilePicture'), $this.prop.fileUploadOptions, $this.method.fileChangeHandler);
-            $this.method.initFileUploadUI();
+            setTimeout(() => {
+                syn.uicontrols.$fileclient.init('ProfileFileUpload', syn.$l.get('divProfilePicture'), $this.prop.fileUploadOptions, $this.method.fileChangeHandler);
+                $this.method.initFileUploadUI();
+            }, 100);
         }
     },
 

@@ -63,8 +63,10 @@ let $SingleFile = {
             $this.prop.uploadDependencyID = $this.prop.fileUploadOptions.dependencyID;
             $this.prop.fileUpdateCallback = $this.prop.fileUploadOptions.fileUpdateCallback;
 
-            syn.uicontrols.$fileclient.init('SingleFileUpload', syn.$l.get('divAttachFile'), $this.prop.fileUploadOptions, $this.method.fileChangeHandler);
-            $this.method.initFileUploadUI();
+            setTimeout(() => {
+                syn.uicontrols.$fileclient.init('SingleFileUpload', syn.$l.get('divAttachFile'), $this.prop.fileUploadOptions, $this.method.fileChangeHandler);
+                $this.method.initFileUploadUI();
+            }, 100);
         }
     },
 

@@ -55,8 +55,10 @@ let $ImageLinkFiles = {
             $this.prop.uploadDependencyID = $this.prop.fileUploadOptions.dependencyID;
             $this.prop.fileUpdateCallback = $this.prop.fileUploadOptions.fileUpdateCallback;
 
-            syn.uicontrols.$fileclient.init('ImageLinkFileUpload', syn.$l.get('divEditorImageFiles'), $this.prop.fileUploadOptions, $this.fileChangeHandler);
-            $this.method.initFileUploadUI();
+            setTimeout(() => {
+                syn.uicontrols.$fileclient.init('ImageLinkFileUpload', syn.$l.get('divEditorImageFiles'), $this.prop.fileUploadOptions, $this.fileChangeHandler);
+                $this.method.initFileUploadUI();
+            }, 100);
         },
     },
 
