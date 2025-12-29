@@ -25,6 +25,8 @@ namespace transact.Entity
         public static string ModuleBasePath = "";
         public static string DatabaseContractPath = "";
         public static bool IsValidationRequest = false;
+        public static bool IsValidationGlobalID = false;
+        public static List<string> BypassGlobalIDTransactions = new List<string>();
         public static bool IsAllowDynamicRequest = false;
         public static List<string> AllowTenantTransactionCommands = new List<string>();
         public static bool IsLogServer = false;

@@ -41,6 +41,10 @@ namespace transact.Entity
 
         public bool IsValidationRequest { get; set; }
 
+        public bool IsValidationGlobalID { get; set; }
+
+        public List<string> BypassGlobalIDTransactions { get; set; }
+
         public bool IsAllowDynamicRequest { get; set; }
 
         public List<string> AllowTenantTransactionCommands { get; set; }
@@ -91,6 +95,9 @@ namespace transact.Entity
             IsLogServer = false;
             IsTransactAggregate = false;
             IsDataMasking = false;
+            IsValidationRequest = false;
+            IsValidationGlobalID = false;
+            BypassGlobalIDTransactions = new List<string>();
             IsAllowDynamicRequest = false;
             AllowTenantTransactionCommands = new List<string>();
             MaskingChar = "";

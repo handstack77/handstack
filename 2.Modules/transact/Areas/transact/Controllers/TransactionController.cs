@@ -603,14 +603,17 @@ namespace transact.Areas.transact.Controllers
                         return Content(JsonConvert.SerializeObject(response), "application/json");
                     }
 
-                    var findGlobalID = ModuleConfiguration.RequestGlobalIDList.FirstOrDefault(p => p == request.Transaction.GlobalID);
-                    if (string.IsNullOrEmpty(findGlobalID) == false)
+                    if (ModuleConfiguration.IsValidationGlobalID == true && ModuleConfiguration.BypassGlobalIDTransactions.Contains(request.Transaction.TransactionID) == false)
                     {
-                        response.ExceptionText = "중복 요청";
-                        return Content(JsonConvert.SerializeObject(response), "application/json");
-                    }
+                        var findGlobalID = ModuleConfiguration.RequestGlobalIDList.FirstOrDefault(p => p == request.Transaction.GlobalID);
+                        if (string.IsNullOrEmpty(findGlobalID) == false)
+                        {
+                            response.ExceptionText = "중복 요청";
+                            return Content(JsonConvert.SerializeObject(response), "application/json");
+                        }
 
-                    ModuleConfiguration.RequestGlobalIDList.Add(request.Transaction.GlobalID);
+                        ModuleConfiguration.RequestGlobalIDList.Add(request.Transaction.GlobalID);
+                    }
                 }
 
                 var isAllowRequestTransactions = false;
