@@ -449,11 +449,19 @@
                         var length = tds.length;
                         for (var i = 0; i < length; i++) {
                             var td = tds[i];
-                            if ($string.isNullOrEmpty(td.style.width) == false) {
+                            if ($string.isNullOrEmpty(td.style.width) == true || td.style.width == '0px') {
+                                td.style.width = '100%';
+                                td.setAttribute('width', '100%');
+                            }
+                            else {
                                 td.setAttribute('width', td.style.width);
                             }
 
-                            if ($string.isNullOrEmpty(td.style.height) == false) {
+                            if ($string.isNullOrEmpty(td.style.height) == true || td.style.height == '0px') {
+                                td.style.height = '100%';
+                                td.setAttribute('height', '100%');
+                            }
+                            else {
                                 td.setAttribute('height', td.style.height);
                             }
                         }
