@@ -1,0 +1,9 @@
+graph LR
+    XML[XML Mapper (<if>, <foreach>)]
+    XML --> DBC[DbClient]
+    DBC -->|AES-256 ConnString| Pool[Connection Pool]
+    Pool --> SQLServer[(SQL Server)]
+    Pool --> Oracle[(Oracle)]
+    Pool --> MySQL[(MySQL)]
+    Pool --> PostgreSQL[(PostgreSQL)]
+    Pool --> SQLite[(SQLite)]

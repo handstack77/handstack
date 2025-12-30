@@ -1,0 +1,20 @@
+sequenceDiagram
+    participant C as Client (UI)
+    participant T as Transact
+    participant V as Contract Validator
+    participant R as Router
+    participant RT as Polyglot Runtime
+    participant DB as DbClient
+    participant RP as Repository
+    participant L as Logger
+
+    C->>T: POST /transact/api/transaction/execute
+    T->>V: Validate payload against JSON schema
+    V-->>T: OK / Errors
+    T->>R: Route by contractId/version
+    R->>RT: Invoke runtime (C#/Node/Python)
+    RT->>DB: Execute dynamic SQL (XML)
+    RT->>RP: File ops if needed
+    RT-->>T: Standard DataSet result
+    T->>L: Log request/response with GlobalID
+    T-->>C: Response (DataSet / errors)

@@ -1,0 +1,8 @@
+flowchart LR
+    HTML[HTML Component\nsyn-datafield / syn-events / syn-options]
+    Contract[Transact Contract]
+    Service[Server Data]
+    HTML <---> Binder[syn.js Binder]
+    Binder --> Service
+    Service --> Binder
+    Binder --> Contract

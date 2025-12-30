@@ -1,0 +1,22 @@
+classDiagram
+    class DataSet {
+      +schema : TableSchema[]
+      +data : Map<string, Row[]>
+      +meta : Meta
+    }
+    class TableSchema {
+      +table : string
+      +columns : Column[]
+    }
+    class Column {
+      +name : string
+      +type : string
+      +nullable : boolean
+    }
+    class Meta {
+      +globalId : string
+      +timestamp : date-time
+      +source : string
+    }
+    DataSet "1" o-- "many" TableSchema
+    TableSchema "1" o-- "many" Column

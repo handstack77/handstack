@@ -1,0 +1,6 @@
+flowchart LR
+    Code[Function Code (C#/Node/Py)]
+    Build[Build & Pack (OCI)]
+    Registry[Container Registry]
+    Deploy[K8s/PM2/Systemd]
+    Code --> Build --> Registry --> Deploy

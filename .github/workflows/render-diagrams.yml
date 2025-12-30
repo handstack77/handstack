@@ -1,0 +1,44 @@
+name: Render Mermaid diagrams to PNG
+on:
+  push:
+    paths:
+      - 'diagrams/**'
+      - 'docs/**'
+  pull_request:
+    paths:
+      - 'diagrams/**'
+      - 'docs/**'
+permissions:
+  contents: write
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install mermaid-cli
+        run: npm i -g @mermaid-js/mermaid-cli@10.9.0
+      - name: Ensure output directory
+        run: mkdir -p assets/images
+      - name: Render all .mmd to PNG
+        run: |
+          for f in $(find diagrams -name '*.mmd'); do \
+            out="assets/images/$(basename "${f}" .mmd).png"; \
+            echo "Rendering $f -> $out"; \
+            mmdc -i "$f" -o "$out" -b transparent -s 1.0; \
+          done
+      - name: Commit rendered images
+        run: |
+          if [ -n "$(git status --porcelain assets/images)" ]; then \
+            git config user.name "github-actions"; \
+            git config user.email "github-actions@github.com"; \
+            git add assets/images/*.png; \
+            git commit -m "chore(images): render Mermaid diagrams to PNG"; \
+            git push; \
+          else \
+            echo "No changes to commit"; \
+          fi

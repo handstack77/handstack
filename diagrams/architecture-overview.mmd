@@ -1,0 +1,33 @@
+flowchart LR
+    subgraph Client
+        UI[HandStack UI (syn.js, Tabler, Master CSS)]
+    end
+    subgraph WebHost
+        ACK[ack Host Server]
+        T[Transact Module]
+        L[Logger]
+    end
+    subgraph Runtime
+        CSharp[C# Runtime]
+        Node[Node.js Runtime]
+        Py[Python Runtime]
+    end
+    subgraph Infra[Infrastructure]
+        DBC[DbClient (XML SQL)]
+        Repo[Repository (Local/S3/Azure/GCS)]
+        KVS[KeyVault Secret (KVS)]
+        Obs[OpenTelemetry]
+    end
+
+    UI -->|/transact/api/transaction/execute| T
+    T -->|Contract Validate & Route| Runtime
+    Runtime -->|Standard DataSet| ACK
+    T --> L
+    Runtime --> DBC
+    Runtime --> Repo
+    ACK --> Obs
+    DBC --> MSSQL
+    DBC --> Oracle
+    DBC --> MySQL
+    DBC --> PostgreSQL
+    DBC --> SQLite

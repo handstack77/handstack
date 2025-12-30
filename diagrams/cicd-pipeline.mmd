@@ -1,0 +1,9 @@
+flowchart LR
+    Dev[Developer Commit]
+    CI[CI Build/Test]
+    Sec[Security Scan & SBOM]
+    Img[Container Image Sign]
+    CD[CD Deploy]
+    Ops[PM2/Systemd/K8s]
+    Mon[Observability (OTel)]
+    Dev --> CI --> Sec --> Img --> CD --> Ops --> Mon

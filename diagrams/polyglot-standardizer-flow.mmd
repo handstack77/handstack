@@ -1,0 +1,12 @@
+flowchart TB
+    subgraph Runtime
+        CSharp[C# Function]
+        Node[Node.js Function]
+        Py[Python Function]
+    end
+    CSharp --> STD[Standardizer]
+    Node --> STD
+    Py --> STD
+    STD --> DS[(DataSet/DataTable)]
+    DS --> Resp[Client Response]
+    STD --> Meta[Schema/Metadata]

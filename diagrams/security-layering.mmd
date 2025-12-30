@@ -1,0 +1,13 @@
+flowchart TB
+    subgraph Security
+        Auth[OAuth2/OIDC]
+        TLS[mTLS/HTTPS]
+        Sig[Assembly Signing (.snk)]
+        Obf[Obfuscation]
+        ACL[IP/Role-based Access]
+        KMS[KVS/KMS]
+    end
+    Client --> TLS --> Auth --> ACL --> App[Application]
+    App --> Sig
+    App --> Obf
+    App --> KMS
