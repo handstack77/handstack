@@ -161,6 +161,16 @@ namespace ack
             GlobalConfiguration.LoadModuleBasePath = GlobalConfiguration.GetBaseDirectoryPath(appSettings["LoadModuleBasePath"]);
             GlobalConfiguration.LoadContractBasePath = GlobalConfiguration.GetBaseDirectoryPath(PathExtensions.Combine(GlobalConfiguration.EntryBasePath, "..", "contracts"));
 
+            string contentSecurityPolicyFile = PathExtensions.Join(GlobalConfiguration.EntryBasePath, "content-security-policy.txt");
+            if (File.Exists(contentSecurityPolicyFile) == true)
+            {
+                GlobalConfiguration.ContentSecurityPolicy = File.ReadAllText(contentSecurityPolicyFile)
+                    .Replace("\r", "")
+                    .Replace("\n", "")
+                    .Replace("\t", " ")
+                    .Trim();
+            }
+
             string sectionLoadModuleLicenses = "AppSettings:LoadModuleLicenses";
             var section = configuration.GetSection(sectionLoadModuleLicenses);
 
@@ -931,6 +941,11 @@ namespace ack
                 {
                     context.Response.OnStarting(() =>
                     {
+                        if (string.IsNullOrWhiteSpace(GlobalConfiguration.ContentSecurityPolicy) == false)
+                        {
+                            context.Response.Headers.Append("Content-Security-Policy", GlobalConfiguration.ContentSecurityPolicy);
+                        }
+
                         if (context.Response.Headers.ContainsKey("Content-Type") == false)
                         {
                             context.Response.Headers.Append("Content-Type", "text/html; charset=utf-8");

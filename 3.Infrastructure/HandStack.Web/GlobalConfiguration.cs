@@ -113,6 +113,7 @@ namespace HandStack.Web
         public static Dictionary<string, ApplicationCodeSetting?> ApplicationCodes = new Dictionary<string, ApplicationCodeSetting?>();
         public static string ApplicationRuntimeID = Guid.NewGuid().ToString("N");
         public static string SessionCookieName = "";
+        public static string ContentSecurityPolicy = "";
         public static List<string> ModuleNames { get; set; } = new List<string>();
         public static List<ModuleInfo> Modules { get; set; } = new List<ModuleInfo>();
         public static bool IsPermissionRoles = false;

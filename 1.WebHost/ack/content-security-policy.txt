@@ -1,0 +1,13 @@
+default-src 'self';
+script-src 'self' 'unsafe-inline' 'unsafe-eval'
+	http://localhost:8421;
+script-src-elem 'self' 
+	http://t1.daumcdn.net 
+	https://t1.daumcdn.net
+	http://localhost:8421;
+img-src 'self' 'unsafe-inline' data: 
+	http:  https:;
+style-src 'self' 'unsafe-inline';
+font-src 'self' data:;
+connect-src 'self';
+base-uri 'self';
