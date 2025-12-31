@@ -32,6 +32,8 @@ namespace function.Entity
 
         public List<string> WatchFileNamePatterns { get; set; }
 
+        public string ExecutablePath { get; set; }
+
         public string NodeAndV8Options { get; set; }
 
         public string EnvironmentVariables { get; set; }
@@ -46,6 +48,7 @@ namespace function.Entity
             WatchGracefulShutdown = false;
             EnableFileWatching = false;
             WatchFileNamePatterns = new List<string>();
+            ExecutablePath = "";
             NodeAndV8Options = "";
             EnvironmentVariables = "";
         }

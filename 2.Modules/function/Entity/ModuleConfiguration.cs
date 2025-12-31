@@ -26,6 +26,7 @@ namespace function.Entity
         public static bool EnableFileWatching = false;
         public static bool WatchGracefulShutdown = true;
         public static List<string> WatchFileNamePatterns = new List<string>();
+        public static string ExecutablePath = "";
         public static string NodeAndV8Options = "";
         public static string EnvironmentVariables = "";
         public static bool CSharpEnableFileWatching = false;

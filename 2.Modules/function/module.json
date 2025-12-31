@@ -24,6 +24,7 @@
             "EnableFileWatching": true,
             "WatchFileNamePatterns": [ "featureMain.js", "featureMeta.json" ],
             "NodeAndV8Options": "",
+            "ExecutablePath": "",
             "EnvironmentVariables": ""
         },
         "CSharpFunctionConfig": {

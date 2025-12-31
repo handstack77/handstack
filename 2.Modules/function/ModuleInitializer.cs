@@ -113,6 +113,7 @@ namespace function
                         ModuleConfiguration.IsSingleThread = moduleConfig.NodeFunctionConfig.IsSingleThread;
                         ModuleConfiguration.WatchGracefulShutdown = moduleConfig.NodeFunctionConfig.WatchGracefulShutdown;
                         ModuleConfiguration.EnableFileWatching = moduleConfig.NodeFunctionConfig.EnableFileWatching;
+                        ModuleConfiguration.ExecutablePath = moduleConfig.NodeFunctionConfig.ExecutablePath;
                         ModuleConfiguration.NodeAndV8Options = moduleConfig.NodeFunctionConfig.NodeAndV8Options;
                         ModuleConfiguration.EnvironmentVariables = moduleConfig.NodeFunctionConfig.EnvironmentVariables;
 
@@ -188,6 +189,11 @@ namespace function
                 services.AddNodeJS();
                 services.Configure<NodeJSProcessOptions>(options =>
                 {
+                    if (string.IsNullOrEmpty(ModuleConfiguration.ExecutablePath) == false)
+                    {
+                        options.ExecutablePath = ModuleConfiguration.ExecutablePath;
+                    }
+
                     if (string.IsNullOrEmpty(ModuleConfiguration.NodeAndV8Options) == false)
                     {
                         options.NodeAndV8Options = ModuleConfiguration.NodeAndV8Options;
