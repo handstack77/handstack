@@ -11075,7 +11075,7 @@
                                 uncheckDateText: '시간 선택 해제',
                                 uncheckDateValue: '',
                                 hourInterval: 1,
-                                minList: columnInfo.minList || [0, 15, 30, 45],
+                                minList: columnInfo.minList || [0, 30],
                                 hourList: columnInfo.hourList || [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
                             }
                             break;
