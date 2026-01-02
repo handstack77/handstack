@@ -1,5 +1,5 @@
-﻿/*!
-HandStack Javascript Library v2025.12.18
+/*!
+HandStack Javascript Library v2026.1.2
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -175,7 +175,7 @@ class Module {
 }
 
 Module.ancestor = Object;
-Module.version = 'v2025.12.18';
+Module.version = 'v2026.1.2';
 
 const syn = { Module };
 syn.Config = {
@@ -7881,6 +7881,10 @@ if (typeof module !== 'undefined' && module.exports) {
                 }
 
                 let ipAddress = syn.$w.getStorage('ipAddress', false);
+                if ($object.isNullOrUndefined(ipAddress) == true && globalRoot.devicePlatform === 'node') {
+                    ipAddress = apiService.IP;
+                }
+
                 if ($object.isNullOrUndefined(ipAddress) == true) {
                     ipAddress = await syn.$b.getIpAddress();
                 }
@@ -8579,8 +8583,9 @@ if (typeof module !== 'undefined' && module.exports) {
             syn.Config = JSON.parse(process.env.SYN_CONFIG);
         }
         else {
-            var filePath = path.join(process.cwd(), 'node.config.json');
+            var filePath = path.join(process.cwd(), '..', 'modules', 'function', 'node.config.json');
             if (fs.existsSync(filePath) == true) {
+                console.info('Node.js 환경설정 로드. 파일 경로: {0}'.format(filePath));
                 var data = fs.readFileSync(filePath, 'utf8');
                 syn.Config = JSON.parse(data);
 

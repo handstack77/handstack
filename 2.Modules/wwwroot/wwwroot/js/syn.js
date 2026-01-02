@@ -10995,7 +10995,7 @@ if (typeof module !== 'undefined' && module.exports) {
             syn.Config = JSON.parse(process.env.SYN_CONFIG);
         }
         else {
-            var filePath = path.join(process.cwd(), 'node.config.json');
+            var filePath = path.join(process.cwd(), '..', 'modules', 'function', 'node.config.json');
             if (fs.existsSync(filePath) == true) {
                 var data = fs.readFileSync(filePath, 'utf8');
                 syn.Config = JSON.parse(data);

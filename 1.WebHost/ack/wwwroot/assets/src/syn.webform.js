@@ -3413,6 +3413,10 @@
                 }
 
                 let ipAddress = syn.$w.getStorage('ipAddress', false);
+                if ($object.isNullOrUndefined(ipAddress) == true && globalRoot.devicePlatform === 'node') {
+                    ipAddress = apiService.IP;
+                }
+
                 if ($object.isNullOrUndefined(ipAddress) == true) {
                     ipAddress = await syn.$b.getIpAddress();
                 }
@@ -4111,8 +4115,9 @@
             syn.Config = JSON.parse(process.env.SYN_CONFIG);
         }
         else {
-            var filePath = path.join(process.cwd(), 'node.config.json');
+            var filePath = path.join(process.cwd(), '..', 'modules', 'function', 'node.config.json');
             if (fs.existsSync(filePath) == true) {
+                console.info('Node.js 환경설정 로드. 파일 경로: {0}'.format(filePath));
                 var data = fs.readFileSync(filePath, 'utf8');
                 syn.Config = JSON.parse(data);
 
