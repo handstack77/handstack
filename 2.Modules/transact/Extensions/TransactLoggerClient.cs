@@ -570,7 +570,7 @@ namespace transact.Extensions
                     var logDbFilePath = PathExtensions.Combine(appBasePath, ".managed", "sqlite", "transact", $"log-{rollingID}.db");
                     if (Directory.Exists(appBasePath) && File.Exists(logDbFilePath))
                     {
-                        var connectionString = $"URI=file:{logDbFilePath};Journal Mode=Off;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;";
+                        var connectionString = $"URI=file:{logDbFilePath};Journal Mode=WAL;BinaryGUID=False;DateTimeFormat=Ticks;Version=3;Busy Timeout=5000;";
                         using var dbClient = new SQLiteClient(connectionString);
                         using var dataSet = dbClient.ExecuteDataSet(SQL, CommandType.Text);
                         result = dataSet;
