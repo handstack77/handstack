@@ -1,5 +1,5 @@
-﻿/*!
-HandStack Javascript Library v2025.12.18
+/*!
+HandStack Javascript Library v2026.1.2
 https://handshake.kr
 
 Copyright 2025, HandStack
@@ -175,7 +175,7 @@ class Module {
 }
 
 Module.ancestor = Object;
-Module.version = 'v2025.12.18';
+Module.version = 'v2026.1.2';
 
 const syn = { Module };
 syn.Config = {
@@ -10297,6 +10297,10 @@ if (typeof module !== 'undefined' && module.exports) {
                 }
 
                 let ipAddress = syn.$w.getStorage('ipAddress', false);
+                if ($object.isNullOrUndefined(ipAddress) == true && globalRoot.devicePlatform === 'node') {
+                    ipAddress = apiService.IP;
+                }
+
                 if ($object.isNullOrUndefined(ipAddress) == true) {
                     ipAddress = await syn.$b.getIpAddress();
                 }
@@ -10350,15 +10354,16 @@ if (typeof module !== 'undefined' && module.exports) {
                     globalID = requestID;
                 }
 
+                const clientTag = syn.Config.SystemID.concat('|', syn.Config.HostName, '|', syn.Config.Program.ProgramName, '|', syn.Config.Environment.substring(0, 1));
                 const userID = globalRoot.devicePlatform == 'browser' ? (syn.$w.User ? syn.$w.User.UserID : '') : syn.Config.Program.ProgramName;
-                const fingerPrint = syn.$b.fingerPrint(userID, ipAddress);
+                const fingerPrint = globalRoot.devicePlatform == 'browser' ? syn.$b.fingerPrint(userID, ipAddress) : `${syn.$c.sha256(clientTag)}|${clientTag}|${$date.toString(new Date(), 'f')}`;
                 const deviceID = fingerPrint.substring(0, 64);
 
                 const transactionRequest = {
                     accessToken: token || globalRoot.bearerToken || apiServices.BearerToken,
                     action: 'SYN', // "SYN: Request/Response, PSH: Execute/None, ACK: Subscribe",
                     kind: 'BIZ', // "DBG: Debug, BIZ: Business, URG: Urgent, FIN: Finish",
-                    clientTag: syn.Config.SystemID.concat('|', syn.Config.HostName, '|', syn.Config.Program.ProgramName, '|', syn.Config.Environment.substring(0, 1)),
+                    clientTag: clientTag,
                     loadOptions: {
                         encryptionType: syn.Config.Transaction.EncryptionType, // "P:Plain, F:Full, H:Header, B:Body",
                         encryptionKey: syn.Config.Transaction.EncryptionKey, // "P:프로그램, K:KMS 서버, G:GlobalID 키",
@@ -10997,6 +11002,7 @@ if (typeof module !== 'undefined' && module.exports) {
         else {
             var filePath = path.join(process.cwd(), '..', 'modules', 'function', 'node.config.json');
             if (fs.existsSync(filePath) == true) {
+                console.info('Node.js 환경설정 로드. 파일 경로: {0}'.format(filePath));
                 var data = fs.readFileSync(filePath, 'utf8');
                 syn.Config = JSON.parse(data);
 

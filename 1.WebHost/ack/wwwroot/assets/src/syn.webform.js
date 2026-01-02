@@ -3470,15 +3470,16 @@
                     globalID = requestID;
                 }
 
+                const clientTag = syn.Config.SystemID.concat('|', syn.Config.HostName, '|', syn.Config.Program.ProgramName, '|', syn.Config.Environment.substring(0, 1));
                 const userID = globalRoot.devicePlatform == 'browser' ? (syn.$w.User ? syn.$w.User.UserID : '') : syn.Config.Program.ProgramName;
-                const fingerPrint = syn.$b.fingerPrint(userID, ipAddress);
+                const fingerPrint = globalRoot.devicePlatform == 'browser' ? syn.$b.fingerPrint(userID, ipAddress) : `${syn.$c.sha256(clientTag)}|${clientTag}|${$date.toString(new Date(), 'f')}`;
                 const deviceID = fingerPrint.substring(0, 64);
 
                 const transactionRequest = {
                     accessToken: token || globalRoot.bearerToken || apiServices.BearerToken,
                     action: 'SYN', // "SYN: Request/Response, PSH: Execute/None, ACK: Subscribe",
                     kind: 'BIZ', // "DBG: Debug, BIZ: Business, URG: Urgent, FIN: Finish",
-                    clientTag: syn.Config.SystemID.concat('|', syn.Config.HostName, '|', syn.Config.Program.ProgramName, '|', syn.Config.Environment.substring(0, 1)),
+                    clientTag: clientTag,
                     loadOptions: {
                         encryptionType: syn.Config.Transaction.EncryptionType, // "P:Plain, F:Full, H:Header, B:Body",
                         encryptionKey: syn.Config.Transaction.EncryptionKey, // "P:프로그램, K:KMS 서버, G:GlobalID 키",
