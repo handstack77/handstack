@@ -151,6 +151,23 @@
 
         notifications: [],
 
+        dialogSettings: {
+            id: null,
+            width: '320px',
+            height: '240px',
+            maxWidth: '80vw',
+            maxHeight: '80vh',
+            autoSize: true,
+            className: '',
+            closeOnEscape: true,
+            closeOnBackdrop: false,
+            showCloseButton: true,
+            buttonType: '1', // 1:OK, 2:OK/Cancel, 3:Yes/No, 4:Yes/No/Cancel
+            destroyOnClose: true,
+            onOpen: null,
+            onClose: null
+        },
+
         dialogOptions:
         {
             opacity: 0,
@@ -1193,8 +1210,8 @@
 
             if (options && options.stack) {
                 var elStack = syn.$m.append(el, 'div');
-                var textHeight = options.textHeight ? options.textHeight + 'px' : '100%';
-                syn.$m.addCssText(elStack, 'margin: 15px; height: {0}; overflow: auto; color: #000; background-color: #eee;'.format(textHeight));
+                var textHeight = options.textHeight ? options.textHeight + 'px' : 'auto';
+                syn.$m.addCssText(elStack, 'margin: 15px; padding: 0.5rem; height: {0}; overflow: auto; color: #000; background-color: #eee;'.format(textHeight));
                 elStack.innerHTML = options.stack.replace(/(\n|\r\n)/gm, '<br />');
             }
 
@@ -1207,9 +1224,22 @@
             syn.$m.setStyle(el, 'display', 'none');
 
             elText.innerHTML = text.replace(/(\n|\r\n)/gm, '<br />');
-            syn.$m.addClass(elCaption, 'strong');
-            syn.$m.addClass(elCaption, 'f:18');
-            elCaption.innerText = caption ? caption : '';
+
+            let focusEL = null;
+            if ($string.isNullOrEmpty(caption) == false) {
+                if (caption instanceof HTMLElement) {
+                    focusEL = caption;
+                }
+                else if (syn.$l.get(caption) == null) {
+                    syn.$m.addClass(elCaption, 'strong');
+                    syn.$m.addClass(elCaption, 'f:18');
+                    elCaption.innerText = caption;
+                }
+                else {
+                    focusEL = syn.$l.get(caption);
+                }
+            }
+
             if (options) {
                 options.close = false;
             }
@@ -1301,6 +1331,10 @@
                 var buttonCallback = function (evt) {
                     var el = evt.target || evt;
                     syn.$w.closeAlertDialog(el.data);
+
+                    if (focusEL) {
+                        setTimeout(() => { focusEL.focus(); }, 100);
+                    }
                 };
 
                 syn.$m.addClass(button1, 'btn');
@@ -1336,6 +1370,186 @@
             if (parent.$main) {
                 syn.$w.isShowAlert = true;
                 parent.$main.prop.buttonAction = false;
+            }
+        },
+
+        dialog(text, caption, options, callback) {
+            var settings = syn.$w.argumentsExtend(syn.$w.dialogSettings, options || {});
+
+            if (!callback && settings.onCallback) {
+                callback = settings.onCallback;
+            }
+
+            var dialogEl = document.createElement('dialog');
+            if (settings.id) dialogEl.id = settings.id;
+
+            var cssWidth = settings.width;
+            var cssHeight = settings.height;
+            var cssMinWidth = '';
+            var cssMinHeight = '';
+
+            if (options && options.autoSize === true) {
+                cssWidth = 'fit-content';
+                cssHeight = 'fit-content';
+
+                cssMinWidth = settings.width;
+                cssMinHeight = settings.height;
+            }
+
+            syn.$m.addCssText(dialogEl, `
+                padding: 0;
+                border: 0;
+                border-radius: 4px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                width: ${cssWidth};
+                height: ${cssHeight};
+                min-width: ${cssMinWidth};
+                min-height: ${cssMinHeight};
+                max-width: ${settings.maxWidth};
+                max-height: ${settings.maxHeight};
+            `);
+
+            if (settings.className) {
+                syn.$m.addClass(dialogEl, settings.className);
+            }
+
+            var container = syn.$m.append(dialogEl, 'div');
+            syn.$m.addClass(container, 'dialog-container');
+            syn.$m.setStyle(container, 'display', 'flex');
+            syn.$m.setStyle(container, 'flex-direction', 'column');
+
+            if (!(options && options.autoSize === true)) {
+                syn.$m.setStyle(container, 'height', '100%');
+            }
+
+            if (caption || settings.showCloseButton) {
+                var header = syn.$m.append(container, 'div');
+                syn.$m.addCssText(header, 'display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-bottom: 1px solid #eee;');
+
+                var titleEl = syn.$m.append(header, 'h3');
+                syn.$m.addCssText(titleEl, 'margin: 0; font-size: 1.125rem; font-weight: 600;');
+                titleEl.textContent = caption || '';
+
+                if (settings.showCloseButton) {
+                    var closeButton = syn.$m.append(header, 'div');
+                    syn.$m.addClass(closeButton, 'ti ti-x cursor-pointer fg-black');
+                    syn.$m.setStyle(closeButton, 'font-size', '22px');
+                    syn.$m.setStyle(closeButton, 'cursor', 'pointer');
+
+                    syn.$l.addEvent(closeButton, 'click', function () {
+                        dialogEl.close('Close');
+                    });
+                }
+            }
+
+            var body = syn.$m.append(container, 'div');
+            syn.$m.addClass(body, 'dialog-body');
+            syn.$m.addCssText(body, 'padding: 1rem; overflow-y: auto; flex: 1;');
+
+            if (typeof text === 'string') {
+                body.innerHTML = text;
+            } else if (text instanceof HTMLElement) {
+                syn.$m.appendChild(body, text);
+                syn.$m.setStyle(text, 'display', 'block');
+            }
+
+            if (settings.buttonType && settings.buttonType != '0') {
+                var footer = syn.$m.append(container, 'div');
+                syn.$m.addClass(footer, 'dialog-footer btn-area');
+                syn.$m.addCssText(footer, 'padding: 1rem; border-top: 1px solid #eee; text-align: right; gap: 0.5rem; display: flex; justify-content: flex-end;');
+
+                var createButton = function (text, value, className) {
+                    var btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.textContent = text;
+                    btn.value = value;
+                    syn.$m.addClass(btn, 'btn ' + className);
+                    syn.$l.addEvent(btn, 'click', function () {
+                        dialogEl.close(value);
+                    });
+                    return btn;
+                };
+
+                var lblConfirm = (typeof $resource !== 'undefined' && $resource.labels.Confirm) ? $resource.labels.Confirm : '확인';
+                var lblCancel = (typeof $resource !== 'undefined' && $resource.labels.Cancel) ? $resource.labels.Cancel : '취소';
+                var lblYes = (typeof $resource !== 'undefined' && $resource.labels.Yes) ? $resource.labels.Yes : '예';
+                var lblNo = (typeof $resource !== 'undefined' && $resource.labels.No) ? $resource.labels.No : '아니오';
+
+                switch (settings.buttonType.toString()) {
+                    case '1': // OK
+                        syn.$m.appendChild(footer, createButton(lblConfirm, 'OK', 'btn-primary'));
+                        break;
+                    case '2': // OK / Cancel
+                        syn.$m.appendChild(footer, createButton(lblConfirm, 'OK', 'btn-primary'));
+                        syn.$m.appendChild(footer, createButton(lblCancel, 'Cancel', 'btn-default'));
+                        break;
+                    case '3': // Yes / No
+                        syn.$m.appendChild(footer, createButton(lblYes, 'Yes', 'btn-primary'));
+                        syn.$m.appendChild(footer, createButton(lblNo, 'No', 'btn-default'));
+                        break;
+                    case '4': // Yes / No / Cancel
+                        syn.$m.appendChild(footer, createButton(lblYes, 'Yes', 'btn-primary'));
+                        syn.$m.appendChild(footer, createButton(lblNo, 'No', 'btn-default'));
+                        syn.$m.appendChild(footer, createButton(lblCancel, 'Cancel', 'btn-default'));
+                        break;
+                }
+            }
+
+            if (settings.closeOnBackdrop) {
+                syn.$l.addEvent(dialogEl, 'click', function (event) {
+                    var rect = dialogEl.getBoundingClientRect();
+                    var isInDialog = (rect.top <= event.clientY && event.clientY <= rect.top + rect.height &&
+                        rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
+
+                    if (!isInDialog) {
+                        dialogEl.close('Backdrop');
+                    }
+                });
+            }
+
+            syn.$l.addEvent(dialogEl, 'close', function () {
+                var returnValue = dialogEl.returnValue;
+
+                if (settings.onClose) {
+                    settings.onClose(returnValue);
+                }
+
+                if (callback) {
+                    callback(returnValue);
+                }
+
+                if (syn.$w.isShowDialog && parent.$main) {
+                    syn.$w.isShowDialog = false;
+                    parent.$main.prop.buttonAction = true;
+                }
+
+                if (settings.destroyOnClose) {
+                    syn.$m.remove(dialogEl);
+                }
+            });
+
+            if (!settings.closeOnEscape) {
+                syn.$l.addEvent(dialogEl, 'cancel', function (e) {
+                    e.preventDefault();
+                });
+            }
+
+            syn.$m.appendChild(document.body, dialogEl);
+
+            if (typeof dialogEl.showModal === "function") {
+                dialogEl.showModal();
+
+                if (parent.$main) {
+                    syn.$w.isShowDialog = true;
+                    parent.$main.prop.buttonAction = false;
+                }
+
+                if (settings.onOpen) {
+                    settings.onOpen(dialogEl);
+                }
+            } else {
+                syn.$w.alert("이 브라우저는 <dialog> 태그를 지원하지 않습니다.");
+                syn.$m.remove(dialogEl);
             }
         },
 

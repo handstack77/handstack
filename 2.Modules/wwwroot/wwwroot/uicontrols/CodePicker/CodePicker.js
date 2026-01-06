@@ -208,6 +208,14 @@
                 if (el.value != '' && evt.keyCode == 13 || evt instanceof FocusEvent) {
                     syn.$l.trigger(syn.$l.get(elID + '_Button'), 'click', evt)
                 }
+                else {
+                    var inputValue = el.value;
+                    var inputText = syn.$l.get(elID + '_Text').value;
+                    var changeHandler = mod.event[elID + '_change'];
+                    if (changeHandler) {
+                        changeHandler(elID, inputValue, inputText, null);
+                    }
+                }
             }
 
             syn.$l.addEvent(codeEL, 'keydown', fnCodeChange);
@@ -238,6 +246,14 @@
 
                 if (el.value != '' && evt.keyCode == 13 || evt instanceof FocusEvent) {
                     syn.$l.trigger(syn.$l.get(elID + '_Button'), 'click', evt)
+                }
+                else {
+                    var inputValue = syn.$l.get(elID + '_Code').value;
+                    var inputText = el.value;
+                    var changeHandler = mod.event[elID + '_change'];
+                    if (changeHandler) {
+                        changeHandler(elID, inputValue, inputText, null);
+                    }
                 }
             }
 
