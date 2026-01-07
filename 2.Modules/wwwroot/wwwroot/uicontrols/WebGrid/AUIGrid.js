@@ -166,7 +166,7 @@
 
     $auigrid.extend({
         name: 'syn.uicontrols.$auigrid',
-        version: 'v2025.12.25',
+        version: 'v2025.01.06',
 
         gridControls: [],
         gridCodeDatas: [],
@@ -2966,6 +2966,28 @@
             var gridID = $auigrid.getGridID(elID);
             if (gridID) {
                 result = AUIGrid.getCheckedRowItems(gridID);
+            }
+
+            return result;
+        },
+
+        getRowIndexByValue(elID, dataField, value) {
+            var result = null;
+            var gridID = $auigrid.getGridID(elID);
+            if (gridID) {
+                AUIGrid.forceEditingComplete(gridID, null, false);
+
+                if ($object.isNumber(dataField) == true) {
+                    dataField = AUIGrid.getDataFieldByColumnIndex(gridID, dataField);
+                }
+
+                result = AUIGrid.getRowIndexesByValue(gridID, dataField, value);
+                if (result && result.length > 0) {
+                    result = result[0];
+                }
+                else if (result && result.length == 0) {
+                    result = -1;
+                }
             }
 
             return result;
