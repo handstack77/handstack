@@ -2,13 +2,6 @@
 chcp 65001
 
 REM 필수 프로그램 설치 확인
-where winget >nul 2>nul
-if %errorlevel% neq 0 (
-	echo winget 패키지 관리자를 설치 해야 합니다.
-	start "" "https://handstack.kr/docs/startup/install/패키지-관리자-설치하기#windows-에-winget-설치하기"
-	goto :EOF
-)
-
 where node >nul 2>nul
 if %errorlevel% neq 0 (
 	echo Node.js v20.12.2 LTS 이상 버전을 설치 해야 합니다.
